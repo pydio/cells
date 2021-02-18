@@ -18,11 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {pydio} from '../globals'
+import Pydio from 'pydio'
 const React = require('react')
-const PydioApi = require('pydio/http/api')
 const BootUI = require('pydio/http/resources-manager').requireLib('boot');
-const {ActionDialogMixin, SubmitButtonProviderMixin, CancelButtonProviderMixin, AsyncComponent} = BootUI;
+const {ActionDialogMixin, AsyncComponent} = BootUI;
 import {FlatButton} from 'material-ui'
 
 const PasswordDialog = React.createClass({
@@ -35,7 +34,7 @@ const PasswordDialog = React.createClass({
     },
     getDefaultProps: function(){
         return {
-            dialogTitle: pydio.MessageHash[194],
+            dialogTitle: Pydio.getMessages()[194],
             dialogIsModal: true,
             dialogSize: 'sm'
         };

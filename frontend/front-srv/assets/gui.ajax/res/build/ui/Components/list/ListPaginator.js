@@ -25,65 +25,71 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
-
-var _utilMessagesConsumerMixin = require('../util/MessagesConsumerMixin');
-
-var _utilMessagesConsumerMixin2 = _interopRequireDefault(_utilMessagesConsumerMixin);
 
 /**
  * Pagination component reading metadata "paginationData" from current node.
  */
-exports['default'] = _react2['default'].createClass({
-    displayName: 'ListPaginator',
 
-    mixins: [_utilMessagesConsumerMixin2['default']],
+var ListPaginator = (function (_React$Component) {
+    _inherits(ListPaginator, _React$Component);
 
-    propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode)
-    },
+    // propTypes:{
+    //     dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
+    //     node:React.PropTypes.instanceOf(AjxpNode)
+    // },
 
-    componentDidMount: function componentDidMount() {
+    function ListPaginator(props) {
+        _classCallCheck(this, ListPaginator);
+
+        _React$Component.call(this, props);
+        this.state = { node: this.props.node };
+    }
+
+    ListPaginator.prototype.componentDidMount = function componentDidMount() {
         var _this = this;
 
         if (!this.props.node) {
             (function () {
                 var dm = _this.props.dataModel;
-                _this._dmObserver = (function () {
-                    this.setState({ node: dm.getContextNode() });
-                }).bind(_this);
+                _this._dmObserver = function () {
+                    _this.setState({ node: dm.getContextNode() });
+                };
                 dm.observe("context_changed", _this._dmObserver);
                 _this.setState({ node: dm.getContextNode() });
             })();
         }
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    ListPaginator.prototype.componentWillUnmount = function componentWillUnmount() {
         if (this._dmObserver) {
             this.props.dataModel.stopObserving("context_changed", this._dmObserver);
         }
-    },
+    };
 
-    getInitialState: function getInitialState() {
-        return { node: this.props.node };
-    },
-
-    changePage: function changePage(event) {
+    ListPaginator.prototype.changePage = function changePage(event) {
         this.state.node.getMetadata().get("paginationData").set("new_page", event.currentTarget.getAttribute('data-page'));
         this.props.dataModel.requireContextChange(this.state.node);
-    },
+    };
 
-    onMenuChange: function onMenuChange(event, index, value) {
+    ListPaginator.prototype.onMenuChange = function onMenuChange(event, index, value) {
         this.state.node.getMetadata().get("paginationData").set("new_page", value);
         this.props.dataModel.requireContextChange(this.state.node);
-    },
+    };
 
-    render: function render() {
+    ListPaginator.prototype.render = function render() {
         var _this2 = this;
 
         var node = this.state.node;
@@ -105,7 +111,7 @@ exports['default'] = _react2['default'].createClass({
             last = undefined,
             previous = undefined,
             first = undefined;
-        var pageWord = this.context.getMessage ? this.context.getMessage('331', '') : this.props.getMessage('331', '');
+        var pageWord = _pydio2['default'].getMessages()['331'];
         for (var i = 1; i <= total; i++) {
             pages.push(_react2['default'].createElement(_materialUi.MenuItem, {
                 value: i,
@@ -162,7 +168,10 @@ exports['default'] = _react2['default'].createClass({
             ),
             next
         );
-    }
+    };
 
-});
+    return ListPaginator;
+})(_react2['default'].Component);
+
+exports['default'] = ListPaginator;
 module.exports = exports['default'];

@@ -19,35 +19,32 @@
  */
 
 import React from 'react'
-import FormMixin from '../mixins/FormMixin'
-import {TextField} from 'material-ui'
 import Pydio from 'pydio'
+import asFormField from "../hoc/asFormField";
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 /**
  * Text input, can be single line, multiLine, or password, depending on the
  * attributes.type key.
  */
-export default React.createClass({
+class TextField extends React.Component{
 
-    mixins:[FormMixin],
+    render(){
+        const {editMode, value} = this.props;
 
-    render:function(){
-        if(this.isDisplayGrid() && !this.state.editMode){
-            let value = this.state.value;
+        if(this.props.isDisplayGrid() && !editMode){
+            let val = value;
             if(this.props.attributes['type'] === 'password' && value){
-                value = '***********';
-            }else{
-                value = this.state.value;
+                val = '***********';
             }
-            return <div onClick={this.props.disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{!value?'Empty':value}</div>;
+            return <div onClick={this.props.disabled?function(){}:this.props.toggleEditMode} className={val?'':'paramValue-empty'}>{val ? val : 'Empty'}</div>;
         }else{
             let field = (
                 <ModernTextField
-                    hintText={this.isDisplayForm()?this.props.attributes.label:null}
-                    value={this.state.value || ""}
-                    onChange={this.onChange}
-                    onKeyDown={this.enterToToggle}
+                    hintText={this.props.isDisplayForm()?this.props.attributes.label:null}
+                    value={value || ""}
+                    onChange={this.props.onChange}
+                    onKeyDown={this.props.enterToToggle}
                     type={this.props.attributes['type'] === 'password'?'password':null}
                     multiLine={this.props.attributes['type'] === 'textarea'}
                     disabled={this.props.disabled}
@@ -68,4 +65,6 @@ export default React.createClass({
         }
     }
 
-});
+}
+
+export default asFormField(TextField);

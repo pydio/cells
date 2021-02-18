@@ -45,8 +45,6 @@ var InputBoolean = require('./../fields/InputBoolean');
 var InputText = require('./../fields/TextField');
 var ValidPassword = require('./../fields/ValidPassword');
 var InputInteger = require('./../fields/InputInteger');
-var InputButton = require('./../fields/InputButton');
-var MonitoringLabel = require('./../fields/MonitoringLabel');
 var InputImage = require('./../fields/InputImage');
 var SelectBox = require('./../fields/InputSelectBox');
 var AutocompleteBox = require('./../fields/AutocompleteBox');
@@ -173,12 +171,6 @@ var Manager = (function () {
                         value
                     );
                 }
-                break;
-            case 'button':
-                value = _react2['default'].createElement(InputButton, props);
-                break;
-            case 'monitor':
-                value = _react2['default'].createElement(MonitoringLabel, props);
                 break;
             case 'image':
                 value = _react2['default'].createElement(InputImage, props);

@@ -26,17 +26,21 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _mixinsFormMixin = require('../mixins/FormMixin');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
-
-var _mixinsFieldWithChoices = require('../mixins/FieldWithChoices');
-
-var _mixinsFieldWithChoices2 = _interopRequireDefault(_mixinsFieldWithChoices);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _hocAsFormField = require("../hoc/asFormField");
+
+var _hocAsFormField2 = _interopRequireDefault(_hocAsFormField);
+
+var _hocWithChoices = require('../hoc/withChoices');
+
+var _hocWithChoices2 = _interopRequireDefault(_hocWithChoices);
 
 var React = require('react');
 
@@ -50,25 +54,36 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernStyles = _Pydio$requireLib.ModernStyles;
 
-var AutocompleteBox = React.createClass({
-    displayName: 'AutocompleteBox',
+var AutocompleteBox = (function (_React$Component) {
+    _inherits(AutocompleteBox, _React$Component);
 
-    mixins: [_mixinsFormMixin2['default']],
+    function AutocompleteBox() {
+        _classCallCheck(this, AutocompleteBox);
 
-    handleUpdateInput: function handleUpdateInput(searchText) {
+        _React$Component.apply(this, arguments);
+    }
+
+    AutocompleteBox.prototype.handleUpdateInput = function handleUpdateInput(searchText) {
         //this.setState({searchText: searchText});
-    },
+    };
 
-    handleNewRequest: function handleNewRequest(chosenValue) {
+    AutocompleteBox.prototype.handleNewRequest = function handleNewRequest(chosenValue) {
         if (chosenValue.key === undefined) {
-            this.onChange(null, chosenValue);
+            this.props.onChange(null, chosenValue);
         } else {
-            this.onChange(null, chosenValue.key);
+            this.props.onChange(null, chosenValue.key);
         }
-    },
+    };
 
-    render: function render() {
-        var choices = this.props.choices;
+    AutocompleteBox.prototype.render = function render() {
+        var _this = this;
+
+        var _props = this.props;
+        var choices = _props.choices;
+        var isDisplayGrid = _props.isDisplayGrid;
+        var editMode = _props.editMode;
+        var disabled = _props.disabled;
+        var toggleEditMode = _props.toggleEditMode;
 
         var dataSource = [];
         var labels = {};
@@ -85,22 +100,22 @@ var AutocompleteBox = React.createClass({
             labels[key] = choice;
         });
 
-        var displayText = this.state.value;
-        if (labels && labels[displayText]) {
-            displayText = labels[displayText];
+        var value = this.props.value;
+
+        if (labels && labels[value]) {
+            value = labels[value];
         }
 
-        if (this.isDisplayGrid() && !this.state.editMode || this.props.disabled) {
-            var value = this.state.value;
+        if (isDisplayGrid() && !editMode || disabled) {
             if (choices.get(value)) {
                 value = choices.get(value);
             }
             return React.createElement(
                 'div',
                 {
-                    onClick: this.props.disabled ? function () {} : this.toggleEditMode,
+                    onClick: disabled ? function () {} : toggleEditMode,
                     className: value ? '' : 'paramValue-empty' },
-                !value ? 'Empty' : value,
+                value ? value : 'Empty',
                 '   ',
                 React.createElement('span', { className: 'icon-caret-down' })
             );
@@ -117,9 +132,13 @@ var AutocompleteBox = React.createClass({
             }),
             dataSource.length && React.createElement(AutoComplete, _extends({
                 fullWidth: true,
-                searchText: displayText,
-                onUpdateInput: this.handleUpdateInput,
-                onNewRequest: this.handleNewRequest,
+                searchText: value,
+                onUpdateInput: function (s) {
+                    return _this.handleUpdateInput(s);
+                },
+                onNewRequest: function (v) {
+                    return _this.handleNewRequest(v);
+                },
                 dataSource: dataSource,
                 hintText: this.props.attributes['label'],
                 filter: function (searchText, key) {
@@ -132,10 +151,12 @@ var AutocompleteBox = React.createClass({
                 menuProps: { maxHeight: 200 }
             }, ModernStyles.textField))
         );
-    }
+    };
 
-});
+    return AutocompleteBox;
+})(React.Component);
 
-exports['default'] = AutocompleteBox = _mixinsFieldWithChoices2['default'](AutocompleteBox);
+exports['default'] = AutocompleteBox = _hocAsFormField2['default'](AutocompleteBox);
+exports['default'] = AutocompleteBox = _hocWithChoices2['default'](AutocompleteBox);
 exports['default'] = AutocompleteBox;
 module.exports = exports['default'];

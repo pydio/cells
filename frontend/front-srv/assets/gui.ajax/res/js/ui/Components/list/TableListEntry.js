@@ -18,29 +18,31 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import Pydio from 'pydio'
+import PathUtils from 'pydio/util/path'
+const {moment} = Pydio.requireLib('boot');
 
-import ListEntryNodeListenerMixin from './ListEntryNodeListenerMixin'
 import {DragDropListEntry} from './ListEntry'
 import InlineEditor from './InlineEditor'
-import PathUtils from 'pydio/util/path'
-const {moment} = require('pydio').requireLib('boot');
+import withNodeListenerEntry from './withNodeListenerEntry'
 
 
 /**
  * Specific list entry rendered as a table row. Not a real table, CSS used.
  */
-export default React.createClass({
+class TableListEntry extends React.Component {
 
-    mixins:[ListEntryNodeListenerMixin],
+// /*
+//     propTypes:{
+//         node:React.PropTypes.instanceOf(AjxpNode),
+//         tableKeys:React.PropTypes.object.isRequired,
+//         renderActions:React.PropTypes.func
+//         // See also ListEntry nodes
+//     },
+// */
 
-    propTypes:{
-        node:React.PropTypes.instanceOf(AjxpNode),
-        tableKeys:React.PropTypes.object.isRequired,
-        renderActions:React.PropTypes.func
-        // See also ListEntry nodes
-    },
-
-    render: function(){
+    render(){
 
         let actions = this.props.actions;
         if(this.props.renderActions) {
@@ -75,11 +77,11 @@ export default React.createClass({
             }
             rawValue = meta.get(key);
             let inlineEditor;
-            if(this.state && this.state.inlineEdition && firstKey){
+            if(this.props.inlineEdition && firstKey){
                 inlineEditor = (<InlineEditor
                     node={this.props.node}
-                    onClose={()=>{this.setState({inlineEdition:false})}}
-                    callback={this.state.inlineEditionCallback}
+                    onClose={this.props.inlineEditionDismiss}
+                    callback={this.props.inlineEditionCallback}
                 />);
                 let style = this.props.style || {};
                 style.position = 'relative';
@@ -101,5 +103,7 @@ export default React.createClass({
 
     }
 
-});
+}
+
+export default withNodeListenerEntry(TableListEntry);
 

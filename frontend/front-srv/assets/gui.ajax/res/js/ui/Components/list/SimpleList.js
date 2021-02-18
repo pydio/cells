@@ -19,12 +19,12 @@
  */
 
 
-const React = require('react')
-const Infinite = require('react-infinite')
+import React from 'react'
+import Pydio from 'pydio'
+import Infinite from 'react-infinite'
 import ScrollArea from 'react-scrollbar'
 import {Toolbar, ToolbarGroup, FontIcon, Checkbox, RaisedButton, FlatButton} from 'material-ui'
 
-import MessagesConsumerMixin from '../util/MessagesConsumerMixin'
 import {ListEntry} from './ListEntry'
 import TableListEntry from './TableListEntry'
 import TableListHeader from './TableListHeader'
@@ -45,8 +45,6 @@ const PeriodicalExecuter = require('pydio/util/periodical-executer')
  * displays, etc... It provides many hooks for rendering cells on-demand.
  */
 let SimpleList = React.createClass({
-
-    mixins:[MessagesConsumerMixin],
 
     propTypes:{
         infiniteSliceCount  : React.PropTypes.number,
@@ -100,6 +98,10 @@ let SimpleList = React.createClass({
 
     getDefaultProps:function(){
         return {infiniteSliceCount:30, clearSelectionOnReload: true}
+    },
+
+    getMessage(id){
+        return Pydio.getMessages()[id] || id;
     },
 
     clickRow: function(gridRow, event){
@@ -766,7 +768,7 @@ let SimpleList = React.createClass({
                     mainIcon            : SimpleList.PARENT_FOLDER_ICON,
                     firstLine           : "..",
                     className           : "list-parent-node",
-                    secondLine          : this.context.getMessage('react.1'),
+                    secondLine          : this.getMessage('react.1'),
                     onClick             : this.clickRow,
                     onDoubleClick       : this.doubleClickRow,
                     showSelector        : false,
@@ -1091,13 +1093,13 @@ let SimpleList = React.createClass({
 
             leftToolbar =(
                 <ToolbarGroup key={0} float="left">
-                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.context.getMessage('react.3').replace('%s', this.props.searchResultData.term)}</div>
+                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('react.3').replace('%s', this.props.searchResultData.term)}</div>
                 </ToolbarGroup>
             );
-            rightButtons = <RaisedButton key={1} label={this.context.getMessage('react.4')} primary={true} onTouchTap={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
+            rightButtons = <RaisedButton key={1} label={this.getMessage('react.4')} primary={true} onTouchTap={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
 
         }else if(this.actionsCache.multiple.size || this.props.multipleActions){
-            let bulkLabel = this.context.getMessage('react.2');
+            let bulkLabel = this.getMessage('react.2');
             let hiddenStyle = {
                 transform: 'translateX(-80px)'
             };

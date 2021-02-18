@@ -22,16 +22,17 @@
 
 exports.__esModule = true;
 
-var _globals = require('../globals');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
 var React = require('react');
-var PydioApi = require('pydio/http/api');
 var BootUI = require('pydio/http/resources-manager').requireLib('boot');
 var ActionDialogMixin = BootUI.ActionDialogMixin;
-var SubmitButtonProviderMixin = BootUI.SubmitButtonProviderMixin;
-var CancelButtonProviderMixin = BootUI.CancelButtonProviderMixin;
 var AsyncComponent = BootUI.AsyncComponent;
 
 var PasswordDialog = React.createClass({
@@ -43,7 +44,7 @@ var PasswordDialog = React.createClass({
     },
     getDefaultProps: function getDefaultProps() {
         return {
-            dialogTitle: _globals.pydio.MessageHash[194],
+            dialogTitle: _pydio2['default'].getMessages()[194],
             dialogIsModal: true,
             dialogSize: 'sm'
         };

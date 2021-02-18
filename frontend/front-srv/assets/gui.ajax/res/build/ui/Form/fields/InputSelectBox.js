@@ -24,13 +24,17 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _mixinsFormMixin = require('../mixins/FormMixin');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _mixinsFieldWithChoices = require('../mixins/FieldWithChoices');
+var _hocAsFormField = require("../hoc/asFormField");
 
-var _mixinsFieldWithChoices2 = _interopRequireDefault(_mixinsFieldWithChoices);
+var _hocAsFormField2 = _interopRequireDefault(_hocAsFormField);
+
+var _hocWithChoices = require('../hoc/withChoices');
+
+var _hocWithChoices2 = _interopRequireDefault(_hocWithChoices);
 
 var _pydio = require('pydio');
 
@@ -53,51 +57,50 @@ var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 /**
  * Select box input conforming to Pydio standard form parameter.
  */
-var InputSelectBox = React.createClass({
-    displayName: 'InputSelectBox',
 
-    mixins: [_mixinsFormMixin2['default']],
+var InputSelectBox = (function (_React$Component) {
+    _inherits(InputSelectBox, _React$Component);
 
-    getDefaultProps: function getDefaultProps() {
-        return {
-            skipBufferChanges: true
-        };
-    },
+    function InputSelectBox() {
+        _classCallCheck(this, InputSelectBox);
 
-    onDropDownChange: function onDropDownChange(event, index, value) {
-        this.onChange(event, value);
-        this.toggleEditMode();
-    },
+        _React$Component.apply(this, arguments);
+    }
 
-    onMultipleSelect: function onMultipleSelect(event, index, newValue) {
-        if (newValue == -1) return;
-        var currentValue = this.state.value;
+    InputSelectBox.prototype.onDropDownChange = function onDropDownChange(event, index, value) {
+        this.props.onChange(event, value);
+        this.props.toggleEditMode();
+    };
+
+    InputSelectBox.prototype.onMultipleSelect = function onMultipleSelect(event, index, newValue) {
+        if (newValue === -1) {
+            return;
+        }
+        var currentValue = this.props.value;
         var currentValues = typeof currentValue === 'string' ? currentValue.split(',') : currentValue;
         if (!currentValues.indexOf(newValue) !== -1) {
             currentValues.push(newValue);
-            this.onChange(event, currentValues.join(','));
+            this.props.onChange(event, currentValues.join(','));
         }
-        this.toggleEditMode();
-    },
+        this.props.toggleEditMode();
+    };
 
-    onMultipleRemove: function onMultipleRemove(value) {
-        var currentValue = this.state.value;
+    InputSelectBox.prototype.onMultipleRemove = function onMultipleRemove(value) {
+        var currentValue = this.props.value;
         var currentValues = typeof currentValue === 'string' ? currentValue.split(',') : currentValue;
         if (currentValues.indexOf(value) !== -1) {
             currentValues = LangUtils.arrayWithout(currentValues, currentValues.indexOf(value));
-            this.onChange(null, currentValues.join(','));
+            this.props.onChange(null, currentValues.join(','));
         }
-    },
+    };
 
-    render: function render() {
+    InputSelectBox.prototype.render = function render() {
         var _this = this;
 
-        var currentValue = this.state.value;
+        var currentValue = this.props.value;
         var menuItems = [],
-            multipleOptions = [],
-            mandatory = true;
-        if (!this.props.attributes['mandatory'] || this.props.attributes['mandatory'] != "true") {
-            mandatory = false;
+            multipleOptions = [];
+        if (!this.props.attributes['mandatory'] || this.props.attributes['mandatory'] !== "true") {
             menuItems.push(React.createElement(MenuItem, { value: -1, primaryText: this.props.attributes['label'] + '...' }));
         }
         var choices = this.props.choices;
@@ -106,26 +109,26 @@ var InputSelectBox = React.createClass({
             menuItems.push(React.createElement(MenuItem, { value: key, primaryText: value }));
             multipleOptions.push({ value: key, label: value });
         });
-        if (this.isDisplayGrid() && !this.state.editMode || this.props.disabled) {
-            var value = this.state.value;
-            if (choices.get(value)) value = choices.get(value);
+        if (this.props.isDisplayGrid() && !this.props.editMode || this.props.disabled) {
+            var value = this.props.value;
+            if (choices.get(value)) {
+                value = choices.get(value);
+            }
             return React.createElement(
                 'div',
                 {
-                    onClick: this.props.disabled ? function () {} : this.toggleEditMode,
+                    onClick: this.props.disabled ? function () {} : this.props.toggleEditMode,
                     className: value ? '' : 'paramValue-empty' },
-                !value ? 'Empty' : value,
+                value ? value : 'Empty',
                 '   ',
                 React.createElement('span', { className: 'icon-caret-down' })
             );
         } else {
-            var hasValue = false;
-            if (this.props.multiple && this.props.multiple == true) {
+            if (this.props.multiple && this.props.multiple === true) {
                 var currentValues = currentValue;
                 if (typeof currentValue === "string") {
                     currentValues = currentValue.split(",");
                 }
-                hasValue = currentValues.length ? true : false;
                 return React.createElement(
                     'span',
                     { className: "multiple has-value" },
@@ -146,7 +149,9 @@ var InputSelectBox = React.createClass({
                         ModernSelectField,
                         {
                             value: -1,
-                            onChange: this.onMultipleSelect,
+                            onChange: function (e, i, v) {
+                                return _this.onMultipleSelect(e, i, v);
+                            },
                             fullWidth: true,
                             className: this.props.className
                         },
@@ -162,7 +167,9 @@ var InputSelectBox = React.createClass({
                         {
                             hintText: this.props.attributes.label,
                             value: currentValue,
-                            onChange: this.onDropDownChange,
+                            onChange: function (e, i, v) {
+                                return _this.onDropDownChange(e, i, v);
+                            },
                             fullWidth: true,
                             className: this.props.className
                         },
@@ -171,9 +178,12 @@ var InputSelectBox = React.createClass({
                 );
             }
         }
-    }
-});
+    };
 
-exports['default'] = InputSelectBox = _mixinsFieldWithChoices2['default'](InputSelectBox);
+    return InputSelectBox;
+})(React.Component);
+
+exports['default'] = InputSelectBox = _hocAsFormField2['default'](InputSelectBox, true);
+exports['default'] = InputSelectBox = _hocWithChoices2['default'](InputSelectBox);
 exports['default'] = InputSelectBox;
 module.exports = exports['default'];

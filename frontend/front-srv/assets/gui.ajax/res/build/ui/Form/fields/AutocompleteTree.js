@@ -24,11 +24,16 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _mixinsFormMixin = require('../mixins/FormMixin');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _hocAsFormField = require("../hoc/asFormField");
+
+var _hocAsFormField2 = _interopRequireDefault(_hocAsFormField);
 
 var React = require('react');
+
 var debounce = require('lodash.debounce');
 
 var _require = require('material-ui');
@@ -38,28 +43,32 @@ var MenuItem = _require.MenuItem;
 var RefreshIndicator = _require.RefreshIndicator;
 var FontIcon = _require.FontIcon;
 
-var AutocompleteTree = React.createClass({
-    displayName: 'AutocompleteTree',
+var AutocompleteTree = (function (_React$Component) {
+    _inherits(AutocompleteTree, _React$Component);
 
-    mixins: [_mixinsFormMixin2['default']],
+    function AutocompleteTree() {
+        _classCallCheck(this, AutocompleteTree);
 
-    handleUpdateInput: function handleUpdateInput(searchText) {
+        _React$Component.apply(this, arguments);
+    }
+
+    AutocompleteTree.prototype.handleUpdateInput = function handleUpdateInput(searchText) {
         this.debounced();
         this.setState({ searchText: searchText });
-    },
+    };
 
-    handleNewRequest: function handleNewRequest(chosenValue) {
+    AutocompleteTree.prototype.handleNewRequest = function handleNewRequest(chosenValue) {
         var key = undefined;
-        if (chosenValue.key !== undefined) {
-            key = chosenValue.key;
-        } else {
+        if (chosenValue.key === undefined) {
             key = chosenValue;
+        } else {
+            key = chosenValue.key;
         }
-        this.onChange(null, key);
+        this.props.onChange(null, key);
         this.loadValues(key);
-    },
+    };
 
-    componentWillMount: function componentWillMount() {
+    AutocompleteTree.prototype.componentWillMount = function componentWillMount() {
         this.debounced = debounce(this.loadValues.bind(this), 300);
         this.lastSearch = null;
         var value = "";
@@ -67,9 +76,9 @@ var AutocompleteTree = React.createClass({
             value = this.props.value;
         }
         this.loadValues(value);
-    },
+    };
 
-    loadValues: function loadValues() {
+    AutocompleteTree.prototype.loadValues = function loadValues() {
         var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
 
         var basePath = value;
@@ -82,9 +91,9 @@ var AutocompleteTree = React.createClass({
         }
         this.lastSearch = basePath;
         // TODO : load values from service
-    },
+    };
 
-    render: function render() {
+    AutocompleteTree.prototype.render = function render() {
 
         var dataSource = [];
         if (this.state && this.state.nodes) {
@@ -121,8 +130,8 @@ var AutocompleteTree = React.createClass({
             React.createElement(AutoComplete, {
                 fullWidth: true,
                 searchText: displayText,
-                onUpdateInput: this.handleUpdateInput,
-                onNewRequest: this.handleNewRequest,
+                onUpdateInput: this.handleUpdateInput.bind(this),
+                onNewRequest: this.handleNewRequest.bind(this),
                 dataSource: dataSource,
                 floatingLabelText: this.props.attributes['label'],
                 filter: function (searchText, key) {
@@ -132,9 +141,10 @@ var AutocompleteTree = React.createClass({
                 menuProps: { maxHeight: 200 }
             })
         );
-    }
+    };
 
-});
+    return AutocompleteTree;
+})(React.Component);
 
-exports['default'] = AutocompleteTree;
+exports['default'] = _hocAsFormField2['default'](AutocompleteTree);
 module.exports = exports['default'];

@@ -25,6 +25,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
@@ -37,69 +41,77 @@ var _pydioUtilPass = require("pydio/util/pass");
 
 var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
-var _mixinsFormMixin = require('../mixins/FormMixin');
+var _hocAsFormField = require("../hoc/asFormField");
 
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
+var _hocAsFormField2 = _interopRequireDefault(_hocAsFormField);
 
 var _materialUi = require('material-ui');
 
 var _Pydio$requireLib = _pydio2["default"].requireLib("hoc");
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
-exports["default"] = _react2["default"].createClass({
-    displayName: "ValidPassword",
 
-    mixins: [_mixinsFormMixin2["default"]],
+var ValidPassword = (function (_React$Component) {
+    _inherits(ValidPassword, _React$Component);
 
-    isValid: function isValid() {
+    function ValidPassword(props) {
+        _classCallCheck(this, ValidPassword);
+
+        _React$Component.call(this, props);
+        this.state = {};
+    }
+
+    ValidPassword.prototype.isValid = function isValid() {
         return this.state.valid;
-    },
+    };
 
-    checkMinLength: function checkMinLength(value) {
-        var minLength = parseInt(global.pydio.getPluginConfigs("core.auth").get("PASSWORD_MINLENGTH"));
+    ValidPassword.prototype.checkMinLength = function checkMinLength(value) {
+        var minLength = parseInt(_pydio2["default"].getInstance().getPluginConfigs("core.auth").get("PASSWORD_MINLENGTH"));
         return !(value && value.length < minLength);
-    },
+    };
 
-    getMessage: function getMessage(messageId) {
-        if (this.context && this.context.getMessage) {
-            return this.context.getMessage(messageId, '');
-        } else if (global.pydio && global.pydio.MessageHash) {
-            return global.pydio.MessageHash[messageId];
-        }
-    },
+    ValidPassword.prototype.getMessage = function getMessage(messageId) {
+        return _pydio2["default"].getMessages()[messageId] || messageId;
+    };
 
-    updatePassState: function updatePassState() {
+    ValidPassword.prototype.updatePassState = function updatePassState() {
         var prevStateValid = this.state.valid;
         var newState = _pydioUtilPass2["default"].getState(this.refs.pass.getValue(), this.refs.confirm ? this.refs.confirm.getValue() : '');
         this.setState(newState);
         if (prevStateValid !== newState.valid && this.props.onValidStatusChange) {
             this.props.onValidStatusChange(newState.valid);
         }
-    },
+    };
 
-    onPasswordChange: function onPasswordChange(event) {
+    ValidPassword.prototype.onPasswordChange = function onPasswordChange(event) {
         this.updatePassState();
-        this.onChange(event, event.target.value);
-    },
+        this.props.onChange(event, event.target.value);
+    };
 
-    onConfirmChange: function onConfirmChange(event) {
+    ValidPassword.prototype.onConfirmChange = function onConfirmChange(event) {
         this.setState({ confirmValue: event.target.value });
         this.updatePassState();
-        this.onChange(event, this.state.value);
-    },
+        this.props.onChange(event, this.state.value);
+    };
 
-    render: function render() {
+    ValidPassword.prototype.render = function render() {
         var _props = this.props;
         var disabled = _props.disabled;
         var className = _props.className;
         var attributes = _props.attributes;
         var dialogField = _props.dialogField;
+        var _props2 = this.props;
+        var isDisplayGrid = _props2.isDisplayGrid;
+        var isDisplayForm = _props2.isDisplayForm;
+        var editMode = _props2.editMode;
+        var value = _props2.value;
+        var toggleEditMode = _props2.toggleEditMode;
+        var enterToToggle = _props2.enterToToggle;
 
-        if (this.isDisplayGrid() && !this.state.editMode) {
-            var value = this.state.value;
+        if (isDisplayGrid() && !editMode) {
             return _react2["default"].createElement(
                 "div",
-                { onClick: disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
+                { onClick: disabled ? function () {} : toggleEditMode, className: value ? '' : 'paramValue-empty' },
                 value ? value : 'Empty'
             );
         } else {
@@ -110,7 +122,7 @@ exports["default"] = _react2["default"].createClass({
             }
             var _confirm = undefined;
             var TextComponent = dialogField ? _materialUi.TextField : ModernTextField;
-            if (this.state.value && !disabled) {
+            if (value && !disabled) {
 
                 _confirm = [_react2["default"].createElement("div", { key: "sep", style: { width: 8 } }), _react2["default"].createElement(TextComponent, {
                     key: "confirm",
@@ -120,7 +132,7 @@ exports["default"] = _react2["default"].createClass({
                     floatingLabelStyle: overflow,
                     className: cName,
                     value: this.state.confirmValue,
-                    onChange: this.onConfirmChange,
+                    onChange: this.onConfirmChange.bind(this),
                     type: "password",
                     multiLine: false,
                     disabled: disabled,
@@ -140,13 +152,13 @@ exports["default"] = _react2["default"].createClass({
                     { style: { display: 'flex' } },
                     _react2["default"].createElement(TextComponent, {
                         ref: "pass",
-                        floatingLabelText: this.isDisplayForm() ? attributes.label : null,
+                        floatingLabelText: isDisplayForm() ? attributes.label : null,
                         floatingLabelShrinkStyle: _extends({}, overflow, { width: '130%' }),
                         floatingLabelStyle: overflow,
                         className: cName,
                         value: this.state.value,
-                        onChange: this.onPasswordChange,
-                        onKeyDown: this.enterToToggle,
+                        onChange: this.onPasswordChange.bind(this),
+                        onKeyDown: enterToToggle,
                         type: "password",
                         multiLine: false,
                         disabled: disabled,
@@ -159,7 +171,10 @@ exports["default"] = _react2["default"].createClass({
                 )
             );
         }
-    }
+    };
 
-});
+    return ValidPassword;
+})(_react2["default"].Component);
+
+exports["default"] = _hocAsFormField2["default"](ValidPassword);
 module.exports = exports["default"];

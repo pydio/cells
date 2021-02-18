@@ -18,51 +18,51 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import {DropDownMenu, MenuItem, IconButton} from 'material-ui'
-import MessagesConsumerMixin from '../util/MessagesConsumerMixin'
 
 /**
  * Pagination component reading metadata "paginationData" from current node.
  */
-export default React.createClass({
+export default class ListPaginator extends React.Component{
 
-    mixins:[MessagesConsumerMixin],
+    // propTypes:{
+    //     dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
+    //     node:React.PropTypes.instanceOf(AjxpNode)
+    // },
 
-    propTypes:{
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        node:React.PropTypes.instanceOf(AjxpNode)
-    },
+    constructor(props) {
+        super(props);
+        this.state = {node: this.props.node};
+    }
+
 
     componentDidMount(){
         if(!this.props.node){
             let dm = this.props.dataModel;
-            this._dmObserver = function(){
+            this._dmObserver = () => {
                 this.setState({node: dm.getContextNode()});
-            }.bind(this);
+            };
             dm.observe("context_changed", this._dmObserver);
             this.setState({node: dm.getContextNode()});
         }
-    },
+    }
 
     componentWillUnmount(){
         if(this._dmObserver){
             this.props.dataModel.stopObserving("context_changed", this._dmObserver);
         }
-    },
-
-    getInitialState(){
-        return { node: this.props.node };
-    },
+    }
 
     changePage(event){
         this.state.node.getMetadata().get("paginationData").set("new_page", event.currentTarget.getAttribute('data-page'));
         this.props.dataModel.requireContextChange(this.state.node);
-    },
+    }
 
     onMenuChange(event, index, value){
         this.state.node.getMetadata().get("paginationData").set("new_page", value);
         this.props.dataModel.requireContextChange(this.state.node);
-    },
+    }
 
     render(){
         const {node} = this.state;
@@ -74,7 +74,7 @@ export default React.createClass({
         const current = parseInt(pData.get("current"));
         const total = parseInt(pData.get("total"));
         let pages = [], next, last, previous, first;
-        const pageWord = this.context.getMessage ? this.context.getMessage('331', '') : this.props.getMessage('331', '');
+        const pageWord = Pydio.getMessages()['331'];
         for(let i=1; i <= total; i++){
             pages.push(<MenuItem
                 value={i}
@@ -129,5 +129,4 @@ export default React.createClass({
         );
     }
 
-});
-
+}

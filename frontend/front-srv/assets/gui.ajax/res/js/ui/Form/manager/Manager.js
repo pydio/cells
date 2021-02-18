@@ -26,8 +26,6 @@ const InputBoolean = require('./../fields/InputBoolean');
 const InputText = require('./../fields/TextField');
 const ValidPassword = require('./../fields/ValidPassword');
 const InputInteger = require('./../fields/InputInteger');
-const InputButton = require('./../fields/InputButton');
-const MonitoringLabel = require('./../fields/MonitoringLabel');
 const InputImage = require('./../fields/InputImage');
 const SelectBox = require('./../fields/InputSelectBox');
 const AutocompleteBox = require('./../fields/AutocompleteBox');
@@ -138,12 +136,6 @@ export default class Manager{
                 if(onAltTextSwitch){
                     value = <AltText {...props}  {...switchProps} altIcon={"mdi mdi-number"}>{value}</AltText>;
                 }
-                break;
-            case 'button':
-                value = <InputButton {...props}/>;
-                break;
-            case 'monitor':
-                value = <MonitoringLabel {...props}/>;
                 break;
             case 'image':
                 value = <InputImage {...props}/>;

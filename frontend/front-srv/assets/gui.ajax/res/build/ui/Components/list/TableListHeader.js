@@ -26,15 +26,19 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
-
-var _utilMessagesConsumerMixin = require('../util/MessagesConsumerMixin');
-
-var _utilMessagesConsumerMixin2 = _interopRequireDefault(_utilMessagesConsumerMixin);
 
 var _SortColumns = require('./SortColumns');
 
@@ -47,24 +51,28 @@ var _ListPaginator2 = _interopRequireDefault(_ListPaginator);
 /**
  * Specific header for Table layout, reading metadata from node and using keys
  */
-exports['default'] = _react2['default'].createClass({
-    displayName: 'TableListHeader',
 
-    mixins: [_utilMessagesConsumerMixin2['default']],
+var TableListHeader = (function (_React$Component) {
+    _inherits(TableListHeader, _React$Component);
 
-    propTypes: {
-        tableKeys: _react2['default'].PropTypes.object.isRequired,
-        loading: _react2['default'].PropTypes.bool,
-        reload: _react2['default'].PropTypes.func,
-        dm: _react2['default'].PropTypes.instanceOf(PydioDataModel),
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode),
-        onHeaderClick: _react2['default'].PropTypes.func,
-        sortingInfo: _react2['default'].PropTypes.object
-    },
+    function TableListHeader() {
+        _classCallCheck(this, TableListHeader);
 
-    render: function render() {
-        var headers = undefined,
-            paginator = undefined;
+        _React$Component.apply(this, arguments);
+    }
+
+    // propTypes:{
+    //     tableKeys:React.PropTypes.object.isRequired,
+    //     loading:React.PropTypes.bool,
+    //     reload:React.PropTypes.func,
+    //     dm:React.PropTypes.instanceOf(PydioDataModel),
+    //     node:React.PropTypes.instanceOf(AjxpNode),
+    //     onHeaderClick:React.PropTypes.func,
+    //     sortingInfo:React.PropTypes.object
+    // },
+
+    TableListHeader.prototype.render = function render() {
+        var paginator = undefined;
         if (this.props.node.getMetadata().get("paginationData") && this.props.node.getMetadata().get("paginationData").get('total') > 1) {
             paginator = _react2['default'].createElement(_ListPaginator2['default'], { dataModel: this.props.dm, node: this.props.node });
         }
@@ -78,7 +86,7 @@ exports['default'] = _react2['default'].createClass({
                 paginator,
                 _react2['default'].createElement(_materialUi.FontIcon, {
                     key: 1,
-                    title: this.context.getMessage('149', ''),
+                    title: _pydio2['default'].getMessages['149'],
                     className: "mdi mdi-refresh" + (this.props.loading ? " rotating" : ""),
                     onClick: this.props.reload,
                     style: { padding: 16, display: 'block', cursor: 'pointer', fontSize: 24, color: '#9E9E9E' }
@@ -86,6 +94,11 @@ exports['default'] = _react2['default'].createClass({
                 this.props.additionalActions
             )
         );
-    }
-});
+    };
+
+    return TableListHeader;
+})(_react2['default'].Component);
+
+exports['default'] = TableListHeader;
+;
 module.exports = exports['default'];

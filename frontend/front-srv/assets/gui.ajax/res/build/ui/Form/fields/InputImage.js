@@ -26,6 +26,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -37,10 +41,6 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _mixinsFormMixin = require('../mixins/FormMixin');
-
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
 var _FileDropzone = require('./FileDropzone');
 
@@ -63,17 +63,35 @@ var BinaryDropZone = NativeFileDropProvider(_FileDropzone2['default'], function 
  * UI for displaying and uploading an image,
  * using the binaryContext string.
  */
-exports['default'] = _react2['default'].createClass({
-    displayName: 'InputImage',
 
-    mixins: [_mixinsFormMixin2['default']],
+var InputImage = (function (_React$Component) {
+    _inherits(InputImage, _React$Component);
 
-    propTypes: {
-        attributes: _react2['default'].PropTypes.object,
-        binary_context: _react2['default'].PropTypes.string
-    },
+    // propTypes: {
+    //     attributes: React.PropTypes.object,
+    //     binary_context: React.PropTypes.string
+    // },
 
-    componentWillReceiveProps: function componentWillReceiveProps(newProps) {
+    function InputImage(props) {
+        _classCallCheck(this, InputImage);
+
+        _React$Component.call(this, props);
+        var imageSrc = undefined,
+            originalBinary = undefined;
+        if (this.props.value) {
+            imageSrc = this.getBinaryUrl(this.props);
+            originalBinary = this.props.value;
+        } else if (this.props.attributes['defaultImage']) {
+            imageSrc = this.props.attributes['defaultImage'];
+        }
+        this.state = {
+            imageSrc: imageSrc,
+            originalBinary: originalBinary,
+            value: this.props.value
+        };
+    }
+
+    InputImage.prototype.componentWillReceiveProps = function componentWillReceiveProps(newProps) {
         var imgSrc = undefined;
         if ((newProps.value || newProps.binary_context && newProps.binary_context !== this.props.binary_context) && !this.state.reset) {
             imgSrc = this.getBinaryUrl(newProps, this.state.temporaryBinary && this.state.temporaryBinary === newProps.value);
@@ -81,23 +99,11 @@ exports['default'] = _react2['default'].createClass({
             imgSrc = newProps.attributes['defaultImage'];
         }
         if (imgSrc) {
-            this.setState({ imageSrc: imgSrc, reset: false });
+            this.setState({ imageSrc: imgSrc, reset: false, value: newProps.value });
         }
-    },
+    };
 
-    getInitialState: function getInitialState() {
-        var imgSrc = undefined,
-            originalBinary = undefined;
-        if (this.props.value) {
-            imgSrc = this.getBinaryUrl(this.props);
-            originalBinary = this.props.value;
-        } else if (this.props.attributes['defaultImage']) {
-            imgSrc = this.props.attributes['defaultImage'];
-        }
-        return { imageSrc: imgSrc, originalBinary: originalBinary };
-    },
-
-    getBinaryUrl: function getBinaryUrl(props) {
+    InputImage.prototype.getBinaryUrl = function getBinaryUrl(props) {
         var pydio = _pydioHttpApi2['default'].getClient().getPydioObject();
         var url = pydio.Parameters.get('ENDPOINT_REST_API') + props.attributes['loadAction'];
         var bId = props.value;
@@ -106,9 +112,9 @@ exports['default'] = _react2['default'].createClass({
         }
         url = url.replace('{BINARY}', bId);
         return url;
-    },
+    };
 
-    getUploadUrl: function getUploadUrl() {
+    InputImage.prototype.getUploadUrl = function getUploadUrl() {
         var pydio = _pydioHttpApi2['default'].getClient().getPydioObject();
         var url = pydio.Parameters.get('ENDPOINT_REST_API') + this.props.attributes['uploadAction'];
         var bId = '';
@@ -121,9 +127,9 @@ exports['default'] = _react2['default'].createClass({
         }
         url = url.replace('{BINARY}', bId);
         return url;
-    },
+    };
 
-    uploadComplete: function uploadComplete(newBinaryName) {
+    InputImage.prototype.uploadComplete = function uploadComplete(newBinaryName) {
         var prevValue = this.state.value;
         this.setState({
             temporaryBinary: newBinaryName,
@@ -135,18 +141,22 @@ exports['default'] = _react2['default'].createClass({
                 additionalFormData['original_binary'] = this.state.originalBinary;
             }
             this.props.onChange(newBinaryName, prevValue, additionalFormData);
+            this.setState({
+                dirty: true,
+                value: newBinaryName
+            });
         }
-    },
+    };
 
-    htmlUpload: function htmlUpload() {
+    InputImage.prototype.htmlUpload = function htmlUpload() {
         window.formManagerHiddenIFrameSubmission = (function (result) {
             this.uploadComplete(result.trim());
             window.formManagerHiddenIFrameSubmission = null;
         }).bind(this);
         this.refs.uploadForm.submit();
-    },
+    };
 
-    onDrop: function onDrop(files, event, dropzone) {
+    InputImage.prototype.onDrop = function onDrop(files, event, dropzone) {
         var _this = this;
 
         if (files.length === 0) {
@@ -185,12 +195,12 @@ exports['default'] = _react2['default'].createClass({
         } else {
             this.htmlUpload();
         }
-    },
+    };
 
-    clearImage: function clearImage() {
+    InputImage.prototype.clearImage = function clearImage() {
         var _this2 = this;
 
-        if (global.confirm(_pydio2['default'].getMessages()['form.input-image.clearConfirm'])) {
+        if (confirm(_pydio2['default'].getMessages()['form.input-image.clearConfirm'])) {
             (function () {
                 var prevValue = _this2.state.value;
                 _this2.setState({
@@ -202,9 +212,9 @@ exports['default'] = _react2['default'].createClass({
                 }).bind(_this2));
             })();
         }
-    },
+    };
 
-    render: function render() {
+    InputImage.prototype.render = function render() {
         var _this3 = this;
 
         var _state = this.state;
@@ -219,6 +229,8 @@ exports['default'] = _react2['default'].createClass({
         };
         var overlay = undefined,
             overlayBg = {};
+        var isDefault = this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc;
+
         if (error) {
             overlayBg = { backgroundColor: 'rgba(255, 255, 255, 0.77)', borderRadius: '50%' };
             overlay = _react2['default'].createElement(
@@ -233,7 +245,6 @@ exports['default'] = _react2['default'].createClass({
         } else if (loading) {
             overlay = _react2['default'].createElement(_materialUi.CircularProgress, { mode: "indeterminate" });
         } else {
-            var isDefault = this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc;
             overlay = _react2['default'].createElement('span', { className: "mdi mdi-camera", style: { fontSize: 40, opacity: .5, color: isDefault ? null : 'white' } });
         }
 
@@ -250,7 +261,7 @@ exports['default'] = _react2['default'].createClass({
                 { ref: 'uploadForm', encType: 'multipart/form-data', target: 'uploader_hidden_iframe', method: 'post', action: this.getUploadUrl() },
                 _react2['default'].createElement(
                     BinaryDropZone,
-                    { onDrop: this.onDrop, accept: 'image/*', style: coverImageStyle },
+                    { onDrop: this.onDrop.bind(this), accept: 'image/*', style: coverImageStyle },
                     _react2['default'].createElement(
                         'div',
                         { style: _extends({ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }, overlayBg) },
@@ -258,16 +269,19 @@ exports['default'] = _react2['default'].createClass({
                     )
                 )
             ),
-            _react2['default'].createElement(
+            !isDefault && _react2['default'].createElement(
                 'div',
-                { className: 'binary-remove-button', onClick: this.clearImage },
+                { className: 'binary-remove-button', onClick: this.clearImage.bind(this) },
                 _react2['default'].createElement('span', { key: 'remove', className: 'mdi mdi-close' }),
                 ' ',
                 _pydio2['default'].getMessages()['form.input-image.clearButton']
             ),
             _react2['default'].createElement('iframe', { style: { display: "none" }, id: 'uploader_hidden_iframe', name: 'uploader_hidden_iframe' })
         );
-    }
+    };
 
-});
+    return InputImage;
+})(_react2['default'].Component);
+
+exports['default'] = InputImage;
 module.exports = exports['default'];

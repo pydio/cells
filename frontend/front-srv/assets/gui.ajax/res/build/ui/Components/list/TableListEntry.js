@@ -26,9 +26,21 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _ListEntryNodeListenerMixin = require('./ListEntryNodeListenerMixin');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ListEntryNodeListenerMixin2 = _interopRequireDefault(_ListEntryNodeListenerMixin);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
 var _ListEntry = require('./ListEntry');
 
@@ -36,31 +48,37 @@ var _InlineEditor = require('./InlineEditor');
 
 var _InlineEditor2 = _interopRequireDefault(_InlineEditor);
 
-var _pydioUtilPath = require('pydio/util/path');
+var _withNodeListenerEntry = require('./withNodeListenerEntry');
 
-var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
-
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var moment = _require$requireLib.moment;
+var _withNodeListenerEntry2 = _interopRequireDefault(_withNodeListenerEntry);
 
 /**
  * Specific list entry rendered as a table row. Not a real table, CSS used.
  */
-exports['default'] = React.createClass({
-    displayName: 'TableListEntry',
 
-    mixins: [_ListEntryNodeListenerMixin2['default']],
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-    propTypes: {
-        node: React.PropTypes.instanceOf(AjxpNode),
-        tableKeys: React.PropTypes.object.isRequired,
-        renderActions: React.PropTypes.func
-        // See also ListEntry nodes
-    },
+var moment = _Pydio$requireLib.moment;
 
-    render: function render() {
-        var _this = this;
+var TableListEntry = (function (_React$Component) {
+    _inherits(TableListEntry, _React$Component);
+
+    function TableListEntry() {
+        _classCallCheck(this, TableListEntry);
+
+        _React$Component.apply(this, arguments);
+    }
+
+    // /*
+    //     propTypes:{
+    //         node:React.PropTypes.instanceOf(AjxpNode),
+    //         tableKeys:React.PropTypes.object.isRequired,
+    //         renderActions:React.PropTypes.func
+    //         // See also ListEntry nodes
+    //     },
+    // */
+
+    TableListEntry.prototype.render = function render() {
 
         var actions = this.props.actions;
         if (this.props.renderActions) {
@@ -96,19 +114,17 @@ exports['default'] = React.createClass({
             }
             rawValue = meta.get(key);
             var inlineEditor = undefined;
-            if (this.state && this.state.inlineEdition && firstKey) {
-                inlineEditor = React.createElement(_InlineEditor2['default'], {
+            if (this.props.inlineEdition && firstKey) {
+                inlineEditor = _react2['default'].createElement(_InlineEditor2['default'], {
                     node: this.props.node,
-                    onClose: function () {
-                        _this.setState({ inlineEdition: false });
-                    },
-                    callback: this.state.inlineEditionCallback
+                    onClose: this.props.inlineEditionDismiss,
+                    callback: this.props.inlineEditionCallback
                 });
                 var _style = this.props.style || {};
                 _style.position = 'relative';
                 this.props.style = _style;
             }
-            cells.push(React.createElement(
+            cells.push(_react2['default'].createElement(
                 'span',
                 { key: key, className: 'cell cell-' + key, title: rawValue, style: style, 'data-label': data['label'] },
                 inlineEditor,
@@ -117,12 +133,15 @@ exports['default'] = React.createClass({
             firstKey = false;
         }
 
-        return React.createElement(_ListEntry.DragDropListEntry, _extends({}, this.props, {
+        return _react2['default'].createElement(_ListEntry.DragDropListEntry, _extends({}, this.props, {
             iconCell: null,
             firstLine: cells,
             actions: actions
         }));
-    }
+    };
 
-});
+    return TableListEntry;
+})(_react2['default'].Component);
+
+exports['default'] = _withNodeListenerEntry2['default'](TableListEntry);
 module.exports = exports['default'];

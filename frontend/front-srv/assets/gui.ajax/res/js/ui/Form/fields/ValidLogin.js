@@ -19,7 +19,7 @@
  */
 import React from "react";
 import Pydio from 'pydio'
-import FormMixin from '../mixins/FormMixin'
+import asFormField from "../hoc/asFormField";
 import PassUtils from 'pydio/util/pass'
 
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -28,9 +28,7 @@ const {ModernTextField} = Pydio.requireLib('hoc');
  * Text input, can be single line, multiLine, or password, depending on the
  * attributes.type key.
  */
-export default React.createClass({
-
-    mixins:[FormMixin],
+class ValidLogin extends React.Component{
 
     textValueChanged(event, value){
         const err = PassUtils.isValidLogin(value);
@@ -41,35 +39,34 @@ export default React.createClass({
         }
         this.setState({valid, err});
 
-        this.onChange(event, value);
-    },
+        this.props.onChange(event, value);
+    }
 
     render(){
-        if(this.isDisplayGrid() && !this.state.editMode){
-            let value = this.state.value;
-            if(this.props.attributes['type'] === 'password' && value){
+        const {isDisplayGrid, isDisplayForm, editMode, disabled, errorText, enterToToggle, toggleEditMode, attributes} = this.props;
+        if(isDisplayGrid() && !editMode){
+            let {value} = this.props;
+            if(attributes['type'] === 'password' && value){
                 value = '***********';
-            }else{
-                value = this.state.value;
             }
-            return <div onClick={this.props.disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{!value?'Empty':value}</div>;
+            return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
         }else{
             const {err} = this.state;
             let field = (
                 <ModernTextField
-                    floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
-                    value={this.state.value || ""}
+                    floatingLabelText={isDisplayForm()?attributes.label:null}
+                    value={value || ""}
                     onChange={(e,v) => this.textValueChanged(e,v)}
-                    onKeyDown={this.enterToToggle}
-                    type={this.props.attributes['type'] === 'password'?'password':null}
-                    multiLine={this.props.attributes['type'] === 'textarea'}
-                    disabled={this.props.disabled}
-                    errorText={this.props.errorText || err}
+                    onKeyDown={enterToToggle}
+                    type={attributes['type'] === 'password'?'password':null}
+                    multiLine={attributes['type'] === 'textarea'}
+                    disabled={disabled}
+                    errorText={errorText || err}
                     autoComplete="off"
                     fullWidth={true}
                 />
             );
-            if(this.props.attributes['type'] === 'password'){
+            if(attributes['type'] === 'password'){
                 return (
                     <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}} style={{display:'inline'}}>{field}</form>
                 );
@@ -81,4 +78,6 @@ export default React.createClass({
         }
     }
 
-});
+}
+
+export default asFormField(ValidLogin);

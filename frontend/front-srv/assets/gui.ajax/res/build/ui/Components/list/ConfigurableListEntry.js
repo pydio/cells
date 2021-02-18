@@ -26,13 +26,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _ListEntryNodeListenerMixin = require('./ListEntryNodeListenerMixin');
+var _pydioModelNode = require('pydio/model/node');
 
-var _ListEntryNodeListenerMixin2 = _interopRequireDefault(_ListEntryNodeListenerMixin);
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
 var _InlineEditor = require('./InlineEditor');
 
@@ -42,70 +46,74 @@ var _ListEntry = require('./ListEntry');
 
 var _materialUi = require('material-ui');
 
+var _withNodeListenerEntry = require('./withNodeListenerEntry');
+
+var _withNodeListenerEntry2 = _interopRequireDefault(_withNodeListenerEntry);
+
 /**
  * Callback based material list entry with custom icon render, firstLine, secondLine, etc.
  */
-exports['default'] = _react2['default'].createClass({
-    displayName: 'ConfigurableListEntry',
 
-    mixins: [_ListEntryNodeListenerMixin2['default']],
+var ConfigurableListEntry = (function (_React$Component) {
+    _inherits(ConfigurableListEntry, _React$Component);
 
-    propTypes: {
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode),
-        // SEE ALSO ListEntry PROPS
-        renderIcon: _react2['default'].PropTypes.func,
-        renderFirstLine: _react2['default'].PropTypes.func,
-        renderSecondLine: _react2['default'].PropTypes.func,
-        renderThirdLine: _react2['default'].PropTypes.func,
-        renderActions: _react2['default'].PropTypes.func,
-        style: _react2['default'].PropTypes.object
-    },
+    function ConfigurableListEntry() {
+        _classCallCheck(this, ConfigurableListEntry);
 
-    render: function render() {
-        var _this = this;
+        _React$Component.apply(this, arguments);
+    }
+
+    ConfigurableListEntry.prototype.render = function render() {
+        var _props = this.props;
+        var secondLine = _props.secondLine;
+        var thirdLine = _props.thirdLine;
+        var _props$style = _props.style;
+        var style = _props$style === undefined ? {} : _props$style;
+        var actions = _props.actions;
+        var _props2 = this.props;
+        var renderIcon = _props2.renderIcon;
+        var node = _props2.node;
+        var renderFirstLine = _props2.renderFirstLine;
+        var renderSecondLine = _props2.renderSecondLine;
+        var renderThirdLine = _props2.renderThirdLine;
+        var renderActions = _props2.renderActions;
 
         var icon = undefined,
-            firstLine = undefined,
-            secondLine = undefined,
-            thirdLine = undefined,
-            style = this.props.style || {};
-        if (this.props.renderIcon) {
-            icon = this.props.renderIcon(this.props.node, this.props);
+            firstLine = undefined;
+
+        if (renderIcon) {
+            icon = renderIcon(node, this.props);
         } else {
-            var node = this.props.node;
             var iconClass = node.getMetadata().get("icon_class") ? node.getMetadata().get("icon_class") : node.isLeaf() ? "icon-file-alt" : "icon-folder-close";
             icon = _react2['default'].createElement(_materialUi.FontIcon, { className: iconClass });
         }
 
-        if (this.props.renderFirstLine) {
-            firstLine = this.props.renderFirstLine(this.props.node);
+        if (renderFirstLine) {
+            firstLine = renderFirstLine(this.props.node);
         } else {
-            firstLine = this.props.node.getLabel();
+            firstLine = node.getLabel();
         }
-        if (this.state && this.state.inlineEdition) {
+        if (this.props.inlineEdition) {
             firstLine = _react2['default'].createElement(
                 'span',
                 null,
                 _react2['default'].createElement(_InlineEditor2['default'], {
                     node: this.props.node,
-                    onClose: function () {
-                        _this.setState({ inlineEdition: false });
-                    },
-                    callback: this.state.inlineEditionCallback
+                    onClose: this.props.inlineEditionDismiss,
+                    callback: this.props.inlineEditionCallback
                 }),
                 firstLine
             );
             style.position = 'relative';
         }
-        if (this.props.renderSecondLine) {
-            secondLine = this.props.renderSecondLine(this.props.node);
+        if (renderSecondLine) {
+            secondLine = renderSecondLine(node);
         }
-        if (this.props.renderThirdLine) {
-            thirdLine = this.props.renderThirdLine(this.props.node);
+        if (renderThirdLine) {
+            thirdLine = renderThirdLine(node);
         }
-        var actions = this.props.actions;
-        if (this.props.renderActions) {
-            actions = this.props.renderActions(this.props.node);
+        if (renderActions) {
+            actions = renderActions(node);
         }
 
         return _react2['default'].createElement(_ListEntry.DragDropListEntry, _extends({}, this.props, {
@@ -116,7 +124,21 @@ exports['default'] = _react2['default'].createClass({
             actions: actions,
             style: style
         }));
-    }
+    };
 
-});
+    return ConfigurableListEntry;
+})(_react2['default'].Component);
+
+ConfigurableListEntry.propTypes = {
+    node: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']),
+    renderIcon: _react2['default'].PropTypes.func,
+    renderFirstLine: _react2['default'].PropTypes.func,
+    renderSecondLine: _react2['default'].PropTypes.func,
+    renderThirdLine: _react2['default'].PropTypes.func,
+    renderActions: _react2['default'].PropTypes.func,
+    style: _react2['default'].PropTypes.object
+};
+
+ConfigurableListEntry = _withNodeListenerEntry2['default'](ConfigurableListEntry);
+exports['default'] = ConfigurableListEntry;
 module.exports = exports['default'];

@@ -24,71 +24,75 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var React = require('react');
 
 /**
  * UI to drop a file (or click to browse), used by the InputImage component.
  */
-exports["default"] = React.createClass({
-    displayName: "FileDropzone",
 
-    getDefaultProps: function getDefaultProps() {
-        return {
-            supportClick: true,
-            multiple: true,
-            onDrop: function onDrop() {}
+var FileDropzone = (function (_React$Component) {
+    _inherits(FileDropzone, _React$Component);
+
+    function FileDropzone(props) {
+        _classCallCheck(this, FileDropzone);
+
+        _React$Component.call(this, _extends({ onDrop: function onDrop() {} }, props));
+        this.state = {
+            isDragActive: false,
+            supportClick: props.supportClick === undefined ? true : props.supportClick,
+            multiple: props.multiple === undefined ? true : props.multiple
         };
-    },
+    }
 
-    getInitialState: function getInitialState() {
-        return {
-            isDragActive: false
-        };
-    },
+    // propTypes: {
+    //     onDrop          : React.PropTypes.func.isRequired,
+    //     ignoreNativeDrop: React.PropTypes.bool,
+    //     size            : React.PropTypes.number,
+    //     style           : React.PropTypes.object,
+    //     dragActiveStyle : React.PropTypes.object,
+    //     supportClick    : React.PropTypes.bool,
+    //     accept          : React.PropTypes.string,
+    //     multiple        : React.PropTypes.bool
+    // },
 
-    propTypes: {
-        onDrop: React.PropTypes.func.isRequired,
-        ignoreNativeDrop: React.PropTypes.bool,
-        size: React.PropTypes.number,
-        style: React.PropTypes.object,
-        dragActiveStyle: React.PropTypes.object,
-        supportClick: React.PropTypes.bool,
-        accept: React.PropTypes.string,
-        multiple: React.PropTypes.bool
-    },
-
-    onDragLeave: function onDragLeave(e) {
+    FileDropzone.prototype.onDragLeave = function onDragLeave(e) {
         this.setState({
             isDragActive: false
         });
-    },
+    };
 
-    onDragOver: function onDragOver(e) {
+    FileDropzone.prototype.onDragOver = function onDragOver(e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = "copy";
 
         this.setState({
             isDragActive: true
         });
-    },
+    };
 
-    onFilePicked: function onFilePicked(e) {
-        if (!e.target || !e.target.files) return;
+    FileDropzone.prototype.onFilePicked = function onFilePicked(e) {
+        if (!e.target || !e.target.files) {
+            return;
+        }
         var files = e.target.files;
-        var maxFiles = this.props.multiple ? files.length : 1;
+        var maxFiles = this.state.multiple ? files.length : 1;
         files = Array.prototype.slice.call(files, 0, maxFiles);
         if (this.props.onDrop) {
             this.props.onDrop(files, e, this);
         }
-    },
+    };
 
-    onFolderPicked: function onFolderPicked(e) {
+    FileDropzone.prototype.onFolderPicked = function onFolderPicked(e) {
         if (this.props.onFolderPicked) {
             this.props.onFolderPicked(e.target.files);
         }
-    },
+    };
 
-    onDrop: function onDrop(e) {
+    FileDropzone.prototype.onDrop = function onDrop(e) {
 
         this.setState({
             isDragActive: false
@@ -105,7 +109,7 @@ exports["default"] = React.createClass({
             files = e.target.files;
         }
 
-        var maxFiles = this.props.multiple ? files.length : 1;
+        var maxFiles = this.state.multiple ? files.length : 1;
         for (var i = 0; i < maxFiles; i++) {
             files[i].preview = URL.createObjectURL(files[i]);
         }
@@ -114,24 +118,25 @@ exports["default"] = React.createClass({
             files = Array.prototype.slice.call(files, 0, maxFiles);
             this.props.onDrop(files, e, this);
         }
-    },
+    };
 
-    onClick: function onClick() {
-        if (this.props.supportClick === true) {
+    FileDropzone.prototype.onClick = function onClick() {
+        if (this.state.supportClick === true) {
             this.open();
         }
-    },
+    };
 
-    open: function open() {
+    FileDropzone.prototype.open = function open() {
         this.refs.fileInput.click();
-    },
+    };
 
-    openFolderPicker: function openFolderPicker() {
+    FileDropzone.prototype.openFolderPicker = function openFolderPicker() {
         this.refs.folderInput.setAttribute("webkitdirectory", "true");
         this.refs.folderInput.click();
-    },
+    };
 
-    render: function render() {
+    FileDropzone.prototype.render = function render() {
+        var _this = this;
 
         var className = this.props.className || 'file-dropzone';
         if (this.state.isDragActive) {
@@ -151,16 +156,21 @@ exports["default"] = React.createClass({
         }
         var folderInput = undefined;
         if (this.props.enableFolders) {
-            folderInput = React.createElement("input", { style: { display: 'none' }, name: "userfolder", type: "file", ref: "folderInput", onChange: this.onFolderPicked });
+            folderInput = React.createElement("input", { style: { display: 'none' }, name: "userfolder", type: "file", ref: "folderInput", onChange: function (e) {
+                    return _this.onFolderPicked(e);
+                } });
         }
         return React.createElement(
             "div",
-            { className: className, style: style, onClick: this.onClick, onDragLeave: this.onDragLeave, onDragOver: this.onDragOver, onDrop: this.onDrop },
-            React.createElement("input", { style: { display: 'none' }, name: "userfile", type: "file", multiple: this.props.multiple, ref: "fileInput", value: "", onChange: this.onFilePicked, accept: this.props.accept }),
+            { className: className, style: style, onClick: this.onClick.bind(this), onDragLeave: this.onDragLeave.bind(this), onDragOver: this.onDragOver.bind(this), onDrop: this.onDrop.bind(this) },
+            React.createElement("input", { style: { display: 'none' }, name: "userfile", type: "file", multiple: this.state.multiple, ref: "fileInput", value: "", onChange: this.onFilePicked.bind(this), accept: this.props.accept }),
             folderInput,
             this.props.children
         );
-    }
+    };
 
-});
+    return FileDropzone;
+})(React.Component);
+
+exports["default"] = FileDropzone;
 module.exports = exports["default"];

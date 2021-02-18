@@ -24,10 +24,6 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _mixinsHelperMixin = require('./mixins/HelperMixin');
-
-var _mixinsHelperMixin2 = _interopRequireDefault(_mixinsHelperMixin);
-
 var _managerManager = require('./manager/Manager');
 
 var _managerManager2 = _interopRequireDefault(_managerManager);
@@ -47,14 +43,6 @@ var _fieldsInputInteger2 = _interopRequireDefault(_fieldsInputInteger);
 var _fieldsInputBoolean = require('./fields/InputBoolean');
 
 var _fieldsInputBoolean2 = _interopRequireDefault(_fieldsInputBoolean);
-
-var _fieldsInputButton = require('./fields/InputButton');
-
-var _fieldsInputButton2 = _interopRequireDefault(_fieldsInputButton);
-
-var _fieldsMonitoringLabel = require('./fields/MonitoringLabel');
-
-var _fieldsMonitoringLabel2 = _interopRequireDefault(_fieldsMonitoringLabel);
 
 var _fieldsInputSelectBox = require('./fields/InputSelectBox');
 
@@ -85,14 +73,12 @@ var _fieldsAutocompleteTree = require('./fields/AutocompleteTree');
 var _fieldsAutocompleteTree2 = _interopRequireDefault(_fieldsAutocompleteTree);
 
 var PydioForm = {
-  HelperMixin: _mixinsHelperMixin2['default'],
+
   Manager: _managerManager2['default'],
   InputText: _fieldsTextField2['default'],
   ValidPassword: _fieldsValidPassword2['default'],
   InputBoolean: _fieldsInputBoolean2['default'],
   InputInteger: _fieldsInputInteger2['default'],
-  InputButton: _fieldsInputButton2['default'],
-  MonitoringLabel: _fieldsMonitoringLabel2['default'],
   InputSelectBox: _fieldsInputSelectBox2['default'],
   AutocompleteBox: _fieldsAutocompleteBox2['default'],
   AutocompleteTree: _fieldsAutocompleteTree2['default'],

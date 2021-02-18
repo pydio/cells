@@ -17,13 +17,17 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _pydio = require('pydio');
 
@@ -33,60 +37,53 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _mixinsFormMixin = require('../mixins/FormMixin');
-
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
-
 var _materialUi = require("material-ui");
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+var _hocAsFormField = require("../hoc/asFormField");
+
+var _hocAsFormField2 = _interopRequireDefault(_hocAsFormField);
+
+var _Pydio$requireLib = _pydio2["default"].requireLib('hoc');
 
 var ModernStyles = _Pydio$requireLib.ModernStyles;
 
 /**
  * Boolean input
  */
-exports['default'] = _react2['default'].createClass({
-    displayName: 'InputBoolean',
 
-    mixins: [_mixinsFormMixin2['default']],
+var InputBoolean = (function (_React$Component) {
+    _inherits(InputBoolean, _React$Component);
 
-    getDefaultProps: function getDefaultProps() {
-        return {
-            skipBufferChanges: true
-        };
-    },
+    function InputBoolean() {
+        _classCallCheck(this, InputBoolean);
 
-    onCheck: function onCheck(event, newValue) {
-        this.props.onChange(newValue, this.state.value);
-        this.setState({
-            dirty: true,
-            value: newValue
-        });
-    },
+        _React$Component.apply(this, arguments);
+    }
 
-    getBooleanState: function getBooleanState() {
-        var boolVal = this.state.value;
+    InputBoolean.prototype.render = function render() {
+        var _this = this;
+
+        var boolVal = this.props.value;
         if (typeof boolVal === 'string') {
             boolVal = boolVal === "true";
         }
-        return boolVal;
-    },
-
-    render: function render() {
-        var boolVal = this.getBooleanState();
-        return _react2['default'].createElement(
-            'span',
+        return _react2["default"].createElement(
+            "span",
             null,
-            _react2['default'].createElement(_materialUi.Toggle, _extends({
+            _react2["default"].createElement(_materialUi.Toggle, _extends({
                 toggled: boolVal,
-                onToggle: this.onCheck,
+                onToggle: function (e, v) {
+                    return _this.props.onChange(e, v);
+                },
                 disabled: this.props.disabled,
-                label: this.isDisplayForm() ? this.props.attributes.label : null,
-                labelPosition: this.isDisplayForm() ? 'left' : 'right'
+                label: this.props.isDisplayForm() ? this.props.attributes.label : null,
+                labelPosition: this.props.isDisplayForm() ? 'left' : 'right'
             }, ModernStyles.toggleField))
         );
-    }
+    };
 
-});
-module.exports = exports['default'];
+    return InputBoolean;
+})(_react2["default"].Component);
+
+exports["default"] = _hocAsFormField2["default"](InputBoolean, true);
+module.exports = exports["default"];

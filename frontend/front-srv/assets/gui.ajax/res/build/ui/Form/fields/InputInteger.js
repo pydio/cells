@@ -24,17 +24,21 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _mixinsFormMixin = require('../mixins/FormMixin');
-
-var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
-
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _hocAsFormField = require("../hoc/asFormField");
+
+var _hocAsFormField2 = _interopRequireDefault(_hocAsFormField);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -44,44 +48,63 @@ var ModernTextField = _Pydio$requireLib.ModernTextField;
  * Text input that is converted to integer, and
  * the UI can react to arrows for incrementing/decrementing values
  */
-exports['default'] = _react2['default'].createClass({
-    displayName: 'InputInteger',
 
-    mixins: [_mixinsFormMixin2['default']],
+var InputInteger = (function (_React$Component) {
+    _inherits(InputInteger, _React$Component);
 
-    keyDown: function keyDown(event) {
+    function InputInteger() {
+        _classCallCheck(this, InputInteger);
+
+        _React$Component.apply(this, arguments);
+    }
+
+    InputInteger.prototype.keyDown = function keyDown(event) {
         var inc = 0,
             multiple = 1;
-        if (event.key == 'Enter') {
-            this.toggleEditMode();
+        if (event.key === 'Enter') {
+            this.props.toggleEditMode();
             return;
-        } else if (event.key == 'ArrowUp') {
+        } else if (event.key === 'ArrowUp') {
             inc = +1;
-        } else if (event.key == 'ArrowDown') {
+        } else if (event.key === 'ArrowDown') {
             inc = -1;
         }
         if (event.shiftKey) {
             multiple = 10;
         }
-        var parsed = parseInt(this.state.value);
-        if (isNaN(parsed)) parsed = 0;
+        var parsed = parseInt(this.props.value);
+        if (isNaN(parsed)) {
+            parsed = 0;
+        }
         var value = parsed + inc * multiple;
-        this.onChange(null, value);
-    },
+        this.props.onChange(null, value);
+    };
 
-    render: function render() {
-        if (this.isDisplayGrid() && !this.state.editMode) {
-            var value = this.state.value;
+    InputInteger.prototype.render = function render() {
+        var _this = this;
+
+        var _props = this.props;
+        var value = _props.value;
+        var isDisplayGrid = _props.isDisplayGrid;
+        var isDisplayForm = _props.isDisplayForm;
+        var editMode = _props.editMode;
+        var disabled = _props.disabled;
+        var toggleEditMode = _props.toggleEditMode;
+        var attributes = _props.attributes;
+
+        if (isDisplayGrid() && !editMode) {
             return _react2['default'].createElement(
                 'div',
-                { onClick: this.props.disabled ? function () {} : this.toggleEditMode, className: value ? '' : 'paramValue-empty' },
-                !value ? 'Empty' : value
+                { onClick: disabled ? function () {} : toggleEditMode, className: value ? '' : 'paramValue-empty' },
+                value ? value : 'Empty'
             );
         } else {
             var intval = undefined;
-            if (this.state.value) {
-                intval = parseInt(this.state.value) + '';
-                if (isNaN(intval)) intval = this.state.value + '';
+            if (value) {
+                intval = parseInt(value) + '';
+                if (isNaN(intval)) {
+                    intval = value + '';
+                }
             } else {
                 intval = '0';
             }
@@ -90,15 +113,22 @@ exports['default'] = _react2['default'].createClass({
                 { className: 'integer-input' },
                 _react2['default'].createElement(ModernTextField, {
                     value: intval,
-                    onChange: this.onChange,
-                    onKeyDown: this.keyDown,
-                    disabled: this.props.disabled,
+                    onChange: function (e, v) {
+                        return _this.props.onChange(e, v);
+                    },
+                    onKeyDown: function (e) {
+                        return _this.keyDown(e);
+                    },
+                    disabled: disabled,
                     fullWidth: true,
-                    hintText: this.isDisplayForm() ? this.props.attributes.label : null
+                    hintText: isDisplayForm() ? attributes.label : null
                 })
             );
         }
-    }
+    };
 
-});
+    return InputInteger;
+})(_react2['default'].Component);
+
+exports['default'] = _hocAsFormField2['default'](InputInteger);
 module.exports = exports['default'];

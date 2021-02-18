@@ -28,6 +28,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -35,10 +39,6 @@ var _react2 = _interopRequireDefault(_react);
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
-
-var _MessagesProviderMixin = require('../MessagesProviderMixin');
-
-var _MessagesProviderMixin2 = _interopRequireDefault(_MessagesProviderMixin);
 
 var _Breadcrumb = require('./Breadcrumb');
 
@@ -88,20 +88,42 @@ var ButtonMenu = _Pydio$requireLib.ButtonMenu;
 var Toolbar = _Pydio$requireLib.Toolbar;
 var ListPaginator = _Pydio$requireLib.ListPaginator;
 
-var FSTemplate = _react2['default'].createClass({
-    displayName: 'FSTemplate',
+var FSTemplate = (function (_React$Component) {
+    _inherits(FSTemplate, _React$Component);
 
-    mixins: [_MessagesProviderMixin2['default']],
+    function FSTemplate(props) {
+        _classCallCheck(this, FSTemplate);
 
-    propTypes: {
-        pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default'])
-    },
+        _React$Component.call(this, props);
 
-    statics: {
-        INFO_PANEL_WIDTH: 270
-    },
+        var rState = 'info-panel';
+        if (localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')) {
+            rState = localStorage.getItem('pydio.layout.rightColumnState');
+        }
+        var closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
+        var closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
+        var pydio = this.props.pydio;
 
-    componentDidMount: function componentDidMount() {
+        var themeLight = false;
+        if (pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default') {
+            themeLight = pydio.user.getPreference('theme') === 'light';
+        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light') {
+            themeLight = true;
+        }
+        var w = _pydioUtilDom2['default'].getViewportWidth();
+        this.state = {
+            infoPanelOpen: !closedInfo,
+            infoPanelToggle: !closedToggle,
+            drawerOpen: false,
+            rightColumnState: rState,
+            searchFormState: {},
+            themeLight: themeLight,
+            smallScreen: w <= 758,
+            xtraSmallScreen: w <= 420
+        };
+    }
+
+    FSTemplate.prototype.componentDidMount = function componentDidMount() {
         var _this = this;
 
         var pydio = this.props.pydio;
@@ -126,16 +148,16 @@ var FSTemplate = _react2['default'].createClass({
             });
         };
         _pydioUtilDom2['default'].observeWindowResize(this._resizer);
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    FSTemplate.prototype.componentWillUnmount = function componentWillUnmount() {
         var pydio = this.props.pydio;
 
         pydio.stopObserving('user_logged', this._themeObserver);
         _pydioUtilDom2['default'].stopObservingWindowResize(this._resizer);
-    },
+    };
 
-    openRightPanel: function openRightPanel(name) {
+    FSTemplate.prototype.openRightPanel = function openRightPanel(name) {
         var _this2 = this;
 
         var rightColumnState = this.state.rightColumnState;
@@ -159,9 +181,9 @@ var FSTemplate = _react2['default'].createClass({
                 return _this2.resizeAfterTransition();
             });
         });
-    },
+    };
 
-    closeRightPanel: function closeRightPanel() {
+    FSTemplate.prototype.closeRightPanel = function closeRightPanel() {
         var _this3 = this;
 
         var rightColumnState = this.state.rightColumnState;
@@ -183,37 +205,9 @@ var FSTemplate = _react2['default'].createClass({
             localStorage.setItem('pydio.layout.rightColumnState', '');
             localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
         }
-    },
+    };
 
-    getInitialState: function getInitialState() {
-        var rState = 'info-panel';
-        if (localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')) {
-            rState = localStorage.getItem('pydio.layout.rightColumnState');
-        }
-        var closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
-        var closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
-        var pydio = this.props.pydio;
-
-        var themeLight = false;
-        if (pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default') {
-            themeLight = pydio.user.getPreference('theme') === 'light';
-        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light') {
-            themeLight = true;
-        }
-        var w = _pydioUtilDom2['default'].getViewportWidth();
-        return {
-            infoPanelOpen: !closedInfo,
-            infoPanelToggle: !closedToggle,
-            drawerOpen: false,
-            rightColumnState: rState,
-            searchFormState: {},
-            themeLight: themeLight,
-            smallScreen: w <= 758,
-            xtraSmallScreen: w <= 420
-        };
-    },
-
-    resizeAfterTransition: function resizeAfterTransition() {
+    FSTemplate.prototype.resizeAfterTransition = function resizeAfterTransition() {
         var _this4 = this;
 
         setTimeout(function () {
@@ -224,22 +218,22 @@ var FSTemplate = _react2['default'].createClass({
                 _this4.setState({ rightColumnState: null });
             }
         }, 300);
-    },
+    };
 
-    infoPanelContentChange: function infoPanelContentChange(numberOfCards) {
+    FSTemplate.prototype.infoPanelContentChange = function infoPanelContentChange(numberOfCards) {
         var _this5 = this;
 
         this.setState({ infoPanelOpen: numberOfCards > 0 }, function () {
             return _this5.resizeAfterTransition();
         });
-    },
+    };
 
-    openDrawer: function openDrawer(event) {
+    FSTemplate.prototype.openDrawer = function openDrawer(event) {
         event.stopPropagation();
         this.setState({ drawerOpen: true });
-    },
+    };
 
-    render: function render() {
+    FSTemplate.prototype.render = function render() {
         var _this6 = this;
 
         var muiTheme = this.props.muiTheme;
@@ -600,7 +594,7 @@ var FSTemplate = _react2['default'].createClass({
                 onRequestClose: function () {
                     _this6.closeRightPanel();
                 },
-                onContentChange: this.infoPanelContentChange,
+                onContentChange: this.infoPanelContentChange.bind(this),
                 style: styles.infoPanelStyle
             })),
             rightColumnState === 'chat' && _react2['default'].createElement(_CellChat2['default'], { pydio: pydio, style: styles.otherPanelsStyle, zDepth: 1, onRequestClose: function () {
@@ -612,12 +606,13 @@ var FSTemplate = _react2['default'].createClass({
             rightColumnState === "advanced-search" && searchForm,
             _react2['default'].createElement(_EditionPanel2['default'], props)
         );
-    }
-});
+    };
 
-//FSTemplate = dropProvider(FSTemplate);
-//FSTemplate = withContextMenu(FSTemplate);
+    return FSTemplate;
+})(_react2['default'].Component);
+
 exports['default'] = FSTemplate = _materialUiStyles.muiThemeable()(FSTemplate);
+FSTemplate.INFO_PANEL_WIDTH = 270;
 
 exports['default'] = FSTemplate;
 module.exports = exports['default'];

@@ -18,30 +18,28 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import FormMixin from '../mixins/FormMixin'
 const React = require('react');
+import asFormField from "../hoc/asFormField";
 const debounce = require('lodash.debounce');
 const {AutoComplete, MenuItem, RefreshIndicator, FontIcon} = require('material-ui');
 
-const AutocompleteTree = React.createClass({
-
-    mixins:[FormMixin],
+class AutocompleteTree extends React.Component{
 
     handleUpdateInput(searchText) {
         this.debounced();
         this.setState({searchText: searchText});
-    },
+    }
 
     handleNewRequest(chosenValue) {
         let key;
-        if (chosenValue.key !== undefined){
-            key = chosenValue.key;
-        } else {
+        if (chosenValue.key === undefined) {
             key = chosenValue;
+        } else {
+            key = chosenValue.key;
         }
-        this.onChange(null, key);
+        this.props.onChange(null, key);
         this.loadValues(key);
-    },
+    }
 
     componentWillMount(){
         this.debounced = debounce(this.loadValues.bind(this), 300);
@@ -51,7 +49,7 @@ const AutocompleteTree = React.createClass({
             value = this.props.value;
         }
         this.loadValues(value);
-    },
+    }
 
     loadValues(value = "") {
         let basePath = value;
@@ -64,7 +62,7 @@ const AutocompleteTree = React.createClass({
         }
         this.lastSearch = basePath;
         // TODO : load values from service
-    },
+    }
 
     render(){
 
@@ -98,8 +96,8 @@ const AutocompleteTree = React.createClass({
                 <AutoComplete
                     fullWidth={true}
                     searchText={displayText}
-                    onUpdateInput={this.handleUpdateInput}
-                    onNewRequest={this.handleNewRequest}
+                    onUpdateInput={this.handleUpdateInput.bind(this)}
+                    onNewRequest={this.handleNewRequest.bind(this)}
                     dataSource={dataSource}
                     floatingLabelText={this.props.attributes['label']}
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
@@ -111,6 +109,7 @@ const AutocompleteTree = React.createClass({
         );
     }
 
-});
+}
 
-export {AutocompleteTree as default}
+
+export default asFormField(AutocompleteTree);

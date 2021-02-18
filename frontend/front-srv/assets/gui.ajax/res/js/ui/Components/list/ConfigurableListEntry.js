@@ -19,66 +19,55 @@
  */
 
 import React from 'react'
-import ListEntryNodeListenerMixin from './ListEntryNodeListenerMixin'
+import Node from 'pydio/model/node'
 import InlineEditor from './InlineEditor'
 import {DragDropListEntry} from './ListEntry'
 import {FontIcon} from 'material-ui'
+import withNodeListenerEntry from './withNodeListenerEntry'
 
 /**
  * Callback based material list entry with custom icon render, firstLine, secondLine, etc.
  */
-export default React.createClass({
+class ConfigurableListEntry extends React.Component {
 
-    mixins:[ListEntryNodeListenerMixin],
+    render(){
+        let {secondLine, thirdLine, style = {}, actions} = this.props;
+        const {renderIcon, node, renderFirstLine, renderSecondLine, renderThirdLine, renderActions} = this.props;
+        let icon, firstLine;
 
-    propTypes: {
-        node:React.PropTypes.instanceOf(AjxpNode),
-        // SEE ALSO ListEntry PROPS
-        renderIcon: React.PropTypes.func,
-        renderFirstLine:React.PropTypes.func,
-        renderSecondLine:React.PropTypes.func,
-        renderThirdLine:React.PropTypes.func,
-        renderActions:React.PropTypes.func,
-        style: React.PropTypes.object
-    },
-
-    render: function(){
-        let icon, firstLine, secondLine, thirdLine, style = this.props.style || {};
-        if(this.props.renderIcon) {
-            icon = this.props.renderIcon(this.props.node, this.props);
+        if(renderIcon) {
+            icon = renderIcon(node, this.props);
         } else {
-            var node = this.props.node;
-            var iconClass = node.getMetadata().get("icon_class")? node.getMetadata().get("icon_class") : (node.isLeaf()?"icon-file-alt":"icon-folder-close");
+            const iconClass = node.getMetadata().get("icon_class")? node.getMetadata().get("icon_class") : (node.isLeaf()?"icon-file-alt":"icon-folder-close");
             icon = <FontIcon className={iconClass}/>;
         }
 
-        if(this.props.renderFirstLine) {
-            firstLine = this.props.renderFirstLine(this.props.node);
+        if(renderFirstLine) {
+            firstLine = renderFirstLine(this.props.node);
         } else {
-            firstLine = this.props.node.getLabel();
+            firstLine = node.getLabel();
         }
-        if(this.state && this.state.inlineEdition){
+        if(this.props.inlineEdition){
             firstLine = (
                 <span>
                         <InlineEditor
                             node={this.props.node}
-                            onClose={()=>{this.setState({inlineEdition:false})}}
-                            callback={this.state.inlineEditionCallback}
+                            onClose={this.props.inlineEditionDismiss}
+                            callback={this.props.inlineEditionCallback}
                         />
                     {firstLine}
                     </span>
             );
             style.position = 'relative';
         }
-        if(this.props.renderSecondLine) {
-            secondLine = this.props.renderSecondLine(this.props.node);
+        if(renderSecondLine) {
+            secondLine = renderSecondLine(node);
         }
-        if(this.props.renderThirdLine) {
-            thirdLine = this.props.renderThirdLine(this.props.node);
+        if(renderThirdLine) {
+            thirdLine = renderThirdLine(node);
         }
-        var actions = this.props.actions;
-        if(this.props.renderActions) {
-            actions = this.props.renderActions(this.props.node);
+        if(renderActions) {
+            actions = renderActions(node);
         }
 
         return (
@@ -95,5 +84,17 @@ export default React.createClass({
 
     }
 
-});
+}
 
+ConfigurableListEntry.propTypes = {
+    node:React.PropTypes.instanceOf(Node),
+    renderIcon: React.PropTypes.func,
+    renderFirstLine:React.PropTypes.func,
+    renderSecondLine:React.PropTypes.func,
+    renderThirdLine:React.PropTypes.func,
+    renderActions:React.PropTypes.func,
+    style: React.PropTypes.object
+};
+
+ConfigurableListEntry = withNodeListenerEntry(ConfigurableListEntry)
+export default ConfigurableListEntry;

@@ -18,56 +18,50 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import FormMixin from '../mixins/FormMixin'
+import asFormField from "../hoc/asFormField";
 const React = require('react')
 const {SelectField, MenuItem, Chip} = require('material-ui')
 const LangUtils = require('pydio/util/lang')
-import FieldWithChoices from '../mixins/FieldWithChoices'
+import withChoices from '../hoc/withChoices'
 import Pydio from 'pydio'
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 /**
  * Select box input conforming to Pydio standard form parameter.
  */
-let InputSelectBox = React.createClass({
-    mixins:[FormMixin],
+class InputSelectBox extends React.Component{
 
-    getDefaultProps:function(){
-        return {
-            skipBufferChanges:true
-        };
-    },
+    onDropDownChange(event, index, value){
+        this.props.onChange(event, value);
+        this.props.toggleEditMode();
+    }
 
-    onDropDownChange:function(event, index, value){
-        this.onChange(event, value);
-        this.toggleEditMode();
-    },
-
-    onMultipleSelect:function(event, index, newValue){
-        if(newValue == -1) return;
-        const currentValue = this.state.value;
+    onMultipleSelect(event, index, newValue){
+        if(newValue === -1) {
+            return;
+        }
+        const currentValue = this.props.value;
         let currentValues = (typeof currentValue === 'string' ? currentValue.split(',') : currentValue);
         if(!currentValues.indexOf(newValue) !== -1){
             currentValues.push(newValue);
-            this.onChange(event, currentValues.join(','));
+            this.props.onChange(event, currentValues.join(','));
         }
-        this.toggleEditMode();
-    },
+        this.props.toggleEditMode();
+    }
 
-    onMultipleRemove: function(value){
-        const currentValue = this.state.value;
+    onMultipleRemove(value){
+        const currentValue = this.props.value;
         let currentValues = (typeof currentValue === 'string' ? currentValue.split(',') : currentValue);
         if(currentValues.indexOf(value) !== -1 ){
             currentValues = LangUtils.arrayWithout(currentValues, currentValues.indexOf(value));
-            this.onChange(null, currentValues.join(','));
+            this.props.onChange(null, currentValues.join(','));
         }
-    },
+    }
 
-    render:function(){
-        let currentValue = this.state.value;
-        let menuItems = [], multipleOptions = [], mandatory = true;
-        if(!this.props.attributes['mandatory'] || this.props.attributes['mandatory'] != "true"){
-            mandatory = false;
+    render(){
+        let currentValue = this.props.value;
+        let menuItems = [], multipleOptions = [];
+        if(!this.props.attributes['mandatory'] || this.props.attributes['mandatory'] !== "true"){
             menuItems.push(<MenuItem value={-1} primaryText={this.props.attributes['label'] +  '...'}/>);
         }
         const {choices} = this.props;
@@ -75,24 +69,24 @@ let InputSelectBox = React.createClass({
             menuItems.push(<MenuItem value={key} primaryText={value}/>);
             multipleOptions.push({value:key, label:value});
         });
-        if((this.isDisplayGrid() && !this.state.editMode) || this.props.disabled){
-            let value = this.state.value;
-            if(choices.get(value)) value = choices.get(value);
+        if((this.props.isDisplayGrid() && !this.props.editMode) || this.props.disabled){
+            let value = this.props.value;
+            if(choices.get(value)) {
+                value = choices.get(value);
+            }
             return (
                 <div
-                    onClick={this.props.disabled?function(){}:this.toggleEditMode}
+                    onClick={this.props.disabled?function(){}:this.props.toggleEditMode}
                     className={value?'':'paramValue-empty'}>
-                    {!value?'Empty':value} &nbsp;&nbsp;<span className="icon-caret-down"></span>
+                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="icon-caret-down"></span>
                 </div>
             );
         } else {
-            let hasValue = false;
-            if(this.props.multiple && this.props.multiple == true){
+            if(this.props.multiple && this.props.multiple === true){
                 let currentValues = currentValue;
                 if(typeof currentValue === "string"){
                     currentValues = currentValue.split(",");
                 }
-                hasValue = currentValues.length ? true: false;
                 return (
                     <span className={"multiple has-value"}>
                         <div style={{display:'flex', flexWrap:'wrap'}}>{currentValues.map((v) => {
@@ -100,7 +94,7 @@ let InputSelectBox = React.createClass({
                         })}</div>
                         <ModernSelectField
                             value={-1}
-                            onChange={this.onMultipleSelect}
+                            onChange={(e,i,v) => this.onMultipleSelect(e,i,v)}
                             fullWidth={true}
                             className={this.props.className}
                         >{menuItems}</ModernSelectField>
@@ -113,7 +107,7 @@ let InputSelectBox = React.createClass({
                         <ModernSelectField
                             hintText={this.props.attributes.label}
                             value={currentValue}
-                            onChange={this.onDropDownChange}
+                            onChange={(e,i,v) => this.onDropDownChange(e,i,v)}
                             fullWidth={true}
                             className={this.props.className}
                         >{menuItems}</ModernSelectField>
@@ -122,7 +116,8 @@ let InputSelectBox = React.createClass({
             }
         }
     }
-});
+}
 
-InputSelectBox = FieldWithChoices(InputSelectBox);
+InputSelectBox = asFormField(InputSelectBox, true);
+InputSelectBox = withChoices(InputSelectBox);
 export {InputSelectBox as default}

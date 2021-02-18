@@ -20,7 +20,6 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-import MessagesProviderMixin from '../MessagesProviderMixin'
 import Breadcrumb from './Breadcrumb'
 import {SearchForm} from '../search'
 import MainFilesList from './MainFilesList'
@@ -35,17 +34,36 @@ import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
-let FSTemplate = React.createClass({
+class FSTemplate extends React.Component {
 
-    mixins: [MessagesProviderMixin],
+    constructor(props){
+        super(props);
 
-    propTypes: {
-        pydio:React.PropTypes.instanceOf(Pydio)
-    },
-
-    statics: {
-        INFO_PANEL_WIDTH: 270
-    },
+        let rState = 'info-panel';
+        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
+            rState = localStorage.getItem('pydio.layout.rightColumnState');
+        }
+        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
+        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
+        const {pydio} = this.props;
+        let themeLight = false;
+        if(pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default' ){
+            themeLight = pydio.user.getPreference('theme') === 'light';
+        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light'){
+            themeLight = true;
+        }
+        const w = DOMUtils.getViewportWidth();
+        this.state = {
+            infoPanelOpen: !closedInfo,
+            infoPanelToggle: !closedToggle,
+            drawerOpen: false,
+            rightColumnState: rState,
+            searchFormState: {},
+            themeLight: themeLight,
+            smallScreen: w <= 758,
+            xtraSmallScreen: w <= 420,
+        };
+    }
 
     componentDidMount(){
         const {pydio} = this.props;
@@ -69,13 +87,13 @@ let FSTemplate = React.createClass({
             });
         };
         DOMUtils.observeWindowResize(this._resizer);
-    },
+    }
 
     componentWillUnmount(){
         const {pydio} = this.props;
         pydio.stopObserving('user_logged', this._themeObserver);
         DOMUtils.stopObservingWindowResize(this._resizer);
-    },
+    }
 
     openRightPanel(name){
         const {rightColumnState} = this.state;
@@ -95,7 +113,7 @@ let FSTemplate = React.createClass({
             }
             this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
         });
-    },
+    }
 
     closeRightPanel() {
         const {rightColumnState} = this.state;
@@ -116,34 +134,8 @@ let FSTemplate = React.createClass({
             localStorage.setItem('pydio.layout.rightColumnState', '');
             localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
         }
-    },
+    }
 
-    getInitialState(){
-        let rState = 'info-panel';
-        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
-            rState = localStorage.getItem('pydio.layout.rightColumnState');
-        }
-        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
-        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
-        const {pydio} = this.props;
-        let themeLight = false;
-        if(pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default' ){
-            themeLight = pydio.user.getPreference('theme') === 'light';
-        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light'){
-            themeLight = true;
-        }
-        const w = DOMUtils.getViewportWidth();
-        return {
-            infoPanelOpen: !closedInfo,
-            infoPanelToggle: !closedToggle,
-            drawerOpen: false,
-            rightColumnState: rState,
-            searchFormState: {},
-            themeLight: themeLight,
-            smallScreen: w <= 758,
-            xtraSmallScreen: w <= 420,
-        };
-    },
 
     resizeAfterTransition(){
         setTimeout(() => {
@@ -154,16 +146,16 @@ let FSTemplate = React.createClass({
                 this.setState({rightColumnState: null});
             }
         }, 300);
-    },
+    }
 
     infoPanelContentChange(numberOfCards){
         this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
-    },
+    }
 
     openDrawer(event){
         event.stopPropagation();
         this.setState({drawerOpen: true});
-    },
+    }
 
     render () {
 
@@ -504,7 +496,7 @@ let FSTemplate = React.createClass({
                         {...props}
                         dataModel={props.pydio.getContextHolder()}
                         onRequestClose={()=>{this.closeRightPanel()}}
-                        onContentChange={this.infoPanelContentChange}
+                        onContentChange={this.infoPanelContentChange.bind(this)}
                         style={styles.infoPanelStyle}
                     />
                 }
@@ -526,10 +518,9 @@ let FSTemplate = React.createClass({
 
 
     }
-});
+}
 
-//FSTemplate = dropProvider(FSTemplate);
-//FSTemplate = withContextMenu(FSTemplate);
 FSTemplate = muiThemeable()(FSTemplate);
+FSTemplate.INFO_PANEL_WIDTH = 270
 
 export {FSTemplate as default}

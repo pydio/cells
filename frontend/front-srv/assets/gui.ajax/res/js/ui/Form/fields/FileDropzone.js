@@ -23,66 +23,63 @@ const React = require('react')
 /**
  * UI to drop a file (or click to browse), used by the InputImage component.
  */
-export default React.createClass({
+class FileDropzone extends React.Component{
 
-    getDefaultProps: function() {
-        return {
-            supportClick: true,
-            multiple: true,
-            onDrop:function(){}
-        };
-    },
-
-    getInitialState: function() {
-        return {
-            isDragActive: false
+    constructor(props) {
+        super({onDrop:function(){}, ...props});
+        this.state = {
+            isDragActive: false,
+            supportClick: props.supportClick === undefined ? true : props.supportClick,
+            multiple: props.multiple === undefined ? true : props.multiple,
         }
-    },
 
-    propTypes: {
-        onDrop          : React.PropTypes.func.isRequired,
-        ignoreNativeDrop: React.PropTypes.bool,
-        size            : React.PropTypes.number,
-        style           : React.PropTypes.object,
-        dragActiveStyle : React.PropTypes.object,
-        supportClick    : React.PropTypes.bool,
-        accept          : React.PropTypes.string,
-        multiple        : React.PropTypes.bool
-    },
+    }
 
-    onDragLeave: function(e) {
+    // propTypes: {
+    //     onDrop          : React.PropTypes.func.isRequired,
+    //     ignoreNativeDrop: React.PropTypes.bool,
+    //     size            : React.PropTypes.number,
+    //     style           : React.PropTypes.object,
+    //     dragActiveStyle : React.PropTypes.object,
+    //     supportClick    : React.PropTypes.bool,
+    //     accept          : React.PropTypes.string,
+    //     multiple        : React.PropTypes.bool
+    // },
+
+    onDragLeave(e) {
         this.setState({
             isDragActive: false
         });
-    },
+    }
 
-    onDragOver: function(e) {
+    onDragOver(e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = "copy";
 
         this.setState({
             isDragActive: true
         });
-    },
+    }
 
-    onFilePicked: function(e){
-        if(!e.target || !e.target.files) return;
+    onFilePicked(e){
+        if(!e.target || !e.target.files) {
+            return;
+        }
         let files = e.target.files;
-        const maxFiles = (this.props.multiple) ? files.length : 1;
+        const maxFiles = (this.state.multiple) ? files.length : 1;
         files = Array.prototype.slice.call(files, 0, maxFiles);
         if (this.props.onDrop) {
             this.props.onDrop(files, e, this);
         }
-    },
+    }
 
-    onFolderPicked: function(e){
+    onFolderPicked(e){
         if(this.props.onFolderPicked){
             this.props.onFolderPicked(e.target.files);
         }
-    },
+    }
 
-    onDrop: function(e) {
-
+    onDrop(e) {
 
         this.setState({
             isDragActive: false
@@ -99,7 +96,7 @@ export default React.createClass({
             files = e.target.files;
         }
 
-        const maxFiles = (this.props.multiple) ? files.length : 1;
+        const maxFiles = (this.state.multiple) ? files.length : 1;
         for (let i = 0; i < maxFiles; i++) {
             files[i].preview = URL.createObjectURL(files[i]);
         }
@@ -108,24 +105,24 @@ export default React.createClass({
             files = Array.prototype.slice.call(files, 0, maxFiles);
             this.props.onDrop(files, e, this);
         }
-    },
+    }
 
-    onClick: function () {
-        if (this.props.supportClick === true) {
+    onClick() {
+        if (this.state.supportClick === true) {
             this.open();
         }
-    },
+    }
 
-    open: function() {
+    open() {
         this.refs.fileInput.click();
-    },
+    }
 
-    openFolderPicker: function(){
+    openFolderPicker(){
         this.refs.folderInput.setAttribute("webkitdirectory", "true");
         this.refs.folderInput.click();
-    },
+    }
 
-    render: function() {
+    render() {
 
         let className = this.props.className || 'file-dropzone';
         if (this.state.isDragActive) {
@@ -145,15 +142,17 @@ export default React.createClass({
         }
         let folderInput;
         if(this.props.enableFolders){
-            folderInput = <input style={{display:'none'}} name="userfolder" type="file" ref="folderInput" onChange={this.onFolderPicked}/>;
+            folderInput = <input style={{display:'none'}} name="userfolder" type="file" ref="folderInput" onChange={(e) => this.onFolderPicked(e)}/>;
         }
         return (
-            <div className={className} style={style} onClick={this.onClick} onDragLeave={this.onDragLeave} onDragOver={this.onDragOver} onDrop={this.onDrop}>
-                <input style={{display:'none'}} name="userfile" type="file" multiple={this.props.multiple} ref="fileInput" value={""} onChange={this.onFilePicked} accept={this.props.accept}/>
+            <div className={className} style={style} onClick={this.onClick.bind(this)} onDragLeave={this.onDragLeave.bind(this)} onDragOver={this.onDragOver.bind(this)} onDrop={this.onDrop.bind(this)}>
+                <input style={{display:'none'}} name="userfile" type="file" multiple={this.state.multiple} ref="fileInput" value={""} onChange={this.onFilePicked.bind(this)} accept={this.props.accept}/>
                 {folderInput}
                 {this.props.children}
             </div>
         );
     }
 
-});
+}
+
+export default FileDropzone

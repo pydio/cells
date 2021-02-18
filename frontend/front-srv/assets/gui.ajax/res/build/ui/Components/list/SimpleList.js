@@ -26,15 +26,23 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _reactInfinite = require('react-infinite');
+
+var _reactInfinite2 = _interopRequireDefault(_reactInfinite);
+
 var _reactScrollbar = require('react-scrollbar');
 
 var _reactScrollbar2 = _interopRequireDefault(_reactScrollbar);
 
 var _materialUi = require('material-ui');
-
-var _utilMessagesConsumerMixin = require('../util/MessagesConsumerMixin');
-
-var _utilMessagesConsumerMixin2 = _interopRequireDefault(_utilMessagesConsumerMixin);
 
 var _ListEntry = require('./ListEntry');
 
@@ -70,9 +78,6 @@ var _viewsEmptyStateView = require('../views/EmptyStateView');
 
 var _viewsEmptyStateView2 = _interopRequireDefault(_viewsEmptyStateView);
 
-var React = require('react');
-var Infinite = require('react-infinite');
-
 var DOMUtils = require('pydio/util/dom');
 var LangUtils = require('pydio/util/lang');
 var PydioDataModel = require('pydio/model/data-model');
@@ -82,47 +87,45 @@ var PeriodicalExecuter = require('pydio/util/periodical-executer');
  * Generic List component, using Infinite for cell virtualization, pagination, various
  * displays, etc... It provides many hooks for rendering cells on-demand.
  */
-var SimpleList = React.createClass({
+var SimpleList = _react2['default'].createClass({
     displayName: 'SimpleList',
 
-    mixins: [_utilMessagesConsumerMixin2['default']],
-
     propTypes: {
-        infiniteSliceCount: React.PropTypes.number,
-        filterNodes: React.PropTypes.func,
-        customToolbar: React.PropTypes.object,
-        tableKeys: React.PropTypes.object,
-        autoRefresh: React.PropTypes.number,
-        reloadAtCursor: React.PropTypes.bool,
-        clearSelectionOnReload: React.PropTypes.bool,
-        heightAutoWithMax: React.PropTypes.number,
-        containerHeight: React.PropTypes.number,
-        observeNodeReload: React.PropTypes.bool,
-        defaultGroupBy: React.PropTypes.string,
-        defaultGroupByLabel: React.PropTypes.string,
+        infiniteSliceCount: _react2['default'].PropTypes.number,
+        filterNodes: _react2['default'].PropTypes.func,
+        customToolbar: _react2['default'].PropTypes.object,
+        tableKeys: _react2['default'].PropTypes.object,
+        autoRefresh: _react2['default'].PropTypes.number,
+        reloadAtCursor: _react2['default'].PropTypes.bool,
+        clearSelectionOnReload: _react2['default'].PropTypes.bool,
+        heightAutoWithMax: _react2['default'].PropTypes.number,
+        containerHeight: _react2['default'].PropTypes.number,
+        observeNodeReload: _react2['default'].PropTypes.bool,
+        defaultGroupBy: _react2['default'].PropTypes.string,
+        defaultGroupByLabel: _react2['default'].PropTypes.string,
 
-        skipParentNavigation: React.PropTypes.bool,
-        skipInternalDataModel: React.PropTypes.bool,
-        delayInitialLoad: React.PropTypes.number,
+        skipParentNavigation: _react2['default'].PropTypes.bool,
+        skipInternalDataModel: _react2['default'].PropTypes.bool,
+        delayInitialLoad: _react2['default'].PropTypes.number,
 
-        entryEnableSelector: React.PropTypes.func,
-        renderCustomEntry: React.PropTypes.func,
-        entryRenderIcon: React.PropTypes.func,
-        entryRenderActions: React.PropTypes.func,
-        entryRenderFirstLine: React.PropTypes.func,
-        entryRenderSecondLine: React.PropTypes.func,
-        entryRenderThirdLine: React.PropTypes.func,
-        entryHandleClicks: React.PropTypes.func,
-        hideToolbar: React.PropTypes.bool,
-        computeActionsForNode: React.PropTypes.bool,
-        multipleActions: React.PropTypes.array,
+        entryEnableSelector: _react2['default'].PropTypes.func,
+        renderCustomEntry: _react2['default'].PropTypes.func,
+        entryRenderIcon: _react2['default'].PropTypes.func,
+        entryRenderActions: _react2['default'].PropTypes.func,
+        entryRenderFirstLine: _react2['default'].PropTypes.func,
+        entryRenderSecondLine: _react2['default'].PropTypes.func,
+        entryRenderThirdLine: _react2['default'].PropTypes.func,
+        entryHandleClicks: _react2['default'].PropTypes.func,
+        hideToolbar: _react2['default'].PropTypes.bool,
+        computeActionsForNode: _react2['default'].PropTypes.bool,
+        multipleActions: _react2['default'].PropTypes.array,
 
-        openEditor: React.PropTypes.func,
-        openCollection: React.PropTypes.func,
+        openEditor: _react2['default'].PropTypes.func,
+        openCollection: _react2['default'].PropTypes.func,
 
-        elementStyle: React.PropTypes.object,
-        passScrollingStateToChildren: React.PropTypes.bool,
-        elementHeight: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.object]).isRequired
+        elementStyle: _react2['default'].PropTypes.object,
+        passScrollingStateToChildren: _react2['default'].PropTypes.bool,
+        elementHeight: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.number, _react2['default'].PropTypes.object]).isRequired
 
     },
 
@@ -136,6 +139,10 @@ var SimpleList = React.createClass({
 
     getDefaultProps: function getDefaultProps() {
         return { infiniteSliceCount: 30, clearSelectionOnReload: true };
+    },
+
+    getMessage: function getMessage(id) {
+        return _pydio2['default'].getMessages()[id] || id;
     },
 
     clickRow: function clickRow(gridRow, event) {
@@ -825,7 +832,7 @@ var SimpleList = React.createClass({
                     mainIcon: SimpleList.PARENT_FOLDER_ICON,
                     firstLine: "..",
                     className: "list-parent-node",
-                    secondLine: this.context.getMessage('react.1'),
+                    secondLine: this.getMessage('react.1'),
                     onClick: this.clickRow,
                     onDoubleClick: this.doubleClickRow,
                     showSelector: false,
@@ -843,7 +850,7 @@ var SimpleList = React.createClass({
                 if (this.props.passScrollingStateToChildren) {
                     data['parentIsScrolling'] = this.state.isScrolling;
                 }
-                components.push(React.createElement(_ListEntry.ListEntry, data));
+                components.push(_react2['default'].createElement(_ListEntry.ListEntry, data));
             } else if (entry.groupHeader) {
                 var id = entry.groupHeader,
                     firstLine = entry.groupHeaderLabel;
@@ -865,7 +872,7 @@ var SimpleList = React.createClass({
                 if (this.props.passScrollingStateToChildren) {
                     data['parentIsScrolling'] = this.state.isScrolling;
                 }
-                components.push(React.createElement(_ListEntry.ListEntry, data));
+                components.push(_react2['default'].createElement(_ListEntry.ListEntry, data));
             } else {
                 data = {
                     node: entry.node,
@@ -881,7 +888,7 @@ var SimpleList = React.createClass({
                     renderActions: this.props.entryRenderActions,
                     showSelector: showSelector,
                     selected: this.state && this.state.selection ? this.state.selection.get(entry.node) : false,
-                    actions: React.createElement(_viewsSimpleReactActionBar2['default'], { node: entry.node, actions: entry.actions, dataModel: this.dm }),
+                    actions: _react2['default'].createElement(_viewsSimpleReactActionBar2['default'], { node: entry.node, actions: entry.actions, dataModel: this.dm }),
                     selectorDisabled: !(this.props.entryEnableSelector ? this.props.entryEnableSelector(entry.node) : entry.node.isLeaf())
                 };
                 data['isFirst'] = index === 0;
@@ -904,10 +911,10 @@ var SimpleList = React.createClass({
                     } else {
                         data['tableKeys'] = this.props.tableKeys;
                     }
-                    components.push(React.createElement(_TableListEntry2['default'], data));
+                    components.push(_react2['default'].createElement(_TableListEntry2['default'], data));
                 } else {
 
-                    components.push(React.createElement(_ConfigurableListEntry2['default'], data));
+                    components.push(_react2['default'].createElement(_ConfigurableListEntry2['default'], data));
                 }
             }
         }).bind(this));
@@ -1111,12 +1118,12 @@ var SimpleList = React.createClass({
                 } else {
                     sortingInfo = this.state ? this.state.sortingInfo : null;
                 }
-                return React.createElement(_SortColumns2['default'], { displayMode: 'hidden', tableKeys: this.props.sortKeys, columnClicked: this.onColumnSort, sortingInfo: sortingInfo });
+                return _react2['default'].createElement(_SortColumns2['default'], { displayMode: 'hidden', tableKeys: this.props.sortKeys, columnClicked: this.onColumnSort, sortingInfo: sortingInfo });
             }
             return null;
         }
 
-        var rightButtons = [React.createElement(_materialUi.FontIcon, {
+        var rightButtons = [_react2['default'].createElement(_materialUi.FontIcon, {
             key: 1,
             tooltip: 'Reload',
             className: "mdi mdi-reload" + (this.state.loading ? " rotating" : ""),
@@ -1132,7 +1139,7 @@ var SimpleList = React.createClass({
             } else {
                 sortingInfo = this.state ? this.state.sortingInfo : null;
             }
-            rightButtons.push(React.createElement(_SortColumns2['default'], {
+            rightButtons.push(_react2['default'].createElement(_SortColumns2['default'], {
                 key: i,
                 displayMode: 'menu',
                 tableKeys: this.props.sortKeys,
@@ -1148,14 +1155,14 @@ var SimpleList = React.createClass({
         var leftToolbar = undefined,
             paginator = undefined;
         if (this.props.node.getMetadata().get("paginationData") && this.props.node.getMetadata().get("paginationData").get('total') > 1) {
-            paginator = React.createElement(_ListPaginator2['default'], { dataModel: this.dm, node: this.props.node });
+            paginator = _react2['default'].createElement(_ListPaginator2['default'], { dataModel: this.dm, node: this.props.node });
         }
 
         if (this.props.listTitle) {
-            leftToolbar = React.createElement(
+            leftToolbar = _react2['default'].createElement(
                 _materialUi.ToolbarGroup,
                 { key: 0, float: 'left' },
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { className: 'list-title' },
                     this.props.listTitle
@@ -1165,18 +1172,18 @@ var SimpleList = React.createClass({
 
         if (this.props.searchResultData) {
 
-            leftToolbar = React.createElement(
+            leftToolbar = _react2['default'].createElement(
                 _materialUi.ToolbarGroup,
                 { key: 0, float: 'left' },
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { style: { fontSize: 12, fontWeight: 500, color: '#9e9e9e' } },
-                    this.context.getMessage('react.3').replace('%s', this.props.searchResultData.term)
+                    this.getMessage('react.3').replace('%s', this.props.searchResultData.term)
                 )
             );
-            rightButtons = React.createElement(_materialUi.RaisedButton, { key: 1, label: this.context.getMessage('react.4'), primary: true, onTouchTap: this.props.searchResultData.toggleState, style: { marginRight: -10 } });
+            rightButtons = _react2['default'].createElement(_materialUi.RaisedButton, { key: 1, label: this.getMessage('react.4'), primary: true, onTouchTap: this.props.searchResultData.toggleState, style: { marginRight: -10 } });
         } else if (this.actionsCache.multiple.size || this.props.multipleActions) {
-            var bulkLabel = this.context.getMessage('react.2');
+            var bulkLabel = this.getMessage('react.2');
             var hiddenStyle = {
                 transform: 'translateX(-80px)'
             };
@@ -1189,11 +1196,11 @@ var SimpleList = React.createClass({
             if (this.state.selection && this.state.showSelector) {
                 bulkLabel += " (" + this.state.selection.size + ")";
             }
-            leftToolbar = React.createElement(
+            leftToolbar = _react2['default'].createElement(
                 _materialUi.ToolbarGroup,
                 { key: 0, float: 'left', className: 'hide-on-vertical-layout' },
-                React.createElement(_materialUi.Checkbox, { ref: 'all_selector', onClick: this.selectAll, style: cbStyle }),
-                React.createElement(_materialUi.FlatButton, { label: bulkLabel, onClick: this.toggleSelector, style: buttonStyle })
+                _react2['default'].createElement(_materialUi.Checkbox, { ref: 'all_selector', onClick: this.selectAll, style: cbStyle }),
+                _react2['default'].createElement(_materialUi.FlatButton, { label: bulkLabel, onClick: this.toggleSelector, style: buttonStyle })
             );
 
             if (this.state.showSelector) {
@@ -1202,14 +1209,14 @@ var SimpleList = React.createClass({
                     var index = 0;
                     var actions = _this7.props.multipleActions || _this7.actionsCache.multiple;
                     actions.forEach((function (a) {
-                        rightButtons.push(React.createElement(_materialUi.RaisedButton, {
+                        rightButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, {
                             key: index,
                             label: a.options.text,
                             'data-action': a.options.name,
                             onClick: this.applyMultipleAction,
                             primary: true }));
                     }).bind(_this7));
-                    rightButtons = React.createElement(
+                    rightButtons = _react2['default'].createElement(
                         'span',
                         null,
                         rightButtons
@@ -1218,11 +1225,11 @@ var SimpleList = React.createClass({
             }
         }
 
-        return React.createElement(
+        return _react2['default'].createElement(
             _materialUi.Toolbar,
             { style: this.props.toolbarStyle },
             leftToolbar,
-            React.createElement(
+            _react2['default'].createElement(
                 _materialUi.ToolbarGroup,
                 { key: 1, float: 'right' },
                 paginator,
@@ -1261,7 +1268,7 @@ var SimpleList = React.createClass({
             } else {
                 sortingInfo = this.state ? this.state.sortingInfo : null;
             }
-            toolbar = React.createElement(_TableListHeader2['default'], {
+            toolbar = _react2['default'].createElement(_TableListHeader2['default'], {
                 tableKeys: tableKeys,
                 loading: this.state.loading,
                 reload: this.reload,
@@ -1281,7 +1288,7 @@ var SimpleList = React.createClass({
 
         var inlineEditor = undefined;
         if (this.state.inlineEditionForNode) {
-            inlineEditor = React.createElement(_InlineEditor2['default'], {
+            inlineEditor = _react2['default'].createElement(_InlineEditor2['default'], {
                 detached: true,
                 node: this.state.inlineEditionForNode,
                 callback: this.state.inlineEditionCallback,
@@ -1313,25 +1320,25 @@ var SimpleList = React.createClass({
                     };
                 })();
             }
-            emptyState = React.createElement(_viewsEmptyStateView2['default'], _extends({}, emptyStateProps, actionProps));
+            emptyState = _react2['default'].createElement(_viewsEmptyStateView2['default'], _extends({}, emptyStateProps, actionProps));
         } else if (emptyStateProps && emptyStateProps.checkEmptyState && emptyStateProps.checkEmptyState(this.props.node)) {
 
-            emptyState = React.createElement(_viewsEmptyStateView2['default'], emptyStateProps);
+            emptyState = _react2['default'].createElement(_viewsEmptyStateView2['default'], emptyStateProps);
         }
 
         var elements = this.buildElementsFromNodeEntries(this.state.elements, this.state.showSelector);
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             { className: containerClasses, onContextMenu: this.contextMenuResponder, tabIndex: '0', onKeyDown: this.onKeyDown, style: this.props.style },
             toolbar,
             hiddenToolbar,
             inlineEditor,
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { className: this.props.heightAutoWithMax ? "infinite-parent-smooth-height" : emptyState ? "layout-fill vertical_layout" : "layout-fill", ref: 'infiniteParent' },
-                !emptyState && !this.props.verticalScroller && React.createElement(
-                    Infinite,
+                !emptyState && !this.props.verticalScroller && _react2['default'].createElement(
+                    _reactInfinite2['default'],
                     {
                         elementHeight: this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight,
                         containerHeight: this.state.containerHeight ? this.state.containerHeight : 1,
@@ -1342,7 +1349,7 @@ var SimpleList = React.createClass({
                     },
                     elements
                 ),
-                !emptyState && this.props.verticalScroller && React.createElement(
+                !emptyState && this.props.verticalScroller && _react2['default'].createElement(
                     _reactScrollbar2['default'],
                     {
                         speed: 0.8,
@@ -1351,7 +1358,7 @@ var SimpleList = React.createClass({
                         verticalScrollbarStyle: { borderRadius: 10, width: 6 },
                         verticalContainerStyle: { width: 8 }
                     },
-                    React.createElement(
+                    _react2['default'].createElement(
                         'div',
                         null,
                         elements

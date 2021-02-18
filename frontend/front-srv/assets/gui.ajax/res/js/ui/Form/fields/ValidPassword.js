@@ -20,57 +20,56 @@
 import React from "react";
 import Pydio from 'pydio'
 import PassUtils from "pydio/util/pass";
-import FormMixin from '../mixins/FormMixin'
+import asFormField from "../hoc/asFormField";
 import {TextField} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib("hoc");
 
-export default React.createClass({
+class ValidPassword extends React.Component{
 
-    mixins:[FormMixin],
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
 
-    isValid:function(){
+    isValid(){
         return this.state.valid;
-    },
+    }
 
-    checkMinLength:function(value){
-        const minLength = parseInt(global.pydio.getPluginConfigs("core.auth").get("PASSWORD_MINLENGTH"));
+    checkMinLength(value){
+        const minLength = parseInt(Pydio.getInstance().getPluginConfigs("core.auth").get("PASSWORD_MINLENGTH"));
         return !(value && value.length < minLength);
-    },
+    }
 
-    getMessage:function(messageId){
-        if(this.context && this.context.getMessage){
-            return this.context.getMessage(messageId, '');
-        }else if(global.pydio && global.pydio.MessageHash){
-            return global.pydio.MessageHash[messageId];
-        }
-    },
+    getMessage(messageId){
+        return Pydio.getMessages()[messageId] || messageId;
+    }
 
-    updatePassState: function(){
+    updatePassState(){
         const prevStateValid = this.state.valid;
         const newState = PassUtils.getState(this.refs.pass.getValue(), this.refs.confirm ? this.refs.confirm.getValue() : '');
         this.setState(newState);
         if(prevStateValid !== newState.valid && this.props.onValidStatusChange){
             this.props.onValidStatusChange(newState.valid);
         }
-    },
+    }
 
-    onPasswordChange: function(event){
+    onPasswordChange(event){
         this.updatePassState();
-        this.onChange(event, event.target.value);
-    },
+        this.props.onChange(event, event.target.value);
+    }
 
-    onConfirmChange:function(event){
+    onConfirmChange(event){
         this.setState({confirmValue:event.target.value});
         this.updatePassState();
-        this.onChange(event, this.state.value);
-    },
+        this.props.onChange(event, this.state.value);
+    }
 
-    render:function(){
+    render(){
         const {disabled, className, attributes, dialogField} = this.props;
+        const {isDisplayGrid, isDisplayForm, editMode, value, toggleEditMode, enterToToggle} = this.props;
 
-        if(this.isDisplayGrid() && !this.state.editMode){
-            const value = this.state.value;
-            return <div onClick={disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
+        if(isDisplayGrid() && !editMode){
+            return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
         }else{
             const overflow = {overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', width:'100%'};
             let cName = this.state.valid ? '' : 'mui-error-as-hint' ;
@@ -79,7 +78,7 @@ export default React.createClass({
             }
             let confirm;
             const TextComponent = dialogField ? TextField : ModernTextField;
-            if(this.state.value && !disabled){
+            if(value && !disabled){
 
                 confirm = [
                     <div key="sep" style={{width: 8}}></div>,
@@ -91,7 +90,7 @@ export default React.createClass({
                         floatingLabelStyle={overflow}
                         className={cName}
                         value={this.state.confirmValue}
-                        onChange={this.onConfirmChange}
+                        onChange={this.onConfirmChange.bind(this)}
                         type='password'
                         multiLine={false}
                         disabled={disabled}
@@ -107,13 +106,13 @@ export default React.createClass({
                     <div style={{display:'flex'}}>
                         <TextComponent
                             ref="pass"
-                            floatingLabelText={this.isDisplayForm()?attributes.label:null}
+                            floatingLabelText={isDisplayForm()?attributes.label:null}
                             floatingLabelShrinkStyle={{...overflow, width:'130%'}}
                             floatingLabelStyle={overflow}
                             className={cName}
                             value={this.state.value}
-                            onChange={this.onPasswordChange}
-                            onKeyDown={this.enterToToggle}
+                            onChange={this.onPasswordChange.bind(this)}
+                            onKeyDown={enterToToggle}
                             type='password'
                             multiLine={false}
                             disabled={disabled}
@@ -129,4 +128,6 @@ export default React.createClass({
         }
     }
 
-});
+}
+
+export default asFormField(ValidPassword)
