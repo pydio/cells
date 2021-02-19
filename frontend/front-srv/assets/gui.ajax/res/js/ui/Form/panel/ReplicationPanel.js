@@ -26,18 +26,17 @@ const LangUtils = require('pydio/util/lang')
 /**
  * Sub form replicating itself (+/-)
  */
-export default React.createClass({
-
-    propTypes:{
+export default class extends React.Component {
+    static propTypes = {
         parameters:React.PropTypes.array.isRequired,
         values:React.PropTypes.object,
         onChange:React.PropTypes.func,
         disabled:React.PropTypes.bool,
         binary_context:React.PropTypes.string,
         depth:React.PropTypes.number
-    },
+    };
 
-    buildSubValue:function(values, index=0){
+    buildSubValue = (values, index=0) => {
         let subVal;
         const suffix = index==0?'':'_'+index;
         this.props.parameters.map(function(p){
@@ -48,9 +47,9 @@ export default React.createClass({
             }
         });
         return subVal || false;
-    },
+    };
 
-    indexedValues:function(rowsArray){
+    indexedValues = (rowsArray) => {
         let index = 0, values = {};
         rowsArray.map(function(row){
             const suffix = index==0?'':'_'+index;
@@ -61,9 +60,9 @@ export default React.createClass({
             index ++;
         });
         return values;
-    },
+    };
 
-    indexValues:function(rowsArray, removeLastRow){
+    indexValues = (rowsArray, removeLastRow) => {
         const indexed = this.indexedValues(rowsArray);
         if(this.props.onChange){
             if(removeLastRow){
@@ -76,9 +75,9 @@ export default React.createClass({
                 this.props.onChange(indexed, true);
             }
         }
-    },
+    };
 
-    instances:function(){
+    instances = () => {
         // Analyze current value to grab number of rows.
         let rows = [], subVal, index = 0;
         while(subVal = this.buildSubValue(this.props.values, index)){
@@ -94,46 +93,46 @@ export default React.createClass({
             rows.push(emptyValue);
         }
         return rows;
-    },
+    };
 
-    addRow:function(){
+    addRow = () => {
         let newValue={}, currentValues = this.instances();
         this.props.parameters.map(function(p) {
             newValue[p['name']] = p['default'] || '';
         });
         currentValues.push(newValue);
         this.indexValues(currentValues);
-    },
+    };
 
-    removeRow:function(index){
+    removeRow = (index) => {
         let instances = this.instances();
         const removeInst = instances[index];
         instances = LangUtils.arrayWithout(this.instances(), index);
         instances.push(removeInst);
         this.indexValues(instances, true);
-    },
+    };
 
-    swapRows:function(i,j){
+    swapRows = (i, j) => {
         let instances = this.instances();
         let tmp = instances[j];
         instances[j] = instances[i];
         instances[i] = tmp;
         this.indexValues(instances);
-    },
+    };
 
-    onChange:function(index, newValues, dirty){
+    onChange = (index, newValues, dirty) => {
         let instances = this.instances();
         instances[index] = newValues;
         this.indexValues(instances);
-    },
+    };
 
-    onParameterChange:function(index, paramName, newValue, oldValue){
+    onParameterChange = (index, paramName, newValue, oldValue) => {
         let instances = this.instances();
         instances[index][paramName] = newValue;
         this.indexValues(instances);
-    },
+    };
 
-    render:function(){
+    render() {
         const {parameters, disabled} = this.props;
         let firstParam = parameters[0];
         const replicationTitle = firstParam['replicationTitle'] || firstParam['label'];
@@ -180,5 +179,4 @@ export default React.createClass({
 
         );
     }
-
-});
+}

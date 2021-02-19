@@ -28,7 +28,11 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-exports['default'] = _react2['default'].createClass({
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+exports['default'] = _createReactClass2['default']({
     displayName: 'DynamicLeftPanel',
 
     propTypes: {

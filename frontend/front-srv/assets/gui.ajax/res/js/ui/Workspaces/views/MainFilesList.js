@@ -99,59 +99,58 @@ class ComponentConfigsParser {
 
 }
 
-let MainFilesList = React.createClass({
-
-    propTypes: {
+class MainFilesList extends React.Component {
+    static propTypes = {
         pydio: React.PropTypes.instanceOf(Pydio),
         horizontalRibbon: React.PropTypes.bool
-    },
+    };
 
-    statics: {
-        computeLabel:(node)=>{
-            let label = node.getLabel();
-            if(node.isLeaf() && label[0] !== "."){
-                let ext = PathUtils.getFileExtension(label);
-                if(ext){
-                    ext = '.' + ext;
-                    label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:'none'}}>{ext}</span></span>;
-                }
+    static computeLabel = (node)=>{
+        let label = node.getLabel();
+        if(node.isLeaf() && label[0] !== "."){
+            let ext = PathUtils.getFileExtension(label);
+            if(ext){
+                ext = '.' + ext;
+                label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:'none'}}>{ext}</span></span>;
             }
-            return label;
-        },
-
-        tableEntryRenderCell: function(node){
-            return (
-                <span>
-                    <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
-                    <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{node.getLabel()}</span>
-                </span>
-            );
         }
-    },
+        return label;
+    };
 
-    getInitialState(){
+    static tableEntryRenderCell(node) {
+        return (
+            <span>
+                <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
+                <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{node.getLabel()}</span>
+            </span>
+        );
+    }
+
+    constructor(props, context) {
+        super(props, context);
         let configParser = new ComponentConfigsParser();
         let columns = configParser.loadConfigs('FilesList').get('columns');
-        const dMode = this.displayModeFromPrefs(this.props.displayMode);
+        const dMode = this.displayModeFromPrefs(props.displayMode);
         let tSize = 200;
         if(dMode === 'grid-320') {
             tSize = 320;
         } else if(dMode === 'grid-80') {
             tSize = 80;
         }
-        return {
-            contextNode : this.props.pydio.getContextHolder().getContextNode(),
+
+        this.state = {
+            contextNode : props.pydio.getContextHolder().getContextNode(),
             displayMode : dMode,
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
             columns     : columns ? columns : configParser.getDefaultListColumns(),
-            parentIsScrolling: this.props.parentIsScrolling,
-            repositoryId: this.props.pydio.repositoryId
-        }
-    },
+            parentIsScrolling: props.parentIsScrolling,
+            repositoryId: props.pydio.repositoryId
+        };
+    }
 
-    displayModeFromPrefs(defaultMode){
+    displayModeFromPrefs = (defaultMode) => {
         const {pydio} = this.props;
         if(!pydio.user){
             return defaultMode || 'list';
@@ -162,14 +161,14 @@ let MainFilesList = React.createClass({
             return guiPrefs['FilesListDisplayMode'][slug];
         }
         return defaultMode || 'list';
-    },
+    };
 
     /**
      * Save displayMode to user prefs
      * @param mode
      * @return {string}
      */
-    displayModeToPrefs(mode){
+    displayModeToPrefs = (mode) => {
         const {pydio} = this.props;
         if(!pydio.user){
             return 'list';
@@ -181,9 +180,9 @@ let MainFilesList = React.createClass({
         guiPrefs['FilesListDisplayMode'] = dPrefs;
         pydio.user.setPreference('gui_preferences', guiPrefs, true);
         pydio.user.savePreference('gui_preferences');
-    },
+    };
 
-    componentDidMount(){
+    componentDidMount() {
         // Hook to the central datamodel
         this._contextObserver = function(){
             this.setState({contextNode: this.props.pydio.getContextHolder().getContextNode()});
@@ -200,9 +199,9 @@ let MainFilesList = React.createClass({
         if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
             this.props.onDisplayModeChange(this.state.displayMode);
         }
-    },
+    }
 
-    componentWillUnmount: function(){
+    componentWillUnmount() {
         this.props.pydio.getContextHolder().stopObserving("context_changed", this._contextObserver);
         this.getPydioActions(true).map(function(key){
             this.props.pydio.getController().deleteFromGuiActions(key);
@@ -212,13 +211,13 @@ let MainFilesList = React.createClass({
         }else{
             window.detachEvent('onresize', this.recomputeThumbnailsDimension);
         }
-    },
+    }
 
-    shouldComponentUpdate: function(nextProps, nextState){
+    shouldComponentUpdate(nextProps, nextState) {
         return (!this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextState !== this.state );
-    },
+    }
 
-    componentWillReceiveProps: function(){
+    componentWillReceiveProps() {
         if(this.state && this.state.repositoryId !== this.props.pydio.repositoryId ){
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
             let configParser = new ComponentConfigsParser();
@@ -246,13 +245,13 @@ let MainFilesList = React.createClass({
                 }
             })
         }
-    },
+    }
 
-    resize: function(){
+    resize = () => {
         this.recomputeThumbnailsDimension();
-    },
+    };
 
-    recomputeThumbnailsDimension: function(nearest){
+    recomputeThumbnailsDimension = (nearest) => {
 
         const MAIN_CONTAINER_FULL_PADDING = 2;
         const THUMBNAIL_MARGIN = 1;
@@ -303,9 +302,9 @@ let MainFilesList = React.createClass({
 
         }
 
-    },
+    };
 
-    entryRenderIcon: function(node, entryProps = {}){
+    entryRenderIcon = (node, entryProps = {}) => {
         if(entryProps && entryProps.parent){
             return (
                 <FilePreview
@@ -327,9 +326,9 @@ let MainFilesList = React.createClass({
                 />
             );
         }
-    },
+    };
 
-    entryRenderActions(node){
+    entryRenderActions = (node) => {
         let content = null;
         const {pydio} = this.props;
         const mobile = pydio.UI.MOBILE_EXTENSIONS;
@@ -352,9 +351,9 @@ let MainFilesList = React.createClass({
         }
         return content;
 
-    },
+    };
 
-    entryHandleClicks: function(node, clickType, event){
+    entryHandleClicks = (node, clickType, event) => {
         let dm = this.props.pydio.getContextHolder();
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS || this.props.horizontalRibbon;
         if(dm.getContextNode().getParent() === node && clickType === SimpleList.CLICK_TYPE_SIMPLE){
@@ -383,9 +382,9 @@ let MainFilesList = React.createClass({
                 dm.requireContextChange(node);
             }
         }
-    },
+    };
 
-    entryRenderSecondLine: function(node){
+    entryRenderSecondLine = (node) => {
         let metaData = node.getMetadata();
         let pieces = [];
         const standardPieces = [];
@@ -466,9 +465,9 @@ let MainFilesList = React.createClass({
         pieces.push(...otherPieces, ...standardPieces);
         return pieces;
 
-    },
+    };
 
-    switchDisplayMode: function(displayMode){
+    switchDisplayMode = (displayMode) => {
         this.setState({displayMode: displayMode}, ()=>{
             let near = null;
             if(displayMode.indexOf('grid-') === 0) {
@@ -481,9 +480,9 @@ let MainFilesList = React.createClass({
             }
             this.props.pydio.notify('actions_refreshed');
         });
-    },
+    };
 
-    buildDisplayModeItems(){
+    buildDisplayModeItems = () => {
         const {displayMode} = this.state;
         const list = [
             {name:'List',title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
@@ -501,9 +500,9 @@ let MainFilesList = React.createClass({
             }
             return i;
         });
-    },
+    };
 
-    getPydioActions: function(keysOnly = false){
+    getPydioActions = (keysOnly = false) => {
         if(keysOnly){
             return ['switch_display_mode'];
         }
@@ -530,9 +529,9 @@ let MainFilesList = React.createClass({
         let buttons = new Map();
         buttons.set('switch_display_mode', multiAction);
         return buttons;
-    },
+    };
 
-    render: function(){
+    render() {
 
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, elementsPerLine = 1, near;
@@ -651,7 +650,6 @@ let MainFilesList = React.createClass({
             />
         );
     }
-
-});
+}
 
 export {MainFilesList as default}

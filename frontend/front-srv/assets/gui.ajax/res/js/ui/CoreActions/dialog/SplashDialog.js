@@ -19,6 +19,7 @@
  */
 
 import React from "react";
+import createReactClass from 'create-react-class';
 import Pydio from "pydio";
 import {Card, CardTitle, CardText, Divider, FlatButton, FontIcon, IconButton, CardActions} from 'material-ui'
 const {ActionDialogMixin, SubmitButtonProviderMixin, Loader} = Pydio.requireLib('boot');
@@ -49,7 +50,8 @@ const mdStyle = `
 }
 `;
 
-const SplashDialog = React.createClass({
+const SplashDialog = createReactClass({
+    displayName: 'SplashDialog',
 
     mixins:[
         ActionDialogMixin,
@@ -65,6 +67,7 @@ const SplashDialog = React.createClass({
             dialogScrollBody: true
         };
     },
+
     submit(){
         this.dismiss();
     },
@@ -131,8 +134,7 @@ const SplashDialog = React.createClass({
                 {credit}
             </div>
         );
-    }
-
+    },
 });
 
 export default SplashDialog

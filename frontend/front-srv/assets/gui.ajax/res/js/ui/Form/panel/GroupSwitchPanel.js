@@ -27,16 +27,15 @@ const LangUtils = require('pydio/util/lang')
  * Sub form with a selector, switching its fields depending
  * on the selector value.
  */
-export default React.createClass({
-
-    propTypes:{
+export default class extends React.Component {
+    static propTypes = {
         paramAttributes:React.PropTypes.object.isRequired,
         parameters:React.PropTypes.array.isRequired,
         values:React.PropTypes.object.isRequired,
         onChange:React.PropTypes.func.isRequired
-    },
+    };
 
-    computeSubPanelParameters:function(){
+    computeSubPanelParameters = () => {
 
         // CREATE SUB FORM PANEL
         // Get all values
@@ -84,9 +83,9 @@ export default React.createClass({
 
         return switchValues;
 
-    },
+    };
 
-    clearSubParametersValues:function(parentName, newValue, newFields){
+    clearSubParametersValues = (parentName, newValue, newFields) => {
         let vals = LangUtils.deepCopy(this.props.values);
         let toRemove = {};
         for(let key in vals){
@@ -111,13 +110,13 @@ export default React.createClass({
         });
         this.props.onChange(vals, true, toRemove);
         //this.onParameterChange(parentName, newValue);
-    },
+    };
 
-    onChange:function(newValues, dirty, removeValues){
+    onChange = (newValues, dirty, removeValues) => {
         this.props.onChange(newValues, true, removeValues);
-    },
+    };
 
-    render:function(){
+    render() {
         const attributes = this.props.paramAttributes;
         const values = this.props.values;
 
@@ -190,5 +189,4 @@ export default React.createClass({
             </div>
         );
     }
-
-});
+}

@@ -38,8 +38,8 @@ var _Moment2 = _interopRequireDefault(_Moment);
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
  */
-exports['default'] = React.createClass({
-    displayName: 'ActivityWarningDialog',
+var createReactClass = require('create-react-class');
+exports['default'] = createReactClass({
 
     mixins: [_ActionDialogMixin2['default']],
 

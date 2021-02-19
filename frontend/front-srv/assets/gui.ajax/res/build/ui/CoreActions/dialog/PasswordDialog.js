@@ -31,17 +31,20 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _materialUi = require('material-ui');
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 var BootUI = require('pydio/http/resources-manager').requireLib('boot');
 var ActionDialogMixin = BootUI.ActionDialogMixin;
 var AsyncComponent = BootUI.AsyncComponent;
 
-var PasswordDialog = React.createClass({
+var PasswordDialog = createReactClass({
     displayName: 'PasswordDialog',
 
     mixins: [ActionDialogMixin],
+
     getInitialState: function getInitialState() {
         return { passValid: false };
     },
+
     getDefaultProps: function getDefaultProps() {
         return {
             dialogTitle: _pydio2['default'].getMessages()[194],
@@ -49,6 +52,7 @@ var PasswordDialog = React.createClass({
             dialogSize: 'sm'
         };
     },
+
     getButtons: function getButtons() {
         var _this = this;
 
@@ -73,6 +77,7 @@ var PasswordDialog = React.createClass({
             if (value) this.dismiss();
         }).bind(this));
     },
+
     passValidStatusChange: function passValidStatusChange(status) {
         var _this2 = this;
 
@@ -91,7 +96,6 @@ var PasswordDialog = React.createClass({
             onValidStatusChange: this.passValidStatusChange
         });
     }
-
 });
 
 exports['default'] = PasswordDialog;

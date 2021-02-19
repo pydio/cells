@@ -19,19 +19,20 @@
  */
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {TextField} from 'material-ui'
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
 
-export default React.createClass({
+export default createReactClass({
+    displayName: 'ServerPromptDialog',
 
     mixins:[
         ActionDialogMixin,
         CancelButtonProviderMixin,
         SubmitButtonProviderMixin
     ],
-
 
     propTypes: {
         /**
@@ -158,6 +159,5 @@ export default React.createClass({
         }
         return legend;
 
-    }
-
+    },
 });

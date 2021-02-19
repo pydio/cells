@@ -25,13 +25,10 @@ const LangUtils = require('pydio/util/lang')
 const {Textfit} = require('react-textfit')
 
 
-let Breadcrumb = React.createClass({
+class Breadcrumb extends React.Component {
+    state = {node: null, minFit: false};
 
-    getInitialState(){
-        return {node: null, minFit: false};
-    },
-
-    componentDidMount(){
+    componentDidMount() {
         let n = this.props.pydio.getContextHolder().getContextNode();
         if(n){
             this.setState({node: n});
@@ -40,26 +37,26 @@ let Breadcrumb = React.createClass({
             this.setState({node: event.memo, minFit: false});
         }.bind(this);
         this.props.pydio.getContextHolder().observe("context_changed", this._observer);
-    },
+    }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         this.props.pydio.getContextHolder().stopObserving("context_changed", this._observer);
-    },
+    }
 
-    goTo(target, event){
+    goTo = (target, event) => {
         const targetNode = new PydioNode(target);
         this.props.pydio.getContextHolder().requireContextChange(targetNode);
-    },
+    };
 
-    toggleMinFit(font){
+    toggleMinFit = (font) => {
         const {minFit} = this.state;
         const newMinFit = (font === 12);
         if(newMinFit !== minFit) {
             this.setState({minFit: newMinFit});
         }
-    },
+    };
 
-    render(){
+    render() {
         const {pydio, muiTheme, rootStyle} = this.props;
         const {node, minFit} = this.state;
         const styles = {
@@ -107,8 +104,7 @@ let Breadcrumb = React.createClass({
             </Textfit>
         );
     }
-
-});
+}
 
 Breadcrumb = muiThemeable()(Breadcrumb);
 

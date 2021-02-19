@@ -30,6 +30,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _GroupSwitchPanel = require('./GroupSwitchPanel');
 
 var _GroupSwitchPanel2 = _interopRequireDefault(_GroupSwitchPanel);
@@ -56,9 +60,8 @@ var _materialUi = require("material-ui");
  *
  * See also Manager class to get some utilitary functions to parse parameters and extract values for the form.
  */
-exports['default'] = _react2['default'].createClass({
+exports['default'] = _createReactClass2['default']({
     displayName: 'FormPanel',
-
     _hiddenValues: {},
     _internalValid: null,
     _parametersMetadata: null,
@@ -616,6 +619,5 @@ exports['default'] = _react2['default'].createClass({
             );
         }
     }
-
 });
 module.exports = exports['default'];

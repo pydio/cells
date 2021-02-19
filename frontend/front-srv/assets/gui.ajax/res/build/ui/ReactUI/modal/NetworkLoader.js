@@ -17,12 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = React.createClass({
-    displayName: 'NetworkLoader',
+var createReactClass = require('create-react-class');
+
+exports['default'] = createReactClass({
 
     componentDidMount: function componentDidMount() {
         var _this = this;

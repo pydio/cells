@@ -30,11 +30,15 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _InfoPanelCard = require('./InfoPanelCard');
 
 var _InfoPanelCard2 = _interopRequireDefault(_InfoPanelCard);
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = _createReactClass2['default']({
     displayName: 'RootNode',
 
     getInitialState: function getInitialState() {
@@ -94,6 +98,5 @@ exports['default'] = _react2['default'].createClass({
             content
         );
     }
-
 });
 module.exports = exports['default'];

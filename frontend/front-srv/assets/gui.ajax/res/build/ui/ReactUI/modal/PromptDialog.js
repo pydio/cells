@@ -28,6 +28,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require("material-ui");
 
 var _pydioUtilDom = require('pydio/util/dom');
@@ -58,8 +62,8 @@ var ModernTextField = _Pydio$requireLib.ModernTextField;
  * Ready-to-use dialog for requiring information (text or password) from the user
  *
  */
-exports["default"] = _react2["default"].createClass({
-    displayName: "PromptDialog",
+exports["default"] = _createReactClass2["default"]({
+    displayName: 'PromptDialog',
 
     propTypes: {
         /**
@@ -101,6 +105,7 @@ exports["default"] = _react2["default"].createClass({
             fieldType: 'text'
         };
     },
+
     getInitialState: function getInitialState() {
         if (this.props.defaultValue) {
             return { internalValue: this.props.defaultValue };
@@ -108,6 +113,7 @@ exports["default"] = _react2["default"].createClass({
             return { internalValue: '' };
         }
     },
+
     /**
      * Trigger props callback and dismiss modal
      */
@@ -160,6 +166,5 @@ exports["default"] = _react2["default"].createClass({
             })
         );
     }
-
 });
 module.exports = exports["default"];

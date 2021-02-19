@@ -41,8 +41,8 @@ var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMi
 
 var _materialUi = require('material-ui');
 
-exports['default'] = React.createClass({
-    displayName: 'ConfirmDialog',
+var createReactClass = require('create-react-class');
+exports['default'] = createReactClass({
 
     propTypes: {
         message: React.PropTypes.string.isRequired,

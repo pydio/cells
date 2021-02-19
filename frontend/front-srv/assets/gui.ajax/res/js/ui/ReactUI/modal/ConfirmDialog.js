@@ -18,12 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
+const createReactClass = require('create-react-class');
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
 import {Checkbox} from 'material-ui'
 
-export default React.createClass({
+export default createReactClass({
 
     propTypes: {
         message: React.PropTypes.string.isRequired,

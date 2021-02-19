@@ -19,6 +19,7 @@
  */
 
 const React = require('react')
+const createReactClass = require('create-react-class');
 import AsyncComponent from '../AsyncComponent'
 import PydioContextConsumer from '../PydioContextConsumer'
 const {FlatButton, Dialog} = require('material-ui')
@@ -28,7 +29,8 @@ import DOMUtils from "pydio/util/dom";
 /**
  * Specific AsyncComponent for Modal Dialog
  */
-let AsyncModal = React.createClass({
+let AsyncModal = createReactClass({
+    displayName: 'AsyncModal',
 
     propTypes: {
         size:       React.PropTypes.oneOf(['xxs', 'xs', 'sm', 'md', 'lg', 'xl']),
@@ -355,7 +357,7 @@ let AsyncModal = React.createClass({
                 overlayStyle={overlayStyle}
             >{modalContent}</Dialog>
         );
-    }
+    },
 });
 
 AsyncModal = PydioContextConsumer(AsyncModal)

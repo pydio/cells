@@ -28,6 +28,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydio = require("pydio");
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -46,8 +50,8 @@ var Loader = _Pydio$requireLib.Loader;
 
 var mdStyle = "\n.credits-md h4 {\n    padding-top: 0;\n}\n\n.credits-md h5 {\n    font-weight: 500;\n}\n\n.credits-md ul {\n    padding-left: 20px;\n    padding-bottom: 20px;\n}\n\n.credits-md li {\n    list-style-type: square;\n    line-height: 1.6em;\n}\n\n.credits-md a {\n    color: #607D8B;\n    font-weight: 500;\n}\n";
 
-var SplashDialog = _react2["default"].createClass({
-    displayName: "SplashDialog",
+var SplashDialog = _createReactClass2["default"]({
+    displayName: 'SplashDialog',
 
     mixins: [ActionDialogMixin, SubmitButtonProviderMixin],
 
@@ -60,6 +64,7 @@ var SplashDialog = _react2["default"].createClass({
             dialogScrollBody: true
         };
     },
+
     submit: function submit() {
         this.dismiss();
     },
@@ -139,7 +144,6 @@ var SplashDialog = _react2["default"].createClass({
             credit
         );
     }
-
 });
 
 exports["default"] = SplashDialog;

@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var React = require('react');
 var PydioNode = require('pydio/model/node');
 
@@ -37,14 +41,34 @@ var _require2 = require('react-textfit');
 
 var Textfit = _require2.Textfit;
 
-var Breadcrumb = React.createClass({
-    displayName: 'Breadcrumb',
+var Breadcrumb = (function (_React$Component) {
+    _inherits(Breadcrumb, _React$Component);
 
-    getInitialState: function getInitialState() {
-        return { node: null, minFit: false };
-    },
+    function Breadcrumb() {
+        var _this = this;
 
-    componentDidMount: function componentDidMount() {
+        _classCallCheck(this, Breadcrumb);
+
+        _React$Component.apply(this, arguments);
+
+        this.state = { node: null, minFit: false };
+
+        this.goTo = function (target, event) {
+            var targetNode = new PydioNode(target);
+            _this.props.pydio.getContextHolder().requireContextChange(targetNode);
+        };
+
+        this.toggleMinFit = function (font) {
+            var minFit = _this.state.minFit;
+
+            var newMinFit = font === 12;
+            if (newMinFit !== minFit) {
+                _this.setState({ minFit: newMinFit });
+            }
+        };
+    }
+
+    Breadcrumb.prototype.componentDidMount = function componentDidMount() {
         var n = this.props.pydio.getContextHolder().getContextNode();
         if (n) {
             this.setState({ node: n });
@@ -53,28 +77,14 @@ var Breadcrumb = React.createClass({
             this.setState({ node: event.memo, minFit: false });
         }).bind(this);
         this.props.pydio.getContextHolder().observe("context_changed", this._observer);
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    Breadcrumb.prototype.componentWillUnmount = function componentWillUnmount() {
         this.props.pydio.getContextHolder().stopObserving("context_changed", this._observer);
-    },
+    };
 
-    goTo: function goTo(target, event) {
-        var targetNode = new PydioNode(target);
-        this.props.pydio.getContextHolder().requireContextChange(targetNode);
-    },
-
-    toggleMinFit: function toggleMinFit(font) {
-        var minFit = this.state.minFit;
-
-        var newMinFit = font === 12;
-        if (newMinFit !== minFit) {
-            this.setState({ minFit: newMinFit });
-        }
-    },
-
-    render: function render() {
-        var _this = this;
+    Breadcrumb.prototype.render = function render() {
+        var _this2 = this;
 
         var _props = this.props;
         var pydio = _props.pydio;
@@ -132,7 +142,7 @@ var Breadcrumb = React.createClass({
         return React.createElement(
             Textfit,
             { mode: 'single', perfectFit: false, min: 12, max: 22, className: 'react_breadcrumb', style: mainStyle, onReady: function (f) {
-                    _this.toggleMinFit(f);
+                    _this2.toggleMinFit(f);
                 } },
             this.props.startWithSeparator && React.createElement(
                 'span',
@@ -146,9 +156,10 @@ var Breadcrumb = React.createClass({
             ),
             segments
         );
-    }
+    };
 
-});
+    return Breadcrumb;
+})(React.Component);
 
 exports['default'] = Breadcrumb = muiThemeable()(Breadcrumb);
 

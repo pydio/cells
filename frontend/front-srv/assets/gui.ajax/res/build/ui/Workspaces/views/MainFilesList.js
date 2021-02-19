@@ -24,7 +24,11 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -141,16 +145,32 @@ var ComponentConfigsParser = (function () {
     return ComponentConfigsParser;
 })();
 
-var MainFilesList = _react2['default'].createClass({
-    displayName: 'MainFilesList',
+var MainFilesList = (function (_React$Component) {
+    _inherits(MainFilesList, _React$Component);
 
-    propTypes: {
-        pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
-        horizontalRibbon: _react2['default'].PropTypes.bool
-    },
+    MainFilesList.tableEntryRenderCell = function tableEntryRenderCell(node) {
+        return _react2['default'].createElement(
+            'span',
+            null,
+            _react2['default'].createElement(_FilePreview2['default'], { rounded: true, loadThumbnail: false, node: node, style: { backgroundColor: 'transparent' } }),
+            _react2['default'].createElement(
+                'span',
+                { style: { display: 'block', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }, title: node.getLabel() },
+                node.getLabel()
+            )
+        );
+    };
 
-    statics: {
-        computeLabel: function computeLabel(node) {
+    _createClass(MainFilesList, null, [{
+        key: 'propTypes',
+        value: {
+            pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
+            horizontalRibbon: _react2['default'].PropTypes.bool
+        },
+        enumerable: true
+    }, {
+        key: 'computeLabel',
+        value: function value(node) {
             var label = node.getLabel();
             if (node.isLeaf() && label[0] !== ".") {
                 var ext = _pydioUtilPath2['default'].getFileExtension(label);
@@ -170,78 +190,380 @@ var MainFilesList = _react2['default'].createClass({
             }
             return label;
         },
+        enumerable: true
+    }]);
 
-        tableEntryRenderCell: function tableEntryRenderCell(node) {
-            return _react2['default'].createElement(
-                'span',
-                null,
-                _react2['default'].createElement(_FilePreview2['default'], { rounded: true, loadThumbnail: false, node: node, style: { backgroundColor: 'transparent' } }),
-                _react2['default'].createElement(
+    function MainFilesList(props, context) {
+        var _this = this;
+
+        _classCallCheck(this, MainFilesList);
+
+        _React$Component.call(this, props, context);
+
+        this.displayModeFromPrefs = function (defaultMode) {
+            var pydio = _this.props.pydio;
+
+            if (!pydio.user) {
+                return defaultMode || 'list';
+            }
+            var slug = pydio.user.getActiveRepositoryObject().getSlug();
+            var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
+            if (guiPrefs['FilesListDisplayMode'] && guiPrefs['FilesListDisplayMode'][slug]) {
+                return guiPrefs['FilesListDisplayMode'][slug];
+            }
+            return defaultMode || 'list';
+        };
+
+        this.displayModeToPrefs = function (mode) {
+            var pydio = _this.props.pydio;
+
+            if (!pydio.user) {
+                return 'list';
+            }
+            var slug = pydio.user.getActiveRepositoryObject().getSlug();
+            var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
+            var dPrefs = guiPrefs['FilesListDisplayMode'] || {};
+            dPrefs[slug] = mode;
+            guiPrefs['FilesListDisplayMode'] = dPrefs;
+            pydio.user.setPreference('gui_preferences', guiPrefs, true);
+            pydio.user.savePreference('gui_preferences');
+        };
+
+        this.resize = function () {
+            _this.recomputeThumbnailsDimension();
+        };
+
+        this.recomputeThumbnailsDimension = function (nearest) {
+
+            var MAIN_CONTAINER_FULL_PADDING = 2;
+            var THUMBNAIL_MARGIN = 1;
+            var containerWidth = undefined;
+            try {
+                containerWidth = _reactDom2['default'].findDOMNode(_this.refs['list'].refs['infinite']).clientWidth - MAIN_CONTAINER_FULL_PADDING;
+            } catch (e) {
+                containerWidth = 200;
+            }
+            if (_this.state.displayMode.indexOf('grid') === 0) {
+                if (!nearest || nearest instanceof Event) {
+                    nearest = _this.state.thumbNearest;
+                }
+                // Find nearest dim
+                var blockNumber = Math.floor(containerWidth / nearest);
+                var width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
+                if (_this.props.horizontalRibbon) {
+                    blockNumber = _this.state.contextNode.getChildren().size;
+                    if (_this.state.displayMode === 'grid-160') {
+                        width = 160;
+                    } else if (_this.state.displayMode === 'grid-320') {
+                        width = 320;
+                    } else if (_this.state.displayMode === 'grid-80') {
+                        width = 80;
+                    } else {
+                        width = 200;
+                    }
+                }
+                _this.setState({
+                    elementsPerLine: blockNumber,
+                    thumbSize: width,
+                    thumbNearest: nearest
+                });
+            } else {
+                (function () {
+                    // Recompute columns widths
+                    var columns = _this.state.columns;
+                    var columnKeys = Object.keys(columns);
+                    var defaultFirstWidthPercent = 10;
+                    var firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
+                    var otherColWidth = (containerWidth - firstColWidth) / (Object.keys(_this.state.columns).length - 1);
+                    columnKeys.map(function (columnKey) {
+                        columns[columnKey]['width'] = otherColWidth;
+                    });
+                    _this.setState({
+                        columns: columns
+                    });
+                })();
+            }
+        };
+
+        this.entryRenderIcon = function (node) {
+            var entryProps = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+            if (entryProps && entryProps.parent) {
+                return _react2['default'].createElement(_FilePreview2['default'], {
+                    loadThumbnail: false,
+                    node: node,
+                    mimeClassName: 'mimefont mdi mdi-chevron-left',
+                    onTouchTap: function () {
+                        _this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE);
+                    },
+                    style: { cursor: 'pointer' }
+                });
+            } else {
+                var hasThumbnail = !!node.getMetadata().get("thumbnails");
+                var processing = !!node.getMetadata().get('Processing');
+                return _react2['default'].createElement(_FilePreview2['default'], {
+                    loadThumbnail: !entryProps['parentIsScrolling'] && hasThumbnail && !processing,
+                    node: node,
+                    processing: processing
+                });
+            }
+        };
+
+        this.entryRenderActions = function (node) {
+            var content = null;
+            var pydio = _this.props.pydio;
+
+            var mobile = pydio.UI.MOBILE_EXTENSIONS;
+            var dm = pydio.getContextHolder();
+            if (mobile) {
+                var _ret3 = (function () {
+                    var ContextMenuModel = require('pydio/model/context-menu');
+                    return {
+                        v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', style: { zIndex: 0, padding: 10 }, tooltip: 'Info', onClick: function (event) {
+                                pydio.observeOnce('actions_refreshed', function () {
+                                    ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
+                                });
+                                event.stopPropagation();
+                                dm.setSelectedNodes([node]);
+                                ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
+                            } })
+                    };
+                })();
+
+                if (typeof _ret3 === 'object') return _ret3.v;
+            } else if (node.getMetadata().get('overlay_class')) {
+                var elements = node.getMetadata().get('overlay_class').split(',').filter(function (c) {
+                    return !!c;
+                }).map(function (c) {
+                    return _react2['default'].createElement(_OverlayIcon2['default'], { node: node, key: c, overlay: c, pydio: pydio });
+                });
+                content = _react2['default'].createElement(
+                    'div',
+                    { className: 'overlay_icon_div' },
+                    elements
+                );
+            }
+            return content;
+        };
+
+        this.entryHandleClicks = function (node, clickType, event) {
+            var dm = _this.props.pydio.getContextHolder();
+            var mobile = _this.props.pydio.UI.MOBILE_EXTENSIONS || _this.props.horizontalRibbon;
+            if (dm.getContextNode().getParent() === node && clickType === SimpleList.CLICK_TYPE_SIMPLE) {
+                return;
+            }
+            if (!mobile && (!clickType || clickType === SimpleList.CLICK_TYPE_SIMPLE)) {
+                var crtSelection = dm.getSelectedNodes();
+                if (event && event.shiftKey && crtSelection.length) {
+                    var newSelection = _this.refs.list.computeSelectionFromCurrentPlusTargetNode(crtSelection, node);
+                    dm.setSelectedNodes(newSelection);
+                } else if (event && (event.ctrlKey || event.metaKey) && crtSelection.length) {
+                    if (crtSelection.indexOf(node) === -1) {
+                        dm.setSelectedNodes([].concat(crtSelection, [node]));
+                    } else {
+                        var otherSelection = crtSelection.filter(function (obj) {
+                            return obj !== node;
+                        });
+                        dm.setSelectedNodes(otherSelection);
+                    }
+                } else {
+                    dm.setSelectedNodes([node]);
+                }
+            } else if (mobile || clickType === SimpleList.CLICK_TYPE_DOUBLE) {
+                if (!node.isBrowsable()) {
+                    dm.setSelectedNodes([node]);
+                    _this.props.pydio.Controller.fireAction("open_with_unique");
+                } else {
+                    dm.requireContextChange(node);
+                }
+            }
+        };
+
+        this.entryRenderSecondLine = function (node) {
+            var metaData = node.getMetadata();
+            var pieces = [];
+            var standardPieces = [];
+            var otherPieces = [];
+
+            if (metaData.has('pending_operation')) {
+                if (metaData.has('pending_operation_uuid')) {
+                    return _react2['default'].createElement(SingleJobProgress, { jobID: metaData.get('pending_operation_uuid'), style: { display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }, progressStyle: { width: 60, paddingRight: 10 }, labelStyle: { flex: 1 } });
+                } else {
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
+                        metaData.get('pending_operation')
+                    );
+                }
+            }
+
+            if (metaData.get('ajxp_modiftime')) {
+                var mDate = moment(parseFloat(metaData.get('ajxp_modiftime')) * 1000);
+                var dateString = mDate.calendar();
+                if (dateString.indexOf('/') > -1) {
+                    dateString = mDate.fromNow();
+                }
+                pieces.push(_react2['default'].createElement(
                     'span',
-                    { style: { display: 'block', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }, title: node.getLabel() },
-                    node.getLabel()
-                )
-            );
-        }
-    },
+                    { key: 'time_description', className: 'metadata_chunk metadata_chunk_description' },
+                    dateString
+                ));
+            }
 
-    getInitialState: function getInitialState() {
+            var first = false;
+            var attKeys = Object.keys(_this.state.columns);
+
+            for (var i = 0; i < attKeys.length; i++) {
+                var s = attKeys[i];
+                var columnDef = _this.state.columns[s];
+                var label = undefined;
+                var standard = false;
+                if (s === 'ajxp_label' || s === 'text') {
+                    continue;
+                } else if (s === "ajxp_modiftime") {
+                    var date = new Date();
+                    date.setTime(parseInt(metaData.get(s)) * 1000);
+                    label = _pydioUtilPath2['default'].formatModifDate(date);
+                    standard = true;
+                } else if (s === "ajxp_dirname" && metaData.get("filename")) {
+                    var dirName = _pydioUtilPath2['default'].getDirname(metaData.get("filename"));
+                    label = dirName ? dirName : "/";
+                    standard = true;
+                } else if (s === "bytesize") {
+                    if (metaData.get(s) === "-") {
+                        continue;
+                    } else {
+                        var test = _pydioUtilPath2['default'].roundFileSize(parseInt(metaData.get(s)));
+                        if (test !== NaN) {
+                            label = test;
+                        } else {
+                            continue;
+                        }
+                    }
+                    standard = true;
+                } else if (columnDef.renderComponent) {
+                    columnDef['name'] = s;
+                    label = columnDef.renderComponent(node, columnDef);
+                    if (label === null) {
+                        continue;
+                    }
+                } else {
+                    if (s === 'mimestring' || s === 'readable_dimension') {
+                        standard = true;
+                    }
+                    var metaValue = metaData.get(s) || "";
+                    if (!metaValue) {
+                        continue;
+                    }
+                    label = metaValue;
+                }
+                var sep = undefined;
+                if (!first) {
+                    sep = _react2['default'].createElement('span', { className: 'icon-angle-right' });
+                }
+                var cellClass = 'metadata_chunk metadata_chunk_' + (standard ? 'standard' : 'other') + ' metadata_chunk_' + s;
+                var cell = _react2['default'].createElement(
+                    'span',
+                    { key: s, className: cellClass },
+                    sep,
+                    _react2['default'].createElement(
+                        'span',
+                        { className: 'text_label' },
+                        label
+                    )
+                );
+                standard ? standardPieces.push(cell) : otherPieces.push(cell);
+            }
+            pieces.push.apply(pieces, otherPieces.concat(standardPieces));
+            return pieces;
+        };
+
+        this.switchDisplayMode = function (displayMode) {
+            _this.setState({ displayMode: displayMode }, function () {
+                var near = null;
+                if (displayMode.indexOf('grid-') === 0) {
+                    near = parseInt(displayMode.split('-')[1]);
+                }
+                _this.recomputeThumbnailsDimension(near);
+                _this.displayModeToPrefs(displayMode);
+                if (_this.props.onDisplayModeChange) {
+                    _this.props.onDisplayModeChange(displayMode);
+                }
+                _this.props.pydio.notify('actions_refreshed');
+            });
+        };
+
+        this.buildDisplayModeItems = function () {
+            var displayMode = _this.state.displayMode;
+
+            var list = [{ name: 'List', title: 227, icon_class: 'mdi mdi-view-list', value: 'list', hasAccessKey: true, accessKey: 'list_access_key' }, { name: 'Detail', title: 461, icon_class: 'mdi mdi-view-headline', value: 'detail', hasAccessKey: true, accessKey: 'detail_access_key' }, { name: 'Thumbs', title: 229, icon_class: 'mdi mdi-view-grid', value: 'grid-160', hasAccessKey: true, accessKey: 'thumbs_access_key' }, { name: 'Thumbs large', title: 229, icon_class: 'mdi mdi-view-agenda', value: 'grid-320', hasAccessKey: false }, { name: 'Thumbs small', title: 229, icon_class: 'mdi mdi-view-module', value: 'grid-80', hasAccessKey: false }];
+            return list.map(function (item) {
+                var i = _extends({}, item);
+                var value = item.value;
+                i.callback = function () {
+                    _this.switchDisplayMode(i.value);
+                };
+                if (value === displayMode) {
+                    i.icon_class = 'mdi mdi-check';
+                }
+                return i;
+            });
+        };
+
+        this.getPydioActions = function () {
+            var keysOnly = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+            if (keysOnly) {
+                return ['switch_display_mode'];
+            }
+            var multiAction = new _pydioModelAction2['default']({
+                name: 'switch_display_mode',
+                icon_class: 'mdi mdi-view-list',
+                text_id: 150,
+                title_id: 151,
+                text: MessageHash[150],
+                title: MessageHash[151],
+                hasAccessKey: false,
+                subMenu: true,
+                subMenuUpdateImage: true
+            }, {
+                selection: false,
+                dir: true,
+                actionBar: true,
+                actionBarGroup: 'display_toolbar',
+                contextMenu: false,
+                infoPanel: false
+            }, {}, {}, {
+                dynamicBuilder: _this.buildDisplayModeItems.bind(_this)
+            });
+            var buttons = new Map();
+            buttons.set('switch_display_mode', multiAction);
+            return buttons;
+        };
+
         var configParser = new ComponentConfigsParser();
         var columns = configParser.loadConfigs('FilesList').get('columns');
-        var dMode = this.displayModeFromPrefs(this.props.displayMode);
+        var dMode = this.displayModeFromPrefs(props.displayMode);
         var tSize = 200;
         if (dMode === 'grid-320') {
             tSize = 320;
         } else if (dMode === 'grid-80') {
             tSize = 80;
         }
-        return {
-            contextNode: this.props.pydio.getContextHolder().getContextNode(),
+
+        this.state = {
+            contextNode: props.pydio.getContextHolder().getContextNode(),
             displayMode: dMode,
             thumbNearest: tSize,
             thumbSize: tSize,
             elementsPerLine: 5,
             columns: columns ? columns : configParser.getDefaultListColumns(),
-            parentIsScrolling: this.props.parentIsScrolling,
-            repositoryId: this.props.pydio.repositoryId
+            parentIsScrolling: props.parentIsScrolling,
+            repositoryId: props.pydio.repositoryId
         };
-    },
+    }
 
-    displayModeFromPrefs: function displayModeFromPrefs(defaultMode) {
-        var pydio = this.props.pydio;
-
-        if (!pydio.user) {
-            return defaultMode || 'list';
-        }
-        var slug = pydio.user.getActiveRepositoryObject().getSlug();
-        var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
-        if (guiPrefs['FilesListDisplayMode'] && guiPrefs['FilesListDisplayMode'][slug]) {
-            return guiPrefs['FilesListDisplayMode'][slug];
-        }
-        return defaultMode || 'list';
-    },
-
-    /**
-     * Save displayMode to user prefs
-     * @param mode
-     * @return {string}
-     */
-    displayModeToPrefs: function displayModeToPrefs(mode) {
-        var pydio = this.props.pydio;
-
-        if (!pydio.user) {
-            return 'list';
-        }
-        var slug = pydio.user.getActiveRepositoryObject().getSlug();
-        var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
-        var dPrefs = guiPrefs['FilesListDisplayMode'] || {};
-        dPrefs[slug] = mode;
-        guiPrefs['FilesListDisplayMode'] = dPrefs;
-        pydio.user.setPreference('gui_preferences', guiPrefs, true);
-        pydio.user.savePreference('gui_preferences');
-    },
-
-    componentDidMount: function componentDidMount() {
+    MainFilesList.prototype.componentDidMount = function componentDidMount() {
         // Hook to the central datamodel
         this._contextObserver = (function () {
             this.setState({ contextNode: this.props.pydio.getContextHolder().getContextNode() });
@@ -258,9 +580,9 @@ var MainFilesList = _react2['default'].createClass({
         if (this.props.onDisplayModeChange && this.state && this.state.displayMode) {
             this.props.onDisplayModeChange(this.state.displayMode);
         }
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    MainFilesList.prototype.componentWillUnmount = function componentWillUnmount() {
         this.props.pydio.getContextHolder().stopObserving("context_changed", this._contextObserver);
         this.getPydioActions(true).map((function (key) {
             this.props.pydio.getController().deleteFromGuiActions(key);
@@ -270,366 +592,47 @@ var MainFilesList = _react2['default'].createClass({
         } else {
             window.detachEvent('onresize', this.recomputeThumbnailsDimension);
         }
-    },
+    };
 
-    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+    MainFilesList.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps, nextState) {
         return !this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextState !== this.state;
-    },
+    };
 
-    componentWillReceiveProps: function componentWillReceiveProps() {
-        var _this = this;
+    MainFilesList.prototype.componentWillReceiveProps = function componentWillReceiveProps() {
+        var _this2 = this;
 
         if (this.state && this.state.repositoryId !== this.props.pydio.repositoryId) {
             (function () {
-                _this.props.pydio.getController().updateGuiActions(_this.getPydioActions());
+                _this2.props.pydio.getController().updateGuiActions(_this2.getPydioActions());
                 var configParser = new ComponentConfigsParser();
                 var columns = configParser.loadConfigs('FilesList').get('columns');
-                var dMode = _this.displayModeFromPrefs(_this.state ? _this.state.displayMode : 'list');
-                if (_this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0) {
+                var dMode = _this2.displayModeFromPrefs(_this2.state ? _this2.state.displayMode : 'list');
+                if (_this2.state.displayMode !== dMode && dMode.indexOf('grid-') === 0) {
                     var tSize = 200;
                     if (dMode === 'grid-320') {
                         tSize = 320;
                     } else if (dMode === 'grid-80') {
                         tSize = 80;
                     }
-                    _this.setState({
+                    _this2.setState({
                         thumbNearest: tSize,
                         thumbSize: tSize
                     });
                 }
-                _this.setState({
-                    repositoryId: _this.props.pydio.repositoryId,
+                _this2.setState({
+                    repositoryId: _this2.props.pydio.repositoryId,
                     columns: columns ? columns : configParser.getDefaultListColumns(),
                     displayMode: dMode
                 }, function () {
-                    if (_this.props.onDisplayModeChange) {
-                        _this.props.onDisplayModeChange(dMode);
+                    if (_this2.props.onDisplayModeChange) {
+                        _this2.props.onDisplayModeChange(dMode);
                     }
                 });
             })();
         }
-    },
+    };
 
-    resize: function resize() {
-        this.recomputeThumbnailsDimension();
-    },
-
-    recomputeThumbnailsDimension: function recomputeThumbnailsDimension(nearest) {
-        var _this2 = this;
-
-        var MAIN_CONTAINER_FULL_PADDING = 2;
-        var THUMBNAIL_MARGIN = 1;
-        var containerWidth = undefined;
-        try {
-            containerWidth = _reactDom2['default'].findDOMNode(this.refs['list'].refs['infinite']).clientWidth - MAIN_CONTAINER_FULL_PADDING;
-        } catch (e) {
-            containerWidth = 200;
-        }
-        if (this.state.displayMode.indexOf('grid') === 0) {
-            if (!nearest || nearest instanceof Event) {
-                nearest = this.state.thumbNearest;
-            }
-            // Find nearest dim
-            var blockNumber = Math.floor(containerWidth / nearest);
-            var width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
-            if (this.props.horizontalRibbon) {
-                blockNumber = this.state.contextNode.getChildren().size;
-                if (this.state.displayMode === 'grid-160') {
-                    width = 160;
-                } else if (this.state.displayMode === 'grid-320') {
-                    width = 320;
-                } else if (this.state.displayMode === 'grid-80') {
-                    width = 80;
-                } else {
-                    width = 200;
-                }
-            }
-            this.setState({
-                elementsPerLine: blockNumber,
-                thumbSize: width,
-                thumbNearest: nearest
-            });
-        } else {
-            (function () {
-                // Recompute columns widths
-                var columns = _this2.state.columns;
-                var columnKeys = Object.keys(columns);
-                var defaultFirstWidthPercent = 10;
-                var firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
-                var otherColWidth = (containerWidth - firstColWidth) / (Object.keys(_this2.state.columns).length - 1);
-                columnKeys.map(function (columnKey) {
-                    columns[columnKey]['width'] = otherColWidth;
-                });
-                _this2.setState({
-                    columns: columns
-                });
-            })();
-        }
-    },
-
-    entryRenderIcon: function entryRenderIcon(node) {
-        var _this3 = this;
-
-        var entryProps = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-        if (entryProps && entryProps.parent) {
-            return _react2['default'].createElement(_FilePreview2['default'], {
-                loadThumbnail: false,
-                node: node,
-                mimeClassName: 'mimefont mdi mdi-chevron-left',
-                onTouchTap: function () {
-                    _this3.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE);
-                },
-                style: { cursor: 'pointer' }
-            });
-        } else {
-            var hasThumbnail = !!node.getMetadata().get("thumbnails");
-            var processing = !!node.getMetadata().get('Processing');
-            return _react2['default'].createElement(_FilePreview2['default'], {
-                loadThumbnail: !entryProps['parentIsScrolling'] && hasThumbnail && !processing,
-                node: node,
-                processing: processing
-            });
-        }
-    },
-
-    entryRenderActions: function entryRenderActions(node) {
-        var content = null;
-        var pydio = this.props.pydio;
-
-        var mobile = pydio.UI.MOBILE_EXTENSIONS;
-        var dm = pydio.getContextHolder();
-        if (mobile) {
-            var _ret4 = (function () {
-                var ContextMenuModel = require('pydio/model/context-menu');
-                return {
-                    v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', style: { zIndex: 0, padding: 10 }, tooltip: 'Info', onClick: function (event) {
-                            pydio.observeOnce('actions_refreshed', function () {
-                                ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
-                            });
-                            event.stopPropagation();
-                            dm.setSelectedNodes([node]);
-                            ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
-                        } })
-                };
-            })();
-
-            if (typeof _ret4 === 'object') return _ret4.v;
-        } else if (node.getMetadata().get('overlay_class')) {
-            var elements = node.getMetadata().get('overlay_class').split(',').filter(function (c) {
-                return !!c;
-            }).map(function (c) {
-                return _react2['default'].createElement(_OverlayIcon2['default'], { node: node, key: c, overlay: c, pydio: pydio });
-            });
-            content = _react2['default'].createElement(
-                'div',
-                { className: 'overlay_icon_div' },
-                elements
-            );
-        }
-        return content;
-    },
-
-    entryHandleClicks: function entryHandleClicks(node, clickType, event) {
-        var dm = this.props.pydio.getContextHolder();
-        var mobile = this.props.pydio.UI.MOBILE_EXTENSIONS || this.props.horizontalRibbon;
-        if (dm.getContextNode().getParent() === node && clickType === SimpleList.CLICK_TYPE_SIMPLE) {
-            return;
-        }
-        if (!mobile && (!clickType || clickType === SimpleList.CLICK_TYPE_SIMPLE)) {
-            var crtSelection = dm.getSelectedNodes();
-            if (event && event.shiftKey && crtSelection.length) {
-                var newSelection = this.refs.list.computeSelectionFromCurrentPlusTargetNode(crtSelection, node);
-                dm.setSelectedNodes(newSelection);
-            } else if (event && (event.ctrlKey || event.metaKey) && crtSelection.length) {
-                if (crtSelection.indexOf(node) === -1) {
-                    dm.setSelectedNodes([].concat(crtSelection, [node]));
-                } else {
-                    var otherSelection = crtSelection.filter(function (obj) {
-                        return obj !== node;
-                    });
-                    dm.setSelectedNodes(otherSelection);
-                }
-            } else {
-                dm.setSelectedNodes([node]);
-            }
-        } else if (mobile || clickType === SimpleList.CLICK_TYPE_DOUBLE) {
-            if (!node.isBrowsable()) {
-                dm.setSelectedNodes([node]);
-                this.props.pydio.Controller.fireAction("open_with_unique");
-            } else {
-                dm.requireContextChange(node);
-            }
-        }
-    },
-
-    entryRenderSecondLine: function entryRenderSecondLine(node) {
-        var metaData = node.getMetadata();
-        var pieces = [];
-        var standardPieces = [];
-        var otherPieces = [];
-
-        if (metaData.has('pending_operation')) {
-            if (metaData.has('pending_operation_uuid')) {
-                return _react2['default'].createElement(SingleJobProgress, { jobID: metaData.get('pending_operation_uuid'), style: { display: 'flex', flexDirection: 'row-reverse', alignItems: 'center' }, progressStyle: { width: 60, paddingRight: 10 }, labelStyle: { flex: 1 } });
-            } else {
-                return _react2['default'].createElement(
-                    'span',
-                    { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
-                    metaData.get('pending_operation')
-                );
-            }
-        }
-
-        if (metaData.get('ajxp_modiftime')) {
-            var mDate = moment(parseFloat(metaData.get('ajxp_modiftime')) * 1000);
-            var dateString = mDate.calendar();
-            if (dateString.indexOf('/') > -1) {
-                dateString = mDate.fromNow();
-            }
-            pieces.push(_react2['default'].createElement(
-                'span',
-                { key: 'time_description', className: 'metadata_chunk metadata_chunk_description' },
-                dateString
-            ));
-        }
-
-        var first = false;
-        var attKeys = Object.keys(this.state.columns);
-
-        for (var i = 0; i < attKeys.length; i++) {
-            var s = attKeys[i];
-            var columnDef = this.state.columns[s];
-            var label = undefined;
-            var standard = false;
-            if (s === 'ajxp_label' || s === 'text') {
-                continue;
-            } else if (s === "ajxp_modiftime") {
-                var date = new Date();
-                date.setTime(parseInt(metaData.get(s)) * 1000);
-                label = _pydioUtilPath2['default'].formatModifDate(date);
-                standard = true;
-            } else if (s === "ajxp_dirname" && metaData.get("filename")) {
-                var dirName = _pydioUtilPath2['default'].getDirname(metaData.get("filename"));
-                label = dirName ? dirName : "/";
-                standard = true;
-            } else if (s === "bytesize") {
-                if (metaData.get(s) === "-") {
-                    continue;
-                } else {
-                    var test = _pydioUtilPath2['default'].roundFileSize(parseInt(metaData.get(s)));
-                    if (test !== NaN) {
-                        label = test;
-                    } else {
-                        continue;
-                    }
-                }
-                standard = true;
-            } else if (columnDef.renderComponent) {
-                columnDef['name'] = s;
-                label = columnDef.renderComponent(node, columnDef);
-                if (label === null) {
-                    continue;
-                }
-            } else {
-                if (s === 'mimestring' || s === 'readable_dimension') {
-                    standard = true;
-                }
-                var metaValue = metaData.get(s) || "";
-                if (!metaValue) {
-                    continue;
-                }
-                label = metaValue;
-            }
-            var sep = undefined;
-            if (!first) {
-                sep = _react2['default'].createElement('span', { className: 'icon-angle-right' });
-            }
-            var cellClass = 'metadata_chunk metadata_chunk_' + (standard ? 'standard' : 'other') + ' metadata_chunk_' + s;
-            var cell = _react2['default'].createElement(
-                'span',
-                { key: s, className: cellClass },
-                sep,
-                _react2['default'].createElement(
-                    'span',
-                    { className: 'text_label' },
-                    label
-                )
-            );
-            standard ? standardPieces.push(cell) : otherPieces.push(cell);
-        }
-        pieces.push.apply(pieces, otherPieces.concat(standardPieces));
-        return pieces;
-    },
-
-    switchDisplayMode: function switchDisplayMode(displayMode) {
-        var _this4 = this;
-
-        this.setState({ displayMode: displayMode }, function () {
-            var near = null;
-            if (displayMode.indexOf('grid-') === 0) {
-                near = parseInt(displayMode.split('-')[1]);
-            }
-            _this4.recomputeThumbnailsDimension(near);
-            _this4.displayModeToPrefs(displayMode);
-            if (_this4.props.onDisplayModeChange) {
-                _this4.props.onDisplayModeChange(displayMode);
-            }
-            _this4.props.pydio.notify('actions_refreshed');
-        });
-    },
-
-    buildDisplayModeItems: function buildDisplayModeItems() {
-        var _this5 = this;
-
-        var displayMode = this.state.displayMode;
-
-        var list = [{ name: 'List', title: 227, icon_class: 'mdi mdi-view-list', value: 'list', hasAccessKey: true, accessKey: 'list_access_key' }, { name: 'Detail', title: 461, icon_class: 'mdi mdi-view-headline', value: 'detail', hasAccessKey: true, accessKey: 'detail_access_key' }, { name: 'Thumbs', title: 229, icon_class: 'mdi mdi-view-grid', value: 'grid-160', hasAccessKey: true, accessKey: 'thumbs_access_key' }, { name: 'Thumbs large', title: 229, icon_class: 'mdi mdi-view-agenda', value: 'grid-320', hasAccessKey: false }, { name: 'Thumbs small', title: 229, icon_class: 'mdi mdi-view-module', value: 'grid-80', hasAccessKey: false }];
-        return list.map(function (item) {
-            var i = _extends({}, item);
-            var value = item.value;
-            i.callback = function () {
-                _this5.switchDisplayMode(i.value);
-            };
-            if (value === displayMode) {
-                i.icon_class = 'mdi mdi-check';
-            }
-            return i;
-        });
-    },
-
-    getPydioActions: function getPydioActions() {
-        var keysOnly = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-
-        if (keysOnly) {
-            return ['switch_display_mode'];
-        }
-        var multiAction = new _pydioModelAction2['default']({
-            name: 'switch_display_mode',
-            icon_class: 'mdi mdi-view-list',
-            text_id: 150,
-            title_id: 151,
-            text: MessageHash[150],
-            title: MessageHash[151],
-            hasAccessKey: false,
-            subMenu: true,
-            subMenuUpdateImage: true
-        }, {
-            selection: false,
-            dir: true,
-            actionBar: true,
-            actionBarGroup: 'display_toolbar',
-            contextMenu: false,
-            infoPanel: false
-        }, {}, {}, {
-            dynamicBuilder: this.buildDisplayModeItems.bind(this)
-        });
-        var buttons = new Map();
-        buttons.set('switch_display_mode', multiAction);
-        return buttons;
-    },
-
-    render: function render() {
+    MainFilesList.prototype.render = function render() {
 
         var tableKeys = undefined,
             sortKeys = undefined,
@@ -751,9 +754,16 @@ var MainFilesList = _react2['default'].createClass({
             hideToolbar: true,
             customToolbar: _react2['default'].createElement(_CellsMessageToolbar2['default'], { pydio: pydio })
         });
-    }
+    };
 
-});
+    return MainFilesList;
+})(_react2['default'].Component);
 
 exports['default'] = MainFilesList;
 module.exports = exports['default'];
+
+/**
+ * Save displayMode to user prefs
+ * @param mode
+ * @return {string}
+ */

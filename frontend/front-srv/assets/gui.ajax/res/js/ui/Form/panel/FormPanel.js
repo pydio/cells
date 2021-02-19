@@ -19,6 +19,7 @@
  */
 
 import React from "react";
+import createReactClass from 'create-react-class';
 import GroupSwitchPanel from './GroupSwitchPanel'
 import ReplicationPanel from './ReplicationPanel'
 import FormManager from '../manager/Manager'
@@ -33,8 +34,8 @@ import {Paper, Tab, Tabs} from "material-ui";
  *
  * See also Manager class to get some utilitary functions to parse parameters and extract values for the form.
  */
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'FormPanel',
     _hiddenValues:{},
     _internalValid:null,
     _parametersMetadata:null,
@@ -550,6 +551,5 @@ export default React.createClass({
         }
 
 
-    }
-
+    },
 });

@@ -59,16 +59,15 @@ let Badge = ({children, muiTheme}) => {
 
 Badge = muiThemeable()(Badge);
 
-const Confirm = React.createClass({
-
-    propTypes:{
+class Confirm extends React.Component {
+    static propTypes = {
         pydio       : React.PropTypes.instanceOf(Pydio),
         onDecline   : React.PropTypes.func,
         onAccept    : React.PropTypes.func,
         mode        : React.PropTypes.oneOf(['new_share','reject_accepted'])
-    },
+    };
 
-    render () {
+    render() {
         let messages = this.props.pydio.MessageHash,
             messageTitle = messages[545],
             messageBody = messages[546],
@@ -103,52 +102,49 @@ const Confirm = React.createClass({
             </Dialog>
         </div>
     }
-});
+}
 
-let WorkspaceEntry =React.createClass({
-
-    propTypes:{
+class WorkspaceEntry extends React.Component {
+    static propTypes = {
         pydio           : React.PropTypes.instanceOf(Pydio).isRequired,
         workspace       : React.PropTypes.instanceOf(Repository).isRequired,
         showFoldersTree : React.PropTypes.bool,
         onHoverLink     : React.PropTypes.func,
         onOutLink       : React.PropTypes.func
-    },
+    };
 
-    getInitialState(){
-        return {
-            openAlert:false,
-            openFoldersTree: false,
-            currentContextNode: this.props.pydio.getContextHolder().getContextNode()
-        };
-    },
+    state = {
+        openAlert:false,
+        openFoldersTree: false,
+        currentContextNode: this.props.pydio.getContextHolder().getContextNode()
+    };
 
-    getLetterBadge(){
+    getLetterBadge = () => {
         return {__html:this.props.workspace.getHtmlBadge(true)};
-    },
+    };
 
-    componentDidMount(){
+    componentDidMount() {
         if(this.props.showFoldersTree){
             this._monitorFolder = function(){
                 this.setState({currentContextNode: this.props.pydio.getContextHolder().getContextNode()});
             }.bind(this);
             this.props.pydio.getContextHolder().observe("context_changed", this._monitorFolder);
         }
-    },
+    }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         if(this._monitorFolder){
             this.props.pydio.getContextHolder().stopObserving("context_changed", this._monitorFolder);
         }
-    },
+    }
 
-    handleAccept () {
+    handleAccept = () => {
         this.props.workspace.setAccessStatus('accepted');
         this.handleCloseAlert();
         this.onClick();
-    },
+    };
 
-    handleDecline () {
+    handleDecline = () => {
         // Switching status to decline
         this.props.workspace.setAccessStatus('declined');
         this.props.pydio.fire("repository_list_refreshed", {
@@ -156,9 +152,9 @@ let WorkspaceEntry =React.createClass({
             active: this.props.pydio.user.getActiveRepository()
         });
         this.handleCloseAlert();
-    },
+    };
 
-    handleOpenAlert (mode = 'new_share', event) {
+    handleOpenAlert = (mode = 'new_share', event) => {
         event.stopPropagation();
         this.wrapper = document.body.appendChild(document.createElement('div'));
         this.wrapper.style.zIndex = 11;
@@ -174,14 +170,14 @@ let WorkspaceEntry =React.createClass({
                 onDecline={mode === 'new_share' ? this.handleDecline.bind(this) : this.handleCloseAlert.bind(this)}
                 onDismiss={this.handleCloseAlert}
             />, this.wrapper);
-    },
+    };
 
-    handleCloseAlert() {
+    handleCloseAlert = () => {
         ReactDOM.unmountComponentAtNode(this.wrapper);
         this.wrapper.remove();
-    },
+    };
 
-    onClick() {
+    onClick = () => {
         if(this.props.workspace.getId() === this.props.pydio.user.activeRepository && this.props.showFoldersTree){
             this.props.pydio.goTo('/');
         }else{
@@ -189,14 +185,14 @@ let WorkspaceEntry =React.createClass({
             this.setState({loading: true});
             this.props.pydio.triggerRepositoryChange(this.props.workspace.getId());
         }
-    },
+    };
 
-    toggleFoldersPanelOpen(ev){
+    toggleFoldersPanelOpen = (ev) => {
         ev.stopPropagation();
         this.setState({openFoldersTree: !this.state.openFoldersTree});
-    },
+    };
 
-    getRootItemStyle(node){
+    getRootItemStyle = (node) => {
         const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
         const accent2 = this.props.muiTheme.palette.accent2Color;
         if(isContext){
@@ -207,9 +203,9 @@ let WorkspaceEntry =React.createClass({
         } else {
             return {};
         }
-    },
+    };
 
-    getItemStyle(node){
+    getItemStyle = (node) => {
         const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
         const accent2 = this.props.muiTheme.palette.accent2Color;
         if(isContext){
@@ -228,9 +224,9 @@ let WorkspaceEntry =React.createClass({
             }
         }
         return {};
-    },
+    };
 
-    workspacePopoverNode(workspace, menuNode = undefined) {
+    workspacePopoverNode = (workspace, menuNode = undefined) => {
         if(menuNode){
             return Promise.resolve(menuNode)
         }
@@ -245,9 +241,9 @@ let WorkspaceEntry =React.createClass({
                 return fakeNode;
             }
         })
-    },
+    };
 
-    workspacePopover(event, menuNode = undefined){
+    workspacePopover = (event, menuNode = undefined) => {
         const {pydio, workspace} = this.props;
         event.stopPropagation();
         const {target} = event;
@@ -280,9 +276,9 @@ let WorkspaceEntry =React.createClass({
                 this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
             }
         });
-    },
+    };
 
-    render(){
+    render() {
 
         const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree} = this.props;
 
@@ -439,8 +435,7 @@ let WorkspaceEntry =React.createClass({
         }
 
     }
-
-});
+}
 
 let ContextMenuWrapper = (props) => {
 

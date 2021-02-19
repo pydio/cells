@@ -46,12 +46,13 @@ var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
  * Specific AsyncComponent for Modal Dialog
  */
 var React = require('react');
+var createReactClass = require('create-react-class');
 
 var _require = require('material-ui');
 
 var FlatButton = _require.FlatButton;
 var Dialog = _require.Dialog;
-var AsyncModal = React.createClass({
+var AsyncModal = createReactClass({
     displayName: 'AsyncModal',
 
     propTypes: {

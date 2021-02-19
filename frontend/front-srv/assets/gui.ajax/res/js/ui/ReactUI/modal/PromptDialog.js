@@ -19,6 +19,7 @@
  */
 
 import React from "react";
+import createReactClass from 'create-react-class';
 import {TextField} from "material-ui";
 import DOMUtils from 'pydio/util/dom';
 import ActionDialogMixin from './ActionDialogMixin'
@@ -32,7 +33,8 @@ const {ModernTextField} = Pydio.requireLib("hoc");
  * Ready-to-use dialog for requiring information (text or password) from the user
  *
  */
-export default React.createClass({
+export default createReactClass({
+    displayName: 'PromptDialog',
 
     propTypes: {
         /**
@@ -78,6 +80,7 @@ export default React.createClass({
             fieldType: 'text'
         };
     },
+
     getInitialState(){
         if(this.props.defaultValue){
             return {internalValue: this.props.defaultValue}
@@ -85,6 +88,7 @@ export default React.createClass({
             return {internalValue: ''}
         }
     },
+
     /**
      * Trigger props callback and dismiss modal
      */
@@ -124,6 +128,5 @@ export default React.createClass({
                 />
             </div>
         );
-    }
-
+    },
 });

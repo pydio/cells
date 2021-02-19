@@ -40,8 +40,8 @@ var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMi
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
  */
-exports['default'] = React.createClass({
-    displayName: 'EmptyDialog',
+var createReactClass = require('create-react-class');
+exports['default'] = createReactClass({
 
     mixins: [_ActionDialogMixin2['default'], _CancelButtonProviderMixin2['default'], _SubmitButtonProviderMixin2['default']],
 

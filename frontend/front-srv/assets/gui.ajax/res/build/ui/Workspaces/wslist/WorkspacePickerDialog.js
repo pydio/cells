@@ -29,13 +29,14 @@ var _WorkspacesListMaterial = require('./WorkspacesListMaterial');
 var _WorkspacesListMaterial2 = _interopRequireDefault(_WorkspacesListMaterial);
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 
 var _require$requireLib = require('pydio').requireLib('boot');
 
 var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _require$requireLib.CancelButtonProviderMixin;
 
-var WorkspacePickerDialog = React.createClass({
+var WorkspacePickerDialog = createReactClass({
     displayName: 'WorkspacePickerDialog',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
@@ -89,7 +90,6 @@ var WorkspacePickerDialog = React.createClass({
             })
         );
     }
-
 });
 
 exports['default'] = WorkspacePickerDialog;

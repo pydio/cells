@@ -28,6 +28,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _ActionDialogMixin = require('./ActionDialogMixin');
@@ -42,7 +46,7 @@ var _SubmitButtonProviderMixin = require('./SubmitButtonProviderMixin');
 
 var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMixin);
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = _createReactClass2['default']({
     displayName: 'ServerPromptDialog',
 
     mixins: [_ActionDialogMixin2['default'], _CancelButtonProviderMixin2['default'], _SubmitButtonProviderMixin2['default']],
@@ -201,6 +205,5 @@ exports['default'] = _react2['default'].createClass({
         }
         return legend;
     }
-
 });
 module.exports = exports['default'];

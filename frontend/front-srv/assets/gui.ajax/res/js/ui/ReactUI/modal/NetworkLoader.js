@@ -17,8 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+const createReactClass = require('create-react-class');
 
-export default React.createClass({
+export default createReactClass({
 
     componentDidMount: function(){
         this.props.pydio.observe('connection-start', () => { this.setState({show: true}) });

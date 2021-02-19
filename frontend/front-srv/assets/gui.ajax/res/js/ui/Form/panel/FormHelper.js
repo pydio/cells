@@ -26,18 +26,17 @@ const {AsyncComponent} = require('pydio').requireLib('boot')
  * Display a form companion linked to a given input.
  * Props: helperData : contains the pluginId and the whole paramAttributes
  */
-export default React.createClass({
-
-    propTypes:{
+export default class extends React.Component {
+    static propTypes = {
         helperData:React.PropTypes.object,
         close:React.PropTypes.func.isRequired
-    },
+    };
 
-    closeHelper:function(){
+    closeHelper = () => {
         this.props.close();
-    },
+    };
 
-    render: function(){
+    render() {
         let helper;
         if(this.props.helperData){
             const helpersCache = Manager.getHelpersCache();
@@ -60,5 +59,4 @@ export default React.createClass({
         }
         return <div className={'pydio-form-helper' + (helper?' helper-visible':' helper-empty')} style={{zIndex:1}}>{helper}</div>;
     }
-
-});
+}

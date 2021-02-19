@@ -24,7 +24,13 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = require("react");
 
@@ -100,17 +106,16 @@ var Badge = function Badge(_ref) {
 
 Badge = _materialUiStyles.muiThemeable()(Badge);
 
-var Confirm = _react2["default"].createClass({
-    displayName: "Confirm",
+var Confirm = (function (_React$Component) {
+    _inherits(Confirm, _React$Component);
 
-    propTypes: {
-        pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]),
-        onDecline: _react2["default"].PropTypes.func,
-        onAccept: _react2["default"].PropTypes.func,
-        mode: _react2["default"].PropTypes.oneOf(['new_share', 'reject_accepted'])
-    },
+    function Confirm() {
+        _classCallCheck(this, Confirm);
 
-    render: function render() {
+        _React$Component.apply(this, arguments);
+    }
+
+    Confirm.prototype.render = function render() {
         var messages = this.props.pydio.MessageHash,
             messageTitle = messages[545],
             messageBody = messages[546],
@@ -142,206 +147,213 @@ var Confirm = _react2["default"].createClass({
                 messageBody
             )
         );
-    }
-});
+    };
 
-var WorkspaceEntry = _react2["default"].createClass({
-    displayName: "WorkspaceEntry",
+    _createClass(Confirm, null, [{
+        key: "propTypes",
+        value: {
+            pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]),
+            onDecline: _react2["default"].PropTypes.func,
+            onAccept: _react2["default"].PropTypes.func,
+            mode: _react2["default"].PropTypes.oneOf(['new_share', 'reject_accepted'])
+        },
+        enumerable: true
+    }]);
 
-    propTypes: {
-        pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]).isRequired,
-        workspace: _react2["default"].PropTypes.instanceOf(Repository).isRequired,
-        showFoldersTree: _react2["default"].PropTypes.bool,
-        onHoverLink: _react2["default"].PropTypes.func,
-        onOutLink: _react2["default"].PropTypes.func
-    },
+    return Confirm;
+})(_react2["default"].Component);
 
-    getInitialState: function getInitialState() {
-        return {
+var WorkspaceEntry = (function (_React$Component2) {
+    _inherits(WorkspaceEntry, _React$Component2);
+
+    function WorkspaceEntry() {
+        var _this = this;
+
+        _classCallCheck(this, WorkspaceEntry);
+
+        _React$Component2.apply(this, arguments);
+
+        this.state = {
             openAlert: false,
             openFoldersTree: false,
             currentContextNode: this.props.pydio.getContextHolder().getContextNode()
         };
-    },
 
-    getLetterBadge: function getLetterBadge() {
-        return { __html: this.props.workspace.getHtmlBadge(true) };
-    },
+        this.getLetterBadge = function () {
+            return { __html: _this.props.workspace.getHtmlBadge(true) };
+        };
 
-    componentDidMount: function componentDidMount() {
+        this.handleAccept = function () {
+            _this.props.workspace.setAccessStatus('accepted');
+            _this.handleCloseAlert();
+            _this.onClick();
+        };
+
+        this.handleDecline = function () {
+            // Switching status to decline
+            _this.props.workspace.setAccessStatus('declined');
+            _this.props.pydio.fire("repository_list_refreshed", {
+                list: _this.props.pydio.user.getRepositoriesList(),
+                active: _this.props.pydio.user.getActiveRepository()
+            });
+            _this.handleCloseAlert();
+        };
+
+        this.handleOpenAlert = function (mode, event) {
+            if (mode === undefined) mode = 'new_share';
+
+            event.stopPropagation();
+            _this.wrapper = document.body.appendChild(document.createElement('div'));
+            _this.wrapper.style.zIndex = 11;
+            var replacements = {
+                '%%OWNER%%': _this.props.workspace.getOwner()
+            };
+            ReactDOM.render(_react2["default"].createElement(Confirm, _extends({}, _this.props, {
+                mode: mode,
+                replacements: replacements,
+                onAccept: mode === 'new_share' ? _this.handleAccept.bind(_this) : _this.handleDecline.bind(_this),
+                onDecline: mode === 'new_share' ? _this.handleDecline.bind(_this) : _this.handleCloseAlert.bind(_this),
+                onDismiss: _this.handleCloseAlert
+            })), _this.wrapper);
+        };
+
+        this.handleCloseAlert = function () {
+            ReactDOM.unmountComponentAtNode(_this.wrapper);
+            _this.wrapper.remove();
+        };
+
+        this.onClick = function () {
+            if (_this.props.workspace.getId() === _this.props.pydio.user.activeRepository && _this.props.showFoldersTree) {
+                _this.props.pydio.goTo('/');
+            } else {
+                _this.props.pydio.observeOnce('repository_list_refreshed', function () {
+                    _this.setState({ loading: false });
+                });
+                _this.setState({ loading: true });
+                _this.props.pydio.triggerRepositoryChange(_this.props.workspace.getId());
+            }
+        };
+
+        this.toggleFoldersPanelOpen = function (ev) {
+            ev.stopPropagation();
+            _this.setState({ openFoldersTree: !_this.state.openFoldersTree });
+        };
+
+        this.getRootItemStyle = function (node) {
+            var isContext = _this.props.pydio.getContextHolder().getContextNode() === node;
+            var accent2 = _this.props.muiTheme.palette.accent2Color;
+            if (isContext) {
+                return {
+                    borderLeft: '4px solid ' + accent2,
+                    paddingLeft: 12
+                };
+            } else {
+                return {};
+            }
+        };
+
+        this.getItemStyle = function (node) {
+            var isContext = _this.props.pydio.getContextHolder().getContextNode() === node;
+            var accent2 = _this.props.muiTheme.palette.accent2Color;
+            if (isContext) {
+                return {
+                    color: 'rgba(0,0,0,.77)',
+                    fontWeight: 500,
+                    backgroundColor: _color2["default"](accent2).fade(.9).toString()
+                };
+            }
+            var isSelected = _this.props.pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1;
+            if (isSelected) {
+                return {
+                    /*backgroundColor: Color(accent2).fade(.9).toString()*/
+                    color: accent2,
+                    fontWeight: 500
+                };
+            }
+            return {};
+        };
+
+        this.workspacePopoverNode = function (workspace) {
+            var menuNode = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+
+            if (menuNode) {
+                return Promise.resolve(menuNode);
+            }
+            return _pydioModelMetaNodeProvider2["default"].loadRoots([workspace.getSlug()]).then(function (results) {
+                if (results && results[workspace.getSlug()]) {
+                    return results[workspace.getSlug()];
+                } else {
+                    var fakeNode = new _pydioModelNode2["default"]('/', false, workspace.getLabel());
+                    fakeNode.setRoot(true);
+                    fakeNode.getMetadata().set('repository_id', workspace.getId());
+                    fakeNode.getMetadata().set('workspaceEntry', workspace);
+                    return fakeNode;
+                }
+            });
+        };
+
+        this.workspacePopover = function (event) {
+            var menuNode = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+            var _props = _this.props;
+            var pydio = _props.pydio;
+            var workspace = _props.workspace;
+
+            event.stopPropagation();
+            var target = event.target;
+
+            var offsetTop = target.getBoundingClientRect().top;
+            var viewportH = _pydioUtilDom2["default"].getViewportHeight();
+            var viewportW = _pydioUtilDom2["default"].getViewportWidth();
+            var popoverTop = viewportH - offsetTop < 250;
+            _this.workspacePopoverNode(workspace, menuNode).then(function (n) {
+                if (workspace.getOwner()) {
+                    _pydioHttpResourcesManager2["default"].loadClassesAndApply(["ShareDialog"], function () {
+                        var popoverContent = _react2["default"].createElement(ShareDialog.CellCard, {
+                            pydio: pydio,
+                            cellId: workspace.getId(),
+                            onDismiss: function () {
+                                _this.setState({ popoverOpen: false });
+                            },
+                            onHeightChange: function () {
+                                _this.setState({ popoverHeight: 500 });
+                            },
+                            editorOneColumn: viewportW < 700,
+                            rootNode: n
+                        });
+                        _this.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
+                    });
+                } else {
+                    var popoverContent = _react2["default"].createElement(_WorkspaceCard2["default"], {
+                        pydio: pydio,
+                        workspace: workspace,
+                        rootNode: n,
+                        onDismiss: function () {
+                            _this.setState({ popoverOpen: false });
+                        }
+                    });
+                    _this.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
+                }
+            });
+        };
+    }
+
+    WorkspaceEntry.prototype.componentDidMount = function componentDidMount() {
         if (this.props.showFoldersTree) {
             this._monitorFolder = (function () {
                 this.setState({ currentContextNode: this.props.pydio.getContextHolder().getContextNode() });
             }).bind(this);
             this.props.pydio.getContextHolder().observe("context_changed", this._monitorFolder);
         }
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    WorkspaceEntry.prototype.componentWillUnmount = function componentWillUnmount() {
         if (this._monitorFolder) {
             this.props.pydio.getContextHolder().stopObserving("context_changed", this._monitorFolder);
         }
-    },
+    };
 
-    handleAccept: function handleAccept() {
-        this.props.workspace.setAccessStatus('accepted');
-        this.handleCloseAlert();
-        this.onClick();
-    },
-
-    handleDecline: function handleDecline() {
-        // Switching status to decline
-        this.props.workspace.setAccessStatus('declined');
-        this.props.pydio.fire("repository_list_refreshed", {
-            list: this.props.pydio.user.getRepositoriesList(),
-            active: this.props.pydio.user.getActiveRepository()
-        });
-        this.handleCloseAlert();
-    },
-
-    handleOpenAlert: function handleOpenAlert(mode, event) {
-        if (mode === undefined) mode = 'new_share';
-
-        event.stopPropagation();
-        this.wrapper = document.body.appendChild(document.createElement('div'));
-        this.wrapper.style.zIndex = 11;
-        var replacements = {
-            '%%OWNER%%': this.props.workspace.getOwner()
-        };
-        ReactDOM.render(_react2["default"].createElement(Confirm, _extends({}, this.props, {
-            mode: mode,
-            replacements: replacements,
-            onAccept: mode === 'new_share' ? this.handleAccept.bind(this) : this.handleDecline.bind(this),
-            onDecline: mode === 'new_share' ? this.handleDecline.bind(this) : this.handleCloseAlert.bind(this),
-            onDismiss: this.handleCloseAlert
-        })), this.wrapper);
-    },
-
-    handleCloseAlert: function handleCloseAlert() {
-        ReactDOM.unmountComponentAtNode(this.wrapper);
-        this.wrapper.remove();
-    },
-
-    onClick: function onClick() {
-        var _this = this;
-
-        if (this.props.workspace.getId() === this.props.pydio.user.activeRepository && this.props.showFoldersTree) {
-            this.props.pydio.goTo('/');
-        } else {
-            this.props.pydio.observeOnce('repository_list_refreshed', function () {
-                _this.setState({ loading: false });
-            });
-            this.setState({ loading: true });
-            this.props.pydio.triggerRepositoryChange(this.props.workspace.getId());
-        }
-    },
-
-    toggleFoldersPanelOpen: function toggleFoldersPanelOpen(ev) {
-        ev.stopPropagation();
-        this.setState({ openFoldersTree: !this.state.openFoldersTree });
-    },
-
-    getRootItemStyle: function getRootItemStyle(node) {
-        var isContext = this.props.pydio.getContextHolder().getContextNode() === node;
-        var accent2 = this.props.muiTheme.palette.accent2Color;
-        if (isContext) {
-            return {
-                borderLeft: '4px solid ' + accent2,
-                paddingLeft: 12
-            };
-        } else {
-            return {};
-        }
-    },
-
-    getItemStyle: function getItemStyle(node) {
-        var isContext = this.props.pydio.getContextHolder().getContextNode() === node;
-        var accent2 = this.props.muiTheme.palette.accent2Color;
-        if (isContext) {
-            return {
-                color: 'rgba(0,0,0,.77)',
-                fontWeight: 500,
-                backgroundColor: _color2["default"](accent2).fade(.9).toString()
-            };
-        }
-        var isSelected = this.props.pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1;
-        if (isSelected) {
-            return {
-                /*backgroundColor: Color(accent2).fade(.9).toString()*/
-                color: accent2,
-                fontWeight: 500
-            };
-        }
-        return {};
-    },
-
-    workspacePopoverNode: function workspacePopoverNode(workspace) {
-        var menuNode = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
-
-        if (menuNode) {
-            return Promise.resolve(menuNode);
-        }
-        return _pydioModelMetaNodeProvider2["default"].loadRoots([workspace.getSlug()]).then(function (results) {
-            if (results && results[workspace.getSlug()]) {
-                return results[workspace.getSlug()];
-            } else {
-                var fakeNode = new _pydioModelNode2["default"]('/', false, workspace.getLabel());
-                fakeNode.setRoot(true);
-                fakeNode.getMetadata().set('repository_id', workspace.getId());
-                fakeNode.getMetadata().set('workspaceEntry', workspace);
-                return fakeNode;
-            }
-        });
-    },
-
-    workspacePopover: function workspacePopover(event) {
+    WorkspaceEntry.prototype.render = function render() {
         var _this2 = this;
-
-        var menuNode = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var workspace = _props.workspace;
-
-        event.stopPropagation();
-        var target = event.target;
-
-        var offsetTop = target.getBoundingClientRect().top;
-        var viewportH = _pydioUtilDom2["default"].getViewportHeight();
-        var viewportW = _pydioUtilDom2["default"].getViewportWidth();
-        var popoverTop = viewportH - offsetTop < 250;
-        this.workspacePopoverNode(workspace, menuNode).then(function (n) {
-            if (workspace.getOwner()) {
-                _pydioHttpResourcesManager2["default"].loadClassesAndApply(["ShareDialog"], function () {
-                    var popoverContent = _react2["default"].createElement(ShareDialog.CellCard, {
-                        pydio: pydio,
-                        cellId: workspace.getId(),
-                        onDismiss: function () {
-                            _this2.setState({ popoverOpen: false });
-                        },
-                        onHeightChange: function () {
-                            _this2.setState({ popoverHeight: 500 });
-                        },
-                        editorOneColumn: viewportW < 700,
-                        rootNode: n
-                    });
-                    _this2.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
-                });
-            } else {
-                var popoverContent = _react2["default"].createElement(_WorkspaceCard2["default"], {
-                    pydio: pydio,
-                    workspace: workspace,
-                    rootNode: n,
-                    onDismiss: function () {
-                        _this2.setState({ popoverOpen: false });
-                    }
-                });
-                _this2.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
-            }
-        });
-    },
-
-    render: function render() {
-        var _this3 = this;
 
         var _props2 = this.props;
         var workspace = _props2.workspace;
@@ -404,7 +416,7 @@ var WorkspaceEntry = _react2["default"].createClass({
             if (showFoldersTree) {
                 if (menuNode.isLoading()) {
                     menuNode.observeOnce("loaded", function () {
-                        _this3.forceUpdate();
+                        _this2.forceUpdate();
                     });
                 }
                 var children = menuNode.getChildren();
@@ -447,7 +459,7 @@ var WorkspaceEntry = _react2["default"].createClass({
             additionalAction = _react2["default"].createElement("span", {
                 className: "workspace-additional-action with-hover mdi mdi-dots-vertical",
                 onClick: function (e) {
-                    return _this3.workspacePopover(e, popoverNode);
+                    return _this2.workspacePopover(e, popoverNode);
                 },
                 style: addStyle
             });
@@ -493,7 +505,7 @@ var WorkspaceEntry = _react2["default"].createClass({
                     autoCloseWhenOffScreen: false,
                     canAutoPosition: true,
                     onRequestClose: function () {
-                        _this3.setState({ popoverOpen: false });
+                        _this2.setState({ popoverOpen: false });
                     },
                     anchorOrigin: { horizontal: "right", vertical: popoverTop ? "bottom" : "center" },
                     targetOrigin: { horizontal: "left", vertical: popoverTop ? "bottom" : "center" },
@@ -520,9 +532,22 @@ var WorkspaceEntry = _react2["default"].createClass({
         } else {
             return wsBlock;
         }
-    }
+    };
 
-});
+    _createClass(WorkspaceEntry, null, [{
+        key: "propTypes",
+        value: {
+            pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]).isRequired,
+            workspace: _react2["default"].PropTypes.instanceOf(Repository).isRequired,
+            showFoldersTree: _react2["default"].PropTypes.bool,
+            onHoverLink: _react2["default"].PropTypes.func,
+            onOutLink: _react2["default"].PropTypes.func
+        },
+        enumerable: true
+    }]);
+
+    return WorkspaceEntry;
+})(_react2["default"].Component);
 
 var ContextMenuWrapper = function ContextMenuWrapper(props) {
     var canDrop = props.canDrop;

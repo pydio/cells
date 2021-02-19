@@ -20,18 +20,22 @@
 
 import Pydio from 'pydio'
 const React = require('react')
+const createReactClass = require('create-react-class');
 const BootUI = require('pydio/http/resources-manager').requireLib('boot');
 const {ActionDialogMixin, AsyncComponent} = BootUI;
 import {FlatButton} from 'material-ui'
 
-const PasswordDialog = React.createClass({
+const PasswordDialog = createReactClass({
+    displayName: 'PasswordDialog',
 
     mixins:[
         ActionDialogMixin
     ],
+
     getInitialState: function(){
         return {passValid: false};
     },
+
     getDefaultProps: function(){
         return {
             dialogTitle: Pydio.getMessages()[194],
@@ -39,6 +43,7 @@ const PasswordDialog = React.createClass({
             dialogSize: 'sm'
         };
     },
+
     getButtons: function(updater = null){
         if(updater) this._updater = updater;
         let buttons = [];
@@ -57,6 +62,7 @@ const PasswordDialog = React.createClass({
             if(value) this.dismiss();
         }.bind(this));
     },
+
     passValidStatusChange: function(status){
         this.setState({passValid: status}, ()=>{
             this._updater(this.getButtons());
@@ -74,8 +80,7 @@ const PasswordDialog = React.createClass({
                 onValidStatusChange={this.passValidStatusChange}
             />
         );
-    }
-
+    },
 });
 
 export default PasswordDialog

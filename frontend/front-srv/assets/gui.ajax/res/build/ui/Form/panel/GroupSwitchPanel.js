@@ -22,7 +22,13 @@
 
 exports.__esModule = true;
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _FormPanel = require('./FormPanel');
 
@@ -40,98 +46,100 @@ var LangUtils = require('pydio/util/lang');
  * Sub form with a selector, switching its fields depending
  * on the selector value.
  */
-exports['default'] = React.createClass({
-    displayName: 'GroupSwitchPanel',
 
-    propTypes: {
-        paramAttributes: React.PropTypes.object.isRequired,
-        parameters: React.PropTypes.array.isRequired,
-        values: React.PropTypes.object.isRequired,
-        onChange: React.PropTypes.func.isRequired
-    },
+var _default = (function (_React$Component) {
+    _inherits(_default, _React$Component);
 
-    computeSubPanelParameters: function computeSubPanelParameters() {
+    function _default() {
+        var _this = this;
 
-        // CREATE SUB FORM PANEL
-        // Get all values
-        var switchName = this.props.paramAttributes['type'].split(":").pop();
-        var parentName = this.props.paramAttributes['name'];
-        var switchValues = {},
-            potentialSubSwitches = [];
+        _classCallCheck(this, _default);
 
-        this.props.parameters.map((function (p) {
-            "use strict";
-            if (!p['group_switch_name']) return;
-            if (p['group_switch_name'] != switchName) {
-                potentialSubSwitches.push(p);
-                return;
-            }
-            var crtSwitch = p['group_switch_value'];
-            if (!switchValues[crtSwitch]) {
-                switchValues[crtSwitch] = {
-                    label: p['group_switch_label'],
-                    fields: [],
-                    values: {},
-                    fieldsKeys: {}
-                };
-            }
-            p = LangUtils.deepCopy(p);
-            delete p['group_switch_name'];
-            p['name'] = parentName + '/' + p['name'];
-            var vKey = p['name'];
-            var paramName = vKey;
-            if (switchValues[crtSwitch].fieldsKeys[paramName]) {
-                return;
-            }
-            switchValues[crtSwitch].fields.push(p);
-            switchValues[crtSwitch].fieldsKeys[paramName] = paramName;
-            if (this.props.values && this.props.values[vKey]) {
-                switchValues[crtSwitch].values[paramName] = this.props.values[vKey];
-            }
-        }).bind(this));
-        // Remerge potentialSubSwitches to each parameters set
-        for (var k in switchValues) {
-            if (switchValues.hasOwnProperty(k)) {
-                var sv = switchValues[k];
-                sv.fields = sv.fields.concat(potentialSubSwitches);
-            }
-        }
+        _React$Component.apply(this, arguments);
 
-        return switchValues;
-    },
+        this.computeSubPanelParameters = function () {
 
-    clearSubParametersValues: function clearSubParametersValues(parentName, newValue, newFields) {
-        var vals = LangUtils.deepCopy(this.props.values);
-        var toRemove = {};
-        for (var key in vals) {
-            if (vals.hasOwnProperty(key) && key.indexOf(parentName + '/') === 0) {
-                toRemove[key] = '';
-            }
-        }
-        vals[parentName] = newValue;
+            // CREATE SUB FORM PANEL
+            // Get all values
+            var switchName = _this.props.paramAttributes['type'].split(":").pop();
+            var parentName = _this.props.paramAttributes['name'];
+            var switchValues = {},
+                potentialSubSwitches = [];
 
-        newFields.map(function (p) {
-            if (p.type == 'hidden' && p['default'] && !p['group_switch_name'] || p['group_switch_name'] == parentName) {
-                vals[p['name']] = p['default'];
-                if (toRemove[p['name']] !== undefined) delete toRemove[p['name']];
-            } else if (p['name'].indexOf(parentName + '/') === 0 && p['default']) {
-                if (p['type'] && p['type'].startsWith('group_switch:')) {
-                    //vals[p['name']] = {group_switch_value:p['default']};
-                    vals[p['name']] = p['default'];
-                } else {
-                    vals[p['name']] = p['default'];
+            _this.props.parameters.map((function (p) {
+                "use strict";
+                if (!p['group_switch_name']) return;
+                if (p['group_switch_name'] != switchName) {
+                    potentialSubSwitches.push(p);
+                    return;
+                }
+                var crtSwitch = p['group_switch_value'];
+                if (!switchValues[crtSwitch]) {
+                    switchValues[crtSwitch] = {
+                        label: p['group_switch_label'],
+                        fields: [],
+                        values: {},
+                        fieldsKeys: {}
+                    };
+                }
+                p = LangUtils.deepCopy(p);
+                delete p['group_switch_name'];
+                p['name'] = parentName + '/' + p['name'];
+                var vKey = p['name'];
+                var paramName = vKey;
+                if (switchValues[crtSwitch].fieldsKeys[paramName]) {
+                    return;
+                }
+                switchValues[crtSwitch].fields.push(p);
+                switchValues[crtSwitch].fieldsKeys[paramName] = paramName;
+                if (this.props.values && this.props.values[vKey]) {
+                    switchValues[crtSwitch].values[paramName] = this.props.values[vKey];
+                }
+            }).bind(_this));
+            // Remerge potentialSubSwitches to each parameters set
+            for (var k in switchValues) {
+                if (switchValues.hasOwnProperty(k)) {
+                    var sv = switchValues[k];
+                    sv.fields = sv.fields.concat(potentialSubSwitches);
                 }
             }
-        });
-        this.props.onChange(vals, true, toRemove);
-        //this.onParameterChange(parentName, newValue);
-    },
 
-    onChange: function onChange(newValues, dirty, removeValues) {
-        this.props.onChange(newValues, true, removeValues);
-    },
+            return switchValues;
+        };
 
-    render: function render() {
+        this.clearSubParametersValues = function (parentName, newValue, newFields) {
+            var vals = LangUtils.deepCopy(_this.props.values);
+            var toRemove = {};
+            for (var key in vals) {
+                if (vals.hasOwnProperty(key) && key.indexOf(parentName + '/') === 0) {
+                    toRemove[key] = '';
+                }
+            }
+            vals[parentName] = newValue;
+
+            newFields.map(function (p) {
+                if (p.type == 'hidden' && p['default'] && !p['group_switch_name'] || p['group_switch_name'] == parentName) {
+                    vals[p['name']] = p['default'];
+                    if (toRemove[p['name']] !== undefined) delete toRemove[p['name']];
+                } else if (p['name'].indexOf(parentName + '/') === 0 && p['default']) {
+                    if (p['type'] && p['type'].startsWith('group_switch:')) {
+                        //vals[p['name']] = {group_switch_value:p['default']};
+                        vals[p['name']] = p['default'];
+                    } else {
+                        vals[p['name']] = p['default'];
+                    }
+                }
+            });
+            _this.props.onChange(vals, true, toRemove);
+            //this.onParameterChange(parentName, newValue);
+        };
+
+        this.onChange = function (newValues, dirty, removeValues) {
+            _this.props.onChange(newValues, true, removeValues);
+        };
+    }
+
+    _default.prototype.render = function render() {
         var attributes = this.props.paramAttributes;
         var values = this.props.values;
 
@@ -210,7 +218,21 @@ exports['default'] = React.createClass({
             selector,
             subForm
         );
-    }
+    };
 
-});
+    _createClass(_default, null, [{
+        key: 'propTypes',
+        value: {
+            paramAttributes: React.PropTypes.object.isRequired,
+            parameters: React.PropTypes.array.isRequired,
+            values: React.PropTypes.object.isRequired,
+            onChange: React.PropTypes.func.isRequired
+        },
+        enumerable: true
+    }]);
+
+    return _default;
+})(React.Component);
+
+exports['default'] = _default;
 module.exports = exports['default'];

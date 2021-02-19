@@ -20,7 +20,10 @@
 
 import React from 'react'
 
-export default React.createClass({
+import createReactClass from 'create-react-class';
+
+export default createReactClass({
+    displayName: 'DynamicLeftPanel',
 
     propTypes:{
         pydio:React.PropTypes.instanceOf(Pydio).isRequired,
@@ -198,5 +201,5 @@ export default React.createClass({
                     </div>
                 </span>
         );
-    }
+    },
 });

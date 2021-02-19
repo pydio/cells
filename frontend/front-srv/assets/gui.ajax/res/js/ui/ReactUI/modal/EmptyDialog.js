@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+const createReactClass = require('create-react-class');
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
@@ -26,7 +27,7 @@ import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
  */
-export default React.createClass({
+export default createReactClass({
 
     mixins:[
         ActionDialogMixin,
