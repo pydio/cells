@@ -75,7 +75,7 @@
     "grunt-contrib-rename": "0.0.3",
     "grunt-contrib-symlink": "^1.0.0",
     "grunt-contrib-uglify": "~0.9.2",
-    "grunt-contrib-watch": "~0.6.1",
+    "grunt-contrib-watch": "^1.1.0",
     "grunt-env": "~0.4.4",
     "grunt-galvanize": "^2.0.0",
     "grunt-hub": "^0.7.0",
