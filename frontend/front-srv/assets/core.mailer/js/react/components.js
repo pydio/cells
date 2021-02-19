@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import PydioApi from 'pydio/http/api'
 import {FontIcon, Chip, Avatar, Style, Paper, Divider, TextField, FlatButton} from 'material-ui'
 import {MailerServiceApi, MailerMail, MailerUser} from 'cells-sdk'
@@ -354,22 +355,22 @@ class Pane extends React.Component {
 }
 
 Pane.PropTypes = {
-    message:React.PropTypes.string,
-    subject:React.PropTypes.string,
-    templateId: React.PropTypes.string,
-    templateData: React.PropTypes.object,
-    link:React.PropTypes.string,
-    onDismiss:React.PropTypes.func,
-    className:React.PropTypes.string,
-    overlay:React.PropTypes.bool,
-    uniqueUserStyle:React.PropTypes.bool,
-    users:React.PropTypes.object,
-    panelTitle:React.PropTypes.string,
-    zDepth:React.PropTypes.number,
-    showAddressBook: React.PropTypes.bool,
-    processPost: React.PropTypes.func,
-    additionalPaneTop: React.PropTypes.instanceOf(React.Component),
-    additionalPaneBottom: React.PropTypes.instanceOf(React.Component)
+    message:PropTypes.string,
+    subject:PropTypes.string,
+    templateId: PropTypes.string,
+    templateData: PropTypes.object,
+    link:PropTypes.string,
+    onDismiss:PropTypes.func,
+    className:PropTypes.string,
+    overlay:PropTypes.bool,
+    uniqueUserStyle:PropTypes.bool,
+    users:PropTypes.object,
+    panelTitle:PropTypes.string,
+    zDepth:PropTypes.number,
+    showAddressBook: PropTypes.bool,
+    processPost: PropTypes.func,
+    additionalPaneTop: PropTypes.instanceOf(React.Component),
+    additionalPaneBottom: PropTypes.instanceOf(React.Component)
 };
 
 

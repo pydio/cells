@@ -79,7 +79,6 @@ const LibRequires = [ // modules we want to require and export
     'classnames',
     'clipboard',
     'qrcode.react',
-    'cronstrue',
     'whatwg-fetch',
     'systemjs',
     'redux',

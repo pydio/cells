@@ -40,6 +40,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -495,22 +499,22 @@ var Pane = (function (_React$Component3) {
 })(_react2['default'].Component);
 
 Pane.PropTypes = {
-    message: _react2['default'].PropTypes.string,
-    subject: _react2['default'].PropTypes.string,
-    templateId: _react2['default'].PropTypes.string,
-    templateData: _react2['default'].PropTypes.object,
-    link: _react2['default'].PropTypes.string,
-    onDismiss: _react2['default'].PropTypes.func,
-    className: _react2['default'].PropTypes.string,
-    overlay: _react2['default'].PropTypes.bool,
-    uniqueUserStyle: _react2['default'].PropTypes.bool,
-    users: _react2['default'].PropTypes.object,
-    panelTitle: _react2['default'].PropTypes.string,
-    zDepth: _react2['default'].PropTypes.number,
-    showAddressBook: _react2['default'].PropTypes.bool,
-    processPost: _react2['default'].PropTypes.func,
-    additionalPaneTop: _react2['default'].PropTypes.instanceOf(_react2['default'].Component),
-    additionalPaneBottom: _react2['default'].PropTypes.instanceOf(_react2['default'].Component)
+    message: _propTypes2['default'].string,
+    subject: _propTypes2['default'].string,
+    templateId: _propTypes2['default'].string,
+    templateData: _propTypes2['default'].object,
+    link: _propTypes2['default'].string,
+    onDismiss: _propTypes2['default'].func,
+    className: _propTypes2['default'].string,
+    overlay: _propTypes2['default'].bool,
+    uniqueUserStyle: _propTypes2['default'].bool,
+    users: _propTypes2['default'].object,
+    panelTitle: _propTypes2['default'].string,
+    zDepth: _propTypes2['default'].number,
+    showAddressBook: _propTypes2['default'].bool,
+    processPost: _propTypes2['default'].func,
+    additionalPaneTop: _propTypes2['default'].instanceOf(_react2['default'].Component),
+    additionalPaneBottom: _propTypes2['default'].instanceOf(_react2['default'].Component)
 };
 
 var PreferencesPanel = (function (_React$Component4) {
