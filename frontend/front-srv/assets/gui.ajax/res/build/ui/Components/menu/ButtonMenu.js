@@ -23,7 +23,13 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _Utils = require('./Utils');
 
@@ -43,50 +49,48 @@ var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _materialUi = require("material-ui");
 
-var ButtonMenu = _react2['default'].createClass({
-    displayName: 'ButtonMenu',
+var ButtonMenu = (function (_React$Component) {
+    _inherits(ButtonMenu, _React$Component);
 
-    propTypes: {
-        buttonTitle: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.object]).isRequired,
-        menuItems: _react2['default'].PropTypes.array.isRequired,
-        className: _react2['default'].PropTypes.string,
-        raised: _react2['default'].PropTypes.bool,
-        direction: _react2['default'].PropTypes.oneOf(['left', 'right'])
-    },
-
-    componentDidMount: function componentDidMount() {
+    function ButtonMenu() {
         var _this = this;
+
+        _classCallCheck(this, ButtonMenu);
+
+        _React$Component.apply(this, arguments);
+
+        this.state = { showMenu: false };
+
+        this.showMenu = function (event) {
+            var anchor = undefined;
+            if (event) {
+                anchor = event.currentTarget;
+            } else {
+                anchor = _this._buttonDOM;
+            }
+            _this.setState({
+                showMenu: true,
+                anchor: anchor
+            });
+        };
+
+        this.menuClicked = function (event, index, object) {
+            _this.setState({ showMenu: false });
+        };
+    }
+
+    ButtonMenu.prototype.componentDidMount = function componentDidMount() {
+        var _this2 = this;
 
         if (this.props.openOnEvent) {
             this.props.pydio.observe(this.props.openOnEvent, function () {
-                _this.showMenu();
+                _this2.showMenu();
             });
         }
-    },
+    };
 
-    getInitialState: function getInitialState() {
-        return { showMenu: false };
-    },
-
-    showMenu: function showMenu(event) {
-        var anchor = undefined;
-        if (event) {
-            anchor = event.currentTarget;
-        } else {
-            anchor = this._buttonDOM;
-        }
-        this.setState({
-            showMenu: true,
-            anchor: anchor
-        });
-    },
-
-    menuClicked: function menuClicked(event, index, object) {
-        this.setState({ showMenu: false });
-    },
-
-    render: function render() {
-        var _this2 = this;
+    ButtonMenu.prototype.render = function render() {
+        var _this3 = this;
 
         var _state = this.state;
         var showMenu = _state.showMenu;
@@ -120,11 +124,11 @@ var ButtonMenu = _react2['default'].createClass({
         if (menuItems.length) {
             if (this.props.raised) {
                 button = _react2['default'].createElement(_materialUi.RaisedButton, _extends({}, props, { ref: function (b) {
-                        _this2._buttonDOM = _reactDom2['default'].findDOMNode(b);
+                        _this3._buttonDOM = _reactDom2['default'].findDOMNode(b);
                     } }));
             } else {
                 button = _react2['default'].createElement(_materialUi.FlatButton, _extends({}, props, { ref: function (b) {
-                        _this2._buttonDOM = _reactDom2['default'].findDOMNode(b);
+                        _this3._buttonDOM = _reactDom2['default'].findDOMNode(b);
                     } }));
             }
         }
@@ -141,7 +145,7 @@ var ButtonMenu = _react2['default'].createClass({
                     anchorOrigin: { horizontal: this.props.direction || 'left', vertical: 'bottom' },
                     targetOrigin: { horizontal: this.props.direction || 'left', vertical: 'top' },
                     onRequestClose: function () {
-                        _this2.setState({ showMenu: false });
+                        _this3.setState({ showMenu: false });
                     },
                     style: { marginTop: 1 },
                     useLayerForClickAway: false
@@ -149,9 +153,22 @@ var ButtonMenu = _react2['default'].createClass({
                 _Utils2['default'].itemsToMenu(menuItems, this.menuClicked)
             )
         );
-    }
+    };
 
-});
+    _createClass(ButtonMenu, null, [{
+        key: 'propTypes',
+        value: {
+            buttonTitle: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.object]).isRequired,
+            menuItems: _react2['default'].PropTypes.array.isRequired,
+            className: _react2['default'].PropTypes.string,
+            raised: _react2['default'].PropTypes.bool,
+            direction: _react2['default'].PropTypes.oneOf(['left', 'right'])
+        },
+        enumerable: true
+    }]);
+
+    return ButtonMenu;
+})(_react2['default'].Component);
 
 exports['default'] = _MenuItemsConsumer2['default'](ButtonMenu);
 module.exports = exports['default'];

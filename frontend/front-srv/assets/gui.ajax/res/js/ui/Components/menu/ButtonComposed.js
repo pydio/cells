@@ -23,29 +23,25 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Popover, RaisedButton, FlatButton} from "material-ui";
 
-const ButtonComposed = React.createClass({
-
-    propTypes:{
+class ButtonComposed extends React.Component {
+    static propTypes = {
         buttonTitle : React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.object]).isRequired,
         masterAction: React.PropTypes.func.isRequired,
         menuItems   : React.PropTypes.array.isRequired,
         className   : React.PropTypes.string,
         raised      : React.PropTypes.bool,
         direction   : React.PropTypes.oneOf(['left', 'right'])
-    },
+    };
 
-    componentDidMount(){
+    state = {showMenu: false};
+
+    componentDidMount() {
         if(this.props.openOnEvent){
             this.props.pydio.observe(this.props.openOnEvent, () => { this.showMenu();});
         }
-    },
+    }
 
-    getInitialState(){
-        return {showMenu: false};
-    },
-
-
-    showMenu(event){
+    showMenu = (event) => {
         let anchor;
         if(event){
             anchor = event.currentTarget;
@@ -56,13 +52,13 @@ const ButtonComposed = React.createClass({
             showMenu: true,
             anchor: anchor
         })
-    },
+    };
 
-    menuClicked(event, index, object){
+    menuClicked = (event, index, object) => {
         this.setState({showMenu: false});
-    },
+    };
 
-    render(){
+    render() {
         let masterButton, arrowButton;
         const {id, masterAction, buttonTitle, primary, secondary, disabled, raised, menuItems, buttonStyle, buttonLabelStyle, className, direction} = this.props;
         let masterLabelStyle = {...buttonLabelStyle};
@@ -131,8 +127,7 @@ const ButtonComposed = React.createClass({
             </span>
         );
     }
-
-});
+}
 
 
 export default MenuItemsConsumer(ButtonComposed)

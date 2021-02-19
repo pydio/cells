@@ -20,6 +20,7 @@
 
 import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget} from '../util/DND'
 import React from 'react';
+import createReactClass from 'create-react-class';
 import Pydio from 'pydio';
 import {Checkbox, IconButton} from 'material-ui'
 const {withContextMenu} = Pydio.requireLib('hoc');
@@ -36,7 +37,8 @@ ContextMenuWrapper = withContextMenu(ContextMenuWrapper);
 /**
  * Tree Node
  */
-var SimpleTreeNode = React.createClass({
+var SimpleTreeNode = createReactClass({
+    displayName: 'SimpleTreeNode',
 
     propTypes:{
         collapse:React.PropTypes.bool,
@@ -155,6 +157,7 @@ var SimpleTreeNode = React.createClass({
         ev.preventDefault();
         ev.stopPropagation();
     },
+
     onChildDisplayToggle: function (ev) {
         if (this.props.node.getChildren().size) {
             this.setState({showChildren: !this.state.showChildren});
@@ -162,10 +165,12 @@ var SimpleTreeNode = React.createClass({
         ev.preventDefault();
         ev.stopPropagation();
     },
+
     nodeIsSelected: function(n){
         if(this.props.nodeIsSelected) return this.props.nodeIsSelected(n);
         else return (this.props.dataModel.getSelectedNodes().indexOf(n) !== -1);
     },
+
     render: function () {
         const {node, dataModel, childrenOnly, canDrop, isOverCurrent,
             checkboxes, checkboxesComputeStatus, checkboxesValues, onCheckboxCheck,
@@ -293,7 +298,7 @@ var SimpleTreeNode = React.createClass({
                 </ul>
             </li>
         );
-    }
+    },
 });
 
 var DragDropTreeNode;
@@ -346,9 +351,8 @@ TreePaginator = muiThemeable()(TreePaginator);
 /**
  * Simple openable / loadable tree taking AjxpNode as inputs
  */
-let DNDTreeView = React.createClass({
-
-    propTypes:{
+class DNDTreeView extends React.Component {
+    static propTypes = {
         showRoot:React.PropTypes.bool,
         rootLabel:React.PropTypes.string,
         onNodeSelect:React.PropTypes.func,
@@ -367,24 +371,22 @@ let DNDTreeView = React.createClass({
         checkboxesComputeStatus:React.PropTypes.func,
         onCheckboxCheck:React.PropTypes.func,
         paddingOffset:React.PropTypes.number
-    },
+    };
 
-    getDefaultProps:function(){
-        return {
-            showRoot:true,
-            onNodeSelect: this.onNodeSelect
-        }
-    },
+    static defaultProps = {
+        showRoot:true,
+        onNodeSelect: this.onNodeSelect
+    };
 
-    onNodeSelect: function(node){
+    onNodeSelect = (node) => {
         if(this.props.onNodeSelect){
             this.props.onNodeSelect(node);
         }else{
             this.props.dataModel.setSelectedNodes([node]);
         }
-    },
+    };
 
-    render: function(){
+    render() {
         return(
             <ul className={this.props.className}>
                 <DragDropTreeNode
@@ -407,11 +409,10 @@ let DNDTreeView = React.createClass({
             </ul>
         )
     }
-});
+}
 
-let TreeView = React.createClass({
-
-    propTypes:{
+class TreeView extends React.Component {
+    static propTypes = {
         showRoot:React.PropTypes.bool,
         rootLabel:React.PropTypes.string,
         onNodeSelect:React.PropTypes.func,
@@ -430,24 +431,22 @@ let TreeView = React.createClass({
         checkboxesComputeStatus:React.PropTypes.func,
         onCheckboxCheck:React.PropTypes.func,
         paddingOffset:React.PropTypes.number
-    },
+    };
 
-    getDefaultProps:function(){
-        return {
-            showRoot:true,
-            onNodeSelect: this.onNodeSelect
-        }
-    },
+    static defaultProps = {
+        showRoot:true,
+        onNodeSelect: this.onNodeSelect
+    };
 
-    onNodeSelect: function(node){
+    onNodeSelect = (node) => {
         if(this.props.onNodeSelect){
             this.props.onNodeSelect(node);
         }else{
             this.props.dataModel.setSelectedNodes([node]);
         }
-    },
+    };
 
-    render: function(){
+    render() {
         return(
             <ul className={this.props.className}>
                 <SimpleTreeNode
@@ -469,20 +468,18 @@ let TreeView = React.createClass({
             </ul>
         )
     }
+}
 
-});
-
-let FoldersTree = React.createClass({
-
-    propTypes: {
+class FoldersTree extends React.Component {
+    static propTypes = {
         pydio: React.PropTypes.instanceOf(Pydio).isRequired,
         dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
         className: React.PropTypes.string,
         onNodeSelected: React.PropTypes.func,
         draggable:React.PropTypes.bool
-    },
+    };
 
-    nodeObserver: function(){
+    nodeObserver = () => {
         let r = this.props.dataModel.getRootNode();
         if(!r.isLoaded()) {
             r.observeOnce("loaded", function(){
@@ -491,37 +488,37 @@ let FoldersTree = React.createClass({
         }else{
             this.forceUpdate();
         }
-    },
+    };
 
-    componentDidMount: function(){
+    componentDidMount() {
         let dm = this.props.dataModel;
         this._dmObs = this.nodeObserver;
         dm.observe("context_changed", this._dmObs);
         dm.observe("root_node_changed", this._dmObs);
         this.nodeObserver();
-    },
+    }
 
-    componentWillUnmount: function(){
+    componentWillUnmount() {
         if(this._dmObs){
             let dm = this.props.dataModel;
             dm.stopObserving("context_changed", this._dmObs);
             dm.stopObserving("root_node_changed", this._dmObs);
         }
-    },
+    }
 
-    treeNodeSelected: function(n){
+    treeNodeSelected = (n) => {
         if(this.props.onNodeSelected){
             this.props.onNodeSelected(n);
         }else{
             this.props.dataModel.requireContextChange(n);
         }
-    },
+    };
 
-    nodeIsSelected: function(n){
+    nodeIsSelected = (n) => {
         return n === this.props.dataModel.getContextNode();
-    },
+    };
 
-    render: function(){
+    render() {
         if(this.props.draggable){
             return (
                 <PydioComponents.DNDTreeView
@@ -552,8 +549,7 @@ let FoldersTree = React.createClass({
             );
         }
     }
-
-});
+}
 
 
 

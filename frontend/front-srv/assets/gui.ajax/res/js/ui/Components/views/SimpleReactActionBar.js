@@ -18,39 +18,45 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import Pydio from 'pydio'
+import {Node} from 'pydio/model/node'
+import {PydioDataModel} from 'pydio/model/data-model'
+
 /**
  * Get info from Pydio controller an build an
  * action bar with active actions.
  * TBC
  */
-export default React.createClass({
+export default class SimpleReactActionBar extends React.Component{
 
-    propTypes:{
+    static propTypes = {
         dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        node:React.PropTypes.instanceOf(AjxpNode).isRequired,
+        node:React.PropTypes.instanceOf(Node).isRequired,
         actions:React.PropTypes.array
-    },
+    }
 
-    clickAction: function(event){
-        var actionName = event.currentTarget.getAttribute("data-action");
-        this.props.dataModel.setSelectedNodes([this.props.node]);
-        var a = window.pydio.Controller.getActionByName(actionName);
-        a.fireContextChange(this.props.dataModel, true, window.pydio.user);
-        //a.fireSelectionChange(this.props.dataModel);
-        a.apply([this.props.dataModel]);
+    clickAction(event){
+        const pydio = Pydio.getInstance();
+        const actionName = event.currentTarget.getAttribute("data-action");
+        const {dataModel, node} = this.props;
+        dataModel.setSelectedNodes([node]);
+        const a = pydio.Controller.getActionByName(actionName);
+        a.fireContextChange(dataModel, true, pydio.user);
+        a.apply([dataModel]);
         event.stopPropagation();
         event.preventDefault();
-    },
+    }
 
-    render: function(){
-        var actions = this.props.actions.map(function(a){
+    render(){
+        const actions = this.props.actions.map(function(a){
             return(
                 <div
                     key={a.options.name}
                     className={a.options.icon_class+' material-list-action-inline' || ''}
                     title={a.options.title}
                     data-action={a.options.name}
-                    onClick={this.clickAction}></div>
+                    onClick={(e) => this.clickAction(e)}></div>
             );
         }.bind(this));
         return(
@@ -60,5 +66,4 @@ export default React.createClass({
         );
 
     }
-});
-
+}

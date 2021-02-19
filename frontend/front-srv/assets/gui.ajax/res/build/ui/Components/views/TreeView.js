@@ -22,6 +22,10 @@
 
 exports.__esModule = true;
 
+var _this4 = this;
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -35,6 +39,10 @@ var _utilDND = require('../util/DND');
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
 
 var _pydio = require('pydio');
 
@@ -56,7 +64,7 @@ ContextMenuWrapper = withContextMenu(ContextMenuWrapper);
 /**
  * Tree Node
  */
-var SimpleTreeNode = _react2['default'].createClass({
+var SimpleTreeNode = _createReactClass2['default']({
     displayName: 'SimpleTreeNode',
 
     propTypes: {
@@ -180,6 +188,7 @@ var SimpleTreeNode = _react2['default'].createClass({
         ev.preventDefault();
         ev.stopPropagation();
     },
+
     onChildDisplayToggle: function onChildDisplayToggle(ev) {
         if (this.props.node.getChildren().size) {
             this.setState({ showChildren: !this.state.showChildren });
@@ -187,9 +196,11 @@ var SimpleTreeNode = _react2['default'].createClass({
         ev.preventDefault();
         ev.stopPropagation();
     },
+
     nodeIsSelected: function nodeIsSelected(n) {
         if (this.props.nodeIsSelected) return this.props.nodeIsSelected(n);else return this.props.dataModel.getSelectedNodes().indexOf(n) !== -1;
     },
+
     render: function render() {
         var _this = this;
 
@@ -424,46 +435,27 @@ TreePaginator = _materialUiStyles.muiThemeable()(TreePaginator);
 /**
  * Simple openable / loadable tree taking AjxpNode as inputs
  */
-var DNDTreeView = _react2['default'].createClass({
-    displayName: 'DNDTreeView',
 
-    propTypes: {
-        showRoot: _react2['default'].PropTypes.bool,
-        rootLabel: _react2['default'].PropTypes.string,
-        onNodeSelect: _react2['default'].PropTypes.func,
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        selectable: _react2['default'].PropTypes.bool,
-        selectableMultiple: _react2['default'].PropTypes.bool,
-        initialSelectionModel: _react2['default'].PropTypes.array,
-        onSelectionChange: _react2['default'].PropTypes.func,
-        forceExpand: _react2['default'].PropTypes.bool,
-        // Optional currently selected detection
-        nodeIsSelected: _react2['default'].PropTypes.func,
-        // Optional checkboxes
-        checkboxes: _react2['default'].PropTypes.array,
-        checkboxesValues: _react2['default'].PropTypes.object,
-        checkboxesComputeStatus: _react2['default'].PropTypes.func,
-        onCheckboxCheck: _react2['default'].PropTypes.func,
-        paddingOffset: _react2['default'].PropTypes.number
-    },
+var DNDTreeView = (function (_React$Component2) {
+    _inherits(DNDTreeView, _React$Component2);
 
-    getDefaultProps: function getDefaultProps() {
-        return {
-            showRoot: true,
-            onNodeSelect: this.onNodeSelect
+    function DNDTreeView() {
+        var _this3 = this;
+
+        _classCallCheck(this, DNDTreeView);
+
+        _React$Component2.apply(this, arguments);
+
+        this.onNodeSelect = function (node) {
+            if (_this3.props.onNodeSelect) {
+                _this3.props.onNodeSelect(node);
+            } else {
+                _this3.props.dataModel.setSelectedNodes([node]);
+            }
         };
-    },
+    }
 
-    onNodeSelect: function onNodeSelect(node) {
-        if (this.props.onNodeSelect) {
-            this.props.onNodeSelect(node);
-        } else {
-            this.props.dataModel.setSelectedNodes([node]);
-        }
-    },
-
-    render: function render() {
+    DNDTreeView.prototype.render = function render() {
         return _react2['default'].createElement(
             'ul',
             { className: this.props.className },
@@ -485,49 +477,63 @@ var DNDTreeView = _react2['default'].createClass({
                 noPaginator: this.props.noPaginator
             })
         );
-    }
-});
+    };
 
-var TreeView = _react2['default'].createClass({
-    displayName: 'TreeView',
-
-    propTypes: {
-        showRoot: _react2['default'].PropTypes.bool,
-        rootLabel: _react2['default'].PropTypes.string,
-        onNodeSelect: _react2['default'].PropTypes.func,
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        selectable: _react2['default'].PropTypes.bool,
-        selectableMultiple: _react2['default'].PropTypes.bool,
-        initialSelectionModel: _react2['default'].PropTypes.array,
-        onSelectionChange: _react2['default'].PropTypes.func,
-        forceExpand: _react2['default'].PropTypes.bool,
-        // Optional currently selected detection
-        nodeIsSelected: _react2['default'].PropTypes.func,
-        // Optional checkboxes
-        checkboxes: _react2['default'].PropTypes.array,
-        checkboxesValues: _react2['default'].PropTypes.object,
-        checkboxesComputeStatus: _react2['default'].PropTypes.func,
-        onCheckboxCheck: _react2['default'].PropTypes.func,
-        paddingOffset: _react2['default'].PropTypes.number
-    },
-
-    getDefaultProps: function getDefaultProps() {
-        return {
+    _createClass(DNDTreeView, null, [{
+        key: 'propTypes',
+        value: {
+            showRoot: _react2['default'].PropTypes.bool,
+            rootLabel: _react2['default'].PropTypes.string,
+            onNodeSelect: _react2['default'].PropTypes.func,
+            node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+            dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
+            selectable: _react2['default'].PropTypes.bool,
+            selectableMultiple: _react2['default'].PropTypes.bool,
+            initialSelectionModel: _react2['default'].PropTypes.array,
+            onSelectionChange: _react2['default'].PropTypes.func,
+            forceExpand: _react2['default'].PropTypes.bool,
+            // Optional currently selected detection
+            nodeIsSelected: _react2['default'].PropTypes.func,
+            // Optional checkboxes
+            checkboxes: _react2['default'].PropTypes.array,
+            checkboxesValues: _react2['default'].PropTypes.object,
+            checkboxesComputeStatus: _react2['default'].PropTypes.func,
+            onCheckboxCheck: _react2['default'].PropTypes.func,
+            paddingOffset: _react2['default'].PropTypes.number
+        },
+        enumerable: true
+    }, {
+        key: 'defaultProps',
+        value: {
             showRoot: true,
-            onNodeSelect: this.onNodeSelect
+            onNodeSelect: _this4.onNodeSelect
+        },
+        enumerable: true
+    }]);
+
+    return DNDTreeView;
+})(_react2['default'].Component);
+
+var TreeView = (function (_React$Component3) {
+    _inherits(TreeView, _React$Component3);
+
+    function TreeView() {
+        var _this5 = this;
+
+        _classCallCheck(this, TreeView);
+
+        _React$Component3.apply(this, arguments);
+
+        this.onNodeSelect = function (node) {
+            if (_this5.props.onNodeSelect) {
+                _this5.props.onNodeSelect(node);
+            } else {
+                _this5.props.dataModel.setSelectedNodes([node]);
+            }
         };
-    },
+    }
 
-    onNodeSelect: function onNodeSelect(node) {
-        if (this.props.onNodeSelect) {
-            this.props.onNodeSelect(node);
-        } else {
-            this.props.dataModel.setSelectedNodes([node]);
-        }
-    },
-
-    render: function render() {
+    TreeView.prototype.render = function render() {
         return _react2['default'].createElement(
             'ul',
             { className: this.props.className },
@@ -548,61 +554,94 @@ var TreeView = _react2['default'].createClass({
                 paddingOffset: this.props.paddingOffset
             })
         );
+    };
+
+    _createClass(TreeView, null, [{
+        key: 'propTypes',
+        value: {
+            showRoot: _react2['default'].PropTypes.bool,
+            rootLabel: _react2['default'].PropTypes.string,
+            onNodeSelect: _react2['default'].PropTypes.func,
+            node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+            dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
+            selectable: _react2['default'].PropTypes.bool,
+            selectableMultiple: _react2['default'].PropTypes.bool,
+            initialSelectionModel: _react2['default'].PropTypes.array,
+            onSelectionChange: _react2['default'].PropTypes.func,
+            forceExpand: _react2['default'].PropTypes.bool,
+            // Optional currently selected detection
+            nodeIsSelected: _react2['default'].PropTypes.func,
+            // Optional checkboxes
+            checkboxes: _react2['default'].PropTypes.array,
+            checkboxesValues: _react2['default'].PropTypes.object,
+            checkboxesComputeStatus: _react2['default'].PropTypes.func,
+            onCheckboxCheck: _react2['default'].PropTypes.func,
+            paddingOffset: _react2['default'].PropTypes.number
+        },
+        enumerable: true
+    }, {
+        key: 'defaultProps',
+        value: {
+            showRoot: true,
+            onNodeSelect: _this4.onNodeSelect
+        },
+        enumerable: true
+    }]);
+
+    return TreeView;
+})(_react2['default'].Component);
+
+var FoldersTree = (function (_React$Component4) {
+    _inherits(FoldersTree, _React$Component4);
+
+    function FoldersTree() {
+        var _this6 = this;
+
+        _classCallCheck(this, FoldersTree);
+
+        _React$Component4.apply(this, arguments);
+
+        this.nodeObserver = function () {
+            var r = _this6.props.dataModel.getRootNode();
+            if (!r.isLoaded()) {
+                r.observeOnce("loaded", (function () {
+                    this.forceUpdate();
+                }).bind(_this6));
+            } else {
+                _this6.forceUpdate();
+            }
+        };
+
+        this.treeNodeSelected = function (n) {
+            if (_this6.props.onNodeSelected) {
+                _this6.props.onNodeSelected(n);
+            } else {
+                _this6.props.dataModel.requireContextChange(n);
+            }
+        };
+
+        this.nodeIsSelected = function (n) {
+            return n === _this6.props.dataModel.getContextNode();
+        };
     }
 
-});
-
-var FoldersTree = _react2['default'].createClass({
-    displayName: 'FoldersTree',
-
-    propTypes: {
-        pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        className: _react2['default'].PropTypes.string,
-        onNodeSelected: _react2['default'].PropTypes.func,
-        draggable: _react2['default'].PropTypes.bool
-    },
-
-    nodeObserver: function nodeObserver() {
-        var r = this.props.dataModel.getRootNode();
-        if (!r.isLoaded()) {
-            r.observeOnce("loaded", (function () {
-                this.forceUpdate();
-            }).bind(this));
-        } else {
-            this.forceUpdate();
-        }
-    },
-
-    componentDidMount: function componentDidMount() {
+    FoldersTree.prototype.componentDidMount = function componentDidMount() {
         var dm = this.props.dataModel;
         this._dmObs = this.nodeObserver;
         dm.observe("context_changed", this._dmObs);
         dm.observe("root_node_changed", this._dmObs);
         this.nodeObserver();
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    FoldersTree.prototype.componentWillUnmount = function componentWillUnmount() {
         if (this._dmObs) {
             var dm = this.props.dataModel;
             dm.stopObserving("context_changed", this._dmObs);
             dm.stopObserving("root_node_changed", this._dmObs);
         }
-    },
+    };
 
-    treeNodeSelected: function treeNodeSelected(n) {
-        if (this.props.onNodeSelected) {
-            this.props.onNodeSelected(n);
-        } else {
-            this.props.dataModel.requireContextChange(n);
-        }
-    },
-
-    nodeIsSelected: function nodeIsSelected(n) {
-        return n === this.props.dataModel.getContextNode();
-    },
-
-    render: function render() {
+    FoldersTree.prototype.render = function render() {
         if (this.props.draggable) {
             return _react2['default'].createElement(PydioComponents.DNDTreeView, {
                 onNodeSelect: this.treeNodeSelected,
@@ -628,9 +667,22 @@ var FoldersTree = _react2['default'].createClass({
                 className: "folders-tree" + (this.props.className ? ' ' + this.props.className : '')
             });
         }
-    }
+    };
 
-});
+    _createClass(FoldersTree, null, [{
+        key: 'propTypes',
+        value: {
+            pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
+            dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
+            className: _react2['default'].PropTypes.string,
+            onNodeSelected: _react2['default'].PropTypes.func,
+            draggable: _react2['default'].PropTypes.bool
+        },
+        enumerable: true
+    }]);
+
+    return FoldersTree;
+})(_react2['default'].Component);
 
 exports.TreeView = TreeView;
 exports.DNDTreeView = DNDTreeView;

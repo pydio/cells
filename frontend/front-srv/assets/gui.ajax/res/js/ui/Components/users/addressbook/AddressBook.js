@@ -26,7 +26,7 @@ import Loaders from './Loaders'
 import TeamCreationForm from '../TeamCreationForm'
 import React from 'react'
 import Pydio from 'pydio'
-import {Popover, IconButton, Divider} from 'material-ui'
+import {Popover, IconButton, Divider, Paper, List, Dialog} from 'material-ui'
 import {muiThemeable, colors} from 'material-ui/styles'
 import ActionsPanel from '../avatar/ActionsPanel'
 import UserCreationForm from '../UserCreationForm'
@@ -39,9 +39,8 @@ import PydioApi from 'pydio/http/api';
  * Address book allows to create external users, teams, and also to browse trusted server directories if Federated Sharing
  * is active.
  */
-let AddressBook = React.createClass({
-
-    propTypes: {
+class AddressBook extends React.Component {
+    static propTypes = {
         /**
          * Main instance of pydio
          */
@@ -90,22 +89,21 @@ let AddressBook = React.createClass({
          * Will be passed to the Popover Icon Button.
          */
         popoverIconButtonStyle      : React.PropTypes.object
-    },
+    };
 
-    getDefaultProps(){
-        return {
-            mode            : 'book',
-            usersOnly       : false,
-            usersFrom       : 'any',
-            teamsOnly       : false,
-            disableSearch   : false,
-        };
-    },
+    static defaultProps = {
+        mode            : 'book',
+        usersOnly       : false,
+        usersFrom       : 'any',
+        teamsOnly       : false,
+        disableSearch   : false,
+    };
 
-    getInitialState(){
+    constructor(props) {
+        super(props);
 
-        const {pydio, mode, usersOnly, usersFrom, teamsOnly, disableSearch} = this.props;
-        const getMessage = (id) => {return this.props.getMessage(id, '')};
+        const {pydio, mode, usersOnly, usersFrom, teamsOnly, disableSearch} = props;
+        const getMessage = (id) => {return props.getMessage(id, '');};
         const authConfigs = pydio.getPluginConfigs('core.auth');
         let teamActions = {};
         // Check that user_team_create action is not disabled
@@ -129,12 +127,15 @@ let AddressBook = React.createClass({
                 _notSelectable: true,
                 actions: teamActions
             };
-            return {
+
+            this.state = {
                 root: root,
                 selectedItem:root,
                 loading: false,
                 rightPaneItem: null
             };
+
+            return;
         }
 
         root = {
@@ -209,20 +210,20 @@ let AddressBook = React.createClass({
             }
         }
 
-        return {
+        this.state = {
             root: root,
             selectedItem:mode === 'selector' ? root : root.collections[0],
             loading: false,
             rightPaneItem: null,
             teamsEditable: teamsEditable
         };
-    },
+    }
 
-    componentDidMount(){
+    componentDidMount() {
         this.state.selectedItem && this.onFolderClicked(this.state.selectedItem);
-    },
+    }
 
-    onFolderClicked(item, callback = undefined){
+    onFolderClicked = (item, callback = undefined) => {
         // Special case for teams
         if(this.props.mode === 'selector' && item.IdmRole && item.IdmRole.IsTeam){
             this.onUserListItemClicked(item);
@@ -235,9 +236,9 @@ let AddressBook = React.createClass({
                 this.setState({selectedItem:item, loading: false}, callback);
             });
         });
-    },
+    };
 
-    onUserListItemClicked(item){
+    onUserListItemClicked = (item) => {
         if(this.props.onItemSelected){
             const uObject = new PydioUsers.User(
                 item.id,
@@ -259,24 +260,24 @@ let AddressBook = React.createClass({
         }else{
             this.setState({rightPaneItem:item});
         }
-    },
+    };
 
-    onCreateAction(item){
+    onCreateAction = (item) => {
         this.setState({createDialogItem:item});
-    },
+    };
 
-    closeCreateDialogAndReload(){
+    closeCreateDialogAndReload = () => {
         this.setState({createDialogItem:null});
         this.reloadCurrentNode();
-    },
+    };
 
-    onCardUpdateAction(item){
+    onCardUpdateAction = (item) => {
         if(item._parent && item._parent === this.state.selectedItem){
             this.reloadCurrentNode();
         }
-    },
+    };
 
-    onDeleteAction(parentItem, selection, skipConfirm = false){
+    onDeleteAction = (parentItem, selection, skipConfirm = false) => {
         if(!skipConfirm && !confirm(this.props.getMessage(278))){
             return;
         }
@@ -311,20 +312,20 @@ let AddressBook = React.createClass({
             default:
                 break;
         }
-    },
+    };
 
-    openPopover(event){
+    openPopover = (event) => {
         this.setState({
             popoverOpen: true,
             popoverAnchor: event.currentTarget
         });
-    },
+    };
 
-    closePopover(){
+    closePopover = () => {
         this.setState({popoverOpen: false});
-    },
+    };
 
-    reloadCurrentNode(){
+    reloadCurrentNode = () => {
         this.state.selectedItem.leafLoaded = false;
         this.state.selectedItem.collectionsLoaded = false;
         this.onFolderClicked(this.state.selectedItem, () => {
@@ -339,9 +340,9 @@ let AddressBook = React.createClass({
                 this.setState({rightPaneItem: foundItem});
             }
         });
-    },
+    };
 
-    reloadCurrentAtPage(letterOrRange){
+    reloadCurrentAtPage = (letterOrRange) => {
         this.state.selectedItem.leafLoaded = false;
         this.state.selectedItem.collectionsLoaded = false;
         if(letterOrRange === -1) {
@@ -353,9 +354,9 @@ let AddressBook = React.createClass({
             this.state.selectedItem.currentParams = {alpha_pages:'true', value:letterOrRange};
         }
         this.onFolderClicked(this.state.selectedItem);
-    },
+    };
 
-    reloadCurrentWithSearch(value){
+    reloadCurrentWithSearch = (value) => {
         if(!value){
             this.reloadCurrentAtPage(-1);
             return;
@@ -364,9 +365,9 @@ let AddressBook = React.createClass({
         this.state.selectedItem.collectionsLoaded = false;
         this.state.selectedItem.currentParams = {has_search: true, value:value, existing_only:true};
         this.onFolderClicked(this.state.selectedItem);
-    },
+    };
 
-    render(){
+    render() {
 
         const {mode, getMessage, bookColumn} = this.props;
 
@@ -564,9 +565,9 @@ let AddressBook = React.createClass({
             }.bind(this));
             nestedRoots.pop();
             leftPanel = (
-                <MaterialUI.Paper zDepth={1} style={{...leftColumnStyle, zIndex:2}}>
-                    <MaterialUI.List>{nestedRoots}</MaterialUI.List>
-                </MaterialUI.Paper>
+                <Paper zDepth={1} style={{...leftColumnStyle, zIndex:2}}>
+                    <List>{nestedRoots}</List>
+                </Paper>
             );
         }
 
@@ -614,22 +615,21 @@ let AddressBook = React.createClass({
                 {leftPanel}
                 {centerComponent}
                 {rightPanel}
-                <MaterialUI.Dialog
+                <Dialog
                     contentStyle={{width:380,minWidth:380,maxWidth:380, padding:0}}
                     bodyStyle={{padding:0, ...dialogBodyStyle}}
                     title={<div style={{padding: 20}}>{dialogTitle}</div>}
                     actions={null}
                     modal={false}
-                    open={createDialogItem?true:false}
+                    open={!!createDialogItem}
                     onRequestClose={() => {this.setState({createDialogItem:null})}}
                 >
                     {dialogContent}
-                </MaterialUI.Dialog>
+                </Dialog>
             </div>
         );
     }
-
-});
+}
 
 AddressBook = PydioContextConsumer(AddressBook);
 AddressBook = muiThemeable()(AddressBook);

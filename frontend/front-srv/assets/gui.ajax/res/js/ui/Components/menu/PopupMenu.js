@@ -24,27 +24,26 @@ const ReactDOM = require('react-dom')
 const {Menu, Paper} = require('material-ui')
 import Utils from './Utils'
 
-export default React.createClass({
-
-    propTypes: {
+export default class extends React.Component {
+    static propTypes = {
         menuItems: React.PropTypes.array.isRequired,
         onExternalClickCheckElements: React.PropTypes.func,
         className: React.PropTypes.string,
         style:React.PropTypes.object,
         onMenuClosed: React.PropTypes.func
-    },
+    };
 
-    getInitialState(){
-        return {showMenu:false, menuItems:this.props.menuItems};
-    },
-    showMenu: function (style = null, menuItems = null) {
+    state = {showMenu:false, menuItems:this.props.menuItems};
+
+    showMenu = (style = null, menuItems = null) => {
         this.setState({
             showMenu: true,
             style: style,
             menuItems:menuItems?menuItems:this.state.menuItems
         });
-    },
-    hideMenu: function(event){
+    };
+
+    hideMenu = (event) => {
         if(!event){
             this.setState({showMenu: false});
             if(this.props.onMenuClosed) this.props.onMenuClosed();
@@ -62,30 +61,35 @@ export default React.createClass({
         this.setState({showMenu: false});
         if(this.props.onMenuClosed) this.props.onMenuClosed();
 
-    },
-    componentDidMount: function(){
+    };
+
+    componentDidMount() {
         this._observer = this.hideMenu;
-    },
-    componentWillUnmount: function(){
+    }
+
+    componentWillUnmount() {
         document.removeEventListener('click', this._observer, false);
-    },
-    componentWillReceiveProps: function(nextProps){
+    }
+
+    componentWillReceiveProps(nextProps) {
         if(nextProps.menuItems){
             this.setState({menuItems:nextProps.menuItems});
         }
-    },
-    componentDidUpdate: function(prevProps, nextProps){
+    }
+
+    componentDidUpdate(prevProps, nextProps) {
         if(this.state.showMenu){
             document.addEventListener('click', this._observer, false);
         }else{
             document.removeEventListener('click', this._observer, false);
         }
-    },
+    }
 
-    menuClicked:function(event, index, menuItem){
+    menuClicked = (event, index, menuItem) => {
         this.hideMenu();
-    },
-    render: function(){
+    };
+
+    render() {
 
         let style = this.state.style || {};
         style = {...style, zIndex: 1000};
@@ -96,5 +100,4 @@ export default React.createClass({
             return null;
         }
     }
-
-});
+}

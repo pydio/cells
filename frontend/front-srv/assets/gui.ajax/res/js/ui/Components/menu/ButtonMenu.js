@@ -23,28 +23,24 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Popover, RaisedButton, FlatButton} from "material-ui";
 
-const ButtonMenu = React.createClass({
-
-    propTypes:{
+class ButtonMenu extends React.Component {
+    static propTypes = {
         buttonTitle : React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.object]).isRequired,
         menuItems   : React.PropTypes.array.isRequired,
         className   : React.PropTypes.string,
         raised      : React.PropTypes.bool,
         direction   : React.PropTypes.oneOf(['left', 'right'])
-    },
+    };
 
-    componentDidMount(){
+    state = {showMenu: false};
+
+    componentDidMount() {
         if(this.props.openOnEvent){
             this.props.pydio.observe(this.props.openOnEvent, () => { this.showMenu();});
         }
-    },
+    }
 
-    getInitialState(){
-        return {showMenu: false};
-    },
-
-
-    showMenu(event){
+    showMenu = (event) => {
         let anchor;
         if(event){
             anchor = event.currentTarget;
@@ -55,13 +51,13 @@ const ButtonMenu = React.createClass({
             showMenu: true,
             anchor: anchor
         })
-    },
+    };
 
-    menuClicked(event, index, object){
+    menuClicked = (event, index, object) => {
         this.setState({showMenu: false});
-    },
+    };
 
-    render(){
+    render() {
         const {showMenu, anchor} = this.state;
         let label = <span style={{whiteSpace:'nowrap'}}>{this.props.buttonTitle} <span className="mdi mdi-menu-down"/></span>
         let button;
@@ -104,8 +100,7 @@ const ButtonMenu = React.createClass({
             </span>
         );
     }
-
-});
+}
 
 
 export default MenuItemsConsumer(ButtonMenu)

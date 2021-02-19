@@ -30,6 +30,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _Utils = require('./Utils');
 
 var _Utils2 = _interopRequireDefault(_Utils);
@@ -54,7 +58,7 @@ var _materialUi = require('material-ui');
 
 var _lodash = require('lodash');
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = _createReactClass2['default']({
     displayName: 'Toolbar',
 
     propTypes: {
@@ -329,6 +333,5 @@ exports['default'] = _react2['default'].createClass({
             actions
         );
     }
-
 });
 module.exports = exports['default'];

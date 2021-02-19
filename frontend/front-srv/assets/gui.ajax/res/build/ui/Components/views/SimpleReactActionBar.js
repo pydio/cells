@@ -18,48 +18,92 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+'use strict';
+
+exports.__esModule = true;
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
 /**
  * Get info from Pydio controller an build an
  * action bar with active actions.
  * TBC
  */
-'use strict';
 
-exports.__esModule = true;
-exports['default'] = React.createClass({
-    displayName: 'SimpleReactActionBar',
+var SimpleReactActionBar = (function (_React$Component) {
+    _inherits(SimpleReactActionBar, _React$Component);
 
-    propTypes: {
-        dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        node: React.PropTypes.instanceOf(AjxpNode).isRequired,
-        actions: React.PropTypes.array
-    },
+    function SimpleReactActionBar() {
+        _classCallCheck(this, SimpleReactActionBar);
 
-    clickAction: function clickAction(event) {
+        _React$Component.apply(this, arguments);
+    }
+
+    SimpleReactActionBar.prototype.clickAction = function clickAction(event) {
+        var pydio = _pydio2['default'].getInstance();
         var actionName = event.currentTarget.getAttribute("data-action");
-        this.props.dataModel.setSelectedNodes([this.props.node]);
-        var a = window.pydio.Controller.getActionByName(actionName);
-        a.fireContextChange(this.props.dataModel, true, window.pydio.user);
-        //a.fireSelectionChange(this.props.dataModel);
-        a.apply([this.props.dataModel]);
+        var _props = this.props;
+        var dataModel = _props.dataModel;
+        var node = _props.node;
+
+        dataModel.setSelectedNodes([node]);
+        var a = pydio.Controller.getActionByName(actionName);
+        a.fireContextChange(dataModel, true, pydio.user);
+        a.apply([dataModel]);
         event.stopPropagation();
         event.preventDefault();
-    },
+    };
 
-    render: function render() {
+    SimpleReactActionBar.prototype.render = function render() {
         var actions = this.props.actions.map((function (a) {
-            return React.createElement('div', {
+            var _this = this;
+
+            return _react2['default'].createElement('div', {
                 key: a.options.name,
                 className: a.options.icon_class + ' material-list-action-inline' || '',
                 title: a.options.title,
                 'data-action': a.options.name,
-                onClick: this.clickAction });
+                onClick: function (e) {
+                    return _this.clickAction(e);
+                } });
         }).bind(this));
-        return React.createElement(
+        return _react2['default'].createElement(
             'span',
             null,
             actions
         );
-    }
-});
+    };
+
+    _createClass(SimpleReactActionBar, null, [{
+        key: 'propTypes',
+        value: {
+            dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel.PydioDataModel).isRequired,
+            node: _react2['default'].PropTypes.instanceOf(_pydioModelNode.Node).isRequired,
+            actions: _react2['default'].PropTypes.array
+        },
+        enumerable: true
+    }]);
+
+    return SimpleReactActionBar;
+})(_react2['default'].Component);
+
+exports['default'] = SimpleReactActionBar;
 module.exports = exports['default'];

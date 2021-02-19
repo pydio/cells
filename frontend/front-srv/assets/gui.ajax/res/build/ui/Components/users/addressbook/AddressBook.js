@@ -24,7 +24,13 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _NestedListItem = require('./NestedListItem');
 
@@ -85,83 +91,233 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 var PydioContextProvider = _Pydio$requireLib.PydioContextProvider;
-var AddressBook = _react2['default'].createClass({
-    displayName: 'AddressBook',
 
-    propTypes: {
-        /**
-         * Main instance of pydio
-         */
-        pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
-        /**
-         * Display mode, either large (book) or small picker ('selector', 'popover').
-         */
-        mode: _react2['default'].PropTypes.oneOf(['book', 'selector', 'popover']).isRequired,
-        /**
-         * Use book mode but display as column
-         */
-        bookColumn: _react2['default'].PropTypes.bool,
-        /**
-         * Callback triggered in 'selector' mode whenever an item is clicked.
-         */
-        onItemSelected: _react2['default'].PropTypes.func,
-        /**
-         * Display users only, no teams or groups
-         */
-        usersOnly: _react2['default'].PropTypes.bool,
-        /**
-         * Choose various user sources, either the local directory or remote ( = trusted ) servers.
-         */
-        usersFrom: _react2['default'].PropTypes.oneOf(['local', 'remote', 'any']),
-        /**
-         * Disable the search engine
-         */
-        disableSearch: _react2['default'].PropTypes.bool,
-        /**
-         * Theme object passed by muiThemeable() wrapper
-         */
-        muiTheme: _react2['default'].PropTypes.object,
-        /**
-         * Will be passed to the Popover object
-         */
-        popoverStyle: _react2['default'].PropTypes.object,
-        /**
-         * Used as a button to open the selector in a popover
-         */
-        popoverButton: _react2['default'].PropTypes.object,
-        /**
-         * Will be passed to the Popover container object
-         */
-        popoverContainerStyle: _react2['default'].PropTypes.object,
-        /**
-         * Will be passed to the Popover Icon Button.
-         */
-        popoverIconButtonStyle: _react2['default'].PropTypes.object
-    },
+var AddressBook = (function (_React$Component) {
+    _inherits(AddressBook, _React$Component);
 
-    getDefaultProps: function getDefaultProps() {
-        return {
+    _createClass(AddressBook, null, [{
+        key: 'propTypes',
+        value: {
+            /**
+             * Main instance of pydio
+             */
+            pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
+            /**
+             * Display mode, either large (book) or small picker ('selector', 'popover').
+             */
+            mode: _react2['default'].PropTypes.oneOf(['book', 'selector', 'popover']).isRequired,
+            /**
+             * Use book mode but display as column
+             */
+            bookColumn: _react2['default'].PropTypes.bool,
+            /**
+             * Callback triggered in 'selector' mode whenever an item is clicked.
+             */
+            onItemSelected: _react2['default'].PropTypes.func,
+            /**
+             * Display users only, no teams or groups
+             */
+            usersOnly: _react2['default'].PropTypes.bool,
+            /**
+             * Choose various user sources, either the local directory or remote ( = trusted ) servers.
+             */
+            usersFrom: _react2['default'].PropTypes.oneOf(['local', 'remote', 'any']),
+            /**
+             * Disable the search engine
+             */
+            disableSearch: _react2['default'].PropTypes.bool,
+            /**
+             * Theme object passed by muiThemeable() wrapper
+             */
+            muiTheme: _react2['default'].PropTypes.object,
+            /**
+             * Will be passed to the Popover object
+             */
+            popoverStyle: _react2['default'].PropTypes.object,
+            /**
+             * Used as a button to open the selector in a popover
+             */
+            popoverButton: _react2['default'].PropTypes.object,
+            /**
+             * Will be passed to the Popover container object
+             */
+            popoverContainerStyle: _react2['default'].PropTypes.object,
+            /**
+             * Will be passed to the Popover Icon Button.
+             */
+            popoverIconButtonStyle: _react2['default'].PropTypes.object
+        },
+        enumerable: true
+    }, {
+        key: 'defaultProps',
+        value: {
             mode: 'book',
             usersOnly: false,
             usersFrom: 'any',
             teamsOnly: false,
             disableSearch: false
-        };
-    },
+        },
+        enumerable: true
+    }]);
 
-    getInitialState: function getInitialState() {
+    function AddressBook(props) {
         var _this = this;
 
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var mode = _props.mode;
-        var usersOnly = _props.usersOnly;
-        var usersFrom = _props.usersFrom;
-        var teamsOnly = _props.teamsOnly;
-        var disableSearch = _props.disableSearch;
+        _classCallCheck(this, AddressBook);
+
+        _React$Component.call(this, props);
+
+        this.onFolderClicked = function (item) {
+            var callback = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+
+            // Special case for teams
+            if (_this.props.mode === 'selector' && item.IdmRole && item.IdmRole.IsTeam) {
+                _this.onUserListItemClicked(item);
+                return;
+            }
+            _this.setState({ loading: true });
+
+            _Loaders2['default'].childrenAsPromise(item, false).then(function (children) {
+                _Loaders2['default'].childrenAsPromise(item, true).then(function (children) {
+                    _this.setState({ selectedItem: item, loading: false }, callback);
+                });
+            });
+        };
+
+        this.onUserListItemClicked = function (item) {
+            if (_this.props.onItemSelected) {
+                var uObject = new PydioUsers.User(item.id, item.label, item.type, item.group, item.avatar, item.temporary, item.external);
+                if (item.trusted_server_id) {
+                    uObject.trustedServerId = item.trusted_server_id;
+                    uObject.trustedServerLabel = item.trusted_server_label;
+                }
+                uObject._uuid = item.uuid;
+                if (item.IdmUser) uObject.IdmUser = item.IdmUser;
+                if (item.IdmRole) uObject.IdmRole = item.IdmRole;
+                _this.props.onItemSelected(uObject);
+            } else {
+                _this.setState({ rightPaneItem: item });
+            }
+        };
+
+        this.onCreateAction = function (item) {
+            _this.setState({ createDialogItem: item });
+        };
+
+        this.closeCreateDialogAndReload = function () {
+            _this.setState({ createDialogItem: null });
+            _this.reloadCurrentNode();
+        };
+
+        this.onCardUpdateAction = function (item) {
+            if (item._parent && item._parent === _this.state.selectedItem) {
+                _this.reloadCurrentNode();
+            }
+        };
+
+        this.onDeleteAction = function (parentItem, selection) {
+            var skipConfirm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+            if (!skipConfirm && !confirm(_this.props.getMessage(278))) {
+                return;
+            }
+            switch (parentItem.actions.type) {
+                case 'users':
+                    Promise.all(selection.map(function (user) {
+                        if (_this.state.rightPaneItem === user) {
+                            _this.setState({ rightPaneItem: null });
+                        }
+                        return _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteIdmUser(user.IdmUser);
+                    })).then(function () {
+                        _this.reloadCurrentNode();
+                    });
+                    break;
+                case 'teams':
+                    Promise.all(selection.map(function (team) {
+                        if (_this.state.rightPaneItem === team) {
+                            _this.setState({ rightPaneItem: null });
+                        }
+                        return _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteRole(team.IdmRole.Uuid);
+                    })).then(function () {
+                        _this.reloadCurrentNode();
+                    });
+                    break;
+                case 'team':
+                    Promise.all(selection.map(function (user) {
+                        return _pydioHttpApi2['default'].getRestClient().getIdmApi().removeUserFromTeam(parentItem.IdmRole.Uuid, user.IdmUser.Login);
+                    })).then(function () {
+                        _this.reloadCurrentNode();
+                    });
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        this.openPopover = function (event) {
+            _this.setState({
+                popoverOpen: true,
+                popoverAnchor: event.currentTarget
+            });
+        };
+
+        this.closePopover = function () {
+            _this.setState({ popoverOpen: false });
+        };
+
+        this.reloadCurrentNode = function () {
+            _this.state.selectedItem.leafLoaded = false;
+            _this.state.selectedItem.collectionsLoaded = false;
+            _this.onFolderClicked(_this.state.selectedItem, function () {
+                if (_this.state.rightPaneItem) {
+                    (function () {
+                        var rPaneId = _this.state.rightPaneItem.id;
+                        var foundItem = null;
+                        var leafs = _this.state.selectedItem.leafs || [];
+                        var collections = _this.state.selectedItem.collections || [];
+                        [].concat(leafs, collections).forEach(function (leaf) {
+                            if (leaf.id === rPaneId) foundItem = leaf;
+                        });
+                        _this.setState({ rightPaneItem: foundItem });
+                    })();
+                }
+            });
+        };
+
+        this.reloadCurrentAtPage = function (letterOrRange) {
+            _this.state.selectedItem.leafLoaded = false;
+            _this.state.selectedItem.collectionsLoaded = false;
+            if (letterOrRange === -1) {
+                _this.state.selectedItem.currentParams = null;
+            } else if (letterOrRange.indexOf('-') !== -1) {
+                _this.state.selectedItem.range = letterOrRange;
+            } else {
+                _this.state.selectedItem.range = null;
+                _this.state.selectedItem.currentParams = { alpha_pages: 'true', value: letterOrRange };
+            }
+            _this.onFolderClicked(_this.state.selectedItem);
+        };
+
+        this.reloadCurrentWithSearch = function (value) {
+            if (!value) {
+                _this.reloadCurrentAtPage(-1);
+                return;
+            }
+            _this.state.selectedItem.leafLoaded = false;
+            _this.state.selectedItem.collectionsLoaded = false;
+            _this.state.selectedItem.currentParams = { has_search: true, value: value, existing_only: true };
+            _this.onFolderClicked(_this.state.selectedItem);
+        };
+
+        var pydio = props.pydio;
+        var mode = props.mode;
+        var usersOnly = props.usersOnly;
+        var usersFrom = props.usersFrom;
+        var teamsOnly = props.teamsOnly;
+        var disableSearch = props.disableSearch;
 
         var getMessage = function getMessage(id) {
-            return _this.props.getMessage(id, '');
+            return props.getMessage(id, '');
         };
         var authConfigs = pydio.getPluginConfigs('core.auth');
         var teamActions = {};
@@ -186,12 +342,15 @@ var AddressBook = _react2['default'].createClass({
                 _notSelectable: true,
                 actions: teamActions
             };
-            return {
+
+            this.state = {
                 root: root,
                 selectedItem: root,
                 loading: false,
                 rightPaneItem: null
             };
+
+            return;
         }
 
         root = {
@@ -266,174 +425,26 @@ var AddressBook = _react2['default'].createClass({
             }
         }
 
-        return {
+        this.state = {
             root: root,
             selectedItem: mode === 'selector' ? root : root.collections[0],
             loading: false,
             rightPaneItem: null,
             teamsEditable: teamsEditable
         };
-    },
+    }
 
-    componentDidMount: function componentDidMount() {
+    AddressBook.prototype.componentDidMount = function componentDidMount() {
         this.state.selectedItem && this.onFolderClicked(this.state.selectedItem);
-    },
+    };
 
-    onFolderClicked: function onFolderClicked(item) {
+    AddressBook.prototype.render = function render() {
         var _this2 = this;
 
-        var callback = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
-
-        // Special case for teams
-        if (this.props.mode === 'selector' && item.IdmRole && item.IdmRole.IsTeam) {
-            this.onUserListItemClicked(item);
-            return;
-        }
-        this.setState({ loading: true });
-
-        _Loaders2['default'].childrenAsPromise(item, false).then(function (children) {
-            _Loaders2['default'].childrenAsPromise(item, true).then(function (children) {
-                _this2.setState({ selectedItem: item, loading: false }, callback);
-            });
-        });
-    },
-
-    onUserListItemClicked: function onUserListItemClicked(item) {
-        if (this.props.onItemSelected) {
-            var uObject = new PydioUsers.User(item.id, item.label, item.type, item.group, item.avatar, item.temporary, item.external);
-            if (item.trusted_server_id) {
-                uObject.trustedServerId = item.trusted_server_id;
-                uObject.trustedServerLabel = item.trusted_server_label;
-            }
-            uObject._uuid = item.uuid;
-            if (item.IdmUser) uObject.IdmUser = item.IdmUser;
-            if (item.IdmRole) uObject.IdmRole = item.IdmRole;
-            this.props.onItemSelected(uObject);
-        } else {
-            this.setState({ rightPaneItem: item });
-        }
-    },
-
-    onCreateAction: function onCreateAction(item) {
-        this.setState({ createDialogItem: item });
-    },
-
-    closeCreateDialogAndReload: function closeCreateDialogAndReload() {
-        this.setState({ createDialogItem: null });
-        this.reloadCurrentNode();
-    },
-
-    onCardUpdateAction: function onCardUpdateAction(item) {
-        if (item._parent && item._parent === this.state.selectedItem) {
-            this.reloadCurrentNode();
-        }
-    },
-
-    onDeleteAction: function onDeleteAction(parentItem, selection) {
-        var _this3 = this;
-
-        var skipConfirm = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
-
-        if (!skipConfirm && !confirm(this.props.getMessage(278))) {
-            return;
-        }
-        switch (parentItem.actions.type) {
-            case 'users':
-                Promise.all(selection.map(function (user) {
-                    if (_this3.state.rightPaneItem === user) {
-                        _this3.setState({ rightPaneItem: null });
-                    }
-                    return _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteIdmUser(user.IdmUser);
-                })).then(function () {
-                    _this3.reloadCurrentNode();
-                });
-                break;
-            case 'teams':
-                Promise.all(selection.map(function (team) {
-                    if (_this3.state.rightPaneItem === team) {
-                        _this3.setState({ rightPaneItem: null });
-                    }
-                    return _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteRole(team.IdmRole.Uuid);
-                })).then(function () {
-                    _this3.reloadCurrentNode();
-                });
-                break;
-            case 'team':
-                Promise.all(selection.map(function (user) {
-                    return _pydioHttpApi2['default'].getRestClient().getIdmApi().removeUserFromTeam(parentItem.IdmRole.Uuid, user.IdmUser.Login);
-                })).then(function () {
-                    _this3.reloadCurrentNode();
-                });
-                break;
-            default:
-                break;
-        }
-    },
-
-    openPopover: function openPopover(event) {
-        this.setState({
-            popoverOpen: true,
-            popoverAnchor: event.currentTarget
-        });
-    },
-
-    closePopover: function closePopover() {
-        this.setState({ popoverOpen: false });
-    },
-
-    reloadCurrentNode: function reloadCurrentNode() {
-        var _this4 = this;
-
-        this.state.selectedItem.leafLoaded = false;
-        this.state.selectedItem.collectionsLoaded = false;
-        this.onFolderClicked(this.state.selectedItem, function () {
-            if (_this4.state.rightPaneItem) {
-                (function () {
-                    var rPaneId = _this4.state.rightPaneItem.id;
-                    var foundItem = null;
-                    var leafs = _this4.state.selectedItem.leafs || [];
-                    var collections = _this4.state.selectedItem.collections || [];
-                    [].concat(leafs, collections).forEach(function (leaf) {
-                        if (leaf.id === rPaneId) foundItem = leaf;
-                    });
-                    _this4.setState({ rightPaneItem: foundItem });
-                })();
-            }
-        });
-    },
-
-    reloadCurrentAtPage: function reloadCurrentAtPage(letterOrRange) {
-        this.state.selectedItem.leafLoaded = false;
-        this.state.selectedItem.collectionsLoaded = false;
-        if (letterOrRange === -1) {
-            this.state.selectedItem.currentParams = null;
-        } else if (letterOrRange.indexOf('-') !== -1) {
-            this.state.selectedItem.range = letterOrRange;
-        } else {
-            this.state.selectedItem.range = null;
-            this.state.selectedItem.currentParams = { alpha_pages: 'true', value: letterOrRange };
-        }
-        this.onFolderClicked(this.state.selectedItem);
-    },
-
-    reloadCurrentWithSearch: function reloadCurrentWithSearch(value) {
-        if (!value) {
-            this.reloadCurrentAtPage(-1);
-            return;
-        }
-        this.state.selectedItem.leafLoaded = false;
-        this.state.selectedItem.collectionsLoaded = false;
-        this.state.selectedItem.currentParams = { has_search: true, value: value, existing_only: true };
-        this.onFolderClicked(this.state.selectedItem);
-    },
-
-    render: function render() {
-        var _this5 = this;
-
-        var _props2 = this.props;
-        var mode = _props2.mode;
-        var getMessage = _props2.getMessage;
-        var bookColumn = _props2.bookColumn;
+        var _props = this.props;
+        var mode = _props.mode;
+        var getMessage = _props.getMessage;
+        var bookColumn = _props.bookColumn;
 
         if (mode === 'popover') {
 
@@ -546,14 +557,14 @@ var AddressBook = _react2['default'].createClass({
                     team: selectedItem,
                     userEditable: true,
                     reloadAction: function () {
-                        _this5.reloadCurrentNode();
+                        _this2.reloadCurrentNode();
                     },
                     onDeleteAction: function () {
-                        if (confirm(_this5.props.getMessage(278))) {
+                        if (confirm(_this2.props.getMessage(278))) {
                             (function () {
                                 var parent = selectedItem._parent;
-                                _this5.setState({ selectedItem: parent }, function () {
-                                    _this5.onDeleteAction(parent, [selectedItem], true);
+                                _this2.setState({ selectedItem: parent }, function () {
+                                    _this2.onDeleteAction(parent, [selectedItem], true);
                                 });
                             })();
                         }
@@ -563,8 +574,8 @@ var AddressBook = _react2['default'].createClass({
                 onEditLabel = function (item, newLabel) {
                     _pydioHttpApi2['default'].getRestClient().getIdmApi().updateTeamLabel(item.IdmRole.Uuid, newLabel, function () {
                         var parent = selectedItem._parent;
-                        _this5.setState({ selectedItem: parent }, function () {
-                            _this5.reloadCurrentNode();
+                        _this2.setState({ selectedItem: parent }, function () {
+                            _this2.reloadCurrentNode();
                         });
                     });
                 };
@@ -584,7 +595,7 @@ var AddressBook = _react2['default'].createClass({
                 emptyStatePrimaryText: emptyStatePrimary,
                 emptyStateSecondaryText: emptyStateSecondary,
                 onTouchTap: this.state.rightPaneItem ? function () {
-                    _this5.setState({ rightPaneItem: null });
+                    _this2.setState({ rightPaneItem: null });
                 } : null,
                 actionsPanel: topActionsPanel,
                 actionsForCell: this.props.actionsForCell,
@@ -610,7 +621,7 @@ var AddressBook = _react2['default'].createClass({
         rightPanel = _react2['default'].createElement(_RightPanelCard2['default'], {
             pydio: this.props.pydio,
             onRequestClose: function () {
-                _this5.setState({ rightPaneItem: null });
+                _this2.setState({ rightPaneItem: null });
             },
             style: rightPanelStyle,
             onCreateAction: this.onCreateAction,
@@ -629,13 +640,13 @@ var AddressBook = _react2['default'].createClass({
                         onTouchTap: this.onFolderClicked
                     }));
                     nestedRoots.push(_react2['default'].createElement(_materialUi.Divider, { key: e.id + '-divider' }));
-                }).bind(_this5));
+                }).bind(_this2));
                 nestedRoots.pop();
                 leftPanel = _react2['default'].createElement(
-                    MaterialUI.Paper,
+                    _materialUi.Paper,
                     { zDepth: 1, style: _extends({}, leftColumnStyle, { zIndex: 2 }) },
                     _react2['default'].createElement(
-                        MaterialUI.List,
+                        _materialUi.List,
                         null,
                         nestedRoots
                     )
@@ -656,7 +667,7 @@ var AddressBook = _react2['default'].createClass({
                     newUserName: "",
                     onUserCreated: this.closeCreateDialogAndReload.bind(this),
                     onCancel: function () {
-                        _this5.setState({ createDialogItem: null });
+                        _this2.setState({ createDialogItem: null });
                     },
                     pydio: this.props.pydio
                 });
@@ -665,13 +676,13 @@ var AddressBook = _react2['default'].createClass({
                 dialogContent = _react2['default'].createElement(_TeamCreationForm2['default'], {
                     onTeamCreated: this.closeCreateDialogAndReload,
                     onCancel: function () {
-                        _this5.setState({ createDialogItem: null });
+                        _this2.setState({ createDialogItem: null });
                     }
                 });
             } else if (createDialogItem.actions.type === 'team') {
                 var selectUser = function selectUser(item) {
                     _pydioHttpApi2['default'].getRestClient().getIdmApi().addUserToTeam(createDialogItem.IdmRole.Uuid, item.IdmUser.Login).then(function () {
-                        _this5.reloadCurrentNode();
+                        _this2.reloadCurrentNode();
                     });
                 };
                 dialogTitle = null;
@@ -693,7 +704,7 @@ var AddressBook = _react2['default'].createClass({
             centerComponent,
             rightPanel,
             _react2['default'].createElement(
-                MaterialUI.Dialog,
+                _materialUi.Dialog,
                 {
                     contentStyle: { width: 380, minWidth: 380, maxWidth: 380, padding: 0 },
                     bodyStyle: _extends({ padding: 0 }, dialogBodyStyle),
@@ -704,17 +715,18 @@ var AddressBook = _react2['default'].createClass({
                     ),
                     actions: null,
                     modal: false,
-                    open: createDialogItem ? true : false,
+                    open: !!createDialogItem,
                     onRequestClose: function () {
-                        _this5.setState({ createDialogItem: null });
+                        _this2.setState({ createDialogItem: null });
                     }
                 },
                 dialogContent
             )
         );
-    }
+    };
 
-});
+    return AddressBook;
+})(_react2['default'].Component);
 
 exports['default'] = AddressBook = PydioContextConsumer(AddressBook);
 exports['default'] = AddressBook = _materialUiStyles.muiThemeable()(AddressBook);

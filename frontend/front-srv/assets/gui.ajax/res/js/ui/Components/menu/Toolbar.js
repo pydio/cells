@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import Utils from './Utils'
 import IconButtonMenu from './IconButtonMenu'
 import ButtonMenu from './ButtonMenu'
@@ -27,7 +28,8 @@ import IconButtonPopover from './IconButtonPopover'
 import {FlatButton, IconButton, FloatingActionButton} from 'material-ui'
 import {debounce} from 'lodash';
 
-export default React.createClass({
+export default createReactClass({
+    displayName: 'Toolbar',
 
     propTypes:{
         toolbars:React.PropTypes.array,
@@ -260,7 +262,6 @@ export default React.createClass({
         }
         let style = {...toolbarStyle};
         return <div className={cName} style={style} id={this.props.id}>{actions}</div>
-    }
-
+    },
 });
 

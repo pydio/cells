@@ -23,7 +23,7 @@ module.exports = function(grunt, options){
         },
         lib:{
             options: {
-                optional: ['es7.decorators'],
+                optional: ['es7.decorators', 'es7.classProperties'],
             },
             files: [
                 {
