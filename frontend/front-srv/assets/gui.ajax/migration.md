@@ -13,3 +13,4 @@ if required in Gruntfile for babel task
     },
 ```
 
+Replace all onTouchTap by onClick

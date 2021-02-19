@@ -119,7 +119,7 @@ export default class ListPaginator extends React.Component{
                 {previous}
                 <DropDownMenu
                     style={{width: 150, marginTop: -6}}
-                    onChange={this.onMenuChange}
+                    onChange={this.onMenuChange.bind(this)}
                     value={current}
                     underlineStyle={{display: 'none'}}
                     labelStyle={{...whiteStyle, ...smallButtonsLabel}}
