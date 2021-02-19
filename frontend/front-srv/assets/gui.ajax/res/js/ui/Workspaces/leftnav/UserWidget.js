@@ -117,6 +117,7 @@ class UserWidget extends React.Component {
                 </div>
             );
 
+            // Temporary disable activities loading
             if(!this.props.hideNotifications){
                 notificationsButton = (
                     <AsyncComponent

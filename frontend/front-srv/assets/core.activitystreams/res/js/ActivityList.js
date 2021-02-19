@@ -18,7 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react';
-import {Divider, List, Subheader, FlatButton} from 'material-ui';
+import PropTypes from 'prop-types'
+import {List, FlatButton} from 'material-ui';
 import Pydio from 'pydio'
 import AS2Client from './Client'
 import Activity from './Activity'
@@ -175,11 +176,11 @@ class ActivityList extends React.Component {
 }
 
 ActivityList.PropTypes = {
-    context: React.PropTypes.string,
-    contextData: React.PropTypes.string,
-    boxName : React.PropTypes.string,
-    pointOfView: React.PropTypes.oneOf(['GENERIC', 'ACTOR', 'SUBJECT']),
-    displayContext: React.PropTypes.oneOf(['mainList', 'infoPanel', 'popover'])
+    context: PropTypes.string,
+    contextData: PropTypes.string,
+    boxName : PropTypes.string,
+    pointOfView: PropTypes.oneOf(['GENERIC', 'ACTOR', 'SUBJECT']),
+    displayContext: PropTypes.oneOf(['mainList', 'infoPanel', 'popover'])
 };
 
 ActivityList = PydioContextConsumer(ActivityList);

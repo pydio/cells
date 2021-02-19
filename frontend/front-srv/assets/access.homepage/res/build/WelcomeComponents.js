@@ -6917,23 +6917,34 @@ var DlAppsPanel = (function (_React$Component) {
     return DlAppsPanel;
 })(React.Component);
 
-var DlAppsCard = React.createClass({
-    displayName: 'DlAppsCard',
+var DlAppsCard = (function (_React$Component2) {
+    _inherits(DlAppsCard, _React$Component2);
 
-    render: function render() {
-        var props = _extends({}, this.props);
-        return React.createElement(
-            _boardColorPaper2['default'],
-            _extends({}, this.props, { style: _extends({}, this.props.style, { overflow: 'visible' }), paletteIndex: 1, closeButton: props.closeButton }),
-            React.createElement(DlAppsPanel, { pydio: this.props.pydio, type: 'sync', iconColor: '#ffffff' }),
-            React.createElement(
-                'div',
-                { style: { fontSize: 16, padding: 16, paddingTop: 0, textAlign: 'center' } },
-                this.props.pydio.MessageHash['user_home.91']
-            )
-        );
+    function DlAppsCard() {
+        _classCallCheck(this, DlAppsCard);
+
+        _get(Object.getPrototypeOf(DlAppsCard.prototype), 'constructor', this).apply(this, arguments);
     }
-});
+
+    _createClass(DlAppsCard, [{
+        key: 'render',
+        value: function render() {
+            var props = _extends({}, this.props);
+            return React.createElement(
+                _boardColorPaper2['default'],
+                _extends({}, this.props, { style: _extends({}, this.props.style, { overflow: 'visible' }), paletteIndex: 1, closeButton: props.closeButton }),
+                React.createElement(DlAppsPanel, { pydio: this.props.pydio, type: 'sync', iconColor: '#ffffff' }),
+                React.createElement(
+                    'div',
+                    { style: { fontSize: 16, padding: 16, paddingTop: 0, textAlign: 'center' } },
+                    this.props.pydio.MessageHash['user_home.91']
+                )
+            );
+        }
+    }]);
+
+    return DlAppsCard;
+})(React.Component);
 
 exports['default'] = DlAppsCard = asGridItem(DlAppsCard, global.pydio.MessageHash['user_home.92'], { gridWidth: 2, gridHeight: 10 }, []);
 exports['default'] = DlAppsCard;
@@ -6960,22 +6971,31 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
+'use strict';
 
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var DownloadApp = (function (_React$Component) {
     _inherits(DownloadApp, _React$Component);
@@ -6983,11 +7003,11 @@ var DownloadApp = (function (_React$Component) {
     function DownloadApp() {
         _classCallCheck(this, DownloadApp);
 
-        _get(Object.getPrototypeOf(DownloadApp.prototype), "constructor", this).apply(this, arguments);
+        _get(Object.getPrototypeOf(DownloadApp.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(DownloadApp, [{
-        key: "render",
+        key: 'render',
         value: function render() {
 
             var styles = {
@@ -7010,7 +7030,7 @@ var DownloadApp = (function (_React$Component) {
             var configs = _props.configs;
             var configHref = _props.configHref;
 
-            return React.createElement(MaterialUI.IconButton, {
+            return _react2['default'].createElement(MaterialUI.IconButton, {
                 iconClassName: iconClassName,
                 tooltip: pydio.MessageHash[tooltipId],
                 tooltipStyles: { marginTop: 40 },
@@ -7024,23 +7044,23 @@ var DownloadApp = (function (_React$Component) {
     }]);
 
     return DownloadApp;
-})(React.Component);
+})(_react2['default'].Component);
 
 DownloadApp.propTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    id: React.PropTypes.string,
-    configs: React.PropTypes.object,
-    configHref: React.PropTypes.string,
-    iconClassName: React.PropTypes.string,
-    iconColor: React.PropTypes.string,
-    messageId: React.PropTypes.string,
-    tooltipId: React.PropTypes.string
+    pydio: _propTypes2['default'].instanceOf(Pydio),
+    id: _propTypes2['default'].string,
+    configs: _propTypes2['default'].object,
+    configHref: _propTypes2['default'].string,
+    iconClassName: _propTypes2['default'].string,
+    iconColor: _propTypes2['default'].string,
+    messageId: _propTypes2['default'].string,
+    tooltipId: _propTypes2['default'].string
 };
 
-exports["default"] = DownloadApp;
-module.exports = exports["default"];
+exports['default'] = DownloadApp;
+module.exports = exports['default'];
 
-},{}],4:[function(require,module,exports){
+},{"prop-types":"prop-types","react":"react"}],4:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -7070,7 +7090,15 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _boardPalette = require('../board/Palette');
 
@@ -7087,33 +7115,43 @@ var _require$requireLib = require('pydio').requireLib('components');
 
 var asGridItem = _require$requireLib.asGridItem;
 
-var QRCodeCard = React.createClass({
-    displayName: 'QRCodeCard',
+var QRCodeCard = (function (_React$Component) {
+    _inherits(QRCodeCard, _React$Component);
 
-    render: function render() {
+    function QRCodeCard() {
+        _classCallCheck(this, QRCodeCard);
 
-        var jsonData = {
-            "server": window.location.href.split('welcome').shift(),
-            "user": this.props.pydio.user ? this.props.pydio.user.id : null
-        };
-
-        return React.createElement(
-            _boardColorPaper2['default'],
-            _extends({}, this.props, { style: _extends({}, this.props.style, { display: 'flex' }), paletteIndex: 2, closeButton: this.props.closeButton }),
-            React.createElement(
-                'div',
-                { style: { padding: 16, fontSize: 16, paddingRight: 8, overflow: 'hidden' } },
-                this.props.pydio.MessageHash['user_home.74']
-            ),
-            React.createElement(
-                'div',
-                { className: 'home-qrCode', style: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: 16 } },
-                React.createElement(ReactQRCode, { bgColor: _boardPalette2['default'][2], fgColor: '#ffffff', value: JSON.stringify(jsonData), size: 80 })
-            )
-        );
+        _get(Object.getPrototypeOf(QRCodeCard.prototype), 'constructor', this).apply(this, arguments);
     }
 
-});
+    _createClass(QRCodeCard, [{
+        key: 'render',
+        value: function render() {
+
+            var jsonData = {
+                "server": window.location.href.split('welcome').shift(),
+                "user": this.props.pydio.user ? this.props.pydio.user.id : null
+            };
+
+            return React.createElement(
+                _boardColorPaper2['default'],
+                _extends({}, this.props, { style: _extends({}, this.props.style, { display: 'flex' }), paletteIndex: 2, closeButton: this.props.closeButton }),
+                React.createElement(
+                    'div',
+                    { style: { padding: 16, fontSize: 16, paddingRight: 8, overflow: 'hidden' } },
+                    this.props.pydio.MessageHash['user_home.74']
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'home-qrCode', style: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: 16 } },
+                    React.createElement(ReactQRCode, { bgColor: _boardPalette2['default'][2], fgColor: '#ffffff', value: JSON.stringify(jsonData), size: 80 })
+                )
+            );
+        }
+    }]);
+
+    return QRCodeCard;
+})(React.Component);
 
 exports['default'] = QRCodeCard = asGridItem(QRCodeCard, global.pydio.MessageHash['user_home.72'], { gridWidth: 2, gridHeight: 10 }, []);
 
@@ -7122,26 +7160,6 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../board/ColorPaper":5,"../board/Palette":10,"pydio":"pydio","qrcode.react":"qrcode.react","react":"react"}],5:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -7167,6 +7185,27 @@ var _Palette2 = _interopRequireDefault(_Palette);
 /**
  * Generic paper with a background color picked from palette
  */
+var PropTypes = require('prop-types');
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -7209,25 +7248,25 @@ ColorPaper.propTypes = {
   /**
    * Pass the proper style for grid layout
    */
-  style: React.PropTypes.object.isRequired,
+  style: PropTypes.object.isRequired,
   /**
    * Legacy way of passing the close button, use closeButton prop instead
    */
-  getCloseButton: React.PropTypes.func,
+  getCloseButton: PropTypes.func,
   /**
    * Passed by parent, through the asGridItem HOC
    */
-  closeButton: React.PropTypes.object,
+  closeButton: PropTypes.object,
   /**
    * An integer to choose which color to pick
    */
-  paletteIndex: React.PropTypes.number.isRequired
+  paletteIndex: PropTypes.number.isRequired
 };
 
 exports['default'] = ColorPaper;
 module.exports = exports['default'];
 
-},{"./Palette":10,"material-ui":"material-ui","react":"react"}],6:[function(require,module,exports){
+},{"./Palette":10,"material-ui":"material-ui","prop-types":"prop-types","react":"react"}],6:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -8742,7 +8781,15 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _boardColorPaper = require('../board/ColorPaper');
 
@@ -8769,108 +8816,118 @@ var NativeFileDropProvider = _require$requireLib3.NativeFileDropProvider;
 
 var BinaryDropZone = NativeFileDropProvider(FileDropZone, function (items, files, props) {});
 
-var QuickSendCard = React.createClass({
-    displayName: 'QuickSendCard',
+var QuickSendCard = (function (_React$Component) {
+    _inherits(QuickSendCard, _React$Component);
 
-    fileDroppedOrPicked: function fileDroppedOrPicked(event) {
-        var monitor = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-
-        var items = undefined,
-            files = undefined;
-        if (monitor) {
-            var dataTransfer = monitor.getItem().dataTransfer;
-            if (dataTransfer.items.length && dataTransfer.items[0] && (dataTransfer.items[0].getAsEntry || dataTransfer.items[0].webkitGetAsEntry)) {
-                items = dataTransfer.items;
-            }
-        } else if (event.dataTransfer) {
-            items = event.dataTransfer.items || [];
-            files = event.dataTransfer.files;
-        } else if (event.target) {
-            files = event.target.files;
-        }
-
-        var uploadItems = [];
-        if (window['UploaderModel'] && global.pydio.getController().getActionByName('upload')) {
-            UploaderModel.Store.getInstance().handleDropEventResults(items, files, new AjxpNode('/'), uploadItems);
-        }
-        return uploadItems;
-    },
-
-    onDrop: function onDrop(files, event, source) {
-        var items = this.fileDroppedOrPicked(event);
-        this.setState({ uploadItems: items });
-        this.props.pydio.UI.openComponentInModal('WelcomeComponents', 'WorkspacePickerDialog', {
-            onWorkspaceTouchTap: this.targetWorkspaceSelected.bind(this),
-            legend: files && files[0] ? React.createElement(
-                'div',
-                { style: { fontSize: 13, padding: 16, backgroundColor: '#FFEBEE' } },
-                this.props.pydio.MessageHash['user_home.89'],
-                ': ',
-                files[0].name
-            ) : undefined
-        });
-    },
-
-    targetWorkspaceSelected: function targetWorkspaceSelected(wsId) {
+    function QuickSendCard() {
         var _this = this;
 
-        var contextNode = new AjxpNode('/');
-        contextNode.getMetadata().set('repository_id', wsId);
-        var uploadItems = this.state.uploadItems;
+        _classCallCheck(this, QuickSendCard);
 
-        if (window['UploaderModel'] && global.pydio.getController().getActionByName('upload')) {
-            (function () {
-                var instance = UploaderModel.Store.getInstance();
-                uploadItems.forEach(function (item) {
-                    item.updateRepositoryId(wsId);
-                    item.observe('status', function () {
-                        _this.setState({ working: item.getStatus() === 'loading' });
+        _get(Object.getPrototypeOf(QuickSendCard.prototype), 'constructor', this).apply(this, arguments);
+
+        this.fileDroppedOrPicked = function (event) {
+            var monitor = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+            var items = undefined,
+                files = undefined;
+            if (monitor) {
+                var dataTransfer = monitor.getItem().dataTransfer;
+                if (dataTransfer.items.length && dataTransfer.items[0] && (dataTransfer.items[0].getAsEntry || dataTransfer.items[0].webkitGetAsEntry)) {
+                    items = dataTransfer.items;
+                }
+            } else if (event.dataTransfer) {
+                items = event.dataTransfer.items || [];
+                files = event.dataTransfer.files;
+            } else if (event.target) {
+                files = event.target.files;
+            }
+
+            var uploadItems = [];
+            if (window['UploaderModel'] && global.pydio.getController().getActionByName('upload')) {
+                UploaderModel.Store.getInstance().handleDropEventResults(items, files, new AjxpNode('/'), uploadItems);
+            }
+            return uploadItems;
+        };
+
+        this.onDrop = function (files, event, source) {
+            var items = _this.fileDroppedOrPicked(event);
+            _this.setState({ uploadItems: items });
+            _this.props.pydio.UI.openComponentInModal('WelcomeComponents', 'WorkspacePickerDialog', {
+                onWorkspaceTouchTap: _this.targetWorkspaceSelected.bind(_this),
+                legend: files && files[0] ? React.createElement(
+                    'div',
+                    { style: { fontSize: 13, padding: 16, backgroundColor: '#FFEBEE' } },
+                    _this.props.pydio.MessageHash['user_home.89'],
+                    ': ',
+                    files[0].name
+                ) : undefined
+            });
+        };
+
+        this.targetWorkspaceSelected = function (wsId) {
+            var contextNode = new AjxpNode('/');
+            contextNode.getMetadata().set('repository_id', wsId);
+            var uploadItems = _this.state.uploadItems;
+
+            if (window['UploaderModel'] && global.pydio.getController().getActionByName('upload')) {
+                (function () {
+                    var instance = UploaderModel.Store.getInstance();
+                    uploadItems.forEach(function (item) {
+                        item.updateRepositoryId(wsId);
+                        item.observe('status', function () {
+                            _this.setState({ working: item.getStatus() === 'loading' });
+                        });
+                        instance.pushFile(item);
                     });
-                    instance.pushFile(item);
-                });
-                instance.processNext();
-            })();
-        }
-    },
-
-    render: function render() {
-        var title = React.createElement(CardTitle, { title: 'Quick Upload' });
-        var working = this.state && this.state.working;
-
-        return React.createElement(
-            _boardColorPaper2['default'],
-            _extends({ zDepth: 1 }, this.props, { paletteIndex: 0, closeButton: this.props.closeButton }),
-            React.createElement(
-                'div',
-                { style: { display: 'flex', alignItems: 'center', height: '100%' } },
-                React.createElement(
-                    'div',
-                    { style: { padding: 16, fontSize: 16, width: 100 } },
-                    this.props.pydio.MessageHash['user_home.88']
-                ),
-                React.createElement(
-                    'div',
-                    { style: { textAlign: 'center', padding: 18, flex: 1 } },
-                    working && React.createElement(CircularProgress, { size: 80, thickness: 4, color: 'white' }),
-                    !working && React.createElement(
-                        BinaryDropZone,
-                        {
-                            ref: 'dropzone',
-                            multiple: true,
-                            enableFolders: false,
-                            supportClick: true,
-                            onDrop: this.onDrop,
-                            style: { width: '100%', borderWidth: 0, height: 'auto', borderRadius: '50%', border: '4px solid white', fontSize: 56, padding: 20 },
-                            dragActiveStyle: { border: '4px dashed white' }
-                        },
-                        React.createElement('span', { className: 'mdi mdi-cloud-upload' })
-                    )
-                )
-            )
-        );
+                    instance.processNext();
+                })();
+            }
+        };
     }
 
-});
+    _createClass(QuickSendCard, [{
+        key: 'render',
+        value: function render() {
+            var title = React.createElement(CardTitle, { title: 'Quick Upload' });
+            var working = this.state && this.state.working;
+
+            return React.createElement(
+                _boardColorPaper2['default'],
+                _extends({ zDepth: 1 }, this.props, { paletteIndex: 0, closeButton: this.props.closeButton }),
+                React.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', height: '100%' } },
+                    React.createElement(
+                        'div',
+                        { style: { padding: 16, fontSize: 16, width: 100 } },
+                        this.props.pydio.MessageHash['user_home.88']
+                    ),
+                    React.createElement(
+                        'div',
+                        { style: { textAlign: 'center', padding: 18, flex: 1 } },
+                        working && React.createElement(CircularProgress, { size: 80, thickness: 4, color: 'white' }),
+                        !working && React.createElement(
+                            BinaryDropZone,
+                            {
+                                ref: 'dropzone',
+                                multiple: true,
+                                enableFolders: false,
+                                supportClick: true,
+                                onDrop: this.onDrop,
+                                style: { width: '100%', borderWidth: 0, height: 'auto', borderRadius: '50%', border: '4px solid white', fontSize: 56, padding: 20 },
+                                dragActiveStyle: { border: '4px dashed white' }
+                            },
+                            React.createElement('span', { className: 'mdi mdi-cloud-upload' })
+                        )
+                    )
+                )
+            );
+        }
+    }]);
+
+    return QuickSendCard;
+})(React.Component);
 
 exports['default'] = QuickSendCard = asGridItem(QuickSendCard, global.pydio.MessageHash['user_home.93'], { gridWidth: 2, gridHeight: 10 }, []);
 exports['default'] = QuickSendCard;
@@ -8904,6 +8961,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 var React = require('react');
+var createReactClass = require('create-react-class');
 
 var _require$requireLib = require('pydio').requireLib('boot');
 
@@ -8914,7 +8972,7 @@ var _require$requireLib2 = require('pydio').requireLib('workspaces');
 
 var WorkspacesListMaterial = _require$requireLib2.WorkspacesListMaterial;
 
-var WorkspacePickerDialog = React.createClass({
+var WorkspacePickerDialog = createReactClass({
     displayName: 'WorkspacePickerDialog',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
@@ -8956,13 +9014,12 @@ var WorkspacePickerDialog = React.createClass({
             })
         );
     }
-
 });
 
 exports['default'] = WorkspacePickerDialog;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","react":"react"}],15:[function(require,module,exports){
+},{"create-react-class":"create-react-class","pydio":"pydio","react":"react"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9415,7 +9472,19 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _VideoPlayer = require('./VideoPlayer');
 
@@ -9430,6 +9499,7 @@ var _boardColorPaper = require('../board/ColorPaper');
 var _boardColorPaper2 = _interopRequireDefault(_boardColorPaper);
 
 var React = require('react');
+
 var ReactDOM = require('react-dom');
 
 var _require$requireLib = require('pydio').requireLib('components');
@@ -9446,126 +9516,143 @@ var PALETTE_INDEX = 4;
 /**
  * Display a list of tutorial videos as a material card
  */
-var VideoCard = React.createClass({
-    displayName: 'VideoCard',
 
-    propTypes: {
-        youtubeId: React.PropTypes.string,
-        contentMessageId: React.PropTypes.string
-    },
+var VideoCard = (function (_React$Component) {
+    _inherits(VideoCard, _React$Component);
 
-    getInitialState: function getInitialState() {
+    _createClass(VideoCard, null, [{
+        key: 'propTypes',
+        value: {
+            youtubeId: _propTypes2['default'].string,
+            contentMessageId: _propTypes2['default'].string
+        },
+        enumerable: true
+    }]);
+
+    function VideoCard(props) {
+        var _this = this;
+
+        _classCallCheck(this, VideoCard);
+
+        _get(Object.getPrototypeOf(VideoCard.prototype), 'constructor', this).call(this, props);
+
+        this.launchVideo = function () {
+            var url = "//www.youtube.com/embed/" + _this.state.youtubeId + "?list=PLxzQJCqzktEbYm3U_O1EqFru0LsEFBca5&autoplay=1";
+            _this._videoDiv = document.createElement('div');
+            document.body.appendChild(_this._videoDiv);
+            ReactDOM.render(React.createElement(_VideoPlayer2['default'], { videoSrc: url, closePlayer: _this.closePlayer }), _this._videoDiv);
+        };
+
+        this.closePlayer = function () {
+            ReactDOM.unmountComponentAtNode(_this._videoDiv);
+            document.body.removeChild(_this._videoDiv);
+        };
+
+        this.getTitle = function (messId) {
+            var text = _this.props.pydio.MessageHash[messId];
+            return text.split('\n').shift().replace('<h2>', '').replace('</h2>', '');
+        };
+
+        this.browse = function (direction, event) {
+            if (direction === undefined) direction = 'next';
+
+            var nextIndex = undefined;
+            var videoIndex = _this.state.videoIndex;
+
+            if (direction === 'next') {
+                nextIndex = videoIndex < _this._videos.length - 1 ? videoIndex + 1 : 0;
+            } else {
+                nextIndex = videoIndex > 0 ? videoIndex - 1 : _this._videos.length - 1;
+            }
+            var value = _this._videos[nextIndex];
+            _this.setState({
+                videoIndex: nextIndex,
+                youtubeId: value[0],
+                contentMessageId: value[1]
+            });
+        };
+
         this._videos = [['qvsSeLXr-T4', 'user_home.63'], ['HViCWPpyZ6k', 'user_home.79'], ['jBRNqwannJM', 'user_home.80'], ['2jl1EsML5v8', 'user_home.81'], ['28-t4dvhE6c', 'user_home.82'], ['fP0MVejnVZE', 'user_home.83'], ['TXFz4w4trlQ', 'user_home.84'], ['OjHtgnL_L7Y', 'user_home.85'], ['ot2Nq-RAnYE', 'user_home.66']];
         var k = Math.floor(Math.random() * this._videos.length);
         var value = this._videos[k];
-        return {
+
+        this.state = {
             videoIndex: k,
             youtubeId: value[0],
             contentMessageId: value[1]
         };
-    },
+    }
 
-    launchVideo: function launchVideo() {
-        var url = "//www.youtube.com/embed/" + this.state.youtubeId + "?list=PLxzQJCqzktEbYm3U_O1EqFru0LsEFBca5&autoplay=1";
-        this._videoDiv = document.createElement('div');
-        document.body.appendChild(this._videoDiv);
-        ReactDOM.render(React.createElement(_VideoPlayer2['default'], { videoSrc: url, closePlayer: this.closePlayer }), this._videoDiv);
-    },
+    _createClass(VideoCard, [{
+        key: 'render',
+        value: function render() {
+            var _this3 = this;
 
-    closePlayer: function closePlayer() {
-        ReactDOM.unmountComponentAtNode(this._videoDiv);
-        document.body.removeChild(this._videoDiv);
-    },
+            var MessageHash = this.props.pydio.MessageHash;
+            var htmlMessage = function htmlMessage(id) {
+                return { __html: MessageHash[id] };
+            };
+            var menus = this._videos.map((function (item, index) {
+                var _this2 = this;
 
-    getTitle: function getTitle(messId) {
-        var text = this.props.pydio.MessageHash[messId];
-        return text.split('\n').shift().replace('<h2>', '').replace('</h2>', '');
-    },
+                return React.createElement(MenuItem, { key: 'videoCardMenuItem_' + index, primaryText: this.getTitle(item[1]), onTouchTap: function () {
+                        _this2.setState({ youtubeId: item[0], contentMessageId: item[1], videoIndex: index });
+                    } });
+            }).bind(this));
+            var props = _extends({}, this.props);
+            var _state = this.state;
+            var youtubeId = _state.youtubeId;
+            var contentMessageId = _state.contentMessageId;
 
-    browse: function browse(direction, event) {
-        if (direction === undefined) direction = 'next';
+            props.className += ' video-card';
 
-        var nextIndex = undefined;
-        var videoIndex = this.state.videoIndex;
-
-        if (direction === 'next') {
-            nextIndex = videoIndex < this._videos.length - 1 ? videoIndex + 1 : 0;
-        } else {
-            nextIndex = videoIndex > 0 ? videoIndex - 1 : this._videos.length - 1;
-        }
-        var value = this._videos[nextIndex];
-        this.setState({
-            videoIndex: nextIndex,
-            youtubeId: value[0],
-            contentMessageId: value[1]
-        });
-    },
-
-    render: function render() {
-        var _this2 = this;
-
-        var MessageHash = this.props.pydio.MessageHash;
-        var htmlMessage = function htmlMessage(id) {
-            return { __html: MessageHash[id] };
-        };
-        var menus = this._videos.map((function (item, index) {
-            var _this = this;
-
-            return React.createElement(MenuItem, { key: 'videoCardMenuItem_' + index, primaryText: this.getTitle(item[1]), onTouchTap: function () {
-                    _this.setState({ youtubeId: item[0], contentMessageId: item[1], videoIndex: index });
-                } });
-        }).bind(this));
-        var props = _extends({}, this.props);
-        var _state = this.state;
-        var youtubeId = _state.youtubeId;
-        var contentMessageId = _state.contentMessageId;
-
-        props.className += ' video-card';
-
-        var tint = MaterialUI.Color(_boardPalette2['default'][PALETTE_INDEX]).alpha(0.8).toString();
-        return React.createElement(
-            _boardColorPaper2['default'],
-            _extends({}, props, { paletteIndex: PALETTE_INDEX, getCloseButton: function () {
-                    return _this2.props.closeButton;
-                } }),
-            React.createElement(
-                'div',
-                { className: 'tutorial_legend' },
+            var tint = MaterialUI.Color(_boardPalette2['default'][PALETTE_INDEX]).alpha(0.8).toString();
+            return React.createElement(
+                _boardColorPaper2['default'],
+                _extends({}, props, { paletteIndex: PALETTE_INDEX, getCloseButton: function () {
+                        return _this3.props.closeButton;
+                    } }),
                 React.createElement(
                     'div',
-                    { className: 'tutorial_video_thumb', style: { backgroundImage: 'url("https://img.youtube.com/vi/' + youtubeId + '/0.jpg")' } },
-                    React.createElement('div', { style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: tint } }),
-                    React.createElement('div', { className: 'tutorial_prev mdi mdi-arrow-left', onClick: this.browse.bind(this, 'previous') }),
-                    React.createElement('div', { className: 'tutorial_play mdi mdi-play', onClick: this.launchVideo }),
-                    React.createElement('div', { className: 'tutorial_next mdi mdi-arrow-right', onClick: this.browse.bind(this, 'next') }),
+                    { className: 'tutorial_legend' },
                     React.createElement(
                         'div',
-                        { className: 'tutorial_title' },
-                        React.createElement('span', { dangerouslySetInnerHTML: htmlMessage(contentMessageId) }),
+                        { className: 'tutorial_video_thumb', style: { backgroundImage: 'url("https://img.youtube.com/vi/' + youtubeId + '/0.jpg")' } },
+                        React.createElement('div', { style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: tint } }),
+                        React.createElement('div', { className: 'tutorial_prev mdi mdi-arrow-left', onClick: this.browse.bind(this, 'previous') }),
+                        React.createElement('div', { className: 'tutorial_play mdi mdi-play', onClick: this.launchVideo }),
+                        React.createElement('div', { className: 'tutorial_next mdi mdi-arrow-right', onClick: this.browse.bind(this, 'next') }),
                         React.createElement(
-                            IconMenu,
-                            {
-                                style: { position: 'absolute', bottom: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.43)', padding: 2, borderRadius: '0 0 2px 0' },
-                                iconStyle: { color: 'white' },
-                                iconButtonElement: React.createElement(MaterialUI.IconButton, { iconClassName: 'mdi mdi-dots-vertical' }),
-                                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-                                targetOrigin: { horizontal: 'right', vertical: 'top' }
-                            },
-                            menus
+                            'div',
+                            { className: 'tutorial_title' },
+                            React.createElement('span', { dangerouslySetInnerHTML: htmlMessage(contentMessageId) }),
+                            React.createElement(
+                                IconMenu,
+                                {
+                                    style: { position: 'absolute', bottom: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.43)', padding: 2, borderRadius: '0 0 2px 0' },
+                                    iconStyle: { color: 'white' },
+                                    iconButtonElement: React.createElement(MaterialUI.IconButton, { iconClassName: 'mdi mdi-dots-vertical' }),
+                                    anchorOrigin: { horizontal: 'right', vertical: 'top' },
+                                    targetOrigin: { horizontal: 'right', vertical: 'top' }
+                                },
+                                menus
+                            )
                         )
                     )
                 )
-            )
-        );
-    }
-});
+            );
+        }
+    }]);
+
+    return VideoCard;
+})(React.Component);
 
 exports['default'] = VideoCard = asGridItem(VideoCard, global.pydio.MessageHash['user_home.94'], { gridWidth: 2, gridHeight: 12 }, []);
 exports['default'] = VideoCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../board/ColorPaper":5,"../board/Palette":10,"./VideoPlayer":17,"material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],17:[function(require,module,exports){
+},{"../board/ColorPaper":5,"../board/Palette":10,"./VideoPlayer":17,"material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react","react-dom":"react-dom"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9586,19 +9673,29 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var VideoPlayer = (function (_React$Component) {
     _inherits(VideoPlayer, _React$Component);
@@ -9606,38 +9703,38 @@ var VideoPlayer = (function (_React$Component) {
     function VideoPlayer() {
         _classCallCheck(this, VideoPlayer);
 
-        _get(Object.getPrototypeOf(VideoPlayer.prototype), "constructor", this).apply(this, arguments);
+        _get(Object.getPrototypeOf(VideoPlayer.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(VideoPlayer, [{
-        key: "render",
+        key: 'render',
         value: function render() {
-            return React.createElement(
-                "div",
-                { className: "video-player", style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 200000 } },
-                React.createElement("div", { className: "overlay", style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'black', opacity: 0.4 }, onClick: this.props.closePlayer }),
-                React.createElement(
-                    "div",
+            return _react2['default'].createElement(
+                'div',
+                { className: 'video-player', style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 200000 } },
+                _react2['default'].createElement('div', { className: 'overlay', style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'black', opacity: 0.4 }, onClick: this.props.closePlayer }),
+                _react2['default'].createElement(
+                    'div',
                     { style: { position: 'absolute', top: '10%', left: '10%', width: '80%', height: '80%', minWidth: 420, minHeight: 600, boxShadow: 'rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px' } },
-                    React.createElement("iframe", { src: this.props.videoSrc, style: { width: '100%', height: '100%', border: 0 } })
+                    _react2['default'].createElement('iframe', { src: this.props.videoSrc, style: { width: '100%', height: '100%', border: 0 } })
                 ),
-                React.createElement("a", { className: "mdi mdi-close", style: { position: 'absolute', right: '8%', top: '7%', color: 'white', textDecoration: 'none', fontSize: 24 }, onClick: this.props.closePlayer })
+                _react2['default'].createElement('a', { className: 'mdi mdi-close', style: { position: 'absolute', right: '8%', top: '7%', color: 'white', textDecoration: 'none', fontSize: 24 }, onClick: this.props.closePlayer })
             );
         }
     }]);
 
     return VideoPlayer;
-})(React.Component);
+})(_react2['default'].Component);
 
 VideoPlayer.propTypes = {
-    videoSrc: React.PropTypes.string,
-    closePlayer: React.PropTypes.func
+    videoSrc: _propTypes2['default'].string,
+    closePlayer: _propTypes2['default'].func
 };
 
-exports["default"] = VideoPlayer;
-module.exports = exports["default"];
+exports['default'] = VideoPlayer;
+module.exports = exports['default'];
 
-},{}],18:[function(require,module,exports){
+},{"prop-types":"prop-types","react":"react"}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9715,42 +9812,53 @@ var ThemeableTitle = (function (_React$Component) {
 
 ThemeableTitle = MaterialUI.Style.muiThemeable()(ThemeableTitle);
 
-var WorkspacesListCard = React.createClass({
-    displayName: 'WorkspacesListCard',
+var WorkspacesListCard = (function (_React$Component2) {
+    _inherits(WorkspacesListCard, _React$Component2);
 
-    render: function render() {
-        var _props2 = this.props;
-        var pydio = _props2.pydio;
-        var filterByType = _props2.filterByType;
+    function WorkspacesListCard() {
+        _classCallCheck(this, WorkspacesListCard);
 
-        var props = _extends({}, this.props);
-        if (props.style) {
-            props.style = _extends({}, props.style, { overflowY: 'auto', zIndex: 1 });
-        }
-
-        var blackAndWhiteTitle = React.createElement(MaterialUI.CardTitle, { title: pydio.MessageHash[filterByType === 'entries' ? 468 : 469] });
-        var themedTitle = React.createElement(ThemeableTitle, this.props);
-
-        return React.createElement(
-            MaterialUI.Paper,
-            _extends({ zDepth: 1 }, props, { transitionEnabled: false, rounded: false }),
-            this.props.closeButton,
-            React.createElement(
-                'div',
-                { style: { height: '100%', display: 'flex', flexDirection: 'column' } },
-                React.createElement(PydioWorkspaces.WorkspacesListMaterial, {
-                    className: "vertical_fit filter-" + filterByType,
-                    pydio: pydio,
-                    workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
-                    showTreeForWorkspace: false,
-                    filterByType: this.props.filterByType,
-                    sectionTitleStyle: { display: 'none' },
-                    style: { flex: 1, overflowY: 'auto' }
-                })
-            )
-        );
+        _get(Object.getPrototypeOf(WorkspacesListCard.prototype), 'constructor', this).apply(this, arguments);
     }
-});
+
+    _createClass(WorkspacesListCard, [{
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var filterByType = _props2.filterByType;
+
+            var props = _extends({}, this.props);
+            if (props.style) {
+                props.style = _extends({}, props.style, { overflowY: 'auto', zIndex: 1 });
+            }
+
+            var blackAndWhiteTitle = React.createElement(MaterialUI.CardTitle, { title: pydio.MessageHash[filterByType === 'entries' ? 468 : 469] });
+            var themedTitle = React.createElement(ThemeableTitle, this.props);
+
+            return React.createElement(
+                MaterialUI.Paper,
+                _extends({ zDepth: 1 }, props, { transitionEnabled: false, rounded: false }),
+                this.props.closeButton,
+                React.createElement(
+                    'div',
+                    { style: { height: '100%', display: 'flex', flexDirection: 'column' } },
+                    React.createElement(PydioWorkspaces.WorkspacesListMaterial, {
+                        className: "vertical_fit filter-" + filterByType,
+                        pydio: pydio,
+                        workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
+                        showTreeForWorkspace: false,
+                        filterByType: this.props.filterByType,
+                        sectionTitleStyle: { display: 'none' },
+                        style: { flex: 1, overflowY: 'auto' }
+                    })
+                )
+            );
+        }
+    }]);
+
+    return WorkspacesListCard;
+})(React.Component);
 
 exports['default'] = WorkspacesListCard;
 module.exports = exports['default'];

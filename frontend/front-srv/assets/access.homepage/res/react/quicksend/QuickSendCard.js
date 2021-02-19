@@ -27,9 +27,9 @@ const {FileDropZone} = require('pydio').requireLib('form')
 const {NativeFileDropProvider} = require('pydio').requireLib('hoc');
 const BinaryDropZone = NativeFileDropProvider(FileDropZone, (items, files, props) => {});
 
-let QuickSendCard = React.createClass({
+class QuickSendCard extends React.Component {
 
-    fileDroppedOrPicked: function(event, monitor = null){
+    fileDroppedOrPicked = (event, monitor = null) => {
 
         let items, files;
         if(monitor){
@@ -49,18 +49,18 @@ let QuickSendCard = React.createClass({
             UploaderModel.Store.getInstance().handleDropEventResults(items, files, new AjxpNode('/'), uploadItems);
         }
         return uploadItems;
-    },
+    };
 
-    onDrop: function(files, event, source){
+    onDrop = (files, event, source) => {
         const items = this.fileDroppedOrPicked(event);
         this.setState({uploadItems: items});
         this.props.pydio.UI.openComponentInModal('WelcomeComponents', 'WorkspacePickerDialog', {
             onWorkspaceTouchTap: this.targetWorkspaceSelected.bind(this),
             legend : (files && files[0] ? <div style={{fontSize:13, padding: 16, backgroundColor:'#FFEBEE'}}>{this.props.pydio.MessageHash['user_home.89']}: {files[0].name}</div> : undefined)
         });
-    },
+    };
 
-    targetWorkspaceSelected: function(wsId){
+    targetWorkspaceSelected = (wsId) => {
         const contextNode = new AjxpNode('/');
         contextNode.getMetadata().set('repository_id', wsId);
         const {uploadItems} = this.state;
@@ -75,9 +75,9 @@ let QuickSendCard = React.createClass({
             });
             instance.processNext();
         }
-    },
+    };
 
-    render: function(){
+    render() {
         const title = <CardTitle title="Quick Upload"/>;
         const working = this.state && this.state.working;
 
@@ -107,8 +107,7 @@ let QuickSendCard = React.createClass({
             </ColorPaper>
         );
     }
-
-});
+}
 
 QuickSendCard = asGridItem(QuickSendCard,global.pydio.MessageHash['user_home.93'],{gridWidth:2,gridHeight:10},[]);
 export {QuickSendCard as default}

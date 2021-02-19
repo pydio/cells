@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +19,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import ShareContextConsumer from '../ShareContextConsumer'
 import {MenuItem} from 'material-ui';
@@ -62,7 +65,7 @@ class PublicLinkTemplate extends React.Component{
 }
 
 PublicLinkTemplate.PropTypes = {
-    linkModel:React.PropTypes.instanceOf(LinkModel)
+    linkModel:PropTypes.instanceOf(LinkModel)
 };
 PublicLinkTemplate = ShareContextConsumer(PublicLinkTemplate);
 export default PublicLinkTemplate

@@ -23,7 +23,15 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = require("react");
 
@@ -47,139 +55,145 @@ var _Pydio$requireLib2 = _pydio2["default"].requireLib("hoc");
 
 var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
-var PasswordForm = _react2["default"].createClass({
-    displayName: "PasswordForm",
+var PasswordForm = (function (_React$Component) {
+    _inherits(PasswordForm, _React$Component);
 
-    getInitialState: function getInitialState() {
-        return { error: null, old: '', newPass: '' };
-    },
-
-    getMessage: function getMessage(id) {
-        return this.props.pydio.MessageHash[id];
-    },
-
-    update: function update(value, field) {
+    function PasswordForm() {
         var _this = this;
 
-        var newStatus = {};
-        newStatus[field] = value;
-        this.setState(newStatus, function () {
-            var status = _this.validate();
-            if (_this.props.onValidStatusChange) {
-                _this.props.onValidStatusChange(status);
-            }
-        });
-    },
+        _classCallCheck(this, PasswordForm);
 
-    validate: function validate() {
-        if (!this.refs.newpass.isValid()) {
-            return false;
-        }
-        var _state = this.state;
-        var oldPass = _state.oldPass;
-        var newPass = _state.newPass;
+        _get(Object.getPrototypeOf(PasswordForm.prototype), "constructor", this).apply(this, arguments);
 
-        if (!oldPass || !newPass) {
-            this.setState({ error: this.getMessage(239) });
-            return false;
-        }
-        if (newPass.length < parseInt(this.props.pydio.getPluginConfigs("core.auth").get("PASSWORD_MINLENGTH"))) {
-            this.setState({ error: this.getMessage(378) });
-            return false;
-        }
-        this.setState({ error: null });
-        return true;
-    },
+        this.state = { error: null, old: '', newPass: '' };
 
-    post: function post(callback) {
-        var _this2 = this;
+        this.getMessage = function (id) {
+            return _this.props.pydio.MessageHash[id];
+        };
 
-        var _state2 = this.state;
-        var oldPass = _state2.oldPass;
-        var newPass = _state2.newPass;
-        var pydio = this.props.pydio;
-
-        var logoutString = '';
-        if (pydio.user.lock) {
-            logoutString = ' ' + this.getMessage(445);
-        }
-        pydio.user.getIdmUser().then(function (idmUser) {
-            var updateUser = _cellsSdk.IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
-            updateUser.OldPassword = oldPass;
-            updateUser.Password = newPass;
-            var api = new _cellsSdk.UserServiceApi(_pydioHttpApi2["default"].getRestClient());
-            api.putUser(updateUser.Login, updateUser).then(function () {
-                pydio.displayMessage('SUCCESS', _this2.getMessage(197) + logoutString);
-                callback(true);
-                if (logoutString) {
-                    pydio.getController().fireAction('logout');
+        this.update = function (value, field) {
+            var newStatus = {};
+            newStatus[field] = value;
+            _this.setState(newStatus, function () {
+                var status = _this.validate();
+                if (_this.props.onValidStatusChange) {
+                    _this.props.onValidStatusChange(status);
                 }
             });
-        });
-    },
-
-    render: function render() {
-        var _this3 = this;
-
-        if (!this.props.pydio.user) {
-            return null;
-        }
-        var messages = this.props.pydio.MessageHash;
-        var legend = undefined;
-        if (this.state.error) {
-            legend = _react2["default"].createElement(
-                "div",
-                { className: "error" },
-                this.state.error
-            );
-        } else if (this.props.pydio.user.lock) {
-            legend = _react2["default"].createElement(
-                "div",
-                null,
-                messages[444]
-            );
-        }
-        var oldChange = function oldChange(event, newV) {
-            _this3.update(newV, 'oldPass');
         };
-        var newChange = function newChange(newV, oldV) {
-            _this3.update(newV, 'newPass');
+
+        this.validate = function () {
+            if (!_this.refs.newpass.isValid()) {
+                return false;
+            }
+            var _state = _this.state;
+            var oldPass = _state.oldPass;
+            var newPass = _state.newPass;
+
+            if (!oldPass || !newPass) {
+                _this.setState({ error: _this.getMessage(239) });
+                return false;
+            }
+            if (newPass.length < parseInt(_this.props.pydio.getPluginConfigs("core.auth").get("PASSWORD_MINLENGTH"))) {
+                _this.setState({ error: _this.getMessage(378) });
+                return false;
+            }
+            _this.setState({ error: null });
+            return true;
         };
-        return _react2["default"].createElement(
-            "div",
-            { style: this.props.style },
-            legend,
-            _react2["default"].createElement(
-                "div",
-                null,
-                _react2["default"].createElement(
-                    "form",
-                    { autoComplete: "off" },
-                    _react2["default"].createElement(ModernTextField, {
-                        onChange: oldChange,
-                        type: "password",
-                        value: this.state.oldPass,
-                        ref: "old",
-                        floatingLabelText: messages[237],
-                        autoComplete: "off"
-                    })
-                )
-            ),
-            _react2["default"].createElement(
-                "div",
-                { style: { width: 256 } },
-                _react2["default"].createElement(ValidPassword, {
-                    onChange: newChange,
-                    attributes: { name: 'pass', label: messages[198] },
-                    value: this.state.newPass,
-                    name: "newpassword",
-                    ref: "newpass"
-                })
-            )
-        );
+
+        this.post = function (callback) {
+            var _state2 = _this.state;
+            var oldPass = _state2.oldPass;
+            var newPass = _state2.newPass;
+            var pydio = _this.props.pydio;
+
+            var logoutString = '';
+            if (pydio.user.lock) {
+                logoutString = ' ' + _this.getMessage(445);
+            }
+            pydio.user.getIdmUser().then(function (idmUser) {
+                var updateUser = _cellsSdk.IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
+                updateUser.OldPassword = oldPass;
+                updateUser.Password = newPass;
+                var api = new _cellsSdk.UserServiceApi(_pydioHttpApi2["default"].getRestClient());
+                api.putUser(updateUser.Login, updateUser).then(function () {
+                    pydio.displayMessage('SUCCESS', _this.getMessage(197) + logoutString);
+                    callback(true);
+                    if (logoutString) {
+                        pydio.getController().fireAction('logout');
+                    }
+                });
+            });
+        };
     }
 
-});
+    _createClass(PasswordForm, [{
+        key: "render",
+        value: function render() {
+            var _this2 = this;
+
+            if (!this.props.pydio.user) {
+                return null;
+            }
+            var messages = this.props.pydio.MessageHash;
+            var legend = undefined;
+            if (this.state.error) {
+                legend = _react2["default"].createElement(
+                    "div",
+                    { className: "error" },
+                    this.state.error
+                );
+            } else if (this.props.pydio.user.lock) {
+                legend = _react2["default"].createElement(
+                    "div",
+                    null,
+                    messages[444]
+                );
+            }
+            var oldChange = function oldChange(event, newV) {
+                _this2.update(newV, 'oldPass');
+            };
+            var newChange = function newChange(newV, oldV) {
+                _this2.update(newV, 'newPass');
+            };
+            return _react2["default"].createElement(
+                "div",
+                { style: this.props.style },
+                legend,
+                _react2["default"].createElement(
+                    "div",
+                    null,
+                    _react2["default"].createElement(
+                        "form",
+                        { autoComplete: "off" },
+                        _react2["default"].createElement(ModernTextField, {
+                            onChange: oldChange,
+                            type: "password",
+                            value: this.state.oldPass,
+                            ref: "old",
+                            floatingLabelText: messages[237],
+                            autoComplete: "off"
+                        })
+                    )
+                ),
+                _react2["default"].createElement(
+                    "div",
+                    { style: { width: 256 } },
+                    _react2["default"].createElement(ValidPassword, {
+                        onChange: newChange,
+                        attributes: { name: 'pass', label: messages[198] },
+                        value: this.state.newPass,
+                        name: "newpassword",
+                        ref: "newpass"
+                    })
+                )
+            );
+        }
+    }]);
+
+    return PasswordForm;
+})(_react2["default"].Component);
 
 exports["default"] = PasswordForm;
 module.exports = exports["default"];

@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 const React = require('react')
 
 export default function(PydioComponent){
@@ -13,9 +14,9 @@ export default function(PydioComponent){
     }
 
     ShareContextConsumer.contextTypes = {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func,
-        isReadonly:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func,
+        isReadonly:PropTypes.func
     };
 
     return ShareContextConsumer;

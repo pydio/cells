@@ -41,6 +41,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _materialUi = require('material-ui');
 
 var _pydio = require('pydio');
@@ -258,11 +262,11 @@ var ActivityList = (function (_React$Component) {
 })(_react2['default'].Component);
 
 ActivityList.PropTypes = {
-    context: _react2['default'].PropTypes.string,
-    contextData: _react2['default'].PropTypes.string,
-    boxName: _react2['default'].PropTypes.string,
-    pointOfView: _react2['default'].PropTypes.oneOf(['GENERIC', 'ACTOR', 'SUBJECT']),
-    displayContext: _react2['default'].PropTypes.oneOf(['mainList', 'infoPanel', 'popover'])
+    context: _propTypes2['default'].string,
+    contextData: _propTypes2['default'].string,
+    boxName: _propTypes2['default'].string,
+    pointOfView: _propTypes2['default'].oneOf(['GENERIC', 'ACTOR', 'SUBJECT']),
+    displayContext: _propTypes2['default'].oneOf(['mainList', 'infoPanel', 'popover'])
 };
 
 exports['default'] = ActivityList = PydioContextConsumer(ActivityList);

@@ -40,6 +40,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _require = require('material-ui');
 
 var Popover = _require.Popover;
@@ -329,8 +333,8 @@ var DocLink = (function (_React$Component2) {
 })(_react2['default'].Component);
 
 DocLink.PropTypes = {
-    activity: _react2['default'].PropTypes.object,
-    pydio: _react2['default'].PropTypes.instanceOf(Pydio)
+    activity: _propTypes2['default'].object,
+    pydio: _propTypes2['default'].instanceOf(Pydio)
 };
 
 exports['default'] = DocLink = PydioContextConsumer(DocLink);

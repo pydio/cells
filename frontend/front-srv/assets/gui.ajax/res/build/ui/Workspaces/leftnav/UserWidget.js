@@ -170,6 +170,7 @@ var UserWidget = (function (_React$Component) {
                 )
             );
 
+            // Temporary disable activities loading
             if (!this.props.hideNotifications) {
                 notificationsButton = React.createElement(AsyncComponent, _extends({
                     namespace: 'PydioActivityStreams',

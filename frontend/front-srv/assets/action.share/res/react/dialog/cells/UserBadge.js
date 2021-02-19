@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +18,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-const {Component, PropTypes} = require('react')
+const {
+    Component
+} = require('react')
 const {MenuItem, IconMenu, IconButton} = require('material-ui')
 const {muiThemeable} = require('material-ui/styles')
 const Color = require('color')

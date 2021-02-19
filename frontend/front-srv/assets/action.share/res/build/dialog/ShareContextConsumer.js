@@ -14,6 +14,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var PropTypes = require('prop-types');
 var React = require('react');
 
 exports['default'] = function (PydioComponent) {
@@ -43,9 +44,9 @@ exports['default'] = function (PydioComponent) {
     })(React.Component);
 
     ShareContextConsumer.contextTypes = {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func,
-        isReadonly: React.PropTypes.func
+        messages: PropTypes.object,
+        getMessage: PropTypes.func,
+        isReadonly: PropTypes.func
     };
 
     return ShareContextConsumer;

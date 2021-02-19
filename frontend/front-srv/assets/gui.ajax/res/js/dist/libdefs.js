@@ -71,6 +71,7 @@ const LibRequires = [ // modules we want to require and export
     'react-redux',
     'react-dnd',
     'create-react-class',
+    'prop-types',
     'react-dnd-html5-backend',
     'react-textfit',
     'lodash/function/flow',

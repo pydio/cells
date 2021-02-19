@@ -75,42 +75,53 @@ var ThemeableTitle = (function (_React$Component) {
 
 ThemeableTitle = MaterialUI.Style.muiThemeable()(ThemeableTitle);
 
-var WorkspacesListCard = React.createClass({
-    displayName: 'WorkspacesListCard',
+var WorkspacesListCard = (function (_React$Component2) {
+    _inherits(WorkspacesListCard, _React$Component2);
 
-    render: function render() {
-        var _props2 = this.props;
-        var pydio = _props2.pydio;
-        var filterByType = _props2.filterByType;
+    function WorkspacesListCard() {
+        _classCallCheck(this, WorkspacesListCard);
 
-        var props = _extends({}, this.props);
-        if (props.style) {
-            props.style = _extends({}, props.style, { overflowY: 'auto', zIndex: 1 });
-        }
-
-        var blackAndWhiteTitle = React.createElement(MaterialUI.CardTitle, { title: pydio.MessageHash[filterByType === 'entries' ? 468 : 469] });
-        var themedTitle = React.createElement(ThemeableTitle, this.props);
-
-        return React.createElement(
-            MaterialUI.Paper,
-            _extends({ zDepth: 1 }, props, { transitionEnabled: false, rounded: false }),
-            this.props.closeButton,
-            React.createElement(
-                'div',
-                { style: { height: '100%', display: 'flex', flexDirection: 'column' } },
-                React.createElement(PydioWorkspaces.WorkspacesListMaterial, {
-                    className: "vertical_fit filter-" + filterByType,
-                    pydio: pydio,
-                    workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
-                    showTreeForWorkspace: false,
-                    filterByType: this.props.filterByType,
-                    sectionTitleStyle: { display: 'none' },
-                    style: { flex: 1, overflowY: 'auto' }
-                })
-            )
-        );
+        _get(Object.getPrototypeOf(WorkspacesListCard.prototype), 'constructor', this).apply(this, arguments);
     }
-});
+
+    _createClass(WorkspacesListCard, [{
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var filterByType = _props2.filterByType;
+
+            var props = _extends({}, this.props);
+            if (props.style) {
+                props.style = _extends({}, props.style, { overflowY: 'auto', zIndex: 1 });
+            }
+
+            var blackAndWhiteTitle = React.createElement(MaterialUI.CardTitle, { title: pydio.MessageHash[filterByType === 'entries' ? 468 : 469] });
+            var themedTitle = React.createElement(ThemeableTitle, this.props);
+
+            return React.createElement(
+                MaterialUI.Paper,
+                _extends({ zDepth: 1 }, props, { transitionEnabled: false, rounded: false }),
+                this.props.closeButton,
+                React.createElement(
+                    'div',
+                    { style: { height: '100%', display: 'flex', flexDirection: 'column' } },
+                    React.createElement(PydioWorkspaces.WorkspacesListMaterial, {
+                        className: "vertical_fit filter-" + filterByType,
+                        pydio: pydio,
+                        workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
+                        showTreeForWorkspace: false,
+                        filterByType: this.props.filterByType,
+                        sectionTitleStyle: { display: 'none' },
+                        style: { flex: 1, overflowY: 'auto' }
+                    })
+                )
+            );
+        }
+    }]);
+
+    return WorkspacesListCard;
+})(React.Component);
 
 exports['default'] = WorkspacesListCard;
 module.exports = exports['default'];

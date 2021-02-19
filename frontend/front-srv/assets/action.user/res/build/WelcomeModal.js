@@ -32,6 +32,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _ProfilePane = require('./ProfilePane');
 
 var _ProfilePane2 = _interopRequireDefault(_ProfilePane);
@@ -52,7 +56,7 @@ var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
  */
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'WelcomeModal',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
@@ -65,6 +69,7 @@ exports['default'] = _react2['default'].createClass({
             dialogPadding: 0
         };
     },
+
     close: function close(skip) {
 
         if (this.props.onRequestStart) {
@@ -72,9 +77,11 @@ exports['default'] = _react2['default'].createClass({
         }
         this.props.onDismiss();
     },
+
     getMessage: function getMessage(id) {
         return this.props.pydio.MessageHash['ajax_gui.tour.welcomemodal.' + id];
     },
+
     getButtons: function getButtons() {
         var _this = this;
 
@@ -84,6 +91,7 @@ exports['default'] = _react2['default'].createClass({
                 return _this.close(false);
             } })];
     },
+
     render: function render() {
         return _react2['default'].createElement(
             'div',
@@ -96,6 +104,5 @@ exports['default'] = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.CardTitle, { title: this.getMessage('title'), subtitle: this.getMessage('subtitle') })
         );
     }
-
 });
 module.exports = exports['default'];

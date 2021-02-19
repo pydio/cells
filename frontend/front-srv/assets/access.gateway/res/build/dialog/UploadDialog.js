@@ -44,6 +44,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
@@ -88,8 +92,7 @@ var TopBar = (function (_React$Component) {
 
 TopBar = (0, _materialUiStyles.muiThemeable)()(TopBar);
 
-var UploadDialog = _react2['default'].createClass({
-    displayName: 'UploadDialog',
+var UploadDialog = (0, _createReactClass2['default'])({
 
     mixins: [ActionDialogMixin],
 

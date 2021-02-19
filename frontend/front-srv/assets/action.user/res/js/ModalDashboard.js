@@ -19,13 +19,15 @@
  */
 
 const React = require('react')
+const createReactClass = require('create-react-class');
 const Pydio = require('pydio')
 const {ActionDialogMixin, SubmitButtonProviderMixin, AsyncComponent} = Pydio.requireLib('boot')
 const {Tabs, Tab, FontIcon, FlatButton} = require('material-ui')
 import ProfilePane from './ProfilePane'
 import ComponentConfigParser from './ComponentConfigParser'
 
-let ModalDashboard = React.createClass({
+let ModalDashboard = createReactClass({
+    displayName: 'ModalDashboard',
 
     mixins: [
         ActionDialogMixin,
@@ -102,8 +104,7 @@ let ModalDashboard = React.createClass({
             </Tabs>
         );
 
-    }
-
+    },
 });
 
 export {ModalDashboard as default}

@@ -24,6 +24,7 @@
     "md5": "^2.3.0",
     "moment": "^2.29.1",
     "oidc-client": "^1.11.5",
+    "prop-types": "^15.7.2",
     "qrcode.react": "^1.0.1",
     "query-string": "^5.1.1",
     "react": "^16.3.0",

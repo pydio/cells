@@ -19,6 +19,7 @@
  */
 
 const React = require('react');
+import createReactClass from 'create-react-class'
 const {FontIcon, ListItem, List, FlatButton, Subheader} = require('material-ui');
 const Pydio = require('pydio');
 const PydioDataModel = require('pydio/model/data-model');
@@ -28,6 +29,7 @@ import PydioApi from 'pydio/http/api'
 import {MetaServiceApi,RestGetBulkMetaRequest, TreeNode} from 'cells-sdk';
 import CellModel from 'pydio/model/cell'
 import {muiThemeable} from 'material-ui/styles'
+import PropTypes from 'prop-types'
 
 class CrossWsContent extends React.Component{
     constructor(props){
@@ -134,11 +136,11 @@ class CrossWsContent extends React.Component{
 
 CrossWsContent = muiThemeable()(CrossWsContent);
 
-let CrossWsDropDialog = React.createClass({
+let CrossWsDropDialog = createReactClass({
 
     propTypes:{
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: PropTypes.instanceOf(Pydio),
+        selection: PropTypes.instanceOf(PydioDataModel)
     },
 
     mixins:[

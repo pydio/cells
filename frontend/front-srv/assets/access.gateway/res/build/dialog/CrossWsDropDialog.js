@@ -34,6 +34,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioModelMetaNodeProvider = require('pydio/model/meta-node-provider');
 
 var _pydioModelMetaNodeProvider2 = _interopRequireDefault(_pydioModelMetaNodeProvider);
@@ -49,6 +53,10 @@ var _pydioModelCell = require('pydio/model/cell');
 var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
 
 var _materialUiStyles = require('material-ui/styles');
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var React = require('react');
 
@@ -215,12 +223,11 @@ var CrossWsContent = (function (_React$Component) {
 
 CrossWsContent = (0, _materialUiStyles.muiThemeable)()(CrossWsContent);
 
-var CrossWsDropDialog = React.createClass({
-    displayName: 'CrossWsDropDialog',
+var CrossWsDropDialog = (0, _createReactClass2['default'])({
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: _propTypes2['default'].instanceOf(Pydio),
+        selection: _propTypes2['default'].instanceOf(PydioDataModel)
     },
 
     mixins: [ActionDialogMixin],

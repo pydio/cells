@@ -37,9 +37,8 @@ class ThemeableTitle extends React.Component{
 
 ThemeableTitle = MaterialUI.Style.muiThemeable()(ThemeableTitle);
 
-let WorkspacesListCard = React.createClass({
-
-    render: function(){
+class WorkspacesListCard extends React.Component {
+    render() {
         const {pydio, filterByType} = this.props;
         let props = {...this.props};
         if(props.style){
@@ -67,6 +66,6 @@ let WorkspacesListCard = React.createClass({
             </MaterialUI.Paper>
         );
     }
-});
+}
 
 export {WorkspacesListCard as default}

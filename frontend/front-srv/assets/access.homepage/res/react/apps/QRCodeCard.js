@@ -25,9 +25,8 @@ const {asGridItem} = require('pydio').requireLib('components')
 import Palette from '../board/Palette'
 import ColorPaper from '../board/ColorPaper'
 
-let QRCodeCard = React.createClass({
-
-    render: function(){
+class QRCodeCard extends React.Component {
+    render() {
 
         let jsonData = {
             "server"    : window.location.href.split('welcome').shift(),
@@ -44,8 +43,7 @@ let QRCodeCard = React.createClass({
         );
 
     }
-
-});
+}
 
 QRCodeCard = asGridItem(QRCodeCard,global.pydio.MessageHash['user_home.72'],{gridWidth:2,gridHeight:10},[]);
 

@@ -33,6 +33,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -50,8 +54,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("hoc");
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 var ModernSelectField = _Pydio$requireLib.ModernSelectField;
 
-var CompressionDialog = React.createClass({
-    displayName: 'CompressionDialog',
+var CompressionDialog = (0, _createReactClass2['default'])({
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
 

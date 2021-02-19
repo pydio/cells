@@ -20,6 +20,14 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -324,14 +332,13 @@ var ShareView = (function (_React$Component2) {
 })(_react2['default'].Component);
 
 ShareView.childContextTypes = {
-    messages: _react2['default'].PropTypes.object,
-    getMessage: _react2['default'].PropTypes.func,
-    isReadonly: _react2['default'].PropTypes.func
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func,
+    isReadonly: _propTypes2['default'].func
 };
 
-var ShareViewModal = _react2['default'].createClass({
+var ShareViewModal = (0, _createReactClass2['default'])({
     displayName: 'ShareViewModal',
-
     mixins: [ActionDialogMixin],
 
     getDefaultProps: function getDefaultProps() {
@@ -367,7 +374,6 @@ var ShareViewModal = _react2['default'].createClass({
                 } }))
         );
     }
-
 });
 
 exports.ShareView = ShareView;

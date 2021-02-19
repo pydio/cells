@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import {FontIcon, FlatButton, RaisedButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
@@ -30,13 +33,14 @@ const {ModernTextField} = Pydio.requireLib('hoc');
 /**
  * Dialog for letting users create a workspace
  */
-let CreateCellDialog = React.createClass({
+class CreateCellDialog extends React.Component {
+    static childContextTypes = {
+        messages:PropTypes.object,
+        getMessage:PropTypes.func,
+        isReadonly:PropTypes.func
+    };
 
-    childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func,
-        isReadonly:React.PropTypes.func
-    },
+    state = {step:'users', model:new CellModel(), saving: false};
 
     getChildContext() {
         const messages = this.props.pydio.MessageHash;
@@ -53,22 +57,18 @@ let CreateCellDialog = React.createClass({
                 return false;
             }.bind(this)
         };
-    },
+    }
 
-    getInitialState(){
-        return {step:'users', model:new CellModel(), saving: false};
-    },
-
-    componentDidMount(){
+    componentDidMount() {
         this.refs.title.focus();
         this.state.model.observe('update', ()=>{this.forceUpdate()});
-    },
+    }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         this.state.model.stopObserving('update');
-    },
+    }
 
-    submit(){
+    submit = () => {
         const {model} = this.state;
         this.setState({saving: true});
         model.save().then(result => {
@@ -78,13 +78,13 @@ let CreateCellDialog = React.createClass({
             pydio.UI.displayMessage('ERROR', reason.message);
             this.setState({saving: false});
         });
-    },
+    };
 
-    m(id){
+    m = (id) => {
         return this.props.pydio.MessageHash['share_center.' + id];
-    },
+    };
 
-    computeSummaryString(){
+    computeSummaryString = () => {
         const {model} = this.state;
         let users = 0;
         let groups = 0;
@@ -109,9 +109,9 @@ let CreateCellDialog = React.createClass({
             finalString = userString.join(this.m(274));
         }
         return this.m(269).replace('%USERS', finalString);
-    },
+    };
 
-    render: function(){
+    render() {
 
         let buttons = [];
         let content;
@@ -206,8 +206,7 @@ let CreateCellDialog = React.createClass({
         );
 
     }
-
-});
+}
 
 CreateCellDialog = muiThemeable()(CreateCellDialog);
 export {CreateCellDialog as default}

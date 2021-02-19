@@ -27,6 +27,7 @@ Object.defineProperty(exports, '__esModule', {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 var Pydio = require('pydio');
 
 var _Pydio$requireLib = Pydio.requireLib('boot');
@@ -38,7 +39,7 @@ var _Pydio$requireLib2 = Pydio.requireLib('components');
 var ModalAppBar = _Pydio$requireLib2.ModalAppBar;
 var AddressBook = _Pydio$requireLib2.AddressBook;
 
-var ModalAddressBook = React.createClass({
+var ModalAddressBook = createReactClass({
     displayName: 'ModalAddressBook',
 
     mixins: [ActionDialogMixin],
@@ -78,7 +79,6 @@ var ModalAddressBook = React.createClass({
             }))
         );
     }
-
 });
 
 exports['default'] = ModalAddressBook;

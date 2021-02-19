@@ -44,6 +44,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _reactMarkdown = require('react-markdown');
 
 var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
@@ -145,58 +149,70 @@ function workspacesLocations(pydio, object) {
 function LinkWrapper(pydio, activity) {
     var style = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
 
-    return _react2['default'].createClass({
+    return (function (_React$Component2) {
+        _inherits(Wrapped, _React$Component2);
 
-        render: function render() {
-            var _props = this.props;
-            var href = _props.href;
-            var children = _props.children;
+        function Wrapped() {
+            _classCallCheck(this, Wrapped);
 
-            var linkStyle = _extends({
-                cursor: 'pointer',
-                color: 'rgb(66, 140, 179)',
-                fontWeight: 500
-            }, style);
-            var title = "";
-            var onClick = null;
-            if (href.startsWith('doc://')) {
-                if (activity.type === 'Delete') {
-                    return _react2['default'].createElement(
-                        'a',
-                        { style: { textDecoration: 'line-through' } },
-                        children
-                    );
-                } else {
-                    return _react2['default'].createElement(
-                        _DocLink2['default'],
-                        { pydio: pydio, activity: activity, linkStyle: linkStyle },
-                        children
-                    );
-                }
-            } else if (href.startsWith('user://')) {
-                var userId = href.replace('user://', '');
-                return _react2['default'].createElement(UserAvatar, { userId: userId, displayAvatar: false, richOnClick: true, style: _extends({}, linkStyle, { display: 'inline-block' }), pydio: pydio });
-            } else if (href.startsWith('workspaces://')) {
-                (function () {
-                    var wsId = href.replace('workspaces://', '');
-                    if (pydio.user && pydio.user.getRepositoriesList().get(wsId)) {
-                        onClick = function () {
-                            pydio.triggerRepositoryChange(wsId);
-                        };
-                    }
-                })();
-            }
-            return _react2['default'].createElement(
-                'a',
-                { title: title, style: linkStyle, onClick: onClick },
-                children
-            );
+            _get(Object.getPrototypeOf(Wrapped.prototype), 'constructor', this).apply(this, arguments);
         }
-    });
+
+        _createClass(Wrapped, [{
+            key: 'render',
+            value: function render() {
+                var _props = this.props;
+                var href = _props.href;
+                var children = _props.children;
+
+                var linkStyle = _extends({
+                    cursor: 'pointer',
+                    color: 'rgb(66, 140, 179)',
+                    fontWeight: 500
+                }, style);
+                var title = "";
+                var onClick = null;
+                if (href.startsWith('doc://')) {
+                    if (activity.type === 'Delete') {
+                        return _react2['default'].createElement(
+                            'a',
+                            { style: { textDecoration: 'line-through' } },
+                            children
+                        );
+                    } else {
+                        return _react2['default'].createElement(
+                            _DocLink2['default'],
+                            { pydio: pydio, activity: activity, linkStyle: linkStyle },
+                            children
+                        );
+                    }
+                } else if (href.startsWith('user://')) {
+                    var userId = href.replace('user://', '');
+                    return _react2['default'].createElement(UserAvatar, { userId: userId, displayAvatar: false, richOnClick: true, style: _extends({}, linkStyle, { display: 'inline-block' }), pydio: pydio });
+                } else if (href.startsWith('workspaces://')) {
+                    (function () {
+                        var wsId = href.replace('workspaces://', '');
+                        if (pydio.user && pydio.user.getRepositoriesList().get(wsId)) {
+                            onClick = function () {
+                                pydio.triggerRepositoryChange(wsId);
+                            };
+                        }
+                    })();
+                }
+                return _react2['default'].createElement(
+                    'a',
+                    { title: title, style: linkStyle, onClick: onClick },
+                    children
+                );
+            }
+        }]);
+
+        return Wrapped;
+    })(_react2['default'].Component);
 }
 
-var Activity = (function (_React$Component2) {
-    _inherits(Activity, _React$Component2);
+var Activity = (function (_React$Component3) {
+    _inherits(Activity, _React$Component3);
 
     function Activity() {
         _classCallCheck(this, Activity);
@@ -410,9 +426,9 @@ var Activity = (function (_React$Component2) {
 })(_react2['default'].Component);
 
 Activity.PropTypes = {
-    activity: _react2['default'].PropTypes.object,
-    listContext: _react2['default'].PropTypes.string,
-    displayContext: _react2['default'].PropTypes.oneOf(['infoPanel', 'popover'])
+    activity: _propTypes2['default'].object,
+    listContext: _propTypes2['default'].string,
+    displayContext: _propTypes2['default'].oneOf(['infoPanel', 'popover'])
 };
 
 exports['default'] = Activity = (0, _materialUiStyles.muiThemeable)()(Activity);

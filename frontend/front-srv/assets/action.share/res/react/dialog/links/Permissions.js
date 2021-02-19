@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +19,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import ShareContextConsumer from '../ShareContextConsumer'
 import {Checkbox} from 'material-ui'
@@ -25,14 +28,13 @@ import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
 import {RestShareLinkAccessType} from 'cells-sdk'
 
-let PublicLinkPermissions = React.createClass({
+class PublicLinkPermissions extends React.Component {
+    static propTypes = {
+        linkModel: PropTypes.instanceOf(LinkModel),
+        style: PropTypes.object
+    };
 
-    propTypes: {
-        linkModel: React.PropTypes.instanceOf(LinkModel),
-        style: React.PropTypes.object
-    },
-
-    changePermission(event){
+    changePermission = (event) => {
         const name = event.target.name;
         const checked = event.target.checked;
         const {compositeModel, linkModel} = this.props;
@@ -59,9 +61,9 @@ let PublicLinkPermissions = React.createClass({
             }
         }
         this.props.linkModel.updateLink(link);
-    },
+    };
 
-    render(){
+    render() {
         const {linkModel, compositeModel, pydio} = this.props;
         const node = compositeModel.getNode();
         let perms = [], previewWarning;
@@ -134,7 +136,7 @@ let PublicLinkPermissions = React.createClass({
             </div>
         );
     }
-});
+}
 
 PublicLinkPermissions = ShareContextConsumer(PublicLinkPermissions);
 export {PublicLinkPermissions as default}

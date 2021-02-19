@@ -1,4 +1,5 @@
 const {Textfit} = require('react-textfit');
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 const Color = require('color');
 import {muiThemeable} from 'material-ui/styles';
@@ -145,9 +146,9 @@ class Copyright extends React.Component {
 let StandardLayout = React.createClass({
 
     childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func,
-        showSearchForm: React.PropTypes.bool
+        messages:PropTypes.object,
+        getMessage:PropTypes.func,
+        showSearchForm: PropTypes.bool
     },
 
     getChildContext() {
@@ -629,7 +630,7 @@ class FilmStripMinisite extends React.Component{
         );
     }
 
-};
+}
 
 window.ShareTemplates = {
     FolderMinisite      : compose(

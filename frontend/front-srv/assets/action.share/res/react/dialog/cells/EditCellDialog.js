@@ -1,3 +1,8 @@
+const React = require('react');
+import SharedUsers from './SharedUsers'
+import NodesPicker from './NodesPicker'
+import GenericEditor from '../main/GenericEditor'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,10 +23,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react');
-import SharedUsers from './SharedUsers'
-import NodesPicker from './NodesPicker'
-import GenericEditor from '../main/GenericEditor'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {ResourcePoliciesPanel} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -29,13 +32,12 @@ const {ModernTextField} = Pydio.requireLib('hoc');
 /**
  * Dialog for letting users create a workspace
  */
-export default React.createClass({
-
-    childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func,
-        isReadonly:React.PropTypes.func
-    },
+export default class extends React.Component {
+    static childContextTypes = {
+        messages:PropTypes.object,
+        getMessage:PropTypes.func,
+        isReadonly:PropTypes.func
+    };
 
     getChildContext() {
         const messages = this.props.pydio.MessageHash;
@@ -50,9 +52,9 @@ export default React.createClass({
             },
             isReadonly: (() => false)
         };
-    },
+    }
 
-    submit(){
+    submit = () => {
         const {model, pydio} = this.props;
         const dirtyRoots = model.hasDirtyRootNodes();
         model.save().then(result => {
@@ -64,9 +66,9 @@ export default React.createClass({
         }).catch(reason => {
             pydio.UI.displayMessage('ERROR', reason.message);
         });
-    },
+    };
 
-    render: function(){
+    render() {
 
         const {pydio, model, sendInvitations} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
@@ -134,6 +136,5 @@ export default React.createClass({
         );
 
     }
-
-});
+}
 

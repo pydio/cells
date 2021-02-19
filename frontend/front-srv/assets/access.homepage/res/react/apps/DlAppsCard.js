@@ -98,9 +98,8 @@ class DlAppsPanel extends React.Component{
 }
 
 
-let DlAppsCard = React.createClass({
-
-    render: function(){
+class DlAppsCard extends React.Component {
+    render() {
         let props = {...this.props};
         return (
             <ColorPaper {...this.props} style={{...this.props.style,overflow:'visible'}} paletteIndex={1} closeButton={props.closeButton}>
@@ -109,7 +108,7 @@ let DlAppsCard = React.createClass({
             </ColorPaper>
         );
     }
-});
+}
 
 DlAppsCard = asGridItem(DlAppsCard,global.pydio.MessageHash['user_home.92'],{gridWidth:2,gridHeight:10},[]);
 export {DlAppsCard as default}

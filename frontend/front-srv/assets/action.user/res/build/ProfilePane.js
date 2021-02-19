@@ -26,7 +26,15 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = require("react");
 
@@ -63,13 +71,121 @@ var FormPanel = _Pydio$requireLib.FormPanel;
 
 var FORM_CSS = ' \n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group:first-of-type {\n  margin-top: 230px;\n  overflow-y: hidden;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 220px;\n  background-color: #eceff1;\n}\n.react-mui-context .current-user-edit.pydio-form-panel .form-entry-image>div:last-child {\n  margin-top: 0;\n}\n\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image > div:first-child {\n  padding: 0;\n  border-radius: 0;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .image-label,\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .form-legend {\n  display: none;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .file-dropzone {\n  border-radius: 50%;\n  width: 160px !important;\n  height: 160px !important;\n  margin: 20px auto;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .binary-remove-button {\n  position: absolute;\n  bottom: 5px;\n  right: 0;\n}\n\n';
 
-var ProfilePane = _react2['default'].createClass({
-    displayName: 'ProfilePane',
+var ProfilePane = (function (_React$Component) {
+    _inherits(ProfilePane, _React$Component);
 
-    getInitialState: function getInitialState() {
+    function ProfilePane(props) {
+        var _this = this;
+
+        _classCallCheck(this, ProfilePane);
+
+        _get(Object.getPrototypeOf(ProfilePane.prototype), 'constructor', this).call(this, props);
+
+        this.onFormChange = function (newValues, dirty, removeValues) {
+            var values = _this.state.values;
+
+            _this.setState({ dirty: dirty, values: newValues }, function () {
+                if (_this._updater) {
+                    _this._updater(_this.getButtons());
+                }
+                if (_this.props.saveOnChange || newValues['avatar'] !== values['avatar']) {
+                    _this.saveForm();
+                }
+            });
+        };
+
+        this.getButtons = function () {
+            var updater = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            if (updater) {
+                _this._updater = updater;
+            }
+            var button = undefined,
+                revert = undefined;
+            if (_this.state.dirty) {
+                revert = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[628], onTouchTap: _this.revert });
+                button = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[53], secondary: true, onTouchTap: _this.saveForm });
+            } else {
+                button = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[86], onTouchTap: _this.props.onDismiss });
+            }
+            if (_this.props.pydio.Controller.getActionByName('pass_change')) {
+                return [_react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', width: '100%' } },
+                    _react2['default'].createElement(_PasswordPopover2['default'], _this.props),
+                    _react2['default'].createElement('span', { style: { flex: 1 } }),
+                    revert,
+                    button
+                )];
+            } else {
+                return [button];
+            }
+        };
+
+        this.revert = function () {
+            _this.setState({
+                values: _extends({}, _this.state.originalValues),
+                dirty: false
+            }, function () {
+                if (_this._updater) {
+                    _this._updater(_this.getButtons());
+                }
+            });
+        };
+
+        this.saveForm = function () {
+            if (!_this.state.dirty) {
+                _this.setState({ dirty: false });
+                return;
+            }
+            var pydio = _this.props.pydio;
+            var _state = _this.state;
+            var definitions = _state.definitions;
+            var values = _state.values;
+
+            pydio.user.getIdmUser().then(function (idmUser) {
+                if (!idmUser.Attributes) {
+                    idmUser.Attributes = {};
+                }
+                definitions.forEach(function (d) {
+                    if (values[d.name] === undefined) {
+                        return;
+                    }
+                    if (d.scope === "user") {
+                        idmUser.Attributes[d.name] = values[d.name];
+                    } else {
+                        idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
+                    }
+                });
+                var changeLang = false;
+                if (values['lang'] && values['lang'] !== pydio.currentLanguage) {
+                    pydio.user.setPreference('lang', values['lang']);
+                    changeLang = true;
+                }
+                var api = new _cellsSdk.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
+                return api.putUser(idmUser.Login, idmUser).then(function (response) {
+                    if (changeLang) {
+                        // Reload form after registry reload
+                        pydio.observeOnce('registry_loaded', function () {
+                            _this.setState({
+                                definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
+                                mailDefinitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]")
+                            });
+                        });
+                    }
+                    pydio.refreshUserData();
+                    _this.setState({ dirty: false }, function () {
+                        if (_this._updater) {
+                            _this._updater(_this.getButtons());
+                        }
+                    });
+                });
+            });
+        };
+
         var objValues = {},
             mailValues = {};
-        var pydio = this.props.pydio;
+        var pydio = props.pydio;
         if (pydio.user) {
             pydio.user.preferences.forEach(function (v, k) {
                 if (k === 'gui_preferences') {
@@ -78,156 +194,53 @@ var ProfilePane = _react2['default'].createClass({
                 objValues[k] = v;
             });
         }
-        return {
+
+        this.state = {
             definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
             mailDefinitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
             values: objValues,
             originalValues: _pydioUtilLang2['default'].deepCopy(objValues),
             dirty: false
         };
-    },
-
-    onFormChange: function onFormChange(newValues, dirty, removeValues) {
-        var _this = this;
-
-        var values = this.state.values;
-
-        this.setState({ dirty: dirty, values: newValues }, function () {
-            if (_this._updater) {
-                _this._updater(_this.getButtons());
-            }
-            if (_this.props.saveOnChange || newValues['avatar'] !== values['avatar']) {
-                _this.saveForm();
-            }
-        });
-    },
-
-    getButtons: function getButtons() {
-        var updater = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-
-        if (updater) {
-            this._updater = updater;
-        }
-        var button = undefined,
-            revert = undefined;
-        if (this.state.dirty) {
-            revert = _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[628], onTouchTap: this.revert });
-            button = _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[53], secondary: true, onTouchTap: this.saveForm });
-        } else {
-            button = _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[86], onTouchTap: this.props.onDismiss });
-        }
-        if (this.props.pydio.Controller.getActionByName('pass_change')) {
-            return [_react2['default'].createElement(
-                'div',
-                { style: { display: 'flex', width: '100%' } },
-                _react2['default'].createElement(_PasswordPopover2['default'], this.props),
-                _react2['default'].createElement('span', { style: { flex: 1 } }),
-                revert,
-                button
-            )];
-        } else {
-            return [button];
-        }
-    },
-
-    revert: function revert() {
-        var _this2 = this;
-
-        this.setState({
-            values: _extends({}, this.state.originalValues),
-            dirty: false
-        }, function () {
-            if (_this2._updater) {
-                _this2._updater(_this2.getButtons());
-            }
-        });
-    },
-
-    saveForm: function saveForm() {
-        var _this3 = this;
-
-        if (!this.state.dirty) {
-            this.setState({ dirty: false });
-            return;
-        }
-        var pydio = this.props.pydio;
-        var _state = this.state;
-        var definitions = _state.definitions;
-        var values = _state.values;
-
-        pydio.user.getIdmUser().then(function (idmUser) {
-            if (!idmUser.Attributes) {
-                idmUser.Attributes = {};
-            }
-            definitions.forEach(function (d) {
-                if (values[d.name] === undefined) {
-                    return;
-                }
-                if (d.scope === "user") {
-                    idmUser.Attributes[d.name] = values[d.name];
-                } else {
-                    idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
-                }
-            });
-            var changeLang = false;
-            if (values['lang'] && values['lang'] !== pydio.currentLanguage) {
-                pydio.user.setPreference('lang', values['lang']);
-                changeLang = true;
-            }
-            var api = new _cellsSdk.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
-            return api.putUser(idmUser.Login, idmUser).then(function (response) {
-                if (changeLang) {
-                    // Reload form after registry reload
-                    pydio.observeOnce('registry_loaded', function () {
-                        _this3.setState({
-                            definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
-                            mailDefinitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]")
-                        });
-                    });
-                }
-                pydio.refreshUserData();
-                _this3.setState({ dirty: false }, function () {
-                    if (_this3._updater) {
-                        _this3._updater(_this3.getButtons());
-                    }
-                });
-            });
-        });
-    },
-
-    render: function render() {
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var miniDisplay = _props.miniDisplay;
-
-        if (!pydio.user) {
-            return null;
-        }
-        var _state2 = this.state;
-        var definitions = _state2.definitions;
-        var values = _state2.values;
-
-        if (miniDisplay) {
-            definitions = definitions.filter(function (o) {
-                return ['avatar'].indexOf(o.name) !== -1;
-            });
-        }
-        return _react2['default'].createElement(
-            'div',
-            null,
-            _react2['default'].createElement(FormPanel, {
-                className: 'current-user-edit',
-                parameters: definitions,
-                values: values,
-                depth: -1,
-                binary_context: "user_id=" + pydio.user.id + (values['avatar'] ? "?" + values['avatar'] : ''),
-                onChange: this.onFormChange
-            }),
-            _react2['default'].createElement('style', { type: 'text/css', dangerouslySetInnerHTML: { __html: FORM_CSS } })
-        );
     }
 
-});
+    _createClass(ProfilePane, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var miniDisplay = _props.miniDisplay;
+
+            if (!pydio.user) {
+                return null;
+            }
+            var _state2 = this.state;
+            var definitions = _state2.definitions;
+            var values = _state2.values;
+
+            if (miniDisplay) {
+                definitions = definitions.filter(function (o) {
+                    return ['avatar'].indexOf(o.name) !== -1;
+                });
+            }
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(FormPanel, {
+                    className: 'current-user-edit',
+                    parameters: definitions,
+                    values: values,
+                    depth: -1,
+                    binary_context: "user_id=" + pydio.user.id + (values['avatar'] ? "?" + values['avatar'] : ''),
+                    onChange: this.onFormChange
+                }),
+                _react2['default'].createElement('style', { type: 'text/css', dangerouslySetInnerHTML: { __html: FORM_CSS } })
+            );
+        }
+    }]);
+
+    return ProfilePane;
+})(_react2['default'].Component);
 
 exports['default'] = ProfilePane;
 module.exports = exports['default'];

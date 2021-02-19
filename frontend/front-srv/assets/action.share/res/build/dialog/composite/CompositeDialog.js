@@ -1,3 +1,19 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _CompositeCard = require('./CompositeCard');
+
+var _CompositeCard2 = _interopRequireDefault(_CompositeCard);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,35 +33,24 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _CompositeCard = require('./CompositeCard');
-
-var _CompositeCard2 = _interopRequireDefault(_CompositeCard);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 
 var _require$requireLib = require('pydio').requireLib('boot');
 
 var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
 
-var CompositeDialog = React.createClass({
+var CompositeDialog = createReactClass({
     displayName: 'CompositeDialog',
-
     mixins: [ActionDialogMixin],
 
     getDefaultProps: function getDefaultProps() {
@@ -58,15 +63,15 @@ var CompositeDialog = React.createClass({
     },
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(_pydio2['default']).isRequired,
-        selection: React.PropTypes.instanceOf(_pydioModelDataModel2['default']),
-        readonly: React.PropTypes.bool
+        pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+        selection: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']),
+        readonly: _propTypes2['default'].bool
     },
 
     childContextTypes: {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func,
-        isReadonly: React.PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func,
+        isReadonly: _propTypes2['default'].func
     },
 
     getChildContext: function getChildContext() {

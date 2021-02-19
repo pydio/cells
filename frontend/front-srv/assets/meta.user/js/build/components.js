@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -38,6 +38,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _MetaClient = require('./MetaClient');
 
 var _MetaClient2 = _interopRequireDefault(_MetaClient);
@@ -46,15 +50,19 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _color = require('color');
 
 var _color2 = _interopRequireDefault(_color);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _materialUi = require('material-ui');
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -236,10 +244,10 @@ var Callbacks = (function () {
 var MetaFieldFormPanelMixin = {
 
     propTypes: {
-        label: _react2['default'].PropTypes.string,
-        fieldname: _react2['default'].PropTypes.string,
-        onChange: _react2['default'].PropTypes.func,
-        onValueChange: _react2['default'].PropTypes.func
+        label: _propTypes2['default'].string,
+        fieldname: _propTypes2['default'].string,
+        onChange: _propTypes2['default'].func,
+        onValueChange: _propTypes2['default'].func
     },
 
     getInitialState: function getInitialState() {
@@ -272,8 +280,8 @@ var MetaFieldFormPanelMixin = {
 var MetaFieldRendererMixin = {
 
     propTypes: {
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode),
-        column: _react2['default'].PropTypes.object
+        node: _propTypes2['default'].instanceOf(AjxpNode),
+        column: _propTypes2['default'].object
     },
 
     getInitialState: function getInitialState() {
@@ -299,9 +307,8 @@ var MetaFieldRendererMixin = {
 
 var starsStyle = { fontSize: 20, color: '#FBC02D', marginTop: 6, marginBottom: 6 };
 
-var StarsFormPanel = _react2['default'].createClass({
+var StarsFormPanel = (0, _createReactClass2['default'])({
     displayName: 'StarsFormPanel',
-
     mixins: [MetaFieldFormPanelMixin],
 
     getInitialState: function getInitialState() {
@@ -329,12 +336,10 @@ var StarsFormPanel = _react2['default'].createClass({
             )
         );
     }
-
 });
 
-var MetaStarsRenderer = _react2['default'].createClass({
+var MetaStarsRenderer = (0, _createReactClass2['default'])({
     displayName: 'MetaStarsRenderer',
-
     mixins: [MetaFieldRendererMixin],
 
     render: function render() {
@@ -349,12 +354,10 @@ var MetaStarsRenderer = _react2['default'].createClass({
             stars
         );
     }
-
 });
 
-var SelectorFilter = _react2['default'].createClass({
+var SelectorFilter = (0, _createReactClass2['default'])({
     displayName: 'SelectorFilter',
-
     mixins: [MetaFieldRendererMixin],
 
     render: function render() {
@@ -372,12 +375,10 @@ var SelectorFilter = _react2['default'].createClass({
             displayValue
         );
     }
-
 });
 
-var CSSLabelsFilter = _react2['default'].createClass({
+var CSSLabelsFilter = (0, _createReactClass2['default'])({
     displayName: 'CSSLabelsFilter',
-
     mixins: [MetaFieldRendererMixin],
 
     statics: {
@@ -410,12 +411,10 @@ var CSSLabelsFilter = _react2['default'].createClass({
             );
         }
     }
-
 });
 
-var MetaSelectorFormPanel = _react2['default'].createClass({
+var MetaSelectorFormPanel = (0, _createReactClass2['default'])({
     displayName: 'MetaSelectorFormPanel',
-
     mixins: [MetaFieldFormPanelMixin],
 
     changeSelector: function changeSelector(e, selectedIndex, payload) {
@@ -460,18 +459,17 @@ var MetaSelectorFormPanel = _react2['default'].createClass({
             )
         );
     }
-
 });
 
-var TagsCloud = _react2['default'].createClass({
+var TagsCloud = (0, _createReactClass2['default'])({
     displayName: 'TagsCloud',
-
     mixins: [MetaFieldFormPanelMixin],
 
     propTypes: {
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode),
-        column: _react2['default'].PropTypes.object
+        node: _propTypes2['default'].instanceOf(AjxpNode),
+        column: _propTypes2['default'].object
     },
+
     componentDidMount: function componentDidMount() {
         this.getRealValue();
         if (this.props.editMode) {
@@ -658,14 +656,13 @@ var TagsCloud = _react2['default'].createClass({
             autoCompleter
         );
     }
-
 });
 
-var UserMetaDialog = _react2['default'].createClass({
+var UserMetaDialog = (0, _createReactClass2['default'])({
     displayName: 'UserMetaDialog',
 
     propsTypes: {
-        selection: _react2['default'].PropTypes.instanceOf(PydioDataModel)
+        selection: _propTypes2['default'].instanceOf(PydioDataModel)
     },
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
@@ -686,6 +683,7 @@ var UserMetaDialog = _react2['default'].createClass({
             _this9.dismiss();
         });
     },
+
     render: function render() {
         return _react2['default'].createElement(UserMetaPanel, {
             pydio: this.props.pydio,

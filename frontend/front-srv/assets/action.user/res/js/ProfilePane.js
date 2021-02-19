@@ -68,11 +68,11 @@ const FORM_CSS = `
 
 `;
 
-let ProfilePane = React.createClass({
-
-    getInitialState(){
+class ProfilePane extends React.Component {
+    constructor(props) {
+        super(props);
         let objValues = {}, mailValues = {};
-        let pydio = this.props.pydio;
+        let pydio = props.pydio;
         if(pydio.user){
             pydio.user.preferences.forEach(function(v, k){
                 if(k === 'gui_preferences') {
@@ -81,16 +81,17 @@ let ProfilePane = React.createClass({
                 objValues[k] = v;
             });
         }
-        return {
+
+        this.state = {
             definitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
             mailDefinitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
             values:objValues,
             originalValues:LangUtils.deepCopy(objValues),
             dirty: false
         };
-    },
+    }
 
-    onFormChange(newValues, dirty, removeValues){
+    onFormChange = (newValues, dirty, removeValues) => {
         const {values} = this.state;
         this.setState({dirty: dirty, values: newValues}, () => {
             if(this._updater) {
@@ -100,9 +101,9 @@ let ProfilePane = React.createClass({
                 this.saveForm();
             }
         });
-    },
+    };
 
-    getButtons(updater = null){
+    getButtons = (updater = null) => {
         if(updater) {
             this._updater = updater;
         }
@@ -125,9 +126,9 @@ let ProfilePane = React.createClass({
         }else{
             return [button];
         }
-    },
+    };
 
-    revert(){
+    revert = () => {
         this.setState({
             values: {...this.state.originalValues},
             dirty: false
@@ -136,9 +137,9 @@ let ProfilePane = React.createClass({
                 this._updater(this.getButtons());
             }
         });
-    },
+    };
 
-    saveForm(){
+    saveForm = () => {
         if(!this.state.dirty){
             this.setState({dirty: false});
             return;
@@ -185,9 +186,9 @@ let ProfilePane = React.createClass({
             });
 
         });
-    },
+    };
 
-    render(){
+    render() {
         const {pydio, miniDisplay} = this.props;
         if(!pydio.user) {
             return null;
@@ -210,7 +211,6 @@ let ProfilePane = React.createClass({
             </div>
         );
     }
-
-});
+}
 
 export {ProfilePane as default}

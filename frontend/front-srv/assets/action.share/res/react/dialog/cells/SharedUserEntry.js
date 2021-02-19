@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22,27 +23,30 @@ import {Checkbox} from 'material-ui'
 import UserBadge from './UserBadge'
 import ShareContextConsumer from '../ShareContextConsumer'
 
-let SharedUserEntry = React.createClass({
+class SharedUserEntry extends React.Component {
+    static propTypes = {
+        cellAcl:PropTypes.object.isRequired,
+        sendInvitations:PropTypes.func,
+        onUserObjectRemove:PropTypes.func.isRequired,
+        onUserObjectUpdateRight:PropTypes.func.isRequired,
+    };
 
-    propTypes: {
-        cellAcl:React.PropTypes.object.isRequired,
-        sendInvitations:React.PropTypes.func,
-        onUserObjectRemove:React.PropTypes.func.isRequired,
-        onUserObjectUpdateRight:React.PropTypes.func.isRequired,
-    },
-    onRemove:function(){
+    onRemove = () => {
         this.props.onUserObjectRemove(this.props.cellAcl.RoleId);
-    },
-    onInvite:function(){
+    };
+
+    onInvite = () => {
         let targets = {};
         const userObject = PydioUsers.User.fromIdmUser(this.props.cellAcl.User);
         targets[userObject.getId()] = userObject;
         this.props.sendInvitations(targets);
-    },
-    onUpdateRight:function(name, checked){
+    };
+
+    onUpdateRight = (name, checked) => {
         this.props.onUserObjectUpdateRight(this.props.cellAcl.RoleId, name, checked);
-    },
-    render: function(){
+    };
+
+    render() {
         const {cellAcl, pydio} = this.props;
         let menuItems = [];
         const type = cellAcl.User ? 'user' : (cellAcl.Group ? 'group' : 'team');
@@ -125,7 +129,7 @@ let SharedUserEntry = React.createClass({
             </UserBadge>
         );
     }
-});
+}
 
 SharedUserEntry = ShareContextConsumer(SharedUserEntry);
 export {SharedUserEntry as default}

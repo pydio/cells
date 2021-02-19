@@ -34,6 +34,10 @@ var _cellsSharedUsers = require('../cells/SharedUsers');
 
 var _cellsSharedUsers2 = _interopRequireDefault(_cellsSharedUsers);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -278,9 +282,9 @@ var CellsList = (function (_React$Component) {
 })(_react2['default'].Component);
 
 CellsList.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
-    compositeModel: _react2['default'].PropTypes.instanceOf(_CompositeModel2['default']).isRequired,
-    usersInvitations: _react2['default'].PropTypes.func
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']),
+    compositeModel: _propTypes2['default'].instanceOf(_CompositeModel2['default']).isRequired,
+    usersInvitations: _propTypes2['default'].func
 };
 
 exports['default'] = CellsList = (0, _materialUiStyles.muiThemeable)()(CellsList);

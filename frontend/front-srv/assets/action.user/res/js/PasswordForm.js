@@ -26,17 +26,14 @@ const {ValidPassword} = Pydio.requireLib('form');
 const {ModernTextField} = Pydio.requireLib("hoc");
 
 
-let PasswordForm = React.createClass({
+class PasswordForm extends React.Component {
+    state = {error: null, old: '', newPass: ''};
 
-    getInitialState(){
-        return {error: null, old: '', newPass: ''};
-    },
-
-    getMessage(id){
+    getMessage = (id) => {
         return this.props.pydio.MessageHash[id];
-    },
+    };
 
-    update(value, field){
+    update = (value, field) => {
         let newStatus = {}
         newStatus[field] = value;
         this.setState(newStatus, () => {
@@ -45,9 +42,9 @@ let PasswordForm = React.createClass({
                 this.props.onValidStatusChange(status);
             }
         });
-    },
+    };
 
-    validate(){
+    validate = () => {
         if(!this.refs.newpass.isValid()){
             return false;
         }
@@ -62,9 +59,9 @@ let PasswordForm = React.createClass({
         }
         this.setState({error: null});
         return true;
-    },
+    };
 
-    post(callback){
+    post = (callback) => {
         const {oldPass, newPass} = this.state;
         const {pydio} = this.props;
         let logoutString = '';
@@ -84,9 +81,9 @@ let PasswordForm = React.createClass({
                 }
             })
         });
-    },
+    };
 
-    render(){
+    render() {
 
         if (!this.props.pydio.user){
             return null;
@@ -128,7 +125,6 @@ let PasswordForm = React.createClass({
         );
 
     }
-
-});
+}
 
 export {PasswordForm as default}

@@ -1,3 +1,15 @@
+import React from 'react';
+import ShareContextConsumer from '../ShareContextConsumer'
+import TargetedUsers from './TargetedUsers'
+import {TextField, Paper} from 'material-ui'
+import QRCode from 'qrcode.react'
+import Clipboard from 'clipboard'
+import ActionButton from '../main/ActionButton'
+import PathUtils from 'pydio/util/path'
+import LangUtils from 'pydio/util/lang'
+import {muiThemeable} from 'material-ui/styles'
+import ShareHelper from '../main/ShareHelper'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,34 +29,24 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import ShareContextConsumer from '../ShareContextConsumer'
-import TargetedUsers from './TargetedUsers'
-import {TextField, Paper} from 'material-ui'
-import QRCode from 'qrcode.react'
-import Clipboard from 'clipboard'
-import ActionButton from '../main/ActionButton'
-import PathUtils from 'pydio/util/path'
-import LangUtils from 'pydio/util/lang'
-import {muiThemeable} from 'material-ui/styles'
-import ShareHelper from '../main/ShareHelper'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {Tooltip} = Pydio.requireLib("boot");
 
 import LinkModel from './LinkModel'
 
-let PublicLinkField = React.createClass({
+class PublicLinkField extends React.Component {
+    static propTypes = {
+        linkModel: PropTypes.instanceOf(LinkModel),
+        editAllowed: PropTypes.bool,
+        onChange: PropTypes.func,
+        showMailer:PropTypes.func
+    };
 
-    propTypes: {
-        linkModel: React.PropTypes.instanceOf(LinkModel),
-        editAllowed: React.PropTypes.bool,
-        onChange: React.PropTypes.func,
-        showMailer:React.PropTypes.func
-    },
-    getInitialState: function(){
-        return {editLink: false, copyMessage:'', showQRCode: false};
-    },
-    toggleEditMode: function(){
+    state = {editLink: false, copyMessage:'', showQRCode: false};
+
+    toggleEditMode = () => {
         const {linkModel, pydio} = this.props;
         if(this.state.editLink && this.state.customLink){
             const auth = ShareHelper.getAuthorizations();
@@ -56,19 +58,21 @@ let PublicLinkField = React.createClass({
             linkModel.save();
         }
         this.setState({editLink: !this.state.editLink, customLink: undefined});
-    },
-    changeLink:function(event){
+    };
+
+    changeLink = (event) => {
         let value = event.target.value;
         value = LangUtils.computeStringSlug(value);
         this.setState({customLink: value});
-    },
-    clearCopyMessage:function(){
+    };
+
+    clearCopyMessage = () => {
         global.setTimeout(function(){
             this.setState({copyMessage:''});
         }.bind(this), 5000);
-    },
+    };
 
-    attachClipboard: function(){
+    attachClipboard = () => {
         const {linkModel, pydio} = this.props;
         this.detachClipboard();
         if(this.refs['copy-button']){
@@ -91,34 +95,35 @@ let PublicLinkField = React.createClass({
                 this.setState({copyMessage:copyMessage}, this.clearCopyMessage);
             }.bind(this));
         }
-    },
-    detachClipboard: function(){
+    };
+
+    detachClipboard = () => {
         if(this._clip){
             this._clip.destroy();
         }
-    },
+    };
 
-    componentDidUpdate: function(prevProps, prevState){
+    componentDidUpdate(prevProps, prevState) {
         this.attachClipboard();
-    },
+    }
 
-    componentDidMount: function(){
+    componentDidMount() {
         this.attachClipboard();
-    },
+    }
 
-    componentWillUnmount: function(){
+    componentWillUnmount() {
         this.detachClipboard();
-    },
+    }
 
-    openMailer: function(){
+    openMailer = () => {
         this.props.showMailer(this.props.linkModel);
-    },
+    };
 
-    toggleQRCode: function(){
+    toggleQRCode = () => {
         this.setState({showQRCode:!this.state.showQRCode});
-    },
+    };
 
-    render: function(){
+    render() {
         const {linkModel, pydio} = this.props;
         const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
         const auth = ShareHelper.getAuthorizations();
@@ -203,7 +208,7 @@ let PublicLinkField = React.createClass({
             );
         }
     }
-});
+}
 
 PublicLinkField = muiThemeable()(PublicLinkField);
 PublicLinkField = ShareContextConsumer(PublicLinkField)

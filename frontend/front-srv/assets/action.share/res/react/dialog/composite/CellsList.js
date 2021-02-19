@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import CompositeModel from './CompositeModel'
 import ShareHelper from '../main/ShareHelper'
 import SharedUsers from '../cells/SharedUsers'
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
 import {Paper, Divider, RaisedButton, IconButton, Popover, Menu, List, ListItem, IconMenu, MenuItem, FontIcon} from 'material-ui'
@@ -179,9 +180,9 @@ class CellsList extends React.Component {
 }
 
 CellsList.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    compositeModel: React.PropTypes.instanceOf(CompositeModel).isRequired,
-    usersInvitations: React.PropTypes.func,
+    pydio: PropTypes.instanceOf(Pydio),
+    compositeModel: PropTypes.instanceOf(CompositeModel).isRequired,
+    usersInvitations: PropTypes.func,
 };
 
 CellsList = muiThemeable()(CellsList);

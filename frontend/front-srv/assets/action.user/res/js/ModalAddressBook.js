@@ -19,11 +19,13 @@
  */
 
 const React = require('react')
+const createReactClass = require('create-react-class');
 const Pydio = require('pydio')
 const {ActionDialogMixin} = Pydio.requireLib('boot')
 const {ModalAppBar, AddressBook} = Pydio.requireLib('components')
 
-const ModalAddressBook = React.createClass({
+const ModalAddressBook = createReactClass({
+    displayName: 'ModalAddressBook',
 
     mixins: [
         ActionDialogMixin,
@@ -61,8 +63,7 @@ const ModalAddressBook = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 export {ModalAddressBook as default}

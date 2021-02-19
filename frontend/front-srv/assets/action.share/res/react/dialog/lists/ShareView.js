@@ -1,4 +1,6 @@
 import React from 'react'
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
@@ -201,13 +203,13 @@ class ShareView extends React.Component {
 }
 
 ShareView.childContextTypes = {
-    messages:React.PropTypes.object,
-    getMessage:React.PropTypes.func,
-    isReadonly:React.PropTypes.func
+    messages:PropTypes.object,
+    getMessage:PropTypes.func,
+    isReadonly:PropTypes.func
 };
 
-const ShareViewModal = React.createClass({
-
+const ShareViewModal = createReactClass({
+    displayName: 'ShareViewModal',
     mixins: [ActionDialogMixin],
 
     getDefaultProps: function(){
@@ -238,8 +240,7 @@ const ShareViewModal = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 export {ShareView, ShareViewModal}

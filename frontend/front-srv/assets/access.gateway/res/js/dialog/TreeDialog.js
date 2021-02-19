@@ -20,6 +20,8 @@
 
 import React from "react";
 import Pydio from 'pydio';
+import PropTypes from 'prop-types'
+import createReactClass from 'create-react-class'
 import LangUtils from 'pydio/util/lang';
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 import PydioDataModel from "pydio/model/data-model";
@@ -28,11 +30,11 @@ const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 
 const {FoldersTree} = Pydio.requireLib('components');
 
-const TreeDialog = React.createClass({
+const TreeDialog = createReactClass({
 
     propTypes:{
-        isMove:React.PropTypes.bool.isRequired,
-        submitValue:React.PropTypes.func.isRequired
+        isMove:PropTypes.bool.isRequired,
+        submitValue:PropTypes.func.isRequired
     },
 
     mixins:[

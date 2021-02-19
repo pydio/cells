@@ -18,14 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
+import createReactClass from 'create-react-class'
 import PydioApi from 'pydio/http/api'
 import {JobsServiceApi, RestUserJobRequest} from 'cells-sdk'
 import PathUtils from 'pydio/util/path'
-import {MenuItem, TextField, SelectField} from 'material-ui'
+import {MenuItem} from 'material-ui'
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 
 
-let CompressionDialog = React.createClass({
+let CompressionDialog = createReactClass({
 
     mixins:[
         PydioReactUI.ActionDialogMixin,

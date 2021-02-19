@@ -20,8 +20,9 @@
 
 import Pydio from 'pydio'
 import React from 'react';
+import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
-import {ListItem, FontIcon} from 'material-ui'
+import {FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
 
@@ -59,9 +60,9 @@ function workspacesLocations(pydio, object){
 
 function LinkWrapper(pydio, activity, style = undefined) {
 
-    return React.createClass({
+    return class Wrapped extends React.Component{
 
-        render: function(){
+        render(){
 
             const {href, children} = this.props;
             const linkStyle = {
@@ -90,7 +91,7 @@ function LinkWrapper(pydio, activity, style = undefined) {
             return <a title={title} style={linkStyle} onClick={onClick}>{children}</a>
 
         }
-    })
+    }
 
 }
 
@@ -272,9 +273,9 @@ class Activity extends React.Component{
 }
 
 Activity.PropTypes = {
-    activity: React.PropTypes.object,
-    listContext: React.PropTypes.string,
-    displayContext: React.PropTypes.oneOf(['infoPanel', 'popover'])
+    activity: PropTypes.object,
+    listContext: PropTypes.string,
+    displayContext: PropTypes.oneOf(['infoPanel', 'popover'])
 };
 
 Activity = muiThemeable()(Activity);

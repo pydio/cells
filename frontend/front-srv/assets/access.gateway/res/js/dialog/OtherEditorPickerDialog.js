@@ -25,12 +25,14 @@ const PydioDataModel = require('pydio/model/data-model')
 const LangUtils=  require('pydio/util/lang')
 const {ActionDialogMixin} = Pydio.requireLib('boot')
 import openInEditor from '../callback/openInEditor'
+import createReactClass from 'create-react-class'
+import PropTypes from 'prop-types'
 
-let OtherEditorPickerDialog = React.createClass({
+let OtherEditorPickerDialog = createReactClass({
 
     propTypes:{
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: PropTypes.instanceOf(Pydio),
+        selection: PropTypes.instanceOf(PydioDataModel)
     },
 
     mixins:[

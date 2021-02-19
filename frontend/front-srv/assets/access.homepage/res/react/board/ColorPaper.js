@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -52,19 +53,19 @@ ColorPaper.propTypes = {
     /**
      * Pass the proper style for grid layout
      */
-    style: React.PropTypes.object.isRequired,
+    style: PropTypes.object.isRequired,
     /**
      * Legacy way of passing the close button, use closeButton prop instead
      */
-    getCloseButton: React.PropTypes.func,
+    getCloseButton: PropTypes.func,
     /**
      * Passed by parent, through the asGridItem HOC
      */
-    closeButton: React.PropTypes.object,
+    closeButton: PropTypes.object,
     /**
      * An integer to choose which color to pick
      */
-    paletteIndex: React.PropTypes.number.isRequired
+    paletteIndex: PropTypes.number.isRequired
 };
 
 export {ColorPaper as default}

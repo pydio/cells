@@ -19,6 +19,7 @@
  */
 
 const React = require('react')
+import PropTypes from 'prop-types'
 const ReactDOM = require('react-dom')
 const {asGridItem} = require('pydio').requireLib('components')
 const {MenuItem, IconMenu} = require('material-ui')
@@ -32,14 +33,14 @@ const PALETTE_INDEX = 4;
 /**
  * Display a list of tutorial videos as a material card
  */
-let VideoCard = React.createClass({
+class VideoCard extends React.Component {
+    static propTypes = {
+        youtubeId           : PropTypes.string,
+        contentMessageId    : PropTypes.string
+    };
 
-    propTypes:{
-        youtubeId           : React.PropTypes.string,
-        contentMessageId    : React.PropTypes.string
-    },
-
-    getInitialState: function(){
+    constructor(props) {
+        super(props);
         this._videos = [
             ['qvsSeLXr-T4', 'user_home.63'],
             ['HViCWPpyZ6k', 'user_home.79'],
@@ -53,31 +54,32 @@ let VideoCard = React.createClass({
         ];
         const k = Math.floor(Math.random() * this._videos.length);
         const value = this._videos[k];
-        return {
+
+        this.state = {
             videoIndex      : k,
             youtubeId       : value[0],
             contentMessageId: value[1]
         };
-    },
+    }
 
-    launchVideo: function(){
+    launchVideo = () => {
         const url = "//www.youtube.com/embed/"+this.state.youtubeId+"?list=PLxzQJCqzktEbYm3U_O1EqFru0LsEFBca5&autoplay=1";
         this._videoDiv = document.createElement('div');
         document.body.appendChild(this._videoDiv);
         ReactDOM.render(<VideoPlayer videoSrc={url} closePlayer={this.closePlayer}/>, this._videoDiv);
-    },
+    };
 
-    closePlayer: function(){
+    closePlayer = () => {
         ReactDOM.unmountComponentAtNode(this._videoDiv);
         document.body.removeChild(this._videoDiv);
-    },
+    };
 
-    getTitle: function(messId){
+    getTitle = (messId) => {
         const text = this.props.pydio.MessageHash[messId];
         return text.split('\n').shift().replace('<h2>', '').replace('</h2>', '');
-    },
+    };
 
-    browse: function(direction = 'next', event){
+    browse = (direction = 'next', event) => {
         let nextIndex;
         const {videoIndex} = this.state;
         if(direction === 'next'){
@@ -91,9 +93,9 @@ let VideoCard = React.createClass({
             youtubeId       : value[0],
             contentMessageId: value[1]
         });
-    },
+    };
 
-    render: function(){
+    render() {
         const MessageHash = this.props.pydio.MessageHash;
         const htmlMessage = function(id){
             return {__html:MessageHash[id]};
@@ -129,7 +131,7 @@ let VideoCard = React.createClass({
             </ColorPaper>
         );
     }
-});
+}
 
 VideoCard = asGridItem(VideoCard,global.pydio.MessageHash['user_home.94'],{gridWidth:2,gridHeight:12},[]);
 export {VideoCard as default}

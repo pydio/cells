@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +19,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import PassUtils from 'pydio/util/pass'
 import {FlatButton, IconButton, FontIcon, DatePicker, Popover} from 'material-ui'
@@ -34,18 +37,15 @@ const globStyles = {
     }
 };
 
-let PublicLinkSecureOptions = React.createClass({
+class PublicLinkSecureOptions extends React.Component {
+    static propTypes = {
+        linkModel: PropTypes.instanceOf(LinkModel).isRequired,
+        style: PropTypes.object
+    };
 
-    propTypes: {
-        linkModel: React.PropTypes.instanceOf(LinkModel).isRequired,
-        style: React.PropTypes.object
-    },
+    state = {};
 
-    getInitialState(){
-        return {};
-    },
-
-    updateDLExpirationField(event){
+    updateDLExpirationField = (event) => {
         let newValue = event.currentTarget.value;
         if(parseInt(newValue) < 0) {
             newValue = - parseInt(newValue);
@@ -54,9 +54,9 @@ let PublicLinkSecureOptions = React.createClass({
         let link = linkModel.getLink();
         link.MaxDownloads = newValue;
         linkModel.updateLink(link);
-    },
+    };
 
-    updateDaysExpirationField(event, newValue){
+    updateDaysExpirationField = (event, newValue) => {
         if(!newValue){
             newValue = event.currentTarget.getValue();
         }
@@ -64,35 +64,35 @@ let PublicLinkSecureOptions = React.createClass({
         let link = linkModel.getLink();
         link.AccessEnd = newValue;
         linkModel.updateLink(link);
-    },
+    };
 
-    onDateChange(event, value){
+    onDateChange = (event, value) => {
         const date2 = Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
         this.updateDaysExpirationField(event, Math.floor(date2/1000) + "");
-    },
+    };
 
-    resetPassword(){
+    resetPassword = () => {
         const {linkModel} = this.props;
         linkModel.setUpdatePassword('');
         linkModel.getLink().PasswordRequired = false;
         linkModel.notifyDirty();
-    },
+    };
 
-    setUpdatingPassword(newValue){
+    setUpdatingPassword = (newValue) => {
         PassUtils.checkPasswordStrength(newValue, (ok, msg) =>{
             this.setState({updatingPassword: newValue, updatingPasswordValid: ok});
         })
-    },
+    };
 
-    changePassword(){
+    changePassword = () => {
         const {linkModel} = this.props;
         const {updatingPassword} = this.state;
         linkModel.setUpdatePassword(updatingPassword);
         this.setState({pwPop: false, updatingPassword: "", updatingPasswordValid: false});
         linkModel.notifyDirty();
-    },
+    };
 
-    updatePassword(newValue, oldValue){
+    updatePassword = (newValue, oldValue) => {
         const {linkModel} = this.props;
         const valid = this.refs.pwd.isValid();
         if (valid) {
@@ -102,23 +102,23 @@ let PublicLinkSecureOptions = React.createClass({
         } else {
             this.setState({invalidPassword: newValue, invalid: true});
         }
-    },
+    };
 
-    resetDownloads(){
+    resetDownloads = () => {
         if(window.confirm(this.props.getMessage('106'))){
             const {linkModel} = this.props;
             linkModel.getLink().CurrentDownloads = "0";
             linkModel.notifyDirty();
         }
-    },
+    };
 
-    resetExpiration () {
+    resetExpiration = () => {
         const {linkModel} = this.props;
         linkModel.getLink().AccessEnd = "0";
         linkModel.notifyDirty();
-    },
+    };
 
-    renderPasswordContainer(){
+    renderPasswordContainer = () => {
         const {linkModel} = this.props;
         const link = linkModel.getLink();
         const auth = ShareHelper.getAuthorizations();
@@ -199,17 +199,17 @@ let PublicLinkSecureOptions = React.createClass({
         }else{
             return null;
         }
-    },
+    };
 
-    formatDate (dateObject){
+    formatDate = (dateObject) => {
         const dateFormatDay = this.props.getMessage('date_format', '').split(' ').shift();
         return dateFormatDay
             .replace('Y', dateObject.getFullYear())
             .replace('m', dateObject.getMonth() + 1)
             .replace('d', dateObject.getDate());
-    },
+    };
 
-    render(){
+    render() {
 
         const {linkModel} = this.props;
         const link = linkModel.getLink();
@@ -294,7 +294,7 @@ let PublicLinkSecureOptions = React.createClass({
             </div>
         );
     }
-});
+}
 
 PublicLinkSecureOptions = ShareContextConsumer(PublicLinkSecureOptions);
 export {PublicLinkSecureOptions as default}

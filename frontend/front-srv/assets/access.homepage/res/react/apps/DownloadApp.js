@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react'
+import PropTypes from 'prop-types'
 
 class DownloadApp extends React.Component{
 
@@ -52,14 +54,14 @@ class DownloadApp extends React.Component{
 }
 
 DownloadApp.propTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    id:React.PropTypes.string,
-    configs:React.PropTypes.object,
-    configHref:React.PropTypes.string,
-    iconClassName:React.PropTypes.string,
-    iconColor:React.PropTypes.string,
-    messageId:React.PropTypes.string,
-    tooltipId:React.PropTypes.string
+    pydio: PropTypes.instanceOf(Pydio),
+    id:PropTypes.string,
+    configs:PropTypes.object,
+    configHref:PropTypes.string,
+    iconClassName:PropTypes.string,
+    iconColor:PropTypes.string,
+    messageId:PropTypes.string,
+    tooltipId:PropTypes.string
 };
 
 export {DownloadApp as default}

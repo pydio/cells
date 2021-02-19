@@ -1069,6 +1069,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioModelMetaNodeProvider = require('pydio/model/meta-node-provider');
 
 var _pydioModelMetaNodeProvider2 = _interopRequireDefault(_pydioModelMetaNodeProvider);
@@ -1084,6 +1088,10 @@ var _pydioModelCell = require('pydio/model/cell');
 var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
 
 var _materialUiStyles = require('material-ui/styles');
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var React = require('react');
 
@@ -1250,12 +1258,11 @@ var CrossWsContent = (function (_React$Component) {
 
 CrossWsContent = (0, _materialUiStyles.muiThemeable)()(CrossWsContent);
 
-var CrossWsDropDialog = React.createClass({
-    displayName: 'CrossWsDropDialog',
+var CrossWsDropDialog = (0, _createReactClass2['default'])({
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: _propTypes2['default'].instanceOf(Pydio),
+        selection: _propTypes2['default'].instanceOf(PydioDataModel)
     },
 
     mixins: [ActionDialogMixin],
@@ -1289,7 +1296,7 @@ var CrossWsDropDialog = React.createClass({
 exports['default'] = CrossWsDropDialog;
 module.exports = exports['default'];
 
-},{"../callback/applyCopyOrMove":2,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/cell":"pydio/model/cell","pydio/model/data-model":"pydio/model/data-model","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","react":"react"}],19:[function(require,module,exports){
+},{"../callback/applyCopyOrMove":2,"cells-sdk":"cells-sdk","create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/cell":"pydio/model/cell","pydio/model/data-model":"pydio/model/data-model","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","react":"react"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1322,6 +1329,14 @@ var _callbackOpenInEditor = require('../callback/openInEditor');
 
 var _callbackOpenInEditor2 = _interopRequireDefault(_callbackOpenInEditor);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -1339,12 +1354,11 @@ var _Pydio$requireLib = Pydio.requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 
-var OtherEditorPickerDialog = React.createClass({
-    displayName: 'OtherEditorPickerDialog',
+var OtherEditorPickerDialog = (0, _createReactClass2['default'])({
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: _propTypes2['default'].instanceOf(Pydio),
+        selection: _propTypes2['default'].instanceOf(PydioDataModel)
     },
 
     mixins: [ActionDialogMixin],
@@ -1460,7 +1474,7 @@ var OtherEditorPickerDialog = React.createClass({
 exports['default'] = OtherEditorPickerDialog;
 module.exports = exports['default'];
 
-},{"../callback/openInEditor":13,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],20:[function(require,module,exports){
+},{"../callback/openInEditor":13,"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1499,6 +1513,14 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
@@ -1520,12 +1542,11 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var FoldersTree = _Pydio$requireLib2.FoldersTree;
 
-var TreeDialog = _react2['default'].createClass({
-    displayName: 'TreeDialog',
+var TreeDialog = (0, _createReactClass2['default'])({
 
     propTypes: {
-        isMove: _react2['default'].PropTypes.bool.isRequired,
-        submitValue: _react2['default'].PropTypes.func.isRequired
+        isMove: _propTypes2['default'].bool.isRequired,
+        submitValue: _propTypes2['default'].func.isRequired
     },
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
@@ -1740,7 +1761,7 @@ var TreeDialog = _react2['default'].createClass({
 exports['default'] = TreeDialog;
 module.exports = exports['default'];
 
-},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1787,6 +1808,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
@@ -1831,8 +1856,7 @@ var TopBar = (function (_React$Component) {
 
 TopBar = (0, _materialUiStyles.muiThemeable)()(TopBar);
 
-var UploadDialog = _react2['default'].createClass({
-    displayName: 'UploadDialog',
+var UploadDialog = (0, _createReactClass2['default'])({
 
     mixins: [ActionDialogMixin],
 
@@ -1914,7 +1938,7 @@ var UploadDialog = _react2['default'].createClass({
 exports['default'] = UploadDialog;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],22:[function(require,module,exports){
+},{"create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

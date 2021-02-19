@@ -1,3 +1,8 @@
+import React from 'react';
+import ShareContextConsumer from '../ShareContextConsumer'
+import SharedUserEntry from './SharedUserEntry'
+import ActionButton from '../main/ActionButton'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,30 +22,28 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import ShareContextConsumer from '../ShareContextConsumer'
-import SharedUserEntry from './SharedUserEntry'
-import ActionButton from '../main/ActionButton'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {UsersCompleter} = Pydio.requireLib('components');
 
-let SharedUsers = React.createClass({
-    
-    propTypes: {
-        pydio:React.PropTypes.instanceOf(Pydio),
+class SharedUsers extends React.Component {
+    static propTypes = {
+        pydio:PropTypes.instanceOf(Pydio),
 
-        cellAcls:React.PropTypes.object,
+        cellAcls:PropTypes.object,
 
-        saveSelectionAsTeam:React.PropTypes.func,
-        sendInvitations:React.PropTypes.func,
-        showTitle:React.PropTypes.bool,
+        saveSelectionAsTeam:PropTypes.func,
+        sendInvitations:PropTypes.func,
+        showTitle:PropTypes.bool,
 
-        onUserObjectAdd:React.PropTypes.func.isRequired,
-        onUserObjectRemove:React.PropTypes.func.isRequired,
-        onUserObjectUpdateRight:React.PropTypes.func.isRequired,
+        onUserObjectAdd:PropTypes.func.isRequired,
+        onUserObjectRemove:PropTypes.func.isRequired,
+        onUserObjectUpdateRight:PropTypes.func.isRequired,
 
-    },
-    sendInvitationToAllUsers(){
+    };
+
+    sendInvitationToAllUsers = () => {
         const {cellAcls, pydio} = this.props;
         let userObjects = [];
         Object.keys(cellAcls).map(k => {
@@ -54,20 +57,23 @@ let SharedUsers = React.createClass({
             }
         });
         this.props.sendInvitations(userObjects);
-    },
-    clearAllUsers(){
+    };
+
+    clearAllUsers = () => {
         Object.keys(this.props.cellAcls).map(k=>{
             this.props.onUserObjectRemove(k);
         })
-    },
-    valueSelected(userObject){
+    };
+
+    valueSelected = (userObject) => {
         if(userObject.IdmUser){
             this.props.onUserObjectAdd(userObject.IdmUser);
         } else {
             this.props.onUserObjectAdd(userObject.IdmRole);
         }
-    },
-    render(){
+    };
+
+    render() {
         const {cellAcls, pydio} = this.props;
         const authConfigs = pydio.getPluginConfigs('core.auth');
         let index = 0;
@@ -156,7 +162,7 @@ let SharedUsers = React.createClass({
         );
 
     }
-});
+}
 
 SharedUsers = ShareContextConsumer(SharedUsers);
 export {SharedUsers as default}

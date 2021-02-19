@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import ProfilePane from './ProfilePane'
 import Pydio from 'pydio'
 import {CardTitle, FlatButton} from 'material-ui'
@@ -28,7 +29,8 @@ const { ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin}
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
  */
-export default React.createClass({
+export default createReactClass({
+    displayName: 'WelcomeModal',
 
     mixins:[
         ActionDialogMixin,
@@ -43,6 +45,7 @@ export default React.createClass({
             dialogPadding: 0
         };
     },
+
     close: function(skip){
 
         if(this.props.onRequestStart){
@@ -50,15 +53,18 @@ export default React.createClass({
         }
         this.props.onDismiss();
     },
+
     getMessage: function(id){
         return this.props.pydio.MessageHash['ajax_gui.tour.welcomemodal.' + id];
     },
+
     getButtons: function(){
         return [
             <FlatButton label={this.getMessage('skip')} onTouchTap={()=> {this.close(true)}}/>,
             <FlatButton label={this.getMessage('start')} primary={true} onTouchTap={() => this.close(false)}/>,
         ];
     },
+
     render: function(){
         return (
             <div>
@@ -68,7 +74,6 @@ export default React.createClass({
                 <CardTitle title={this.getMessage('title')} subtitle={this.getMessage('subtitle')}/>
             </div>
         );
-    }
-
+    },
 });
 

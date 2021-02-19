@@ -18,6 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import PropTypes from 'prop-types'
+
 class VideoPlayer extends React.Component{
 
     render(){
@@ -34,8 +37,8 @@ class VideoPlayer extends React.Component{
 }
 
 VideoPlayer.propTypes = {
-    videoSrc:React.PropTypes.string,
-    closePlayer:React.PropTypes.func
+    videoSrc:PropTypes.string,
+    closePlayer:PropTypes.func
 };
 
 export {VideoPlayer as default}

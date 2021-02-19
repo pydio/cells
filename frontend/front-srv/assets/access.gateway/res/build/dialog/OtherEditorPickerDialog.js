@@ -30,6 +30,14 @@ var _callbackOpenInEditor = require('../callback/openInEditor');
 
 var _callbackOpenInEditor2 = _interopRequireDefault(_callbackOpenInEditor);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -47,12 +55,11 @@ var _Pydio$requireLib = Pydio.requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 
-var OtherEditorPickerDialog = React.createClass({
-    displayName: 'OtherEditorPickerDialog',
+var OtherEditorPickerDialog = (0, _createReactClass2['default'])({
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: _propTypes2['default'].instanceOf(Pydio),
+        selection: _propTypes2['default'].instanceOf(PydioDataModel)
     },
 
     mixins: [ActionDialogMixin],

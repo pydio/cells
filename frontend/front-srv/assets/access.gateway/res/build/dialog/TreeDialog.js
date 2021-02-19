@@ -36,6 +36,14 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
@@ -57,12 +65,11 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var FoldersTree = _Pydio$requireLib2.FoldersTree;
 
-var TreeDialog = _react2['default'].createClass({
-    displayName: 'TreeDialog',
+var TreeDialog = (0, _createReactClass2['default'])({
 
     propTypes: {
-        isMove: _react2['default'].PropTypes.bool.isRequired,
-        submitValue: _react2['default'].PropTypes.func.isRequired
+        isMove: _propTypes2['default'].bool.isRequired,
+        submitValue: _propTypes2['default'].func.isRequired
     },
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],

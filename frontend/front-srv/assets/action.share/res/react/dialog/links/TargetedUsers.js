@@ -17,7 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import ReactDOM from 'react-dom'
 import ShareContextConsumer from '../ShareContextConsumer'
 import {IconButton} from 'material-ui'
@@ -143,7 +145,7 @@ class TargetedUsers extends React.Component{
 }
 
 TargetedUsers.propTypes = {
-    linkModel:React.PropTypes.instanceOf(LinkModel)
+    linkModel:PropTypes.instanceOf(LinkModel)
 };
 
 TargetedUsers = ShareContextConsumer(TargetedUsers);

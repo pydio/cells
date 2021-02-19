@@ -21,6 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 const {ActionDialogMixin, AsyncComponent} = Pydio.requireLib('boot');
+import createReactClass from 'create-react-class'
 import {Tabs, Tab, IconButton, FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
@@ -42,7 +43,7 @@ class TopBar extends React.Component{
 
 TopBar = muiThemeable()(TopBar);
 
-let UploadDialog = React.createClass({
+let UploadDialog = createReactClass({
 
     mixins:[
         ActionDialogMixin

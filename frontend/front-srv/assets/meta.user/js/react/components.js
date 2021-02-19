@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,11 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import MetaClient from './MetaClient'
-import React from 'react'
-import Color from 'color'
-import {MenuItem, Chip, AutoComplete, TextField, Checkbox, FlatButton} from 'material-ui'
 import Pydio from 'pydio'
+import MetaClient from './MetaClient';
+import React from 'react'
+import createReactClass from 'create-react-class';
+import Color from 'color'
+import PropTypes from 'prop-types'
+import {MenuItem, Chip, AutoComplete, Checkbox, FlatButton} from 'material-ui'
 const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 const colorsCache = {};
@@ -162,10 +164,10 @@ class Callbacks{
 let MetaFieldFormPanelMixin = {
 
     propTypes:{
-        label:React.PropTypes.string,
-        fieldname:React.PropTypes.string,
-        onChange:React.PropTypes.func,
-        onValueChange:React.PropTypes.func
+        label:PropTypes.string,
+        fieldname:PropTypes.string,
+        onChange:PropTypes.func,
+        onValueChange:PropTypes.func
     },
 
     getInitialState(){
@@ -194,8 +196,8 @@ let MetaFieldFormPanelMixin = {
 let MetaFieldRendererMixin = {
 
     propTypes:{
-        node:React.PropTypes.instanceOf(AjxpNode),
-        column:React.PropTypes.object
+        node:PropTypes.instanceOf(AjxpNode),
+        column:PropTypes.object
     },
 
     getInitialState(){
@@ -219,8 +221,8 @@ let MetaFieldRendererMixin = {
 
 const starsStyle = { fontSize: 20, color: '#FBC02D', marginTop:6, marginBottom: 6};
 
-let StarsFormPanel = React.createClass({
-
+let StarsFormPanel = createReactClass({
+    displayName: 'StarsFormPanel',
     mixins:[MetaFieldFormPanelMixin],
 
     getInitialState(){
@@ -239,12 +241,11 @@ let StarsFormPanel = React.createClass({
                 <div>{stars}</div>
             </div>
         );
-    }
-
+    },
 });
 
-let MetaStarsRenderer = React.createClass({
-
+let MetaStarsRenderer = createReactClass({
+    displayName: 'MetaStarsRenderer',
     mixins:[MetaFieldRendererMixin],
 
     render(){
@@ -254,12 +255,11 @@ let MetaStarsRenderer = React.createClass({
         });
         const style = this.props.size === 'small' ? {color: starsStyle.color} : starsStyle;
         return <span style={style}>{stars}</span>;
-    }
-
+    },
 });
 
-let SelectorFilter = React.createClass({
-
+let SelectorFilter = createReactClass({
+    displayName: 'SelectorFilter',
     mixins:[MetaFieldRendererMixin],
 
     render(){
@@ -271,12 +271,11 @@ let SelectorFilter = React.createClass({
             displayValue = fieldConfig.data.get(value);
         }
         return <span>{displayValue}</span>;
-    }
-
+    },
 });
 
-let CSSLabelsFilter = React.createClass({
-
+let CSSLabelsFilter = createReactClass({
+    displayName: 'CSSLabelsFilter',
     mixins:[MetaFieldRendererMixin],
 
     statics:{
@@ -298,12 +297,11 @@ let CSSLabelsFilter = React.createClass({
         }else{
             return <span>{value}</span>;
         }
-    }
-
+    },
 });
 
-let MetaSelectorFormPanel = React.createClass({
-
+let MetaSelectorFormPanel = createReactClass({
+    displayName: 'MetaSelectorFormPanel',
     mixins:[MetaFieldFormPanelMixin],
 
     changeSelector(e, selectedIndex, payload){
@@ -340,18 +338,18 @@ let MetaSelectorFormPanel = React.createClass({
                     onChange={this.changeSelector}>{menuItems}</ModernSelectField>
             </div>
         );
-    }
-
+    },
 });
 
-let TagsCloud = React.createClass({
-
+let TagsCloud = createReactClass({
+    displayName: 'TagsCloud',
     mixins: [MetaFieldFormPanelMixin],
 
     propTypes:{
-        node:React.PropTypes.instanceOf(AjxpNode),
-        column:React.PropTypes.object
+        node:PropTypes.instanceOf(AjxpNode),
+        column:PropTypes.object
     },
+
     componentDidMount() {
         this.getRealValue();
         if(this.props.editMode){
@@ -502,14 +500,15 @@ let TagsCloud = React.createClass({
                 {autoCompleter}
             </div>
         );
-    }
-
+    },
 });
 
 
-let UserMetaDialog = React.createClass({
+let UserMetaDialog = createReactClass({
+    displayName: 'UserMetaDialog',
+
     propsTypes: {
-        selection: React.PropTypes.instanceOf(PydioDataModel),
+        selection: PropTypes.instanceOf(PydioDataModel),
     },
 
     mixins: [
@@ -532,6 +531,7 @@ let UserMetaDialog = React.createClass({
             this.dismiss();
         });
     },
+
     render(){
         return (
             <UserMetaPanel
@@ -542,7 +542,7 @@ let UserMetaDialog = React.createClass({
                 editMode={true}
             />
         );
-    }
+    },
 });
 
 class UserMetaPanel extends React.Component{

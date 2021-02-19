@@ -1,3 +1,6 @@
+import React from 'react';
+import ShareContextConsumer from '../ShareContextConsumer'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,22 +20,21 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import ShareContextConsumer from '../ShareContextConsumer'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import Policies from 'pydio/http/policies'
 import {ServiceResourcePolicy, ServiceResourcePolicyPolicyEffect} from 'cells-sdk'
 const {ResourcePoliciesPanel} = Pydio.requireLib('components');
 import LinkModel from './LinkModel'
 
-let VisibilityPanel = React.createClass({
-
+class VisibilityPanel extends React.Component {
     /**
      * Update associated hidden users policies, otherwise
      * the public link visibility cannot be changed
      * @param diffPolicies
      */
-    onSavePolicies(diffPolicies){
+    onSavePolicies = (diffPolicies) => {
 
         const {linkModel, pydio} = this.props;
         const internalUser = linkModel.getLink().UserLogin;
@@ -44,9 +46,9 @@ let VisibilityPanel = React.createClass({
             }
         });
 
-    },
+    };
 
-    diffPolicies(policies, diffPolicies, resourceId){
+    diffPolicies = (policies, diffPolicies, resourceId) => {
         let newPols = [];
         policies.map(p=>{
             const key = p.Action + '///' + p.Subject;
@@ -64,9 +66,9 @@ let VisibilityPanel = React.createClass({
             newPols.push(newPol);
         });
         return newPols;
-    },
+    };
 
-    render(){
+    render() {
 
         const {linkModel, pydio} = this.props;
         let subjectsHidden = [];
@@ -92,11 +94,11 @@ let VisibilityPanel = React.createClass({
         );
 
     }
-});
+}
 
 VisibilityPanel.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-    linkModel: React.PropTypes.instanceOf(LinkModel).isRequired
+    pydio: PropTypes.instanceOf(Pydio).isRequired,
+    linkModel: PropTypes.instanceOf(LinkModel).isRequired
 };
 
 VisibilityPanel = ShareContextConsumer(VisibilityPanel);

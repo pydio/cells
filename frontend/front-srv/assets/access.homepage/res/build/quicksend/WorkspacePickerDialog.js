@@ -24,6 +24,7 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 var React = require('react');
+var createReactClass = require('create-react-class');
 
 var _require$requireLib = require('pydio').requireLib('boot');
 
@@ -34,7 +35,7 @@ var _require$requireLib2 = require('pydio').requireLib('workspaces');
 
 var WorkspacesListMaterial = _require$requireLib2.WorkspacesListMaterial;
 
-var WorkspacePickerDialog = React.createClass({
+var WorkspacePickerDialog = createReactClass({
     displayName: 'WorkspacePickerDialog',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
@@ -76,7 +77,6 @@ var WorkspacePickerDialog = React.createClass({
             })
         );
     }
-
 });
 
 exports['default'] = WorkspacePickerDialog;

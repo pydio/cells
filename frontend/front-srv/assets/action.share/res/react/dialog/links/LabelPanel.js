@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +19,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import LinkModel from './LinkModel'
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -53,8 +56,8 @@ class LabelPanel extends React.Component {
 
 LabelPanel.PropTypes = {
 
-    pydio: React.PropTypes.instanceOf(Pydio),
-    linkModel: React.PropTypes.instanceOf(LinkModel),
+    pydio: PropTypes.instanceOf(Pydio),
+    linkModel: PropTypes.instanceOf(LinkModel),
 
 };
 

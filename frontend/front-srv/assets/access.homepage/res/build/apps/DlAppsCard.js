@@ -125,23 +125,34 @@ var DlAppsPanel = (function (_React$Component) {
     return DlAppsPanel;
 })(React.Component);
 
-var DlAppsCard = React.createClass({
-    displayName: 'DlAppsCard',
+var DlAppsCard = (function (_React$Component2) {
+    _inherits(DlAppsCard, _React$Component2);
 
-    render: function render() {
-        var props = _extends({}, this.props);
-        return React.createElement(
-            _boardColorPaper2['default'],
-            _extends({}, this.props, { style: _extends({}, this.props.style, { overflow: 'visible' }), paletteIndex: 1, closeButton: props.closeButton }),
-            React.createElement(DlAppsPanel, { pydio: this.props.pydio, type: 'sync', iconColor: '#ffffff' }),
-            React.createElement(
-                'div',
-                { style: { fontSize: 16, padding: 16, paddingTop: 0, textAlign: 'center' } },
-                this.props.pydio.MessageHash['user_home.91']
-            )
-        );
+    function DlAppsCard() {
+        _classCallCheck(this, DlAppsCard);
+
+        _get(Object.getPrototypeOf(DlAppsCard.prototype), 'constructor', this).apply(this, arguments);
     }
-});
+
+    _createClass(DlAppsCard, [{
+        key: 'render',
+        value: function render() {
+            var props = _extends({}, this.props);
+            return React.createElement(
+                _boardColorPaper2['default'],
+                _extends({}, this.props, { style: _extends({}, this.props.style, { overflow: 'visible' }), paletteIndex: 1, closeButton: props.closeButton }),
+                React.createElement(DlAppsPanel, { pydio: this.props.pydio, type: 'sync', iconColor: '#ffffff' }),
+                React.createElement(
+                    'div',
+                    { style: { fontSize: 16, padding: 16, paddingTop: 0, textAlign: 'center' } },
+                    this.props.pydio.MessageHash['user_home.91']
+                )
+            );
+        }
+    }]);
+
+    return DlAppsCard;
+})(React.Component);
 
 exports['default'] = DlAppsCard = asGridItem(DlAppsCard, global.pydio.MessageHash['user_home.92'], { gridWidth: 2, gridHeight: 10 }, []);
 exports['default'] = DlAppsCard;

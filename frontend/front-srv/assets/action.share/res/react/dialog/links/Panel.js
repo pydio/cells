@@ -1,3 +1,12 @@
+import React from 'react';
+import ShareContextConsumer from '../ShareContextConsumer'
+import PublicLinkField from './Field'
+import PublicLinkPermissions from './Permissions'
+import TargetedUsers from './TargetedUsers'
+import {RaisedButton, Toggle, Divider, CircularProgress} from 'material-ui'
+import LinkModel from './LinkModel'
+import CompositeModel from '../composite/CompositeModel'
+
 /*
  * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,29 +27,24 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import ShareContextConsumer from '../ShareContextConsumer'
-import PublicLinkField from './Field'
-import PublicLinkPermissions from './Permissions'
-import TargetedUsers from './TargetedUsers'
-import {RaisedButton, Toggle, Divider, CircularProgress} from 'material-ui'
-import LinkModel from './LinkModel'
-import CompositeModel from '../composite/CompositeModel'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import ShareHelper from '../main/ShareHelper'
 const {ValidPassword} = Pydio.requireLib('form');
 
-let PublicLinkPanel = React.createClass({
+class PublicLinkPanel extends React.Component {
+    static propTypes = {
+        linkModel:PropTypes.instanceOf(LinkModel),
+        compositeModel:PropTypes.instanceOf(CompositeModel),
+        pydio:PropTypes.instanceOf(Pydio),
+        authorizations: PropTypes.object,
+        showMailer:PropTypes.func
+    };
 
-    propTypes: {
-        linkModel:React.PropTypes.instanceOf(LinkModel),
-        compositeModel:React.PropTypes.instanceOf(CompositeModel),
-        pydio:React.PropTypes.instanceOf(Pydio),
-        authorizations: React.PropTypes.object,
-        showMailer:React.PropTypes.func
-    },
+    state = {showTemporaryPassword: false, temporaryPassword: null, saving: false};
 
-    toggleLink(){
+    toggleLink = () => {
         const {linkModel, pydio} = this.props;
         const {showTemporaryPassword} = this.state;
         if(showTemporaryPassword){
@@ -63,20 +67,16 @@ let PublicLinkPanel = React.createClass({
                 });
             }
         }
-    },
+    };
 
-    getInitialState(){
-        return {showTemporaryPassword: false, temporaryPassword: null, saving: false};
-    },
-
-    updateTemporaryPassword(value, event){
+    updateTemporaryPassword = (value, event) => {
         if(value === undefined) {
             value = event.currentTarget.getValue();
         }
         this.setState({temporaryPassword:value});
-    },
+    };
 
-    enableLinkWithPassword(){
+    enableLinkWithPassword = () => {
         const {linkModel} = this.props;
         if(!this.refs['valid-pass'].isValid()){
             this.props.pydio.UI.displayMessage('ERROR', 'Invalid Password');
@@ -89,9 +89,9 @@ let PublicLinkPanel = React.createClass({
             this.props.pydio.UI.displayMessage('ERROR', e.message)
         }
         this.setState({showTemporaryPassword:false, temporaryPassword:null});
-    },
+    };
 
-    render(){
+    render() {
 
         const {linkModel, pydio, compositeModel} = this.props;
         const {showTemporaryPassword, temporaryPassword, saving} = this.state;
@@ -167,7 +167,7 @@ let PublicLinkPanel = React.createClass({
             </div>
         );
     }
-});
+}
 
 PublicLinkPanel = ShareContextConsumer(PublicLinkPanel);
 export {PublicLinkPanel as default}

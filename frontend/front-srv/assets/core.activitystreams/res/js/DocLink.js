@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import PropTypes from 'prop-types'
 const {Popover, Paper, IconButton, FlatButton, Divider} = require('material-ui');
 const Pydio = require('pydio');
 const debounce = require('lodash.debounce');
@@ -236,8 +237,8 @@ class DocLink extends React.Component{
 }
 
 DocLink.PropTypes = {
-    activity: React.PropTypes.object,
-    pydio: React.PropTypes.instanceOf(Pydio),
+    activity: PropTypes.object,
+    pydio: PropTypes.instanceOf(Pydio),
 };
 
 DocLink = PydioContextConsumer(DocLink);

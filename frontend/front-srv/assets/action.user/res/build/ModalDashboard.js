@@ -37,6 +37,7 @@ var _ComponentConfigParser = require('./ComponentConfigParser');
 var _ComponentConfigParser2 = _interopRequireDefault(_ComponentConfigParser);
 
 var React = require('react');
+var createReactClass = require('create-react-class');
 var Pydio = require('pydio');
 
 var _Pydio$requireLib = Pydio.requireLib('boot');
@@ -52,7 +53,7 @@ var Tab = _require.Tab;
 var FontIcon = _require.FontIcon;
 var FlatButton = _require.FlatButton;
 
-var ModalDashboard = React.createClass({
+var ModalDashboard = createReactClass({
     displayName: 'ModalDashboard',
 
     mixins: [ActionDialogMixin, SubmitButtonProviderMixin],
@@ -125,7 +126,6 @@ var ModalDashboard = React.createClass({
             tabs
         );
     }
-
 });
 
 exports['default'] = ModalDashboard;

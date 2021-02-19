@@ -1,3 +1,9 @@
+const React = require('react');
+const createReactClass = require('create-react-class');
+const {ActionDialogMixin} = require('pydio').requireLib('boot');
+import CompositeCard from './CompositeCard'
+import PydioDataModel from 'pydio/model/data-model'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,14 +23,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-const React = require('react');
-const {ActionDialogMixin} = require('pydio').requireLib('boot');
-import CompositeCard from './CompositeCard'
-import PydioDataModel from 'pydio/model/data-model'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 
-let CompositeDialog = React.createClass({
-
+let CompositeDialog = createReactClass({
+    displayName: 'CompositeDialog',
     mixins: [ActionDialogMixin],
 
     getDefaultProps() {
@@ -37,15 +41,15 @@ let CompositeDialog = React.createClass({
     },
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-        selection: React.PropTypes.instanceOf(PydioDataModel),
-        readonly: React.PropTypes.bool,
+        pydio: PropTypes.instanceOf(Pydio).isRequired,
+        selection: PropTypes.instanceOf(PydioDataModel),
+        readonly: PropTypes.bool,
     },
 
     childContextTypes: {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func,
-        isReadonly: React.PropTypes.func
+        messages: PropTypes.object,
+        getMessage: PropTypes.func,
+        isReadonly: PropTypes.func
     },
 
     getChildContext() {
@@ -81,7 +85,7 @@ let CompositeDialog = React.createClass({
                 onDismiss={this.props.onDismiss}
             />
         );
-    }
+    },
 });
 
 
