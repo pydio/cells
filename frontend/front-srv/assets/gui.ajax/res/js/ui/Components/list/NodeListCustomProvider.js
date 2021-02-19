@@ -17,41 +17,41 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import SimpleList from './SimpleList'
 
 /**
  * Simple to use list component encapsulated with its own query mechanism
  * using a set of properties for the remote node provider.
  */
-export default React.createClass({
+export default class NodeListCustomProvider extends React.Component{
 
-    propTypes:{
-        nodeProviderProperties:React.PropTypes.object,
-        presetDataModel:React.PropTypes.instanceOf(PydioDataModel),
-        autoRefresh:React.PropTypes.number,
-        actionBarGroups:React.PropTypes.array,
-        heightAutoWithMax:React.PropTypes.number,
-        elementHeight:React.PropTypes.number.isRequired,
-        nodeClicked:React.PropTypes.func,
-        reloadOnServerMessage:React.PropTypes.string,
-        entryRenderAsCard:React.PropTypes.func
-    },
+    // propTypes:{
+    //     nodeProviderProperties:React.PropTypes.object,
+    //     presetDataModel:React.PropTypes.instanceOf(PydioDataModel),
+    //     autoRefresh:React.PropTypes.number,
+    //     actionBarGroups:React.PropTypes.array,
+    //     heightAutoWithMax:React.PropTypes.number,
+    //     elementHeight:React.PropTypes.number.isRequired,
+    //     nodeClicked:React.PropTypes.func,
+    //     reloadOnServerMessage:React.PropTypes.string,
+    //     entryRenderAsCard:React.PropTypes.func
+    // },
 
-    reload: function(){
+    reload(){
         if(this.refs.list && this.isMounted()){
             this.refs.list.reload();
         }
-    },
+    }
 
-    componentWillUnmount:function(){
+    componentWillUnmount(){
         if(this._smObs){
             this.props.pydio.stopObserving("server_message", this._smObs);
             this.props.pydio.stopObserving("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
-    },
+    }
 
-    componentWillReceiveProps: function(nextProps){
+    componentWillReceiveProps(nextProps){
         if(this.props.nodeProviderProperties && this.props.nodeProviderProperties !== nextProps.nodeProviderProperties){
             let {dataModel, node} = this.state;
             const provider = new RemoteNodeProvider(nextProps.nodeProviderProperties);
@@ -64,10 +64,10 @@ export default React.createClass({
                 node: nextProps.presetDataModel.getRootNode()
             });
         }
-    },
+    }
 
-    getInitialState:function(){
-
+    constructor(props){
+        super(props);
         let dataModel;
         if(this.props.presetDataModel){
             dataModel = this.props.presetDataModel;
@@ -95,15 +95,15 @@ export default React.createClass({
             this.props.pydio.observe("server_message", this._smObs);
             this.props.pydio.observe("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
-        return {node:rootNode, dataModel:dataModel};
-    },
+        this.state = {node:rootNode, dataModel:dataModel};
+    }
 
-    render:function(){
+    render(){
         return (
             <div className={this.props.heightAutoWithMax?"":"layout-fill vertical-layout"} style={this.props.containerStyle}>
                 <SimpleList
                     {...this.props}
-                    openEditor={this.openEditor}
+                    openEditor={this.props.openEditor}
                     ref="list"
                     style={Object.assign({height:'100%'}, this.props.style || {})}
                     node={this.state.node}
@@ -117,4 +117,4 @@ export default React.createClass({
         );
     }
 
-});
+}

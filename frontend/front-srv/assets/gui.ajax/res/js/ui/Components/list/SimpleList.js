@@ -20,6 +20,7 @@
 
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import Pydio from 'pydio'
 import Infinite from 'react-infinite'
 import ScrollArea from 'react-scrollbar'
@@ -43,8 +44,10 @@ const PeriodicalExecuter = require('pydio/util/periodical-executer')
 /**
  * Generic List component, using Infinite for cell virtualization, pagination, various
  * displays, etc... It provides many hooks for rendering cells on-demand.
+ * It uses createReactClass old syntax
  */
-let SimpleList = React.createClass({
+let SimpleList = createReactClass({
+    displayName: 'SimpleList',
 
     propTypes:{
         infiniteSliceCount  : React.PropTypes.number,
@@ -396,6 +399,7 @@ let SimpleList = React.createClass({
         this.setState({loaded:false, loading:true});
         this.indexedElements = null;
     },
+
     _loadedListener: function(){
         const currentLength = Math.max(this.state.elements.length, this.props.infiniteSliceCount);
         this.setState({
@@ -446,6 +450,7 @@ let SimpleList = React.createClass({
         this.props.node.observe("loading", this.wrappedLoading);
         this.props.node.observe("loaded", this.wrappedLoaded);
     },
+
     stopReloadListeners:function(){
         this.props.node.stopObserving("loading", this.wrappedLoading);
         this.props.node.stopObserving("loaded", this.wrappedLoaded);
@@ -1266,8 +1271,7 @@ let SimpleList = React.createClass({
                 </div>
             </div>
         );
-    }
-
+    },
 });
 
 export {SimpleList as default}

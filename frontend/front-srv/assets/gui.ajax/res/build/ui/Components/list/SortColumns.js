@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
@@ -40,29 +44,35 @@ var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
-var SortColumns = _react2["default"].createClass({
-    displayName: "SortColumns",
+var SortColumns = (function (_React$Component) {
+    _inherits(SortColumns, _React$Component);
 
-    propTypes: {
-        tableKeys: _react2["default"].PropTypes.object.isRequired,
-        columnClicked: _react2["default"].PropTypes.func,
-        sortingInfo: _react2["default"].PropTypes.object,
-        displayMode: _react2["default"].PropTypes.string
-    },
+    function SortColumns() {
+        _classCallCheck(this, SortColumns);
 
-    onMenuClicked: function onMenuClicked(object) {
+        _React$Component.apply(this, arguments);
+    }
+
+    // static propTypes = {
+    //     tableKeys           : React.PropTypes.object.isRequired,
+    //     columnClicked       : React.PropTypes.func,
+    //     sortingInfo         : React.PropTypes.object,
+    //     displayMode         : React.PropTypes.string
+    // };
+
+    SortColumns.prototype.onMenuClicked = function onMenuClicked(object) {
         this.props.columnClicked(object.payload);
-    },
+    };
 
-    onHeaderClick: function onHeaderClick(key, callback) {
+    SortColumns.prototype.onHeaderClick = function onHeaderClick(key, callback) {
         var data = this.props.tableKeys[key];
         if (data && data['sortType'] && this.props.columnClicked) {
             data['name'] = key;
             this.props.columnClicked(data, callback);
         }
-    },
+    };
 
-    getColumnsItems: function getColumnsItems(displayMode) {
+    SortColumns.prototype.getColumnsItems = function getColumnsItems(displayMode) {
         var _this = this;
 
         var controller = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -75,7 +85,9 @@ var SortColumns = _react2["default"].createClass({
         };
 
         var _loop = function (key) {
-            if (!_this.props.tableKeys.hasOwnProperty(key)) return "continue";
+            if (!_this.props.tableKeys.hasOwnProperty(key)) {
+                return "continue";
+            }
             var data = _this.props.tableKeys[key];
             var style = data['width'] ? { width: data['width'] } : null;
             var icon = undefined;
@@ -124,13 +136,13 @@ var SortColumns = _react2["default"].createClass({
             if (_ret === "continue") continue;
         }
         return items;
-    },
+    };
 
-    buildSortingMenuItems: function buildSortingMenuItems(controller) {
+    SortColumns.prototype.buildSortingMenuItems = function buildSortingMenuItems(controller) {
         return this.getColumnsItems('menu_data', controller);
-    },
+    };
 
-    componentDidMount: function componentDidMount() {
+    SortColumns.prototype.componentDidMount = function componentDidMount() {
 
         var sortAction = new Action({
             name: 'sort_action',
@@ -151,22 +163,26 @@ var SortColumns = _react2["default"].createClass({
             contextMenu: false,
             infoPanel: false
         }, {}, {}, {
-            dynamicBuilder: this.buildSortingMenuItems
+            dynamicBuilder: this.buildSortingMenuItems.bind(this)
         });
         var buttons = new Map();
         buttons.set('sort_action', sortAction);
         this.props.pydio.getController().updateGuiActions(buttons);
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    SortColumns.prototype.componentWillUnmount = function componentWillUnmount() {
         this.props.pydio.getController().deleteFromGuiActions('sort_action');
-    },
+    };
 
-    render: function render() {
+    SortColumns.prototype.render = function render() {
+        var _this2 = this;
+
         if (this.props.displayMode === 'hidden') {
             return null;
         } else if (this.props.displayMode === 'menu') {
-            return _react2["default"].createElement(_menuIconButtonMenu2["default"], { buttonTitle: "Sort by...", buttonClassName: "mdi mdi-sort-descending", menuItems: this.getColumnsItems('menu', this.props.pydio.getController()), onMenuClicked: this.onMenuClicked });
+            return _react2["default"].createElement(_menuIconButtonMenu2["default"], { buttonTitle: "Sort by...", buttonClassName: "mdi mdi-sort-descending", menuItems: this.getColumnsItems('menu', this.props.pydio.getController()), onMenuClicked: function (o) {
+                    return _this2.onMenuClicked(o);
+                } });
         } else {
             return _react2["default"].createElement(
                 "div",
@@ -174,8 +190,10 @@ var SortColumns = _react2["default"].createClass({
                 this.getColumnsItems('header', this.props.pydio.getController())
             );
         }
-    }
-});
+    };
+
+    return SortColumns;
+})(_react2["default"].Component);
 
 exports["default"] = SortColumns = PydioContextConsumer(SortColumns);
 exports["default"] = SortColumns;

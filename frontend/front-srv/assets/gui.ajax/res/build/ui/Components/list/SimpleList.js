@@ -30,6 +30,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -86,8 +90,9 @@ var PeriodicalExecuter = require('pydio/util/periodical-executer');
 /**
  * Generic List component, using Infinite for cell virtualization, pagination, various
  * displays, etc... It provides many hooks for rendering cells on-demand.
+ * It uses createReactClass old syntax
  */
-var SimpleList = _react2['default'].createClass({
+var SimpleList = _createReactClass2['default']({
     displayName: 'SimpleList',
 
     propTypes: {
@@ -447,6 +452,7 @@ var SimpleList = _react2['default'].createClass({
         this.setState({ loaded: false, loading: true });
         this.indexedElements = null;
     },
+
     _loadedListener: function _loadedListener() {
         var currentLength = Math.max(this.state.elements.length, this.props.infiniteSliceCount);
         this.setState({
@@ -501,6 +507,7 @@ var SimpleList = _react2['default'].createClass({
         this.props.node.observe("loading", this.wrappedLoading);
         this.props.node.observe("loaded", this.wrappedLoaded);
     },
+
     stopReloadListeners: function stopReloadListeners() {
         this.props.node.stopObserving("loading", this.wrappedLoading);
         this.props.node.stopObserving("loaded", this.wrappedLoaded);
@@ -1368,7 +1375,6 @@ var SimpleList = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = SimpleList;

@@ -17,14 +17,21 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _SimpleList = require('./SimpleList');
 
@@ -34,35 +41,36 @@ var _SimpleList2 = _interopRequireDefault(_SimpleList);
  * Simple to use list component encapsulated with its own query mechanism
  * using a set of properties for the remote node provider.
  */
-exports["default"] = React.createClass({
-    displayName: "NodeListCustomProvider",
 
-    propTypes: {
-        nodeProviderProperties: React.PropTypes.object,
-        presetDataModel: React.PropTypes.instanceOf(PydioDataModel),
-        autoRefresh: React.PropTypes.number,
-        actionBarGroups: React.PropTypes.array,
-        heightAutoWithMax: React.PropTypes.number,
-        elementHeight: React.PropTypes.number.isRequired,
-        nodeClicked: React.PropTypes.func,
-        reloadOnServerMessage: React.PropTypes.string,
-        entryRenderAsCard: React.PropTypes.func
-    },
+var NodeListCustomProvider = (function (_React$Component) {
+    _inherits(NodeListCustomProvider, _React$Component);
 
-    reload: function reload() {
+    // propTypes:{
+    //     nodeProviderProperties:React.PropTypes.object,
+    //     presetDataModel:React.PropTypes.instanceOf(PydioDataModel),
+    //     autoRefresh:React.PropTypes.number,
+    //     actionBarGroups:React.PropTypes.array,
+    //     heightAutoWithMax:React.PropTypes.number,
+    //     elementHeight:React.PropTypes.number.isRequired,
+    //     nodeClicked:React.PropTypes.func,
+    //     reloadOnServerMessage:React.PropTypes.string,
+    //     entryRenderAsCard:React.PropTypes.func
+    // },
+
+    NodeListCustomProvider.prototype.reload = function reload() {
         if (this.refs.list && this.isMounted()) {
             this.refs.list.reload();
         }
-    },
+    };
 
-    componentWillUnmount: function componentWillUnmount() {
+    NodeListCustomProvider.prototype.componentWillUnmount = function componentWillUnmount() {
         if (this._smObs) {
             this.props.pydio.stopObserving("server_message", this._smObs);
             this.props.pydio.stopObserving("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
-    },
+    };
 
-    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+    NodeListCustomProvider.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
         if (this.props.nodeProviderProperties && this.props.nodeProviderProperties !== nextProps.nodeProviderProperties) {
             var _state = this.state;
             var dataModel = _state.dataModel;
@@ -78,10 +86,12 @@ exports["default"] = React.createClass({
                 node: nextProps.presetDataModel.getRootNode()
             });
         }
-    },
+    };
 
-    getInitialState: function getInitialState() {
+    function NodeListCustomProvider(props) {
+        _classCallCheck(this, NodeListCustomProvider);
 
+        _React$Component.call(this, props);
         var dataModel = undefined;
         if (this.props.presetDataModel) {
             dataModel = this.props.presetDataModel;
@@ -111,16 +121,16 @@ exports["default"] = React.createClass({
             this.props.pydio.observe("server_message", this._smObs);
             this.props.pydio.observe("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
-        return { node: rootNode, dataModel: dataModel };
-    },
+        this.state = { node: rootNode, dataModel: dataModel };
+    }
 
-    render: function render() {
-        return React.createElement(
-            "div",
+    NodeListCustomProvider.prototype.render = function render() {
+        return _react2['default'].createElement(
+            'div',
             { className: this.props.heightAutoWithMax ? "" : "layout-fill vertical-layout", style: this.props.containerStyle },
-            React.createElement(_SimpleList2["default"], _extends({}, this.props, {
-                openEditor: this.openEditor,
-                ref: "list",
+            _react2['default'].createElement(_SimpleList2['default'], _extends({}, this.props, {
+                openEditor: this.props.openEditor,
+                ref: 'list',
                 style: Object.assign({ height: '100%' }, this.props.style || {}),
                 node: this.state.node,
                 dataModel: this.state.dataModel,
@@ -130,7 +140,10 @@ exports["default"] = React.createClass({
                 hideToolbar: true
             }))
         );
-    }
+    };
 
-});
-module.exports = exports["default"];
+    return NodeListCustomProvider;
+})(_react2['default'].Component);
+
+exports['default'] = NodeListCustomProvider;
+module.exports = exports['default'];

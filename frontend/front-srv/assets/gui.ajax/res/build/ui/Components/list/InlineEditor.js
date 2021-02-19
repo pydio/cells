@@ -18,11 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _pydio = require("pydio");
 
@@ -32,15 +36,11 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
@@ -49,26 +49,32 @@ var _require = require('material-ui');
 var Paper = _require.Paper;
 var FlatButton = _require.FlatButton;
 
-var _Pydio$requireLib2 = _pydio2['default'].requireLib("hoc");
+var _Pydio$requireLib2 = _pydio2["default"].requireLib("hoc");
 
 var ModernTextField = _Pydio$requireLib2.ModernTextField;
 
-var InlineEditor = _react2['default'].createClass({
-    displayName: 'InlineEditor',
+var InlineEditor = (function (_React$Component) {
+    _inherits(InlineEditor, _React$Component);
 
-    propTypes: {
-        node: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']),
-        callback: _react2['default'].PropTypes.func,
-        onClose: _react2['default'].PropTypes.func,
-        detached: _react2['default'].PropTypes.bool
-    },
+    function InlineEditor() {
+        _classCallCheck(this, InlineEditor);
 
-    submit: function submit() {
+        _React$Component.apply(this, arguments);
+    }
+
+    // static propTypes = {
+    //     node        : React.PropTypes.instanceOf(AjxpNode),
+    //     callback    : React.PropTypes.func,
+    //     onClose     : React.PropTypes.func,
+    //     detached    : React.PropTypes.bool
+    // };
+
+    InlineEditor.prototype.submit = function submit() {
         var value = undefined;
         if (this.state && this.state.value) {
             value = this.state.value;
         }
-        var messages = _pydio2['default'].getMessages();
+        var messages = _pydio2["default"].getMessages();
         if (!value || value === this.props.node.getLabel()) {
             this.setState({
                 errorString: messages['rename.newvalue.error.similar']
@@ -81,57 +87,64 @@ var InlineEditor = _react2['default'].createClass({
             this.props.callback(value);
             this.props.onClose();
         }
-    },
+    };
 
-    componentDidMount: function componentDidMount() {
+    InlineEditor.prototype.componentDidMount = function componentDidMount() {
         if (this.refs.text) {
-            _pydioUtilDom2['default'].selectBaseFileName(this.refs.text.getInput());
+            _pydioUtilDom2["default"].selectBaseFileName(this.refs.text.getInput());
             this.refs.text.focus();
         }
-    },
+    };
 
-    catchClicks: function catchClicks(e) {
+    InlineEditor.prototype.catchClicks = function catchClicks(e) {
         e.stopPropagation();
-    },
+    };
 
-    onKeyDown: function onKeyDown(e) {
+    InlineEditor.prototype.onKeyDown = function onKeyDown(e) {
         e.stopPropagation();
         if (e.key === 'Enter') {
             this.submit();
         } else {
             this.setState({ errorString: '' });
         }
-    },
+    };
 
-    render: function render() {
+    InlineEditor.prototype.render = function render() {
         var _this = this;
 
-        var messages = _pydio2['default'].getMessages();
-        return _react2['default'].createElement(
+        var messages = _pydio2["default"].getMessages();
+        return _react2["default"].createElement(
             Paper,
             { className: "inline-editor" + (this.props.detached ? " detached" : ""), style: { padding: 8 }, zDepth: 2 },
-            _react2['default'].createElement(ModernTextField, {
-                ref: 'text',
+            _react2["default"].createElement(ModernTextField, {
+                ref: "text",
                 defaultValue: this.props.node.getLabel(),
                 onChange: function (e, value) {
                     _this.setState({ value: value });
                 },
-                onClick: this['catch'], onDoubleClick: this.catchClicks,
-                tabIndex: '0', onKeyDown: this.onKeyDown,
+                onClick: this["catch"], onDoubleClick: function (e) {
+                    return _this.catchClicks(e);
+                },
+                tabIndex: "0", onKeyDown: function (e) {
+                    return _this.onKeyDown(e);
+                },
                 errorText: this.state ? this.state.errorString : null
             }),
-            _react2['default'].createElement(
-                'div',
+            _react2["default"].createElement(
+                "div",
                 { style: { textAlign: 'right', paddingTop: 8 } },
-                _react2['default'].createElement(FlatButton, { label: messages['54'], onClick: this.props.onClose }),
-                _react2['default'].createElement(FlatButton, { label: messages['48'], onClick: this.submit })
+                _react2["default"].createElement(FlatButton, { label: messages['54'], onClick: this.props.onClose }),
+                _react2["default"].createElement(FlatButton, { label: messages['48'], onClick: function () {
+                        return _this.submit();
+                    } })
             )
         );
-    }
+    };
 
-});
+    return InlineEditor;
+})(_react2["default"].Component);
 
-exports['default'] = InlineEditor = PydioContextConsumer(InlineEditor);
+exports["default"] = InlineEditor = PydioContextConsumer(InlineEditor);
 
-exports['default'] = InlineEditor;
-module.exports = exports['default'];
+exports["default"] = InlineEditor;
+module.exports = exports["default"];

@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -60,25 +64,33 @@ var sortableItemTarget = {
 
 };
 
-var sortableItem = _react2['default'].createClass({
-    displayName: 'sortableItem',
+var sortableItem = (function (_React$Component) {
+    _inherits(sortableItem, _React$Component);
 
-    propTypes: {
-        connectDragSource: _react2['default'].PropTypes.func.isRequired,
-        connectDropTarget: _react2['default'].PropTypes.func.isRequired,
-        isDragging: _react2['default'].PropTypes.bool.isRequired,
-        id: _react2['default'].PropTypes.any.isRequired,
-        label: _react2['default'].PropTypes.string.isRequired,
-        switchItems: _react2['default'].PropTypes.func.isRequired,
-        removable: _react2['default'].PropTypes.bool,
-        onRemove: _react2['default'].PropTypes.func
-    },
+    function sortableItem() {
+        _classCallCheck(this, sortableItem);
 
-    removeClicked: function removeClicked() {
+        _React$Component.apply(this, arguments);
+    }
+
+    // static propTypes = {
+    //     connectDragSource: React.PropTypes.func.isRequired,
+    //     connectDropTarget: React.PropTypes.func.isRequired,
+    //     isDragging: React.PropTypes.bool.isRequired,
+    //     id: React.PropTypes.any.isRequired,
+    //     label: React.PropTypes.string.isRequired,
+    //     switchItems: React.PropTypes.func.isRequired,
+    //     removable: React.PropTypes.bool,
+    //     onRemove:React.PropTypes.func
+    // };
+
+    sortableItem.prototype.removeClicked = function removeClicked() {
         this.props.onRemove(this.props.id);
-    },
+    };
 
-    render: function render() {
+    sortableItem.prototype.render = function render() {
+        var _this = this;
+
         // Your component receives its own props as usual
         var id = this.props.id;
 
@@ -90,7 +102,9 @@ var sortableItem = _react2['default'].createClass({
 
         var remove;
         if (this.props.removable) {
-            remove = _react2['default'].createElement('span', { className: 'button mdi mdi-close', onClick: this.removeClicked });
+            remove = _react2['default'].createElement('span', { className: 'button mdi mdi-close', onClick: function (e) {
+                    return _this.removeClicked(e);
+                } });
         }
         return _react2['default'].createElement(
             _materialUi.Paper,
@@ -109,16 +123,32 @@ var sortableItem = _react2['default'].createClass({
                 remove
             )
         );
+    };
+
+    return sortableItem;
+})(_react2['default'].Component);
+
+var NonDraggableListItem = (function (_React$Component2) {
+    _inherits(NonDraggableListItem, _React$Component2);
+
+    function NonDraggableListItem() {
+        _classCallCheck(this, NonDraggableListItem);
+
+        _React$Component2.apply(this, arguments);
     }
-});
 
-var NonDraggableListItem = _react2['default'].createClass({
-    displayName: 'NonDraggableListItem',
+    NonDraggableListItem.prototype.removeClicked = function removeClicked() {
+        this.props.onRemove(this.props.id);
+    };
 
-    render: function render() {
+    NonDraggableListItem.prototype.render = function render() {
+        var _this2 = this;
+
         var remove;
         if (this.props.removable) {
-            remove = _react2['default'].createElement('span', { className: 'button mdi mdi-close', onClick: this.removeClicked });
+            remove = _react2['default'].createElement('span', { className: 'button mdi mdi-close', onClick: function (e) {
+                    return _this2.removeClicked(e);
+                } });
         }
         return _react2['default'].createElement(
             _materialUi.Paper,
@@ -130,8 +160,10 @@ var NonDraggableListItem = _react2['default'].createClass({
                 remove
             )
         );
-    }
-});
+    };
+
+    return NonDraggableListItem;
+})(_react2['default'].Component);
 
 var DraggableListItem;
 if (window.ReactDND) {
@@ -140,34 +172,38 @@ if (window.ReactDND) {
     DraggableListItem = NonDraggableListItem;
 }
 
-var SortableList = _react2['default'].createClass({
-    displayName: 'SortableList',
+var SortableList = (function (_React$Component3) {
+    _inherits(SortableList, _React$Component3);
 
-    propTypes: {
-        values: _react2['default'].PropTypes.array.isRequired,
-        onOrderUpdated: _react2['default'].PropTypes.func,
-        removable: _react2['default'].PropTypes.bool,
-        onRemove: _react2['default'].PropTypes.func,
-        className: _react2['default'].PropTypes.string,
-        itemClassName: _react2['default'].PropTypes.string
-    },
+    // static propTypes = {
+    //     values: React.PropTypes.array.isRequired,
+    //     onOrderUpdated: React.PropTypes.func,
+    //     removable: React.PropTypes.bool,
+    //     onRemove:React.PropTypes.func,
+    //     className:React.PropTypes.string,
+    //     itemClassName:React.PropTypes.string
+    // };
 
-    getInitialState: function getInitialState() {
-        return { values: this.props.values };
-    },
-    componentWillReceiveProps: function componentWillReceiveProps(props) {
+    function SortableList(props) {
+        _classCallCheck(this, SortableList);
+
+        _React$Component3.call(this, props);
+        this.state = { values: this.props.values };
+    }
+
+    SortableList.prototype.componentWillReceiveProps = function componentWillReceiveProps(props) {
         this.setState({ values: props.values, switchData: null });
-    },
+    };
 
-    findItemIndex: function findItemIndex(itemId, data) {
+    SortableList.prototype.findItemIndex = function findItemIndex(itemId, data) {
         for (var i = 0; i < data.length; i++) {
-            if (data[i]['payload'] == itemId) {
+            if (data[i]['payload'] === itemId) {
                 return i;
             }
         }
-    },
+    };
 
-    switchItems: function switchItems(oldId, newId) {
+    SortableList.prototype.switchItems = function switchItems(oldId, newId) {
         var oldIndex = this.findItemIndex(oldId, this.state.values);
         var oldItem = this.state.values[oldIndex];
         var newIndex = this.findItemIndex(newId, this.state.values);
@@ -180,16 +216,14 @@ var SortableList = _react2['default'].createClass({
         // Check that it did not come back to original state
         var oldPrevious = this.findItemIndex(oldId, this.props.values);
         var newPrevious = this.findItemIndex(newId, this.props.values);
-        if (oldPrevious == newIndex && newPrevious == oldIndex) {
+        if (oldPrevious === newIndex && newPrevious === oldIndex) {
             this.setState({ values: currentValues, switchData: null });
-            //console.log("no more moves");
         } else {
-                this.setState({ values: currentValues, switchData: { oldId: oldId, newId: newId } });
-                //console.log({oldId:oldIndex, newId:newIndex});
-            }
-    },
+            this.setState({ values: currentValues, switchData: { oldId: oldId, newId: newId } });
+        }
+    };
 
-    endSwitching: function endSwitching() {
+    SortableList.prototype.endSwitching = function endSwitching() {
         if (this.state.switchData) {
             // Check that it did not come back to original state
             if (this.props.onOrderUpdated) {
@@ -197,10 +231,9 @@ var SortableList = _react2['default'].createClass({
             }
         }
         this.setState({ switchData: null });
-    },
+    };
 
-    render: function render() {
-        var switchItems = this.switchItems;
+    SortableList.prototype.render = function render() {
         return _react2['default'].createElement(
             'div',
             { className: this.props.className },
@@ -209,16 +242,18 @@ var SortableList = _react2['default'].createClass({
                     id: item.payload,
                     key: item.payload,
                     label: item.text,
-                    switchItems: switchItems,
-                    endSwitching: this.endSwitching,
+                    switchItems: this.switchItems.bind(this),
+                    endSwitching: this.endSwitching.bind(this),
                     removable: this.props.removable,
                     onRemove: this.props.onRemove,
                     className: this.props.itemClassName
                 });
             }).bind(this))
         );
-    }
-});
+    };
+
+    return SortableList;
+})(_react2['default'].Component);
 
 exports['default'] = SortableList;
 module.exports = exports['default'];

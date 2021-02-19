@@ -25,28 +25,27 @@ const {PydioContextConsumer} = Pydio.requireLib('boot');
 import IconButtonMenu from '../menu/IconButtonMenu'
 
 
-let SortColumns = React.createClass({
+class SortColumns extends React.Component {
+    // static propTypes = {
+    //     tableKeys           : React.PropTypes.object.isRequired,
+    //     columnClicked       : React.PropTypes.func,
+    //     sortingInfo         : React.PropTypes.object,
+    //     displayMode         : React.PropTypes.string
+    // };
 
-    propTypes:{
-        tableKeys           : React.PropTypes.object.isRequired,
-        columnClicked       : React.PropTypes.func,
-        sortingInfo         : React.PropTypes.object,
-        displayMode         : React.PropTypes.string
-    },
-
-    onMenuClicked: function(object){
+    onMenuClicked(object){
         this.props.columnClicked(object.payload);
-    },
+    }
 
-    onHeaderClick: function(key, callback){
+    onHeaderClick(key, callback){
         let data = this.props.tableKeys[key];
         if(data && data['sortType'] && this.props.columnClicked){
             data['name'] = key;
             this.props.columnClicked(data, callback);
         }
-    },
+    }
 
-    getColumnsItems: function(displayMode, controller = null){
+    getColumnsItems(displayMode, controller = null){
 
         let items = [];
         const callback = () => {
@@ -56,7 +55,9 @@ let SortColumns = React.createClass({
         };
 
         for(let key in this.props.tableKeys){
-            if(!this.props.tableKeys.hasOwnProperty(key)) continue;
+            if(!this.props.tableKeys.hasOwnProperty(key)) {
+                continue;
+            }
             let data = this.props.tableKeys[key];
             let style = data['width']?{width:data['width']}:null;
             let icon;
@@ -95,13 +96,13 @@ let SortColumns = React.createClass({
         }
         return items;
 
-    },
+    }
 
-    buildSortingMenuItems: function(controller){
+    buildSortingMenuItems(controller){
         return this.getColumnsItems('menu_data', controller);
-    },
+    }
 
-    componentDidMount: function(){
+    componentDidMount() {
 
         const sortAction = new Action({
             name:'sort_action',
@@ -122,24 +123,24 @@ let SortColumns = React.createClass({
             contextMenu:false,
             infoPanel:false
         }, {}, {}, {
-            dynamicBuilder:this.buildSortingMenuItems
+            dynamicBuilder:this.buildSortingMenuItems.bind(this)
         });
         let buttons = new Map();
         buttons.set('sort_action', sortAction);
         this.props.pydio.getController().updateGuiActions(buttons);
 
-    },
+    }
 
-    componentWillUnmount: function(){
+    componentWillUnmount() {
         this.props.pydio.getController().deleteFromGuiActions('sort_action');
-    },
+    }
 
-    render: function(){
+    render() {
         if(this.props.displayMode === 'hidden'){
             return null;
         } else if(this.props.displayMode === 'menu'){
             return (
-                <IconButtonMenu buttonTitle="Sort by..." buttonClassName="mdi mdi-sort-descending" menuItems={this.getColumnsItems('menu', this.props.pydio.getController())} onMenuClicked={this.onMenuClicked}/>
+                <IconButtonMenu buttonTitle="Sort by..." buttonClassName="mdi mdi-sort-descending" menuItems={this.getColumnsItems('menu', this.props.pydio.getController())} onMenuClicked={(o) => this.onMenuClicked(o)}/>
             );
         }else{
             return (
@@ -148,7 +149,7 @@ let SortColumns = React.createClass({
         }
 
     }
-});
+}
 
 SortColumns = PydioContextConsumer(SortColumns);
 export {SortColumns as default}
