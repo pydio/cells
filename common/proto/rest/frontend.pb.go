@@ -540,7 +540,7 @@ func (m *FrontEnrollAuthResponse) GetInfo() map[string]string {
 	return nil
 }
 
-// Donwload binary
+// Download binary
 type FrontBinaryRequest struct {
 	// Currently supported values are USER and GLOBAL
 	BinaryType string `protobuf:"bytes,1,opt,name=BinaryType" json:"BinaryType,omitempty"`

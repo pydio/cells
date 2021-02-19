@@ -6365,7 +6365,7 @@ var SwaggerJson = `{
           "title": "Id of the binary"
         }
       },
-      "title": "Donwload binary"
+      "title": "Download binary"
     },
     "restFrontBinaryResponse": {
       "type": "object",
