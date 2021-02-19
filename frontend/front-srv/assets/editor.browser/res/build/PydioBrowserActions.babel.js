@@ -33,6 +33,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
@@ -66,8 +70,7 @@ var Callbacks = (function () {
     return Callbacks;
 })();
 
-var CreateLinkDialog = _react2['default'].createClass({
-    displayName: 'CreateLinkDialog',
+var CreateLinkDialog = (0, _createReactClass2['default'])({
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 

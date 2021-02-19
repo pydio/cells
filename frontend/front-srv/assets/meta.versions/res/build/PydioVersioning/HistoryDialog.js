@@ -33,6 +33,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _HistoryApi = require('./HistoryApi');
 
 var _HistoryApi2 = _interopRequireDefault(_HistoryApi);
@@ -86,8 +90,7 @@ var Paragraph = function Paragraph(_ref2) {
     );
 };
 
-var HistoryBrowser = _react2['default'].createClass({
-    displayName: 'HistoryBrowser',
+var HistoryBrowser = (0, _createReactClass2['default'])({
 
     propTypes: {
         node: _react2['default'].PropTypes.instanceOf(Node).isRequired,
@@ -226,8 +229,7 @@ if (window.ReactDND) {
     HistoryBrowser = window.ReactDND.DragDropContext(FakeDndBackend)(HistoryBrowser);
 }
 
-var HistoryDialog = _react2['default'].createClass({
-    displayName: 'HistoryDialog',
+var HistoryDialog = (0, _createReactClass2['default'])({
 
     mixins: [PydioReactUi.ActionDialogMixin, PydioReactUi.SubmitButtonProviderMixin],
 

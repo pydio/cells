@@ -1,5 +1,6 @@
 const {Textfit} = require('react-textfit');
 import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class'
 import Pydio from 'pydio'
 const Color = require('color');
 import {muiThemeable} from 'material-ui/styles';
@@ -143,7 +144,7 @@ class Copyright extends React.Component {
     }
 }
 
-let StandardLayout = React.createClass({
+let StandardLayout = createReactClass({
 
     childContextTypes: {
         messages:PropTypes.object,

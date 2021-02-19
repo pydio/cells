@@ -19,6 +19,7 @@
  */
 import Pydio from 'pydio'
 import React from 'react'
+import createReactClass from 'create-react-class'
 import HistoryApi from './HistoryApi'
 import PathUtils from 'pydio/util/path'
 import ReactMarkdown from 'react-markdown';
@@ -46,7 +47,7 @@ const UserLinkWrapper = ({href, children}) => {
 const Paragraph = ({children}) => <span>{children}</span>;
 
 
-let HistoryBrowser = React.createClass({
+let HistoryBrowser = createReactClass({
 
     propTypes: {
         node: React.PropTypes.instanceOf(Node).isRequired,
@@ -169,7 +170,7 @@ if(window.ReactDND){
     HistoryBrowser = window.ReactDND.DragDropContext(FakeDndBackend)(HistoryBrowser);
 }
 
-const HistoryDialog = React.createClass({
+const HistoryDialog = createReactClass({
 
     mixins:[
         PydioReactUi.ActionDialogMixin,

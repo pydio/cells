@@ -16,6 +16,10 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -262,8 +266,7 @@ var Copyright = (function (_React$Component2) {
     return Copyright;
 })(React.Component);
 
-var StandardLayout = React.createClass({
-    displayName: 'StandardLayout',
+var StandardLayout = (0, _createReactClass2['default'])({
 
     childContextTypes: {
         messages: _propTypes2['default'].object,

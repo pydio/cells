@@ -19,6 +19,7 @@
  */
 import Pydio from 'pydio'
 import React from "react";
+import createReactClass from 'create-react-class'
 const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
 const PydioApi = require('pydio/http/api');
@@ -32,7 +33,7 @@ class Callbacks{
     }
 }
 
-const CreateLinkDialog = React.createClass({
+const CreateLinkDialog = createReactClass({
 
     mixins:[
         ActionDialogMixin,
