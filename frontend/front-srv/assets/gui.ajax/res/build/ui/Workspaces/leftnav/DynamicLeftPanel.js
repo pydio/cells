@@ -24,21 +24,21 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _wslistWorkspacesList = require('../wslist/WorkspacesList');
+var _react = require('react');
 
-var _wslistWorkspacesList2 = _interopRequireDefault(_wslistWorkspacesList);
+var _react2 = _interopRequireDefault(_react);
 
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'DynamicLeftPanel',
 
     propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-        pydioId: React.PropTypes.string.isRequired
+        pydio: _react2['default'].PropTypes.instanceOf(Pydio).isRequired,
+        pydioId: _react2['default'].PropTypes.string.isRequired
     },
 
     childContextTypes: {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func
+        messages: _react2['default'].PropTypes.object,
+        getMessage: _react2['default'].PropTypes.func
     },
 
     getChildContext: function getChildContext() {
@@ -177,8 +177,8 @@ exports['default'] = React.createClass({
 
     render: function render() {
         var additional = this.state.additionalContents.map((function (paneData) {
-            if (paneData.type == 'ListProvider') {
-                return React.createElement(PydioComponents.CollapsableListProvider, {
+            if (paneData.type === 'ListProvider') {
+                return _react2['default'].createElement(PydioComponents.CollapsableListProvider, {
                     pydio: this.props.pydio,
                     paneData: paneData,
                     nodeClicked: this.listNodeClicked,
@@ -191,23 +191,23 @@ exports['default'] = React.createClass({
 
         var badge = undefined;
         if (this.state.blinkingBell) {
-            badge = React.createElement('span', { className: "badge-icon icon-bell-alt" });
+            badge = _react2['default'].createElement('span', { className: "badge-icon icon-bell-alt" });
         }
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'span',
             null,
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { id: 'repo_chooser', onClick: this.openNavigation, onMouseOver: this.openNavigation, className: this.state.statusOpen ? "open" : "" },
-                React.createElement('span', { className: 'icon-reorder' }),
+                _react2['default'].createElement('span', { className: 'icon-reorder' }),
                 badge
             ),
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { className: "left-panel" + (this.state.statusOpen ? '' : ' hidden'), onMouseOver: this.closeMouseover, onMouseOut: this.closeMouseout },
                 additional,
-                React.createElement(UserWorkspacesList, {
+                _react2['default'].createElement(UserWorkspacesList, {
                     pydio: this.props.pydio,
                     workspaces: this.state.workspaces
                 })

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import WorkspaceList from '../wslist/WorkspacesList'
+import React from 'react'
 
 export default React.createClass({
 
@@ -165,7 +165,7 @@ export default React.createClass({
 
     render:function(){
         const additional = this.state.additionalContents.map(function(paneData){
-            if(paneData.type == 'ListProvider'){
+            if(paneData.type === 'ListProvider'){
                 return (
                     <PydioComponents.CollapsableListProvider
                         pydio={this.props.pydio}

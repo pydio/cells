@@ -18,73 +18,84 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+
+import Node from 'pydio/model/node'
+import PydioDataModel from 'pydio/model/data-model'
+import RemoteNodeProvider from "pydio/model/remote-node-provider";
+
 import NodeListCustomProvider from './NodeListCustomProvider'
 import DataModelBadge from '../elements/DataModelBadge'
 
-export default React.createClass({
+export default class CollapsableListProvider extends React.Component{
 
-    propTypes:{
-        paneData:React.PropTypes.object,
-        pydio:React.PropTypes.instanceOf(Pydio),
-        nodeClicked:React.PropTypes.func,
-        startOpen:React.PropTypes.bool,
-        onBadgeIncrease: React.PropTypes.func,
-        onBadgeChange: React.PropTypes.func
-    },
+    // propTypes:{
+    //     paneData:React.PropTypes.object,
+    //     pydio:React.PropTypes.instanceOf(Pydio),
+    //     nodeClicked:React.PropTypes.func,
+    //     startOpen:React.PropTypes.bool,
+    //     onBadgeIncrease: React.PropTypes.func,
+    //     onBadgeChange: React.PropTypes.func
+    // },
 
-    getInitialState:function(){
-
-        var dataModel = new PydioDataModel(true);
-        var rNodeProvider = new RemoteNodeProvider();
+    constructor(props){
+        super(props);
+        const dataModel = new PydioDataModel(true);
+        const rNodeProvider = new RemoteNodeProvider();
         dataModel.setAjxpNodeProvider(rNodeProvider);
         rNodeProvider.initProvider(this.props.paneData.options['nodeProviderProperties']);
-        var rootNode = new AjxpNode("/", false, "loading", "folder.png", rNodeProvider);
+        const rootNode = new Node("/", false, "loading", "folder.png", rNodeProvider);
         dataModel.setRootNode(rootNode);
 
-        return {
+        this.state = {
             open:false,
             componentLaunched:!!this.props.paneData.options['startOpen'],
             dataModel:dataModel
         };
-    },
 
-    toggleOpen:function(){
+    }
+
+    toggleOpen(){
         this.setState({open:!this.state.open, componentLaunched:true});
-    },
+    }
 
-    onBadgeIncrease: function(newValue, prevValue, memoData){
+    onBadgeIncrease(newValue, prevValue, memoData){
         if(this.props.onBadgeIncrease){
             this.props.onBadgeIncrease(this.props.paneData, newValue, prevValue, memoData);
-            if(!this.state.open) this.toggleOpen();
+            if(!this.state.open) {
+                this.toggleOpen();
+            }
         }
-    },
+    }
 
     onBadgeChange(newValue, prevValue, memoData){
         if(this.props.onBadgeChange){
             this.props.onBadgeChange(this.props.paneData, newValue, prevValue, memoData);
-            if(!this.state.open) this.toggleOpen();
+            if(!this.state.open) {
+                this.toggleOpen();
+            }
         }
-    },
+    }
 
-    render:function(){
+    render(){
 
-        var messages = this.props.pydio.MessageHash;
-        var paneData = this.props.paneData;
+        const messages = this.props.pydio.MessageHash;
+        const {paneData} = this.props;
 
         const title = messages[paneData.options.title] || paneData.options.title;
         const className = 'simple-provider ' + (paneData.options['className'] ? paneData.options['className'] : '');
         const titleClassName = 'section-title ' + (paneData.options['titleClassName'] ? paneData.options['titleClassName'] : '');
 
-        var badge;
+        let badge;
         if(paneData.options.dataModelBadge){
             badge = <DataModelBadge
                 dataModel={this.state.dataModel}
                 options={paneData.options.dataModelBadge}
-                onBadgeIncrease={this.onBadgeIncrease}
-                onBadgeChange={this.onBadgeChange}
+                onBadgeIncrease={this.onBadgeIncrease.bind(this)}
+                onBadgeChange={this.onBadgeChange.bind(this)}
             />;
         }
-        var emptyMessage;
+        let emptyMessage;
         if(paneData.options.emptyChildrenMessage){
             emptyMessage = <DataModelBadge
                 dataModel={this.state.dataModel}
@@ -96,12 +107,12 @@ export default React.createClass({
             />
         }
 
-        var component;
+        let component;
         if(this.state.componentLaunched){
-            var entryRenderFirstLine;
+            let entryRenderFirstLine;
             if(paneData.options['tipAttribute']){
                 entryRenderFirstLine = function(node){
-                    var meta = node.getMetadata().get(paneData.options['tipAttribute']);
+                    const meta = node.getMetadata().get(paneData.options['tipAttribute']);
                     if(meta){
                         return <div title={meta.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?(\/)?>|<\/\w+>/gi, '')}>{node.getLabel()}</div>;
                     }else{
@@ -128,7 +139,7 @@ export default React.createClass({
         return (
             <div className={className + (this.state.open?" open": " closed")}>
                 <div className={titleClassName}>
-                    <span className="toggle-button" onClick={this.toggleOpen}>{this.state.open?messages[514]:messages[513]}</span>
+                    <span className="toggle-button" onClick={this.toggleOpen.bind(this)}>{this.state.open?messages[514]:messages[513]}</span>
                     {title} {badge}
                 </div>
                 {component}
@@ -138,5 +149,4 @@ export default React.createClass({
 
     }
 
-});
-
+}
