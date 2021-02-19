@@ -698,7 +698,7 @@ class UserMetaPanel extends React.Component{
         });
         const mess = this.props.pydio.MessageHash;
         if(!this.props.editMode && !nonEmptyDataCount){
-            return <div><div style={{color: 'rgba(0,0,0,0.23)', paddingBottom:10}} onTouchTap={this.props.onRequestEditMode}>{mess['meta.user.11']}</div>{data}</div>
+            return <div><div style={{color: 'rgba(0,0,0,0.23)', paddingBottom:10}} onClick={this.props.onRequestEditMode}>{mess['meta.user.11']}</div>{data}</div>
         }else{
             let legend;
             if(this.props.multiple){

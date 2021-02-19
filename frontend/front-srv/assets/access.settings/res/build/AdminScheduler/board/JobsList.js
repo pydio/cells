@@ -295,7 +295,7 @@ var JobsList = (function (_React$Component) {
 
             var actions = [{
                 iconClassName: 'mdi mdi-chevron-right',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     return selectRows([row]);
                 }
             }];

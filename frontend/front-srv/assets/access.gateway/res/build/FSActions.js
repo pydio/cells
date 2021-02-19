@@ -1217,7 +1217,7 @@ var CrossWsContent = (function (_React$Component) {
             var items = [];
 
             items.push(React.createElement(ListItem, {
-                onTouchTap: function () {
+                onClick: function () {
                     _this3.share();
                 },
                 primaryText: source.isLeaf() ? m('file.share') : m('folder.share'),
@@ -1232,7 +1232,7 @@ var CrossWsContent = (function (_React$Component) {
                     secondary += "/" + root.getLabel();
                 }
                 items.push(React.createElement(ListItem, {
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this3.move(root);
                     },
                     primaryText: title,
@@ -1274,7 +1274,7 @@ var CrossWsDropDialog = (0, _createReactClass2['default'])({
             label: mess['49'],
             primary: true,
             keyboardFocused: true,
-            onTouchTap: this.props.onDismiss
+            onClick: this.props.onDismiss
         }));
         return actions;
     },
@@ -1370,13 +1370,13 @@ var OtherEditorPickerDialog = (0, _createReactClass2['default'])({
             key: 'clear',
             label: MessageHash['openother.5'],
             primary: false,
-            onTouchTap: this.clearAssociations
+            onClick: this.clearAssociations
         }));
         actions.push(React.createElement(FlatButton, {
             label: mess['49'],
             primary: true,
             keyboardFocused: true,
-            onTouchTap: this.props.onDismiss
+            onClick: this.props.onDismiss
         }));
         return actions;
     },
@@ -1460,7 +1460,7 @@ var OtherEditorPickerDialog = (0, _createReactClass2['default'])({
         //let items = [];
         var items = this.findActiveEditors('*').map(function (e) {
             var icon = React.createElement(FontIcon, { className: e.icon_class });
-            return React.createElement(ListItem, { onTouchTap: _this2.selectEditor.bind(_this2, e), primaryText: e.text, secondaryText: e.title, leftIcon: icon });
+            return React.createElement(ListItem, { onClick: _this2.selectEditor.bind(_this2, e), primaryText: e.text, secondaryText: e.title, leftIcon: icon });
         });
         return React.createElement(
             List,
@@ -1728,10 +1728,10 @@ var TreeDialog = (0, _createReactClass2['default'])({
                     }
                 },
                 _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: this.props.pydio.MessageHash[173], ref: 'newfolder_input', style: { flex: 1 } }),
-                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-check', iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[48], onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-check', iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[48], onClick: function () {
                         _this2.createNewFolder();
                     } }),
-                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-close', iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[49], onTouchTap: openNewFolderForm })
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-close', iconStyle: { color: '#546E7A' }, tooltip: this.props.pydio.MessageHash[49], onClick: openNewFolderForm })
             ),
             _react2['default'].createElement(
                 'div',
@@ -1750,7 +1750,7 @@ var TreeDialog = (0, _createReactClass2['default'])({
                     iconStyle: { color: '#546E7A', fontSize: 24 },
                     tooltip: this.props.pydio.MessageHash[154],
                     tooltipPosition: "top-left",
-                    onTouchTap: openNewFolderForm
+                    onClick: openNewFolderForm
                 })
             )
         );
@@ -1846,7 +1846,7 @@ var TopBar = (function (_React$Component) {
                     { style: { flex: 1 } },
                     tabs
                 ),
-                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.tabs.selectedTextColor }, iconClassName: "mdi mdi-close", onTouchTap: dismiss, tooltip: "Close" })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.tabs.selectedTextColor }, iconClassName: "mdi mdi-close", onClick: dismiss, tooltip: "Close" })
             );
         }
     }]);

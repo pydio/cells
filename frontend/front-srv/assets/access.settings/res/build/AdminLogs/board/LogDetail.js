@@ -279,8 +279,8 @@ var LogDetail = (function (_React$Component2) {
                         'div',
                         { style: styles.buttons },
                         _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: copySuccess ? 'mdi mdi-check' : 'mdi mdi-content-copy', tooltip: 'Copy log to clipboard', tooltipPosition: "bottom-left", ref: "copy-button" }),
-                        onSelectPeriod && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: _extends({}, styles.buttonIcon, { color: focus ? '#ff5722' : null }), iconClassName: "mdi mdi-clock", onTouchTap: focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this), tooltip: "Show +/- 5 minutes", tooltipPosition: "bottom-left" }),
-                        _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: "mdi mdi-close", onTouchTap: function () {
+                        onSelectPeriod && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: _extends({}, styles.buttonIcon, { color: focus ? '#ff5722' : null }), iconClassName: "mdi mdi-clock", onClick: focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this), tooltip: "Show +/- 5 minutes", tooltipPosition: "bottom-left" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: "mdi mdi-close", onClick: function () {
                                 _this2.unfocusPeriod();onRequestClose();
                             }, tooltip: "Close log detail", tooltipPosition: "bottom-left" })
                     ),

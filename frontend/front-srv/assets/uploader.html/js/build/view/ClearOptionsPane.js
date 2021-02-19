@@ -78,13 +78,13 @@ var ClearOptionsPane = function (_React$Component) {
                         { style: { lineHeight: '26px' } },
                         msg['html_uploader.clear-header']
                     ),
-                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-finished'], onTouchTap: function onTouchTap() {
+                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-finished'], onClick: function onClick() {
                             _this2.clear('loaded');
                         } }),
-                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-failed'], onTouchTap: function onTouchTap() {
+                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-failed'], onClick: function onClick() {
                             _this2.clear('error');
                         } }),
-                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-all'], onTouchTap: function onTouchTap() {
+                    _react2.default.createElement(_materialUi.MenuItem, { primaryText: msg['html_uploader.clear-all'], onClick: function onClick() {
                             _this2.clear('all');
                         } })
                 )

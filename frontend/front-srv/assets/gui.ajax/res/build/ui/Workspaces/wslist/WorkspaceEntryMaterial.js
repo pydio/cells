@@ -93,7 +93,7 @@ var WorkspaceEntryMaterial = (function (_React$Component) {
             leftIcon: leftIcon,
             primaryText: workspace.getLabel(),
             secondaryText: workspace.getDescription(),
-            onTouchTap: this.onClick.bind(this)
+            onClick: this.onClick.bind(this)
         });
     };
 

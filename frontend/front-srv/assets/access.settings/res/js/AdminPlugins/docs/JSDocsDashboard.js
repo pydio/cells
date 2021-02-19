@@ -83,7 +83,7 @@ class JSDocsPanel extends Component{
                 <ListItem
                     key={key}
                     primaryText={title}
-                    onTouchTap={() => {this.setState({selection:key})}}
+                    onClick={() => {this.setState({selection:key})}}
                 />
             );
         });

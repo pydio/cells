@@ -420,11 +420,11 @@ class DataSourcesBoard extends React.Component {
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
         if(accessByName('CreateDatasource')){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)} {...adminStyles.props.header.flatButton}/>)
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onClick={this.createDataSource.bind(this)} {...adminStyles.props.header.flatButton}/>)
         }
         const versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
         if(versioningEditable){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onClick={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
         const policiesColumns = [
             {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}, sorter:{type:'string', default:true}},
@@ -439,24 +439,24 @@ class DataSourcesBoard extends React.Component {
             dsActions.push({
                 iconClassName:'mdi mdi-pencil',
                 tooltip:'Edit datasource',
-                onTouchTap:row=>{this.openDataSource([row])}
+                onClick:row=>{this.openDataSource([row])}
             });
         }
         dsActions.push({
             iconClassName:'mdi mdi-sync',
             tooltip:m('editor.legend.resync.button'),
-            onTouchTap:row => this.resyncDataSource(pydio, m, row)
+            onClick:row => this.resyncDataSource(pydio, m, row)
         });
         dsActions.push({
             iconClassName:'mdi mdi-folder-plus',
             tooltip:'Create workspace here',
-            onTouchTap:row => this.createWorkspaceFromDatasource(pydio, m, row)
+            onClick:row => this.createWorkspaceFromDatasource(pydio, m, row)
         });
         if(accessByName('CreateDatasource')){
             dsActions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:m('editor.legend.delete.button'),
-                onTouchTap:row => this.deleteDataSource(pydio, m, row)
+                onClick:row => this.deleteDataSource(pydio, m, row)
             });
         }
 
@@ -464,14 +464,14 @@ class DataSourcesBoard extends React.Component {
         vsActions.push({
             iconClassName:versioningEditable?'mdi mdi-pencil':'mdi mdi-eye',
             tooltip: versioningEditable?'Edit policy':'Display policy',
-            onTouchTap:row => {this.openVersionPolicy([row])}
+            onClick:row => {this.openVersionPolicy([row])}
         });
         if(versioningEditable){
             vsActions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:'Delete policy',
                 destructive:true,
-                onTouchTap:row => this.deleteVersionPolicy(row)
+                onClick:row => this.deleteVersionPolicy(row)
             })
         }
 

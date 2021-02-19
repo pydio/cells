@@ -262,7 +262,7 @@ var DataSourceBucketSelector = (function (_React$Component) {
                             iconClassName: "mdi mdi-filter",
                             tooltip: mode === 'picker' ? m('buckets.regexp') : '',
                             tooltipPosition: "top-left",
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this4.toggleMode();
                             },
                             disabled: disabled
@@ -272,7 +272,7 @@ var DataSourceBucketSelector = (function (_React$Component) {
                         iconClassName: "mdi mdi-reload",
                         tooltip: m('buckets.reload'),
                         tooltipPosition: "top-left",
-                        onTouchTap: function () {
+                        onClick: function () {
                             _this4.load();
                         },
                         disabled: disabled
@@ -285,11 +285,11 @@ var DataSourceBucketSelector = (function (_React$Component) {
                         var selected = selection.indexOf(b) !== -1;
                         var chipToucher = {};
                         if (mode === 'picker') {
-                            chipToucher.onTouchTap = function () {
+                            chipToucher.onClick = function () {
                                 _this4.togglePicker(b);
                             };
                         } else if (!dataSource.StorageConfiguration.bucketsRegexp) {
-                            chipToucher.onTouchTap = function () {
+                            chipToucher.onClick = function () {
                                 _this4.toggleMode();_this4.togglePicker(b);
                             };
                         }

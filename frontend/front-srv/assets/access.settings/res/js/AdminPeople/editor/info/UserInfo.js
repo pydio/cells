@@ -144,9 +144,9 @@ class UserInfo extends React.Component {
                         targetOrigin={{horizontal: 'right', vertical: 'top'}}
                         tooltip={"Actions"}
                     >
-                        <MenuItem primaryText={this.getPydioRoleMessage('25')} onTouchTap={() => this.buttonCallback('update_user_pwd')}/>
-                        <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onTouchTap={() => this.buttonCallback('user_set_lock-lock')}/>
-                        <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onTouchTap={() => this.buttonCallback('user_set_lock-pass_change')}/>
+                        <MenuItem primaryText={this.getPydioRoleMessage('25')} onClick={() => this.buttonCallback('update_user_pwd')}/>
+                        <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
+                        <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onClick={() => this.buttonCallback('user_set_lock-pass_change')}/>
                     </IconMenu>
                 </h3>
                 <FormPanel

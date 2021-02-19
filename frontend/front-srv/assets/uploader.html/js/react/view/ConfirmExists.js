@@ -68,8 +68,8 @@ class ConfirmExists extends React.Component {
                     <div style={{display:'flex', marginTop: 30, alignItems: 'center'}}>
                         <Checkbox label={pydio.MessageHash['html_uploader.confirm.save.choice']} checked={saveValue} onCheck={this.checkChange.bind(this)}/>
                         <span style={{flex: 1}}/>
-                        <FlatButton label={pydio.MessageHash[54]} onTouchTap={this.cancel.bind(this)}/>
-                        <RaisedButton primary={true} label={pydio.MessageHash[48]} onTouchTap={this.submit.bind(this)}/>
+                        <FlatButton label={pydio.MessageHash[54]} onClick={this.cancel.bind(this)}/>
+                        <RaisedButton primary={true} label={pydio.MessageHash[48]} onClick={this.submit.bind(this)}/>
                     </div>
                 </Paper>
             </div>

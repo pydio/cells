@@ -295,7 +295,7 @@ var WsAutoComplete = (function (_React$Component) {
                         menuProps: { maxHeight: 200 }
                     }, ModernStyles.textField))
                 ),
-                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onTouchTap: onDelete, disabled: !onDelete })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onClick: onDelete, disabled: !onDelete })
             );
         }
     }], [{

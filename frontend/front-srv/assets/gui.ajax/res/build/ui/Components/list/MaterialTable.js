@@ -387,10 +387,10 @@ var MaterialTable = (function (_React$Component) {
                     })
                 )
             ),
-            onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: prevDisabled, onTouchTap: function () {
+            onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: prevDisabled, onClick: function () {
                     return onPagePrev();
                 } }),
-            !onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
+            !onPagePrev && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onClick: function () {
                     return _this4.setState({ page: page - 1 });
                 } }),
             (sliceStart || sliceEnd) && _react2['default'].createElement(
@@ -404,10 +404,10 @@ var MaterialTable = (function (_React$Component) {
                 ' ',
                 data.length
             ),
-            onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: nextDisabled, onTouchTap: function () {
+            onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: nextDisabled, onClick: function () {
                     return onPageNext();
                 } }),
-            !onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
+            !onPageNext && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onClick: function () {
                     return _this4.setState({ page: page + 1 });
                 } })
         );
@@ -519,8 +519,8 @@ var MaterialTable = (function (_React$Component) {
                         return _react2['default'].createElement(_materialUi.IconButton, {
                             style: { padding: 14 },
                             iconStyle: { fontSize: 20, color: actionsColor },
-                            onTouchTap: function () {
-                                a.onTouchTap(model);
+                            onClick: function () {
+                                a.onClick(model);
                             },
                             iconClassName: a.iconClassName,
                             tooltip: a.tooltip,

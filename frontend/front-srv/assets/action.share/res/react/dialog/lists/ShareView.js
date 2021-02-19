@@ -189,7 +189,7 @@ class ShareView extends React.Component {
                             return <ListItem
                                 primaryText={props.primaryText}
                                 secondaryText={props.secondaryText}
-                                onTouchTap={()=>{appearsIn ? this.goTo(appearsIn) : null}}
+                                onClick={()=>{appearsIn ? this.goTo(appearsIn) : null}}
                                 disabled={!appearsIn}
                                 leftIcon={<FontIcon className={icon}/>}
                             />
@@ -234,7 +234,7 @@ const ShareViewModal = createReactClass({
                     title={this.props.pydio.MessageHash['share_center.98']}
                     showMenuIconButton={false}
                     iconClassNameRight="mdi mdi-close"
-                    onRightIconButtonTouchTap={()=>{this.dismiss()}}
+                    onRightIconButtonClick={()=>{this.dismiss()}}
                 />
                 <ShareView {...this.props} style={{width:'100%', flex: 1}} onRequestClose={()=>{this.dismiss()}}/>
             </div>

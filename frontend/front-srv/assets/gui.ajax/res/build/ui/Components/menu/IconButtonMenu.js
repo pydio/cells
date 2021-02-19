@@ -90,7 +90,7 @@ var IconButtonMenu = (function (_React$Component) {
                 ref: 'menuButton',
                 tooltip: buttonTitle,
                 iconClassName: buttonClassName,
-                onTouchTap: this.showMenu.bind(this),
+                onClick: this.showMenu.bind(this),
                 iconStyle: buttonStyle,
                 style: style
             }),

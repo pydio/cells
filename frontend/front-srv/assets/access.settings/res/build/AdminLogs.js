@@ -526,8 +526,8 @@ var LogDetail = (function (_React$Component2) {
                         'div',
                         { style: styles.buttons },
                         _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: copySuccess ? 'mdi mdi-check' : 'mdi mdi-content-copy', tooltip: 'Copy log to clipboard', tooltipPosition: "bottom-left", ref: "copy-button" }),
-                        onSelectPeriod && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: _extends({}, styles.buttonIcon, { color: focus ? '#ff5722' : null }), iconClassName: "mdi mdi-clock", onTouchTap: focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this), tooltip: "Show +/- 5 minutes", tooltipPosition: "bottom-left" }),
-                        _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: "mdi mdi-close", onTouchTap: function () {
+                        onSelectPeriod && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: _extends({}, styles.buttonIcon, { color: focus ? '#ff5722' : null }), iconClassName: "mdi mdi-clock", onClick: focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this), tooltip: "Show +/- 5 minutes", tooltipPosition: "bottom-left" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { style: styles.button, iconStyle: styles.buttonIcon, iconClassName: "mdi mdi-close", onClick: function () {
                                 _this2.unfocusPeriod();onRequestClose();
                             }, tooltip: "Close log detail", tooltipPosition: "bottom-left" })
                     ),
@@ -851,7 +851,7 @@ var LogTable = (function (_React$Component) {
                         };
                         return _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: row.IsOpen ? "mdi mdi-menu-down" : "mdi mdi-menu-right",
-                            onTouchTap: toggle,
+                            onClick: toggle,
                             onClick: function (e) {
                                 return e.stopPropagation();
                             }
@@ -1258,7 +1258,7 @@ var LogTools = (function (_React$Component) {
                         },
                         autoOk: true, maxDate: new Date(), value: date,
                         showYearSelector: true, style: { width: 120 }, textFieldStyle: { width: 120 } }, ModernStyles.textField)),
-                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onClick: function () {
                             _this2.handleDateChange(undefined);
                         } }, adminStyles.props.header.iconButton))
                 ),
@@ -1285,7 +1285,7 @@ var LogTools = (function (_React$Component) {
                         },
                         autoOk: true, value: endDate,
                         style: { width: 100 }, textFieldStyle: { width: 96 } }, ModernStyles.textField)),
-                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-close", tooltip: "Clear", onClick: function () {
                             _this2.handleDateChange(undefined);_this2.handleEndDateChange(undefined);
                         } }, adminStyles.props.header.iconButton))
                 ),
@@ -1302,22 +1302,22 @@ var LogTools = (function (_React$Component) {
                         null,
                         MessageHash['ajxp_admin.logs.filter.legend']
                     ),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: dateShow && !endDateShow ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: dateShow && !endDateShow ? checkIcon : null, onClick: function () {
                             _this2.handleToggleShow('date');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: endDateShow ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: endDateShow ? checkIcon : null, onClick: function () {
                             _this2.handleToggleShow('endDate');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Level", rightIcon: levelShow ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Level", rightIcon: levelShow ? checkIcon : null, onClick: function () {
                             _this2.handleToggleShow('level');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Service", rightIcon: serviceFilterShow ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Service", rightIcon: serviceFilterShow ? checkIcon : null, onClick: function () {
                             _this2.handleToggleShow('serviceFilter');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "User Login", rightIcon: userNameShow ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "User Login", rightIcon: userNameShow ? checkIcon : null, onClick: function () {
                             _this2.handleToggleShow('userName');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "IP", rightIcon: remoteAddressShow ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "IP", rightIcon: remoteAddressShow ? checkIcon : null, onClick: function () {
                             _this2.handleToggleShow('remoteAddress');
                         } })
                 ),
@@ -1339,10 +1339,10 @@ var LogTools = (function (_React$Component) {
                         null,
                         MessageHash['ajxp_admin.logs.11']
                     ),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'CSV', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-delimited" }), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'CSV', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-delimited" }), onClick: function () {
                             _this2.handleExport('CSV');
                         }, disabled: !hasFilter }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'XLSX', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-excel" }), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'XLSX', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-excel" }), onClick: function () {
                             _this2.handleExport('XLSX');
                         }, disabled: !hasFilter }),
                     exportUrl && _react2['default'].createElement(
@@ -1361,7 +1361,7 @@ var LogTools = (function (_React$Component) {
                         open: !!exportUrl,
                         modal: true,
                         title: MessageHash['ajxp_admin.logs.11'],
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: exportOnClick })]
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onClick: exportOnClick })]
                     },
                     _react2['default'].createElement(
                         'span',

@@ -49,7 +49,7 @@ let ModalDashboard = createReactClass({
     },
 
     getDefaultButtons: function(){
-        return [<FlatButton label={this.props.pydio.MessageHash[86]} onTouchTap={this.props.onDismiss}/>];
+        return [<FlatButton label={this.props.pydio.MessageHash[86]} onClick={this.props.onDismiss}/>];
     },
 
     getButtons: function(updater){

@@ -140,7 +140,7 @@ var PanelBigButtons = (function (_React$Component) {
                                     _react2['default'].createElement(_materialUi.IconButton, _extends({
                                         iconClassName: "mdi mdi-close",
                                         tooltip: "Remove",
-                                        onTouchTap: function (e) {
+                                        onClick: function (e) {
                                             a.onDelete();
                                         },
                                         onClick: function (e) {

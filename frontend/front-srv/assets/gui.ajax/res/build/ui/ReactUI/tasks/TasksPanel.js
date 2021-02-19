@@ -306,10 +306,10 @@ var TasksPanel = (function (_React$Component) {
                 ),
                 badge,
                 _react2['default'].createElement('span', { style: { flex: 1 } }),
-                !folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-down" }, styles.iconButtonStyles, { onTouchTap: function () {
+                !folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-down" }, styles.iconButtonStyles, { onClick: function () {
                         return _this3.setState({ folded: true, innerScroll: 300 });
                     } })),
-                folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right" }, styles.iconButtonStyles, { onTouchTap: function () {
+                folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right" }, styles.iconButtonStyles, { onClick: function () {
                         return _this3.setState({ folded: false, innerScroll: 300 });
                     } }))
             ),

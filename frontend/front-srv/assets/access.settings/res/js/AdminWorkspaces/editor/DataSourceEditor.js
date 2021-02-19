@@ -278,8 +278,8 @@ class DataSourceEditor extends React.Component{
                     title={m('enc.warning')}
                     onRequestClose={()=>{this.confirmEncryption(!dialogTargetValue)}}
                     actions={[
-                        <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.confirmEncryption(!dialogTargetValue)}}/>,
-                        <FlatButton label={m('enc.validate')} onTouchTap={()=>{this.confirmEncryption(dialogTargetValue)}}/>
+                        <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.confirmEncryption(!dialogTargetValue)}}/>,
+                        <FlatButton label={m('enc.validate')} onClick={()=>{this.confirmEncryption(dialogTargetValue)}}/>
                     ]}
                 >
                     {showDialog === 'enableEncryption' &&

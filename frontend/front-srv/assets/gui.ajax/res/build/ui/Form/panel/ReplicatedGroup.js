@@ -133,7 +133,7 @@ var ReplicatedGroup = (function (_Component) {
                 React.createElement(
                     'div',
                     null,
-                    React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-menu-' + (this.state.toggled ? 'down' : 'right'), iconStyle: { color: 'rgba(0,0,0,.15)' }, onTouchTap: function () {
+                    React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-menu-' + (this.state.toggled ? 'down' : 'right'), iconStyle: { color: 'rgba(0,0,0,.15)' }, onClick: function () {
                             _this.setState({ toggled: !_this.state.toggled });
                         } })
                 ),
@@ -145,10 +145,10 @@ var ReplicatedGroup = (function (_Component) {
                 React.createElement(
                     'div',
                     null,
-                    onAddValue && React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: ADD_VALUE, onTouchTap: onAddValue }),
-                    React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: REMOVE, onTouchTap: onRemove, disabled: !!!onRemove || disabled }),
-                    React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: UP_ARROW, onTouchTap: onSwapUp, disabled: !!!onSwapUp || disabled }),
-                    React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: DOWN_ARROW, onTouchTap: onSwapDown, disabled: !!!onSwapDown || disabled })
+                    onAddValue && React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: ADD_VALUE, onClick: onAddValue }),
+                    React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: REMOVE, onClick: onRemove, disabled: !!!onRemove || disabled }),
+                    React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: UP_ARROW, onClick: onSwapUp, disabled: !!!onSwapUp || disabled }),
+                    React.createElement(_materialUi.IconButton, { style: ibStyles, iconClassName: DOWN_ARROW, onClick: onSwapDown, disabled: !!!onSwapDown || disabled })
                 )
             ),
             toggled && React.createElement(_FormPanel2['default'], _extends({}, this.props, {

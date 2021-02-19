@@ -1102,18 +1102,18 @@ var Dashboard = (0, _createReactClass2['default'])({
         };
         var actions = [];
         if (mime === 'user_editable' || mime === 'group') {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function () {
                     _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onClick: function () {
                     _this3.deleteAction(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
         } else if (mime === 'user') {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function () {
                     _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
@@ -1197,7 +1197,7 @@ var Dashboard = (0, _createReactClass2['default'])({
                 fontSize: 20
             }
         };
-        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
+        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onClick={this.openUsersImporter}/>;
         if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
             let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
@@ -1224,7 +1224,7 @@ var Dashboard = (0, _createReactClass2['default'])({
             renderActionsFunc = this.renderNodeActions.bind(this);
             multipleActions = [pydio.Controller.getActionByName('delete')];
             openEditor = this.openRoleEditor.bind(this);
-            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction }, styles.props.header.flatButton))];
+            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onClick: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onClick: this.createGroupAction }, styles.props.header.flatButton))];
         }
 
         var profileFilter = '';
@@ -1626,7 +1626,7 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
             actions.push({
                 iconClassName: 'mdi mdi-eye',
                 tooltip: m('policy.display'),
-                onTouchTap: function onTouchTap(policy) {
+                onClick: function onClick(policy) {
                     return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
                 }
             });
@@ -1634,14 +1634,14 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
             actions.push({
                 iconClassName: 'mdi mdi-pencil',
                 tooltip: m('policy.edit'),
-                onTouchTap: function onTouchTap(policy) {
+                onClick: function onClick(policy) {
                     return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
                 }
             });
             actions.push({
                 iconClassName: 'mdi mdi-delete',
                 tooltip: m('policy.delete'),
-                onTouchTap: function onTouchTap(policy) {
+                onClick: function onClick(policy) {
                     _this5.deletePolicy(policy);
                 }
             });
@@ -1696,7 +1696,7 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
             null,
             _react2['default'].createElement(_materialUi.FlatButton, _extends({}, adminStyles.props.header.flatButton, {
                 primary: true,
-                onTouchTap: this.openPopover.bind(this),
+                onClick: this.openPopover.bind(this),
                 label: m('policy.new')
             })),
             _react2['default'].createElement(
@@ -1735,8 +1735,8 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right', padding: '6px 12px' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: this.handleRequestClose.bind(this) }),
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: m('policy.create'), onTouchTap: this.createPolicy.bind(this) })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: this.handleRequestClose.bind(this) }),
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: m('policy.create'), onClick: this.createPolicy.bind(this) })
                     )
                 )
             )
@@ -2018,7 +2018,7 @@ var RolesDashboard = (0, _createReactClass2['default'])({
             tableActions.push({
                 iconClassName: "mdi mdi-pencil",
                 tooltip: 'Edit',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this5.openRoleEditor(row.role);
                 },
                 disable: function disable(row) {
@@ -2028,7 +2028,7 @@ var RolesDashboard = (0, _createReactClass2['default'])({
             tableActions.push({
                 iconClassName: "mdi mdi-delete",
                 tooltip: 'Delete',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this5.deleteAction(row.role.Uuid, row.role.Label);
                 },
                 disable: function disable(row) {
@@ -3960,13 +3960,13 @@ var UserInfo = (function (_React$Component) {
                             targetOrigin: { horizontal: 'right', vertical: 'top' },
                             tooltip: "Actions"
                         },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage('25'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage('25'), onClick: function () {
                                 return _this2.buttonCallback('update_user_pwd');
                             } }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('logout') > -1 ? '27' : '26'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('logout') > -1 ? '27' : '26'), onClick: function () {
                                 return _this2.buttonCallback('user_set_lock-lock');
                             } }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('pass_change') > -1 ? '28b' : '28'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('pass_change') > -1 ? '28b' : '28'), onClick: function () {
                                 return _this2.buttonCallback('user_set_lock-pass_change');
                             } })
                     )
@@ -5418,12 +5418,12 @@ var ParametersPanel = (function (_React$Component) {
 
                 scopes[a.WorkspaceID][paramName] = a;
             });
-            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onTouchTap: function () {
+            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onClick: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_ALL');
-                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onTouchTap: function () {
+                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onClick: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_SHARED');
                 } }), _react2['default'].createElement(_materialUi.Divider, null)].concat(Object.keys(workspaces).map(function (ws) {
-                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onTouchTap: function () {
+                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onClick: function () {
                         _this4.addParameter(ws);
                     } });
             }));
@@ -5501,7 +5501,7 @@ var ParametersPanel = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'td',
                                     { style: { width: 50 } },
-                                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
+                                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onClick: function () {
                                             _this4.addParameter(s);
                                         }, tooltip: m('parameters.custom.add') })
                                 )
@@ -7249,7 +7249,7 @@ var Policy = (function (_React$Component) {
                     { style: { fontSize: 14, fontWeight: 500 } },
                     'Rules'
                 ),
-                !readonly && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-plus", tooltip: m('rule.create'), onTouchTap: this.onAddRule.bind(this) }, icButtonsProps, { tooltipPosition: "bottom-right" }))
+                !readonly && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-plus", tooltip: m('rule.create'), onClick: this.onAddRule.bind(this) }, icButtonsProps, { tooltipPosition: "bottom-right" }))
             );
 
             var labelsBlock = undefined;
@@ -7272,7 +7272,7 @@ var Policy = (function (_React$Component) {
                                 { style: { fontSize: 14, fontWeight: 500 } },
                                 'Edit Labels'
                             ),
-                            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-" + (showLabels ? 'down' : 'right'), tooltip: m('policy.editLabels'), onTouchTap: function () {
+                            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-" + (showLabels ? 'down' : 'right'), tooltip: m('policy.editLabels'), onClick: function () {
                                     return _this2.setState({ showLabels: !showLabels });
                                 } }, icButtonsProps))
                         ),
@@ -7301,7 +7301,7 @@ var Policy = (function (_React$Component) {
                                     iconClassName: "mdi mdi-content-save",
                                     tooltip: m('policy.saveLabels'),
                                     tooltipPosition: "top-center",
-                                    onTouchTap: function () {
+                                    onClick: function () {
                                         _this2.saveLabels();
                                     },
                                     iconStyle: { fontSize: 20, color: 'rgba(0,0,0,' + (labelsModified ? '.43' : '.10') + ')' },
@@ -7481,7 +7481,7 @@ var Rule = (function (_React$Component) {
             var iconColor = rule.effect === 'allow' ? '#33691e' : '#d32f2f';
             var buttons = [];
             if (!readonly) {
-                buttons = [_react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { fontSize: 16, color: 'rgba(0,0,0,.33)', cursor: 'pointer', marginLeft: 12 }, onTouchTap: this.openEditor.bind(this) }), _react2['default'].createElement('span', { className: 'mdi mdi-delete', style: { fontSize: 16, color: 'rgba(0,0,0,.33)', cursor: 'pointer', marginLeft: 12 }, onTouchTap: this.removeRule.bind(this) })];
+                buttons = [_react2['default'].createElement('span', { className: 'mdi mdi-pencil', style: { fontSize: 16, color: 'rgba(0,0,0,.33)', cursor: 'pointer', marginLeft: 12 }, onClick: this.openEditor.bind(this) }), _react2['default'].createElement('span', { className: 'mdi mdi-delete', style: { fontSize: 16, color: 'rgba(0,0,0,.33)', cursor: 'pointer', marginLeft: 12 }, onClick: this.removeRule.bind(this) })];
             }
             var label = _react2['default'].createElement(
                 'div',

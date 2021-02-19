@@ -85,18 +85,16 @@ class ButtonComposed extends React.Component {
             label: buttonTitle,
             style: {...buttonStyle, minWidth: 60},
             labelStyle:masterLabelStyle,
-            onTouchTap: masterAction,
-            onClick:(e=>e.stopPropagation())
+            onClick: masterAction,
         };
         const arrowProps = {
             primary: primary,
             secondary: secondary,
             disabled: disabled,
             label: <span className={"mdi mdi-menu-down"}/>,
-            onTouchTap: this.showMenu,
             style:{...buttonStyle, minWidth: 16},
             labelStyle:arrowLabelStyle,
-            onClick:(e=>e.stopPropagation())
+            onClick: this.showMenu,
         };
         const {showMenu, anchor, over} = this.state;
         if(menuItems.length){

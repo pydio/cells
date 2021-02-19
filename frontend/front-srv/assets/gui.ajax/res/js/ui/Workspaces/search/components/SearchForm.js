@@ -274,8 +274,8 @@ class SearchForm extends Component {
 
                 {display === 'small' &&
                 <div style={{display:'flex', alignItems:'center', padding:4, paddingTop: 0, backgroundColor:'#eeeeee', width:'100%'}}>
-                    {!crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={(scope)=>{this.changeSearchScope(scope)}} onTouchTap={() => this.setMode('small')}/>}
-                    <FlatButton style={{marginTop: 4, minWidth:0}} labelStyle={{padding:'0 8px'}} primary={true} label={getMessage(456)} onTouchTap={() => {onOpenAdvanced()}}/>
+                    {!crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={(scope)=>{this.changeSearchScope(scope)}} onClick={() => this.setMode('small')}/>}
+                    <FlatButton style={{marginTop: 4, minWidth:0}} labelStyle={{padding:'0 8px'}} primary={true} label={getMessage(456)} onClick={() => {onOpenAdvanced()}}/>
                 </div>
                 }
             </Paper>
@@ -290,7 +290,7 @@ class SearchForm extends Component {
                             iconClassName={"mdi mdi-close"}
                             style={{minWidth:0, marginTop: 4}}
                             tooltip={getMessage(86)}
-                            onTouchTap={() => {onCloseAdvanced()}}
+                            onClick={() => {onCloseAdvanced()}}
                         />
                     </div>
                     <div style={{flex:1, display:'flex',  flexDirection:xtraSmallScreen?'column':'row'}}>

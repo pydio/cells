@@ -274,7 +274,7 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
             actions.push({
                 iconClassName: 'mdi mdi-eye',
                 tooltip: m('policy.display'),
-                onTouchTap: function onTouchTap(policy) {
+                onClick: function onClick(policy) {
                     return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
                 }
             });
@@ -282,14 +282,14 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
             actions.push({
                 iconClassName: 'mdi mdi-pencil',
                 tooltip: m('policy.edit'),
-                onTouchTap: function onTouchTap(policy) {
+                onClick: function onClick(policy) {
                     return _this5.setState({ selectedPolicy: selectedPolicy === policy.Uuid ? null : policy.Uuid });
                 }
             });
             actions.push({
                 iconClassName: 'mdi mdi-delete',
                 tooltip: m('policy.delete'),
-                onTouchTap: function onTouchTap(policy) {
+                onClick: function onClick(policy) {
                     _this5.deletePolicy(policy);
                 }
             });
@@ -344,7 +344,7 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
             null,
             _react2['default'].createElement(_materialUi.FlatButton, _extends({}, adminStyles.props.header.flatButton, {
                 primary: true,
-                onTouchTap: this.openPopover.bind(this),
+                onClick: this.openPopover.bind(this),
                 label: m('policy.new')
             })),
             _react2['default'].createElement(
@@ -383,8 +383,8 @@ var PoliciesBoard = (0, _createReactClass2['default'])({
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right', padding: '6px 12px' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: this.handleRequestClose.bind(this) }),
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: m('policy.create'), onTouchTap: this.createPolicy.bind(this) })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: this.handleRequestClose.bind(this) }),
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: m('policy.create'), onClick: this.createPolicy.bind(this) })
                     )
                 )
             )

@@ -61,11 +61,11 @@ var PasswordDialog = createReactClass({
         if (updater) this._updater = updater;
         var buttons = [];
         if (!this.props.locked) {
-            buttons.push(React.createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[49], onTouchTap: function () {
+            buttons.push(React.createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[49], onClick: function () {
                     return _this.dismiss();
                 } }));
         }
-        buttons.push(React.createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[48], onTouchTap: this.submit.bind(this), disabled: !this.state.passValid }));
+        buttons.push(React.createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[48], onClick: this.submit.bind(this), disabled: !this.state.passValid }));
         return buttons;
     },
 

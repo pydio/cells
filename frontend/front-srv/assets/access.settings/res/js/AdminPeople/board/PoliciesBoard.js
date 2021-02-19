@@ -209,18 +209,18 @@ let PoliciesBoard = createReactClass({
             actions.push({
                 iconClassName:'mdi mdi-eye',
                 tooltip:m('policy.display'),
-                onTouchTap:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
+                onClick:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
             })
         } else {
             actions.push({
                 iconClassName:'mdi mdi-pencil',
                 tooltip:m('policy.edit'),
-                onTouchTap:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
+                onClick:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
             });
             actions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:m('policy.delete'),
-                onTouchTap:(policy) => {this.deletePolicy(policy)}
+                onClick:(policy) => {this.deletePolicy(policy)}
             });
         }
 
@@ -273,7 +273,7 @@ let PoliciesBoard = createReactClass({
                 <FlatButton
                     {...adminStyles.props.header.flatButton}
                     primary={true}
-                    onTouchTap={this.openPopover.bind(this)}
+                    onClick={this.openPopover.bind(this)}
                     label={m('policy.new')}
                 />
                 <Popover
@@ -300,8 +300,8 @@ let PoliciesBoard = createReactClass({
                             </div>
                         <Divider/>
                         <div style={{textAlign: 'right', padding: '6px 12px'}}>
-                            <FlatButton label={pydio.MessageHash['54']} onTouchTap={this.handleRequestClose.bind(this)}/>
-                            <FlatButton label={m('policy.create')} onTouchTap={this.createPolicy.bind(this)}/>
+                            <FlatButton label={pydio.MessageHash['54']} onClick={this.handleRequestClose.bind(this)}/>
+                            <FlatButton label={m('policy.create')} onClick={this.createPolicy.bind(this)}/>
                         </div>
                     </div>
                 </Popover>

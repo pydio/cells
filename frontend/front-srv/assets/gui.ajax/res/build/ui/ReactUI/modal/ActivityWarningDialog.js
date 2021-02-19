@@ -80,7 +80,7 @@ exports['default'] = createReactClass({
         var sentence = MessageHash['375'].replace('__IDLE__', since.humanize()).replace('__LOGOUT__', warn.humanize());
         return React.createElement(
             'div',
-            { onTouchTap: function () {
+            { onClick: function () {
                     _this2.props.pydio.notify('user_activity');
                 } },
             React.createElement(

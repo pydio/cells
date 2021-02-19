@@ -94,7 +94,7 @@ class GenericCard extends React.Component{
         return (
             <Paper zDepth={0} style={{width: '100%', position:'relative', ...style}}>
                 {onEditAction &&
-                    <FloatingActionButton onTouchTap={onEditAction} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
+                    <FloatingActionButton onClick={onEditAction} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
                         <FontIcon className={"mdi mdi-pencil"} />
                     </FloatingActionButton>
                 }
@@ -102,7 +102,7 @@ class GenericCard extends React.Component{
                     <div style={{display:'flex', height: styles.buttonBarHeight}}>
                         <span style={{flex: 1}}/>
                         {onDeleteAction &&
-                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onTouchTap={onDeleteAction}/>
+                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction}/>
                         }
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu
@@ -113,7 +113,7 @@ class GenericCard extends React.Component{
                         }
                         {otherActions}
                         {onDismissAction &&
-                            <IconButton  style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onTouchTap={onDismissAction}/>
+                            <IconButton  style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onClick={onDismissAction}/>
                         }
                     </div>
                     <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20}}>

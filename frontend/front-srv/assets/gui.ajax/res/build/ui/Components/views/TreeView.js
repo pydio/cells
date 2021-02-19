@@ -415,7 +415,7 @@ var TreePaginator = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center', color: 'rgba(0,0,0,.73)', backgroundColor: 'rgba(0,0,0,0.02)', borderRadius: 3, marginRight: 10 } },
-                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-left", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-left", onClick: function () {
                             _this2.goTo(crt - 1);
                         }, disabled: crt === 1 }, icProps)),
                     _react2['default'].createElement(
@@ -423,7 +423,7 @@ var TreePaginator = (function (_React$Component) {
                         { style: { padding: '0 20px', flex: 1, textAlign: 'center', fontSize: 13 } },
                         label
                     ),
-                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right", onClick: function () {
                             _this2.goTo(crt + 1);
                         }, disabled: crt === total }, icProps))
                 )

@@ -82,7 +82,7 @@ var TopBar = (function (_React$Component) {
                     { style: { flex: 1 } },
                     tabs
                 ),
-                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.tabs.selectedTextColor }, iconClassName: "mdi mdi-close", onTouchTap: dismiss, tooltip: "Close" })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.tabs.selectedTextColor }, iconClassName: "mdi mdi-close", onClick: dismiss, tooltip: "Close" })
             );
         }
     }]);

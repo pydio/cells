@@ -200,7 +200,7 @@ export default createReactClass({
                     if(fabAction && fabAction === actionName) {
                         actions.push(<FloatingActionButton
                             key={actionName}
-                            onTouchTap={click}
+                            onClick={click}
                             iconClassName={menuIcon}
                             mini={true}
                             backgroundColor={toolbarStyle.backgroundColor}
@@ -210,7 +210,7 @@ export default createReactClass({
                         actions.push(<FlatButton
                             key={actionName}
                             className={id}
-                            onTouchTap={click}
+                            onClick={click}
                             label={menuTitle}
                             labelStyle={buttonStyle}
                             style={flatButtonStyle}
@@ -219,7 +219,7 @@ export default createReactClass({
                         actions.push(<FlatButton
                             key={actionName}
                             className={id}
-                            onTouchTap={click}
+                            onClick={click}
                             label={menuTitle}
                             labelStyle={buttonStyle}
                             style={flatButtonStyle}
@@ -230,7 +230,7 @@ export default createReactClass({
                             iconClassName={menuIcon + ' ' + id}
                             iconStyle={buttonStyle}
                             style={flatButtonStyle}
-                            onTouchTap={click}
+                            onClick={click}
                             tooltip={menuTitle}
                             tooltipPosition={tooltipPosition}
                         />);

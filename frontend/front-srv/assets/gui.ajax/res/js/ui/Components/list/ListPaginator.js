@@ -97,7 +97,7 @@ export default class ListPaginator extends React.Component{
 
         previous = (
             <IconButton
-                onTouchTap={() => {this.onMenuChange(null, 0, current-1)}}
+                onClick={() => {this.onMenuChange(null, 0, current-1)}}
                 iconClassName={"mdi mdi-chevron-left"}
                 disabled={current === 1}
                 iconStyle={{...whiteStyle, ...smallButtonsIcStyle}}
@@ -106,7 +106,7 @@ export default class ListPaginator extends React.Component{
         );
         next = (
             <IconButton
-                onTouchTap={() => {this.onMenuChange(null, 0, current+1)}}
+                onClick={() => {this.onMenuChange(null, 0, current+1)}}
                 iconClassName={"mdi mdi-chevron-right"}
                 disabled={current === total}
                 style={smallDisplay?{marginLeft:-40, width:40, height: 40}:{marginLeft: -20}}

@@ -114,13 +114,13 @@ class MetadataBoard extends React.Component{
         let buttons = [];
         const actions = [];
         if(accessByName('Create')){
-            buttons.push(<FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}} {...adminStyle.props.header.flatButton}/>);
+            buttons.push(<FlatButton primary={true} label={m('namespace.add')} onClick={()=>{this.create()}} {...adminStyle.props.header.flatButton}/>);
             actions.push({
                 iconClassName:'mdi mdi-pencil',
-                onTouchTap:(row)=>{this.open([row])},
+                onClick:(row)=>{this.open([row])},
             },{
                 iconClassName:'mdi mdi-delete',
-                onTouchTap:(row)=>{this.deleteNs(row)}
+                onClick:(row)=>{this.deleteNs(row)}
             })
         }
 

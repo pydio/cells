@@ -42,7 +42,7 @@ class RightPanelCard extends React.Component{
 
         return (
             <Paper zDepth={2} style={{position:'relative', ...this.props.style}}>
-                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 0, right: 0}} iconStyle={{color: '#e0e0e0'}} onTouchTap={this.props.onRequestClose}/>
+                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 0, right: 0}} iconStyle={{color: '#e0e0e0'}} onClick={this.props.onRequestClose}/>
                 {content}
             </Paper>
         );

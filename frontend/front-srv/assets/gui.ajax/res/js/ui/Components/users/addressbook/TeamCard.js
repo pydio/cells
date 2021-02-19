@@ -85,7 +85,7 @@ class TeamCard extends React.Component{
             title = (
                 <div style={{display:'flex', alignItems:'center', margin: 16}}>
                     <TextField style={{flex: 1, fontSize: 24}} fullWidth={true} disabled={false} underlineShow={false} value={this.state.label} onChange={this.onLabelChange.bind(this)}/>
-                    <FlatButton secondary={true} label={getMessage(48)} onTouchTap={() => {this.updateLabel()}}/>
+                    <FlatButton secondary={true} label={getMessage(48)} onClick={() => {this.updateLabel()}}/>
                 </div>
             );
         }else{

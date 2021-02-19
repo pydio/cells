@@ -419,7 +419,7 @@ var HomeSearchForm = (function (_Component) {
                 fullScreen && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-close',
                     style: styles.close,
-                    onTouchTap: function () {
+                    onClick: function () {
                         return _this6.update('');
                     },
                     tooltipPosition: "bottom-left",

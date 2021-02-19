@@ -134,22 +134,16 @@ var ButtonComposed = (function (_React$Component) {
             label: buttonTitle,
             style: _extends({}, buttonStyle, { minWidth: 60 }),
             labelStyle: masterLabelStyle,
-            onTouchTap: masterAction,
-            onClick: function onClick(e) {
-                return e.stopPropagation();
-            }
+            onClick: masterAction
         };
         var arrowProps = {
             primary: primary,
             secondary: secondary,
             disabled: disabled,
             label: _react2['default'].createElement('span', { className: "mdi mdi-menu-down" }),
-            onTouchTap: this.showMenu,
             style: _extends({}, buttonStyle, { minWidth: 16 }),
             labelStyle: arrowLabelStyle,
-            onClick: function onClick(e) {
-                return e.stopPropagation();
-            }
+            onClick: this.showMenu
         };
         var _state = this.state;
         var showMenu = _state.showMenu;

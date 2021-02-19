@@ -30,7 +30,7 @@ class EditorTab extends React.Component{
             <div style={{display:'flex', ...style}}>
                 {tabs.map(t => {
                     const isActive = t.Value === active;
-                    return <FlatButton label={t.Label} onTouchTap={()=>{onChange(t.Value)}} primary={isActive} style={isActive?{borderBottom: '2px solid ' + primary1Color}:{borderBottom:0}}/>
+                    return <FlatButton label={t.Label} onClick={()=>{onChange(t.Value)}} primary={isActive} style={isActive?{borderBottom: '2px solid ' + primary1Color}:{borderBottom:0}}/>
                 })}
                 <span style={{flex: 1}}/>
             </div>
@@ -91,9 +91,9 @@ class GenericEditor extends React.Component {
                 <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
                     <div style={{display:'flex', flexDirection:'column'}}>
                         <div style={{backgroundColor: '#EEEEEE',display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
-                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onTouchTap={onSaveAction}/>
-                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onTouchTap={onRevertAction} style={{marginLeft: 10}}/>
-                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={onCloseAction} style={{marginLeft: 10}}/>
+                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
+                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
+                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginLeft: 10}}/>
                         </div>
                         <div style={{flex: 1, padding: '10px 20px'}}>{header}</div>
                     </div>
@@ -117,9 +117,9 @@ class GenericEditor extends React.Component {
                     <div style={{display:'flex', padding: '10px 20px 20px'}}>
                         <div style={{flex: 1, paddingRight: 20}}>{header}</div>
                         <div style={{paddingTop: 18}}>
-                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onTouchTap={onSaveAction}/>
-                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onTouchTap={onRevertAction} style={{marginLeft: 10}}/>
-                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={onCloseAction} style={{marginLeft: 10}}/>
+                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
+                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
+                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginLeft: 10}}/>
                         </div>
                     </div>
                     <div style={{display:'flex'}}>

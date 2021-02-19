@@ -53,7 +53,7 @@ const ModalAddressBook = createReactClass({
                     title={this.props.pydio.MessageHash['user_dash.1']}
                     showMenuIconButton={false}
                     iconClassNameRight="mdi mdi-close"
-                    onRightIconButtonTouchTap={()=>{this.dismiss()}}
+                    onRightIconButtonClick={()=>{this.dismiss()}}
                 />
                 <AddressBook
                     mode="book"

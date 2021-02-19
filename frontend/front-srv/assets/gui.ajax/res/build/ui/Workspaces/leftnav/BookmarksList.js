@@ -231,7 +231,7 @@ var BookmarksList = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: "mdi mdi-delete",
                             iconStyle: { opacity: .33, fontSize: 18 },
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this3.removeBookmark(nodes[0]);
                             },
                             tooltip: pydio.MessageHash['bookmark.button.tip.remove'],
@@ -252,7 +252,7 @@ var BookmarksList = (function (_React$Component) {
             'span',
             null,
             _react2['default'].createElement(_materialUi.IconButton, {
-                onTouchTap: this.handleTouchTap.bind(this),
+                onClick: this.handleTouchTap.bind(this),
                 iconClassName: "userActionIcon mdi mdi-star",
                 tooltip: pydio.MessageHash['147'],
                 tooltipPosition: "bottom-left",

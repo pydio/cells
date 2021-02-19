@@ -317,7 +317,7 @@ var AutocompleteTree = (function (_React$Component) {
                     _react2['default'].createElement(_materialUi.IconButton, {
                         iconClassName: "mdi mdi-folder-plus",
                         iconStyle: { color: '#9e9e9e' },
-                        onTouchTap: function () {
+                        onClick: function () {
                             return _this4.showCreateDialog();
                         },
                         tooltip: pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']

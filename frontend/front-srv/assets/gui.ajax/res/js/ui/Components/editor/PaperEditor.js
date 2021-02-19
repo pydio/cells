@@ -71,7 +71,7 @@ class PaperEditorLayout extends React.Component{
             closeButton = <IconButton
                 tooltip={Pydio.getMessages()[86]}
                 iconClassName={'mdi mdi-close'}
-                onTouchTap={closeAction}
+                onClick={closeAction}
                 iconStyle={{color:'white'}}
             />
         }
@@ -112,7 +112,7 @@ PaperEditorLayout.actionButton = (label, icon, action, disabled=false)=> {
             tooltip={label}
             iconClassName={icon}
             disabled={disabled}
-            onTouchTap={action}
+            onClick={action}
             iconStyle={{color:disabled?'rgba(255,255,255,0.5)':'white'}}
         />
     );

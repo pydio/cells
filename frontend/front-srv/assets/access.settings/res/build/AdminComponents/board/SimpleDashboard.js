@@ -80,7 +80,7 @@ var Dashboard = (0, _createReactClass2['default'])({
             iconStyle: { color: 'rgba(0,0,0,.33)' },
             tooltip: 'Open in new window',
             tooltipPosition: 'bottom-left',
-            onTouchTap: function () {
+            onClick: function () {
                 window.open(link);
             }
         });
@@ -95,7 +95,7 @@ var Dashboard = (0, _createReactClass2['default'])({
             label: message,
             primary: true,
             icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-" + icon }, icProps)),
-            onTouchTap: function () {
+            onClick: function () {
                 window.open(link);
             }
         }, props));
@@ -208,13 +208,13 @@ var Dashboard = (0, _createReactClass2['default'])({
             _react2['default'].createElement(
                 _materialUi.CardActions,
                 { style: { textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-github-box' }, icProps)), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.github'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-github-box' }, icProps)), onClick: function () {
                         window.open('https://github.com/pydio/cells');
                     } }, flatProps)),
-                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-twitter-box' }, icProps)), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.tw'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-twitter-box' }, icProps)), onClick: function () {
                         window.open('https://twitter.com/Pydio');
                     } }, flatProps)),
-                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-facebook-box' }, icProps)), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('cont.btn.fb'), primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: 'mdi mdi-facebook-box' }, icProps)), onClick: function () {
                         window.open('https://facebook.com/Pydio/');
                     } }, flatProps))
             )
@@ -239,7 +239,7 @@ var Dashboard = (0, _createReactClass2['default'])({
                 _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: message('ent.support'), secondaryText: message('ent.support.legend'), disabled: true }),
                 _react2['default'].createElement(_materialUi.Divider, null),
-                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-download' }), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-download' }), onClick: function () {
                         pydio.goTo('/admin/update');
                     }, primaryText: _react2['default'].createElement(
                         'span',
@@ -251,10 +251,10 @@ var Dashboard = (0, _createReactClass2['default'])({
             _react2['default'].createElement(
                 _materialUi.CardActions,
                 { style: { textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "icomoon-cells" }, icProps)), primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.more'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "icomoon-cells" }, icProps)), primary: true, onClick: function () {
                         window.open('https://pydio.com/en/features/pydio-cells-overview');
                     } }, flatProps)),
-                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-domain" }, icProps)), primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, _extends({ label: message('ent.btn.contact'), icon: _react2['default'].createElement(_materialUi.FontIcon, _extends({ className: "mdi mdi-domain" }, icProps)), primary: true, onClick: function () {
                         window.open('https://pydio.com/en/pricing/contact');
                     } }, flatProps))
             )
@@ -262,7 +262,7 @@ var Dashboard = (0, _createReactClass2['default'])({
 
         var websiteButton = _react2['default'].createElement(_materialUi.IconButton, _extends({
             iconClassName: "icomoon-cells",
-            onTouchTap: function () {
+            onClick: function () {
                 window.open('https://pydio.com');
             },
             tooltip: pydio.MessageHash['settings.topbar.button.about'],

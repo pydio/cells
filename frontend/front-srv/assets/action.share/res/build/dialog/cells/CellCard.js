@@ -186,7 +186,7 @@ var CellCard = (function (_React$Component) {
                 if (mode !== 'infoPanel') {
                     moreMenuItems = [];
                     if (model.getUuid() !== pydio.user.activeRepository) {
-                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(246), onTouchTap: function () {
+                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(246), onClick: function () {
                                 pydio.triggerRepositoryChange(model.getUuid());
                                 _this3.props.onDismiss();
                             } }));
@@ -203,10 +203,10 @@ var CellCard = (function (_React$Component) {
                                 _this3.props.onHeightChange(500);
                             }
                         };
-                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(247), onTouchTap: function () {
+                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(247), onClick: function () {
                                 return _this3.setState({ edit: true });
                             } }));
-                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(248), onTouchTap: deleteAction }));
+                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(248), onClick: deleteAction }));
                     }
                 }
                 var watchLine = undefined,

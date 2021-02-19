@@ -133,7 +133,7 @@ class MainSearch extends Component {
                     }
                     <span style={{flex:1}}></span>
                     {showAdvanced &&
-                    <FlatButton style={{textTransform:'none', color:'white', fontSize:15, marginTop:-5, padding:'0 16px'}} onTouchTap={mode === 'advanced' ? onMore : onAdvanced}>{mode === 'advanced' ? '- ' + getMessage(606) : '+ ' + getMessage(605)}</FlatButton>
+                    <FlatButton style={{textTransform:'none', color:'white', fontSize:15, marginTop:-5, padding:'0 16px'}} onClick={mode === 'advanced' ? onMore : onAdvanced}>{mode === 'advanced' ? '- ' + getMessage(606) : '+ ' + getMessage(605)}</FlatButton>
                     }
                     {mode === 'advanced' && loading &&
                     <div style={{marginRight: 10}} ><CircularProgress size={20} thickness={2}/></div>

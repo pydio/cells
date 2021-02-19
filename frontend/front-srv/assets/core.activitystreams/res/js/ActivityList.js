@@ -146,7 +146,7 @@ class ActivityList extends React.Component {
                     this.loadForProps(this.props);
                 })
             };
-            content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19']} disabled={loading} onTouchTap={loadAction}/></div>)
+            content.push(<div style={{paddingLeft:16}}><FlatButton primary={true} label={loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19']} disabled={loading} onClick={loadAction}/></div>)
         }
         if (content.length) {
             return <List style={this.props.style}>{content}</List>;

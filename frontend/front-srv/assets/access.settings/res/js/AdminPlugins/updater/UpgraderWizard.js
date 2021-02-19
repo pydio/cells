@@ -164,9 +164,9 @@ class UpgraderWizard extends React.Component{
                     </Card>
                 );
                 actions = [
-                    <FlatButton style={{float:'left'}} label={cardMessage('ent.btn.more')} onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} />,
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
-                    <RaisedButton onTouchTap={()=>{this.next('eula')}} label={m('button.start')} primary={true}/>
+                    <FlatButton style={{float:'left'}} label={cardMessage('ent.btn.more')} onClick={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} />,
+                    <FlatButton onClick={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <RaisedButton onClick={()=>{this.next('eula')}} label={m('button.start')} primary={true}/>
                 ];
                 break;
 
@@ -181,8 +181,8 @@ class UpgraderWizard extends React.Component{
                     </div>
                 );
                 actions = [
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
-                    <FlatButton onTouchTap={()=>{this.next('license')}} label={m('button.next')} primary={true} disabled={!acceptEula}/>
+                    <FlatButton onClick={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <FlatButton onClick={()=>{this.next('license')}} label={m('button.next')} primary={true} disabled={!acceptEula}/>
                 ];
                 break;
 
@@ -212,9 +212,9 @@ class UpgraderWizard extends React.Component{
                     </div>
                 );
                 actions = [
-                    <FlatButton style={{float:'left'}} label={cardMessage('ent.btn.contact')} onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} secondary={true}/>,
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
-                    <FlatButton onTouchTap={()=>{this.next('check')}} label={m('button.next')} primary={true} disabled={!licenseKey}/>
+                    <FlatButton style={{float:'left'}} label={cardMessage('ent.btn.contact')} onClick={()=>{window.open('https://pydio.com/en/pricing/contact')}} secondary={true}/>,
+                    <FlatButton onClick={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <FlatButton onClick={()=>{this.next('check')}} label={m('button.next')} primary={true} disabled={!licenseKey}/>
                 ];
                 break;
 
@@ -266,8 +266,8 @@ class UpgraderWizard extends React.Component{
                     </div>
                 );
                 actions = [
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
-                    <FlatButton onTouchTap={()=>{this.next('perform')}} label={m('button.install')} primary={true} disabled={!versionAvailable}/>
+                    <FlatButton onClick={()=>this.dismiss()} label={m('button.cancel')} primary={false}/>,
+                    <FlatButton onClick={()=>{this.next('perform')}} label={m('button.install')} primary={true} disabled={!versionAvailable}/>
                 ];
                 break;
 
@@ -292,7 +292,7 @@ class UpgraderWizard extends React.Component{
                 }
 
                 actions = [
-                    <FlatButton onTouchTap={()=>this.dismiss()} label={m('button.close')} primary={true}/>,
+                    <FlatButton onClick={()=>this.dismiss()} label={m('button.close')} primary={true}/>,
                 ];
                 break;
 

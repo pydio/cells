@@ -149,7 +149,7 @@ var VideoCard = (function (_React$Component) {
             var menus = this._videos.map((function (item, index) {
                 var _this2 = this;
 
-                return React.createElement(MenuItem, { key: 'videoCardMenuItem_' + index, primaryText: this.getTitle(item[1]), onTouchTap: function () {
+                return React.createElement(MenuItem, { key: 'videoCardMenuItem_' + index, primaryText: this.getTitle(item[1]), onClick: function () {
                         _this2.setState({ youtubeId: item[0], contentMessageId: item[1], videoIndex: index });
                     } });
             }).bind(this));

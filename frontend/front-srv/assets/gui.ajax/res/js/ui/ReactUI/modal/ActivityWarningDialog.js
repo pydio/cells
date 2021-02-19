@@ -61,7 +61,7 @@ export default createReactClass({
         const warn = moment.duration(timerSeconds, 'seconds');
         const sentence = MessageHash['375'].replace('__IDLE__', since.humanize()).replace('__LOGOUT__', warn.humanize());
         return (
-            <div onTouchTap={() => {this.props.pydio.notify('user_activity');}}>
+            <div onClick={() => {this.props.pydio.notify('user_activity');}}>
                 <div style={{display:'flex', alignItems:'center'}}>
                     <div className="mdi mdi-security" style={{fontSize:70,paddingRight:10}}/>
                     <p>{sentence}</p>

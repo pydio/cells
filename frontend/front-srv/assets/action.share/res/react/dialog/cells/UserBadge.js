@@ -39,7 +39,7 @@ class UserBadge extends Component{
             return (
                 <MenuItem
                     primaryText={m.text}
-                    onTouchTap={m.callback}
+                    onClick={m.callback}
                     rightIcon={rightIcon}/>
             );
         });

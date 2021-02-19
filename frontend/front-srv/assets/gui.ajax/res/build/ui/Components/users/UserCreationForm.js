@@ -231,8 +231,8 @@ var UserCreationForm = (function (_React$Component) {
             _react2['default'].createElement(
                 'div',
                 { style: { padding: 8, textAlign: 'right' } },
-                _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash[49], onTouchTap: this.cancelCreationForm.bind(this) }),
-                _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.editMode ? pydio.MessageHash[519] : pydio.MessageHash[484], primary: true, onTouchTap: this.submitCreationForm.bind(this), disabled: !status })
+                _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash[49], onClick: this.cancelCreationForm.bind(this) }),
+                _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.editMode ? pydio.MessageHash[519] : pydio.MessageHash[484], primary: true, onClick: this.submitCreationForm.bind(this), disabled: !status })
             )
         );
     };

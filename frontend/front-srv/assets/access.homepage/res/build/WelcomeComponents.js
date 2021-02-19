@@ -7036,7 +7036,7 @@ var DownloadApp = (function (_React$Component) {
                 tooltipStyles: { marginTop: 40 },
                 style: styles.small,
                 iconStyle: _extends({}, styles.smallIcon, { color: this.props.iconColor }),
-                onTouchTap: function () {
+                onClick: function () {
                     window.open(configs.get(configHref));
                 }
             });
@@ -7448,7 +7448,7 @@ var Facet = (function (_React$Component) {
                 _extends({
                     style: { margin: 4 },
                     onRequestDelete: requestDelete,
-                    onTouchTap: requestSelect
+                    onClick: requestSelect
                 }, cc.chip),
                 _react2['default'].createElement(
                     _materialUi.Avatar,
@@ -7777,7 +7777,7 @@ var AltDashboard = (function (_React$Component) {
                 _react2['default'].createElement(_materialUi.IconButton, {
                     iconStyle: { color: null },
                     iconClassName: 'mdi mdi-menu',
-                    onTouchTap: this.openDrawer.bind(this) })
+                    onClick: this.openDrawer.bind(this) })
             );
             var headerHeight = 72;
             var leftPanelProps = {
@@ -8277,7 +8277,7 @@ var HomeSearchForm = (function (_Component) {
                 fullScreen && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-close',
                     style: styles.close,
-                    onTouchTap: function () {
+                    onClick: function () {
                         return _this6.update('');
                     },
                     tooltipPosition: "bottom-left",
@@ -9595,7 +9595,7 @@ var VideoCard = (function (_React$Component) {
             var menus = this._videos.map((function (item, index) {
                 var _this2 = this;
 
-                return React.createElement(MenuItem, { key: 'videoCardMenuItem_' + index, primaryText: this.getTitle(item[1]), onTouchTap: function () {
+                return React.createElement(MenuItem, { key: 'videoCardMenuItem_' + index, primaryText: this.getTitle(item[1]), onClick: function () {
                         _this2.setState({ youtubeId: item[0], contentMessageId: item[1], videoIndex: index });
                     } });
             }).bind(this));

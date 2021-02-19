@@ -193,8 +193,8 @@ const TreeDialog = createReactClass({
                     }}
                 >
                     <ModernTextField fullWidth={true} floatingLabelText={this.props.pydio.MessageHash[173]} ref="newfolder_input" style={{flex:1}}/>
-                    <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onTouchTap={() => {this.createNewFolder() }}/>
-                    <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onTouchTap={openNewFolderForm}/>
+                    <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onClick={() => {this.createNewFolder() }}/>
+                    <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onClick={openNewFolderForm}/>
                 </Paper>
                 <div style={{display:'flex',alignItems:'center'}}>
                     <ModernTextField
@@ -212,7 +212,7 @@ const TreeDialog = createReactClass({
                             iconStyle={{color: '#546E7A', fontSize: 24}}
                             tooltip={this.props.pydio.MessageHash[154]}
                             tooltipPosition={"top-left"}
-                            onTouchTap={openNewFolderForm}
+                            onClick={openNewFolderForm}
                         />
                     }
                 </div>

@@ -130,7 +130,7 @@ var JSDocsPanel = (function (_Component) {
                 items.push(React.createElement(_materialUi.ListItem, {
                     key: key,
                     primaryText: title,
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this2.setState({ selection: key });
                     }
                 }));
@@ -219,7 +219,7 @@ var ClassPanel = (function (_Component2) {
                         React.createElement(
                             _materialUi.TableRowColumn,
                             null,
-                            pData.type && pData.type.raw && pData.type.raw.replace('React.PropTypes.', '').replace('.isRequired', '')
+                            pData.type && pData.type.raw && pData.type.raw.replace('PropTypes.', '').replace('.isRequired', '')
                         ),
                         React.createElement(
                             _materialUi.TableRowColumn,

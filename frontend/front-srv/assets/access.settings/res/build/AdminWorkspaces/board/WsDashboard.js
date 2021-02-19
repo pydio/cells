@@ -188,7 +188,7 @@ var WsDashboard = (0, _createReactClass2['default'])({
             buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
                 primary: true,
                 label: this.context.getMessage('ws.3'),
-                onTouchTap: this.showWorkspaceCreator
+                onClick: this.showWorkspaceCreator
             }, adminStyles.props.header.flatButton)));
         }
 

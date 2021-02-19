@@ -71,13 +71,13 @@ var OtherEditorPickerDialog = (0, _createReactClass2['default'])({
             key: 'clear',
             label: MessageHash['openother.5'],
             primary: false,
-            onTouchTap: this.clearAssociations
+            onClick: this.clearAssociations
         }));
         actions.push(React.createElement(FlatButton, {
             label: mess['49'],
             primary: true,
             keyboardFocused: true,
-            onTouchTap: this.props.onDismiss
+            onClick: this.props.onDismiss
         }));
         return actions;
     },
@@ -161,7 +161,7 @@ var OtherEditorPickerDialog = (0, _createReactClass2['default'])({
         //let items = [];
         var items = this.findActiveEditors('*').map(function (e) {
             var icon = React.createElement(FontIcon, { className: e.icon_class });
-            return React.createElement(ListItem, { onTouchTap: _this2.selectEditor.bind(_this2, e), primaryText: e.text, secondaryText: e.title, leftIcon: icon });
+            return React.createElement(ListItem, { onClick: _this2.selectEditor.bind(_this2, e), primaryText: e.text, secondaryText: e.title, leftIcon: icon });
         });
         return React.createElement(
             List,

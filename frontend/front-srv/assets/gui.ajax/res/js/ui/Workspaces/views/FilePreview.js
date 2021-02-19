@@ -161,7 +161,7 @@ class FilePreview extends PureComponent {
         }
 
         return (
-            <div ref="container" style={rootStyle} className={'mimefont-container' + (EditorClass?' with-editor-badge':'')} onTouchTap={this.props.onTouchTap}>
+            <div ref="container" style={rootStyle} className={'mimefont-container' + (EditorClass?' with-editor-badge':'')} onClick={this.props.onClick}>
                 {element}
             </div>
         );

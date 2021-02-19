@@ -97,7 +97,7 @@ var MasterLayout = (function (_React$Component) {
 
         return connectDropTarget(_react2['default'].createElement(
             'div',
-            { style: _extends({}, style, { overflow: 'hidden' }), className: allClasses.join(' '), onTouchTap: this.closeDrawer.bind(this), onContextMenu: onContextMenu },
+            { style: _extends({}, style, { overflow: 'hidden' }), className: allClasses.join(' '), onClick: this.closeDrawer.bind(this), onContextMenu: onContextMenu },
             tutorialComponent,
             _react2['default'].createElement(_leftnavLeftPanel2['default'], _extends({ className: 'left-panel', pydio: pydio }, leftPanelProps)),
             _react2['default'].createElement(

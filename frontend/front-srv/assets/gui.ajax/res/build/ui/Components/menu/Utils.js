@@ -135,7 +135,7 @@ function itemsToMenu(items, closeMenuCallback) {
             insetChildren: inset,
             leftIcon: leftIcon,
             rightIcon: rightIcon,
-            onTouchTap: payload,
+            onClick: payload,
             menuItems: subItems
         });
     });

@@ -18392,11 +18392,11 @@ var DataSourcesBoard = (function (_React$Component) {
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
             if (accessByName('CreateDatasource')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onClick: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
             }
             var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
             if (versioningEditable) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onClick: function () {
                         _this7.openVersionPolicy();
                     } }, adminStyles.props.header.flatButton)));
             }
@@ -18409,7 +18409,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 dsActions.push({
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: 'Edit datasource',
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         _this7.openDataSource([row]);
                     }
                 });
@@ -18417,14 +18417,14 @@ var DataSourcesBoard = (function (_React$Component) {
             dsActions.push({
                 iconClassName: 'mdi mdi-sync',
                 tooltip: m('editor.legend.resync.button'),
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     return _this7.resyncDataSource(pydio, m, row);
                 }
             });
             dsActions.push({
                 iconClassName: 'mdi mdi-folder-plus',
                 tooltip: 'Create workspace here',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     return _this7.createWorkspaceFromDatasource(pydio, m, row);
                 }
             });
@@ -18432,7 +18432,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 dsActions.push({
                     iconClassName: 'mdi mdi-delete',
                     tooltip: m('editor.legend.delete.button'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this7.deleteDataSource(pydio, m, row);
                     }
                 });
@@ -18442,7 +18442,7 @@ var DataSourcesBoard = (function (_React$Component) {
             vsActions.push({
                 iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
                 tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this7.openVersionPolicy([row]);
                 }
             });
@@ -18451,7 +18451,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     iconClassName: 'mdi mdi-delete',
                     tooltip: 'Delete policy',
                     destructive: true,
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this7.deleteVersionPolicy(row);
                     }
                 });
@@ -18759,11 +18759,11 @@ var EncryptionKeys = (function (_React$Component) {
             var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' }, sorter: { type: 'string', 'default': true } }, { name: 'ID', label: m('key.id'), hideSmall: true, sorter: { type: 'string' } }, { name: 'Owner', label: m('key.owner'), hideSmall: true, sorter: { type: 'string' } }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, useMoment: true, sorter: { type: 'number' } }];
             var actions = [];
             if (accessByName('CreateEncryption')) {
-                actions.push({ iconClassName: 'mdi mdi-import', tooltip: m('key.import'), onTouchTap: function onTouchTap(row) {
+                actions.push({ iconClassName: 'mdi mdi-import', tooltip: m('key.import'), onClick: function onClick(row) {
                         _this6.setState({ showDialog: true, showImportKey: row });
-                    } }, { iconClassName: 'mdi mdi-export', tooltip: m('key.export'), onTouchTap: function onTouchTap(row) {
+                    } }, { iconClassName: 'mdi mdi-export', tooltip: m('key.export'), onClick: function onClick(row) {
                         _this6.setState({ showDialog: true, showExportKey: row.ID });
-                    } }, { iconClassName: 'mdi mdi-delete', tooltip: m('key.delete'), onTouchTap: function onTouchTap(row) {
+                    } }, { iconClassName: 'mdi mdi-delete', tooltip: m('key.delete'), onClick: function onClick(row) {
                         _this6.deleteKey(row.ID);
                     } });
             }
@@ -18781,7 +18781,7 @@ var EncryptionKeys = (function (_React$Component) {
                         multiLine: true,
                         ref: 'key-imported-field'
                     });
-                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onTouchTap: function () {
+                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onClick: function () {
                             clearTimeout(_this6.timeout);
                             _this6.setState({ showExportKey: null, exportedKey: '', showDialog: false });
                         } })];
@@ -18792,9 +18792,9 @@ var EncryptionKeys = (function (_React$Component) {
                         _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
                         _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
                     );
-                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
+                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
                             _this6.setState({ showExportKey: null, showDialog: false });
-                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.export'), primary: true, onTouchTap: function () {
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.export'), primary: true, onClick: function () {
                             _this6.exportKey();
                         } })];
                 }
@@ -18812,9 +18812,9 @@ var EncryptionKeys = (function (_React$Component) {
                     _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
                     _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
                 );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
                         _this6.setState({ showImportKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.import'), primary: true, onTouchTap: function () {
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.import'), primary: true, onClick: function () {
                         _this6.importKey();
                     } })];
             } else if (showCreateKey) {
@@ -18825,9 +18825,9 @@ var EncryptionKeys = (function (_React$Component) {
                     _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
                     _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
                 );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
                         _this6.setState({ showCreateKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.create'), primary: true, onTouchTap: function () {
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.create'), primary: true, onClick: function () {
                         _this6.createKey();
                     } })];
             }
@@ -18874,13 +18874,13 @@ var EncryptionKeys = (function (_React$Component) {
                 accessByName('CreateEncryption') && _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right', paddingRight: 24, paddingBottom: 24 } },
-                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onClick: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
                         } }, adminStyles.props.header.flatButton)),
                     _react2['default'].createElement(
                         'span',
                         { style: { marginLeft: 8 } },
-                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onClick: function () {
                                 _this6.setState({ showCreateKey: true, showDialog: true });
                             } }, adminStyles.props.header.flatButton))
                     )
@@ -19074,17 +19074,17 @@ var MetadataBoard = (function (_React$Component) {
             var buttons = [];
             var actions = [];
             if (accessByName('Create')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onClick: function () {
                         _this3.create();
                     } }, adminStyle.props.header.flatButton)));
                 actions.push({
                     iconClassName: 'mdi mdi-pencil',
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         _this3.open([row]);
                     }
                 }, {
                     iconClassName: 'mdi mdi-delete',
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         _this3.deleteNs(row);
                     }
                 });
@@ -19328,7 +19328,7 @@ var VirtualNodes = (function (_React$Component) {
 
             var headerActions = [];
             if (!readonly && accessByName('Create')) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onClick: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
             }
 
             var columns = [{ name: 'id', label: m('col.id'), style: { width: '25%', fontSize: 15 }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
@@ -19345,7 +19345,7 @@ var VirtualNodes = (function (_React$Component) {
                 actions.push({
                     iconClassName: 'mdi mdi-eye',
                     tooltip: m('code.display'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
                     }
                 });
@@ -19353,14 +19353,14 @@ var VirtualNodes = (function (_React$Component) {
                 actions.push({
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: m('code.edit'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
                     }
                 });
                 actions.push({
                     iconClassName: 'mdi mdi-delete',
                     tooltip: m('delete'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         pydio.UI.openConfirmDialog({
                             message: m('delete.confirm'),
                             destructive: [row.node.getName()],
@@ -19666,7 +19666,7 @@ exports['default'] = (0, _createReactClass2['default'])({
             actions.push({
                 iconClassName: "mdi mdi-pencil",
                 tooltip: 'Edit Workspace',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     openSelection(row.workspace);
                 },
                 disable: function disable(row) {
@@ -19678,7 +19678,7 @@ exports['default'] = (0, _createReactClass2['default'])({
         actions.push({
             iconClassName: 'mdi mdi-open-in-new',
             tooltip: 'Open this workspace...',
-            onTouchTap: function onTouchTap(row) {
+            onClick: function onClick(row) {
                 pydio.triggerRepositoryChange(row.workspace.UUID);
             },
             disable: function disable(row) {
@@ -19688,7 +19688,7 @@ exports['default'] = (0, _createReactClass2['default'])({
         if (editable) {
             actions.push({
                 iconClassName: "mdi mdi-delete",
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this3.deleteAction(row.workspace);
                 },
                 disable: function disable(row) {
@@ -19905,7 +19905,7 @@ var WsDashboard = (0, _createReactClass2['default'])({
             buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
                 primary: true,
                 label: this.context.getMessage('ws.3'),
-                onTouchTap: this.showWorkspaceCreator
+                onClick: this.showWorkspaceCreator
             }, adminStyles.props.header.flatButton)));
         }
 
@@ -20226,7 +20226,7 @@ var DataSourceBucketSelector = (function (_React$Component) {
                             iconClassName: "mdi mdi-filter",
                             tooltip: mode === 'picker' ? m('buckets.regexp') : '',
                             tooltipPosition: "top-left",
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this4.toggleMode();
                             },
                             disabled: disabled
@@ -20236,7 +20236,7 @@ var DataSourceBucketSelector = (function (_React$Component) {
                         iconClassName: "mdi mdi-reload",
                         tooltip: m('buckets.reload'),
                         tooltipPosition: "top-left",
-                        onTouchTap: function () {
+                        onClick: function () {
                             _this4.load();
                         },
                         disabled: disabled
@@ -20249,11 +20249,11 @@ var DataSourceBucketSelector = (function (_React$Component) {
                         var selected = selection.indexOf(b) !== -1;
                         var chipToucher = {};
                         if (mode === 'picker') {
-                            chipToucher.onTouchTap = function () {
+                            chipToucher.onClick = function () {
                                 _this4.togglePicker(b);
                             };
                         } else if (!dataSource.StorageConfiguration.bucketsRegexp) {
-                            chipToucher.onTouchTap = function () {
+                            chipToucher.onClick = function () {
                                 _this4.toggleMode();_this4.togglePicker(b);
                             };
                         }
@@ -20707,9 +20707,9 @@ var DataSourceEditor = (function (_React$Component) {
                         onRequestClose: function () {
                             _this6.confirmEncryption(!dialogTargetValue);
                         },
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
                                 _this6.confirmEncryption(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onClick: function () {
                                 _this6.confirmEncryption(dialogTargetValue);
                             } })]
                     },
@@ -21324,7 +21324,7 @@ var AutocompleteTree = (function (_React$Component) {
                     _react2['default'].createElement(_materialUi.IconButton, {
                         iconClassName: "mdi mdi-folder-plus",
                         iconStyle: { color: '#9e9e9e' },
-                        onTouchTap: function () {
+                        onClick: function () {
                             return _this4.showCreateDialog();
                         },
                         tooltip: pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']
@@ -21929,7 +21929,7 @@ var MetaNamespace = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'span',
                                 null,
-                                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: function () {
                                         _this2.removeSelectionValue(k);
                                     } })
                             )
@@ -21956,7 +21956,7 @@ var MetaNamespace = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onClick: function () {
                                 _this2.addSelectionValue();
                             }, disabled: !selectorNewKey || !selectorNewValue })
                     )
@@ -22043,11 +22043,11 @@ var MetaNamespace = (function (_React$Component) {
                 });
             }
 
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onTouchTap: function () {
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onClick: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onClick: function () {
                     _this4.save();
                 } })];
             if (type === 'tags' && !readonly) {
-                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
+                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onClick: function () {
                         var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
                             pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
@@ -22898,7 +22898,7 @@ var WsAutoComplete = (function (_React$Component) {
                         menuProps: { maxHeight: 200 }
                     }, ModernStyles.textField))
                 ),
-                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onTouchTap: onDelete, disabled: !onDelete })
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onClick: onDelete, disabled: !onDelete })
             );
         }
     }], [{
@@ -23166,7 +23166,7 @@ var WsEditor = (function (_React$Component) {
                     m('ws.editor.help.delete'),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onClick: function () {
                             _this4.remove();
                         } })
                 );
@@ -23258,9 +23258,9 @@ var WsEditor = (function (_React$Component) {
                         onRequestClose: function () {
                             _this4.confirmSync(!dialogTargetValue);
                         },
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
                                 _this4.confirmSync(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('ws.editor.sync.warning.validate'), onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('ws.editor.sync.warning.validate'), onClick: function () {
                                 _this4.confirmSync(dialogTargetValue);
                             } })]
                     },
@@ -23588,7 +23588,7 @@ exports['default'] = (0, _createReactClass2['default'])({
                     removeButton = _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: this.context.getMessage('ws.31'), primary: true, onTouchTap: remove })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: this.context.getMessage('ws.31'), primary: true, onClick: remove })
                     );
                 }
                 description = _react2['default'].createElement(

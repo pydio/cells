@@ -260,7 +260,7 @@ var Events = (function (_React$Component) {
                     key: e,
                     disabled: true,
                     primaryText: Events.eventData(e).title,
-                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: LightGrey }, onTouchTap: function () {
+                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: LightGrey }, onClick: function () {
                             _this.remove(e);
                         } })
                 }));
@@ -293,7 +293,7 @@ var Events = (function (_React$Component) {
                         }
                     })
                 ),
-                _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onClick: function () {
                         return _this.setState({ open: true });
                     }, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-pulse" }) }),
                 _react2['default'].createElement(

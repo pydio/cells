@@ -484,7 +484,7 @@ var FSTemplate = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { className: 'drawer-button', style: { marginLeft: 12, marginRight: -6 } },
-                        _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: appBarTextColor.fade(0.03).toString() }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
+                        _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: appBarTextColor.fade(0.03).toString() }, iconClassName: 'mdi mdi-menu', onClick: this.openDrawer })
                     ),
                     _react2['default'].createElement(
                         'div',
@@ -544,7 +544,7 @@ var FSTemplate = (function (_React$Component) {
                             iconClassName: "mdi mdi-magnify",
                             style: rightColumnState === "advanced-search" ? styles.activeButtonStyle : styles.buttonsStyle,
                             iconStyle: rightColumnState === "advanced-search" ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this6.openRightPanel('advanced-search');
                             },
                             tooltip: pydio.MessageHash[rightColumnState === 'info-panel' ? '86' : '87']
@@ -558,7 +558,7 @@ var FSTemplate = (function (_React$Component) {
                             iconClassName: "mdi mdi-information",
                             style: rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle,
                             iconStyle: rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this6.openRightPanel('info-panel');
                             },
                             tooltip: pydio.MessageHash[rightColumnState === 'info-panel' ? '86' : '341']
@@ -567,7 +567,7 @@ var FSTemplate = (function (_React$Component) {
                             iconClassName: "mdi mdi-account-card-details",
                             style: rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle,
                             iconStyle: rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this6.openRightPanel('address-book');
                             },
                             tooltip: pydio.MessageHash[rightColumnState === 'address-book' ? '86' : '592'],
@@ -577,7 +577,7 @@ var FSTemplate = (function (_React$Component) {
                             iconClassName: "mdi mdi-message-text",
                             style: rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle,
                             iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                            onTouchTap: function () {
+                            onClick: function () {
                                 _this6.openRightPanel('chat');
                             },
                             tooltip: pydio.MessageHash[rightColumnState === 'chat' ? '86' : '635'],

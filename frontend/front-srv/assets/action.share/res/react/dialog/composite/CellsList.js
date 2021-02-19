@@ -26,7 +26,7 @@ class CellsList extends React.Component {
                     this.setState({addMenuOpen:false});
                     compositeModel.addToExistingCell(repository.getId());
                 };
-                items.push(<MenuItem primaryText={repository.getLabel()} onTouchTap={touchTap} leftIcon={<FontIcon className={"icomoon-cells"}/>}/>);
+                items.push(<MenuItem primaryText={repository.getLabel()} onClick={touchTap} leftIcon={<FontIcon className={"icomoon-cells"}/>}/>);
             }
         });
         return items;
@@ -71,7 +71,7 @@ class CellsList extends React.Component {
             };
             let rightIcon;
             if(isEdit){
-                rightIcon = <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={toggleState}/>;
+                rightIcon = <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={toggleState}/>;
             } else if (cellModel.isEditable()) {
                 rightIcon = (
                     <IconMenu
@@ -79,8 +79,8 @@ class CellsList extends React.Component {
                         anchorOrigin={{horizontal:'right', vertical:'top'}}
                         targetOrigin={{horizontal:'right', vertical:'top'}}
                     >
-                        <MenuItem primaryText={m(258)} onTouchTap={toggleState}/>
-                        <MenuItem primaryText={m(259)} onTouchTap={removeNode}/>
+                        <MenuItem primaryText={m(258)} onClick={toggleState}/>
+                        <MenuItem primaryText={m(259)} onClick={removeNode}/>
                     </IconMenu>
                 );
             }
@@ -89,7 +89,7 @@ class CellsList extends React.Component {
                     primaryText={label}
                     secondaryText={cellModel.getAclsSubjects()}
                     rightIconButton={rightIcon}
-                    onTouchTap={toggleState}
+                    onClick={toggleState}
                     style={isEdit?{backgroundColor:'rgb(245, 245, 245)'}:{}}
                     disabled={edit === 'NEWCELL' && !isEdit}
                 />
@@ -122,7 +122,7 @@ class CellsList extends React.Component {
             legend = <div>{m(261)}</div>
         } else {
             legend = (
-                <div style={{padding:'21px 16px 21px 0px', cursor: 'pointer', display: 'flex', alignItems:'center'}} onTouchTap={() =>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}>
+                <div style={{padding:'21px 16px 21px 0px', cursor: 'pointer', display: 'flex', alignItems:'center'}} onClick={() =>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}>
                     <IconButton iconClassName={"icomoon-cells-clear-plus"} iconStyle={{color: muiTheme.palette.primary1Color}}/>
                     <span style={{flex: 1, marginLeft: 8}}>{m(262)}</span>
                 </div>
@@ -138,7 +138,7 @@ class CellsList extends React.Component {
                     style={{marginLeft: 10}}
                     primary={true}
                     label={m(263)}
-                    onTouchTap={(event)=>{this.setState({addMenuOpen:true, addMenuAnchor:ReactDOM.findDOMNode(this.refs['addCellButton'])})}}
+                    onClick={(event)=>{this.setState({addMenuOpen:true, addMenuAnchor:ReactDOM.findDOMNode(this.refs['addCellButton'])})}}
                 />
                 <Popover
                     open={this.state.addMenuOpen}
@@ -168,7 +168,7 @@ class CellsList extends React.Component {
         return (
             <div style={this.props.style}>
                 <div style={{paddingBottom: 20}}>
-                    <RaisedButton label={m(264)} disabled={edit==='NEWCELL'} primary={true} onTouchTap={()=>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}/>
+                    <RaisedButton label={m(264)} disabled={edit==='NEWCELL'} primary={true} onClick={()=>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}/>
                     {addToCellMenu}
                 </div>
                 <div style={{fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)'}}>{legend}</div>

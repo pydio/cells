@@ -71,10 +71,10 @@ class EditorToolbar extends React.Component {
                 style={mainStyle}
                 title={<span style={spanStyle}>{title}</span>}
                 titleStyle={{innerStyle, fontSize:16}}
-                iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onClose()}/>}
+                iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onClick={() => this.onClose()}/>}
                 iconElementRight={
                     <ToolbarGroup>
-                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onMinimise()}/>
+                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} touch={true} onClick={() => this.onMinimise()}/>
                     </ToolbarGroup>
                 }
             />

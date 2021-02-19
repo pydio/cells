@@ -224,13 +224,13 @@ var UserInfo = (function (_React$Component) {
                             targetOrigin: { horizontal: 'right', vertical: 'top' },
                             tooltip: "Actions"
                         },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage('25'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage('25'), onClick: function () {
                                 return _this2.buttonCallback('update_user_pwd');
                             } }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('logout') > -1 ? '27' : '26'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('logout') > -1 ? '27' : '26'), onClick: function () {
                                 return _this2.buttonCallback('user_set_lock-lock');
                             } }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('pass_change') > -1 ? '28b' : '28'), onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.getPydioRoleMessage(locks.indexOf('pass_change') > -1 ? '28b' : '28'), onClick: function () {
                                 return _this2.buttonCallback('user_set_lock-pass_change');
                             } })
                     )

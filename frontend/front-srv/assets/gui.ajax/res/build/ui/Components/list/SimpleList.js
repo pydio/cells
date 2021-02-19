@@ -1192,7 +1192,7 @@ var SimpleList = _createReactClass2['default']({
                     this.getMessage('react.3').replace('%s', this.props.searchResultData.term)
                 )
             );
-            rightButtons = _react2['default'].createElement(_materialUi.RaisedButton, { key: 1, label: this.getMessage('react.4'), primary: true, onTouchTap: this.props.searchResultData.toggleState, style: { marginRight: -10 } });
+            rightButtons = _react2['default'].createElement(_materialUi.RaisedButton, { key: 1, label: this.getMessage('react.4'), primary: true, onClick: this.props.searchResultData.toggleState, style: { marginRight: -10 } });
         } else if (this.actionsCache.multiple.size || this.props.multipleActions) {
             var bulkLabel = this.getMessage('react.2');
             var hiddenStyle = {

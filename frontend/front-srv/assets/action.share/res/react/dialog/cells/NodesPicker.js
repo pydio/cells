@@ -119,7 +119,7 @@ class NodesPicker extends React.Component{
                 disabled={true}
                 leftIcon={<FontIcon className={"mdi mdi-" + (node.Type === 'LEAF' ? 'file' : 'folder')}/>}
                 primaryText={model.getNodeLabelInContext(node)}
-                rightIconButton={<IconButton onTouchTap={()=>{model.removeRootNode(node.Uuid);}} iconClassName="mdi mdi-delete" tooltip="Remove" iconStyle={{color:'rgba(0,0,0,.43)'}}/>}
+                rightIconButton={<IconButton onClick={()=>{model.removeRootNode(node.Uuid);}} iconClassName="mdi mdi-delete" tooltip="Remove" iconStyle={{color:'rgba(0,0,0,.43)'}}/>}
             />
         );
     }
@@ -146,7 +146,7 @@ class NodesPicker extends React.Component{
         if(mode === 'edit'){
             pickButton = (<FlatButton
                 label={m(282)}
-                onTouchTap={this.handleTouchTap.bind(this)}
+                onClick={this.handleTouchTap.bind(this)}
                 primary={true}
                 style={{marginBottom: 10}}
                 icon={<FontIcon className={"mdi mdi-folder-plus"}/>}
@@ -154,7 +154,7 @@ class NodesPicker extends React.Component{
         } else {
             pickButton = (<RaisedButton
                 label={m(282)}
-                onTouchTap={this.handleTouchTap.bind(this)}
+                onClick={this.handleTouchTap.bind(this)}
                 primary={false}
                 style={{marginBottom: 10}}
                 icon={<FontIcon className={"mdi mdi-folder-plus"} style={{fontSize: 20, marginTop: -4}}/>}
@@ -202,7 +202,7 @@ class NodesPicker extends React.Component{
                             {!node &&
                                 <div style={{flex: 1, color:'rgba(0,0,0,.54)', fontWeight:500}}>{m(283)}</div>
                             }
-                            <IconButton iconStyle={{color:muiTheme.palette.primary1Color}} disabled={!node} iconClassName={"mdi mdi-plus-circle-outline"} onTouchTap={this.onValidateNode.bind(this)}/>
+                            <IconButton iconStyle={{color:muiTheme.palette.primary1Color}} disabled={!node} iconClassName={"mdi mdi-plus-circle-outline"} onClick={this.onValidateNode.bind(this)}/>
                         </div>
                     </div>
 

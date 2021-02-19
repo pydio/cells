@@ -118,7 +118,7 @@ class WsEditor extends React.Component {
             delButton = (
                 <div style={{padding: 16, textAlign:'center'}}>
                     {m('ws.editor.help.delete')}<br/><br/>
-                    <RaisedButton secondary={true} label={m('ws.23')} onTouchTap={()=>{this.remove()}}/>
+                    <RaisedButton secondary={true} label={m('ws.23')} onClick={()=>{this.remove()}}/>
                 </div>
             );
         }
@@ -199,8 +199,8 @@ class WsEditor extends React.Component {
                     title={m('ws.editor.sync.warning')}
                     onRequestClose={()=>{this.confirmSync(!dialogTargetValue)}}
                     actions={[
-                        <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.confirmSync(!dialogTargetValue)}}/>,
-                        <FlatButton label={m('ws.editor.sync.warning.validate')} onTouchTap={()=>{this.confirmSync(dialogTargetValue)}}/>
+                        <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.confirmSync(!dialogTargetValue)}}/>,
+                        <FlatButton label={m('ws.editor.sync.warning.validate')} onClick={()=>{this.confirmSync(dialogTargetValue)}}/>
                     ]}
                 >
                     {showDialog === 'enableSync' &&

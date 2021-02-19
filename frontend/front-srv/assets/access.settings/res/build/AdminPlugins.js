@@ -53850,8 +53850,8 @@ var PluginEditor = (0, _createReactClass2['default'])({
         if (!dirty) {
             props = adminStyles.props.header.flatButtonDisabled;
         }
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onClick: this.revert }, props)));
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onClick: this.save }, props)));
         return actions;
     },
 
@@ -54034,21 +54034,21 @@ var PluginEditor = (0, _createReactClass2['default'])({
             if (closeEditor) {
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo",
                     iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty,
-                    tooltip: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+                    tooltip: this.context.getMessage('plugins.6'), onClick: this.revert }));
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save",
                     iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty,
-                    tooltip: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+                    tooltip: this.context.getMessage('plugins.5'), onClick: this.save }));
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
-                    tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+                    tooltip: this.context.getMessage('86', ''), onClick: closeEditor }));
             } else {
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'),
-                    onTouchTap: this.revert }, bProps)));
+                    onClick: this.revert }, bProps)));
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'),
-                    onTouchTap: this.save }, bProps)));
+                    onClick: this.save }, bProps)));
             }
         } else if (closeEditor) {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
-                tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+                tooltip: this.context.getMessage('86', ''), onClick: closeEditor }));
         }
 
         var titleLabel = undefined,
@@ -54268,7 +54268,7 @@ var PluginsList = (0, _createReactClass2['default'])({
                     iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 20 },
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: m('action.edit'),
-                    onTouchTap: function () {
+                    onClick: function () {
                         return _this4.openTableRows([row]);
                     }
                 });
@@ -54504,7 +54504,7 @@ var PluginEditor = (0, _createReactClass2['default'])({
 
         var closeButton = undefined;
         if (closeEditor) {
-            closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: closeEditor });
+            closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onClick: closeEditor });
         }
 
         var doc = documentation;
@@ -54536,8 +54536,8 @@ var PluginEditor = (0, _createReactClass2['default'])({
             if (!dirty) {
                 props = adminStyles.props.header.flatButtonDisabled;
             }
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onClick: this.revert }, props)));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onClick: this.save }, props)));
         }
         actions.push(closeButton);
 
@@ -55270,7 +55270,7 @@ var JSDocsPanel = (function (_Component) {
                 items.push(React.createElement(_materialUi.ListItem, {
                     key: key,
                     primaryText: title,
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this2.setState({ selection: key });
                     }
                 }));
@@ -55359,7 +55359,7 @@ var ClassPanel = (function (_Component2) {
                         React.createElement(
                             _materialUi.TableRowColumn,
                             null,
-                            pData.type && pData.type.raw && pData.type.raw.replace('React.PropTypes.', '').replace('.isRequired', '')
+                            pData.type && pData.type.raw && pData.type.raw.replace('PropTypes.', '').replace('.isRequired', '')
                         ),
                         React.createElement(
                             _materialUi.TableRowColumn,
@@ -56030,7 +56030,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                 disabled: disabled,
                 secondary: true,
                 label: this.context.getMessage('start.update', 'updater'),
-                onTouchTap: this.performUpgrade
+                onClick: this.performUpgrade
             }, bProps)));
             var tableData = [];
 
@@ -56045,7 +56045,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                         iconClassName: "mdi mdi-link",
                         tooltip: _this3.context.getMessage('package.changelog', 'updater'),
                         tooltipPosition: "bottom-left",
-                        onTouchTap: function () {
+                        onClick: function () {
                             window.open(p.ChangeLog, '_blank');
                         },
                         onClick: function (e) {
@@ -56113,7 +56113,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                     _react2['default'].createElement(
                         'span',
                         { style: { float: 'right' } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('check.button', 'updater'), onTouchTap: this.checkForUpgrade })
+                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('check.button', 'updater'), onClick: this.checkForUpgrade })
                     ),
                     this.state && this.state.no_upgrade ? this.context.getMessage('noupdates', 'updater') : this.context.getMessage('check.legend', 'updater')
                 )
@@ -56121,7 +56121,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
         }
 
         if (dirty) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: { marginLeft: 10 }, secondary: true, label: this.context.getMessage('configs.save', 'updater'), onTouchTap: function () {
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: { marginLeft: 10 }, secondary: true, label: this.context.getMessage('configs.save', 'updater'), onClick: function () {
                     _this3.refs.serviceConfigs.save().then(function (res) {
                         _this3.setState({ dirty: false });
                     });
@@ -56475,11 +56475,11 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: cardMessage('ent.support'), secondaryText: cardMessage('ent.support.legend') })
                         )
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.more'), onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.more'), onClick: function () {
                             window.open('https://pydio.com/en/features/pydio-cells-overview');
-                        } }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onClick: function () {
                             _this4.next('eula');
                         }, label: m('button.start'), primary: true })];
                     break;
@@ -56501,9 +56501,9 @@ var UpgraderWizard = (function (_React$Component) {
                                 _this4.setState({ acceptEula: v });
                             } })
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             _this4.next('license');
                         }, label: m('button.next'), primary: true, disabled: !acceptEula })];
                     break;
@@ -56551,11 +56551,11 @@ var UpgraderWizard = (function (_React$Component) {
                             errorText: errorText
                         })
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.contact'), onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.contact'), onClick: function () {
                             window.open('https://pydio.com/en/pricing/contact');
-                        }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             _this4.next('check');
                         }, label: m('button.next'), primary: true, disabled: !licenseKey })];
                     break;
@@ -56674,9 +56674,9 @@ var UpgraderWizard = (function (_React$Component) {
                             )
                         )
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             _this4.next('perform');
                         }, label: m('button.install'), primary: true, disabled: !versionAvailable })];
                     break;
@@ -56705,7 +56705,7 @@ var UpgraderWizard = (function (_React$Component) {
                         );
                     }
 
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
                         }, label: m('button.close'), primary: true })];
                     break;

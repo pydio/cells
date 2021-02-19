@@ -24,9 +24,9 @@ class StepDisclaimer extends React.Component {
 
         const otherButtons = [];
         if (advanced){
-            otherButtons.push(<RaisedButton label={this.T('step.disclaimer.support')} onTouchTap={()=>{window.open('https://pydio.com/en/user/login')}}/>)
+            otherButtons.push(<RaisedButton label={this.T('step.disclaimer.support')} onClick={()=>{window.open('https://pydio.com/en/user/login')}}/>)
         } else {
-            otherButtons.push(<RaisedButton label={this.T('step.disclaimer.quote')} onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}}/>)
+            otherButtons.push(<RaisedButton label={this.T('step.disclaimer.quote')} onClick={()=>{window.open('https://pydio.com/en/pricing/contact')}}/>)
         }
 
 

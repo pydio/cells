@@ -148,7 +148,7 @@ var TeamCard = (function (_React$Component) {
                 'div',
                 { style: { display: 'flex', alignItems: 'center', margin: 16 } },
                 React.createElement(TextField, { style: { flex: 1, fontSize: 24 }, fullWidth: true, disabled: false, underlineShow: false, value: this.state.label, onChange: this.onLabelChange.bind(this) }),
-                React.createElement(FlatButton, { secondary: true, label: getMessage(48), onTouchTap: function () {
+                React.createElement(FlatButton, { secondary: true, label: getMessage(48), onClick: function () {
                         _this3.updateLabel();
                     } })
             );

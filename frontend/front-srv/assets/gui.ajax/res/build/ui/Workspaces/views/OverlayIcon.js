@@ -105,7 +105,7 @@ var OverlayIcon = (function (_React$Component) {
             iconClassName: overlay + ' overlay-icon-span',
             style: { width: 30, height: 30, padding: 6, margin: '6px 2px', zIndex: 0, cursor: onClick ? 'pointer' : 'default' },
             iconStyle: { color: selected ? 'white' : light, fontSize: 15, transition: 'none' },
-            onTouchTap: onClick
+            onClick: onClick
         });
     };
 

@@ -210,7 +210,7 @@ var Policy = (function (_React$Component) {
                     { style: { fontSize: 14, fontWeight: 500 } },
                     'Rules'
                 ),
-                !readonly && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-plus", tooltip: m('rule.create'), onTouchTap: this.onAddRule.bind(this) }, icButtonsProps, { tooltipPosition: "bottom-right" }))
+                !readonly && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-plus", tooltip: m('rule.create'), onClick: this.onAddRule.bind(this) }, icButtonsProps, { tooltipPosition: "bottom-right" }))
             );
 
             var labelsBlock = undefined;
@@ -233,7 +233,7 @@ var Policy = (function (_React$Component) {
                                 { style: { fontSize: 14, fontWeight: 500 } },
                                 'Edit Labels'
                             ),
-                            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-" + (showLabels ? 'down' : 'right'), tooltip: m('policy.editLabels'), onTouchTap: function () {
+                            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-" + (showLabels ? 'down' : 'right'), tooltip: m('policy.editLabels'), onClick: function () {
                                     return _this2.setState({ showLabels: !showLabels });
                                 } }, icButtonsProps))
                         ),
@@ -262,7 +262,7 @@ var Policy = (function (_React$Component) {
                                     iconClassName: "mdi mdi-content-save",
                                     tooltip: m('policy.saveLabels'),
                                     tooltipPosition: "top-center",
-                                    onTouchTap: function () {
+                                    onClick: function () {
                                         _this2.saveLabels();
                                     },
                                     iconStyle: { fontSize: 20, color: 'rgba(0,0,0,' + (labelsModified ? '.43' : '.10') + ')' },

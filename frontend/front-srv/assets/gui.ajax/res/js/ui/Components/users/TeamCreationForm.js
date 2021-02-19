@@ -67,8 +67,8 @@ class TeamCreationForm extends Component{
                 </div>
                 <div>
                     <div style={{textAlign:'right', padding: 8}}>
-                        <FlatButton label={getMessage(49)} onTouchTap={this.props.onCancel.bind(this)} />
-                        <FlatButton label={getMessage(579)} primary={true} onTouchTap={this.submitCreationForm.bind(this)} />
+                        <FlatButton label={getMessage(49)} onClick={this.props.onCancel.bind(this)} />
+                        <FlatButton label={getMessage(579)} primary={true} onClick={this.submitCreationForm.bind(this)} />
                     </div>
                 </div>
             </div>

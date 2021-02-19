@@ -163,7 +163,7 @@ class BookmarksList extends React.Component {
                             <IconButton
                                 iconClassName={"mdi mdi-delete"}
                                 iconStyle={{opacity:.33, fontSize:18}}
-                                onTouchTap={() => {this.removeBookmark(nodes[0])}}
+                                onClick={() => {this.removeBookmark(nodes[0])}}
                                 tooltip={pydio.MessageHash['bookmark.button.tip.remove']}
                                 tooltipPosition={"bottom-left"}
                             />
@@ -183,7 +183,7 @@ class BookmarksList extends React.Component {
         return (
             <span>
                 <IconButton
-                    onTouchTap={this.handleTouchTap.bind(this)}
+                    onClick={this.handleTouchTap.bind(this)}
                     iconClassName={"userActionIcon mdi mdi-star"}
                     tooltip={pydio.MessageHash['147']}
                     tooltipPosition={"bottom-left"}

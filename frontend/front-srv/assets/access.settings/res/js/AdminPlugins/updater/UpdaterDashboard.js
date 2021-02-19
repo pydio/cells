@@ -153,7 +153,7 @@ let UpdaterDashboard = createReactClass({
                     disabled={disabled}
                     secondary={true}
                     label={this.context.getMessage('start.update', 'updater')}
-                    onTouchTap={this.performUpgrade}
+                    onClick={this.performUpgrade}
                     {...bProps}
                 />);
             const tableData = [];
@@ -167,7 +167,7 @@ let UpdaterDashboard = createReactClass({
                         iconClassName={"mdi mdi-link"}
                         tooltip={this.context.getMessage('package.changelog', 'updater')}
                         tooltipPosition={"bottom-left"}
-                        onTouchTap={()=>{window.open(p.ChangeLog, '_blank')}}
+                        onClick={()=>{window.open(p.ChangeLog, '_blank')}}
                         onClick={(e)=>e.stopPropagation()}
                         iconStyle={{color:primary1Color}}
                     />
@@ -216,7 +216,7 @@ let UpdaterDashboard = createReactClass({
                     <div style={subHeaderStyle}>{this.context.getMessage('check.button', 'updater')}</div>
                     <div style={{padding: '16px 16px 32px'}}>
                         <span style={{float:'right'}}>
-                            <RaisedButton secondary={true} label={this.context.getMessage('check.button', 'updater')} onTouchTap={this.checkForUpgrade}/>
+                            <RaisedButton secondary={true} label={this.context.getMessage('check.button', 'updater')} onClick={this.checkForUpgrade}/>
                         </span>
                         { (this.state && this.state.no_upgrade) ? this.context.getMessage('noupdates', 'updater') : this.context.getMessage('check.legend', 'updater') }
                     </div>
@@ -225,7 +225,7 @@ let UpdaterDashboard = createReactClass({
         }
 
         if (dirty){
-            buttons.push(<RaisedButton style={{marginLeft: 10}} secondary={true} label={this.context.getMessage('configs.save', 'updater')} onTouchTap={()=>{
+            buttons.push(<RaisedButton style={{marginLeft: 10}} secondary={true} label={this.context.getMessage('configs.save', 'updater')} onClick={()=>{
                 this.refs.serviceConfigs.save().then((res) => {
                     this.setState({dirty: false});
                 });

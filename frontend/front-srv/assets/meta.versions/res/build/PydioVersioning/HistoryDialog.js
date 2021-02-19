@@ -185,8 +185,8 @@ var HistoryBrowser = _react2['default'].createClass({
                 _react2['default'].createElement(
                     _materialUi.ToolbarGroup,
                     { lastChild: true, style: { paddingRight: 7 } },
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltipPosition: "bottom-left", iconStyle: disabled ? {} : { color: 'white' }, disabled: disabled, label: mess['meta.versions.3'], tooltip: mess['meta.versions.4'], onTouchTap: this.applyAction.bind(this, 'dl') }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-backup-restore", tooltipPosition: "bottom-left", iconStyle: disabled ? {} : { color: 'white' }, disabled: disabled, label: mess['meta.versions.7'], tooltip: mess['meta.versions.8'], onTouchTap: this.applyAction.bind(this, 'revert') })
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltipPosition: "bottom-left", iconStyle: disabled ? {} : { color: 'white' }, disabled: disabled, label: mess['meta.versions.3'], tooltip: mess['meta.versions.4'], onClick: this.applyAction.bind(this, 'dl') }),
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-backup-restore", tooltipPosition: "bottom-left", iconStyle: disabled ? {} : { color: 'white' }, disabled: disabled, label: mess['meta.versions.7'], tooltip: mess['meta.versions.8'], onClick: this.applyAction.bind(this, 'revert') })
                 )
             ),
             _react2['default'].createElement(NodeListCustomProvider, {

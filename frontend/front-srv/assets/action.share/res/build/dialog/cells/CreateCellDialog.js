@@ -203,7 +203,7 @@ var CreateCellDialog = (function (_React$Component) {
                         primary: true,
                         disabled: !model.getLabel() || saving,
                         label: this.m('cells.create.advanced'), // Advanced
-                        onTouchTap: function () {
+                        onClick: function () {
                             _this3.setState({ step: 'data' });
                         } }));
                     buttons.push(_react2['default'].createElement(
@@ -218,7 +218,7 @@ var CreateCellDialog = (function (_React$Component) {
                     disabled: !model.getLabel() || saving,
                     primary: true,
                     label: this.m(279), // Create Cell
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this3.submit();
                     } }));
             } else if (step === 'data') {
@@ -242,10 +242,10 @@ var CreateCellDialog = (function (_React$Component) {
                     })
                 );
 
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'prev1', primary: false, label: pydio.MessageHash['304'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'prev1', primary: false, label: pydio.MessageHash['304'], onClick: function () {
                         _this3.setState({ step: 'users' });
                     } }));
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'next2', primary: true, label: pydio.MessageHash['179'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'next2', primary: true, label: pydio.MessageHash['179'], onClick: function () {
                         return _this3.setState({ step: 'label' });
                     } }));
             } else {
@@ -270,10 +270,10 @@ var CreateCellDialog = (function (_React$Component) {
                     )
                 );
 
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'prev2', primary: false, label: pydio.MessageHash['304'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'prev2', primary: false, label: pydio.MessageHash['304'], onClick: function () {
                         _this3.setState({ step: 'data' });
                     } }));
-                buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'submit', disabled: saving, primary: true, label: this.m(279), onTouchTap: this.submit.bind(this) }));
+                buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'submit', disabled: saving, primary: true, label: this.m(279), onClick: this.submit.bind(this) }));
             }
 
             return _react2['default'].createElement(

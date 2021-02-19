@@ -110,8 +110,8 @@ var TeamCreationForm = (function (_Component) {
                 React.createElement(
                     'div',
                     { style: { textAlign: 'right', padding: 8 } },
-                    React.createElement(_materialUi.FlatButton, { label: getMessage(49), onTouchTap: this.props.onCancel.bind(this) }),
-                    React.createElement(_materialUi.FlatButton, { label: getMessage(579), primary: true, onTouchTap: this.submitCreationForm.bind(this) })
+                    React.createElement(_materialUi.FlatButton, { label: getMessage(49), onClick: this.props.onCancel.bind(this) }),
+                    React.createElement(_materialUi.FlatButton, { label: getMessage(579), primary: true, onClick: this.submitCreationForm.bind(this) })
                 )
             )
         );

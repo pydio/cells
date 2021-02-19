@@ -132,7 +132,7 @@ var TemplatePath = (function (_React$Component2) {
                 primaryText: templatePath.Path,
                 secondaryText: removeComments(templatePath.MetaStore.resolution),
                 disabled: !selectable,
-                onTouchTap: function () {
+                onClick: function () {
                     return _this.handleSelect();
                 }
             });

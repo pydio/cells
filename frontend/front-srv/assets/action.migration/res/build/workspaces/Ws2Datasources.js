@@ -230,7 +230,7 @@ var Datasource = (function (_React$Component2) {
                     secondaryText: Ws2Datasources.toString(datasource),
                     style: style,
                     disabled: !selectable,
-                    onTouchTap: function () {
+                    onClick: function () {
                         return _this2.handleSelect();
                     }
                 })

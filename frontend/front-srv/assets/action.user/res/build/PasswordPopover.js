@@ -94,7 +94,7 @@ var PasswordPopover = (function (_React$Component) {
                 'div',
                 { style: { marginLeft: 8 } },
                 React.createElement(RaisedButton, {
-                    onTouchTap: this.passOpenPopover.bind(this),
+                    onClick: this.passOpenPopover.bind(this),
                     label: pydio.MessageHash[194],
                     primary: true
                 }),
@@ -121,8 +121,8 @@ var PasswordPopover = (function (_React$Component) {
                         React.createElement(
                             'div',
                             { style: { textAlign: 'right', padding: '8px 0' } },
-                            React.createElement(FlatButton, { label: this.props.pydio.MessageHash[49], onTouchTap: this.passClosePopover.bind(this) }),
-                            React.createElement(FlatButton, { disabled: !passValid, label: 'Ok', onTouchTap: this.passSubmit.bind(this) })
+                            React.createElement(FlatButton, { label: this.props.pydio.MessageHash[49], onClick: this.passClosePopover.bind(this) }),
+                            React.createElement(FlatButton, { disabled: !passValid, label: 'Ok', onClick: this.passSubmit.bind(this) })
                         )
                     )
                 )

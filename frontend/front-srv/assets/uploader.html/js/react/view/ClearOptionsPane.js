@@ -56,9 +56,9 @@ class ClearOptionsPane extends React.Component {
             >
                 <Menu style={{width: 146}} desktop={true}>
                     <Subheader style={{lineHeight:'26px'}}>{msg['html_uploader.clear-header']}</Subheader>
-                    <MenuItem primaryText={msg['html_uploader.clear-finished']} onTouchTap={()=>{this.clear('loaded')}}/>
-                    <MenuItem primaryText={msg['html_uploader.clear-failed']} onTouchTap={()=>{this.clear('error')}}/>
-                    <MenuItem primaryText={msg['html_uploader.clear-all']} onTouchTap={()=>{this.clear('all')}}/>
+                    <MenuItem primaryText={msg['html_uploader.clear-finished']} onClick={()=>{this.clear('loaded')}}/>
+                    <MenuItem primaryText={msg['html_uploader.clear-failed']} onClick={()=>{this.clear('error')}}/>
+                    <MenuItem primaryText={msg['html_uploader.clear-all']} onClick={()=>{this.clear('all')}}/>
                 </Menu>
             </Popover>
         );

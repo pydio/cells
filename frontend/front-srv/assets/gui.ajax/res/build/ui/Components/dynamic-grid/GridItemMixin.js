@@ -89,7 +89,7 @@ exports['default'] = {
                 React.createElement(_materialUi.FlatButton, {
                     label: _pydio2['default'].getInstance().MessageHash['ajxp_admin.home.48'],
                     className: 'card-close-button',
-                    onTouchTap: closeAction,
+                    onClick: closeAction,
                     style: { color: 'white' }
                 })
             );

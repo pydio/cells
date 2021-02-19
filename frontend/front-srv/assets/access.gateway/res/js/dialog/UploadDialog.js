@@ -34,7 +34,7 @@ class TopBar extends React.Component{
                 <Tabs style={{flex: 1}}>
                     {tabs}
                 </Tabs>
-                <IconButton iconStyle={{color:muiTheme.tabs.selectedTextColor}} iconClassName={"mdi mdi-close"} onTouchTap={dismiss} tooltip={"Close"}/>
+                <IconButton iconStyle={{color:muiTheme.tabs.selectedTextColor}} iconClassName={"mdi mdi-close"} onClick={dismiss} tooltip={"Close"}/>
             </div>
         );
     }

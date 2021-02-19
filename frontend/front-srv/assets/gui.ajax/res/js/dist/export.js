@@ -32,6 +32,3 @@ window.ReactDND.flow = require('lodash/function/flow');
 window.classNames = require('classnames');
 window.Clipboard = require('clipboard');
 window.ReactQRCode = require('qrcode.react');
-window.Cronstrue = require("cronstrue");
-window.injectTapEventPlugin = require('react-tap-event-plugin');
-window.injectTapEventPlugin();

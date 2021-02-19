@@ -133,7 +133,7 @@ class Message extends React.Component {
             >
                 {moreLoader &&
                 <div style={styles.loader}>
-                    <FlatButton primary={true} label={Pydio.getMessages()['chat.load-older']} onTouchTap={moreLoader}/>
+                    <FlatButton primary={true} label={Pydio.getMessages()['chat.load-older']} onClick={moreLoader}/>
                 </div>
                 }
                 {!hideDate &&

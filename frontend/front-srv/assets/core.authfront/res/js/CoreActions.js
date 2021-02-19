@@ -18,11 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio';
-import PydioApi from "pydio/http/api";
+import React from 'react'
+import Pydio from 'pydio'
+import PydioApi from "pydio/http/api"
 import createReactClass from 'create-react-class'
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
-import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu, Toggle} from 'material-ui';
+import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
 
 const LanguagePicker = (props) => {
@@ -150,7 +151,7 @@ let LoginPasswordDialog = createReactClass({
         const passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         const secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');
 
-        const enterButton = <FlatButton id="dialog-login-submit" default={true} labelStyle={{color:'white'}} key="enter" label={pydio.MessageHash[617]} onTouchTap={() => this.submit()}/>;
+        const enterButton = <FlatButton id="dialog-login-submit" default={true} labelStyle={{color:'white'}} key="enter" label={pydio.MessageHash[617]} onClick={() => this.submit()}/>;
         let buttons = [];
         if(false && !secureLoginForm){
             buttons.push(

@@ -180,7 +180,7 @@ class JobsList extends React.Component {
         let {system, other} = this.extractRowsInfo(jobs, m);
         const actions = [{
             iconClassName:'mdi mdi-chevron-right',
-            onTouchTap:(row)=>selectRows([row])
+            onClick:(row)=>selectRows([row])
         }];
 
         return (

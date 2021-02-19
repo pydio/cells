@@ -347,7 +347,7 @@ class DLTemplate extends React.Component{
             shareButton = (
                 <a
                     style={{display:'block',textAlign:'center', padding: 12, cursor: 'pointer'}}
-                    onTouchTap={() => {this.setState({displayShareLink: true})}}>{sharePageAction.options.text}</a>
+                    onClick={() => {this.setState({displayShareLink: true})}}>{sharePageAction.options.text}</a>
             );
         }
         return (

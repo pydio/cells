@@ -152,7 +152,7 @@ var GenericCard = (function (_React$Component2) {
             { zDepth: 0, style: _extends({ width: '100%', position: 'relative' }, style) },
             onEditAction && _react2['default'].createElement(
                 _materialUi.FloatingActionButton,
-                { onTouchTap: onEditAction, mini: true, style: { position: 'absolute', top: styles.fabTop, left: 10 } },
+                { onClick: onEditAction, mini: true, style: { position: 'absolute', top: styles.fabTop, left: 10 } },
                 _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-pencil" })
             ),
             _react2['default'].createElement(
@@ -162,7 +162,7 @@ var GenericCard = (function (_React$Component2) {
                     'div',
                     { style: { display: 'flex', height: styles.buttonBarHeight } },
                     _react2['default'].createElement('span', { style: { flex: 1 } }),
-                    onDeleteAction && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button.style, iconStyle: styles.button.iconStyle, iconClassName: "mdi mdi-delete", onTouchTap: onDeleteAction }),
+                    onDeleteAction && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button.style, iconStyle: styles.button.iconStyle, iconClassName: "mdi mdi-delete", onClick: onDeleteAction }),
                     moreMenuItems && moreMenuItems.length > 0 && _react2['default'].createElement(
                         _materialUi.IconMenu,
                         {
@@ -173,7 +173,7 @@ var GenericCard = (function (_React$Component2) {
                         moreMenuItems
                     ),
                     otherActions,
-                    onDismissAction && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button.style, iconStyle: styles.button.iconStyle, iconClassName: "mdi mdi-close", onTouchTap: onDismissAction })
+                    onDismissAction && _react2['default'].createElement(_materialUi.IconButton, { style: styles.button.style, iconStyle: styles.button.iconStyle, iconClassName: "mdi mdi-close", onClick: onDismissAction })
                 ),
                 _react2['default'].createElement(
                     'div',

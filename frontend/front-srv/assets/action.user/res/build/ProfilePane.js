@@ -103,10 +103,10 @@ var ProfilePane = (function (_React$Component) {
             var button = undefined,
                 revert = undefined;
             if (_this.state.dirty) {
-                revert = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[628], onTouchTap: _this.revert });
-                button = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[53], secondary: true, onTouchTap: _this.saveForm });
+                revert = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[628], onClick: _this.revert });
+                button = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[53], secondary: true, onClick: _this.saveForm });
             } else {
-                button = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[86], onTouchTap: _this.props.onDismiss });
+                button = _react2['default'].createElement(_materialUi.FlatButton, { label: _this.props.pydio.MessageHash[86], onClick: _this.props.onDismiss });
             }
             if (_this.props.pydio.Controller.getActionByName('pass_change')) {
                 return [_react2['default'].createElement(

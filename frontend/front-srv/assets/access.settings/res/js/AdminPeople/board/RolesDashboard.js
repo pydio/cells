@@ -189,13 +189,13 @@ let RolesDashboard = createReactClass({
             tableActions.push({
                 iconClassName:"mdi mdi-pencil" ,
                 tooltip:'Edit',
-                onTouchTap:(row)=>{this.openRoleEditor(row.role)},
+                onClick:(row)=>{this.openRoleEditor(row.role)},
                 disable:(row)=>{return !row.role.PoliciesContextEditable}
             });
             tableActions.push({
                 iconClassName:"mdi mdi-delete" ,
                 tooltip:'Delete',
-                onTouchTap:(row)=>{this.deleteAction(row.role.Uuid, row.role.Label)},
+                onClick:(row)=>{this.deleteAction(row.role.Uuid, row.role.Label)},
                 disable:(row)=>{return !row.role.PoliciesContextEditable}
             });
         }

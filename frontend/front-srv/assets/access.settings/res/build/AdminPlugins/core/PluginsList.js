@@ -173,7 +173,7 @@ var PluginsList = (0, _createReactClass2['default'])({
                     iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 20 },
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: m('action.edit'),
-                    onTouchTap: function () {
+                    onClick: function () {
                         return _this4.openTableRows([row]);
                     }
                 });

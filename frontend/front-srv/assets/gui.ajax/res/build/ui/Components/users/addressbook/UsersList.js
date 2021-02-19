@@ -184,7 +184,7 @@ var UsersList = (function (_React$Component) {
                     'div',
                     { style: { display: 'flex', alignItems: 'center', flex: 1 } },
                     _react2['default'].createElement(_materialUi.TextField, { style: { fontSize: 20 }, value: this.state.label, onChange: this.onLabelChange.bind(this), onKeyDown: this.onLabelKeyEnter.bind(this) }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: '#e0e0e0' }, secondary: true, iconClassName: "mdi mdi-content-save", tooltip: getMessage(48), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: '#e0e0e0' }, secondary: true, iconClassName: "mdi mdi-content-save", tooltip: getMessage(48), onClick: function () {
                             _this.updateLabel();
                         } })
                 );
@@ -193,7 +193,7 @@ var UsersList = (function (_React$Component) {
                     'div',
                     { style: { display: 'flex', alignItems: 'center', flex: 1 } },
                     label,
-                    _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: '#e0e0e0' }, iconClassName: "mdi mdi-pencil", tooltip: getMessage(48), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: '#e0e0e0' }, iconClassName: "mdi mdi-pencil", tooltip: getMessage(48), onClick: function () {
                             _this.setState({ editLabel: true, label: item.label });
                         } })
                 );
@@ -211,7 +211,7 @@ var UsersList = (function (_React$Component) {
         var toolbar = _react2['default'].createElement(
             'div',
             { style: { padding: stylesProps.titlePadding, height: stylesProps.toolbarHeight, minHeight: stylesProps.toolbarHeight, backgroundColor: stylesProps.toolbarBgColor, borderRadius: '2px 2px 0 0', display: 'flex', alignItems: 'center', transition: _pydioUtilDom2['default'].getBeziersTransition() } },
-            mode === "selector" && item._parent && _react2['default'].createElement(_materialUi.IconButton, { style: { marginLeft: -10 }, iconStyle: { color: stylesProps.titleColor }, iconClassName: 'mdi mdi-chevron-left', onTouchTap: function () {
+            mode === "selector" && item._parent && _react2['default'].createElement(_materialUi.IconButton, { style: { marginLeft: -10 }, iconStyle: { color: stylesProps.titleColor }, iconClassName: 'mdi mdi-chevron-left', onClick: function () {
                     _this.props.onFolderClicked(item._parent);
                 } }),
             mode === 'book' && total > 0 && item.actions && item.actions.multiple && _react2['default'].createElement(_materialUi.Checkbox, { style: { width: 'initial', marginLeft: this.state.select ? 7 : 14 }, checked: this.state.select, onCheck: toggleSelect }),
@@ -220,21 +220,21 @@ var UsersList = (function (_React$Component) {
                 { style: _extends({ flex: 2, fontSize: stylesProps.titleFontsize, color: stylesProps.titleColor, fontWeight: stylesProps.titleFontWeight }, ellipsis) },
                 label
             ),
-            (mode === 'book' || mode === 'selector' && bookColumn) && item.actions && item.actions.create && !this.state.select && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: createIcon, tooltipPosition: "bottom-left", tooltip: getMessage(item.actions.create), onTouchTap: createAction }),
-            bookColumn && !item._parent && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: "mdi mdi-window-restore", tooltipPosition: "bottom-left", tooltip: pydio.MessageHash['411'], onTouchTap: function () {
+            (mode === 'book' || mode === 'selector' && bookColumn) && item.actions && item.actions.create && !this.state.select && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: createIcon, tooltipPosition: "bottom-left", tooltip: getMessage(item.actions.create), onClick: createAction }),
+            bookColumn && !item._parent && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: "mdi mdi-window-restore", tooltipPosition: "bottom-left", tooltip: pydio.MessageHash['411'], onClick: function () {
                     pydio.Controller.fireAction('open_address_book');
                 } }),
-            mode === 'book' && item.actions && item.actions.remove && this.state.select && _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: getMessage(item.actions.remove), disabled: !this.state.selection.length, onTouchTap: deleteAction }),
+            mode === 'book' && item.actions && item.actions.remove && this.state.select && _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: getMessage(item.actions.remove), disabled: !this.state.selection.length, onClick: deleteAction }),
             !this.state.select && actionsPanel,
             enableSearch && !bookColumn && _react2['default'].createElement(_SearchForm2['default'], _extends({ searchLabel: this.props.searchLabel, onSearch: this.props.onSearch }, searchProps)),
-            reloadAction && (mode === 'book' || mode === 'selector' && bookColumn) && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: "mdi mdi-refresh", tooltipPosition: "bottom-left", tooltip: pydio.MessageHash['149'], onTouchTap: reloadAction, disabled: loading })
+            reloadAction && (mode === 'book' || mode === 'selector' && bookColumn) && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: "mdi mdi-refresh", tooltipPosition: "bottom-left", tooltip: pydio.MessageHash['149'], onClick: reloadAction, disabled: loading })
         );
         // PARENT NODE
         if (item._parent && mode === 'book' && item._parent._parent && item._parent.id !== 'teams') {
             elements.push(_react2['default'].createElement(_materialUi.ListItem, {
                 key: '__parent__',
                 primaryText: "..",
-                onTouchTap: function (e) {
+                onClick: function (e) {
                     e.stopPropagation();_this.props.onFolderClicked(item._parent);
                 },
                 leftAvatar: _react2['default'].createElement(_materialUi.Avatar, { icon: _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-arrow-up' }), size: 36 })
@@ -279,7 +279,7 @@ var UsersList = (function (_React$Component) {
                         tooltip: getMessage('addressbook.pick.group'),
                         tooltipPosition: 'top-left',
                         iconStyle: { color: 'rgba(0,0,0,0.33)' },
-                        onTouchTap: function () {
+                        onClick: function () {
                             _this2.props.onItemClicked(item);
                         }
                     });
@@ -290,7 +290,7 @@ var UsersList = (function (_React$Component) {
                     tooltip: getMessage(257),
                     tooltipPosition: 'top-left',
                     iconStyle: { color: 'rgba(0,0,0,0.13)', hoverColor: 'rgba(0,0,0,0.53)' },
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this2.props.onDeleteAction(_this2.props.item, [item]);
                     }
                 });
@@ -327,7 +327,7 @@ var UsersList = (function (_React$Component) {
                     { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
                     item.label
                 ),
-                onTouchTap: touchTap,
+                onClick: touchTap,
                 disabled: mode === 'inner',
                 leftAvatar: !this.state.select && fontIcon,
                 rightIconButton: rightIconButton,
@@ -357,7 +357,7 @@ var UsersList = (function (_React$Component) {
 
         return _react2['default'].createElement(
             'div',
-            { style: { flex: 1, flexDirection: 'column', display: 'flex', width: '100%', overflowX: 'hidden' }, onTouchTap: this.props.onTouchTap },
+            { style: { flex: 1, flexDirection: 'column', display: 'flex', width: '100%', overflowX: 'hidden' }, onClick: this.props.onClick },
             mode !== 'inner' && !this.props.noToolbar && toolbar,
             !emptyState && !loading && _react2['default'].createElement(
                 _materialUi.List,

@@ -575,8 +575,8 @@ export default class WorkspaceMapper extends React.Component{
         }
         return (
             <div style={{display:'flex', justifyContent:'center', position: 'absolute', top: -13, left: 0, right: 0}}>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-left"}/>} label={this.T('next10') + limit} disabled={prev === undefined} onTouchTap={()=>{this.setState({offset: prev})}}/>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-right"}/>} label={this.T('prev10') + limit} labelPosition={"before"} disabled={next === undefined} onTouchTap={()=>{this.setState({offset: next})}}/>
+                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-left"}/>} label={this.T('next10') + limit} disabled={prev === undefined} onClick={()=>{this.setState({offset: prev})}}/>
+                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-chevron-right"}/>} label={this.T('prev10') + limit} labelPosition={"before"} disabled={next === undefined} onClick={()=>{this.setState({offset: next})}}/>
             </div>
         );
     }
@@ -637,14 +637,14 @@ export default class WorkspaceMapper extends React.Component{
                             title={this.T('p8.title')}
                             openIcon={
                                 <IconMenu iconButtonElement={<FontIcon className={"mdi mdi-dots-vertical"} />}>
-                                    <MenuItem primaryText={this.T('p8.ds.show')} onTouchTap={() => this.handleShowDatasources()} />
-                                    <MenuItem primaryText={this.T('p8.tpl.show')} onTouchTap={() => this.handleShowTemplatePaths()} />
+                                    <MenuItem primaryText={this.T('p8.ds.show')} onClick={() => this.handleShowDatasources()} />
+                                    <MenuItem primaryText={this.T('p8.tpl.show')} onClick={() => this.handleShowTemplatePaths()} />
                                 </IconMenu>
                             }
                             closeIcon={
                                 <IconMenu iconButtonElement={<FontIcon className={"mdi mdi-dots-vertical"} />}>
-                                    <MenuItem primaryText={this.T('p8.ds.show')} onTouchTap={() => this.handleShowDatasources()} />
-                                    <MenuItem primaryText={this.T('p8.tpl.show')} onTouchTap={() => this.handleShowTemplatePaths()} />
+                                    <MenuItem primaryText={this.T('p8.ds.show')} onClick={() => this.handleShowDatasources()} />
+                                    <MenuItem primaryText={this.T('p8.tpl.show')} onClick={() => this.handleShowTemplatePaths()} />
                                 </IconMenu>
                             }
                             showExpandableButton={true}
@@ -671,7 +671,7 @@ export default class WorkspaceMapper extends React.Component{
                         <Card>
                             <CardHeader
                                 title={this.T('cells.title')}
-                                closeIcon={<FontIcon className={"mdi mdi-eye-off"} onTouchTap={() => this.handleHideDatasources()} />}
+                                closeIcon={<FontIcon className={"mdi mdi-eye-off"} onClick={() => this.handleHideDatasources()} />}
                                 showExpandableButton={true}
                             />
 
@@ -689,7 +689,7 @@ export default class WorkspaceMapper extends React.Component{
                                     label={this.T('createds')}
                                     style={styles.button}
                                     icon={<FontIcon className={"mdi mdi-plus-circle-outline"} style={styles.addButton} />}
-                                    onTouchTap={() => this.handleCreateDatasource()}
+                                    onClick={() => this.handleCreateDatasource()}
                                 />}
                             </CardActions>
                         </Card>
@@ -705,7 +705,7 @@ export default class WorkspaceMapper extends React.Component{
                         <Card style={{position: "relative"}}>
                             <CardHeader
                                 title={this.T('tpath.title')}
-                                closeIcon={<FontIcon className={"mdi mdi-eye-off"} onTouchTap={() => this.handleHideTemplatePaths()} />}
+                                closeIcon={<FontIcon className={"mdi mdi-eye-off"} onClick={() => this.handleHideTemplatePaths()} />}
                                 showExpandableButton={true}
                             />
 
@@ -725,7 +725,7 @@ export default class WorkspaceMapper extends React.Component{
                                     ref={(el) => this.templatePaths = el}
                                     style={styles.button}
                                     icon={<FontIcon className={"mdi mdi-plus-circle-outline"} style={styles.addButton} />}
-                                    onTouchTap={() => this.handleCreateTemplatePath()}
+                                    onClick={() => this.handleCreateTemplatePath()}
                                 />}
                             </CardActions>
                         </Card>
@@ -757,7 +757,7 @@ export default class WorkspaceMapper extends React.Component{
 
                 <div style={{padding: "20px 16px 2px"}}>
                     <RaisedButton label={this.T('back')} onClick={() => onBack()} />&nbsp;&nbsp;
-                    <RaisedButton label={this.T('next')} primary={true} onTouchTap={()=>{this.handleNext()}}/>
+                    <RaisedButton label={this.T('next')} primary={true} onClick={()=>{this.handleNext()}}/>
                 </div>
             </div>
         );

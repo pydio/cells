@@ -194,7 +194,7 @@ var MainSearch = (function (_Component) {
                 _react2['default'].createElement('span', { style: { flex: 1 } }),
                 showAdvanced && _react2['default'].createElement(
                     _materialUi.FlatButton,
-                    { style: { textTransform: 'none', color: 'white', fontSize: 15, marginTop: -5, padding: '0 16px' }, onTouchTap: mode === 'advanced' ? onMore : onAdvanced },
+                    { style: { textTransform: 'none', color: 'white', fontSize: 15, marginTop: -5, padding: '0 16px' }, onClick: mode === 'advanced' ? onMore : onAdvanced },
                     mode === 'advanced' ? '- ' + getMessage(606) : '+ ' + getMessage(605)
                 ),
                 mode === 'advanced' && loading && _react2['default'].createElement(

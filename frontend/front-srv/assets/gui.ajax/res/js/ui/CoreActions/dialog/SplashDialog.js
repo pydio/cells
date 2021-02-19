@@ -114,13 +114,13 @@ const SplashDialog = createReactClass({
                 />
                 <Divider/>
                 <CardActions style={{display:'flex', alignItems:'center'}}>
-                    <FlatButton primary={true} icon={<FontIcon className="mdi mdi-book-variant" />} label="Docs" onTouchTap={this.openDocs} />
-                    <FlatButton primary={true} icon={<FontIcon className="mdi mdi-slack" />} label="Forums" onTouchTap={this.openForum}/>
-                    <FlatButton primary={true} icon={<FontIcon className="mdi mdi-github-box" />} label="Issues" onTouchTap={this.openGithub}/>
+                    <FlatButton primary={true} icon={<FontIcon className="mdi mdi-book-variant" />} label="Docs" onClick={this.openDocs} />
+                    <FlatButton primary={true} icon={<FontIcon className="mdi mdi-slack" />} label="Forums" onClick={this.openForum}/>
+                    <FlatButton primary={true} icon={<FontIcon className="mdi mdi-github-box" />} label="Issues" onClick={this.openGithub}/>
                     <span style={{flex: 1}}/>
-                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#FF786A'}} iconClassName={"icomoon-cells"} onTouchTap={() => {open('https://pydio.com/?from=cells')} } tooltip={"Pydio.com"}/>
-                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#3b5998'}} iconClassName={"mdi mdi-facebook-box"} onTouchTap={() => {open('https://facebook.com/Pydio')} } tooltip={"@Pydio"}/>
-                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#00acee'}} iconClassName={"mdi mdi-twitter-box"} onTouchTap={() => {open('https://twitter.com/pydio')} } tooltip={"@pydio"}/>
+                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#FF786A'}} iconClassName={"icomoon-cells"} onClick={() => {open('https://pydio.com/?from=cells')} } tooltip={"Pydio.com"}/>
+                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#3b5998'}} iconClassName={"mdi mdi-facebook-box"} onClick={() => {open('https://facebook.com/Pydio')} } tooltip={"@Pydio"}/>
+                    <IconButton style={{width:40,height:40,padding:8}} iconStyle={{color:'#00acee'}} iconClassName={"mdi mdi-twitter-box"} onClick={() => {open('https://twitter.com/pydio')} } tooltip={"@pydio"}/>
                 </CardActions>
                 <Divider/>
                 <CardText className={"credits-md"}>

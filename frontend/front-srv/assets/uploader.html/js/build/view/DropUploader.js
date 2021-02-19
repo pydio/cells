@@ -237,17 +237,17 @@ var DropUploader = function (_React$Component) {
                         { style: { marginBottom: 16 } },
                         messages['html_uploader.dialog.title']
                     ),
-                    _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-dots-vertical", primary: true, iconStyle: { fontSize: 18 }, style: { padding: 14 }, tooltip: messages['html_uploader.options'], onTouchTap: this.toggleOptions.bind(this) }),
+                    _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-dots-vertical", primary: true, iconStyle: { fontSize: 18 }, style: { padding: 14 }, tooltip: messages['html_uploader.options'], onClick: this.toggleOptions.bind(this) }),
                     _react2.default.createElement('span', { style: { flex: 1 } }),
-                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-play' }), label: messages['html_uploader.start'], onTouchTap: this.start.bind(this), primary: true, disabled: store.isRunning() || !store.hasQueue() }),
-                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-pause' }), label: messages['html_uploader.pause'], onTouchTap: this.pause.bind(this), primary: true, disabled: !store.isRunning() }),
+                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-play' }), label: messages['html_uploader.start'], onClick: this.start.bind(this), primary: true, disabled: store.isRunning() || !store.hasQueue() }),
+                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-pause' }), label: messages['html_uploader.pause'], onClick: this.pause.bind(this), primary: true, disabled: !store.isRunning() }),
                     _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-delete' }), label: _react2.default.createElement(
                             'span',
                             null,
                             messages['html_uploader.clear'],
                             _react2.default.createElement('span', { className: "mdi mdi-menu-down" })
-                        ), onTouchTap: this.openClear.bind(this), primary: true, disabled: listEmpty }),
-                    showDismiss && _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", style: { padding: 14 }, onTouchTap: function onTouchTap() {
+                        ), onClick: this.openClear.bind(this), primary: true, disabled: listEmpty }),
+                    showDismiss && _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", style: { padding: 14 }, onClick: function onClick() {
                             return onDismiss();
                         } })
                 ),

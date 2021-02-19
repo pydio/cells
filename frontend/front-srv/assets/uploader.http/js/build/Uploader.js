@@ -173,7 +173,7 @@ exports['default'] = (0, _createReactClass2['default'])({
                     { style: { flex: 1, paddingTop: 16, paddingLeft: 8 } },
                     messages['httpdownloader.10'].replace('APPLICATION_TITLE', pydio.Parameters.get('APPLICATION_TITLE'))
                 ),
-                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: function () {
                         onDismiss();
                     } })
             ),

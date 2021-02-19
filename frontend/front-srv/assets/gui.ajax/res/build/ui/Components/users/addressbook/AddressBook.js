@@ -459,10 +459,10 @@ var AddressBook = (function (_React$Component) {
                 style: _extends({ position: 'absolute', padding: 15, zIndex: 100, right: 0, top: 25, display: this.state.loading ? 'none' : 'initial' }, iconButtonStyle),
                 iconStyle: { fontSize: 19, color: 'rgba(0,0,0,0.6)' },
                 iconClassName: 'mdi mdi-book-open-variant',
-                onTouchTap: this.openPopover
+                onClick: this.openPopover
             });
             if (this.props.popoverButton) {
-                iconButton = _react2['default'].createElement(this.props.popoverButton.type, _extends({}, this.props.popoverButton.props, { onTouchTap: this.openPopover }));
+                iconButton = _react2['default'].createElement(this.props.popoverButton.type, _extends({}, this.props.popoverButton.props, { onClick: this.openPopover }));
             }
             var WrappedAddressBook = PydioContextProvider(AddressBook, this.props.pydio);
             return _react2['default'].createElement(
@@ -598,7 +598,7 @@ var AddressBook = (function (_React$Component) {
                 bookColumn: bookColumn,
                 emptyStatePrimaryText: emptyStatePrimary,
                 emptyStateSecondaryText: emptyStateSecondary,
-                onTouchTap: this.state.rightPaneItem ? function () {
+                onClick: this.state.rightPaneItem ? function () {
                     _this2.setState({ rightPaneItem: null });
                 } : null,
                 actionsPanel: topActionsPanel,
@@ -641,7 +641,7 @@ var AddressBook = (function (_React$Component) {
                         selected: selectedItem.id,
                         nestedLevel: 0,
                         entry: e,
-                        onTouchTap: this.onFolderClicked
+                        onClick: this.onFolderClicked
                     }));
                     nestedRoots.push(_react2['default'].createElement(_materialUi.Divider, { key: e.id + '-divider' }));
                 }).bind(_this2));

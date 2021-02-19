@@ -180,7 +180,7 @@ class LogTable extends React.Component {
                         };
                         return <IconButton
                             iconClassName={row.IsOpen?"mdi mdi-menu-down":"mdi mdi-menu-right"}
-                            onTouchTap={toggle}
+                            onClick={toggle}
                             onClick={e =>e.stopPropagation()}
                         />
                     }

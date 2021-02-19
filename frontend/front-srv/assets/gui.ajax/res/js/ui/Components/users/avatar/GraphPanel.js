@@ -67,7 +67,7 @@ class GraphPanel extends Component{
                             return <ListItem
                                 leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'}/>} backgroundColor={"#009688"} size={36} />}
                                 primaryText={cell.Label}
-                                onTouchTap={() => {
+                                onClick={() => {
                                     pydio.triggerRepositoryChange(cell.UUID);
                                 }}/>
                         })}</List>

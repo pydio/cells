@@ -277,7 +277,7 @@ class Events extends React.Component{
                 key={e}
                 disabled={true}
                 primaryText={Events.eventData(e).title}
-                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onTouchTap={()=>{this.remove(e)}}/>}
+                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onClick={()=>{this.remove(e)}}/>}
             />);
             list.push(<Divider/>)
         });
@@ -299,7 +299,7 @@ class Events extends React.Component{
                         onPick={(eventId) => {this.add(eventId); this.dismiss()}}
                     />
                 </Dialog>
-                <FlatButton style={{width:'100%'}} label={"Trigger job on..."} primary={true} onTouchTap={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
+                <FlatButton style={{width:'100%'}} label={"Trigger job on..."} primary={true} onClick={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
                 <List>{list}</List>
             </div>
         )

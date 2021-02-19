@@ -171,7 +171,7 @@ var AltDashboard = (function (_React$Component) {
                 _react2['default'].createElement(_materialUi.IconButton, {
                     iconStyle: { color: null },
                     iconClassName: 'mdi mdi-menu',
-                    onTouchTap: this.openDrawer.bind(this) })
+                    onClick: this.openDrawer.bind(this) })
             );
             var headerHeight = 72;
             var leftPanelProps = {

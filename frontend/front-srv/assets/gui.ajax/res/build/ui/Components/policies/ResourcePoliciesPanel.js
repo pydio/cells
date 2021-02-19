@@ -495,7 +495,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'center' } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { label: mess['visibility.panel.edit'], primary: true, onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.RaisedButton, { label: mess['visibility.panel.edit'], primary: true, onClick: function () {
                                 _this5.setState({ edit: true });
                             } })
                     )
@@ -562,7 +562,7 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                 blocks.push(_react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right' } },
-                    _react2['default'].createElement(_materialUi.FlatButton, { label: mess[54], onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: mess[54], onClick: function () {
                             _this5.setState({ pickedUser: null, pickedLabel: null });
                         } })
                 ));
@@ -622,9 +622,9 @@ var ResourcePoliciesPanel = (function (_React$Component) {
                     { style: { flex: 1 } },
                     skipTitle ? '' : mess['visibility.panel.title']
                 ),
-                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo-variant", tooltip: mess['visibility.panel.revert'], onTouchTap: this.revert.bind(this), iconStyle: { color: appBar.textColor } }),
-                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", tooltip: mess['visibility.panel.save'], onTouchTap: this.save.bind(this), iconStyle: { color: appBar.textColor } }),
-                !dirtyPolicies && onDismiss && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onTouchTap: onDismiss, iconStyle: { color: appBar.textColor } })
+                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo-variant", tooltip: mess['visibility.panel.revert'], onClick: this.revert.bind(this), iconStyle: { color: appBar.textColor } }),
+                dirtyPolicies && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", tooltip: mess['visibility.panel.save'], onClick: this.save.bind(this), iconStyle: { color: appBar.textColor } }),
+                !dirtyPolicies && onDismiss && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: onDismiss, iconStyle: { color: appBar.textColor } })
             ),
             error && _react2['default'].createElement(
                 'div',

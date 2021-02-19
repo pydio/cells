@@ -196,7 +196,7 @@ var Workspace = (function (_React$Component2) {
                 onMouseOver: function () {
                     return _this.handleHover();
                 },
-                onTouchTap: function () {
+                onClick: function () {
                     return _this.handleSelect();
                 }
             });

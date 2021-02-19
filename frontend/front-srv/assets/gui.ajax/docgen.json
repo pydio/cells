@@ -331,6 +331,7 @@
     "AdminComponents/board/AdminDashboard.js": [
       {
         "description": "",
+        "displayName": "AdminDashboard",
         "methods": [
           {
             "name": "toggleAdvanced",
@@ -457,6 +458,7 @@
     "AdminComponents/board/SimpleDashboard.js": [
       {
         "description": "",
+        "displayName": "Dashboard",
         "methods": [
           {
             "name": "getOpenIcon",
@@ -887,6 +889,7 @@
     "AdminPeople/board/Dashboard.js": [
       {
         "description": "",
+        "displayName": "Dashboard",
         "methods": [
           {
             "name": "componentWillUnmounnt",
@@ -1118,6 +1121,7 @@
     "AdminPeople/board/PoliciesBoard.js": [
       {
         "description": "",
+        "displayName": "PoliciesBoard",
         "methods": [
           {
             "name": "groupByResourcesGroups",
@@ -1292,6 +1296,7 @@
     "AdminPeople/board/RolesDashboard.js": [
       {
         "description": "",
+        "displayName": "RolesDashboard",
         "methods": [
           {
             "name": "load",
@@ -1837,6 +1842,7 @@
       },
       {
         "description": "",
+        "displayName": "ParameterCreate",
         "methods": [
           {
             "name": "setSelection",
@@ -2123,6 +2129,7 @@
     "AdminPeople/editor/user/UserPasswordDialog.js": [
       {
         "description": "",
+        "displayName": "UserPasswordDialog",
         "methods": [
           {
             "name": "onChange",
@@ -2185,6 +2192,7 @@
     "AdminPeople/editor/user/UserRolesPicker.js": [
       {
         "description": "",
+        "displayName": "UserRolesPicker",
         "methods": [
           {
             "name": "onChange",
@@ -2281,6 +2289,7 @@
     "AdminPeople/forms/CreateRoleOrGroupForm.js": [
       {
         "description": "",
+        "displayName": "CreateRoleOrGroupForm",
         "methods": [
           {
             "name": "getTitle",
@@ -2373,6 +2382,7 @@
     "AdminPeople/forms/CreateUserForm.js": [
       {
         "description": "",
+        "displayName": "CreateUserForm",
         "methods": [
           {
             "name": "checkPassword",
@@ -2610,6 +2620,12 @@
         ]
       }
     ],
+    "AdminPlugins/auth/AuthenticationPluginsDashboard.js": [
+      {
+        "description": "",
+        "methods": []
+      }
+    ],
     "AdminPlugins/core/CoreAndPluginsDashboard.js": [
       {
         "description": "",
@@ -2627,6 +2643,7 @@
     "AdminPlugins/core/Manager.js": [
       {
         "description": "",
+        "displayName": "PluginsManager",
         "methods": [
           {
             "name": "reload",
@@ -2641,6 +2658,7 @@
     "AdminPlugins/core/PluginEditor.js": [
       {
         "description": "Editor for a given plugin. By default, displays documentation in a left column panel,\nand plugin parameters as form cards on the right.\nMay take additionalPanes to be appended to the form cards.",
+        "displayName": "PluginEditor",
         "methods": [
           {
             "name": "loadPluginData",
@@ -2888,9 +2906,59 @@
         }
       }
     ],
+    "AdminPlugins/core/PluginsList.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "togglePluginEnable",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              },
+              {
+                "name": "toggled",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "openTableRows",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "rows",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "reload",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "computeTableData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminPlugins/core/ServiceEditor.js": [
       {
         "description": "Editor for a given plugin. By default, displays documentation in a left column panel,\nand plugin parameters as form cards on the right.\nMay take additionalPanes to be appended to the form cards.",
+        "displayName": "PluginEditor",
         "methods": [
           {
             "name": "externalSetDirty",
@@ -3255,9 +3323,16 @@
         ]
       }
     ],
+    "AdminPlugins/editors/EditorsDashboard.js": [
+      {
+        "description": "",
+        "methods": []
+      }
+    ],
     "AdminPlugins/updater/UpdaterDashboard.js": [
       {
         "description": "",
+        "displayName": "UpdaterDashboard",
         "methods": [
           {
             "name": "checkForUpgrade",
@@ -3364,6 +3439,7 @@
     "AdminScheduler/board/Dashboard.js": [
       {
         "description": "",
+        "displayName": "Dashboard",
         "methods": [
           {
             "name": "reload",
@@ -3765,6 +3841,7 @@
     "AdminServices/board/Dashboard.js": [
       {
         "description": "",
+        "displayName": "Dashboard",
         "methods": [
           {
             "name": "onDetailsChange",
@@ -3944,6 +4021,7 @@
     "AdminServices/board/ServicesList.js": [
       {
         "description": "",
+        "displayName": "ServicesList",
         "methods": [
           {
             "name": "reload",
@@ -4441,6 +4519,7 @@
     "AdminWorkspaces/board/WorkspaceList.js": [
       {
         "description": "",
+        "displayName": "WorkspaceList",
         "methods": [
           {
             "name": "startLoad",
@@ -4530,7 +4609,7 @@
           "advanced": {
             "type": {
               "name": "custom",
-              "raw": "React.PropTypes.boolean"
+              "raw": "PropTypes.boolean"
             },
             "required": false,
             "description": ""
@@ -4541,6 +4620,7 @@
     "AdminWorkspaces/board/WsDashboard.js": [
       {
         "description": "",
+        "displayName": "WsDashboard",
         "methods": [
           {
             "name": "dirtyEditor",
@@ -4644,7 +4724,7 @@
           "advanced": {
             "type": {
               "name": "custom",
-              "raw": "React.PropTypes.boolean"
+              "raw": "PropTypes.boolean"
             },
             "required": false,
             "description": ""
@@ -5296,6 +5376,7 @@
     "AdminWorkspaces/meta/MetaList.js": [
       {
         "description": "",
+        "displayName": "MetaList",
         "methods": [],
         "props": {
           "currentMetas": {
@@ -5442,6 +5523,104 @@
             "returns": null
           }
         ]
+      }
+    ]
+  },
+  "action.compression": {
+    "index.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "buildUniqueFileName",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "base",
+                "type": null
+              },
+              {
+                "name": "extension",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "textFieldChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "selectFieldChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "payload",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitleId": {
+            "defaultValue": {
+              "value": "313",
+              "computed": false
+            },
+            "required": false
+          },
+          "legendId": {
+            "defaultValue": {
+              "value": "314",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "formats": {
+            "defaultValue": {
+              "value": "['zip', 'tar', 'tar.gz']",
+              "computed": false
+            },
+            "required": false
+          }
+        }
       }
     ]
   },
@@ -6586,6 +6765,7 @@
     "ModalAddressBook.js": [
       {
         "description": "",
+        "displayName": "ModalAddressBook",
         "methods": [
           {
             "name": "submit",
@@ -6637,6 +6817,7 @@
     "ModalDashboard.js": [
       {
         "description": "",
+        "displayName": "ModalDashboard",
         "methods": [
           {
             "name": "submit",
@@ -6719,6 +6900,7 @@
     "PasswordForm.js": [
       {
         "description": "",
+        "displayName": "PasswordForm",
         "methods": [
           {
             "name": "getMessage",
@@ -6819,6 +7001,7 @@
     "ProfilePane.js": [
       {
         "description": "",
+        "displayName": "ProfilePane",
         "methods": [
           {
             "name": "onFormChange",
@@ -6872,6 +7055,7 @@
     "WelcomeModal.js": [
       {
         "description": "Sample Dialog class used for reference only, ready to be\ncopy/pasted :-)",
+        "displayName": "WelcomeModal",
         "methods": [
           {
             "name": "close",
@@ -20227,12 +20411,12 @@
         "displayName": "NestedListItem",
         "methods": [
           {
-            "name": "onTouchTap",
-            "docblock": "Triggers this.props.onTouchTap",
+            "name": "onClick",
+            "docblock": "Triggers this.props.onClick",
             "modifiers": [],
             "params": [],
             "returns": null,
-            "description": "Triggers this.props.onTouchTap"
+            "description": "Triggers this.props.onClick"
           },
           {
             "name": "buildNestedItems",
@@ -20264,7 +20448,7 @@
             "required": false,
             "description": "Currently selected node id"
           },
-          "onTouchTap": {
+          "onClick": {
             "type": {
               "name": "func"
             },
@@ -24735,7 +24919,7 @@
             "required": true,
             "description": ""
           },
-          "onTouchTap": {
+          "onClick": {
             "type": {
               "name": "func"
             },
@@ -26099,6 +26283,7 @@
       },
       {
         "description": "",
+        "displayName": "DlAppsCard",
         "methods": []
       }
     ],
@@ -26110,64 +26295,57 @@
         "props": {
           "pydio": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.instanceOf(Pydio)"
+              "name": "instanceOf",
+              "value": "Pydio"
             },
             "required": false,
             "description": ""
           },
           "id": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "configs": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.object"
+              "name": "object"
             },
             "required": false,
             "description": ""
           },
           "configHref": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "iconClassName": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "iconColor": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "messageId": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "tooltipId": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
@@ -26178,6 +26356,7 @@
     "apps/QRCodeCard.js": [
       {
         "description": "",
+        "displayName": "QRCodeCard",
         "methods": []
       }
     ],
@@ -26444,6 +26623,7 @@
     "quicksend/QuickSendCard.js": [
       {
         "description": "",
+        "displayName": "QuickSendCard",
         "methods": [
           {
             "name": "fileDroppedOrPicked",
@@ -26499,6 +26679,7 @@
     "quicksend/WorkspacePickerDialog.js": [
       {
         "description": "",
+        "displayName": "WorkspacePickerDialog",
         "methods": [
           {
             "name": "submit",
@@ -26574,6 +26755,7 @@
     "videos/VideoCard.js": [
       {
         "description": "Display a list of tutorial videos as a material card",
+        "displayName": "VideoCard",
         "methods": [
           {
             "name": "launchVideo",
@@ -26644,16 +26826,14 @@
         "props": {
           "videoSrc": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "closePlayer": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
@@ -26669,6 +26849,7 @@
       },
       {
         "description": "",
+        "displayName": "WorkspacesListCard",
         "methods": []
       }
     ]
@@ -26776,6 +26957,7 @@
     "dialog/cells/CreateCellDialog.js": [
       {
         "description": "Dialog for letting users create a workspace",
+        "displayName": "CreateCellDialog",
         "methods": [
           {
             "name": "submit",
@@ -26940,6 +27122,7 @@
     "dialog/cells/SharedUserEntry.js": [
       {
         "description": "",
+        "displayName": "SharedUserEntry",
         "methods": [
           {
             "name": "onRemove",
@@ -27007,6 +27190,7 @@
     "dialog/cells/SharedUsers.js": [
       {
         "description": "",
+        "displayName": "SharedUsers",
         "methods": [
           {
             "name": "sendInvitationToAllUsers",
@@ -27237,6 +27421,7 @@
     "dialog/composite/CompositeDialog.js": [
       {
         "description": "",
+        "displayName": "CompositeDialog",
         "methods": [],
         "props": {
           "pydio": {
@@ -27425,6 +27610,7 @@
     "dialog/links/Field.js": [
       {
         "description": "",
+        "displayName": "PublicLinkField",
         "methods": [
           {
             "name": "toggleEditMode",
@@ -27524,6 +27710,7 @@
     "dialog/links/Panel.js": [
       {
         "description": "",
+        "displayName": "PublicLinkPanel",
         "methods": [
           {
             "name": "toggleLink",
@@ -27601,6 +27788,7 @@
     "dialog/links/Permissions.js": [
       {
         "description": "",
+        "displayName": "PublicLinkPermissions",
         "methods": [
           {
             "name": "changePermission",
@@ -27665,6 +27853,7 @@
     "dialog/links/SecureOptions.js": [
       {
         "description": "",
+        "displayName": "PublicLinkSecureOptions",
         "methods": [
           {
             "name": "updateDLExpirationField",
@@ -27838,6 +28027,7 @@
     "dialog/links/VisibilityPanel.js": [
       {
         "description": "",
+        "displayName": "VisibilityPanel",
         "methods": [
           {
             "name": "onSavePolicies",
@@ -27941,6 +28131,7 @@
       },
       {
         "description": "",
+        "displayName": "ShareViewModal",
         "methods": [
           {
             "name": "submit",
@@ -28002,7 +28193,7 @@
             "required": false,
             "description": ""
           },
-          "onTouchTap": {
+          "onClick": {
             "type": {
               "name": "func"
             },

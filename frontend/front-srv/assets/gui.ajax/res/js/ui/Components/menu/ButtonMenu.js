@@ -70,12 +70,11 @@ class ButtonMenu extends React.Component {
             secondary: this.props.secondary,
             disabled: this.props.disabled,
             label: label,
-            onTouchTap: this.showMenu,
+            onClick: this.showMenu,
             labelStyle:{...this.props.buttonLabelStyle},
             style:this.props.buttonStyle,
             backgroundColor:showMenu ? activeColor : this.props.buttonBackgroundColor,
             hoverColor:this.props.buttonHoverColor,
-            onClick:(e=>e.stopPropagation())
         };
         const {menuItems} = this.props;
         if(menuItems.length){

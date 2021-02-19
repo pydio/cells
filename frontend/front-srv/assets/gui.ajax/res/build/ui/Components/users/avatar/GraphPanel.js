@@ -115,7 +115,7 @@ var GraphPanel = (function (_Component) {
                             return React.createElement(ListItem, {
                                 leftAvatar: React.createElement(Avatar, { icon: React.createElement(FontIcon, { className: 'mdi mdi-share-variant' }), backgroundColor: "#009688", size: 36 }),
                                 primaryText: cell.Label,
-                                onTouchTap: function () {
+                                onClick: function () {
                                     pydio.triggerRepositoryChange(cell.UUID);
                                 } });
                         })

@@ -193,7 +193,7 @@ class LogTools extends React.Component{
                     <DatePicker hintText={MessageHash["ajxp_admin.logs.2"]} onChange={(e, date) => this.handleDateChange(date)}
                                 autoOk={true} maxDate={new Date()} value={date}
                                 showYearSelector={true} style={{width: 120}} textFieldStyle={{width: 120}} {...ModernStyles.textField}/>
-                    <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
+                    <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onClick={() => {this.handleDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
                 </div>
                 }
                 {endDateShow &&
@@ -210,7 +210,7 @@ class LogTools extends React.Component{
                     <TimePicker hintText={'at...'} disabled={!endDate} onChange={(e, time) => this.handleEndDateChange(endDate, time)}
                                 autoOk={true} value={endDate}
                                 style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
-                    <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined); this.handleEndDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
+                    <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onClick={() => {this.handleDateChange(undefined); this.handleEndDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
                 </div>
                 }
                 <IconMenu
@@ -220,12 +220,12 @@ class LogTools extends React.Component{
                     desktop={true}
                 >
                     {<Subheader>{MessageHash['ajxp_admin.logs.filter.legend']}</Subheader>}
-                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.2']}  rightIcon={dateShow && !endDateShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('date')}}/>
-                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.period']}  rightIcon={endDateShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('endDate')}}/>
-                    <MenuItem primaryText={"Level"}  rightIcon={levelShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('level')}}/>
-                    <MenuItem primaryText={"Service"}  rightIcon={serviceFilterShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('serviceFilter')}}/>
-                    <MenuItem primaryText={"User Login"}  rightIcon={userNameShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('userName')}}/>
-                    <MenuItem primaryText={"IP"}  rightIcon={remoteAddressShow ? checkIcon : null} onTouchTap={()=>{this.handleToggleShow('remoteAddress')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.2']}  rightIcon={dateShow && !endDateShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('date')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.period']}  rightIcon={endDateShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('endDate')}}/>
+                    <MenuItem primaryText={"Level"}  rightIcon={levelShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('level')}}/>
+                    <MenuItem primaryText={"Service"}  rightIcon={serviceFilterShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('serviceFilter')}}/>
+                    <MenuItem primaryText={"User Login"}  rightIcon={userNameShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('userName')}}/>
+                    <MenuItem primaryText={"IP"}  rightIcon={remoteAddressShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('remoteAddress')}}/>
                 </IconMenu>
 
                 {!disableExport &&
@@ -237,8 +237,8 @@ class LogTools extends React.Component{
                     >
                         {!hasFilter && <Subheader>{MessageHash['ajxp_admin.logs.export.disabled']}</Subheader>}
                         {hasFilter && <Subheader>{MessageHash['ajxp_admin.logs.11']}</Subheader>}
-                        <MenuItem primaryText="CSV" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-delimited"}/>} onTouchTap={()=>{this.handleExport('CSV')}} disabled={!hasFilter} />
-                        <MenuItem primaryText="XLSX" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-excel"}/>} onTouchTap={()=>{this.handleExport('XLSX')}} disabled={!hasFilter} />
+                        <MenuItem primaryText="CSV" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-delimited"}/>} onClick={()=>{this.handleExport('CSV')}} disabled={!hasFilter} />
+                        <MenuItem primaryText="XLSX" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-excel"}/>} onClick={()=>{this.handleExport('XLSX')}} disabled={!hasFilter} />
                         {exportUrl && <Subheader><a href={exportUrl} download={exportFilename}>{exportFilename}</a></Subheader>}
                     </IconMenu>
                 }
@@ -246,7 +246,7 @@ class LogTools extends React.Component{
                     open={!!exportUrl}
                     modal={true}
                     title={MessageHash['ajxp_admin.logs.11']}
-                    actions={[<FlatButton label={"Cancel"} onTouchTap={exportOnClick}/>]}
+                    actions={[<FlatButton label={"Cancel"} onClick={exportOnClick}/>]}
                 >
                     <span style={{fontSize:13}}>
                         {MessageHash['ajxp_admin.logs.export.clicklink']}: <a style={{textDecoration:'underline'}} href={exportUrl} download={exportFilename} onClick={exportOnClick}>{exportFilename}</a>

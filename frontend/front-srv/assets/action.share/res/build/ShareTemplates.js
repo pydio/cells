@@ -514,7 +514,7 @@ var DLTemplate = (function (_React$Component3) {
                     'a',
                     {
                         style: { display: 'block', textAlign: 'center', padding: 12, cursor: 'pointer' },
-                        onTouchTap: function () {
+                        onClick: function () {
                             _this3.setState({ displayShareLink: true });
                         } },
                     sharePageAction.options.text

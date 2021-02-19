@@ -139,7 +139,7 @@ export default createReactClass({
                 {showDismiss &&
                     <div style={{display:'flex', alignItems:'center'}}>
                         <h4 style={{flex: 1, paddingTop:16, paddingLeft: 8}}>{messages['httpdownloader.10'].replace('APPLICATION_TITLE', pydio.Parameters.get('APPLICATION_TITLE'))}</h4>
-                        <IconButton iconClassName={"mdi mdi-close"} onTouchTap={()=>{onDismiss()}}/>
+                        <IconButton iconClassName={"mdi mdi-close"} onClick={()=>{onDismiss()}}/>
                     </div>
                 }
                 <div style={{position:'relative', margin: 10, fontSize:13}} className="dialoglegend">{messages['httpdownloader.4']}</div>

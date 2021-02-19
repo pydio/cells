@@ -124,14 +124,14 @@ class MetaNamespace extends React.Component{
                         <div key={k} style={{display:'flex'}}>
                             <span><TextField value={k} disabled={true} fullWidth={true}/></span>
                             <span style={{marginLeft: 10}}><TextField value={data[k]} disabled={true} fullWidth={true}/></span>
-                            <span><IconButton iconClassName={"mdi mdi-delete"} onTouchTap={()=>{this.removeSelectionValue(k)}}/></span>
+                            <span><IconButton iconClassName={"mdi mdi-delete"} onClick={()=>{this.removeSelectionValue(k)}}/></span>
                         </div>
                     )
                 })}</div>
                 <div style={{display:'flex'}} key={"new-selection-key"}>
                     <span><TextField value={selectorNewKey} onChange={(e,v)=>{this.setState({selectorNewKey:v})}} hintText={m('editor.selection.key')} fullWidth={true}/></span>
                     <span style={{marginLeft: 10}}><TextField value={selectorNewValue} onChange={(e,v)=>{this.setState({selectorNewValue:v})}} hintText={m('editor.selection.value')} fullWidth={true}/></span>
-                    <span><IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue}/></span>
+                    <span><IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue}/></span>
                 </div>
             </div>
         );
@@ -198,11 +198,11 @@ class MetaNamespace extends React.Component{
         }
 
         const actions = [
-            <FlatButton primary={true} label={pydio.MessageHash['54']} onTouchTap={this.props.onRequestClose}/>,
-            <FlatButton primary={true} disabled={invalid || readonly} label={"Save"} onTouchTap={() => {this.save()}}/>,
+            <FlatButton primary={true} label={pydio.MessageHash['54']} onClick={this.props.onRequestClose}/>,
+            <FlatButton primary={true} disabled={invalid || readonly} label={"Save"} onClick={() => {this.save()}}/>,
         ];
         if(type === 'tags' && !readonly){
-            actions.unshift(<FlatButton primary={false} label={m('editor.tags.reset')} onTouchTap={()=>{
+            actions.unshift(<FlatButton primary={false} label={m('editor.tags.reset')} onClick={()=>{
                 const api = new UserMetaServiceApi(PydioApi.getRestClient());
                 api.deleteUserMetaTags(namespace.Namespace, "*").then(() => {
                     pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));

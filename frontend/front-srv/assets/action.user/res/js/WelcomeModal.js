@@ -60,8 +60,8 @@ export default createReactClass({
 
     getButtons: function(){
         return [
-            <FlatButton label={this.getMessage('skip')} onTouchTap={()=> {this.close(true)}}/>,
-            <FlatButton label={this.getMessage('start')} primary={true} onTouchTap={() => this.close(false)}/>,
+            <FlatButton label={this.getMessage('skip')} onClick={()=> {this.close(true)}}/>,
+            <FlatButton label={this.getMessage('start')} primary={true} onClick={() => this.close(false)}/>,
         ];
     },
 

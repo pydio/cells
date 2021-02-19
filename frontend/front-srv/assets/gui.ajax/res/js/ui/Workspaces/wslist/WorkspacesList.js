@@ -85,9 +85,9 @@ class Entries extends React.Component{
         const chevStyles = {style:{width: 36, height: 36, padding:6}, iconStyle:{color:titleStyle.color}};
         return (
             <div style={{display:'flex', backgroundColor:'rgba(0, 0, 0, 0.03)', color:titleStyle.color, alignItems:'center', justifyContent:'center', fontWeight:400}}>
-                <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})} {...chevStyles}/>
+                <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onClick={() => this.setState({page:page-1})} {...chevStyles}/>
                 <div>{sliceStart+1}-{sliceEnd} of {total}</div>
-                <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onTouchTap={() => this.setState({page:page+1})} {...chevStyles}/>
+                <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onClick={() => this.setState({page:page+1})} {...chevStyles}/>
             </div>
         );
     }
@@ -149,7 +149,7 @@ class Entries extends React.Component{
                             iconClassName={"mdi mdi-close"}
                             style={buttonStyles.button}
                             iconStyle={buttonStyles.icon}
-                            onTouchTap={()=>{this.setState({toggleFilter: false, filterValue:''})}}
+                            onClick={()=>{this.setState({toggleFilter: false, filterValue:''})}}
                         />
                     </div>
                 }
@@ -273,7 +273,7 @@ class WorkspacesList extends React.Component{
                 iconClassName={"mdi mdi-plus"}
                 tooltip={messages[417]}
                 tooltipPosition={"top-left"}
-                onTouchTap={createClick}
+                onClick={createClick}
             />
         }
 
@@ -320,7 +320,7 @@ class WorkspacesList extends React.Component{
                     emptyState={
                         <div style={{textAlign: 'center', color: Color(muiTheme.palette.primary1Color).fade(0.6).toString()}}>
                             <div className="icomoon-cells" style={{fontSize: 80}}></div>
-                            {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.accent2Color, marginTop:5}} primary={true} label={messages[418]} onTouchTap={createClick}/>}
+                            {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.accent2Color, marginTop:5}} primary={true} label={messages[418]} onClick={createClick}/>}
                             <div style={{fontSize: 13, padding: '5px 20px'}}>{messages[633]}</div>
                         </div>
                     }

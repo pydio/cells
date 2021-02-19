@@ -136,7 +136,7 @@ const PluginsList = createReactClass({
                         iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:20}}
                         iconClassName="mdi mdi-pencil"
                         tooltip={m('action.edit')}
-                        onTouchTap={()=>this.openTableRows([row])}
+                        onClick={()=>this.openTableRows([row])}
                     />);
             } else {
                 return <span/>;

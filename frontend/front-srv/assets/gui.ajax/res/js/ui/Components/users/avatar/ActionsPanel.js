@@ -144,7 +144,7 @@ class ActionsPanel extends React.Component{
                         iconStyle={styles.icon}
                         tooltip={a.label}
                         iconClassName={"mdi mdi-" + a.icon}
-                        onTouchTap={a.callback}
+                        onClick={a.callback}
                     />
                 })}
                 <Popover

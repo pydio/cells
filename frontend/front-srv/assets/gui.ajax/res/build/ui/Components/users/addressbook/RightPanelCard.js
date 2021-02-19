@@ -72,7 +72,7 @@ var RightPanelCard = (function (_React$Component) {
     return React.createElement(
       Paper,
       { zDepth: 2, style: _extends({ position: 'relative' }, this.props.style) },
-      React.createElement(IconButton, { iconClassName: "mdi mdi-close", style: { position: 'absolute', top: 0, right: 0 }, iconStyle: { color: '#e0e0e0' }, onTouchTap: this.props.onRequestClose }),
+      React.createElement(IconButton, { iconClassName: "mdi mdi-close", style: { position: 'absolute', top: 0, right: 0 }, iconStyle: { color: '#e0e0e0' }, onClick: this.props.onRequestClose }),
       content
     );
   };

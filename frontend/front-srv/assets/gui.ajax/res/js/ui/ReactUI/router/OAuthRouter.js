@@ -123,7 +123,7 @@ class ErrorDialog extends Component {
                 open={open}
                 modal={false}
                 title={error ? "Authentication Error" : "Authentication Success"}
-                actions={[<FlatButton primary={true} label={"OK"} onTouchTap={() => {this.dismiss()}}/>]}
+                actions={[<FlatButton primary={true} label={"OK"} onClick={() => {this.dismiss()}}/>]}
             >
                 <div>
                     {successText && <div>{successText}</div>}

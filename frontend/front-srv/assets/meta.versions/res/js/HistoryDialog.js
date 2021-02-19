@@ -126,8 +126,8 @@ let HistoryBrowser = React.createClass({
                         <div style={{paddingLeft:20, color: 'white', fontSize: 18}}>{mess['meta.versions.16'].replace('%s', this.props.node.getLabel())}</div>
                     </ToolbarGroup>
                     <ToolbarGroup lastChild={true} style={{paddingRight: 7}}>
-                        <IconButton iconClassName={"mdi mdi-download"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.3']} tooltip={mess['meta.versions.4']} onTouchTap={this.applyAction.bind(this, 'dl')}/>
-                        <IconButton iconClassName={"mdi mdi-backup-restore"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.7']} tooltip={mess['meta.versions.8']} onTouchTap={this.applyAction.bind(this, 'revert')}/>
+                        <IconButton iconClassName={"mdi mdi-download"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.3']} tooltip={mess['meta.versions.4']} onClick={this.applyAction.bind(this, 'dl')}/>
+                        <IconButton iconClassName={"mdi mdi-backup-restore"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.7']} tooltip={mess['meta.versions.8']} onClick={this.applyAction.bind(this, 'revert')}/>
                     </ToolbarGroup>
                 </Toolbar>
                 <NodeListCustomProvider

@@ -176,17 +176,17 @@ var MetadataBoard = (function (_React$Component) {
             var buttons = [];
             var actions = [];
             if (accessByName('Create')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onClick: function () {
                         _this3.create();
                     } }, adminStyle.props.header.flatButton)));
                 actions.push({
                     iconClassName: 'mdi mdi-pencil',
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         _this3.open([row]);
                     }
                 }, {
                     iconClassName: 'mdi mdi-delete',
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         _this3.deleteNs(row);
                     }
                 });

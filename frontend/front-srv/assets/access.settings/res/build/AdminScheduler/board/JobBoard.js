@@ -152,16 +152,16 @@ var JobBoard = (function (_React$Component) {
                     if (job.Inactive) {
                         bProps.backgroundColor = '#e0e0e0';
                     }
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play", color: iconColor }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play", color: iconColor }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onClick: function () {
                             JobsStore.getInstance().controlJob(job, 'RunOnce');
                         } }, bProps)));
                 }
                 if (job.Inactive) {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline", color: iconColor }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline", color: iconColor }), label: m('task.action.enable'), primary: true, onClick: function () {
                             JobsStore.getInstance().controlJob(job, 'Active');
                         } }, flatProps)));
                 } else {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline", color: iconColor }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline", color: iconColor }), label: m('task.action.disable'), primary: true, onClick: function () {
                             JobsStore.getInstance().controlJob(job, 'Inactive');
                         } }, flatProps)));
                 }
@@ -176,7 +176,7 @@ var JobBoard = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'a',
-                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: function () {
+                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onClick: function () {
                                     return onRequestClose(true);
                                 } },
                             pydio.MessageHash['ajxp_admin.scheduler.title']

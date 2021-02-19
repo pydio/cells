@@ -903,7 +903,7 @@ var UserMetaPanel = (function (_React$Component) {
                     null,
                     _react2['default'].createElement(
                         'div',
-                        { style: { color: 'rgba(0,0,0,0.23)', paddingBottom: 10 }, onTouchTap: this.props.onRequestEditMode },
+                        { style: { color: 'rgba(0,0,0,0.23)', paddingBottom: 10 }, onClick: this.props.onRequestEditMode },
                         mess['meta.user.11']
                     ),
                     data

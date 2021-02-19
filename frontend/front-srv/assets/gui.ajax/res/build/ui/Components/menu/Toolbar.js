@@ -265,7 +265,7 @@ exports['default'] = _createReactClass2['default']({
                     if (fabAction && fabAction === actionName) {
                         actions.push(_react2['default'].createElement(_materialUi.FloatingActionButton, {
                             key: actionName,
-                            onTouchTap: click,
+                            onClick: click,
                             iconClassName: menuIcon,
                             mini: true,
                             backgroundColor: toolbarStyle.backgroundColor,
@@ -275,7 +275,7 @@ exports['default'] = _createReactClass2['default']({
                         actions.push(_react2['default'].createElement(_materialUi.FlatButton, {
                             key: actionName,
                             className: id,
-                            onTouchTap: click,
+                            onClick: click,
                             label: menuTitle,
                             labelStyle: buttonStyle,
                             style: flatButtonStyle
@@ -284,7 +284,7 @@ exports['default'] = _createReactClass2['default']({
                         actions.push(_react2['default'].createElement(_materialUi.FlatButton, {
                             key: actionName,
                             className: id,
-                            onTouchTap: click,
+                            onClick: click,
                             label: menuTitle,
                             labelStyle: buttonStyle,
                             style: flatButtonStyle
@@ -295,7 +295,7 @@ exports['default'] = _createReactClass2['default']({
                             iconClassName: menuIcon + ' ' + id,
                             iconStyle: buttonStyle,
                             style: flatButtonStyle,
-                            onTouchTap: click,
+                            onClick: click,
                             tooltip: menuTitle,
                             tooltipPosition: tooltipPosition
                         }));

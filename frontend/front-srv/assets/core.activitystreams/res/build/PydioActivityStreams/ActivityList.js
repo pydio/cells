@@ -226,7 +226,7 @@ var ActivityList = (function (_React$Component) {
                 content.push(_react2['default'].createElement(
                     'div',
                     { style: { paddingLeft: 16 } },
-                    _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19'], disabled: loading, onTouchTap: loadAction })
+                    _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: loading ? pydio.MessageHash['notification_center.20'] : pydio.MessageHash['notification_center.19'], disabled: loading, onClick: loadAction })
                 ));
             }
             if (content.length) {

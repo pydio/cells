@@ -49,7 +49,7 @@ let Dashboard = createReactClass({
                 iconStyle={{color:'rgba(0,0,0,.33)'}}
                 tooltip="Open in new window"
                 tooltipPosition="bottom-left"
-                onTouchTap={() => {window.open(link)}}
+                onClick={() => {window.open(link)}}
             />
         );
     },
@@ -60,7 +60,7 @@ let Dashboard = createReactClass({
             label={message}
             primary={true}
             icon={<FontIcon className={"mdi mdi-" + icon} {...icProps}/>}
-            onTouchTap={()=>{window.open(link)}}
+            onClick={()=>{window.open(link)}}
             {...props}
         />
     },
@@ -152,9 +152,9 @@ let Dashboard = createReactClass({
                 </CardText>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('cont.btn.github')} primary={true} icon={<FontIcon className="mdi mdi-github-box" {...icProps} />} onTouchTap={()=>{window.open('https://github.com/pydio/cells')}} {...flatProps}/>
-                    <FlatButton label={message('cont.btn.tw')} primary={true} icon={<FontIcon className="mdi mdi-twitter-box" {...icProps}/>} onTouchTap={()=>{window.open('https://twitter.com/Pydio')}} {...flatProps} />
-                    <FlatButton label={message('cont.btn.fb')} primary={true} icon={<FontIcon className="mdi mdi-facebook-box" {...icProps}/>} onTouchTap={()=>{window.open('https://facebook.com/Pydio/')}} {...flatProps} />
+                    <FlatButton label={message('cont.btn.github')} primary={true} icon={<FontIcon className="mdi mdi-github-box" {...icProps} />} onClick={()=>{window.open('https://github.com/pydio/cells')}} {...flatProps}/>
+                    <FlatButton label={message('cont.btn.tw')} primary={true} icon={<FontIcon className="mdi mdi-twitter-box" {...icProps}/>} onClick={()=>{window.open('https://twitter.com/Pydio')}} {...flatProps} />
+                    <FlatButton label={message('cont.btn.fb')} primary={true} icon={<FontIcon className="mdi mdi-facebook-box" {...icProps}/>} onClick={()=>{window.open('https://facebook.com/Pydio/')}} {...flatProps} />
                 </CardActions>
             </Card>
         );
@@ -174,12 +174,12 @@ let Dashboard = createReactClass({
                     <Divider/>
                     <ListItem leftIcon={<FontIcon style={{color:accent2Color}} className="mdi mdi-message-alert"/>} primaryText={message('ent.support')} secondaryText={message('ent.support.legend')} disabled={true} />
                     <Divider/>
-                    <ListItem leftIcon={<FontIcon style={{color:accent2Color}} className="mdi mdi-download"/>} onTouchTap={()=>{pydio.goTo('/admin/update')}} primaryText={<span style={{color:'rgb(1, 141, 204)'}}>{message('ent.upgrade')}</span>} secondaryText={message('ent.upgrade.legend')}/>
+                    <ListItem leftIcon={<FontIcon style={{color:accent2Color}} className="mdi mdi-download"/>} onClick={()=>{pydio.goTo('/admin/update')}} primaryText={<span style={{color:'rgb(1, 141, 204)'}}>{message('ent.upgrade')}</span>} secondaryText={message('ent.upgrade.legend')}/>
                 </List>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"} {...icProps}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} {...flatProps}/>
-                    <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"} {...icProps}/>} primary={true}  onTouchTap={()=>{window.open('https://pydio.com/en/pricing/contact')}} {...flatProps}/>
+                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"} {...icProps}/>} primary={true}  onClick={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} {...flatProps}/>
+                    <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"} {...icProps}/>} primary={true}  onClick={()=>{window.open('https://pydio.com/en/pricing/contact')}} {...flatProps}/>
                 </CardActions>
             </Card>
         );
@@ -187,7 +187,7 @@ let Dashboard = createReactClass({
         const websiteButton = (
             <IconButton
                 iconClassName={"icomoon-cells"}
-                onTouchTap={()=>{window.open('https://pydio.com')}}
+                onClick={()=>{window.open('https://pydio.com')}}
                 tooltip={pydio.MessageHash['settings.topbar.button.about']}
                 tooltipPosition={"bottom-left"}
                 {...adminStyles.props.header.iconButton}

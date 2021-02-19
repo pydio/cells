@@ -165,7 +165,7 @@ var NodesPicker = (function (_React$Component) {
                 disabled: true,
                 leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-" + (node.Type === 'LEAF' ? 'file' : 'folder') }),
                 primaryText: model.getNodeLabelInContext(node),
-                rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
+                rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { onClick: function () {
                         model.removeRootNode(node.Uuid);
                     }, iconClassName: 'mdi mdi-delete', tooltip: 'Remove', iconStyle: { color: 'rgba(0,0,0,.43)' } })
             });
@@ -207,7 +207,7 @@ var NodesPicker = (function (_React$Component) {
             if (mode === 'edit') {
                 pickButton = _react2['default'].createElement(_materialUi.FlatButton, {
                     label: m(282),
-                    onTouchTap: this.handleTouchTap.bind(this),
+                    onClick: this.handleTouchTap.bind(this),
                     primary: true,
                     style: { marginBottom: 10 },
                     icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder-plus" })
@@ -215,7 +215,7 @@ var NodesPicker = (function (_React$Component) {
             } else {
                 pickButton = _react2['default'].createElement(_materialUi.RaisedButton, {
                     label: m(282),
-                    onTouchTap: this.handleTouchTap.bind(this),
+                    onClick: this.handleTouchTap.bind(this),
                     primary: false,
                     style: { marginBottom: 10 },
                     icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder-plus", style: { fontSize: 20, marginTop: -4 } })
@@ -287,7 +287,7 @@ var NodesPicker = (function (_React$Component) {
                                 { style: { flex: 1, color: 'rgba(0,0,0,.54)', fontWeight: 500 } },
                                 m(283)
                             ),
-                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.palette.primary1Color }, disabled: !node, iconClassName: "mdi mdi-plus-circle-outline", onTouchTap: this.onValidateNode.bind(this) })
+                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: muiTheme.palette.primary1Color }, disabled: !node, iconClassName: "mdi mdi-plus-circle-outline", onClick: this.onValidateNode.bind(this) })
                         )
                     )
                 )

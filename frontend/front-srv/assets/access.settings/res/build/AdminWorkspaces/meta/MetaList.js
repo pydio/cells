@@ -74,7 +74,7 @@ exports['default'] = (0, _createReactClass2['default'])({
                     removeButton = _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: this.context.getMessage('ws.31'), primary: true, onTouchTap: remove })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: this.context.getMessage('ws.31'), primary: true, onClick: remove })
                     );
                 }
                 description = _react2['default'].createElement(

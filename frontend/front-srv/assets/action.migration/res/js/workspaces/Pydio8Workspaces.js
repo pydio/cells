@@ -112,7 +112,7 @@ class Workspace extends React.Component {
                 secondaryText={Pydio8Workspaces.toString(workspace)}
                 style={style}
                 onMouseOver={() => this.handleHover()}
-                onTouchTap={() => this.handleSelect()}
+                onClick={() => this.handleSelect()}
             />
         );
     }

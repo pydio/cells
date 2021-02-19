@@ -175,7 +175,7 @@ var VirtualNodes = (function (_React$Component) {
 
             var headerActions = [];
             if (!readonly && accessByName('Create')) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onClick: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
             }
 
             var columns = [{ name: 'id', label: m('col.id'), style: { width: '25%', fontSize: 15 }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
@@ -192,7 +192,7 @@ var VirtualNodes = (function (_React$Component) {
                 actions.push({
                     iconClassName: 'mdi mdi-eye',
                     tooltip: m('code.display'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
                     }
                 });
@@ -200,14 +200,14 @@ var VirtualNodes = (function (_React$Component) {
                 actions.push({
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: m('code.edit'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
                     }
                 });
                 actions.push({
                     iconClassName: 'mdi mdi-delete',
                     tooltip: m('delete'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         pydio.UI.openConfirmDialog({
                             message: m('delete.confirm'),
                             destructive: [row.node.getName()],

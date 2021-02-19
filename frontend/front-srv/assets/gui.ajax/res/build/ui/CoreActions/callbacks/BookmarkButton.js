@@ -136,7 +136,7 @@ var BookmarkButton = (function (_React$Component) {
             disabled = true;
         }
 
-        return _react2['default'].createElement(_materialUi.IconButton, _extends({ disabled: disabled, iconClassName: 'mdi mdi-' + icon, tooltip: tt, onTouchTap: function () {
+        return _react2['default'].createElement(_materialUi.IconButton, _extends({ disabled: disabled, iconClassName: 'mdi mdi-' + icon, tooltip: tt, onClick: function () {
                 return _this2.updateValue(touchValue);
             } }, styles));
     };

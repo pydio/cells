@@ -314,7 +314,7 @@ class MainFilesList extends React.Component {
                     loadThumbnail={false}
                     node={node}
                     mimeClassName="mimefont mdi mdi-chevron-left"
-                    onTouchTap={()=>{this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE)}}
+                    onClick={()=>{this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE)}}
                     style={{cursor:'pointer'}}
                 />
             );

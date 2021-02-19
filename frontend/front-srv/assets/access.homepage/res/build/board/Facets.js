@@ -108,7 +108,7 @@ var Facet = (function (_React$Component) {
                 _extends({
                     style: { margin: 4 },
                     onRequestDelete: requestDelete,
-                    onTouchTap: requestSelect
+                    onClick: requestSelect
                 }, cc.chip),
                 _react2['default'].createElement(
                     _materialUi.Avatar,

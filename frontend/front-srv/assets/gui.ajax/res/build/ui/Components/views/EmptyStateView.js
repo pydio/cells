@@ -129,7 +129,7 @@ var EmptyStateView = (function (_Component) {
                 actionLabelId && actionCallback && React.createElement(
                     'div',
                     { style: _extends({}, styles.buttonContainer, actionStyle) },
-                    React.createElement(FlatButton, { style: styles.buttonStyle, label: getMessage(actionLabelId), onTouchTap: actionCallback, icon: buttonIcon })
+                    React.createElement(FlatButton, { style: styles.buttonStyle, label: getMessage(actionLabelId), onClick: actionCallback, icon: buttonIcon })
                 )
             )
         );

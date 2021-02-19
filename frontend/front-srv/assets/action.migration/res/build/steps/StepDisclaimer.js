@@ -64,11 +64,11 @@ var StepDisclaimer = (function (_React$Component) {
 
             var otherButtons = [];
             if (advanced) {
-                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.support'), onTouchTap: function () {
+                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.support'), onClick: function () {
                         window.open('https://pydio.com/en/user/login');
                     } }));
             } else {
-                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.quote'), onTouchTap: function () {
+                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.quote'), onClick: function () {
                         window.open('https://pydio.com/en/pricing/contact');
                     } }));
             }

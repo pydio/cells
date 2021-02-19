@@ -111,7 +111,7 @@ class AltDashboard extends React.Component {
                 <IconButton
                     iconStyle={{color: null}}
                     iconClassName="mdi mdi-menu"
-                    onTouchTap={this.openDrawer.bind(this)}/>
+                    onClick={this.openDrawer.bind(this)}/>
             </span>
         );
         const headerHeight = 72;

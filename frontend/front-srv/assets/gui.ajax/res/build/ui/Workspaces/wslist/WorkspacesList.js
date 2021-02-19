@@ -137,7 +137,7 @@ var Entries = (function (_React$Component) {
         return _react2['default'].createElement(
             'div',
             { style: { display: 'flex', backgroundColor: 'rgba(0, 0, 0, 0.03)', color: titleStyle.color, alignItems: 'center', justifyContent: 'center', fontWeight: 400 } },
-            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onTouchTap: function () {
+            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-left", disabled: page === 1, onClick: function () {
                     return _this.setState({ page: page - 1 });
                 } }, chevStyles)),
             _react2['default'].createElement(
@@ -149,7 +149,7 @@ var Entries = (function (_React$Component) {
                 ' of ',
                 total
             ),
-            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onTouchTap: function () {
+            _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right", disabled: page === pages.length, onClick: function () {
                     return _this.setState({ page: page + 1 });
                 } }, chevStyles))
         );
@@ -242,7 +242,7 @@ var Entries = (function (_React$Component) {
                     iconClassName: "mdi mdi-close",
                     style: buttonStyles.button,
                     iconStyle: buttonStyles.icon,
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this2.setState({ toggleFilter: false, filterValue: '' });
                     }
                 })
@@ -397,7 +397,7 @@ var WorkspacesList = (function (_React$Component2) {
                 iconClassName: "mdi mdi-plus",
                 tooltip: messages[417],
                 tooltipPosition: "top-left",
-                onTouchTap: createClick
+                onClick: createClick
             });
         }
 
@@ -449,7 +449,7 @@ var WorkspacesList = (function (_React$Component2) {
                     'div',
                     { style: { textAlign: 'center', color: _color2['default'](muiTheme.palette.primary1Color).fade(0.6).toString() } },
                     _react2['default'].createElement('div', { className: 'icomoon-cells', style: { fontSize: 80 } }),
-                    this.createRepositoryEnabled() && _react2['default'].createElement(_materialUi.FlatButton, { style: { color: muiTheme.palette.accent2Color, marginTop: 5 }, primary: true, label: messages[418], onTouchTap: createClick }),
+                    this.createRepositoryEnabled() && _react2['default'].createElement(_materialUi.FlatButton, { style: { color: muiTheme.palette.accent2Color, marginTop: 5 }, primary: true, label: messages[418], onClick: createClick }),
                     _react2['default'].createElement(
                         'div',
                         { style: { fontSize: 13, padding: '5px 20px' } },

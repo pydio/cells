@@ -85,9 +85,9 @@ exports['default'] = (0, _createReactClass2['default'])({
     getButtons: function getButtons() {
         var _this = this;
 
-        return [_react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('skip'), onTouchTap: function () {
+        return [_react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('skip'), onClick: function () {
                 _this.close(true);
-            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('start'), primary: true, onTouchTap: function () {
+            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('start'), primary: true, onClick: function () {
                 return _this.close(false);
             } })];
     },

@@ -173,7 +173,7 @@ let AsyncModal = createReactClass({
                         key="cancel"
                         label={this.props.getMessage('49')}
                         primary={false}
-                        onTouchTap={component.getCancelCallback()}
+                        onClick={component.getCancelCallback()}
                     />);
             }
             if(component.getSubmitCallback){
@@ -182,7 +182,7 @@ let AsyncModal = createReactClass({
                     primary={!blur}
                     secondary={blur}
                     keyboardFocused={true}
-                    onTouchTap={component.getSubmitCallback()}
+                    onClick={component.getSubmitCallback()}
                 />);
             }
             if(component.getNextCallback){
@@ -191,7 +191,7 @@ let AsyncModal = createReactClass({
                     primary={!blur}
                     secondary={blur}
                     keyboardFocused={true}
-                    onTouchTap={component.getNextCallback()}
+                    onClick={component.getNextCallback()}
                 />);
             }
             prepareState({actions: actions});

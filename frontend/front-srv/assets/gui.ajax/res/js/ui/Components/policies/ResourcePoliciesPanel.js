@@ -372,7 +372,7 @@ class ResourcePoliciesPanel extends React.Component{
                         {description}
                         </div>
                         <div style={{textAlign:'center'}}>
-                            <RaisedButton label={mess['visibility.panel.edit']} primary={true} onTouchTap={()=>{this.setState({edit: true})}}/>
+                            <RaisedButton label={mess['visibility.panel.edit']} primary={true} onClick={()=>{this.setState({edit: true})}}/>
                         </div>
                     </div>
                 </div>
@@ -396,7 +396,7 @@ class ResourcePoliciesPanel extends React.Component{
             if(pickedUser) {
                 blocks.push(<div style={styles.subheader}>{mess['visibility.panel.setvisible']}</div>);
                 blocks.push(this.renderLine(pickedUser, pickedLabel, policies, false, true));
-                blocks.push(<div style={{textAlign:'right'}}><FlatButton label={mess[54]} onTouchTap={()=>{this.setState({pickedUser:null, pickedLabel: null});}}/></div>);
+                blocks.push(<div style={{textAlign:'right'}}><FlatButton label={mess[54]} onClick={()=>{this.setState({pickedUser:null, pickedLabel: null});}}/></div>);
                 blocks.push(<Divider/>);
             } else if(!readonly) {
                 const crtUserSubject = 'user:' + idmUser.Login;
@@ -434,13 +434,13 @@ class ResourcePoliciesPanel extends React.Component{
                 <div style={styles.title}>
                     <span style={{flex:1}}>{skipTitle? '' : mess['visibility.panel.title']}</span>
                     {dirtyPolicies &&
-                        <IconButton iconClassName={"mdi mdi-undo-variant"} tooltip={mess['visibility.panel.revert']} onTouchTap={this.revert.bind(this)} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-undo-variant"} tooltip={mess['visibility.panel.revert']} onClick={this.revert.bind(this)} iconStyle={{color:appBar.textColor}} />
                     }
                     {dirtyPolicies &&
-                        <IconButton iconClassName={"mdi mdi-content-save"} tooltip={mess['visibility.panel.save']} onTouchTap={this.save.bind(this)} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-content-save"} tooltip={mess['visibility.panel.save']} onClick={this.save.bind(this)} iconStyle={{color:appBar.textColor}} />
                     }
                     {!dirtyPolicies && onDismiss &&
-                        <IconButton iconClassName={"mdi mdi-close"} onTouchTap={onDismiss} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-close"} onClick={onDismiss} iconStyle={{color:appBar.textColor}} />
                     }
                 </div>
                 {error &&

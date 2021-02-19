@@ -30864,11 +30864,11 @@ var StepDisclaimer = (function (_React$Component) {
 
             var otherButtons = [];
             if (advanced) {
-                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.support'), onTouchTap: function () {
+                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.support'), onClick: function () {
                         window.open('https://pydio.com/en/user/login');
                     } }));
             } else {
-                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.quote'), onTouchTap: function () {
+                otherButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('step.disclaimer.quote'), onClick: function () {
                         window.open('https://pydio.com/en/pricing/contact');
                     } }));
             }
@@ -32708,10 +32708,10 @@ var WorkspaceMapper = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', justifyContent: 'center', position: 'absolute', top: -13, left: 0, right: 0 } },
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-left" }), label: this.T('next10') + limit, disabled: prev === undefined, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-left" }), label: this.T('next10') + limit, disabled: prev === undefined, onClick: function () {
                         _this5.setState({ offset: prev });
                     } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-right" }), label: this.T('prev10') + limit, labelPosition: "before", disabled: next === undefined, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-chevron-right" }), label: this.T('prev10') + limit, labelPosition: "before", disabled: next === undefined, onClick: function () {
                         _this5.setState({ offset: next });
                     } })
             );
@@ -32819,20 +32819,20 @@ var WorkspaceMapper = (function (_React$Component) {
                             openIcon: _react2['default'].createElement(
                                 _materialUi.IconMenu,
                                 { iconButtonElement: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-dots-vertical" }) },
-                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.ds.show'), onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.ds.show'), onClick: function () {
                                         return _this6.handleShowDatasources();
                                     } }),
-                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.tpl.show'), onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.tpl.show'), onClick: function () {
                                         return _this6.handleShowTemplatePaths();
                                     } })
                             ),
                             closeIcon: _react2['default'].createElement(
                                 _materialUi.IconMenu,
                                 { iconButtonElement: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-dots-vertical" }) },
-                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.ds.show'), onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.ds.show'), onClick: function () {
                                         return _this6.handleShowDatasources();
                                     } }),
-                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.tpl.show'), onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.T('p8.tpl.show'), onClick: function () {
                                         return _this6.handleShowTemplatePaths();
                                     } })
                             ),
@@ -32866,7 +32866,7 @@ var WorkspaceMapper = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(_materialUi.CardHeader, {
                             title: this.T('cells.title'),
-                            closeIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-eye-off", onTouchTap: function () {
+                            closeIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-eye-off", onClick: function () {
                                     return _this6.handleHideDatasources();
                                 } }),
                             showExpandableButton: true
@@ -32894,7 +32894,7 @@ var WorkspaceMapper = (function (_React$Component) {
                                 label: this.T('createds'),
                                 style: styles.button,
                                 icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-plus-circle-outline", style: styles.addButton }),
-                                onTouchTap: function () {
+                                onClick: function () {
                                     return _this6.handleCreateDatasource();
                                 }
                             })
@@ -32906,7 +32906,7 @@ var WorkspaceMapper = (function (_React$Component) {
                         { style: { position: "relative" } },
                         _react2['default'].createElement(_materialUi.CardHeader, {
                             title: this.T('tpath.title'),
-                            closeIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-eye-off", onTouchTap: function () {
+                            closeIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-eye-off", onClick: function () {
                                     return _this6.handleHideTemplatePaths();
                                 } }),
                             showExpandableButton: true
@@ -32938,7 +32938,7 @@ var WorkspaceMapper = (function (_React$Component) {
                                 },
                                 style: styles.button,
                                 icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-plus-circle-outline", style: styles.addButton }),
-                                onTouchTap: function () {
+                                onClick: function () {
                                     return _this6.handleCreateTemplatePath();
                                 }
                             })
@@ -32979,7 +32979,7 @@ var WorkspaceMapper = (function (_React$Component) {
                             return onBack();
                         } }),
                     '  ',
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('next'), primary: true, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: this.T('next'), primary: true, onClick: function () {
                             _this6.handleNext();
                         } })
                 )
@@ -33495,7 +33495,7 @@ var MetadataMapper = (function (_React$Component) {
                                     primaryText: m.label,
                                     secondaryText: m.namespace + (m.additional ? _this4.T('step.meta.map.values').replace('%s', m.additional) : ''),
                                     leftIcon: _this4.renderFontIcon(m),
-                                    onTouchTap: function () {
+                                    onClick: function () {
                                         _this4.toggle(i);
                                     }
                                 });
@@ -33505,7 +33505,7 @@ var MetadataMapper = (function (_React$Component) {
                                     primaryText: _react2['default'].createElement(ModernTextField, { style: { height: 40 }, value: m.label, onChange: function (e, v) {
                                             _this4.updateLabel(i, v);
                                         } }),
-                                    leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '24px 12px', cursor: 'pointer' }, className: "mdi mdi-check", onTouchTap: function () {
+                                    leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '24px 12px', cursor: 'pointer' }, className: "mdi mdi-check", onClick: function () {
                                             _this4.toggle(i);
                                         } }),
                                     disabled: true
@@ -33941,7 +33941,7 @@ var Workspace = (function (_React$Component2) {
                 onMouseOver: function () {
                     return _this.handleHover();
                 },
-                onTouchTap: function () {
+                onClick: function () {
                     return _this.handleSelect();
                 }
             });
@@ -34187,7 +34187,7 @@ var Datasource = (function (_React$Component2) {
                     secondaryText: Ws2Datasources.toString(datasource),
                     style: style,
                     disabled: !selectable,
-                    onTouchTap: function () {
+                    onClick: function () {
                         return _this2.handleSelect();
                     }
                 })
@@ -34437,7 +34437,7 @@ var TemplatePath = (function (_React$Component2) {
                 primaryText: templatePath.Path,
                 secondaryText: removeComments(templatePath.MetaStore.resolution),
                 disabled: !selectable,
-                onTouchTap: function () {
+                onClick: function () {
                     return _this.handleSelect();
                 }
             });

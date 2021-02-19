@@ -172,7 +172,7 @@ class MessageBar extends React.Component{
                 onRequestClose={this.handleClose.bind(this)}
                 autoHideDuration={errorStatus ? 9000 : 4000}
                 action={actionLabel}
-                onActionTouchTap={actionCallback}
+                onActionClick={actionCallback}
                 bodyStyle={{padding:'16px 24px', height:'auto', maxHeight:200, overflowY:'auto', lineHeight:'inherit'}}
             />
         );

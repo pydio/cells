@@ -209,7 +209,7 @@ exports['default'] = (0, _createReactClass2['default'])({
             actions.push({
                 iconClassName: "mdi mdi-pencil",
                 tooltip: 'Edit Workspace',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     openSelection(row.workspace);
                 },
                 disable: function disable(row) {
@@ -221,7 +221,7 @@ exports['default'] = (0, _createReactClass2['default'])({
         actions.push({
             iconClassName: 'mdi mdi-open-in-new',
             tooltip: 'Open this workspace...',
-            onTouchTap: function onTouchTap(row) {
+            onClick: function onClick(row) {
                 pydio.triggerRepositoryChange(row.workspace.UUID);
             },
             disable: function disable(row) {
@@ -231,7 +231,7 @@ exports['default'] = (0, _createReactClass2['default'])({
         if (editable) {
             actions.push({
                 iconClassName: "mdi mdi-delete",
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this3.deleteAction(row.workspace);
                 },
                 disable: function disable(row) {

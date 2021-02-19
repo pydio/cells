@@ -390,7 +390,7 @@ class FSTemplate extends React.Component {
                     <Paper zDepth={themeLight?0:1} style={styles.appBarStyle} rounded={false}>
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)', display:'flex'}}>
                             <span className="drawer-button" style={{marginLeft: 12, marginRight: -6}}>
-                                <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/>
+                                <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer}/>
                             </span>
                             <div style={{flex: 1, overflow:'hidden'}}>
                                 <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>
@@ -449,7 +449,7 @@ class FSTemplate extends React.Component {
                                         iconClassName={"mdi mdi-magnify"}
                                         style={rightColumnState === "advanced-search" ? styles.activeButtonStyle : styles.buttonsStyle}
                                         iconStyle={rightColumnState === "advanced-search" ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onTouchTap={()=>{this.openRightPanel('advanced-search')}}
+                                        onClick={()=>{this.openRightPanel('advanced-search')}}
                                         tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'87']}
                                     />
                                 }
@@ -461,7 +461,7 @@ class FSTemplate extends React.Component {
                                     iconClassName={"mdi mdi-information"}
                                     style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
                                     iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                    onTouchTap={()=>{this.openRightPanel('info-panel')}}
+                                    onClick={()=>{this.openRightPanel('info-panel')}}
                                     tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
                                 />
                                 }
@@ -470,7 +470,7 @@ class FSTemplate extends React.Component {
                                         iconClassName={"mdi mdi-account-card-details"}
                                         style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
                                         iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onTouchTap={()=>{this.openRightPanel('address-book')}}
+                                        onClick={()=>{this.openRightPanel('address-book')}}
                                         tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
                                         tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
                                     />
@@ -480,7 +480,7 @@ class FSTemplate extends React.Component {
                                     iconClassName={"mdi mdi-message-text"}
                                     style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
                                     iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                    onTouchTap={()=>{this.openRightPanel('chat')}}
+                                    onClick={()=>{this.openRightPanel('chat')}}
                                     tooltip={pydio.MessageHash[rightColumnState === 'chat' ? '86':'635']}
                                     tooltipPosition={"bottom-left"}
                                 />

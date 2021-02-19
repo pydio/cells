@@ -163,7 +163,7 @@ export default createReactClass({
             actions.push({
                 iconClassName:"mdi mdi-pencil" ,
                 tooltip:'Edit Workspace',
-                onTouchTap:(row)=>{openSelection(row.workspace)},
+                onClick:(row)=>{openSelection(row.workspace)},
                 disable:(row)=>{return !row.workspace.PoliciesContextEditable}
             });
         }
@@ -171,13 +171,13 @@ export default createReactClass({
         actions.push({
             iconClassName:'mdi mdi-open-in-new',
             tooltip:'Open this workspace...',
-            onTouchTap:(row => {pydio.triggerRepositoryChange(row.workspace.UUID)}),
+            onClick:(row => {pydio.triggerRepositoryChange(row.workspace.UUID)}),
             disable:(row => !repos.has(row.workspace.UUID))
         });
         if(editable){
             actions.push({
                 iconClassName:"mdi mdi-delete" ,
-                onTouchTap:(row)=>{this.deleteAction(row.workspace)},
+                onClick:(row)=>{this.deleteAction(row.workspace)},
                 disable:(row)=>{return !row.workspace.PoliciesContextEditable}
             });
         }

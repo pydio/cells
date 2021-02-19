@@ -197,7 +197,7 @@ class AutocompleteTree extends React.Component{
                         <IconButton
                             iconClassName={"mdi mdi-folder-plus"}
                             iconStyle={{color:'#9e9e9e'}}
-                            onTouchTap={()=>this.showCreateDialog()}
+                            onClick={()=>this.showCreateDialog()}
                             tooltip={pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']}
                         />
                     </div>

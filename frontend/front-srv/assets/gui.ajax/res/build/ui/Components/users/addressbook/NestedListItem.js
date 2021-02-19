@@ -51,11 +51,11 @@ var NestedListItem = (function (_Component) {
     }
 
     /**
-     * Triggers this.props.onTouchTap
+     * Triggers this.props.onClick
      */
 
-    NestedListItem.prototype.onTouchTap = function onTouchTap() {
-        this.props.onTouchTap(this.props.entry);
+    NestedListItem.prototype.onClick = function onClick() {
+        this.props.onClick(this.props.entry);
     };
 
     /**
@@ -68,7 +68,7 @@ var NestedListItem = (function (_Component) {
             return React.createElement(NestedListItem, {
                 nestedLevel: this.props.nestedLevel + 1,
                 entry: entry,
-                onTouchTap: this.props.onTouchTap,
+                onClick: this.props.onClick,
                 selected: this.props.selected,
                 showIcons: true
             });
@@ -94,7 +94,7 @@ var NestedListItem = (function (_Component) {
             nestedLevel: this.props.nestedLevel,
             key: id,
             primaryText: label,
-            onTouchTap: this.onTouchTap.bind(this),
+            onClick: this.onClick.bind(this),
             nestedItems: nested,
             initiallyOpen: true,
             leftIcon: fontIcon,
@@ -118,7 +118,7 @@ NestedListItem.propTypes = {
     /**
      * Callback triggered when an entry is selected
      */
-    onTouchTap: _propTypes2['default'].func
+    onClick: _propTypes2['default'].func
 };
 
 exports['default'] = NestedListItem;

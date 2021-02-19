@@ -93,27 +93,27 @@ var TasksList = (function (_React$Component) {
                 }
             };
             if (row.Status === 'Running' && row.CanPause) {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onClick: function () {
                         store.controlTask(row, 'Pause');
                     } }, icProps)));
             }
             if (row.Status === 'Paused') {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onClick: function () {
                         store.controlTask(row, 'Resume');
                     } }, icProps)));
             }
             if (row.Status === 'Running' || row.Status === 'Paused') {
                 if (row.CanStop) {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onClick: function () {
                             store.controlTask(row, 'Stop');
                         } }, icProps)));
                 } else if (row.StatusMessage === 'Pending') {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onClick: function () {
                             store.controlTask(row, 'Delete');
                         } }, icProps)));
                 }
             } else {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onClick: function () {
                         store.controlTask(row, 'Delete');
                     } }, icProps)));
             }
@@ -238,7 +238,7 @@ var TasksList = (function (_React$Component) {
             var actionsHeader = _react2['default'].createElement(
                 'div',
                 { style: { lineHeight: 'initial', marginLeft: 5 } },
-                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onClick: this.deleteAll.bind(this), disabled: working })
             );
             var idHeader = _react2['default'].createElement(
                 'div',
@@ -246,7 +246,7 @@ var TasksList = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { lineHeight: 'initial', marginLeft: 5 } },
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onClick: function () {
                             _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
                         }, disabled: working })
                 ),
@@ -347,7 +347,7 @@ var TasksList = (function (_React$Component) {
                         mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
                             'div',
                             { style: { lineHeight: 'initial' } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onClick: this.deleteSelection.bind(this), disabled: working })
                         )
                     )
                 }),

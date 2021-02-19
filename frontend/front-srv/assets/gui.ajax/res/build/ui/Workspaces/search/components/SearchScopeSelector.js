@@ -65,7 +65,7 @@ var SearchScopeSelector = (function (_Component) {
                 onChange: function (e, i, v) {
                     _this.props.onChange(v);
                 },
-                onTouchTap: this.props.onTouchTap,
+                onClick: this.props.onClick,
                 autoWidth: true,
                 style: this.props.style,
                 underlineStyle: { display: 'none' },
@@ -83,7 +83,7 @@ var SearchScopeSelector = (function (_Component) {
             return {
                 value: _propTypes2['default'].string,
                 onChange: _propTypes2['default'].func.isRequired,
-                onTouchTap: _propTypes2['default'].func.isRequired,
+                onClick: _propTypes2['default'].func.isRequired,
                 style: _propTypes2['default'].object,
                 labelStyle: _propTypes2['default'].object
             };

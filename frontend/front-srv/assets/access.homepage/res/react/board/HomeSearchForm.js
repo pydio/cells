@@ -271,7 +271,7 @@ class HomeSearchForm extends Component{
                     <IconButton
                         iconClassName="mdi mdi-close"
                         style={styles.close}
-                        onTouchTap={()=>this.update('')}
+                        onClick={()=>this.update('')}
                         tooltipPosition={"bottom-left"}
                         tooltip={pydio.MessageHash['86']}
                     />

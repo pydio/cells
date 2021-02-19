@@ -180,7 +180,7 @@ var ErrorDialog = (function (_Component) {
                 open: open,
                 modal: false,
                 title: error ? "Authentication Error" : "Authentication Success",
-                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "OK", onTouchTap: function () {
+                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "OK", onClick: function () {
                         _this.dismiss();
                     } })]
             },

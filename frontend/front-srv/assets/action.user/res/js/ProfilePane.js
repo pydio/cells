@@ -109,10 +109,10 @@ class ProfilePane extends React.Component {
         }
         let button, revert;
         if(this.state.dirty){
-            revert = <FlatButton label={this.props.pydio.MessageHash[628]} onTouchTap={this.revert}/>;
-            button = <FlatButton label={this.props.pydio.MessageHash[53]} secondary={true} onTouchTap={this.saveForm}/>;
+            revert = <FlatButton label={this.props.pydio.MessageHash[628]} onClick={this.revert}/>;
+            button = <FlatButton label={this.props.pydio.MessageHash[53]} secondary={true} onClick={this.saveForm}/>;
         }else{
-            button = <FlatButton label={this.props.pydio.MessageHash[86]} onTouchTap={this.props.onDismiss}/>;
+            button = <FlatButton label={this.props.pydio.MessageHash[86]} onClick={this.props.onDismiss}/>;
         }
         if(this.props.pydio.Controller.getActionByName('pass_change')){
             return [

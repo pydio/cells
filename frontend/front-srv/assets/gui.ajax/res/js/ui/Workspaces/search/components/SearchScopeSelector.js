@@ -30,7 +30,7 @@ class SearchScopeSelector extends Component {
         return {
             value           : PropTypes.string,
             onChange        : PropTypes.func.isRequired,
-            onTouchTap      : PropTypes.func.isRequired,
+            onClick      : PropTypes.func.isRequired,
             style           : PropTypes.object,
             labelStyle      : PropTypes.object
         };
@@ -42,7 +42,7 @@ class SearchScopeSelector extends Component {
             <DropDownMenu
                 value={this.props.value}
                 onChange={(e,i,v) => {this.props.onChange(v)}}
-                onTouchTap={this.props.onTouchTap}
+                onClick={this.props.onClick}
                 autoWidth={true}
                 style={this.props.style}
                 underlineStyle={{display:'none'}}

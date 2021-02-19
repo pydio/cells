@@ -370,10 +370,10 @@ var SearchForm = (function (_Component) {
                 { style: { display: 'flex', alignItems: 'center', padding: 4, paddingTop: 0, backgroundColor: '#eeeeee', width: '100%' } },
                 !crossWorkspace && !this.props.uniqueSearchScope && _react2['default'].createElement(_SearchScopeSelector2['default'], { style: { flex: 1 }, labelStyle: { paddingLeft: 8 }, value: searchScope, onChange: function (scope) {
                         _this5.changeSearchScope(scope);
-                    }, onTouchTap: function () {
+                    }, onClick: function () {
                         return _this5.setMode('small');
                     } }),
-                _react2['default'].createElement(_materialUi.FlatButton, { style: { marginTop: 4, minWidth: 0 }, labelStyle: { padding: '0 8px' }, primary: true, label: getMessage(456), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { style: { marginTop: 4, minWidth: 0 }, labelStyle: { padding: '0 8px' }, primary: true, label: getMessage(456), onClick: function () {
                         onOpenAdvanced();
                     } })
             )
@@ -397,7 +397,7 @@ var SearchForm = (function (_Component) {
                         iconClassName: "mdi mdi-close",
                         style: { minWidth: 0, marginTop: 4 },
                         tooltip: getMessage(86),
-                        onTouchTap: function () {
+                        onClick: function () {
                             onCloseAdvanced();
                         }
                     })

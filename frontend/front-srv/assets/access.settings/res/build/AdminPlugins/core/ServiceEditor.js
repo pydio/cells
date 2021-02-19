@@ -201,7 +201,7 @@ var PluginEditor = (0, _createReactClass2['default'])({
 
         var closeButton = undefined;
         if (closeEditor) {
-            closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: closeEditor });
+            closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onClick: closeEditor });
         }
 
         var doc = documentation;
@@ -233,8 +233,8 @@ var PluginEditor = (0, _createReactClass2['default'])({
             if (!dirty) {
                 props = adminStyles.props.header.flatButtonDisabled;
             }
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
-            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onClick: this.revert }, props)));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onClick: this.save }, props)));
         }
         actions.push(closeButton);
 

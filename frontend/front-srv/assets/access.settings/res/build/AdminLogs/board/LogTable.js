@@ -267,7 +267,7 @@ var LogTable = (function (_React$Component) {
                         };
                         return _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: row.IsOpen ? "mdi mdi-menu-down" : "mdi mdi-menu-right",
-                            onTouchTap: toggle,
+                            onClick: toggle,
                             onClick: function (e) {
                                 return e.stopPropagation();
                             }

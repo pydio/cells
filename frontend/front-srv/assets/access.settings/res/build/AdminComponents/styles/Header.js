@@ -168,18 +168,18 @@ var Header = (function (_Component) {
 
             var icon = undefined;
             if (listener.isActive()) {
-                icon = React.createElement(_materialUi.IconButton, { iconClassName: listener.isOpen() ? "mdi mdi-backburger" : "mdi mdi-menu", iconStyle: styles.icon, onTouchTap: function () {
+                icon = React.createElement(_materialUi.IconButton, { iconClassName: listener.isOpen() ? "mdi mdi-backburger" : "mdi mdi-menu", iconStyle: styles.icon, onClick: function () {
                         return listener.toggle();
                     } });
             } else if (this.props.icon) {
                 icon = React.createElement(_materialUi.FontIcon, { className: this.props.icon, style: styles.icon });
             } else if (backButtonAction) {
-                icon = React.createElement(_materialUi.IconButton, { style: { marginLeft: -18 }, iconClassName: "mdi mdi-chevron-left", onTouchTap: backButtonAction });
+                icon = React.createElement(_materialUi.IconButton, { style: { marginLeft: -18 }, iconClassName: "mdi mdi-chevron-left", onClick: backButtonAction });
             }
 
             var reloadButton = undefined;
             if (reloadAction) {
-                reloadButton = React.createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-reload", onTouchTap: reloadAction }, adminStyles.props.header.iconButton));
+                reloadButton = React.createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-reload", onClick: reloadAction }, adminStyles.props.header.iconButton));
             }
 
             var headTitle = React.createElement(

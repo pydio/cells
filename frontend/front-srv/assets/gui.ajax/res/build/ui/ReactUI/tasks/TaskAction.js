@@ -67,17 +67,17 @@ var TaskAction = (function (_React$Component) {
 
         var actions = [];
         if (task.Status === 'Running' && task.CanPause && onTaskAction) {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({}, style.iconButtonStyles, { key: 'pause', iconClassName: 'mdi mdi-pause', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({}, style.iconButtonStyles, { key: 'pause', iconClassName: 'mdi mdi-pause', onClick: function () {
                     return onTaskAction(task, 'Pause');
                 } })));
         }
         if (task.Status === 'Paused' && task.CanPause && onTaskAction) {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({}, style.iconButtonStyles, { key: 'play', iconClassName: 'mdi mdi-play', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({}, style.iconButtonStyles, { key: 'play', iconClassName: 'mdi mdi-play', onClick: function () {
                     return onTaskAction(task, 'Resume');
                 } })));
         }
         if ((task.Status === 'Running' || task.Status === 'Paused') && task.CanStop && onTaskAction) {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({}, style.iconButtonStyles, { key: 'stop', iconClassName: 'mdi mdi-stop', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({}, style.iconButtonStyles, { key: 'stop', iconClassName: 'mdi mdi-stop', onClick: function () {
                     return onTaskAction(task, 'Stop');
                 } })));
         }

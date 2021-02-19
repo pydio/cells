@@ -76,7 +76,7 @@ var CellsList = (function (_React$Component) {
                         _this.setState({ addMenuOpen: false });
                         compositeModel.addToExistingCell(repository.getId());
                     };
-                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: repository.getLabel(), onTouchTap: touchTap, leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells" }) }));
+                    items.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: repository.getLabel(), onClick: touchTap, leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells" }) }));
                 }
             });
             return items;
@@ -133,7 +133,7 @@ var CellsList = (function (_React$Component) {
                 };
                 var rightIcon = undefined;
                 if (isEdit) {
-                    rightIcon = _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: toggleState });
+                    rightIcon = _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onClick: toggleState });
                 } else if (cellModel.isEditable()) {
                     rightIcon = _react2['default'].createElement(
                         _materialUi.IconMenu,
@@ -142,15 +142,15 @@ var CellsList = (function (_React$Component) {
                             anchorOrigin: { horizontal: 'right', vertical: 'top' },
                             targetOrigin: { horizontal: 'right', vertical: 'top' }
                         },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(258), onTouchTap: toggleState }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(259), onTouchTap: removeNode })
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(258), onClick: toggleState }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(259), onClick: removeNode })
                     );
                 }
                 cells.push(_react2['default'].createElement(_materialUi.ListItem, {
                     primaryText: label,
                     secondaryText: cellModel.getAclsSubjects(),
                     rightIconButton: rightIcon,
-                    onTouchTap: toggleState,
+                    onClick: toggleState,
                     style: isEdit ? { backgroundColor: 'rgb(245, 245, 245)' } : {},
                     disabled: edit === 'NEWCELL' && !isEdit
                 }));
@@ -193,7 +193,7 @@ var CellsList = (function (_React$Component) {
             } else {
                 legend = _react2['default'].createElement(
                     'div',
-                    { style: { padding: '21px 16px 21px 0px', cursor: 'pointer', display: 'flex', alignItems: 'center' }, onTouchTap: function () {
+                    { style: { padding: '21px 16px 21px 0px', cursor: 'pointer', display: 'flex', alignItems: 'center' }, onClick: function () {
                             compositeModel.createEmptyCell();_this2.setState({ edit: 'NEWCELL' });
                         } },
                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "icomoon-cells-clear-plus", iconStyle: { color: muiTheme.palette.primary1Color } }),
@@ -216,7 +216,7 @@ var CellsList = (function (_React$Component) {
                         style: { marginLeft: 10 },
                         primary: true,
                         label: m(263),
-                        onTouchTap: function (event) {
+                        onClick: function (event) {
                             _this2.setState({ addMenuOpen: true, addMenuAnchor: _reactDom2['default'].findDOMNode(_this2.refs['addCellButton']) });
                         }
                     }),
@@ -259,7 +259,7 @@ var CellsList = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { paddingBottom: 20 } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m(264), disabled: edit === 'NEWCELL', primary: true, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: m(264), disabled: edit === 'NEWCELL', primary: true, onClick: function () {
                             compositeModel.createEmptyCell();_this2.setState({ edit: 'NEWCELL' });
                         } }),
                     addToCellMenu

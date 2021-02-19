@@ -97,8 +97,8 @@ class Rule extends React.Component{
         let buttons = [];
         if(!readonly){
             buttons = [
-                <span className="mdi mdi-pencil" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onTouchTap={this.openEditor.bind(this)}/>,
-                <span className="mdi mdi-delete" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onTouchTap={this.removeRule.bind(this)}/>
+                <span className="mdi mdi-pencil" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onClick={this.openEditor.bind(this)}/>,
+                <span className="mdi mdi-delete" style={{fontSize: 16, color:'rgba(0,0,0,.33)', cursor:'pointer', marginLeft: 12}} onClick={this.removeRule.bind(this)}/>
             ]
         }
         const label = (

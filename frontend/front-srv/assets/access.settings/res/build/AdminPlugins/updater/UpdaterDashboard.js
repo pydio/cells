@@ -210,7 +210,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                 disabled: disabled,
                 secondary: true,
                 label: this.context.getMessage('start.update', 'updater'),
-                onTouchTap: this.performUpgrade
+                onClick: this.performUpgrade
             }, bProps)));
             var tableData = [];
 
@@ -225,7 +225,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                         iconClassName: "mdi mdi-link",
                         tooltip: _this3.context.getMessage('package.changelog', 'updater'),
                         tooltipPosition: "bottom-left",
-                        onTouchTap: function () {
+                        onClick: function () {
                             window.open(p.ChangeLog, '_blank');
                         },
                         onClick: function (e) {
@@ -293,7 +293,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                     _react2['default'].createElement(
                         'span',
                         { style: { float: 'right' } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('check.button', 'updater'), onTouchTap: this.checkForUpgrade })
+                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('check.button', 'updater'), onClick: this.checkForUpgrade })
                     ),
                     this.state && this.state.no_upgrade ? this.context.getMessage('noupdates', 'updater') : this.context.getMessage('check.legend', 'updater')
                 )
@@ -301,7 +301,7 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
         }
 
         if (dirty) {
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: { marginLeft: 10 }, secondary: true, label: this.context.getMessage('configs.save', 'updater'), onTouchTap: function () {
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: { marginLeft: 10 }, secondary: true, label: this.context.getMessage('configs.save', 'updater'), onClick: function () {
                     _this3.refs.serviceConfigs.save().then(function (res) {
                         _this3.setState({ dirty: false });
                     });

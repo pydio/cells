@@ -98,7 +98,7 @@ var SearchPanel = (function (_Component) {
             React.createElement(
                 'div',
                 { style: { padding: 10, height: 56, backgroundColor: this.state.select ? activeTbarColor : '#fafafa', display: 'flex', alignItems: 'center', transition: DOMUtils.getBeziersTransition() } },
-                mode === "selector" && item._parent && React.createElement(MaterialUI.IconButton, { iconClassName: 'mdi mdi-chevron-left', onTouchTap: function () {
+                mode === "selector" && item._parent && React.createElement(MaterialUI.IconButton, { iconClassName: 'mdi mdi-chevron-left', onClick: function () {
                         _this2.props.onFolderClicked(item._parent);
                     } }),
                 mode === 'book' && React.createElement(

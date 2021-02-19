@@ -252,17 +252,17 @@ class MaterialTable extends React.Component{
                     </div>
                 }
                 {onPagePrev &&
-                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={prevDisabled} onTouchTap={() => onPagePrev()}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={prevDisabled} onClick={() => onPagePrev()}/>
                 }
                 {!onPagePrev &&
-                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onClick={() => this.setState({page:page-1})}/>
                 }
                 {(sliceStart || sliceEnd) && <div>{sliceStart+1}-{sliceEnd} {Pydio.getMessages()['material.paginator.of']} {data.length}</div>}
                 {onPageNext &&
-                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={nextDisabled} onTouchTap={() => onPageNext()}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={nextDisabled} onClick={() => onPageNext()}/>
                 }
                 {!onPageNext &&
-                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onTouchTap={() => this.setState({page:page+1})}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onClick={() => this.setState({page:page+1})}/>
                 }
             </div>
         );
@@ -354,7 +354,7 @@ class MaterialTable extends React.Component{
                                 <IconButton
                                     style={{padding: 14}}
                                     iconStyle={{fontSize:20, color:actionsColor}}
-                                    onTouchTap={()=>{a.onTouchTap(model)}}
+                                    onClick={()=>{a.onClick(model)}}
                                     iconClassName={a.iconClassName}
                                     tooltip={a.tooltip}
                                     disabled={a.disable?a.disable(model):null}

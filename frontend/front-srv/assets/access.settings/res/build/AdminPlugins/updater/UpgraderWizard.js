@@ -227,11 +227,11 @@ var UpgraderWizard = (function (_React$Component) {
                             _react2['default'].createElement(_materialUi.ListItem, { leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { color: accent2Color }, className: 'mdi mdi-message-alert' }), primaryText: cardMessage('ent.support'), secondaryText: cardMessage('ent.support.legend') })
                         )
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.more'), onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.more'), onClick: function () {
                             window.open('https://pydio.com/en/features/pydio-cells-overview');
-                        } }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.RaisedButton, { onClick: function () {
                             _this4.next('eula');
                         }, label: m('button.start'), primary: true })];
                     break;
@@ -253,9 +253,9 @@ var UpgraderWizard = (function (_React$Component) {
                                 _this4.setState({ acceptEula: v });
                             } })
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             _this4.next('license');
                         }, label: m('button.next'), primary: true, disabled: !acceptEula })];
                     break;
@@ -303,11 +303,11 @@ var UpgraderWizard = (function (_React$Component) {
                             errorText: errorText
                         })
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.contact'), onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { style: { float: 'left' }, label: cardMessage('ent.btn.contact'), onClick: function () {
                             window.open('https://pydio.com/en/pricing/contact');
-                        }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, secondary: true }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             _this4.next('check');
                         }, label: m('button.next'), primary: true, disabled: !licenseKey })];
                     break;
@@ -426,9 +426,9 @@ var UpgraderWizard = (function (_React$Component) {
                             )
                         )
                     );
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
-                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                        }, label: m('button.cancel'), primary: false }), _react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             _this4.next('perform');
                         }, label: m('button.install'), primary: true, disabled: !versionAvailable })];
                     break;
@@ -457,7 +457,7 @@ var UpgraderWizard = (function (_React$Component) {
                         );
                     }
 
-                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onTouchTap: function () {
+                    actions = [_react2['default'].createElement(_materialUi.FlatButton, { onClick: function () {
                             return _this4.dismiss();
                         }, label: m('button.close'), primary: true })];
                     break;

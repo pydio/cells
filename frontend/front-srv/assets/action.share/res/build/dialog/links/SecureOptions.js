@@ -186,7 +186,7 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                 resetPassword = _react2['default'].createElement(_materialUi.FlatButton, {
                     disabled: _this.props.isReadonly() || !linkModel.isEditable() || auth.password_mandatory,
                     secondary: true,
-                    onTouchTap: _this.resetPassword,
+                    onClick: _this.resetPassword,
                     label: _this.props.getMessage('174')
                 });
                 updatePassword = _react2['default'].createElement(
@@ -195,7 +195,7 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                     _react2['default'].createElement(_materialUi.FlatButton, {
                         disabled: _this.props.isReadonly() || !linkModel.isEditable(),
                         secondary: true,
-                        onTouchTap: function (e) {
+                        onClick: function (e) {
                             _this.setState({ pwPop: true, pwAnchor: e.currentTarget });
                         },
                         label: _this.props.getMessage('181')
@@ -226,10 +226,10 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'div',
                                 { style: { paddingTop: 20, textAlign: 'right' } },
-                                _react2['default'].createElement(_materialUi.FlatButton, { label: _pydio2['default'].getMessages()['54'], onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.FlatButton, { label: _pydio2['default'].getMessages()['54'], onClick: function () {
                                         _this.setState({ pwPop: false, updatingPassword: '' });
                                     } }),
-                                _react2['default'].createElement(_materialUi.FlatButton, { style: { minWidth: 60 }, label: _pydio2['default'].getMessages()['48'], onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.FlatButton, { style: { minWidth: 60 }, label: _pydio2['default'].getMessages()['48'], onClick: function () {
                                         _this.changePassword();
                                     }, disabled: !_this.state.updatingPassword || !_this.state.updatingPasswordValid })
                             )
@@ -315,7 +315,7 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                 }
                 expDate = new Date(expirationDateValue * 1000);
                 if (!parseInt(auth.max_expiration)) {
-                    calIcon = _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: globStyles.leftIcon.color }, style: { marginLeft: -8, marginRight: 8 }, iconClassName: 'mdi mdi-close-circle', onTouchTap: this.resetExpiration.bind(this) });
+                    calIcon = _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: globStyles.leftIcon.color }, style: { marginLeft: -8, marginRight: 8 }, iconClassName: 'mdi mdi-close-circle', onClick: this.resetExpiration.bind(this) });
                 }
             }
             if (dlLimitValue) {

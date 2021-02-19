@@ -49,7 +49,7 @@ class MasterLayout extends React.Component{
         }
 
         return(connectDropTarget(
-            <div style={{...style, overflow:'hidden'}} className={allClasses.join(' ')} onTouchTap={this.closeDrawer.bind(this)} onContextMenu={onContextMenu}>
+            <div style={{...style, overflow:'hidden'}} className={allClasses.join(' ')} onClick={this.closeDrawer.bind(this)} onContextMenu={onContextMenu}>
                 {tutorialComponent}
                 <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>
                 <div className="desktop-container vertical_layout vertical_fit">

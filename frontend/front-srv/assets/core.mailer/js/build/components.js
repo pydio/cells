@@ -470,11 +470,11 @@ var Pane = (function (_React$Component3) {
                 _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right', padding: '8px 20px' } },
-                    this.props.onDismiss && _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('54', ''), onTouchTap: this.props.onDismiss }),
-                    !this.props.onDismiss && _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('216', ''), onTouchTap: function () {
+                    this.props.onDismiss && _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('54', ''), onClick: this.props.onDismiss }),
+                    !this.props.onDismiss && _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('216', ''), onClick: function () {
                             _this4.setState({ users: {}, subject: '', message: '' });
                         } }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { disabled: posting, primary: true, label: this.getMessage('77', ''), onTouchTap: function (e) {
+                    _react2['default'].createElement(_materialUi.FlatButton, { disabled: posting, primary: true, label: this.getMessage('77', ''), onClick: function (e) {
                             return _this4.postEmail();
                         } })
                 )

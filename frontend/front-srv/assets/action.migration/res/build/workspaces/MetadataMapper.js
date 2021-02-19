@@ -254,7 +254,7 @@ var MetadataMapper = (function (_React$Component) {
                                     primaryText: m.label,
                                     secondaryText: m.namespace + (m.additional ? _this4.T('step.meta.map.values').replace('%s', m.additional) : ''),
                                     leftIcon: _this4.renderFontIcon(m),
-                                    onTouchTap: function () {
+                                    onClick: function () {
                                         _this4.toggle(i);
                                     }
                                 });
@@ -264,7 +264,7 @@ var MetadataMapper = (function (_React$Component) {
                                     primaryText: _react2['default'].createElement(ModernTextField, { style: { height: 40 }, value: m.label, onChange: function (e, v) {
                                             _this4.updateLabel(i, v);
                                         } }),
-                                    leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '24px 12px', cursor: 'pointer' }, className: "mdi mdi-check", onTouchTap: function () {
+                                    leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '24px 12px', cursor: 'pointer' }, className: "mdi mdi-check", onClick: function () {
                                             _this4.toggle(i);
                                         } }),
                                     disabled: true

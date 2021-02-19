@@ -384,11 +384,11 @@ class AddressBook extends React.Component {
                     style={{position:'absolute', padding:15, zIndex:100, right:0, top: 25, display:this.state.loading?'none':'initial', ...iconButtonStyle}}
                     iconStyle={{fontSize:19, color:'rgba(0,0,0,0.6)'}}
                     iconClassName={'mdi mdi-book-open-variant'}
-                    onTouchTap={this.openPopover}
+                    onClick={this.openPopover}
                 />
             );
             if(this.props.popoverButton){
-                iconButton = <this.props.popoverButton.type {...this.props.popoverButton.props} onTouchTap={this.openPopover}/>
+                iconButton = <this.props.popoverButton.type {...this.props.popoverButton.props} onClick={this.openPopover}/>
             }
             const WrappedAddressBook = PydioContextProvider(AddressBook, this.props.pydio);
             return (
@@ -516,7 +516,7 @@ class AddressBook extends React.Component {
                     bookColumn={bookColumn}
                     emptyStatePrimaryText={emptyStatePrimary}
                     emptyStateSecondaryText={emptyStateSecondary}
-                    onTouchTap={this.state.rightPaneItem ? () => { this.setState({rightPaneItem:null}) } : null}
+                    onClick={this.state.rightPaneItem ? () => { this.setState({rightPaneItem:null}) } : null}
                     actionsPanel={topActionsPanel}
                     actionsForCell={this.props.actionsForCell}
                     usersOnly={this.props.usersOnly}
@@ -561,7 +561,7 @@ class AddressBook extends React.Component {
                         selected={selectedItem.id}
                         nestedLevel={0}
                         entry={e}
-                        onTouchTap={this.onFolderClicked}
+                        onClick={this.onFolderClicked}
                     />
                 );
                 nestedRoots.push(<Divider key={e.id + '-divider'}/>);

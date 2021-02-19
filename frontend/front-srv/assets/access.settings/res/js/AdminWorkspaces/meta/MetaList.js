@@ -57,7 +57,7 @@ export default createReactClass({
                     }.bind(this);
                     removeButton = (
                         <div style={{textAlign:'right'}}>
-                            <FlatButton label={this.context.getMessage('ws.31')} primary={true} onTouchTap={remove}/>
+                            <FlatButton label={this.context.getMessage('ws.31')} primary={true} onClick={remove}/>
                         </div>
                     );
                 }

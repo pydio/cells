@@ -116,17 +116,17 @@ var SplashDialog = _createReactClass2["default"]({
             _react2["default"].createElement(
                 _materialUi.CardActions,
                 { style: { display: 'flex', alignItems: 'center' } },
-                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-book-variant" }), label: "Docs", onTouchTap: this.openDocs }),
-                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-slack" }), label: "Forums", onTouchTap: this.openForum }),
-                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-github-box" }), label: "Issues", onTouchTap: this.openGithub }),
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-book-variant" }), label: "Docs", onClick: this.openDocs }),
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-slack" }), label: "Forums", onClick: this.openForum }),
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-github-box" }), label: "Issues", onClick: this.openGithub }),
                 _react2["default"].createElement("span", { style: { flex: 1 } }),
-                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#FF786A' }, iconClassName: "icomoon-cells", onTouchTap: function () {
+                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#FF786A' }, iconClassName: "icomoon-cells", onClick: function () {
                         open('https://pydio.com/?from=cells');
                     }, tooltip: "Pydio.com" }),
-                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#3b5998' }, iconClassName: "mdi mdi-facebook-box", onTouchTap: function () {
+                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#3b5998' }, iconClassName: "mdi mdi-facebook-box", onClick: function () {
                         open('https://facebook.com/Pydio');
                     }, tooltip: "@Pydio" }),
-                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#00acee' }, iconClassName: "mdi mdi-twitter-box", onTouchTap: function () {
+                _react2["default"].createElement(_materialUi.IconButton, { style: { width: 40, height: 40, padding: 8 }, iconStyle: { color: '#00acee' }, iconClassName: "mdi mdi-twitter-box", onClick: function () {
                         open('https://twitter.com/pydio');
                     }, tooltip: "@pydio" })
             ),

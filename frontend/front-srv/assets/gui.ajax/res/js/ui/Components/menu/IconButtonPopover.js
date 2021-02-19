@@ -44,7 +44,7 @@ class IconButtonPopover extends React.Component{
                     ref="menuButton"
                     tooltip={this.props.buttonTitle}
                     iconClassName={this.props.buttonClassName}
-                    onTouchTap={this.showPopover.bind(this)}
+                    onClick={this.showPopover.bind(this)}
                     iconStyle={this.props.buttonStyle}
                 />
                 <Popover

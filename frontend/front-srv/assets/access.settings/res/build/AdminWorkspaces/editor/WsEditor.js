@@ -209,7 +209,7 @@ var WsEditor = (function (_React$Component) {
                     m('ws.editor.help.delete'),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onClick: function () {
                             _this4.remove();
                         } })
                 );
@@ -301,9 +301,9 @@ var WsEditor = (function (_React$Component) {
                         onRequestClose: function () {
                             _this4.confirmSync(!dialogTargetValue);
                         },
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
                                 _this4.confirmSync(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('ws.editor.sync.warning.validate'), onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('ws.editor.sync.warning.validate'), onClick: function () {
                                 _this4.confirmSync(dialogTargetValue);
                             } })]
                     },

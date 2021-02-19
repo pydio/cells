@@ -133,7 +133,7 @@ var ListPaginator = (function (_React$Component) {
         }
 
         previous = _react2['default'].createElement(_materialUi.IconButton, {
-            onTouchTap: function () {
+            onClick: function () {
                 _this2.onMenuChange(null, 0, current - 1);
             },
             iconClassName: "mdi mdi-chevron-left",
@@ -142,7 +142,7 @@ var ListPaginator = (function (_React$Component) {
             style: smallDisplay ? { marginRight: -20, width: 40, height: 40 } : null
         });
         next = _react2['default'].createElement(_materialUi.IconButton, {
-            onTouchTap: function () {
+            onClick: function () {
                 _this2.onMenuChange(null, 0, current + 1);
             },
             iconClassName: "mdi mdi-chevron-right",

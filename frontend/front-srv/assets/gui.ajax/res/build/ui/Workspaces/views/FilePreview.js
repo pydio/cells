@@ -199,7 +199,7 @@ var FilePreview = (function (_PureComponent) {
 
         return React.createElement(
             'div',
-            { ref: 'container', style: rootStyle, className: 'mimefont-container' + (EditorClass ? ' with-editor-badge' : ''), onTouchTap: this.props.onTouchTap },
+            { ref: 'container', style: rootStyle, className: 'mimefont-container' + (EditorClass ? ' with-editor-badge' : ''), onClick: this.props.onClick },
             element
         );
     };

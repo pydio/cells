@@ -60,7 +60,7 @@ var AltText = (function (_React$Component) {
                 _react2["default"].createElement(_materialUi.IconButton, {
                     iconClassName: alternativeText ? altIcon : altIconText,
                     title: altTip,
-                    onTouchTap: function () {
+                    onClick: function () {
                         return onAltTextSwitch(attributes["name"], !alternativeText);
                     },
                     iconStyle: { opacity: .3, fontSize: 20 },
@@ -118,7 +118,7 @@ var test = function test(Component) {
                     _react2["default"].createElement(_materialUi.IconButton, {
                         iconClassName: alternativeText ? altIcon : altIconText,
                         tooltip: altTip,
-                        onTouchTap: function () {
+                        onClick: function () {
                             return onAltTextSwitch(attributes["name"], !alternativeText);
                         }
                     })

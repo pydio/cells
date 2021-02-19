@@ -126,7 +126,7 @@ let WsDashboard = createReactClass({
                 <FlatButton
                     primary={true}
                     label={this.context.getMessage('ws.3')}
-                    onTouchTap={this.showWorkspaceCreator}
+                    onClick={this.showWorkspaceCreator}
                     {...adminStyles.props.header.flatButton}
                 />
             );

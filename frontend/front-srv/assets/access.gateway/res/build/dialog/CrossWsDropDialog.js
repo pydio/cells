@@ -182,7 +182,7 @@ var CrossWsContent = (function (_React$Component) {
             var items = [];
 
             items.push(React.createElement(ListItem, {
-                onTouchTap: function () {
+                onClick: function () {
                     _this3.share();
                 },
                 primaryText: source.isLeaf() ? m('file.share') : m('folder.share'),
@@ -197,7 +197,7 @@ var CrossWsContent = (function (_React$Component) {
                     secondary += "/" + root.getLabel();
                 }
                 items.push(React.createElement(ListItem, {
-                    onTouchTap: function () {
+                    onClick: function () {
                         _this3.move(root);
                     },
                     primaryText: title,
@@ -239,7 +239,7 @@ var CrossWsDropDialog = (0, _createReactClass2['default'])({
             label: mess['49'],
             primary: true,
             keyboardFocused: true,
-            onTouchTap: this.props.onDismiss
+            onClick: this.props.onDismiss
         }));
         return actions;
     },

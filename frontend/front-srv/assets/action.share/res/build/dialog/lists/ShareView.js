@@ -316,7 +316,7 @@ var ShareView = (function (_React$Component2) {
                         return _react2['default'].createElement(_materialUi.ListItem, {
                             primaryText: props.primaryText,
                             secondaryText: props.secondaryText,
-                            onTouchTap: function () {
+                            onClick: function () {
                                 appearsIn ? _this2.goTo(appearsIn) : null;
                             },
                             disabled: !appearsIn,
@@ -365,7 +365,7 @@ var ShareViewModal = (0, _createReactClass2['default'])({
                 title: this.props.pydio.MessageHash['share_center.98'],
                 showMenuIconButton: false,
                 iconClassNameRight: 'mdi mdi-close',
-                onRightIconButtonTouchTap: function () {
+                onRightIconButtonClick: function () {
                     _this3.dismiss();
                 }
             }),

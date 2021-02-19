@@ -77,12 +77,12 @@ class JobSchedule extends React.Component {
         const {job, rand} = this.state;
         return (
             <div>
-                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} key={rand} label={<ScheduleForm schedule={job.Schedule} rand={rand}/>} onTouchTap={()=>{this.setState({open:true})}}/>
+                <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} key={rand} label={<ScheduleForm schedule={job.Schedule} rand={rand}/>} onClick={()=>{this.setState({open:true})}}/>
                 <Dialog
                     title="Job Schedule"
                     actions={[
-                        <FlatButton label={"Close"} onTouchTap={()=>{this.setState({open:false})}}/>,
-                        <FlatButton label={"Save"} onTouchTap={()=>{this.updateJob()}}/>,
+                        <FlatButton label={"Close"} onClick={()=>{this.setState({open:false})}}/>,
+                        <FlatButton label={"Save"} onClick={()=>{this.updateJob()}}/>,
                     ]}
                     modal={false}
                     open={this.state.open}

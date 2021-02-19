@@ -71,7 +71,7 @@ var UserBadge = (function (_Component) {
                 }
                 return React.createElement(MenuItem, {
                     primaryText: m.text,
-                    onTouchTap: m.callback,
+                    onClick: m.callback,
                     rightIcon: rightIcon });
             });
             var iconStyle = { fontSize: 18 };

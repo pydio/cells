@@ -250,7 +250,7 @@ var RolesDashboard = (0, _createReactClass2['default'])({
             tableActions.push({
                 iconClassName: "mdi mdi-pencil",
                 tooltip: 'Edit',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this5.openRoleEditor(row.role);
                 },
                 disable: function disable(row) {
@@ -260,7 +260,7 @@ var RolesDashboard = (0, _createReactClass2['default'])({
             tableActions.push({
                 iconClassName: "mdi mdi-delete",
                 tooltip: 'Delete',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this5.deleteAction(row.role.Uuid, row.role.Label);
                 },
                 disable: function disable(row) {

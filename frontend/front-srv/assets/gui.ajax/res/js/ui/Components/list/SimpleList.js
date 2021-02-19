@@ -1104,7 +1104,7 @@ let SimpleList = createReactClass({
                     <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('react.3').replace('%s', this.props.searchResultData.term)}</div>
                 </ToolbarGroup>
             );
-            rightButtons = <RaisedButton key={1} label={this.getMessage('react.4')} primary={true} onTouchTap={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
+            rightButtons = <RaisedButton key={1} label={this.getMessage('react.4')} primary={true} onClick={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
 
         }else if(this.actionsCache.multiple.size || this.props.multipleActions){
             let bulkLabel = this.getMessage('react.2');

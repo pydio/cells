@@ -86,11 +86,11 @@ export default class ParametersPanel extends React.Component {
         });
         let wsItems = [
             <MenuItem primaryText={m('parameters.scope.selector.title')} value={1}/>,
-            <MenuItem primaryText={m('parameters.scope.all')} onTouchTap={() => { this.addParameter('PYDIO_REPO_SCOPE_ALL') }}/>,
-            <MenuItem primaryText={m('parameters.scope.shared')} onTouchTap={() => { this.addParameter('PYDIO_REPO_SCOPE_SHARED') }}/>,
+            <MenuItem primaryText={m('parameters.scope.all')} onClick={() => { this.addParameter('PYDIO_REPO_SCOPE_ALL') }}/>,
+            <MenuItem primaryText={m('parameters.scope.shared')} onClick={() => { this.addParameter('PYDIO_REPO_SCOPE_SHARED') }}/>,
             <Divider/>
         ].concat(
-            Object.keys(workspaces).map(ws => <MenuItem primaryText={workspaces[ws].Label} onTouchTap={() => { this.addParameter(ws) }}/>)
+            Object.keys(workspaces).map(ws => <MenuItem primaryText={workspaces[ws].Label} onClick={() => { this.addParameter(ws) }}/>)
         );
 
         return (
@@ -130,7 +130,7 @@ export default class ParametersPanel extends React.Component {
                                 <tr style={{borderBottom: '1px solid #e0e0e0'}}>
                                     <td colSpan={2} style={{fontSize: 15, paddingTop: 10}}>{scopeLabel}</td>
                                     <td style={{width: 50}}>
-                                        <IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addParameter(s)}} tooltip={m('parameters.custom.add')}/>
+                                        <IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addParameter(s)}} tooltip={m('parameters.custom.add')}/>
                                     </td>
                                 </tr>
                                 {entries}

@@ -603,11 +603,11 @@ var DataSourcesBoard = (function (_React$Component) {
             var icon = currentNode.getMetadata().get('icon_class');
             var buttons = [];
             if (accessByName('CreateDatasource')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onTouchTap: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onClick: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
             }
             var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
             if (versioningEditable) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onTouchTap: function () {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onClick: function () {
                         _this7.openVersionPolicy();
                     } }, adminStyles.props.header.flatButton)));
             }
@@ -620,7 +620,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 dsActions.push({
                     iconClassName: 'mdi mdi-pencil',
                     tooltip: 'Edit datasource',
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         _this7.openDataSource([row]);
                     }
                 });
@@ -628,14 +628,14 @@ var DataSourcesBoard = (function (_React$Component) {
             dsActions.push({
                 iconClassName: 'mdi mdi-sync',
                 tooltip: m('editor.legend.resync.button'),
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     return _this7.resyncDataSource(pydio, m, row);
                 }
             });
             dsActions.push({
                 iconClassName: 'mdi mdi-folder-plus',
                 tooltip: 'Create workspace here',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     return _this7.createWorkspaceFromDatasource(pydio, m, row);
                 }
             });
@@ -643,7 +643,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 dsActions.push({
                     iconClassName: 'mdi mdi-delete',
                     tooltip: m('editor.legend.delete.button'),
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this7.deleteDataSource(pydio, m, row);
                     }
                 });
@@ -653,7 +653,7 @@ var DataSourcesBoard = (function (_React$Component) {
             vsActions.push({
                 iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
                 tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     _this7.openVersionPolicy([row]);
                 }
             });
@@ -662,7 +662,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     iconClassName: 'mdi mdi-delete',
                     tooltip: 'Delete policy',
                     destructive: true,
-                    onTouchTap: function onTouchTap(row) {
+                    onClick: function onClick(row) {
                         return _this7.deleteVersionPolicy(row);
                     }
                 });

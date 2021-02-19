@@ -103,7 +103,7 @@ exports['default'] = function (PydioComponent, displayName) {
                 React.createElement(FlatButton, {
                     label: this.props.pydio.MessageHash['ajxp_admin.home.48'],
                     className: 'card-close-button',
-                    onTouchTap: closeAction,
+                    onClick: closeAction,
                     style: { color: 'white' }
                 })
             );

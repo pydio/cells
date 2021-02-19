@@ -101,8 +101,8 @@ var ConfirmExists = function (_React$Component) {
                         { style: { display: 'flex', marginTop: 30, alignItems: 'center' } },
                         _react2.default.createElement(_materialUi.Checkbox, { label: pydio.MessageHash['html_uploader.confirm.save.choice'], checked: saveValue, onCheck: this.checkChange.bind(this) }),
                         _react2.default.createElement('span', { style: { flex: 1 } }),
-                        _react2.default.createElement(_materialUi.FlatButton, { label: pydio.MessageHash[54], onTouchTap: this.cancel.bind(this) }),
-                        _react2.default.createElement(_materialUi.RaisedButton, { primary: true, label: pydio.MessageHash[48], onTouchTap: this.submit.bind(this) })
+                        _react2.default.createElement(_materialUi.FlatButton, { label: pydio.MessageHash[54], onClick: this.cancel.bind(this) }),
+                        _react2.default.createElement(_materialUi.RaisedButton, { primary: true, label: pydio.MessageHash[48], onClick: this.submit.bind(this) })
                     )
                 )
             );

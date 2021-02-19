@@ -97,7 +97,7 @@ var StepperDialog = (function (_React$Component) {
                 onDismiss && _react2['default'].createElement(
                     'div',
                     { style: { position: 'absolute', top: 11, right: 20 } },
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onTouchTap: onDismiss })
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: onDismiss })
                 )
             );
         }

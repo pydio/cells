@@ -61,7 +61,7 @@ var IconButtonPopover = (function (_React$Component) {
                 ref: 'menuButton',
                 tooltip: this.props.buttonTitle,
                 iconClassName: this.props.buttonClassName,
-                onTouchTap: this.showPopover.bind(this),
+                onClick: this.showPopover.bind(this),
                 iconStyle: this.props.buttonStyle
             }),
             React.createElement(

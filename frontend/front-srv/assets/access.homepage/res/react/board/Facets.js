@@ -58,7 +58,7 @@ class Facet extends React.Component {
             <Chip
                 style={{margin:4}}
                 onRequestDelete={requestDelete}
-                onTouchTap={requestSelect}
+                onClick={requestSelect}
                 {...cc.chip}
             ><Avatar {...cc.avatar}>{facet.Count}</Avatar> {mFacet(facet.Label)}</Chip>
         );

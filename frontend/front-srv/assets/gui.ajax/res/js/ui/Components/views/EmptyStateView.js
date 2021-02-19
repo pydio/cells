@@ -88,7 +88,7 @@ class EmptyStateView extends Component{
                     }
                     {actionLabelId && actionCallback &&
                         <div style={{...styles.buttonContainer, ...actionStyle}}>
-                            <FlatButton style={styles.buttonStyle} label={getMessage(actionLabelId)} onTouchTap={actionCallback} icon={buttonIcon}/>
+                            <FlatButton style={styles.buttonStyle} label={getMessage(actionLabelId)} onClick={actionCallback} icon={buttonIcon}/>
                         </div>
                     }
                 </div>

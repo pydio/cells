@@ -148,12 +148,12 @@ var ParametersPanel = (function (_React$Component) {
 
                 scopes[a.WorkspaceID][paramName] = a;
             });
-            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onTouchTap: function () {
+            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onClick: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_ALL');
-                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onTouchTap: function () {
+                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onClick: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_SHARED');
                 } }), _react2['default'].createElement(_materialUi.Divider, null)].concat(Object.keys(workspaces).map(function (ws) {
-                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onTouchTap: function () {
+                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onClick: function () {
                         _this4.addParameter(ws);
                     } });
             }));
@@ -231,7 +231,7 @@ var ParametersPanel = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'td',
                                     { style: { width: 50 } },
-                                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
+                                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onClick: function () {
                                             _this4.addParameter(s);
                                         }, tooltip: m('parameters.custom.add') })
                                 )

@@ -184,7 +184,7 @@ var Message = (function (_React$Component) {
             moreLoader && _react2['default'].createElement(
                 'div',
                 { style: styles.loader },
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: _pydio2['default'].getMessages()['chat.load-older'], onTouchTap: moreLoader })
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: _pydio2['default'].getMessages()['chat.load-older'], onClick: moreLoader })
             ),
             !hideDate && _react2['default'].createElement(
                 'div',

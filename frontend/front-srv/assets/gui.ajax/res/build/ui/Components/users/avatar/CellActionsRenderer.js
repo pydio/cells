@@ -121,7 +121,7 @@ var CellActionsRenderer = (function () {
         // Special case cellModel is "TRUE", not a real cell model
         if (cellModel === true) {
             if (pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")) {
-                return [React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onTouchTap: this.createCell.bind(this) })];
+                return [React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onClick: this.createCell.bind(this) })];
             } else {
                 return [];
             }
@@ -146,12 +146,12 @@ var CellActionsRenderer = (function () {
         });
 
         if (isInCurrent) {
-            items.push(React.createElement(_materialUi.MenuItem, { primaryText: m['641'], disabled: !canWrite, onTouchTap: this.removeFromCell.bind(this) }));
+            items.push(React.createElement(_materialUi.MenuItem, { primaryText: m['641'], disabled: !canWrite, onClick: this.removeFromCell.bind(this) }));
         } else {
-            items.push(React.createElement(_materialUi.MenuItem, { primaryText: m['642'], disabled: !canWrite, onTouchTap: this.addToCell.bind(this) }));
+            items.push(React.createElement(_materialUi.MenuItem, { primaryText: m['642'], disabled: !canWrite, onClick: this.addToCell.bind(this) }));
         }
         if (pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")) {
-            items.push(React.createElement(_materialUi.Divider, null), React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onTouchTap: this.createCell.bind(this) }));
+            items.push(React.createElement(_materialUi.Divider, null), React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onClick: this.createCell.bind(this) }));
         }
 
         return items;

@@ -150,8 +150,8 @@ var PluginEditor = (0, _createReactClass2['default'])({
         if (!dirty) {
             props = adminStyles.props.header.flatButtonDisabled;
         }
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }, props)));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }, props)));
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onClick: this.revert }, props)));
+        actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onClick: this.save }, props)));
         return actions;
     },
 
@@ -334,21 +334,21 @@ var PluginEditor = (0, _createReactClass2['default'])({
             if (closeEditor) {
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo",
                     iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty,
-                    tooltip: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+                    tooltip: this.context.getMessage('plugins.6'), onClick: this.revert }));
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save",
                     iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty,
-                    tooltip: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+                    tooltip: this.context.getMessage('plugins.5'), onClick: this.save }));
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
-                    tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+                    tooltip: this.context.getMessage('86', ''), onClick: closeEditor }));
             } else {
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'),
-                    onTouchTap: this.revert }, bProps)));
+                    onClick: this.revert }, bProps)));
                 actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'),
-                    onTouchTap: this.save }, bProps)));
+                    onClick: this.save }, bProps)));
             }
         } else if (closeEditor) {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' },
-                tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+                tooltip: this.context.getMessage('86', ''), onClick: closeEditor }));
         }
 
         var titleLabel = undefined,

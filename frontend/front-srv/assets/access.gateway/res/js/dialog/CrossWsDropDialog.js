@@ -105,7 +105,7 @@ class CrossWsContent extends React.Component{
 
         items.push(
             <ListItem
-                onTouchTap={()=>{this.share()}}
+                onClick={()=>{this.share()}}
                 primaryText={source.isLeaf() ? m('file.share') : m('folder.share')}
                 secondaryText={m('share.legend').replace('%s', cellWs.getLabel())}
                 leftIcon={<FontIcon style={{color:muiTheme.palette.primary1Color}} className={"mdi mdi-share-variant"}/>}
@@ -119,7 +119,7 @@ class CrossWsContent extends React.Component{
             }
             items.push(
                 <ListItem
-                    onTouchTap={()=>{this.move(root)}}
+                    onClick={()=>{this.move(root)}}
                     primaryText={title}
                     secondaryText={secondary}
                     leftIcon={<FontIcon style={{color:muiTheme.palette.primary1Color}} className={"mdi mdi-folder-"+(dropEffect==='copy'?"plus":"move")}/>}
@@ -154,7 +154,7 @@ let CrossWsDropDialog = createReactClass({
             label={mess['49']}
             primary={true}
             keyboardFocused={true}
-            onTouchTap={this.props.onDismiss}
+            onClick={this.props.onDismiss}
         />);
         return actions;
     },

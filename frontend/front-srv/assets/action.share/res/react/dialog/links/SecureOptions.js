@@ -128,7 +128,7 @@ class PublicLinkSecureOptions extends React.Component {
                 <FlatButton
                     disabled={this.props.isReadonly() || !linkModel.isEditable() || auth.password_mandatory}
                     secondary={true}
-                    onTouchTap={this.resetPassword}
+                    onClick={this.resetPassword}
                     label={this.props.getMessage('174')}
                 />
             );
@@ -137,7 +137,7 @@ class PublicLinkSecureOptions extends React.Component {
                     <FlatButton
                         disabled={this.props.isReadonly() || !linkModel.isEditable()}
                         secondary={true}
-                        onTouchTap={(e)=> {this.setState({pwPop:true, pwAnchor:e.currentTarget})}}
+                        onClick={(e)=> {this.setState({pwPop:true, pwAnchor:e.currentTarget})}}
                         label={this.props.getMessage('181')}
                     />
                     <Popover
@@ -156,8 +156,8 @@ class PublicLinkSecureOptions extends React.Component {
                                 onChange={(v) => {this.setUpdatingPassword(v)}}
                             />
                             <div style={{paddingTop:20, textAlign:'right'}}>
-                                <FlatButton label={Pydio.getMessages()['54']} onTouchTap={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
-                                <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onTouchTap={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
+                                <FlatButton label={Pydio.getMessages()['54']} onClick={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
+                                <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onClick={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
                             </div>
                         </div>
                     </Popover>
@@ -238,7 +238,7 @@ class PublicLinkSecureOptions extends React.Component {
             }
             expDate = new Date(expirationDateValue * 1000);
             if(!parseInt(auth.max_expiration)){
-                calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onTouchTap={this.resetExpiration.bind(this)}/>;
+                calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onClick={this.resetExpiration.bind(this)}/>;
             }
         }
         if(dlLimitValue){

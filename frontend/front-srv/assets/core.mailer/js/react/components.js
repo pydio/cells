@@ -337,9 +337,9 @@ class Pane extends React.Component {
                 {this.props.additionalPaneBottom}
                 <Divider/>
                 <div style={{textAlign:'right', padding: '8px 20px'}}>
-                    {this.props.onDismiss && <FlatButton label={this.getMessage('54', '')} onTouchTap={this.props.onDismiss}/>}
-                    {!this.props.onDismiss && <FlatButton label={this.getMessage('216', '')} onTouchTap={()=>{this.setState({users: {}, subject:'', message:''});}}/>}
-                    <FlatButton disabled={posting} primary={true} label={this.getMessage('77', '')} onTouchTap={(e)=>this.postEmail()}/>
+                    {this.props.onDismiss && <FlatButton label={this.getMessage('54', '')} onClick={this.props.onDismiss}/>}
+                    {!this.props.onDismiss && <FlatButton label={this.getMessage('216', '')} onClick={()=>{this.setState({users: {}, subject:'', message:''});}}/>}
+                    <FlatButton disabled={posting} primary={true} label={this.getMessage('77', '')} onClick={(e)=>this.postEmail()}/>
                 </div>
             </Paper>
         );

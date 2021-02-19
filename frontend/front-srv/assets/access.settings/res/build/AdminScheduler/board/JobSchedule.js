@@ -126,16 +126,16 @@ var JobSchedule = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), key: rand, label: _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, rand: rand }), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), key: rand, label: _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, rand: rand }), onClick: function () {
                         _this2.setState({ open: true });
                     } }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
                         title: 'Job Schedule',
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onTouchTap: function () {
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onClick: function () {
                                 _this2.setState({ open: false });
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Save", onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Save", onClick: function () {
                                 _this2.updateJob();
                             } })],
                         modal: false,

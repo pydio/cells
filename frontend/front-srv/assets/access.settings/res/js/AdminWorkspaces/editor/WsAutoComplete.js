@@ -223,7 +223,7 @@ export default class WsAutoComplete extends React.Component{
                         {...ModernStyles.textField}
                     />
                 </div>
-                <IconButton iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onTouchTap={onDelete} disabled={!onDelete}/>
+                <IconButton iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onClick={onDelete} disabled={!onDelete}/>
             </Paper>
         );
     }

@@ -38,6 +38,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -61,10 +65,10 @@ var LanguagePicker = function LanguagePicker(props) {
     var pydio = _pydio2['default'].getInstance();
 
     pydio.listLanguagesWithCallback(function (key, label, current) {
-        return items.push(React.createElement(_materialUi.MenuItem, {
+        return items.push(_react2['default'].createElement(_materialUi.MenuItem, {
             primaryText: label,
             value: key,
-            rightIcon: current ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null
+            rightIcon: current ? _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-check' }) : null
         }));
     });
     var anchorOrigin = props.anchorOrigin;
@@ -86,10 +90,10 @@ var LanguagePicker = function LanguagePicker(props) {
         }
     };
 
-    return React.createElement(
+    return _react2['default'].createElement(
         _materialUi.IconMenu,
         {
-            iconButtonElement: React.createElement(_materialUi.IconButton, _extends({ tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline' }, iconStyles)),
+            iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, _extends({ tooltip: pydio.MessageHash[618], iconClassName: 'mdi mdi-flag-outline' }, iconStyles)),
             onItemTouchTap: function (e, o) {
                 pydio.loadI18NMessages(o.props.value);
             },
@@ -186,20 +190,20 @@ var LoginPasswordDialog = (0, _createReactClass2['default'])({
         var passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
         var secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');
 
-        var enterButton = React.createElement(_materialUi.FlatButton, { id: 'dialog-login-submit', 'default': true, labelStyle: { color: 'white' }, key: 'enter', label: pydio.MessageHash[617], onTouchTap: function () {
+        var enterButton = _react2['default'].createElement(_materialUi.FlatButton, { id: 'dialog-login-submit', 'default': true, labelStyle: { color: 'white' }, key: 'enter', label: pydio.MessageHash[617], onClick: function () {
                 return _this2.submit();
             } });
         var buttons = [];
         if (false && !secureLoginForm) {
-            buttons.push(React.createElement(
+            buttons.push(_react2['default'].createElement(
                 DarkThemeContainer,
                 { key: 'remember', style: { flex: 1, textAlign: 'left', paddingLeft: 16 } },
-                React.createElement(_materialUi.Checkbox, { label: pydio.MessageHash[261], labelStyle: { fontSize: 13 }, onCheck: function (e, c) {
+                _react2['default'].createElement(_materialUi.Checkbox, { label: pydio.MessageHash[261], labelStyle: { fontSize: 13 }, onCheck: function (e, c) {
                         _this2.setState({ rememberChecked: c });
                     } })
             ));
             buttons.push(enterButton);
-            return [React.createElement(
+            return [_react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', alignItems: 'center' } },
                 buttons
@@ -219,7 +223,7 @@ var LoginPasswordDialog = (0, _createReactClass2['default'])({
 
         var errorMessage = undefined;
         if (this.state.errorId) {
-            errorMessage = React.createElement(
+            errorMessage = _react2['default'].createElement(
                 'div',
                 { className: 'ajxp_login_error' },
                 this.state.errorId
@@ -227,10 +231,10 @@ var LoginPasswordDialog = (0, _createReactClass2['default'])({
         }
         var forgotLink = undefined;
         if (forgotPasswordLink) {
-            forgotLink = React.createElement(
+            forgotLink = _react2['default'].createElement(
                 'div',
                 { className: 'forgot-password-link' },
-                React.createElement(
+                _react2['default'].createElement(
                     'a',
                     { style: { cursor: 'pointer' }, onClick: this.fireForgotPassword },
                     pydio.MessageHash[479]
@@ -246,14 +250,14 @@ var LoginPasswordDialog = (0, _createReactClass2['default'])({
                     m.renderAdditionalComponents(this.props, this.state, comps);
                 }).bind(_this3));
                 if (comps.top.length) {
-                    additionalComponentsTop = React.createElement(
+                    additionalComponentsTop = _react2['default'].createElement(
                         'div',
                         null,
                         comps.top
                     );
                 }
                 if (comps.bottom.length) {
-                    additionalComponentsBottom = React.createElement(
+                    additionalComponentsBottom = _react2['default'].createElement(
                         'div',
                         null,
                         comps.bottom
@@ -290,31 +294,31 @@ var LoginPasswordDialog = (0, _createReactClass2['default'])({
             height: 120
         };
 
-        return React.createElement(
+        return _react2['default'].createElement(
             DarkThemeContainer,
             null,
-            logoUrl && React.createElement('div', { style: logoStyle }),
-            React.createElement(
+            logoUrl && _react2['default'].createElement('div', { style: logoStyle }),
+            _react2['default'].createElement(
                 'div',
                 { className: 'dialogLegend', style: { fontSize: 22, paddingBottom: 12, lineHeight: '28px' } },
                 loginTitle,
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { style: { position: 'absolute', bottom: 9, left: 24 } },
-                    React.createElement(LanguagePicker, { anchorOrigin: { horizontal: 'left', vertical: 'bottom' }, targetOrigin: { horizontal: 'left', vertical: 'bottom' } })
+                    _react2['default'].createElement(LanguagePicker, { anchorOrigin: { horizontal: 'left', vertical: 'bottom' }, targetOrigin: { horizontal: 'left', vertical: 'bottom' } })
                 )
             ),
-            loginLegend && React.createElement(
+            loginLegend && _react2['default'].createElement(
                 'div',
                 null,
                 loginLegend
             ),
             errorMessage,
             additionalComponentsTop,
-            React.createElement(
+            _react2['default'].createElement(
                 'form',
                 { autoComplete: secureLoginForm ? "off" : "on" },
-                !passwordOnly && React.createElement(_materialUi.TextField, {
+                !passwordOnly && _react2['default'].createElement(_materialUi.TextField, {
                     className: 'blurDialogTextField',
                     autoComplete: secureLoginForm ? "off" : "on",
                     floatingLabelText: pydio.MessageHash[181],
@@ -323,7 +327,7 @@ var LoginPasswordDialog = (0, _createReactClass2['default'])({
                     fullWidth: true,
                     id: 'application-login'
                 }),
-                React.createElement(_materialUi.TextField, {
+                _react2['default'].createElement(_materialUi.TextField, {
                     id: 'application-password',
                     className: 'blurDialogTextField',
                     autoComplete: secureLoginForm ? "off" : "on",
@@ -362,16 +366,16 @@ var DarkThemeContainer = (function (_React$Component) {
             baseTheme.palette.primary1Color = muiTheme.palette.accent1Color;
             var darkTheme = (0, _materialUiStyles.getMuiTheme)(baseTheme);
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 _materialUi.MuiThemeProvider,
                 { muiTheme: darkTheme },
-                React.createElement('div', props)
+                _react2['default'].createElement('div', props)
             );
         }
     }]);
 
     return DarkThemeContainer;
-})(React.Component);
+})(_react2['default'].Component);
 
 DarkThemeContainer = (0, _materialUiStyles.muiThemeable)()(DarkThemeContainer);
 
@@ -392,9 +396,9 @@ var MultiAuthSelector = (0, _createReactClass2['default'])({
     render: function render() {
         var menuItems = [];
         for (var key in this.props.authSources) {
-            menuItems.push(React.createElement(_materialUi.MenuItem, { value: key, primaryText: this.props.authSources[key] }));
+            menuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { value: key, primaryText: this.props.authSources[key] }));
         }
-        return React.createElement(
+        return _react2['default'].createElement(
             _materialUi.SelectField,
             {
                 value: this.state.value,
@@ -433,7 +437,7 @@ var MultiAuthModifier = (function (_PydioReactUI$AbstractDialogModifier) {
                 console.error('Could not find authSources');
                 return;
             }
-            accumulator.top.push(React.createElement(MultiAuthSelector, _extends({ ref: 'multi_selector' }, props, { parentState: state })));
+            accumulator.top.push(_react2['default'].createElement(MultiAuthSelector, _extends({ ref: 'multi_selector' }, props, { parentState: state })));
         }
     }]);
 
@@ -531,25 +535,25 @@ var ResetPasswordRequire = (0, _createReactClass2['default'])({
     render: function render() {
         var mess = this.props.pydio.MessageHash;
         var valueSubmitted = this.state && this.state.valueSubmitted;
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             null,
-            !valueSubmitted && React.createElement(
+            !valueSubmitted && _react2['default'].createElement(
                 'div',
                 null,
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { className: 'dialogLegend' },
                     mess['gui.user.3']
                 ),
-                React.createElement(_materialUi.TextField, {
+                _react2['default'].createElement(_materialUi.TextField, {
                     className: 'blurDialogTextField',
                     ref: 'input',
                     fullWidth: true,
                     floatingLabelText: mess['gui.user.4']
                 })
             ),
-            valueSubmitted && React.createElement(
+            valueSubmitted && _react2['default'].createElement(
                 'div',
                 null,
                 mess['gui.user.5']
@@ -636,21 +640,21 @@ var ResetPasswordDialog = (0, _createReactClass2['default'])({
 
         if (!valueSubmitted && formLoaded) {
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 null,
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { className: 'dialogLegend' },
                     mess['gui.user.8']
                 ),
-                React.createElement(_materialUi.TextField, {
+                _react2['default'].createElement(_materialUi.TextField, {
                     className: 'blurDialogTextField',
                     value: userId,
                     floatingLabelText: mess['gui.user.4'],
                     onChange: this.onUserIdChange.bind(this)
                 }),
-                React.createElement(PydioForm.ValidPassword, {
+                _react2['default'].createElement(PydioForm.ValidPassword, {
                     className: 'blurDialogTextField',
                     onChange: this.onPassChange.bind(this),
                     attributes: { name: 'password', label: mess[198] },
@@ -660,13 +664,13 @@ var ResetPasswordDialog = (0, _createReactClass2['default'])({
             );
         } else if (valueSubmitted) {
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 null,
                 mess['gui.user.6']
             );
         } else {
-            return React.createElement(PydioReactUI.Loader, null);
+            return _react2['default'].createElement(PydioReactUI.Loader, null);
         }
     }
 

@@ -329,18 +329,18 @@ var Dashboard = (0, _createReactClass2['default'])({
         };
         var actions = [];
         if (mime === 'user_editable' || mime === 'group') {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function () {
                     _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onClick: function () {
                     _this3.deleteAction(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
         } else if (mime === 'user') {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function () {
                     _this3.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
@@ -424,7 +424,7 @@ var Dashboard = (0, _createReactClass2['default'])({
                 fontSize: 20
             }
         };
-        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
+        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onClick={this.openUsersImporter}/>;
         if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
             let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
@@ -451,7 +451,7 @@ var Dashboard = (0, _createReactClass2['default'])({
             renderActionsFunc = this.renderNodeActions.bind(this);
             multipleActions = [pydio.Controller.getActionByName('delete')];
             openEditor = this.openRoleEditor.bind(this);
-            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction }, styles.props.header.flatButton))];
+            headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.1"), onClick: this.createUserAction }, styles.props.header.flatButton)), _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: this.context.getMessage("user.2"), onClick: this.createGroupAction }, styles.props.header.flatButton))];
         }
 
         var profileFilter = '';

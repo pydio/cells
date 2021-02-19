@@ -82,7 +82,7 @@ var DownloadApp = (function (_React$Component) {
                 tooltipStyles: { marginTop: 40 },
                 style: styles.small,
                 iconStyle: _extends({}, styles.smallIcon, { color: this.props.iconColor }),
-                onTouchTap: function () {
+                onClick: function () {
                     window.open(configs.get(configHref));
                 }
             });

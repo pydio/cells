@@ -171,9 +171,9 @@ class LogDetail extends React.Component{
                     <div style={styles.buttons}>
                         <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={copySuccess?'mdi mdi-check':'mdi mdi-content-copy'} tooltip={'Copy log to clipboard'} tooltipPosition={"bottom-left"} ref={"copy-button"} />
                         {onSelectPeriod &&
-                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':null}} iconClassName={"mdi mdi-clock"} onTouchTap={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
+                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':null}} iconClassName={"mdi mdi-clock"} onClick={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
                         }
-                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onTouchTap={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={"Close log detail"} tooltipPosition={"bottom-left"}/>
+                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onClick={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={"Close log detail"} tooltipPosition={"bottom-left"}/>
                     </div>
                     {userDisplay === 'avatar' && log.UserName &&
                         <UserAvatar

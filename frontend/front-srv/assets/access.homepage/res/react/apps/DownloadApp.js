@@ -46,7 +46,7 @@ class DownloadApp extends React.Component{
                 tooltipStyles={{marginTop: 40}}
                 style={styles.small}
                 iconStyle={{...styles.smallIcon, color: this.props.iconColor}}
-                onTouchTap={() => { window.open(configs.get(configHref)) }}
+                onClick={() => { window.open(configs.get(configHref)) }}
             />);
 
     }

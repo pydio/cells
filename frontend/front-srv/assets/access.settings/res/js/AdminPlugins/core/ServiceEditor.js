@@ -152,7 +152,7 @@ let PluginEditor = createReactClass({
 
         let closeButton;
         if(closeEditor){
-            closeButton = <RaisedButton label={this.context.getMessage('86','')} onTouchTap={closeEditor}/>
+            closeButton = <RaisedButton label={this.context.getMessage('86','')} onClick={closeEditor}/>
         }
 
         let doc = documentation;
@@ -180,8 +180,8 @@ let PluginEditor = createReactClass({
             if(!dirty){
                 props = adminStyles.props.header.flatButtonDisabled;
             }
-            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert} {...props}/>);
-            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save} {...props}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onClick={this.revert} {...props}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onClick={this.save} {...props}/>);
         }
         actions.push(closeButton);
 

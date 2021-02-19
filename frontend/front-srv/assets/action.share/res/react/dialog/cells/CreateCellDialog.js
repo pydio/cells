@@ -139,7 +139,7 @@ class CreateCellDialog extends React.Component {
                     primary={true}
                     disabled={!model.getLabel() || saving}
                     label={this.m('cells.create.advanced')} // Advanced
-                    onTouchTap={()=>{this.setState({step:'data'})}} />
+                    onClick={()=>{this.setState({step:'data'})}} />
                 );
                 buttons.push(<span style={{display:'inline-block', margin: '0  10px', fontSize: 14, fontWeight: 500, color: '#9E9E9E'}}>{this.m('cells.create.buttons.separator')}</span>);
             }
@@ -149,7 +149,7 @@ class CreateCellDialog extends React.Component {
                 disabled={!model.getLabel() || saving}
                 primary={true}
                 label={this.m(279)} // Create Cell
-                onTouchTap={()=>{this.submit()}} />
+                onClick={()=>{this.submit()}} />
             );
 
 
@@ -170,8 +170,8 @@ class CreateCellDialog extends React.Component {
                 </div>
             );
 
-            buttons.push(<FlatButton key="prev1" primary={false} label={pydio.MessageHash['304']} onTouchTap={()=>{this.setState({step:'users'})}} />);
-            buttons.push(<FlatButton key="next2" primary={true} label={pydio.MessageHash['179']} onTouchTap={()=>this.setState({step:'label'})} />);
+            buttons.push(<FlatButton key="prev1" primary={false} label={pydio.MessageHash['304']} onClick={()=>{this.setState({step:'users'})}} />);
+            buttons.push(<FlatButton key="next2" primary={true} label={pydio.MessageHash['179']} onClick={()=>this.setState({step:'label'})} />);
 
         } else {
 
@@ -185,8 +185,8 @@ class CreateCellDialog extends React.Component {
                 </div>
             );
 
-            buttons.push(<FlatButton key="prev2" primary={false} label={pydio.MessageHash['304']} onTouchTap={()=>{this.setState({step:'data'})}} />);
-            buttons.push(<RaisedButton key="submit" disabled={saving} primary={true} label={this.m(279)} onTouchTap={this.submit.bind(this)} />);
+            buttons.push(<FlatButton key="prev2" primary={false} label={pydio.MessageHash['304']} onClick={()=>{this.setState({step:'data'})}} />);
+            buttons.push(<RaisedButton key="submit" disabled={saving} primary={true} label={this.m(279)} onClick={this.submit.bind(this)} />);
 
         }
 

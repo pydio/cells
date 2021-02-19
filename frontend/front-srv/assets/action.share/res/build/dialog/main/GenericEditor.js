@@ -70,7 +70,7 @@ var EditorTab = (function (_React$Component) {
                 { style: _extends({ display: 'flex' }, style) },
                 tabs.map(function (t) {
                     var isActive = t.Value === active;
-                    return _react2['default'].createElement(_materialUi.FlatButton, { label: t.Label, onTouchTap: function () {
+                    return _react2['default'].createElement(_materialUi.FlatButton, { label: t.Label, onClick: function () {
                             onChange(t.Value);
                         }, primary: isActive, style: isActive ? { borderBottom: '2px solid ' + primary1Color } : { borderBottom: 0 } });
                 }),
@@ -176,9 +176,9 @@ var GenericEditor = (function (_React$Component3) {
                         _react2['default'].createElement(
                             'div',
                             { style: { backgroundColor: '#EEEEEE', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onTouchTap: onSaveAction }),
-                            _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onTouchTap: onRevertAction, style: { marginLeft: 10 } }),
-                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: onCloseAction, style: { marginLeft: 10 } })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onClick: onSaveAction }),
+                            _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onClick: onRevertAction, style: { marginLeft: 10 } }),
+                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onClick: onCloseAction, style: { marginLeft: 10 } })
                         ),
                         _react2['default'].createElement(
                             'div',
@@ -220,9 +220,9 @@ var GenericEditor = (function (_React$Component3) {
                         _react2['default'].createElement(
                             'div',
                             { style: { paddingTop: 18 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onTouchTap: onSaveAction }),
-                            _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onTouchTap: onRevertAction, style: { marginLeft: 10 } }),
-                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: onCloseAction, style: { marginLeft: 10 } })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onClick: onSaveAction }),
+                            _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onClick: onRevertAction, style: { marginLeft: 10 } }),
+                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onClick: onCloseAction, style: { marginLeft: 10 } })
                         )
                     ),
                     _react2['default'].createElement(

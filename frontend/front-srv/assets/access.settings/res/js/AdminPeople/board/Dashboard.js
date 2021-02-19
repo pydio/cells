@@ -265,10 +265,10 @@ let Dashboard = createReactClass({
         };
         let actions = [];
         if(mime === 'user_editable' || mime === 'group'){
-            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onTouchTap={() => {this.openRoleEditor(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
-            actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
+            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={() => {this.openRoleEditor(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
+            actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" onClick={() => {this.deleteAction(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
         }else if(mime === 'user'){
-            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onTouchTap={() => {this.openRoleEditor(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
+            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={() => {this.openRoleEditor(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
             actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" disabled={true} iconStyle={disabledStyle} onClick={(e)=>{e.stopPropagation()}} />);
         }
         return (
@@ -328,7 +328,7 @@ let Dashboard = createReactClass({
                 fontSize: 20
             }
         };
-        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
+        let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onClick={this.openUsersImporter}/>;
         if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
             let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
             disabled.style.backgroundColor = 'rgba(0,0,0,0.23)';
@@ -356,8 +356,8 @@ let Dashboard = createReactClass({
             multipleActions = [pydio.Controller.getActionByName('delete')];
             openEditor = this.openRoleEditor.bind(this);
             headerButtons = [
-                <FlatButton primary={true} label={this.context.getMessage("user.1")} onTouchTap={this.createUserAction} {...styles.props.header.flatButton} />,
-                <FlatButton primary={true} label={this.context.getMessage("user.2")} onTouchTap={this.createGroupAction}{...styles.props.header.flatButton} />,
+                <FlatButton primary={true} label={this.context.getMessage("user.1")} onClick={this.createUserAction} {...styles.props.header.flatButton} />,
+                <FlatButton primary={true} label={this.context.getMessage("user.2")} onClick={this.createGroupAction}{...styles.props.header.flatButton} />,
             ];
         }
 

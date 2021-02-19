@@ -427,7 +427,7 @@ var Events = (function (_React$Component) {
                     key: e,
                     disabled: true,
                     primaryText: Events.eventData(e).title,
-                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: LightGrey }, onTouchTap: function () {
+                    rightIconButton: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", iconStyle: { color: LightGrey }, onClick: function () {
                             _this.remove(e);
                         } })
                 }));
@@ -460,7 +460,7 @@ var Events = (function (_React$Component) {
                         }
                     })
                 ),
-                _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { style: { width: '100%' }, label: "Trigger job on...", primary: true, onClick: function () {
                         return _this.setState({ open: true });
                     }, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-pulse" }) }),
                 _react2['default'].createElement(
@@ -707,16 +707,16 @@ var JobBoard = (function (_React$Component) {
                     if (job.Inactive) {
                         bProps.backgroundColor = '#e0e0e0';
                     }
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play", color: iconColor }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-play", color: iconColor }), label: m('task.action.run'), disabled: job.Inactive, primary: true, onClick: function () {
                             JobsStore.getInstance().controlJob(job, 'RunOnce');
                         } }, bProps)));
                 }
                 if (job.Inactive) {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline", color: iconColor }), label: m('task.action.enable'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-marked-circle-outline", color: iconColor }), label: m('task.action.enable'), primary: true, onClick: function () {
                             JobsStore.getInstance().controlJob(job, 'Active');
                         } }, flatProps)));
                 } else {
-                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline", color: iconColor }), label: m('task.action.disable'), primary: true, onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-checkbox-blank-circle-outline", color: iconColor }), label: m('task.action.disable'), primary: true, onClick: function () {
                             JobsStore.getInstance().controlJob(job, 'Inactive');
                         } }, flatProps)));
                 }
@@ -731,7 +731,7 @@ var JobBoard = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'a',
-                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onTouchTap: function () {
+                            { style: { cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,.87)' }, onClick: function () {
                                     return onRequestClose(true);
                                 } },
                             pydio.MessageHash['ajxp_admin.scheduler.title']
@@ -899,16 +899,16 @@ var JobSchedule = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), key: rand, label: _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, rand: rand }), onTouchTap: function () {
+                _react2['default'].createElement(_materialUi.FlatButton, { primary: true, icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-timer" }), key: rand, label: _react2['default'].createElement(_ScheduleForm2['default'], { schedule: job.Schedule, rand: rand }), onClick: function () {
                         _this2.setState({ open: true });
                     } }),
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
                         title: 'Job Schedule',
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onTouchTap: function () {
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onClick: function () {
                                 _this2.setState({ open: false });
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Save", onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Save", onClick: function () {
                                 _this2.updateJob();
                             } })],
                         modal: false,
@@ -1232,7 +1232,7 @@ var JobsList = (function (_React$Component) {
 
             var actions = [{
                 iconClassName: 'mdi mdi-chevron-right',
-                onTouchTap: function onTouchTap(row) {
+                onClick: function onClick(row) {
                     return selectRows([row]);
                 }
             }];
@@ -2231,27 +2231,27 @@ var TasksList = (function (_React$Component) {
                 }
             };
             if (row.Status === 'Running' && row.CanPause) {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onClick: function () {
                         store.controlTask(row, 'Pause');
                     } }, icProps)));
             }
             if (row.Status === 'Paused') {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onClick: function () {
                         store.controlTask(row, 'Resume');
                     } }, icProps)));
             }
             if (row.Status === 'Running' || row.Status === 'Paused') {
                 if (row.CanStop) {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onClick: function () {
                             store.controlTask(row, 'Stop');
                         } }, icProps)));
                 } else if (row.StatusMessage === 'Pending') {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onClick: function () {
                             store.controlTask(row, 'Delete');
                         } }, icProps)));
                 }
             } else {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onClick: function () {
                         store.controlTask(row, 'Delete');
                     } }, icProps)));
             }
@@ -2376,7 +2376,7 @@ var TasksList = (function (_React$Component) {
             var actionsHeader = _react2['default'].createElement(
                 'div',
                 { style: { lineHeight: 'initial', marginLeft: 5 } },
-                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onTouchTap: this.deleteAll.bind(this), disabled: working })
+                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete-sweep", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: m('tasks.bulk.clear'), primary: true, onClick: this.deleteAll.bind(this), disabled: working })
             );
             var idHeader = _react2['default'].createElement(
                 'div',
@@ -2384,7 +2384,7 @@ var TasksList = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { lineHeight: 'initial', marginLeft: 5 } },
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-checkbox-multiple-" + (mode === 'selection' ? 'marked' : 'blank') + "-outline", iconStyle: { color: 'rgba(0,0,0,.3)' }, tooltip: mode === 'selection' ? m('tasks.bulk.disable') : m('tasks.bulk.enable'), primary: true, onClick: function () {
                             _this4.setState({ mode: mode === 'selection' ? 'log' : 'selection', taskLogs: null });
                         }, disabled: working })
                 ),
@@ -2485,7 +2485,7 @@ var TasksList = (function (_React$Component) {
                         mode === 'selection' && selectedRows.length > 1 && _react2['default'].createElement(
                             'div',
                             { style: { lineHeight: 'initial' } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onTouchTap: this.deleteSelection.bind(this), disabled: working })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('tasks.bulk.delete'), secondary: true, onClick: this.deleteSelection.bind(this), disabled: working })
                         )
                     )
                 }),

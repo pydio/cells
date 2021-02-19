@@ -105,13 +105,13 @@ var EditorToolbar = (function (_React$Component) {
                 title
             ),
             titleStyle: { innerStyle: innerStyle, fontSize: 16 },
-            iconElementLeft: React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-arrow-left', iconStyle: innerStyle, touch: true, onTouchTap: function () {
+            iconElementLeft: React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-arrow-left', iconStyle: innerStyle, touch: true, onClick: function () {
                     return _this.onClose();
                 } }),
             iconElementRight: React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
-                React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-window-minimize', iconStyle: innerStyle, touch: true, onTouchTap: function () {
+                React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-window-minimize', iconStyle: innerStyle, touch: true, onClick: function () {
                         return _this.onMinimise();
                     } })
             )

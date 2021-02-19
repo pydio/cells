@@ -101,7 +101,7 @@ class VideoCard extends React.Component {
             return {__html:MessageHash[id]};
         };
         const menus = this._videos.map(function(item, index){
-            return <MenuItem key={`videoCardMenuItem_${index}`} primaryText={this.getTitle(item[1])} onTouchTap={() => {this.setState({youtubeId:item[0], contentMessageId:item[1], videoIndex: index})} }/>;
+            return <MenuItem key={`videoCardMenuItem_${index}`} primaryText={this.getTitle(item[1])} onClick={() => {this.setState({youtubeId:item[0], contentMessageId:item[1], videoIndex: index})} }/>;
         }.bind(this));
         let props = {...this.props};
         const {youtubeId, contentMessageId} = this.state;

@@ -103,7 +103,7 @@ var PaperEditorLayout = (function (_React$Component) {
             closeButton = _react2['default'].createElement(_materialUi.IconButton, {
                 tooltip: _pydio2['default'].getMessages()[86],
                 iconClassName: 'mdi mdi-close',
-                onTouchTap: closeAction,
+                onClick: closeAction,
                 iconStyle: { color: 'white' }
             });
         }
@@ -167,7 +167,7 @@ PaperEditorLayout.actionButton = function (label, icon, action) {
         tooltip: label,
         iconClassName: icon,
         disabled: disabled,
-        onTouchTap: action,
+        onClick: action,
         iconStyle: { color: disabled ? 'rgba(255,255,255,0.5)' : 'white' }
     });
 };

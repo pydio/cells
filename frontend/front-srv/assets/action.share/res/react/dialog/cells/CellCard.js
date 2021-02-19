@@ -108,7 +108,7 @@ class CellCard extends React.Component{
             if(mode !== 'infoPanel'){
                 moreMenuItems = [];
                 if(model.getUuid() !== pydio.user.activeRepository){
-                    moreMenuItems.push(<MenuItem primaryText={m(246)} onTouchTap={()=>{
+                    moreMenuItems.push(<MenuItem primaryText={m(246)} onClick={()=>{
                         pydio.triggerRepositoryChange(model.getUuid());
                         this.props.onDismiss();
                     }}/>);
@@ -121,8 +121,8 @@ class CellCard extends React.Component{
                             this.props.onHeightChange(500);
                         }
                     };
-                    moreMenuItems.push(<MenuItem primaryText={m(247)} onTouchTap={()=>this.setState({edit:true})}/>);
-                    moreMenuItems.push(<MenuItem primaryText={m(248)} onTouchTap={deleteAction}/>);
+                    moreMenuItems.push(<MenuItem primaryText={m(247)} onClick={()=>this.setState({edit:true})}/>);
+                    moreMenuItems.push(<MenuItem primaryText={m(248)} onClick={deleteAction}/>);
                 }
             }
             let watchLine, bmButton;

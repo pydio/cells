@@ -192,7 +192,7 @@ var AdminLeftNav = (function (_React$Component2) {
                         style: { padding: 14 },
                         iconStyle: { color: 'white', fontSize: 20 },
                         tooltip: pydio.MessageHash['settings.topbar.button.advanced'],
-                        onTouchTap: function () {
+                        onClick: function () {
                             return _this.props.toggleAdvanced();
                         }
                     }),

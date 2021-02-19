@@ -226,7 +226,7 @@ var MetaNamespace = (function (_React$Component) {
                             _react2['default'].createElement(
                                 'span',
                                 null,
-                                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: function () {
+                                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: function () {
                                         _this2.removeSelectionValue(k);
                                     } })
                             )
@@ -253,7 +253,7 @@ var MetaNamespace = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onClick: function () {
                                 _this2.addSelectionValue();
                             }, disabled: !selectorNewKey || !selectorNewValue })
                     )
@@ -340,11 +340,11 @@ var MetaNamespace = (function (_React$Component) {
                 });
             }
 
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onTouchTap: function () {
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onClick: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onClick: function () {
                     _this4.save();
                 } })];
             if (type === 'tags' && !readonly) {
-                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
+                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onClick: function () {
                         var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
                             pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
