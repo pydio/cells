@@ -20,14 +20,15 @@
 
 import Pydio from 'pydio'
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {muiThemeable} from 'material-ui/styles'
 
 import JobBoard from './JobBoard'
 import JobsList from "./JobsList";
 import Loader from './Loader';
 
-let Dashboard = React.createClass({
-
+let Dashboard = createReactClass({
+    displayName: 'Dashboard',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     getInitialState(){
@@ -114,8 +115,7 @@ let Dashboard = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 Dashboard = muiThemeable()(Dashboard);

@@ -771,26 +771,6 @@ exports['default'] = Callbacks;
 module.exports = exports['default'];
 
 },{"pydio/http/api":"pydio/http/api"}],12:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -804,6 +784,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
 
 var _materialUi = require('material-ui');
 
@@ -833,6 +817,30 @@ var _Callbacks = require('./Callbacks');
 
 var _Callbacks2 = _interopRequireDefault(_Callbacks);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -847,17 +855,16 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var JobsStore = _Pydio$requireLib.JobsStore;
 
-var Dashboard = _react2['default'].createClass({
+var Dashboard = (0, _createReactClass2['default'])({
     displayName: 'Dashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        accessByName: _react2['default'].PropTypes.func.isRequired,
-        openEditor: _react2['default'].PropTypes.func.isRequired
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        accessByName: _propTypes2['default'].func.isRequired,
+        openEditor: _propTypes2['default'].func.isRequired
     },
 
     getInitialState: function getInitialState() {
@@ -1336,14 +1343,13 @@ var Dashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard);
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":22,"../editor/util/ClassLoader":54,"./Callbacks":11,"./UsersSearchBox":15,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/func":"pydio/util/func","react":"react"}],13:[function(require,module,exports){
+},{"../editor/Editor":22,"../editor/util/ClassLoader":54,"./Callbacks":11,"./UsersSearchBox":15,"create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/func":"pydio/util/func","react":"react"}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1373,6 +1379,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -1380,6 +1390,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
 
 var _pydioModelDataModel = require('pydio/model/data-model');
 
@@ -1415,19 +1429,18 @@ var MaterialTable = _Pydio$requireLib.MaterialTable;
 
 var ResourceGroups = ["acl", "rest", "oidc"];
 
-var PoliciesBoard = _react2['default'].createClass({
+var PoliciesBoard = (0, _createReactClass2['default'])({
     displayName: 'PoliciesBoard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        openEditor: _react2['default'].PropTypes.func.isRequired,
-        openRightPane: _react2['default'].PropTypes.func.isRequired,
-        closeRightPane: _react2['default'].PropTypes.func.isRequired,
-        readonly: _react2['default'].PropTypes.bool
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openEditor: _propTypes2['default'].func.isRequired,
+        openRightPane: _propTypes2['default'].func.isRequired,
+        closeRightPane: _propTypes2['default'].func.isRequired,
+        readonly: _propTypes2['default'].bool
     },
 
     componentWillMount: function componentWillMount() {
@@ -1746,14 +1759,13 @@ var PoliciesBoard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(PoliciesBoard);
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":59,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid":2}],14:[function(require,module,exports){
+},{"../policies/Policy":59,"cells-sdk":"cells-sdk","create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid":2}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1787,6 +1799,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _editorEditor = require('../editor/Editor');
@@ -1814,9 +1830,8 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var RolesDashboard = _react2['default'].createClass({
+var RolesDashboard = (0, _createReactClass2['default'])({
     displayName: 'RolesDashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
@@ -2066,14 +2081,13 @@ var RolesDashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = RolesDashboard = muiThemeable()(RolesDashboard);
 exports['default'] = RolesDashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":22,"../editor/util/ClassLoader":54,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],15:[function(require,module,exports){
+},{"../editor/Editor":22,"../editor/util/ClassLoader":54,"create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2110,6 +2124,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -2269,18 +2287,18 @@ var UsersSearchBox = (function (_React$Component) {
 })(_react2['default'].Component);
 
 UsersSearchBox.PropTypes = {
-    textLabel: _react2['default'].PropTypes.string,
-    displayResults: _react2['default'].PropTypes.func,
-    hideResults: _react2['default'].PropTypes.func,
-    displayResultsState: _react2['default'].PropTypes.bool,
-    limit: _react2['default'].PropTypes.number,
-    style: _react2['default'].PropTypes.object
+    textLabel: _propTypes2['default'].string,
+    displayResults: _propTypes2['default'].func,
+    hideResults: _propTypes2['default'].func,
+    displayResultsState: _propTypes2['default'].bool,
+    limit: _propTypes2['default'].number,
+    style: _propTypes2['default'].object
 };
 
 exports['default'] = UsersSearchBox;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],16:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -2948,6 +2966,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -3396,27 +3418,27 @@ var Editor = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Editor.contextTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default'])
 };
 
 Editor.childContextTypes = {
-    messages: _react2['default'].PropTypes.object,
-    getMessage: _react2['default'].PropTypes.func,
-    getPydioRoleMessage: _react2['default'].PropTypes.func,
-    getRootMessage: _react2['default'].PropTypes.func
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func,
+    getPydioRoleMessage: _propTypes2['default'].func,
+    getRootMessage: _propTypes2['default'].func
 };
 
 Editor.propTypes = {
-    node: _react2['default'].PropTypes.instanceOf(AjxpNode),
-    closeEditor: _react2['default'].PropTypes.func,
-    registerCloseCallback: _react2['default'].PropTypes.func
+    node: _propTypes2['default'].instanceOf(AjxpNode),
+    closeEditor: _propTypes2['default'].func,
+    registerCloseCallback: _propTypes2['default'].func
 };
 
 exports['default'] = Editor;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./acl/PagesAcls":42,"./acl/WorkspacesAcls":45,"./info/GroupInfo":46,"./info/RoleInfo":47,"./info/UserInfo":48,"./model/Role":49,"./model/User":50,"./params/ParametersPanel":52,"material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],23:[function(require,module,exports){
+},{"./acl/PagesAcls":42,"./acl/WorkspacesAcls":45,"./info/GroupInfo":46,"./info/RoleInfo":47,"./info/UserInfo":48,"./model/Role":49,"./model/User":50,"./params/ParametersPanel":52,"material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3438,6 +3460,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -3550,15 +3576,15 @@ var GroupInfo = (function (_React$Component) {
 })(_react2['default'].Component);
 
 GroupInfo.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-    pluginsRegistry: _react2['default'].PropTypes.instanceOf(XMLDocument),
-    group: _react2['default'].PropTypes.instanceOf(_modelUser2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+    pluginsRegistry: _propTypes2['default'].instanceOf(XMLDocument),
+    group: _propTypes2['default'].instanceOf(_modelUser2['default'])
 };
 
 exports['default'] = GroupInfo;
 module.exports = exports['default'];
 
-},{"../model/User":50,"pydio":"pydio","react":"react"}],24:[function(require,module,exports){
+},{"../model/User":50,"prop-types":"prop-types","pydio":"pydio","react":"react"}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3580,6 +3606,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -3695,15 +3725,15 @@ var RoleInfo = (function (_React$Component) {
 })(_react2['default'].Component);
 
 RoleInfo.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-    pluginsRegistry: _react2['default'].PropTypes.instanceOf(XMLDocument),
-    role: _react2['default'].PropTypes.instanceOf(_modelRole2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+    pluginsRegistry: _propTypes2['default'].instanceOf(XMLDocument),
+    role: _propTypes2['default'].instanceOf(_modelRole2['default'])
 };
 
 exports['default'] = RoleInfo;
 module.exports = exports['default'];
 
-},{"../model/Role":49,"pydio":"pydio","react":"react"}],25:[function(require,module,exports){
+},{"../model/Role":49,"prop-types":"prop-types","pydio":"pydio","react":"react"}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -3727,6 +3757,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -3953,15 +3987,15 @@ var UserInfo = (function (_React$Component) {
 })(_react2['default'].Component);
 
 UserInfo.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-    pluginsRegistry: _react2['default'].PropTypes.instanceOf(XMLDocument),
-    user: _react2['default'].PropTypes.instanceOf(_modelUser2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+    pluginsRegistry: _propTypes2['default'].instanceOf(XMLDocument),
+    user: _propTypes2['default'].instanceOf(_modelUser2['default'])
 };
 
 exports['default'] = UserInfo;
 module.exports = exports['default'];
 
-},{"../model/User":50,"../user/UserRolesPicker":53,"material-ui":"material-ui","pydio":"pydio","react":"react"}],26:[function(require,module,exports){
+},{"../model/User":50,"../user/UserRolesPicker":53,"material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react"}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -4360,7 +4394,7 @@ var Role = (function (_Observable) {
                 rights = parentRights;
                 inherited = true;
             } else {
-                return { aclString: "", 'false': false };
+                return { aclString: "" };
             }
 
             var aclString = Object.keys(rights).filter(function (r) {
@@ -4774,6 +4808,34 @@ exports['default'] = Model;
 module.exports = exports['default'];
 
 },{"./Role":27,"./User":28}],30:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _ParametersPicker = require('./ParametersPicker');
+
+var _ParametersPicker2 = _interopRequireDefault(_ParametersPicker);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -4794,29 +4856,9 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _ParametersPicker = require('./ParametersPicker');
-
-var _ParametersPicker2 = _interopRequireDefault(_ParametersPicker);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require("pydio");
 
@@ -4824,7 +4866,7 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUiStyles = require('material-ui/styles');
 
-var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
@@ -4835,28 +4877,28 @@ var ThemedTitle = (function (_React$Component) {
     function ThemedTitle() {
         _classCallCheck(this, ThemedTitle);
 
-        _get(Object.getPrototypeOf(ThemedTitle.prototype), "constructor", this).apply(this, arguments);
+        _get(Object.getPrototypeOf(ThemedTitle.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(ThemedTitle, [{
-        key: "render",
+        key: 'render',
         value: function render() {
             var _props = this.props;
             var getMessage = _props.getMessage;
             var muiTheme = _props.muiTheme;
 
             var bgColor = muiTheme.palette.primary1Color;
-            return _react2["default"].createElement(
-                "div",
+            return _react2['default'].createElement(
+                'div',
                 { style: { backgroundColor: bgColor, color: 'white', padding: '0 24px 24px' } },
-                _react2["default"].createElement(
-                    "h3",
+                _react2['default'].createElement(
+                    'h3',
                     { style: { color: 'white' } },
                     getMessage('14')
                 ),
-                _react2["default"].createElement(
-                    "div",
-                    { className: "legend" },
+                _react2['default'].createElement(
+                    'div',
+                    { className: 'legend' },
                     getMessage('15')
                 )
             );
@@ -4864,22 +4906,22 @@ var ThemedTitle = (function (_React$Component) {
     }]);
 
     return ThemedTitle;
-})(_react2["default"].Component);
+})(_react2['default'].Component);
 
 ThemedTitle = (0, _materialUiStyles.muiThemeable)()(ThemedTitle);
 
-var ParameterCreate = _react2["default"].createClass({
-    displayName: "ParameterCreate",
+var ParameterCreate = (0, _createReactClass2['default'])({
+    displayName: 'ParameterCreate',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
 
     propTypes: {
-        workspaceScope: _react2["default"].PropTypes.string,
-        showModal: _react2["default"].PropTypes.func,
-        hideModal: _react2["default"].PropTypes.func,
-        pluginsFilter: _react2["default"].PropTypes.func,
-        roleType: _react2["default"].PropTypes.oneOf(['user', 'group', 'role']),
-        createParameter: _react2["default"].PropTypes.func
+        workspaceScope: _propTypes2['default'].string,
+        showModal: _propTypes2['default'].func,
+        hideModal: _propTypes2['default'].func,
+        pluginsFilter: _propTypes2['default'].func,
+        roleType: _propTypes2['default'].oneOf(['user', 'group', 'role']),
+        createParameter: _propTypes2['default'].func
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -4921,11 +4963,11 @@ var ParameterCreate = _react2["default"].createClass({
         var actions = _props2.actions;
         var parameters = _props2.parameters;
 
-        return _react2["default"].createElement(
-            "div",
-            { className: "picker-list" },
-            _react2["default"].createElement(ThemedTitle, { getMessage: getMessage }),
-            _react2["default"].createElement(_ParametersPicker2["default"], {
+        return _react2['default'].createElement(
+            'div',
+            { className: 'picker-list' },
+            _react2['default'].createElement(ThemedTitle, { getMessage: getMessage }),
+            _react2['default'].createElement(_ParametersPicker2['default'], {
                 pydio: pydio,
                 allActions: actions,
                 allParameters: parameters,
@@ -4934,13 +4976,12 @@ var ParameterCreate = _react2["default"].createClass({
             })
         );
     }
-
 });
 
-exports["default"] = ParameterCreate;
-module.exports = exports["default"];
+exports['default'] = ParameterCreate;
+module.exports = exports['default'];
 
-},{"./ParametersPicker":33,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
+},{"./ParametersPicker":33,"create-react-class":"create-react-class","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5773,6 +5814,24 @@ module.exports = exports['default'];
 
 },{"./ParameterCreate":30,"./ParameterEntry":31,"./ParametersPanel":32,"./ParametersPicker":33}],35:[function(require,module,exports){
 (function (global){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5793,19 +5852,9 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var _react = require("react");
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require("pydio");
 
@@ -5819,23 +5868,23 @@ var _pydioUtilPass = require("pydio/util/pass");
 
 var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
-var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
-var _Pydio$requireLib2 = _pydio2["default"].requireLib('hoc');
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib2.ModernTextField;
-exports["default"] = _react2["default"].createClass({
-    displayName: "UserPasswordDialog",
+exports['default'] = (0, _createReactClass2['default'])({
+    displayName: 'UserPasswordDialog',
 
     mixins: [AdminComponents.MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 
     propTypes: {
-        pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]),
-        user: _react2["default"].PropTypes.instanceOf(_modelUser2["default"])
+        pydio: _propTypes2['default'].instanceOf(_pydio2['default']),
+        user: _propTypes2['default'].instanceOf(_modelUser2['default'])
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -5846,14 +5895,14 @@ exports["default"] = _react2["default"].createClass({
     },
 
     getInitialState: function getInitialState() {
-        var pwdState = _pydioUtilPass2["default"].getState();
+        var pwdState = _pydioUtilPass2['default'].getState();
         return _extends({}, pwdState);
     },
 
     onChange: function onChange(event, value) {
         var passValue = this.refs.pass.getValue();
         var confirmValue = this.refs.confirm.getValue();
-        var newState = _pydioUtilPass2["default"].getState(passValue, confirmValue, this.state);
+        var newState = _pydioUtilPass2['default'].getState(passValue, confirmValue, this.state);
         this.setState(newState);
     },
 
@@ -5882,21 +5931,21 @@ exports["default"] = _react2["default"].createClass({
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
             return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
-        return _react2["default"].createElement(
-            "div",
+        return _react2['default'].createElement(
+            'div',
             { style: { width: '100%' } },
-            _react2["default"].createElement(ModernTextField, {
-                ref: "pass",
-                type: "password",
+            _react2['default'].createElement(ModernTextField, {
+                ref: 'pass',
+                type: 'password',
                 fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('523'),
                 errorText: this.state.passErrorText,
                 hintText: this.state.passHintText
             }),
-            _react2["default"].createElement(ModernTextField, {
-                ref: "confirm",
-                type: "password",
+            _react2['default'].createElement(ModernTextField, {
+                ref: 'confirm',
+                type: 'password',
                 fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('199'),
@@ -5904,12 +5953,33 @@ exports["default"] = _react2["default"].createClass({
             })
         );
     }
-
 });
-module.exports = exports["default"];
+module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":50,"pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],36:[function(require,module,exports){
+},{"../model/User":50,"create-react-class":"create-react-class","prop-types":"prop-types","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],36:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _materialUi = require('material-ui');
+
+var _utilMessagesMixin = require('../util/MessagesMixin');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -5929,39 +5999,25 @@ module.exports = exports["default"];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _utilMessagesMixin = require('../util/MessagesMixin');
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'UserRolesPicker',
-
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
-        profile: _react2['default'].PropTypes.string,
-        roles: _react2['default'].PropTypes.array,
-        addRole: _react2['default'].PropTypes.func,
-        removeRole: _react2['default'].PropTypes.func,
-        switchRoles: _react2['default'].PropTypes.func
+        profile: _propTypes2['default'].string,
+        roles: _propTypes2['default'].array,
+        addRole: _propTypes2['default'].func,
+        removeRole: _propTypes2['default'].func,
+        switchRoles: _propTypes2['default'].func
     },
 
     getInitialState: function getInitialState() {
@@ -6093,11 +6149,10 @@ exports['default'] = _react2['default'].createClass({
             )
         );
     }
-
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":55,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],37:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","pydio/http/api":"pydio/http/api","react":"react"}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -6211,25 +6266,6 @@ exports["default"] = {
 module.exports = exports["default"];
 
 },{}],40:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -6252,26 +6288,50 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
 var RoleMessagesConsumerMixin = {
     contextTypes: {
-        messages: _react2['default'].PropTypes.object,
-        getMessage: _react2['default'].PropTypes.func,
-        getPydioRoleMessage: _react2['default'].PropTypes.func,
-        getRootMessage: _react2['default'].PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func,
+        getPydioRoleMessage: _propTypes2['default'].func,
+        getRootMessage: _propTypes2['default'].func
     }
 };
 
 var RoleMessagesProviderMixin = {
 
     childContextTypes: {
-        messages: _react2['default'].PropTypes.object,
-        getMessage: _react2['default'].PropTypes.func,
-        getPydioRoleMessage: _react2['default'].PropTypes.func,
-        getRootMessage: _react2['default'].PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func,
+        getPydioRoleMessage: _propTypes2['default'].func,
+        getRootMessage: _propTypes2['default'].func
     },
 
     getChildContext: function getChildContext() {
@@ -6346,7 +6406,7 @@ exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 exports.withRoleMessages = withRoleMessages;
 
-},{"pydio":"pydio","react":"react"}],41:[function(require,module,exports){
+},{"prop-types":"prop-types","pydio":"pydio","react":"react"}],41:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6397,11 +6457,11 @@ arguments[4][19][0].apply(exports,arguments)
 arguments[4][20][0].apply(exports,arguments)
 },{"./WorkspaceAcl":44,"cells-sdk":"cells-sdk","dup":20,"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","react":"react"}],46:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"../model/User":50,"dup":23,"pydio":"pydio","react":"react"}],47:[function(require,module,exports){
+},{"../model/User":50,"dup":23,"prop-types":"prop-types","pydio":"pydio","react":"react"}],47:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"../model/Role":49,"dup":24,"pydio":"pydio","react":"react"}],48:[function(require,module,exports){
+},{"../model/Role":49,"dup":24,"prop-types":"prop-types","pydio":"pydio","react":"react"}],48:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"../model/User":50,"../user/UserRolesPicker":53,"dup":25,"material-ui":"material-ui","pydio":"pydio","react":"react"}],49:[function(require,module,exports){
+},{"../model/User":50,"../user/UserRolesPicker":53,"dup":25,"material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react"}],49:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
 },{"cells-sdk":"cells-sdk","dup":27,"pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","uuid":2}],50:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
@@ -6411,11 +6471,27 @@ arguments[4][31][0].apply(exports,arguments)
 arguments[4][32][0].apply(exports,arguments)
 },{"./ParameterEntry":51,"cells-sdk":"cells-sdk","dup":32,"material-ui":"material-ui","react":"react"}],53:[function(require,module,exports){
 arguments[4][36][0].apply(exports,arguments)
-},{"../util/MessagesMixin":55,"dup":36,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],54:[function(require,module,exports){
+},{"../util/MessagesMixin":55,"create-react-class":"create-react-class","dup":36,"material-ui":"material-ui","prop-types":"prop-types","pydio/http/api":"pydio/http/api","react":"react"}],54:[function(require,module,exports){
 arguments[4][38][0].apply(exports,arguments)
 },{"dup":38,"pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/func":"pydio/util/func"}],55:[function(require,module,exports){
 arguments[4][40][0].apply(exports,arguments)
-},{"dup":40,"pydio":"pydio","react":"react"}],56:[function(require,module,exports){
+},{"dup":40,"prop-types":"prop-types","pydio":"pydio","react":"react"}],56:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6435,17 +6511,10 @@ arguments[4][40][0].apply(exports,arguments)
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -6467,15 +6536,15 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var CreateRoleOrGroupForm = _react2['default'].createClass({
+var CreateRoleOrGroupForm = (0, _createReactClass2['default'])({
     displayName: 'CreateRoleOrGroupForm',
 
     mixins: [AdminComponents.MessagesConsumerMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
 
     propTypes: {
-        type: _react2['default'].PropTypes.oneOf(['group', 'user', 'role']),
-        roleNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']),
-        openRoleEditor: _react2['default'].PropTypes.func
+        type: _propTypes2['default'].oneOf(['group', 'user', 'role']),
+        roleNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']),
+        openRoleEditor: _propTypes2['default'].func
     },
 
     getTitle: function getTitle() {
@@ -6681,13 +6750,30 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             );
         }
     }
-
 });
 
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],57:[function(require,module,exports){
+},{"create-react-class":"create-react-class","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],57:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -6708,19 +6794,9 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -6742,12 +6818,12 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var CreateUserForm = _react2['default'].createClass({
+var CreateUserForm = (0, _createReactClass2['default'])({
     displayName: 'CreateUserForm',
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel),
-        openRoleEditor: _react2['default'].PropTypes.func
+        dataModel: _propTypes2['default'].instanceOf(PydioDataModel),
+        openRoleEditor: _propTypes2['default'].func
     },
 
     mixins: [AdminComponents.MessagesConsumerMixin, PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
@@ -6871,7 +6947,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],58:[function(require,module,exports){
+},{"create-react-class":"create-react-class","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],58:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

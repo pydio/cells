@@ -1,23 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*
- * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -41,6 +22,30 @@ var _react = require('react');
 var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
+
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioModelDataModel = require('pydio/model/data-model');
 
@@ -233,32 +238,13 @@ var LogBoard = (function (_React$Component) {
 })(_react2['default'].Component);
 
 LogBoard.propTypes = {
-    dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired
+    dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired
 };
 
 exports['default'] = LogBoard;
 module.exports = exports['default'];
 
-},{"../model/Log":6,"./LogTable":3,"./LogTools":4,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","react":"react"}],2:[function(require,module,exports){
-/*
- * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
+},{"../model/Log":6,"./LogTable":3,"./LogTools":4,"material-ui":"material-ui","prop-types":"prop-types","pydio/model/data-model":"pydio/model/data-model","react":"react"}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -284,6 +270,30 @@ var _react2 = _interopRequireDefault(_react);
 var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
+
+/*
+ * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -564,14 +574,14 @@ var LogDetail = (function (_React$Component2) {
 })(_react2['default'].Component);
 
 LogDetail.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
-    log: _react2['default'].PropTypes.instanceOf(_cellsSdk.LogLogMessage)
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']),
+    log: _propTypes2['default'].instanceOf(_cellsSdk.LogLogMessage)
 };
 
 exports['default'] = LogDetail;
 module.exports = exports['default'];
 
-},{"cells-sdk":"cells-sdk","clipboard":"clipboard","material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],3:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","clipboard":"clipboard","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react","react-dom":"react-dom"}],3:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

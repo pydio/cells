@@ -20,11 +20,12 @@
 import Pydio from 'pydio'
 import PluginsList from './PluginsList'
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {RaisedButton, Paper} from 'material-ui'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-const PluginsManager = React.createClass({
-
+const PluginsManager = createReactClass({
+    displayName: 'PluginsManager',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     getInitialState(){
@@ -54,8 +55,7 @@ const PluginsManager = React.createClass({
                 </Paper>
             </div>
         );
-    }
-
+    },
 });
 
 export {PluginsManager as default}

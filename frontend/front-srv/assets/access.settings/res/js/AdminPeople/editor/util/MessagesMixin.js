@@ -1,3 +1,5 @@
+import React, { Component } from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,25 +19,26 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React, {Component} from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 
 const RoleMessagesConsumerMixin = {
     contextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func,
-        getPydioRoleMessage:React.PropTypes.func,
-        getRootMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func,
+        getPydioRoleMessage:PropTypes.func,
+        getRootMessage:PropTypes.func
     }
 };
 
 const RoleMessagesProviderMixin = {
 
     childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func,
-        getPydioRoleMessage:React.PropTypes.func,
-        getRootMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func,
+        getPydioRoleMessage:PropTypes.func,
+        getRootMessage:PropTypes.func
     },
 
     getChildContext: function() {

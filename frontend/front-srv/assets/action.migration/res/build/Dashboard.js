@@ -36,7 +36,7 @@ var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _stepsStepEmptyConfig = require('./steps/StepEmptyConfig');
 
@@ -157,9 +157,9 @@ var Dashboard = (function (_React$Component) {
                 var Job = jsonObject.Job;
                 var TaskUpdated = jsonObject.TaskUpdated;
 
-                var job = _pydioHttpRestApi.JobsJob.constructFromObject(Job);
+                var job = _cellsSdk.JobsJob.constructFromObject(Job);
                 if (job.ID === 'pydio8-data-import') {
-                    var task = _pydioHttpRestApi.JobsTask.constructFromObject(TaskUpdated);
+                    var task = _cellsSdk.JobsTask.constructFromObject(TaskUpdated);
                     _this2.setState({ job: job, task: task });
                 }
             };

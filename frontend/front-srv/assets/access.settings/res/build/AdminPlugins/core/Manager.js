@@ -39,15 +39,18 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var PluginsManager = _react2['default'].createClass({
+var PluginsManager = (0, _createReactClass2['default'])({
     displayName: 'PluginsManager',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
@@ -83,7 +86,6 @@ var PluginsManager = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = PluginsManager;

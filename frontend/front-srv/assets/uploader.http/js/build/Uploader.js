@@ -29,14 +29,17 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _materialUi = require('material-ui');
 
-exports['default'] = _react2['default'].createClass({
-    displayName: 'Uploader',
+exports['default'] = (0, _createReactClass2['default'])({
 
     getInitialState: function getInitialState() {
         var pydio = this.props.pydio;

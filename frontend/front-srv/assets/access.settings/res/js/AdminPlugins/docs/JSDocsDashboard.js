@@ -131,7 +131,7 @@ class ClassPanel extends Component{
                     <TableRow key={pName}>
                         <TableRowColumn style={{fontSize: 16}}>{pName}</TableRowColumn>
                         <TableRowColumn style={largeColumn}>{pData.description}</TableRowColumn>
-                        <TableRowColumn>{pData.type && pData.type.raw && pData.type.raw.replace('React.PropTypes.', '').replace('.isRequired', '')}</TableRowColumn>
+                        <TableRowColumn>{pData.type && pData.type.raw && pData.type.raw.replace('PropTypes.', '').replace('.isRequired', '')}</TableRowColumn>
                         <TableRowColumn>{(pData.required || (pData.type && pData.type.raw && pData.type.raw.indexOf('.isRequired') > -1) ) ? 'true': ''}</TableRowColumn>
                     </TableRow>
                 );

@@ -1,3 +1,6 @@
+import React from 'react';
+import {Paper, FontIcon} from 'material-ui'
+
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import {Paper, FontIcon} from 'material-ui'
+import PropTypes from 'prop-types';
+
 import PydioDataModel from 'pydio/model/data-model'
 import LogTable from './LogTable';
 import LogTools from './LogTools'
@@ -157,7 +160,7 @@ class LogBoard extends React.Component {
 }
 
 LogBoard.propTypes = {
-    dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
+    dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
 };
 
 export {LogBoard as default}

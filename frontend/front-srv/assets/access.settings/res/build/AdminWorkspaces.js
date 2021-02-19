@@ -17787,26 +17787,6 @@ var _default = v5;
 exports.default = _default;
 module.exports = exports.default;
 },{"./sha1.js":6,"./v35.js":9}],12:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -17850,6 +17830,30 @@ var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -18512,14 +18516,14 @@ var DataSourcesBoard = (function (_React$Component) {
 })(_react2['default'].Component);
 
 DataSourcesBoard.propTypes = {
-    dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-    rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-    currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-    openEditor: _react2['default'].PropTypes.func.isRequired,
-    openRightPane: _react2['default'].PropTypes.func.isRequired,
-    closeRightPane: _react2['default'].PropTypes.func.isRequired,
-    filter: _react2['default'].PropTypes.string,
-    versioningReadonly: _react2['default'].PropTypes.bool
+    dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+    rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+    currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+    openEditor: _propTypes2['default'].func.isRequired,
+    openRightPane: _propTypes2['default'].func.isRequired,
+    closeRightPane: _propTypes2['default'].func.isRequired,
+    filter: _propTypes2['default'].string,
+    versioningReadonly: _propTypes2['default'].bool
 };
 
 exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);
@@ -18527,7 +18531,7 @@ exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(Da
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":19,"../editor/VersionPolicyEditor":23,"../editor/VersionPolicyPeriods":24,"../model/DataSource":30,"../model/Ws":33,"./EncryptionKeys":13,"cells-sdk":"cells-sdk","lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":3}],13:[function(require,module,exports){
+},{"../editor/DataSourceEditor":19,"../editor/VersionPolicyEditor":23,"../editor/VersionPolicyPeriods":24,"../model/DataSource":30,"../model/Ws":33,"./EncryptionKeys":13,"cells-sdk":"cells-sdk","lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":3}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19451,6 +19455,38 @@ exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
 },{"../model/DataSource":30,"../model/VirtualNode":32,"../virtual/NodeCard":34,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19470,33 +19506,10 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _modelWs = require('../model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -19504,17 +19517,16 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'WorkspaceList',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        openSelection: _react2['default'].PropTypes.func,
-        advanced: _react2['default'].PropTypes.boolean
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openSelection: _propTypes2['default'].func,
+        advanced: _propTypes2['default'].boolean
     },
 
     getInitialState: function getInitialState() {
@@ -19699,11 +19711,28 @@ exports['default'] = _react2['default'].createClass({
             storageKey: 'console.workspaces.list'
         });
     }
-
 });
 module.exports = exports['default'];
 
-},{"../model/Ws":33,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],17:[function(require,module,exports){
+},{"../model/Ws":33,"create-react-class":"create-react-class","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],17:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19724,19 +19753,9 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -19770,20 +19789,19 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var WsDashboard = _react2['default'].createClass({
+var WsDashboard = (0, _createReactClass2['default'])({
     displayName: 'WsDashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        openEditor: _react2['default'].PropTypes.func.isRequired,
-        openRightPane: _react2['default'].PropTypes.func.isRequired,
-        closeRightPane: _react2['default'].PropTypes.func.isRequired,
-        accessByName: _react2['default'].PropTypes.func.isRequired,
-        advanced: _react2['default'].PropTypes.boolean
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openEditor: _propTypes2['default'].func.isRequired,
+        openRightPane: _propTypes2['default'].func.isRequired,
+        closeRightPane: _propTypes2['default'].func.isRequired,
+        accessByName: _propTypes2['default'].func.isRequired,
+        advanced: _propTypes2['default'].boolean
     },
 
     getInitialState: function getInitialState() {
@@ -19938,13 +19956,12 @@ var WsDashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
 module.exports = exports['default'];
 
-},{"../editor/WsEditor":26,"./WorkspaceList":16,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],18:[function(require,module,exports){
+},{"../editor/WsEditor":26,"./WorkspaceList":16,"create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20304,6 +20321,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -20974,8 +20995,8 @@ var DataSourceEditor = (function (_React$Component) {
 })(_react2['default'].Component);
 
 DataSourceEditor.contextTypes = {
-    messages: _react2['default'].PropTypes.object,
-    getMessage: _react2['default'].PropTypes.func
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func
 };
 
 exports['default'] = DataSourceEditor = (0, _materialUiStyles.muiThemeable)()(DataSourceEditor);
@@ -20983,7 +21004,7 @@ exports['default'] = DataSourceEditor = (0, _materialUiStyles.muiThemeable)()(Da
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
-},{"../model/DataSource":30,"./DataSourceBucketSelector":18,"./DataSourceLocalSelector":20,"./DsStorageSelector":21,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],20:[function(require,module,exports){
+},{"../model/DataSource":30,"./DataSourceBucketSelector":18,"./DataSourceLocalSelector":20,"./DsStorageSelector":21,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","react":"react"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -21680,25 +21701,6 @@ exports['default'] = DsStorageSelector;
 module.exports = exports['default'];
 
 },{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],22:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -21722,6 +21724,30 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -22135,16 +22161,16 @@ var MetaNamespace = (function (_React$Component) {
 })(_react2['default'].Component);
 
 MetaNamespace.PropTypes = {
-    namespace: _react2['default'].PropTypes.instanceOf(_cellsSdk.IdmUserMetaNamespace).isRequired,
-    create: _react2['default'].PropTypes.boolean,
-    reloadList: _react2['default'].PropTypes.func,
-    onRequestClose: _react2['default'].PropTypes.func
+    namespace: _propTypes2['default'].instanceOf(_cellsSdk.IdmUserMetaNamespace).isRequired,
+    create: _propTypes2['default'].boolean,
+    reloadList: _propTypes2['default'].func,
+    onRequestClose: _propTypes2['default'].func
 };
 
 exports['default'] = MetaNamespace;
 module.exports = exports['default'];
 
-},{"../model/Metadata":31,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","react":"react"}],23:[function(require,module,exports){
+},{"../model/Metadata":31,"cells-sdk":"cells-sdk","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","react":"react"}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -22182,6 +22208,10 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 var _pydioUtilXml = require('pydio/util/xml');
 
 var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -22441,14 +22471,14 @@ var VersionPolicyEditor = (function (_React$Component) {
 })(_react2['default'].Component);
 
 VersionPolicyEditor.contextTypes = {
-    messages: _react2['default'].PropTypes.object,
-    getMessage: _react2['default'].PropTypes.func
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func
 };
 
 exports['default'] = VersionPolicyEditor;
 module.exports = exports['default'];
 
-},{"./VersionPolicyPeriods":24,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/xml":"pydio/util/xml","react":"react"}],24:[function(require,module,exports){
+},{"./VersionPolicyPeriods":24,"cells-sdk":"cells-sdk","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/xml":"pydio/util/xml","react":"react"}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -23510,24 +23540,31 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'MetaList',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        currentMetas: _react2['default'].PropTypes.object,
-        edit: _react2['default'].PropTypes.string,
-        metaSourceProvider: _react2['default'].PropTypes.object,
-        closeCurrent: _react2['default'].PropTypes.func,
-        setEditState: _react2['default'].PropTypes.func,
-        featuresEditable: _react2['default'].PropTypes.bool
+        currentMetas: _propTypes2['default'].object,
+        edit: _propTypes2['default'].string,
+        metaSourceProvider: _propTypes2['default'].object,
+        closeCurrent: _propTypes2['default'].func,
+        setEditState: _propTypes2['default'].func,
+        featuresEditable: _propTypes2['default'].bool
     },
 
     render: function render() {
@@ -23583,11 +23620,10 @@ exports['default'] = _react2['default'].createClass({
             features
         );
     }
-
 });
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],29:[function(require,module,exports){
+},{"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","react":"react"}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23613,6 +23649,17 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -23628,15 +23675,14 @@ var SubmitButtonProviderMixin = _require$requireLib.SubmitButtonProviderMixin;
 var _AdminComponents = AdminComponents;
 var MessagesConsumerMixin = _AdminComponents.MessagesConsumerMixin;
 
-var MetaSourceForm = React.createClass({
-    displayName: 'MetaSourceForm',
+var MetaSourceForm = (0, _createReactClass2['default'])({
 
     mixins: [MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 
     propTypes: {
-        model: React.PropTypes.object,
-        editor: React.PropTypes.object,
-        modalData: React.PropTypes.object
+        model: _propTypes2['default'].object,
+        editor: _propTypes2['default'].object,
+        modalData: _propTypes2['default'].object
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -23702,7 +23748,7 @@ var MetaSourceForm = React.createClass({
 exports['default'] = MetaSourceForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
+},{"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

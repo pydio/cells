@@ -35,6 +35,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUiStyles = require('material-ui/styles');
 
 var _JobBoard = require('./JobBoard');
@@ -49,9 +53,8 @@ var _Loader = require('./Loader');
 
 var _Loader2 = _interopRequireDefault(_Loader);
 
-var Dashboard = _react2['default'].createClass({
+var Dashboard = (0, _createReactClass2['default'])({
     displayName: 'Dashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
@@ -155,14 +158,13 @@ var Dashboard = _react2['default'].createClass({
             })
         );
     }
-
 });
 
 exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard);
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./JobBoard":3,"./JobsList":5,"./Loader":6,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],2:[function(require,module,exports){
+},{"./JobBoard":3,"./JobsList":5,"./Loader":6,"create-react-class":"create-react-class","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],2:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

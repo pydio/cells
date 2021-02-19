@@ -19,7 +19,10 @@
  */
 
 
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+
+import Pydio from 'pydio';
 const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.requireLib('components');
 
 import Role from './model/Role'
@@ -336,21 +339,21 @@ class Editor extends React.Component{
 }
 
 Editor.contextTypes = {
-    pydio:React.PropTypes.instanceOf(Pydio)
+    pydio:PropTypes.instanceOf(Pydio)
 };
 
 Editor.childContextTypes = {
-    messages:React.PropTypes.object,
-    getMessage:React.PropTypes.func,
-    getPydioRoleMessage:React.PropTypes.func,
-    getRootMessage:React.PropTypes.func
+    messages:PropTypes.object,
+    getMessage:PropTypes.func,
+    getPydioRoleMessage:PropTypes.func,
+    getRootMessage:PropTypes.func
 };
 
 
 Editor.propTypes ={
-    node: React.PropTypes.instanceOf(AjxpNode),
-    closeEditor:React.PropTypes.func,
-    registerCloseCallback:React.PropTypes.func
+    node: PropTypes.instanceOf(AjxpNode),
+    closeEditor:PropTypes.func,
+    registerCloseCallback:PropTypes.func
 };
 
 export {Editor as default}

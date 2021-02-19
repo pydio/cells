@@ -1,3 +1,9 @@
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {DropDownMenu, MenuItem} from 'material-ui'
+
+import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,22 +23,20 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import {DropDownMenu, MenuItem} from 'material-ui'
+import PropTypes from 'prop-types';
 
-import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
 import PydioApi from 'pydio/http/api';
 
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'UserRolesPicker',
     mixins:[RoleMessagesConsumerMixin],
 
     propTypes: {
-        profile:React.PropTypes.string,
-        roles:React.PropTypes.array,
-        addRole:React.PropTypes.func,
-        removeRole:React.PropTypes.func,
-        switchRoles:React.PropTypes.func,
+        profile:PropTypes.string,
+        roles:PropTypes.array,
+        addRole:PropTypes.func,
+        removeRole:PropTypes.func,
+        switchRoles:PropTypes.func,
     },
 
     getInitialState(){
@@ -129,6 +133,5 @@ export default React.createClass({
             </div>
         );
 
-    }
-
+    },
 });

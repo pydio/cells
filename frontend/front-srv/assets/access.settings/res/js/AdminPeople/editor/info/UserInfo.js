@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import User from '../model/User'
 import {IconMenu, IconButton, MenuItem} from 'material-ui';
@@ -165,9 +166,9 @@ class UserInfo extends React.Component {
 }
 
 UserInfo.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-    pluginsRegistry: React.PropTypes.instanceOf(XMLDocument),
-    user: React.PropTypes.instanceOf(User),
+    pydio: PropTypes.instanceOf(Pydio).isRequired,
+    pluginsRegistry: PropTypes.instanceOf(XMLDocument),
+    user: PropTypes.instanceOf(User),
 };
 
 export {UserInfo as default}

@@ -1,3 +1,35 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,33 +49,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _modelWs = require('../model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -51,17 +60,16 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'WorkspaceList',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        openSelection: _react2['default'].PropTypes.func,
-        advanced: _react2['default'].PropTypes.boolean
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openSelection: _propTypes2['default'].func,
+        advanced: _propTypes2['default'].boolean
     },
 
     getInitialState: function getInitialState() {
@@ -246,6 +254,5 @@ exports['default'] = _react2['default'].createClass({
             storageKey: 'console.workspaces.list'
         });
     }
-
 });
 module.exports = exports['default'];

@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {Paper, List, ListItem, RaisedButton, FlatButton, IconButton, Checkbox, Divider, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
@@ -29,10 +30,9 @@ const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import ServiceExposedConfigs from '../core/ServiceExposedConfigs'
 const {MaterialTable} = Pydio.requireLib('components');
 
-let UpdaterDashboard = React.createClass({
-
+let UpdaterDashboard = createReactClass({
+    displayName: 'UpdaterDashboard',
     mixins:[AdminComponents.MessagesConsumerMixin],
-
 
     getInitialState: function(){
         const {pydio} = this.props;
@@ -290,8 +290,7 @@ let UpdaterDashboard = React.createClass({
             </div>
 
         );
-    }
-
+    },
 });
 
 UpdaterDashboard = muiThemeable()(UpdaterDashboard);

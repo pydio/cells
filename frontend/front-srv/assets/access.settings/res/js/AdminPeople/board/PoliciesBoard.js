@@ -17,8 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import React from 'react'
+import createReactClass from 'create-react-class';
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import ResourcesManager from 'pydio/http/resources-manager'
@@ -33,18 +36,18 @@ import Policy from '../policies/Policy'
 
 const ResourceGroups = ["acl", "rest", "oidc"];
 
-let PoliciesBoard = React.createClass({
-
+let PoliciesBoard = createReactClass({
+    displayName: 'PoliciesBoard',
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode: React.PropTypes.instanceOf(Node).isRequired,
-        currentNode: React.PropTypes.instanceOf(Node).isRequired,
-        openEditor: React.PropTypes.func.isRequired,
-        openRightPane: React.PropTypes.func.isRequired,
-        closeRightPane: React.PropTypes.func.isRequired,
-        readonly: React.PropTypes.bool
+        dataModel: PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode: PropTypes.instanceOf(Node).isRequired,
+        currentNode: PropTypes.instanceOf(Node).isRequired,
+        openEditor: PropTypes.func.isRequired,
+        openRightPane: PropTypes.func.isRequired,
+        closeRightPane: PropTypes.func.isRequired,
+        readonly: PropTypes.bool
     },
 
     componentWillMount(){
@@ -321,8 +324,7 @@ let PoliciesBoard = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 

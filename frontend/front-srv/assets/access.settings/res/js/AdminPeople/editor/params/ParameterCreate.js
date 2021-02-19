@@ -1,3 +1,7 @@
+import React from "react";
+import createReactClass from 'create-react-class';
+import ParametersPicker from './ParametersPicker'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,8 +22,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from "react";
-import ParametersPicker from './ParametersPicker'
+import PropTypes from 'prop-types';
+
 import Pydio from "pydio";
 import {muiThemeable} from 'material-ui/styles'
 const {ActionDialogMixin, CancelButtonProviderMixin} = Pydio.requireLib('boot');
@@ -39,19 +43,20 @@ class ThemedTitle extends React.Component{
 
 ThemedTitle = muiThemeable()(ThemedTitle);
 
-let ParameterCreate = React.createClass({
+let ParameterCreate = createReactClass({
+    displayName: 'ParameterCreate',
 
     mixins: [
         ActionDialogMixin, CancelButtonProviderMixin
     ],
 
     propTypes:{
-        workspaceScope:React.PropTypes.string,
-        showModal:React.PropTypes.func,
-        hideModal:React.PropTypes.func,
-        pluginsFilter:React.PropTypes.func,
-        roleType:React.PropTypes.oneOf(['user', 'group', 'role']),
-        createParameter:React.PropTypes.func
+        workspaceScope:PropTypes.string,
+        showModal:PropTypes.func,
+        hideModal:PropTypes.func,
+        pluginsFilter:PropTypes.func,
+        roleType:PropTypes.oneOf(['user', 'group', 'role']),
+        createParameter:PropTypes.func
     },
 
     getDefaultProps(){
@@ -100,8 +105,7 @@ let ParameterCreate = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 export {ParameterCreate as default}

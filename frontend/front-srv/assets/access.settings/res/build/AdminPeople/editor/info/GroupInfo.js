@@ -20,6 +20,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -131,9 +135,9 @@ var GroupInfo = (function (_React$Component) {
 })(_react2['default'].Component);
 
 GroupInfo.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-    pluginsRegistry: _react2['default'].PropTypes.instanceOf(XMLDocument),
-    group: _react2['default'].PropTypes.instanceOf(_modelUser2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+    pluginsRegistry: _propTypes2['default'].instanceOf(XMLDocument),
+    group: _propTypes2['default'].instanceOf(_modelUser2['default'])
 };
 
 exports['default'] = GroupInfo;

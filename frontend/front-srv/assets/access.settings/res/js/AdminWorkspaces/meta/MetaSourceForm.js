@@ -19,11 +19,13 @@
  */
 
 const React = require('react')
+import createReactClass from 'create-react-class'
+import PropTypes from 'prop-types'
 const {MenuItem, SelectField} = require('material-ui')
 const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = require('pydio').requireLib('boot')
 const {MessagesConsumerMixin} = AdminComponents;
 
-const MetaSourceForm = React.createClass({
+const MetaSourceForm = createReactClass({
 
     mixins:[
         MessagesConsumerMixin,
@@ -33,9 +35,9 @@ const MetaSourceForm = React.createClass({
     ],
 
     propTypes:{
-        model: React.PropTypes.object,
-        editor: React.PropTypes.object,
-        modalData:React.PropTypes.object
+        model: PropTypes.object,
+        editor: PropTypes.object,
+        modalData:PropTypes.object
     },
 
     getDefaultProps: function(){

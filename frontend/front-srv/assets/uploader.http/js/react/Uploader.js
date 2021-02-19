@@ -18,10 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import createReactClass from 'create-react-class'
 import PydioApi from 'pydio/http/api'
 import {TextField, FontIcon, Divider, Paper, Toolbar, RaisedButton, IconButton} from 'material-ui'
 
-export default React.createClass({
+export default createReactClass({
 
     getInitialState () {
         const {pydio} = this.props;

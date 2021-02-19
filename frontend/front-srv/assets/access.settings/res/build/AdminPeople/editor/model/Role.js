@@ -370,7 +370,7 @@ var Role = (function (_Observable) {
                 rights = parentRights;
                 inherited = true;
             } else {
-                return { aclString: "", 'false': false };
+                return { aclString: "" };
             }
 
             var aclString = Object.keys(rights).filter(function (r) {

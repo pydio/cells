@@ -1,3 +1,21 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,19 +36,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -52,12 +60,12 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var CreateUserForm = _react2['default'].createClass({
+var CreateUserForm = (0, _createReactClass2['default'])({
     displayName: 'CreateUserForm',
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel),
-        openRoleEditor: _react2['default'].PropTypes.func
+        dataModel: _propTypes2['default'].instanceOf(PydioDataModel),
+        openRoleEditor: _propTypes2['default'].func
     },
 
     mixins: [AdminComponents.MessagesConsumerMixin, PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],

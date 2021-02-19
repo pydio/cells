@@ -1,3 +1,31 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _ParametersPicker = require('./ParametersPicker');
+
+var _ParametersPicker2 = _interopRequireDefault(_ParametersPicker);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,29 +46,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _ParametersPicker = require('./ParametersPicker');
-
-var _ParametersPicker2 = _interopRequireDefault(_ParametersPicker);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require("pydio");
 
@@ -48,7 +56,7 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUiStyles = require('material-ui/styles');
 
-var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
@@ -59,28 +67,28 @@ var ThemedTitle = (function (_React$Component) {
     function ThemedTitle() {
         _classCallCheck(this, ThemedTitle);
 
-        _get(Object.getPrototypeOf(ThemedTitle.prototype), "constructor", this).apply(this, arguments);
+        _get(Object.getPrototypeOf(ThemedTitle.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(ThemedTitle, [{
-        key: "render",
+        key: 'render',
         value: function render() {
             var _props = this.props;
             var getMessage = _props.getMessage;
             var muiTheme = _props.muiTheme;
 
             var bgColor = muiTheme.palette.primary1Color;
-            return _react2["default"].createElement(
-                "div",
+            return _react2['default'].createElement(
+                'div',
                 { style: { backgroundColor: bgColor, color: 'white', padding: '0 24px 24px' } },
-                _react2["default"].createElement(
-                    "h3",
+                _react2['default'].createElement(
+                    'h3',
                     { style: { color: 'white' } },
                     getMessage('14')
                 ),
-                _react2["default"].createElement(
-                    "div",
-                    { className: "legend" },
+                _react2['default'].createElement(
+                    'div',
+                    { className: 'legend' },
                     getMessage('15')
                 )
             );
@@ -88,22 +96,22 @@ var ThemedTitle = (function (_React$Component) {
     }]);
 
     return ThemedTitle;
-})(_react2["default"].Component);
+})(_react2['default'].Component);
 
 ThemedTitle = (0, _materialUiStyles.muiThemeable)()(ThemedTitle);
 
-var ParameterCreate = _react2["default"].createClass({
-    displayName: "ParameterCreate",
+var ParameterCreate = (0, _createReactClass2['default'])({
+    displayName: 'ParameterCreate',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
 
     propTypes: {
-        workspaceScope: _react2["default"].PropTypes.string,
-        showModal: _react2["default"].PropTypes.func,
-        hideModal: _react2["default"].PropTypes.func,
-        pluginsFilter: _react2["default"].PropTypes.func,
-        roleType: _react2["default"].PropTypes.oneOf(['user', 'group', 'role']),
-        createParameter: _react2["default"].PropTypes.func
+        workspaceScope: _propTypes2['default'].string,
+        showModal: _propTypes2['default'].func,
+        hideModal: _propTypes2['default'].func,
+        pluginsFilter: _propTypes2['default'].func,
+        roleType: _propTypes2['default'].oneOf(['user', 'group', 'role']),
+        createParameter: _propTypes2['default'].func
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -145,11 +153,11 @@ var ParameterCreate = _react2["default"].createClass({
         var actions = _props2.actions;
         var parameters = _props2.parameters;
 
-        return _react2["default"].createElement(
-            "div",
-            { className: "picker-list" },
-            _react2["default"].createElement(ThemedTitle, { getMessage: getMessage }),
-            _react2["default"].createElement(_ParametersPicker2["default"], {
+        return _react2['default'].createElement(
+            'div',
+            { className: 'picker-list' },
+            _react2['default'].createElement(ThemedTitle, { getMessage: getMessage }),
+            _react2['default'].createElement(_ParametersPicker2['default'], {
                 pydio: pydio,
                 allActions: actions,
                 allParameters: parameters,
@@ -158,8 +166,7 @@ var ParameterCreate = _react2["default"].createClass({
             })
         );
     }
-
 });
 
-exports["default"] = ParameterCreate;
-module.exports = exports["default"];
+exports['default'] = ParameterCreate;
+module.exports = exports['default'];

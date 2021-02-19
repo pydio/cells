@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import React from 'react'
 import DataSource from '../model/DataSource'
 import {Dialog, Divider, Subheader, SelectField, Toggle, FlatButton, RaisedButton, MenuItem, Paper} from 'material-ui'
@@ -434,8 +436,8 @@ class DataSourceEditor extends React.Component{
 }
 
 DataSourceEditor.contextTypes = {
-    messages    : React.PropTypes.object,
-    getMessage  : React.PropTypes.func
+    messages    : PropTypes.object,
+    getMessage  : PropTypes.func
 };
 
 DataSourceEditor = muiThemeable()(DataSourceEditor);

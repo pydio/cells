@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -61,6 +41,30 @@ var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -723,14 +727,14 @@ var DataSourcesBoard = (function (_React$Component) {
 })(_react2['default'].Component);
 
 DataSourcesBoard.propTypes = {
-    dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-    rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-    currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-    openEditor: _react2['default'].PropTypes.func.isRequired,
-    openRightPane: _react2['default'].PropTypes.func.isRequired,
-    closeRightPane: _react2['default'].PropTypes.func.isRequired,
-    filter: _react2['default'].PropTypes.string,
-    versioningReadonly: _react2['default'].PropTypes.bool
+    dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+    rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+    currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+    openEditor: _propTypes2['default'].func.isRequired,
+    openRightPane: _propTypes2['default'].func.isRequired,
+    closeRightPane: _propTypes2['default'].func.isRequired,
+    filter: _propTypes2['default'].string,
+    versioningReadonly: _propTypes2['default'].bool
 };
 
 exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);

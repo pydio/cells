@@ -14,10 +14,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var PropTypes = require('prop-types');
+
 var _require = require('react');
 
 var Component = _require.Component;
-var PropTypes = _require.PropTypes;
 
 exports['default'] = function (PydioComponent) {
     var ReloadWrapper = (function (_Component) {
@@ -67,5 +68,4 @@ exports['default'] = function (PydioComponent) {
     return ReloadWrapper;
 };
 
-;
 module.exports = exports['default'];

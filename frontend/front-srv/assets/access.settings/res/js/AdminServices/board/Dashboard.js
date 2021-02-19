@@ -17,26 +17,29 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import PydioDataModel from 'pydio/model/data-model'
 import AjxpNode from 'pydio/model/node'
 import React from 'react'
+import createReactClass from 'create-react-class';
 import ServicesList from './ServicesList'
 import {Toggle, DropDownMenu, MenuItem, IconButton, Paper} from 'material-ui'
 const {ModernStyles, ModernSelectField} = Pydio.requireLib('hoc');
 
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'Dashboard',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        openEditor:React.PropTypes.func.isRequired,
-        openRightPane:React.PropTypes.func.isRequired,
-        closeRightPane:React.PropTypes.func.isRequired,
-        pydio:React.PropTypes.instanceOf(Pydio)
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        currentNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        openEditor:PropTypes.func.isRequired,
+        openRightPane:PropTypes.func.isRequired,
+        closeRightPane:PropTypes.func.isRequired,
+        pydio:PropTypes.instanceOf(Pydio)
     },
 
     getInitialState(){
@@ -124,6 +127,5 @@ export default React.createClass({
                 </div>
             </div>
         );
-    }
-
+    },
 });

@@ -28,6 +28,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _corePluginsList = require('../core/PluginsList');
 
 var _corePluginsList2 = _interopRequireDefault(_corePluginsList);
@@ -36,8 +40,7 @@ var _corePluginEditor = require('../core/PluginEditor');
 
 var _corePluginEditor2 = _interopRequireDefault(_corePluginEditor);
 
-var AuthenticationPluginsDashboard = React.createClass({
-    displayName: 'AuthenticationPluginsDashboard',
+var AuthenticationPluginsDashboard = (0, _createReactClass2['default'])({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
     render: function render() {

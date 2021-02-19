@@ -48,7 +48,7 @@ var _Pydio8Workspaces = require("./Pydio8Workspaces");
 
 var _Pydio8Workspaces2 = _interopRequireDefault(_Pydio8Workspaces);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioUtilLang = require('pydio/util/lang');
 
@@ -358,7 +358,7 @@ var WorkspaceMapper = (function (_React$Component) {
             var presetDataSource = undefined;
 
             if (accessType === 's3') {
-                presetDataSource = new _pydioHttpRestApi.ObjectDataSource();
+                presetDataSource = new _cellsSdk.ObjectDataSource();
                 presetDataSource.Name = _pydioUtilLang2['default'].computeStringSlug(display).replace(/-/g, "");
                 presetDataSource.StorageType = 'S3';
                 presetDataSource.ApiKey = parameters['API_KEY'];
@@ -372,7 +372,7 @@ var WorkspaceMapper = (function (_React$Component) {
                     presetDataSource.ObjectsBaseFolder = parameters['PATH'];
                 }
             } else if (accessType === 'fs') {
-                presetDataSource = new _pydioHttpRestApi.ObjectDataSource();
+                presetDataSource = new _cellsSdk.ObjectDataSource();
 
                 var path = parameters['PATH'] || "";
 

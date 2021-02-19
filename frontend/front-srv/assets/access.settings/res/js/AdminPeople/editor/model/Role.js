@@ -307,7 +307,7 @@ class Role extends Observable{
             rights = parentRights;
             inherited = true;
         } else {
-            return {aclString: "", false};
+            return {aclString: ""};
         }
 
         const aclString = Object.keys(rights).filter(r=>rights[r]).join(',');

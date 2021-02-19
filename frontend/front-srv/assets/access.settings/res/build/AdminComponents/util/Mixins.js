@@ -17,23 +17,34 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var MessagesConsumerMixin = {
     contextTypes: {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func
     }
 };
 
 var MessagesProviderMixin = {
 
     childContextTypes: {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func
     },
 
     getChildContext: function getChildContext() {
@@ -56,13 +67,13 @@ var MessagesProviderMixin = {
 
 var PydioConsumerMixin = {
     contextTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio)
+        pydio: _propTypes2['default'].instanceOf(Pydio)
     }
 };
 
 var PydioProviderMixin = {
     childContextTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio)
+        pydio: _propTypes2['default'].instanceOf(Pydio)
     },
 
     getChildContext: function getChildContext() {

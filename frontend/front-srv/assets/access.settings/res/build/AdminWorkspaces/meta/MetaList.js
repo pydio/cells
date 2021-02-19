@@ -26,24 +26,31 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'MetaList',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        currentMetas: _react2['default'].PropTypes.object,
-        edit: _react2['default'].PropTypes.string,
-        metaSourceProvider: _react2['default'].PropTypes.object,
-        closeCurrent: _react2['default'].PropTypes.func,
-        setEditState: _react2['default'].PropTypes.func,
-        featuresEditable: _react2['default'].PropTypes.bool
+        currentMetas: _propTypes2['default'].object,
+        edit: _propTypes2['default'].string,
+        metaSourceProvider: _propTypes2['default'].object,
+        closeCurrent: _propTypes2['default'].func,
+        setEditState: _propTypes2['default'].func,
+        featuresEditable: _propTypes2['default'].bool
     },
 
     render: function render() {
@@ -99,6 +106,5 @@ exports['default'] = _react2['default'].createClass({
             features
         );
     }
-
 });
 module.exports = exports['default'];

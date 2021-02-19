@@ -1,3 +1,9 @@
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
+import {RaisedButton, FlatButton} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,10 +24,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
-import {RaisedButton, FlatButton} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const PydioForm = Pydio.requireLib("form");
 import ServiceExposedConfigs from './ServiceExposedConfigs'
@@ -32,27 +36,27 @@ import MailerTest from './MailerTest'
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-let PluginEditor = React.createClass({
-
+let PluginEditor = createReactClass({
+    displayName: 'PluginEditor',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        serviceName: React.PropTypes.string,
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        close:React.PropTypes.func,
-        style:React.PropTypes.string,
-        className:React.PropTypes.string,
-        additionalPanes:React.PropTypes.shape({
-            top:React.PropTypes.array,
-            bottom:React.PropTypes.array
+        serviceName: PropTypes.string,
+        rootNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        close:PropTypes.func,
+        style:PropTypes.string,
+        className:PropTypes.string,
+        additionalPanes:PropTypes.shape({
+            top:PropTypes.array,
+            bottom:PropTypes.array
         }),
-        docAsAdditionalPane:React.PropTypes.bool,
-        additionalDescription:React.PropTypes.string,
-        registerCloseCallback:React.PropTypes.func,
-        onBeforeSave:React.PropTypes.func,
-        onAfterSave:React.PropTypes.func,
-        onRevert:React.PropTypes.func,
-        onDirtyChange:React.PropTypes.func
+        docAsAdditionalPane:PropTypes.bool,
+        additionalDescription:PropTypes.string,
+        registerCloseCallback:PropTypes.func,
+        onBeforeSave:PropTypes.func,
+        onAfterSave:PropTypes.func,
+        onRevert:PropTypes.func,
+        onDirtyChange:PropTypes.func
     },
 
     getInitialState:function(){
@@ -208,7 +212,7 @@ let PluginEditor = React.createClass({
         );
 
 
-    }
+    },
 });
 
 PluginEditor = muiThemeable()(PluginEditor);

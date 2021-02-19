@@ -1,3 +1,14 @@
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon} from 'material-ui'
+import Editor from '../editor/Editor'
+import PydioDataModel from 'pydio/model/data-model'
+import {muiThemeable} from 'material-ui/styles'
+import ResourcesManager from 'pydio/http/resources-manager'
+import UsersSearchBox from './UsersSearchBox'
+import AjxpNode from 'pydio/model/node'
+import Callbacks from './Callbacks'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,30 +29,23 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon} from 'material-ui'
-import Editor from '../editor/Editor'
-import PydioDataModel from 'pydio/model/data-model'
-import {muiThemeable} from 'material-ui/styles'
-import ResourcesManager from 'pydio/http/resources-manager'
-import UsersSearchBox from './UsersSearchBox'
-import AjxpNode from 'pydio/model/node'
-import Callbacks from './Callbacks'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {JobsStore} = Pydio.requireLib('boot');
 import FuncUtils from 'pydio/util/func'
 import {loadEditorClass} from "../editor/util/ClassLoader";
 
-let Dashboard = React.createClass({
-
+let Dashboard = createReactClass({
+    displayName: 'Dashboard',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        accessByName:React.PropTypes.func.isRequired,
-        openEditor:React.PropTypes.func.isRequired
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        currentNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        accessByName:PropTypes.func.isRequired,
+        openEditor:PropTypes.func.isRequired
     },
 
     getInitialState(){
@@ -458,8 +462,7 @@ let Dashboard = React.createClass({
 
             </div>
         );
-    }
-
+    },
 });
 
 Dashboard = muiThemeable()(Dashboard);

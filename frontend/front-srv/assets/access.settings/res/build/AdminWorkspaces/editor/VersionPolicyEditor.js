@@ -36,6 +36,10 @@ var _pydioUtilXml = require('pydio/util/xml');
 
 var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -294,8 +298,8 @@ var VersionPolicyEditor = (function (_React$Component) {
 })(_react2['default'].Component);
 
 VersionPolicyEditor.contextTypes = {
-    messages: _react2['default'].PropTypes.object,
-    getMessage: _react2['default'].PropTypes.func
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func
 };
 
 exports['default'] = VersionPolicyEditor;

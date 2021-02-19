@@ -1,3 +1,7 @@
+import React from 'react';
+
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +21,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import {MessagesProviderMixin, PydioProviderMixin} from '../util/Mixins'
 import AdminLeftNav from './AdminLeftNav'
@@ -70,12 +75,12 @@ class LeftToggleListener extends Observable {
     }
 }
 
-let AdminDashboard = React.createClass({
-
+let AdminDashboard = createReactClass({
+    displayName: 'AdminDashboard',
     mixins:[MessagesProviderMixin, PydioProviderMixin],
 
     propTypes:{
-        pydio: React.PropTypes.instanceOf(Pydio).isRequired
+        pydio: PropTypes.instanceOf(Pydio).isRequired
     },
 
     getInitialState(){
@@ -302,7 +307,7 @@ let AdminDashboard = React.createClass({
                 </div>
             </MuiThemeProvider>
         )
-    }
+    },
 });
 
 AdminDashboard = muiThemeable()(AdminDashboard);

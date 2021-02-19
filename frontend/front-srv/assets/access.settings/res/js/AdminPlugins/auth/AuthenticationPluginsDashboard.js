@@ -18,10 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import createReactClass from 'create-react-class'
 import PluginsList from '../core/PluginsList'
 import PluginEditor from '../core/PluginEditor'
 
-const AuthenticationPluginsDashboard = React.createClass({
+const AuthenticationPluginsDashboard = createReactClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
     render(){

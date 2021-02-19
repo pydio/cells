@@ -23,6 +23,17 @@
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -38,15 +49,14 @@ var SubmitButtonProviderMixin = _require$requireLib.SubmitButtonProviderMixin;
 var _AdminComponents = AdminComponents;
 var MessagesConsumerMixin = _AdminComponents.MessagesConsumerMixin;
 
-var MetaSourceForm = React.createClass({
-    displayName: 'MetaSourceForm',
+var MetaSourceForm = (0, _createReactClass2['default'])({
 
     mixins: [MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 
     propTypes: {
-        model: React.PropTypes.object,
-        editor: React.PropTypes.object,
-        modalData: React.PropTypes.object
+        model: _propTypes2['default'].object,
+        editor: _propTypes2['default'].object,
+        modalData: _propTypes2['default'].object
     },
 
     getDefaultProps: function getDefaultProps() {

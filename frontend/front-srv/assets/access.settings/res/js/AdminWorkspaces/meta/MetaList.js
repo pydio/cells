@@ -18,20 +18,23 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import createReactClass from 'create-react-class';
 import {FlatButton} from 'material-ui'
 
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'MetaList',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        currentMetas: React.PropTypes.object,
-        edit:React.PropTypes.string,
-        metaSourceProvider:React.PropTypes.object,
-        closeCurrent: React.PropTypes.func,
-        setEditState: React.PropTypes.func,
-        featuresEditable:React.PropTypes.bool
+        currentMetas: PropTypes.object,
+        edit:PropTypes.string,
+        metaSourceProvider:PropTypes.object,
+        closeCurrent: PropTypes.func,
+        setEditState: PropTypes.func,
+        featuresEditable:PropTypes.bool
     },
 
     render: function(){
@@ -77,6 +80,5 @@ export default React.createClass({
         return (
             <div>{features}</div>
         );
-    }
-
+    },
 });

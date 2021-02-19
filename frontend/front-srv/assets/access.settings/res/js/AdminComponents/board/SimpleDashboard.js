@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {muiThemeable} from 'material-ui/styles'
 import {Card, CardTitle, CardMedia, CardActions, CardText, FlatButton, List, ListItem, Divider, IconButton, FontIcon} from 'material-ui'
 import {MessagesConsumerMixin} from '../util/Mixins'
@@ -26,8 +27,8 @@ import Header from '../styles/Header'
 import AdminStyles from "../styles/AdminStyles";
 import DOMUtils from 'pydio/util/dom'
 
-let Dashboard = React.createClass({
-
+let Dashboard = createReactClass({
+    displayName: 'Dashboard',
     mixins: [MessagesConsumerMixin],
 
     getInitialState: function(){
@@ -207,8 +208,7 @@ let Dashboard = React.createClass({
                 </div>
             </div>
         )
-    }
-
+    },
 });
 
 Dashboard = muiThemeable()(Dashboard);

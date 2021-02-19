@@ -1,3 +1,25 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _materialUi = require('material-ui');
+
+var _utilMessagesMixin = require('../util/MessagesMixin');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,39 +39,25 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _utilMessagesMixin = require('../util/MessagesMixin');
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'UserRolesPicker',
-
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
-        profile: _react2['default'].PropTypes.string,
-        roles: _react2['default'].PropTypes.array,
-        addRole: _react2['default'].PropTypes.func,
-        removeRole: _react2['default'].PropTypes.func,
-        switchRoles: _react2['default'].PropTypes.func
+        profile: _propTypes2['default'].string,
+        roles: _propTypes2['default'].array,
+        addRole: _propTypes2['default'].func,
+        removeRole: _propTypes2['default'].func,
+        switchRoles: _propTypes2['default'].func
     },
 
     getInitialState: function getInitialState() {
@@ -181,6 +189,5 @@ exports['default'] = _react2['default'].createClass({
             )
         );
     }
-
 });
 module.exports = exports['default'];

@@ -31,6 +31,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUiStyles = require('material-ui/styles');
 
 var _materialUi = require('material-ui');
@@ -53,9 +57,8 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
-var Dashboard = _react2['default'].createClass({
+var Dashboard = (0, _createReactClass2['default'])({
     displayName: 'Dashboard',
-
     mixins: [_utilMixins.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
@@ -283,7 +286,6 @@ var Dashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard);

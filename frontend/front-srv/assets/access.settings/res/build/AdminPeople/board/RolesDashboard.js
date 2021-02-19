@@ -31,6 +31,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _editorEditor = require('../editor/Editor');
@@ -58,9 +62,8 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var RolesDashboard = _react2['default'].createClass({
+var RolesDashboard = (0, _createReactClass2['default'])({
     displayName: 'RolesDashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
@@ -310,7 +313,6 @@ var RolesDashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = RolesDashboard = muiThemeable()(RolesDashboard);

@@ -27,6 +27,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -34,6 +38,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -112,19 +120,18 @@ function groupAndSortServices(services) {
     return Tags;
 }
 
-exports['default'] = _react2['default'].createClass({
+exports['default'] = (0, _createReactClass2['default'])({
     displayName: 'ServicesList',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        filter: _react2['default'].PropTypes.string,
-        peerFilter: _react2['default'].PropTypes.string,
-        details: _react2['default'].PropTypes.bool,
-        onUpdatePeers: _react2['default'].PropTypes.func
+        dataModel: _propTypes2['default'].instanceOf(PydioDataModel).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(AjxpNode).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(AjxpNode).isRequired,
+        filter: _propTypes2['default'].string,
+        peerFilter: _propTypes2['default'].string,
+        details: _propTypes2['default'].bool,
+        onUpdatePeers: _propTypes2['default'].func
     },
 
     getInitialState: function getInitialState() {
@@ -158,6 +165,7 @@ exports['default'] = _react2['default'].createClass({
             _this.setState({ loading: false });
         });
     },
+
     /**
      * @param service RestService
      * @returns {XML}
@@ -397,6 +405,5 @@ exports['default'] = _react2['default'].createClass({
             );
         }
     }
-
 });
 module.exports = exports['default'];

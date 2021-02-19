@@ -24,8 +24,9 @@ import {Toggle, IconButton} from 'material-ui'
 import Loader from './Loader'
 const {MaterialTable} = Pydio.requireLib('components');
 import PluginEditor from './PluginEditor'
+import createReactClass from 'create-react-class'
 
-const PluginsList = React.createClass({
+const PluginsList = createReactClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 

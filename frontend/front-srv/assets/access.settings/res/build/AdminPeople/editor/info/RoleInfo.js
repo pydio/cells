@@ -20,6 +20,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -134,9 +138,9 @@ var RoleInfo = (function (_React$Component) {
 })(_react2['default'].Component);
 
 RoleInfo.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-    pluginsRegistry: _react2['default'].PropTypes.instanceOf(XMLDocument),
-    role: _react2['default'].PropTypes.instanceOf(_modelRole2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+    pluginsRegistry: _propTypes2['default'].instanceOf(XMLDocument),
+    role: _propTypes2['default'].instanceOf(_modelRole2['default'])
 };
 
 exports['default'] = RoleInfo;

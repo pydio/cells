@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {Paper, IconButton, TextField, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Editor from '../editor/Editor'
@@ -28,8 +29,8 @@ const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-let RolesDashboard = React.createClass({
-
+let RolesDashboard = createReactClass({
+    displayName: 'RolesDashboard',
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState(){
@@ -96,7 +97,6 @@ let RolesDashboard = React.createClass({
         this.props.closeRightPane();
         return true;
     },
-
 
     deleteAction(roleId, roleLabel = undefined){
         const {pydio} = this.props;
@@ -238,8 +238,7 @@ let RolesDashboard = React.createClass({
         );
 
 
-    }
-
+    },
 });
 
 RolesDashboard = muiThemeable()(RolesDashboard)

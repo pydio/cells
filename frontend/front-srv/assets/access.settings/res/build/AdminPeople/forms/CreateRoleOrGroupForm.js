@@ -1,3 +1,19 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,17 +33,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _propTypes = require('prop-types');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -49,15 +58,15 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var CreateRoleOrGroupForm = _react2['default'].createClass({
+var CreateRoleOrGroupForm = (0, _createReactClass2['default'])({
     displayName: 'CreateRoleOrGroupForm',
 
     mixins: [AdminComponents.MessagesConsumerMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
 
     propTypes: {
-        type: _react2['default'].PropTypes.oneOf(['group', 'user', 'role']),
-        roleNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']),
-        openRoleEditor: _react2['default'].PropTypes.func
+        type: _propTypes2['default'].oneOf(['group', 'user', 'role']),
+        roleNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']),
+        openRoleEditor: _propTypes2['default'].func
     },
 
     getTitle: function getTitle() {
@@ -263,7 +272,6 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             );
         }
     }
-
 });
 
 exports['default'] = CreateRoleOrGroupForm;

@@ -32,8 +32,11 @@ var _corePluginsList2 = _interopRequireDefault(_corePluginsList);
 
 var _materialUi = require('material-ui');
 
-var EditorsDashboard = React.createClass({
-    displayName: 'EditorsDashboard',
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var EditorsDashboard = (0, _createReactClass2['default'])({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 

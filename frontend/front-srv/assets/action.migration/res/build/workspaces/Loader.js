@@ -30,7 +30,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Loader = (function (_Observable) {
     _inherits(Loader, _Observable);
@@ -96,7 +96,7 @@ var Loader = (function (_Observable) {
     }, {
         key: 'loadTemplatePaths',
         value: function loadTemplatePaths() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listVirtualNodes().then(function (collection) {
                 return collection.Children || [];
             });
@@ -109,7 +109,7 @@ var Loader = (function (_Observable) {
     }, {
         key: 'loadDataSources',
         value: function loadDataSources() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listDataSources().then(function (res) {
                 return res.DataSources || [];
             });
@@ -122,10 +122,10 @@ var Loader = (function (_Observable) {
     }, {
         key: 'loadCellsWorkspaces',
         value: function loadCellsWorkspaces() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
-            var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
-            single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestSearchWorkspaceRequest();
+            var single = new _cellsSdk.IdmWorkspaceSingleQuery();
+            single.scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
             request.Queries = [single];
             return api.searchWorkspaces(request).then(function (res) {
                 return res.Workspaces || [];

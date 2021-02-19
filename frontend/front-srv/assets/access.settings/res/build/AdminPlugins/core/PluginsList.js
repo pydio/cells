@@ -44,12 +44,15 @@ var _PluginEditor = require('./PluginEditor');
 
 var _PluginEditor2 = _interopRequireDefault(_PluginEditor);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _Pydio$requireLib = Pydio.requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
 
-var PluginsList = React.createClass({
-    displayName: 'PluginsList',
+var PluginsList = (0, _createReactClass2['default'])({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 

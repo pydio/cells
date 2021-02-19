@@ -38,7 +38,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -175,7 +175,7 @@ var MetadataMapper = (function (_React$Component) {
             var factorized = this.state.factorized;
 
             return factorized.map(function (meta, i) {
-                var ns = new _pydioHttpRestApi.IdmUserMetaNamespace();
+                var ns = new _cellsSdk.IdmUserMetaNamespace();
                 ns.Namespace = meta.namespace;
                 ns.Label = meta.label;
                 var json = { type: meta.type };
@@ -185,7 +185,7 @@ var MetadataMapper = (function (_React$Component) {
                 ns.JsonDefinition = JSON.stringify(json);
                 ns.Order = i;
                 ns.Indexable = true;
-                ns.Policies = [_pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
+                ns.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
                 return ns;
             });
         }

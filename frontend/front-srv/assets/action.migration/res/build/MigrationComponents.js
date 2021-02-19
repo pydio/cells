@@ -29474,7 +29474,7 @@ var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _stepsStepEmptyConfig = require('./steps/StepEmptyConfig');
 
@@ -29595,9 +29595,9 @@ var Dashboard = (function (_React$Component) {
                 var Job = jsonObject.Job;
                 var TaskUpdated = jsonObject.TaskUpdated;
 
-                var job = _pydioHttpRestApi.JobsJob.constructFromObject(Job);
+                var job = _cellsSdk.JobsJob.constructFromObject(Job);
                 if (job.ID === 'pydio8-data-import') {
-                    var task = _pydioHttpRestApi.JobsTask.constructFromObject(TaskUpdated);
+                    var task = _cellsSdk.JobsTask.constructFromObject(TaskUpdated);
                     _this2.setState({ job: job, task: task });
                 }
             };
@@ -29827,7 +29827,7 @@ var Dashboard = (function (_React$Component) {
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"./TaskActivity":195,"./actions/actions":196,"./steps/StepCategories":199,"./steps/StepConnection":200,"./steps/StepDisclaimer":201,"./steps/StepEmptyConfig":202,"./steps/StepMetadata":203,"./steps/StepPrerequisites":204,"./steps/StepShares":205,"./steps/StepWorkspaces":206,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],195:[function(require,module,exports){
+},{"./TaskActivity":195,"./actions/actions":196,"./steps/StepCategories":199,"./steps/StepConnection":200,"./steps/StepDisclaimer":201,"./steps/StepEmptyConfig":202,"./steps/StepMetadata":203,"./steps/StepPrerequisites":204,"./steps/StepShares":205,"./steps/StepWorkspaces":206,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],195:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29864,7 +29864,7 @@ var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesMana
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2["default"].requireLib('components');
 
@@ -29917,11 +29917,11 @@ var TaskActivity = (function (_React$Component) {
             var operationId = task.JobID + '-' + task.ID.substr(0, 8);
             return _pydioHttpResourcesManager2["default"].loadClass('EnterpriseSDK').then(function (sdk) {
 
-                var request = new _pydioHttpRestApi.LogListLogRequest();
+                var request = new _cellsSdk.LogListLogRequest();
                 request.Query = "+OperationUuid:\"" + operationId + "\"";
                 request.Page = 0;
                 request.Size = 100;
-                request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
+                request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject('JSON');
                 var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2["default"].getRestClient());
                 _this.setState({ loading: true });
                 api.audit(request).then(function (response) {
@@ -29971,7 +29971,7 @@ var TaskActivity = (function (_React$Component) {
 exports["default"] = TaskActivity;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],196:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],196:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30003,7 +30003,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _uuid4 = require("uuid4");
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function T(id) {
     var m = _pydio2["default"].getInstance().MessageHash;
@@ -30253,9 +30253,9 @@ function getMetadataAction(state, onLocalUpdate) {
         actions.push(filesAction);
     }
     if (metadataCreate.length) {
-        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2["default"].getRestClient());
-        var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
-        request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
+        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2["default"].getRestClient());
+        var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
+        request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
         request.Namespaces = metadataCreate;
         api.updateUserMetaNamespace(request).then(function (res) {
             onLocalUpdate(T('meta.success'));
@@ -30323,7 +30323,7 @@ function getMedataSummary(state) {
     );
 }
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","uuid4":192}],197:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio":"pydio","pydio/http/api":"pydio/http/api","uuid4":192}],197:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31957,7 +31957,7 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var Loader = (function (_Observable) {
     _inherits(Loader, _Observable);
@@ -32023,7 +32023,7 @@ var Loader = (function (_Observable) {
     }, {
         key: 'loadTemplatePaths',
         value: function loadTemplatePaths() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listVirtualNodes().then(function (collection) {
                 return collection.Children || [];
             });
@@ -32036,7 +32036,7 @@ var Loader = (function (_Observable) {
     }, {
         key: 'loadDataSources',
         value: function loadDataSources() {
-            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listDataSources().then(function (res) {
                 return res.DataSources || [];
             });
@@ -32049,10 +32049,10 @@ var Loader = (function (_Observable) {
     }, {
         key: 'loadCellsWorkspaces',
         value: function loadCellsWorkspaces() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
-            var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
-            single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestSearchWorkspaceRequest();
+            var single = new _cellsSdk.IdmWorkspaceSingleQuery();
+            single.scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
             request.Queries = [single];
             return api.searchWorkspaces(request).then(function (res) {
                 return res.Workspaces || [];
@@ -32115,7 +32115,7 @@ var Loader = (function (_Observable) {
 exports['default'] = Loader;
 module.exports = exports['default'];
 
-},{"pydio-sdk-js":132,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],209:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","pydio-sdk-js":132,"pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],209:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -32166,7 +32166,7 @@ var _Pydio8Workspaces = require("./Pydio8Workspaces");
 
 var _Pydio8Workspaces2 = _interopRequireDefault(_Pydio8Workspaces);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _pydioUtilLang = require('pydio/util/lang');
 
@@ -32476,7 +32476,7 @@ var WorkspaceMapper = (function (_React$Component) {
             var presetDataSource = undefined;
 
             if (accessType === 's3') {
-                presetDataSource = new _pydioHttpRestApi.ObjectDataSource();
+                presetDataSource = new _cellsSdk.ObjectDataSource();
                 presetDataSource.Name = _pydioUtilLang2['default'].computeStringSlug(display).replace(/-/g, "");
                 presetDataSource.StorageType = 'S3';
                 presetDataSource.ApiKey = parameters['API_KEY'];
@@ -32490,7 +32490,7 @@ var WorkspaceMapper = (function (_React$Component) {
                     presetDataSource.ObjectsBaseFolder = parameters['PATH'];
                 }
             } else if (accessType === 'fs') {
-                presetDataSource = new _pydioHttpRestApi.ObjectDataSource();
+                presetDataSource = new _cellsSdk.ObjectDataSource();
 
                 var path = parameters['PATH'] || "";
 
@@ -33238,7 +33238,7 @@ var trimURL = function trimURL(str) {
 };
 module.exports = exports['default'];
 
-},{"./Connect":207,"./Loader":208,"./PathTree":211,"./Pydio8Workspaces":212,"./Ws2Datasources":213,"./Ws2RootNodes":214,"./Ws2TemplatePaths":215,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],210:[function(require,module,exports){
+},{"./Connect":207,"./Loader":208,"./PathTree":211,"./Pydio8Workspaces":212,"./Ws2Datasources":213,"./Ws2RootNodes":214,"./Ws2TemplatePaths":215,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],210:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -33279,7 +33279,7 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
@@ -33416,7 +33416,7 @@ var MetadataMapper = (function (_React$Component) {
             var factorized = this.state.factorized;
 
             return factorized.map(function (meta, i) {
-                var ns = new _pydioHttpRestApi.IdmUserMetaNamespace();
+                var ns = new _cellsSdk.IdmUserMetaNamespace();
                 ns.Namespace = meta.namespace;
                 ns.Label = meta.label;
                 var json = { type: meta.type };
@@ -33426,7 +33426,7 @@ var MetadataMapper = (function (_React$Component) {
                 ns.JsonDefinition = JSON.stringify(json);
                 ns.Order = i;
                 ns.Indexable = true;
-                ns.Policies = [_pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _pydioHttpRestApi.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
+                ns.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
                 return ns;
             });
         }
@@ -33524,7 +33524,7 @@ var MetadataMapper = (function (_React$Component) {
 exports['default'] = MetadataMapper;
 module.exports = exports['default'];
 
-},{"./Connect":207,"./Loader":208,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],211:[function(require,module,exports){
+},{"./Connect":207,"./Loader":208,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],211:[function(require,module,exports){
 /**
  * Tool to arrange a list of path into a tree, and then find the common roots
  * that could be used as datasources

@@ -17,18 +17,21 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import React from 'react'
+import PropTypes from 'prop-types'
+
 const MessagesConsumerMixin = {
     contextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func
     }
 };
 
 const MessagesProviderMixin = {
 
     childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func
     },
 
     getChildContext: function() {
@@ -49,13 +52,13 @@ const MessagesProviderMixin = {
 
 const PydioConsumerMixin = {
     contextTypes:{
-        pydio:React.PropTypes.instanceOf(Pydio)
+        pydio:PropTypes.instanceOf(Pydio)
     }
 };
 
 const PydioProviderMixin = {
     childContextTypes:{
-        pydio:React.PropTypes.instanceOf(Pydio)
+        pydio:PropTypes.instanceOf(Pydio)
     },
 
     getChildContext: function(){

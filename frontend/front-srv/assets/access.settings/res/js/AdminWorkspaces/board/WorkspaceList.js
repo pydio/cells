@@ -1,3 +1,10 @@
+import React from 'react';
+import createReactClass from 'create-react-class';
+import PydioDataModel from 'pydio/model/data-model'
+import Node from 'pydio/model/node'
+import LangUtils from 'pydio/util/lang'
+import Workspace from '../model/Ws'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,25 +24,22 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import PydioDataModel from 'pydio/model/data-model'
-import Node from 'pydio/model/node'
-import LangUtils from 'pydio/util/lang'
-import Workspace from '../model/Ws'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'WorkspaceList',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        dataModel:      React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode:       React.PropTypes.instanceOf(Node).isRequired,
-        currentNode:    React.PropTypes.instanceOf(Node).isRequired,
-        openSelection:  React.PropTypes.func,
-        advanced:         React.PropTypes.boolean
+        dataModel:      PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode:       PropTypes.instanceOf(Node).isRequired,
+        currentNode:    PropTypes.instanceOf(Node).isRequired,
+        openSelection:  PropTypes.func,
+        advanced:         PropTypes.boolean
     },
 
     getInitialState(){
@@ -194,6 +198,5 @@ export default React.createClass({
             />
         );
 
-    }
-
+    },
 });

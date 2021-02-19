@@ -17,7 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import React from 'react'
 import {IconButton, TextField} from 'material-ui'
 import debounce from 'lodash.debounce'
@@ -132,12 +134,12 @@ class UsersSearchBox extends React.Component{
 }
 
 UsersSearchBox.PropTypes = {
-    textLabel:React.PropTypes.string,
-    displayResults:React.PropTypes.func,
-    hideResults:React.PropTypes.func,
-    displayResultsState:React.PropTypes.bool,
-    limit:React.PropTypes.number,
-    style:React.PropTypes.object
+    textLabel:PropTypes.string,
+    displayResults:PropTypes.func,
+    hideResults:PropTypes.func,
+    displayResultsState:PropTypes.bool,
+    limit:PropTypes.number,
+    style:PropTypes.object
 };
 
 export {UsersSearchBox as default}

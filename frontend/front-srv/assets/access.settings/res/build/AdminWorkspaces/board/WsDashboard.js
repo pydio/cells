@@ -1,3 +1,21 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,19 +36,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -64,20 +72,19 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
 
-var WsDashboard = _react2['default'].createClass({
+var WsDashboard = (0, _createReactClass2['default'])({
     displayName: 'WsDashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        openEditor: _react2['default'].PropTypes.func.isRequired,
-        openRightPane: _react2['default'].PropTypes.func.isRequired,
-        closeRightPane: _react2['default'].PropTypes.func.isRequired,
-        accessByName: _react2['default'].PropTypes.func.isRequired,
-        advanced: _react2['default'].PropTypes.boolean
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openEditor: _propTypes2['default'].func.isRequired,
+        openRightPane: _propTypes2['default'].func.isRequired,
+        closeRightPane: _propTypes2['default'].func.isRequired,
+        accessByName: _propTypes2['default'].func.isRequired,
+        advanced: _propTypes2['default'].boolean
     },
 
     getInitialState: function getInitialState() {
@@ -232,7 +239,6 @@ var WsDashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);

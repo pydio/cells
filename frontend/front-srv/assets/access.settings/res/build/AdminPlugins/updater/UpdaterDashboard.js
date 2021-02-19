@@ -32,6 +32,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
@@ -63,9 +67,8 @@ var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib2.MaterialTable;
 
-var UpdaterDashboard = _react2['default'].createClass({
+var UpdaterDashboard = (0, _createReactClass2['default'])({
     displayName: 'UpdaterDashboard',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState: function getInitialState() {
@@ -404,7 +407,6 @@ var UpdaterDashboard = _react2['default'].createClass({
             )
         );
     }
-
 });
 
 exports['default'] = UpdaterDashboard = (0, _materialUiStyles.muiThemeable)()(UpdaterDashboard);

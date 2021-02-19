@@ -34,7 +34,7 @@ var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesMana
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 var _Pydio$requireLib = _pydio2["default"].requireLib('components');
 
@@ -87,11 +87,11 @@ var TaskActivity = (function (_React$Component) {
             var operationId = task.JobID + '-' + task.ID.substr(0, 8);
             return _pydioHttpResourcesManager2["default"].loadClass('EnterpriseSDK').then(function (sdk) {
 
-                var request = new _pydioHttpRestApi.LogListLogRequest();
+                var request = new _cellsSdk.LogListLogRequest();
                 request.Query = "+OperationUuid:\"" + operationId + "\"";
                 request.Page = 0;
                 request.Size = 100;
-                request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
+                request.Format = _cellsSdk.ListLogRequestLogFormat.constructFromObject('JSON');
                 var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2["default"].getRestClient());
                 _this.setState({ loading: true });
                 api.audit(request).then(function (response) {

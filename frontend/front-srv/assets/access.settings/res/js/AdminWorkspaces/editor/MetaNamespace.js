@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,7 +19,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import {Dialog, FlatButton, TextField, SelectField, MenuItem, IconButton, Toggle} from 'material-ui'
 import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'cells-sdk'
@@ -280,10 +283,10 @@ class MetaNamespace extends React.Component{
 }
 
 MetaNamespace.PropTypes = {
-    namespace: React.PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
-    create:React.PropTypes.boolean,
-    reloadList: React.PropTypes.func,
-    onRequestClose: React.PropTypes.func,
+    namespace: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
+    create:PropTypes.boolean,
+    reloadList: PropTypes.func,
+    onRequestClose: PropTypes.func,
 };
 
 export default MetaNamespace

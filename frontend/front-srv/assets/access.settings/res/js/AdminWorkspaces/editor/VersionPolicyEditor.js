@@ -4,6 +4,7 @@ import {FlatButton, RaisedButton, Paper} from 'material-ui'
 import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import VersionPolicyPeriods from './VersionPolicyPeriods'
 const PydioForm = Pydio.requireLib('form');
@@ -200,8 +201,8 @@ class VersionPolicyEditor extends React.Component{
 }
 
 VersionPolicyEditor.contextTypes = {
-    messages    : React.PropTypes.object,
-    getMessage  : React.PropTypes.func
+    messages    : PropTypes.object,
+    getMessage  : PropTypes.func
 };
 
 export {VersionPolicyEditor as default};

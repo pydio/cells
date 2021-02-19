@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import User from '../model/User'
 const {FormPanel} = Pydio.requireLib('form');
@@ -85,9 +86,9 @@ class GroupInfo extends React.Component {
 }
 
 GroupInfo.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-    pluginsRegistry: React.PropTypes.instanceOf(XMLDocument),
-    group: React.PropTypes.instanceOf(User),
+    pydio: PropTypes.instanceOf(Pydio).isRequired,
+    pluginsRegistry: PropTypes.instanceOf(XMLDocument),
+    group: PropTypes.instanceOf(User),
 };
 
 export {GroupInfo as default}

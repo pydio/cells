@@ -1,3 +1,33 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _Loader = require('./Loader');
+
+var _Loader2 = _interopRequireDefault(_Loader);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,31 +48,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _Loader = require('./Loader');
-
-var _Loader2 = _interopRequireDefault(_Loader);
-
-var _pydioUtilXml = require('pydio/util/xml');
-
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioUtilLang = require('pydio/util/lang');
 
@@ -57,28 +65,27 @@ var _SitesParameters2 = _interopRequireDefault(_SitesParameters);
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-var PluginEditor = _react2['default'].createClass({
+var PluginEditor = (0, _createReactClass2['default'])({
     displayName: 'PluginEditor',
-
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        pluginId: _react2['default'].PropTypes.string.isRequired,
-        close: _react2['default'].PropTypes.func,
-        style: _react2['default'].PropTypes.string,
-        className: _react2['default'].PropTypes.string,
-        additionalPanes: _react2['default'].PropTypes.shape({
-            top: _react2['default'].PropTypes.array,
-            bottom: _react2['default'].PropTypes.array
+        pluginId: _propTypes2['default'].string.isRequired,
+        close: _propTypes2['default'].func,
+        style: _propTypes2['default'].string,
+        className: _propTypes2['default'].string,
+        additionalPanes: _propTypes2['default'].shape({
+            top: _propTypes2['default'].array,
+            bottom: _propTypes2['default'].array
         }),
-        docAsAdditionalPane: _react2['default'].PropTypes.bool,
-        additionalDescription: _react2['default'].PropTypes.string,
-        registerCloseCallback: _react2['default'].PropTypes.func,
-        onBeforeSave: _react2['default'].PropTypes.func,
-        onAfterSave: _react2['default'].PropTypes.func,
-        onRevert: _react2['default'].PropTypes.func,
-        onDirtyChange: _react2['default'].PropTypes.func,
-        accessByName: _react2['default'].PropTypes.func
+        docAsAdditionalPane: _propTypes2['default'].bool,
+        additionalDescription: _propTypes2['default'].string,
+        registerCloseCallback: _propTypes2['default'].func,
+        onBeforeSave: _propTypes2['default'].func,
+        onAfterSave: _propTypes2['default'].func,
+        onRevert: _propTypes2['default'].func,
+        onDirtyChange: _propTypes2['default'].func,
+        accessByName: _propTypes2['default'].func
     },
 
     loadPluginData: function loadPluginData(plugId) {

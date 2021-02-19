@@ -29,7 +29,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _uuid4 = require("uuid4");
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _cellsSdk = require('cells-sdk');
 
 function T(id) {
     var m = _pydio2["default"].getInstance().MessageHash;
@@ -279,9 +279,9 @@ function getMetadataAction(state, onLocalUpdate) {
         actions.push(filesAction);
     }
     if (metadataCreate.length) {
-        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2["default"].getRestClient());
-        var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
-        request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
+        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2["default"].getRestClient());
+        var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
+        request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
         request.Namespaces = metadataCreate;
         api.updateUserMetaNamespace(request).then(function (res) {
             onLocalUpdate(T('meta.success'));

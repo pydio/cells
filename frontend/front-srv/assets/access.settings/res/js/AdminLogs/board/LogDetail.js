@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactDOM from 'react-dom'
+
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import ReactDOM from 'react-dom'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import {LogLogMessage} from 'cells-sdk'
 import {Divider, FontIcon, Paper, IconButton} from 'material-ui'
@@ -217,8 +220,8 @@ class LogDetail extends React.Component{
 }
 
 LogDetail.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    log: React.PropTypes.instanceOf(LogLogMessage)
+    pydio: PropTypes.instanceOf(Pydio),
+    log: PropTypes.instanceOf(LogLogMessage)
 };
 
 export {LogDetail as default}

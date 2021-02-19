@@ -1,3 +1,21 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,19 +36,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+var _propTypes = require('prop-types');
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var _react = require("react");
-
-var _react2 = _interopRequireDefault(_react);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require("pydio");
 
@@ -44,23 +52,23 @@ var _pydioUtilPass = require("pydio/util/pass");
 
 var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
-var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
-var _Pydio$requireLib2 = _pydio2["default"].requireLib('hoc');
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib2.ModernTextField;
-exports["default"] = _react2["default"].createClass({
-    displayName: "UserPasswordDialog",
+exports['default'] = (0, _createReactClass2['default'])({
+    displayName: 'UserPasswordDialog',
 
     mixins: [AdminComponents.MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
 
     propTypes: {
-        pydio: _react2["default"].PropTypes.instanceOf(_pydio2["default"]),
-        user: _react2["default"].PropTypes.instanceOf(_modelUser2["default"])
+        pydio: _propTypes2['default'].instanceOf(_pydio2['default']),
+        user: _propTypes2['default'].instanceOf(_modelUser2['default'])
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -71,14 +79,14 @@ exports["default"] = _react2["default"].createClass({
     },
 
     getInitialState: function getInitialState() {
-        var pwdState = _pydioUtilPass2["default"].getState();
+        var pwdState = _pydioUtilPass2['default'].getState();
         return _extends({}, pwdState);
     },
 
     onChange: function onChange(event, value) {
         var passValue = this.refs.pass.getValue();
         var confirmValue = this.refs.confirm.getValue();
-        var newState = _pydioUtilPass2["default"].getState(passValue, confirmValue, this.state);
+        var newState = _pydioUtilPass2['default'].getState(passValue, confirmValue, this.state);
         this.setState(newState);
     },
 
@@ -107,21 +115,21 @@ exports["default"] = _react2["default"].createClass({
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
             return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
-        return _react2["default"].createElement(
-            "div",
+        return _react2['default'].createElement(
+            'div',
             { style: { width: '100%' } },
-            _react2["default"].createElement(ModernTextField, {
-                ref: "pass",
-                type: "password",
+            _react2['default'].createElement(ModernTextField, {
+                ref: 'pass',
+                type: 'password',
                 fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('523'),
                 errorText: this.state.passErrorText,
                 hintText: this.state.passHintText
             }),
-            _react2["default"].createElement(ModernTextField, {
-                ref: "confirm",
-                type: "password",
+            _react2['default'].createElement(ModernTextField, {
+                ref: 'confirm',
+                type: 'password',
                 fullWidth: true,
                 onChange: this.onChange,
                 floatingLabelText: getMessage('199'),
@@ -129,6 +137,5 @@ exports["default"] = _react2["default"].createClass({
             })
         );
     }
-
 });
-module.exports = exports["default"];
+module.exports = exports['default'];
