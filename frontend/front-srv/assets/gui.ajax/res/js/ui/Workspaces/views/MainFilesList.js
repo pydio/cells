@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 import Action from 'pydio/model/action'
@@ -101,8 +104,8 @@ class ComponentConfigsParser {
 
 class MainFilesList extends React.Component {
     static propTypes = {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        horizontalRibbon: React.PropTypes.bool
+        pydio: PropTypes.instanceOf(Pydio),
+        horizontalRibbon: PropTypes.bool
     };
 
     static computeLabel = (node)=>{

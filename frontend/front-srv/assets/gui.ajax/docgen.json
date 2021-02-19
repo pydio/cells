@@ -7114,8 +7114,249 @@
       },
       {
         "description": "",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "fireForgotPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "useBlur",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "dialogBodyStyle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getButtons",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "''",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      },
+      {
+        "description": "",
         "displayName": "DarkThemeContainer",
         "methods": []
+      },
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "getValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "object",
+                "type": null
+              },
+              {
+                "name": "key",
+                "type": null
+              },
+              {
+                "name": "payload",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "useBlur",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "cancel",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "open",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "Pydio.getInstance().MessageHash['gui.user.1']",
+              "computed": true
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      },
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "useBlur",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onPassChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "oldValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onUserIdChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "open",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "Pydio.getInstance().MessageHash['gui.user.1']",
+              "computed": true
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          }
+        }
       }
     ]
   },
@@ -17325,32 +17566,30 @@
         "props": {
           "node": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.instanceOf(AjxpNode).isRequired"
+              "name": "instanceOf",
+              "value": "AjxpNode"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "registry": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.instanceOf(Registry).isRequired"
+              "name": "instanceOf",
+              "value": "Registry"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "editorData": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.object.isRequired"
+              "name": "object"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "icon": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -17438,15 +17677,72 @@
         "require": "const {SimpleFigureBadge} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/list/CollapsableListProvider.js": [
+      {
+        "description": "",
+        "displayName": "CollapsableListProvider",
+        "methods": [
+          {
+            "name": "toggleOpen",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onBadgeIncrease",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "prevValue",
+                "type": null
+              },
+              {
+                "name": "memoData",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onBadgeChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "prevValue",
+                "type": null
+              },
+              {
+                "name": "memoData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {CollapsableListProvider} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/list/ConfigurableListEntry.js": [
       {
         "description": "Callback based material list entry with custom icon render, firstLine, secondLine, etc.",
+        "displayName": "ConfigurableListEntry",
         "methods": [],
         "props": {
           "node": {
             "type": {
               "name": "instanceOf",
-              "value": "AjxpNode"
+              "value": "Node"
             },
             "required": false,
             "description": ""
@@ -17500,6 +17796,7 @@
     "Components/list/InlineEditor.js": [
       {
         "description": "",
+        "displayName": "InlineEditor",
         "methods": [
           {
             "name": "submit",
@@ -17533,37 +17830,6 @@
             "returns": null
           }
         ],
-        "props": {
-          "node": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": false,
-            "description": ""
-          },
-          "callback": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onClose": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "detached": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {InlineEditor} = require('pydio').requireLib('components')"
       }
     ],
@@ -17600,120 +17866,105 @@
         "props": {
           "showSelector": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": ""
           },
           "selected": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": ""
           },
           "selectorDisabled": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": ""
           },
           "onSelect": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
           },
           "onClick": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
           },
           "iconCell": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.element"
+              "name": "element"
             },
             "required": false,
             "description": ""
           },
           "mainIcon": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "firstLine": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.node"
+              "name": "node"
             },
             "required": false,
             "description": ""
           },
           "secondLine": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.node"
+              "name": "node"
             },
             "required": false,
             "description": ""
           },
           "thirdLine": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.node"
+              "name": "node"
             },
             "required": false,
             "description": ""
           },
           "actions": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.element"
+              "name": "element"
             },
             "required": false,
             "description": ""
           },
           "activeDroppable": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": ""
           },
           "className": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "style": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.object"
+              "name": "object"
             },
             "required": false,
             "description": ""
           },
           "noHover": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": ""
@@ -17730,6 +17981,7 @@
     "Components/list/ListPaginator.js": [
       {
         "description": "Pagination component reading metadata \"paginationData\" from current node.",
+        "displayName": "ListPaginator",
         "methods": [
           {
             "name": "changePage",
@@ -17764,24 +18016,6 @@
             "returns": null
           }
         ],
-        "props": {
-          "dataModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": true,
-            "description": ""
-          },
-          "node": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {ListPaginator} = require('pydio').requireLib('components')"
       }
     ],
@@ -17839,10 +18073,39 @@
         "require": "const {MaterialTable} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/list/NodeListCustomProvider.js": [
+      {
+        "description": "Simple to use list component encapsulated with its own query mechanism\nusing a set of properties for the remote node provider.",
+        "displayName": "NodeListCustomProvider",
+        "methods": [
+          {
+            "name": "reload",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {NodeListCustomProvider} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/list/SimpleList.js": [
       {
-        "description": "Generic List component, using Infinite for cell virtualization, pagination, various\ndisplays, etc... It provides many hooks for rendering cells on-demand.",
+        "description": "Generic List component, using Infinite for cell virtualization, pagination, various\ndisplays, etc... It provides many hooks for rendering cells on-demand.\nIt uses createReactClass old syntax",
+        "displayName": "SimpleList",
         "methods": [
+          {
+            "name": "getMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
           {
             "name": "clickRow",
             "docblock": null,
@@ -18423,6 +18686,7 @@
     "Components/list/SortColumns.js": [
       {
         "description": "",
+        "displayName": "SortColumns",
         "methods": [
           {
             "name": "onMenuClicked",
@@ -18481,42 +18745,13 @@
             "returns": null
           }
         ],
-        "props": {
-          "tableKeys": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "columnClicked": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "sortingInfo": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "displayMode": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {SortColumns} = require('pydio').requireLib('components')"
       }
     ],
     "Components/list/SortableList.js": [
       {
         "description": "",
+        "displayName": "sortableItem",
         "methods": [
           {
             "name": "removeClicked",
@@ -18526,72 +18761,24 @@
             "returns": null
           }
         ],
-        "props": {
-          "connectDragSource": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "connectDropTarget": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "isDragging": {
-            "type": {
-              "name": "bool"
-            },
-            "required": true,
-            "description": ""
-          },
-          "id": {
-            "type": {
-              "name": "any"
-            },
-            "required": true,
-            "description": ""
-          },
-          "label": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          },
-          "switchItems": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "removable": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onRemove": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {SortableList} = require('pydio').requireLib('components')"
       },
       {
         "description": "",
-        "methods": []
+        "displayName": "NonDraggableListItem",
+        "methods": [
+          {
+            "name": "removeClicked",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
       },
       {
         "description": "",
+        "displayName": "SortableList",
         "methods": [
           {
             "name": "findItemIndex",
@@ -18632,116 +18819,29 @@
             "params": [],
             "returns": null
           }
-        ],
-        "props": {
-          "values": {
-            "type": {
-              "name": "array"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onOrderUpdated": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "removable": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onRemove": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "itemClassName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
+      }
+    ],
+    "Components/list/TableListEntry.js": [
+      {
+        "description": "Specific list entry rendered as a table row. Not a real table, CSS used.",
+        "displayName": "TableListEntry",
+        "methods": [],
+        "require": "const {TableListEntry} = require('pydio').requireLib('components')"
       }
     ],
     "Components/list/TableListHeader.js": [
       {
         "description": "Specific header for Table layout, reading metadata from node and using keys",
+        "displayName": "TableListHeader",
         "methods": [],
-        "props": {
-          "tableKeys": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "loading": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "reload": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dm": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "node": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onHeaderClick": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "sortingInfo": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {TableListHeader} = require('pydio').requireLib('components')"
       }
     ],
     "Components/menu/ButtonComposed.js": [
       {
         "description": "",
+        "displayName": "ButtonComposed",
         "methods": [
           {
             "name": "showMenu",
@@ -18844,6 +18944,7 @@
     "Components/menu/ButtonMenu.js": [
       {
         "description": "",
+        "displayName": "ButtonMenu",
         "methods": [
           {
             "name": "showMenu",
@@ -19277,6 +19378,7 @@
     "Components/menu/Toolbar.js": [
       {
         "description": "",
+        "displayName": "Toolbar",
         "methods": [],
         "props": {
           "toolbars": {
@@ -19563,6 +19665,7 @@
     "Components/users/UsersCompleter.js": [
       {
         "description": "Ready to use autocomplete field that will load users/groups/roles from\nthe server (using user_list_authorized_users API).\nUsed for sharing, addressbooks, send email, etc.\n\nCan also open a \"selector-style\" adress book.",
+        "displayName": "UsersLoader",
         "methods": [
           {
             "name": "suggestionLoader",
@@ -19792,6 +19895,7 @@
     "Components/users/addressbook/AddressBook.js": [
       {
         "description": "High level component to browse users, groups and teams, either in a large format (mode='book') or a more compact\nformat (mode='selector'|'popover').\nAddress book allows to create external users, teams, and also to browse trusted server directories if Federated Sharing\nis active.",
+        "displayName": "AddressBook",
         "methods": [
           {
             "name": "onFolderClicked",
@@ -21059,6 +21163,52 @@
         "require": "const {ModalAppBar} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/views/SimpleReactActionBar.js": [
+      {
+        "description": "Get info from Pydio controller an build an\naction bar with active actions.\nTBC",
+        "displayName": "SimpleReactActionBar",
+        "methods": [
+          {
+            "name": "clickAction",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dataModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "PydioDataModel"
+            },
+            "required": true,
+            "description": ""
+          },
+          "node": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Node"
+            },
+            "required": true,
+            "description": ""
+          },
+          "actions": {
+            "type": {
+              "name": "array"
+            },
+            "required": false,
+            "description": ""
+          }
+        },
+        "require": "const {SimpleReactActionBar} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/views/TreeView.js": [
       {
         "description": "",
@@ -21068,6 +21218,7 @@
       },
       {
         "description": "Tree Node",
+        "displayName": "SimpleTreeNode",
         "methods": [
           {
             "name": "listenToNode",
@@ -21280,6 +21431,7 @@
       },
       {
         "description": "Simple openable / loadable tree taking AjxpNode as inputs",
+        "displayName": "DNDTreeView",
         "methods": [
           {
             "name": "onNodeSelect",
@@ -21421,6 +21573,7 @@
       },
       {
         "description": "",
+        "displayName": "TreeView",
         "methods": [
           {
             "name": "onNodeSelect",
@@ -21562,6 +21715,7 @@
       },
       {
         "description": "",
+        "displayName": "FoldersTree",
         "methods": [
           {
             "name": "nodeObserver",
@@ -21671,6 +21825,7 @@
     "CoreActions/dialog/PasswordDialog.js": [
       {
         "description": "",
+        "displayName": "PasswordDialog",
         "methods": [
           {
             "name": "getButtons",
@@ -21707,7 +21862,7 @@
         "props": {
           "dialogTitle": {
             "defaultValue": {
-              "value": "pydio.MessageHash[194]",
+              "value": "Pydio.getMessages()[194]",
               "computed": true
             },
             "required": false
@@ -21732,6 +21887,7 @@
     "CoreActions/dialog/SplashDialog.js": [
       {
         "description": "",
+        "displayName": "SplashDialog",
         "methods": [
           {
             "name": "submit",
@@ -21812,6 +21968,7 @@
     "Form/fields/AutocompleteBox.js": [
       {
         "description": "",
+        "displayName": "AutocompleteBox",
         "methods": [
           {
             "name": "handleUpdateInput",
@@ -21844,6 +22001,7 @@
     "Form/fields/AutocompleteTree.js": [
       {
         "description": "",
+        "displayName": "AutocompleteTree",
         "methods": [
           {
             "name": "handleUpdateInput",
@@ -21888,6 +22046,7 @@
     "Form/fields/FileDropzone.js": [
       {
         "description": "UI to drop a file (or click to browse), used by the InputImage component.",
+        "displayName": "FileDropzone",
         "methods": [
           {
             "name": "onDragLeave",
@@ -21971,137 +22130,21 @@
             "returns": null
           }
         ],
-        "props": {
-          "onDrop": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "function(){}",
-              "computed": false
-            }
-          },
-          "ignoreNativeDrop": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "size": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dragActiveStyle": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "supportClick": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            }
-          },
-          "accept": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "multiple": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": "",
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            }
-          }
-        },
         "require": "const {FileDropzone} = require('pydio').requireLib('form')"
       }
     ],
     "Form/fields/InputBoolean.js": [
       {
         "description": "Boolean input",
-        "methods": [
-          {
-            "name": "onCheck",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "getBooleanState",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "skipBufferChanges": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        },
+        "displayName": "InputBoolean",
+        "methods": [],
         "require": "const {InputBoolean} = require('pydio').requireLib('form')"
-      }
-    ],
-    "Form/fields/InputButton.js": [
-      {
-        "description": "Simple RaisedButton executing the applyButtonAction",
-        "methods": [
-          {
-            "name": "applyButton",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "require": "const {InputButton} = require('pydio').requireLib('form')"
       }
     ],
     "Form/fields/InputImage.js": [
       {
         "description": "UI for displaying and uploading an image,\nusing the binaryContext string.",
+        "displayName": "InputImage",
         "methods": [
           {
             "name": "getBinaryUrl",
@@ -22169,28 +22212,13 @@
             "returns": null
           }
         ],
-        "props": {
-          "attributes": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "binary_context": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {InputImage} = require('pydio').requireLib('form')"
       }
     ],
     "Form/fields/InputInteger.js": [
       {
         "description": "Text input that is converted to integer, and\nthe UI can react to arrows for incrementing/decrementing values",
+        "displayName": "InputInteger",
         "methods": [
           {
             "name": "keyDown",
@@ -22211,6 +22239,7 @@
     "Form/fields/InputSelectBox.js": [
       {
         "description": "Select box input conforming to Pydio standard form parameter.",
+        "displayName": "InputSelectBox",
         "methods": [
           {
             "name": "onDropDownChange",
@@ -22265,28 +22294,13 @@
             "returns": null
           }
         ],
-        "props": {
-          "skipBufferChanges": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        },
         "require": "const {InputSelectBox} = require('pydio').requireLib('form')"
-      }
-    ],
-    "Form/fields/MonitoringLabel.js": [
-      {
-        "description": "",
-        "methods": [],
-        "require": "const {MonitoringLabel} = require('pydio').requireLib('form')"
       }
     ],
     "Form/fields/TextField.js": [
       {
         "description": "Text input, can be single line, multiLine, or password, depending on the\nattributes.type key.",
+        "displayName": "TextField",
         "methods": [],
         "require": "const {TextField} = require('pydio').requireLib('form')"
       }
@@ -22294,6 +22308,7 @@
     "Form/fields/ValidLogin.js": [
       {
         "description": "Text input, can be single line, multiLine, or password, depending on the\nattributes.type key.",
+        "displayName": "ValidLogin",
         "methods": [
           {
             "name": "textValueChanged",
@@ -22318,6 +22333,7 @@
     "Form/fields/ValidPassword.js": [
       {
         "description": "",
+        "displayName": "ValidPassword",
         "methods": [
           {
             "name": "isValid",
@@ -22419,6 +22435,7 @@
     "Form/panel/FormPanel.js": [
       {
         "description": "Form Panel is a ready to use form builder inherited for Pydio's legacy parameters formats ('standard form').\nIt is very versatile and can basically take a set of parameters defined in the XML manifests (or defined manually\nin JS) and display them as a user form.\nIt is a controlled component: it takes a {values} object and triggers back an onChange() function.\n\nSee also Manager class to get some utilitary functions to parse parameters and extract values for the form.",
+        "displayName": "FormPanel",
         "methods": [
           {
             "name": "externallySelectTab",
@@ -23180,9 +23197,33 @@
         }
       }
     ],
+    "ReactUI/modal/ActivityWarningDialog.js": [
+      {
+        "description": "Sample Dialog class used for reference only, ready to be\ncopy/pasted :-)",
+        "methods": [],
+        "props": {
+          "dialogTitleId": {
+            "defaultValue": {
+              "value": "'375t'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "require": "const {ActivityWarningDialog} = require('pydio').requireLib('boot')"
+      }
+    ],
     "ReactUI/modal/AsyncModal.js": [
       {
         "description": "Specific AsyncComponent for Modal Dialog",
+        "displayName": "AsyncModal",
         "methods": [
           {
             "name": "activateResizeObserver",
@@ -23323,6 +23364,82 @@
         "require": "const {CSSBlurBackground} = require('pydio').requireLib('boot')"
       }
     ],
+    "ReactUI/modal/ConfirmDialog.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "message": {
+            "type": {
+              "name": "string"
+            },
+            "required": true,
+            "description": ""
+          },
+          "validCallback": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "Pydio.getInstance().MessageHash['confirm.dialog.title']",
+              "computed": true
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "require": "const {ConfirmDialog} = require('pydio').requireLib('boot')"
+      }
+    ],
+    "ReactUI/modal/EmptyDialog.js": [
+      {
+        "description": "Sample Dialog class used for reference only, ready to be\ncopy/pasted :-)",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "\"Title\"",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "require": "const {EmptyDialog} = require('pydio').requireLib('boot')"
+      }
+    ],
     "ReactUI/modal/MessageBar.js": [
       {
         "description": "",
@@ -23461,9 +23578,17 @@
         "require": "const {Modal} = require('pydio').requireLib('boot')"
       }
     ],
+    "ReactUI/modal/NetworkLoader.js": [
+      {
+        "description": "",
+        "methods": [],
+        "require": "const {NetworkLoader} = require('pydio').requireLib('boot')"
+      }
+    ],
     "ReactUI/modal/PromptDialog.js": [
       {
         "description": "Ready-to-use dialog for requiring information (text or password) from the user",
+        "displayName": "PromptDialog",
         "methods": [
           {
             "name": "submit",
@@ -23559,6 +23684,7 @@
     "ReactUI/modal/ServerPromptDialog.js": [
       {
         "description": "",
+        "displayName": "ServerPromptDialog",
         "methods": [
           {
             "name": "redirect",
@@ -23835,6 +23961,7 @@
     "Workspaces/detailpanes/RootNode.js": [
       {
         "description": "",
+        "displayName": "RootNode",
         "methods": [
           {
             "name": "loadData",
@@ -23903,6 +24030,7 @@
     "Workspaces/editor/components/editor/EditorButton.js": [
       {
         "description": "",
+        "displayName": "EditorButton",
         "methods": [],
         "require": "const {EditorButton} = require('pydio').requireLib('workspaces')"
       }
@@ -23910,7 +24038,6 @@
     "Workspaces/editor/components/editor/EditorTab.js": [
       {
         "description": "",
-        "displayName": "Tab",
         "methods": [
           {
             "name": "styles",
@@ -24062,6 +24189,117 @@
           }
         ],
         "require": "const {BookmarksList} = require('pydio').requireLib('workspaces')"
+      }
+    ],
+    "Workspaces/leftnav/DynamicLeftPanel.js": [
+      {
+        "description": "",
+        "displayName": "DynamicLeftPanel",
+        "methods": [
+          {
+            "name": "parseComponentConfigs",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "openNavigation",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "closeNavigation",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "listNodeClicked",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "closeMouseover",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "closeMouseout",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onAlertPanelBadgeChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "paneData",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "oldValue",
+                "type": null
+              },
+              {
+                "name": "memoData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": true,
+            "description": ""
+          },
+          "pydioId": {
+            "type": {
+              "name": "string"
+            },
+            "required": true,
+            "description": ""
+          }
+        },
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          }
+        },
+        "require": "const {DynamicLeftPanel} = require('pydio').requireLib('workspaces')"
       }
     ],
     "Workspaces/leftnav/LeftPanel.js": [
@@ -24553,6 +24791,7 @@
     "Workspaces/views/Breadcrumb.js": [
       {
         "description": "",
+        "displayName": "Breadcrumb",
         "methods": [
           {
             "name": "goTo",
@@ -24658,6 +24897,7 @@
     "Workspaces/views/FSTemplate.js": [
       {
         "description": "",
+        "displayName": "FSTemplate",
         "methods": [
           {
             "name": "openRightPanel",
@@ -24710,16 +24950,6 @@
             "returns": null
           }
         ],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {FSTemplate} = require('pydio').requireLib('workspaces')"
       }
     ],
@@ -24863,7 +25093,36 @@
     "Workspaces/views/MainFilesList.js": [
       {
         "description": "",
+        "displayName": "MainFilesList",
         "methods": [
+          {
+            "name": "computeLabel",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "tableEntryRenderCell",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
           {
             "name": "displayModeFromPrefs",
             "docblock": null,
@@ -25000,34 +25259,6 @@
             "params": [
               {
                 "name": "keysOnly",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "computeLabel",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "tableEntryRenderCell",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "node",
                 "type": null
               }
             ],
@@ -25170,6 +25401,7 @@
       },
       {
         "description": "",
+        "displayName": "Confirm",
         "methods": [],
         "props": {
           "pydio": {
@@ -25215,6 +25447,7 @@
       },
       {
         "description": "",
+        "displayName": "WorkspaceEntry",
         "methods": [
           {
             "name": "getLetterBadge",
@@ -25426,6 +25659,7 @@
     "Workspaces/wslist/WorkspacePickerDialog.js": [
       {
         "description": "",
+        "displayName": "WorkspacePickerDialog",
         "methods": [
           {
             "name": "submit",

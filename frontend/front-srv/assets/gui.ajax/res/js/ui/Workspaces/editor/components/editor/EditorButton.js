@@ -25,10 +25,12 @@ const { makeTransitionHOC, withHideDisabled } = Pydio.requireLib('hoc');
 // Display components
 @withHideDisabled()
 @makeTransitionHOC({opacity: 0}, {opacity: 1})
-export default class extends React.Component {
+class EditorButton extends React.Component {
     render() {
         return (
             <IconButton {...this.props} />
         )
     }
 }
+
+export default EditorButton

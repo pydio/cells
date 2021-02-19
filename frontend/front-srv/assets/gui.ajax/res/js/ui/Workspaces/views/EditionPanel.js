@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import OpenNodesModel from '../OpenNodesModel'
 import { connect } from 'react-redux';
 import { Editor } from '../editor';
@@ -102,7 +104,7 @@ class EditionPanel extends React.Component {
 }
 
 EditionPanel.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio)
+    pydio: PropTypes.instanceOf(Pydio)
 }
 
 export default connect(null, EditorActions)(EditionPanel)

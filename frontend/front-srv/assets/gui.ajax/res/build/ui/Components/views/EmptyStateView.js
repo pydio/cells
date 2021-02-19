@@ -31,7 +31,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var _require = require('react');
 
 var Component = _require.Component;
-var PropTypes = _require.PropTypes;
 
 var _require2 = require('material-ui');
 
@@ -43,6 +42,7 @@ var _require3 = require('material-ui/styles');
 var muiThemeable = _require3.muiThemeable;
 
 var Color = require('color');
+var PropTypes = require('prop-types');
 var Pydio = require('pydio');
 
 var _Pydio$requireLib = Pydio.requireLib('boot');

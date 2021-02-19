@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -38,6 +18,30 @@ var _CSSBlurBackground = require('./CSSBlurBackground');
 
 var _CSSBlurBackground2 = _interopRequireDefault(_CSSBlurBackground);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydioUtilDom = require("pydio/util/dom");
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
@@ -56,9 +60,9 @@ var AsyncModal = createReactClass({
     displayName: 'AsyncModal',
 
     propTypes: {
-        size: React.PropTypes.oneOf(['xxs', 'xs', 'sm', 'md', 'lg', 'xl']),
-        padding: React.PropTypes.bool,
-        bgBlur: React.PropTypes.bool
+        size: _propTypes2['default'].oneOf(['xxs', 'xs', 'sm', 'md', 'lg', 'xl']),
+        padding: _propTypes2['default'].bool,
+        bgBlur: _propTypes2['default'].bool
     },
 
     sizes: {

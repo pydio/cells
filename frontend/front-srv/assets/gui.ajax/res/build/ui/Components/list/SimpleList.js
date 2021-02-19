@@ -1,3 +1,19 @@
+'use strict';
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,21 +34,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-exports.__esModule = true;
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _createReactClass = require('create-react-class');
-
-var _createReactClass2 = _interopRequireDefault(_createReactClass);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -96,41 +100,41 @@ var SimpleList = _createReactClass2['default']({
     displayName: 'SimpleList',
 
     propTypes: {
-        infiniteSliceCount: _react2['default'].PropTypes.number,
-        filterNodes: _react2['default'].PropTypes.func,
-        customToolbar: _react2['default'].PropTypes.object,
-        tableKeys: _react2['default'].PropTypes.object,
-        autoRefresh: _react2['default'].PropTypes.number,
-        reloadAtCursor: _react2['default'].PropTypes.bool,
-        clearSelectionOnReload: _react2['default'].PropTypes.bool,
-        heightAutoWithMax: _react2['default'].PropTypes.number,
-        containerHeight: _react2['default'].PropTypes.number,
-        observeNodeReload: _react2['default'].PropTypes.bool,
-        defaultGroupBy: _react2['default'].PropTypes.string,
-        defaultGroupByLabel: _react2['default'].PropTypes.string,
+        infiniteSliceCount: _propTypes2['default'].number,
+        filterNodes: _propTypes2['default'].func,
+        customToolbar: _propTypes2['default'].object,
+        tableKeys: _propTypes2['default'].object,
+        autoRefresh: _propTypes2['default'].number,
+        reloadAtCursor: _propTypes2['default'].bool,
+        clearSelectionOnReload: _propTypes2['default'].bool,
+        heightAutoWithMax: _propTypes2['default'].number,
+        containerHeight: _propTypes2['default'].number,
+        observeNodeReload: _propTypes2['default'].bool,
+        defaultGroupBy: _propTypes2['default'].string,
+        defaultGroupByLabel: _propTypes2['default'].string,
 
-        skipParentNavigation: _react2['default'].PropTypes.bool,
-        skipInternalDataModel: _react2['default'].PropTypes.bool,
-        delayInitialLoad: _react2['default'].PropTypes.number,
+        skipParentNavigation: _propTypes2['default'].bool,
+        skipInternalDataModel: _propTypes2['default'].bool,
+        delayInitialLoad: _propTypes2['default'].number,
 
-        entryEnableSelector: _react2['default'].PropTypes.func,
-        renderCustomEntry: _react2['default'].PropTypes.func,
-        entryRenderIcon: _react2['default'].PropTypes.func,
-        entryRenderActions: _react2['default'].PropTypes.func,
-        entryRenderFirstLine: _react2['default'].PropTypes.func,
-        entryRenderSecondLine: _react2['default'].PropTypes.func,
-        entryRenderThirdLine: _react2['default'].PropTypes.func,
-        entryHandleClicks: _react2['default'].PropTypes.func,
-        hideToolbar: _react2['default'].PropTypes.bool,
-        computeActionsForNode: _react2['default'].PropTypes.bool,
-        multipleActions: _react2['default'].PropTypes.array,
+        entryEnableSelector: _propTypes2['default'].func,
+        renderCustomEntry: _propTypes2['default'].func,
+        entryRenderIcon: _propTypes2['default'].func,
+        entryRenderActions: _propTypes2['default'].func,
+        entryRenderFirstLine: _propTypes2['default'].func,
+        entryRenderSecondLine: _propTypes2['default'].func,
+        entryRenderThirdLine: _propTypes2['default'].func,
+        entryHandleClicks: _propTypes2['default'].func,
+        hideToolbar: _propTypes2['default'].bool,
+        computeActionsForNode: _propTypes2['default'].bool,
+        multipleActions: _propTypes2['default'].array,
 
-        openEditor: _react2['default'].PropTypes.func,
-        openCollection: _react2['default'].PropTypes.func,
+        openEditor: _propTypes2['default'].func,
+        openCollection: _propTypes2['default'].func,
 
-        elementStyle: _react2['default'].PropTypes.object,
-        passScrollingStateToChildren: _react2['default'].PropTypes.bool,
-        elementHeight: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.number, _react2['default'].PropTypes.object]).isRequired
+        elementStyle: _propTypes2['default'].object,
+        passScrollingStateToChildren: _propTypes2['default'].bool,
+        elementHeight: _propTypes2['default'].oneOfType([_propTypes2['default'].number, _propTypes2['default'].object]).isRequired
 
     },
 

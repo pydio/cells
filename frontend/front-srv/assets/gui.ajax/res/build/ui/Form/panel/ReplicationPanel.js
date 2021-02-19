@@ -42,6 +42,7 @@ var _require = require('material-ui');
 
 var IconButton = _require.IconButton;
 
+var PropTypes = require('prop-types');
 var LangUtils = require('pydio/util/lang');
 
 /**
@@ -243,12 +244,12 @@ var _default = (function (_React$Component) {
     _createClass(_default, null, [{
         key: 'propTypes',
         value: {
-            parameters: React.PropTypes.array.isRequired,
-            values: React.PropTypes.object,
-            onChange: React.PropTypes.func,
-            disabled: React.PropTypes.bool,
-            binary_context: React.PropTypes.string,
-            depth: React.PropTypes.number
+            parameters: PropTypes.array.isRequired,
+            values: PropTypes.object,
+            onChange: PropTypes.func,
+            disabled: PropTypes.bool,
+            binary_context: PropTypes.string,
+            depth: PropTypes.number
         },
         enumerable: true
     }]);

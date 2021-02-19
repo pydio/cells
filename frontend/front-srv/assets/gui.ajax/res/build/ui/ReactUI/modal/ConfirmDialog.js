@@ -23,6 +23,10 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -45,8 +49,8 @@ var createReactClass = require('create-react-class');
 exports['default'] = createReactClass({
 
     propTypes: {
-        message: React.PropTypes.string.isRequired,
-        validCallback: React.PropTypes.func.isRequired
+        message: _propTypes2['default'].string.isRequired,
+        validCallback: _propTypes2['default'].func.isRequired
     },
 
     mixins: [_ActionDialogMixin2['default'], _CancelButtonProviderMixin2['default'], _SubmitButtonProviderMixin2['default']],

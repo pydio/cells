@@ -40,6 +40,8 @@ var muiThemeable = _require2.muiThemeable;
 
 var Color = require('color');
 
+var PropTypes = require('prop-types');
+
 var Pydio = require('pydio');
 var Repository = require('pydio/model/repository');
 
@@ -99,9 +101,9 @@ var WorkspaceEntryMaterial = (function (_React$Component) {
 })(React.Component);
 
 WorkspaceEntryMaterial.propTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-    workspace: React.PropTypes.instanceOf(Repository).isRequired,
-    muiTheme: React.PropTypes.object
+    pydio: PropTypes.instanceOf(Pydio).isRequired,
+    workspace: PropTypes.instanceOf(Repository).isRequired,
+    muiTheme: PropTypes.object
 };
 
 exports['default'] = WorkspaceEntryMaterial = muiThemeable()(WorkspaceEntryMaterial);

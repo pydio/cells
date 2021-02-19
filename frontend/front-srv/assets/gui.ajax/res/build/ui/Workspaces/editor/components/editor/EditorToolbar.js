@@ -124,7 +124,6 @@ var EditorToolbar = (function (_React$Component) {
     return EditorToolbar;
 })(React.Component);
 
-exports['default'] = EditorToolbar;
 function mapStateToProps(state, ownProps) {
     var tab = getActiveTab(state);
 
@@ -132,4 +131,6 @@ function mapStateToProps(state, ownProps) {
         title: tab.title
     });
 }
+
+exports['default'] = EditorToolbar;
 module.exports = exports['default'];

@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Node from 'pydio/model/node'
 import InlineEditor from './InlineEditor'
 import {DragDropListEntry} from './ListEntry'
@@ -87,13 +90,13 @@ class ConfigurableListEntry extends React.Component {
 }
 
 ConfigurableListEntry.propTypes = {
-    node:React.PropTypes.instanceOf(Node),
-    renderIcon: React.PropTypes.func,
-    renderFirstLine:React.PropTypes.func,
-    renderSecondLine:React.PropTypes.func,
-    renderThirdLine:React.PropTypes.func,
-    renderActions:React.PropTypes.func,
-    style: React.PropTypes.object
+    node:PropTypes.instanceOf(Node),
+    renderIcon: PropTypes.func,
+    renderFirstLine:PropTypes.func,
+    renderSecondLine:PropTypes.func,
+    renderThirdLine:PropTypes.func,
+    renderActions:PropTypes.func,
+    style: PropTypes.object
 };
 
 ConfigurableListEntry = withNodeListenerEntry(ConfigurableListEntry)

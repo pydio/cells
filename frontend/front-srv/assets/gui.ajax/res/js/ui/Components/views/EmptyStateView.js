@@ -18,10 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component, PropTypes} = require('react')
+const {
+    Component
+} = require('react')
 const {FlatButton, FontIcon} = require('material-ui')
 const {muiThemeable} = require('material-ui/styles')
 const Color = require('color')
+const PropTypes = require('prop-types');
 const Pydio = require('pydio')
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 

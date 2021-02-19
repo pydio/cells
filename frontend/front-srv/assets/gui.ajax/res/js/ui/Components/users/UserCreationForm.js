@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {Paper, FlatButton, Divider, TextField} from 'material-ui'
@@ -182,11 +185,11 @@ class UserCreationForm extends React.Component{
 }
 
 UserCreationForm.propTypes = {
-    newUserName     : React.PropTypes.string,
-    onUserCreated   : React.PropTypes.func.isRequired,
-    onCancel        : React.PropTypes.func.isRequired,
-    editMode        : React.PropTypes.bool,
-    userData        : React.PropTypes.object
+    newUserName     : PropTypes.string,
+    onUserCreated   : PropTypes.func.isRequired,
+    onCancel        : PropTypes.func.isRequired,
+    editMode        : PropTypes.bool,
+    userData        : PropTypes.object
 };
 
 export {UserCreationForm as default}

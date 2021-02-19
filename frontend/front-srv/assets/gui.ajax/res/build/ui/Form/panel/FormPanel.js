@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -46,6 +26,30 @@ var _managerManager = require('../manager/Manager');
 
 var _managerManager2 = _interopRequireDefault(_managerManager);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydioUtilLang = require("pydio/util/lang");
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
@@ -70,92 +74,92 @@ exports['default'] = _createReactClass2['default']({
         /**
          * Array of Pydio StandardForm parameters
          */
-        parameters: _react2['default'].PropTypes.array.isRequired,
+        parameters: _propTypes2['default'].array.isRequired,
         /**
          * Object containing values for the parameters
          */
-        values: _react2['default'].PropTypes.object,
+        values: _propTypes2['default'].object,
         /**
          * Trigger unitary function when one form input changes.
          */
-        onParameterChange: _react2['default'].PropTypes.func,
+        onParameterChange: _propTypes2['default'].func,
         /**
          * Send all form values onchange, including eventually the removed ones (for dynamic panels)
          */
-        onChange: _react2['default'].PropTypes.func,
+        onChange: _propTypes2['default'].func,
         /**
          * Triggered when the form globabally switches between valid and invalid state
          * Triggered once at form construction
          */
-        onValidStatusChange: _react2['default'].PropTypes.func,
+        onValidStatusChange: _propTypes2['default'].func,
         /**
          * Disable the whole form at once
          */
-        disabled: _react2['default'].PropTypes.bool,
+        disabled: _propTypes2['default'].bool,
         /**
          * String added to the image inputs for upload/download operations
          */
-        binary_context: _react2['default'].PropTypes.string,
+        binary_context: _propTypes2['default'].string,
         /**
          * 0 by default, subforms will have their zDepth value increased by one
          */
-        depth: _react2['default'].PropTypes.number,
+        depth: _propTypes2['default'].number,
 
         /**
          * Add an additional header component (added inside first subpanel)
          */
-        header: _react2['default'].PropTypes.object,
+        header: _propTypes2['default'].object,
         /**
          * Add an additional footer component (added inside last subpanel)
          */
-        footer: _react2['default'].PropTypes.object,
+        footer: _propTypes2['default'].object,
         /**
          * Add other arbitrary panels, either at the top or the bottom
          */
-        additionalPanes: _react2['default'].PropTypes.shape({
-            top: _react2['default'].PropTypes.array,
-            bottom: _react2['default'].PropTypes.array
+        additionalPanes: _propTypes2['default'].shape({
+            top: _propTypes2['default'].array,
+            bottom: _propTypes2['default'].array
         }),
         /**
          * An array of tabs containing groupNames. Groups will be splitted
          * accross those tabs
          */
-        tabs: _react2['default'].PropTypes.array,
+        tabs: _propTypes2['default'].array,
         /**
          * Fired when a the active tab changes
          */
-        onTabChange: _react2['default'].PropTypes.func,
+        onTabChange: _propTypes2['default'].func,
         /**
          * A bit like tabs, but using accordion-like layout
          */
-        accordionizeIfGroupsMoreThan: _react2['default'].PropTypes.number,
+        accordionizeIfGroupsMoreThan: _propTypes2['default'].number,
         /**
          * Forward an event when scrolling the form
          */
-        onScrollCallback: _react2['default'].PropTypes.func,
+        onScrollCallback: _propTypes2['default'].func,
         /**
          * Restrict to a subset of field groups
          */
-        limitToGroups: _react2['default'].PropTypes.array,
+        limitToGroups: _propTypes2['default'].array,
         /**
          * Ignore some specific fields types
          */
-        skipFieldsTypes: _react2['default'].PropTypes.array,
+        skipFieldsTypes: _propTypes2['default'].array,
 
         /* Helper Options */
         /**
          * Pass pointers to the Pydio Companion container
          */
-        setHelperData: _react2['default'].PropTypes.func,
+        setHelperData: _propTypes2['default'].func,
         /**
          * Function to check if the companion is active or none and if a parameter
          * has helper data
          */
-        checkHasHelper: _react2['default'].PropTypes.func,
+        checkHasHelper: _propTypes2['default'].func,
         /**
          * Test for parameter
          */
-        helperTestFor: _react2['default'].PropTypes.string
+        helperTestFor: _propTypes2['default'].string
 
     },
 

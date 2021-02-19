@@ -21,6 +21,7 @@
 const React = require('react')
 const {IconButton} = require('material-ui')
 import ReplicatedGroup from './ReplicatedGroup'
+const PropTypes = require('prop-types');
 const LangUtils = require('pydio/util/lang')
 
 /**
@@ -28,12 +29,12 @@ const LangUtils = require('pydio/util/lang')
  */
 export default class extends React.Component {
     static propTypes = {
-        parameters:React.PropTypes.array.isRequired,
-        values:React.PropTypes.object,
-        onChange:React.PropTypes.func,
-        disabled:React.PropTypes.bool,
-        binary_context:React.PropTypes.string,
-        depth:React.PropTypes.number
+        parameters:PropTypes.array.isRequired,
+        values:PropTypes.object,
+        onChange:PropTypes.func,
+        disabled:PropTypes.bool,
+        binary_context:PropTypes.string,
+        depth:PropTypes.number
     };
 
     buildSubValue = (values, index=0) => {

@@ -29,6 +29,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var Pydio = require('pydio');
 
 exports['default'] = function (PydioComponent) {
@@ -50,10 +51,10 @@ exports['default'] = function (PydioComponent) {
 
     Wrapped.displayName = PydioComponent.name;
     Wrapped.contextTypes = {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        getPydio: React.PropTypes.func,
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func
+        pydio: PropTypes.instanceOf(Pydio),
+        getPydio: PropTypes.func,
+        messages: PropTypes.object,
+        getMessage: PropTypes.func
     };
 
     return Wrapped;

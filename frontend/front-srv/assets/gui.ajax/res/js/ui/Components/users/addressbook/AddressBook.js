@@ -1,3 +1,11 @@
+import NestedListItem from './NestedListItem';
+import UsersList from './UsersList'
+import RightPanelCard from './RightPanelCard'
+import SearchPanel from './SearchPanel'
+import Loaders from './Loaders'
+import TeamCreationForm from '../TeamCreationForm'
+import React from 'react'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,13 +26,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import NestedListItem from './NestedListItem'
-import UsersList from './UsersList'
-import RightPanelCard from './RightPanelCard'
-import SearchPanel from './SearchPanel'
-import Loaders from './Loaders'
-import TeamCreationForm from '../TeamCreationForm'
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import {Popover, IconButton, Divider, Paper, List, Dialog} from 'material-ui'
 import {muiThemeable, colors} from 'material-ui/styles'
@@ -44,51 +47,51 @@ class AddressBook extends React.Component {
         /**
          * Main instance of pydio
          */
-        pydio           : React.PropTypes.instanceOf(Pydio),
+        pydio           : PropTypes.instanceOf(Pydio),
         /**
          * Display mode, either large (book) or small picker ('selector', 'popover').
          */
-        mode            : React.PropTypes.oneOf(['book', 'selector', 'popover']).isRequired,
+        mode            : PropTypes.oneOf(['book', 'selector', 'popover']).isRequired,
         /**
          * Use book mode but display as column
          */
-        bookColumn      : React.PropTypes.bool,
+        bookColumn      : PropTypes.bool,
         /**
          * Callback triggered in 'selector' mode whenever an item is clicked.
          */
-        onItemSelected  : React.PropTypes.func,
+        onItemSelected  : PropTypes.func,
         /**
          * Display users only, no teams or groups
          */
-        usersOnly       : React.PropTypes.bool,
+        usersOnly       : PropTypes.bool,
         /**
          * Choose various user sources, either the local directory or remote ( = trusted ) servers.
          */
-        usersFrom       : React.PropTypes.oneOf(['local', 'remote', 'any']),
+        usersFrom       : PropTypes.oneOf(['local', 'remote', 'any']),
         /**
          * Disable the search engine
          */
-        disableSearch   : React.PropTypes.bool,
+        disableSearch   : PropTypes.bool,
         /**
          * Theme object passed by muiThemeable() wrapper
          */
-        muiTheme                    : React.PropTypes.object,
+        muiTheme                    : PropTypes.object,
         /**
          * Will be passed to the Popover object
          */
-        popoverStyle                : React.PropTypes.object,
+        popoverStyle                : PropTypes.object,
         /**
          * Used as a button to open the selector in a popover
          */
-        popoverButton               : React.PropTypes.object,
+        popoverButton               : PropTypes.object,
         /**
          * Will be passed to the Popover container object
          */
-        popoverContainerStyle       : React.PropTypes.object,
+        popoverContainerStyle       : PropTypes.object,
         /**
          * Will be passed to the Popover Icon Button.
          */
-        popoverIconButtonStyle      : React.PropTypes.object
+        popoverIconButtonStyle      : PropTypes.object
     };
 
     static defaultProps = {

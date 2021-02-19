@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
@@ -220,15 +222,15 @@ ActionsPanel.propTypes = {
     /**
      * User data, props must pass at least one of 'user' or 'team'
      */
-    user: React.PropTypes.object,
+    user: PropTypes.object,
     /**
      * Team data, props must pass at least one of 'user' or 'team'
      */
-    team: React.PropTypes.object,
+    team: PropTypes.object,
     /**
      * For users, whether it is editable or not
      */
-    userEditable: React.PropTypes.object
+    userEditable: PropTypes.object
 
 };
 

@@ -35,6 +35,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
@@ -148,12 +152,12 @@ var PaperEditorLayout = (function (_React$Component) {
 })(_react2['default'].Component);
 
 PaperEditorLayout.propTypes = {
-    title: _react2['default'].PropTypes.any,
-    titleActionBar: _react2['default'].PropTypes.any,
-    closeAction: _react2['default'].PropTypes.func,
-    leftNav: _react2['default'].PropTypes.any,
-    contentFill: _react2['default'].PropTypes.bool,
-    className: _react2['default'].PropTypes.string
+    title: _propTypes2['default'].any,
+    titleActionBar: _propTypes2['default'].any,
+    closeAction: _propTypes2['default'].func,
+    leftNav: _propTypes2['default'].any,
+    contentFill: _propTypes2['default'].bool,
+    className: _propTypes2['default'].string
 };
 exports.PaperEditorLayout = PaperEditorLayout = _materialUiStyles.muiThemeable()(PaperEditorLayout);
 PaperEditorLayout.actionButton = function (label, icon, action) {
@@ -185,6 +189,10 @@ var PaperEditorNavHeader = (function (_React$Component2) {
      * Navigation entry used by PaperEditorLayout.
      */
 
+    // static propTypes:{
+    //     label:PropTypes.string
+    // }
+
     PaperEditorNavHeader.prototype.render = function render() {
 
         return _react2['default'].createElement(
@@ -206,6 +214,19 @@ var PaperEditorNavEntry = (function (_React$Component3) {
 
         _React$Component3.apply(this, arguments);
     }
+
+    // static propTypes:{
+    //     keyName:PropTypes.string.isRequired,
+    //     onClick:PropTypes.func.isRequired,
+    //     label:PropTypes.string,
+    //     selectedKey:PropTypes.string,
+    //     isLast:PropTypes.bool,
+    //     // Drop Down Data
+    //     dropDown:PropTypes.bool,
+    //     dropDownData:PropTypes.object,
+    //     dropDownChange:PropTypes.func,
+    //     dropDownDefaultItems:PropTypes.array
+    // }
 
     PaperEditorNavEntry.prototype.onClick = function onClick() {
         this.props.onClick(this.props.keyName);
@@ -264,5 +285,3 @@ var PaperEditorNavEntry = (function (_React$Component3) {
 exports.PaperEditorLayout = PaperEditorLayout;
 exports.PaperEditorNavEntry = PaperEditorNavEntry;
 exports.PaperEditorNavHeader = PaperEditorNavHeader;
-
-// Drop Down Data

@@ -19,8 +19,7 @@
  */
 
 import {Switch} from 'react-router-dom';
-import Router from 'react-router/lib/Router';
-import Route from 'react-router/lib/Route';
+import {Router, Route} from 'react-router';
 import IndexRoute from 'react-router/lib/IndexRoute';
 import browserHistory from 'react-router/lib/browserHistory';
 

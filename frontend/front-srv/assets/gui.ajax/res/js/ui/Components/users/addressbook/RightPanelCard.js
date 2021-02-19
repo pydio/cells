@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -53,27 +54,27 @@ RightPanelCard.propTypes = {
     /**
      * Pydio instance
      */
-    pydio: React.PropTypes.instanceOf(Pydio),
+    pydio: PropTypes.instanceOf(Pydio),
     /**
      * Selected item
      */
-    item: React.PropTypes.object,
+    item: PropTypes.object,
     /**
      * Applies to root container
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     /**
      * Forwarded to child
      */
-    onRequestClose: React.PropTypes.func,
+    onRequestClose: PropTypes.func,
     /**
      * Forwarded to child
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: PropTypes.func,
     /**
      * Forwarded to child
      */
-    onUpdateAction: React.PropTypes.func
+    onUpdateAction: PropTypes.func
 };
 
 export {RightPanelCard as default}

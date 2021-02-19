@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
@@ -27,70 +29,68 @@ import { withImageSize, withContainerSize } from './providers';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 
 export const withResize = (Component) => {
-    return (
-        @withImageSize
-        @withContainerSize
-        @connect(mapStateToProps)
-        // @panAndZoomHoc
-        class ComponentWithResize extends React.Component {
-            static get displayName() {
-                return `WithResize(${getDisplayName(Component)})`
-            }
+    return @withImageSize
+    @withContainerSize
+    @connect(mapStateToProps)
+    // @panAndZoomHoc
+    class ComponentWithResize extends React.Component {
+        static get displayName() {
+            return `WithResize(${getDisplayName(Component)})`
+        }
 
-            static get propTypes() {
-                return {
-                    size: React.PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
-                    containerWidth: React.PropTypes.number.isRequired,
-                    containerHeight: React.PropTypes.number.isRequired,
-                    width: React.PropTypes.number.isRequired,
-                    height: React.PropTypes.number.isRequired
-                }
-            }
+        static get propTypes() {
+            return {
+                size: PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
+                containerWidth: PropTypes.number.isRequired,
+                containerHeight: PropTypes.number.isRequired,
+                width: PropTypes.number.isRequired,
+                height: PropTypes.number.isRequired
+            };
+        }
 
-            componentDidMount() {
-                this.loadSize(this.props)
-            }
+        componentDidMount() {
+            this.loadSize(this.props)
+        }
 
-            componentWillReceiveProps(nextProps) {
-                const {src, scale, size, containerWidth, width, containerHeight, height} = nextProps
+        componentWillReceiveProps(nextProps) {
+            const {src, scale, size, containerWidth, width, containerHeight, height} = nextProps
 
-                if (
-                    src !== this.props.src ||
-                    size !== this.props.size ||
-                    width !== this.props.width ||
-                    height !== this.props.height ||
-                    containerWidth !== this.props.containerWidth ||
-                    containerHeight !== this.props.containerHeight
-                ) {
-                    this.loadSize(nextProps)
-                }
-            }
-
-            loadSize(props) {
-                const {scale = 1, size = "contain", dispatch, containerWidth, width, containerHeight, height} = props
-
-                const state = {
-                    size,
-                    scale: getRatio[size]({
-                        scale,
-                        widthRatio: containerWidth / width,
-                        heightRatio: containerHeight / height
-                    })
-                }
-
-                dispatch(EditorActions.editorModify(state))
-            }
-
-            render() {
-                const {scale, dispatch, ...remainingProps} = this.props
-
-                return (
-                    <Component
-                        {...remainingProps}
-                        scale={scale}
-                    />
-                )
+            if (
+                src !== this.props.src ||
+                size !== this.props.size ||
+                width !== this.props.width ||
+                height !== this.props.height ||
+                containerWidth !== this.props.containerWidth ||
+                containerHeight !== this.props.containerHeight
+            ) {
+                this.loadSize(nextProps)
             }
         }
-    )
+
+        loadSize(props) {
+            const {scale = 1, size = "contain", dispatch, containerWidth, width, containerHeight, height} = props
+
+            const state = {
+                size,
+                scale: getRatio[size]({
+                    scale,
+                    widthRatio: containerWidth / width,
+                    heightRatio: containerHeight / height
+                })
+            }
+
+            dispatch(EditorActions.editorModify(state))
+        }
+
+        render() {
+            const {scale, dispatch, ...remainingProps} = this.props
+
+            return (
+                <Component
+                    {...remainingProps}
+                    scale={scale}
+                />
+            )
+        }
+    };
 }

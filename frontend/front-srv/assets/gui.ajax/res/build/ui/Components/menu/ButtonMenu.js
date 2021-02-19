@@ -1,22 +1,3 @@
-/*
- * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio Cells.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
 'use strict';
 
 exports.__esModule = true;
@@ -38,6 +19,30 @@ var _Utils2 = _interopRequireDefault(_Utils);
 var _MenuItemsConsumer = require('./MenuItemsConsumer');
 
 var _MenuItemsConsumer2 = _interopRequireDefault(_MenuItemsConsumer);
+
+/*
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _react = require("react");
 
@@ -158,11 +163,11 @@ var ButtonMenu = (function (_React$Component) {
     _createClass(ButtonMenu, null, [{
         key: 'propTypes',
         value: {
-            buttonTitle: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.object]).isRequired,
-            menuItems: _react2['default'].PropTypes.array.isRequired,
-            className: _react2['default'].PropTypes.string,
-            raised: _react2['default'].PropTypes.bool,
-            direction: _react2['default'].PropTypes.oneOf(['left', 'right'])
+            buttonTitle: _propTypes2['default'].oneOfType([_propTypes2['default'].string, _propTypes2['default'].object]).isRequired,
+            menuItems: _propTypes2['default'].array.isRequired,
+            className: _propTypes2['default'].string,
+            raised: _propTypes2['default'].bool,
+            direction: _propTypes2['default'].oneOf(['left', 'right'])
         },
         enumerable: true
     }]);

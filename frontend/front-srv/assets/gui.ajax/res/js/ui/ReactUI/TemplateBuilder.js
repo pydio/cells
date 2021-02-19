@@ -1,3 +1,6 @@
+import React from 'react';
+import AsyncComponent from './AsyncComponent'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,8 +22,8 @@
  */
 
 // import {compose} from 'redux';
-import React from 'react'
-import AsyncComponent from './AsyncComponent'
+import PropTypes from 'prop-types';
+
 import XMLUtils from 'pydio/util/xml'
 import withProgressiveBg from './withProgressiveBg'
 
@@ -97,8 +100,8 @@ class TemplateBuilder extends React.Component {
 }
 
 TemplateBuilder.propTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    containerId:React.PropTypes.string
+    pydio: PropTypes.instanceOf(Pydio),
+    containerId:PropTypes.string
 };
 
 TemplateBuilder = withProgressiveBg(TemplateBuilder);

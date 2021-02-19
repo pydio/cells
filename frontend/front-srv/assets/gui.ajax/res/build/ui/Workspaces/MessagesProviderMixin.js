@@ -18,14 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
-exports["default"] = {
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+exports['default'] = {
 
     childContextTypes: {
-        messages: React.PropTypes.object,
-        getMessage: React.PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func
     },
 
     getChildContext: function getChildContext() {
@@ -43,4 +50,4 @@ exports["default"] = {
     }
 
 };
-module.exports = exports["default"];
+module.exports = exports['default'];

@@ -1,3 +1,11 @@
+import React from 'react';
+import UserAvatar from '../avatar/UserAvatar'
+import {IconButton, Checkbox, IconMenu, RaisedButton, ListItem, FontIcon, Avatar, Divider, Subheader, List, TextField} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+import EmptyStateView from '../../views/EmptyStateView'
+import AlphaPaginator from './AlphaPaginator'
+import SearchForm from './SearchForm'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,13 +26,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import UserAvatar from '../avatar/UserAvatar'
-import {IconButton, Checkbox, IconMenu, RaisedButton, ListItem, FontIcon, Avatar, Divider, Subheader, List, TextField} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
-import EmptyStateView from '../../views/EmptyStateView'
-import AlphaPaginator from './AlphaPaginator'
-import SearchForm from './SearchForm'
+import PropTypes from 'prop-types';
+
 import DOMUtils from 'pydio/util/dom'
 import CellActionsRenderer from '../avatar/CellActionsRenderer'
 const {Loader, PydioContextConsumer} = require('pydio').requireLib('boot');
@@ -292,14 +295,14 @@ class UsersList extends React.Component{
 }
 
 UsersList.propTypes ={
-    item: React.PropTypes.object,
-    onCreateAction:React.PropTypes.func,
-    onDeleteAction:React.PropTypes.func,
-    onItemClicked:React.PropTypes.func,
-    onFolderClicked:React.PropTypes.func,
-    onEditLabel:React.PropTypes.func,
-    mode:React.PropTypes.oneOf(['book', 'selector', 'inner']),
-    bookColumn:React.PropTypes.bool
+    item: PropTypes.object,
+    onCreateAction:PropTypes.func,
+    onDeleteAction:PropTypes.func,
+    onItemClicked:PropTypes.func,
+    onFolderClicked:PropTypes.func,
+    onEditLabel:PropTypes.func,
+    mode:PropTypes.oneOf(['book', 'selector', 'inner']),
+    bookColumn:PropTypes.bool
 };
 
 UsersList = PydioContextConsumer(UsersList);

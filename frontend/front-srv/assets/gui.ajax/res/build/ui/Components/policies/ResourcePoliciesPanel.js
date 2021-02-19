@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -43,6 +23,30 @@ var _pydioHttpPolicies = require('pydio/http/policies');
 var _pydioHttpPolicies2 = _interopRequireDefault(_pydioHttpPolicies);
 
 var _cellsSdk = require('cells-sdk');
+
+/*
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio2 = require('pydio');
 
@@ -641,20 +645,20 @@ var ResourcePoliciesPanel = (function (_React$Component) {
 })(_react2['default'].Component);
 
 ResourcePoliciesPanel.PropTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(_pydio3['default']),
-    resourceType: _react2['default'].PropTypes.string.isRequired,
-    resourceId: _react2['default'].PropTypes.string.isRequired,
-    description: _react2['default'].PropTypes.string.isRequired,
-    onSavePolicies: _react2['default'].PropTypes.func,
-    userListExcludes: _react2['default'].PropTypes.array,
-    subjectsDisabled: _react2['default'].PropTypes.array,
-    subjectsHidden: _react2['default'].PropTypes.object,
-    readonly: _react2['default'].PropTypes.bool,
-    cellAcls: _react2['default'].PropTypes.object,
+    pydio: _propTypes2['default'].instanceOf(_pydio3['default']),
+    resourceType: _propTypes2['default'].string.isRequired,
+    resourceId: _propTypes2['default'].string.isRequired,
+    description: _propTypes2['default'].string.isRequired,
+    onSavePolicies: _propTypes2['default'].func,
+    userListExcludes: _propTypes2['default'].array,
+    subjectsDisabled: _propTypes2['default'].array,
+    subjectsHidden: _propTypes2['default'].object,
+    readonly: _propTypes2['default'].bool,
+    cellAcls: _propTypes2['default'].object,
 
-    onDismiss: _react2['default'].PropTypes.func,
-    style: _react2['default'].PropTypes.object,
-    skipTitle: _react2['default'].PropTypes.bool
+    onDismiss: _propTypes2['default'].func,
+    style: _propTypes2['default'].object,
+    skipTitle: _propTypes2['default'].bool
 
 };
 

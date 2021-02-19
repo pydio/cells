@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import {Node} from 'pydio/model/node'
 import {PydioDataModel} from 'pydio/model/data-model'
@@ -31,9 +34,9 @@ import {PydioDataModel} from 'pydio/model/data-model'
 export default class SimpleReactActionBar extends React.Component{
 
     static propTypes = {
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        node:React.PropTypes.instanceOf(Node).isRequired,
-        actions:React.PropTypes.array
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        node:PropTypes.instanceOf(Node).isRequired,
+        actions:PropTypes.array
     }
 
     clickAction(event){

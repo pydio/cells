@@ -17,7 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 const createReactClass = require('create-react-class');
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
@@ -27,8 +29,8 @@ import {Checkbox} from 'material-ui'
 export default createReactClass({
 
     propTypes: {
-        message: React.PropTypes.string.isRequired,
-        validCallback: React.PropTypes.func.isRequired
+        message: PropTypes.string.isRequired,
+        validCallback: PropTypes.func.isRequired
     },
 
     mixins:[

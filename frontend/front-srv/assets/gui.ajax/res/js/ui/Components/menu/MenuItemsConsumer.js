@@ -20,6 +20,7 @@
 
 
 const React = require('react')
+const PropTypes = require('prop-types');
 const Controller = require('pydio/model/controller')
 import Utils from './Utils'
 import {debounce} from 'lodash'
@@ -79,10 +80,10 @@ export default function(Component){
 
 
     Wrapped.propTypes = {
-        menuItems   : React.PropTypes.array,
-        toolbars    : React.PropTypes.array,
-        controller  : React.PropTypes.instanceOf(Controller),
-        pydio       : React.PropTypes.instanceOf(Pydio)
+        menuItems   : PropTypes.array,
+        toolbars    : PropTypes.array,
+        controller  : PropTypes.instanceOf(Controller),
+        pydio       : PropTypes.instanceOf(Pydio)
     };
 
     return Wrapped;

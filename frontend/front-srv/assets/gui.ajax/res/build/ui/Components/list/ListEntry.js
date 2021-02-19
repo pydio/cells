@@ -1,3 +1,21 @@
+'use strict';
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _utilDND = require('../util/DND');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,23 +36,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-exports.__esModule = true;
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _utilDND = require('../util/DND');
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _reactDnd = require('react-dnd');
 
@@ -213,21 +217,21 @@ var ContextMenuWrapper = function ContextMenuWrapper(props) {
 ContextMenuWrapper = PydioHOCs.withContextMenu(ContextMenuWrapper);
 
 ListEntry.propTypes = {
-    showSelector: React.PropTypes.bool,
-    selected: React.PropTypes.bool,
-    selectorDisabled: React.PropTypes.bool,
-    onSelect: React.PropTypes.func,
-    onClick: React.PropTypes.func,
-    iconCell: React.PropTypes.element,
-    mainIcon: React.PropTypes.string,
-    firstLine: React.PropTypes.node,
-    secondLine: React.PropTypes.node,
-    thirdLine: React.PropTypes.node,
-    actions: React.PropTypes.element,
-    activeDroppable: React.PropTypes.bool,
-    className: React.PropTypes.string,
-    style: React.PropTypes.object,
-    noHover: React.PropTypes.bool
+    showSelector: _propTypes2['default'].bool,
+    selected: _propTypes2['default'].bool,
+    selectorDisabled: _propTypes2['default'].bool,
+    onSelect: _propTypes2['default'].func,
+    onClick: _propTypes2['default'].func,
+    iconCell: _propTypes2['default'].element,
+    mainIcon: _propTypes2['default'].string,
+    firstLine: _propTypes2['default'].node,
+    secondLine: _propTypes2['default'].node,
+    thirdLine: _propTypes2['default'].node,
+    actions: _propTypes2['default'].element,
+    activeDroppable: _propTypes2['default'].bool,
+    className: _propTypes2['default'].string,
+    style: _propTypes2['default'].object,
+    noHover: _propTypes2['default'].bool
 };
 
 exports.ListEntry = ListEntry = _materialUiStyles.muiThemeable()(ListEntry);

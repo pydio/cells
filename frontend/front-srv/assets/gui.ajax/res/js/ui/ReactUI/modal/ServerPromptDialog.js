@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import createReactClass from 'create-react-class';
 import {TextField} from 'material-ui'
 import ActionDialogMixin from './ActionDialogMixin'
@@ -38,20 +40,20 @@ export default createReactClass({
         /**
          * Message ID used for the dialog title
          */
-        dialogTitleId: React.PropTypes.string,
+        dialogTitleId: PropTypes.string,
         /**
          * Main Message displayed in the body of the dialog
          */
-        dialogLegendId: React.PropTypes.string,
+        dialogLegendId: PropTypes.string,
         /**
          * If not empty, dialog will display and then trigger a redirection.
          */
-        autoRedirectUrl: React.PropTypes.string,
+        autoRedirectUrl: PropTypes.string,
         /**
          * Object containing fields definition that must be shown to user
          * and sent back to server. Fields can be text, password or hidden.
          */
-        fieldsDefinitions: React.PropTypes.object
+        fieldsDefinitions: PropTypes.object
 
     },
 

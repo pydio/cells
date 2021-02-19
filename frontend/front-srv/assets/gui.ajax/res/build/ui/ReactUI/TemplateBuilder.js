@@ -1,3 +1,23 @@
+'use strict';
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _AsyncComponent = require('./AsyncComponent');
+
+var _AsyncComponent2 = _interopRequireDefault(_AsyncComponent);
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,25 +39,10 @@
  */
 
 // import {compose} from 'redux';
-'use strict';
 
-exports.__esModule = true;
+var _propTypes = require('prop-types');
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _AsyncComponent = require('./AsyncComponent');
-
-var _AsyncComponent2 = _interopRequireDefault(_AsyncComponent);
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioUtilXml = require('pydio/util/xml');
 
@@ -141,8 +146,8 @@ var TemplateBuilder = (function (_React$Component) {
 })(_react2['default'].Component);
 
 TemplateBuilder.propTypes = {
-    pydio: _react2['default'].PropTypes.instanceOf(Pydio),
-    containerId: _react2['default'].PropTypes.string
+    pydio: _propTypes2['default'].instanceOf(Pydio),
+    containerId: _propTypes2['default'].string
 };
 
 TemplateBuilder = _withProgressiveBg2['default'](TemplateBuilder);

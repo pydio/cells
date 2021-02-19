@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -72,13 +73,13 @@ class IconButtonMenu extends React.Component{
 }
 
 IconButtonMenu.propTypes =  {
-    buttonTitle: React.PropTypes.string.isRequired,
-    buttonClassName: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string,
-    popoverDirection: React.PropTypes.oneOf(['right', 'left']),
-    popoverPosition: React.PropTypes.oneOf(['top', 'bottom']),
-    menuProps:React.PropTypes.object,
-    menuItems: React.PropTypes.array.isRequired
+    buttonTitle: PropTypes.string.isRequired,
+    buttonClassName: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    popoverDirection: PropTypes.oneOf(['right', 'left']),
+    popoverPosition: PropTypes.oneOf(['top', 'bottom']),
+    menuProps:PropTypes.object,
+    menuItems: PropTypes.array.isRequired
 }
 
 import MenuItemsConsumer from './MenuItemsConsumer'

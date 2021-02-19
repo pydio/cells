@@ -137,7 +137,6 @@ var App = (function (_React$Component) {
     return App;
 })(React.Component);
 
-exports['default'] = App;
 function mapStateToProps(state, ownProps) {
     var editor = state.editor;
     var tabs = state.tabs;
@@ -158,4 +157,6 @@ function mapStateToProps(state, ownProps) {
         displayToolbar: displayToolbar
     });
 }
+
+exports['default'] = App;
 module.exports = exports['default'];

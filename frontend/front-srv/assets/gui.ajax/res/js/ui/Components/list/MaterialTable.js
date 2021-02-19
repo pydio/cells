@@ -1,3 +1,6 @@
+import React from 'react';
+import {Table, TableHeader, TableFooter, TableRow, TableBody, TableRowColumn, TableHeaderColumn, SelectField, MenuItem, IconButton} from 'material-ui'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import {Table, TableHeader, TableFooter, TableRow, TableBody, TableRowColumn, TableHeaderColumn, SelectField, MenuItem, IconButton} from 'material-ui'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {moment} = Pydio.requireLib("boot");
 const {ModernStyles} = Pydio.requireLib("hoc");
@@ -431,10 +434,10 @@ class MaterialTable extends React.Component{
 }
 
 MaterialTable.PropTypes = {
-    data: React.PropTypes.array,
-    columns: React.PropTypes.array,
-    onSelectRows: React.PropTypes.func,
-    emptyStateString: React.PropTypes.string,
+    data: PropTypes.array,
+    columns: PropTypes.array,
+    onSelectRows: PropTypes.func,
+    emptyStateString: PropTypes.string,
 };
 
 export {MaterialTable as default}

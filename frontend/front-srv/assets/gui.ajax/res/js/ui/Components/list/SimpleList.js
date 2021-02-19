@@ -1,3 +1,6 @@
+import React from 'react';
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,8 +22,8 @@
  */
 
 
-import React from 'react'
-import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import Infinite from 'react-infinite'
 import ScrollArea from 'react-scrollbar'
@@ -50,43 +53,43 @@ let SimpleList = createReactClass({
     displayName: 'SimpleList',
 
     propTypes:{
-        infiniteSliceCount  : React.PropTypes.number,
-        filterNodes         : React.PropTypes.func,
-        customToolbar       : React.PropTypes.object,
-        tableKeys           : React.PropTypes.object,
-        autoRefresh         : React.PropTypes.number,
-        reloadAtCursor      : React.PropTypes.bool,
-        clearSelectionOnReload: React.PropTypes.bool,
-        heightAutoWithMax   : React.PropTypes.number,
-        containerHeight     : React.PropTypes.number,
-        observeNodeReload   : React.PropTypes.bool,
-        defaultGroupBy      : React.PropTypes.string,
-        defaultGroupByLabel : React.PropTypes.string,
+        infiniteSliceCount  : PropTypes.number,
+        filterNodes         : PropTypes.func,
+        customToolbar       : PropTypes.object,
+        tableKeys           : PropTypes.object,
+        autoRefresh         : PropTypes.number,
+        reloadAtCursor      : PropTypes.bool,
+        clearSelectionOnReload: PropTypes.bool,
+        heightAutoWithMax   : PropTypes.number,
+        containerHeight     : PropTypes.number,
+        observeNodeReload   : PropTypes.bool,
+        defaultGroupBy      : PropTypes.string,
+        defaultGroupByLabel : PropTypes.string,
 
-        skipParentNavigation: React.PropTypes.bool,
-        skipInternalDataModel:React.PropTypes.bool,
-        delayInitialLoad    : React.PropTypes.number,
+        skipParentNavigation: PropTypes.bool,
+        skipInternalDataModel:PropTypes.bool,
+        delayInitialLoad    : PropTypes.number,
 
-        entryEnableSelector : React.PropTypes.func,
-        renderCustomEntry   : React.PropTypes.func,
-        entryRenderIcon     : React.PropTypes.func,
-        entryRenderActions  : React.PropTypes.func,
-        entryRenderFirstLine: React.PropTypes.func,
-        entryRenderSecondLine:React.PropTypes.func,
-        entryRenderThirdLine: React.PropTypes.func,
-        entryHandleClicks   : React.PropTypes.func,
-        hideToolbar         : React.PropTypes.bool,
-        computeActionsForNode: React.PropTypes.bool,
-        multipleActions     : React.PropTypes.array,
+        entryEnableSelector : PropTypes.func,
+        renderCustomEntry   : PropTypes.func,
+        entryRenderIcon     : PropTypes.func,
+        entryRenderActions  : PropTypes.func,
+        entryRenderFirstLine: PropTypes.func,
+        entryRenderSecondLine:PropTypes.func,
+        entryRenderThirdLine: PropTypes.func,
+        entryHandleClicks   : PropTypes.func,
+        hideToolbar         : PropTypes.bool,
+        computeActionsForNode: PropTypes.bool,
+        multipleActions     : PropTypes.array,
 
-        openEditor          : React.PropTypes.func,
-        openCollection      : React.PropTypes.func,
+        openEditor          : PropTypes.func,
+        openCollection      : PropTypes.func,
 
-        elementStyle        : React.PropTypes.object,
-        passScrollingStateToChildren:React.PropTypes.bool,
-        elementHeight       : React.PropTypes.oneOfType([
-            React.PropTypes.number,
-            React.PropTypes.object
+        elementStyle        : PropTypes.object,
+        passScrollingStateToChildren:PropTypes.bool,
+        elementHeight       : PropTypes.oneOfType([
+            PropTypes.number,
+            PropTypes.object
         ]).isRequired
 
     },

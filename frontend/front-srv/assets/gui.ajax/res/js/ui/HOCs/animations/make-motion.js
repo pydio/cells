@@ -19,10 +19,7 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import shallowCompare from 'react/lib/shallowCompare';
-import { spring, Motion } from 'react-motion';
-import stripStyle from 'react-motion/lib/stripStyle';
+import { Motion } from 'react-motion';
 import {springify, buildTransform} from './utils';
 
 let counter=0

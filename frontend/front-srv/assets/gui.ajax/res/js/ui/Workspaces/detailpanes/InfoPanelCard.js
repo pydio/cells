@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import {IconButton, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
@@ -118,9 +120,9 @@ class InfoPanelCard extends React.Component{
 }
 
 InfoPanelCard.PropTypes = {
-    identifier: React.PropTypes.string,
-    title:React.PropTypes.string,
-    actions:React.PropTypes.array
+    identifier: PropTypes.string,
+    title:PropTypes.string,
+    actions:PropTypes.array
 };
 
 InfoPanelCard = muiThemeable()(InfoPanelCard);

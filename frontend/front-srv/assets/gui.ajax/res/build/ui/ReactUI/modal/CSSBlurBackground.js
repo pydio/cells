@@ -1,3 +1,13 @@
+'use strict';
+
+exports.__esModule = true;
+exports.bgCoverFromScreenRatio = bgCoverFromScreenRatio;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,19 +28,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
-
-exports.__esModule = true;
-exports.bgCoverFromScreenRatio = bgCoverFromScreenRatio;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 var _require = require('react');
 
 var Component = _require.Component;
-var PropTypes = _require.PropTypes;
 
 function bgCoverFromScreenRatio(width, height) {
     var screenWidth = DOMUtils.getViewportWidth();
@@ -93,7 +93,7 @@ var CSSBlurBackground = (function (_Component) {
     CSSBlurBackground.prototype.computeBackgroundData = function computeBackgroundData() {
 
         var pydioMainElement = document.getElementById(window.pydio.Parameters.get('MAIN_ELEMENT'));
-        var reference = pydioMainElement.querySelector('div[data-reactroot]');
+        var reference = pydioMainElement.querySelector('div[style]');
         if (!reference) {
             return;
         }
@@ -140,7 +140,7 @@ var CSSBlurBackground = (function (_Component) {
 
         if (!backgroundImage) return null;
         return React.createElement('style', { dangerouslySetInnerHTML: {
-                __html: ['.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur:before {', '  background-image: ' + backgroundImage + ';', '  background-size: ' + backgroundSize + ';', '}'].join('\n')
+                __html: ['.react-mui-context div.dialogRootBlur > div > div.dialogRootBlur:before {', '  background-image: ' + backgroundImage + ';', '  background-size: ' + backgroundSize + ';', '}'].join('\n')
             } });
     };
 

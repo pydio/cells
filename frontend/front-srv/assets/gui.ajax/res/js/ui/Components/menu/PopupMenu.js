@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26,11 +27,11 @@ import Utils from './Utils'
 
 export default class extends React.Component {
     static propTypes = {
-        menuItems: React.PropTypes.array.isRequired,
-        onExternalClickCheckElements: React.PropTypes.func,
-        className: React.PropTypes.string,
-        style:React.PropTypes.object,
-        onMenuClosed: React.PropTypes.func
+        menuItems: PropTypes.array.isRequired,
+        onExternalClickCheckElements: PropTypes.func,
+        className: PropTypes.string,
+        style:PropTypes.object,
+        onMenuClosed: PropTypes.func
     };
 
     state = {showMenu:false, menuItems:this.props.menuItems};

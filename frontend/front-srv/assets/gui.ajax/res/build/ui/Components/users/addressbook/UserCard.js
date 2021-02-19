@@ -30,6 +30,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -129,27 +133,27 @@ UserCard.propTypes = {
     /**
      * Pydio instance
      */
-    pydio: _react2['default'].PropTypes.instanceOf(Pydio),
+    pydio: _propTypes2['default'].instanceOf(Pydio),
     /**
      * Team data object
      */
-    item: _react2['default'].PropTypes.object,
+    item: _propTypes2['default'].object,
     /**
      * Applied to root container
      */
-    style: _react2['default'].PropTypes.object,
+    style: _propTypes2['default'].object,
     /**
      * Called to dismiss the popover
      */
-    onRequestClose: _react2['default'].PropTypes.func,
+    onRequestClose: _propTypes2['default'].func,
     /**
      * Delete current team
      */
-    onDeleteAction: _react2['default'].PropTypes.func,
+    onDeleteAction: _propTypes2['default'].func,
     /**
      * Update current team
      */
-    onUpdateAction: _react2['default'].PropTypes.func
+    onUpdateAction: _propTypes2['default'].func
 };
 
 exports['default'] = UserCard;

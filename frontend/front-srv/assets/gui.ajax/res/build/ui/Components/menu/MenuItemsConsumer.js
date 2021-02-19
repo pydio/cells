@@ -37,6 +37,7 @@ var _Utils2 = _interopRequireDefault(_Utils);
 var _lodash = require('lodash');
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var Controller = require('pydio/model/controller');
 
 exports['default'] = function (Component) {
@@ -95,10 +96,10 @@ exports['default'] = function (Component) {
     })(React.Component);
 
     Wrapped.propTypes = {
-        menuItems: React.PropTypes.array,
-        toolbars: React.PropTypes.array,
-        controller: React.PropTypes.instanceOf(Controller),
-        pydio: React.PropTypes.instanceOf(Pydio)
+        menuItems: PropTypes.array,
+        toolbars: PropTypes.array,
+        controller: PropTypes.instanceOf(Controller),
+        pydio: PropTypes.instanceOf(Pydio)
     };
 
     return Wrapped;

@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import PydioApi from 'pydio/http/api'
-import {Component, PropTypes} from "react";
+import { Component } from "react";
 import {FlatButton} from "material-ui";
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');

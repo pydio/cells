@@ -18,20 +18,30 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var Loadingbar = function Loadingbar(style) {
-    return React.createElement(PydioReactUI.Loader, { style: _extends({}, style, { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 0 }) });
+    return _react2['default'].createElement(PydioReactUI.Loader, { style: _extends({}, style, { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 0 }) });
 };
 
 var loader = function loader(Component) {
@@ -83,32 +93,32 @@ var loader = function loader(Component) {
             var onLoad = _props.onLoad;
             var loaderStyle = _props.loaderStyle;
 
-            var remainingProps = _objectWithoutProperties(_props, ["noLoader", "onLoad", "loaderStyle"]);
+            var remainingProps = _objectWithoutProperties(_props, ['noLoader', 'onLoad', 'loaderStyle']);
 
             if (noLoader) {
-                return React.createElement(Component, _extends({}, remainingProps, { onLoad: this.onLoad }));
+                return _react2['default'].createElement(Component, _extends({}, remainingProps, { onLoad: this.onLoad }));
             }
 
             var style = loading ? { position: "relative", zIndex: "-1", top: "-3000px" } : {};
 
             if (loading) {
-                return React.createElement(Loadingbar, { style: _extends({}, style, loaderStyle) });
+                return _react2['default'].createElement(Loadingbar, { style: _extends({}, style, loaderStyle) });
             }
 
-            return React.createElement(Component, _extends({}, remainingProps, { onLoad: this.onLoad }));
+            return _react2['default'].createElement(Component, _extends({}, remainingProps, { onLoad: this.onLoad }));
         };
 
         return Loader;
-    })(React.Component);
+    })(_react2['default'].Component);
 
     Loader.propTypes = {
-        noLoader: React.PropTypes.bool,
-        onLoad: React.PropTypes.func,
-        loaderStyle: React.PropTypes.object
+        noLoader: _propTypes2['default'].bool,
+        onLoad: _propTypes2['default'].func,
+        loaderStyle: _propTypes2['default'].object
     };
 
     return Loader;
 };
 
-exports["default"] = loader;
-module.exports = exports["default"];
+exports['default'] = loader;
+module.exports = exports['default'];

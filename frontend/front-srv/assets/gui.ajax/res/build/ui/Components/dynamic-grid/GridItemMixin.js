@@ -25,6 +25,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -34,8 +38,8 @@ var _materialUi = require('material-ui');
 exports['default'] = {
 
     propTypes: {
-        showCloseAction: React.PropTypes.bool,
-        onCloseAction: React.PropTypes.func
+        showCloseAction: _propTypes2['default'].bool,
+        onCloseAction: _propTypes2['default'].func
     },
 
     focusItem: function focusItem() {

@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -43,6 +23,30 @@ var _Loaders2 = _interopRequireDefault(_Loaders);
 var _avatarActionsPanel = require('../avatar/ActionsPanel');
 
 var _avatarActionsPanel2 = _interopRequireDefault(_avatarActionsPanel);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -173,27 +177,27 @@ TeamCard.propTypes = {
     /**
      * Pydio instance
      */
-    pydio: React.PropTypes.instanceOf(Pydio),
+    pydio: _propTypes2['default'].instanceOf(Pydio),
     /**
      * Team data object
      */
-    item: React.PropTypes.object,
+    item: _propTypes2['default'].object,
     /**
      * Applied to root container
      */
-    style: React.PropTypes.object,
+    style: _propTypes2['default'].object,
     /**
      * Called to dismiss the popover
      */
-    onRequestClose: React.PropTypes.func,
+    onRequestClose: _propTypes2['default'].func,
     /**
      * Delete current team
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: _propTypes2['default'].func,
     /**
      * Update current team
      */
-    onUpdateAction: React.PropTypes.func
+    onUpdateAction: _propTypes2['default'].func
 };
 
 exports['default'] = TeamCard = PydioContextConsumer(TeamCard);

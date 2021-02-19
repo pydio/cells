@@ -1,3 +1,6 @@
+import React from 'react';
+import PydioApi from 'pydio/http/api'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import PydioApi from 'pydio/http/api'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import AddressBook from './addressbook/AddressBook'
 import {TextField, AutoComplete, MenuItem, RefreshIndicator, Popover, FontIcon} from 'material-ui'
@@ -38,39 +41,39 @@ class UsersLoader extends React.Component {
         /**
          * Method called to render a commponent, taking a UserObject as input
          */
-        renderSuggestion: React.PropTypes.func.isRequired,
+        renderSuggestion: PropTypes.func.isRequired,
         /**
          * Callback when a value is finally selected
          */
-        onValueSelected : React.PropTypes.func.isRequired,
+        onValueSelected : PropTypes.func.isRequired,
         /**
          * Floating Label Text displayed on the field
          */
-        fieldLabel      : React.PropTypes.string.isRequired,
+        fieldLabel      : PropTypes.string.isRequired,
         /**
          * Array of values to ignore
          */
-        excludes        : React.PropTypes.array.isRequired,
+        excludes        : PropTypes.array.isRequired,
         /**
          * Display only users, no groups nor roles
          */
-        usersOnly       : React.PropTypes.bool,
+        usersOnly       : PropTypes.bool,
         /**
          * Display users from local directory and/or from remote.
          */
-        usersFrom       : React.PropTypes.oneOf(['local', 'remote', 'any']),
+        usersFrom       : PropTypes.oneOf(['local', 'remote', 'any']),
         /**
          * Do not propose a "Create user" option
          */
-        existingOnly    : React.PropTypes.bool,
+        existingOnly    : PropTypes.bool,
         /**
          * Allow free typing
          */
-        freeValueAllowed: React.PropTypes.bool,
+        freeValueAllowed: PropTypes.bool,
         /**
          * Will be passed to the root component
          */
-        className       : React.PropTypes.string
+        className       : PropTypes.string
     };
 
     state = {

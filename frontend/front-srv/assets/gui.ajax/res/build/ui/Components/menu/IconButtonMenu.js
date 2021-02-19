@@ -1,3 +1,22 @@
+'use strict';
+
+exports.__esModule = true;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _Utils = require('./Utils');
+
+var _Utils2 = _interopRequireDefault(_Utils);
+
+var _MenuItemsConsumer = require('./MenuItemsConsumer');
+
+var _MenuItemsConsumer2 = _interopRequireDefault(_MenuItemsConsumer);
+
+var PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,24 +36,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-'use strict';
-
-exports.__esModule = true;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _Utils = require('./Utils');
-
-var _Utils2 = _interopRequireDefault(_Utils);
-
-var _MenuItemsConsumer = require('./MenuItemsConsumer');
-
-var _MenuItemsConsumer2 = _interopRequireDefault(_MenuItemsConsumer);
 
 var React = require('react');
 
@@ -114,13 +115,13 @@ var IconButtonMenu = (function (_React$Component) {
 })(React.Component);
 
 IconButtonMenu.propTypes = {
-    buttonTitle: React.PropTypes.string.isRequired,
-    buttonClassName: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string,
-    popoverDirection: React.PropTypes.oneOf(['right', 'left']),
-    popoverPosition: React.PropTypes.oneOf(['top', 'bottom']),
-    menuProps: React.PropTypes.object,
-    menuItems: React.PropTypes.array.isRequired
+    buttonTitle: PropTypes.string.isRequired,
+    buttonClassName: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    popoverDirection: PropTypes.oneOf(['right', 'left']),
+    popoverPosition: PropTypes.oneOf(['top', 'bottom']),
+    menuProps: PropTypes.object,
+    menuItems: PropTypes.array.isRequired
 };
 
 exports['default'] = _MenuItemsConsumer2['default'](IconButtonMenu);

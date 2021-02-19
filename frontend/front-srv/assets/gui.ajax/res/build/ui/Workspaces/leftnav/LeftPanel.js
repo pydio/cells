@@ -35,6 +35,7 @@ var _wslistWorkspacesList = require('../wslist/WorkspacesList');
 var _wslistWorkspacesList2 = _interopRequireDefault(_wslistWorkspacesList);
 
 var React = require('react');
+var PropTypes = require('prop-types');
 var Pydio = require('pydio');
 
 var _require = require('material-ui/styles');
@@ -101,10 +102,10 @@ var LeftPanel = function LeftPanel(_ref) {
 };
 
 LeftPanel.propTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-    userWidgetProps: React.PropTypes.object,
-    workspacesListProps: React.PropTypes.object,
-    style: React.PropTypes.object
+    pydio: PropTypes.instanceOf(Pydio).isRequired,
+    userWidgetProps: PropTypes.object,
+    workspacesListProps: PropTypes.object,
+    style: PropTypes.object
 };
 
 exports['default'] = LeftPanel = muiThemeable()(LeftPanel);

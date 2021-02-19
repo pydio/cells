@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -44,6 +24,30 @@ var _createReactClass = require('create-react-class');
 
 var _createReactClass2 = _interopRequireDefault(_createReactClass);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -68,22 +72,22 @@ var SimpleTreeNode = _createReactClass2['default']({
     displayName: 'SimpleTreeNode',
 
     propTypes: {
-        collapse: _react2['default'].PropTypes.bool,
-        forceExpand: _react2['default'].PropTypes.bool,
-        childrenOnly: _react2['default'].PropTypes.bool,
-        depth: _react2['default'].PropTypes.number,
-        onNodeSelect: _react2['default'].PropTypes.func,
-        node: _react2['default'].PropTypes.instanceOf(AjxpNode),
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel),
-        forceLabel: _react2['default'].PropTypes.string,
+        collapse: _propTypes2['default'].bool,
+        forceExpand: _propTypes2['default'].bool,
+        childrenOnly: _propTypes2['default'].bool,
+        depth: _propTypes2['default'].number,
+        onNodeSelect: _propTypes2['default'].func,
+        node: _propTypes2['default'].instanceOf(AjxpNode),
+        dataModel: _propTypes2['default'].instanceOf(PydioDataModel),
+        forceLabel: _propTypes2['default'].string,
         // Optional currently selected detection
-        nodeIsSelected: _react2['default'].PropTypes.func,
+        nodeIsSelected: _propTypes2['default'].func,
         // Optional checkboxes
-        checkboxes: _react2['default'].PropTypes.array,
-        checkboxesValues: _react2['default'].PropTypes.object,
-        checkboxesComputeStatus: _react2['default'].PropTypes.func,
-        onCheckboxCheck: _react2['default'].PropTypes.func,
-        paddingOffset: _react2['default'].PropTypes.number
+        checkboxes: _propTypes2['default'].array,
+        checkboxesValues: _propTypes2['default'].object,
+        checkboxesComputeStatus: _propTypes2['default'].func,
+        onCheckboxCheck: _propTypes2['default'].func,
+        paddingOffset: _propTypes2['default'].number
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -482,24 +486,24 @@ var DNDTreeView = (function (_React$Component2) {
     _createClass(DNDTreeView, null, [{
         key: 'propTypes',
         value: {
-            showRoot: _react2['default'].PropTypes.bool,
-            rootLabel: _react2['default'].PropTypes.string,
-            onNodeSelect: _react2['default'].PropTypes.func,
-            node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-            dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-            selectable: _react2['default'].PropTypes.bool,
-            selectableMultiple: _react2['default'].PropTypes.bool,
-            initialSelectionModel: _react2['default'].PropTypes.array,
-            onSelectionChange: _react2['default'].PropTypes.func,
-            forceExpand: _react2['default'].PropTypes.bool,
+            showRoot: _propTypes2['default'].bool,
+            rootLabel: _propTypes2['default'].string,
+            onNodeSelect: _propTypes2['default'].func,
+            node: _propTypes2['default'].instanceOf(AjxpNode).isRequired,
+            dataModel: _propTypes2['default'].instanceOf(PydioDataModel).isRequired,
+            selectable: _propTypes2['default'].bool,
+            selectableMultiple: _propTypes2['default'].bool,
+            initialSelectionModel: _propTypes2['default'].array,
+            onSelectionChange: _propTypes2['default'].func,
+            forceExpand: _propTypes2['default'].bool,
             // Optional currently selected detection
-            nodeIsSelected: _react2['default'].PropTypes.func,
+            nodeIsSelected: _propTypes2['default'].func,
             // Optional checkboxes
-            checkboxes: _react2['default'].PropTypes.array,
-            checkboxesValues: _react2['default'].PropTypes.object,
-            checkboxesComputeStatus: _react2['default'].PropTypes.func,
-            onCheckboxCheck: _react2['default'].PropTypes.func,
-            paddingOffset: _react2['default'].PropTypes.number
+            checkboxes: _propTypes2['default'].array,
+            checkboxesValues: _propTypes2['default'].object,
+            checkboxesComputeStatus: _propTypes2['default'].func,
+            onCheckboxCheck: _propTypes2['default'].func,
+            paddingOffset: _propTypes2['default'].number
         },
         enumerable: true
     }, {
@@ -559,24 +563,24 @@ var TreeView = (function (_React$Component3) {
     _createClass(TreeView, null, [{
         key: 'propTypes',
         value: {
-            showRoot: _react2['default'].PropTypes.bool,
-            rootLabel: _react2['default'].PropTypes.string,
-            onNodeSelect: _react2['default'].PropTypes.func,
-            node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-            dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-            selectable: _react2['default'].PropTypes.bool,
-            selectableMultiple: _react2['default'].PropTypes.bool,
-            initialSelectionModel: _react2['default'].PropTypes.array,
-            onSelectionChange: _react2['default'].PropTypes.func,
-            forceExpand: _react2['default'].PropTypes.bool,
+            showRoot: _propTypes2['default'].bool,
+            rootLabel: _propTypes2['default'].string,
+            onNodeSelect: _propTypes2['default'].func,
+            node: _propTypes2['default'].instanceOf(AjxpNode).isRequired,
+            dataModel: _propTypes2['default'].instanceOf(PydioDataModel).isRequired,
+            selectable: _propTypes2['default'].bool,
+            selectableMultiple: _propTypes2['default'].bool,
+            initialSelectionModel: _propTypes2['default'].array,
+            onSelectionChange: _propTypes2['default'].func,
+            forceExpand: _propTypes2['default'].bool,
             // Optional currently selected detection
-            nodeIsSelected: _react2['default'].PropTypes.func,
+            nodeIsSelected: _propTypes2['default'].func,
             // Optional checkboxes
-            checkboxes: _react2['default'].PropTypes.array,
-            checkboxesValues: _react2['default'].PropTypes.object,
-            checkboxesComputeStatus: _react2['default'].PropTypes.func,
-            onCheckboxCheck: _react2['default'].PropTypes.func,
-            paddingOffset: _react2['default'].PropTypes.number
+            checkboxes: _propTypes2['default'].array,
+            checkboxesValues: _propTypes2['default'].object,
+            checkboxesComputeStatus: _propTypes2['default'].func,
+            onCheckboxCheck: _propTypes2['default'].func,
+            paddingOffset: _propTypes2['default'].number
         },
         enumerable: true
     }, {
@@ -672,11 +676,11 @@ var FoldersTree = (function (_React$Component4) {
     _createClass(FoldersTree, null, [{
         key: 'propTypes',
         value: {
-            pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
-            dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-            className: _react2['default'].PropTypes.string,
-            onNodeSelected: _react2['default'].PropTypes.func,
-            draggable: _react2['default'].PropTypes.bool
+            pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
+            dataModel: _propTypes2['default'].instanceOf(PydioDataModel).isRequired,
+            className: _propTypes2['default'].string,
+            onNodeSelected: _propTypes2['default'].func,
+            draggable: _propTypes2['default'].bool
         },
         enumerable: true
     }]);

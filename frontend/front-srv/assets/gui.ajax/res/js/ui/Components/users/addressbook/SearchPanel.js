@@ -19,7 +19,8 @@
  */
 
 
-const {Component, PropTypes} = require('react')
+const {Component} = require('react')
+import PropTypes from 'prop-types'
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
 
 import SearchForm from './SearchForm'

@@ -36,19 +36,7 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
-var _reactLibShallowCompare = require('react/lib/shallowCompare');
-
-var _reactLibShallowCompare2 = _interopRequireDefault(_reactLibShallowCompare);
-
 var _reactMotion = require('react-motion');
-
-var _reactMotionLibStripStyle = require('react-motion/lib/stripStyle');
-
-var _reactMotionLibStripStyle2 = _interopRequireDefault(_reactMotionLibStripStyle);
 
 var _utils = require('./utils');
 

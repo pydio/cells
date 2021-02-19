@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -63,11 +64,11 @@ class IconButtonPopover extends React.Component{
 }
 
 IconButtonPopover.propTypes = {
-    buttonTitle: React.PropTypes.string.isRequired,
-    buttonClassName: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string,
-    direction: React.PropTypes.oneOf(['right', 'left']),
-    popoverContent: React.PropTypes.object.isRequired
+    buttonTitle: PropTypes.string.isRequired,
+    buttonClassName: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    direction: PropTypes.oneOf(['right', 'left']),
+    popoverContent: PropTypes.object.isRequired
 }
 
 export default IconButtonPopover

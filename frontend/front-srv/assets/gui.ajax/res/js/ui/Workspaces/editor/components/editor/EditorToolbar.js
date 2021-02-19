@@ -28,7 +28,7 @@ const { getActiveTab, makeTransitionHOC, EditorActions } = Pydio.requireLib('hoc
 // TODO - should be two motions for appearing and disappearing, based on a condition in the props
 @makeTransitionHOC({translateY: -60, opacity: 0}, {translateY: 0, opacity: 1})
 @connect(mapStateToProps, EditorActions)
-export default class EditorToolbar extends React.Component {
+class EditorToolbar extends React.Component {
 
     onClose() {
         const {tabDeleteAll} = this.props
@@ -91,3 +91,5 @@ function mapStateToProps(state, ownProps) {
         title: tab.title
     }
 }
+
+export default EditorToolbar

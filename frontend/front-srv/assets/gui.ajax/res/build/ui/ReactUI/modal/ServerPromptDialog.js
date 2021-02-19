@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -55,20 +59,20 @@ exports['default'] = _createReactClass2['default']({
         /**
          * Message ID used for the dialog title
          */
-        dialogTitleId: _react2['default'].PropTypes.string,
+        dialogTitleId: _propTypes2['default'].string,
         /**
          * Main Message displayed in the body of the dialog
          */
-        dialogLegendId: _react2['default'].PropTypes.string,
+        dialogLegendId: _propTypes2['default'].string,
         /**
          * If not empty, dialog will display and then trigger a redirection.
          */
-        autoRedirectUrl: _react2['default'].PropTypes.string,
+        autoRedirectUrl: _propTypes2['default'].string,
         /**
          * Object containing fields definition that must be shown to user
          * and sent back to server. Fields can be text, password or hidden.
          */
-        fieldsDefinitions: _react2['default'].PropTypes.object
+        fieldsDefinitions: _propTypes2['default'].object
 
     },
 

@@ -28,6 +28,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -135,7 +139,7 @@ var EditionPanel = (function (_React$Component) {
 })(React.Component);
 
 EditionPanel.PropTypes = {
-    pydio: React.PropTypes.instanceOf(_pydio2['default'])
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default'])
 };
 
 exports['default'] = _reactRedux.connect(null, EditorActions)(EditionPanel);

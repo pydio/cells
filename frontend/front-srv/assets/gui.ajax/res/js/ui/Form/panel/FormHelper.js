@@ -19,6 +19,7 @@
  */
 
 const React = require('react')
+import PropTypes from 'prop-types'
 import Manager from '../manager/Manager'
 const {AsyncComponent} = require('pydio').requireLib('boot')
 
@@ -28,8 +29,8 @@ const {AsyncComponent} = require('pydio').requireLib('boot')
  */
 export default class extends React.Component {
     static propTypes = {
-        helperData:React.PropTypes.object,
-        close:React.PropTypes.func.isRequired
+        helperData:PropTypes.object,
+        close:PropTypes.func.isRequired
     };
 
     closeHelper = () => {

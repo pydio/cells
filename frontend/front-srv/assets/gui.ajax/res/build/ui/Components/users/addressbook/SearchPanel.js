@@ -30,6 +30,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _SearchForm = require('./SearchForm');
 
 var _SearchForm2 = _interopRequireDefault(_SearchForm);
@@ -49,7 +53,6 @@ var _Loaders2 = _interopRequireDefault(_Loaders);
 var _require = require('react');
 
 var Component = _require.Component;
-var PropTypes = _require.PropTypes;
 
 var _require$requireLib = require('pydio').requireLib('boot');
 
@@ -123,23 +126,23 @@ SearchPanel.propTypes = {
     /**
      * Optional parameters added to listUsers() request
      */
-    params: PropTypes.object,
+    params: _propTypes2['default'].object,
     /**
      * Label displayed in the toolbar
      */
-    searchLabel: PropTypes.string,
+    searchLabel: _propTypes2['default'].string,
     /**
      * Callback triggered when a search result is clicked
      */
-    onItemClicked: PropTypes.func,
+    onItemClicked: _propTypes2['default'].func,
     /**
      * Currently selected item, required for navigation
      */
-    item: PropTypes.object,
+    item: _propTypes2['default'].object,
     /**
      * Callback triggered if the result is a collection
      */
-    onFolderClicked: PropTypes.func
+    onFolderClicked: _propTypes2['default'].func
 };
 
 exports['default'] = SearchPanel = PydioContextConsumer(SearchPanel);

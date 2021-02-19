@@ -96,7 +96,7 @@ var styles = {
     }
 };
 
-var Tab = (function (_React$PureComponent) {
+var _default = (function (_React$PureComponent) {
     _inherits(Tab, _React$PureComponent);
 
     function Tab() {
@@ -234,7 +234,7 @@ var Tab = (function (_React$PureComponent) {
     return Tab;
 })(React.PureComponent);
 
-exports['default'] = Tab;
+exports['default'] = _default;
 
 var BottomBar = (function (_React$Component) {
     _inherits(BottomBar, _React$Component);

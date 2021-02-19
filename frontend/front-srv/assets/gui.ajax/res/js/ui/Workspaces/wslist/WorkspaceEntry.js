@@ -1,3 +1,5 @@
+import React from "react";
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -21,7 +23,8 @@
 
 
 
-import React from "react";
+import PropTypes from 'prop-types';
+
 import Pydio from "pydio";
 import {muiThemeable} from "material-ui/styles";
 import Color from 'color'
@@ -61,10 +64,10 @@ Badge = muiThemeable()(Badge);
 
 class Confirm extends React.Component {
     static propTypes = {
-        pydio       : React.PropTypes.instanceOf(Pydio),
-        onDecline   : React.PropTypes.func,
-        onAccept    : React.PropTypes.func,
-        mode        : React.PropTypes.oneOf(['new_share','reject_accepted'])
+        pydio       : PropTypes.instanceOf(Pydio),
+        onDecline   : PropTypes.func,
+        onAccept    : PropTypes.func,
+        mode        : PropTypes.oneOf(['new_share','reject_accepted'])
     };
 
     render() {
@@ -106,11 +109,11 @@ class Confirm extends React.Component {
 
 class WorkspaceEntry extends React.Component {
     static propTypes = {
-        pydio           : React.PropTypes.instanceOf(Pydio).isRequired,
-        workspace       : React.PropTypes.instanceOf(Repository).isRequired,
-        showFoldersTree : React.PropTypes.bool,
-        onHoverLink     : React.PropTypes.func,
-        onOutLink       : React.PropTypes.func
+        pydio           : PropTypes.instanceOf(Pydio).isRequired,
+        workspace       : PropTypes.instanceOf(Repository).isRequired,
+        showFoldersTree : PropTypes.bool,
+        onHoverLink     : PropTypes.func,
+        onOutLink       : PropTypes.func
     };
 
     state = {

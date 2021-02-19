@@ -1,3 +1,10 @@
+const React = require('react');
+const Repository = require('pydio/model/repository');
+
+const {List, Subheader, Divider} = require('material-ui')
+
+import WorkspaceEntryMaterial from './WorkspaceEntryMaterial'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,12 +25,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const Repository = require('pydio/model/repository');
+import PropTypes from 'prop-types';
 
-const {List, Subheader, Divider} = require('material-ui')
-
-import WorkspaceEntryMaterial from './WorkspaceEntryMaterial'
 import Pydio from 'pydio'
 
 class WorkspacesListMaterial extends React.Component{
@@ -98,16 +101,16 @@ class WorkspacesListMaterial extends React.Component{
 }
 
 WorkspacesListMaterial.propTypes = {
-    pydio                   : React.PropTypes.instanceOf(Pydio),
-    workspaces              : React.PropTypes.instanceOf(Map),
-    filterByType            : React.PropTypes.oneOf(['shared', 'entries', 'create']),
+    pydio                   : PropTypes.instanceOf(Pydio),
+    workspaces              : PropTypes.instanceOf(Map),
+    filterByType            : PropTypes.oneOf(['shared', 'entries', 'create']),
 
-    sectionTitleStyle       : React.PropTypes.object,
-    showTreeForWorkspace    : React.PropTypes.string,
-    onHoverLink             : React.PropTypes.func,
-    onOutLink               : React.PropTypes.func,
-    className               : React.PropTypes.string,
-    style                   : React.PropTypes.object
+    sectionTitleStyle       : PropTypes.object,
+    showTreeForWorkspace    : PropTypes.string,
+    onHoverLink             : PropTypes.func,
+    onOutLink               : PropTypes.func,
+    className               : PropTypes.string,
+    style                   : PropTypes.object
 }
 
 

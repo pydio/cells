@@ -1,3 +1,10 @@
+const React = require('react');
+const createReactClass = require('create-react-class');
+import AsyncComponent from '../AsyncComponent'
+import PydioContextConsumer from '../PydioContextConsumer'
+const {FlatButton, Dialog} = require('material-ui')
+import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,12 +25,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const createReactClass = require('create-react-class');
-import AsyncComponent from '../AsyncComponent'
-import PydioContextConsumer from '../PydioContextConsumer'
-const {FlatButton, Dialog} = require('material-ui')
-import CSSBlurBackground, {bgCoverFromScreenRatio} from './CSSBlurBackground'
+import PropTypes from 'prop-types';
+
 import DOMUtils from "pydio/util/dom";
 
 /**
@@ -33,9 +36,9 @@ let AsyncModal = createReactClass({
     displayName: 'AsyncModal',
 
     propTypes: {
-        size:       React.PropTypes.oneOf(['xxs', 'xs', 'sm', 'md', 'lg', 'xl']),
-        padding:    React.PropTypes.bool,
-        bgBlur:     React.PropTypes.bool
+        size:       PropTypes.oneOf(['xxs', 'xs', 'sm', 'md', 'lg', 'xl']),
+        padding:    PropTypes.bool,
+        bgBlur:     PropTypes.bool
     },
 
     sizes: {

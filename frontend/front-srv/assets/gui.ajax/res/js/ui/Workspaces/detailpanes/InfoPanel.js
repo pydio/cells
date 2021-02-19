@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import {compose} from 'redux';
 const {Animations, withVerticalScroll} = require('pydio').requireLib('hoc')
@@ -162,13 +164,13 @@ class InfoPanel extends React.Component {
 }
 
 InfoPanel.propTypes = {
-    dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
-    pydio:React.PropTypes.instanceOf(Pydio).isRequired,
-    style: React.PropTypes.object
+    dataModel: PropTypes.instanceOf(PydioDataModel).isRequired,
+    pydio:PropTypes.instanceOf(Pydio).isRequired,
+    style: PropTypes.object
 }
 
 InfoPanel.contextTypes = {
-    scrollArea: React.PropTypes.object
+    scrollArea: PropTypes.object
 };
 
 InfoPanel = withVerticalScroll(InfoPanel, {id: "info_panel"})

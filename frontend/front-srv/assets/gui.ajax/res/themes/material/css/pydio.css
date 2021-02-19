@@ -783,11 +783,11 @@ div.dialogBox div#element_overlay {
 .react-mui-context input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px white inset;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur > div {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur > div {
   background-color: rgba(0, 0, 0, 0.3) !important;
   position: relative;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur:before {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur:before {
   content: '';
   position: absolute;
   top: 0;
@@ -798,28 +798,28 @@ div.dialogBox div#element_overlay {
   background-position: center center;
   filter: blur(7px);
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField label {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField label {
   color: rgba(255, 255, 255, 0.73) !important;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input {
   color: white !important;
   height: 26px !important;
   margin-top: 37px !important;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .red-background {
+.react-mui-context .dialogRootBlur .red-background {
   background-color: rgba(244, 67, 54, 0.45);
   margin-left: -24px;
   margin-right: -24px;
   padding: 12px 24px;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .captcha_container {
+.react-mui-context .dialogRootBlur .captcha_container {
   text-align: center;
   background-color: rgba(244, 67, 54, 0.45);
   margin-left: -24px;
   margin-right: -24px;
   padding: 12px 24px;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .ajxp_login_error {
+.react-mui-context .dialogRootBlur .ajxp_login_error {
   font-size: 14px;
   margin-top: 12px;
   background-color: rgba(244, 67, 54, 0.45);
@@ -827,11 +827,11 @@ div.dialogBox div#element_overlay {
   margin-right: -24px;
   padding: 12px 24px;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link {
+.react-mui-context .dialogRootBlur .forgot-password-link {
   text-align: right;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link a,
-.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link a:hover {
+.react-mui-context .dialogRootBlur .forgot-password-link a,
+.react-mui-context .dialogRootBlur .forgot-password-link a:hover {
   color: rgba(255, 255, 255, 0.67);
   font-size: 13px;
 }

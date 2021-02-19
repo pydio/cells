@@ -24,6 +24,10 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -36,13 +40,13 @@ exports['default'] = _createReactClass2['default']({
     displayName: 'DynamicLeftPanel',
 
     propTypes: {
-        pydio: _react2['default'].PropTypes.instanceOf(Pydio).isRequired,
-        pydioId: _react2['default'].PropTypes.string.isRequired
+        pydio: _propTypes2['default'].instanceOf(Pydio).isRequired,
+        pydioId: _propTypes2['default'].string.isRequired
     },
 
     childContextTypes: {
-        messages: _react2['default'].PropTypes.object,
-        getMessage: _react2['default'].PropTypes.func
+        messages: _propTypes2['default'].object,
+        getMessage: _propTypes2['default'].func
     },
 
     getChildContext: function getChildContext() {

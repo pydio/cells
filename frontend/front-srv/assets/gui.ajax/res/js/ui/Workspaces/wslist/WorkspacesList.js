@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {withVerticalScroll, ModernTextField} = Pydio.requireLib('hoc');
 import WorkspaceEntry from './WorkspaceEntry'
@@ -328,14 +331,14 @@ class WorkspacesList extends React.Component{
 }
 
 WorkspacesList.PropTypes =   {
-    pydio                   : React.PropTypes.instanceOf(Pydio),
-    workspaces              : React.PropTypes.instanceOf(Map),
-    onHoverLink             : React.PropTypes.func,
-    onOutLink               : React.PropTypes.func,
-    className               : React.PropTypes.string,
-    style                   : React.PropTypes.object,
-    sectionTitleStyle       : React.PropTypes.object,
-    filterByType            : React.PropTypes.oneOf(['shared', 'entries', 'create'])
+    pydio                   : PropTypes.instanceOf(Pydio),
+    workspaces              : PropTypes.instanceOf(Map),
+    onHoverLink             : PropTypes.func,
+    onOutLink               : PropTypes.func,
+    className               : PropTypes.string,
+    style                   : PropTypes.object,
+    sectionTitleStyle       : PropTypes.object,
+    filterByType            : PropTypes.oneOf(['shared', 'entries', 'create'])
 };
 
 

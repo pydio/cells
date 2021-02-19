@@ -82,7 +82,7 @@ function difference(object, base) {
     check: (props) => props.isMinimised,
     style: (props) => props.minimiseStyle
 })
-export default class Editor extends React.Component {
+class Editor extends React.Component {
 
     handleBlurOnSelection(e) {
         const {editorModify} = this.props
@@ -187,7 +187,7 @@ export default class Editor extends React.Component {
             </Paper>
         );
     }
-};
+}
 
 // REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
@@ -204,3 +204,5 @@ function mapStateToProps(state, ownProps) {
         isMinimised,
     }
 }
+
+export default Editor

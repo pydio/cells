@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -37,6 +17,27 @@ var _TeamCard2 = _interopRequireDefault(_TeamCard);
 var _UserCard = require('./UserCard');
 
 var _UserCard2 = _interopRequireDefault(_UserCard);
+
+var PropTypes = require('prop-types');
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 
 var React = require('react');
 
@@ -83,27 +84,27 @@ RightPanelCard.propTypes = {
   /**
    * Pydio instance
    */
-  pydio: React.PropTypes.instanceOf(Pydio),
+  pydio: PropTypes.instanceOf(Pydio),
   /**
    * Selected item
    */
-  item: React.PropTypes.object,
+  item: PropTypes.object,
   /**
    * Applies to root container
    */
-  style: React.PropTypes.object,
+  style: PropTypes.object,
   /**
    * Forwarded to child
    */
-  onRequestClose: React.PropTypes.func,
+  onRequestClose: PropTypes.func,
   /**
    * Forwarded to child
    */
-  onDeleteAction: React.PropTypes.func,
+  onDeleteAction: PropTypes.func,
   /**
    * Forwarded to child
    */
-  onUpdateAction: React.PropTypes.func
+  onUpdateAction: PropTypes.func
 };
 
 exports['default'] = RightPanelCard;

@@ -37,24 +37,24 @@ var withHideDisabled = _Pydio$requireLib.withHideDisabled;
 
 // Display components
 
-var _default = (function (_React$Component) {
-    _inherits(_default, _React$Component);
+var EditorButton = (function (_React$Component) {
+    _inherits(EditorButton, _React$Component);
 
-    function _default() {
-        _classCallCheck(this, _default2);
+    function EditorButton() {
+        _classCallCheck(this, _EditorButton);
 
         _React$Component.apply(this, arguments);
     }
 
-    _default.prototype.render = function render() {
+    EditorButton.prototype.render = function render() {
         return React.createElement(IconButton, this.props);
     };
 
-    var _default2 = _default;
-    _default = makeTransitionHOC({ opacity: 0 }, { opacity: 1 })(_default) || _default;
-    _default = withHideDisabled()(_default) || _default;
-    return _default;
+    var _EditorButton = EditorButton;
+    EditorButton = makeTransitionHOC({ opacity: 0 }, { opacity: 1 })(EditorButton) || EditorButton;
+    EditorButton = withHideDisabled()(EditorButton) || EditorButton;
+    return EditorButton;
 })(React.Component);
 
-exports['default'] = _default;
+exports['default'] = EditorButton;
 module.exports = exports['default'];

@@ -21,6 +21,7 @@
 const React = require('react')
 import FormPanel from './FormPanel'
 import SelectBox from '../fields/InputSelectBox'
+const PropTypes = require('prop-types');
 const LangUtils = require('pydio/util/lang')
 
 /**
@@ -29,10 +30,10 @@ const LangUtils = require('pydio/util/lang')
  */
 export default class extends React.Component {
     static propTypes = {
-        paramAttributes:React.PropTypes.object.isRequired,
-        parameters:React.PropTypes.array.isRequired,
-        values:React.PropTypes.object.isRequired,
-        onChange:React.PropTypes.func.isRequired
+        paramAttributes:PropTypes.object.isRequired,
+        parameters:PropTypes.array.isRequired,
+        values:PropTypes.object.isRequired,
+        onChange:PropTypes.func.isRequired
     };
 
     computeSubPanelParameters = () => {

@@ -18,14 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 export default class HiddenDownloadForm extends React.Component {
 
     static get propTypes() {
         return {
-            pydio: React.PropTypes.instanceOf(Pydio).isRequired
-        }
+            pydio: PropTypes.instanceOf(Pydio).isRequired
+        };
     }
 
     componentDidMount() {

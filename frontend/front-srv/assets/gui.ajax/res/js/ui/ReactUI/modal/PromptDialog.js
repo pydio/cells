@@ -1,3 +1,11 @@
+import React from "react";
+import createReactClass from 'create-react-class';
+import {TextField} from "material-ui";
+import DOMUtils from 'pydio/util/dom';
+import ActionDialogMixin from './ActionDialogMixin'
+import CancelButtonProviderMixin from './CancelButtonProviderMixin'
+import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,13 +26,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from "react";
-import createReactClass from 'create-react-class';
-import {TextField} from "material-ui";
-import DOMUtils from 'pydio/util/dom';
-import ActionDialogMixin from './ActionDialogMixin'
-import CancelButtonProviderMixin from './CancelButtonProviderMixin'
-import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {ModernTextField} = Pydio.requireLib("hoc");
 
@@ -40,31 +43,31 @@ export default createReactClass({
         /**
          * Message ID used for the dialog title
          */
-        dialogTitleId:React.PropTypes.string,
+        dialogTitleId:PropTypes.string,
         /**
          * Message ID or string used for dialog legend
          */
-        legendId:React.PropTypes.string,
+        legendId:PropTypes.string,
         /**
          * MessageID used for the field Floating Label Text
          */
-        fieldLabelId:React.PropTypes.string,
+        fieldLabelId:PropTypes.string,
         /**
          * Either text or password
          */
-        fieldType: React.PropTypes.oneOf(['text', 'password']),
+        fieldType: PropTypes.oneOf(['text', 'password']),
         /**
          * Callback used at submit time
          */
-        submitValue:React.PropTypes.func.isRequired,
+        submitValue:PropTypes.func.isRequired,
         /**
          * Preset value displayed in the text field
          */
-        defaultValue:React.PropTypes.string,
+        defaultValue:PropTypes.string,
         /**
          * Select a part of the default value [NOT IMPLEMENTED]
          */
-        defaultInputSelection:React.PropTypes.string
+        defaultInputSelection:PropTypes.string
     },
 
     mixins:[

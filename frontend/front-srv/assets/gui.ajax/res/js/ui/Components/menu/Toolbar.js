@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import createReactClass from 'create-react-class';
 import Utils from './Utils'
 import IconButtonMenu from './IconButtonMenu'
@@ -32,14 +34,14 @@ export default createReactClass({
     displayName: 'Toolbar',
 
     propTypes:{
-        toolbars:React.PropTypes.array,
-        groupOtherList:React.PropTypes.array,
-        renderingType:React.PropTypes.string,
-        controller:React.PropTypes.instanceOf(Controller),
-        toolbarStyle: React.PropTypes.object,
-        buttonStyle: React.PropTypes.object,
-        fabAction:React.PropTypes.string,
-        buttonMenuNoLabel: React.PropTypes.bool
+        toolbars:PropTypes.array,
+        groupOtherList:PropTypes.array,
+        renderingType:PropTypes.string,
+        controller:PropTypes.instanceOf(Controller),
+        toolbarStyle: PropTypes.object,
+        buttonStyle: PropTypes.object,
+        fabAction:PropTypes.string,
+        buttonMenuNoLabel: PropTypes.bool
     },
 
     componentDidMount(){

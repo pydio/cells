@@ -43,6 +43,12 @@ var _materialUi = require('material-ui');
 var SimpleFigureBadge = (function (_React$Component) {
     _inherits(SimpleFigureBadge, _React$Component);
 
+    // static propTypes:{
+    //     colorIndicator:PropTypes.string,
+    //     figure:PropTypes.number.isRequired,
+    //     legend:PropTypes.string
+    // };
+
     function SimpleFigureBadge(props) {
         _classCallCheck(this, SimpleFigureBadge);
 

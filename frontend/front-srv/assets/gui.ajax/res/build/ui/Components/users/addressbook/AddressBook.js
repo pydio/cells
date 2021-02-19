@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -60,6 +40,30 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -101,51 +105,51 @@ var AddressBook = (function (_React$Component) {
             /**
              * Main instance of pydio
              */
-            pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']),
+            pydio: _propTypes2['default'].instanceOf(_pydio2['default']),
             /**
              * Display mode, either large (book) or small picker ('selector', 'popover').
              */
-            mode: _react2['default'].PropTypes.oneOf(['book', 'selector', 'popover']).isRequired,
+            mode: _propTypes2['default'].oneOf(['book', 'selector', 'popover']).isRequired,
             /**
              * Use book mode but display as column
              */
-            bookColumn: _react2['default'].PropTypes.bool,
+            bookColumn: _propTypes2['default'].bool,
             /**
              * Callback triggered in 'selector' mode whenever an item is clicked.
              */
-            onItemSelected: _react2['default'].PropTypes.func,
+            onItemSelected: _propTypes2['default'].func,
             /**
              * Display users only, no teams or groups
              */
-            usersOnly: _react2['default'].PropTypes.bool,
+            usersOnly: _propTypes2['default'].bool,
             /**
              * Choose various user sources, either the local directory or remote ( = trusted ) servers.
              */
-            usersFrom: _react2['default'].PropTypes.oneOf(['local', 'remote', 'any']),
+            usersFrom: _propTypes2['default'].oneOf(['local', 'remote', 'any']),
             /**
              * Disable the search engine
              */
-            disableSearch: _react2['default'].PropTypes.bool,
+            disableSearch: _propTypes2['default'].bool,
             /**
              * Theme object passed by muiThemeable() wrapper
              */
-            muiTheme: _react2['default'].PropTypes.object,
+            muiTheme: _propTypes2['default'].object,
             /**
              * Will be passed to the Popover object
              */
-            popoverStyle: _react2['default'].PropTypes.object,
+            popoverStyle: _propTypes2['default'].object,
             /**
              * Used as a button to open the selector in a popover
              */
-            popoverButton: _react2['default'].PropTypes.object,
+            popoverButton: _propTypes2['default'].object,
             /**
              * Will be passed to the Popover container object
              */
-            popoverContainerStyle: _react2['default'].PropTypes.object,
+            popoverContainerStyle: _propTypes2['default'].object,
             /**
              * Will be passed to the Popover Icon Button.
              */
-            popoverIconButtonStyle: _react2['default'].PropTypes.object
+            popoverIconButtonStyle: _propTypes2['default'].object
         },
         enumerable: true
     }, {

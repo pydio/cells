@@ -1,3 +1,13 @@
+import GraphPanel from './GraphPanel';
+import ActionsPanel from './ActionsPanel'
+const debounce = require('lodash.debounce');
+const React = require('react');
+const Color = require('color');
+const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material-ui');
+const {muiThemeable} = require('material-ui/styles');
+const MetaCacheService = require('pydio/http/meta-cache-service');
+const {UsersApi} = require('pydio/http/users-api');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,15 +28,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import GraphPanel from './GraphPanel'
-import ActionsPanel from './ActionsPanel'
-const debounce = require('lodash.debounce');
-const React = require('react');
-const Color = require('color');
-const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material-ui');
-const {muiThemeable} = require('material-ui/styles');
-const MetaCacheService = require('pydio/http/meta-cache-service');
-const {UsersApi} = require('pydio/http/users-api');
+import PropTypes from 'prop-types';
+
 import PydioApi from "pydio/http/api";
 
 /**
@@ -385,111 +388,111 @@ UserAvatar.propTypes = {
     /**
      * Id of the user to be loaded
      */
-    userId: React.PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     /**
      * Pydio instance
      */
-    pydio : React.PropTypes.instanceOf(Pydio),
+    pydio : PropTypes.instanceOf(Pydio),
     /**
      * Label of the user, if we already have it (otherwise will be loaded)
      */
-    userLabel:React.PropTypes.string,
+    userLabel:PropTypes.string,
     /**
      * Type of user
      */
-    userType: React.PropTypes.oneOf(['user', 'group', 'remote', 'team']),
+    userType: PropTypes.oneOf(['user', 'group', 'remote', 'team']),
     /**
      * Icon to be displayed in avatar
      */
-    icon:React.PropTypes.string,
+    icon:PropTypes.string,
     /**
      * Display a rich card or a simple avatar+label chip
      */
-    richCard: React.PropTypes.bool,
+    richCard: PropTypes.bool,
     /**
      * If not rich, display a rich card as popover on mouseover
      */
-    richOnHover: React.PropTypes.bool,
+    richOnHover: PropTypes.bool,
     /**
      * If not rich, display a rich card as popover on click
      */
-    richOnClick: React.PropTypes.bool,
+    richOnClick: PropTypes.bool,
 
     /**
      * Add edit action to the card
      */
-    userEditable: React.PropTypes.bool,
+    userEditable: PropTypes.bool,
     /**
      * Triggered after successful edition
      */
-    onEditAction: React.PropTypes.func,
+    onEditAction: PropTypes.func,
     /**
      * Triggered after deletion
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: PropTypes.func,
     /**
      * Triggered if a reload is required
      */
-    reloadAction: React.PropTypes.func,
+    reloadAction: PropTypes.func,
 
     /**
      * Display label element or not
      */
-    displayLabel: React.PropTypes.bool,
+    displayLabel: PropTypes.bool,
     /**
      * Display label element or not
      */
-    displayLocalLabel: React.PropTypes.bool,
+    displayLocalLabel: PropTypes.bool,
     /**
      * Display avatar element or not
      */
-    displayAvatar: React.PropTypes.bool,
+    displayAvatar: PropTypes.bool,
     /**
      * Display only avatar
      */
-    avatarOnly: React.PropTypes.bool,
+    avatarOnly: PropTypes.bool,
     /**
      * Use default avatar
      */
-    useDefaultAvatar: React.PropTypes.bool,
+    useDefaultAvatar: PropTypes.bool,
     /**
      * Avatar size, 40px by default
      */
-    avatarSize:React.PropTypes.number,
+    avatarSize:PropTypes.number,
     /**
      * If only the default icon is available, will display
      * the first letters of the name instead
      */
-    avatarLetters: React.PropTypes.bool,
+    avatarLetters: PropTypes.bool,
     /**
      * Do not display ActionsPanel in RichCard mode
      */
-    noActionsPanel: React.PropTypes.bool,
+    noActionsPanel: PropTypes.bool,
 
     /**
      * Add class name to root element
      */
-    className: React.PropTypes.string,
+    className: PropTypes.string,
     /**
      * Add class name to label element
      */
-    labelClassName: React.PropTypes.string,
+    labelClassName: PropTypes.string,
     /**
      * Add class name to avatar element
      */
-    avatarClassName: React.PropTypes.string,
+    avatarClassName: PropTypes.string,
     /**
      * Add style to root element
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     /**
      * Add style to label element
      */
-    labelStyle: React.PropTypes.object,
+    labelStyle: PropTypes.object,
     /**
      * Add style to avatar element
      */
-    avatarStyle: React.PropTypes.object
+    avatarStyle: PropTypes.object
 };
 
 UserAvatar.defaultProps = {

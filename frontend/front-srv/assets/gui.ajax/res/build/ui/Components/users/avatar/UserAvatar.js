@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -39,6 +19,30 @@ var _GraphPanel2 = _interopRequireDefault(_GraphPanel);
 var _ActionsPanel = require('./ActionsPanel');
 
 var _ActionsPanel2 = _interopRequireDefault(_ActionsPanel);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioHttpApi = require("pydio/http/api");
 
@@ -497,111 +501,111 @@ UserAvatar.propTypes = {
     /**
      * Id of the user to be loaded
      */
-    userId: React.PropTypes.string.isRequired,
+    userId: _propTypes2['default'].string.isRequired,
     /**
      * Pydio instance
      */
-    pydio: React.PropTypes.instanceOf(Pydio),
+    pydio: _propTypes2['default'].instanceOf(Pydio),
     /**
      * Label of the user, if we already have it (otherwise will be loaded)
      */
-    userLabel: React.PropTypes.string,
+    userLabel: _propTypes2['default'].string,
     /**
      * Type of user
      */
-    userType: React.PropTypes.oneOf(['user', 'group', 'remote', 'team']),
+    userType: _propTypes2['default'].oneOf(['user', 'group', 'remote', 'team']),
     /**
      * Icon to be displayed in avatar
      */
-    icon: React.PropTypes.string,
+    icon: _propTypes2['default'].string,
     /**
      * Display a rich card or a simple avatar+label chip
      */
-    richCard: React.PropTypes.bool,
+    richCard: _propTypes2['default'].bool,
     /**
      * If not rich, display a rich card as popover on mouseover
      */
-    richOnHover: React.PropTypes.bool,
+    richOnHover: _propTypes2['default'].bool,
     /**
      * If not rich, display a rich card as popover on click
      */
-    richOnClick: React.PropTypes.bool,
+    richOnClick: _propTypes2['default'].bool,
 
     /**
      * Add edit action to the card
      */
-    userEditable: React.PropTypes.bool,
+    userEditable: _propTypes2['default'].bool,
     /**
      * Triggered after successful edition
      */
-    onEditAction: React.PropTypes.func,
+    onEditAction: _propTypes2['default'].func,
     /**
      * Triggered after deletion
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: _propTypes2['default'].func,
     /**
      * Triggered if a reload is required
      */
-    reloadAction: React.PropTypes.func,
+    reloadAction: _propTypes2['default'].func,
 
     /**
      * Display label element or not
      */
-    displayLabel: React.PropTypes.bool,
+    displayLabel: _propTypes2['default'].bool,
     /**
      * Display label element or not
      */
-    displayLocalLabel: React.PropTypes.bool,
+    displayLocalLabel: _propTypes2['default'].bool,
     /**
      * Display avatar element or not
      */
-    displayAvatar: React.PropTypes.bool,
+    displayAvatar: _propTypes2['default'].bool,
     /**
      * Display only avatar
      */
-    avatarOnly: React.PropTypes.bool,
+    avatarOnly: _propTypes2['default'].bool,
     /**
      * Use default avatar
      */
-    useDefaultAvatar: React.PropTypes.bool,
+    useDefaultAvatar: _propTypes2['default'].bool,
     /**
      * Avatar size, 40px by default
      */
-    avatarSize: React.PropTypes.number,
+    avatarSize: _propTypes2['default'].number,
     /**
      * If only the default icon is available, will display
      * the first letters of the name instead
      */
-    avatarLetters: React.PropTypes.bool,
+    avatarLetters: _propTypes2['default'].bool,
     /**
      * Do not display ActionsPanel in RichCard mode
      */
-    noActionsPanel: React.PropTypes.bool,
+    noActionsPanel: _propTypes2['default'].bool,
 
     /**
      * Add class name to root element
      */
-    className: React.PropTypes.string,
+    className: _propTypes2['default'].string,
     /**
      * Add class name to label element
      */
-    labelClassName: React.PropTypes.string,
+    labelClassName: _propTypes2['default'].string,
     /**
      * Add class name to avatar element
      */
-    avatarClassName: React.PropTypes.string,
+    avatarClassName: _propTypes2['default'].string,
     /**
      * Add style to root element
      */
-    style: React.PropTypes.object,
+    style: _propTypes2['default'].object,
     /**
      * Add style to label element
      */
-    labelStyle: React.PropTypes.object,
+    labelStyle: _propTypes2['default'].object,
     /**
      * Add style to avatar element
      */
-    avatarStyle: React.PropTypes.object
+    avatarStyle: _propTypes2['default'].object
 };
 
 UserAvatar.defaultProps = {

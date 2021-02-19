@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 exports.__esModule = true;
@@ -53,6 +33,30 @@ var _AlphaPaginator2 = _interopRequireDefault(_AlphaPaginator);
 var _SearchForm = require('./SearchForm');
 
 var _SearchForm2 = _interopRequireDefault(_SearchForm);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydioUtilDom = require('pydio/util/dom');
 
@@ -380,14 +384,14 @@ var UsersList = (function (_React$Component) {
 })(_react2['default'].Component);
 
 UsersList.propTypes = {
-    item: _react2['default'].PropTypes.object,
-    onCreateAction: _react2['default'].PropTypes.func,
-    onDeleteAction: _react2['default'].PropTypes.func,
-    onItemClicked: _react2['default'].PropTypes.func,
-    onFolderClicked: _react2['default'].PropTypes.func,
-    onEditLabel: _react2['default'].PropTypes.func,
-    mode: _react2['default'].PropTypes.oneOf(['book', 'selector', 'inner']),
-    bookColumn: _react2['default'].PropTypes.bool
+    item: _propTypes2['default'].object,
+    onCreateAction: _propTypes2['default'].func,
+    onDeleteAction: _propTypes2['default'].func,
+    onItemClicked: _propTypes2['default'].func,
+    onFolderClicked: _propTypes2['default'].func,
+    onEditLabel: _propTypes2['default'].func,
+    mode: _propTypes2['default'].oneOf(['book', 'selector', 'inner']),
+    bookColumn: _propTypes2['default'].bool
 };
 
 exports['default'] = UsersList = PydioContextConsumer(UsersList);

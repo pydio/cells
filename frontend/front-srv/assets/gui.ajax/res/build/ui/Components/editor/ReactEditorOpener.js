@@ -18,19 +18,29 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var propTypes = {
-    node: React.PropTypes.instanceOf(AjxpNode).isRequired,
-    registry: React.PropTypes.instanceOf(Registry).isRequired,
-    editorData: React.PropTypes.object.isRequired,
-    icon: React.PropTypes.bool
+    node: _propTypes2['default'].instanceOf(AjxpNode).isRequired,
+    registry: _propTypes2['default'].instanceOf(Registry).isRequired,
+    editorData: _propTypes2['default'].object.isRequired,
+    icon: _propTypes2['default'].bool
 };
 
 var defaultProps = {
@@ -73,22 +83,22 @@ var ReactEditorOpener = (function (_React$Component) {
 
         var EditorClass = null;
         if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
-            return React.createElement(
-                "div",
+            return _react2['default'].createElement(
+                'div',
                 null,
                 "Cannot find editor component (" + editorData.editorClass + ")!"
             );
         }
 
         // Getting HOC of the class
-        return React.createElement(EditorClass.Editor, this.props);
+        return _react2['default'].createElement(EditorClass.Editor, this.props);
     };
 
     return ReactEditorOpener;
-})(React.Component);
+})(_react2['default'].Component);
 
 ReactEditorOpener.propTypes = propTypes;
 ReactEditorOpener.defaultProps = defaultProps;
 
-exports["default"] = ReactEditorOpener;
-module.exports = exports["default"];
+exports['default'] = ReactEditorOpener;
+module.exports = exports['default'];

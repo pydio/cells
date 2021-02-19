@@ -1,3 +1,9 @@
+const React = require('react');
+const {TextField, FlatButton, CardTitle, Divider} = require('material-ui')
+import UsersList from './UsersList'
+import Loaders from './Loaders'
+import ActionsPanel from '../avatar/ActionsPanel'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,11 +24,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const {TextField, FlatButton, CardTitle, Divider} = require('material-ui')
-import UsersList from './UsersList'
-import Loaders from './Loaders'
-import ActionsPanel from '../avatar/ActionsPanel'
+import PropTypes from 'prop-types';
+
 import PydioApi from 'pydio/http/api';
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
 
@@ -105,27 +108,27 @@ TeamCard.propTypes = {
     /**
      * Pydio instance
      */
-    pydio: React.PropTypes.instanceOf(Pydio),
+    pydio: PropTypes.instanceOf(Pydio),
     /**
      * Team data object
      */
-    item: React.PropTypes.object,
+    item: PropTypes.object,
     /**
      * Applied to root container
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     /**
      * Called to dismiss the popover
      */
-    onRequestClose: React.PropTypes.func,
+    onRequestClose: PropTypes.func,
     /**
      * Delete current team
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: PropTypes.func,
     /**
      * Update current team
      */
-    onUpdateAction: React.PropTypes.func
+    onUpdateAction: PropTypes.func
 };
 
 TeamCard = PydioContextConsumer(TeamCard);

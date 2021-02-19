@@ -30,13 +30,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var _reactRouterDom = require('react-router-dom');
 
-var _reactRouterLibRouter = require('react-router/lib/Router');
-
-var _reactRouterLibRouter2 = _interopRequireDefault(_reactRouterLibRouter);
-
-var _reactRouterLibRoute = require('react-router/lib/Route');
-
-var _reactRouterLibRoute2 = _interopRequireDefault(_reactRouterLibRoute);
+var _reactRouter = require('react-router');
 
 var _reactRouterLibIndexRoute = require('react-router/lib/IndexRoute');
 
@@ -85,29 +79,29 @@ function getRoutes(pydio) {
         _reactRouterDom.Switch,
         null,
         React.createElement(
-            _reactRouterLibRoute2['default'],
+            _reactRouter.Route,
             { path: '/login' },
             React.createElement(_reactRouterLibIndexRoute2['default'], { component: _LoginRouter2['default'](pydio) }),
-            React.createElement(_reactRouterLibRoute2['default'], { path: 'callback', component: _LoginCallbackRouter2['default'](pydio) })
+            React.createElement(_reactRouter.Route, { path: 'callback', component: _LoginCallbackRouter2['default'](pydio) })
         ),
-        React.createElement(_reactRouterLibRoute2['default'], { path: '/logout', component: _LogoutRouter2['default'](pydio) }),
+        React.createElement(_reactRouter.Route, { path: '/logout', component: _LogoutRouter2['default'](pydio) }),
         React.createElement(
-            _reactRouterLibRoute2['default'],
+            _reactRouter.Route,
             { path: '/oauth2' },
-            React.createElement(_reactRouterLibRoute2['default'], { path: 'login', component: _OAuthRouter.OAuthLoginRouter(pydio) }),
-            React.createElement(_reactRouterLibRoute2['default'], { path: 'oob', component: _OAuthRouter.OAuthOOBRouter(pydio) }),
-            React.createElement(_reactRouterLibRoute2['default'], { path: 'logout/callback', component: _LogoutCallbackRouter2['default'](pydio) }),
-            React.createElement(_reactRouterLibRoute2['default'], { path: 'fallbacks/error', component: _OAuthRouter.OAuthFallbacksRouter(pydio) })
+            React.createElement(_reactRouter.Route, { path: 'login', component: _OAuthRouter.OAuthLoginRouter(pydio) }),
+            React.createElement(_reactRouter.Route, { path: 'oob', component: _OAuthRouter.OAuthOOBRouter(pydio) }),
+            React.createElement(_reactRouter.Route, { path: 'logout/callback', component: _LogoutCallbackRouter2['default'](pydio) }),
+            React.createElement(_reactRouter.Route, { path: 'fallbacks/error', component: _OAuthRouter.OAuthFallbacksRouter(pydio) })
         ),
         React.createElement(
-            _reactRouterLibRoute2['default'],
+            _reactRouter.Route,
             { path: '/', component: _MainRouter2['default'](pydio) },
             React.createElement(_reactRouterLibIndexRoute2['default'], { component: _HomepageRouter2['default'](pydio) }),
             React.createElement(
-                _reactRouterLibRoute2['default'],
+                _reactRouter.Route,
                 { path: ':workspaceId', component: _WorkspaceRouter2['default'](pydio) },
                 React.createElement(_reactRouterLibIndexRoute2['default'], { component: _PathRouter2['default'](pydio) }),
-                React.createElement(_reactRouterLibRoute2['default'], { path: '*', component: _PathRouter2['default'](pydio) })
+                React.createElement(_reactRouter.Route, { path: '*', component: _PathRouter2['default'](pydio) })
             )
         )
     );
@@ -128,7 +122,7 @@ var PydioRouter = (function (_React$PureComponent) {
     PydioRouter.prototype.render = function render() {
         return(
             // Routes are defined as a constant to avoid warning about hot reloading
-            React.createElement(_reactRouterLibRouter2['default'], { history: _reactRouterLibBrowserHistory2['default'], routes: getRoutes(this.props.pydio) })
+            React.createElement(_reactRouter.Router, { history: _reactRouterLibBrowserHistory2['default'], routes: getRoutes(this.props.pydio) })
         );
     };
 

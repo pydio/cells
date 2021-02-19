@@ -1,23 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 "use strict";
 
 exports.__esModule = true;
@@ -50,6 +30,30 @@ var _SubmitButtonProviderMixin = require('./SubmitButtonProviderMixin');
 
 var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMixin);
 
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -69,31 +73,31 @@ exports["default"] = _createReactClass2["default"]({
         /**
          * Message ID used for the dialog title
          */
-        dialogTitleId: _react2["default"].PropTypes.string,
+        dialogTitleId: _propTypes2["default"].string,
         /**
          * Message ID or string used for dialog legend
          */
-        legendId: _react2["default"].PropTypes.string,
+        legendId: _propTypes2["default"].string,
         /**
          * MessageID used for the field Floating Label Text
          */
-        fieldLabelId: _react2["default"].PropTypes.string,
+        fieldLabelId: _propTypes2["default"].string,
         /**
          * Either text or password
          */
-        fieldType: _react2["default"].PropTypes.oneOf(['text', 'password']),
+        fieldType: _propTypes2["default"].oneOf(['text', 'password']),
         /**
          * Callback used at submit time
          */
-        submitValue: _react2["default"].PropTypes.func.isRequired,
+        submitValue: _propTypes2["default"].func.isRequired,
         /**
          * Preset value displayed in the text field
          */
-        defaultValue: _react2["default"].PropTypes.string,
+        defaultValue: _propTypes2["default"].string,
         /**
          * Select a part of the default value [NOT IMPLEMENTED]
          */
-        defaultInputSelection: _react2["default"].PropTypes.string
+        defaultInputSelection: _propTypes2["default"].string
     },
 
     mixins: [_ActionDialogMixin2["default"], _CancelButtonProviderMixin2["default"], _SubmitButtonProviderMixin2["default"]],

@@ -1,3 +1,7 @@
+import { Component } from 'react';
+import {muiThemeable, getMuiTheme} from 'material-ui/styles'
+import {MuiThemeProvider} from 'material-ui'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,9 +23,8 @@
  */
 
 
-import {Component, PropTypes} from 'react'
-import {muiThemeable, getMuiTheme} from 'material-ui/styles'
-import {MuiThemeProvider} from 'material-ui'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 

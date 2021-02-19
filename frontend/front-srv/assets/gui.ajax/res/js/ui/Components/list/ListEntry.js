@@ -1,3 +1,6 @@
+import ReactDOM from 'react-dom';
+import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,8 +21,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import ReactDOM from 'react-dom';
-import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
+import PropTypes from 'prop-types';
+
 import { DragSource, DropTarget, flow } from 'react-dnd';
 import { Checkbox, FontIcon } from 'material-ui';
 import { muiThemeable } from 'material-ui/styles';
@@ -149,21 +152,21 @@ let ContextMenuWrapper = (props) => {
 ContextMenuWrapper = PydioHOCs.withContextMenu(ContextMenuWrapper)
 
 ListEntry.propTypes = {
-    showSelector:React.PropTypes.bool,
-    selected:React.PropTypes.bool,
-    selectorDisabled:React.PropTypes.bool,
-    onSelect:React.PropTypes.func,
-    onClick:React.PropTypes.func,
-    iconCell:React.PropTypes.element,
-    mainIcon:React.PropTypes.string,
-    firstLine:React.PropTypes.node,
-    secondLine:React.PropTypes.node,
-    thirdLine:React.PropTypes.node,
-    actions:React.PropTypes.element,
-    activeDroppable:React.PropTypes.bool,
-    className:React.PropTypes.string,
-    style: React.PropTypes.object,
-    noHover: React.PropTypes.bool
+    showSelector:PropTypes.bool,
+    selected:PropTypes.bool,
+    selectorDisabled:PropTypes.bool,
+    onSelect:PropTypes.func,
+    onClick:PropTypes.func,
+    iconCell:PropTypes.element,
+    mainIcon:PropTypes.string,
+    firstLine:PropTypes.node,
+    secondLine:PropTypes.node,
+    thirdLine:PropTypes.node,
+    actions:PropTypes.element,
+    activeDroppable:PropTypes.bool,
+    className:PropTypes.string,
+    style: PropTypes.object,
+    noHover: PropTypes.bool
 }
 
 ListEntry = muiThemeable()(ListEntry);

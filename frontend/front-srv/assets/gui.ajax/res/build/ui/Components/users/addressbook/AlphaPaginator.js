@@ -1,3 +1,21 @@
+'use strict';
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _materialUi = require('material-ui');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,23 +36,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+var _propTypes = require('prop-types');
 
-exports.__esModule = true;
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _materialUi = require('material-ui');
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -149,19 +153,19 @@ AlphaPaginator.propTypes = {
     /**
      * Currently selected Item
      */
-    item: _react.PropTypes.object,
+    item: _propTypes2['default'].object,
     /**
      * When a letter is clicked, function(letter)
      */
-    paginatorCallback: _react.PropTypes.func.isRequired,
+    paginatorCallback: _propTypes2['default'].func.isRequired,
     /**
      * Main instance of pydio
      */
-    pydio: _react.PropTypes.instanceOf(_pydio2['default']),
+    pydio: _propTypes2['default'].instanceOf(_pydio2['default']),
     /**
      * Display mode, either large (book) or small picker ('selector', 'popover').
      */
-    mode: _react.PropTypes.oneOf(['book', 'selector', 'popover']).isRequired
+    mode: _propTypes2['default'].oneOf(['book', 'selector', 'popover']).isRequired
 };
 
 exports['default'] = AlphaPaginator = PydioContextConsumer(AlphaPaginator);

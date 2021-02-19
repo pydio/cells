@@ -18,11 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import PropTypes from 'prop-types'
+
 const propTypes = {
-    node: React.PropTypes.instanceOf(AjxpNode).isRequired,
-    registry: React.PropTypes.instanceOf(Registry).isRequired,
-    editorData: React.PropTypes.object.isRequired,
-    icon: React.PropTypes.bool,
+    node: PropTypes.instanceOf(AjxpNode).isRequired,
+    registry: PropTypes.instanceOf(Registry).isRequired,
+    editorData: PropTypes.object.isRequired,
+    icon: PropTypes.bool,
 };
 
 const defaultProps = {

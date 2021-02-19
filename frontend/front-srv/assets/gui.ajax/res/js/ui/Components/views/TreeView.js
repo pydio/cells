@@ -1,3 +1,7 @@
+import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
+import React from 'react';
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,9 +22,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget} from '../util/DND'
-import React from 'react';
-import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import {Checkbox, IconButton} from 'material-ui'
 const {withContextMenu} = Pydio.requireLib('hoc');
@@ -41,22 +44,22 @@ var SimpleTreeNode = createReactClass({
     displayName: 'SimpleTreeNode',
 
     propTypes:{
-        collapse:React.PropTypes.bool,
-        forceExpand:React.PropTypes.bool,
-        childrenOnly:React.PropTypes.bool,
-        depth:React.PropTypes.number,
-        onNodeSelect:React.PropTypes.func,
-        node:React.PropTypes.instanceOf(AjxpNode),
-        dataModel:React.PropTypes.instanceOf(PydioDataModel),
-        forceLabel:React.PropTypes.string,
+        collapse:PropTypes.bool,
+        forceExpand:PropTypes.bool,
+        childrenOnly:PropTypes.bool,
+        depth:PropTypes.number,
+        onNodeSelect:PropTypes.func,
+        node:PropTypes.instanceOf(AjxpNode),
+        dataModel:PropTypes.instanceOf(PydioDataModel),
+        forceLabel:PropTypes.string,
         // Optional currently selected detection
-        nodeIsSelected: React.PropTypes.func,
+        nodeIsSelected: PropTypes.func,
         // Optional checkboxes
-        checkboxes:React.PropTypes.array,
-        checkboxesValues:React.PropTypes.object,
-        checkboxesComputeStatus:React.PropTypes.func,
-        onCheckboxCheck:React.PropTypes.func,
-        paddingOffset:React.PropTypes.number
+        checkboxes:PropTypes.array,
+        checkboxesValues:PropTypes.object,
+        checkboxesComputeStatus:PropTypes.func,
+        onCheckboxCheck:PropTypes.func,
+        paddingOffset:PropTypes.number
     },
 
     getDefaultProps:function(){
@@ -353,24 +356,24 @@ TreePaginator = muiThemeable()(TreePaginator);
  */
 class DNDTreeView extends React.Component {
     static propTypes = {
-        showRoot:React.PropTypes.bool,
-        rootLabel:React.PropTypes.string,
-        onNodeSelect:React.PropTypes.func,
-        node:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        selectable:React.PropTypes.bool,
-        selectableMultiple:React.PropTypes.bool,
-        initialSelectionModel:React.PropTypes.array,
-        onSelectionChange:React.PropTypes.func,
-        forceExpand:React.PropTypes.bool,
+        showRoot:PropTypes.bool,
+        rootLabel:PropTypes.string,
+        onNodeSelect:PropTypes.func,
+        node:PropTypes.instanceOf(AjxpNode).isRequired,
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        selectable:PropTypes.bool,
+        selectableMultiple:PropTypes.bool,
+        initialSelectionModel:PropTypes.array,
+        onSelectionChange:PropTypes.func,
+        forceExpand:PropTypes.bool,
         // Optional currently selected detection
-        nodeIsSelected: React.PropTypes.func,
+        nodeIsSelected: PropTypes.func,
         // Optional checkboxes
-        checkboxes:React.PropTypes.array,
-        checkboxesValues:React.PropTypes.object,
-        checkboxesComputeStatus:React.PropTypes.func,
-        onCheckboxCheck:React.PropTypes.func,
-        paddingOffset:React.PropTypes.number
+        checkboxes:PropTypes.array,
+        checkboxesValues:PropTypes.object,
+        checkboxesComputeStatus:PropTypes.func,
+        onCheckboxCheck:PropTypes.func,
+        paddingOffset:PropTypes.number
     };
 
     static defaultProps = {
@@ -413,24 +416,24 @@ class DNDTreeView extends React.Component {
 
 class TreeView extends React.Component {
     static propTypes = {
-        showRoot:React.PropTypes.bool,
-        rootLabel:React.PropTypes.string,
-        onNodeSelect:React.PropTypes.func,
-        node:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        selectable:React.PropTypes.bool,
-        selectableMultiple:React.PropTypes.bool,
-        initialSelectionModel:React.PropTypes.array,
-        onSelectionChange:React.PropTypes.func,
-        forceExpand:React.PropTypes.bool,
+        showRoot:PropTypes.bool,
+        rootLabel:PropTypes.string,
+        onNodeSelect:PropTypes.func,
+        node:PropTypes.instanceOf(AjxpNode).isRequired,
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        selectable:PropTypes.bool,
+        selectableMultiple:PropTypes.bool,
+        initialSelectionModel:PropTypes.array,
+        onSelectionChange:PropTypes.func,
+        forceExpand:PropTypes.bool,
         // Optional currently selected detection
-        nodeIsSelected: React.PropTypes.func,
+        nodeIsSelected: PropTypes.func,
         // Optional checkboxes
-        checkboxes:React.PropTypes.array,
-        checkboxesValues:React.PropTypes.object,
-        checkboxesComputeStatus:React.PropTypes.func,
-        onCheckboxCheck:React.PropTypes.func,
-        paddingOffset:React.PropTypes.number
+        checkboxes:PropTypes.array,
+        checkboxesValues:PropTypes.object,
+        checkboxesComputeStatus:PropTypes.func,
+        onCheckboxCheck:PropTypes.func,
+        paddingOffset:PropTypes.number
     };
 
     static defaultProps = {
@@ -472,11 +475,11 @@ class TreeView extends React.Component {
 
 class FoldersTree extends React.Component {
     static propTypes = {
-        pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-        dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        className: React.PropTypes.string,
-        onNodeSelected: React.PropTypes.func,
-        draggable:React.PropTypes.bool
+        pydio: PropTypes.instanceOf(Pydio).isRequired,
+        dataModel: PropTypes.instanceOf(PydioDataModel).isRequired,
+        className: PropTypes.string,
+        onNodeSelected: PropTypes.func,
+        draggable:PropTypes.bool
     };
 
     nodeObserver = () => {

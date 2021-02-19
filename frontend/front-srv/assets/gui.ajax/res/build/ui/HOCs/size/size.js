@@ -34,6 +34,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -124,11 +128,11 @@ var withResize = function withResize(Component) {
                 key: 'propTypes',
                 get: function get() {
                     return {
-                        size: _react2['default'].PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
-                        containerWidth: _react2['default'].PropTypes.number.isRequired,
-                        containerHeight: _react2['default'].PropTypes.number.isRequired,
-                        width: _react2['default'].PropTypes.number.isRequired,
-                        height: _react2['default'].PropTypes.number.isRequired
+                        size: _propTypes2['default'].oneOf(["contain", "cover", "auto"]).isRequired,
+                        containerWidth: _propTypes2['default'].number.isRequired,
+                        containerHeight: _propTypes2['default'].number.isRequired,
+                        width: _propTypes2['default'].number.isRequired,
+                        height: _propTypes2['default'].number.isRequired
                     };
                 }
             }]);

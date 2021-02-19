@@ -20,6 +20,7 @@
 
 import Pydio from 'pydio';
 import PydioApi from "pydio/http/api";
+import createReactClass from 'create-react-class'
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
 import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu, Toggle} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
@@ -106,7 +107,7 @@ let LoginDialogMixin = {
     }
 };
 
-let LoginPasswordDialog = React.createClass({
+let LoginPasswordDialog = createReactClass({
 
     mixins:[
         PydioReactUI.ActionDialogMixin,
@@ -287,7 +288,7 @@ class DarkThemeContainer extends React.Component{
 
 DarkThemeContainer = muiThemeable()(DarkThemeContainer);
 
-let MultiAuthSelector = React.createClass({
+let MultiAuthSelector = createReactClass({
 
     getValue(){
         return this.state.value;
@@ -379,7 +380,7 @@ class Callbacks{
 
 }
 
-const ResetPasswordRequire = React.createClass({
+const ResetPasswordRequire = createReactClass({
 
     mixins: [
         PydioReactUI.ActionDialogMixin,
@@ -452,7 +453,7 @@ const ResetPasswordRequire = React.createClass({
 
 });
 
-const ResetPasswordDialog = React.createClass({
+const ResetPasswordDialog = createReactClass({
 
     mixins: [
         PydioReactUI.ActionDialogMixin,

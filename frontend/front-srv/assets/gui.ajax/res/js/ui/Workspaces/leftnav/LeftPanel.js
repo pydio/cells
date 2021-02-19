@@ -19,6 +19,7 @@
  */
 
 const React = require('react')
+const PropTypes = require('prop-types');
 const Pydio = require('pydio')
 const {muiThemeable} = require('material-ui/styles')
 import UserWidget from './UserWidget'
@@ -77,10 +78,10 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
 };
 
 LeftPanel.propTypes = {
-    pydio               : React.PropTypes.instanceOf(Pydio).isRequired,
-    userWidgetProps     : React.PropTypes.object,
-    workspacesListProps : React.PropTypes.object,
-    style               : React.PropTypes.object
+    pydio               : PropTypes.instanceOf(Pydio).isRequired,
+    userWidgetProps     : PropTypes.object,
+    workspacesListProps : PropTypes.object,
+    style               : PropTypes.object
 };
 
 LeftPanel = muiThemeable()(LeftPanel);

@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {PureComponent, PropTypes} from 'react';
+import PropTypes from 'prop-types';
+
+import { PureComponent } from 'react';
 import {muiThemeable} from 'material-ui/styles';
 import {CircularProgress} from 'material-ui';
 import Color from 'color'

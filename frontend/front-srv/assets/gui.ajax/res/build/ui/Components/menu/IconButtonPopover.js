@@ -1,3 +1,12 @@
+'use strict';
+
+exports.__esModule = true;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,14 +26,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-'use strict';
-
-exports.__esModule = true;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var React = require('react');
 
@@ -84,11 +85,11 @@ var IconButtonPopover = (function (_React$Component) {
 })(React.Component);
 
 IconButtonPopover.propTypes = {
-    buttonTitle: React.PropTypes.string.isRequired,
-    buttonClassName: React.PropTypes.string.isRequired,
-    className: React.PropTypes.string,
-    direction: React.PropTypes.oneOf(['right', 'left']),
-    popoverContent: React.PropTypes.object.isRequired
+    buttonTitle: PropTypes.string.isRequired,
+    buttonClassName: PropTypes.string.isRequired,
+    className: PropTypes.string,
+    direction: PropTypes.oneOf(['right', 'left']),
+    popoverContent: PropTypes.object.isRequired
 };
 
 exports['default'] = IconButtonPopover;

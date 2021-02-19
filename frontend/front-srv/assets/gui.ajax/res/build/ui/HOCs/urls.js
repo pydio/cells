@@ -32,6 +32,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -55,9 +59,9 @@ var URLProvider = function URLProvider() {
                 return urls.reduce(function (current, type) {
                     var _extends2;
 
-                    return _extends({}, current, (_extends2 = {}, _extends2['on' + _utils.toTitleCase(type)] = _react2['default'].PropTypes.func.isRequired, _extends2));
+                    return _extends({}, current, (_extends2 = {}, _extends2['on' + _utils.toTitleCase(type)] = _propTypes2['default'].func.isRequired, _extends2));
                 }, {
-                    urlType: _react2['default'].PropTypes.oneOf(urls).isRequired
+                    urlType: _propTypes2['default'].oneOf(urls).isRequired
                 });
             }
         }]);

@@ -40,6 +40,7 @@ var _fieldsInputSelectBox2 = _interopRequireDefault(_fieldsInputSelectBox);
 
 var React = require('react');
 
+var PropTypes = require('prop-types');
 var LangUtils = require('pydio/util/lang');
 
 /**
@@ -223,10 +224,10 @@ var _default = (function (_React$Component) {
     _createClass(_default, null, [{
         key: 'propTypes',
         value: {
-            paramAttributes: React.PropTypes.object.isRequired,
-            parameters: React.PropTypes.array.isRequired,
-            values: React.PropTypes.object.isRequired,
-            onChange: React.PropTypes.func.isRequired
+            paramAttributes: PropTypes.object.isRequired,
+            parameters: PropTypes.array.isRequired,
+            values: PropTypes.object.isRequired,
+            onChange: PropTypes.func.isRequired
         },
         enumerable: true
     }]);

@@ -33,10 +33,23 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _materialUi = require('material-ui');
 
 var ClipboardTextField = (function (_React$Component) {
     _inherits(ClipboardTextField, _React$Component);
+
+    // static propTypes: {
+    //     floatingLabelText: PropTypes.string,
+    //
+    //     inputValue: PropTypes.string,
+    //     inputClassName: PropTypes.string,
+    //     getMessage: PropTypes.func,
+    //     inputCopyMessage: PropTypes.string
+    // };
 
     function ClipboardTextField(props) {
         _classCallCheck(this, ClipboardTextField);

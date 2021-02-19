@@ -26,6 +26,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -62,14 +66,14 @@ exports['default'] = _createReactClass2['default']({
     displayName: 'Toolbar',
 
     propTypes: {
-        toolbars: _react2['default'].PropTypes.array,
-        groupOtherList: _react2['default'].PropTypes.array,
-        renderingType: _react2['default'].PropTypes.string,
-        controller: _react2['default'].PropTypes.instanceOf(Controller),
-        toolbarStyle: _react2['default'].PropTypes.object,
-        buttonStyle: _react2['default'].PropTypes.object,
-        fabAction: _react2['default'].PropTypes.string,
-        buttonMenuNoLabel: _react2['default'].PropTypes.bool
+        toolbars: _propTypes2['default'].array,
+        groupOtherList: _propTypes2['default'].array,
+        renderingType: _propTypes2['default'].string,
+        controller: _propTypes2['default'].instanceOf(Controller),
+        toolbarStyle: _propTypes2['default'].object,
+        buttonStyle: _propTypes2['default'].object,
+        fabAction: _propTypes2['default'].string,
+        buttonMenuNoLabel: _propTypes2['default'].bool
     },
 
     componentDidMount: function componentDidMount() {

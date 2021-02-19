@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+
+import React, { Component } from 'react';
 
 import {toTitleCase} from './utils'
 
@@ -31,10 +33,10 @@ export const URLProvider = (urls = []) => {
         static get propTypes() {
             return urls.reduce((current, type) => ({
                     ...current,
-                    [`on${toTitleCase(type)}`]: React.PropTypes.func.isRequired
+                    [`on${toTitleCase(type)}`]: PropTypes.func.isRequired
                 }), {
-                    urlType: React.PropTypes.oneOf(urls).isRequired,
-                })
+                    urlType: PropTypes.oneOf(urls).isRequired,
+                });
         }
 
         constructor(props) {
@@ -69,5 +71,5 @@ export const URLProvider = (urls = []) => {
         render() {
             return this.props.children(this.state.url)
         }
-    }
+    };
 };

@@ -1,3 +1,8 @@
+import React, { Component } from 'react';
+
+import XMLUtils from 'pydio/util/xml';
+import {Subheader} from 'material-ui';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,10 +23,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
-import XMLUtils from 'pydio/util/xml';
-import {Subheader} from 'material-ui';
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -209,7 +212,7 @@ class AdvancedMetaFields extends Component {
 }
 
 AdvancedMetaFields.propTypes = {
-    children: React.PropTypes.func.isRequired,
+    children: PropTypes.func.isRequired,
 };
 
 export default AdvancedSearch

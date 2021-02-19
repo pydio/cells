@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import SelectionModel from './model';
@@ -26,64 +28,62 @@ import { mapStateToProps } from './utils';
 
 const withSelection = (getSelection) => {
     return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class WithSelection extends React.Component {
-                constructor(props) {
-                    super(props)
+        return @connect(mapStateToProps)
+        class WithSelection extends React.Component {
+            constructor(props) {
+                super(props)
 
-                    const {node, tab, dispatch} = this.props
-                    const {id} = tab || {}
+                const {node, tab, dispatch} = this.props
+                const {id} = tab || {}
 
-                    if (typeof dispatch === 'function') {
-                        // We have a redux dispatch so we use it
-                        this.setState = (data) => dispatch(EditorActions.tabModify({id, ...data}))
-                    }
+                if (typeof dispatch === 'function') {
+                    // We have a redux dispatch so we use it
+                    this.setState = (data) => dispatch(EditorActions.tabModify({id, ...data}))
                 }
+            }
 
-                static get displayName() {
-                    return `WithSelection(${getDisplayName(Component)})`
-                }
+            static get displayName() {
+                return `WithSelection(${getDisplayName(Component)})`
+            }
 
-                static get propTypes() {
-                    return {
-                        node: React.PropTypes.instanceOf(AjxpNode).isRequired
-                    }
-                }
+            static get propTypes() {
+                return {
+                    node: PropTypes.instanceOf(AjxpNode).isRequired
+                };
+            }
 
-                componentDidMount() {
-                    const {tab, node, tabModify} = this.props
-                    const {id} = tab
+            componentDidMount() {
+                const {tab, node, tabModify} = this.props
+                const {id} = tab
 
-                    getSelection(node).then(({selection, currentIndex}) => this.setState({id, selection: new SelectionModel(selection, currentIndex)}))
-                }
+                getSelection(node).then(({selection, currentIndex}) => this.setState({id, selection: new SelectionModel(selection, currentIndex)}))
+            }
 
-                render() {
-                    const {tab, dispatch, ...remainingProps} = this.props
-                    const {id, selection, playing} = tab
+            render() {
+                const {tab, dispatch, ...remainingProps} = this.props
+                const {id, selection, playing} = tab
 
-                    if (!selection || selection.length() == 0) {
-                        return (
-                            <Component
-                                {...remainingProps}
-                            />
-                        )
-                    }
-
+                if (!selection || selection.length() == 0) {
                     return (
                         <Component
                             {...remainingProps}
-                            node={selection.current()}
-                            selection={selection}
-                            selectionPlaying={playing}
-
-                            onRequestSelectionPlay={() => this.setState({id, node: selection.nextOrFirst(), title: selection.current().getLabel()})}
                         />
                     )
                 }
+
+                return (
+                    <Component
+                        {...remainingProps}
+                        node={selection.current()}
+                        selection={selection}
+                        selectionPlaying={playing}
+
+                        onRequestSelectionPlay={() => this.setState({id, node: selection.nextOrFirst(), title: selection.current().getLabel()})}
+                    />
+                )
             }
-        )
-    }
+        };
+    };
 }
 
 export default withSelection

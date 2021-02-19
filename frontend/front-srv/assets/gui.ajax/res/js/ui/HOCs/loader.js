@@ -18,6 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import PropTypes from 'prop-types'
+
 const Loadingbar = (style) => {
     return <PydioReactUI.Loader style={{...style, position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 0}}/>
 }
@@ -79,9 +82,9 @@ const loader = (Component) => {
     }
 
     Loader.propTypes = {
-        noLoader: React.PropTypes.bool,
-        onLoad: React.PropTypes.func,
-        loaderStyle: React.PropTypes.object
+        noLoader: PropTypes.bool,
+        onLoad: PropTypes.func,
+        loaderStyle: PropTypes.object
     }
 
     return Loader;

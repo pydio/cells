@@ -124,6 +124,8 @@ var Editor = (function (_React$Component) {
         _React$Component.apply(this, arguments);
     }
 
+    // REDUX - Then connect the redux store
+
     Editor.prototype.handleBlurOnSelection = function handleBlurOnSelection(e) {
         var editorModify = this.props.editorModify;
 
@@ -256,10 +258,6 @@ var Editor = (function (_React$Component) {
     return Editor;
 })(React.Component);
 
-exports['default'] = Editor;
-;
-
-// REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
     var _state$editor = state.editor;
     var editor = _state$editor === undefined ? {} : _state$editor;
@@ -281,4 +279,6 @@ function mapStateToProps(state, ownProps) {
         isMinimised: isMinimised
     });
 }
+
+exports['default'] = Editor;
 module.exports = exports['default'];

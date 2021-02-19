@@ -46,6 +46,10 @@ var _pydioHttpApi = require("pydio/http/api");
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
 var _materialUiStyles = require('material-ui/styles');
 
 var _materialUi = require('material-ui');
@@ -141,8 +145,7 @@ var LoginDialogMixin = {
     }
 };
 
-var LoginPasswordDialog = React.createClass({
-    displayName: 'LoginPasswordDialog',
+var LoginPasswordDialog = (0, _createReactClass2['default'])({
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.SubmitButtonProviderMixin, LoginDialogMixin],
 
@@ -372,8 +375,7 @@ var DarkThemeContainer = (function (_React$Component) {
 
 DarkThemeContainer = (0, _materialUiStyles.muiThemeable)()(DarkThemeContainer);
 
-var MultiAuthSelector = React.createClass({
-    displayName: 'MultiAuthSelector',
+var MultiAuthSelector = (0, _createReactClass2['default'])({
 
     getValue: function getValue() {
         return this.state.value;
@@ -482,8 +484,7 @@ var Callbacks = (function () {
     return Callbacks;
 })();
 
-var ResetPasswordRequire = React.createClass({
-    displayName: 'ResetPasswordRequire',
+var ResetPasswordRequire = (0, _createReactClass2['default'])({
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.SubmitButtonProviderMixin, PydioReactUI.CancelButtonProviderMixin],
 
@@ -558,8 +559,7 @@ var ResetPasswordRequire = React.createClass({
 
 });
 
-var ResetPasswordDialog = React.createClass({
-    displayName: 'ResetPasswordDialog',
+var ResetPasswordDialog = (0, _createReactClass2['default'])({
 
     mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.SubmitButtonProviderMixin],
 

@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types';
+
+import React, { Component } from 'react';
 import {MenuItem, DropDownMenu} from 'material-ui';
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
 

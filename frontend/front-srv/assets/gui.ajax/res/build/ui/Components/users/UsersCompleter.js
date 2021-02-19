@@ -1,22 +1,3 @@
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
 'use strict';
 
 exports.__esModule = true;
@@ -36,6 +17,30 @@ var _react2 = _interopRequireDefault(_react);
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _pydio = require('pydio');
 
@@ -375,39 +380,39 @@ var UsersLoader = (function (_React$Component) {
             /**
              * Method called to render a commponent, taking a UserObject as input
              */
-            renderSuggestion: _react2['default'].PropTypes.func.isRequired,
+            renderSuggestion: _propTypes2['default'].func.isRequired,
             /**
              * Callback when a value is finally selected
              */
-            onValueSelected: _react2['default'].PropTypes.func.isRequired,
+            onValueSelected: _propTypes2['default'].func.isRequired,
             /**
              * Floating Label Text displayed on the field
              */
-            fieldLabel: _react2['default'].PropTypes.string.isRequired,
+            fieldLabel: _propTypes2['default'].string.isRequired,
             /**
              * Array of values to ignore
              */
-            excludes: _react2['default'].PropTypes.array.isRequired,
+            excludes: _propTypes2['default'].array.isRequired,
             /**
              * Display only users, no groups nor roles
              */
-            usersOnly: _react2['default'].PropTypes.bool,
+            usersOnly: _propTypes2['default'].bool,
             /**
              * Display users from local directory and/or from remote.
              */
-            usersFrom: _react2['default'].PropTypes.oneOf(['local', 'remote', 'any']),
+            usersFrom: _propTypes2['default'].oneOf(['local', 'remote', 'any']),
             /**
              * Do not propose a "Create user" option
              */
-            existingOnly: _react2['default'].PropTypes.bool,
+            existingOnly: _propTypes2['default'].bool,
             /**
              * Allow free typing
              */
-            freeValueAllowed: _react2['default'].PropTypes.bool,
+            freeValueAllowed: _propTypes2['default'].bool,
             /**
              * Will be passed to the root component
              */
-            className: _react2['default'].PropTypes.string
+            className: _propTypes2['default'].string
         },
         enumerable: true
     }]);

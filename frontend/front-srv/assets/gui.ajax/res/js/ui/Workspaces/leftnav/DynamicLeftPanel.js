@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 import createReactClass from 'create-react-class';
 
@@ -26,13 +28,13 @@ export default createReactClass({
     displayName: 'DynamicLeftPanel',
 
     propTypes:{
-        pydio:React.PropTypes.instanceOf(Pydio).isRequired,
-        pydioId:React.PropTypes.string.isRequired
+        pydio:PropTypes.instanceOf(Pydio).isRequired,
+        pydioId:PropTypes.string.isRequired
     },
 
     childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func
     },
 
     getChildContext: function() {

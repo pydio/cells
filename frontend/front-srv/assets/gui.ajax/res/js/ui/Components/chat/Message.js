@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import UserAvatar from '../users/avatar/UserAvatar'
 import {Paper, FlatButton} from 'material-ui'
@@ -152,9 +155,9 @@ class Message extends React.Component {
 }
 
 Message.PropTypes = {
-    message : React.PropTypes.object,
-    hideDate: React.PropTypes.bool,
-    sameAuthor: React.PropTypes.bool,
+    message : PropTypes.object,
+    hideDate: PropTypes.bool,
+    sameAuthor: PropTypes.bool,
 };
 
 Message = PydioContextConsumer(Message);
