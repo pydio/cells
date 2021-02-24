@@ -45,7 +45,7 @@ type vault struct {
 }
 
 // NewVault creates a new vault with a standard config store and a vault store
-func NewVault(configStore Store, vaultStore Store) Store {
+func NewVault(vaultStore Store, configStore Store) Store {
 	return &vault{
 		configStore,
 		vaultStore,

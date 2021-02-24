@@ -122,20 +122,11 @@ ENVIRONMENT
 			"fork": "is_fork",
 		})
 
-		if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
+		if config.RuntimeIsLocal() && !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
 			return triggerInstall(
 				"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
 				"Do you want to create one now",
 				cmd, args)
-		}
-
-		initConfig()
-
-		// Pre-check that pydio.json is properly configured
-		if a, _ := config.GetDatabase("default"); a == "" {
-			return triggerInstall(
-				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
-				"Do you want to reset the initial configuration", cmd, args)
 		}
 
 		initStartingToolsOnce.Do(func() {
@@ -157,6 +148,15 @@ ENVIRONMENT
 			// Making sure we capture the signals
 			handleSignals()
 		})
+
+		initConfig()
+
+		// Pre-check that pydio.json is properly configured
+		if a, _ := config.GetDatabase("default"); a == "" {
+			return triggerInstall(
+				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
+				"Do you want to reset the initial configuration", cmd, args)
+		}
 
 		plugins.Init(cmd.Context())
 
