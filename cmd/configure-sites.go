@@ -135,7 +135,7 @@ EXAMPLES
 				index := "0"
 				if len(sites) > 1 {
 					p := &promptui.Prompt{
-						Label: "Provide the site number to be remove",
+						Label: "Provide the site number to be removed",
 						Validate: func(s string) error {
 							i, e := strconv.ParseInt(s, 10, 64)
 							if e != nil {

@@ -123,8 +123,9 @@ func promptMaintenanceMode(site *install.ProxyConfig) (e error) {
 	fmt.Println("# Switching site to maintenance mode")
 	site.Maintenance = true
 	confPrompt := p.Prompt{
-		Label:   "Define/change custom conditions for maintenance mode (use comma-separated-list, clear value to remove all)",
-		Default: strings.Join(site.MaintenanceConditions, ","),
+		Label:     "Define/change custom conditions for maintenance mode (use comma-separated-list, clear value to remove all)",
+		Default:   strings.Join(site.MaintenanceConditions, ","),
+		AllowEdit: true,
 	}
 	conditions, e := confPrompt.Run()
 	if e != nil {
@@ -147,9 +148,9 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 		def := strings.Split(config.DefaultBindingSite.Binds[0], ":")[1]
 		portPrompt := &p.Prompt{
 			Label:     "Binding Port",
+			Validate:  validPortNumber,
 			Default:   def,
 			AllowEdit: true,
-			Validate:  validPortNumber,
 		}
 		var er error
 		bindingPort, er = portPrompt.Run()
@@ -238,9 +239,10 @@ func promptBindURLs(site *install.ProxyConfig, resolveHosts bool, bindingPort st
 func promptExtURL(site *install.ProxyConfig) error {
 
 	prompt := p.Prompt{
-		Label:    "If this site is accessed through a reverse proxy, provide full external URL (https://mydomain.com)",
-		Validate: validUrl,
-		Default:  site.ReverseProxyURL,
+		Label:     "If this site is accessed through a reverse proxy, provide full external URL (https://mydomain.com)",
+		Validate:  validUrl,
+		Default:   site.ReverseProxyURL,
+		AllowEdit: true,
 	}
 	val, _ := prompt.Run()
 	if val != "" {
@@ -281,8 +283,8 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 			certFile = site.GetTLSCertificate().GetCertFile()
 			keyFile = site.GetTLSCertificate().GetKeyFile()
 		}
-		certPrompt := p.Prompt{Label: "Provide absolute path to the HTTP certificate", Default: certFile, Validate: notEmpty}
-		keyPrompt := p.Prompt{Label: "Provide absolute path to the HTTP private key", Default: keyFile, Validate: notEmpty}
+		certPrompt := p.Prompt{Label: "Provide absolute path to the HTTP certificate", Default: certFile, Validate: notEmpty, AllowEdit: true}
+		keyPrompt := p.Prompt{Label: "Provide absolute path to the HTTP private key", Default: keyFile, Validate: notEmpty, AllowEdit: true}
 		if certFile, e = certPrompt.Run(); e != nil {
 			if e == p.ErrInterrupt {
 				return promptTLSMode(site)
@@ -307,7 +309,7 @@ func promptTLSMode(site *install.ProxyConfig) (enabled bool, e error) {
 		if site.HasTLS() && site.GetTLSLetsEncrypt() != nil {
 			certEmail = site.GetTLSLetsEncrypt().GetEmail()
 		}
-		mailPrompt := p.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail}
+		mailPrompt := p.Prompt{Label: "Please enter the mail address for certificate generation", Validate: validateMailFormat, Default: certEmail, AllowEdit: true}
 		acceptEulaPrompt := p.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
 
 		certMail, e1 := mailPrompt.Run()

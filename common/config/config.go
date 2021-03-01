@@ -22,12 +22,10 @@ package config
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/memory"
 	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/cells/x/filex"
 	"github.com/pydio/go-os/config"
 )
 
@@ -52,18 +50,19 @@ type Store interface {
 
 // New creates a configuration provider with in-memory access
 func New(store configx.Entrypoint) Store {
-	im := configx.New(configx.WithJSON())
+
+	ret := &cacheconfig{
+		store: store,
+	}
 
 	v := store.Get()
 
 	// we initialise the store and save it in memory for easy access
 	if v != nil {
+		im := configx.New(configx.WithJSON())
 		v.Scan(&im)
-	}
 
-	ret := &cacheconfig{
-		im:    im,
-		store: store,
+		ret.im = im
 	}
 
 	go func() {
@@ -83,6 +82,7 @@ func New(store configx.Entrypoint) Store {
 				continue
 			}
 
+			im := configx.New(configx.WithJSON())
 			resp.Scan(&im)
 
 			ret.im = im
@@ -127,19 +127,6 @@ type cacheconfig struct {
 
 // Save the config in the underlying storage
 func (c *cacheconfig) Save(ctxUser string, ctxMessage string) error {
-	// Retrieving the value in the map
-	data := c.im.Map()
-
-	// And saving it to the store
-	if err := c.store.Set(&filex.Version{
-		Date: time.Now(),
-		User: ctxUser,
-		Log:  ctxMessage,
-		Data: data,
-	}); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -155,6 +142,9 @@ func (c *cacheconfig) Watch(path ...string) (configx.Receiver, error) {
 
 // Get access to the underlying structure at a certain path
 func (c *cacheconfig) Get() configx.Value {
+	if c.im == nil {
+		return nil
+	}
 	return c.im.Get()
 }
 

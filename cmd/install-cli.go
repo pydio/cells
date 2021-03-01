@@ -301,13 +301,13 @@ func promptAdvanced(c *install.InstallConfig) error {
 /* VARIOUS HELPERS */
 func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bool, e error) {
 
-	pr := p.Prompt{Label: "For S3 compatible storage, please provide storage URL (leave empty for Amazon)", Default: c.DsS3Custom}
+	pr := p.Prompt{Label: "For S3 compatible storage, please provide storage URL (leave empty for Amazon)", Default: c.DsS3Custom, AllowEdit: true}
 	if s3Custom, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else if s3Custom != "" {
 		c.DsS3Custom = strings.Trim(s3Custom, " ")
 	}
-	pr = p.Prompt{Label: "Provide storage custom region (leave empty for default)", Default: c.DsS3CustomRegion}
+	pr = p.Prompt{Label: "Provide storage custom region (leave empty for default)", Default: c.DsS3CustomRegion, AllowEdit: true}
 	if s3CustomRegion, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else if s3CustomRegion != "" {
