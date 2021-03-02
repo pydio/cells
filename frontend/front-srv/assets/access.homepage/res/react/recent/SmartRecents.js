@@ -29,6 +29,8 @@ const {FilePreview} = Pydio.requireLib('workspaces');
 const {ASClient} = Pydio.requireLib('PydioActivityStreams');
 import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, RestUserBookmarksRequest} from 'cells-sdk'
+import ReactPlaceHolder from 'react-placeholder';
+import {TextRow, RoundShape} from 'react-placeholder/lib/placeholders'
 
 class Loader {
     constructor(pydio, stater) {
@@ -265,6 +267,21 @@ class SmartRecents extends React.Component{
 
     render(){
 
+        const phColor = "#f5f5f5"
+        const cardPH = (
+            <div style={{margin:16,width:120, height: 140, display:'flex', flexDirection:'column', alignItems:'center'}}>
+                <RoundShape color={phColor} style={{width:90, height:90}}/>
+                <TextRow color={phColor}/>
+                <TextRow color={phColor}/>
+            </div>
+        );
+
+        const cardsPH = (
+            <div style={{display:'flex', flexWrap:'wrap'}}>
+                {[0,1,2,3,4,5,6,7].map(() => cardPH)}
+            </div>
+        );
+
         const {pydio, style} = this.props;
         const {nodes, loading} = this.state;
 
@@ -291,10 +308,9 @@ class SmartRecents extends React.Component{
 
         return (
             <div style={{display:'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>
-                {loading && !cards.length &&
-                    <div style={{width:32, paddingTop:120}}><CircularProgress size={30} thickness={1.5}/></div>
-                }
-                {cards}
+                <ReactPlaceHolder ready={!loading} showLoadingAnimation customPlaceholder={cardsPH}>
+                    {cards}
+                </ReactPlaceHolder>
             </div>
         );
 

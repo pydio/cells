@@ -15,6 +15,7 @@
     "less-plugin-autoprefix": "~1.5.1"
   },
   "dependencies": {
-    "react-joyride": "^1.10.1"
+    "react-joyride": "^1.10.1",
+    "react-placeholder": "^4.1.0"
   }
 }
