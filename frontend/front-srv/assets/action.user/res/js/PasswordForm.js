@@ -45,7 +45,7 @@ class PasswordForm extends React.Component {
     };
 
     validate = () => {
-        if(!this.refs.newpass.isValid()){
+        if(!this.state.validStatus){
             return false;
         }
         const {oldPass, newPass} = this.state;
@@ -106,7 +106,6 @@ class PasswordForm extends React.Component {
                             onChange={oldChange}
                             type="password"
                             value={this.state.oldPass}
-                            ref="old"
                             floatingLabelText={messages[237]}
                             autoComplete="off"
                         />
@@ -118,7 +117,7 @@ class PasswordForm extends React.Component {
                         attributes={{name:'pass',label:messages[198]}}
                         value={this.state.newPass}
                         name="newpassword"
-                        ref="newpass"
+                        onValidStatusChange={(s) => this.setState({validStatus: s})}
                     />
                 </div>
             </div>

@@ -47,19 +47,20 @@ class ValidPassword extends React.Component{
     updatePassState(){
         const prevStateValid = this.state.valid;
         const newState = PassUtils.getState(this.refs.pass.getValue(), this.refs.confirm ? this.refs.confirm.getValue() : '');
+        newState.value = this.refs.pass.getValue();
         this.setState(newState);
         if(prevStateValid !== newState.valid && this.props.onValidStatusChange){
             this.props.onValidStatusChange(newState.valid);
         }
     }
 
-    onPasswordChange(event){
+    onPasswordChange(event, value){
         this.updatePassState();
-        this.props.onChange(event, event.target.value);
+        this.props.onChange(event, value);
     }
 
-    onConfirmChange(event){
-        this.setState({confirmValue:event.target.value});
+    onConfirmChange(event, value){
+        this.setState({confirmValue:value});
         this.updatePassState();
         this.props.onChange(event, this.state.value);
     }
@@ -106,7 +107,7 @@ class ValidPassword extends React.Component{
                     <div style={{display:'flex'}}>
                         <TextComponent
                             ref="pass"
-                            floatingLabelText={isDisplayForm()?attributes.label:null}
+                            hintText={isDisplayGrid()?null:attributes.label}
                             floatingLabelShrinkStyle={{...overflow, width:'130%'}}
                             floatingLabelStyle={overflow}
                             className={cName}

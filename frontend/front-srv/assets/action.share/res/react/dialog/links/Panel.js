@@ -78,7 +78,8 @@ class PublicLinkPanel extends React.Component {
 
     enableLinkWithPassword = () => {
         const {linkModel} = this.props;
-        if(!this.refs['valid-pass'].isValid()){
+        const {temporaryPasswordState} = this.state;
+        if(!temporaryPasswordState){
             this.props.pydio.UI.displayMessage('ERROR', 'Invalid Password');
             return;
         }
@@ -130,13 +131,12 @@ class PublicLinkPanel extends React.Component {
                         <ValidPassword
                             attributes={{label: this.props.getMessage('23')}}
                             value={temporaryPassword}
-                            onChange={this.updateTemporaryPassword}
-                            ref={"valid-pass"}
+                            onChange={this.updateTemporaryPassword.bind(this)}
+                            onValidStatusChange={(s) => this.setState({temporaryPasswordState: s})}
                         />
                     </div>
                     <div style={{textAlign: 'center', marginTop: 20}}>
-                        <RaisedButton label={this.props.getMessage('92')} secondary={true}
-                                      onClick={this.enableLinkWithPassword}/>
+                        <RaisedButton label={this.props.getMessage('92')} secondary={true} onClick={this.enableLinkWithPassword.bind(this)} disabled={!this.state.temporaryPasswordState}/>
                     </div>
                 </div>
             );

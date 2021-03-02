@@ -77,19 +77,20 @@ var ValidPassword = (function (_React$Component) {
     ValidPassword.prototype.updatePassState = function updatePassState() {
         var prevStateValid = this.state.valid;
         var newState = _pydioUtilPass2["default"].getState(this.refs.pass.getValue(), this.refs.confirm ? this.refs.confirm.getValue() : '');
+        newState.value = this.refs.pass.getValue();
         this.setState(newState);
         if (prevStateValid !== newState.valid && this.props.onValidStatusChange) {
             this.props.onValidStatusChange(newState.valid);
         }
     };
 
-    ValidPassword.prototype.onPasswordChange = function onPasswordChange(event) {
+    ValidPassword.prototype.onPasswordChange = function onPasswordChange(event, value) {
         this.updatePassState();
-        this.props.onChange(event, event.target.value);
+        this.props.onChange(event, value);
     };
 
-    ValidPassword.prototype.onConfirmChange = function onConfirmChange(event) {
-        this.setState({ confirmValue: event.target.value });
+    ValidPassword.prototype.onConfirmChange = function onConfirmChange(event, value) {
+        this.setState({ confirmValue: value });
         this.updatePassState();
         this.props.onChange(event, this.state.value);
     };
@@ -152,7 +153,7 @@ var ValidPassword = (function (_React$Component) {
                     { style: { display: 'flex' } },
                     _react2["default"].createElement(TextComponent, {
                         ref: "pass",
-                        floatingLabelText: isDisplayForm() ? attributes.label : null,
+                        hintText: isDisplayGrid() ? null : attributes.label,
                         floatingLabelShrinkStyle: _extends({}, overflow, { width: '130%' }),
                         floatingLabelStyle: overflow,
                         className: cName,

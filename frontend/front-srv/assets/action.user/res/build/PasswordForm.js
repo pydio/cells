@@ -83,7 +83,7 @@ var PasswordForm = (function (_React$Component) {
         };
 
         this.validate = function () {
-            if (!_this.refs.newpass.isValid()) {
+            if (!_this.state.validStatus) {
                 return false;
             }
             var _state = _this.state;
@@ -171,7 +171,6 @@ var PasswordForm = (function (_React$Component) {
                             onChange: oldChange,
                             type: "password",
                             value: this.state.oldPass,
-                            ref: "old",
                             floatingLabelText: messages[237],
                             autoComplete: "off"
                         })
@@ -185,7 +184,9 @@ var PasswordForm = (function (_React$Component) {
                         attributes: { name: 'pass', label: messages[198] },
                         value: this.state.newPass,
                         name: "newpassword",
-                        ref: "newpass"
+                        onValidStatusChange: function (s) {
+                            return _this2.setState({ validStatus: s });
+                        }
                     })
                 )
             );

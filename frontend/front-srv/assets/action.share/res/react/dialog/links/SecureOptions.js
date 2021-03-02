@@ -94,8 +94,8 @@ class PublicLinkSecureOptions extends React.Component {
 
     updatePassword = (newValue, oldValue) => {
         const {linkModel} = this.props;
-        const valid = this.refs.pwd.isValid();
-        if (valid) {
+        const {validPasswordStatus} = this.state;
+        if (validPasswordStatus) {
             this.setState({invalidPassword: null, invalid: false}, () => {
                 linkModel.setUpdatePassword(newValue);
             });
@@ -154,10 +154,11 @@ class PublicLinkSecureOptions extends React.Component {
                                 attributes={{label:this.props.getMessage('23')}}
                                 value={this.state.updatingPassword ? this.state.updatingPassword : ""}
                                 onChange={(v) => {this.setUpdatingPassword(v)}}
+                                onValidStatusChange={(s) => this.setState({updatingPasswordDiffer: !s})}
                             />
                             <div style={{paddingTop:20, textAlign:'right'}}>
                                 <FlatButton label={Pydio.getMessages()['54']} onClick={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
-                                <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onClick={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
+                                <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onClick={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid || this.state.updatingPasswordDiffer}/>
                             </div>
                         </div>
                     </Popover>
@@ -178,7 +179,8 @@ class PublicLinkSecureOptions extends React.Component {
                     ref={"pwd"}
                     attributes={{label:this.props.getMessage('23')}}
                     value={this.state.invalidPassword? this.state.invalidPassword : linkModel.updatePassword}
-                    onChange={this.updatePassword}
+                    onChange={this.updatePassword.bind(this)}
+                    onValidStatusChange={(v) => {console.log(v); this.setState({validPasswordStatus:v})}}
                 />
             );
         }

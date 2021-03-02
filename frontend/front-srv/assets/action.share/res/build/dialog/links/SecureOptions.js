@@ -147,9 +147,9 @@ var PublicLinkSecureOptions = (function (_React$Component) {
 
         this.updatePassword = function (newValue, oldValue) {
             var linkModel = _this.props.linkModel;
+            var validPasswordStatus = _this.state.validPasswordStatus;
 
-            var valid = _this.refs.pwd.isValid();
-            if (valid) {
+            if (validPasswordStatus) {
                 _this.setState({ invalidPassword: null, invalid: false }, function () {
                     linkModel.setUpdatePassword(newValue);
                 });
@@ -221,6 +221,9 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                                 value: _this.state.updatingPassword ? _this.state.updatingPassword : "",
                                 onChange: function (v) {
                                     _this.setUpdatingPassword(v);
+                                },
+                                onValidStatusChange: function (s) {
+                                    return _this.setState({ updatingPasswordDiffer: !s });
                                 }
                             }),
                             _react2['default'].createElement(
@@ -231,7 +234,7 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                                     } }),
                                 _react2['default'].createElement(_materialUi.FlatButton, { style: { minWidth: 60 }, label: _pydio2['default'].getMessages()['48'], onClick: function () {
                                         _this.changePassword();
-                                    }, disabled: !_this.state.updatingPassword || !_this.state.updatingPasswordValid })
+                                    }, disabled: !_this.state.updatingPassword || !_this.state.updatingPasswordValid || _this.state.updatingPasswordDiffer })
                             )
                         )
                     )
@@ -248,7 +251,10 @@ var PublicLinkSecureOptions = (function (_React$Component) {
                     ref: "pwd",
                     attributes: { label: _this.props.getMessage('23') },
                     value: _this.state.invalidPassword ? _this.state.invalidPassword : linkModel.updatePassword,
-                    onChange: _this.updatePassword
+                    onChange: _this.updatePassword.bind(_this),
+                    onValidStatusChange: function (v) {
+                        console.log(v);_this.setState({ validPasswordStatus: v });
+                    }
                 });
             }
             if (passwordField) {

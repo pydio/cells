@@ -129,8 +129,9 @@ var PublicLinkPanel = (function (_React$Component) {
 
         this.enableLinkWithPassword = function () {
             var linkModel = _this.props.linkModel;
+            var temporaryPasswordState = _this.state.temporaryPasswordState;
 
-            if (!_this.refs['valid-pass'].isValid()) {
+            if (!temporaryPasswordState) {
                 _this.props.pydio.UI.displayMessage('ERROR', 'Invalid Password');
                 return;
             }
@@ -147,6 +148,8 @@ var PublicLinkPanel = (function (_React$Component) {
     _createClass(PublicLinkPanel, [{
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             var _props2 = this.props;
             var linkModel = _props2.linkModel;
             var pydio = _props2.pydio;
@@ -195,15 +198,16 @@ var PublicLinkPanel = (function (_React$Component) {
                         _react2['default'].createElement(ValidPassword, {
                             attributes: { label: this.props.getMessage('23') },
                             value: temporaryPassword,
-                            onChange: this.updateTemporaryPassword,
-                            ref: "valid-pass"
+                            onChange: this.updateTemporaryPassword.bind(this),
+                            onValidStatusChange: function (s) {
+                                return _this2.setState({ temporaryPasswordState: s });
+                            }
                         })
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'center', marginTop: 20 } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { label: this.props.getMessage('92'), secondary: true,
-                            onClick: this.enableLinkWithPassword })
+                        _react2['default'].createElement(_materialUi.RaisedButton, { label: this.props.getMessage('92'), secondary: true, onClick: this.enableLinkWithPassword.bind(this), disabled: !this.state.temporaryPasswordState })
                     )
                 );
             } else if (!canEnable) {
