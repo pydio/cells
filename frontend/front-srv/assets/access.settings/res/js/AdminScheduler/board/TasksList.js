@@ -45,8 +45,7 @@ class TasksList extends React.Component {
         const store = JobsStore.getInstance();
         let actions = [];
         const icProps = {
-            iconStyle:{color:'rgba(0,0,0,.3)'},
-            onClick:e => e.stopPropagation()
+            iconStyle:{color:'rgba(0,0,0,.3)'}
         };
         if (row.Status === 'Running' && row.CanPause){
             actions.push(<IconButton iconClassName={"mdi mdi-pause"} tooltip={m('pause')} onClick={()=>{store.controlTask(row, 'Pause')}} {...icProps}/>)

@@ -265,10 +265,10 @@ let Dashboard = createReactClass({
         };
         let actions = [];
         if(mime === 'user_editable' || mime === 'group'){
-            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={() => {this.openRoleEditor(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
-            actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" onClick={() => {this.deleteAction(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
+            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={(e) => {e.stopPropagation();this.openRoleEditor(node)}} iconStyle={iconStyle} />);
+            actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" onClick={(e) => {e.stopPropagation();this.deleteAction(node)}} iconStyle={iconStyle} />);
         }else if(mime === 'user'){
-            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={() => {this.openRoleEditor(node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />);
+            actions.push(<IconButton key="edit" iconClassName="mdi mdi-pencil" onClick={(e) => {e.stopPropagation();this.openRoleEditor(node)}} iconStyle={iconStyle} />);
             actions.push(<IconButton key="delete" iconClassName="mdi mdi-delete" disabled={true} iconStyle={disabledStyle} onClick={(e)=>{e.stopPropagation()}} />);
         }
         return (

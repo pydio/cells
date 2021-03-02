@@ -519,15 +519,12 @@ var MaterialTable = (function (_React$Component) {
                         return _react2['default'].createElement(_materialUi.IconButton, {
                             style: { padding: 14 },
                             iconStyle: { fontSize: 20, color: actionsColor },
-                            onClick: function () {
-                                a.onClick(model);
+                            onClick: function (e) {
+                                e.stopPropagation();a.onClick(model);
                             },
                             iconClassName: a.iconClassName,
                             tooltip: a.tooltip,
-                            disabled: a.disable ? a.disable(model) : null,
-                            onClick: function (e) {
-                                return e.stopPropagation();
-                            }
+                            disabled: a.disable ? a.disable(model) : null
                         });
                     })
                 )

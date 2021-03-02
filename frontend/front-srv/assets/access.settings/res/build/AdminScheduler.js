@@ -2225,10 +2225,7 @@ var TasksList = (function (_React$Component) {
             var store = JobsStore.getInstance();
             var actions = [];
             var icProps = {
-                iconStyle: { color: 'rgba(0,0,0,.3)' },
-                onClick: function onClick(e) {
-                    return e.stopPropagation();
-                }
+                iconStyle: { color: 'rgba(0,0,0,.3)' }
             };
             if (row.Status === 'Running' && row.CanPause) {
                 actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onClick: function () {

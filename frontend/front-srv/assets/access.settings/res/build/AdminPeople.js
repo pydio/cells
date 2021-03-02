@@ -1102,21 +1102,15 @@ var Dashboard = (0, _createReactClass2['default'])({
         };
         var actions = [];
         if (mime === 'user_editable' || mime === 'group') {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function () {
-                    _this3.openRoleEditor(node);
-                }, onClick: function (e) {
-                    e.stopPropagation();
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function (e) {
+                    e.stopPropagation();_this3.openRoleEditor(node);
                 }, iconStyle: iconStyle }));
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onClick: function () {
-                    _this3.deleteAction(node);
-                }, onClick: function (e) {
-                    e.stopPropagation();
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onClick: function (e) {
+                    e.stopPropagation();_this3.deleteAction(node);
                 }, iconStyle: iconStyle }));
         } else if (mime === 'user') {
-            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function () {
-                    _this3.openRoleEditor(node);
-                }, onClick: function (e) {
-                    e.stopPropagation();
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onClick: function (e) {
+                    e.stopPropagation();_this3.openRoleEditor(node);
                 }, iconStyle: iconStyle }));
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', disabled: true, iconStyle: disabledStyle, onClick: function (e) {
                     e.stopPropagation();

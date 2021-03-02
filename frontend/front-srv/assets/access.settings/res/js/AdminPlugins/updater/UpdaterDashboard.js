@@ -168,7 +168,6 @@ let UpdaterDashboard = createReactClass({
                         tooltip={this.context.getMessage('package.changelog', 'updater')}
                         tooltipPosition={"bottom-left"}
                         onClick={()=>{window.open(p.ChangeLog, '_blank')}}
-                        onClick={(e)=>e.stopPropagation()}
                         iconStyle={{color:primary1Color}}
                     />
                 });

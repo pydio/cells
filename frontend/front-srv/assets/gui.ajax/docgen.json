@@ -26868,6 +26868,46 @@
       },
       {
         "description": "",
+        "methods": [],
+        "props": {
+          "minisiteMode": {
+            "defaultValue": {
+              "value": "'embed'",
+              "computed": false
+            },
+            "required": false
+          },
+          "uniqueNode": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          },
+          "showSearchForm": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false
+          }
+        }
+      },
+      {
+        "description": "",
         "displayName": "DLTemplate",
         "methods": [
           {

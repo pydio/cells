@@ -30,7 +30,6 @@
     "react-addons-css-transition-group": "^15.4.2",
     "react-addons-pure-render-mixin": "^15.6.3",
     "react-addons-update": "^15.6.3",
-    "react-chartjs": "^0.8.0",
     "react-container-dimensions": "^1.4.1",
     "react-dnd": "^2.2.2",
     "react-dnd-html5-backend": "^2.2.3",

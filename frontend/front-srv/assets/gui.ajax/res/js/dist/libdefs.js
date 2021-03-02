@@ -66,8 +66,6 @@ const LibRequires = [ // modules we want to require and export
     'color',
     'react-infinite',
     'react-draggable',
-    'react-grid-layout',
-    'react-chartjs',
     'react-redux',
     'react-dnd',
     'create-react-class',

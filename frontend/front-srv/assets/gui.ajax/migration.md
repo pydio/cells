@@ -13,4 +13,8 @@ if required in Gruntfile for babel task
     },
 ```
 
-Replace all onTouchTap by onClick
+Find & replace
+
+- Replace all 'pydio/http/rest-api' with 'cells-sdk'
+- Replace all 'onTouchTap' by 'onClick'
+- look for onClick={(e) => e.stopPropagation()} 

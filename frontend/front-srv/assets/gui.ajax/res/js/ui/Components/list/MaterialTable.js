@@ -354,11 +354,10 @@ class MaterialTable extends React.Component{
                                 <IconButton
                                     style={{padding: 14}}
                                     iconStyle={{fontSize:20, color:actionsColor}}
-                                    onClick={()=>{a.onClick(model)}}
+                                    onClick={(e)=>{e.stopPropagation();a.onClick(model)}}
                                     iconClassName={a.iconClassName}
                                     tooltip={a.tooltip}
                                     disabled={a.disable?a.disable(model):null}
-                                    onClick={(e) => e.stopPropagation()}
                                 />
                             )}
                         </TableRowColumn>

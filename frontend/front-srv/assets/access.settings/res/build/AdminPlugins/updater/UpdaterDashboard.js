@@ -228,9 +228,6 @@ var UpdaterDashboard = (0, _createReactClass2['default'])({
                         onClick: function () {
                             window.open(p.ChangeLog, '_blank');
                         },
-                        onClick: function (e) {
-                            return e.stopPropagation();
-                        },
                         iconStyle: { color: primary1Color }
                     })
                 }));

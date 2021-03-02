@@ -31,4 +31,3 @@ window.ReactDND.HTML5Backend = require('react-dnd-html5-backend');
 window.ReactDND.flow = require('lodash/function/flow');
 window.classNames = require('classnames');
 window.Clipboard = require('clipboard');
-window.ReactQRCode = require('qrcode.react');

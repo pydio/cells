@@ -141,10 +141,7 @@ var PanelBigButtons = (function (_React$Component) {
                                         iconClassName: "mdi mdi-close",
                                         tooltip: "Remove",
                                         onClick: function (e) {
-                                            a.onDelete();
-                                        },
-                                        onClick: function (e) {
-                                            e.stopPropagation();e.preventDefault();
+                                            e.stopPropagation();a.onDelete();
                                         }
                                     }, styles.deleteIconProps))
                                 ),
