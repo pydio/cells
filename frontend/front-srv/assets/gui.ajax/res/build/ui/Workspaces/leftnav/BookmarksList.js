@@ -63,15 +63,150 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
 var EmptyStateView = _Pydio$requireLib.EmptyStateView;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib("hoc");
+
+var PlaceHolder = _Pydio$requireLib2.PlaceHolder;
+var PhTextRow = _Pydio$requireLib2.PhTextRow;
+var PhRoundShape = _Pydio$requireLib2.PhRoundShape;
+
 var listCss = '\n.bmListEntry{\n    border-bottom: 1px solid rgba(0,0,0,0.025);\n    padding: 2px 0;\n}\n.bmListEntry:hover{\n    background-color:#FAFAFA;\n    border-bottom-color: #FAFAFA;\n}\n.bmListEntryWs:hover{\n    text-decoration:underline;\n}\n';
 
-var BookmarksList = (function (_React$Component) {
-    _inherits(BookmarksList, _React$Component);
+var BookmarkLine = (function (_React$Component) {
+    _inherits(BookmarkLine, _React$Component);
+
+    function BookmarkLine(props) {
+        _classCallCheck(this, BookmarkLine);
+
+        _React$Component.call(this, props);
+        this.state = {};
+    }
+
+    BookmarkLine.prototype.render = function render() {
+        var _this = this;
+
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var placeHolder = _props.placeHolder;
+        var nodes = _props.nodes;
+        var onClick = _props.onClick;
+        var onRemove = _props.onRemove;
+        var removing = this.state.removing;
+
+        var previewStyles = {
+            style: {
+                height: 40,
+                width: 40,
+                borderRadius: '50%'
+            },
+            mimeFontStyle: {
+                fontSize: 24,
+                lineHeight: '40px',
+                textAlign: 'center'
+            }
+        };
+        var firstClick = undefined,
+            preview = undefined,
+            primaryText = undefined,
+            secondaryTexts = undefined,
+            iconButton = undefined;
+        if (placeHolder) {
+
+            firstClick = function () {};
+            preview = _react2['default'].createElement(PhRoundShape, { style: { width: previewStyles.style.width, height: previewStyles.style.height } });
+            primaryText = _react2['default'].createElement(PhTextRow, { style: { width: '90%' } });
+            secondaryTexts = [_react2['default'].createElement(PhTextRow, { style: { width: '60%' } })];
+            iconButton = _react2['default'].createElement('div', null);
+        } else {
+            var _secondaryTexts;
+
+            firstClick = function () {
+                return onClick(nodes[0]);
+            };
+            preview = _react2['default'].createElement(_viewsFilePreview2['default'], _extends({ pydio: pydio, node: nodes[0], loadThumbnail: true }, previewStyles));
+            primaryText = nodes[0].getLabel() || nodes[0].getMetadata().get('WsLabel');
+            secondaryTexts = [_react2['default'].createElement(
+                'span',
+                null,
+                pydio.MessageHash['bookmark.secondary.inside'],
+                ' '
+            )];
+            var nodeLinks = nodes.map(function (n, i) {
+                var link = _react2['default'].createElement(
+                    'a',
+                    { className: "bmListEntryWs", onClick: function (e) {
+                            e.stopPropagation();onClick(n);
+                        }, style: { fontWeight: 500 } },
+                    n.getMetadata().get('WsLabel')
+                );
+                if (i === nodes.length - 1) {
+                    return link;
+                } else {
+                    return _react2['default'].createElement(
+                        'span',
+                        null,
+                        link,
+                        ', '
+                    );
+                }
+            });
+            (_secondaryTexts = secondaryTexts).push.apply(_secondaryTexts, nodeLinks);
+            iconButton = _react2['default'].createElement(_materialUi.IconButton, {
+                disabled: removing,
+                iconClassName: "mdi mdi-delete",
+                iconStyle: { opacity: .33, fontSize: 18 },
+                onClick: function () {
+                    _this.setState({ removing: true });onRemove(nodes[0]);
+                },
+                tooltip: pydio.MessageHash['bookmark.button.tip.remove'],
+                tooltipPosition: "bottom-left"
+            });
+        }
+
+        var block = _react2['default'].createElement(
+            'div',
+            { className: "bmListEntry", style: { display: 'flex', alignItems: 'center', width: '100%' } },
+            _react2['default'].createElement(
+                'div',
+                { style: { padding: '12px 16px', cursor: 'pointer' }, onClick: firstClick },
+                preview
+            ),
+            _react2['default'].createElement(
+                'div',
+                { style: { flex: 1, overflow: 'hidden', cursor: 'pointer' }, onClick: firstClick },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+                    primaryText
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { opacity: .33 } },
+                    secondaryTexts
+                )
+            ),
+            _react2['default'].createElement(
+                'div',
+                null,
+                iconButton
+            )
+        );
+        if (placeHolder) {
+            return _react2['default'].createElement(PlaceHolder, { customPlaceholder: block, showLoadingAnimation: true });
+        } else {
+            return block;
+        }
+    };
+
+    return BookmarkLine;
+})(_react2['default'].Component);
+
+var BookmarksList = (function (_React$Component2) {
+    _inherits(BookmarksList, _React$Component2);
 
     function BookmarksList(props) {
         _classCallCheck(this, BookmarksList);
 
-        _React$Component.call(this, props);
+        _React$Component2.call(this, props);
         this.state = {
             open: false,
             loading: false,
@@ -80,14 +215,18 @@ var BookmarksList = (function (_React$Component) {
     }
 
     BookmarksList.prototype.load = function load() {
-        var _this = this;
+        var _this2 = this;
 
-        this.setState({ loading: true });
+        var silent = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+        if (!silent) {
+            this.setState({ loading: true });
+        }
         var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
         return api.userBookmarks(new _cellsSdk.RestUserBookmarksRequest()).then(function (collection) {
-            _this.setState({ bookmarks: collection.Nodes, loading: false });
+            _this2.setState({ bookmarks: collection.Nodes, loading: false });
         })['catch'](function (reason) {
-            _this.setState({ loading: false });
+            _this2.setState({ loading: false });
         });
     };
 
@@ -113,7 +252,7 @@ var BookmarksList = (function (_React$Component) {
     };
 
     BookmarksList.prototype.removeBookmark = function removeBookmark(node) {
-        var _this2 = this;
+        var _this3 = this;
 
         var nodeUuid = node.getMetadata().get("uuid");
         var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
@@ -126,7 +265,7 @@ var BookmarksList = (function (_React$Component) {
                 request.Operation = _cellsSdk.UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(function () {
-                    _this2.load();
+                    _this3.load(true);
                 });
             }
         });
@@ -145,30 +284,17 @@ var BookmarksList = (function (_React$Component) {
     };
 
     BookmarksList.prototype.render = function render() {
-        var _this3 = this;
+        var _this4 = this;
 
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var muiTheme = _props.muiTheme;
-        var iconStyle = _props.iconStyle;
+        var _props2 = this.props;
+        var pydio = _props2.pydio;
+        var muiTheme = _props2.muiTheme;
+        var iconStyle = _props2.iconStyle;
         var _state = this.state;
         var loading = _state.loading;
         var open = _state.open;
         var anchorEl = _state.anchorEl;
         var bookmarks = _state.bookmarks;
-
-        var previewStyles = {
-            style: {
-                height: 40,
-                width: 40,
-                borderRadius: '50%'
-            },
-            mimeFontStyle: {
-                fontSize: 24,
-                lineHeight: '40px',
-                textAlign: 'center'
-            }
-        };
 
         if (!pydio.user.activeRepository) {
             return null;
@@ -176,69 +302,8 @@ var BookmarksList = (function (_React$Component) {
         var items = undefined;
         if (bookmarks) {
             items = bookmarks.map(function (n) {
-                var nodes = _this3.bmToNodes(n);
-                return _react2['default'].createElement(
-                    'div',
-                    { className: "bmListEntry", style: { display: 'flex', alignItems: 'center', width: '100%' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: '12px 16px', cursor: 'pointer' }, onClick: function () {
-                                _this3.entryClicked(nodes[0]);
-                            } },
-                        _react2['default'].createElement(_viewsFilePreview2['default'], _extends({ pydio: pydio, node: nodes[0], loadThumbnail: true }, previewStyles))
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1, overflow: 'hidden', cursor: 'pointer' }, onClick: function () {
-                                _this3.entryClicked(nodes[0]);
-                            } },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
-                            nodes[0].getLabel() || nodes[0].getMetadata().get('WsLabel')
-                        ),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { opacity: .33 } },
-                            pydio.MessageHash['bookmark.secondary.inside'],
-                            ' ',
-                            nodes.map(function (n, i) {
-                                var click = function click(e) {
-                                    e.stopPropagation();
-                                    _this3.entryClicked(n);
-                                };
-                                var link = _react2['default'].createElement(
-                                    'a',
-                                    { className: "bmListEntryWs", onClick: click, style: { fontWeight: 500 } },
-                                    n.getMetadata().get('WsLabel')
-                                );
-                                if (i === nodes.length - 1) {
-                                    return link;
-                                } else {
-                                    return _react2['default'].createElement(
-                                        'span',
-                                        null,
-                                        link,
-                                        ', '
-                                    );
-                                }
-                            })
-                        )
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.IconButton, {
-                            iconClassName: "mdi mdi-delete",
-                            iconStyle: { opacity: .33, fontSize: 18 },
-                            onClick: function () {
-                                _this3.removeBookmark(nodes[0]);
-                            },
-                            tooltip: pydio.MessageHash['bookmark.button.tip.remove'],
-                            tooltipPosition: "bottom-left"
-                        })
-                    )
-                );
+                var nodes = _this4.bmToNodes(n);
+                return _react2['default'].createElement(BookmarkLine, { key: nodes[0].getPath(), pydio: pydio, nodes: nodes, onClick: _this4.entryClicked.bind(_this4), onRemove: _this4.removeBookmark.bind(_this4) });
             });
         }
 
@@ -284,19 +349,15 @@ var BookmarksList = (function (_React$Component) {
                     )
                 ),
                 loading && _react2['default'].createElement(
-                    'div',
-                    { style: { height: 260, backgroundColor: 'white' } },
-                    _react2['default'].createElement(_materialUi.RefreshIndicator, {
-                        size: 40,
-                        left: 140,
-                        top: 120,
-                        status: 'loading',
-                        style: {}
-                    })
+                    _react.Fragment,
+                    null,
+                    _react2['default'].createElement(BookmarkLine, { placeHolder: true }),
+                    _react2['default'].createElement(BookmarkLine, { placeHolder: true }),
+                    _react2['default'].createElement(BookmarkLine, { placeHolder: true })
                 ),
                 !loading && items && items.length && _react2['default'].createElement(
                     'div',
-                    { style: { maxHeight: 330, overflowY: 'auto', overflowX: 'hidden', padding: 0 } },
+                    { style: { maxHeight: 330, minHeight: 195, overflowY: 'auto', overflowX: 'hidden', padding: 0 } },
                     items
                 ),
                 !loading && (!items || !items.length) && _react2['default'].createElement(EmptyStateView, {
@@ -304,7 +365,7 @@ var BookmarksList = (function (_React$Component) {
                     iconClassName: 'mdi mdi-star-outline',
                     primaryTextId: '145',
                     secondaryTextId: "482",
-                    style: { minHeight: 260, backgroundColor: 'white' }
+                    style: { minHeight: 200, backgroundColor: 'white' }
                 }),
                 _react2['default'].createElement('style', { type: "text/css", dangerouslySetInnerHTML: { __html: listCss } })
             )

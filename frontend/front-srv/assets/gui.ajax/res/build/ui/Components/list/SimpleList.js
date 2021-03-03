@@ -1,21 +1,5 @@
-'use strict';
-
-exports.__esModule = true;
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _createReactClass = require('create-react-class');
-
-var _createReactClass2 = _interopRequireDefault(_createReactClass);
-
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -33,6 +17,22 @@ var _createReactClass2 = _interopRequireDefault(_createReactClass);
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+'use strict';
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
 
 var _propTypes = require('prop-types');
 
@@ -85,6 +85,10 @@ var _InlineEditor2 = _interopRequireDefault(_InlineEditor);
 var _viewsEmptyStateView = require('../views/EmptyStateView');
 
 var _viewsEmptyStateView2 = _interopRequireDefault(_viewsEmptyStateView);
+
+var _PlaceHolders = require("./PlaceHolders");
+
+var _PlaceHolders2 = _interopRequireDefault(_PlaceHolders);
 
 var DOMUtils = require('pydio/util/dom');
 var LangUtils = require('pydio/util/lang');
@@ -844,8 +848,8 @@ var SimpleList = _createReactClass2['default']({
                     firstLine: "..",
                     className: "list-parent-node",
                     secondLine: this.getMessage('react.1'),
-                    onClick: this.clickRow,
-                    onDoubleClick: this.doubleClickRow,
+                    onClick: this.clickRow.bind(this),
+                    onDoubleClick: this.doubleClickRow.bind(this),
                     showSelector: false,
                     selectorDisabled: true,
                     noHover: false
@@ -887,9 +891,9 @@ var SimpleList = _createReactClass2['default']({
             } else {
                 data = {
                     node: entry.node,
-                    onClick: this.clickRow,
-                    onDoubleClick: this.doubleClickRow,
-                    onSelect: this.toggleSelection,
+                    onClick: this.clickRow.bind(this),
+                    onDoubleClick: this.doubleClickRow.bind(this),
+                    onSelect: this.toggleSelection.bind(this),
                     key: entry.node.getPath(),
                     id: entry.node.getPath(),
                     renderIcon: this.props.entryRenderIcon,
@@ -933,13 +937,10 @@ var SimpleList = _createReactClass2['default']({
         return components;
     },
 
-    buildElements: function buildElements(start, end, node, showSelector) {
+    buildElements: function buildElements(start, end, node) {
         var _this6 = this;
 
-        var theNode = this.props.node;
-        if (node) theNode = node;
-        var theShowSelector = this.state && this.state.showSelector;
-        if (showSelector !== undefined) theShowSelector = showSelector;
+        var theNode = node || this.props.node;
 
         if (!this.indexedElements || this.indexedElements.length !== theNode.getChildren().size) {
             (function () {
@@ -952,7 +953,7 @@ var SimpleList = _createReactClass2['default']({
                 if (_this6.props.defaultGroupBy) {
                     groupBy = _this6.props.defaultGroupBy;
                     groupByLabel = _this6.props.groupByLabel || false;
-                    groups = {}, groupKeys = [], groupLabels = {};
+                    groups = {};groupKeys = [];groupLabels = {};
                 }
 
                 if (!_this6.props.skipParentNavigation && theNode.getParent() && (_this6.props.dataModel.getContextNode() !== theNode || _this6.props.skipInternalDataModel)) {
@@ -1339,43 +1340,61 @@ var SimpleList = _createReactClass2['default']({
 
         var elements = this.buildElementsFromNodeEntries(this.state.elements, this.state.showSelector);
 
+        var _props2 = this.props;
+        var verticalScroller = _props2.verticalScroller;
+        var heightAutoWithMax = _props2.heightAutoWithMax;
+        var usePlaceHolder = _props2.usePlaceHolder;
+
+        var content = elements;
+        if (!elements.length && usePlaceHolder) {
+            content = _react2['default'].createElement(_PlaceHolders2['default'], this.props);
+        }
+        if (emptyState) {
+
+            content = emptyState;
+        } else if (verticalScroller) {
+
+            content = _react2['default'].createElement(
+                _reactScrollbar2['default'],
+                {
+                    speed: 0.8,
+                    horizontalScroll: false,
+                    style: { height: this.state.containerHeight },
+                    verticalScrollbarStyle: { borderRadius: 10, width: 6 },
+                    verticalContainerStyle: { width: 8 }
+                },
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    content
+                )
+            );
+        } else {
+
+            content = _react2['default'].createElement(
+                _reactInfinite2['default'],
+                {
+                    elementHeight: this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight,
+                    containerHeight: this.state.containerHeight ? this.state.containerHeight : 1,
+                    infiniteLoadBeginEdgeOffset: this.state.infiniteLoadBeginBottomOffset,
+                    onInfiniteLoad: this.handleInfiniteLoad,
+                    handleScroll: this.onScroll,
+                    ref: 'infinite'
+                },
+                content
+            );
+        }
+
         return _react2['default'].createElement(
             'div',
-            { className: containerClasses, onContextMenu: this.contextMenuResponder, tabIndex: '0', onKeyDown: this.onKeyDown, style: this.props.style },
+            { className: containerClasses, tabIndex: '0', onKeyDown: this.onKeyDown, style: this.props.style },
             toolbar,
             hiddenToolbar,
             inlineEditor,
             _react2['default'].createElement(
                 'div',
-                { className: this.props.heightAutoWithMax ? "infinite-parent-smooth-height" : emptyState ? "layout-fill vertical_layout" : "layout-fill", ref: 'infiniteParent' },
-                !emptyState && !this.props.verticalScroller && _react2['default'].createElement(
-                    _reactInfinite2['default'],
-                    {
-                        elementHeight: this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight,
-                        containerHeight: this.state.containerHeight ? this.state.containerHeight : 1,
-                        infiniteLoadBeginEdgeOffset: this.state.infiniteLoadBeginBottomOffset,
-                        onInfiniteLoad: this.handleInfiniteLoad,
-                        handleScroll: this.onScroll,
-                        ref: 'infinite'
-                    },
-                    elements
-                ),
-                !emptyState && this.props.verticalScroller && _react2['default'].createElement(
-                    _reactScrollbar2['default'],
-                    {
-                        speed: 0.8,
-                        horizontalScroll: false,
-                        style: { height: this.state.containerHeight },
-                        verticalScrollbarStyle: { borderRadius: 10, width: 6 },
-                        verticalContainerStyle: { width: 8 }
-                    },
-                    _react2['default'].createElement(
-                        'div',
-                        null,
-                        elements
-                    )
-                ),
-                emptyState
+                { className: heightAutoWithMax ? "infinite-parent-smooth-height" : emptyState ? "layout-fill vertical_layout" : "layout-fill", ref: 'infiniteParent' },
+                content
             )
         );
     }

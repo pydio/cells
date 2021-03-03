@@ -103,7 +103,7 @@ export default class NodeListCustomProvider extends React.Component{
             <div className={this.props.heightAutoWithMax?"":"layout-fill vertical-layout"} style={this.props.containerStyle}>
                 <SimpleList
                     {...this.props}
-                    openEditor={this.props.openEditor}
+                    openEditor={this.openEditor}
                     ref="list"
                     style={Object.assign({height:'100%'}, this.props.style || {})}
                     node={this.state.node}

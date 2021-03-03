@@ -635,6 +635,8 @@ class MainFilesList extends React.Component {
                 infiniteSliceCount={infiniteSliceCount}
                 skipInternalDataModel={true}
                 style={this.props.style}
+                displayMode={dMode}
+                usePlaceHolder={true}
                 elementsPerLine={elementsPerLine}
                 elementHeight={elementHeight}
                 elementStyle={elementStyle}

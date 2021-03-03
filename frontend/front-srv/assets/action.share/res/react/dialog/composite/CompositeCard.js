@@ -264,7 +264,7 @@ class CompositeCard extends React.Component {
                     lines.push(
                         <GenericLine iconClassName={"mdi mdi-alert-outline"} legend={"Error"} data={err.Detail || err.Msg || err}/>
                     );
-                } else if(ln.getLink()){
+                } else if(ln.getLink() && ln.getLink().LinkHash){
                     const publicLink = ShareHelper.buildPublicUrl(pydio, ln.getLink(), mode === 'infoPanel');
                     lines.push(
                         <GenericLine iconClassName="mdi mdi-link" legend={m(121)} style={{overflow:'visible'}} dataStyle={{overflow:'visible'}} data={
@@ -304,6 +304,7 @@ class CompositeCard extends React.Component {
                     headerSmall={mode === 'infoPanel'}
                 >
                     {lines}
+                    {!lines.length && <GenericLine placeHolder/>}
                 </GenericCard>
 
             );

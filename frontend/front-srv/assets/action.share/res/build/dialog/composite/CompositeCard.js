@@ -374,7 +374,7 @@ var CompositeCard = (function (_React$Component) {
                         if (ln.hasError()) {
                             var err = ln.hasError();
                             lines.push(_react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-alert-outline", legend: "Error", data: err.Detail || err.Msg || err }));
-                        } else if (ln.getLink()) {
+                        } else if (ln.getLink() && ln.getLink().LinkHash) {
                             var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, ln.getLink(), mode === 'infoPanel');
                             lines.push(_react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-link', legend: m(121), style: { overflow: 'visible' }, dataStyle: { overflow: 'visible' }, data: _react2['default'].createElement(
                                     'div',
@@ -419,7 +419,8 @@ var CompositeCard = (function (_React$Component) {
                                 },
                                 headerSmall: mode === 'infoPanel'
                             },
-                            lines
+                            lines,
+                            !lines.length && _react2['default'].createElement(GenericLine, { placeHolder: true })
                         )
                     };
                 })();

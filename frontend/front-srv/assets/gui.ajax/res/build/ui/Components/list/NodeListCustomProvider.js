@@ -129,7 +129,7 @@ var NodeListCustomProvider = (function (_React$Component) {
             'div',
             { className: this.props.heightAutoWithMax ? "" : "layout-fill vertical-layout", style: this.props.containerStyle },
             _react2['default'].createElement(_SimpleList2['default'], _extends({}, this.props, {
-                openEditor: this.props.openEditor,
+                openEditor: this.openEditor,
                 ref: 'list',
                 style: Object.assign({ height: '100%' }, this.props.style || {}),
                 node: this.state.node,

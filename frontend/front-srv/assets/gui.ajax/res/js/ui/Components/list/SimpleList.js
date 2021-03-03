@@ -1,8 +1,5 @@
-import React from 'react';
-import createReactClass from 'create-react-class';
-
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -21,7 +18,8 @@ import createReactClass from 'create-react-class';
  * The latest code can be found at <https://pydio.com>.
  */
 
-
+import React from 'react';
+import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
@@ -38,6 +36,7 @@ import ListPaginator from './ListPaginator'
 import SimpleReactActionBar from '../views/SimpleReactActionBar'
 import InlineEditor from './InlineEditor'
 import EmptyStateView from '../views/EmptyStateView'
+import PlaceHolders from "./PlaceHolders";
 
 const DOMUtils = require('pydio/util/dom')
 const LangUtils = require('pydio/util/lang')
@@ -777,8 +776,8 @@ let SimpleList = createReactClass({
                     firstLine           : "..",
                     className           : "list-parent-node",
                     secondLine          : this.getMessage('react.1'),
-                    onClick             : this.clickRow,
-                    onDoubleClick       : this.doubleClickRow,
+                    onClick             : this.clickRow.bind(this),
+                    onDoubleClick       : this.doubleClickRow.bind(this),
                     showSelector        : false,
                     selectorDisabled    : true,
                     noHover             : false
@@ -819,9 +818,9 @@ let SimpleList = createReactClass({
             }else{
                 data = {
                     node                : entry.node,
-                    onClick             : this.clickRow,
-                    onDoubleClick       : this.doubleClickRow,
-                    onSelect            : this.toggleSelection,
+                    onClick             : this.clickRow.bind(this),
+                    onDoubleClick       : this.doubleClickRow.bind(this),
+                    onSelect            : this.toggleSelection.bind(this),
                     key                 : entry.node.getPath(),
                     id                  : entry.node.getPath(),
                     renderIcon          : this.props.entryRenderIcon,
@@ -869,11 +868,8 @@ let SimpleList = createReactClass({
 
     },
 
-    buildElements: function(start, end, node, showSelector){
-        let theNode = this.props.node;
-        if (node) theNode = node;
-        let theShowSelector = this.state && this.state.showSelector;
-        if(showSelector !== undefined) theShowSelector = showSelector;
+    buildElements: function(start, end, node){
+        const theNode = node || this.props.node;
 
         if(!this.indexedElements || this.indexedElements.length !== theNode.getChildren().size) {
             this.indexedElements = [];
@@ -881,7 +877,7 @@ let SimpleList = createReactClass({
             if(this.props.defaultGroupBy){
                 groupBy = this.props.defaultGroupBy;
                 groupByLabel = this.props.groupByLabel || false;
-                groups = {}, groupKeys = [], groupLabels = {};
+                groups = {}; groupKeys = []; groupLabels = {};
             }
 
             if (!this.props.skipParentNavigation && theNode.getParent()
@@ -1242,36 +1238,47 @@ let SimpleList = createReactClass({
 
         const elements = this.buildElementsFromNodeEntries(this.state.elements, this.state.showSelector);
 
+        const {verticalScroller, heightAutoWithMax, usePlaceHolder} = this.props;
+        let content = elements;
+        if(!elements.length && usePlaceHolder) {
+            content = <PlaceHolders {...this.props}/>
+        }
+        if(emptyState) {
+
+            content = emptyState;
+
+        } else if (verticalScroller) {
+
+            content = (
+                <ScrollArea
+                    speed={0.8}
+                    horizontalScroll={false}
+                    style={{height:this.state.containerHeight}}
+                    verticalScrollbarStyle={{borderRadius: 10, width: 6}}
+                    verticalContainerStyle={{width: 8}}
+                >
+                    <div>{content}</div>
+                </ScrollArea>
+            )
+        } else {
+
+            content = (
+                <Infinite
+                    elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
+                    containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
+                    infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
+                    onInfiniteLoad={this.handleInfiniteLoad}
+                    handleScroll={this.onScroll}
+                    ref="infinite"
+                >{content}</Infinite>
+            )
+        }
+
         return (
-            <div className={containerClasses} onContextMenu={this.contextMenuResponder} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
+            <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
                 {toolbar}{hiddenToolbar}
                 {inlineEditor}
-                <div className={this.props.heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">
-                    {!emptyState && !this.props.verticalScroller &&
-                    <Infinite
-                        elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
-                        containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
-                        infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
-                        onInfiniteLoad={this.handleInfiniteLoad}
-                        handleScroll={this.onScroll}
-                        ref="infinite"
-                    >
-                        {elements}
-                    </Infinite>
-                    }
-                    {!emptyState && this.props.verticalScroller &&
-                        <ScrollArea
-                            speed={0.8}
-                            horizontalScroll={false}
-                            style={{height:this.state.containerHeight}}
-                            verticalScrollbarStyle={{borderRadius: 10, width: 6}}
-                            verticalContainerStyle={{width: 8}}
-                        >
-                            <div>{elements}</div>
-                        </ScrollArea>
-                    }
-                    {emptyState}
-                </div>
+                <div className={heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">{content}</div>
             </div>
         );
     },
