@@ -33,9 +33,19 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _materialUi = require('material-ui');
 
 var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var PlaceHolder = _Pydio$requireLib.PlaceHolder;
+var PhRoundShape = _Pydio$requireLib.PhRoundShape;
+var PhTextRow = _Pydio$requireLib.PhTextRow;
 
 var globalStyles = {
     globalLeftMargin: 64
@@ -58,6 +68,8 @@ var GenericLine = (function (_React$Component) {
         var dataStyle = _props.dataStyle;
         var legendStyle = _props.legendStyle;
         var iconStyle = _props.iconStyle;
+        var placeHolder = _props.placeHolder;
+        var placeHolderReady = _props.placeHolderReady;
 
         var style = {
             icon: _extends({
@@ -75,7 +87,7 @@ var GenericLine = (function (_React$Component) {
                 textOverflow: 'ellipsis'
             }, dataStyle)
         };
-        return _react2['default'].createElement(
+        var contents = _react2['default'].createElement(
             'div',
             { style: _extends({ display: 'flex', marginBottom: 8, overflow: 'hidden' }, this.props.style) },
             _react2['default'].createElement(
@@ -98,6 +110,37 @@ var GenericLine = (function (_React$Component) {
                 )
             )
         );
+        if (placeHolder) {
+            var linePH = _react2['default'].createElement(
+                'div',
+                { style: _extends({ display: 'flex', marginBottom: 16, overflow: 'hidden' }, this.props.style) },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { width: globalStyles.globalLeftMargin } },
+                    _react2['default'].createElement(PhRoundShape, { style: { width: 35, height: 35, margin: '10px 15px 0' } })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { flex: 1 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, style.legend, { maxWidth: 100 }) },
+                        _react2['default'].createElement(PhTextRow, null)
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, style.data, { marginRight: 24 }) },
+                        _react2['default'].createElement(PhTextRow, { style: { height: '1.3em', marginTop: '0.4em' } })
+                    )
+                )
+            );
+            return _react2['default'].createElement(
+                PlaceHolder,
+                { ready: placeHolderReady, showLoadingAnimation: true, customPlaceholder: linePH },
+                contents
+            );
+        }
+        return contents;
     };
 
     return GenericLine;

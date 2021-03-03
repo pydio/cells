@@ -66,12 +66,6 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _cellsSdk = require('cells-sdk');
 
-var _reactPlaceholder = require('react-placeholder');
-
-var _reactPlaceholder2 = _interopRequireDefault(_reactPlaceholder);
-
-var _reactPlaceholderLibPlaceholders = require('react-placeholder/lib/placeholders');
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
@@ -84,6 +78,12 @@ var FilePreview = _Pydio$requireLib2.FilePreview;
 var _Pydio$requireLib3 = _pydio2['default'].requireLib('PydioActivityStreams');
 
 var ASClient = _Pydio$requireLib3.ASClient;
+
+var _Pydio$requireLib4 = _pydio2['default'].requireLib('hoc');
+
+var PlaceHolder = _Pydio$requireLib4.PlaceHolder;
+var PhTextRow = _Pydio$requireLib4.PhTextRow;
+var PhRoundShape = _Pydio$requireLib4.PhRoundShape;
 
 var Loader = (function () {
     function Loader(pydio, stater) {
@@ -380,20 +380,17 @@ var SmartRecents = (function (_React$Component2) {
         key: 'render',
         value: function render() {
 
-            var phColor = "#f5f5f5";
-            var cardPH = _react2['default'].createElement(
-                'div',
-                { style: { margin: 16, width: 120, height: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' } },
-                _react2['default'].createElement(_reactPlaceholderLibPlaceholders.RoundShape, { color: phColor, style: { width: 90, height: 90 } }),
-                _react2['default'].createElement(_reactPlaceholderLibPlaceholders.TextRow, { color: phColor }),
-                _react2['default'].createElement(_reactPlaceholderLibPlaceholders.TextRow, { color: phColor })
-            );
-
             var cardsPH = _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', flexWrap: 'wrap' } },
                 [0, 1, 2, 3, 4, 5, 6, 7].map(function () {
-                    return cardPH;
+                    return _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 16, width: 120, height: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' } },
+                        _react2['default'].createElement(PhRoundShape, { style: { width: 90, height: 90 } }),
+                        _react2['default'].createElement(PhTextRow, null),
+                        _react2['default'].createElement(PhTextRow, null)
+                    );
                 })
             );
 
@@ -428,7 +425,7 @@ var SmartRecents = (function (_React$Component2) {
                 'div',
                 { style: _extends({ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }, style) },
                 _react2['default'].createElement(
-                    _reactPlaceholder2['default'],
+                    PlaceHolder,
                     { ready: !loading, showLoadingAnimation: true, customPlaceholder: cardsPH },
                     cards
                 )

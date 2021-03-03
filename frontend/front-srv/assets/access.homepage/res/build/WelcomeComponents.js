@@ -6789,276 +6789,6 @@
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],2:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
-exports.__esModule = true;
-var React = require("react");
-var placeholders = require("./placeholders");
-var utils_1 = require("./utils");
-var ReactPlaceholder = function (_a) {
-    var _b = _a.delay, delay = _b === void 0 ? 0 : _b, _c = _a.type, type = _c === void 0 ? 'text' : _c, _d = _a.color, color = _d === void 0 ? '#CDCDCD' : _d, _e = _a.rows, rows = _e === void 0 ? 3 : _e, readyProp = _a.ready, firstLaunchOnly = _a.firstLaunchOnly, children = _a.children, className = _a.className, showLoadingAnimation = _a.showLoadingAnimation, customPlaceholder = _a.customPlaceholder, rest = __rest(_a, ["delay", "type", "color", "rows", "ready", "firstLaunchOnly", "children", "className", "showLoadingAnimation", "customPlaceholder"]);
-    var _f = React.useState(readyProp), ready = _f[0], setReady = _f[1];
-    var timeout = React.useRef(null);
-    var getFiller = function () {
-        var classes = showLoadingAnimation
-            ? utils_1.joinClassNames('show-loading-animation', className)
-            : className;
-        if (customPlaceholder && React.isValidElement(customPlaceholder)) {
-            var mergedCustomClasses = utils_1.joinClassNames(customPlaceholder.props.className, classes);
-            return React.cloneElement(customPlaceholder, {
-                className: mergedCustomClasses
-            });
-        }
-        else if (customPlaceholder) {
-            return customPlaceholder;
-        }
-        var Placeholder = placeholders[type];
-        return (React.createElement(Placeholder, __assign({}, rest, { color: color, rows: rows, className: classes })));
-    };
-    React.useEffect(function () {
-        if (!firstLaunchOnly && ready && !readyProp) {
-            if (delay && delay > 0) {
-                timeout.current = window.setTimeout(function () {
-                    setReady(false);
-                }, delay);
-            }
-            else {
-                setReady(false);
-            }
-        }
-        else if (readyProp) {
-            if (timeout.current) {
-                window.clearTimeout(timeout.current);
-            }
-            if (!ready) {
-                setReady(true);
-            }
-        }
-    }, [firstLaunchOnly, ready, readyProp, delay]);
-    // clear the timeout when the component unmounts
-    React.useEffect(function () { return function () {
-        if (timeout.current) {
-            window.clearTimeout(timeout.current);
-        }
-    }; }, []);
-    // Casting - workaround for DefinitelyTyped/react issue with
-    // FunctionComponents returning ReactElement, where they should be able to
-    // return ReactNode. Casting also doesn't introduce another layer in the
-    // component tree like another `<>children</>` workaround does.
-    //
-    // See https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33006
-    // and https://github.com/DefinitelyTyped/DefinitelyTyped/issues/18051
-    return ready ? children : getFiller();
-};
-exports["default"] = ReactPlaceholder;
-
-},{"./placeholders":9,"./utils":10,"react":"react"}],3:[function(require,module,exports){
-"use strict";
-exports.__esModule = true;
-var ReactPlaceholder_1 = require("./ReactPlaceholder");
-exports["default"] = ReactPlaceholder_1["default"];
-
-},{"./ReactPlaceholder":2}],4:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-exports.__esModule = true;
-var React = require("react");
-var TextBlock_1 = require("./TextBlock");
-var RoundShape_1 = require("./RoundShape");
-var utils_1 = require("../utils");
-var defaultStyles = {
-    display: 'flex'
-};
-var MediaBlock = function (_a) {
-    var className = _a.className, style = _a.style, color = _a.color, rows = _a.rows;
-    return (React.createElement("div", { className: utils_1.joinClassNames('media-block', className), style: __assign(__assign({}, defaultStyles), style) },
-        React.createElement(RoundShape_1["default"], { color: color, style: { minHeight: 55, width: 55, minWidth: 55, marginRight: 10 } }),
-        React.createElement(TextBlock_1["default"], { color: color, rows: rows })));
-};
-exports["default"] = MediaBlock;
-
-},{"../utils":10,"./RoundShape":6,"./TextBlock":7,"react":"react"}],5:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-exports.__esModule = true;
-var React = require("react");
-var utils_1 = require("../utils");
-var RectShape = function (_a) {
-    var className = _a.className, style = _a.style, color = _a.color;
-    var defaultStyle = {
-        backgroundColor: color,
-        width: '100%',
-        height: '100%',
-        marginRight: 10
-    };
-    return (React.createElement("div", { className: utils_1.joinClassNames('rect-shape', className), style: __assign(__assign({}, defaultStyle), style) }));
-};
-exports["default"] = RectShape;
-
-},{"../utils":10,"react":"react"}],6:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-exports.__esModule = true;
-var React = require("react");
-var utils_1 = require("../utils");
-var RoundShape = function (_a) {
-    var className = _a.className, style = _a.style, color = _a.color;
-    var defaultStyles = {
-        backgroundColor: color,
-        borderRadius: '500rem',
-        width: '100%',
-        height: '100%'
-    };
-    return (React.createElement("div", { className: utils_1.joinClassNames('round-shape', className), style: __assign(__assign({}, defaultStyles), style) }));
-};
-exports["default"] = RoundShape;
-
-},{"../utils":10,"react":"react"}],7:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-exports.__esModule = true;
-var React = require("react");
-var TextRow_1 = require("./TextRow");
-var utils_1 = require("../utils");
-var defaultStyles = {
-    width: '100%'
-};
-var defaultWidths = [97, 100, 94, 90, 98, 95, 98, 40];
-var TextBlock = function (_a) {
-    var rows = _a.rows, lineSpacing = _a.lineSpacing, color = _a.color, style = _a.style, className = _a.className, _b = _a.widths, widths = _b === void 0 ? defaultWidths : _b;
-    var getRowStyle = function (i) {
-        return {
-            maxHeight: 100 / (rows * 2 - 1) + "%",
-            width: widths[(i + widths.length) % widths.length] + "%"
-        };
-    };
-    return (React.createElement("div", { className: utils_1.joinClassNames('text-block', className), style: __assign(__assign({}, defaultStyles), style) }, Array.apply(null, Array(rows)).map(function (_, i) { return (React.createElement(TextRow_1["default"], { color: color, style: getRowStyle(i), lineSpacing: i !== 0 ? lineSpacing : 0, key: i })); })));
-};
-exports["default"] = TextBlock;
-
-},{"../utils":10,"./TextRow":8,"react":"react"}],8:[function(require,module,exports){
-"use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-exports.__esModule = true;
-var React = require("react");
-var utils_1 = require("../utils");
-var TextRow = function (_a) {
-    var className = _a.className, maxHeight = _a.maxHeight, color = _a.color, _b = _a.lineSpacing, lineSpacing = _b === void 0 ? '0.7em' : _b, style = _a.style;
-    var defaultStyles = {
-        maxHeight: maxHeight,
-        width: '100%',
-        height: '1em',
-        backgroundColor: color,
-        marginTop: lineSpacing
-    };
-    return (React.createElement("div", { className: utils_1.joinClassNames('text-row', className), style: __assign(__assign({}, defaultStyles), style) }));
-};
-exports["default"] = TextRow;
-
-},{"../utils":10,"react":"react"}],9:[function(require,module,exports){
-"use strict";
-exports.__esModule = true;
-exports.media = exports.text = exports.rect = exports.round = exports.textRow = exports.MediaBlock = exports.TextBlock = exports.RectShape = exports.RoundShape = exports.TextRow = void 0;
-var TextRow_1 = require("./TextRow");
-exports.TextRow = TextRow_1["default"];
-var RoundShape_1 = require("./RoundShape");
-exports.RoundShape = RoundShape_1["default"];
-var RectShape_1 = require("./RectShape");
-exports.RectShape = RectShape_1["default"];
-var TextBlock_1 = require("./TextBlock");
-exports.TextBlock = TextBlock_1["default"];
-var MediaBlock_1 = require("./MediaBlock");
-exports.MediaBlock = MediaBlock_1["default"];
-exports.textRow = TextRow_1["default"];
-exports.round = RoundShape_1["default"];
-exports.rect = RectShape_1["default"];
-exports.text = TextBlock_1["default"];
-exports.media = MediaBlock_1["default"];
-
-},{"./MediaBlock":4,"./RectShape":5,"./RoundShape":6,"./TextBlock":7,"./TextRow":8}],10:[function(require,module,exports){
-"use strict";
-exports.__esModule = true;
-exports.joinClassNames = void 0;
-exports.joinClassNames = function () {
-    var classNames = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        classNames[_i] = arguments[_i];
-    }
-    return classNames.filter(function (c) { return c; }).join(' ');
-};
-
-},{}],11:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -7221,7 +6951,7 @@ exports['default'] = DlAppsCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../board/ColorPaper":14,"./DownloadApp":12,"pydio":"pydio","react":"react"}],12:[function(require,module,exports){
+},{"../board/ColorPaper":5,"./DownloadApp":3,"pydio":"pydio","react":"react"}],3:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -7330,7 +7060,7 @@ DownloadApp.propTypes = {
 exports['default'] = DownloadApp;
 module.exports = exports['default'];
 
-},{"prop-types":"prop-types","react":"react"}],13:[function(require,module,exports){
+},{"prop-types":"prop-types","react":"react"}],4:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -7429,7 +7159,7 @@ exports['default'] = QRCodeCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../board/ColorPaper":14,"../board/Palette":19,"pydio":"pydio","qrcode.react":"qrcode.react","react":"react"}],14:[function(require,module,exports){
+},{"../board/ColorPaper":5,"../board/Palette":10,"pydio":"pydio","qrcode.react":"qrcode.react","react":"react"}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -7536,7 +7266,7 @@ ColorPaper.propTypes = {
 exports['default'] = ColorPaper;
 module.exports = exports['default'];
 
-},{"./Palette":19,"material-ui":"material-ui","prop-types":"prop-types","react":"react"}],15:[function(require,module,exports){
+},{"./Palette":10,"material-ui":"material-ui","prop-types":"prop-types","react":"react"}],6:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -7607,7 +7337,7 @@ var ConfigLogo = (function (_React$Component) {
 exports['default'] = ConfigLogo;
 module.exports = exports['default'];
 
-},{"react":"react"}],16:[function(require,module,exports){
+},{"react":"react"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -7873,7 +7603,7 @@ var Facets = (function (_React$Component2) {
 exports['default'] = Facets;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],17:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -8125,7 +7855,7 @@ exports['default'] = AltDashboard = (0, _materialUiStyles.muiThemeable)()(AltDas
 exports['default'] = AltDashboard;
 module.exports = exports['default'];
 
-},{"../recent/SmartRecents":24,"./ConfigLogo":15,"./HomeSearchForm":18,"./WelcomeTour":20,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],18:[function(require,module,exports){
+},{"../recent/SmartRecents":15,"./ConfigLogo":6,"./HomeSearchForm":9,"./WelcomeTour":11,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -8597,7 +8327,7 @@ exports['default'] = HomeSearchForm = (0, _materialUiStyles.muiThemeable)()(Home
 exports['default'] = HomeSearchForm;
 module.exports = exports['default'];
 
-},{"./Facets":16,"lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/search-api":"pydio/http/search-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/empty-node-provider":"pydio/model/empty-node-provider","pydio/util/path":"pydio/util/path","react":"react"}],19:[function(require,module,exports){
+},{"./Facets":7,"lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/search-api":"pydio/http/search-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/empty-node-provider":"pydio/model/empty-node-provider","pydio/util/path":"pydio/util/path","react":"react"}],10:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -8629,7 +8359,7 @@ var materialPalette = ['#E53935', '#D81B60', '#7b1fa2', '#3f51b5', '#2196f3'];
 exports['default'] = materialPalette;
 module.exports = exports['default'];
 
-},{}],20:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -8956,7 +8686,7 @@ exports['default'] = WelcomeTour = PydioContextConsumer(WelcomeTour);
 exports['default'] = WelcomeTour;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","react":"react"}],21:[function(require,module,exports){
+},{"pydio":"pydio","react":"react"}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9021,7 +8751,7 @@ exports.VideoCard = _videosVideoCard2['default'];
 exports.WorkspacesListCard = _workspacesWorkspacesListCard2['default'];
 exports.HomeDashboard = _boardHomeDashboard2['default'];
 
-},{"./apps/DlAppsCard":11,"./apps/QRCodeCard":13,"./board/HomeDashboard":17,"./quicksend/QuickSendCard":22,"./quicksend/WorkspacePickerDialog":23,"./videos/VideoCard":25,"./workspaces/WorkspacesListCard":27}],22:[function(require,module,exports){
+},{"./apps/DlAppsCard":2,"./apps/QRCodeCard":4,"./board/HomeDashboard":8,"./quicksend/QuickSendCard":13,"./quicksend/WorkspacePickerDialog":14,"./videos/VideoCard":16,"./workspaces/WorkspacesListCard":18}],13:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -9204,7 +8934,7 @@ exports['default'] = QuickSendCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../board/ColorPaper":14,"material-ui":"material-ui","pydio":"pydio","react":"react"}],23:[function(require,module,exports){
+},{"../board/ColorPaper":5,"material-ui":"material-ui","pydio":"pydio","react":"react"}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9289,7 +9019,7 @@ var WorkspacePickerDialog = createReactClass({
 exports['default'] = WorkspacePickerDialog;
 module.exports = exports['default'];
 
-},{"create-react-class":"create-react-class","pydio":"pydio","react":"react"}],24:[function(require,module,exports){
+},{"create-react-class":"create-react-class","pydio":"pydio","react":"react"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -9358,12 +9088,6 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _cellsSdk = require('cells-sdk');
 
-var _reactPlaceholder = require('react-placeholder');
-
-var _reactPlaceholder2 = _interopRequireDefault(_reactPlaceholder);
-
-var _reactPlaceholderLibPlaceholders = require('react-placeholder/lib/placeholders');
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
@@ -9376,6 +9100,12 @@ var FilePreview = _Pydio$requireLib2.FilePreview;
 var _Pydio$requireLib3 = _pydio2['default'].requireLib('PydioActivityStreams');
 
 var ASClient = _Pydio$requireLib3.ASClient;
+
+var _Pydio$requireLib4 = _pydio2['default'].requireLib('hoc');
+
+var PlaceHolder = _Pydio$requireLib4.PlaceHolder;
+var PhTextRow = _Pydio$requireLib4.PhTextRow;
+var PhRoundShape = _Pydio$requireLib4.PhRoundShape;
 
 var Loader = (function () {
     function Loader(pydio, stater) {
@@ -9672,20 +9402,17 @@ var SmartRecents = (function (_React$Component2) {
         key: 'render',
         value: function render() {
 
-            var phColor = "#f5f5f5";
-            var cardPH = _react2['default'].createElement(
-                'div',
-                { style: { margin: 16, width: 120, height: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' } },
-                _react2['default'].createElement(_reactPlaceholderLibPlaceholders.RoundShape, { color: phColor, style: { width: 90, height: 90 } }),
-                _react2['default'].createElement(_reactPlaceholderLibPlaceholders.TextRow, { color: phColor }),
-                _react2['default'].createElement(_reactPlaceholderLibPlaceholders.TextRow, { color: phColor })
-            );
-
             var cardsPH = _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', flexWrap: 'wrap' } },
                 [0, 1, 2, 3, 4, 5, 6, 7].map(function () {
-                    return cardPH;
+                    return _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 16, width: 120, height: 140, display: 'flex', flexDirection: 'column', alignItems: 'center' } },
+                        _react2['default'].createElement(PhRoundShape, { style: { width: 90, height: 90 } }),
+                        _react2['default'].createElement(PhTextRow, null),
+                        _react2['default'].createElement(PhTextRow, null)
+                    );
                 })
             );
 
@@ -9720,7 +9447,7 @@ var SmartRecents = (function (_React$Component2) {
                 'div',
                 { style: _extends({ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }, style) },
                 _react2['default'].createElement(
-                    _reactPlaceholder2['default'],
+                    PlaceHolder,
                     { ready: !loading, showLoadingAnimation: true, customPlaceholder: cardsPH },
                     cards
                 )
@@ -9735,7 +9462,7 @@ exports['default'] = SmartRecents = PydioContextConsumer(SmartRecents);
 exports['default'] = SmartRecents;
 module.exports = exports['default'];
 
-},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","pydio/model/node":"pydio/model/node","pydio/util/path":"pydio/util/path","react":"react","react-placeholder":3,"react-placeholder/lib/placeholders":9}],25:[function(require,module,exports){
+},{"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider","pydio/model/node":"pydio/model/node","pydio/util/path":"pydio/util/path","react":"react"}],16:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -9945,7 +9672,7 @@ exports['default'] = VideoCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../board/ColorPaper":14,"../board/Palette":19,"./VideoPlayer":26,"material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react","react-dom":"react-dom"}],26:[function(require,module,exports){
+},{"../board/ColorPaper":5,"../board/Palette":10,"./VideoPlayer":17,"material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react","react-dom":"react-dom"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -10027,7 +9754,7 @@ VideoPlayer.propTypes = {
 exports['default'] = VideoPlayer;
 module.exports = exports['default'];
 
-},{"prop-types":"prop-types","react":"react"}],27:[function(require,module,exports){
+},{"prop-types":"prop-types","react":"react"}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -10156,5 +9883,5 @@ var WorkspacesListCard = (function (_React$Component2) {
 exports['default'] = WorkspacesListCard;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","react":"react"}]},{},[21])(21)
+},{"pydio":"pydio","react":"react"}]},{},[12])(12)
 });

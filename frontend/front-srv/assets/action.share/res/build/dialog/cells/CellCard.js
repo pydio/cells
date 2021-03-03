@@ -230,14 +230,9 @@ var CellCard = (function (_React$Component) {
                         moreMenuItems: moreMenuItems
                     },
                     !loading && model.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
-                    !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
-                    !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes }),
-                    watchLine,
-                    loading && _react2['default'].createElement(
-                        'div',
-                        { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, fontWeight: 500, color: '#aaa' } },
-                        _pydio2['default'].getMessages()[466]
-                    )
+                    _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects(), placeHolder: true, placeHolderReady: !loading }),
+                    _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes, placeHolder: true, placeHolderReady: !loading }),
+                    watchLine || _react2['default'].createElement(GenericLine, { placeHolder: true })
                 );
                 if (mode === 'infoPanel') {
                     return content;

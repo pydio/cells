@@ -144,12 +144,9 @@ class CellCard extends React.Component{
                     moreMenuItems={moreMenuItems}
                 >
                     {!loading && model.getDescription() && <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>}
-                    {!loading && <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()}/>}
-                    {!loading && <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes}/>}
-                    {watchLine}
-                    {loading &&
-                        <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:120, fontWeight:500, color:'#aaa'}}>{Pydio.getMessages()[466]}</div>
-                    }
+                    <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()} placeHolder placeHolderReady={!loading}/>
+                    <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes} placeHolder placeHolderReady={!loading} />
+                    {watchLine || <GenericLine placeHolder/>}
                 </GenericCard>
             );
             if(mode === 'infoPanel'){

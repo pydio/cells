@@ -18,8 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import {Paper, IconButton, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles';
+const {PlaceHolder, PhRoundShape, PhTextRow} = Pydio.requireLib('hoc')
 
 const globalStyles = {
     globalLeftMargin : 64,
@@ -27,7 +29,7 @@ const globalStyles = {
 
 class GenericLine extends React.Component{
     render(){
-        const {iconClassName, legend, data, dataStyle, legendStyle, iconStyle} = this.props;
+        const {iconClassName, legend, data, dataStyle, legendStyle, iconStyle, placeHolder, placeHolderReady} = this.props;
         const style = {
             icon: {
                 margin:'16px 20px 0',
@@ -48,7 +50,7 @@ class GenericLine extends React.Component{
                 ...dataStyle,
             }
         };
-        return (
+        const contents = (
             <div style={{display:'flex', marginBottom: 8, overflow:'hidden', ...this.props.style}}>
                 <div style={{width: globalStyles.globalLeftMargin}}>
                     <FontIcon color={'#aaaaaa'} className={iconClassName} style={style.icon}/>
@@ -59,6 +61,25 @@ class GenericLine extends React.Component{
                 </div>
             </div>
         );
+        if (placeHolder) {
+            const linePH = (
+                <div style={{display:'flex', marginBottom: 16, overflow:'hidden', ...this.props.style}}>
+                    <div style={{width: globalStyles.globalLeftMargin}}>
+                        <PhRoundShape style={{width:35,height:35,margin:'10px 15px 0'}}/>
+                    </div>
+                    <div style={{flex: 1}}>
+                        <div style={{...style.legend,maxWidth:100}}><PhTextRow/></div>
+                        <div style={{...style.data, marginRight:24}}><PhTextRow style={{height:'1.3em', marginTop:'0.4em'}}/></div>
+                    </div>
+                </div>
+            );
+            return (
+                <PlaceHolder ready={placeHolderReady} showLoadingAnimation customPlaceholder={linePH}>
+                    {contents}
+                </PlaceHolder>
+            );
+        }
+        return contents;
     }
 }
 

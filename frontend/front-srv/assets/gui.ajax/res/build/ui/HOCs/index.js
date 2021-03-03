@@ -92,6 +92,10 @@ var _materialModernComponents = require('./material/ModernComponents');
 
 var Modern = _interopRequireWildcard(_materialModernComponents);
 
+var _placeholders = require('./placeholders');
+
+var _placeholders2 = _interopRequireDefault(_placeholders);
+
 var PydioHOCs = _extends({
     EditorActions: actions,
     EditorReducers: _editorReducersIndex2['default'],
@@ -124,7 +128,14 @@ var PydioHOCs = _extends({
     PaletteModifier: _PaletteModifier2['default'],
     URLProvider: _urls.URLProvider,
     SizeProviders: _sizeIndex.SizeProviders
-}, controls, selectors);
+}, controls, selectors, {
+    PlaceHolder: _placeholders2['default'],
+    PhTextBlock: _placeholders.TextBlock,
+    PhTextRow: _placeholders.TextRow,
+    PhMediaBlock: _placeholders.MediaBlock,
+    PhRectShape: _placeholders.RectShape,
+    PhRoundShape: _placeholders.RoundShape
+});
 
 exports['default'] = PydioHOCs;
 module.exports = exports['default'];
