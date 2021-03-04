@@ -54901,7 +54901,7 @@ var SitesParameters = (function (_React$Component) {
         }
     }, {
         key: 'onNewRequest',
-        value: function onNewRequest(type, v) {
+        value: function onNewRequest(type, v, save) {
             var _this3 = this;
 
             var _state = this.state;
@@ -54909,14 +54909,16 @@ var SitesParameters = (function (_React$Component) {
             var shareConfig = _state.shareConfig;
 
             var value = typeof v === 'string' ? v : v.value;
+            var cb = undefined;
+            if (save) {
+                cb = function () {
+                    return _this3.save(type);
+                };
+            }
             if (type === 'share') {
-                this.setState({ shareConfig: _extends({}, shareConfig, { url: value }) }, function () {
-                    return _this3.save(type);
-                });
+                this.setState({ shareConfig: _extends({}, shareConfig, { url: value }) }, cb);
             } else if (type === 'mailer') {
-                this.setState({ mailerConfig: _extends({}, mailerConfig, { url: value }) }, function () {
-                    return _this3.save(type);
-                });
+                this.setState({ mailerConfig: _extends({}, mailerConfig, { url: value }) }, cb);
             }
         }
     }, {
@@ -55090,12 +55092,12 @@ var SitesParameters = (function (_React$Component) {
                             },
                             fullWidth: true,
                             openOnFocus: true,
-                            onUpdateInput: function () {
-                                _this5.setState({ mailDirty: true });
+                            onUpdateInput: function (searchText) {
+                                _this5.onNewRequest('mailer', searchText, false);_this5.setState({ mailDirty: true });
                             },
                             searchText: mailerConfig.url || '',
                             onNewRequest: function (v) {
-                                _this5.onNewRequest('mailer', v);
+                                _this5.onNewRequest('mailer', v, true);
                             }
                         }))
                     ),
@@ -55116,12 +55118,12 @@ var SitesParameters = (function (_React$Component) {
                             },
                             fullWidth: true,
                             openOnFocus: true,
-                            onUpdateInput: function () {
-                                _this5.setState({ shareDirty: true });
+                            onUpdateInput: function (searchText) {
+                                _this5.onNewRequest('share', searchText, false);_this5.setState({ shareDirty: true });
                             },
                             searchText: shareConfig.url || '',
                             onNewRequest: function (v) {
-                                _this5.onNewRequest('share', v);
+                                _this5.onNewRequest('share', v, true);
                             }
                         }))
                     )

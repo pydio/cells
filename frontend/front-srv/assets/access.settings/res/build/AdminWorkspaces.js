@@ -21303,7 +21303,7 @@ var AutocompleteTree = (function (_React$Component) {
                 });
             }
 
-            var displayText = this.state.value;
+            var displayText = searchText || value;
 
             return _react2['default'].createElement(
                 'div',

@@ -180,7 +180,7 @@ class AutocompleteTree extends React.Component{
             });
         }
 
-        let displayText = this.state.value;
+        let displayText = searchText || value;
 
         return (
             <div style={{position:'relative', marginTop: -5}}>

@@ -65,13 +65,17 @@ class SitesParameters extends React.Component {
         })
     }
 
-    onNewRequest(type, v) {
+    onNewRequest(type, v, save) {
         const {mailerConfig, shareConfig} = this.state;
         const value = (typeof v === 'string') ? v : v.value
+        let cb;
+        if(save){
+            cb = () => this.save(type);
+        }
         if(type === 'share'){
-            this.setState({shareConfig: {...shareConfig, url: value}}, () => this.save(type))
+            this.setState({shareConfig: {...shareConfig, url: value}}, cb)
         } else if(type === 'mailer'){
-            this.setState({mailerConfig: {...mailerConfig, url: value}}, () => this.save(type))
+            this.setState({mailerConfig: {...mailerConfig, url: value}}, cb)
         }
     }
 
@@ -181,9 +185,9 @@ class SitesParameters extends React.Component {
                             filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
                             fullWidth={true}
                             openOnFocus={true}
-                            onUpdateInput={() => {this.setState({mailDirty:true})}}
+                            onUpdateInput={(searchText) => {this.onNewRequest('mailer', searchText, false); this.setState({mailDirty:true})}}
                             searchText={mailerConfig.url || ''}
-                            onNewRequest={(v) => {this.onNewRequest('mailer',v)}}
+                            onNewRequest={(v) => {this.onNewRequest('mailer',v, true)}}
                         />
                     </div>
                     <div style={{padding: '0 16px 16px'}}>
@@ -195,9 +199,9 @@ class SitesParameters extends React.Component {
                             filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
                             fullWidth={true}
                             openOnFocus={true}
-                            onUpdateInput={() => {this.setState({shareDirty:true})}}
+                            onUpdateInput={(searchText) => {this.onNewRequest('share', searchText, false); this.setState({shareDirty:true})}}
                             searchText={shareConfig.url || ''}
-                            onNewRequest={(v) => {this.onNewRequest('share', v)}}
+                            onNewRequest={(v) => {this.onNewRequest('share', v, true)}}
                         />
                     </div>
 
