@@ -33,6 +33,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _createReactClass = require('create-react-class');
 
 var _createReactClass2 = _interopRequireDefault(_createReactClass);
@@ -93,8 +97,8 @@ var Paragraph = function Paragraph(_ref2) {
 var HistoryBrowser = (0, _createReactClass2['default'])({
 
     propTypes: {
-        node: _react2['default'].PropTypes.instanceOf(Node).isRequired,
-        onRequestClose: _react2['default'].PropTypes.func
+        node: _propTypes2['default'].instanceOf(Node).isRequired,
+        onRequestClose: _propTypes2['default'].func
     },
 
     propsToState: function propsToState(node) {

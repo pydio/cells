@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -35,6 +34,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _classnames = require('classnames');
 
@@ -167,32 +174,32 @@ var CodeMirror = (function (_React$Component) {
 			var editorClassName = (0, _classnames2['default'])('ReactCodeMirror', this.state.isFocused ? 'ReactCodeMirror--focused' : null, this.props.className);
 			var cmStyle = this.props.cmStyle;
 
-			return React.createElement(
+			return _react2['default'].createElement(
 				'div',
 				{ className: editorClassName, style: _extends({ width: "100%", height: "100%", zIndex: 0 }, cmStyle) },
-				React.createElement('textarea', { ref: 'textarea', defaultValue: this.props.value, autoComplete: 'off' })
+				_react2['default'].createElement('textarea', { ref: 'textarea', defaultValue: this.props.value, autoComplete: 'off' })
 			);
 		}
 	}]);
 
 	return CodeMirror;
-})(React.Component);
+})(_react2['default'].Component);
 
 CodeMirror.propTypes = {
-	mode: React.PropTypes.string,
-	lineWrapping: React.PropTypes.bool,
-	lineNumbers: React.PropTypes.bool,
-	readOnly: React.PropTypes.bool,
-	className: React.PropTypes.any,
-	codeMirrorInstance: React.PropTypes.func,
-	defaultValue: React.PropTypes.string,
-	onChange: React.PropTypes.func,
-	onFocusChange: React.PropTypes.func,
-	onScroll: React.PropTypes.func,
-	options: React.PropTypes.object,
-	path: React.PropTypes.string,
-	value: React.PropTypes.string,
-	preserveScrollPosition: React.PropTypes.bool
+	mode: _propTypes2['default'].string,
+	lineWrapping: _propTypes2['default'].bool,
+	lineNumbers: _propTypes2['default'].bool,
+	readOnly: _propTypes2['default'].bool,
+	className: _propTypes2['default'].any,
+	codeMirrorInstance: _propTypes2['default'].func,
+	defaultValue: _propTypes2['default'].string,
+	onChange: _propTypes2['default'].func,
+	onFocusChange: _propTypes2['default'].func,
+	onScroll: _propTypes2['default'].func,
+	options: _propTypes2['default'].object,
+	path: _propTypes2['default'].string,
+	value: _propTypes2['default'].string,
+	preserveScrollPosition: _propTypes2['default'].bool
 };
 
 CodeMirror.defaultProps = {

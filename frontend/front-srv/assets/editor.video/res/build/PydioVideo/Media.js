@@ -34,6 +34,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _classnames = require('classnames');
 
 var _classnames2 = _interopRequireDefault(_classnames);
@@ -313,10 +321,10 @@ var Media = (function (_React$Component) {
     }, {
         key: 'renderDefaultWarning',
         value: function renderDefaultWarning() {
-            return React.createElement(
+            return _react2['default'].createElement(
                 'p',
                 { className: 'vjs-no-js' },
-                React.createElement(
+                _react2['default'].createElement(
                     'a',
                     { href: 'http://www.google.cn/chrome/browser/desktop/index.html', target: '_blank' },
                     'The current browser version is too low, please use the latest browser to watch, thank you cooperation.'
@@ -343,10 +351,10 @@ var Media = (function (_React$Component) {
             });
 
             // We have a reference to the parent so that if the video tag has disappeared, no errors is thrown when unmounting
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 { ref: 'videoPlayerMountPoint', style: Media.styles.container },
-                React.createElement(
+                _react2['default'].createElement(
                     'video',
                     { ref: 'videoPlayer', className: videoPlayerClasses, style: Media.styles.video },
                     this.props.children || this.renderDefaultWarning()
@@ -356,7 +364,7 @@ var Media = (function (_React$Component) {
     }]);
 
     return Media;
-})(React.Component);
+})(_react2['default'].Component);
 
 ;
 
@@ -373,26 +381,26 @@ Media.defaultProps = {
 };
 
 Media.propTypes = {
-    src: React.PropTypes.string.isRequired,
-    poster: React.PropTypes.string,
-    height: React.PropTypes.number,
-    width: React.PropTypes.number,
-    endlessMode: React.PropTypes.bool,
-    options: React.PropTypes.object,
-    onReady: React.PropTypes.func,
-    eventListeners: React.PropTypes.object,
-    resize: React.PropTypes.bool,
-    resizeOptions: React.PropTypes.shape({
-        aspectRatio: React.PropTypes.number,
-        shortWindowVideoHeightAdjustment: React.PropTypes.number,
-        defaultVideoWidthAdjustment: React.PropTypes.number,
-        debounceTime: React.PropTypes.number
+    src: _propTypes2['default'].string.isRequired,
+    poster: _propTypes2['default'].string,
+    height: _propTypes2['default'].number,
+    width: _propTypes2['default'].number,
+    endlessMode: _propTypes2['default'].bool,
+    options: _propTypes2['default'].object,
+    onReady: _propTypes2['default'].func,
+    eventListeners: _propTypes2['default'].object,
+    resize: _propTypes2['default'].bool,
+    resizeOptions: _propTypes2['default'].shape({
+        aspectRatio: _propTypes2['default'].number,
+        shortWindowVideoHeightAdjustment: _propTypes2['default'].number,
+        defaultVideoWidthAdjustment: _propTypes2['default'].number,
+        debounceTime: _propTypes2['default'].number
     }),
-    vjsDefaultSkin: React.PropTypes.bool,
-    vjsBigPlayCentered: React.PropTypes.bool,
-    children: React.PropTypes.element,
-    dispose: React.PropTypes.bool,
-    onNextVideo: React.PropTypes.func
+    vjsDefaultSkin: _propTypes2['default'].bool,
+    vjsBigPlayCentered: _propTypes2['default'].bool,
+    children: _propTypes2['default'].element,
+    dispose: _propTypes2['default'].bool,
+    onNextVideo: _propTypes2['default'].func
 };
 
 exports['default'] = Media;

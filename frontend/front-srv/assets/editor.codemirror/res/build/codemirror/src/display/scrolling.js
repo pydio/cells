@@ -91,14 +91,15 @@ function calculateScrollPos(cm, rect) {
     if (newTop != screentop) result.scrollTop = newTop
   }
 
-  let screenleft = cm.curOp && cm.curOp.scrollLeft != null ? cm.curOp.scrollLeft : display.scroller.scrollLeft
-  let screenw = displayWidth(cm) - (cm.options.fixedGutter ? display.gutters.offsetWidth : 0)
+  let gutterSpace = cm.options.fixedGutter ? 0 : display.gutters.offsetWidth
+  let screenleft = cm.curOp && cm.curOp.scrollLeft != null ? cm.curOp.scrollLeft : display.scroller.scrollLeft - gutterSpace
+  let screenw = displayWidth(cm) - display.gutters.offsetWidth
   let tooWide = rect.right - rect.left > screenw
   if (tooWide) rect.right = rect.left + screenw
   if (rect.left < 10)
     result.scrollLeft = 0
   else if (rect.left < screenleft)
-    result.scrollLeft = Math.max(0, rect.left - (tooWide ? 0 : 10))
+    result.scrollLeft = Math.max(0, rect.left + gutterSpace - (tooWide ? 0 : 10))
   else if (rect.right > screenw + screenleft - 3)
     result.scrollLeft = rect.right + (tooWide ? 0 : 10) - screenw
   return result
@@ -165,7 +166,7 @@ export function updateScrollTop(cm, val) {
 }
 
 export function setScrollTop(cm, val, forceScroll) {
-  val = Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val)
+  val = Math.max(0, Math.min(cm.display.scroller.scrollHeight - cm.display.scroller.clientHeight, val))
   if (cm.display.scroller.scrollTop == val && !forceScroll) return
   cm.doc.scrollTop = val
   cm.display.scrollbars.setScrollTop(val)
@@ -175,7 +176,7 @@ export function setScrollTop(cm, val, forceScroll) {
 // Sync scroller and scrollbar, ensure the gutter elements are
 // aligned.
 export function setScrollLeft(cm, val, isScroller, forceScroll) {
-  val = Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth)
+  val = Math.max(0, Math.min(val, cm.display.scroller.scrollWidth - cm.display.scroller.clientWidth))
   if ((isScroller ? val == cm.doc.scrollLeft : Math.abs(cm.doc.scrollLeft - val) < 2) && !forceScroll) return
   cm.doc.scrollLeft = val
   alignHorizontally(cm)

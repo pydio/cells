@@ -40,9 +40,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _redux = require('redux');
+var _propTypes = require('prop-types');
 
-var _materialUi = require('material-ui');
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 OpenLayers.ImgPath = 'plug/editor.openlayer/openlayer/img/';
 
@@ -222,12 +222,12 @@ var OLMap = (function (_React$Component) {
         key: 'propTypes',
         get: function get() {
             return {
-                centerPoint: _react2['default'].PropTypes.object,
-                centerNode: _react2['default'].PropTypes.instanceOf(AjxpNode),
-                centerSRS: _react2['default'].PropTypes.string,
-                defaultControls: _react2['default'].PropTypes.bool,
+                centerPoint: _propTypes2['default'].object,
+                centerNode: _propTypes2['default'].instanceOf(AjxpNode),
+                centerSRS: _propTypes2['default'].string,
+                defaultControls: _propTypes2['default'].bool,
 
-                onMapLoaded: _react2['default'].PropTypes.func
+                onMapLoaded: _propTypes2['default'].func
             };
         }
     }, {

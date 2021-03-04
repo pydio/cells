@@ -20,20 +20,19 @@
 
 
 import React, {Component} from 'react'
-import {compose} from 'redux'
-import {ToolbarTitle} from 'material-ui'
+import PropTypes from 'prop-types'
 
 OpenLayers.ImgPath = 'plug/editor.openlayer/openlayer/img/'
 
 export default class OLMap extends React.Component {
     static get propTypes() {
         return {
-            centerPoint: React.PropTypes.object,
-            centerNode: React.PropTypes.instanceOf(AjxpNode),
-            centerSRS: React.PropTypes.string,
-            defaultControls: React.PropTypes.bool,
+            centerPoint: PropTypes.object,
+            centerNode: PropTypes.instanceOf(AjxpNode),
+            centerSRS: PropTypes.string,
+            defaultControls: PropTypes.bool,
 
-            onMapLoaded:React.PropTypes.func
+            onMapLoaded:PropTypes.func
         }
     }
 

@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import PropTypes from 'prop-types'
 import cx from 'classnames';
 import vjs from 'video.js';
 import _  from   'lodash';
@@ -310,26 +312,26 @@ Media.defaultProps = {
 }
 
 Media.propTypes = {
-    src: React.PropTypes.string.isRequired,
-    poster: React.PropTypes.string,
-    height: React.PropTypes.number,
-    width: React.PropTypes.number,
-    endlessMode: React.PropTypes.bool,
-    options: React.PropTypes.object,
-    onReady: React.PropTypes.func,
-    eventListeners: React.PropTypes.object,
-    resize: React.PropTypes.bool,
-    resizeOptions: React.PropTypes.shape({
-        aspectRatio: React.PropTypes.number,
-        shortWindowVideoHeightAdjustment: React.PropTypes.number,
-        defaultVideoWidthAdjustment: React.PropTypes.number,
-        debounceTime: React.PropTypes.number
+    src: PropTypes.string.isRequired,
+    poster: PropTypes.string,
+    height: PropTypes.number,
+    width: PropTypes.number,
+    endlessMode: PropTypes.bool,
+    options: PropTypes.object,
+    onReady: PropTypes.func,
+    eventListeners: PropTypes.object,
+    resize: PropTypes.bool,
+    resizeOptions: PropTypes.shape({
+        aspectRatio: PropTypes.number,
+        shortWindowVideoHeightAdjustment: PropTypes.number,
+        defaultVideoWidthAdjustment: PropTypes.number,
+        debounceTime: PropTypes.number
     }),
-    vjsDefaultSkin: React.PropTypes.bool,
-    vjsBigPlayCentered: React.PropTypes.bool,
-    children: React.PropTypes.element,
-    dispose: React.PropTypes.bool,
-    onNextVideo: React.PropTypes.func
+    vjsDefaultSkin: PropTypes.bool,
+    vjsBigPlayCentered: PropTypes.bool,
+    children: PropTypes.element,
+    dispose: PropTypes.bool,
+    onNextVideo: PropTypes.func
 }
 
 export default Media

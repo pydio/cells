@@ -31,8 +31,16 @@ export default class ContentEditableInput {
     let div = input.div = display.lineDiv
     disableBrowserMagic(div, cm.options.spellcheck, cm.options.autocorrect, cm.options.autocapitalize)
 
+    function belongsToInput(e) {
+      for (let t = e.target; t; t = t.parentNode) {
+        if (t == div) return true
+        if (/\bCodeMirror-(?:line)?widget\b/.test(t.className)) break
+      }
+      return false
+    }
+
     on(div, "paste", e => {
-      if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
+      if (!belongsToInput(e) || signalDOMEvent(cm, e) || handlePaste(e, cm)) return
       // IE doesn't fire input events, so we schedule a read for the pasted content in this way
       if (ie_version <= 11) setTimeout(operation(cm, () => this.updateFromDOM()), 20)
     })
@@ -57,7 +65,7 @@ export default class ContentEditableInput {
     })
 
     function onCopyCut(e) {
-      if (signalDOMEvent(cm, e)) return
+      if (!belongsToInput(e) || signalDOMEvent(cm, e)) return
       if (cm.somethingSelected()) {
         setLastCopied({lineWise: false, text: cm.getSelections()})
         if (e.type == "cut") cm.replaceSelection("", null, "cut")
@@ -99,9 +107,18 @@ export default class ContentEditableInput {
     on(div, "cut", onCopyCut)
   }
 
+  screenReaderLabelChanged(label) {
+    // Label for screenreaders, accessibility
+    if(label) {
+      this.div.setAttribute('aria-label', label)
+    } else {
+      this.div.removeAttribute('aria-label')
+    }
+  }
+
   prepareSelection() {
     let result = prepareSelection(this.cm, false)
-    result.focus = this.cm.state.focused
+    result.focus = document.activeElement == this.div
     return result
   }
 
@@ -195,7 +212,7 @@ export default class ContentEditableInput {
 
   focus() {
     if (this.cm.options.readOnly != "nocursor") {
-      if (!this.selectionInEditor())
+      if (!this.selectionInEditor() || document.activeElement != this.div)
         this.showSelection(this.prepareSelection(), true)
       this.div.focus()
     }
@@ -236,7 +253,7 @@ export default class ContentEditableInput {
     // Because Android doesn't allow us to actually detect backspace
     // presses in a sane way, this code checks for when that happens
     // and simulates a backspace press in this case.
-    if (android && chrome && this.cm.options.gutters.length && isInGutter(sel.anchorNode)) {
+    if (android && chrome && this.cm.display.gutterSpecs.length && isInGutter(sel.anchorNode)) {
       this.cm.triggerOnKeyDown({type: "keydown", keyCode: 8, preventDefault: Math.abs})
       this.blur()
       this.focus()

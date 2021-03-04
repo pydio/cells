@@ -44,6 +44,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _reactRedux = require('react-redux');
 
 var _redux = require('redux');
@@ -137,7 +141,7 @@ var Editor = (function (_React$Component) {
         key: 'propTypes',
         get: function get() {
             return {
-                showControls: _react2['default'].PropTypes.bool.isRequired
+                showControls: _propTypes2['default'].bool.isRequired
             };
         }
     }, {

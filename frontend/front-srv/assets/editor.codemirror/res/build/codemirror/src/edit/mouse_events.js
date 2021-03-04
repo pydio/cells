@@ -7,7 +7,7 @@ import { posFromMouse } from "../measurement/position_measurement.js"
 import { eventInWidget } from "../measurement/widgets.js"
 import { normalizeSelection, Range, Selection } from "../model/selection.js"
 import { extendRange, extendSelection, replaceOneSelection, setSelection } from "../model/selection_updates.js"
-import { captureRightClick, chromeOS, ie, ie_version, mac, webkit } from "../util/browser.js"
+import { captureRightClick, chromeOS, ie, ie_version, mac, webkit, safari } from "../util/browser.js"
 import { getOrder, getBidiPartAt } from "../util/bidi.js"
 import { activeElt } from "../util/dom.js"
 import { e_button, e_defaultPrevented, e_preventDefault, e_target, hasHandler, off, on, signal, signalDOMEvent } from "../util/event.js"
@@ -149,6 +149,10 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
+    if (cm.state.delayingBlurEvent) {
+      if (cm.hasFocus()) cm.state.delayingBlurEvent = false
+      else delayBlurEvent(cm)
+    }
     off(display.wrapper.ownerDocument, "mouseup", dragEnd)
     off(display.wrapper.ownerDocument, "mousemove", mouseMove)
     off(display.scroller, "dragstart", dragStart)
@@ -158,8 +162,8 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
       if (!behavior.addNew)
         extendSelection(cm.doc, pos, null, null, behavior.extend)
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
-      if (webkit || ie && ie_version == 9)
-        setTimeout(() => {display.wrapper.ownerDocument.body.focus(); display.input.focus()}, 20)
+      if ((webkit && !safari) || ie && ie_version == 9)
+        setTimeout(() => {display.wrapper.ownerDocument.body.focus({preventScroll: true}); display.input.focus()}, 20)
       else
         display.input.focus()
     }
@@ -172,15 +176,15 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   if (webkit) display.scroller.draggable = true
   cm.state.draggingText = dragEnd
   dragEnd.copy = !behavior.moveOnDrag
-  // IE's approach to draggable
-  if (display.scroller.dragDrop) display.scroller.dragDrop()
   on(display.wrapper.ownerDocument, "mouseup", dragEnd)
   on(display.wrapper.ownerDocument, "mousemove", mouseMove)
   on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
 
-  delayBlurEvent(cm)
+  cm.state.delayingBlurEvent = true
   setTimeout(() => display.input.focus(), 20)
+  // IE's approach to draggable
+  if (display.scroller.dragDrop) display.scroller.dragDrop()
 }
 
 function rangeForUnit(cm, pos, unit) {
@@ -193,6 +197,7 @@ function rangeForUnit(cm, pos, unit) {
 
 // Normal selection, as opposed to text dragging.
 function leftButtonSelect(cm, event, start, behavior) {
+  if (ie) delayBlurEvent(cm)
   let display = cm.display, doc = cm.doc
   e_preventDefault(event)
 
@@ -305,8 +310,13 @@ function leftButtonSelect(cm, event, start, behavior) {
   function done(e) {
     cm.state.selectingText = false
     counter = Infinity
-    e_preventDefault(e)
-    display.input.focus()
+    // If e is null or undefined we interpret this as someone trying
+    // to explicitly cancel the selection rather than the user
+    // letting go of the mouse button.
+    if (e) {
+      e_preventDefault(e)
+      display.input.focus()
+    }
     off(display.wrapper.ownerDocument, "mousemove", move)
     off(display.wrapper.ownerDocument, "mouseup", up)
     doc.history.lastSelOrigin = null
@@ -375,12 +385,12 @@ function gutterEvent(cm, e, type, prevent) {
   if (mY > lineBox.bottom || !hasHandler(cm, type)) return e_defaultPrevented(e)
   mY -= lineBox.top - display.viewOffset
 
-  for (let i = 0; i < cm.options.gutters.length; ++i) {
+  for (let i = 0; i < cm.display.gutterSpecs.length; ++i) {
     let g = display.gutters.childNodes[i]
     if (g && g.getBoundingClientRect().right >= mX) {
       let line = lineAtHeight(cm.doc, mY)
-      let gutter = cm.options.gutters[i]
-      signal(cm, type, cm, line, gutter, e)
+      let gutter = cm.display.gutterSpecs[i]
+      signal(cm, type, cm, line, gutter.className, e)
       return e_defaultPrevented(e)
     }
   }

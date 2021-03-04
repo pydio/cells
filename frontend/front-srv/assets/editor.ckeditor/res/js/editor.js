@@ -23,6 +23,7 @@
 import Pydio from 'pydio'
 const { EditorActions } = Pydio.requireLib('hoc')
 import React from 'react';
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import CKEditor from './CKEditor';
@@ -43,7 +44,7 @@ const mapStateToProps = (state, props) => {
 class Editor extends React.Component {
     static get propTypes() {
         return {
-            showControls: React.PropTypes.bool.isRequired
+            showControls: PropTypes.bool.isRequired
         }
     }
 

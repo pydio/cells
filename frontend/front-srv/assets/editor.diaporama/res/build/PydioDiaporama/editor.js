@@ -42,6 +42,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _reactRedux = require('react-redux');
 
 var _redux = require('redux');
@@ -132,7 +136,7 @@ var Editor = (function (_PureComponent) {
         key: 'propTypes',
         get: function get() {
             return {
-                node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired
+                node: _propTypes2['default'].instanceOf(AjxpNode).isRequired
             };
         }
     }]);

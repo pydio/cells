@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-    const {Externals} = require('../libdefs.js');
+    const {Externals} = require('../gui.ajax/res/js/dist/libdefs.js');
 
     grunt.initConfig({
         babel: {

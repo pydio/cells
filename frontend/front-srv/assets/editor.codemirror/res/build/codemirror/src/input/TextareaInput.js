@@ -118,6 +118,15 @@ export default class TextareaInput {
     this.textarea = this.wrapper.firstChild
   }
 
+  screenReaderLabelChanged(label) {
+    // Label for screenreaders, accessibility
+    if(label) {
+      this.textarea.setAttribute('aria-label', label)
+    } else {
+      this.textarea.removeAttribute('aria-label')
+    }
+  }
+
   prepareSelection() {
     // Redraw the selection and/or cursor
     let cm = this.cm, display = cm.display, doc = cm.doc
@@ -357,6 +366,7 @@ export default class TextareaInput {
   readOnlyChanged(val) {
     if (!val) this.reset()
     this.textarea.disabled = val == "nocursor"
+    this.textarea.readOnly = !!val
   }
 
   setUneditable() {}

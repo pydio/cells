@@ -141,7 +141,7 @@ var Breadcrumb = (function (_React$Component) {
         }).bind(this));
         return React.createElement(
             Textfit,
-            { mode: 'single', perfectFit: false, min: 12, max: 22, className: 'react_breadcrumb', style: mainStyle, onReady: function (f) {
+            { mode: 'single', min: 12, max: 22, className: 'react_breadcrumb', style: mainStyle, onReady: function (f) {
                     _this2.toggleMinFit(f);
                 } },
             this.props.startWithSeparator && React.createElement(

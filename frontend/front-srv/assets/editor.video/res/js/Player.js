@@ -19,7 +19,8 @@
  */
 
 
-
+import React from 'react'
+import PropTypes from 'prop-types'
 import Media from './Media';
 
 class Player extends React.Component {
@@ -62,9 +63,9 @@ class Player extends React.Component {
 }
 
 Player.propTypes = {
-    url: React.PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
 
-    onReady: React.PropTypes.func
+    onReady: PropTypes.func
 }
 
 export default Player;

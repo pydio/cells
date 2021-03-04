@@ -84,7 +84,7 @@ export let commands = {
   goGroupRight: cm => cm.moveH(1, "group"),
   goGroupLeft: cm => cm.moveH(-1, "group"),
   goWordRight: cm => cm.moveH(1, "word"),
-  delCharBefore: cm => cm.deleteH(-1, "char"),
+  delCharBefore: cm => cm.deleteH(-1, "codepoint"),
   delCharAfter: cm => cm.deleteH(1, "char"),
   delWordBefore: cm => cm.deleteH(-1, "word"),
   delWordAfter: cm => cm.deleteH(1, "word"),
@@ -170,7 +170,7 @@ function lineStartSmart(cm, pos) {
   let line = getLine(cm.doc, start.line)
   let order = getOrder(line, cm.doc.direction)
   if (!order || order[0].level == 0) {
-    let firstNonWS = Math.max(0, line.text.search(/\S/))
+    let firstNonWS = Math.max(start.ch, line.text.search(/\S/))
     let inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch
     return Pos(start.line, inWS ? 0 : firstNonWS, start.sticky)
   }

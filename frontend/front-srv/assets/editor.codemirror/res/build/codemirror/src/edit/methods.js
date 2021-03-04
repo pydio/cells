@@ -414,8 +414,8 @@ export default function(CodeMirror) {
       this.curOp.forceUpdate = true
       clearCaches(this)
       scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop)
-      updateGutterSpace(this)
-      if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
+      updateGutterSpace(this.display)
+      if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5 || this.options.lineWrapping)
         estimateLineHeights(this)
       signal(this, "refresh", this)
     }),
@@ -423,6 +423,8 @@ export default function(CodeMirror) {
     swapDoc: methodOp(function(doc) {
       let old = this.doc
       old.cm = null
+      // Cancel the current text selection if any (#5821)
+      if (this.state.selectingText) this.state.selectingText()
       attachDoc(this, doc)
       clearCaches(this)
       this.display.input.reset()
@@ -455,34 +457,43 @@ export default function(CodeMirror) {
 }
 
 // Used for horizontal relative motion. Dir is -1 or 1 (left or
-// right), unit can be "char", "column" (like char, but doesn't
-// cross line boundaries), "word" (across next word), or "group" (to
-// the start of next group of word or non-word-non-whitespace
-// chars). The visually param controls whether, in right-to-left
-// text, direction 1 means to move towards the next index in the
-// string, or towards the character to the right of the current
-// position. The resulting position will have a hitSide=true
-// property if it reached the end of the document.
+// right), unit can be "codepoint", "char", "column" (like char, but
+// doesn't cross line boundaries), "word" (across next word), or
+// "group" (to the start of next group of word or
+// non-word-non-whitespace chars). The visually param controls
+// whether, in right-to-left text, direction 1 means to move towards
+// the next index in the string, or towards the character to the right
+// of the current position. The resulting position will have a
+// hitSide=true property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
   let oldPos = pos
   let origDir = dir
   let lineObj = getLine(doc, pos.line)
+  let lineDir = visually && doc.direction == "rtl" ? -dir : dir
   function findNextLine() {
-    let l = pos.line + dir
+    let l = pos.line + lineDir
     if (l < doc.first || l >= doc.first + doc.size) return false
     pos = new Pos(l, pos.ch, pos.sticky)
     return lineObj = getLine(doc, l)
   }
   function moveOnce(boundToLine) {
     let next
-    if (visually) {
+    if (unit == "codepoint") {
+      let ch = lineObj.text.charCodeAt(pos.ch + (dir > 0 ? 0 : -1))
+      if (isNaN(ch)) {
+        next = null
+      } else {
+        let astral = dir > 0 ? ch >= 0xD800 && ch < 0xDC00 : ch >= 0xDC00 && ch < 0xDFFF
+        next = new Pos(pos.line, Math.max(0, Math.min(lineObj.text.length, pos.ch + dir * (astral ? 2 : 1))), -dir)
+      }
+    } else if (visually) {
       next = moveVisually(doc.cm, lineObj, pos, dir)
     } else {
       next = moveLogically(lineObj, pos, dir)
     }
     if (next == null) {
       if (!boundToLine && findNextLine())
-        pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
+        pos = endOfLine(visually, doc.cm, lineObj, pos.line, lineDir)
       else
         return false
     } else {
@@ -491,7 +502,7 @@ function findPosH(doc, pos, dir, unit, visually) {
     return true
   }
 
-  if (unit == "char") {
+  if (unit == "char" || unit == "codepoint") {
     moveOnce()
   } else if (unit == "column") {
     moveOnce(true)

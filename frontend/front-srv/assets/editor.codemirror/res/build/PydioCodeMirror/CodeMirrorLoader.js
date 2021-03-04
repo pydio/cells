@@ -34,11 +34,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _systemjs = require('systemjs');
 
 var _systemjs2 = _interopRequireDefault(_systemjs);
-
-var _redux = require('redux');
 
 var _CodeMirror = require('./CodeMirror');
 
@@ -119,7 +125,7 @@ var CodeMirrorLoader = (function (_React$Component) {
             if (!this.state.codemirrorInstance) return null;
             var cmStyle = this.props.cmStyle;
 
-            return React.createElement(_CodeMirror2['default'], {
+            return _react2['default'].createElement(_CodeMirror2['default'], {
                 name: this.state.url,
                 value: this.props.content,
                 codeMirrorInstance: this.state.codemirrorInstance,
@@ -134,13 +140,12 @@ var CodeMirrorLoader = (function (_React$Component) {
     }]);
 
     return CodeMirrorLoader;
-})(React.Component);
+})(_react2['default'].Component);
 
 CodeMirrorLoader.propTypes = {
-    url: React.PropTypes.string.isRequired,
-
-    onChange: React.PropTypes.func.isRequired,
-    onCursorChange: React.PropTypes.func.isRequired
+    url: _propTypes2['default'].string.isRequired,
+    onChange: _propTypes2['default'].func.isRequired,
+    onCursorChange: _propTypes2['default'].func.isRequired
 };
 
 exports['default'] = CodeMirrorLoader;

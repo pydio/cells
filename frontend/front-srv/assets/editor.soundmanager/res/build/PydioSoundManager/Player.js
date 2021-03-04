@@ -38,6 +38,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _soundmanager2 = require('soundmanager2');
 
 var _sm360PlayerScript360player = require('../../../sm/360-player/script/360player');
@@ -138,10 +142,10 @@ var Player = (function (_React$Component) {
 })(_react2['default'].Component);
 
 Player.propTypes = {
-    threeSixtyPlayer: _react2['default'].PropTypes.object,
-    autoPlay: _react2['default'].PropTypes.bool,
-    rich: _react2['default'].PropTypes.bool.isRequired,
-    onReady: _react2['default'].PropTypes.func
+    threeSixtyPlayer: _propTypes2['default'].object,
+    autoPlay: _propTypes2['default'].bool,
+    rich: _propTypes2['default'].bool.isRequired,
+    onReady: _propTypes2['default'].func
 };
 
 Player.defaultProps = {

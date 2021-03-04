@@ -19,9 +19,9 @@
  */
 
 
-
+import React from 'react'
+import PropTypes from 'prop-types';
 import SystemJS from 'systemjs';
-import {compose} from 'redux';
 
 import CodeMirror from './CodeMirror';
 
@@ -102,10 +102,9 @@ class CodeMirrorLoader extends React.Component {
 }
 
 CodeMirrorLoader.propTypes = {
-    url: React.PropTypes.string.isRequired,
-
-    onChange: React.PropTypes.func.isRequired,
-    onCursorChange: React.PropTypes.func.isRequired
+    url: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onCursorChange: PropTypes.func.isRequired
 }
 
 export default CodeMirrorLoader;

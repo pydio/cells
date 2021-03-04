@@ -20,6 +20,7 @@
 
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import { soundManager } from 'soundmanager2';
 import { threeSixtyPlayer } from '../../../sm/360-player/script/360player';
 
@@ -107,10 +108,10 @@ class Player extends React.Component {
 }
 
 Player.propTypes = {
-    threeSixtyPlayer: React.PropTypes.object,
-    autoPlay: React.PropTypes.bool,
-    rich: React.PropTypes.bool.isRequired,
-    onReady: React.PropTypes.func
+    threeSixtyPlayer: PropTypes.object,
+    autoPlay: PropTypes.bool,
+    rich: PropTypes.bool.isRequired,
+    onReady: PropTypes.func
 };
 
 Player.defaultProps = {

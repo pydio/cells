@@ -38,6 +38,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var Editor = (function (_Component) {
     _inherits(Editor, _Component);
 
@@ -106,7 +110,7 @@ var Editor = (function (_Component) {
 })(_react.Component);
 
 Editor.propTypes = {
-    url: _react2['default'].PropTypes.string.isRequired
+    url: _propTypes2['default'].string.isRequired
 };
 
 exports['default'] = Editor;

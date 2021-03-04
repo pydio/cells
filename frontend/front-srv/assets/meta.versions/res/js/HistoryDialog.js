@@ -19,11 +19,12 @@
  */
 import Pydio from 'pydio'
 import React from 'react'
+import PropTypes from 'prop-types'
 import createReactClass from 'create-react-class'
 import HistoryApi from './HistoryApi'
 import PathUtils from 'pydio/util/path'
 import ReactMarkdown from 'react-markdown';
-import {Toolbar, ToolbarGroup, Divider, FontIcon, IconButton, Paper} from 'material-ui'
+import {Toolbar, ToolbarGroup, Divider, IconButton} from 'material-ui'
 const Node = require('pydio/model/node');
 const PydioReactUi = Pydio.requireLib('boot');
 const {UserAvatar, NodeListCustomProvider, SimpleList} = Pydio.requireLib('components');
@@ -50,8 +51,8 @@ const Paragraph = ({children}) => <span>{children}</span>;
 let HistoryBrowser = createReactClass({
 
     propTypes: {
-        node: React.PropTypes.instanceOf(Node).isRequired,
-        onRequestClose: React.PropTypes.func
+        node: PropTypes.instanceOf(Node).isRequired,
+        onRequestClose: PropTypes.func
     },
 
     propsToState: function(node){

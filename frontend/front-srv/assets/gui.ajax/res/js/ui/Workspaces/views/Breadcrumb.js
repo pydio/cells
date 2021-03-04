@@ -97,7 +97,7 @@ class Breadcrumb extends React.Component {
             segments.push(<span key={'bread_' + i} className="segment" onClick={this.goTo.bind(this, rebuilt)}>{i===parts.length-1 ? label : seg}</span>);
         }.bind(this));
         return (
-            <Textfit mode="single" perfectFit={false} min={12} max={22} className="react_breadcrumb" style={mainStyle} onReady={(f) => {this.toggleMinFit(f)}}>
+            <Textfit mode="single" min={12} max={22} className="react_breadcrumb" style={mainStyle} onReady={(f) => {this.toggleMinFit(f)}}>
                  {this.props.startWithSeparator && <span className="separator"> / </span>}
                 <span className="segment first" onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
                 {segments}

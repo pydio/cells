@@ -34,9 +34,8 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 var EditorActions = _Pydio$requireLib.EditorActions;
 var onToggleResolution = function onToggleResolution(_ref) {
   var dispatch = _ref.dispatch;
-  var tab = _ref.tab;
   return function (high) {
-    return dispatch(EditorActions.tabModify({ id: tab.id, resolution: high ? "hi" : "lo" }));
+    return dispatch(EditorActions.editorModify({ resolution: high ? "hi" : "lo" }));
   };
 };
 exports.onToggleResolution = onToggleResolution;

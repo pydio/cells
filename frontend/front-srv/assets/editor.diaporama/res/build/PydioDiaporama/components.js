@@ -42,6 +42,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var Image = (function (_Component) {
     _inherits(Image, _Component);
 
@@ -139,11 +143,11 @@ var ImageContainer = (function (_Component2) {
         key: 'propTypes',
         get: function get() {
             return {
-                src: _react2['default'].PropTypes.string.isRequired,
-                imgClassName: _react2['default'].PropTypes.string,
-                imgStyle: _react2['default'].PropTypes.object,
-                width: _react2['default'].PropTypes.number,
-                height: _react2['default'].PropTypes.number
+                src: _propTypes2['default'].string.isRequired,
+                imgClassName: _propTypes2['default'].string,
+                imgStyle: _propTypes2['default'].object,
+                width: _propTypes2['default'].number,
+                height: _propTypes2['default'].number
             };
         }
     }, {

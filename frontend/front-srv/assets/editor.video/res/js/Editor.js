@@ -20,9 +20,10 @@
 
 
 import Pydio from 'pydio'
-import React, {Component} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { compose } from 'redux'
+
 import Player from './Player';
 import PydioApi from 'pydio/http/api';
 const {EditorActions, withSelection} = Pydio.requireLib('hoc');
@@ -62,10 +63,10 @@ class Viewer extends React.Component {
 
     static get propTypes() {
         return {
-            node: React.PropTypes.instanceOf(AjxpNode).isRequired,
-            pydio: React.PropTypes.instanceOf(Pydio).isRequired,
+            node: PropTypes.instanceOf(AjxpNode).isRequired,
+            pydio: PropTypes.instanceOf(Pydio).isRequired,
 
-            preview: React.PropTypes.bool.isRequired
+            preview: PropTypes.bool.isRequired
         }
     }
 

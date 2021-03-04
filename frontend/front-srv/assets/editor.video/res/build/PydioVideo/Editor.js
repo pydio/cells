@@ -42,9 +42,11 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactRedux = require('react-redux');
+var _propTypes = require('prop-types');
 
-var _redux = require('redux');
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _reactRedux = require('react-redux');
 
 var _Player = require('./Player');
 
@@ -168,10 +170,10 @@ var Viewer = (function (_React$Component) {
         key: 'propTypes',
         get: function get() {
             return {
-                node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-                pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
+                node: _propTypes2['default'].instanceOf(AjxpNode).isRequired,
+                pydio: _propTypes2['default'].instanceOf(_pydio2['default']).isRequired,
 
-                preview: _react2['default'].PropTypes.bool.isRequired
+                preview: _propTypes2['default'].bool.isRequired
             };
         }
     }, {

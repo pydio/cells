@@ -19,6 +19,7 @@
  */
 
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 
 export class Image extends Component {
     render() {
@@ -45,11 +46,11 @@ export class Image extends Component {
 export class ImageContainer extends Component {
     static get propTypes() {
         return {
-            src: React.PropTypes.string.isRequired,
-            imgClassName: React.PropTypes.string,
-            imgStyle: React.PropTypes.object,
-            width: React.PropTypes.number,
-            height: React.PropTypes.number
+            src: PropTypes.string.isRequired,
+            imgClassName: PropTypes.string,
+            imgStyle: PropTypes.object,
+            width: PropTypes.number,
+            height: PropTypes.number
         }
     }
 
