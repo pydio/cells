@@ -1,4 +1,6923 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var _editorDataSourceEditor = require('../editor/DataSourceEditor');
+
+var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
+
+var _editorVersionPolicyEditor = require('../editor/VersionPolicyEditor');
+
+var _editorVersionPolicyEditor2 = _interopRequireDefault(_editorVersionPolicyEditor);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _modelDataSource = require('../model/DataSource');
+
+var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _cellsSdk = require('cells-sdk');
+
+var _uuid = require('uuid');
+
+var _editorVersionPolicyPeriods = require('../editor/VersionPolicyPeriods');
+
+var _editorVersionPolicyPeriods2 = _interopRequireDefault(_editorVersionPolicyPeriods);
+
+var _EncryptionKeys = require('./EncryptionKeys');
+
+var _EncryptionKeys2 = _interopRequireDefault(_EncryptionKeys);
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _lodash = require('lodash');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib("boot");
+
+var JobsStore = _Pydio$requireLib2.JobsStore;
+var moment = _Pydio$requireLib2.moment;
+
+var DataSourcesBoard = (function (_React$Component) {
+    _inherits(DataSourcesBoard, _React$Component);
+
+    function DataSourcesBoard(props) {
+        _classCallCheck(this, DataSourcesBoard);
+
+        _get(Object.getPrototypeOf(DataSourcesBoard.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            dataSources: [],
+            resyncJobs: {},
+            versioningPolicies: [],
+            dsLoaded: false,
+            versionsLoaded: false,
+            showExportKey: false,
+            exportedKey: null,
+            showImportKey: false,
+            importResult: null,
+            keyOperationError: null,
+            startedServices: [],
+            peerAddresses: [],
+            m: function m(id) {
+                return props.pydio.MessageHash["ajxp_admin.ds." + id] || id;
+            }
+        };
+    }
+
+    _createClass(DataSourcesBoard, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var pydio = this.props.pydio;
+
+            this.statusPoller = setInterval(function () {
+                if (!pydio.WebSocketClient.getStatus()) {
+                    return;
+                }
+                _modelDataSource2['default'].loadStatuses().then(function (data) {
+                    _this.setState({ startedServices: data.Services || [] });
+                });
+                api.listPeersAddresses().then(function (res) {
+                    _this.setState({ peerAddresses: res.PeerAddresses || [] });
+                });
+            }, 2500);
+            setTimeout(function () {
+                _this.syncPoller = setInterval(function () {
+                    if (!pydio.WebSocketClient.getStatus()) {
+                        return;
+                    }
+                    _this.syncStatuses();
+                }, 2500);
+            }, 1250);
+            this.load();
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            clearInterval(this.statusPoller);
+            clearInterval(this.syncPoller);
+        }
+    }, {
+        key: 'load',
+        value: function load() {
+            var _this2 = this;
+
+            var newDsName = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            this.setState({
+                dsLoaded: false,
+                versionsLoaded: false,
+                newDsName: newDsName
+            });
+            _modelDataSource2['default'].loadDatasources().then(function (data) {
+                _this2.setState({ dataSources: data.DataSources || [], dsLoaded: true }, function () {
+                    _this2.syncStatuses();
+                });
+            });
+            _modelDataSource2['default'].loadVersioningPolicies().then(function (data) {
+                _this2.setState({ versioningPolicies: data.Policies || [], versionsLoaded: true });
+            });
+            _modelDataSource2['default'].loadStatuses().then(function (data) {
+                _this2.setState({ startedServices: data.Services });
+            });
+            if (this.refs && this.refs.encKeys) {
+                this.refs.encKeys.load();
+            }
+        }
+    }, {
+        key: 'syncStatuses',
+        value: function syncStatuses() {
+            var _this3 = this;
+
+            var _state$dataSources = this.state.dataSources;
+            var dataSources = _state$dataSources === undefined ? [] : _state$dataSources;
+
+            if (!dataSources.length) {
+                return;
+            }
+            JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(function (d) {
+                return 'resync-ds-' + d.Name;
+            }), 1).then(function (response) {
+                var resyncJobs = {};
+                var jobs = response.Jobs || [];
+                jobs.forEach(function (job) {
+                    if (job.Tasks && job.Tasks.length) {
+                        resyncJobs[job.ID.replace('resync-ds-', '')] = job;
+                    }
+                });
+                _this3.setState({ resyncJobs: resyncJobs });
+            });
+        }
+    }, {
+        key: 'closeEditor',
+        value: function closeEditor() {
+            this.props.closeRightPane();
+        }
+    }, {
+        key: 'openDataSource',
+        value: function openDataSource(dataSources) {
+            if (!dataSources.length) {
+                return;
+            }
+            var dataSource = dataSources[0];
+            var _props = this.props;
+            var openRightPane = _props.openRightPane;
+            var accessByName = _props.accessByName;
+            var pydio = _props.pydio;
+            var storageTypes = _props.storageTypes;
+
+            openRightPane({
+                COMPONENT: _editorDataSourceEditor2['default'],
+                PROPS: {
+                    ref: "editor",
+                    pydio: pydio,
+                    dataSource: dataSource,
+                    storageTypes: storageTypes,
+                    readonly: !accessByName('CreateDatasource'),
+                    closeEditor: this.closeEditor.bind(this),
+                    reloadList: this.load.bind(this)
+                }
+            });
+        }
+    }, {
+        key: 'makeStatusLabel',
+        value: function makeStatusLabel(level, message) {
+            switch (level) {
+                case 'error':
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#e53935' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
+                        ' ',
+                        message
+                    );
+                case 'running':
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#ef6c00' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-timer-sand" }),
+                        ' ',
+                        message
+                    );
+                default:
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#1b5e20' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-check" }),
+                        ' ',
+                        message
+                    );
+            }
+        }
+    }, {
+        key: 'computeStatus',
+        value: function computeStatus(dataSource) {
+            var _this4 = this;
+
+            var asNumber = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+            if (asNumber && dataSource.Disabled) {
+                return -1;
+            }
+            var _state = this.state;
+            var _state$startedServices = _state.startedServices;
+            var startedServices = _state$startedServices === undefined ? [] : _state$startedServices;
+            var _state$peerAddresses = _state.peerAddresses;
+            var peerAddresses = _state$peerAddresses === undefined ? [] : _state$peerAddresses;
+            var m = _state.m;
+            var newDsName = _state.newDsName;
+
+            if (!startedServices.length) {
+                return m('status.na');
+            }
+            var index = undefined,
+                sync = undefined,
+                object = undefined;
+            startedServices.map(function (service) {
+                if (service.Name === 'pydio.grpc.data.sync.' + dataSource.Name && service.Status === 'STARTED') {
+                    sync = true;
+                } else if (service.Name === 'pydio.grpc.data.index.' + dataSource.Name && service.Status === 'STARTED') {
+                    index = true;
+                } else if (service.Name === 'pydio.grpc.data.objects.' + dataSource.ObjectsServiceName && service.Status === 'STARTED') {
+                    object = true;
+                }
+            });
+            if (index && sync && object) {
+                if (newDsName && dataSource.Name === newDsName) {
+                    setTimeout(function () {
+                        _this4.setState({ newDsName: null });
+                    }, 100);
+                }
+                if (asNumber) {
+                    return 0;
+                }
+                return this.makeStatusLabel('ok', m('status.ok'));
+            } else if (newDsName && dataSource.Name === newDsName) {
+                if (asNumber) {
+                    return 1;
+                }
+                return this.makeStatusLabel('running', m('status.starting'));
+            } else if (!index && !sync && !object) {
+                var koMessage = m('status.ko');
+                if (peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1) {
+                    koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
+                }
+                if (asNumber) {
+                    return 2;
+                }
+                return this.makeStatusLabel('error', koMessage);
+            } else {
+                var services = [];
+                if (!index) {
+                    services.push(m('status.index'));
+                }
+                if (!sync) {
+                    services.push(m('status.sync'));
+                }
+                if (!object) {
+                    services.push(m('status.object'));
+                }
+                if (asNumber) {
+                    return 3;
+                }
+                return this.makeStatusLabel('error', services.join(' - '));
+            }
+        }
+    }, {
+        key: 'computeJobStatus',
+        value: function computeJobStatus(job) {
+            var task = job.Tasks[0];
+            switch (task.Status) {
+                case 'Finished':
+                    return this.makeStatusLabel('ok', moment(new Date(parseInt(task.EndTime) * 1000)).fromNow());
+                case 'Running':
+                    return this.makeStatusLabel('running', task.StatusMessage || 'Running...');
+                case 'Error':
+                    return this.makeStatusLabel('error', task.StatusMessage);
+                case 'Queued':
+                    return this.makeStatusLabel('running', task.StatusMessage);
+                default:
+                    break;
+            }
+            return this.makeStatusLabel('ok', task.StatusMessage);
+        }
+    }, {
+        key: 'openVersionPolicy',
+        value: function openVersionPolicy() {
+            var versionPolicies = arguments.length <= 0 || arguments[0] === undefined ? undefined : arguments[0];
+
+            if (versionPolicies !== undefined && !versionPolicies.length) {
+                return;
+            }
+            var versionPolicy = undefined;
+            var create = false;
+            if (versionPolicies === undefined) {
+                create = true;
+                versionPolicy = new _cellsSdk.TreeVersioningPolicy();
+                versionPolicy.Uuid = (0, _uuid.v4)();
+                versionPolicy.VersionsDataSourceName = "default";
+                versionPolicy.VersionsDataSourceBucket = "versions";
+                var period = new _cellsSdk.TreeVersioningKeepPeriod();
+                period.IntervalStart = "0";
+                period.MaxNumber = -1;
+                versionPolicy.KeepPeriods = [period];
+            } else {
+                versionPolicy = versionPolicies[0];
+            }
+            var _props2 = this.props;
+            var openRightPane = _props2.openRightPane;
+            var pydio = _props2.pydio;
+            var versioningReadonly = _props2.versioningReadonly;
+            var accessByName = _props2.accessByName;
+
+            openRightPane({
+                COMPONENT: _editorVersionPolicyEditor2['default'],
+                PROPS: {
+                    ref: "editor",
+                    versionPolicy: versionPolicy,
+                    create: create,
+                    pydio: pydio,
+                    readonly: versioningReadonly || !accessByName('CreateVersioning'),
+                    closeEditor: this.closeEditor.bind(this),
+                    reloadList: this.load.bind(this)
+                }
+            });
+        }
+    }, {
+        key: 'deleteVersionPolicy',
+        value: function deleteVersionPolicy(policy) {
+            var _this5 = this;
+
+            var pydio = this.props.pydio;
+
+            pydio.UI.openConfirmDialog({
+                message: pydio.MessageHash['ajxp_admin.versions.editor.delete.confirm'],
+                destructive: [policy.Name],
+                validCallback: function validCallback() {
+                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
+                            _this5.load();
+                        });
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'createDataSource',
+        value: function createDataSource() {
+            var _props3 = this.props;
+            var pydio = _props3.pydio;
+            var storageTypes = _props3.storageTypes;
+            var dataSources = this.state.dataSources;
+
+            this.props.openRightPane({
+                COMPONENT: _editorDataSourceEditor2['default'],
+                PROPS: {
+                    ref: "editor",
+                    create: true,
+                    existingNames: dataSources.map(function (ds) {
+                        return ds.Name;
+                    }),
+                    pydio: pydio,
+                    storageTypes: storageTypes,
+                    closeEditor: this.closeEditor.bind(this),
+                    reloadList: this.load.bind(this)
+                }
+            });
+        }
+    }, {
+        key: 'resyncDataSource',
+        value: function resyncDataSource(pydio, m, row) {
+            pydio.UI.openConfirmDialog({
+                message: m('editor.legend.resync'),
+                skipNext: 'datasource.resync.confirm',
+                validCallback: function validCallback() {
+                    var ds = new _modelDataSource2['default'](row);
+                    ds.resyncSource();
+                }
+            });
+        }
+    }, {
+        key: 'deleteDataSource',
+        value: function deleteDataSource(pydio, m, row) {
+            var _this6 = this;
+
+            pydio.UI.openConfirmDialog({
+                message: m('editor.delete.warning'),
+                validCallback: function validCallback() {
+                    var ds = new _modelDataSource2['default'](row);
+                    ds.deleteSource().then(function () {
+                        _this6.load();
+                    });
+                },
+                destructive: [row.Name]
+            });
+        }
+    }, {
+        key: 'createWorkspaceFromDatasource',
+        value: function createWorkspaceFromDatasource(pydio, m, row) {
+            var ws = new _modelWs2['default']();
+            var model = ws.getModel();
+            var dsName = row.Name;
+            model.Label = dsName;
+            model.Description = "Root of " + dsName;
+            model.Slug = dsName;
+            model.Attributes['DEFAULT_RIGHTS'] = '';
+            var roots = model.RootNodes;
+            var fakeRoot = { Uuid: 'DATASOURCE:' + dsName, Path: dsName };
+            roots[fakeRoot.Uuid] = fakeRoot;
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitle: m('board.wsfromds.title'),
+                legendId: m('board.wsfromds.legend').replace('%s', dsName),
+                fieldLabelId: m('board.wsfromds.field'),
+                defaultValue: m('board.wsfromds.defaultPrefix').replace('%s', dsName),
+                submitValue: function submitValue(v) {
+                    model.Label = v;
+                    ws.save().then(function () {
+                        pydio.goTo('/data/workspaces');
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this7 = this;
+
+            var _state2 = this.state;
+            var dataSources = _state2.dataSources;
+            var resyncJobs = _state2.resyncJobs;
+            var versioningPolicies = _state2.versioningPolicies;
+            var m = _state2.m;
+
+            dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
+            versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
+
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+            var body = adminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
+            var _props4 = this.props;
+            var currentNode = _props4.currentNode;
+            var pydio = _props4.pydio;
+            var versioningReadonly = _props4.versioningReadonly;
+            var accessByName = _props4.accessByName;
+
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '15%' }, headerStyle: { width: '15%' }, sorter: { type: 'string', 'default': true } }, { name: 'Status', label: m('status'),
+                renderCell: function renderCell(row) {
+                    return row.Disabled ? _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#757575' } },
+                        _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
+                        ' ',
+                        m('status.disabled')
+                    ) : _this7.computeStatus(row);
+                },
+                sorter: { type: 'number', value: function value(row) {
+                        return _this7.computeStatus(row, true);
+                    } }
+            }, { name: 'SyncStatus', label: m('syncStatus'),
+                renderCell: function renderCell(row) {
+                    return resyncJobs && resyncJobs[row.Name] ? _this7.computeJobStatus(resyncJobs[row.Name]) : 'n/a';
+                },
+                sorter: { type: 'number', value: function value(row) {
+                        return resyncJobs && resyncJobs[row.Name] ? resyncJobs[row.Name].Tasks[0].EndTime : 0;
+                    } }
+            }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '15%' }, headerStyle: { width: '15%' }, renderCell: function renderCell(row) {
+                    var s = 'storage.fs';
+                    switch (row.StorageType) {
+                        case "S3":
+                            s = 'storage.s3';
+                            break;
+                        case "AZURE":
+                            s = 'storage.azure';
+                            break;
+                        case "GCS":
+                            s = 'storage.gcs';
+                            break;
+                        default:
+                            break;
+                    }
+                    return m(s);
+                }, sorter: { type: 'string' } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '10%' }, headerStyle: { width: '10%' }, hideSmall: true, renderCell: function renderCell(row) {
+                    var pol = versioningPolicies.find(function (obj) {
+                        return obj.Uuid === row['VersioningPolicyName'];
+                    });
+                    if (pol) {
+                        return pol.Name;
+                    } else {
+                        return row['VersioningPolicyName'] || '-';
+                    }
+                }, sorter: { type: 'string' } }, {
+                name: 'EncryptionMode',
+                label: m('encryption'),
+                hideSmall: true,
+                style: { width: '8%', textAlign: 'center' },
+                headerStyle: { width: '8%' },
+                renderCell: function renderCell(row) {
+                    return row['EncryptionMode'] === 'MASTER' ? _react2['default'].createElement('span', { className: "mdi mdi-check" }) : '-';
+                },
+                sorter: { type: 'number', value: function value(row) {
+                        return row['EncryptionMode'] === 'MASTER' ? 1 : 0;
+                    } } }];
+            var title = currentNode.getLabel();
+            var icon = currentNode.getMetadata().get('icon_class');
+            var buttons = [];
+            if (accessByName('CreateDatasource')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onClick: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
+            }
+            var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
+            if (versioningEditable) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onClick: function () {
+                        _this7.openVersionPolicy();
+                    } }, adminStyles.props.header.flatButton)));
+            }
+            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 }, sorter: { type: 'string', 'default': true } }, { name: 'Description', label: m('versioning.description'), sorter: { type: 'string' } }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
+                    return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
+                } }];
+
+            var dsActions = [];
+            if (accessByName('CreateDatasource')) {
+                dsActions.push({
+                    iconClassName: 'mdi mdi-pencil',
+                    tooltip: 'Edit datasource',
+                    onClick: function onClick(row) {
+                        _this7.openDataSource([row]);
+                    }
+                });
+            }
+            dsActions.push({
+                iconClassName: 'mdi mdi-sync',
+                tooltip: m('editor.legend.resync.button'),
+                onClick: function onClick(row) {
+                    return _this7.resyncDataSource(pydio, m, row);
+                }
+            });
+            dsActions.push({
+                iconClassName: 'mdi mdi-folder-plus',
+                tooltip: 'Create workspace here',
+                onClick: function onClick(row) {
+                    return _this7.createWorkspaceFromDatasource(pydio, m, row);
+                }
+            });
+            if (accessByName('CreateDatasource')) {
+                dsActions.push({
+                    iconClassName: 'mdi mdi-delete',
+                    tooltip: m('editor.legend.delete.button'),
+                    onClick: function onClick(row) {
+                        return _this7.deleteDataSource(pydio, m, row);
+                    }
+                });
+            }
+
+            var vsActions = [];
+            vsActions.push({
+                iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
+                tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
+                onClick: function onClick(row) {
+                    _this7.openVersionPolicy([row]);
+                }
+            });
+            if (versioningEditable) {
+                vsActions.push({
+                    iconClassName: 'mdi mdi-delete',
+                    tooltip: 'Delete policy',
+                    destructive: true,
+                    onClick: function onClick(row) {
+                        return _this7.deleteVersionPolicy(row);
+                    }
+                });
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                { className: 'main-layout-nav-to-stack workspaces-board' },
+                _react2['default'].createElement(
+                    'div',
+                    { className: 'vertical-layout', style: { width: '100%' } },
+                    _react2['default'].createElement(AdminComponents.Header, {
+                        title: title,
+                        icon: icon,
+                        actions: buttons,
+                        reloadAction: this.load.bind(this),
+                        loading: !(this.state.dsLoaded && this.state.versionsLoaded)
+                    }),
+                    _react2['default'].createElement(
+                        'div',
+                        { className: 'layout-fill' },
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
+                        _react2['default'].createElement(
+                            _materialUi.Paper,
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
+                            _react2['default'].createElement(MaterialTable, {
+                                data: dataSources,
+                                columns: dsColumns,
+                                actions: dsActions,
+                                onSelectRows: this.openDataSource.bind(this),
+                                deselectOnClickAway: true,
+                                showCheckboxes: false,
+                                emptyStateString: m('emptyState'),
+                                masterStyles: tableMaster,
+                                storageKey: 'console.datasources.list'
+                            })
+                        ),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
+                        _react2['default'].createElement(
+                            _materialUi.Paper,
+                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
+                            _react2['default'].createElement(MaterialTable, {
+                                data: versioningPolicies,
+                                columns: policiesColumns,
+                                actions: vsActions,
+                                onSelectRows: this.openVersionPolicy.bind(this),
+                                deselectOnClickAway: true,
+                                showCheckboxes: false,
+                                masterStyles: tableMaster,
+                                storageKey: 'console.versioning.policies.list'
+                            })
+                        ),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
+                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys", accessByName: accessByName, adminStyles: adminStyles })
+                    )
+                )
+            );
+        }
+    }]);
+
+    return DataSourcesBoard;
+})(_react2['default'].Component);
+
+DataSourcesBoard.propTypes = {
+    dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+    rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+    currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+    openEditor: _propTypes2['default'].func.isRequired,
+    openRightPane: _propTypes2['default'].func.isRequired,
+    closeRightPane: _propTypes2['default'].func.isRequired,
+    filter: _propTypes2['default'].string,
+    versioningReadonly: _propTypes2['default'].bool
+};
+
+exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);
+
+exports['default'] = DataSourcesBoard;
+module.exports = exports['default'];
+
+},{"../editor/DataSourceEditor":8,"../editor/VersionPolicyEditor":12,"../editor/VersionPolicyPeriods":13,"../model/DataSource":19,"../model/Ws":22,"./EncryptionKeys":2,"cells-sdk":"cells-sdk","lodash":24,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":26}],2:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _cellsSdk = require('cells-sdk');
+
+var _modelWs = require("../model/Ws");
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+
+var EncryptionKeys = (function (_React$Component) {
+    _inherits(EncryptionKeys, _React$Component);
+
+    function EncryptionKeys(props) {
+        _classCallCheck(this, EncryptionKeys);
+
+        _get(Object.getPrototypeOf(EncryptionKeys.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            keys: [],
+            showDialog: false,
+
+            showExportKey: null,
+            exportedKey: null,
+
+            showCreateKey: null,
+            showImportKey: null,
+
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || id;
+            }
+        };
+    }
+
+    _createClass(EncryptionKeys, [{
+        key: 'load',
+        value: function load() {
+            var _this = this;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.listEncryptionKeys(new _cellsSdk.EncryptionAdminListKeysRequest()).then(function (result) {
+                _this.setState({ keys: result.Keys || [] });
+            });
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.load();
+        }
+    }, {
+        key: 'exportKey',
+        value: function exportKey() {
+            var _this2 = this;
+
+            var pydio = this.props.pydio;
+            var m = this.state.m;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.EncryptionAdminExportKeyRequest();
+            request.KeyID = this.state.showExportKey;
+            request.StrPassword = this.refs['key-password-field'].getValue();
+            var confirm = this.refs['key-password-confirm'].getValue();
+            if (confirm !== request.StrPassword) {
+                pydio.UI.displayMessage('ERROR', 'Warning, passwords differ!');
+                return;
+            }
+            api.exportEncryptionKey(request).then(function (response) {
+                _this2.setState({ exportedKey: response.Key, showExportKey: null }, function () {
+                    _this2.timeout = setTimeout(function () {
+                        _this2.setState({ exportedKey: '', showDialog: false });
+                    }, 10000);
+                });
+                _this2.setState({ showExportKey: null });
+            })['catch'](function (reason) {
+                pydio.UI.displayMessage('ERROR', m('key.export.fail') + " : " + reason.message);
+                _this2.setState({ showExportKey: null });
+            });
+        }
+    }, {
+        key: 'createKey',
+        value: function createKey() {
+            var _this3 = this;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var req = new _cellsSdk.EncryptionAdminCreateKeyRequest();
+            req.KeyID = this.refs['createKeyId'].getValue();
+            req.Label = this.refs['createKeyLabel'].getValue();
+            api.createEncryptionKey(req).then(function (result) {
+                _this3.load();
+                _this3.setState({ showDialog: false });
+            })['catch'](function () {
+                _this3.setState({ showDialog: false });
+            });
+        }
+    }, {
+        key: 'deleteKey',
+        value: function deleteKey(keyId) {
+            var _this4 = this;
+
+            var pydio = this.props.pydio;
+            var m = this.state.m;
+
+            pydio.UI.openConfirmDialog({
+                message: m('key.delete.warning'),
+                destructive: [keyId],
+                validCallback: function validCallback() {
+                    var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var req = new _cellsSdk.EncryptionAdminDeleteKeyRequest();
+                    req.KeyID = keyId;
+                    api.deleteEncryptionKey(req).then(function (result) {
+                        _this4.load();
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'importKey',
+        value: function importKey() {
+            var _this5 = this;
+
+            var pydio = this.props.pydio;
+            var m = this.state.m;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+
+            var importKey = this.state.showImportKey;
+            var importExisting = true;
+            if (!importKey.ID) {
+                importKey = new _cellsSdk.EncryptionKey();
+                importKey.ID = this.refs['key-import-id'].getValue();
+                importKey.Label = this.refs['key-import-label'].getValue();
+                importExisting = false;
+            }
+            importKey.Content = this.refs['key-imported-field'].getValue();
+
+            var request = new _cellsSdk.EncryptionAdminImportKeyRequest();
+            request.StrPassword = this.refs['key-password-field'].getValue();
+            request.Key = importKey;
+            request.Override = importExisting;
+            api.importEncryptionKey(request).then(function (response) {
+                if (response.Success) {
+                    pydio.UI.displayMessage('SUCCESS', m('key.import.success'));
+                } else {
+                    pydio.UI.displayMessage('ERROR', m('key.import.fail'));
+                }
+                _this5.load();
+                _this5.setState({ showImportKey: false, showDialog: false });
+            })['catch'](function () {
+                _this5.setState({ showImportKey: false, showDialog: false });
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this6 = this;
+
+            var _state = this.state;
+            var keys = _state.keys;
+            var showDialog = _state.showDialog;
+            var showImportKey = _state.showImportKey;
+            var showExportKey = _state.showExportKey;
+            var exportedKey = _state.exportedKey;
+            var showCreateKey = _state.showCreateKey;
+            var m = _state.m;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
+            var adminStyles = _props.adminStyles;
+
+            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' }, sorter: { type: 'string', 'default': true } }, { name: 'ID', label: m('key.id'), hideSmall: true, sorter: { type: 'string' } }, { name: 'Owner', label: m('key.owner'), hideSmall: true, sorter: { type: 'string' } }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, useMoment: true, sorter: { type: 'number' } }];
+            var actions = [];
+            if (accessByName('CreateEncryption')) {
+                actions.push({ iconClassName: 'mdi mdi-import', tooltip: m('key.import'), onClick: function onClick(row) {
+                        _this6.setState({ showDialog: true, showImportKey: row });
+                    } }, { iconClassName: 'mdi mdi-export', tooltip: m('key.export'), onClick: function onClick(row) {
+                        _this6.setState({ showDialog: true, showExportKey: row.ID });
+                    } }, { iconClassName: 'mdi mdi-delete', tooltip: m('key.delete'), onClick: function onClick(row) {
+                        _this6.deleteKey(row.ID);
+                    } });
+            }
+
+            var dialogContent = undefined,
+                dialogTitle = undefined,
+                dialogActions = [];
+            if (showExportKey || exportedKey) {
+                dialogTitle = m('key.export');
+                if (exportedKey) {
+                    dialogContent = _react2['default'].createElement(ModernTextField, {
+                        value: exportedKey.Content,
+                        fullWidth: true,
+                        floatingLabelText: m('key.export.result.copy'),
+                        multiLine: true,
+                        ref: 'key-imported-field'
+                    });
+                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onClick: function () {
+                            clearTimeout(_this6.timeout);
+                            _this6.setState({ showExportKey: null, exportedKey: '', showDialog: false });
+                        } })];
+                } else {
+                    dialogContent = _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
+                    );
+                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
+                            _this6.setState({ showExportKey: null, showDialog: false });
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.export'), primary: true, onClick: function () {
+                            _this6.exportKey();
+                        } })];
+                }
+            } else if (showImportKey) {
+                dialogTitle = m('key.import');
+                dialogContent = _react2['default'].createElement(
+                    'div',
+                    null,
+                    !showImportKey.ID && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
+                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
+                    ),
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
+                );
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
+                        _this6.setState({ showImportKey: null, showDialog: false });
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.import'), primary: true, onClick: function () {
+                        _this6.importKey();
+                    } })];
+            } else if (showCreateKey) {
+                dialogTitle = "Create a Key";
+                dialogContent = _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
+                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
+                );
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
+                        _this6.setState({ showCreateKey: null, showDialog: false });
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.create'), primary: true, onClick: function () {
+                        _this6.createKey();
+                    } })];
+            }
+
+            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
+
+            var body = _AdminComponents$AdminStyles.body;
+            var tableMaster = body.tableMaster;
+
+            var blockProps = body.block.props;
+            var blockStyle = body.block.container;
+
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    _materialUi.Dialog,
+                    {
+                        title: dialogTitle,
+                        open: showDialog,
+                        onRequestClose: function () {
+                            _this6.setState({ showDialog: false, showExportKey: null, showImportKey: null, showCreateKey: false });
+                        },
+                        modal: true,
+                        actions: dialogActions,
+                        contentStyle: { maxWidth: 340 }
+                    },
+                    dialogContent
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    _extends({}, blockProps, { style: blockStyle }),
+                    _react2['default'].createElement(MaterialTable, {
+                        data: keys,
+                        columns: columns,
+                        actions: actions,
+                        onSelectRows: function () {},
+                        showCheckboxes: false,
+                        emptyStateString: m('key.emptyState'),
+                        masterStyles: tableMaster,
+                        storageKey: 'console.encryption-keys.list'
+                    })
+                ),
+                accessByName('CreateEncryption') && _react2['default'].createElement(
+                    'div',
+                    { style: { textAlign: 'right', paddingRight: 24, paddingBottom: 24 } },
+                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onClick: function () {
+                            _this6.setState({ showImportKey: {}, showDialog: true });
+                        } }, adminStyles.props.header.flatButton)),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { marginLeft: 8 } },
+                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onClick: function () {
+                                _this6.setState({ showCreateKey: true, showDialog: true });
+                            } }, adminStyles.props.header.flatButton))
+                    )
+                )
+            );
+        }
+    }]);
+
+    return EncryptionKeys;
+})(_react2['default'].Component);
+
+exports['default'] = EncryptionKeys;
+module.exports = exports['default'];
+
+},{"../model/Ws":22,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _modelMetadata = require('../model/Metadata');
+
+var _modelMetadata2 = _interopRequireDefault(_modelMetadata);
+
+var _materialUi = require('material-ui');
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _editorMetaNamespace = require('../editor/MetaNamespace');
+
+var _editorMetaNamespace2 = _interopRequireDefault(_editorMetaNamespace);
+
+var _cellsSdk = require('cells-sdk');
+
+var _require = require('material-ui/styles');
+
+var muiThemeable = _require.muiThemeable;
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
+
+var MetadataBoard = (function (_React$Component) {
+    _inherits(MetadataBoard, _React$Component);
+
+    function MetadataBoard(props) {
+        _classCallCheck(this, MetadataBoard);
+
+        _get(Object.getPrototypeOf(MetadataBoard.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            loading: false,
+            namespaces: [],
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
+            }
+        };
+    }
+
+    _createClass(MetadataBoard, [{
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+            this.load();
+        }
+    }, {
+        key: 'load',
+        value: function load() {
+            var _this = this;
+
+            this.setState({ loading: true });
+            _modelMetadata2['default'].loadNamespaces().then(function (result) {
+                _this.setState({ loading: false, namespaces: result.Namespaces || [] });
+            });
+        }
+    }, {
+        key: 'emptyNs',
+        value: function emptyNs() {
+            var ns = new _cellsSdk.IdmUserMetaNamespace();
+            ns.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
+            ns.JsonDefinition = JSON.stringify({ type: 'string' });
+            return ns;
+        }
+    }, {
+        key: 'create',
+        value: function create() {
+            this.setState({
+                create: true,
+                dialogOpen: true,
+                selectedNamespace: this.emptyNs()
+            });
+        }
+    }, {
+        key: 'deleteNs',
+        value: function deleteNs(row) {
+            var _this2 = this;
+
+            var pydio = this.props.pydio;
+            var m = this.state.m;
+
+            pydio.UI.openConfirmDialog({
+                message: m('delete.confirm'),
+                destructive: [row.Namespace],
+                validCallback: function validCallback() {
+                    _modelMetadata2['default'].deleteNS(row).then(function () {
+                        _this2.load();
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'open',
+        value: function open(rows) {
+            if (rows.length) {
+                this.setState({
+                    create: false,
+                    dialogOpen: true,
+                    selectedNamespace: rows[0]
+                });
+            }
+        }
+    }, {
+        key: 'close',
+        value: function close() {
+            this.setState({ dialogOpen: false, selectedNamespace: null });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this3 = this;
+
+            var muiTheme = this.props.muiTheme;
+
+            var adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
+
+            var _state = this.state;
+            var namespaces = _state.namespaces;
+            var loading = _state.loading;
+            var dialogOpen = _state.dialogOpen;
+            var selectedNamespace = _state.selectedNamespace;
+            var create = _state.create;
+            var m = _state.m;
+
+            if (!selectedNamespace) {
+                selectedNamespace = this.emptyNs();
+            }
+            namespaces.sort(function (a, b) {
+                var a0 = a.Order || 0;
+                var b0 = b.Order || 0;
+                if (a0 === b0) return 0;
+                return a0 > b0 ? 1 : -1;
+            });
+            var _props = this.props;
+            var currentNode = _props.currentNode;
+            var pydio = _props.pydio;
+            var accessByName = _props.accessByName;
+
+            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, hideSmall: true, renderCell: function renderCell(row) {
+                    return row.Order || '0';
+                }, sorter: { type: 'number' } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 }, sorter: { type: 'string' } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }, { name: 'Indexable', label: m('indexable'), style: { width: '10%' }, headerStyle: { width: '10%' }, hideSmall: true, renderCell: function renderCell(row) {
+                    return row.Indexable ? 'Yes' : 'No';
+                }, sorter: { type: 'number', value: function value(row) {
+                        return row.Indexable ? 1 : 0;
+                    } } }, { name: 'JsonDefinition', label: m('definition'), hideSmall: true, renderCell: function renderCell(row) {
+                    var def = row.JsonDefinition;
+                    if (!def) {
+                        return '';
+                    }
+                    var data = JSON.parse(def);
+                    return _modelMetadata2['default'].MetaTypes[data.type] || data.type;
+                }, sorter: { type: 'string' } }];
+            var title = currentNode.getLabel();
+            var icon = currentNode.getMetadata().get('icon_class');
+            var buttons = [];
+            var actions = [];
+            if (accessByName('Create')) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onClick: function () {
+                        _this3.create();
+                    } }, adminStyle.props.header.flatButton)));
+                actions.push({
+                    iconClassName: 'mdi mdi-pencil',
+                    onClick: function onClick(row) {
+                        _this3.open([row]);
+                    }
+                }, {
+                    iconClassName: 'mdi mdi-delete',
+                    onClick: function onClick(row) {
+                        _this3.deleteNs(row);
+                    }
+                });
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                { className: 'main-layout-nav-to-stack workspaces-board' },
+                _react2['default'].createElement(_editorMetaNamespace2['default'], {
+                    pydio: pydio,
+                    open: dialogOpen,
+                    create: create,
+                    namespace: selectedNamespace,
+                    onRequestClose: function () {
+                        return _this3.close();
+                    },
+                    reloadList: function () {
+                        return _this3.load();
+                    },
+                    namespaces: namespaces,
+                    readonly: !accessByName('Create')
+                }),
+                _react2['default'].createElement(
+                    'div',
+                    { className: 'vertical-layout', style: { width: '100%' } },
+                    _react2['default'].createElement(AdminComponents.Header, {
+                        title: title,
+                        icon: icon,
+                        actions: buttons,
+                        reloadAction: this.load.bind(this),
+                        loading: loading
+                    }),
+                    _react2['default'].createElement(
+                        'div',
+                        { className: 'layout-fill' },
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('namespaces'), legend: m('namespaces.legend') }),
+                        _react2['default'].createElement(
+                            _materialUi.Paper,
+                            adminStyle.body.block.props,
+                            _react2['default'].createElement(MaterialTable, {
+                                data: namespaces,
+                                columns: columns,
+                                actions: actions,
+                                onSelectRows: this.open.bind(this),
+                                deselectOnClickAway: true,
+                                showCheckboxes: false,
+                                emptyStateString: m('empty'),
+                                masterStyles: adminStyle.body.tableMaster,
+                                storageKey: 'console.metadata.list'
+                            })
+                        )
+                    )
+                )
+            );
+        }
+    }]);
+
+    return MetadataBoard;
+})(_react2['default'].Component);
+
+exports['default'] = MetadataBoard = muiThemeable()(MetadataBoard);
+
+exports['default'] = MetadataBoard;
+module.exports = exports['default'];
+
+},{"../editor/MetaNamespace":11,"../model/Metadata":20,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],4:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _modelVirtualNode = require('../model/VirtualNode');
+
+var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
+
+var _modelDataSource = require('../model/DataSource');
+
+var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
+
+var _virtualNodeCard = require('../virtual/NodeCard');
+
+var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
+
+var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
+
+var MaterialTable = _Pydio$requireLib2.MaterialTable;
+
+var VirtualNodes = (function (_React$Component) {
+    _inherits(VirtualNodes, _React$Component);
+
+    function VirtualNodes(props) {
+        var _this = this;
+
+        _classCallCheck(this, VirtualNodes);
+
+        _get(Object.getPrototypeOf(VirtualNodes.prototype), 'constructor', this).call(this, props);
+        this.state = { nodesLoaded: false, nodes: [], dataSourcesLoaded: false, dataSources: [] };
+        _modelVirtualNode2['default'].loadNodes(function (result) {
+            _this.setState({ nodes: result, nodesLoaded: true });
+        });
+        _modelDataSource2['default'].loadDatasources().then(function (result) {
+            _this.setState({ dataSources: result.DataSources, dataSourcesLoaded: true });
+        });
+    }
+
+    _createClass(VirtualNodes, [{
+        key: 'reload',
+        value: function reload() {
+            var _this2 = this;
+
+            this.setState({ nodesLoaded: false });
+            _modelVirtualNode2['default'].loadNodes(function (result) {
+                _this2.setState({ nodes: result, nodesLoaded: true });
+            });
+        }
+    }, {
+        key: 'createNode',
+        value: function createNode() {
+            this.handleRequestClose();
+            var newNode = new _modelVirtualNode2['default']();
+            newNode.setName(this.state.newName);
+            var nodes = this.state.nodes;
+
+            this.setState({ nodes: [].concat(_toConsumableArray(nodes), [newNode]) });
+        }
+    }, {
+        key: 'handleTouchTap',
+        value: function handleTouchTap(event) {
+            var _this3 = this;
+
+            // This prevents ghost click.
+            event.preventDefault();
+            this.setState({
+                newName: '',
+                open: true,
+                anchorEl: event.currentTarget
+            }, function () {
+                setTimeout(function () {
+                    if (_this3.refs['newNode']) _this3.refs['newNode'].focus();
+                }, 300);
+            });
+        }
+    }, {
+        key: 'handleRequestClose',
+        value: function handleRequestClose() {
+            this.setState({
+                open: false
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _props = this.props;
+            var readonly = _props.readonly;
+            var pydio = _props.pydio;
+            var muiTheme = _props.muiTheme;
+            var accessByName = _props.accessByName;
+            var _state = this.state;
+            var nodes = _state.nodes;
+            var dataSources = _state.dataSources;
+            var nodesLoaded = _state.nodesLoaded;
+            var dataSourcesLoaded = _state.dataSourcesLoaded;
+            var selectedNode = _state.selectedNode;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+            };
+            var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
+            var vNodes = nodes.map(function (node) {
+                if (node.getName() === selectedNode) {
+                    return {
+                        node: node,
+                        expandedRow: _react2['default'].createElement(_virtualNodeCard2['default'], {
+                            pydio: pydio,
+                            dataSources: dataSources,
+                            node: node,
+                            reloadList: _this4.reload.bind(_this4),
+                            readonly: readonly || !accessByName('Create'),
+                            adminStyles: adminStyles,
+                            onSave: _this4.reload.bind(_this4)
+                        })
+                    };
+                } else {
+                    return { node: node };
+                }
+            });
+
+            var headerActions = [];
+            if (!readonly && accessByName('Create')) {
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onClick: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
+            }
+
+            var columns = [{ name: 'id', label: m('col.id'), style: { width: '25%', fontSize: 15 }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+                    return row.node.getName();
+                }, sorter: { type: 'string' } }, { name: 'code', label: m('col.code'), renderCell: function renderCell(row) {
+                    return _react2['default'].createElement(
+                        'pre',
+                        null,
+                        row.node.getValue().split('\n').pop()
+                    );
+                } }];
+            var actions = [];
+            if (readonly) {
+                actions.push({
+                    iconClassName: 'mdi mdi-eye',
+                    tooltip: m('code.display'),
+                    onClick: function onClick(row) {
+                        return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
+                    }
+                });
+            } else {
+                actions.push({
+                    iconClassName: 'mdi mdi-pencil',
+                    tooltip: m('code.edit'),
+                    onClick: function onClick(row) {
+                        return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
+                    }
+                });
+                actions.push({
+                    iconClassName: 'mdi mdi-delete',
+                    tooltip: m('delete'),
+                    onClick: function onClick(row) {
+                        pydio.UI.openConfirmDialog({
+                            message: m('delete.confirm'),
+                            destructive: [row.node.getName()],
+                            validCallback: function validCallback() {
+                                row.node.remove(function () {
+                                    _this4.reload();
+                                });
+                            } });
+                    },
+                    disable: function disable(row) {
+                        return row.node.getName() === 'cells' || row.node.getName() === 'my-files';
+                    }
+                });
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                { className: 'vertical-layout workspaces-list layout-fill', style: { height: '100%' } },
+                _react2['default'].createElement(AdminComponents.Header, {
+                    title: m('title'),
+                    icon: "mdi mdi-help-network",
+                    actions: headerActions,
+                    reloadAction: this.reload.bind(this),
+                    loading: !(nodesLoaded && dataSourcesLoaded)
+                }),
+                _react2['default'].createElement(
+                    _materialUi.Popover,
+                    {
+                        open: this.state.open,
+                        anchorEl: this.state.anchorEl,
+                        anchorOrigin: { horizontal: 'right', vertical: 'top' },
+                        targetOrigin: { horizontal: 'right', vertical: 'top' },
+                        onRequestClose: this.handleRequestClose.bind(this)
+                    },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { margin: '0 10px' } },
+                        _react2['default'].createElement(ModernTextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
+                                _this4.setState({ newName: v });
+                            }, hintText: m('label.new') })
+                    ),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { textAlign: 'right', padding: '4px 10px' } },
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: this.handleRequestClose.bind(this) }),
+                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('create.button'), onClick: this.createNode.bind(this) })
+                    )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { className: "layout-fill", style: { overflowY: 'auto' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 20, paddingBottom: 0 } },
+                        m('legend.1')
+                    ),
+                    nodesLoaded && dataSourcesLoaded && _react2['default'].createElement(
+                        _materialUi.Paper,
+                        _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                        _react2['default'].createElement(MaterialTable, {
+                            columns: columns,
+                            data: vNodes,
+                            actions: actions,
+                            deselectOnClickAway: true,
+                            showCheckboxes: false,
+                            masterStyles: adminStyles.body.tableMaster,
+                            storageKey: 'console.templatepaths.list'
+                        })
+                    ),
+                    (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 16, textAlign: 'center', padding: 20 } },
+                        pydio.MessageHash['ajxp_admin.loading']
+                    ),
+                    !readonly && accessByName('Create') && _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '0 24px', opacity: '.5' } },
+                        m('legend.2')
+                    )
+                )
+            );
+        }
+    }]);
+
+    return VirtualNodes;
+})(_react2['default'].Component);
+
+exports['default'] = VirtualNodes = (0, _materialUiStyles.muiThemeable)()(VirtualNodes);
+
+exports['default'] = VirtualNodes;
+module.exports = exports['default'];
+
+},{"../model/DataSource":19,"../model/VirtualNode":21,"../virtual/NodeCard":23,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var PydioComponents = _pydio2['default'].requireLib('components');
+var MaterialTable = PydioComponents.MaterialTable;
+exports['default'] = (0, _createReactClass2['default'])({
+    displayName: 'WorkspaceList',
+    mixins: [AdminComponents.MessagesConsumerMixin],
+
+    propTypes: {
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openSelection: _propTypes2['default'].func,
+        advanced: _propTypes2['default'].boolean
+    },
+
+    getInitialState: function getInitialState() {
+        return { workspaces: [], loading: false };
+    },
+
+    startLoad: function startLoad() {
+        if (this.props.onLoadState) {
+            this.props.onLoadState(true);
+        }
+        this.setState({ loading: true });
+    },
+
+    endLoad: function endLoad() {
+        if (this.props.onLoadState) {
+            this.props.onLoadState(false);
+        }
+        this.setState({ loading: false });
+    },
+
+    reload: function reload() {
+        var _this = this;
+
+        this.startLoad();
+        _modelWs2['default'].listWorkspaces().then(function (response) {
+            _this.endLoad();
+            _this.setState({ workspaces: response.Workspaces || [] });
+        })['catch'](function (e) {
+            _this.endLoad();
+        });
+    },
+
+    componentDidMount: function componentDidMount() {
+        this.reload();
+    },
+
+    openTableRows: function openTableRows(rows) {
+        if (rows.length) {
+            this.props.openSelection(rows[0].workspace);
+        }
+    },
+
+    deleteAction: function deleteAction(workspace) {
+        var _this2 = this;
+
+        var pydio = this.props.pydio;
+
+        pydio.UI.openConfirmDialog({
+            message: pydio.MessageHash['settings.35'],
+            destructive: [workspace.Label],
+            validCallback: function validCallback() {
+                var ws = new _modelWs2['default'](workspace);
+                ws.remove().then(function () {
+                    _this2.reload();
+                });
+            }
+        });
+    },
+
+    computeTableData: function computeTableData() {
+        var data = [];
+        var filterString = this.props.filterString;
+        var workspaces = this.state.workspaces;
+
+        workspaces.map(function (workspace) {
+            var summary = ""; // compute root nodes list
+            if (workspace.RootNodes) {
+                summary = Object.keys(workspace.RootNodes).map(function (k) {
+                    return _pydioUtilLang2['default'].trimRight(workspace.RootNodes[k].Path, '/');
+                }).join(', ');
+            }
+            var syncable = false;
+            if (workspace.Attributes) {
+                try {
+                    var atts = JSON.parse(workspace.Attributes);
+                    if (atts['ALLOW_SYNC'] === true || atts['ALLOW_SYNC'] === "true") {
+                        syncable = true;
+                    }
+                } catch (e) {}
+            }
+            if (filterString) {
+                var search = filterString.toLowerCase();
+                var l = workspace.Label && workspace.Label.toLowerCase().indexOf(search) >= 0;
+                var d = workspace.Description && workspace.Description.toLowerCase().indexOf(search) >= 0;
+                var ss = summary && summary.toLowerCase().indexOf(search) >= 0;
+                if (!(l || d || ss)) {
+                    return;
+                }
+            }
+            data.push({
+                workspace: workspace,
+                label: workspace.Label,
+                description: workspace.Description,
+                slug: workspace.Slug,
+                summary: summary,
+                syncable: syncable
+            });
+        });
+        data.sort(_pydioUtilLang2['default'].arraySorter('label', false, true));
+        return data;
+    },
+
+    render: function render() {
+        var _this3 = this;
+
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var advanced = _props.advanced;
+        var editable = _props.editable;
+        var tableStyles = _props.tableStyles;
+        var openSelection = _props.openSelection;
+
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.' + id];
+        };
+        var s = function s(id) {
+            return pydio.MessageHash['settings.' + id];
+        };
+
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' }, sorter: { type: 'string', 'default': 'true' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }];
+        if (advanced) {
+            columns.push({
+                name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, sorter: { type: 'number', sortValue: function sortValue(row) {
+                        return row.syncable ? 1 : 0;
+                    } }, renderCell: function renderCell(row) {
+                    return _react2['default'].createElement('span', { className: "mdi mdi-check", style: { fontSize: 18, opacity: row.syncable ? 1 : 0 } });
+                } });
+        }
+
+        columns.push({ name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' }, sorter: { type: 'string' } });
+
+        var loading = this.state.loading;
+
+        var data = this.computeTableData();
+        var actions = [];
+        if (editable) {
+            actions.push({
+                iconClassName: "mdi mdi-pencil",
+                tooltip: 'Edit Workspace',
+                onClick: function onClick(row) {
+                    openSelection(row.workspace);
+                },
+                disable: function disable(row) {
+                    return !row.workspace.PoliciesContextEditable;
+                }
+            });
+        }
+        var repos = pydio.user.getRepositoriesList();
+        actions.push({
+            iconClassName: 'mdi mdi-open-in-new',
+            tooltip: 'Open this workspace...',
+            onClick: function onClick(row) {
+                pydio.triggerRepositoryChange(row.workspace.UUID);
+            },
+            disable: function disable(row) {
+                return !repos.has(row.workspace.UUID);
+            }
+        });
+        if (editable) {
+            actions.push({
+                iconClassName: "mdi mdi-delete",
+                onClick: function onClick(row) {
+                    _this3.deleteAction(row.workspace);
+                },
+                disable: function disable(row) {
+                    return !row.workspace.PoliciesContextEditable;
+                }
+            });
+        }
+
+        return _react2['default'].createElement(MaterialTable, {
+            data: data,
+            columns: columns,
+            actions: actions,
+            onSelectRows: editable ? this.openTableRows.bind(this) : null,
+            deselectOnClickAway: true,
+            showCheckboxes: false,
+            emptyStateString: loading ? m('loading') : m('ws.board.empty'),
+            masterStyles: tableStyles,
+            paginate: [10, 25, 50, 100],
+            defaultPageSize: 25,
+            storageKey: 'console.workspaces.list'
+        });
+    }
+});
+module.exports = exports['default'];
+
+},{"../model/Ws":22,"create-react-class":"create-react-class","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],6:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _editorWsEditor = require('../editor/WsEditor');
+
+var _editorWsEditor2 = _interopRequireDefault(_editorWsEditor);
+
+var _WorkspaceList = require('./WorkspaceList');
+
+var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
+var WsDashboard = (0, _createReactClass2['default'])({
+    displayName: 'WsDashboard',
+    mixins: [AdminComponents.MessagesConsumerMixin],
+
+    propTypes: {
+        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
+        openEditor: _propTypes2['default'].func.isRequired,
+        openRightPane: _propTypes2['default'].func.isRequired,
+        closeRightPane: _propTypes2['default'].func.isRequired,
+        accessByName: _propTypes2['default'].func.isRequired,
+        advanced: _propTypes2['default'].boolean
+    },
+
+    getInitialState: function getInitialState() {
+        return { selectedNode: null, searchString: '' };
+    },
+
+    dirtyEditor: function dirtyEditor() {
+        var pydio = this.props.pydio;
+
+        if (this.refs.editor && this.refs.editor.isDirty()) {
+            if (!confirm(pydio.MessageHash["role_editor.19"])) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    openWorkspace: function openWorkspace(workspace) {
+        var _this = this;
+
+        if (this.dirtyEditor()) {
+            return;
+        }
+        var editor = _editorWsEditor2['default'];
+        var editorNode = _pydioUtilXml2['default'].XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
+        if (editorNode) {
+            editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
+        }
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var advanced = _props.advanced;
+        var accessByName = _props.accessByName;
+
+        var editorData = {
+            COMPONENT: editor,
+            PROPS: {
+                ref: "editor",
+                pydio: pydio,
+                workspace: workspace,
+                closeEditor: this.closeWorkspace,
+                advanced: advanced,
+                reloadList: function reloadList() {
+                    _this.refs['workspacesList'].reload();
+                }
+            }
+        };
+        this.props.openRightPane(editorData);
+        return true;
+    },
+
+    closeWorkspace: function closeWorkspace() {
+        if (!this.dirtyEditor()) {
+            this.props.closeRightPane();
+        }
+    },
+
+    showWorkspaceCreator: function showWorkspaceCreator(type) {
+        var _this2 = this;
+
+        var _props2 = this.props;
+        var pydio = _props2.pydio;
+        var advanced = _props2.advanced;
+
+        var editorData = {
+            COMPONENT: _editorWsEditor2['default'],
+            PROPS: {
+                ref: "editor",
+                type: type,
+                pydio: pydio,
+                advanced: advanced,
+                closeEditor: this.closeWorkspace,
+                reloadList: function reloadList() {
+                    _this2.refs['workspacesList'].reload();
+                }
+            }
+        };
+        this.props.openRightPane(editorData);
+    },
+
+    reloadWorkspaceList: function reloadWorkspaceList() {
+        this.refs.workspacesList.reload();
+    },
+
+    render: function render() {
+        var _this3 = this;
+
+        var _props3 = this.props;
+        var pydio = _props3.pydio;
+        var advanced = _props3.advanced;
+        var currentNode = _props3.currentNode;
+        var accessByName = _props3.accessByName;
+        var muiTheme = _props3.muiTheme;
+        var _state = this.state;
+        var searchString = _state.searchString;
+        var loading = _state.loading;
+
+        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
+
+        var buttons = [];
+        if (accessByName('Create')) {
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
+                primary: true,
+                label: this.context.getMessage('ws.3'),
+                onClick: this.showWorkspaceCreator
+            }, adminStyles.props.header.flatButton)));
+        }
+
+        var searchBox = _react2['default'].createElement(
+            'div',
+            { style: { display: 'flex' } },
+            _react2['default'].createElement('div', { style: { flex: 1 } }),
+            _react2['default'].createElement(
+                'div',
+                { style: { width: 190 } },
+                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('ws.filter.workspaces'), value: searchString, onChange: function (e, v) {
+                        return _this3.setState({ searchString: v });
+                    } })
+            )
+        );
+
+        return _react2['default'].createElement(
+            'div',
+            { className: 'main-layout-nav-to-stack vertical-layout workspaces-board' },
+            _react2['default'].createElement(AdminComponents.Header, {
+                title: currentNode.getLabel(),
+                icon: 'mdi mdi-folder-open',
+                actions: buttons,
+                centerContent: searchBox,
+                reloadAction: this.reloadWorkspaceList,
+                loading: loading
+            }),
+            _react2['default'].createElement(
+                'div',
+                { className: 'layout-fill' },
+                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage('ws.dashboard', 'ajxp_admin') }),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
+                    _react2['default'].createElement(_WorkspaceList2['default'], {
+                        ref: 'workspacesList',
+                        pydio: pydio,
+                        openSelection: this.openWorkspace,
+                        advanced: advanced,
+                        editable: accessByName('Create'),
+                        onLoadState: function (state) {
+                            _this3.setState({ loading: state });
+                        },
+                        tableStyles: adminStyles.body.tableMaster,
+                        filterString: searchString
+                    })
+                )
+            )
+        );
+    }
+});
+
+exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
+module.exports = exports['default'];
+
+},{"../editor/WsEditor":15,"./WorkspaceList":5,"create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],7:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _modelDataSource = require('../model/DataSource');
+
+var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
+
+var _materialUi = require('material-ui');
+
+var _lodash = require('lodash');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+
+var DataSourceBucketSelector = (function (_React$Component) {
+    _inherits(DataSourceBucketSelector, _React$Component);
+
+    function DataSourceBucketSelector(props) {
+        var _this = this;
+
+        _classCallCheck(this, DataSourceBucketSelector);
+
+        _get(Object.getPrototypeOf(DataSourceBucketSelector.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            buckets: [],
+            selection: [],
+            mode: this.modeFromValue(),
+            monitorApi: props.dataSource.ApiKey + '-' + props.dataSource.ApiSecret
+        };
+        if (props.dataSource.ObjectsBucket) {
+            this.state.selection = [props.dataSource.ObjectsBucket];
+        }
+        this.load();
+        this.loadSelection();
+        this.reloadSelection = (0, _lodash.debounce)(function () {
+            _this.loadSelection();
+        }, 500);
+        this.loadDebounced = (0, _lodash.debounce)(function () {
+            _this.load();
+        }, 500);
+    }
+
+    _createClass(DataSourceBucketSelector, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            var monitor = newProps.dataSource.ApiKey + '-' + newProps.dataSource.ApiSecret;
+            var monitorApi = this.state.monitorApi;
+
+            if (monitor !== monitorApi) {
+                this.loadDebounced();
+                this.setState({ monitorApi: monitor });
+            }
+        }
+    }, {
+        key: 'load',
+        value: function load() {
+            var _this2 = this;
+
+            var dataSource = this.props.dataSource;
+
+            if (!dataSource.ApiKey || !dataSource.ApiSecret) {
+                this.setState({ buckets: [] });
+                return;
+            }
+            this.setState({ loading: true });
+            _modelDataSource2['default'].loadBuckets(dataSource).then(function (collection) {
+                var nodes = collection.Children || [];
+                _this2.setState({ buckets: nodes.map(function (n) {
+                        return n.Path;
+                    }), loading: false });
+            })['catch'](function (e) {
+                _this2.setState({ buckets: [], loading: false });
+            });
+        }
+    }, {
+        key: 'loadSelection',
+        value: function loadSelection() {
+            var _this3 = this;
+
+            var dataSource = this.props.dataSource;
+
+            if (!dataSource.ApiKey || !dataSource.ApiSecret) {
+                this.setState({ selection: [] });
+                return;
+            }
+            if (dataSource.ObjectsBucket) {
+                this.setState({ selection: [dataSource.ObjectsBucket] });
+                return;
+            }
+            this.setState({ selection: [] });
+            if (!dataSource.StorageConfiguration.bucketsRegexp) {
+                return;
+            }
+            _modelDataSource2['default'].loadBuckets(dataSource, dataSource.StorageConfiguration.bucketsRegexp).then(function (collection) {
+                var nodes = collection.Children || [];
+                _this3.setState({ selection: nodes.map(function (n) {
+                        return n.Path;
+                    }) });
+            });
+        }
+    }, {
+        key: 'modeFromValue',
+        value: function modeFromValue() {
+            var dataSource = this.props.dataSource;
+
+            var mode = 'picker';
+            if (dataSource.StorageConfiguration.bucketsRegexp) {
+                mode = 'regexp';
+            }
+            return mode;
+        }
+    }, {
+        key: 'toggleMode',
+        value: function toggleMode() {
+            var mode = this.state.mode;
+            var dataSource = this.props.dataSource;
+
+            if (mode === 'picker') {
+                if (dataSource.ObjectsBucket) {
+                    dataSource.StorageConfiguration.bucketsRegexp = dataSource.ObjectsBucket;
+                    dataSource.ObjectsBucket = '';
+                    this.reloadSelection();
+                }
+                this.setState({ mode: 'regexp' });
+            } else {
+                dataSource.StorageConfiguration.bucketsRegexp = '';
+                this.reloadSelection();
+                this.setState({ mode: 'picker' });
+            }
+        }
+    }, {
+        key: 'togglePicker',
+        value: function togglePicker(value) {
+            var dataSource = this.props.dataSource;
+            var selection = this.state.selection;
+
+            var newSel = [];
+            var idx = selection.indexOf(value);
+            if (idx === -1) {
+                newSel = [].concat(_toConsumableArray(selection), [value]);
+            } else {
+                newSel = _pydioUtilLang2['default'].arrayWithout(selection, idx);
+            }
+            if (newSel.length === 1) {
+                dataSource.ObjectsBucket = newSel[0];
+                dataSource.StorageConfiguration.bucketsRegexp = '';
+            } else {
+                dataSource.ObjectsBucket = '';
+                dataSource.StorageConfiguration.bucketsRegexp = newSel.map(function (v) {
+                    return '^' + v + '$';
+                }).join('|');
+            }
+            this.setState({ selection: newSel });
+        }
+    }, {
+        key: 'updateRegexp',
+        value: function updateRegexp(v) {
+            var dataSource = this.props.dataSource;
+
+            dataSource.StorageConfiguration.bucketsRegexp = v;
+            this.reloadSelection();
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var dataSource = this.props.dataSource;
+            var _state = this.state;
+            var buckets = _state.buckets;
+            var selection = _state.selection;
+            var mode = _state.mode;
+            var loading = _state.loading;
+
+            var m = function m(id) {
+                return _pydio2['default'].getInstance().MessageHash['ajxp_admin.ds.editor.storage.' + id] || id;
+            };
+
+            var iconStyles = {
+                style: { width: 30, height: 30, padding: 5 },
+                iconStyle: { width: 20, height: 20, color: 'rgba(0,0,0,.5)', fontSize: 18 }
+            };
+            var disabled = !dataSource.ApiKey || !dataSource.ApiSecret;
+
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'flex-end', marginTop: 20 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        m('buckets.legend')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', alignItems: 'flex-end' } },
+                        mode === 'regexp' && _react2['default'].createElement(
+                            'div',
+                            { style: { width: 200, height: 36 } },
+                            _react2['default'].createElement(ModernTextField, {
+                                hintText: m('buckets.regexp.hint'),
+                                fullWidth: true,
+                                value: dataSource.StorageConfiguration.bucketsRegexp || '',
+                                onChange: function (e, v) {
+                                    _this4.updateRegexp(v);
+                                }
+                            })
+                        ),
+                        _react2['default'].createElement(_materialUi.IconButton, _extends({
+                            iconClassName: "mdi mdi-filter",
+                            tooltip: mode === 'picker' ? m('buckets.regexp') : '',
+                            tooltipPosition: "top-left",
+                            onClick: function () {
+                                _this4.toggleMode();
+                            },
+                            disabled: disabled
+                        }, iconStyles))
+                    ),
+                    _react2['default'].createElement(_materialUi.IconButton, _extends({
+                        iconClassName: "mdi mdi-reload",
+                        tooltip: m('buckets.reload'),
+                        tooltipPosition: "top-left",
+                        onClick: function () {
+                            _this4.load();
+                        },
+                        disabled: disabled
+                    }, iconStyles))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', flexWrap: 'wrap', marginTop: 8, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight: 275, overflowY: 'auto' } },
+                    buckets.map(function (b) {
+                        var selected = selection.indexOf(b) !== -1;
+                        var chipToucher = {};
+                        if (mode === 'picker') {
+                            chipToucher.onClick = function () {
+                                _this4.togglePicker(b);
+                            };
+                        } else if (!dataSource.StorageConfiguration.bucketsRegexp) {
+                            chipToucher.onClick = function () {
+                                _this4.toggleMode();_this4.togglePicker(b);
+                            };
+                        }
+                        return _react2['default'].createElement(
+                            'div',
+                            { style: { margin: 5 } },
+                            _react2['default'].createElement(
+                                _materialUi.Chip,
+                                _extends({}, chipToucher, { backgroundColor: selected ? '#03a9f4' : null }),
+                                b
+                            )
+                        );
+                    }),
+                    buckets.length === 0 && _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 5, textAlign: 'center', fontSize: 16, color: 'rgba(0,0,0,.37)' } },
+                        disabled ? m('buckets.cont.nokeys') : loading ? m('buckets.cont.loading') : m('buckets.cont.empty')
+                    )
+                )
+            );
+        }
+    }]);
+
+    return DataSourceBucketSelector;
+})(_react2['default'].Component);
+
+exports['default'] = DataSourceBucketSelector;
+module.exports = exports['default'];
+
+},{"../model/DataSource":19,"lodash":24,"material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],8:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _modelDataSource = require('../model/DataSource');
+
+var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
+
+var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _DataSourceLocalSelector = require('./DataSourceLocalSelector');
+
+var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector);
+
+var _DsStorageSelector = require('./DsStorageSelector');
+
+var _DsStorageSelector2 = _interopRequireDefault(_DsStorageSelector);
+
+var _DataSourceBucketSelector = require('./DataSourceBucketSelector');
+
+var _DataSourceBucketSelector2 = _interopRequireDefault(_DataSourceBucketSelector);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
+
+var DataSourceEditor = (function (_React$Component) {
+    _inherits(DataSourceEditor, _React$Component);
+
+    function DataSourceEditor(props) {
+        var _this = this;
+
+        _classCallCheck(this, DataSourceEditor);
+
+        _get(Object.getPrototypeOf(DataSourceEditor.prototype), 'constructor', this).call(this, props);
+        var observable = new _modelDataSource2['default'](props.dataSource, props.existingNames);
+        this.state = {
+            dirty: false,
+            create: props.create,
+            observable: observable,
+            model: observable.getModel(),
+            loaded: false,
+            valid: observable.isValid(),
+            encryptionKeys: [],
+            versioningPolicies: [],
+            s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
+            }
+        };
+        _modelDataSource2['default'].loadEncryptionKeys().then(function (res) {
+            _this.setState({ encryptionKeys: res.Keys || [] });
+        });
+        _modelDataSource2['default'].loadVersioningPolicies().then(function (res) {
+            _this.setState({ versioningPolicies: res.Policies || [] });
+        });
+    }
+
+    _createClass(DataSourceEditor, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.dataSource && this.state.model.Name !== newProps.dataSource.Name) {
+                if (this.state.dirty) {
+                    alert(this.props.pydio.MessageHash['role_editor.19']);
+                } else {
+                    var observable = new _modelDataSource2['default'](newProps.dataSource);
+                    this.setState({
+                        observable: observable,
+                        model: observable.getModel()
+                    });
+                }
+            }
+            if (newProps.create && this.state.create !== newProps.create) {
+                this.setState({ create: newProps.create });
+            }
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this2 = this;
+
+            var observable = this.state.observable;
+
+            observable.observe("update", function () {
+                _this2.setState({ dirty: true });
+                _this2.forceUpdate();
+            });
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            var observable = this.state.observable;
+
+            observable.stopObserving("update");
+        }
+    }, {
+        key: 'resetForm',
+        value: function resetForm() {
+            var _this3 = this;
+
+            var observable = this.state.observable;
+
+            var newModel = observable.revert();
+            this.setState({
+                valid: true,
+                dirty: false,
+                model: newModel
+            }, function () {
+                _this3.forceUpdate();
+            });
+        }
+    }, {
+        key: 'deleteSource',
+        value: function deleteSource() {
+            var _this4 = this;
+
+            var _state = this.state;
+            var m = _state.m;
+            var observable = _state.observable;
+            var pydio = this.props.pydio;
+
+            pydio.UI.openConfirmDialog({
+                message: m('delete.warning'),
+                validCallback: function validCallback() {
+                    observable.deleteSource().then(function () {
+                        _this4.props.closeEditor();
+                        _this4.props.reloadList();
+                    });
+                },
+                destructive: [observable.getModel().Name]
+            });
+        }
+    }, {
+        key: 'saveSource',
+        value: function saveSource() {
+            var _this5 = this;
+
+            var _state2 = this.state;
+            var observable = _state2.observable;
+            var create = _state2.create;
+
+            this.state.observable.saveSource().then(function () {
+                var newDsName = null;
+                if (create) {
+                    newDsName = observable.getModel().Name;
+                }
+                _this5.setState({ valid: true, dirty: false, create: false });
+                if (create) {
+                    _this5.props.closeEditor();
+                }
+                _this5.props.reloadList(newDsName);
+            });
+        }
+    }, {
+        key: 'launchResync',
+        value: function launchResync() {
+            this.state.observable.resyncSource();
+        }
+    }, {
+        key: 'toggleEncryption',
+        value: function toggleEncryption(value) {
+            if (value) {
+                this.setState({ showDialog: 'enableEncryption', dialogTargetValue: value });
+            } else {
+                this.setState({ showDialog: 'disableEncryption', dialogTargetValue: value });
+            }
+        }
+    }, {
+        key: 'confirmEncryption',
+        value: function confirmEncryption(value) {
+            var _state3 = this.state;
+            var model = _state3.model;
+            var encryptionKeys = _state3.encryptionKeys;
+
+            model.EncryptionMode = value ? "MASTER" : "CLEAR";
+            if (value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length) {
+                model.EncryptionKey = encryptionKeys[0].ID;
+            }
+            this.setState({ showDialog: false, dialogTargetValue: null });
+        }
+    }, {
+        key: 'toggleS3Custom',
+        value: function toggleS3Custom(value) {
+            var model = this.state.model;
+
+            if (value === "aws") {
+                model.StorageConfiguration.customEndpoint = "";
+                model.StorageConfiguration.customRegion = "";
+            }
+            this.setState({ s3Custom: value });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this6 = this;
+
+            var _props = this.props;
+            var storageTypes = _props.storageTypes;
+            var pydio = _props.pydio;
+            var readonly = _props.readonly;
+            var _state4 = this.state;
+            var model = _state4.model;
+            var create = _state4.create;
+            var observable = _state4.observable;
+            var encryptionKeys = _state4.encryptionKeys;
+            var versioningPolicies = _state4.versioningPolicies;
+            var showDialog = _state4.showDialog;
+            var dialogTargetValue = _state4.dialogTargetValue;
+            var s3Custom = _state4.s3Custom;
+            var m = _state4.m;
+
+            var titleActionBarButtons = [];
+            if (!readonly) {
+                if (!create) {
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this6.resetForm();
+                    }, !this.state.dirty));
+                }
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this6.saveSource();
+                }, !observable.isValid() || !this.state.dirty));
+            }
+
+            var leftNav = _react2['default'].createElement(
+                'div',
+                { style: { padding: '6px 0', color: '#9E9E9E', fontSize: 13 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 120, textAlign: 'center' } },
+                    _react2['default'].createElement('i', { className: 'mdi mdi-database' })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16 } },
+                    this.context.getMessage('ws.75'),
+                    ' ',
+                    this.context.getMessage('ws.76')
+                ),
+                create && model.StorageType === 'LOCAL' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 16 } },
+                        m('legend.local'),
+                        _react2['default'].createElement(
+                            'ul',
+                            null,
+                            _react2['default'].createElement(
+                                'li',
+                                { style: { listStyle: 'disc', marginLeft: 20 } },
+                                m('legend.local.li.1')
+                            ),
+                            _react2['default'].createElement(
+                                'li',
+                                { style: { listStyle: 'disc', marginLeft: 20 } },
+                                m('legend.local.li.2')
+                            ),
+                            _react2['default'].createElement(
+                                'li',
+                                { style: { listStyle: 'disc', marginLeft: 20 } },
+                                m('legend.local.li.3')
+                            )
+                        )
+                    )
+                ),
+                create && model.StorageType === 'S3' && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 16 } },
+                        m('legend.s3.1'),
+                        _react2['default'].createElement('br', null),
+                        m('legend.s3.2')
+                    )
+                ),
+                !create && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 16 } },
+                        m('legend.resync'),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { textAlign: 'center', marginTop: 10 } },
+                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('legend.resync.button'), onClick: this.launchResync.bind(this) })
+                        )
+                    )
+                ),
+                !create && !readonly && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 16 } },
+                        m('legend.delete.1'),
+                        _react2['default'].createElement('br', null),
+                        m('legend.delete.2'),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { textAlign: 'center', marginTop: 10 } },
+                            _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('legend.delete.button'), onClick: this.deleteSource.bind(this), style: { marginTop: 16 } })
+                        )
+                    )
+                )
+            );
+
+            var title = model.Name ? m('title').replace('%s', model.Name) : m('new');
+            var storageConfig = model.StorageConfiguration;
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+            var styles = {
+                title: {
+                    fontSize: 20,
+                    paddingTop: 20,
+                    marginBottom: 10
+                },
+                legend: {},
+                subLegend: {
+                    padding: '10px 6px 0 4px',
+                    fontSize: 12,
+                    lineHeight: '16px',
+                    color: 'rgba(0,0,0,0.6)',
+                    textAlign: 'justify'
+                },
+                section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
+                storageSection: { padding: 20, marginTop: -1 },
+                toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
+            };
+
+            var storages = {
+                LOCAL: { primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image: 'fs.png' },
+                S3: { primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image: 's3-compat.png' },
+                AZURE: { primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image: 'azure.png' },
+                GCS: { primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image: 'gcs.png' }
+            };
+            var storageData = {};
+            storageTypes.forEach(function (type) {
+                storageData[type] = storages[type];
+            });
+            if (model.StorageType && !storageData[model.StorageType]) {
+                storageData[model.StorageType] = storages[model.StorageType];
+            }
+
+            var cannotEnableEnc = model.EncryptionMode !== 'MASTER' && (!encryptionKeys || !encryptionKeys.length);
+
+            return _react2['default'].createElement(
+                PydioComponents.PaperEditorLayout,
+                {
+                    title: title,
+                    titleActionBar: titleActionBarButtons,
+                    closeAction: this.props.closeEditor,
+                    leftNav: leftNav,
+                    className: 'workspace-editor',
+                    contentFill: false
+                },
+                _react2['default'].createElement(
+                    _materialUi.Dialog,
+                    {
+                        open: showDialog,
+                        title: m('enc.warning'),
+                        onRequestClose: function () {
+                            _this6.confirmEncryption(!dialogTargetValue);
+                        },
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
+                                _this6.confirmEncryption(!dialogTargetValue);
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onClick: function () {
+                                _this6.confirmEncryption(dialogTargetValue);
+                            } })]
+                    },
+                    showDialog === 'enableEncryption' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'p',
+                            null,
+                            m('enc.dialog.enable.1')
+                        ),
+                        _react2['default'].createElement(
+                            'p',
+                            null,
+                            m('enc.dialog.enable.2'),
+                            ' ',
+                            _react2['default'].createElement(
+                                'b',
+                                null,
+                                m('enc.dialog.enable.2bold')
+                            )
+                        ),
+                        _react2['default'].createElement(
+                            'p',
+                            null,
+                            m('enc.dialog.enable.3')
+                        )
+                    ),
+                    showDialog === 'disableEncryption' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        m('enc.dialog.disable')
+                    )
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        m('options')
+                    ),
+                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
+                            model.Name = v;
+                        }, errorText: observable.getNameError(m) }),
+                    !create && _react2['default'].createElement(
+                        'div',
+                        { style: styles.toggleDiv },
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
+                                model.Disabled = !v;
+                            } }, ModernStyles.toggleField))
+                    )
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, style: _extends({}, styles.section, { padding: 0 }) },
+                    _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
+                            model.StorageType = v;
+                        }, values: storageData }),
+                    model.StorageType === 'LOCAL' && _react2['default'].createElement(
+                        'div',
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.fs')
+                        ),
+                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio, styles: styles }),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.toggleDiv },
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
+                                    storageConfig.normalize = v ? "true" : "false";
+                                } }, ModernStyles.toggleField))
+                        )
+                    ),
+                    model.StorageType === 'S3' && _react2['default'].createElement(
+                        'div',
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.s3')
+                        ),
+                        _react2['default'].createElement(
+                            ModernSelectField,
+                            { fullWidth: true, value: s3Custom, onChange: function (e, i, v) {
+                                    _this6.toggleS3Custom(v);
+                                } },
+                            _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
+                            _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
+                        ),
+                        s3Custom === 'custom' && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                                    model.StorageConfiguration.customEndpoint = v;
+                                } }),
+                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
+                                    model.StorageConfiguration.customRegion = v;
+                                } })
+                        ),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
+                                model.ApiKey = v;
+                            } }),
+                        _react2['default'].createElement(
+                            'form',
+                            { autoComplete: "off" },
+                            _react2['default'].createElement('input', { type: 'hidden', value: 'something' }),
+                            _react2['default'].createElement(ModernTextField, { autoComplete: "off", fullWidth: true, type: "password", hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                                    model.ApiSecret = v;
+                                } })
+                        ),
+                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.subLegend, { paddingTop: 40 }) },
+                            m('storage.s3.legend.tags')
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex' } },
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginRight: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    fullWidth: true,
+                                    disabled: !!model.ObjectsBucket,
+                                    hintText: m('storage.s3.bucketsTags'),
+                                    value: model.StorageConfiguration.bucketsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.bucketsTags = v;
+                                    } })
+                            ),
+                            _react2['default'].createElement(
+                                'div',
+                                { style: { flex: 1, marginLeft: 5 } },
+                                _react2['default'].createElement(ModernTextField, {
+                                    disabled: true,
+                                    fullWidth: true,
+                                    hintText: m('storage.s3.objectsTags') + ' (not implemented yet)',
+                                    value: model.StorageConfiguration.objectsTags || '',
+                                    onChange: function (e, v) {
+                                        model.StorageConfiguration.objectsTags = v;
+                                    } })
+                            )
+                        )
+                    ),
+                    model.StorageType === 'AZURE' && _react2['default'].createElement(
+                        'div',
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.azure')
+                        ),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                                model.ObjectsBucket = v;
+                            } }),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
+                                model.ApiKey = v;
+                            } }),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, type: "password", hintText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
+                                model.ApiSecret = v;
+                            } })
+                    ),
+                    model.StorageType === 'GCS' && _react2['default'].createElement(
+                        'div',
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.gcs')
+                        ),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
+                                model.ObjectsBucket = v;
+                            } }),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
+                                model.StorageConfiguration.jsonCredentials = v;
+                            }, multiLine: true }),
+                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                                model.ObjectsBaseFolder = v;
+                            } })
+                    )
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        m('datamanagement')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
+                        m('storage.legend.versioning')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                                model.VersioningPolicyName = v;
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
+                        versioningPolicies.map(function (key) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
+                        })
+                    ),
+                    model.StorageType !== 'LOCAL' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
+                            m('storage.legend.readOnly')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.readOnly'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.readOnly === 'true',
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.readOnly = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField))
+                    ),
+                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
+                            m('storage.legend.checksumMapper')
+                        ),
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('storage.nativeEtags'),
+                            labelPosition: "right",
+                            toggled: model.StorageConfiguration.nativeEtags,
+                            onToggle: function (e, v) {
+                                model.StorageConfiguration.nativeEtags = v ? 'true' : '';
+                            }
+                        }, ModernStyles.toggleField)),
+                        !model.StorageConfiguration.nativeEtags && _react2['default'].createElement(
+                            'div',
+                            null,
+                            _react2['default'].createElement(_materialUi.Toggle, _extends({
+                                label: m('storage.checksumMapper'),
+                                labelPosition: "right",
+                                toggled: model.StorageConfiguration.checksumMapper === 'dao',
+                                onToggle: function (e, v) {
+                                    model.StorageConfiguration.checksumMapper = v ? 'dao' : '';
+                                }
+                            }, ModernStyles.toggleField))
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
+                        m('storage.legend.encryption')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.toggleDiv },
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                                _this6.toggleEncryption(v);
+                            },
+                            disabled: cannotEnableEnc }, ModernStyles.toggleField))
+                    ),
+                    model.EncryptionMode === "MASTER" && _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, hintText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
+                                model.EncryptionKey = v;
+                            } },
+                        encryptionKeys.map(function (key) {
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.ID, primaryText: key.Label });
+                        })
+                    )
+                )
+            );
+        }
+    }]);
+
+    return DataSourceEditor;
+})(_react2['default'].Component);
+
+DataSourceEditor.contextTypes = {
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func
+};
+
+exports['default'] = DataSourceEditor = (0, _materialUiStyles.muiThemeable)()(DataSourceEditor);
+
+exports['default'] = DataSourceEditor;
+module.exports = exports['default'];
+
+},{"../model/DataSource":19,"./DataSourceBucketSelector":7,"./DataSourceLocalSelector":9,"./DsStorageSelector":10,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","react":"react"}],9:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _cellsSdk = require('cells-sdk');
+
+var _materialUi = require('material-ui');
+
+var _lodashDebounce = require('lodash.debounce');
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+
+var AutocompleteTree = (function (_React$Component) {
+    _inherits(AutocompleteTree, _React$Component);
+
+    function AutocompleteTree(props) {
+        _classCallCheck(this, AutocompleteTree);
+
+        _get(Object.getPrototypeOf(AutocompleteTree.prototype), 'constructor', this).call(this, props);
+        this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
+        this.state = { searchText: props.value, value: props.value };
+    }
+
+    _createClass(AutocompleteTree, [{
+        key: 'handleUpdateInput',
+        value: function handleUpdateInput(searchText) {
+            this.debounced();
+            this.setState({ searchText: searchText });
+        }
+    }, {
+        key: 'handleNewRequest',
+        value: function handleNewRequest(chosenValue) {
+            var key = undefined;
+            var nodes = this.state.nodes;
+
+            var exist = false;
+            if (chosenValue.key === undefined) {
+                key = '/' + _pydioUtilLang2['default'].trim(chosenValue, '/');
+                var ok = false;
+                nodes.map(function (node) {
+                    //const test = node.Path + '/';
+                    if (node.Path === key || node.Path.indexOf(key + '/') === 0) {
+                        ok = true;
+                    }
+                });
+                if (ok) {
+                    exist = true;
+                }
+            } else {
+                key = chosenValue.key;
+                exist = true;
+            }
+            this.setState({ value: key, exist: exist });
+            this.props.onChange(key, exist);
+            this.loadValues(key);
+        }
+    }, {
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+            this.lastSearch = null;
+            var value = "";
+            if (this.props.value) {
+                value = this.props.value;
+            }
+            this.loadValues(value);
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (newProps.value && newProps.value !== this.state.value) {
+                this.setState({ value: newProps.value, exist: true });
+            }
+        }
+    }, {
+        key: 'loadValues',
+        value: function loadValues() {
+            var _this = this;
+
+            var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+            var peerAddress = this.props.peerAddress;
+            var searchText = this.state.searchText;
+
+            var basePath = value;
+            if (!value && searchText) {
+                var last = searchText.lastIndexOf('/');
+                basePath = searchText.substr(0, last);
+            }
+            if (this.lastSearch !== null && this.lastSearch === basePath) {
+                return Promise.resolve();
+            }
+            this.lastSearch = basePath;
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var listRequest = new _cellsSdk.RestListPeerFoldersRequest();
+            listRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
+            listRequest.Path = basePath;
+            this.setState({ loading: true });
+            return api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
+                var children = nodesColl.Children || [];
+                children = children.map(function (c) {
+                    if (c.Path[0] !== '/') {
+                        c.Path = '/' + c.Path;
+                    }
+                    return c;
+                });
+                _this.setState({ nodes: children, loading: false });
+            })['catch'](function () {
+                _this.setState({ loading: false });
+            });
+        }
+    }, {
+        key: 'createFolder',
+        value: function createFolder(newName) {
+            var _this2 = this;
+
+            var _props = this.props;
+            var peerAddress = _props.peerAddress;
+            var pydio = _props.pydio;
+            var value = this.state.value;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var createRequest = new _cellsSdk.RestCreatePeerFolderRequest();
+            createRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
+            createRequest.Path = value + '/' + newName;
+            api.createPeerFolder(peerAddress, createRequest).then(function (result) {
+                _this2.lastSearch = null; // Force reload
+                _this2.loadValues(value).then(function () {
+                    // Select path after reload
+                    _this2.handleNewRequest(createRequest.Path);
+                });
+            })['catch'](function (e) {
+                pydio.UI.displayMessage('ERROR', e.message);
+            });
+        }
+    }, {
+        key: 'renderNode',
+        value: function renderNode(node) {
+            var base = _pydioUtilPath2['default'].getBasename(node.Path);
+            var dir = _pydioUtilPath2['default'].getDirname(node.Path);
+            var label = _react2['default'].createElement(
+                'span',
+                null,
+                node.Path
+            );
+            var invalid = false;
+            if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(
+                        'span',
+                        null,
+                        dir
+                    ),
+                    '/',
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#c62828' } },
+                        base
+                    )
+                );
+            } else if (node.MetaStore && node.MetaStore['symlink']) {
+                // Symbolic link
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    _react2['default'].createElement(
+                        'span',
+                        null,
+                        dir
+                    ),
+                    '/',
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { color: '#1976d2' } },
+                        base
+                    )
+                );
+            }
+            return {
+                key: node.Path,
+                text: node.Path,
+                invalid: invalid,
+                value: _react2['default'].createElement(
+                    _materialUi.MenuItem,
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder", color: '#616161', style: { float: 'left', marginRight: 8 } }),
+                    ' ',
+                    label
+                )
+            };
+        }
+    }, {
+        key: 'showCreateDialog',
+        value: function showCreateDialog() {
+            var _this3 = this;
+
+            var pydio = this.props.pydio;
+            var value = this.state.value;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.ds.editor.selector.' + id] || id;
+            };
+            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                dialogTitle: m('mkdir'),
+                legendId: m('mkdir.legend').replace('%s', value),
+                fieldLabelId: m('mkdir.field'),
+                submitValue: function submitValue(v) {
+                    if (!v) {
+                        return;
+                    }
+                    _this3.createFolder(v);
+                }
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _state = this.state;
+            var nodes = _state.nodes;
+            var loading = _state.loading;
+            var exist = _state.exist;
+            var value = _state.value;
+            var searchText = _state.searchText;
+            var _props2 = this.props;
+            var fieldLabel = _props2.fieldLabel;
+            var pydio = _props2.pydio;
+
+            var dataSource = [];
+            if (nodes) {
+                nodes.forEach(function (node) {
+                    dataSource.push(_this4.renderNode(node));
+                });
+            }
+
+            var displayText = searchText || value;
+
+            return _react2['default'].createElement(
+                'div',
+                { style: { position: 'relative', marginTop: -5 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
+                    _react2['default'].createElement(_materialUi.RefreshIndicator, {
+                        size: 30,
+                        left: 0,
+                        top: 0,
+                        status: loading ? "loading" : "hide"
+                    })
+                ),
+                value && exist && !loading && (!searchText || searchText === value) && _react2['default'].createElement(
+                    'div',
+                    { style: { position: 'absolute', right: 0 } },
+                    _react2['default'].createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi mdi-folder-plus",
+                        iconStyle: { color: '#9e9e9e' },
+                        onClick: function () {
+                            return _this4.showCreateDialog();
+                        },
+                        tooltip: pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']
+                    })
+                ),
+                _react2['default'].createElement(_materialUi.AutoComplete, _extends({
+                    fullWidth: true,
+                    searchText: displayText,
+                    onUpdateInput: this.handleUpdateInput.bind(this),
+                    onNewRequest: this.handleNewRequest.bind(this),
+                    dataSource: dataSource,
+                    hintText: fieldLabel,
+                    filter: function (searchText, key) {
+                        return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
+                    },
+                    openOnFocus: true,
+                    menuProps: { maxHeight: 200 }
+                }, ModernStyles.textField))
+            );
+        }
+    }]);
+
+    return AutocompleteTree;
+})(_react2['default'].Component);
+
+var DataSourceLocalSelector = (function (_React$Component2) {
+    _inherits(DataSourceLocalSelector, _React$Component2);
+
+    function DataSourceLocalSelector(props) {
+        _classCallCheck(this, DataSourceLocalSelector);
+
+        _get(Object.getPrototypeOf(DataSourceLocalSelector.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            peerAddresses: [],
+            invalid: false,
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
+            }
+        };
+    }
+
+    _createClass(DataSourceLocalSelector, [{
+        key: 'compareAddresses',
+        value: function compareAddresses(a1, a2) {
+            var p1 = a1.split("|");
+            var p2 = a2.split("|");
+            return p2.filter(function (p) {
+                return p1.indexOf(p) > -1;
+            }).length || p1.filter(function (p) {
+                return p2.indexOf(p) > -1;
+            }).length;
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this5 = this;
+
+            var model = this.props.model;
+
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.listPeersAddresses().then(function (res) {
+                var aa = res.PeerAddresses || [];
+                if (aa === 1 && !model.PeerAddress) {
+                    model.PeerAddress = aa[0];
+                }
+                _this5.setState({ peerAddresses: aa });
+                if (model.PeerAddress && aa.indexOf(model.PeerAddress) === -1) {
+                    var rep = aa.filter(function (a) {
+                        return _this5.compareAddresses(a, model.PeerAddress);
+                    });
+                    if (rep.length) {
+                        // If model address is contained in one of the res, replace it
+                        model.PeerAddress = rep[0];
+                    } else {
+                        // Otherwise show it as invalid
+                        _this5.setState({ invalidAddress: model.PeerAddress });
+                    }
+                }
+            });
+        }
+    }, {
+        key: 'baseIsInvalid',
+        value: function baseIsInvalid(path) {
+            var m = this.state.m;
+
+            var invalid = false;
+            var base = _pydioUtilPath2['default'].getBasename(path);
+            var segments = _pydioUtilLang2['default'].trim(path, '/').split('/').length;
+            if (segments < 2) {
+                invalid = m('selector.error.depth');
+            } else if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
+                invalid = m('selector.error.dnsname');
+            }
+            return invalid;
+        }
+    }, {
+        key: 'onPathChange',
+        value: function onPathChange(newValue, exists) {
+            var model = this.props.model;
+
+            var invalid = this.baseIsInvalid(newValue);
+            model.invalid = invalid;
+            model.StorageConfiguration.folder = newValue;
+            if (!exists) {
+                model.StorageConfiguration.create = 'true';
+            } else if (model.StorageConfiguration['create'] !== undefined) {
+                delete model.StorageConfiguration['create'];
+            }
+            this.setState({ invalid: invalid });
+        }
+    }, {
+        key: 'onPeerChange',
+        value: function onPeerChange(newValue) {
+            var model = this.props.model;
+            var invalidAddress = this.state.invalidAddress;
+
+            if (newValue === invalidAddress) {
+                return;
+            }
+            model.PeerAddress = newValue;
+            if (invalidAddress) {
+                // Now remove from choices
+                this.setState({ invalidAddress: null });
+            }
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this6 = this;
+
+            var _props3 = this.props;
+            var model = _props3.model;
+            var pydio = _props3.pydio;
+            var styles = _props3.styles;
+            var _state2 = this.state;
+            var peerAddresses = _state2.peerAddresses;
+            var invalidAddress = _state2.invalidAddress;
+            var invalid = _state2.invalid;
+            var m = _state2.m;
+
+            var pAds = [].concat(_toConsumableArray(peerAddresses));
+            pAds = ["ANY"].concat(_toConsumableArray(pAds));
+            if (invalidAddress && invalidAddress !== 'ANY') {
+                pAds = [invalidAddress].concat(_toConsumableArray(pAds));
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    'div',
+                    { style: { paddingBottom: 8 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.subLegend },
+                        m('storage.legend.fs.peer')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        {
+                            value: model.PeerAddress || '',
+                            hintText: m('selector.peer') + ' *',
+                            onChange: function (e, i, v) {
+                                return _this6.onPeerChange(v);
+                            },
+                            fullWidth: true
+                        },
+                        pAds.map(function (address) {
+                            var label = m('selector.peer.any');
+                            if (address !== 'ANY') {
+                                label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' (' + m('selector.peer.invalid') + ')' : '');
+                            }
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: label });
+                        })
+                    )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.subLegend, { paddingBottom: 6 }) },
+                        m('storage.legend.fs.path')
+                    ),
+                    model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
+                        pydio: pydio,
+                        value: model.StorageConfiguration.folder,
+                        peerAddress: model.PeerAddress,
+                        onChange: this.onPathChange.bind(this),
+                        fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
+                        hintText: m('selector.completer.hint')
+                    }),
+                    !model.PeerAddress && _react2['default'].createElement(ModernTextField, {
+                        style: { marginTop: -3 },
+                        fullWidth: true,
+                        disabled: true,
+                        value: model.StorageConfiguration.folder,
+                        floatingLabelText: m('selector.folder') + ' *',
+                        hintText: m('selector.folder.hint')
+                    })
+                ),
+                invalid && _react2['default'].createElement(
+                    'div',
+                    { style: { color: '#c62828' } },
+                    invalid
+                )
+            );
+        }
+    }]);
+
+    return DataSourceLocalSelector;
+})(_react2['default'].Component);
+
+exports['default'] = DataSourceLocalSelector;
+module.exports = exports['default'];
+
+},{"cells-sdk":"cells-sdk","lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],10:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
+var _materialUi = require('material-ui');
+
+var DsStorageType = (function (_React$Component) {
+    _inherits(DsStorageType, _React$Component);
+
+    function DsStorageType() {
+        _classCallCheck(this, DsStorageType);
+
+        _get(Object.getPrototypeOf(DsStorageType.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(DsStorageType, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var onSelect = _props.onSelect;
+            var selected = _props.selected;
+            var value = _props.value;
+            var primaryText = _props.primaryText;
+            var image = _props.image;
+
+            var styles = {
+                cont: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    padding: '10px 10px 0 10px',
+                    backgroundColor: 'transparent',
+                    borderBottom: '2px solid transparent',
+                    transition: _pydioUtilDom2['default'].getBeziersTransition()
+                },
+                image: {
+                    width: 30,
+                    height: 30,
+                    opacity: .3,
+                    transition: _pydioUtilDom2['default'].getBeziersTransition()
+                },
+                label: {
+                    margin: 5,
+                    marginTop: 8,
+                    /*textTransform: 'uppercase',*/
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: 'rgba(0,0,0,.3)',
+                    textAlign: 'center',
+                    transition: _pydioUtilDom2['default'].getBeziersTransition()
+                }
+            };
+            if (selected) {
+                styles.cont.borderBottom = '2px solid #0e4d6d';
+                //styles.cont.backgroundColor = '#fff';
+                styles.image.opacity = 1;
+                styles.label.color = '#0e4d6d';
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                { zDepth: 0, style: styles.cont, onClick: function (e) {
+                        onSelect(value);
+                    }, rounded: false },
+                image && _react2['default'].createElement('img', { style: styles.image, src: "/plug/access.settings/res/images/" + image }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.label },
+                    primaryText
+                )
+            );
+        }
+    }]);
+
+    return DsStorageType;
+})(_react2['default'].Component);
+
+var DsStorageSelector = (function (_React$Component2) {
+    _inherits(DsStorageSelector, _React$Component2);
+
+    function DsStorageSelector(props) {
+        _classCallCheck(this, DsStorageSelector);
+
+        _get(Object.getPrototypeOf(DsStorageSelector.prototype), 'constructor', this).call(this, props);
+    }
+
+    _createClass(DsStorageSelector, [{
+        key: 'onChange',
+        value: function onChange(newValue) {
+            var _props2 = this.props;
+            var values = _props2.values;
+            var onChange = _props2.onChange;
+
+            var i = Object.keys(values).indexOf(newValue);
+            onChange(null, i, newValue);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var _props3 = this.props;
+            var values = _props3.values;
+            var value = _props3.value;
+            var disabled = _props3.disabled;
+
+            var style = {
+                display: 'flex',
+                padding: '0 1px',
+                backgroundColor: '#ECEFF1'
+            };
+            return _react2['default'].createElement(
+                'div',
+                { style: style },
+                Object.keys(values).map(function (k) {
+                    return _react2['default'].createElement(DsStorageType, {
+                        value: k,
+                        selected: k === value,
+                        onSelect: disabled ? function () {} : _this.onChange.bind(_this),
+                        primaryText: values[k].primaryText,
+                        image: values[k].image
+                    });
+                })
+            );
+        }
+    }]);
+
+    return DsStorageSelector;
+})(_react2['default'].Component);
+
+exports['default'] = DsStorageSelector;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _cellsSdk = require('cells-sdk');
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _modelMetadata = require('../model/Metadata');
+
+var _modelMetadata2 = _interopRequireDefault(_modelMetadata);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernSelectField = _Pydio$requireLib.ModernSelectField;
+var ModernTextField = _Pydio$requireLib.ModernTextField;
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+
+var MetaNamespace = (function (_React$Component) {
+    _inherits(MetaNamespace, _React$Component);
+
+    function MetaNamespace(props) {
+        _classCallCheck(this, MetaNamespace);
+
+        _get(Object.getPrototypeOf(MetaNamespace.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            namespace: this.cloneNs(props.namespace),
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
+            },
+            selectorNewKey: '',
+            selectorNewValue: ''
+        };
+    }
+
+    _createClass(MetaNamespace, [{
+        key: 'cloneNs',
+        value: function cloneNs(ns) {
+            return _cellsSdk.IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(props) {
+            this.setState({ namespace: this.cloneNs(props.namespace) });
+        }
+    }, {
+        key: 'updateType',
+        value: function updateType(value) {
+            var namespace = this.state.namespace;
+
+            namespace.JsonDefinition = JSON.stringify({ type: value });
+            this.setState({ namespace: namespace });
+        }
+    }, {
+        key: 'updateName',
+        value: function updateName(value) {
+            var namespace = this.state.namespace;
+
+            var slug = _pydioUtilLang2['default'].computeStringSlug(value);
+            if (slug.indexOf('usermeta-') !== 0) {
+                slug = 'usermeta-' + slug;
+            }
+            namespace.Namespace = slug;
+            this.setState({ namespace: namespace });
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this = this;
+
+            var namespace = this.state.namespace;
+
+            _modelMetadata2['default'].putNS(namespace).then(function () {
+                _this.props.onRequestClose();
+                _this.props.reloadList();
+            });
+        }
+    }, {
+        key: 'getSelectionData',
+        value: function getSelectionData() {
+            var namespace = this.state.namespace;
+
+            var data = {};
+            try {
+                var current = JSON.parse(namespace.JsonDefinition).data;
+                if (current) {
+                    current.split(',').map(function (line) {
+                        var _line$split = line.split('|');
+
+                        var _line$split2 = _slicedToArray(_line$split, 2);
+
+                        var key = _line$split2[0];
+                        var value = _line$split2[1];
+
+                        data[key] = value;
+                    });
+                }
+            } catch (e) {}
+            return data;
+        }
+    }, {
+        key: 'setSelectionData',
+        value: function setSelectionData(newData) {
+            var namespace = this.state.namespace;
+
+            var def = JSON.parse(namespace.JsonDefinition);
+
+            def.data = Object.keys(newData).map(function (k) {
+                return k + '|' + newData[k];
+            }).join(',');
+            namespace.JsonDefinition = JSON.stringify(def);
+            this.setState({ namespace: namespace });
+        }
+    }, {
+        key: 'addSelectionValue',
+        value: function addSelectionValue() {
+            var data = this.getSelectionData();
+            var _state = this.state;
+            var selectorNewKey = _state.selectorNewKey;
+            var selectorNewValue = _state.selectorNewValue;
+
+            var key = _pydioUtilLang2['default'].computeStringSlug(selectorNewKey);
+            data[key] = selectorNewValue;
+            this.setSelectionData(data);
+            this.setState({ selectorNewKey: '', selectorNewValue: '' });
+        }
+    }, {
+        key: 'removeSelectionValue',
+        value: function removeSelectionValue(key) {
+            var data = this.getSelectionData();
+            delete data[key];
+            this.setSelectionData(data);
+        }
+    }, {
+        key: 'renderSelectionBoard',
+        value: function renderSelectionBoard() {
+            var _this2 = this;
+
+            var data = this.getSelectionData();
+            var _state2 = this.state;
+            var m = _state2.m;
+            var selectorNewKey = _state2.selectorNewKey;
+            var selectorNewValue = _state2.selectorNewValue;
+
+            return _react2['default'].createElement(
+                'div',
+                { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 3 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 13 } },
+                    m('editor.selection')
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    Object.keys(data).map(function (k) {
+                        return _react2['default'].createElement(
+                            'div',
+                            { key: k, style: { display: 'flex' } },
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                _react2['default'].createElement(_materialUi.TextField, { value: k, disabled: true, fullWidth: true })
+                            ),
+                            _react2['default'].createElement(
+                                'span',
+                                { style: { marginLeft: 10 } },
+                                _react2['default'].createElement(_materialUi.TextField, { value: data[k], disabled: true, fullWidth: true })
+                            ),
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: function () {
+                                        _this2.removeSelectionValue(k);
+                                    } })
+                            )
+                        );
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex' }, key: "new-selection-key" },
+                    _react2['default'].createElement(
+                        'span',
+                        null,
+                        _react2['default'].createElement(_materialUi.TextField, { value: selectorNewKey, onChange: function (e, v) {
+                                _this2.setState({ selectorNewKey: v });
+                            }, hintText: m('editor.selection.key'), fullWidth: true })
+                    ),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { marginLeft: 10 } },
+                        _react2['default'].createElement(_materialUi.TextField, { value: selectorNewValue, onChange: function (e, v) {
+                                _this2.setState({ selectorNewValue: v });
+                            }, hintText: m('editor.selection.value'), fullWidth: true })
+                    ),
+                    _react2['default'].createElement(
+                        'span',
+                        null,
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onClick: function () {
+                                _this2.addSelectionValue();
+                            }, disabled: !selectorNewKey || !selectorNewValue })
+                    )
+                )
+            );
+        }
+    }, {
+        key: 'togglePolicies',
+        value: function togglePolicies(right, value) {
+            var _this3 = this;
+
+            var namespace = this.state.namespace;
+
+            var pol = namespace.Policies || [];
+            var newPols = pol.filter(function (p) {
+                return p.Action !== right;
+            });
+            newPols.push(_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: right, Effect: 'allow', Subject: value ? 'profile:admin' : '*' }));
+            namespace.Policies = newPols;
+            this.setState({ namespace: namespace }, function () {
+                if (right === 'READ' && value) {
+                    _this3.togglePolicies('WRITE', true);
+                }
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _props = this.props;
+            var create = _props.create;
+            var namespaces = _props.namespaces;
+            var pydio = _props.pydio;
+            var readonly = _props.readonly;
+            var _state3 = this.state;
+            var namespace = _state3.namespace;
+            var m = _state3.m;
+
+            var title = undefined;
+            if (namespace.Label) {
+                title = namespace.Label;
+            } else {
+                title = m('editor.title.create');
+            }
+            var type = 'string';
+            if (namespace.JsonDefinition) {
+                type = JSON.parse(namespace.JsonDefinition).type;
+            }
+
+            var invalid = false,
+                nameError = undefined,
+                labelError = undefined;
+            if (!namespace.Namespace) {
+                invalid = true;
+                nameError = m('editor.ns.error');
+            }
+            if (!namespace.Label) {
+                invalid = true;
+                labelError = m('editor.label.error');
+            }
+            if (create) {
+                if (namespaces.filter(function (n) {
+                    return n.Namespace === namespace.Namespace;
+                }).length) {
+                    invalid = true;
+                    nameError = m('editor.ns.exists');
+                }
+            }
+            if (type === 'choice' && Object.keys(this.getSelectionData()).length === 0) {
+                invalid = true;
+            }
+
+            var adminRead = undefined,
+                adminWrite = undefined;
+            if (namespace.Policies) {
+                namespace.Policies.map(function (p) {
+                    if (p.Subject === 'profile:admin' && p.Action === 'READ') {
+                        adminRead = true;
+                    }
+                    if (p.Subject === 'profile:admin' && p.Action === 'WRITE') {
+                        adminWrite = true;
+                    }
+                });
+            }
+
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onClick: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onClick: function () {
+                    _this4.save();
+                } })];
+            if (type === 'tags' && !readonly) {
+                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onClick: function () {
+                        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
+                            pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
+                        })['catch'](function (e) {
+                            pydio.UI.displayMessage('ERROR', e.message);
+                        });
+                    } }));
+            }
+            var styles = {
+                section: { marginTop: 10, fontWeight: 500, fontSize: 12 }
+            };
+
+            return _react2['default'].createElement(
+                _materialUi.Dialog,
+                {
+                    title: title,
+                    actions: actions,
+                    modal: false,
+                    contentStyle: { width: 360 },
+                    open: this.props.open,
+                    onRequestClose: this.props.onRequestClose,
+                    autoScrollBodyContent: true,
+                    bodyStyle: { padding: 20 }
+                },
+                _react2['default'].createElement(ModernTextField, {
+                    floatingLabelText: m('namespace'),
+                    disabled: !create,
+                    value: namespace.Namespace,
+                    onChange: function (e, v) {
+                        _this4.updateName(v);
+                    },
+                    fullWidth: true,
+                    errorText: nameError
+                }),
+                _react2['default'].createElement(ModernTextField, {
+                    floatingLabelText: m('label'),
+                    value: namespace.Label,
+                    onChange: function (e, v) {
+                        namespace.Label = v;_this4.setState({ namespace: namespace });
+                    },
+                    fullWidth: true,
+                    errorText: labelError,
+                    disabled: readonly
+                }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    m('type')
+                ),
+                _react2['default'].createElement(
+                    ModernSelectField,
+                    {
+                        hintText: m('type'),
+                        value: type,
+                        onChange: function (e, i, v) {
+                            return _this4.updateType(v);
+                        },
+                        disabled: readonly,
+                        fullWidth: true },
+                    Object.keys(_modelMetadata2['default'].MetaTypes).map(function (k) {
+                        return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: _modelMetadata2['default'].MetaTypes[k] });
+                    })
+                ),
+                type === 'choice' && this.renderSelectionBoard(),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    _pydio2['default'].getInstance().MessageHash[310]
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), disabled: readonly, labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                            namespace.Indexable = v;_this4.setState({ namespace: namespace });
+                        } }, ModernStyles.toggleField))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), disabled: readonly, labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                            _this4.togglePolicies('READ', v);
+                        } }, ModernStyles.toggleField))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '6px 0' } },
+                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead || readonly, toggled: adminWrite, onToggle: function (e, v) {
+                            _this4.togglePolicies('WRITE', v);
+                        } }, ModernStyles.toggleField))
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    m('order')
+                ),
+                _react2['default'].createElement(ModernTextField, {
+                    floatingLabelText: m('order'),
+                    value: namespace.Order ? namespace.Order : '0',
+                    onChange: function (e, v) {
+                        namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
+                    },
+                    fullWidth: true,
+                    type: "number",
+                    readOnly: readonly
+                })
+            );
+        }
+    }]);
+
+    return MetaNamespace;
+})(_react2['default'].Component);
+
+MetaNamespace.PropTypes = {
+    namespace: _propTypes2['default'].instanceOf(_cellsSdk.IdmUserMetaNamespace).isRequired,
+    create: _propTypes2['default'].boolean,
+    reloadList: _propTypes2['default'].func,
+    onRequestClose: _propTypes2['default'].func
+};
+
+exports['default'] = MetaNamespace;
+module.exports = exports['default'];
+
+},{"../model/Metadata":20,"cells-sdk":"cells-sdk","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","react":"react"}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _materialUi = require('material-ui');
+
+var _cellsSdk = require('cells-sdk');
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _VersionPolicyPeriods = require('./VersionPolicyPeriods');
+
+var _VersionPolicyPeriods2 = _interopRequireDefault(_VersionPolicyPeriods);
+
+var PydioForm = _pydio2['default'].requireLib('form');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+
+var VersionPolicyEditor = (function (_React$Component) {
+    _inherits(VersionPolicyEditor, _React$Component);
+
+    function VersionPolicyEditor(props) {
+        _classCallCheck(this, VersionPolicyEditor);
+
+        _get(Object.getPrototypeOf(VersionPolicyEditor.prototype), 'constructor', this).call(this, props);
+        this.state = {
+            dirty: false,
+            policy: props.versionPolicy,
+            loaded: true,
+            valid: true,
+            parameters: null,
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.versions.editor.' + id] || id;
+            }
+        };
+    }
+
+    _createClass(VersionPolicyEditor, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            if (this.state.policy !== newProps.versionPolicy) {
+                this.setState({ policy: newProps.versionPolicy });
+            }
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            _pydioHttpApi2['default'].getRestClient().callApi('/config/discovery/forms/{ServiceName}', 'GET', { ServiceName: 'pydio.grpc.versions' }, {}, {}, {}, null, [], ['application/json'], ['application/json'], "String").then(function (responseAndData) {
+                var xmlString = responseAndData.data;
+                var domNode = _pydioUtilXml2['default'].parseXml(xmlString);
+                _this.setState({
+                    parameters: PydioForm.Manager.parseParameters(domNode, "//param"),
+                    loaded: true
+                });
+            });
+        }
+    }, {
+        key: 'resetForm',
+        value: function resetForm() {
+            this.setState({ valid: true, dirty: false, saveValue: null });
+        }
+    }, {
+        key: 'deleteSource',
+        value: function deleteSource() {
+            var _this2 = this;
+
+            var _state = this.state;
+            var m = _state.m;
+            var policy = _state.policy;
+            var pydio = this.props.pydio;
+
+            pydio.UI.openConfirmDialog({
+                message: m('delete.confirm'),
+                destructive: [policy.Label],
+                validCallback: function validCallback() {
+                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
+                            _this2.props.closeEditor();
+                        });
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'saveSource',
+        value: function saveSource() {
+            var _this3 = this;
+
+            if (this.state.saveValue) {
+                (function () {
+                    var saveValue = _this3.state.saveValue;
+
+                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.putVersioningPolicy(saveValue.Uuid, saveValue).then(function () {
+                            _this3.props.reloadList();
+                            _this3.setState({
+                                dirty: false,
+                                policy: saveValue,
+                                saveValue: null
+                            });
+                        });
+                    });
+                })();
+            }
+        }
+    }, {
+        key: 'onFormChange',
+        value: function onFormChange(values) {
+            var m = this.state.m;
+
+            var newPolicy = VersionPolicyEditor.valuesToTreeVersioningPolicy(values);
+            // Check periods
+            var periods = newPolicy.KeepPeriods || [];
+            var deleteAll = periods.findIndex(function (p) {
+                return p.MaxNumber === 0;
+            });
+            if (deleteAll > -1 && deleteAll < periods.length - 1) {
+                pydio.UI.displayMessage('ERROR', m('error.lastdelete'));
+                var i = periods.length - 1 - deleteAll;
+                while (i > 0) {
+                    periods.pop();i--;
+                }
+            }
+            newPolicy.KeepPeriods = periods;
+            this.setState({
+                saveValue: newPolicy,
+                dirty: true
+            });
+        }
+    }, {
+        key: 'updateValidStatus',
+        value: function updateValidStatus(valid) {
+            //this.setState({valid: valid});
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _props = this.props;
+            var create = _props.create;
+            var readonly = _props.readonly;
+            var pydio = _props.pydio;
+            var _state2 = this.state;
+            var loaded = _state2.loaded;
+            var parameters = _state2.parameters;
+            var policy = _state2.policy;
+            var saveValue = _state2.saveValue;
+            var m = _state2.m;
+
+            var form = undefined;
+            if (parameters && loaded) {
+                var values = VersionPolicyEditor.TreeVersioningPolicyToValues(policy);
+                if (saveValue) {
+                    values = VersionPolicyEditor.TreeVersioningPolicyToValues(saveValue);
+                }
+                form = _react2['default'].createElement(PydioForm.FormPanel, {
+                    parameters: parameters,
+                    values: values,
+                    className: 'full-width',
+                    onChange: this.onFormChange.bind(this),
+                    onValidStatusChange: this.updateValidStatus.bind(this),
+                    disabled: readonly,
+                    depth: -2
+                });
+            }
+
+            var titleActionBarButtons = [];
+            if (!readonly) {
+                if (!create) {
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', function () {
+                        _this4.deleteSource();
+                    }));
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this4.resetForm();
+                    }, !this.state.dirty));
+                }
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this4.saveSource();
+                }, !this.state.valid || !this.state.dirty));
+            }
+
+            var policyName = saveValue ? saveValue.Name : policy.Name;
+            if (!policyName) {
+                policyName = '';
+            }
+
+            return _react2['default'].createElement(
+                PaperEditorLayout,
+                {
+                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.loading'],
+                    titleActionBar: titleActionBarButtons,
+                    closeAction: this.props.closeEditor,
+                    className: 'workspace-editor',
+                    contentFill: true
+                },
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 1, style: { padding: '0 16px', backgroundColor: '#ECEFF1' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { overflowX: 'auto' } },
+                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { pydio: pydio, periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
+                    )
+                ),
+                form
+            );
+        }
+    }], [{
+        key: 'valuesToTreeVersioningPolicy',
+        value: function valuesToTreeVersioningPolicy(values) {
+            var periods = [];
+            var baseName = "IntervalStart";
+            var baseNameMax = "MaxNumber";
+            var nextName = baseName;
+            var nextMax = baseNameMax;
+            var index = 0;
+            while (values[nextName] !== undefined && values[nextMax] !== undefined) {
+                var period = new _cellsSdk.TreeVersioningKeepPeriod();
+                period.IntervalStart = values[nextName];
+                period.MaxNumber = values[nextMax];
+                periods.push(period);
+                delete values[nextMax];
+                delete values[nextName];
+                index++;
+                nextName = baseName + "_" + index;
+                nextMax = baseNameMax + "_" + index;
+            }
+            values.KeepPeriods = periods;
+            return _cellsSdk.TreeVersioningPolicy.constructFromObject(values);
+        }
+    }, {
+        key: 'TreeVersioningPolicyToValues',
+        value: function TreeVersioningPolicyToValues(policy) {
+            var values = _extends({}, policy);
+            if (values.KeepPeriods) {
+                (function () {
+                    var i = 0;
+                    values.KeepPeriods.map(function (p) {
+                        if (i > 0) {
+                            values['IntervalStart_' + i] = p.IntervalStart || 0;
+                            values['MaxNumber_' + i] = p.MaxNumber || 0;
+                        } else {
+                            values['IntervalStart'] = p.IntervalStart || 0;
+                            values['MaxNumber'] = p.MaxNumber || 0;
+                        }
+                        i++;
+                    });
+                })();
+            }
+            return values;
+        }
+    }]);
+
+    return VersionPolicyEditor;
+})(_react2['default'].Component);
+
+VersionPolicyEditor.contextTypes = {
+    messages: _propTypes2['default'].object,
+    getMessage: _propTypes2['default'].func
+};
+
+exports['default'] = VersionPolicyEditor;
+module.exports = exports['default'];
+
+},{"./VersionPolicyPeriods":13,"cells-sdk":"cells-sdk","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/xml":"pydio/util/xml","react":"react"}],13:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var VersionPolicyPeriods = (function (_React$Component) {
+    _inherits(VersionPolicyPeriods, _React$Component);
+
+    function VersionPolicyPeriods() {
+        _classCallCheck(this, VersionPolicyPeriods);
+
+        _get(Object.getPrototypeOf(VersionPolicyPeriods.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(VersionPolicyPeriods, [{
+        key: 'render',
+        value: function render() {
+            var _ref = this.props || [];
+
+            var periods = _ref.periods;
+            var rendering = _ref.rendering;
+            var pydio = _ref.pydio;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.versions.period.' + id] || id;
+            };
+
+            if (rendering === 'short') {
+
+                var text = undefined;
+                if (periods.length === 1) {
+                    var p = periods[0];
+                    if (p.MaxNumber === -1) {
+                        text = m('keep-all.always');
+                    } else {
+                        text = m('keep-n').replace('%s', p.MaxNumber);
+                    }
+                } else {
+                    text = m('retentions-n').replace('%s', periods.length);
+                    var last = periods[periods.length - 1];
+                    if (last.MaxNumber === 0 || last.MaxNumber === undefined) {
+                        text += ' ' + m('remove-all-after').replace('%s', last.IntervalStart);
+                    } else {
+                        text += '' + m('keep-n-after').replace('%1', last.MaxNumber).replace('%2', last.IntervalStart);
+                    }
+                }
+
+                return _react2['default'].createElement(
+                    'span',
+                    null,
+                    text
+                );
+            }
+
+            var steps = periods.map(function (p) {
+                var label = p.MaxNumber;
+                var timeLabel = undefined;
+                var icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-ray-start-arrow' });
+                var style = {};
+                if (p.IntervalStart === undefined || p.IntervalStart === "0") {
+                    icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-clock-start' });
+                } else {
+                    timeLabel = _react2['default'].createElement(
+                        'span',
+                        { style: { fontWeight: 500, fontSize: 16 } },
+                        p.IntervalStart,
+                        ' '
+                    );
+                }
+                if (p.MaxNumber === -1) {
+                    label = m('keep-all');
+                } else if (!p.MaxNumber) {
+                    label = m('remove-all');
+                    icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-delete', style: { color: '#c62828' } });
+                    style = { color: '#c62828' };
+                } else {
+                    label = m('max-n').replace('%s', label);
+                }
+                return _react2['default'].createElement(
+                    _materialUi.Step,
+                    null,
+                    _react2['default'].createElement(
+                        _materialUi.StepLabel,
+                        { icon: icon, style: style },
+                        timeLabel,
+                        label
+                    )
+                );
+            });
+
+            return _react2['default'].createElement(
+                _materialUi.Stepper,
+                { activeStep: periods.length - 1, linear: false },
+                steps
+            );
+        }
+    }]);
+
+    return VersionPolicyPeriods;
+})(_react2['default'].Component);
+
+exports['default'] = VersionPolicyPeriods;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","react":"react"}],14:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
+
+var _lodashDebounce = require('lodash.debounce');
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _cellsSdk = require('cells-sdk');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var ModernStyles = _Pydio$requireLib.ModernStyles;
+
+var WsAutoComplete = (function (_React$Component) {
+    _inherits(WsAutoComplete, _React$Component);
+
+    function WsAutoComplete(props) {
+        var _this = this;
+
+        _classCallCheck(this, WsAutoComplete);
+
+        _get(Object.getPrototypeOf(WsAutoComplete.prototype), 'constructor', this).call(this, props);
+
+        var _props$value = props.value;
+        var value = _props$value === undefined ? '' : _props$value;
+
+        this.debounced = (0, _lodashDebounce2['default'])(function () {
+            var value = _this.state.value;
+
+            _this.loadValues(value);
+        }, 300);
+
+        this.state = {
+            nodes: [],
+            value: value
+        };
+    }
+
+    _createClass(WsAutoComplete, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this2 = this;
+
+            var validateOnLoad = this.props.validateOnLoad;
+            var value = this.state.value;
+
+            this.loadValues(value, function () {
+                var _state = _this2.state;
+                var nodes = _state.nodes;
+                var value = _state.value;
+
+                // Checking if we have a collection and load deeper values if it's the case
+                var node = nodes.filter(function (node) {
+                    return node.Path === value && (!node.Type || node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution);
+                }).map(function (node) {
+
+                    _this2.loadValues(value + "/");
+                });
+
+                if (validateOnLoad) {
+                    _this2.handleNewRequest(value);
+                }
+            });
+        }
+    }, {
+        key: 'handleUpdateInput',
+        value: function handleUpdateInput(input) {
+            this.debounced();
+            this.setState({ value: input });
+        }
+    }, {
+        key: 'handleNewRequest',
+        value: function handleNewRequest(value) {
+            var nodes = this.state.nodes;
+            var _props = this.props;
+            var _props$onChange = _props.onChange;
+            var onChange = _props$onChange === undefined ? function () {} : _props$onChange;
+            var _props$onDelete = _props.onDelete;
+            var onDelete = _props$onDelete === undefined ? function () {} : _props$onDelete;
+            var _props$onError = _props.onError;
+            var onError = _props$onError === undefined ? function () {} : _props$onError;
+
+            var key = undefined;
+            var node = undefined;
+
+            if (typeof value === 'string') {
+                if (value === '') {
+                    onDelete();
+                    return;
+                }
+
+                key = value;
+
+                // First we try to find an exact match
+                node = nodes.filter(function (node) {
+                    return node.Path === value;
+                })[0];
+
+                // Then we try to retrieve the first node that starts with what we are looking at
+                if (!node) {
+                    node = nodes.filter(function (node) {
+                        return node.Path.indexOf(value) === 0;
+                    })[0];
+                }
+            } else if (typeof value === 'object') {
+                key = value.key;
+                node = value.node;
+            }
+
+            if (!node) {
+                return onError();
+            }
+
+            this.setState({ value: key });
+
+            onChange(key, node);
+        }
+    }, {
+        key: 'loadValues',
+        value: function loadValues(value) {
+            var _this3 = this;
+
+            var cb = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
+
+            var last = value.lastIndexOf('/');
+            var basePath = value.substr(0, last);
+
+            if (this.lastSearch !== null && this.lastSearch === basePath) {
+                return;
+            }
+
+            this.lastSearch = basePath;
+
+            this.setState({ loading: true });
+
+            var api = new _cellsSdk.AdminTreeServiceApi(PydioApi.getRestClient());
+            var listRequest = new _cellsSdk.TreeListNodesRequest();
+            var treeNode = new _cellsSdk.TreeNode();
+
+            treeNode.Path = basePath + "/";
+            listRequest.Node = treeNode;
+
+            api.listAdminTree(listRequest).then(function (nodesColl) {
+                _this3.setState({ nodes: nodesColl.Children || [], loading: false }, function () {
+                    return cb();
+                });
+            })['catch'](function () {
+                _this3.setState({ loading: false }, function () {
+                    return cb();
+                });
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _state2 = this.state;
+            var value = _state2.value;
+            var nodes = _state2.nodes;
+            var loading = _state2.loading;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var onDelete = _props2.onDelete;
+            var skipTemplates = _props2.skipTemplates;
+            var label = _props2.label;
+            var _props2$zDepth = _props2.zDepth;
+            var zDepth = _props2$zDepth === undefined ? 0 : _props2$zDepth;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.' + id] || id;
+            };
+
+            var dataSource = [];
+            if (nodes) {
+                (function () {
+                    var categs = {};
+                    nodes.forEach(function (node) {
+                        if (node.MetaStore && node.MetaStore["resolution"] && node.Uuid === "cells") {
+                            // Skip "Cells" Template Path
+                            return;
+                        } else if (_pydioUtilPath2['default'].getBasename(node.Path).startsWith(".")) {
+                            // Skip hidden files
+                            return;
+                        }
+                        var data = WsAutoComplete.renderNode(node, m);
+                        if (!categs[data.categ]) {
+                            categs[data.categ] = [];
+                        }
+
+                        categs[data.categ].push(data);
+                    });
+
+                    if (Object.keys(categs).length > 1) {
+                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.datasources'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                        var dValues = categs[Object.keys(categs)[0]];
+                        dValues.sort(LangUtils.arraySorter("text"));
+                        dataSource.push.apply(dataSource, _toConsumableArray(dValues));
+                        if (!skipTemplates) {
+                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.templates'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                            var tValues = categs[Object.keys(categs)[1]];
+                            tValues.sort(LangUtils.arraySorter("text"));
+                            dataSource.push.apply(dataSource, _toConsumableArray(tValues));
+                        }
+                    } else if (Object.keys(categs).length === 1) {
+                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
+                    }
+                })();
+            }
+
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'center', margin: '2px 0' }, this.props.style) },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { position: 'relative', flex: 1 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
+                        _react2['default'].createElement(_materialUi.RefreshIndicator, {
+                            size: 30,
+                            left: 0,
+                            top: 0,
+                            status: loading ? "loading" : "hide"
+                        })
+                    ),
+                    _react2['default'].createElement(_materialUi.AutoComplete, _extends({
+                        fullWidth: true,
+                        searchText: value,
+                        onUpdateInput: function (value) {
+                            return _this4.handleUpdateInput(value);
+                        },
+                        onNewRequest: function (value) {
+                            return _this4.handleNewRequest(value);
+                        },
+                        onClose: function () {
+                            return _this4.handleNewRequest(value);
+                        },
+                        dataSource: dataSource,
+                        hintText: label || m('ws.complete.label'),
+                        filter: function (searchText, key) {
+                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
+                        },
+                        openOnFocus: true,
+                        menuProps: { maxHeight: 200 }
+                    }, ModernStyles.textField))
+                ),
+                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onClick: onDelete, disabled: !onDelete })
+            );
+        }
+    }], [{
+        key: 'renderNode',
+        value: function renderNode(node, m) {
+            var label = _react2['default'].createElement(
+                'span',
+                null,
+                node.Path
+            );
+            var icon = "mdi mdi-folder";
+            var categ = "folder";
+            if (node.MetaStore && node.MetaStore["resolution"]) {
+                icon = "mdi mdi-file-tree";
+                categ = "templatePath";
+                var resolutionPart = node.MetaStore["resolution"].split("\n").pop();
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    node.Path,
+                    ' ',
+                    _react2['default'].createElement(
+                        'i',
+                        { style: { color: '#9e9e9e' } },
+                        '- ',
+                        m('ws.complete.resolves'),
+                        ' ',
+                        resolutionPart
+                    )
+                );
+            } else if (node.Type === 'LEAF') {
+                icon = "mdi mdi-file";
+            }
+            return {
+                key: node.Path,
+                text: node.Path,
+                node: node,
+                categ: categ,
+                value: _react2['default'].createElement(
+                    _materialUi.MenuItem,
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#607d8b', style: { float: 'left', marginRight: 8 } }),
+                    ' ',
+                    label
+                )
+            };
+        }
+    }]);
+
+    return WsAutoComplete;
+})(_react2['default'].Component);
+
+exports['default'] = WsAutoComplete;
+module.exports = exports['default'];
+
+},{"cells-sdk":"cells-sdk","lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],15:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _WsAutoComplete = require('./WsAutoComplete');
+
+var _WsAutoComplete2 = _interopRequireDefault(_WsAutoComplete);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var ModernTextField = _Pydio$requireLib2.ModernTextField;
+var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
+var ModernStyles = _Pydio$requireLib2.ModernStyles;
+var _AdminComponents = AdminComponents;
+var QuotaField = _AdminComponents.QuotaField;
+
+var WsEditor = (function (_React$Component) {
+    _inherits(WsEditor, _React$Component);
+
+    function WsEditor(props) {
+        var _this = this;
+
+        _classCallCheck(this, WsEditor);
+
+        _get(Object.getPrototypeOf(WsEditor.prototype), 'constructor', this).call(this, props);
+        var workspace = new _modelWs2['default'](props.workspace);
+        workspace.observe('update', function () {
+            _this.forceUpdate();
+        });
+        this.state = {
+            workspace: workspace.getModel(),
+            container: workspace,
+            newFolderKey: Math.random(),
+            showDialog: false
+        };
+    }
+
+    _createClass(WsEditor, [{
+        key: 'enableSync',
+        value: function enableSync(value) {
+            if (value) {
+                this.setState({ showDialog: 'enableSync', dialogTargetValue: value });
+            } else {
+                this.setState({ showDialog: 'disableSync', dialogTargetValue: value });
+            }
+        }
+    }, {
+        key: 'confirmSync',
+        value: function confirmSync(value) {
+            var workspace = this.state.workspace;
+
+            workspace.Attributes['ALLOW_SYNC'] = value;
+            this.setState({ showDialog: false, dialogTargetValue: null });
+        }
+    }, {
+        key: 'revert',
+        value: function revert() {
+            var _this2 = this;
+
+            var container = this.state.container;
+
+            container.revert();
+            this.setState({ workspace: container.getModel() }, function () {
+                _this2.forceUpdate();
+            });
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this3 = this;
+
+            var container = this.state.container;
+            var _props = this.props;
+            var reloadList = _props.reloadList;
+            var closeEditor = _props.closeEditor;
+
+            this.setState({ saving: true });
+            var create = container.create;
+
+            container.save().then(function () {
+                reloadList();
+                _this3.setState({
+                    workspace: container.getModel(),
+                    saving: false }, function () {
+                    _this3.forceUpdate();
+                });
+                if (create) {
+                    closeEditor();
+                }
+            })['catch'](function () {
+                _this3.setState({ saving: false });
+            });
+        }
+    }, {
+        key: 'remove',
+        value: function remove() {
+            var container = this.state.container;
+            var _props2 = this.props;
+            var closeEditor = _props2.closeEditor;
+            var reloadList = _props2.reloadList;
+            var pydio = _props2.pydio;
+
+            pydio.UI.openConfirmDialog({
+                message: pydio.MessageHash['settings.35'],
+                destructive: [container.getModel().Label],
+                validCallback: function validCallback() {
+                    container.remove().then(function () {
+                        reloadList();
+                        closeEditor();
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _props3 = this.props;
+            var closeEditor = _props3.closeEditor;
+            var pydio = _props3.pydio;
+            var advanced = _props3.advanced;
+            var _state = this.state;
+            var workspace = _state.workspace;
+            var container = _state.container;
+            var newFolderKey = _state.newFolderKey;
+            var saving = _state.saving;
+            var showDialog = _state.showDialog;
+            var dialogTargetValue = _state.dialogTargetValue;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.' + id] || id;
+            };
+            var mS = function mS(id) {
+                return pydio.MessageHash['settings.' + id] || id;
+            };
+            var readonly = !workspace.PoliciesContextEditable;
+
+            var buttons = [];
+            if (!container.create && !readonly) {
+                buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", function () {
+                    _this4.revert();
+                }, !container.isDirty()));
+            }
+            if (!readonly) {
+                buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
+                    _this4.save();
+                }, saving || !(container.isDirty() && container.isValid())));
+            }
+
+            var delButton = undefined;
+            if (!container.create && !readonly) {
+                delButton = _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16, textAlign: 'center' } },
+                    m('ws.editor.help.delete'),
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onClick: function () {
+                            _this4.remove();
+                        } })
+                );
+            }
+            var leftNav = _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16, color: '#9e9e9e' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 120, textAlign: 'center', paddingBottom: 10 } },
+                        _react2['default'].createElement('i', { className: "mdi mdi-folder-open" })
+                    ),
+                    m('ws.editor.help.1'),
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement('br', null),
+                    m('ws.editor.help.2')
+                ),
+                delButton && _react2['default'].createElement(_materialUi.Divider, null),
+                delButton
+            );
+
+            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+            var styles = {
+                title: {
+                    fontSize: 20,
+                    paddingTop: 20,
+                    marginBottom: 0
+                },
+                legend: { color: '#9E9E9E', paddingTop: 10 },
+                section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
+                toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
+            };
+
+            var roots = workspace.RootNodes;
+            var completers = Object.keys(roots).map(function (k) {
+                var label = m('ws.editor.path.folder');
+                if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
+                    label = m('ws.editor.path.template');
+                }
+                return _react2['default'].createElement(_WsAutoComplete2['default'], {
+                    key: roots[k].Uuid,
+                    pydio: pydio,
+                    label: label,
+                    value: roots[k].Path,
+                    onDelete: function () {
+                        delete roots[k];_this4.forceUpdate();
+                    },
+                    onChange: function (key, node) {
+                        delete roots[k];
+                        if (key !== '') {
+                            roots[node.Uuid] = node;
+                        }
+                    },
+                    skipTemplates: container.hasFolderRoots()
+                });
+            });
+            if (!container.hasTemplatePath()) {
+                completers.push(_react2['default'].createElement(_WsAutoComplete2['default'], {
+                    key: newFolderKey,
+                    pydio: pydio,
+                    value: "",
+                    onChange: function (k, node) {
+                        if (node) {
+                            roots[node.Uuid] = node;_this4.setState({ newFolderKey: Math.random() });
+                        }
+                    },
+                    skipTemplates: container.hasFolderRoots()
+                }));
+            }
+
+            return _react2['default'].createElement(
+                PaperEditorLayout,
+                {
+                    title: workspace.Label || mS('90'),
+                    titleActionBar: buttons,
+                    closeAction: closeEditor,
+                    leftNav: leftNav,
+                    className: 'workspace-editor',
+                    contentFill: false
+                },
+                _react2['default'].createElement(
+                    _materialUi.Dialog,
+                    {
+                        open: showDialog,
+                        title: m('ws.editor.sync.warning'),
+                        onRequestClose: function () {
+                            _this4.confirmSync(!dialogTargetValue);
+                        },
+                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
+                                _this4.confirmSync(!dialogTargetValue);
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('ws.editor.sync.warning.validate'), onClick: function () {
+                                _this4.confirmSync(dialogTargetValue);
+                            } })]
+                    },
+                    showDialog === 'enableSync' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        m('ws.editor.sync.warning.enable')
+                    ),
+                    showDialog === 'disableSync' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        m('ws.editor.sync.warning.disable')
+                    )
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        m('ws.30')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        m('ws.editor.options.legend')
+                    ),
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
+                        errorText: workspace.Label ? "" : m('ws.editor.label.legend'),
+                        floatingLabelText: mS('8'),
+                        value: workspace.Label,
+                        onChange: function (e, v) {
+                            workspace.Label = v;
+                        }
+                    }),
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
+                        floatingLabelText: m("ws.editor.description"),
+                        value: workspace.Description,
+                        onChange: function (e, v) {
+                            workspace.Description = v;
+                        }
+                    }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.slug.legend')
+                    ),
+                    _react2['default'].createElement(ModernTextField, {
+                        fullWidth: true,
+                        errorText: workspace.Label && !workspace.Slug ? m('ws.editor.slug.legend') : "",
+                        floatingLabelText: m('ws.5'),
+                        value: workspace.Slug,
+                        onChange: function (e, v) {
+                            workspace.Slug = v;
+                        }
+                    })
+                ),
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        m('ws.editor.data.title')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        m('ws.editor.data.legend')
+                    ),
+                    completers,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        m('ws.editor.default_rights')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        {
+                            fullWidth: true,
+                            value: workspace.Attributes['DEFAULT_RIGHTS'] || '',
+                            onChange: function (e, i, v) {
+                                workspace.Attributes['DEFAULT_RIGHTS'] = v;
+                            }
+                        },
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.none'), value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.read'), value: "r" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.readwrite'), value: "rw" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
+                    )
+                ),
+                advanced && _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 0, style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        m('ws.editor.other')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.other.sync.legend')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.toggleDiv },
+                        _react2['default'].createElement(_materialUi.Toggle, _extends({
+                            label: m('ws.editor.other.sync'),
+                            labelPosition: "right",
+                            toggled: workspace.Attributes['ALLOW_SYNC'],
+                            onToggle: function (e, v) {
+                                if (!container.hasTemplatePath() && v) {
+                                    _this4.enableSync(v);
+                                } else if (!v) {
+                                    _this4.enableSync(v);
+                                } else {
+                                    workspace.Attributes['ALLOW_SYNC'] = v;
+                                }
+                            }
+                        }, ModernStyles.toggleField))
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.other.quota')
+                    ),
+                    _react2['default'].createElement(QuotaField, { value: workspace.Attributes['QUOTA'] || 0, onChange: function (e, v) {
+                            if (v > 0) {
+                                workspace.Attributes['QUOTA'] = v + '';
+                            } else {
+                                workspace.Attributes['QUOTA'] = '0';
+                                delete workspace.Attributes['QUOTA'];
+                            }
+                        } }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
+                        m('ws.editor.other.layout')
+                    ),
+                    _react2['default'].createElement(
+                        ModernSelectField,
+                        { fullWidth: true, value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                                workspace.Attributes['META_LAYOUT'] = v;
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.default'), value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.easy'), value: "meta.layout_sendfile" })
+                    )
+                )
+            );
+        }
+    }]);
+
+    return WsEditor;
+})(_react2['default'].Component);
+
+exports['default'] = WsEditor = (0, _materialUiStyles.muiThemeable)()(WsEditor);
+exports['default'] = WsEditor;
+module.exports = exports['default'];
+
+},{"../model/Ws":22,"./WsAutoComplete":14,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],16:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _metaMetaSourceForm = require('./meta/MetaSourceForm');
+
+var _metaMetaSourceForm2 = _interopRequireDefault(_metaMetaSourceForm);
+
+var _boardWsDashboard = require('./board/WsDashboard');
+
+var _boardWsDashboard2 = _interopRequireDefault(_boardWsDashboard);
+
+var _metaMetaList = require('./meta/MetaList');
+
+var _metaMetaList2 = _interopRequireDefault(_metaMetaList);
+
+var _boardVirtualNodes = require('./board/VirtualNodes');
+
+var _boardVirtualNodes2 = _interopRequireDefault(_boardVirtualNodes);
+
+var _boardDataSourcesBoard = require('./board/DataSourcesBoard');
+
+var _boardDataSourcesBoard2 = _interopRequireDefault(_boardDataSourcesBoard);
+
+var _boardMetadataBoard = require('./board/MetadataBoard');
+
+var _boardMetadataBoard2 = _interopRequireDefault(_boardMetadataBoard);
+
+var _editorDataSourceEditor = require('./editor/DataSourceEditor');
+
+var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
+
+var _modelWs = require('./model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _modelDataSource = require('./model/DataSource');
+
+var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
+
+var _editorWsAutoComplete = require('./editor/WsAutoComplete');
+
+var _editorWsAutoComplete2 = _interopRequireDefault(_editorWsAutoComplete);
+
+var _virtualNodeCard = require('./virtual/NodeCard');
+
+var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
+
+var _modelVirtualNode = require('./model/VirtualNode');
+
+var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
+
+window.AdminWorkspaces = {
+  MetaSourceForm: _metaMetaSourceForm2['default'],
+  MetaList: _metaMetaList2['default'],
+  VirtualNodes: _boardVirtualNodes2['default'],
+  WsDashboard: _boardWsDashboard2['default'],
+  DataSourcesBoard: _boardDataSourcesBoard2['default'],
+  MetadataBoard: _boardMetadataBoard2['default'],
+  DataSourceEditor: _editorDataSourceEditor2['default'],
+  WsAutoComplete: _editorWsAutoComplete2['default'],
+  TemplatePathEditor: _virtualNodeCard2['default'],
+  TemplatePath: _modelVirtualNode2['default'],
+  Workspace: _modelWs2['default'],
+  DataSource: _modelDataSource2['default']
+};
+
+},{"./board/DataSourcesBoard":1,"./board/MetadataBoard":3,"./board/VirtualNodes":4,"./board/WsDashboard":6,"./editor/DataSourceEditor":8,"./editor/WsAutoComplete":14,"./meta/MetaList":17,"./meta/MetaSourceForm":18,"./model/DataSource":19,"./model/VirtualNode":21,"./model/Ws":22,"./virtual/NodeCard":23}],17:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _materialUi = require('material-ui');
+
+exports['default'] = (0, _createReactClass2['default'])({
+    displayName: 'MetaList',
+    mixins: [AdminComponents.MessagesConsumerMixin],
+
+    propTypes: {
+        currentMetas: _propTypes2['default'].object,
+        edit: _propTypes2['default'].string,
+        metaSourceProvider: _propTypes2['default'].object,
+        closeCurrent: _propTypes2['default'].func,
+        setEditState: _propTypes2['default'].func,
+        featuresEditable: _propTypes2['default'].bool
+    },
+
+    render: function render() {
+        var features = [];
+        var metas = Object.keys(this.props.currentMetas);
+        metas.sort(function (k1, k2) {
+            var type1 = k1.split('.').shift();
+            var type2 = k2.split('.').shift();
+            if (type1 == 'metastore' || type2 == 'index') return -1;
+            if (type1 == 'index' || type2 == 'metastore') return 1;
+            return k1 > k2 ? 1 : -1;
+        });
+        if (metas) {
+            features = metas.map((function (k) {
+                var removeButton, description;
+                if (this.props.edit == k && this.props.featuresEditable) {
+                    var remove = (function (event) {
+                        event.stopPropagation();
+                        this.props.metaSourceProvider.removeMetaSource(k);
+                    }).bind(this);
+                    removeButton = _react2['default'].createElement(
+                        'div',
+                        { style: { textAlign: 'right' } },
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: this.context.getMessage('ws.31'), primary: true, onClick: remove })
+                    );
+                }
+                description = _react2['default'].createElement(
+                    'div',
+                    { className: 'legend' },
+                    this.props.metaSourceProvider.getMetaSourceDescription(k)
+                );
+                return _react2['default'].createElement(
+                    PydioComponents.PaperEditorNavEntry,
+                    { key: k, keyName: k, selectedKey: this.props.edit, onClick: this.props.setEditState },
+                    this.props.metaSourceProvider.getMetaSourceLabel(k),
+                    description,
+                    removeButton
+                );
+            }).bind(this));
+        }
+        if (this.props.featuresEditable) {
+            features.push(_react2['default'].createElement(
+                'div',
+                { className: 'menu-entry', key: 'add-feature', onClick: this.props.metaSourceProvider.showMetaSourceForm.bind(this.props.metaSourceProvider) },
+                '+ ',
+                this.context.getMessage('ws.32')
+            ));
+        }
+
+        return _react2['default'].createElement(
+            'div',
+            null,
+            features
+        );
+    }
+});
+module.exports = exports['default'];
+
+},{"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","react":"react"}],18:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _createReactClass = require('create-react-class');
+
+var _createReactClass2 = _interopRequireDefault(_createReactClass);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var React = require('react');
+
+var _require = require('material-ui');
+
+var MenuItem = _require.MenuItem;
+var SelectField = _require.SelectField;
+
+var _require$requireLib = require('pydio').requireLib('boot');
+
+var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
+var CancelButtonProviderMixin = _require$requireLib.CancelButtonProviderMixin;
+var SubmitButtonProviderMixin = _require$requireLib.SubmitButtonProviderMixin;
+var _AdminComponents = AdminComponents;
+var MessagesConsumerMixin = _AdminComponents.MessagesConsumerMixin;
+
+var MetaSourceForm = (0, _createReactClass2['default'])({
+
+    mixins: [MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
+
+    propTypes: {
+        model: _propTypes2['default'].object,
+        editor: _propTypes2['default'].object,
+        modalData: _propTypes2['default'].object
+    },
+
+    getDefaultProps: function getDefaultProps() {
+        return {
+            dialogTitleId: 'ajxp_admin.ws.46',
+            dialogSize: 'sm'
+        };
+    },
+
+    getInitialState: function getInitialState() {
+        return { step: 'chooser' };
+    },
+
+    setModal: function setModal(pydioModal) {
+        this.setState({ modal: pydioModal });
+    },
+
+    submit: function submit() {
+        if (this.state.pluginId && this.state.pluginId !== -1) {
+            this.dismiss();
+            this.props.editor.addMetaSource(this.state.pluginId);
+        }
+    },
+
+    render: function render() {
+        var model = this.props.model;
+        var currentMetas = model.getOption("META_SOURCES", true);
+        var allMetas = model.getAllMetaSources();
+
+        var menuItems = [];
+        allMetas.map(function (metaSource) {
+            var id = metaSource['id'];
+            var type = id.split('.').shift();
+            if (type === 'metastore' || type === 'index') {
+                var already = false;
+                Object.keys(currentMetas).map(function (metaKey) {
+                    if (metaKey.indexOf(type) === 0) already = true;
+                });
+                if (already) return;
+            } else {
+                if (currentMetas[id]) return;
+            }
+            menuItems.push(React.createElement(MenuItem, { value: metaSource['id'], primaryText: metaSource['label'] }));
+        });
+        var change = (function (event, index, value) {
+            if (value !== -1) {
+                this.setState({ pluginId: value });
+            }
+        }).bind(this);
+        return React.createElement(
+            'div',
+            { style: { width: '100%' } },
+            React.createElement(
+                SelectField,
+                { value: this.state.pluginId, fullWidth: true, onChange: change },
+                menuItems
+            )
+        );
+    }
+
+});
+
+exports['default'] = MetaSourceForm;
+module.exports = exports['default'];
+
+},{"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react"}],19:[function(require,module,exports){
+/*
+ * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _cellsSdk = require('cells-sdk');
+
+var Observable = require('pydio/lang/observable');
+var PydioApi = require('pydio/http/api');
+
+var DataSource = (function (_Observable) {
+    _inherits(DataSource, _Observable);
+
+    _createClass(DataSource, [{
+        key: 'buildProxy',
+        value: function buildProxy(object) {
+            var _this = this;
+
+            return new Proxy(object, {
+                set: function set(target, p, value) {
+                    var val = value;
+                    if (p === 'StorageType') {
+                        target['StorageConfiguration'] = {};
+                        if (val === 'LOCAL') {
+                            target['StorageConfiguration'] = { "folder": "", "normalize": "false" };
+                        } else if (val === 'S3') {
+                            target['StorageConfiguration'] = { "customEndpoint": "" };
+                        } else if (val === 'GCS') {
+                            target['StorageConfiguration'] = { "jsonCredentials": "" };
+                        }
+                        _this.internalInvalid = false;
+                        target['ApiKey'] = target['ApiSecret'] = ''; // reset values
+                    } else if (p === 'Name') {
+                            // Limit Name to 33 chars
+                            val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 33);
+                            if (_this.existingNames && _this.existingNames.indexOf(val) > -1) {
+                                _this.nameInvalid = true;
+                            } else {
+                                _this.nameInvalid = false;
+                            }
+                        } else if (p === 'folder') {
+                            if (val[0] !== '/') {
+                                val = '/' + val;
+                            }
+                        } else if (p === 'invalid') {
+                            _this.internalInvalid = value;
+                            _this.notify('update');
+                            return true;
+                        } else if (p === 'PeerAddress') {
+                            if (value === 'ANY') {
+                                val = '';
+                            }
+                        }
+                    target[p] = val;
+                    _this.notify('update');
+                    return true;
+                },
+                get: function get(target, p) {
+                    var out = target[p];
+                    if (out instanceof Array) {
+                        return out;
+                    } else if (out instanceof Object) {
+                        return _this.buildProxy(out);
+                    } else if (p === 'StorageType') {
+                        return out || 'LOCAL';
+                    } else if (p === 'PeerAddress') {
+                        return out || 'ANY';
+                    } else {
+                        return out;
+                    }
+                }
+            });
+        }
+    }]);
+
+    function DataSource(model) {
+        var existingNames = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
+        _classCallCheck(this, DataSource);
+
+        _get(Object.getPrototypeOf(DataSource.prototype), 'constructor', this).call(this);
+        this.internalInvalid = false;
+        this.nameInvalid = false;
+        this.existingNames = existingNames;
+        if (model) {
+            this.model = model;
+            if (!model.StorageConfiguration) {
+                model.StorageConfiguration = {};
+            }
+            this.snapshot = JSON.parse(JSON.stringify(model));
+        } else {
+            this.model = new _cellsSdk.ObjectDataSource();
+            this.model.EncryptionMode = _cellsSdk.ObjectEncryptionMode.constructFromObject('CLEAR');
+            this.model.StorageType = _cellsSdk.ObjectStorageType.constructFromObject('LOCAL');
+            this.model.StorageConfiguration = { "folder": "", "normalize": "false" };
+        }
+        this.observableModel = this.buildProxy(this.model);
+    }
+
+    /**
+     * @return {ObjectDataSource}
+     */
+
+    _createClass(DataSource, [{
+        key: 'getModel',
+        value: function getModel() {
+            return this.observableModel;
+        }
+    }, {
+        key: 'isValid',
+        value: function isValid() {
+            if (this.internalInvalid || this.nameInvalid) {
+                return false;
+            }
+            if (this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
+                return this.model.ApiKey && this.model.ApiSecret && this.model.Name && (this.model.ObjectsBucket || this.model.StorageConfiguration.bucketsRegexp);
+            } else if (this.model.StorageType === 'GCS') {
+                return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
+            } else {
+                return this.model.Name && this.model.StorageConfiguration && this.model.StorageConfiguration['folder'];
+            }
+        }
+
+        /**
+         *
+         * @param translateFunc {Function} Translate function
+         * @return {*}
+         */
+    }, {
+        key: 'getNameError',
+        value: function getNameError(translateFunc) {
+            if (this.nameInvalid) {
+                return translateFunc('name.inuse');
+            } else {
+                return null;
+            }
+        }
+    }, {
+        key: 'deleteSource',
+        value: function deleteSource() {
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.deleteDataSource(this.model.Name);
+        }
+    }, {
+        key: 'resyncSource',
+        value: function resyncSource() {
+            var api = new _cellsSdk.JobsServiceApi(PydioApi.getRestClient());
+            var req = new _cellsSdk.RestUserJobRequest();
+            req.JobName = "datasource-resync";
+            req.JsonParameters = JSON.stringify({ dsName: this.model.Name });
+            return api.userCreateJob("datasource-resync", req);
+        }
+    }, {
+        key: 'revert',
+        value: function revert() {
+            this.model = this.snapshot;
+            this.observableModel = this.buildProxy(this.model);
+            this.snapshot = JSON.parse(JSON.stringify(this.model));
+            return this.observableModel;
+        }
+    }, {
+        key: 'saveSource',
+        value: function saveSource() {
+            var _this2 = this;
+
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.putDataSource(this.model.Name, this.model).then(function (res) {
+                _this2.snapshot = JSON.parse(JSON.stringify(_this2.model));
+                _this2.notify('update');
+            });
+        }
+    }, {
+        key: 'stripPrefix',
+        value: function stripPrefix(data) {
+            var prefix = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+
+            if (!prefix) {
+                return data;
+            }
+            var obj = {};
+            Object.keys(data).map(function (k) {
+                obj[k.replace(prefix, '')] = data[k];
+            });
+            return obj;
+        }
+    }, {
+        key: 'getDataWithPrefix',
+        value: function getDataWithPrefix() {
+            var _this3 = this;
+
+            var prefix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+            if (prefix === '') {
+                return this.model;
+            }
+            var data = {};
+            Object.keys(this.model).forEach(function (k) {
+                data[prefix + k] = _this3.model[k];
+                if (k === 'EncryptionMode' && !_this3.model[k]) {
+                    data[prefix + k] = 'CLEAR';
+                }
+            });
+            return data;
+        }
+    }], [{
+        key: 'loadDatasources',
+        value: function loadDatasources() {
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.listDataSources();
+        }
+    }, {
+        key: 'loadVersioningPolicies',
+        value: function loadVersioningPolicies() {
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.listVersioningPolicies();
+        }
+    }, {
+        key: 'loadStatuses',
+        value: function loadStatuses() {
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.listServices('STARTED');
+        }
+    }, {
+        key: 'loadEncryptionKeys',
+        value: function loadEncryptionKeys() {
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            return api.listEncryptionKeys(new _cellsSdk.EncryptionAdminListKeysRequest());
+        }
+    }, {
+        key: 'loadBuckets',
+        value: function loadBuckets(model) {
+            var regexp = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+
+            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
+            var request = new _cellsSdk.RestListStorageBucketsRequest();
+            request.DataSource = model;
+            if (regexp) {
+                request.BucketsRegexp = regexp;
+            }
+            return api.listStorageBuckets(request);
+        }
+    }]);
+
+    return DataSource;
+})(Observable);
+
+exports['default'] = DataSource;
+module.exports = exports['default'];
+
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],20:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _cellsSdk = require('cells-sdk');
+
+var Metadata = (function () {
+    function Metadata() {
+        _classCallCheck(this, Metadata);
+    }
+
+    _createClass(Metadata, null, [{
+        key: 'loadNamespaces',
+        value: function loadNamespaces() {
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.listUserMetaNamespace();
+        }
+
+        /**
+         * @param namespace {IdmUserMetaNamespace}
+         * @return {Promise}
+         */
+    }, {
+        key: 'putNS',
+        value: function putNS(namespace) {
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
+            request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
+            request.Namespaces = [namespace];
+            Metadata.clearLocalCache();
+            return api.updateUserMetaNamespace(request);
+        }
+
+        /**
+         * @param namespace {IdmUserMetaNamespace}
+         * @return {Promise}
+         */
+    }, {
+        key: 'deleteNS',
+        value: function deleteNS(namespace) {
+            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
+            request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
+            request.Namespaces = [namespace];
+            Metadata.clearLocalCache();
+            return api.updateUserMetaNamespace(request);
+        }
+
+        /**
+         * Clear ReactMeta cache if it exists
+         */
+    }, {
+        key: 'clearLocalCache',
+        value: function clearLocalCache() {
+            try {
+                if (window.ReactMeta) {
+                    ReactMeta.Renderer.getClient().clearConfigs();
+                }
+            } catch (e) {
+                //console.log(e)
+            }
+        }
+    }]);
+
+    return Metadata;
+})();
+
+Metadata.MetaTypes = {
+    "string": "Text",
+    "textarea": "Long Text",
+    "stars_rate": "Stars Rating",
+    "css_label": "Color Labels",
+    "tags": "Extensible Tags",
+    "choice": "Selection",
+    "json": "JSON"
+};
+
+exports['default'] = Metadata;
+module.exports = exports['default'];
+
+},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager"}],21:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioLangObservable = require('pydio/lang/observable');
+
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var _cellsSdk = require('cells-sdk');
+
+var VirtualNode = (function (_Observable) {
+    _inherits(VirtualNode, _Observable);
+
+    _createClass(VirtualNode, null, [{
+        key: 'loadNodes',
+        value: function loadNodes(callback) {
+            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            _pydio2['default'].startLoading();
+            api.listVirtualNodes().then(function (response) {
+                _pydio2['default'].endLoading();
+                var result = [];
+                if (response.Children) {
+                    response.Children.map(function (treeNode) {
+                        result.push(new VirtualNode(treeNode));
+                    });
+                }
+                callback(result);
+            })['catch'](function () {
+                _pydio2['default'].endLoading();
+            });
+        }
+    }]);
+
+    function VirtualNode(data) {
+        _classCallCheck(this, VirtualNode);
+
+        _get(Object.getPrototypeOf(VirtualNode.prototype), 'constructor', this).call(this);
+        if (data) {
+            this.data = data;
+        } else {
+            this.data = new _cellsSdk.TreeNode();
+            this.data.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
+            this.data.MetaStore = {
+                name: "",
+                resolution: "",
+                onDelete: "rename-uuid",
+                contentType: "text/javascript"
+            };
+        }
+    }
+
+    _createClass(VirtualNode, [{
+        key: 'getName',
+        value: function getName() {
+            return this.data.MetaStore.name;
+        }
+    }, {
+        key: 'setName',
+        value: function setName(name) {
+            this.data.MetaStore.name = name;
+            var slug = _pydioUtilLang2['default'].computeStringSlug(name);
+            this.data.Uuid = slug;
+            this.data.Path = slug;
+            this.notify('update');
+        }
+    }, {
+        key: 'getValue',
+        value: function getValue() {
+            return this.data.MetaStore.resolution;
+        }
+    }, {
+        key: 'setValue',
+        value: function setValue(value) {
+            this.data.MetaStore.resolution = value;
+            this.notify('update');
+        }
+    }, {
+        key: 'save',
+        value: function save(callback) {
+            var _this = this;
+
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.putVirtualNode(_this.data.Uuid, _this.data).then(function () {
+                    callback();
+                });
+            });
+        }
+    }, {
+        key: 'remove',
+        value: function remove(callback) {
+            var _this2 = this;
+
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.deleteVirtualNode(_this2.data.Uuid).then(function () {
+                    callback();
+                });
+            });
+        }
+    }]);
+
+    return VirtualNode;
+})(_pydioLangObservable2['default']);
+
+exports['default'] = VirtualNode;
+module.exports = exports['default'];
+
+},{"cells-sdk":"cells-sdk","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioLangObservable = require("pydio/lang/observable");
+
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
+var _cellsSdk = require('cells-sdk');
+
+var Workspace = (function (_Observable) {
+    _inherits(Workspace, _Observable);
+
+    _createClass(Workspace, [{
+        key: 'buildProxy',
+        value: function buildProxy(object) {
+            var _this = this;
+
+            return new Proxy(object, {
+                set: function set(target, p, value) {
+                    var val = value;
+                    if (p === 'Slug') {
+                        val = _pydioUtilLang2['default'].computeStringSlug(val);
+                    } else if (p === 'Label' && _this.create) {
+                        target['Slug'] = _pydioUtilLang2['default'].computeStringSlug(val);
+                    }
+                    target[p] = val;
+                    _this.dirty = true;
+                    _this.notify('update');
+                    return true;
+                },
+                get: function get(target, p) {
+                    var out = target[p];
+                    if (p === 'Attributes') {
+                        out = _this.internalAttributes;
+                    }
+                    if (out instanceof Array) {
+                        return out;
+                    } else if (out instanceof Object) {
+                        return _this.buildProxy(out);
+                    } else {
+                        return out;
+                    }
+                }
+            });
+        }
+
+        /**
+         * @param model {IdmWorkspace}
+         */
+    }]);
+
+    function Workspace(model) {
+        _classCallCheck(this, Workspace);
+
+        _get(Object.getPrototypeOf(Workspace.prototype), 'constructor', this).call(this);
+        this.internalAttributes = {};
+        this.dirty = false;
+        if (model) {
+            this.initModel(model);
+        } else {
+            this.create = true;
+            this.model = new _cellsSdk.IdmWorkspace();
+            this.model.Scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
+            this.model.RootNodes = {};
+            this.internalAttributes = { "DEFAULT_RIGHTS": "" };
+            this.model.PoliciesContextEditable = true;
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
+        }
+        this.observableModel = this.buildProxy(this.model);
+    }
+
+    _createClass(Workspace, [{
+        key: 'initModel',
+        value: function initModel(model) {
+            this.create = false;
+            this.dirty = false;
+            this.model = model;
+            this.snapshot = JSON.parse(JSON.stringify(model));
+            if (model.Attributes) {
+                var atts = JSON.parse(model.Attributes);
+                if (typeof atts === "object" && Object.keys(atts).length) {
+                    this.internalAttributes = atts;
+                }
+            } else {
+                this.internalAttributes = {};
+            }
+            if (!model.RootNodes) {
+                model.RootNodes = {};
+            }
+        }
+
+        /**
+         * @return {IdmWorkspace}
+         */
+    }, {
+        key: 'getModel',
+        value: function getModel() {
+            return this.observableModel;
+        }
+
+        /**
+         * @return {boolean}
+         */
+    }, {
+        key: 'hasTemplatePath',
+        value: function hasTemplatePath() {
+            var _this2 = this;
+
+            return Object.keys(this.model.RootNodes).filter(function (k) {
+                return Workspace.rootIsTemplatePath(_this2.model.RootNodes[k]);
+            }).length > 0;
+        }
+
+        /**
+         * @return {boolean}
+         */
+    }, {
+        key: 'hasFolderRoots',
+        value: function hasFolderRoots() {
+            var _this3 = this;
+
+            return Object.keys(this.model.RootNodes).filter(function (k) {
+                return !Workspace.rootIsTemplatePath(_this3.model.RootNodes[k]);
+            }).length > 0;
+        }
+
+        /**
+         *
+         * @return {Promise<any>}
+         */
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this4 = this;
+
+            // If Policies are not set, REST service will add default policies
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
+                _this4.initModel(ws);
+                _this4.observableModel = _this4.buildProxy(_this4.model);
+            });
+        }
+
+        /**
+         *
+         * @return {Promise}
+         */
+    }, {
+        key: 'remove',
+        value: function remove() {
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.deleteWorkspace(this.model.Slug);
+        }
+
+        /**
+         * Revert state
+         */
+    }, {
+        key: 'revert',
+        value: function revert() {
+            var revert = _cellsSdk.IdmWorkspace.constructFromObject(this.snapshot || {});
+            this.initModel(revert);
+            this.observableModel = this.buildProxy(this.model);
+        }
+
+        /**
+         * @return {boolean}
+         */
+    }, {
+        key: 'isValid',
+        value: function isValid() {
+            return this.model.Slug && this.model.Label && Object.keys(this.model.RootNodes).length > 0;
+        }
+    }, {
+        key: 'isDirty',
+        value: function isDirty() {
+            return this.dirty;
+        }
+
+        /**
+         *
+         * @param node {TreeNode}
+         * @return bool
+         */
+    }], [{
+        key: 'rootIsTemplatePath',
+        value: function rootIsTemplatePath(node) {
+            return !!(node.MetaStore && node.MetaStore['resolution']);
+        }
+    }, {
+        key: 'listWorkspaces',
+        value: function listWorkspaces() {
+            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new _cellsSdk.RestSearchWorkspaceRequest();
+            var single = new _cellsSdk.IdmWorkspaceSingleQuery();
+            single.scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
+            request.Queries = [single];
+            return api.searchWorkspaces(request);
+        }
+    }]);
+
+    return Workspace;
+})(_pydioLangObservable2['default']);
+
+exports['default'] = Workspace;
+module.exports = exports['default'];
+
+},{"cells-sdk":"cells-sdk","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],23:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var NodeCard = (function (_React$Component) {
+    _inherits(NodeCard, _React$Component);
+
+    function NodeCard(props) {
+        _classCallCheck(this, NodeCard);
+
+        _get(Object.getPrototypeOf(NodeCard.prototype), 'constructor', this).call(this, props);
+        var value = props.node.getValue();
+        var dirty = false;
+        if (!value) {
+            value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
+        } else {
+            dirty = true;
+        }
+        this.state = {
+            value: value,
+            dirty: true
+        };
+    }
+
+    _createClass(NodeCard, [{
+        key: 'onChange',
+        value: function onChange(event, newValue) {
+            this.setState({
+                value: newValue,
+                dirty: true
+            });
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this = this;
+
+            var _props = this.props;
+            var node = _props.node;
+            var _props$onSave = _props.onSave;
+            var onSave = _props$onSave === undefined ? function () {} : _props$onSave;
+            var value = this.state.value;
+
+            node.setValue(value);
+
+            node.save(function () {
+                _this.setState({
+                    dirty: false
+                }, onSave);
+            });
+        }
+    }, {
+        key: 'remove',
+        value: function remove() {
+            var _this2 = this;
+
+            this.props.node.remove(function () {
+                _this2.props.reloadList();
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var dataSources = _props2.dataSources;
+            var readonly = _props2.readonly;
+            var oneLiner = _props2.oneLiner;
+            var _props2$onClose = _props2.onClose;
+            var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
+            var _state = this.state;
+            var value = _state.value;
+            var dirty = _state.dirty;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+            };
+
+            var ds = {};
+            if (dataSources) {
+                dataSources.map(function (d) {
+                    ds[d.Name] = d.Name;
+                });
+            }
+            var globalScope = {
+                Path: '',
+                DataSources: ds,
+                User: { Name: '' }
+            };
+
+            var codeMirrorField = _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                mode: 'javascript',
+                globalScope: globalScope,
+                value: value,
+                onChange: this.onChange.bind(this),
+                readOnly: readonly
+            });
+
+            if (oneLiner) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1, lineHeight: "40px" } },
+                        codeMirrorField
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: "flex" } },
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: "Save" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: function () {
+                                return onClose();
+                            }, tooltip: "Close" })
+                    )
+                );
+            } else {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { backgroundColor: '#f5f5f5', paddingBottom: 24 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: readonly ? '12px 24px' : '0 24px', fontWeight: 500, display: 'flex', alignItems: 'center' } },
+                        _react2['default'].createElement(
+                            'div',
+                            null,
+                            'Template Path Code'
+                        ),
+                        !readonly && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: m('save'), style: { width: 36, height: 36, padding: 8 }, iconStyle: { fontSize: 20, color: 'rgba(0,0,0,.33)' } })
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { margin: '12px 24px 0 24px', border: '1px solid #e0e0e0' } },
+                        codeMirrorField
+                    )
+                );
+            }
+        }
+    }]);
+
+    return NodeCard;
+})(_react2['default'].Component);
+
+exports['default'] = NodeCard;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","react":"react"}],24:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -14,14 +6933,15 @@
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.15';
+  var VERSION = '4.17.21';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
 
   /** Error message constants. */
   var CORE_ERROR_TEXT = 'Unsupported core-js use. Try https://npms.io/search?q=ponyfill.',
-      FUNC_ERROR_TEXT = 'Expected a function';
+      FUNC_ERROR_TEXT = 'Expected a function',
+      INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`';
 
   /** Used to stand-in for `undefined` hash values. */
   var HASH_UNDEFINED = '__lodash_hash_undefined__';
@@ -154,10 +7074,11 @@
   var reRegExpChar = /[\\^$.*+?()[\]{}|]/g,
       reHasRegExpChar = RegExp(reRegExpChar.source);
 
-  /** Used to match leading and trailing whitespace. */
-  var reTrim = /^\s+|\s+$/g,
-      reTrimStart = /^\s+/,
-      reTrimEnd = /\s+$/;
+  /** Used to match leading whitespace. */
+  var reTrimStart = /^\s+/;
+
+  /** Used to match a single whitespace character. */
+  var reWhitespace = /\s/;
 
   /** Used to match wrap detail comments. */
   var reWrapComment = /\{(?:\n\/\* \[wrapped with .+\] \*\/)?\n?/,
@@ -166,6 +7087,18 @@
 
   /** Used to match words composed of alphanumeric characters. */
   var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+
+  /**
+   * Used to validate the `validate` option in `_.template` variable.
+   *
+   * Forbids characters which could potentially change the meaning of the function argument definition:
+   * - "()," (modification of function parameters)
+   * - "=" (default value)
+   * - "[]{}" (destructuring of function parameters)
+   * - "/" (beginning of a comment)
+   * - whitespace
+   */
+  var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
 
   /** Used to match backslashes in property paths. */
   var reEscapeChar = /\\(\\)?/g;
@@ -996,6 +7929,19 @@
   }
 
   /**
+   * The base implementation of `_.trim`.
+   *
+   * @private
+   * @param {string} string The string to trim.
+   * @returns {string} Returns the trimmed string.
+   */
+  function baseTrim(string) {
+    return string
+      ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, '')
+      : string;
+  }
+
+  /**
    * The base implementation of `_.unary` without support for storing metadata.
    *
    * @private
@@ -1326,6 +8272,21 @@
     return hasUnicode(string)
       ? unicodeToArray(string)
       : asciiToArray(string);
+  }
+
+  /**
+   * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
+   * character of `string`.
+   *
+   * @private
+   * @param {string} string The string to inspect.
+   * @returns {number} Returns the index of the last non-whitespace character.
+   */
+  function trimmedEndIndex(string) {
+    var index = string.length;
+
+    while (index-- && reWhitespace.test(string.charAt(index))) {}
+    return index;
   }
 
   /**
@@ -3721,8 +10682,21 @@
      * @returns {Array} Returns the new sorted array.
      */
     function baseOrderBy(collection, iteratees, orders) {
+      if (iteratees.length) {
+        iteratees = arrayMap(iteratees, function(iteratee) {
+          if (isArray(iteratee)) {
+            return function(value) {
+              return baseGet(value, iteratee.length === 1 ? iteratee[0] : iteratee);
+            }
+          }
+          return iteratee;
+        });
+      } else {
+        iteratees = [identity];
+      }
+
       var index = -1;
-      iteratees = arrayMap(iteratees.length ? iteratees : [identity], baseUnary(getIteratee()));
+      iteratees = arrayMap(iteratees, baseUnary(getIteratee()));
 
       var result = baseMap(collection, function(value, key, collection) {
         var criteria = arrayMap(iteratees, function(iteratee) {
@@ -3979,6 +10953,10 @@
         var key = toKey(path[index]),
             newValue = value;
 
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+          return object;
+        }
+
         if (index != lastIndex) {
           var objValue = nested[key];
           newValue = customizer ? customizer(objValue, key, nested) : undefined;
@@ -4131,11 +11109,14 @@
      *  into `array`.
      */
     function baseSortedIndexBy(array, value, iteratee, retHighest) {
-      value = iteratee(value);
-
       var low = 0,
-          high = array == null ? 0 : array.length,
-          valIsNaN = value !== value,
+          high = array == null ? 0 : array.length;
+      if (high === 0) {
+        return 0;
+      }
+
+      value = iteratee(value);
+      var valIsNaN = value !== value,
           valIsNull = value === null,
           valIsSymbol = isSymbol(value),
           valIsUndefined = value === undefined;
@@ -5620,10 +12601,11 @@
       if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
         return false;
       }
-      // Assume cyclic values are equal.
-      var stacked = stack.get(array);
-      if (stacked && stack.get(other)) {
-        return stacked == other;
+      // Check that cyclic values are equal.
+      var arrStacked = stack.get(array);
+      var othStacked = stack.get(other);
+      if (arrStacked && othStacked) {
+        return arrStacked == other && othStacked == array;
       }
       var index = -1,
           result = true,
@@ -5785,10 +12767,11 @@
           return false;
         }
       }
-      // Assume cyclic values are equal.
-      var stacked = stack.get(object);
-      if (stacked && stack.get(other)) {
-        return stacked == other;
+      // Check that cyclic values are equal.
+      var objStacked = stack.get(object);
+      var othStacked = stack.get(other);
+      if (objStacked && othStacked) {
+        return objStacked == other && othStacked == object;
       }
       var result = true;
       stack.set(object, other);
@@ -9169,6 +16152,10 @@
      * // The `_.property` iteratee shorthand.
      * _.filter(users, 'active');
      * // => objects for ['barney']
+     *
+     * // Combining several predicates using `_.overEvery` or `_.overSome`.
+     * _.filter(users, _.overSome([{ 'age': 36 }, ['age', 40]]));
+     * // => objects for ['fred', 'barney']
      */
     function filter(collection, predicate) {
       var func = isArray(collection) ? arrayFilter : baseFilter;
@@ -9918,15 +16905,15 @@
      * var users = [
      *   { 'user': 'fred',   'age': 48 },
      *   { 'user': 'barney', 'age': 36 },
-     *   { 'user': 'fred',   'age': 40 },
+     *   { 'user': 'fred',   'age': 30 },
      *   { 'user': 'barney', 'age': 34 }
      * ];
      *
      * _.sortBy(users, [function(o) { return o.user; }]);
-     * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 40]]
+     * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 30]]
      *
      * _.sortBy(users, ['user', 'age']);
-     * // => objects for [['barney', 34], ['barney', 36], ['fred', 40], ['fred', 48]]
+     * // => objects for [['barney', 34], ['barney', 36], ['fred', 30], ['fred', 48]]
      */
     var sortBy = baseRest(function(collection, iteratees) {
       if (collection == null) {
@@ -12470,7 +19457,7 @@
       if (typeof value != 'string') {
         return value === 0 ? value : +value;
       }
-      value = value.replace(reTrim, '');
+      value = baseTrim(value);
       var isBinary = reIsBinary.test(value);
       return (isBinary || reIsOctal.test(value))
         ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
@@ -14801,11 +21788,11 @@
 
       // Use a sourceURL for easier debugging.
       // The sourceURL gets injected into the source that's eval-ed, so be careful
-      // with lookup (in case of e.g. prototype pollution), and strip newlines if any.
-      // A newline wouldn't be a valid sourceURL anyway, and it'd enable code injection.
+      // to normalize all kinds of whitespace, so e.g. newlines (and unicode versions of it) can't sneak in
+      // and escape the comment, thus injecting code that gets evaled.
       var sourceURL = '//# sourceURL=' +
         (hasOwnProperty.call(options, 'sourceURL')
-          ? (options.sourceURL + '').replace(/[\r\n]/g, ' ')
+          ? (options.sourceURL + '').replace(/\s/g, ' ')
           : ('lodash.templateSources[' + (++templateCounter) + ']')
         ) + '\n';
 
@@ -14838,12 +21825,16 @@
 
       // If `variable` is not specified wrap a with-statement around the generated
       // code to add the data object to the top of the scope chain.
-      // Like with sourceURL, we take care to not check the option's prototype,
-      // as this configuration is a code injection vector.
       var variable = hasOwnProperty.call(options, 'variable') && options.variable;
       if (!variable) {
         source = 'with (obj) {\n' + source + '\n}\n';
       }
+      // Throw an error if a forbidden character was found in `variable`, to prevent
+      // potential command injection attacks.
+      else if (reForbiddenIdentifierChars.test(variable)) {
+        throw new Error(INVALID_TEMPL_VAR_ERROR_TEXT);
+      }
+
       // Cleanup code by stripping empty strings.
       source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source)
         .replace(reEmptyStringMiddle, '$1')
@@ -14957,7 +21948,7 @@
     function trim(string, chars, guard) {
       string = toString(string);
       if (string && (guard || chars === undefined)) {
-        return string.replace(reTrim, '');
+        return baseTrim(string);
       }
       if (!string || !(chars = baseToString(chars))) {
         return string;
@@ -14992,7 +21983,7 @@
     function trimEnd(string, chars, guard) {
       string = toString(string);
       if (string && (guard || chars === undefined)) {
-        return string.replace(reTrimEnd, '');
+        return string.slice(0, trimmedEndIndex(string) + 1);
       }
       if (!string || !(chars = baseToString(chars))) {
         return string;
@@ -15546,6 +22537,9 @@
      * values against any array or object value, respectively. See `_.isEqual`
      * for a list of supported value comparisons.
      *
+     * **Note:** Multiple values can be checked by combining several matchers
+     * using `_.overSome`
+     *
      * @static
      * @memberOf _
      * @since 3.0.0
@@ -15561,6 +22555,10 @@
      *
      * _.filter(objects, _.matches({ 'a': 4, 'c': 6 }));
      * // => [{ 'a': 4, 'b': 5, 'c': 6 }]
+     *
+     * // Checking for several possible values
+     * _.filter(objects, _.overSome([_.matches({ 'a': 1 }), _.matches({ 'a': 4 })]));
+     * // => [{ 'a': 1, 'b': 2, 'c': 3 }, { 'a': 4, 'b': 5, 'c': 6 }]
      */
     function matches(source) {
       return baseMatches(baseClone(source, CLONE_DEEP_FLAG));
@@ -15574,6 +22572,9 @@
      * **Note:** Partial comparisons will match empty array and empty object
      * `srcValue` values against any array or object value, respectively. See
      * `_.isEqual` for a list of supported value comparisons.
+     *
+     * **Note:** Multiple values can be checked by combining several matchers
+     * using `_.overSome`
      *
      * @static
      * @memberOf _
@@ -15591,6 +22592,10 @@
      *
      * _.find(objects, _.matchesProperty('a', 4));
      * // => { 'a': 4, 'b': 5, 'c': 6 }
+     *
+     * // Checking for several possible values
+     * _.filter(objects, _.overSome([_.matchesProperty('a', 1), _.matchesProperty('a', 4)]));
+     * // => [{ 'a': 1, 'b': 2, 'c': 3 }, { 'a': 4, 'b': 5, 'c': 6 }]
      */
     function matchesProperty(path, srcValue) {
       return baseMatchesProperty(path, baseClone(srcValue, CLONE_DEEP_FLAG));
@@ -15814,6 +22819,10 @@
      * Creates a function that checks if **all** of the `predicates` return
      * truthy when invoked with the arguments it receives.
      *
+     * Following shorthands are possible for providing predicates.
+     * Pass an `Object` and it will be used as an parameter for `_.matches` to create the predicate.
+     * Pass an `Array` of parameters for `_.matchesProperty` and the predicate will be created using them.
+     *
      * @static
      * @memberOf _
      * @since 4.0.0
@@ -15840,6 +22849,10 @@
      * Creates a function that checks if **any** of the `predicates` return
      * truthy when invoked with the arguments it receives.
      *
+     * Following shorthands are possible for providing predicates.
+     * Pass an `Object` and it will be used as an parameter for `_.matches` to create the predicate.
+     * Pass an `Array` of parameters for `_.matchesProperty` and the predicate will be created using them.
+     *
      * @static
      * @memberOf _
      * @since 4.0.0
@@ -15859,6 +22872,9 @@
      *
      * func(NaN);
      * // => false
+     *
+     * var matchesFunc = _.overSome([{ 'a': 1 }, { 'a': 2 }])
+     * var matchesPropertyFunc = _.overSome([['a', 1], ['a', 2]])
      */
     var overSome = createOver(arraySome);
 
@@ -17114,7 +24130,7 @@
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],2:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17142,7 +24158,7 @@ function bytesToUuid(buf, offset) {
 var _default = bytesToUuid;
 exports.default = _default;
 module.exports = exports.default;
-},{}],3:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17182,7 +24198,7 @@ var _v3 = _interopRequireDefault(require("./v4.js"));
 var _v4 = _interopRequireDefault(require("./v5.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-},{"./v1.js":7,"./v3.js":8,"./v4.js":10,"./v5.js":11}],4:[function(require,module,exports){
+},{"./v1.js":30,"./v3.js":31,"./v4.js":33,"./v5.js":34}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17408,7 +24424,7 @@ function md5ii(a, b, c, d, x, s, t) {
 var _default = md5;
 exports.default = _default;
 module.exports = exports.default;
-},{}],5:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17432,7 +24448,7 @@ function rng() {
 }
 
 module.exports = exports.default;
-},{}],6:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17529,7 +24545,7 @@ function sha1(bytes) {
 var _default = sha1;
 exports.default = _default;
 module.exports = exports.default;
-},{}],7:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17638,7 +24654,7 @@ function v1(options, buf, offset) {
 var _default = v1;
 exports.default = _default;
 module.exports = exports.default;
-},{"./bytesToUuid.js":2,"./rng.js":5}],8:[function(require,module,exports){
+},{"./bytesToUuid.js":25,"./rng.js":28}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17656,7 +24672,7 @@ const v3 = (0, _v.default)('v3', 0x30, _md.default);
 var _default = v3;
 exports.default = _default;
 module.exports = exports.default;
-},{"./md5.js":4,"./v35.js":9}],9:[function(require,module,exports){
+},{"./md5.js":27,"./v35.js":32}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17726,7 +24742,7 @@ function _default(name, version, hashfunc) {
   generateUUID.URL = URL;
   return generateUUID;
 }
-},{"./bytesToUuid.js":2}],10:[function(require,module,exports){
+},{"./bytesToUuid.js":25}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17768,7 +24784,7 @@ function v4(options, buf, offset) {
 var _default = v4;
 exports.default = _default;
 module.exports = exports.default;
-},{"./bytesToUuid.js":2,"./rng.js":5}],11:[function(require,module,exports){
+},{"./bytesToUuid.js":25,"./rng.js":28}],34:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -17786,6923 +24802,4 @@ const v5 = (0, _v.default)('v5', 0x50, _sha.default);
 var _default = v5;
 exports.default = _default;
 module.exports = exports.default;
-},{"./sha1.js":6,"./v35.js":9}],12:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _editorDataSourceEditor = require('../editor/DataSourceEditor');
-
-var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
-
-var _editorVersionPolicyEditor = require('../editor/VersionPolicyEditor');
-
-var _editorVersionPolicyEditor2 = _interopRequireDefault(_editorVersionPolicyEditor);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _modelDataSource = require('../model/DataSource');
-
-var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
-
-var _modelWs = require('../model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
-
-var _cellsSdk = require('cells-sdk');
-
-var _uuid = require('uuid');
-
-var _editorVersionPolicyPeriods = require('../editor/VersionPolicyPeriods');
-
-var _editorVersionPolicyPeriods2 = _interopRequireDefault(_editorVersionPolicyPeriods);
-
-var _EncryptionKeys = require('./EncryptionKeys');
-
-var _EncryptionKeys2 = _interopRequireDefault(_EncryptionKeys);
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _lodash = require('lodash');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var MaterialTable = _Pydio$requireLib.MaterialTable;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib("boot");
-
-var JobsStore = _Pydio$requireLib2.JobsStore;
-var moment = _Pydio$requireLib2.moment;
-
-var DataSourcesBoard = (function (_React$Component) {
-    _inherits(DataSourcesBoard, _React$Component);
-
-    function DataSourcesBoard(props) {
-        _classCallCheck(this, DataSourcesBoard);
-
-        _get(Object.getPrototypeOf(DataSourcesBoard.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            dataSources: [],
-            resyncJobs: {},
-            versioningPolicies: [],
-            dsLoaded: false,
-            versionsLoaded: false,
-            showExportKey: false,
-            exportedKey: null,
-            showImportKey: false,
-            importResult: null,
-            keyOperationError: null,
-            startedServices: [],
-            peerAddresses: [],
-            m: function m(id) {
-                return props.pydio.MessageHash["ajxp_admin.ds." + id] || id;
-            }
-        };
-    }
-
-    _createClass(DataSourcesBoard, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this = this;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var pydio = this.props.pydio;
-
-            this.statusPoller = setInterval(function () {
-                if (!pydio.WebSocketClient.getStatus()) {
-                    return;
-                }
-                _modelDataSource2['default'].loadStatuses().then(function (data) {
-                    _this.setState({ startedServices: data.Services || [] });
-                });
-                api.listPeersAddresses().then(function (res) {
-                    _this.setState({ peerAddresses: res.PeerAddresses || [] });
-                });
-            }, 2500);
-            setTimeout(function () {
-                _this.syncPoller = setInterval(function () {
-                    if (!pydio.WebSocketClient.getStatus()) {
-                        return;
-                    }
-                    _this.syncStatuses();
-                }, 2500);
-            }, 1250);
-            this.load();
-        }
-    }, {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-            clearInterval(this.statusPoller);
-            clearInterval(this.syncPoller);
-        }
-    }, {
-        key: 'load',
-        value: function load() {
-            var _this2 = this;
-
-            var newDsName = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-
-            this.setState({
-                dsLoaded: false,
-                versionsLoaded: false,
-                newDsName: newDsName
-            });
-            _modelDataSource2['default'].loadDatasources().then(function (data) {
-                _this2.setState({ dataSources: data.DataSources || [], dsLoaded: true }, function () {
-                    _this2.syncStatuses();
-                });
-            });
-            _modelDataSource2['default'].loadVersioningPolicies().then(function (data) {
-                _this2.setState({ versioningPolicies: data.Policies || [], versionsLoaded: true });
-            });
-            _modelDataSource2['default'].loadStatuses().then(function (data) {
-                _this2.setState({ startedServices: data.Services });
-            });
-            if (this.refs && this.refs.encKeys) {
-                this.refs.encKeys.load();
-            }
-        }
-    }, {
-        key: 'syncStatuses',
-        value: function syncStatuses() {
-            var _this3 = this;
-
-            var _state$dataSources = this.state.dataSources;
-            var dataSources = _state$dataSources === undefined ? [] : _state$dataSources;
-
-            if (!dataSources.length) {
-                return;
-            }
-            JobsStore.getInstance().getAdminJobs(null, null, dataSources.map(function (d) {
-                return 'resync-ds-' + d.Name;
-            }), 1).then(function (response) {
-                var resyncJobs = {};
-                var jobs = response.Jobs || [];
-                jobs.forEach(function (job) {
-                    if (job.Tasks && job.Tasks.length) {
-                        resyncJobs[job.ID.replace('resync-ds-', '')] = job;
-                    }
-                });
-                _this3.setState({ resyncJobs: resyncJobs });
-            });
-        }
-    }, {
-        key: 'closeEditor',
-        value: function closeEditor() {
-            this.props.closeRightPane();
-        }
-    }, {
-        key: 'openDataSource',
-        value: function openDataSource(dataSources) {
-            if (!dataSources.length) {
-                return;
-            }
-            var dataSource = dataSources[0];
-            var _props = this.props;
-            var openRightPane = _props.openRightPane;
-            var accessByName = _props.accessByName;
-            var pydio = _props.pydio;
-            var storageTypes = _props.storageTypes;
-
-            openRightPane({
-                COMPONENT: _editorDataSourceEditor2['default'],
-                PROPS: {
-                    ref: "editor",
-                    pydio: pydio,
-                    dataSource: dataSource,
-                    storageTypes: storageTypes,
-                    readonly: !accessByName('CreateDatasource'),
-                    closeEditor: this.closeEditor.bind(this),
-                    reloadList: this.load.bind(this)
-                }
-            });
-        }
-    }, {
-        key: 'makeStatusLabel',
-        value: function makeStatusLabel(level, message) {
-            switch (level) {
-                case 'error':
-                    return _react2['default'].createElement(
-                        'span',
-                        { style: { color: '#e53935' } },
-                        _react2['default'].createElement('span', { className: "mdi mdi-alert" }),
-                        ' ',
-                        message
-                    );
-                case 'running':
-                    return _react2['default'].createElement(
-                        'span',
-                        { style: { color: '#ef6c00' } },
-                        _react2['default'].createElement('span', { className: "mdi mdi-timer-sand" }),
-                        ' ',
-                        message
-                    );
-                default:
-                    return _react2['default'].createElement(
-                        'span',
-                        { style: { color: '#1b5e20' } },
-                        _react2['default'].createElement('span', { className: "mdi mdi-check" }),
-                        ' ',
-                        message
-                    );
-            }
-        }
-    }, {
-        key: 'computeStatus',
-        value: function computeStatus(dataSource) {
-            var _this4 = this;
-
-            var asNumber = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-            if (asNumber && dataSource.Disabled) {
-                return -1;
-            }
-            var _state = this.state;
-            var _state$startedServices = _state.startedServices;
-            var startedServices = _state$startedServices === undefined ? [] : _state$startedServices;
-            var _state$peerAddresses = _state.peerAddresses;
-            var peerAddresses = _state$peerAddresses === undefined ? [] : _state$peerAddresses;
-            var m = _state.m;
-            var newDsName = _state.newDsName;
-
-            if (!startedServices.length) {
-                return m('status.na');
-            }
-            var index = undefined,
-                sync = undefined,
-                object = undefined;
-            startedServices.map(function (service) {
-                if (service.Name === 'pydio.grpc.data.sync.' + dataSource.Name && service.Status === 'STARTED') {
-                    sync = true;
-                } else if (service.Name === 'pydio.grpc.data.index.' + dataSource.Name && service.Status === 'STARTED') {
-                    index = true;
-                } else if (service.Name === 'pydio.grpc.data.objects.' + dataSource.ObjectsServiceName && service.Status === 'STARTED') {
-                    object = true;
-                }
-            });
-            if (index && sync && object) {
-                if (newDsName && dataSource.Name === newDsName) {
-                    setTimeout(function () {
-                        _this4.setState({ newDsName: null });
-                    }, 100);
-                }
-                if (asNumber) {
-                    return 0;
-                }
-                return this.makeStatusLabel('ok', m('status.ok'));
-            } else if (newDsName && dataSource.Name === newDsName) {
-                if (asNumber) {
-                    return 1;
-                }
-                return this.makeStatusLabel('running', m('status.starting'));
-            } else if (!index && !sync && !object) {
-                var koMessage = m('status.ko');
-                if (peerAddresses && peerAddresses.indexOf(dataSource.PeerAddress) === -1) {
-                    koMessage = m('status.ko-peers').replace('%s', dataSource.PeerAddress);
-                }
-                if (asNumber) {
-                    return 2;
-                }
-                return this.makeStatusLabel('error', koMessage);
-            } else {
-                var services = [];
-                if (!index) {
-                    services.push(m('status.index'));
-                }
-                if (!sync) {
-                    services.push(m('status.sync'));
-                }
-                if (!object) {
-                    services.push(m('status.object'));
-                }
-                if (asNumber) {
-                    return 3;
-                }
-                return this.makeStatusLabel('error', services.join(' - '));
-            }
-        }
-    }, {
-        key: 'computeJobStatus',
-        value: function computeJobStatus(job) {
-            var task = job.Tasks[0];
-            switch (task.Status) {
-                case 'Finished':
-                    return this.makeStatusLabel('ok', moment(new Date(parseInt(task.EndTime) * 1000)).fromNow());
-                case 'Running':
-                    return this.makeStatusLabel('running', task.StatusMessage || 'Running...');
-                case 'Error':
-                    return this.makeStatusLabel('error', task.StatusMessage);
-                case 'Queued':
-                    return this.makeStatusLabel('running', task.StatusMessage);
-                default:
-                    break;
-            }
-            return this.makeStatusLabel('ok', task.StatusMessage);
-        }
-    }, {
-        key: 'openVersionPolicy',
-        value: function openVersionPolicy() {
-            var versionPolicies = arguments.length <= 0 || arguments[0] === undefined ? undefined : arguments[0];
-
-            if (versionPolicies !== undefined && !versionPolicies.length) {
-                return;
-            }
-            var versionPolicy = undefined;
-            var create = false;
-            if (versionPolicies === undefined) {
-                create = true;
-                versionPolicy = new _cellsSdk.TreeVersioningPolicy();
-                versionPolicy.Uuid = (0, _uuid.v4)();
-                versionPolicy.VersionsDataSourceName = "default";
-                versionPolicy.VersionsDataSourceBucket = "versions";
-                var period = new _cellsSdk.TreeVersioningKeepPeriod();
-                period.IntervalStart = "0";
-                period.MaxNumber = -1;
-                versionPolicy.KeepPeriods = [period];
-            } else {
-                versionPolicy = versionPolicies[0];
-            }
-            var _props2 = this.props;
-            var openRightPane = _props2.openRightPane;
-            var pydio = _props2.pydio;
-            var versioningReadonly = _props2.versioningReadonly;
-            var accessByName = _props2.accessByName;
-
-            openRightPane({
-                COMPONENT: _editorVersionPolicyEditor2['default'],
-                PROPS: {
-                    ref: "editor",
-                    versionPolicy: versionPolicy,
-                    create: create,
-                    pydio: pydio,
-                    readonly: versioningReadonly || !accessByName('CreateVersioning'),
-                    closeEditor: this.closeEditor.bind(this),
-                    reloadList: this.load.bind(this)
-                }
-            });
-        }
-    }, {
-        key: 'deleteVersionPolicy',
-        value: function deleteVersionPolicy(policy) {
-            var _this5 = this;
-
-            var pydio = this.props.pydio;
-
-            pydio.UI.openConfirmDialog({
-                message: pydio.MessageHash['ajxp_admin.versions.editor.delete.confirm'],
-                destructive: [policy.Name],
-                validCallback: function validCallback() {
-                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                        api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
-                            _this5.load();
-                        });
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'createDataSource',
-        value: function createDataSource() {
-            var _props3 = this.props;
-            var pydio = _props3.pydio;
-            var storageTypes = _props3.storageTypes;
-            var dataSources = this.state.dataSources;
-
-            this.props.openRightPane({
-                COMPONENT: _editorDataSourceEditor2['default'],
-                PROPS: {
-                    ref: "editor",
-                    create: true,
-                    existingNames: dataSources.map(function (ds) {
-                        return ds.Name;
-                    }),
-                    pydio: pydio,
-                    storageTypes: storageTypes,
-                    closeEditor: this.closeEditor.bind(this),
-                    reloadList: this.load.bind(this)
-                }
-            });
-        }
-    }, {
-        key: 'resyncDataSource',
-        value: function resyncDataSource(pydio, m, row) {
-            pydio.UI.openConfirmDialog({
-                message: m('editor.legend.resync'),
-                skipNext: 'datasource.resync.confirm',
-                validCallback: function validCallback() {
-                    var ds = new _modelDataSource2['default'](row);
-                    ds.resyncSource();
-                }
-            });
-        }
-    }, {
-        key: 'deleteDataSource',
-        value: function deleteDataSource(pydio, m, row) {
-            var _this6 = this;
-
-            pydio.UI.openConfirmDialog({
-                message: m('editor.delete.warning'),
-                validCallback: function validCallback() {
-                    var ds = new _modelDataSource2['default'](row);
-                    ds.deleteSource().then(function () {
-                        _this6.load();
-                    });
-                },
-                destructive: [row.Name]
-            });
-        }
-    }, {
-        key: 'createWorkspaceFromDatasource',
-        value: function createWorkspaceFromDatasource(pydio, m, row) {
-            var ws = new _modelWs2['default']();
-            var model = ws.getModel();
-            var dsName = row.Name;
-            model.Label = dsName;
-            model.Description = "Root of " + dsName;
-            model.Slug = dsName;
-            model.Attributes['DEFAULT_RIGHTS'] = '';
-            var roots = model.RootNodes;
-            var fakeRoot = { Uuid: 'DATASOURCE:' + dsName, Path: dsName };
-            roots[fakeRoot.Uuid] = fakeRoot;
-            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
-                dialogTitle: m('board.wsfromds.title'),
-                legendId: m('board.wsfromds.legend').replace('%s', dsName),
-                fieldLabelId: m('board.wsfromds.field'),
-                defaultValue: m('board.wsfromds.defaultPrefix').replace('%s', dsName),
-                submitValue: function submitValue(v) {
-                    model.Label = v;
-                    ws.save().then(function () {
-                        pydio.goTo('/data/workspaces');
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this7 = this;
-
-            var _state2 = this.state;
-            var dataSources = _state2.dataSources;
-            var resyncJobs = _state2.resyncJobs;
-            var versioningPolicies = _state2.versioningPolicies;
-            var m = _state2.m;
-
-            dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
-            versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
-
-            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
-            var body = adminStyles.body;
-            var tableMaster = body.tableMaster;
-
-            var blockProps = body.block.props;
-            var blockStyle = body.block.container;
-
-            var _props4 = this.props;
-            var currentNode = _props4.currentNode;
-            var pydio = _props4.pydio;
-            var versioningReadonly = _props4.versioningReadonly;
-            var accessByName = _props4.accessByName;
-
-            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15, width: '15%' }, headerStyle: { width: '15%' }, sorter: { type: 'string', 'default': true } }, { name: 'Status', label: m('status'),
-                renderCell: function renderCell(row) {
-                    return row.Disabled ? _react2['default'].createElement(
-                        'span',
-                        { style: { color: '#757575' } },
-                        _react2['default'].createElement('span', { className: "mdi mdi-checkbox-blank-circle-outline" }),
-                        ' ',
-                        m('status.disabled')
-                    ) : _this7.computeStatus(row);
-                },
-                sorter: { type: 'number', value: function value(row) {
-                        return _this7.computeStatus(row, true);
-                    } }
-            }, { name: 'SyncStatus', label: m('syncStatus'),
-                renderCell: function renderCell(row) {
-                    return resyncJobs && resyncJobs[row.Name] ? _this7.computeJobStatus(resyncJobs[row.Name]) : 'n/a';
-                },
-                sorter: { type: 'number', value: function value(row) {
-                        return resyncJobs && resyncJobs[row.Name] ? resyncJobs[row.Name].Tasks[0].EndTime : 0;
-                    } }
-            }, { name: 'StorageType', label: m('storage'), hideSmall: true, style: { width: '15%' }, headerStyle: { width: '15%' }, renderCell: function renderCell(row) {
-                    var s = 'storage.fs';
-                    switch (row.StorageType) {
-                        case "S3":
-                            s = 'storage.s3';
-                            break;
-                        case "AZURE":
-                            s = 'storage.azure';
-                            break;
-                        case "GCS":
-                            s = 'storage.gcs';
-                            break;
-                        default:
-                            break;
-                    }
-                    return m(s);
-                }, sorter: { type: 'string' } }, { name: 'VersioningPolicyName', label: m('versioning'), style: { width: '10%' }, headerStyle: { width: '10%' }, hideSmall: true, renderCell: function renderCell(row) {
-                    var pol = versioningPolicies.find(function (obj) {
-                        return obj.Uuid === row['VersioningPolicyName'];
-                    });
-                    if (pol) {
-                        return pol.Name;
-                    } else {
-                        return row['VersioningPolicyName'] || '-';
-                    }
-                }, sorter: { type: 'string' } }, {
-                name: 'EncryptionMode',
-                label: m('encryption'),
-                hideSmall: true,
-                style: { width: '8%', textAlign: 'center' },
-                headerStyle: { width: '8%' },
-                renderCell: function renderCell(row) {
-                    return row['EncryptionMode'] === 'MASTER' ? _react2['default'].createElement('span', { className: "mdi mdi-check" }) : '-';
-                },
-                sorter: { type: 'number', value: function value(row) {
-                        return row['EncryptionMode'] === 'MASTER' ? 1 : 0;
-                    } } }];
-            var title = currentNode.getLabel();
-            var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [];
-            if (accessByName('CreateDatasource')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4'], onClick: this.createDataSource.bind(this) }, adminStyles.props.header.flatButton)));
-            }
-            var versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
-            if (versioningEditable) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: pydio.MessageHash['ajxp_admin.ws.4b'], onClick: function () {
-                        _this7.openVersionPolicy();
-                    } }, adminStyles.props.header.flatButton)));
-            }
-            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 }, sorter: { type: 'string', 'default': true } }, { name: 'Description', label: m('versioning.description'), sorter: { type: 'string' } }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
-                    return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
-                } }];
-
-            var dsActions = [];
-            if (accessByName('CreateDatasource')) {
-                dsActions.push({
-                    iconClassName: 'mdi mdi-pencil',
-                    tooltip: 'Edit datasource',
-                    onClick: function onClick(row) {
-                        _this7.openDataSource([row]);
-                    }
-                });
-            }
-            dsActions.push({
-                iconClassName: 'mdi mdi-sync',
-                tooltip: m('editor.legend.resync.button'),
-                onClick: function onClick(row) {
-                    return _this7.resyncDataSource(pydio, m, row);
-                }
-            });
-            dsActions.push({
-                iconClassName: 'mdi mdi-folder-plus',
-                tooltip: 'Create workspace here',
-                onClick: function onClick(row) {
-                    return _this7.createWorkspaceFromDatasource(pydio, m, row);
-                }
-            });
-            if (accessByName('CreateDatasource')) {
-                dsActions.push({
-                    iconClassName: 'mdi mdi-delete',
-                    tooltip: m('editor.legend.delete.button'),
-                    onClick: function onClick(row) {
-                        return _this7.deleteDataSource(pydio, m, row);
-                    }
-                });
-            }
-
-            var vsActions = [];
-            vsActions.push({
-                iconClassName: versioningEditable ? 'mdi mdi-pencil' : 'mdi mdi-eye',
-                tooltip: versioningEditable ? 'Edit policy' : 'Display policy',
-                onClick: function onClick(row) {
-                    _this7.openVersionPolicy([row]);
-                }
-            });
-            if (versioningEditable) {
-                vsActions.push({
-                    iconClassName: 'mdi mdi-delete',
-                    tooltip: 'Delete policy',
-                    destructive: true,
-                    onClick: function onClick(row) {
-                        return _this7.deleteVersionPolicy(row);
-                    }
-                });
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { className: 'main-layout-nav-to-stack workspaces-board' },
-                _react2['default'].createElement(
-                    'div',
-                    { className: 'vertical-layout', style: { width: '100%' } },
-                    _react2['default'].createElement(AdminComponents.Header, {
-                        title: title,
-                        icon: icon,
-                        actions: buttons,
-                        reloadAction: this.load.bind(this),
-                        loading: !(this.state.dsLoaded && this.state.versionsLoaded)
-                    }),
-                    _react2['default'].createElement(
-                        'div',
-                        { className: 'layout-fill' },
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
-                        _react2['default'].createElement(
-                            _materialUi.Paper,
-                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
-                            _react2['default'].createElement(MaterialTable, {
-                                data: dataSources,
-                                columns: dsColumns,
-                                actions: dsActions,
-                                onSelectRows: this.openDataSource.bind(this),
-                                deselectOnClickAway: true,
-                                showCheckboxes: false,
-                                emptyStateString: m('emptyState'),
-                                masterStyles: tableMaster,
-                                storageKey: 'console.datasources.list'
-                            })
-                        ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
-                        _react2['default'].createElement(
-                            _materialUi.Paper,
-                            _extends({}, blockProps, { style: _extends({}, blockStyle) }),
-                            _react2['default'].createElement(MaterialTable, {
-                                data: versioningPolicies,
-                                columns: policiesColumns,
-                                actions: vsActions,
-                                onSelectRows: this.openVersionPolicy.bind(this),
-                                deselectOnClickAway: true,
-                                showCheckboxes: false,
-                                masterStyles: tableMaster,
-                                storageKey: 'console.versioning.policies.list'
-                            })
-                        ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
-                        _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys", accessByName: accessByName, adminStyles: adminStyles })
-                    )
-                )
-            );
-        }
-    }]);
-
-    return DataSourcesBoard;
-})(_react2['default'].Component);
-
-DataSourcesBoard.propTypes = {
-    dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
-    rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
-    currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
-    openEditor: _propTypes2['default'].func.isRequired,
-    openRightPane: _propTypes2['default'].func.isRequired,
-    closeRightPane: _propTypes2['default'].func.isRequired,
-    filter: _propTypes2['default'].string,
-    versioningReadonly: _propTypes2['default'].bool
-};
-
-exports['default'] = DataSourcesBoard = (0, _materialUiStyles.muiThemeable)()(DataSourcesBoard);
-
-exports['default'] = DataSourcesBoard;
-module.exports = exports['default'];
-
-},{"../editor/DataSourceEditor":19,"../editor/VersionPolicyEditor":23,"../editor/VersionPolicyPeriods":24,"../model/DataSource":30,"../model/Ws":33,"./EncryptionKeys":13,"cells-sdk":"cells-sdk","lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid":3}],13:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _materialUi = require('material-ui');
-
-var _cellsSdk = require('cells-sdk');
-
-var _modelWs = require("../model/Ws");
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var MaterialTable = _Pydio$requireLib.MaterialTable;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib2.ModernTextField;
-
-var EncryptionKeys = (function (_React$Component) {
-    _inherits(EncryptionKeys, _React$Component);
-
-    function EncryptionKeys(props) {
-        _classCallCheck(this, EncryptionKeys);
-
-        _get(Object.getPrototypeOf(EncryptionKeys.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            keys: [],
-            showDialog: false,
-
-            showExportKey: null,
-            exportedKey: null,
-
-            showCreateKey: null,
-            showImportKey: null,
-
-            m: function m(id) {
-                return props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || id;
-            }
-        };
-    }
-
-    _createClass(EncryptionKeys, [{
-        key: 'load',
-        value: function load() {
-            var _this = this;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.listEncryptionKeys(new _cellsSdk.EncryptionAdminListKeysRequest()).then(function (result) {
-                _this.setState({ keys: result.Keys || [] });
-            });
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.load();
-        }
-    }, {
-        key: 'exportKey',
-        value: function exportKey() {
-            var _this2 = this;
-
-            var pydio = this.props.pydio;
-            var m = this.state.m;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _cellsSdk.EncryptionAdminExportKeyRequest();
-            request.KeyID = this.state.showExportKey;
-            request.StrPassword = this.refs['key-password-field'].getValue();
-            var confirm = this.refs['key-password-confirm'].getValue();
-            if (confirm !== request.StrPassword) {
-                pydio.UI.displayMessage('ERROR', 'Warning, passwords differ!');
-                return;
-            }
-            api.exportEncryptionKey(request).then(function (response) {
-                _this2.setState({ exportedKey: response.Key, showExportKey: null }, function () {
-                    _this2.timeout = setTimeout(function () {
-                        _this2.setState({ exportedKey: '', showDialog: false });
-                    }, 10000);
-                });
-                _this2.setState({ showExportKey: null });
-            })['catch'](function (reason) {
-                pydio.UI.displayMessage('ERROR', m('key.export.fail') + " : " + reason.message);
-                _this2.setState({ showExportKey: null });
-            });
-        }
-    }, {
-        key: 'createKey',
-        value: function createKey() {
-            var _this3 = this;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var req = new _cellsSdk.EncryptionAdminCreateKeyRequest();
-            req.KeyID = this.refs['createKeyId'].getValue();
-            req.Label = this.refs['createKeyLabel'].getValue();
-            api.createEncryptionKey(req).then(function (result) {
-                _this3.load();
-                _this3.setState({ showDialog: false });
-            })['catch'](function () {
-                _this3.setState({ showDialog: false });
-            });
-        }
-    }, {
-        key: 'deleteKey',
-        value: function deleteKey(keyId) {
-            var _this4 = this;
-
-            var pydio = this.props.pydio;
-            var m = this.state.m;
-
-            pydio.UI.openConfirmDialog({
-                message: m('key.delete.warning'),
-                destructive: [keyId],
-                validCallback: function validCallback() {
-                    var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    var req = new _cellsSdk.EncryptionAdminDeleteKeyRequest();
-                    req.KeyID = keyId;
-                    api.deleteEncryptionKey(req).then(function (result) {
-                        _this4.load();
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'importKey',
-        value: function importKey() {
-            var _this5 = this;
-
-            var pydio = this.props.pydio;
-            var m = this.state.m;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-
-            var importKey = this.state.showImportKey;
-            var importExisting = true;
-            if (!importKey.ID) {
-                importKey = new _cellsSdk.EncryptionKey();
-                importKey.ID = this.refs['key-import-id'].getValue();
-                importKey.Label = this.refs['key-import-label'].getValue();
-                importExisting = false;
-            }
-            importKey.Content = this.refs['key-imported-field'].getValue();
-
-            var request = new _cellsSdk.EncryptionAdminImportKeyRequest();
-            request.StrPassword = this.refs['key-password-field'].getValue();
-            request.Key = importKey;
-            request.Override = importExisting;
-            api.importEncryptionKey(request).then(function (response) {
-                if (response.Success) {
-                    pydio.UI.displayMessage('SUCCESS', m('key.import.success'));
-                } else {
-                    pydio.UI.displayMessage('ERROR', m('key.import.fail'));
-                }
-                _this5.load();
-                _this5.setState({ showImportKey: false, showDialog: false });
-            })['catch'](function () {
-                _this5.setState({ showImportKey: false, showDialog: false });
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this6 = this;
-
-            var _state = this.state;
-            var keys = _state.keys;
-            var showDialog = _state.showDialog;
-            var showImportKey = _state.showImportKey;
-            var showExportKey = _state.showExportKey;
-            var exportedKey = _state.exportedKey;
-            var showCreateKey = _state.showCreateKey;
-            var m = _state.m;
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var accessByName = _props.accessByName;
-            var adminStyles = _props.adminStyles;
-
-            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' }, sorter: { type: 'string', 'default': true } }, { name: 'ID', label: m('key.id'), hideSmall: true, sorter: { type: 'string' } }, { name: 'Owner', label: m('key.owner'), hideSmall: true, sorter: { type: 'string' } }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, useMoment: true, sorter: { type: 'number' } }];
-            var actions = [];
-            if (accessByName('CreateEncryption')) {
-                actions.push({ iconClassName: 'mdi mdi-import', tooltip: m('key.import'), onClick: function onClick(row) {
-                        _this6.setState({ showDialog: true, showImportKey: row });
-                    } }, { iconClassName: 'mdi mdi-export', tooltip: m('key.export'), onClick: function onClick(row) {
-                        _this6.setState({ showDialog: true, showExportKey: row.ID });
-                    } }, { iconClassName: 'mdi mdi-delete', tooltip: m('key.delete'), onClick: function onClick(row) {
-                        _this6.deleteKey(row.ID);
-                    } });
-            }
-
-            var dialogContent = undefined,
-                dialogTitle = undefined,
-                dialogActions = [];
-            if (showExportKey || exportedKey) {
-                dialogTitle = m('key.export');
-                if (exportedKey) {
-                    dialogContent = _react2['default'].createElement(ModernTextField, {
-                        value: exportedKey.Content,
-                        fullWidth: true,
-                        floatingLabelText: m('key.export.result.copy'),
-                        multiLine: true,
-                        ref: 'key-imported-field'
-                    });
-                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Close", onClick: function () {
-                            clearTimeout(_this6.timeout);
-                            _this6.setState({ showExportKey: null, exportedKey: '', showDialog: false });
-                        } })];
-                } else {
-                    dialogContent = _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
-                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
-                    );
-                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
-                            _this6.setState({ showExportKey: null, showDialog: false });
-                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.export'), primary: true, onClick: function () {
-                            _this6.exportKey();
-                        } })];
-                }
-            } else if (showImportKey) {
-                dialogTitle = m('key.import');
-                dialogContent = _react2['default'].createElement(
-                    'div',
-                    null,
-                    !showImportKey.ID && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
-                        _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
-                    ),
-                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
-                    _react2['default'].createElement(ModernTextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
-                );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
-                        _this6.setState({ showImportKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.import'), primary: true, onClick: function () {
-                        _this6.importKey();
-                    } })];
-            } else if (showCreateKey) {
-                dialogTitle = "Create a Key";
-                dialogContent = _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
-                    _react2['default'].createElement(ModernTextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
-                );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
-                        _this6.setState({ showCreateKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.create'), primary: true, onClick: function () {
-                        _this6.createKey();
-                    } })];
-            }
-
-            var _AdminComponents$AdminStyles = AdminComponents.AdminStyles();
-
-            var body = _AdminComponents$AdminStyles.body;
-            var tableMaster = body.tableMaster;
-
-            var blockProps = body.block.props;
-            var blockStyle = body.block.container;
-
-            return _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        title: dialogTitle,
-                        open: showDialog,
-                        onRequestClose: function () {
-                            _this6.setState({ showDialog: false, showExportKey: null, showImportKey: null, showCreateKey: false });
-                        },
-                        modal: true,
-                        actions: dialogActions,
-                        contentStyle: { maxWidth: 340 }
-                    },
-                    dialogContent
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    _extends({}, blockProps, { style: blockStyle }),
-                    _react2['default'].createElement(MaterialTable, {
-                        data: keys,
-                        columns: columns,
-                        actions: actions,
-                        onSelectRows: function () {},
-                        showCheckboxes: false,
-                        emptyStateString: m('key.emptyState'),
-                        masterStyles: tableMaster,
-                        storageKey: 'console.encryption-keys.list'
-                    })
-                ),
-                accessByName('CreateEncryption') && _react2['default'].createElement(
-                    'div',
-                    { style: { textAlign: 'right', paddingRight: 24, paddingBottom: 24 } },
-                    _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.import'), onClick: function () {
-                            _this6.setState({ showImportKey: {}, showDialog: true });
-                        } }, adminStyles.props.header.flatButton)),
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { marginLeft: 8 } },
-                        _react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('key.create'), onClick: function () {
-                                _this6.setState({ showCreateKey: true, showDialog: true });
-                            } }, adminStyles.props.header.flatButton))
-                    )
-                )
-            );
-        }
-    }]);
-
-    return EncryptionKeys;
-})(_react2['default'].Component);
-
-exports['default'] = EncryptionKeys;
-module.exports = exports['default'];
-
-},{"../model/Ws":33,"cells-sdk":"cells-sdk","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],14:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _modelMetadata = require('../model/Metadata');
-
-var _modelMetadata2 = _interopRequireDefault(_modelMetadata);
-
-var _materialUi = require('material-ui');
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _editorMetaNamespace = require('../editor/MetaNamespace');
-
-var _editorMetaNamespace2 = _interopRequireDefault(_editorMetaNamespace);
-
-var _cellsSdk = require('cells-sdk');
-
-var _require = require('material-ui/styles');
-
-var muiThemeable = _require.muiThemeable;
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var MaterialTable = _Pydio$requireLib.MaterialTable;
-
-var MetadataBoard = (function (_React$Component) {
-    _inherits(MetadataBoard, _React$Component);
-
-    function MetadataBoard(props) {
-        _classCallCheck(this, MetadataBoard);
-
-        _get(Object.getPrototypeOf(MetadataBoard.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            loading: false,
-            namespaces: [],
-            m: function m(id) {
-                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
-            }
-        };
-    }
-
-    _createClass(MetadataBoard, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-            this.load();
-        }
-    }, {
-        key: 'load',
-        value: function load() {
-            var _this = this;
-
-            this.setState({ loading: true });
-            _modelMetadata2['default'].loadNamespaces().then(function (result) {
-                _this.setState({ loading: false, namespaces: result.Namespaces || [] });
-            });
-        }
-    }, {
-        key: 'emptyNs',
-        value: function emptyNs() {
-            var ns = new _cellsSdk.IdmUserMetaNamespace();
-            ns.Policies = [_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'READ', Subject: '*', Effect: 'allow' }), _cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: 'WRITE', Subject: '*', Effect: 'allow' })];
-            ns.JsonDefinition = JSON.stringify({ type: 'string' });
-            return ns;
-        }
-    }, {
-        key: 'create',
-        value: function create() {
-            this.setState({
-                create: true,
-                dialogOpen: true,
-                selectedNamespace: this.emptyNs()
-            });
-        }
-    }, {
-        key: 'deleteNs',
-        value: function deleteNs(row) {
-            var _this2 = this;
-
-            var pydio = this.props.pydio;
-            var m = this.state.m;
-
-            pydio.UI.openConfirmDialog({
-                message: m('delete.confirm'),
-                destructive: [row.Namespace],
-                validCallback: function validCallback() {
-                    _modelMetadata2['default'].deleteNS(row).then(function () {
-                        _this2.load();
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'open',
-        value: function open(rows) {
-            if (rows.length) {
-                this.setState({
-                    create: false,
-                    dialogOpen: true,
-                    selectedNamespace: rows[0]
-                });
-            }
-        }
-    }, {
-        key: 'close',
-        value: function close() {
-            this.setState({ dialogOpen: false, selectedNamespace: null });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this3 = this;
-
-            var muiTheme = this.props.muiTheme;
-
-            var adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
-
-            var _state = this.state;
-            var namespaces = _state.namespaces;
-            var loading = _state.loading;
-            var dialogOpen = _state.dialogOpen;
-            var selectedNamespace = _state.selectedNamespace;
-            var create = _state.create;
-            var m = _state.m;
-
-            if (!selectedNamespace) {
-                selectedNamespace = this.emptyNs();
-            }
-            namespaces.sort(function (a, b) {
-                var a0 = a.Order || 0;
-                var b0 = b.Order || 0;
-                if (a0 === b0) return 0;
-                return a0 > b0 ? 1 : -1;
-            });
-            var _props = this.props;
-            var currentNode = _props.currentNode;
-            var pydio = _props.pydio;
-            var accessByName = _props.accessByName;
-
-            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, hideSmall: true, renderCell: function renderCell(row) {
-                    return row.Order || '0';
-                }, sorter: { type: 'number' } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 }, sorter: { type: 'string' } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }, { name: 'Indexable', label: m('indexable'), style: { width: '10%' }, headerStyle: { width: '10%' }, hideSmall: true, renderCell: function renderCell(row) {
-                    return row.Indexable ? 'Yes' : 'No';
-                }, sorter: { type: 'number', value: function value(row) {
-                        return row.Indexable ? 1 : 0;
-                    } } }, { name: 'JsonDefinition', label: m('definition'), hideSmall: true, renderCell: function renderCell(row) {
-                    var def = row.JsonDefinition;
-                    if (!def) {
-                        return '';
-                    }
-                    var data = JSON.parse(def);
-                    return _modelMetadata2['default'].MetaTypes[data.type] || data.type;
-                }, sorter: { type: 'string' } }];
-            var title = currentNode.getLabel();
-            var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [];
-            var actions = [];
-            if (accessByName('Create')) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('namespace.add'), onClick: function () {
-                        _this3.create();
-                    } }, adminStyle.props.header.flatButton)));
-                actions.push({
-                    iconClassName: 'mdi mdi-pencil',
-                    onClick: function onClick(row) {
-                        _this3.open([row]);
-                    }
-                }, {
-                    iconClassName: 'mdi mdi-delete',
-                    onClick: function onClick(row) {
-                        _this3.deleteNs(row);
-                    }
-                });
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { className: 'main-layout-nav-to-stack workspaces-board' },
-                _react2['default'].createElement(_editorMetaNamespace2['default'], {
-                    pydio: pydio,
-                    open: dialogOpen,
-                    create: create,
-                    namespace: selectedNamespace,
-                    onRequestClose: function () {
-                        return _this3.close();
-                    },
-                    reloadList: function () {
-                        return _this3.load();
-                    },
-                    namespaces: namespaces,
-                    readonly: !accessByName('Create')
-                }),
-                _react2['default'].createElement(
-                    'div',
-                    { className: 'vertical-layout', style: { width: '100%' } },
-                    _react2['default'].createElement(AdminComponents.Header, {
-                        title: title,
-                        icon: icon,
-                        actions: buttons,
-                        reloadAction: this.load.bind(this),
-                        loading: loading
-                    }),
-                    _react2['default'].createElement(
-                        'div',
-                        { className: 'layout-fill' },
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('namespaces'), legend: m('namespaces.legend') }),
-                        _react2['default'].createElement(
-                            _materialUi.Paper,
-                            adminStyle.body.block.props,
-                            _react2['default'].createElement(MaterialTable, {
-                                data: namespaces,
-                                columns: columns,
-                                actions: actions,
-                                onSelectRows: this.open.bind(this),
-                                deselectOnClickAway: true,
-                                showCheckboxes: false,
-                                emptyStateString: m('empty'),
-                                masterStyles: adminStyle.body.tableMaster,
-                                storageKey: 'console.metadata.list'
-                            })
-                        )
-                    )
-                )
-            );
-        }
-    }]);
-
-    return MetadataBoard;
-})(_react2['default'].Component);
-
-exports['default'] = MetadataBoard = muiThemeable()(MetadataBoard);
-
-exports['default'] = MetadataBoard;
-module.exports = exports['default'];
-
-},{"../editor/MetaNamespace":22,"../model/Metadata":31,"cells-sdk":"cells-sdk","material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],15:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _modelVirtualNode = require('../model/VirtualNode');
-
-var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
-
-var _modelDataSource = require('../model/DataSource');
-
-var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
-
-var _virtualNodeCard = require('../virtual/NodeCard');
-
-var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
-
-var _materialUi = require('material-ui');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib.ModernTextField;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
-
-var MaterialTable = _Pydio$requireLib2.MaterialTable;
-
-var VirtualNodes = (function (_React$Component) {
-    _inherits(VirtualNodes, _React$Component);
-
-    function VirtualNodes(props) {
-        var _this = this;
-
-        _classCallCheck(this, VirtualNodes);
-
-        _get(Object.getPrototypeOf(VirtualNodes.prototype), 'constructor', this).call(this, props);
-        this.state = { nodesLoaded: false, nodes: [], dataSourcesLoaded: false, dataSources: [] };
-        _modelVirtualNode2['default'].loadNodes(function (result) {
-            _this.setState({ nodes: result, nodesLoaded: true });
-        });
-        _modelDataSource2['default'].loadDatasources().then(function (result) {
-            _this.setState({ dataSources: result.DataSources, dataSourcesLoaded: true });
-        });
-    }
-
-    _createClass(VirtualNodes, [{
-        key: 'reload',
-        value: function reload() {
-            var _this2 = this;
-
-            this.setState({ nodesLoaded: false });
-            _modelVirtualNode2['default'].loadNodes(function (result) {
-                _this2.setState({ nodes: result, nodesLoaded: true });
-            });
-        }
-    }, {
-        key: 'createNode',
-        value: function createNode() {
-            this.handleRequestClose();
-            var newNode = new _modelVirtualNode2['default']();
-            newNode.setName(this.state.newName);
-            var nodes = this.state.nodes;
-
-            this.setState({ nodes: [].concat(_toConsumableArray(nodes), [newNode]) });
-        }
-    }, {
-        key: 'handleTouchTap',
-        value: function handleTouchTap(event) {
-            var _this3 = this;
-
-            // This prevents ghost click.
-            event.preventDefault();
-            this.setState({
-                newName: '',
-                open: true,
-                anchorEl: event.currentTarget
-            }, function () {
-                setTimeout(function () {
-                    if (_this3.refs['newNode']) _this3.refs['newNode'].focus();
-                }, 300);
-            });
-        }
-    }, {
-        key: 'handleRequestClose',
-        value: function handleRequestClose() {
-            this.setState({
-                open: false
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _props = this.props;
-            var readonly = _props.readonly;
-            var pydio = _props.pydio;
-            var muiTheme = _props.muiTheme;
-            var accessByName = _props.accessByName;
-            var _state = this.state;
-            var nodes = _state.nodes;
-            var dataSources = _state.dataSources;
-            var nodesLoaded = _state.nodesLoaded;
-            var dataSourcesLoaded = _state.dataSourcesLoaded;
-            var selectedNode = _state.selectedNode;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
-            };
-            var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
-
-            var vNodes = nodes.map(function (node) {
-                if (node.getName() === selectedNode) {
-                    return {
-                        node: node,
-                        expandedRow: _react2['default'].createElement(_virtualNodeCard2['default'], {
-                            pydio: pydio,
-                            dataSources: dataSources,
-                            node: node,
-                            reloadList: _this4.reload.bind(_this4),
-                            readonly: readonly || !accessByName('Create'),
-                            adminStyles: adminStyles,
-                            onSave: _this4.reload.bind(_this4)
-                        })
-                    };
-                } else {
-                    return { node: node };
-                }
-            });
-
-            var headerActions = [];
-            if (!readonly && accessByName('Create')) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({ primary: true, label: m('create'), onClick: this.handleTouchTap.bind(this) }, adminStyles.props.header.flatButton)));
-            }
-
-            var columns = [{ name: 'id', label: m('col.id'), style: { width: '25%', fontSize: 15 }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
-                    return row.node.getName();
-                }, sorter: { type: 'string' } }, { name: 'code', label: m('col.code'), renderCell: function renderCell(row) {
-                    return _react2['default'].createElement(
-                        'pre',
-                        null,
-                        row.node.getValue().split('\n').pop()
-                    );
-                } }];
-            var actions = [];
-            if (readonly) {
-                actions.push({
-                    iconClassName: 'mdi mdi-eye',
-                    tooltip: m('code.display'),
-                    onClick: function onClick(row) {
-                        return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
-                    }
-                });
-            } else {
-                actions.push({
-                    iconClassName: 'mdi mdi-pencil',
-                    tooltip: m('code.edit'),
-                    onClick: function onClick(row) {
-                        return _this4.setState({ selectedNode: selectedNode === row.node.getName() ? null : row.node.getName() });
-                    }
-                });
-                actions.push({
-                    iconClassName: 'mdi mdi-delete',
-                    tooltip: m('delete'),
-                    onClick: function onClick(row) {
-                        pydio.UI.openConfirmDialog({
-                            message: m('delete.confirm'),
-                            destructive: [row.node.getName()],
-                            validCallback: function validCallback() {
-                                row.node.remove(function () {
-                                    _this4.reload();
-                                });
-                            } });
-                    },
-                    disable: function disable(row) {
-                        return row.node.getName() === 'cells' || row.node.getName() === 'my-files';
-                    }
-                });
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { className: 'vertical-layout workspaces-list layout-fill', style: { height: '100%' } },
-                _react2['default'].createElement(AdminComponents.Header, {
-                    title: m('title'),
-                    icon: "mdi mdi-help-network",
-                    actions: headerActions,
-                    reloadAction: this.reload.bind(this),
-                    loading: !(nodesLoaded && dataSourcesLoaded)
-                }),
-                _react2['default'].createElement(
-                    _materialUi.Popover,
-                    {
-                        open: this.state.open,
-                        anchorEl: this.state.anchorEl,
-                        anchorOrigin: { horizontal: 'right', vertical: 'top' },
-                        targetOrigin: { horizontal: 'right', vertical: 'top' },
-                        onRequestClose: this.handleRequestClose.bind(this)
-                    },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { margin: '0 10px' } },
-                        _react2['default'].createElement(ModernTextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
-                                _this4.setState({ newName: v });
-                            }, hintText: m('label.new') })
-                    ),
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { textAlign: 'right', padding: '4px 10px' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: this.handleRequestClose.bind(this) }),
-                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('create.button'), onClick: this.createNode.bind(this) })
-                    )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { className: "layout-fill", style: { overflowY: 'auto' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: 20, paddingBottom: 0 } },
-                        m('legend.1')
-                    ),
-                    nodesLoaded && dataSourcesLoaded && _react2['default'].createElement(
-                        _materialUi.Paper,
-                        _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
-                        _react2['default'].createElement(MaterialTable, {
-                            columns: columns,
-                            data: vNodes,
-                            actions: actions,
-                            deselectOnClickAway: true,
-                            showCheckboxes: false,
-                            masterStyles: adminStyles.body.tableMaster,
-                            storageKey: 'console.templatepaths.list'
-                        })
-                    ),
-                    (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
-                        'div',
-                        { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                        pydio.MessageHash['ajxp_admin.loading']
-                    ),
-                    !readonly && accessByName('Create') && _react2['default'].createElement(
-                        'div',
-                        { style: { padding: '0 24px', opacity: '.5' } },
-                        m('legend.2')
-                    )
-                )
-            );
-        }
-    }]);
-
-    return VirtualNodes;
-})(_react2['default'].Component);
-
-exports['default'] = VirtualNodes = (0, _materialUiStyles.muiThemeable)()(VirtualNodes);
-
-exports['default'] = VirtualNodes;
-module.exports = exports['default'];
-
-},{"../model/DataSource":30,"../model/VirtualNode":32,"../virtual/NodeCard":34,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],16:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _createReactClass = require('create-react-class');
-
-var _createReactClass2 = _interopRequireDefault(_createReactClass);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _modelWs = require('../model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
-
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var PydioComponents = _pydio2['default'].requireLib('components');
-var MaterialTable = PydioComponents.MaterialTable;
-exports['default'] = (0, _createReactClass2['default'])({
-    displayName: 'WorkspaceList',
-    mixins: [AdminComponents.MessagesConsumerMixin],
-
-    propTypes: {
-        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
-        openSelection: _propTypes2['default'].func,
-        advanced: _propTypes2['default'].boolean
-    },
-
-    getInitialState: function getInitialState() {
-        return { workspaces: [], loading: false };
-    },
-
-    startLoad: function startLoad() {
-        if (this.props.onLoadState) {
-            this.props.onLoadState(true);
-        }
-        this.setState({ loading: true });
-    },
-
-    endLoad: function endLoad() {
-        if (this.props.onLoadState) {
-            this.props.onLoadState(false);
-        }
-        this.setState({ loading: false });
-    },
-
-    reload: function reload() {
-        var _this = this;
-
-        this.startLoad();
-        _modelWs2['default'].listWorkspaces().then(function (response) {
-            _this.endLoad();
-            _this.setState({ workspaces: response.Workspaces || [] });
-        })['catch'](function (e) {
-            _this.endLoad();
-        });
-    },
-
-    componentDidMount: function componentDidMount() {
-        this.reload();
-    },
-
-    openTableRows: function openTableRows(rows) {
-        if (rows.length) {
-            this.props.openSelection(rows[0].workspace);
-        }
-    },
-
-    deleteAction: function deleteAction(workspace) {
-        var _this2 = this;
-
-        var pydio = this.props.pydio;
-
-        pydio.UI.openConfirmDialog({
-            message: pydio.MessageHash['settings.35'],
-            destructive: [workspace.Label],
-            validCallback: function validCallback() {
-                var ws = new _modelWs2['default'](workspace);
-                ws.remove().then(function () {
-                    _this2.reload();
-                });
-            }
-        });
-    },
-
-    computeTableData: function computeTableData() {
-        var data = [];
-        var filterString = this.props.filterString;
-        var workspaces = this.state.workspaces;
-
-        workspaces.map(function (workspace) {
-            var summary = ""; // compute root nodes list
-            if (workspace.RootNodes) {
-                summary = Object.keys(workspace.RootNodes).map(function (k) {
-                    return _pydioUtilLang2['default'].trimRight(workspace.RootNodes[k].Path, '/');
-                }).join(', ');
-            }
-            var syncable = false;
-            if (workspace.Attributes) {
-                try {
-                    var atts = JSON.parse(workspace.Attributes);
-                    if (atts['ALLOW_SYNC'] === true || atts['ALLOW_SYNC'] === "true") {
-                        syncable = true;
-                    }
-                } catch (e) {}
-            }
-            if (filterString) {
-                var search = filterString.toLowerCase();
-                var l = workspace.Label && workspace.Label.toLowerCase().indexOf(search) >= 0;
-                var d = workspace.Description && workspace.Description.toLowerCase().indexOf(search) >= 0;
-                var ss = summary && summary.toLowerCase().indexOf(search) >= 0;
-                if (!(l || d || ss)) {
-                    return;
-                }
-            }
-            data.push({
-                workspace: workspace,
-                label: workspace.Label,
-                description: workspace.Description,
-                slug: workspace.Slug,
-                summary: summary,
-                syncable: syncable
-            });
-        });
-        data.sort(_pydioUtilLang2['default'].arraySorter('label', false, true));
-        return data;
-    },
-
-    render: function render() {
-        var _this3 = this;
-
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var advanced = _props.advanced;
-        var editable = _props.editable;
-        var tableStyles = _props.tableStyles;
-        var openSelection = _props.openSelection;
-
-        var m = function m(id) {
-            return pydio.MessageHash['ajxp_admin.' + id];
-        };
-        var s = function s(id) {
-            return pydio.MessageHash['settings.' + id];
-        };
-
-        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' }, sorter: { type: 'string', 'default': 'true' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, sorter: { type: 'string' } }];
-        if (advanced) {
-            columns.push({
-                name: 'syncable', label: m('ws.board.syncable'), style: { width: '10%', textAlign: 'center' }, headerStyle: { width: '10%', textAlign: 'center' }, sorter: { type: 'number', sortValue: function sortValue(row) {
-                        return row.syncable ? 1 : 0;
-                    } }, renderCell: function renderCell(row) {
-                    return _react2['default'].createElement('span', { className: "mdi mdi-check", style: { fontSize: 18, opacity: row.syncable ? 1 : 0 } });
-                } });
-        }
-
-        columns.push({ name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' }, sorter: { type: 'string' } });
-
-        var loading = this.state.loading;
-
-        var data = this.computeTableData();
-        var actions = [];
-        if (editable) {
-            actions.push({
-                iconClassName: "mdi mdi-pencil",
-                tooltip: 'Edit Workspace',
-                onClick: function onClick(row) {
-                    openSelection(row.workspace);
-                },
-                disable: function disable(row) {
-                    return !row.workspace.PoliciesContextEditable;
-                }
-            });
-        }
-        var repos = pydio.user.getRepositoriesList();
-        actions.push({
-            iconClassName: 'mdi mdi-open-in-new',
-            tooltip: 'Open this workspace...',
-            onClick: function onClick(row) {
-                pydio.triggerRepositoryChange(row.workspace.UUID);
-            },
-            disable: function disable(row) {
-                return !repos.has(row.workspace.UUID);
-            }
-        });
-        if (editable) {
-            actions.push({
-                iconClassName: "mdi mdi-delete",
-                onClick: function onClick(row) {
-                    _this3.deleteAction(row.workspace);
-                },
-                disable: function disable(row) {
-                    return !row.workspace.PoliciesContextEditable;
-                }
-            });
-        }
-
-        return _react2['default'].createElement(MaterialTable, {
-            data: data,
-            columns: columns,
-            actions: actions,
-            onSelectRows: editable ? this.openTableRows.bind(this) : null,
-            deselectOnClickAway: true,
-            showCheckboxes: false,
-            emptyStateString: loading ? m('loading') : m('ws.board.empty'),
-            masterStyles: tableStyles,
-            paginate: [10, 25, 50, 100],
-            defaultPageSize: 25,
-            storageKey: 'console.workspaces.list'
-        });
-    }
-});
-module.exports = exports['default'];
-
-},{"../model/Ws":33,"create-react-class":"create-react-class","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],17:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _createReactClass = require('create-react-class');
-
-var _createReactClass2 = _interopRequireDefault(_createReactClass);
-
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _materialUi = require('material-ui');
-
-var _pydioUtilXml = require('pydio/util/xml');
-
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
-
-var _editorWsEditor = require('../editor/WsEditor');
-
-var _editorWsEditor2 = _interopRequireDefault(_editorWsEditor);
-
-var _WorkspaceList = require('./WorkspaceList');
-
-var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib.ModernTextField;
-
-var WsDashboard = (0, _createReactClass2['default'])({
-    displayName: 'WsDashboard',
-    mixins: [AdminComponents.MessagesConsumerMixin],
-
-    propTypes: {
-        dataModel: _propTypes2['default'].instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _propTypes2['default'].instanceOf(_pydioModelNode2['default']).isRequired,
-        openEditor: _propTypes2['default'].func.isRequired,
-        openRightPane: _propTypes2['default'].func.isRequired,
-        closeRightPane: _propTypes2['default'].func.isRequired,
-        accessByName: _propTypes2['default'].func.isRequired,
-        advanced: _propTypes2['default'].boolean
-    },
-
-    getInitialState: function getInitialState() {
-        return { selectedNode: null, searchString: '' };
-    },
-
-    dirtyEditor: function dirtyEditor() {
-        var pydio = this.props.pydio;
-
-        if (this.refs.editor && this.refs.editor.isDirty()) {
-            if (!confirm(pydio.MessageHash["role_editor.19"])) {
-                return true;
-            }
-        }
-        return false;
-    },
-
-    openWorkspace: function openWorkspace(workspace) {
-        var _this = this;
-
-        if (this.dirtyEditor()) {
-            return;
-        }
-        var editor = _editorWsEditor2['default'];
-        var editorNode = _pydioUtilXml2['default'].XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
-        if (editorNode) {
-            editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
-        }
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var advanced = _props.advanced;
-        var accessByName = _props.accessByName;
-
-        var editorData = {
-            COMPONENT: editor,
-            PROPS: {
-                ref: "editor",
-                pydio: pydio,
-                workspace: workspace,
-                closeEditor: this.closeWorkspace,
-                advanced: advanced,
-                reloadList: function reloadList() {
-                    _this.refs['workspacesList'].reload();
-                }
-            }
-        };
-        this.props.openRightPane(editorData);
-        return true;
-    },
-
-    closeWorkspace: function closeWorkspace() {
-        if (!this.dirtyEditor()) {
-            this.props.closeRightPane();
-        }
-    },
-
-    showWorkspaceCreator: function showWorkspaceCreator(type) {
-        var _this2 = this;
-
-        var _props2 = this.props;
-        var pydio = _props2.pydio;
-        var advanced = _props2.advanced;
-
-        var editorData = {
-            COMPONENT: _editorWsEditor2['default'],
-            PROPS: {
-                ref: "editor",
-                type: type,
-                pydio: pydio,
-                advanced: advanced,
-                closeEditor: this.closeWorkspace,
-                reloadList: function reloadList() {
-                    _this2.refs['workspacesList'].reload();
-                }
-            }
-        };
-        this.props.openRightPane(editorData);
-    },
-
-    reloadWorkspaceList: function reloadWorkspaceList() {
-        this.refs.workspacesList.reload();
-    },
-
-    render: function render() {
-        var _this3 = this;
-
-        var _props3 = this.props;
-        var pydio = _props3.pydio;
-        var advanced = _props3.advanced;
-        var currentNode = _props3.currentNode;
-        var accessByName = _props3.accessByName;
-        var muiTheme = _props3.muiTheme;
-        var _state = this.state;
-        var searchString = _state.searchString;
-        var loading = _state.loading;
-
-        var adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
-
-        var buttons = [];
-        if (accessByName('Create')) {
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, _extends({
-                primary: true,
-                label: this.context.getMessage('ws.3'),
-                onClick: this.showWorkspaceCreator
-            }, adminStyles.props.header.flatButton)));
-        }
-
-        var searchBox = _react2['default'].createElement(
-            'div',
-            { style: { display: 'flex' } },
-            _react2['default'].createElement('div', { style: { flex: 1 } }),
-            _react2['default'].createElement(
-                'div',
-                { style: { width: 190 } },
-                _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: this.context.getMessage('ws.filter.workspaces'), value: searchString, onChange: function (e, v) {
-                        return _this3.setState({ searchString: v });
-                    } })
-            )
-        );
-
-        return _react2['default'].createElement(
-            'div',
-            { className: 'main-layout-nav-to-stack vertical-layout workspaces-board' },
-            _react2['default'].createElement(AdminComponents.Header, {
-                title: currentNode.getLabel(),
-                icon: 'mdi mdi-folder-open',
-                actions: buttons,
-                centerContent: searchBox,
-                reloadAction: this.reloadWorkspaceList,
-                loading: loading
-            }),
-            _react2['default'].createElement(
-                'div',
-                { className: 'layout-fill' },
-                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage('ws.dashboard', 'ajxp_admin') }),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    _extends({}, adminStyles.body.block.props, { style: adminStyles.body.block.container }),
-                    _react2['default'].createElement(_WorkspaceList2['default'], {
-                        ref: 'workspacesList',
-                        pydio: pydio,
-                        openSelection: this.openWorkspace,
-                        advanced: advanced,
-                        editable: accessByName('Create'),
-                        onLoadState: function (state) {
-                            _this3.setState({ loading: state });
-                        },
-                        tableStyles: adminStyles.body.tableMaster,
-                        filterString: searchString
-                    })
-                )
-            )
-        );
-    }
-});
-
-exports['default'] = (0, _materialUiStyles.muiThemeable)()(WsDashboard);
-module.exports = exports['default'];
-
-},{"../editor/WsEditor":26,"./WorkspaceList":16,"create-react-class":"create-react-class","material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],18:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _modelDataSource = require('../model/DataSource');
-
-var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
-
-var _materialUi = require('material-ui');
-
-var _lodash = require('lodash');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib.ModernTextField;
-
-var DataSourceBucketSelector = (function (_React$Component) {
-    _inherits(DataSourceBucketSelector, _React$Component);
-
-    function DataSourceBucketSelector(props) {
-        var _this = this;
-
-        _classCallCheck(this, DataSourceBucketSelector);
-
-        _get(Object.getPrototypeOf(DataSourceBucketSelector.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            buckets: [],
-            selection: [],
-            mode: this.modeFromValue(),
-            monitorApi: props.dataSource.ApiKey + '-' + props.dataSource.ApiSecret
-        };
-        if (props.dataSource.ObjectsBucket) {
-            this.state.selection = [props.dataSource.ObjectsBucket];
-        }
-        this.load();
-        this.loadSelection();
-        this.reloadSelection = (0, _lodash.debounce)(function () {
-            _this.loadSelection();
-        }, 500);
-        this.loadDebounced = (0, _lodash.debounce)(function () {
-            _this.load();
-        }, 500);
-    }
-
-    _createClass(DataSourceBucketSelector, [{
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            var monitor = newProps.dataSource.ApiKey + '-' + newProps.dataSource.ApiSecret;
-            var monitorApi = this.state.monitorApi;
-
-            if (monitor !== monitorApi) {
-                this.loadDebounced();
-                this.setState({ monitorApi: monitor });
-            }
-        }
-    }, {
-        key: 'load',
-        value: function load() {
-            var _this2 = this;
-
-            var dataSource = this.props.dataSource;
-
-            if (!dataSource.ApiKey || !dataSource.ApiSecret) {
-                this.setState({ buckets: [] });
-                return;
-            }
-            this.setState({ loading: true });
-            _modelDataSource2['default'].loadBuckets(dataSource).then(function (collection) {
-                var nodes = collection.Children || [];
-                _this2.setState({ buckets: nodes.map(function (n) {
-                        return n.Path;
-                    }), loading: false });
-            })['catch'](function (e) {
-                _this2.setState({ buckets: [], loading: false });
-            });
-        }
-    }, {
-        key: 'loadSelection',
-        value: function loadSelection() {
-            var _this3 = this;
-
-            var dataSource = this.props.dataSource;
-
-            if (!dataSource.ApiKey || !dataSource.ApiSecret) {
-                this.setState({ selection: [] });
-                return;
-            }
-            if (dataSource.ObjectsBucket) {
-                this.setState({ selection: [dataSource.ObjectsBucket] });
-                return;
-            }
-            this.setState({ selection: [] });
-            if (!dataSource.StorageConfiguration.bucketsRegexp) {
-                return;
-            }
-            _modelDataSource2['default'].loadBuckets(dataSource, dataSource.StorageConfiguration.bucketsRegexp).then(function (collection) {
-                var nodes = collection.Children || [];
-                _this3.setState({ selection: nodes.map(function (n) {
-                        return n.Path;
-                    }) });
-            });
-        }
-    }, {
-        key: 'modeFromValue',
-        value: function modeFromValue() {
-            var dataSource = this.props.dataSource;
-
-            var mode = 'picker';
-            if (dataSource.StorageConfiguration.bucketsRegexp) {
-                mode = 'regexp';
-            }
-            return mode;
-        }
-    }, {
-        key: 'toggleMode',
-        value: function toggleMode() {
-            var mode = this.state.mode;
-            var dataSource = this.props.dataSource;
-
-            if (mode === 'picker') {
-                if (dataSource.ObjectsBucket) {
-                    dataSource.StorageConfiguration.bucketsRegexp = dataSource.ObjectsBucket;
-                    dataSource.ObjectsBucket = '';
-                    this.reloadSelection();
-                }
-                this.setState({ mode: 'regexp' });
-            } else {
-                dataSource.StorageConfiguration.bucketsRegexp = '';
-                this.reloadSelection();
-                this.setState({ mode: 'picker' });
-            }
-        }
-    }, {
-        key: 'togglePicker',
-        value: function togglePicker(value) {
-            var dataSource = this.props.dataSource;
-            var selection = this.state.selection;
-
-            var newSel = [];
-            var idx = selection.indexOf(value);
-            if (idx === -1) {
-                newSel = [].concat(_toConsumableArray(selection), [value]);
-            } else {
-                newSel = _pydioUtilLang2['default'].arrayWithout(selection, idx);
-            }
-            if (newSel.length === 1) {
-                dataSource.ObjectsBucket = newSel[0];
-                dataSource.StorageConfiguration.bucketsRegexp = '';
-            } else {
-                dataSource.ObjectsBucket = '';
-                dataSource.StorageConfiguration.bucketsRegexp = newSel.map(function (v) {
-                    return '^' + v + '$';
-                }).join('|');
-            }
-            this.setState({ selection: newSel });
-        }
-    }, {
-        key: 'updateRegexp',
-        value: function updateRegexp(v) {
-            var dataSource = this.props.dataSource;
-
-            dataSource.StorageConfiguration.bucketsRegexp = v;
-            this.reloadSelection();
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var dataSource = this.props.dataSource;
-            var _state = this.state;
-            var buckets = _state.buckets;
-            var selection = _state.selection;
-            var mode = _state.mode;
-            var loading = _state.loading;
-
-            var m = function m(id) {
-                return _pydio2['default'].getInstance().MessageHash['ajxp_admin.ds.editor.storage.' + id] || id;
-            };
-
-            var iconStyles = {
-                style: { width: 30, height: 30, padding: 5 },
-                iconStyle: { width: 20, height: 20, color: 'rgba(0,0,0,.5)', fontSize: 18 }
-            };
-            var disabled = !dataSource.ApiKey || !dataSource.ApiSecret;
-
-            return _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'flex-end', marginTop: 20 } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1 } },
-                        m('buckets.legend')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { display: 'flex', alignItems: 'flex-end' } },
-                        mode === 'regexp' && _react2['default'].createElement(
-                            'div',
-                            { style: { width: 200, height: 36 } },
-                            _react2['default'].createElement(ModernTextField, {
-                                hintText: m('buckets.regexp.hint'),
-                                fullWidth: true,
-                                value: dataSource.StorageConfiguration.bucketsRegexp || '',
-                                onChange: function (e, v) {
-                                    _this4.updateRegexp(v);
-                                }
-                            })
-                        ),
-                        _react2['default'].createElement(_materialUi.IconButton, _extends({
-                            iconClassName: "mdi mdi-filter",
-                            tooltip: mode === 'picker' ? m('buckets.regexp') : '',
-                            tooltipPosition: "top-left",
-                            onClick: function () {
-                                _this4.toggleMode();
-                            },
-                            disabled: disabled
-                        }, iconStyles))
-                    ),
-                    _react2['default'].createElement(_materialUi.IconButton, _extends({
-                        iconClassName: "mdi mdi-reload",
-                        tooltip: m('buckets.reload'),
-                        tooltipPosition: "top-left",
-                        onClick: function () {
-                            _this4.load();
-                        },
-                        disabled: disabled
-                    }, iconStyles))
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', flexWrap: 'wrap', marginTop: 8, backgroundColor: '#f5f5f5', borderRadius: 5, padding: 2, maxHeight: 275, overflowY: 'auto' } },
-                    buckets.map(function (b) {
-                        var selected = selection.indexOf(b) !== -1;
-                        var chipToucher = {};
-                        if (mode === 'picker') {
-                            chipToucher.onClick = function () {
-                                _this4.togglePicker(b);
-                            };
-                        } else if (!dataSource.StorageConfiguration.bucketsRegexp) {
-                            chipToucher.onClick = function () {
-                                _this4.toggleMode();_this4.togglePicker(b);
-                            };
-                        }
-                        return _react2['default'].createElement(
-                            'div',
-                            { style: { margin: 5 } },
-                            _react2['default'].createElement(
-                                _materialUi.Chip,
-                                _extends({}, chipToucher, { backgroundColor: selected ? '#03a9f4' : null }),
-                                b
-                            )
-                        );
-                    }),
-                    buckets.length === 0 && _react2['default'].createElement(
-                        'div',
-                        { style: { padding: 5, textAlign: 'center', fontSize: 16, color: 'rgba(0,0,0,.37)' } },
-                        disabled ? m('buckets.cont.nokeys') : loading ? m('buckets.cont.loading') : m('buckets.cont.empty')
-                    )
-                )
-            );
-        }
-    }]);
-
-    return DataSourceBucketSelector;
-})(_react2['default'].Component);
-
-exports['default'] = DataSourceBucketSelector;
-module.exports = exports['default'];
-
-},{"../model/DataSource":30,"lodash":1,"material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","react":"react"}],19:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _modelDataSource = require('../model/DataSource');
-
-var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
-
-var _materialUi = require('material-ui');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _DataSourceLocalSelector = require('./DataSourceLocalSelector');
-
-var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector);
-
-var _DsStorageSelector = require('./DsStorageSelector');
-
-var _DsStorageSelector2 = _interopRequireDefault(_DsStorageSelector);
-
-var _DataSourceBucketSelector = require('./DataSourceBucketSelector');
-
-var _DataSourceBucketSelector2 = _interopRequireDefault(_DataSourceBucketSelector);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib2.ModernTextField;
-var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
-var ModernStyles = _Pydio$requireLib2.ModernStyles;
-
-var DataSourceEditor = (function (_React$Component) {
-    _inherits(DataSourceEditor, _React$Component);
-
-    function DataSourceEditor(props) {
-        var _this = this;
-
-        _classCallCheck(this, DataSourceEditor);
-
-        _get(Object.getPrototypeOf(DataSourceEditor.prototype), 'constructor', this).call(this, props);
-        var observable = new _modelDataSource2['default'](props.dataSource, props.existingNames);
-        this.state = {
-            dirty: false,
-            create: props.create,
-            observable: observable,
-            model: observable.getModel(),
-            loaded: false,
-            valid: observable.isValid(),
-            encryptionKeys: [],
-            versioningPolicies: [],
-            s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
-            m: function m(id) {
-                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
-            }
-        };
-        _modelDataSource2['default'].loadEncryptionKeys().then(function (res) {
-            _this.setState({ encryptionKeys: res.Keys || [] });
-        });
-        _modelDataSource2['default'].loadVersioningPolicies().then(function (res) {
-            _this.setState({ versioningPolicies: res.Policies || [] });
-        });
-    }
-
-    _createClass(DataSourceEditor, [{
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            if (newProps.dataSource && this.state.model.Name !== newProps.dataSource.Name) {
-                if (this.state.dirty) {
-                    alert(this.props.pydio.MessageHash['role_editor.19']);
-                } else {
-                    var observable = new _modelDataSource2['default'](newProps.dataSource);
-                    this.setState({
-                        observable: observable,
-                        model: observable.getModel()
-                    });
-                }
-            }
-            if (newProps.create && this.state.create !== newProps.create) {
-                this.setState({ create: newProps.create });
-            }
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this2 = this;
-
-            var observable = this.state.observable;
-
-            observable.observe("update", function () {
-                _this2.setState({ dirty: true });
-                _this2.forceUpdate();
-            });
-        }
-    }, {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-            var observable = this.state.observable;
-
-            observable.stopObserving("update");
-        }
-    }, {
-        key: 'resetForm',
-        value: function resetForm() {
-            var _this3 = this;
-
-            var observable = this.state.observable;
-
-            var newModel = observable.revert();
-            this.setState({
-                valid: true,
-                dirty: false,
-                model: newModel
-            }, function () {
-                _this3.forceUpdate();
-            });
-        }
-    }, {
-        key: 'deleteSource',
-        value: function deleteSource() {
-            var _this4 = this;
-
-            var _state = this.state;
-            var m = _state.m;
-            var observable = _state.observable;
-            var pydio = this.props.pydio;
-
-            pydio.UI.openConfirmDialog({
-                message: m('delete.warning'),
-                validCallback: function validCallback() {
-                    observable.deleteSource().then(function () {
-                        _this4.props.closeEditor();
-                        _this4.props.reloadList();
-                    });
-                },
-                destructive: [observable.getModel().Name]
-            });
-        }
-    }, {
-        key: 'saveSource',
-        value: function saveSource() {
-            var _this5 = this;
-
-            var _state2 = this.state;
-            var observable = _state2.observable;
-            var create = _state2.create;
-
-            this.state.observable.saveSource().then(function () {
-                var newDsName = null;
-                if (create) {
-                    newDsName = observable.getModel().Name;
-                }
-                _this5.setState({ valid: true, dirty: false, create: false });
-                if (create) {
-                    _this5.props.closeEditor();
-                }
-                _this5.props.reloadList(newDsName);
-            });
-        }
-    }, {
-        key: 'launchResync',
-        value: function launchResync() {
-            this.state.observable.resyncSource();
-        }
-    }, {
-        key: 'toggleEncryption',
-        value: function toggleEncryption(value) {
-            if (value) {
-                this.setState({ showDialog: 'enableEncryption', dialogTargetValue: value });
-            } else {
-                this.setState({ showDialog: 'disableEncryption', dialogTargetValue: value });
-            }
-        }
-    }, {
-        key: 'confirmEncryption',
-        value: function confirmEncryption(value) {
-            var _state3 = this.state;
-            var model = _state3.model;
-            var encryptionKeys = _state3.encryptionKeys;
-
-            model.EncryptionMode = value ? "MASTER" : "CLEAR";
-            if (value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length) {
-                model.EncryptionKey = encryptionKeys[0].ID;
-            }
-            this.setState({ showDialog: false, dialogTargetValue: null });
-        }
-    }, {
-        key: 'toggleS3Custom',
-        value: function toggleS3Custom(value) {
-            var model = this.state.model;
-
-            if (value === "aws") {
-                model.StorageConfiguration.customEndpoint = "";
-                model.StorageConfiguration.customRegion = "";
-            }
-            this.setState({ s3Custom: value });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this6 = this;
-
-            var _props = this.props;
-            var storageTypes = _props.storageTypes;
-            var pydio = _props.pydio;
-            var readonly = _props.readonly;
-            var _state4 = this.state;
-            var model = _state4.model;
-            var create = _state4.create;
-            var observable = _state4.observable;
-            var encryptionKeys = _state4.encryptionKeys;
-            var versioningPolicies = _state4.versioningPolicies;
-            var showDialog = _state4.showDialog;
-            var dialogTargetValue = _state4.dialogTargetValue;
-            var s3Custom = _state4.s3Custom;
-            var m = _state4.m;
-
-            var titleActionBarButtons = [];
-            if (!readonly) {
-                if (!create) {
-                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
-                        _this6.resetForm();
-                    }, !this.state.dirty));
-                }
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
-                    _this6.saveSource();
-                }, !observable.isValid() || !this.state.dirty));
-            }
-
-            var leftNav = _react2['default'].createElement(
-                'div',
-                { style: { padding: '6px 0', color: '#9E9E9E', fontSize: 13 } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { fontSize: 120, textAlign: 'center' } },
-                    _react2['default'].createElement('i', { className: 'mdi mdi-database' })
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 16 } },
-                    this.context.getMessage('ws.75'),
-                    ' ',
-                    this.context.getMessage('ws.76')
-                ),
-                create && model.StorageType === 'LOCAL' && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: 16 } },
-                        m('legend.local'),
-                        _react2['default'].createElement(
-                            'ul',
-                            null,
-                            _react2['default'].createElement(
-                                'li',
-                                { style: { listStyle: 'disc', marginLeft: 20 } },
-                                m('legend.local.li.1')
-                            ),
-                            _react2['default'].createElement(
-                                'li',
-                                { style: { listStyle: 'disc', marginLeft: 20 } },
-                                m('legend.local.li.2')
-                            ),
-                            _react2['default'].createElement(
-                                'li',
-                                { style: { listStyle: 'disc', marginLeft: 20 } },
-                                m('legend.local.li.3')
-                            )
-                        )
-                    )
-                ),
-                create && model.StorageType === 'S3' && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: 16 } },
-                        m('legend.s3.1'),
-                        _react2['default'].createElement('br', null),
-                        m('legend.s3.2')
-                    )
-                ),
-                !create && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: 16 } },
-                        m('legend.resync'),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { textAlign: 'center', marginTop: 10 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('legend.resync.button'), onClick: this.launchResync.bind(this) })
-                        )
-                    )
-                ),
-                !create && !readonly && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.Divider, null),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: 16 } },
-                        m('legend.delete.1'),
-                        _react2['default'].createElement('br', null),
-                        m('legend.delete.2'),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { textAlign: 'center', marginTop: 10 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('legend.delete.button'), onClick: this.deleteSource.bind(this), style: { marginTop: 16 } })
-                        )
-                    )
-                )
-            );
-
-            var title = model.Name ? m('title').replace('%s', model.Name) : m('new');
-            var storageConfig = model.StorageConfiguration;
-            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
-            var styles = {
-                title: {
-                    fontSize: 20,
-                    paddingTop: 20,
-                    marginBottom: 10
-                },
-                legend: {},
-                subLegend: {
-                    padding: '10px 6px 0 4px',
-                    fontSize: 12,
-                    lineHeight: '16px',
-                    color: 'rgba(0,0,0,0.6)',
-                    textAlign: 'justify'
-                },
-                section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
-                storageSection: { padding: 20, marginTop: -1 },
-                toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
-            };
-
-            var storages = {
-                LOCAL: { primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image: 'fs.png' },
-                S3: { primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image: 's3-compat.png' },
-                AZURE: { primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image: 'azure.png' },
-                GCS: { primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image: 'gcs.png' }
-            };
-            var storageData = {};
-            storageTypes.forEach(function (type) {
-                storageData[type] = storages[type];
-            });
-            if (model.StorageType && !storageData[model.StorageType]) {
-                storageData[model.StorageType] = storages[model.StorageType];
-            }
-
-            var cannotEnableEnc = model.EncryptionMode !== 'MASTER' && (!encryptionKeys || !encryptionKeys.length);
-
-            return _react2['default'].createElement(
-                PydioComponents.PaperEditorLayout,
-                {
-                    title: title,
-                    titleActionBar: titleActionBarButtons,
-                    closeAction: this.props.closeEditor,
-                    leftNav: leftNav,
-                    className: 'workspace-editor',
-                    contentFill: false
-                },
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        open: showDialog,
-                        title: m('enc.warning'),
-                        onRequestClose: function () {
-                            _this6.confirmEncryption(!dialogTargetValue);
-                        },
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
-                                _this6.confirmEncryption(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onClick: function () {
-                                _this6.confirmEncryption(dialogTargetValue);
-                            } })]
-                    },
-                    showDialog === 'enableEncryption' && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(
-                            'p',
-                            null,
-                            m('enc.dialog.enable.1')
-                        ),
-                        _react2['default'].createElement(
-                            'p',
-                            null,
-                            m('enc.dialog.enable.2'),
-                            ' ',
-                            _react2['default'].createElement(
-                                'b',
-                                null,
-                                m('enc.dialog.enable.2bold')
-                            )
-                        ),
-                        _react2['default'].createElement(
-                            'p',
-                            null,
-                            m('enc.dialog.enable.3')
-                        )
-                    ),
-                    showDialog === 'disableEncryption' && _react2['default'].createElement(
-                        'div',
-                        null,
-                        m('enc.dialog.disable')
-                    )
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 0, style: styles.section },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.title },
-                        m('options')
-                    ),
-                    _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
-                            model.Name = v;
-                        }, errorText: observable.getNameError(m) }),
-                    !create && _react2['default'].createElement(
-                        'div',
-                        { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
-                                model.Disabled = !v;
-                            } }, ModernStyles.toggleField))
-                    )
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 0, style: _extends({}, styles.section, { padding: 0 }) },
-                    _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
-                            model.StorageType = v;
-                        }, values: storageData }),
-                    model.StorageType === 'LOCAL' && _react2['default'].createElement(
-                        'div',
-                        { style: styles.storageSection },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: styles.legend },
-                            m('storage.legend.fs')
-                        ),
-                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio, styles: styles }),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: styles.toggleDiv },
-                            _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
-                                    storageConfig.normalize = v ? "true" : "false";
-                                } }, ModernStyles.toggleField))
-                        )
-                    ),
-                    model.StorageType === 'S3' && _react2['default'].createElement(
-                        'div',
-                        { style: styles.storageSection },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: styles.legend },
-                            m('storage.legend.s3')
-                        ),
-                        _react2['default'].createElement(
-                            ModernSelectField,
-                            { fullWidth: true, value: s3Custom, onChange: function (e, i, v) {
-                                    _this6.toggleS3Custom(v);
-                                } },
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: "aws", primaryText: m('storage.s3.endpoint.amazon') }),
-                            _react2['default'].createElement(_materialUi.MenuItem, { value: "custom", primaryText: m('storage.s3.endpoint.custom') })
-                        ),
-                        s3Custom === 'custom' && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
-                                    model.StorageConfiguration.customEndpoint = v;
-                                } }),
-                            _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.region'), value: model.StorageConfiguration.customRegion, onChange: function (e, v) {
-                                    model.StorageConfiguration.customRegion = v;
-                                } })
-                        ),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
-                                model.ApiKey = v;
-                            } }),
-                        _react2['default'].createElement(
-                            'form',
-                            { autoComplete: "off" },
-                            _react2['default'].createElement('input', { type: 'hidden', value: 'something' }),
-                            _react2['default'].createElement(ModernTextField, { autoComplete: "off", fullWidth: true, type: "password", hintText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
-                                    model.ApiSecret = v;
-                                } })
-                        ),
-                        _react2['default'].createElement(_DataSourceBucketSelector2['default'], { dataSource: model, hintText: m('storage.s3.bucket') }),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: _extends({}, styles.subLegend, { paddingTop: 40 }) },
-                            m('storage.s3.legend.tags')
-                        ),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { display: 'flex' } },
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { flex: 1, marginRight: 5 } },
-                                _react2['default'].createElement(ModernTextField, {
-                                    fullWidth: true,
-                                    disabled: !!model.ObjectsBucket,
-                                    hintText: m('storage.s3.bucketsTags'),
-                                    value: model.StorageConfiguration.bucketsTags || '',
-                                    onChange: function (e, v) {
-                                        model.StorageConfiguration.bucketsTags = v;
-                                    } })
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { flex: 1, marginLeft: 5 } },
-                                _react2['default'].createElement(ModernTextField, {
-                                    disabled: true,
-                                    fullWidth: true,
-                                    hintText: m('storage.s3.objectsTags') + ' (not implemented yet)',
-                                    value: model.StorageConfiguration.objectsTags || '',
-                                    onChange: function (e, v) {
-                                        model.StorageConfiguration.objectsTags = v;
-                                    } })
-                            )
-                        )
-                    ),
-                    model.StorageType === 'AZURE' && _react2['default'].createElement(
-                        'div',
-                        { style: styles.storageSection },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: styles.legend },
-                            m('storage.legend.azure')
-                        ),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
-                                model.ObjectsBucket = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
-                                model.ApiKey = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, type: "password", hintText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
-                                model.ApiSecret = v;
-                            } })
-                    ),
-                    model.StorageType === 'GCS' && _react2['default'].createElement(
-                        'div',
-                        { style: styles.storageSection },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: styles.legend },
-                            m('storage.legend.gcs')
-                        ),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
-                                model.ObjectsBucket = v;
-                            } }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
-                                model.StorageConfiguration.jsonCredentials = v;
-                            }, multiLine: true }),
-                        _react2['default'].createElement(ModernTextField, { fullWidth: true, hintText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
-                                model.ObjectsBaseFolder = v;
-                            } })
-                    )
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 0, style: styles.section },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.title },
-                        m('datamanagement')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
-                        m('storage.legend.versioning')
-                    ),
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        { fullWidth: true, value: model.VersioningPolicyName, onChange: function (e, i, v) {
-                                model.VersioningPolicyName = v;
-                            } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
-                        versioningPolicies.map(function (key) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
-                        })
-                    ),
-                    model.StorageType !== 'LOCAL' && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(
-                            'div',
-                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
-                            m('storage.legend.readOnly')
-                        ),
-                        _react2['default'].createElement(_materialUi.Toggle, _extends({
-                            label: m('storage.readOnly'),
-                            labelPosition: "right",
-                            toggled: model.StorageConfiguration.readOnly === 'true',
-                            onToggle: function (e, v) {
-                                model.StorageConfiguration.readOnly = v ? 'true' : '';
-                            }
-                        }, ModernStyles.toggleField))
-                    ),
-                    (!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(
-                            'div',
-                            { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
-                            m('storage.legend.checksumMapper')
-                        ),
-                        _react2['default'].createElement(_materialUi.Toggle, _extends({
-                            label: m('storage.nativeEtags'),
-                            labelPosition: "right",
-                            toggled: model.StorageConfiguration.nativeEtags,
-                            onToggle: function (e, v) {
-                                model.StorageConfiguration.nativeEtags = v ? 'true' : '';
-                            }
-                        }, ModernStyles.toggleField)),
-                        !model.StorageConfiguration.nativeEtags && _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(_materialUi.Toggle, _extends({
-                                label: m('storage.checksumMapper'),
-                                labelPosition: "right",
-                                toggled: model.StorageConfiguration.checksumMapper === 'dao',
-                                onToggle: function (e, v) {
-                                    model.StorageConfiguration.checksumMapper = v ? 'dao' : '';
-                                }
-                            }, ModernStyles.toggleField))
-                        )
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.subLegend, { paddingTop: 20 }) },
-                        m('storage.legend.encryption')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, _extends({ labelPosition: "right", label: m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState'] + ')' : ''), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
-                                _this6.toggleEncryption(v);
-                            },
-                            disabled: cannotEnableEnc }, ModernStyles.toggleField))
-                    ),
-                    model.EncryptionMode === "MASTER" && _react2['default'].createElement(
-                        ModernSelectField,
-                        { fullWidth: true, hintText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
-                                model.EncryptionKey = v;
-                            } },
-                        encryptionKeys.map(function (key) {
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: key.ID, primaryText: key.Label });
-                        })
-                    )
-                )
-            );
-        }
-    }]);
-
-    return DataSourceEditor;
-})(_react2['default'].Component);
-
-DataSourceEditor.contextTypes = {
-    messages: _propTypes2['default'].object,
-    getMessage: _propTypes2['default'].func
-};
-
-exports['default'] = DataSourceEditor = (0, _materialUiStyles.muiThemeable)()(DataSourceEditor);
-
-exports['default'] = DataSourceEditor;
-module.exports = exports['default'];
-
-},{"../model/DataSource":30,"./DataSourceBucketSelector":18,"./DataSourceLocalSelector":20,"./DsStorageSelector":21,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","prop-types":"prop-types","pydio":"pydio","react":"react"}],20:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _cellsSdk = require('cells-sdk');
-
-var _materialUi = require('material-ui');
-
-var _lodashDebounce = require('lodash.debounce');
-
-var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _pydioUtilPath = require('pydio/util/path');
-
-var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib.ModernTextField;
-var ModernSelectField = _Pydio$requireLib.ModernSelectField;
-var ModernStyles = _Pydio$requireLib.ModernStyles;
-
-var AutocompleteTree = (function (_React$Component) {
-    _inherits(AutocompleteTree, _React$Component);
-
-    function AutocompleteTree(props) {
-        _classCallCheck(this, AutocompleteTree);
-
-        _get(Object.getPrototypeOf(AutocompleteTree.prototype), 'constructor', this).call(this, props);
-        this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
-        this.state = { searchText: props.value, value: props.value };
-    }
-
-    _createClass(AutocompleteTree, [{
-        key: 'handleUpdateInput',
-        value: function handleUpdateInput(searchText) {
-            this.debounced();
-            this.setState({ searchText: searchText });
-        }
-    }, {
-        key: 'handleNewRequest',
-        value: function handleNewRequest(chosenValue) {
-            var key = undefined;
-            var nodes = this.state.nodes;
-
-            var exist = false;
-            if (chosenValue.key === undefined) {
-                key = '/' + _pydioUtilLang2['default'].trim(chosenValue, '/');
-                var ok = false;
-                nodes.map(function (node) {
-                    //const test = node.Path + '/';
-                    if (node.Path === key || node.Path.indexOf(key + '/') === 0) {
-                        ok = true;
-                    }
-                });
-                if (ok) {
-                    exist = true;
-                }
-            } else {
-                key = chosenValue.key;
-                exist = true;
-            }
-            this.setState({ value: key, exist: exist });
-            this.props.onChange(key, exist);
-            this.loadValues(key);
-        }
-    }, {
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-            this.lastSearch = null;
-            var value = "";
-            if (this.props.value) {
-                value = this.props.value;
-            }
-            this.loadValues(value);
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            if (newProps.value && newProps.value !== this.state.value) {
-                this.setState({ value: newProps.value, exist: true });
-            }
-        }
-    }, {
-        key: 'loadValues',
-        value: function loadValues() {
-            var _this = this;
-
-            var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
-            var peerAddress = this.props.peerAddress;
-            var searchText = this.state.searchText;
-
-            var basePath = value;
-            if (!value && searchText) {
-                var last = searchText.lastIndexOf('/');
-                basePath = searchText.substr(0, last);
-            }
-            if (this.lastSearch !== null && this.lastSearch === basePath) {
-                return Promise.resolve();
-            }
-            this.lastSearch = basePath;
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var listRequest = new _cellsSdk.RestListPeerFoldersRequest();
-            listRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
-            listRequest.Path = basePath;
-            this.setState({ loading: true });
-            return api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
-                var children = nodesColl.Children || [];
-                children = children.map(function (c) {
-                    if (c.Path[0] !== '/') {
-                        c.Path = '/' + c.Path;
-                    }
-                    return c;
-                });
-                _this.setState({ nodes: children, loading: false });
-            })['catch'](function () {
-                _this.setState({ loading: false });
-            });
-        }
-    }, {
-        key: 'createFolder',
-        value: function createFolder(newName) {
-            var _this2 = this;
-
-            var _props = this.props;
-            var peerAddress = _props.peerAddress;
-            var pydio = _props.pydio;
-            var value = this.state.value;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var createRequest = new _cellsSdk.RestCreatePeerFolderRequest();
-            createRequest.PeerAddress = peerAddress === 'ANY' ? '' : peerAddress;
-            createRequest.Path = value + '/' + newName;
-            api.createPeerFolder(peerAddress, createRequest).then(function (result) {
-                _this2.lastSearch = null; // Force reload
-                _this2.loadValues(value).then(function () {
-                    // Select path after reload
-                    _this2.handleNewRequest(createRequest.Path);
-                });
-            })['catch'](function (e) {
-                pydio.UI.displayMessage('ERROR', e.message);
-            });
-        }
-    }, {
-        key: 'renderNode',
-        value: function renderNode(node) {
-            var base = _pydioUtilPath2['default'].getBasename(node.Path);
-            var dir = _pydioUtilPath2['default'].getDirname(node.Path);
-            var label = _react2['default'].createElement(
-                'span',
-                null,
-                node.Path
-            );
-            var invalid = false;
-            if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
-                label = _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement(
-                        'span',
-                        null,
-                        dir
-                    ),
-                    '/',
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { color: '#c62828' } },
-                        base
-                    )
-                );
-            } else if (node.MetaStore && node.MetaStore['symlink']) {
-                // Symbolic link
-                label = _react2['default'].createElement(
-                    'span',
-                    null,
-                    _react2['default'].createElement(
-                        'span',
-                        null,
-                        dir
-                    ),
-                    '/',
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { color: '#1976d2' } },
-                        base
-                    )
-                );
-            }
-            return {
-                key: node.Path,
-                text: node.Path,
-                invalid: invalid,
-                value: _react2['default'].createElement(
-                    _materialUi.MenuItem,
-                    null,
-                    _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder", color: '#616161', style: { float: 'left', marginRight: 8 } }),
-                    ' ',
-                    label
-                )
-            };
-        }
-    }, {
-        key: 'showCreateDialog',
-        value: function showCreateDialog() {
-            var _this3 = this;
-
-            var pydio = this.props.pydio;
-            var value = this.state.value;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.ds.editor.selector.' + id] || id;
-            };
-            pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
-                dialogTitle: m('mkdir'),
-                legendId: m('mkdir.legend').replace('%s', value),
-                fieldLabelId: m('mkdir.field'),
-                submitValue: function submitValue(v) {
-                    if (!v) {
-                        return;
-                    }
-                    _this3.createFolder(v);
-                }
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _state = this.state;
-            var nodes = _state.nodes;
-            var loading = _state.loading;
-            var exist = _state.exist;
-            var value = _state.value;
-            var searchText = _state.searchText;
-            var _props2 = this.props;
-            var fieldLabel = _props2.fieldLabel;
-            var pydio = _props2.pydio;
-
-            var dataSource = [];
-            if (nodes) {
-                nodes.forEach(function (node) {
-                    dataSource.push(_this4.renderNode(node));
-                });
-            }
-
-            var displayText = searchText || value;
-
-            return _react2['default'].createElement(
-                'div',
-                { style: { position: 'relative', marginTop: -5 } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
-                    _react2['default'].createElement(_materialUi.RefreshIndicator, {
-                        size: 30,
-                        left: 0,
-                        top: 0,
-                        status: loading ? "loading" : "hide"
-                    })
-                ),
-                value && exist && !loading && (!searchText || searchText === value) && _react2['default'].createElement(
-                    'div',
-                    { style: { position: 'absolute', right: 0 } },
-                    _react2['default'].createElement(_materialUi.IconButton, {
-                        iconClassName: "mdi mdi-folder-plus",
-                        iconStyle: { color: '#9e9e9e' },
-                        onClick: function () {
-                            return _this4.showCreateDialog();
-                        },
-                        tooltip: pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']
-                    })
-                ),
-                _react2['default'].createElement(_materialUi.AutoComplete, _extends({
-                    fullWidth: true,
-                    searchText: displayText,
-                    onUpdateInput: this.handleUpdateInput.bind(this),
-                    onNewRequest: this.handleNewRequest.bind(this),
-                    dataSource: dataSource,
-                    hintText: fieldLabel,
-                    filter: function (searchText, key) {
-                        return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
-                    },
-                    openOnFocus: true,
-                    menuProps: { maxHeight: 200 }
-                }, ModernStyles.textField))
-            );
-        }
-    }]);
-
-    return AutocompleteTree;
-})(_react2['default'].Component);
-
-var DataSourceLocalSelector = (function (_React$Component2) {
-    _inherits(DataSourceLocalSelector, _React$Component2);
-
-    function DataSourceLocalSelector(props) {
-        _classCallCheck(this, DataSourceLocalSelector);
-
-        _get(Object.getPrototypeOf(DataSourceLocalSelector.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            peerAddresses: [],
-            invalid: false,
-            m: function m(id) {
-                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
-            }
-        };
-    }
-
-    _createClass(DataSourceLocalSelector, [{
-        key: 'compareAddresses',
-        value: function compareAddresses(a1, a2) {
-            var p1 = a1.split("|");
-            var p2 = a2.split("|");
-            return p2.filter(function (p) {
-                return p1.indexOf(p) > -1;
-            }).length || p1.filter(function (p) {
-                return p2.indexOf(p) > -1;
-            }).length;
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this5 = this;
-
-            var model = this.props.model;
-
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.listPeersAddresses().then(function (res) {
-                var aa = res.PeerAddresses || [];
-                if (aa === 1 && !model.PeerAddress) {
-                    model.PeerAddress = aa[0];
-                }
-                _this5.setState({ peerAddresses: aa });
-                if (model.PeerAddress && aa.indexOf(model.PeerAddress) === -1) {
-                    var rep = aa.filter(function (a) {
-                        return _this5.compareAddresses(a, model.PeerAddress);
-                    });
-                    if (rep.length) {
-                        // If model address is contained in one of the res, replace it
-                        model.PeerAddress = rep[0];
-                    } else {
-                        // Otherwise show it as invalid
-                        _this5.setState({ invalidAddress: model.PeerAddress });
-                    }
-                }
-            });
-        }
-    }, {
-        key: 'baseIsInvalid',
-        value: function baseIsInvalid(path) {
-            var m = this.state.m;
-
-            var invalid = false;
-            var base = _pydioUtilPath2['default'].getBasename(path);
-            var segments = _pydioUtilLang2['default'].trim(path, '/').split('/').length;
-            if (segments < 2) {
-                invalid = m('selector.error.depth');
-            } else if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
-                invalid = m('selector.error.dnsname');
-            }
-            return invalid;
-        }
-    }, {
-        key: 'onPathChange',
-        value: function onPathChange(newValue, exists) {
-            var model = this.props.model;
-
-            var invalid = this.baseIsInvalid(newValue);
-            model.invalid = invalid;
-            model.StorageConfiguration.folder = newValue;
-            if (!exists) {
-                model.StorageConfiguration.create = 'true';
-            } else if (model.StorageConfiguration['create'] !== undefined) {
-                delete model.StorageConfiguration['create'];
-            }
-            this.setState({ invalid: invalid });
-        }
-    }, {
-        key: 'onPeerChange',
-        value: function onPeerChange(newValue) {
-            var model = this.props.model;
-            var invalidAddress = this.state.invalidAddress;
-
-            if (newValue === invalidAddress) {
-                return;
-            }
-            model.PeerAddress = newValue;
-            if (invalidAddress) {
-                // Now remove from choices
-                this.setState({ invalidAddress: null });
-            }
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this6 = this;
-
-            var _props3 = this.props;
-            var model = _props3.model;
-            var pydio = _props3.pydio;
-            var styles = _props3.styles;
-            var _state2 = this.state;
-            var peerAddresses = _state2.peerAddresses;
-            var invalidAddress = _state2.invalidAddress;
-            var invalid = _state2.invalid;
-            var m = _state2.m;
-
-            var pAds = [].concat(_toConsumableArray(peerAddresses));
-            pAds = ["ANY"].concat(_toConsumableArray(pAds));
-            if (invalidAddress && invalidAddress !== 'ANY') {
-                pAds = [invalidAddress].concat(_toConsumableArray(pAds));
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    'div',
-                    { style: { paddingBottom: 8 } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.subLegend },
-                        m('storage.legend.fs.peer')
-                    ),
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        {
-                            value: model.PeerAddress || '',
-                            hintText: m('selector.peer') + ' *',
-                            onChange: function (e, i, v) {
-                                return _this6.onPeerChange(v);
-                            },
-                            fullWidth: true
-                        },
-                        pAds.map(function (address) {
-                            var label = m('selector.peer.any');
-                            if (address !== 'ANY') {
-                                label = m('selector.peer.word') + ' : ' + address.replace('|', ' | ') + (address === invalidAddress ? ' (' + m('selector.peer.invalid') + ')' : '');
-                            }
-                            return _react2['default'].createElement(_materialUi.MenuItem, { value: address, primaryText: label });
-                        })
-                    )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.subLegend, { paddingBottom: 6 }) },
-                        m('storage.legend.fs.path')
-                    ),
-                    model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
-                        pydio: pydio,
-                        value: model.StorageConfiguration.folder,
-                        peerAddress: model.PeerAddress,
-                        onChange: this.onPathChange.bind(this),
-                        fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
-                        hintText: m('selector.completer.hint')
-                    }),
-                    !model.PeerAddress && _react2['default'].createElement(ModernTextField, {
-                        style: { marginTop: -3 },
-                        fullWidth: true,
-                        disabled: true,
-                        value: model.StorageConfiguration.folder,
-                        floatingLabelText: m('selector.folder') + ' *',
-                        hintText: m('selector.folder.hint')
-                    })
-                ),
-                invalid && _react2['default'].createElement(
-                    'div',
-                    { style: { color: '#c62828' } },
-                    invalid
-                )
-            );
-        }
-    }]);
-
-    return DataSourceLocalSelector;
-})(_react2['default'].Component);
-
-exports['default'] = DataSourceLocalSelector;
-module.exports = exports['default'];
-
-},{"cells-sdk":"cells-sdk","lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],21:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioUtilDom = require('pydio/util/dom');
-
-var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
-
-var _materialUi = require('material-ui');
-
-var DsStorageType = (function (_React$Component) {
-    _inherits(DsStorageType, _React$Component);
-
-    function DsStorageType() {
-        _classCallCheck(this, DsStorageType);
-
-        _get(Object.getPrototypeOf(DsStorageType.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(DsStorageType, [{
-        key: 'render',
-        value: function render() {
-            var _props = this.props;
-            var onSelect = _props.onSelect;
-            var selected = _props.selected;
-            var value = _props.value;
-            var primaryText = _props.primaryText;
-            var image = _props.image;
-
-            var styles = {
-                cont: {
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    padding: '10px 10px 0 10px',
-                    backgroundColor: 'transparent',
-                    borderBottom: '2px solid transparent',
-                    transition: _pydioUtilDom2['default'].getBeziersTransition()
-                },
-                image: {
-                    width: 30,
-                    height: 30,
-                    opacity: .3,
-                    transition: _pydioUtilDom2['default'].getBeziersTransition()
-                },
-                label: {
-                    margin: 5,
-                    marginTop: 8,
-                    /*textTransform: 'uppercase',*/
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: 'rgba(0,0,0,.3)',
-                    textAlign: 'center',
-                    transition: _pydioUtilDom2['default'].getBeziersTransition()
-                }
-            };
-            if (selected) {
-                styles.cont.borderBottom = '2px solid #0e4d6d';
-                //styles.cont.backgroundColor = '#fff';
-                styles.image.opacity = 1;
-                styles.label.color = '#0e4d6d';
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { zDepth: 0, style: styles.cont, onClick: function (e) {
-                        onSelect(value);
-                    }, rounded: false },
-                image && _react2['default'].createElement('img', { style: styles.image, src: "/plug/access.settings/res/images/" + image }),
-                _react2['default'].createElement(
-                    'div',
-                    { style: styles.label },
-                    primaryText
-                )
-            );
-        }
-    }]);
-
-    return DsStorageType;
-})(_react2['default'].Component);
-
-var DsStorageSelector = (function (_React$Component2) {
-    _inherits(DsStorageSelector, _React$Component2);
-
-    function DsStorageSelector(props) {
-        _classCallCheck(this, DsStorageSelector);
-
-        _get(Object.getPrototypeOf(DsStorageSelector.prototype), 'constructor', this).call(this, props);
-    }
-
-    _createClass(DsStorageSelector, [{
-        key: 'onChange',
-        value: function onChange(newValue) {
-            var _props2 = this.props;
-            var values = _props2.values;
-            var onChange = _props2.onChange;
-
-            var i = Object.keys(values).indexOf(newValue);
-            onChange(null, i, newValue);
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var _props3 = this.props;
-            var values = _props3.values;
-            var value = _props3.value;
-            var disabled = _props3.disabled;
-
-            var style = {
-                display: 'flex',
-                padding: '0 1px',
-                backgroundColor: '#ECEFF1'
-            };
-            return _react2['default'].createElement(
-                'div',
-                { style: style },
-                Object.keys(values).map(function (k) {
-                    return _react2['default'].createElement(DsStorageType, {
-                        value: k,
-                        selected: k === value,
-                        onSelect: disabled ? function () {} : _this.onChange.bind(_this),
-                        primaryText: values[k].primaryText,
-                        image: values[k].image
-                    });
-                })
-            );
-        }
-    }]);
-
-    return DsStorageSelector;
-})(_react2['default'].Component);
-
-exports['default'] = DsStorageSelector;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],22:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _materialUi = require('material-ui');
-
-var _cellsSdk = require('cells-sdk');
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _modelMetadata = require('../model/Metadata');
-
-var _modelMetadata2 = _interopRequireDefault(_modelMetadata);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var ModernSelectField = _Pydio$requireLib.ModernSelectField;
-var ModernTextField = _Pydio$requireLib.ModernTextField;
-var ModernStyles = _Pydio$requireLib.ModernStyles;
-
-var MetaNamespace = (function (_React$Component) {
-    _inherits(MetaNamespace, _React$Component);
-
-    function MetaNamespace(props) {
-        _classCallCheck(this, MetaNamespace);
-
-        _get(Object.getPrototypeOf(MetaNamespace.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            namespace: this.cloneNs(props.namespace),
-            m: function m(id) {
-                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
-            },
-            selectorNewKey: '',
-            selectorNewValue: ''
-        };
-    }
-
-    _createClass(MetaNamespace, [{
-        key: 'cloneNs',
-        value: function cloneNs(ns) {
-            return _cellsSdk.IdmUserMetaNamespace.constructFromObject(JSON.parse(JSON.stringify(ns)));
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(props) {
-            this.setState({ namespace: this.cloneNs(props.namespace) });
-        }
-    }, {
-        key: 'updateType',
-        value: function updateType(value) {
-            var namespace = this.state.namespace;
-
-            namespace.JsonDefinition = JSON.stringify({ type: value });
-            this.setState({ namespace: namespace });
-        }
-    }, {
-        key: 'updateName',
-        value: function updateName(value) {
-            var namespace = this.state.namespace;
-
-            var slug = _pydioUtilLang2['default'].computeStringSlug(value);
-            if (slug.indexOf('usermeta-') !== 0) {
-                slug = 'usermeta-' + slug;
-            }
-            namespace.Namespace = slug;
-            this.setState({ namespace: namespace });
-        }
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this = this;
-
-            var namespace = this.state.namespace;
-
-            _modelMetadata2['default'].putNS(namespace).then(function () {
-                _this.props.onRequestClose();
-                _this.props.reloadList();
-            });
-        }
-    }, {
-        key: 'getSelectionData',
-        value: function getSelectionData() {
-            var namespace = this.state.namespace;
-
-            var data = {};
-            try {
-                var current = JSON.parse(namespace.JsonDefinition).data;
-                if (current) {
-                    current.split(',').map(function (line) {
-                        var _line$split = line.split('|');
-
-                        var _line$split2 = _slicedToArray(_line$split, 2);
-
-                        var key = _line$split2[0];
-                        var value = _line$split2[1];
-
-                        data[key] = value;
-                    });
-                }
-            } catch (e) {}
-            return data;
-        }
-    }, {
-        key: 'setSelectionData',
-        value: function setSelectionData(newData) {
-            var namespace = this.state.namespace;
-
-            var def = JSON.parse(namespace.JsonDefinition);
-
-            def.data = Object.keys(newData).map(function (k) {
-                return k + '|' + newData[k];
-            }).join(',');
-            namespace.JsonDefinition = JSON.stringify(def);
-            this.setState({ namespace: namespace });
-        }
-    }, {
-        key: 'addSelectionValue',
-        value: function addSelectionValue() {
-            var data = this.getSelectionData();
-            var _state = this.state;
-            var selectorNewKey = _state.selectorNewKey;
-            var selectorNewValue = _state.selectorNewValue;
-
-            var key = _pydioUtilLang2['default'].computeStringSlug(selectorNewKey);
-            data[key] = selectorNewValue;
-            this.setSelectionData(data);
-            this.setState({ selectorNewKey: '', selectorNewValue: '' });
-        }
-    }, {
-        key: 'removeSelectionValue',
-        value: function removeSelectionValue(key) {
-            var data = this.getSelectionData();
-            delete data[key];
-            this.setSelectionData(data);
-        }
-    }, {
-        key: 'renderSelectionBoard',
-        value: function renderSelectionBoard() {
-            var _this2 = this;
-
-            var data = this.getSelectionData();
-            var _state2 = this.state;
-            var m = _state2.m;
-            var selectorNewKey = _state2.selectorNewKey;
-            var selectorNewValue = _state2.selectorNewValue;
-
-            return _react2['default'].createElement(
-                'div',
-                { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 3 } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { fontSize: 13 } },
-                    m('editor.selection')
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    Object.keys(data).map(function (k) {
-                        return _react2['default'].createElement(
-                            'div',
-                            { key: k, style: { display: 'flex' } },
-                            _react2['default'].createElement(
-                                'span',
-                                null,
-                                _react2['default'].createElement(_materialUi.TextField, { value: k, disabled: true, fullWidth: true })
-                            ),
-                            _react2['default'].createElement(
-                                'span',
-                                { style: { marginLeft: 10 } },
-                                _react2['default'].createElement(_materialUi.TextField, { value: data[k], disabled: true, fullWidth: true })
-                            ),
-                            _react2['default'].createElement(
-                                'span',
-                                null,
-                                _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: function () {
-                                        _this2.removeSelectionValue(k);
-                                    } })
-                            )
-                        );
-                    })
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex' }, key: "new-selection-key" },
-                    _react2['default'].createElement(
-                        'span',
-                        null,
-                        _react2['default'].createElement(_materialUi.TextField, { value: selectorNewKey, onChange: function (e, v) {
-                                _this2.setState({ selectorNewKey: v });
-                            }, hintText: m('editor.selection.key'), fullWidth: true })
-                    ),
-                    _react2['default'].createElement(
-                        'span',
-                        { style: { marginLeft: 10 } },
-                        _react2['default'].createElement(_materialUi.TextField, { value: selectorNewValue, onChange: function (e, v) {
-                                _this2.setState({ selectorNewValue: v });
-                            }, hintText: m('editor.selection.value'), fullWidth: true })
-                    ),
-                    _react2['default'].createElement(
-                        'span',
-                        null,
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onClick: function () {
-                                _this2.addSelectionValue();
-                            }, disabled: !selectorNewKey || !selectorNewValue })
-                    )
-                )
-            );
-        }
-    }, {
-        key: 'togglePolicies',
-        value: function togglePolicies(right, value) {
-            var _this3 = this;
-
-            var namespace = this.state.namespace;
-
-            var pol = namespace.Policies || [];
-            var newPols = pol.filter(function (p) {
-                return p.Action !== right;
-            });
-            newPols.push(_cellsSdk.ServiceResourcePolicy.constructFromObject({ Action: right, Effect: 'allow', Subject: value ? 'profile:admin' : '*' }));
-            namespace.Policies = newPols;
-            this.setState({ namespace: namespace }, function () {
-                if (right === 'READ' && value) {
-                    _this3.togglePolicies('WRITE', true);
-                }
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _props = this.props;
-            var create = _props.create;
-            var namespaces = _props.namespaces;
-            var pydio = _props.pydio;
-            var readonly = _props.readonly;
-            var _state3 = this.state;
-            var namespace = _state3.namespace;
-            var m = _state3.m;
-
-            var title = undefined;
-            if (namespace.Label) {
-                title = namespace.Label;
-            } else {
-                title = m('editor.title.create');
-            }
-            var type = 'string';
-            if (namespace.JsonDefinition) {
-                type = JSON.parse(namespace.JsonDefinition).type;
-            }
-
-            var invalid = false,
-                nameError = undefined,
-                labelError = undefined;
-            if (!namespace.Namespace) {
-                invalid = true;
-                nameError = m('editor.ns.error');
-            }
-            if (!namespace.Label) {
-                invalid = true;
-                labelError = m('editor.label.error');
-            }
-            if (create) {
-                if (namespaces.filter(function (n) {
-                    return n.Namespace === namespace.Namespace;
-                }).length) {
-                    invalid = true;
-                    nameError = m('editor.ns.exists');
-                }
-            }
-            if (type === 'choice' && Object.keys(this.getSelectionData()).length === 0) {
-                invalid = true;
-            }
-
-            var adminRead = undefined,
-                adminWrite = undefined;
-            if (namespace.Policies) {
-                namespace.Policies.map(function (p) {
-                    if (p.Subject === 'profile:admin' && p.Action === 'READ') {
-                        adminRead = true;
-                    }
-                    if (p.Subject === 'profile:admin' && p.Action === 'WRITE') {
-                        adminWrite = true;
-                    }
-                });
-            }
-
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onClick: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid || readonly, label: "Save", onClick: function () {
-                    _this4.save();
-                } })];
-            if (type === 'tags' && !readonly) {
-                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onClick: function () {
-                        var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-                        api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
-                            pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
-                        })['catch'](function (e) {
-                            pydio.UI.displayMessage('ERROR', e.message);
-                        });
-                    } }));
-            }
-            var styles = {
-                section: { marginTop: 10, fontWeight: 500, fontSize: 12 }
-            };
-
-            return _react2['default'].createElement(
-                _materialUi.Dialog,
-                {
-                    title: title,
-                    actions: actions,
-                    modal: false,
-                    contentStyle: { width: 360 },
-                    open: this.props.open,
-                    onRequestClose: this.props.onRequestClose,
-                    autoScrollBodyContent: true,
-                    bodyStyle: { padding: 20 }
-                },
-                _react2['default'].createElement(ModernTextField, {
-                    floatingLabelText: m('namespace'),
-                    disabled: !create,
-                    value: namespace.Namespace,
-                    onChange: function (e, v) {
-                        _this4.updateName(v);
-                    },
-                    fullWidth: true,
-                    errorText: nameError
-                }),
-                _react2['default'].createElement(ModernTextField, {
-                    floatingLabelText: m('label'),
-                    value: namespace.Label,
-                    onChange: function (e, v) {
-                        namespace.Label = v;_this4.setState({ namespace: namespace });
-                    },
-                    fullWidth: true,
-                    errorText: labelError,
-                    disabled: readonly
-                }),
-                _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
-                    m('type')
-                ),
-                _react2['default'].createElement(
-                    ModernSelectField,
-                    {
-                        hintText: m('type'),
-                        value: type,
-                        onChange: function (e, i, v) {
-                            return _this4.updateType(v);
-                        },
-                        disabled: readonly,
-                        fullWidth: true },
-                    Object.keys(_modelMetadata2['default'].MetaTypes).map(function (k) {
-                        return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: _modelMetadata2['default'].MetaTypes[k] });
-                    })
-                ),
-                type === 'choice' && this.renderSelectionBoard(),
-                _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
-                    _pydio2['default'].getInstance().MessageHash[310]
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '6px 0' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.index'), disabled: readonly, labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
-                            namespace.Indexable = v;_this4.setState({ namespace: namespace });
-                        } }, ModernStyles.toggleField))
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '6px 0' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.read'), disabled: readonly, labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
-                            _this4.togglePolicies('READ', v);
-                        } }, ModernStyles.toggleField))
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: '6px 0' } },
-                    _react2['default'].createElement(_materialUi.Toggle, _extends({ label: m('toggle.write'), labelPosition: "left", disabled: adminRead || readonly, toggled: adminWrite, onToggle: function (e, v) {
-                            _this4.togglePolicies('WRITE', v);
-                        } }, ModernStyles.toggleField))
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: styles.section },
-                    m('order')
-                ),
-                _react2['default'].createElement(ModernTextField, {
-                    floatingLabelText: m('order'),
-                    value: namespace.Order ? namespace.Order : '0',
-                    onChange: function (e, v) {
-                        namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
-                    },
-                    fullWidth: true,
-                    type: "number",
-                    readOnly: readonly
-                })
-            );
-        }
-    }]);
-
-    return MetaNamespace;
-})(_react2['default'].Component);
-
-MetaNamespace.PropTypes = {
-    namespace: _propTypes2['default'].instanceOf(_cellsSdk.IdmUserMetaNamespace).isRequired,
-    create: _propTypes2['default'].boolean,
-    reloadList: _propTypes2['default'].func,
-    onRequestClose: _propTypes2['default'].func
-};
-
-exports['default'] = MetaNamespace;
-module.exports = exports['default'];
-
-},{"../model/Metadata":31,"cells-sdk":"cells-sdk","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","react":"react"}],23:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _materialUi = require('material-ui');
-
-var _cellsSdk = require('cells-sdk');
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioUtilXml = require('pydio/util/xml');
-
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _VersionPolicyPeriods = require('./VersionPolicyPeriods');
-
-var _VersionPolicyPeriods2 = _interopRequireDefault(_VersionPolicyPeriods);
-
-var PydioForm = _pydio2['default'].requireLib('form');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
-
-var VersionPolicyEditor = (function (_React$Component) {
-    _inherits(VersionPolicyEditor, _React$Component);
-
-    function VersionPolicyEditor(props) {
-        _classCallCheck(this, VersionPolicyEditor);
-
-        _get(Object.getPrototypeOf(VersionPolicyEditor.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            dirty: false,
-            policy: props.versionPolicy,
-            loaded: true,
-            valid: true,
-            parameters: null,
-            m: function m(id) {
-                return props.pydio.MessageHash['ajxp_admin.versions.editor.' + id] || id;
-            }
-        };
-    }
-
-    _createClass(VersionPolicyEditor, [{
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            if (this.state.policy !== newProps.versionPolicy) {
-                this.setState({ policy: newProps.versionPolicy });
-            }
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this = this;
-
-            _pydioHttpApi2['default'].getRestClient().callApi('/config/discovery/forms/{ServiceName}', 'GET', { ServiceName: 'pydio.grpc.versions' }, {}, {}, {}, null, [], ['application/json'], ['application/json'], "String").then(function (responseAndData) {
-                var xmlString = responseAndData.data;
-                var domNode = _pydioUtilXml2['default'].parseXml(xmlString);
-                _this.setState({
-                    parameters: PydioForm.Manager.parseParameters(domNode, "//param"),
-                    loaded: true
-                });
-            });
-        }
-    }, {
-        key: 'resetForm',
-        value: function resetForm() {
-            this.setState({ valid: true, dirty: false, saveValue: null });
-        }
-    }, {
-        key: 'deleteSource',
-        value: function deleteSource() {
-            var _this2 = this;
-
-            var _state = this.state;
-            var m = _state.m;
-            var policy = _state.policy;
-            var pydio = this.props.pydio;
-
-            pydio.UI.openConfirmDialog({
-                message: m('delete.confirm'),
-                destructive: [policy.Label],
-                validCallback: function validCallback() {
-                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                        api.deleteVersioningPolicy(policy.Uuid).then(function (r) {
-                            _this2.props.closeEditor();
-                        });
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'saveSource',
-        value: function saveSource() {
-            var _this3 = this;
-
-            if (this.state.saveValue) {
-                (function () {
-                    var saveValue = _this3.state.saveValue;
-
-                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                        api.putVersioningPolicy(saveValue.Uuid, saveValue).then(function () {
-                            _this3.props.reloadList();
-                            _this3.setState({
-                                dirty: false,
-                                policy: saveValue,
-                                saveValue: null
-                            });
-                        });
-                    });
-                })();
-            }
-        }
-    }, {
-        key: 'onFormChange',
-        value: function onFormChange(values) {
-            var m = this.state.m;
-
-            var newPolicy = VersionPolicyEditor.valuesToTreeVersioningPolicy(values);
-            // Check periods
-            var periods = newPolicy.KeepPeriods || [];
-            var deleteAll = periods.findIndex(function (p) {
-                return p.MaxNumber === 0;
-            });
-            if (deleteAll > -1 && deleteAll < periods.length - 1) {
-                pydio.UI.displayMessage('ERROR', m('error.lastdelete'));
-                var i = periods.length - 1 - deleteAll;
-                while (i > 0) {
-                    periods.pop();i--;
-                }
-            }
-            newPolicy.KeepPeriods = periods;
-            this.setState({
-                saveValue: newPolicy,
-                dirty: true
-            });
-        }
-    }, {
-        key: 'updateValidStatus',
-        value: function updateValidStatus(valid) {
-            //this.setState({valid: valid});
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _props = this.props;
-            var create = _props.create;
-            var readonly = _props.readonly;
-            var pydio = _props.pydio;
-            var _state2 = this.state;
-            var loaded = _state2.loaded;
-            var parameters = _state2.parameters;
-            var policy = _state2.policy;
-            var saveValue = _state2.saveValue;
-            var m = _state2.m;
-
-            var form = undefined;
-            if (parameters && loaded) {
-                var values = VersionPolicyEditor.TreeVersioningPolicyToValues(policy);
-                if (saveValue) {
-                    values = VersionPolicyEditor.TreeVersioningPolicyToValues(saveValue);
-                }
-                form = _react2['default'].createElement(PydioForm.FormPanel, {
-                    parameters: parameters,
-                    values: values,
-                    className: 'full-width',
-                    onChange: this.onFormChange.bind(this),
-                    onValidStatusChange: this.updateValidStatus.bind(this),
-                    disabled: readonly,
-                    depth: -2
-                });
-            }
-
-            var titleActionBarButtons = [];
-            if (!readonly) {
-                if (!create) {
-                    titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', function () {
-                        _this4.deleteSource();
-                    }));
-                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
-                        _this4.resetForm();
-                    }, !this.state.dirty));
-                }
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
-                    _this4.saveSource();
-                }, !this.state.valid || !this.state.dirty));
-            }
-
-            var policyName = saveValue ? saveValue.Name : policy.Name;
-            if (!policyName) {
-                policyName = '';
-            }
-
-            return _react2['default'].createElement(
-                PaperEditorLayout,
-                {
-                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.loading'],
-                    titleActionBar: titleActionBarButtons,
-                    closeAction: this.props.closeEditor,
-                    className: 'workspace-editor',
-                    contentFill: true
-                },
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { padding: '0 16px', backgroundColor: '#ECEFF1' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { overflowX: 'auto' } },
-                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { pydio: pydio, periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
-                    )
-                ),
-                form
-            );
-        }
-    }], [{
-        key: 'valuesToTreeVersioningPolicy',
-        value: function valuesToTreeVersioningPolicy(values) {
-            var periods = [];
-            var baseName = "IntervalStart";
-            var baseNameMax = "MaxNumber";
-            var nextName = baseName;
-            var nextMax = baseNameMax;
-            var index = 0;
-            while (values[nextName] !== undefined && values[nextMax] !== undefined) {
-                var period = new _cellsSdk.TreeVersioningKeepPeriod();
-                period.IntervalStart = values[nextName];
-                period.MaxNumber = values[nextMax];
-                periods.push(period);
-                delete values[nextMax];
-                delete values[nextName];
-                index++;
-                nextName = baseName + "_" + index;
-                nextMax = baseNameMax + "_" + index;
-            }
-            values.KeepPeriods = periods;
-            return _cellsSdk.TreeVersioningPolicy.constructFromObject(values);
-        }
-    }, {
-        key: 'TreeVersioningPolicyToValues',
-        value: function TreeVersioningPolicyToValues(policy) {
-            var values = _extends({}, policy);
-            if (values.KeepPeriods) {
-                (function () {
-                    var i = 0;
-                    values.KeepPeriods.map(function (p) {
-                        if (i > 0) {
-                            values['IntervalStart_' + i] = p.IntervalStart || 0;
-                            values['MaxNumber_' + i] = p.MaxNumber || 0;
-                        } else {
-                            values['IntervalStart'] = p.IntervalStart || 0;
-                            values['MaxNumber'] = p.MaxNumber || 0;
-                        }
-                        i++;
-                    });
-                })();
-            }
-            return values;
-        }
-    }]);
-
-    return VersionPolicyEditor;
-})(_react2['default'].Component);
-
-VersionPolicyEditor.contextTypes = {
-    messages: _propTypes2['default'].object,
-    getMessage: _propTypes2['default'].func
-};
-
-exports['default'] = VersionPolicyEditor;
-module.exports = exports['default'];
-
-},{"./VersionPolicyPeriods":24,"cells-sdk":"cells-sdk","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/util/xml":"pydio/util/xml","react":"react"}],24:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var VersionPolicyPeriods = (function (_React$Component) {
-    _inherits(VersionPolicyPeriods, _React$Component);
-
-    function VersionPolicyPeriods() {
-        _classCallCheck(this, VersionPolicyPeriods);
-
-        _get(Object.getPrototypeOf(VersionPolicyPeriods.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(VersionPolicyPeriods, [{
-        key: 'render',
-        value: function render() {
-            var _ref = this.props || [];
-
-            var periods = _ref.periods;
-            var rendering = _ref.rendering;
-            var pydio = _ref.pydio;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.versions.period.' + id] || id;
-            };
-
-            if (rendering === 'short') {
-
-                var text = undefined;
-                if (periods.length === 1) {
-                    var p = periods[0];
-                    if (p.MaxNumber === -1) {
-                        text = m('keep-all.always');
-                    } else {
-                        text = m('keep-n').replace('%s', p.MaxNumber);
-                    }
-                } else {
-                    text = m('retentions-n').replace('%s', periods.length);
-                    var last = periods[periods.length - 1];
-                    if (last.MaxNumber === 0 || last.MaxNumber === undefined) {
-                        text += ' ' + m('remove-all-after').replace('%s', last.IntervalStart);
-                    } else {
-                        text += '' + m('keep-n-after').replace('%1', last.MaxNumber).replace('%2', last.IntervalStart);
-                    }
-                }
-
-                return _react2['default'].createElement(
-                    'span',
-                    null,
-                    text
-                );
-            }
-
-            var steps = periods.map(function (p) {
-                var label = p.MaxNumber;
-                var timeLabel = undefined;
-                var icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-ray-start-arrow' });
-                var style = {};
-                if (p.IntervalStart === undefined || p.IntervalStart === "0") {
-                    icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-clock-start' });
-                } else {
-                    timeLabel = _react2['default'].createElement(
-                        'span',
-                        { style: { fontWeight: 500, fontSize: 16 } },
-                        p.IntervalStart,
-                        ' '
-                    );
-                }
-                if (p.MaxNumber === -1) {
-                    label = m('keep-all');
-                } else if (!p.MaxNumber) {
-                    label = m('remove-all');
-                    icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-delete', style: { color: '#c62828' } });
-                    style = { color: '#c62828' };
-                } else {
-                    label = m('max-n').replace('%s', label);
-                }
-                return _react2['default'].createElement(
-                    _materialUi.Step,
-                    null,
-                    _react2['default'].createElement(
-                        _materialUi.StepLabel,
-                        { icon: icon, style: style },
-                        timeLabel,
-                        label
-                    )
-                );
-            });
-
-            return _react2['default'].createElement(
-                _materialUi.Stepper,
-                { activeStep: periods.length - 1, linear: false },
-                steps
-            );
-        }
-    }]);
-
-    return VersionPolicyPeriods;
-})(_react2['default'].Component);
-
-exports['default'] = VersionPolicyPeriods;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}],25:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _materialUi = require('material-ui');
-
-var _lodashDebounce = require('lodash.debounce');
-
-var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
-
-var _pydioUtilPath = require('pydio/util/path');
-
-var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
-
-var _cellsSdk = require('cells-sdk');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var ModernStyles = _Pydio$requireLib.ModernStyles;
-
-var WsAutoComplete = (function (_React$Component) {
-    _inherits(WsAutoComplete, _React$Component);
-
-    function WsAutoComplete(props) {
-        var _this = this;
-
-        _classCallCheck(this, WsAutoComplete);
-
-        _get(Object.getPrototypeOf(WsAutoComplete.prototype), 'constructor', this).call(this, props);
-
-        var _props$value = props.value;
-        var value = _props$value === undefined ? '' : _props$value;
-
-        this.debounced = (0, _lodashDebounce2['default'])(function () {
-            var value = _this.state.value;
-
-            _this.loadValues(value);
-        }, 300);
-
-        this.state = {
-            nodes: [],
-            value: value
-        };
-    }
-
-    _createClass(WsAutoComplete, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this2 = this;
-
-            var validateOnLoad = this.props.validateOnLoad;
-            var value = this.state.value;
-
-            this.loadValues(value, function () {
-                var _state = _this2.state;
-                var nodes = _state.nodes;
-                var value = _state.value;
-
-                // Checking if we have a collection and load deeper values if it's the case
-                var node = nodes.filter(function (node) {
-                    return node.Path === value && (!node.Type || node.Type == "COLLECTION" && !node.MetaStore && !node.MetaStore.resolution);
-                }).map(function (node) {
-
-                    _this2.loadValues(value + "/");
-                });
-
-                if (validateOnLoad) {
-                    _this2.handleNewRequest(value);
-                }
-            });
-        }
-    }, {
-        key: 'handleUpdateInput',
-        value: function handleUpdateInput(input) {
-            this.debounced();
-            this.setState({ value: input });
-        }
-    }, {
-        key: 'handleNewRequest',
-        value: function handleNewRequest(value) {
-            var nodes = this.state.nodes;
-            var _props = this.props;
-            var _props$onChange = _props.onChange;
-            var onChange = _props$onChange === undefined ? function () {} : _props$onChange;
-            var _props$onDelete = _props.onDelete;
-            var onDelete = _props$onDelete === undefined ? function () {} : _props$onDelete;
-            var _props$onError = _props.onError;
-            var onError = _props$onError === undefined ? function () {} : _props$onError;
-
-            var key = undefined;
-            var node = undefined;
-
-            if (typeof value === 'string') {
-                if (value === '') {
-                    onDelete();
-                    return;
-                }
-
-                key = value;
-
-                // First we try to find an exact match
-                node = nodes.filter(function (node) {
-                    return node.Path === value;
-                })[0];
-
-                // Then we try to retrieve the first node that starts with what we are looking at
-                if (!node) {
-                    node = nodes.filter(function (node) {
-                        return node.Path.indexOf(value) === 0;
-                    })[0];
-                }
-            } else if (typeof value === 'object') {
-                key = value.key;
-                node = value.node;
-            }
-
-            if (!node) {
-                return onError();
-            }
-
-            this.setState({ value: key });
-
-            onChange(key, node);
-        }
-    }, {
-        key: 'loadValues',
-        value: function loadValues(value) {
-            var _this3 = this;
-
-            var cb = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
-
-            var last = value.lastIndexOf('/');
-            var basePath = value.substr(0, last);
-
-            if (this.lastSearch !== null && this.lastSearch === basePath) {
-                return;
-            }
-
-            this.lastSearch = basePath;
-
-            this.setState({ loading: true });
-
-            var api = new _cellsSdk.AdminTreeServiceApi(PydioApi.getRestClient());
-            var listRequest = new _cellsSdk.TreeListNodesRequest();
-            var treeNode = new _cellsSdk.TreeNode();
-
-            treeNode.Path = basePath + "/";
-            listRequest.Node = treeNode;
-
-            api.listAdminTree(listRequest).then(function (nodesColl) {
-                _this3.setState({ nodes: nodesColl.Children || [], loading: false }, function () {
-                    return cb();
-                });
-            })['catch'](function () {
-                _this3.setState({ loading: false }, function () {
-                    return cb();
-                });
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _state2 = this.state;
-            var value = _state2.value;
-            var nodes = _state2.nodes;
-            var loading = _state2.loading;
-            var _props2 = this.props;
-            var pydio = _props2.pydio;
-            var onDelete = _props2.onDelete;
-            var skipTemplates = _props2.skipTemplates;
-            var label = _props2.label;
-            var _props2$zDepth = _props2.zDepth;
-            var zDepth = _props2$zDepth === undefined ? 0 : _props2$zDepth;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.' + id] || id;
-            };
-
-            var dataSource = [];
-            if (nodes) {
-                (function () {
-                    var categs = {};
-                    nodes.forEach(function (node) {
-                        if (node.MetaStore && node.MetaStore["resolution"] && node.Uuid === "cells") {
-                            // Skip "Cells" Template Path
-                            return;
-                        } else if (_pydioUtilPath2['default'].getBasename(node.Path).startsWith(".")) {
-                            // Skip hidden files
-                            return;
-                        }
-                        var data = WsAutoComplete.renderNode(node, m);
-                        if (!categs[data.categ]) {
-                            categs[data.categ] = [];
-                        }
-
-                        categs[data.categ].push(data);
-                    });
-
-                    if (Object.keys(categs).length > 1) {
-                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.datasources'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
-                        var dValues = categs[Object.keys(categs)[0]];
-                        dValues.sort(LangUtils.arraySorter("text"));
-                        dataSource.push.apply(dataSource, _toConsumableArray(dValues));
-                        if (!skipTemplates) {
-                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.templates'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
-                            var tValues = categs[Object.keys(categs)[1]];
-                            tValues.sort(LangUtils.arraySorter("text"));
-                            dataSource.push.apply(dataSource, _toConsumableArray(tValues));
-                        }
-                    } else if (Object.keys(categs).length === 1) {
-                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
-                    }
-                })();
-            }
-
-            return _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: zDepth, style: _extends({ display: 'flex', alignItems: 'center', margin: '2px 0' }, this.props.style) },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { position: 'relative', flex: 1 } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
-                        _react2['default'].createElement(_materialUi.RefreshIndicator, {
-                            size: 30,
-                            left: 0,
-                            top: 0,
-                            status: loading ? "loading" : "hide"
-                        })
-                    ),
-                    _react2['default'].createElement(_materialUi.AutoComplete, _extends({
-                        fullWidth: true,
-                        searchText: value,
-                        onUpdateInput: function (value) {
-                            return _this4.handleUpdateInput(value);
-                        },
-                        onNewRequest: function (value) {
-                            return _this4.handleNewRequest(value);
-                        },
-                        onClose: function () {
-                            return _this4.handleNewRequest(value);
-                        },
-                        dataSource: dataSource,
-                        hintText: label || m('ws.complete.label'),
-                        filter: function (searchText, key) {
-                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
-                        },
-                        openOnFocus: true,
-                        menuProps: { maxHeight: 200 }
-                    }, ModernStyles.textField))
-                ),
-                _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: onDelete ? '#9e9e9e' : '#eee' }, iconClassName: "mdi mdi-delete", onClick: onDelete, disabled: !onDelete })
-            );
-        }
-    }], [{
-        key: 'renderNode',
-        value: function renderNode(node, m) {
-            var label = _react2['default'].createElement(
-                'span',
-                null,
-                node.Path
-            );
-            var icon = "mdi mdi-folder";
-            var categ = "folder";
-            if (node.MetaStore && node.MetaStore["resolution"]) {
-                icon = "mdi mdi-file-tree";
-                categ = "templatePath";
-                var resolutionPart = node.MetaStore["resolution"].split("\n").pop();
-                label = _react2['default'].createElement(
-                    'span',
-                    null,
-                    node.Path,
-                    ' ',
-                    _react2['default'].createElement(
-                        'i',
-                        { style: { color: '#9e9e9e' } },
-                        '- ',
-                        m('ws.complete.resolves'),
-                        ' ',
-                        resolutionPart
-                    )
-                );
-            } else if (node.Type === 'LEAF') {
-                icon = "mdi mdi-file";
-            }
-            return {
-                key: node.Path,
-                text: node.Path,
-                node: node,
-                categ: categ,
-                value: _react2['default'].createElement(
-                    _materialUi.MenuItem,
-                    null,
-                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#607d8b', style: { float: 'left', marginRight: 8 } }),
-                    ' ',
-                    label
-                )
-            };
-        }
-    }]);
-
-    return WsAutoComplete;
-})(_react2['default'].Component);
-
-exports['default'] = WsAutoComplete;
-module.exports = exports['default'];
-
-},{"cells-sdk":"cells-sdk","lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],26:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _modelWs = require('../model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
-
-var _WsAutoComplete = require('./WsAutoComplete');
-
-var _WsAutoComplete2 = _interopRequireDefault(_WsAutoComplete);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
-
-var ModernTextField = _Pydio$requireLib2.ModernTextField;
-var ModernSelectField = _Pydio$requireLib2.ModernSelectField;
-var ModernStyles = _Pydio$requireLib2.ModernStyles;
-var _AdminComponents = AdminComponents;
-var QuotaField = _AdminComponents.QuotaField;
-
-var WsEditor = (function (_React$Component) {
-    _inherits(WsEditor, _React$Component);
-
-    function WsEditor(props) {
-        var _this = this;
-
-        _classCallCheck(this, WsEditor);
-
-        _get(Object.getPrototypeOf(WsEditor.prototype), 'constructor', this).call(this, props);
-        var workspace = new _modelWs2['default'](props.workspace);
-        workspace.observe('update', function () {
-            _this.forceUpdate();
-        });
-        this.state = {
-            workspace: workspace.getModel(),
-            container: workspace,
-            newFolderKey: Math.random(),
-            showDialog: false
-        };
-    }
-
-    _createClass(WsEditor, [{
-        key: 'enableSync',
-        value: function enableSync(value) {
-            if (value) {
-                this.setState({ showDialog: 'enableSync', dialogTargetValue: value });
-            } else {
-                this.setState({ showDialog: 'disableSync', dialogTargetValue: value });
-            }
-        }
-    }, {
-        key: 'confirmSync',
-        value: function confirmSync(value) {
-            var workspace = this.state.workspace;
-
-            workspace.Attributes['ALLOW_SYNC'] = value;
-            this.setState({ showDialog: false, dialogTargetValue: null });
-        }
-    }, {
-        key: 'revert',
-        value: function revert() {
-            var _this2 = this;
-
-            var container = this.state.container;
-
-            container.revert();
-            this.setState({ workspace: container.getModel() }, function () {
-                _this2.forceUpdate();
-            });
-        }
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this3 = this;
-
-            var container = this.state.container;
-            var _props = this.props;
-            var reloadList = _props.reloadList;
-            var closeEditor = _props.closeEditor;
-
-            this.setState({ saving: true });
-            var create = container.create;
-
-            container.save().then(function () {
-                reloadList();
-                _this3.setState({
-                    workspace: container.getModel(),
-                    saving: false }, function () {
-                    _this3.forceUpdate();
-                });
-                if (create) {
-                    closeEditor();
-                }
-            })['catch'](function () {
-                _this3.setState({ saving: false });
-            });
-        }
-    }, {
-        key: 'remove',
-        value: function remove() {
-            var container = this.state.container;
-            var _props2 = this.props;
-            var closeEditor = _props2.closeEditor;
-            var reloadList = _props2.reloadList;
-            var pydio = _props2.pydio;
-
-            pydio.UI.openConfirmDialog({
-                message: pydio.MessageHash['settings.35'],
-                destructive: [container.getModel().Label],
-                validCallback: function validCallback() {
-                    container.remove().then(function () {
-                        reloadList();
-                        closeEditor();
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _props3 = this.props;
-            var closeEditor = _props3.closeEditor;
-            var pydio = _props3.pydio;
-            var advanced = _props3.advanced;
-            var _state = this.state;
-            var workspace = _state.workspace;
-            var container = _state.container;
-            var newFolderKey = _state.newFolderKey;
-            var saving = _state.saving;
-            var showDialog = _state.showDialog;
-            var dialogTargetValue = _state.dialogTargetValue;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.' + id] || id;
-            };
-            var mS = function mS(id) {
-                return pydio.MessageHash['settings.' + id] || id;
-            };
-            var readonly = !workspace.PoliciesContextEditable;
-
-            var buttons = [];
-            if (!container.create && !readonly) {
-                buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", function () {
-                    _this4.revert();
-                }, !container.isDirty()));
-            }
-            if (!readonly) {
-                buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
-                    _this4.save();
-                }, saving || !(container.isDirty() && container.isValid())));
-            }
-
-            var delButton = undefined;
-            if (!container.create && !readonly) {
-                delButton = _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 16, textAlign: 'center' } },
-                    m('ws.editor.help.delete'),
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onClick: function () {
-                            _this4.remove();
-                        } })
-                );
-            }
-            var leftNav = _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 16, color: '#9e9e9e' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { fontSize: 120, textAlign: 'center', paddingBottom: 10 } },
-                        _react2['default'].createElement('i', { className: "mdi mdi-folder-open" })
-                    ),
-                    m('ws.editor.help.1'),
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement('br', null),
-                    m('ws.editor.help.2')
-                ),
-                delButton && _react2['default'].createElement(_materialUi.Divider, null),
-                delButton
-            );
-
-            var adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
-            var styles = {
-                title: {
-                    fontSize: 20,
-                    paddingTop: 20,
-                    marginBottom: 0
-                },
-                legend: { color: '#9E9E9E', paddingTop: 10 },
-                section: _extends({ padding: '0 20px 20px', margin: 10, backgroundColor: 'white' }, adminStyles.body.block.container),
-                toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
-            };
-
-            var roots = workspace.RootNodes;
-            var completers = Object.keys(roots).map(function (k) {
-                var label = m('ws.editor.path.folder');
-                if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
-                    label = m('ws.editor.path.template');
-                }
-                return _react2['default'].createElement(_WsAutoComplete2['default'], {
-                    key: roots[k].Uuid,
-                    pydio: pydio,
-                    label: label,
-                    value: roots[k].Path,
-                    onDelete: function () {
-                        delete roots[k];_this4.forceUpdate();
-                    },
-                    onChange: function (key, node) {
-                        delete roots[k];
-                        if (key !== '') {
-                            roots[node.Uuid] = node;
-                        }
-                    },
-                    skipTemplates: container.hasFolderRoots()
-                });
-            });
-            if (!container.hasTemplatePath()) {
-                completers.push(_react2['default'].createElement(_WsAutoComplete2['default'], {
-                    key: newFolderKey,
-                    pydio: pydio,
-                    value: "",
-                    onChange: function (k, node) {
-                        if (node) {
-                            roots[node.Uuid] = node;_this4.setState({ newFolderKey: Math.random() });
-                        }
-                    },
-                    skipTemplates: container.hasFolderRoots()
-                }));
-            }
-
-            return _react2['default'].createElement(
-                PaperEditorLayout,
-                {
-                    title: workspace.Label || mS('90'),
-                    titleActionBar: buttons,
-                    closeAction: closeEditor,
-                    leftNav: leftNav,
-                    className: 'workspace-editor',
-                    contentFill: false
-                },
-                _react2['default'].createElement(
-                    _materialUi.Dialog,
-                    {
-                        open: showDialog,
-                        title: m('ws.editor.sync.warning'),
-                        onRequestClose: function () {
-                            _this4.confirmSync(!dialogTargetValue);
-                        },
-                        actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: function () {
-                                _this4.confirmSync(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('ws.editor.sync.warning.validate'), onClick: function () {
-                                _this4.confirmSync(dialogTargetValue);
-                            } })]
-                    },
-                    showDialog === 'enableSync' && _react2['default'].createElement(
-                        'div',
-                        null,
-                        m('ws.editor.sync.warning.enable')
-                    ),
-                    showDialog === 'disableSync' && _react2['default'].createElement(
-                        'div',
-                        null,
-                        m('ws.editor.sync.warning.disable')
-                    )
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 0, style: styles.section },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.title },
-                        m('ws.30')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.legend },
-                        m('ws.editor.options.legend')
-                    ),
-                    _react2['default'].createElement(ModernTextField, {
-                        fullWidth: true,
-                        errorText: workspace.Label ? "" : m('ws.editor.label.legend'),
-                        floatingLabelText: mS('8'),
-                        value: workspace.Label,
-                        onChange: function (e, v) {
-                            workspace.Label = v;
-                        }
-                    }),
-                    _react2['default'].createElement(ModernTextField, {
-                        fullWidth: true,
-                        floatingLabelText: m("ws.editor.description"),
-                        value: workspace.Description,
-                        onChange: function (e, v) {
-                            workspace.Description = v;
-                        }
-                    }),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
-                        m('ws.editor.slug.legend')
-                    ),
-                    _react2['default'].createElement(ModernTextField, {
-                        fullWidth: true,
-                        errorText: workspace.Label && !workspace.Slug ? m('ws.editor.slug.legend') : "",
-                        floatingLabelText: m('ws.5'),
-                        value: workspace.Slug,
-                        onChange: function (e, v) {
-                            workspace.Slug = v;
-                        }
-                    })
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 0, style: styles.section },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.title },
-                        m('ws.editor.data.title')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.legend },
-                        m('ws.editor.data.legend')
-                    ),
-                    completers,
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.legend },
-                        m('ws.editor.default_rights')
-                    ),
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        {
-                            fullWidth: true,
-                            value: workspace.Attributes['DEFAULT_RIGHTS'] || '',
-                            onChange: function (e, i, v) {
-                                workspace.Attributes['DEFAULT_RIGHTS'] = v;
-                            }
-                        },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.none'), value: "" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.read'), value: "r" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.readwrite'), value: "rw" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
-                    )
-                ),
-                advanced && _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 0, style: styles.section },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.title },
-                        m('ws.editor.other')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
-                        m('ws.editor.other.sync.legend')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, _extends({
-                            label: m('ws.editor.other.sync'),
-                            labelPosition: "right",
-                            toggled: workspace.Attributes['ALLOW_SYNC'],
-                            onToggle: function (e, v) {
-                                if (!container.hasTemplatePath() && v) {
-                                    _this4.enableSync(v);
-                                } else if (!v) {
-                                    _this4.enableSync(v);
-                                } else {
-                                    workspace.Attributes['ALLOW_SYNC'] = v;
-                                }
-                            }
-                        }, ModernStyles.toggleField))
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
-                        m('ws.editor.other.quota')
-                    ),
-                    _react2['default'].createElement(QuotaField, { value: workspace.Attributes['QUOTA'] || 0, onChange: function (e, v) {
-                            if (v > 0) {
-                                workspace.Attributes['QUOTA'] = v + '';
-                            } else {
-                                workspace.Attributes['QUOTA'] = '0';
-                                delete workspace.Attributes['QUOTA'];
-                            }
-                        } }),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, styles.legend, { marginTop: 8 }) },
-                        m('ws.editor.other.layout')
-                    ),
-                    _react2['default'].createElement(
-                        ModernSelectField,
-                        { fullWidth: true, value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
-                                workspace.Attributes['META_LAYOUT'] = v;
-                            } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.default'), value: "" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.easy'), value: "meta.layout_sendfile" })
-                    )
-                )
-            );
-        }
-    }]);
-
-    return WsEditor;
-})(_react2['default'].Component);
-
-exports['default'] = WsEditor = (0, _materialUiStyles.muiThemeable)()(WsEditor);
-exports['default'] = WsEditor;
-module.exports = exports['default'];
-
-},{"../model/Ws":33,"./WsAutoComplete":25,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],27:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _metaMetaSourceForm = require('./meta/MetaSourceForm');
-
-var _metaMetaSourceForm2 = _interopRequireDefault(_metaMetaSourceForm);
-
-var _boardWsDashboard = require('./board/WsDashboard');
-
-var _boardWsDashboard2 = _interopRequireDefault(_boardWsDashboard);
-
-var _metaMetaList = require('./meta/MetaList');
-
-var _metaMetaList2 = _interopRequireDefault(_metaMetaList);
-
-var _boardVirtualNodes = require('./board/VirtualNodes');
-
-var _boardVirtualNodes2 = _interopRequireDefault(_boardVirtualNodes);
-
-var _boardDataSourcesBoard = require('./board/DataSourcesBoard');
-
-var _boardDataSourcesBoard2 = _interopRequireDefault(_boardDataSourcesBoard);
-
-var _boardMetadataBoard = require('./board/MetadataBoard');
-
-var _boardMetadataBoard2 = _interopRequireDefault(_boardMetadataBoard);
-
-var _editorDataSourceEditor = require('./editor/DataSourceEditor');
-
-var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
-
-var _modelWs = require('./model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
-
-var _modelDataSource = require('./model/DataSource');
-
-var _modelDataSource2 = _interopRequireDefault(_modelDataSource);
-
-var _editorWsAutoComplete = require('./editor/WsAutoComplete');
-
-var _editorWsAutoComplete2 = _interopRequireDefault(_editorWsAutoComplete);
-
-var _virtualNodeCard = require('./virtual/NodeCard');
-
-var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
-
-var _modelVirtualNode = require('./model/VirtualNode');
-
-var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
-
-window.AdminWorkspaces = {
-  MetaSourceForm: _metaMetaSourceForm2['default'],
-  MetaList: _metaMetaList2['default'],
-  VirtualNodes: _boardVirtualNodes2['default'],
-  WsDashboard: _boardWsDashboard2['default'],
-  DataSourcesBoard: _boardDataSourcesBoard2['default'],
-  MetadataBoard: _boardMetadataBoard2['default'],
-  DataSourceEditor: _editorDataSourceEditor2['default'],
-  WsAutoComplete: _editorWsAutoComplete2['default'],
-  TemplatePathEditor: _virtualNodeCard2['default'],
-  TemplatePath: _modelVirtualNode2['default'],
-  Workspace: _modelWs2['default'],
-  DataSource: _modelDataSource2['default']
-};
-
-},{"./board/DataSourcesBoard":12,"./board/MetadataBoard":14,"./board/VirtualNodes":15,"./board/WsDashboard":17,"./editor/DataSourceEditor":19,"./editor/WsAutoComplete":25,"./meta/MetaList":28,"./meta/MetaSourceForm":29,"./model/DataSource":30,"./model/VirtualNode":32,"./model/Ws":33,"./virtual/NodeCard":34}],28:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _createReactClass = require('create-react-class');
-
-var _createReactClass2 = _interopRequireDefault(_createReactClass);
-
-var _materialUi = require('material-ui');
-
-exports['default'] = (0, _createReactClass2['default'])({
-    displayName: 'MetaList',
-    mixins: [AdminComponents.MessagesConsumerMixin],
-
-    propTypes: {
-        currentMetas: _propTypes2['default'].object,
-        edit: _propTypes2['default'].string,
-        metaSourceProvider: _propTypes2['default'].object,
-        closeCurrent: _propTypes2['default'].func,
-        setEditState: _propTypes2['default'].func,
-        featuresEditable: _propTypes2['default'].bool
-    },
-
-    render: function render() {
-        var features = [];
-        var metas = Object.keys(this.props.currentMetas);
-        metas.sort(function (k1, k2) {
-            var type1 = k1.split('.').shift();
-            var type2 = k2.split('.').shift();
-            if (type1 == 'metastore' || type2 == 'index') return -1;
-            if (type1 == 'index' || type2 == 'metastore') return 1;
-            return k1 > k2 ? 1 : -1;
-        });
-        if (metas) {
-            features = metas.map((function (k) {
-                var removeButton, description;
-                if (this.props.edit == k && this.props.featuresEditable) {
-                    var remove = (function (event) {
-                        event.stopPropagation();
-                        this.props.metaSourceProvider.removeMetaSource(k);
-                    }).bind(this);
-                    removeButton = _react2['default'].createElement(
-                        'div',
-                        { style: { textAlign: 'right' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: this.context.getMessage('ws.31'), primary: true, onClick: remove })
-                    );
-                }
-                description = _react2['default'].createElement(
-                    'div',
-                    { className: 'legend' },
-                    this.props.metaSourceProvider.getMetaSourceDescription(k)
-                );
-                return _react2['default'].createElement(
-                    PydioComponents.PaperEditorNavEntry,
-                    { key: k, keyName: k, selectedKey: this.props.edit, onClick: this.props.setEditState },
-                    this.props.metaSourceProvider.getMetaSourceLabel(k),
-                    description,
-                    removeButton
-                );
-            }).bind(this));
-        }
-        if (this.props.featuresEditable) {
-            features.push(_react2['default'].createElement(
-                'div',
-                { className: 'menu-entry', key: 'add-feature', onClick: this.props.metaSourceProvider.showMetaSourceForm.bind(this.props.metaSourceProvider) },
-                '+ ',
-                this.context.getMessage('ws.32')
-            ));
-        }
-
-        return _react2['default'].createElement(
-            'div',
-            null,
-            features
-        );
-    }
-});
-module.exports = exports['default'];
-
-},{"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","react":"react"}],29:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _createReactClass = require('create-react-class');
-
-var _createReactClass2 = _interopRequireDefault(_createReactClass);
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var React = require('react');
-
-var _require = require('material-ui');
-
-var MenuItem = _require.MenuItem;
-var SelectField = _require.SelectField;
-
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
-var CancelButtonProviderMixin = _require$requireLib.CancelButtonProviderMixin;
-var SubmitButtonProviderMixin = _require$requireLib.SubmitButtonProviderMixin;
-var _AdminComponents = AdminComponents;
-var MessagesConsumerMixin = _AdminComponents.MessagesConsumerMixin;
-
-var MetaSourceForm = (0, _createReactClass2['default'])({
-
-    mixins: [MessagesConsumerMixin, ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin],
-
-    propTypes: {
-        model: _propTypes2['default'].object,
-        editor: _propTypes2['default'].object,
-        modalData: _propTypes2['default'].object
-    },
-
-    getDefaultProps: function getDefaultProps() {
-        return {
-            dialogTitleId: 'ajxp_admin.ws.46',
-            dialogSize: 'sm'
-        };
-    },
-
-    getInitialState: function getInitialState() {
-        return { step: 'chooser' };
-    },
-
-    setModal: function setModal(pydioModal) {
-        this.setState({ modal: pydioModal });
-    },
-
-    submit: function submit() {
-        if (this.state.pluginId && this.state.pluginId !== -1) {
-            this.dismiss();
-            this.props.editor.addMetaSource(this.state.pluginId);
-        }
-    },
-
-    render: function render() {
-        var model = this.props.model;
-        var currentMetas = model.getOption("META_SOURCES", true);
-        var allMetas = model.getAllMetaSources();
-
-        var menuItems = [];
-        allMetas.map(function (metaSource) {
-            var id = metaSource['id'];
-            var type = id.split('.').shift();
-            if (type === 'metastore' || type === 'index') {
-                var already = false;
-                Object.keys(currentMetas).map(function (metaKey) {
-                    if (metaKey.indexOf(type) === 0) already = true;
-                });
-                if (already) return;
-            } else {
-                if (currentMetas[id]) return;
-            }
-            menuItems.push(React.createElement(MenuItem, { value: metaSource['id'], primaryText: metaSource['label'] }));
-        });
-        var change = (function (event, index, value) {
-            if (value !== -1) {
-                this.setState({ pluginId: value });
-            }
-        }).bind(this);
-        return React.createElement(
-            'div',
-            { style: { width: '100%' } },
-            React.createElement(
-                SelectField,
-                { value: this.state.pluginId, fullWidth: true, onChange: change },
-                menuItems
-            )
-        );
-    }
-
-});
-
-exports['default'] = MetaSourceForm;
-module.exports = exports['default'];
-
-},{"create-react-class":"create-react-class","material-ui":"material-ui","prop-types":"prop-types","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
-/*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _cellsSdk = require('cells-sdk');
-
-var Observable = require('pydio/lang/observable');
-var PydioApi = require('pydio/http/api');
-
-var DataSource = (function (_Observable) {
-    _inherits(DataSource, _Observable);
-
-    _createClass(DataSource, [{
-        key: 'buildProxy',
-        value: function buildProxy(object) {
-            var _this = this;
-
-            return new Proxy(object, {
-                set: function set(target, p, value) {
-                    var val = value;
-                    if (p === 'StorageType') {
-                        target['StorageConfiguration'] = {};
-                        if (val === 'LOCAL') {
-                            target['StorageConfiguration'] = { "folder": "", "normalize": "false" };
-                        } else if (val === 'S3') {
-                            target['StorageConfiguration'] = { "customEndpoint": "" };
-                        } else if (val === 'GCS') {
-                            target['StorageConfiguration'] = { "jsonCredentials": "" };
-                        }
-                        _this.internalInvalid = false;
-                        target['ApiKey'] = target['ApiSecret'] = ''; // reset values
-                    } else if (p === 'Name') {
-                            // Limit Name to 33 chars
-                            val = _pydioUtilLang2['default'].computeStringSlug(val).replace("-", "").substr(0, 33);
-                            if (_this.existingNames && _this.existingNames.indexOf(val) > -1) {
-                                _this.nameInvalid = true;
-                            } else {
-                                _this.nameInvalid = false;
-                            }
-                        } else if (p === 'folder') {
-                            if (val[0] !== '/') {
-                                val = '/' + val;
-                            }
-                        } else if (p === 'invalid') {
-                            _this.internalInvalid = value;
-                            _this.notify('update');
-                            return true;
-                        } else if (p === 'PeerAddress') {
-                            if (value === 'ANY') {
-                                val = '';
-                            }
-                        }
-                    target[p] = val;
-                    _this.notify('update');
-                    return true;
-                },
-                get: function get(target, p) {
-                    var out = target[p];
-                    if (out instanceof Array) {
-                        return out;
-                    } else if (out instanceof Object) {
-                        return _this.buildProxy(out);
-                    } else if (p === 'StorageType') {
-                        return out || 'LOCAL';
-                    } else if (p === 'PeerAddress') {
-                        return out || 'ANY';
-                    } else {
-                        return out;
-                    }
-                }
-            });
-        }
-    }]);
-
-    function DataSource(model) {
-        var existingNames = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
-
-        _classCallCheck(this, DataSource);
-
-        _get(Object.getPrototypeOf(DataSource.prototype), 'constructor', this).call(this);
-        this.internalInvalid = false;
-        this.nameInvalid = false;
-        this.existingNames = existingNames;
-        if (model) {
-            this.model = model;
-            if (!model.StorageConfiguration) {
-                model.StorageConfiguration = {};
-            }
-            this.snapshot = JSON.parse(JSON.stringify(model));
-        } else {
-            this.model = new _cellsSdk.ObjectDataSource();
-            this.model.EncryptionMode = _cellsSdk.ObjectEncryptionMode.constructFromObject('CLEAR');
-            this.model.StorageType = _cellsSdk.ObjectStorageType.constructFromObject('LOCAL');
-            this.model.StorageConfiguration = { "folder": "", "normalize": "false" };
-        }
-        this.observableModel = this.buildProxy(this.model);
-    }
-
-    /**
-     * @return {ObjectDataSource}
-     */
-
-    _createClass(DataSource, [{
-        key: 'getModel',
-        value: function getModel() {
-            return this.observableModel;
-        }
-    }, {
-        key: 'isValid',
-        value: function isValid() {
-            if (this.internalInvalid || this.nameInvalid) {
-                return false;
-            }
-            if (this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
-                return this.model.ApiKey && this.model.ApiSecret && this.model.Name && (this.model.ObjectsBucket || this.model.StorageConfiguration.bucketsRegexp);
-            } else if (this.model.StorageType === 'GCS') {
-                return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
-            } else {
-                return this.model.Name && this.model.StorageConfiguration && this.model.StorageConfiguration['folder'];
-            }
-        }
-
-        /**
-         *
-         * @param translateFunc {Function} Translate function
-         * @return {*}
-         */
-    }, {
-        key: 'getNameError',
-        value: function getNameError(translateFunc) {
-            if (this.nameInvalid) {
-                return translateFunc('name.inuse');
-            } else {
-                return null;
-            }
-        }
-    }, {
-        key: 'deleteSource',
-        value: function deleteSource() {
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            return api.deleteDataSource(this.model.Name);
-        }
-    }, {
-        key: 'resyncSource',
-        value: function resyncSource() {
-            var api = new _cellsSdk.JobsServiceApi(PydioApi.getRestClient());
-            var req = new _cellsSdk.RestUserJobRequest();
-            req.JobName = "datasource-resync";
-            req.JsonParameters = JSON.stringify({ dsName: this.model.Name });
-            return api.userCreateJob("datasource-resync", req);
-        }
-    }, {
-        key: 'revert',
-        value: function revert() {
-            this.model = this.snapshot;
-            this.observableModel = this.buildProxy(this.model);
-            this.snapshot = JSON.parse(JSON.stringify(this.model));
-            return this.observableModel;
-        }
-    }, {
-        key: 'saveSource',
-        value: function saveSource() {
-            var _this2 = this;
-
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            return api.putDataSource(this.model.Name, this.model).then(function (res) {
-                _this2.snapshot = JSON.parse(JSON.stringify(_this2.model));
-                _this2.notify('update');
-            });
-        }
-    }, {
-        key: 'stripPrefix',
-        value: function stripPrefix(data) {
-            var prefix = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-            if (!prefix) {
-                return data;
-            }
-            var obj = {};
-            Object.keys(data).map(function (k) {
-                obj[k.replace(prefix, '')] = data[k];
-            });
-            return obj;
-        }
-    }, {
-        key: 'getDataWithPrefix',
-        value: function getDataWithPrefix() {
-            var _this3 = this;
-
-            var prefix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-
-            if (prefix === '') {
-                return this.model;
-            }
-            var data = {};
-            Object.keys(this.model).forEach(function (k) {
-                data[prefix + k] = _this3.model[k];
-                if (k === 'EncryptionMode' && !_this3.model[k]) {
-                    data[prefix + k] = 'CLEAR';
-                }
-            });
-            return data;
-        }
-    }], [{
-        key: 'loadDatasources',
-        value: function loadDatasources() {
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            return api.listDataSources();
-        }
-    }, {
-        key: 'loadVersioningPolicies',
-        value: function loadVersioningPolicies() {
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            return api.listVersioningPolicies();
-        }
-    }, {
-        key: 'loadStatuses',
-        value: function loadStatuses() {
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            return api.listServices('STARTED');
-        }
-    }, {
-        key: 'loadEncryptionKeys',
-        value: function loadEncryptionKeys() {
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            return api.listEncryptionKeys(new _cellsSdk.EncryptionAdminListKeysRequest());
-        }
-    }, {
-        key: 'loadBuckets',
-        value: function loadBuckets(model) {
-            var regexp = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
-            var api = new _cellsSdk.ConfigServiceApi(PydioApi.getRestClient());
-            var request = new _cellsSdk.RestListStorageBucketsRequest();
-            request.DataSource = model;
-            if (regexp) {
-                request.BucketsRegexp = regexp;
-            }
-            return api.listStorageBuckets(request);
-        }
-    }]);
-
-    return DataSource;
-})(Observable);
-
-exports['default'] = DataSource;
-module.exports = exports['default'];
-
-},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],31:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _cellsSdk = require('cells-sdk');
-
-var Metadata = (function () {
-    function Metadata() {
-        _classCallCheck(this, Metadata);
-    }
-
-    _createClass(Metadata, null, [{
-        key: 'loadNamespaces',
-        value: function loadNamespaces() {
-            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            return api.listUserMetaNamespace();
-        }
-
-        /**
-         * @param namespace {IdmUserMetaNamespace}
-         * @return {Promise}
-         */
-    }, {
-        key: 'putNS',
-        value: function putNS(namespace) {
-            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
-            request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
-            request.Namespaces = [namespace];
-            Metadata.clearLocalCache();
-            return api.updateUserMetaNamespace(request);
-        }
-
-        /**
-         * @param namespace {IdmUserMetaNamespace}
-         * @return {Promise}
-         */
-    }, {
-        key: 'deleteNS',
-        value: function deleteNS(namespace) {
-            var api = new _cellsSdk.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _cellsSdk.IdmUpdateUserMetaNamespaceRequest();
-            request.Operation = _cellsSdk.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
-            request.Namespaces = [namespace];
-            Metadata.clearLocalCache();
-            return api.updateUserMetaNamespace(request);
-        }
-
-        /**
-         * Clear ReactMeta cache if it exists
-         */
-    }, {
-        key: 'clearLocalCache',
-        value: function clearLocalCache() {
-            try {
-                if (window.ReactMeta) {
-                    ReactMeta.Renderer.getClient().clearConfigs();
-                }
-            } catch (e) {
-                //console.log(e)
-            }
-        }
-    }]);
-
-    return Metadata;
-})();
-
-Metadata.MetaTypes = {
-    "string": "Text",
-    "textarea": "Long Text",
-    "stars_rate": "Stars Rating",
-    "css_label": "Color Labels",
-    "tags": "Extensible Tags",
-    "choice": "Selection",
-    "json": "JSON"
-};
-
-exports['default'] = Metadata;
-module.exports = exports['default'];
-
-},{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager"}],32:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _pydioLangObservable = require('pydio/lang/observable');
-
-var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _cellsSdk = require('cells-sdk');
-
-var VirtualNode = (function (_Observable) {
-    _inherits(VirtualNode, _Observable);
-
-    _createClass(VirtualNode, null, [{
-        key: 'loadNodes',
-        value: function loadNodes(callback) {
-            var api = new _cellsSdk.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            _pydio2['default'].startLoading();
-            api.listVirtualNodes().then(function (response) {
-                _pydio2['default'].endLoading();
-                var result = [];
-                if (response.Children) {
-                    response.Children.map(function (treeNode) {
-                        result.push(new VirtualNode(treeNode));
-                    });
-                }
-                callback(result);
-            })['catch'](function () {
-                _pydio2['default'].endLoading();
-            });
-        }
-    }]);
-
-    function VirtualNode(data) {
-        _classCallCheck(this, VirtualNode);
-
-        _get(Object.getPrototypeOf(VirtualNode.prototype), 'constructor', this).call(this);
-        if (data) {
-            this.data = data;
-        } else {
-            this.data = new _cellsSdk.TreeNode();
-            this.data.Type = _cellsSdk.TreeNodeType.constructFromObject('COLLECTION');
-            this.data.MetaStore = {
-                name: "",
-                resolution: "",
-                onDelete: "rename-uuid",
-                contentType: "text/javascript"
-            };
-        }
-    }
-
-    _createClass(VirtualNode, [{
-        key: 'getName',
-        value: function getName() {
-            return this.data.MetaStore.name;
-        }
-    }, {
-        key: 'setName',
-        value: function setName(name) {
-            this.data.MetaStore.name = name;
-            var slug = _pydioUtilLang2['default'].computeStringSlug(name);
-            this.data.Uuid = slug;
-            this.data.Path = slug;
-            this.notify('update');
-        }
-    }, {
-        key: 'getValue',
-        value: function getValue() {
-            return this.data.MetaStore.resolution;
-        }
-    }, {
-        key: 'setValue',
-        value: function setValue(value) {
-            this.data.MetaStore.resolution = value;
-            this.notify('update');
-        }
-    }, {
-        key: 'save',
-        value: function save(callback) {
-            var _this = this;
-
-            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                api.putVirtualNode(_this.data.Uuid, _this.data).then(function () {
-                    callback();
-                });
-            });
-        }
-    }, {
-        key: 'remove',
-        value: function remove(callback) {
-            var _this2 = this;
-
-            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
-                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                api.deleteVirtualNode(_this2.data.Uuid).then(function () {
-                    callback();
-                });
-            });
-        }
-    }]);
-
-    return VirtualNode;
-})(_pydioLangObservable2['default']);
-
-exports['default'] = VirtualNode;
-module.exports = exports['default'];
-
-},{"cells-sdk":"cells-sdk","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],33:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioHttpApi = require("pydio/http/api");
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _pydioLangObservable = require("pydio/lang/observable");
-
-var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
-
-var _cellsSdk = require('cells-sdk');
-
-var Workspace = (function (_Observable) {
-    _inherits(Workspace, _Observable);
-
-    _createClass(Workspace, [{
-        key: 'buildProxy',
-        value: function buildProxy(object) {
-            var _this = this;
-
-            return new Proxy(object, {
-                set: function set(target, p, value) {
-                    var val = value;
-                    if (p === 'Slug') {
-                        val = _pydioUtilLang2['default'].computeStringSlug(val);
-                    } else if (p === 'Label' && _this.create) {
-                        target['Slug'] = _pydioUtilLang2['default'].computeStringSlug(val);
-                    }
-                    target[p] = val;
-                    _this.dirty = true;
-                    _this.notify('update');
-                    return true;
-                },
-                get: function get(target, p) {
-                    var out = target[p];
-                    if (p === 'Attributes') {
-                        out = _this.internalAttributes;
-                    }
-                    if (out instanceof Array) {
-                        return out;
-                    } else if (out instanceof Object) {
-                        return _this.buildProxy(out);
-                    } else {
-                        return out;
-                    }
-                }
-            });
-        }
-
-        /**
-         * @param model {IdmWorkspace}
-         */
-    }]);
-
-    function Workspace(model) {
-        _classCallCheck(this, Workspace);
-
-        _get(Object.getPrototypeOf(Workspace.prototype), 'constructor', this).call(this);
-        this.internalAttributes = {};
-        this.dirty = false;
-        if (model) {
-            this.initModel(model);
-        } else {
-            this.create = true;
-            this.model = new _cellsSdk.IdmWorkspace();
-            this.model.Scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
-            this.model.RootNodes = {};
-            this.internalAttributes = { "DEFAULT_RIGHTS": "" };
-            this.model.PoliciesContextEditable = true;
-            this.model.Attributes = JSON.stringify(this.internalAttributes);
-        }
-        this.observableModel = this.buildProxy(this.model);
-    }
-
-    _createClass(Workspace, [{
-        key: 'initModel',
-        value: function initModel(model) {
-            this.create = false;
-            this.dirty = false;
-            this.model = model;
-            this.snapshot = JSON.parse(JSON.stringify(model));
-            if (model.Attributes) {
-                var atts = JSON.parse(model.Attributes);
-                if (typeof atts === "object" && Object.keys(atts).length) {
-                    this.internalAttributes = atts;
-                }
-            } else {
-                this.internalAttributes = {};
-            }
-            if (!model.RootNodes) {
-                model.RootNodes = {};
-            }
-        }
-
-        /**
-         * @return {IdmWorkspace}
-         */
-    }, {
-        key: 'getModel',
-        value: function getModel() {
-            return this.observableModel;
-        }
-
-        /**
-         * @return {boolean}
-         */
-    }, {
-        key: 'hasTemplatePath',
-        value: function hasTemplatePath() {
-            var _this2 = this;
-
-            return Object.keys(this.model.RootNodes).filter(function (k) {
-                return Workspace.rootIsTemplatePath(_this2.model.RootNodes[k]);
-            }).length > 0;
-        }
-
-        /**
-         * @return {boolean}
-         */
-    }, {
-        key: 'hasFolderRoots',
-        value: function hasFolderRoots() {
-            var _this3 = this;
-
-            return Object.keys(this.model.RootNodes).filter(function (k) {
-                return !Workspace.rootIsTemplatePath(_this3.model.RootNodes[k]);
-            }).length > 0;
-        }
-
-        /**
-         *
-         * @return {Promise<any>}
-         */
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this4 = this;
-
-            // If Policies are not set, REST service will add default policies
-            this.model.Attributes = JSON.stringify(this.internalAttributes);
-            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-            return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
-                _this4.initModel(ws);
-                _this4.observableModel = _this4.buildProxy(_this4.model);
-            });
-        }
-
-        /**
-         *
-         * @return {Promise}
-         */
-    }, {
-        key: 'remove',
-        value: function remove() {
-            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-            return api.deleteWorkspace(this.model.Slug);
-        }
-
-        /**
-         * Revert state
-         */
-    }, {
-        key: 'revert',
-        value: function revert() {
-            var revert = _cellsSdk.IdmWorkspace.constructFromObject(this.snapshot || {});
-            this.initModel(revert);
-            this.observableModel = this.buildProxy(this.model);
-        }
-
-        /**
-         * @return {boolean}
-         */
-    }, {
-        key: 'isValid',
-        value: function isValid() {
-            return this.model.Slug && this.model.Label && Object.keys(this.model.RootNodes).length > 0;
-        }
-    }, {
-        key: 'isDirty',
-        value: function isDirty() {
-            return this.dirty;
-        }
-
-        /**
-         *
-         * @param node {TreeNode}
-         * @return bool
-         */
-    }], [{
-        key: 'rootIsTemplatePath',
-        value: function rootIsTemplatePath(node) {
-            return !!(node.MetaStore && node.MetaStore['resolution']);
-        }
-    }, {
-        key: 'listWorkspaces',
-        value: function listWorkspaces() {
-            var api = new _cellsSdk.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _cellsSdk.RestSearchWorkspaceRequest();
-            var single = new _cellsSdk.IdmWorkspaceSingleQuery();
-            single.scope = _cellsSdk.IdmWorkspaceScope.constructFromObject('ADMIN');
-            request.Queries = [single];
-            return api.searchWorkspaces(request);
-        }
-    }]);
-
-    return Workspace;
-})(_pydioLangObservable2['default']);
-
-exports['default'] = Workspace;
-module.exports = exports['default'];
-
-},{"cells-sdk":"cells-sdk","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],34:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var NodeCard = (function (_React$Component) {
-    _inherits(NodeCard, _React$Component);
-
-    function NodeCard(props) {
-        _classCallCheck(this, NodeCard);
-
-        _get(Object.getPrototypeOf(NodeCard.prototype), 'constructor', this).call(this, props);
-        var value = props.node.getValue();
-        var dirty = false;
-        if (!value) {
-            value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
-        } else {
-            dirty = true;
-        }
-        this.state = {
-            value: value,
-            dirty: true
-        };
-    }
-
-    _createClass(NodeCard, [{
-        key: 'onChange',
-        value: function onChange(event, newValue) {
-            this.setState({
-                value: newValue,
-                dirty: true
-            });
-        }
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this = this;
-
-            var _props = this.props;
-            var node = _props.node;
-            var _props$onSave = _props.onSave;
-            var onSave = _props$onSave === undefined ? function () {} : _props$onSave;
-            var value = this.state.value;
-
-            node.setValue(value);
-
-            node.save(function () {
-                _this.setState({
-                    dirty: false
-                }, onSave);
-            });
-        }
-    }, {
-        key: 'remove',
-        value: function remove() {
-            var _this2 = this;
-
-            this.props.node.remove(function () {
-                _this2.props.reloadList();
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _props2 = this.props;
-            var pydio = _props2.pydio;
-            var dataSources = _props2.dataSources;
-            var readonly = _props2.readonly;
-            var oneLiner = _props2.oneLiner;
-            var _props2$onClose = _props2.onClose;
-            var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
-            var _state = this.state;
-            var value = _state.value;
-            var dirty = _state.dirty;
-
-            var m = function m(id) {
-                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
-            };
-
-            var ds = {};
-            if (dataSources) {
-                dataSources.map(function (d) {
-                    ds[d.Name] = d.Name;
-                });
-            }
-            var globalScope = {
-                Path: '',
-                DataSources: ds,
-                User: { Name: '' }
-            };
-
-            var codeMirrorField = _react2['default'].createElement(AdminComponents.CodeMirrorField, {
-                mode: 'javascript',
-                globalScope: globalScope,
-                value: value,
-                onChange: this.onChange.bind(this),
-                readOnly: readonly
-            });
-
-            if (oneLiner) {
-                return _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { flex: 1, lineHeight: "40px" } },
-                        codeMirrorField
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { display: "flex" } },
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: "Save" }),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", onClick: function () {
-                                return onClose();
-                            }, tooltip: "Close" })
-                    )
-                );
-            } else {
-                return _react2['default'].createElement(
-                    'div',
-                    { style: { backgroundColor: '#f5f5f5', paddingBottom: 24 } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { padding: readonly ? '12px 24px' : '0 24px', fontWeight: 500, display: 'flex', alignItems: 'center' } },
-                        _react2['default'].createElement(
-                            'div',
-                            null,
-                            'Template Path Code'
-                        ),
-                        !readonly && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: m('save'), style: { width: 36, height: 36, padding: 8 }, iconStyle: { fontSize: 20, color: 'rgba(0,0,0,.33)' } })
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { margin: '12px 24px 0 24px', border: '1px solid #e0e0e0' } },
-                        codeMirrorField
-                    )
-                );
-            }
-        }
-    }]);
-
-    return NodeCard;
-})(_react2['default'].Component);
-
-exports['default'] = NodeCard;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}]},{},[27]);
+},{"./sha1.js":29,"./v35.js":32}]},{},[16]);

@@ -564,6 +564,9 @@ let SimpleList = createReactClass({
     },
 
     computeElementHeightResponsive:function(){
+        if(!this.props.tableKeys){
+            return 50;
+        }
         let breaks = this.props.elementHeight;
         if(! (breaks instanceof Object) ){
             breaks = {
@@ -579,8 +582,11 @@ let SimpleList = createReactClass({
             }
         }else{
             const width = DOMUtils.getViewportWidth();
-            if(width < 480) return breaks["max-width:480px"];
-            else return breaks["max-width:480px"];
+            if(width < 480) {
+                return breaks["max-width:480px"];
+            } else {
+                return breaks["min-width:480px"];
+            }
         }
         return 50;
     },
@@ -989,8 +995,8 @@ let SimpleList = createReactClass({
         }
 
         if(this.props.elementPerLine > 1){
-            end = end * this.props.elementPerLine;
-            start = start * this.props.elementPerLine;
+            end *= this.props.elementPerLine;
+            start *= this.props.elementPerLine;
         }
         return this.indexedElements.slice(start, end);
     },

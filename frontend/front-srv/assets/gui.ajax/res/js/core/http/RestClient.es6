@@ -24,7 +24,7 @@ import PydioStorage from './PydioStorage'
 import moment from 'moment'
 import qs from 'query-string'
 import {ApiClient, JobsServiceApi, RestUserJobRequest, RestFrontSessionRequest, RestFrontSessionResponse} from 'cells-sdk';
-import {v4 as uuid} from 'uuid'
+import genUuid from 'uuid4'
 
 // Override parseDate method to support ISO8601 cross-browser
 ApiClient.parseDate = function (str) {
@@ -40,7 +40,7 @@ class RestClient extends ApiClient{
      */
     constructor(pydioObject, options = {}){
         super();
-        this.uuid = uuid()
+        this.uuid = genUuid()
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;

@@ -50,7 +50,9 @@ var _queryString2 = _interopRequireDefault(_queryString);
 
 var _cellsSdk = require('cells-sdk');
 
-var _uuid = require('uuid');
+var _uuid4 = require('uuid4');
+
+var _uuid42 = _interopRequireDefault(_uuid4);
 
 // Override parseDate method to support ISO8601 cross-browser
 _cellsSdk.ApiClient.parseDate = function (str) {
@@ -73,7 +75,7 @@ var RestClient = (function (_ApiClient) {
         _classCallCheck(this, RestClient);
 
         _ApiClient.call(this);
-        this.uuid = _uuid.v4();
+        this.uuid = _uuid42['default']();
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
         this.enableCookies = true; // enables withCredentials()
         this.pydio = pydioObject;

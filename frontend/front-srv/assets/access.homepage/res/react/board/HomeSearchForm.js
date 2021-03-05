@@ -26,7 +26,7 @@ import PydioDataModel from 'pydio/model/data-model'
 import SearchApi from 'pydio/http/search-api'
 import PathUtils from 'pydio/util/path'
 import EmptyNodeProvider from 'pydio/model/empty-node-provider'
-import _ from 'lodash';
+import debounce from 'lodash.debounce';
 import Facets from "./Facets";
 
 const {SimpleList} = Pydio.requireLib('components');
@@ -55,7 +55,7 @@ class HomeSearchForm extends Component{
             history: []
         };
         this.loadHistory().then(hh => this.setState({history: hh}))
-        this.submitD = _.debounce(this.submit, 500)
+        this.submitD = debounce(this.submit, 500)
     }
 
     update(queryString) {

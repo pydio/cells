@@ -3255,6 +3255,10 @@
               {
                 "name": "v",
                 "type": null
+              },
+              {
+                "name": "save",
+                "type": null
               }
             ],
             "returns": null
@@ -7799,8 +7803,7 @@
         "props": {
           "mode": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": "",
@@ -7811,8 +7814,7 @@
           },
           "lineWrapping": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -7823,8 +7825,7 @@
           },
           "lineNumbers": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -7835,8 +7836,7 @@
           },
           "readOnly": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -7847,80 +7847,70 @@
           },
           "className": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.any"
+              "name": "any"
             },
             "required": false,
             "description": ""
           },
           "codeMirrorInstance": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
           },
           "defaultValue": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "onChange": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
           },
           "onFocusChange": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
           },
           "onScroll": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
           },
           "options": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.object"
+              "name": "object"
             },
             "required": false,
             "description": ""
           },
           "path": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "value": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "preserveScrollPosition": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -7940,26 +7930,23 @@
         "props": {
           "url": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string.isRequired"
+              "name": "string"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "onChange": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func.isRequired"
+              "name": "func"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "onCursorChange": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func.isRequired"
+              "name": "func"
             },
-            "required": false,
+            "required": true,
             "description": ""
           }
         }
@@ -8686,40 +8673,35 @@
         "props": {
           "src": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string.isRequired"
+              "name": "string"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "poster": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
           },
           "height": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.number"
+              "name": "number"
             },
             "required": false,
             "description": ""
           },
           "width": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.number"
+              "name": "number"
             },
             "required": false,
             "description": ""
           },
           "endlessMode": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -8730,8 +8712,7 @@
           },
           "options": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.object"
+              "name": "object"
             },
             "required": false,
             "description": "",
@@ -8742,8 +8723,7 @@
           },
           "onReady": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": "",
@@ -8754,8 +8734,7 @@
           },
           "eventListeners": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.object"
+              "name": "object"
             },
             "required": false,
             "description": "",
@@ -8766,8 +8745,7 @@
           },
           "resize": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -8778,8 +8756,25 @@
           },
           "resizeOptions": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.shape({\n    aspectRatio: React.PropTypes.number,\n    shortWindowVideoHeightAdjustment: React.PropTypes.number,\n    defaultVideoWidthAdjustment: React.PropTypes.number,\n    debounceTime: React.PropTypes.number\n})"
+              "name": "shape",
+              "value": {
+                "aspectRatio": {
+                  "name": "number",
+                  "required": false
+                },
+                "shortWindowVideoHeightAdjustment": {
+                  "name": "number",
+                  "required": false
+                },
+                "defaultVideoWidthAdjustment": {
+                  "name": "number",
+                  "required": false
+                },
+                "debounceTime": {
+                  "name": "number",
+                  "required": false
+                }
+              }
             },
             "required": false,
             "description": "",
@@ -8790,8 +8785,7 @@
           },
           "vjsDefaultSkin": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -8802,8 +8796,7 @@
           },
           "vjsBigPlayCentered": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": "",
@@ -8814,24 +8807,21 @@
           },
           "children": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.element"
+              "name": "element"
             },
             "required": false,
             "description": ""
           },
           "dispose": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.bool"
+              "name": "bool"
             },
             "required": false,
             "description": ""
           },
           "onNextVideo": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": "",
@@ -8868,16 +8858,14 @@
         "props": {
           "url": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string.isRequired"
+              "name": "string"
             },
-            "required": false,
+            "required": true,
             "description": ""
           },
           "onReady": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.func"
+              "name": "func"
             },
             "required": false,
             "description": ""
@@ -18273,6 +18261,14 @@
         "require": "const {NodeListCustomProvider} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/list/PlaceHolders.js": [
+      {
+        "description": "",
+        "displayName": "PlaceHolders",
+        "methods": [],
+        "require": "const {PlaceHolders} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/list/SimpleList.js": [
       {
         "description": "Generic List component, using Infinite for cell virtualization, pagination, various\ndisplays, etc... It provides many hooks for rendering cells on-demand.\nIt uses createReactClass old syntax",
@@ -18585,10 +18581,6 @@
               },
               {
                 "name": "node",
-                "type": null
-              },
-              {
-                "name": "showSelector",
                 "type": null
               }
             ],
@@ -22565,6 +22557,10 @@
               {
                 "name": "event",
                 "type": null
+              },
+              {
+                "name": "value",
+                "type": null
               }
             ],
             "returns": null
@@ -22576,6 +22572,10 @@
             "params": [
               {
                 "name": "event",
+                "type": null
+              },
+              {
+                "name": "value",
                 "type": null
               }
             ],
@@ -23249,6 +23249,34 @@
         "displayName": "Locate",
         "methods": [],
         "require": "const {controls} = require('pydio').requireLib('hoc')"
+      }
+    ],
+    "HOCs/placeholders.js": [
+      {
+        "description": "",
+        "displayName": "TextRow",
+        "methods": [],
+        "require": "const {placeholders} = require('pydio').requireLib('hoc')"
+      },
+      {
+        "description": "",
+        "displayName": "RoundShape",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "RectShape",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "TextBlock",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "MediaBlock",
+        "methods": []
       }
     ],
     "HOCs/size/providers.js": [
@@ -24307,13 +24335,24 @@
     "Workspaces/leftnav/BookmarksList.js": [
       {
         "description": "",
+        "displayName": "BookmarkLine",
+        "methods": [],
+        "require": "const {BookmarksList} = require('pydio').requireLib('workspaces')"
+      },
+      {
+        "description": "",
         "displayName": "BookmarksList",
         "methods": [
           {
             "name": "load",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "silent",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -24371,8 +24410,7 @@
             ],
             "returns": null
           }
-        ],
-        "require": "const {BookmarksList} = require('pydio').requireLib('workspaces')"
+        ]
       }
     ],
     "Workspaces/leftnav/DynamicLeftPanel.js": [

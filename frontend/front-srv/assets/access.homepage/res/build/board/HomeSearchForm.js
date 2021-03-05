@@ -64,9 +64,9 @@ var _pydioModelEmptyNodeProvider = require('pydio/model/empty-node-provider');
 
 var _pydioModelEmptyNodeProvider2 = _interopRequireDefault(_pydioModelEmptyNodeProvider);
 
-var _lodash = require('lodash');
+var _lodashDebounce = require('lodash.debounce');
 
-var _lodash2 = _interopRequireDefault(_lodash);
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
 var _Facets = require("./Facets");
 
@@ -114,7 +114,7 @@ var HomeSearchForm = (function (_Component) {
         this.loadHistory().then(function (hh) {
             return _this.setState({ history: hh });
         });
-        this.submitD = _lodash2['default'].debounce(this.submit, 500);
+        this.submitD = (0, _lodashDebounce2['default'])(this.submit, 500);
     }
 
     _createClass(HomeSearchForm, [{

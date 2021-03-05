@@ -47,7 +47,9 @@ var _Session = require('./Session');
 
 var _Session2 = _interopRequireDefault(_Session);
 
-var _lodash = require('lodash');
+var _lodash = require('lodash.debounce');
+
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _api = require('pydio/http/api');
 

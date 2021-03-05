@@ -28,7 +28,7 @@ import StatusItem from './StatusItem'
 import UploadItem from './UploadItem'
 import FolderItem from './FolderItem'
 import Session from './Session'
-import {debounce} from 'lodash'
+import debounce from 'lodash.debounce'
 
 import PydioApi from 'pydio/http/api'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'

@@ -418,7 +418,7 @@ exports['default'] = function (pydio) {
 module.exports = exports['default'];
 
 },{"cells-sdk":"cells-sdk","pydio/http/api":"pydio/http/api"}],8:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -468,7 +468,7 @@ var Callbacks = {
 exports['default'] = Callbacks;
 module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./ajxpLink":1,"./applyCopyOrMove":2,"./copy":3,"./deleteAction":4,"./download":5,"./downloadAll":6,"./emptyRecycle":7,"./lock":9,"./ls":10,"./mkdir":11,"./move":12,"./openInEditor":13,"./openOtherEditorPicker":14,"./rename":15,"./restore":16,"./upload":17}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -2178,7 +2178,7 @@ exports['default'] = function (pydio) {
 module.exports = exports['default'];
 
 },{}],27:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2219,7 +2219,7 @@ var Listeners = {
 exports['default'] = Listeners;
 module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./compressUiSelectionChange":23,"./copyContextChange":24,"./downloadAllInit":25,"./downloadSelectionChange":26,"./lockSelectionChange":28,"./mkfileDynamicBuilder":29,"./openWithDynamicBuilder":30}],28:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
