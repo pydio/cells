@@ -180,7 +180,7 @@
     "other": "Password used to log in"
   },
   "form.frontendRepeatPassword.label": {
-    "other": "Confirm password"
+    "other": "Confirmar senha"
   },
   "form.frontendRepeatPassword.legend": {
     "other": "Confirm password twice"
@@ -210,13 +210,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "Chave Api S3"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Key to connect to S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 Segredo de Api"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Secret Key"

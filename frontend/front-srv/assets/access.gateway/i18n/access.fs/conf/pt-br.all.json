@@ -3,27 +3,27 @@
     "other": "Caminho"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "Formato de download padrão"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "Quando estiver baixando uma pasta ou uma seleção múltipla, crie um arquivo automaticamente usando este formato"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "Caminho para a pasta no servidor"
   },
   "Gateway": {
     "other": "Gateway"
   },
   "Pydio S3 Gateway": {
-    "other": "Pydio S3 Gateway"
+    "other": "Gateway Pydio S3"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "Caminho absoluto para um ou mais nós raiz"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "Itens por página"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "Uma vez no modo de paginação, selecione o número de itens a serem exibidos por página."
   }
 }

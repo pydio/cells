@@ -109,5 +109,44 @@
   },
   "websocket.disconnected.legend": {
     "other": "La WebSocket semble être déconnectée, assurez-vous que le serveur est opérationnel et que la connexion WebSocket fonctionne."
+  },
+  "oauth.authentication.success": {
+    "other": "Authentification réussie"
+  },
+  "oauth.authentication.failed": {
+    "other": "Échec de l'authentification"
+  },
+  "oauth.authentication.code": {
+    "other": "Vous avez été authentifié avec succès. Veuillez copier et coller le code dans votre terminal."
+  },
+  "oauth.authentication.copy-code": {
+    "other": "Copier le code dans votre presse-papiers"
+  },
+  "oauth.authentication.code-copied": {
+    "other": "Le code est copié dans votre presse-papiers, vous pouvez le coller dans la ligne de commande."
+  },
+  "oauth.authentication.code-copy-failed": {
+    "other": "Impossible de copier dans le presse-papiers."
+  },
+  "list.display-mode.list": {
+    "other": "Liste"
+  },
+  "list.display-mode.details": {
+    "other": "Détails"
+  },
+  "list.display-mode.thumbs": {
+    "other": "Vignettes"
+  },
+  "list.display-mode.thumbs-large": {
+    "other": "Grandes vignettes"
+  },
+  "list.display-mode.thumbs-small": {
+    "other": "Petites vignettes"
+  },
+  "list.extensions.action": {
+    "other": "Extensions de fichiers"
+  },
+  "list.extensions.show": {
+    "other": "Afficher les extensions"
   }
 }
