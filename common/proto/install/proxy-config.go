@@ -67,15 +67,6 @@ func (m *ProxyConfig) GetExternalUrls() map[string]*url.URL {
 		if u, e := m.canonicalUrl(ext); e == nil {
 			uniques[u.Host] = u
 		}
-		/*
-			if u, e := url.Parse(ext); e == nil {
-				if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
-					u.Host = u.Hostname() // Replace host with version without port
-					ext = u.String()
-				}
-				uniques[u.Hostname()] = ext
-			}
-		*/
 	}
 	for _, b := range m.GetBindURLs() {
 		u, e := m.canonicalUrl(b)
@@ -88,28 +79,6 @@ func (m *ProxyConfig) GetExternalUrls() map[string]*url.URL {
 				uniques[exp.Host] = exp
 			}
 		}
-		/*
-			u, e := url.Parse(b)
-			if e != nil {
-				continue
-			}
-			if (u.Port() == "80" && u.Scheme == "http") || (u.Port() == "443" && u.Scheme == "https") {
-				u.Host = u.Hostname() // Replace host with version without port
-				b = u.String()
-			}
-			uniques[u.Hostname()] = b
-			if u.Hostname() == "0.0.0.0" {
-				ii, _ := net.GetAvailableIPs()
-				for _, i := range ii {
-					uniques[i.String()] = strings.ReplaceAll(b, "0.0.0.0", i.String())
-				}
-				if other, e := net.HostsFileLookup(); e == nil && len(other) > 0 {
-					for _, o := range other {
-						uniques[o] = strings.ReplaceAll(b, "0.0.0.0", o)
-					}
-				}
-			}
-		*/
 	}
 	return uniques
 }
