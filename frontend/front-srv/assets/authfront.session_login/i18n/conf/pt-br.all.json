@@ -6,7 +6,7 @@
     "other": "Enable/disable automatically based on the protocol used"
   },
   "Order": {
-    "other": "Order"
+    "other": "Ordenar"
   },
   "Order this plugin with other auth frontends": {
     "other": "Order this plugin with other auth frontends"
