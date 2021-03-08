@@ -2,7 +2,10 @@ package migrations
 
 import (
 	"net/url"
+	"path"
+	"strings"
 
+	"github.com/pydio/cells/common"
 	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/hashicorp/go-version"
@@ -13,8 +16,93 @@ import (
 func init() {
 	v, _ := version.NewVersion("2.1.99")
 	add(v, getMigration(updateDatabaseDefault))
+	add(v, getMigration(updateStaticClients))
 	add(v, getMigration(updateSites))
 	add(v, getMigration(updateSourceKeys))
+}
+
+func updateStaticClients(config configx.Values) error {
+
+	oauthSrv := common.ServiceWebNamespace_ + common.ServiceOAuth
+	external := config.Val("defaults/url").String()
+
+	if external == "" {
+		return nil
+	}
+
+	config.Val("services/" + oauthSrv + "/issuer").Del()
+
+	configSliceKeys := map[string][]string{
+		"services/" + oauthSrv + "/insecureRedirects": []string{"#insecure_binds...#/auth/callback"},
+	}
+
+	for p, def := range configSliceKeys {
+		val := config.Val(p)
+
+		var data []string
+		if val.Scan(&data); !stringSliceEqual(data, def) {
+			// fmt.Printf("[Configs] Upgrading: forcing default config %s to %v\n", p, def)
+			d, f := path.Split(p)
+			config.Val(d, f).Set(def)
+		}
+	}
+
+	oAuthFrontendConfig := map[string]interface{}{
+		"client_id":                 "cells-frontend",
+		"client_name":               "CellsFrontend Application",
+		"grant_types":               []string{"authorization_code", "refresh_token"},
+		"redirect_uris":             []string{"#default_bind#/auth/callback"},
+		"post_logout_redirect_uris": []string{"#default_bind#/auth/logout"},
+		"response_types":            []string{"code", "token", "id_token"},
+		"scope":                     "openid email profile pydio offline",
+	}
+
+	// Special case for srvUrl/oauth2/oob url
+	statics := config.Val("services/" + oauthSrv + "/staticClients")
+	var data []map[string]interface{}
+	if err := statics.Scan(&data); err == nil {
+		var saveStatics bool
+		var addCellsFrontend = true
+		for _, static := range data {
+			if clientID, ok := static["client_id"].(string); addCellsFrontend && ok {
+				if clientID == "cells-frontend" {
+					addCellsFrontend = false
+				}
+			}
+
+			for _, n := range []string{"redirect_uris", "post_logout_redirect_uris"} {
+				if redirs, ok := static[n].([]interface{}); ok {
+					var newRedirs []string
+					for _, redir := range redirs {
+						redirStr := redir.(string)
+
+						if strings.HasPrefix(redirStr, external) {
+							if strings.HasSuffix(redirStr, "/oauth2/oob") {
+								newRedirs = append(newRedirs, "#binds...#"+strings.TrimPrefix(redirStr, external))
+								saveStatics = true
+							} else {
+								newRedirs = append(newRedirs, "#default_bind#"+strings.TrimPrefix(redirStr, external))
+								saveStatics = true
+							}
+						} else {
+							newRedirs = append(newRedirs, redirStr)
+						}
+					}
+					static[n] = newRedirs
+				}
+			}
+		}
+		if addCellsFrontend {
+			data = append([]map[string]interface{}{oAuthFrontendConfig}, data...)
+			saveStatics = true
+		}
+		if saveStatics {
+			// fmt.Println("[Configs] Upgrading: updating staticClients")
+			config.Val("services/" + oauthSrv + "/staticClients").Set(data)
+		}
+	}
+
+	return nil
 }
 
 func updateDatabaseDefault(config configx.Values) error {
@@ -36,6 +124,7 @@ func updateSites(config configx.Values) error {
 
 	urlInternal := config.Val("defaults", "urlInternal").String()
 	urlExternal := config.Val("defaults", "url").String()
+
 	// Do not store an empty site
 	if urlInternal == "" && urlExternal == "" {
 		return nil
