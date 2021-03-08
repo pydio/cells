@@ -43,7 +43,7 @@ import (
 	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/cells/common/config/migrations"
-	"github.com/pydio/cells/common/config/remote"
+	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
@@ -183,14 +183,10 @@ func initConfig() {
 
 	switch viper.GetString("config") {
 	case "mysql":
-		// vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
-		// defaultConfig = config.NewVault(
-		// 	config.New(config.NewVersionStore(versionsStore, sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"))),
-		// 	vaultConfig,
-		// )
-	case "remote":
-		defaultConfig = config.New(
-			remote.New(),
+		vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
+		defaultConfig = config.NewVault(
+			config.New(config.NewVersionStore(versionsStore, sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"))),
+			vaultConfig,
 		)
 	default:
 		source := file.NewSource(
@@ -211,22 +207,18 @@ func initConfig() {
 				),
 			))
 
-		defaultConfig = config.New(
-			micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(source),
-					microconfig.PollInterval(10*time.Second),
-				),
-			),
-		)
-
-		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
-		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
-	}
-
-	// Pre-check that pydio.json is properly configured
-	if defaultConfig.Get() == nil {
-		os.Exit(1)
+		defaultConfig =
+			config.NewVault(
+				config.New(
+					config.NewVersionStore(versionsStore, micro.New(
+						microconfig.NewConfig(
+							microconfig.WithSource(source),
+							microconfig.PollInterval(10*time.Second),
+						),
+					),
+					)),
+				vaultConfig,
+			)
 	}
 
 	config.Register(defaultConfig)
