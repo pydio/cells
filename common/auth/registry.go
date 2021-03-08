@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -222,30 +221,31 @@ func varsFromStr(s string, sites []*install.ProxyConfig) []string {
 		defaultBind = config.GetDefaultSiteURL(sites...)
 	}
 	if strings.Contains(s, "#default_bind#") {
+
 		res = append(res, strings.ReplaceAll(s, "#default_bind#", defaultBind))
+
 	} else if strings.Contains(s, "#binds...#") {
+
 		for _, si := range sites {
-			for _, b := range si.GetBindURLs() {
-				res = append(res, strings.ReplaceAll(s, "#binds...#", b))
+			for _, u := range si.GetExternalUrls() {
+				res = append(res, strings.ReplaceAll(s, "#binds...#", u.String()))
 			}
 		}
+
 	} else if strings.Contains(s, "#insecure_binds...") {
+
 		for _, si := range sites {
-			for _, a := range si.GetBindURLs() {
-				u, e := url.Parse(a)
-				if e == nil && !fosite.IsRedirectURISecure(u) {
-					res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", a))
-				}
-			}
-			if si.GetReverseProxyURL() != "" {
-				u, e := url.Parse(si.GetReverseProxyURL())
-				if e == nil && !fosite.IsRedirectURISecure(u) {
+			for _, u := range si.GetExternalUrls() {
+				if !fosite.IsRedirectURISecure(u) {
 					res = append(res, strings.ReplaceAll(s, "#insecure_binds...#", u.String()))
 				}
 			}
 		}
+
 	} else {
+
 		res = append(res, s)
+
 	}
 	return res
 }
