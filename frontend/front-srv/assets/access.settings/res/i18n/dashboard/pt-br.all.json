@@ -1,75 +1,75 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "Seguir"
   },
   "cont.btn.github": {
-    "other": "Github Star"
+    "other": "Estrelas GitHub"
   },
   "cont.btn.tw": {
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "O código está disponível publicamente no Github. Você quer consertar um bug, ajudar outros no fórum ou empurrar o próximo recurso matador? Participe disso!\n                            Ou mostre seu amor pelas redes sociais!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Células do Pydio é um software de código aberto gratuito. Contribua de volta!"
   },
   "cont.title": {
-    "other": "Pay it forward!"
+    "other": "Pagamento adiantado!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "Eu implementei uma nova função: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "Acho que encontrei um erro! Publique no fórum."
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "Meu bug é qualificado: abra um incidente no github."
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "Como criar ou completar uma tradução de idioma?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "Painel Avançado de Administrador"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "Painel de administração exclusivo para monitoramento em tempo real do uso da plataforma."
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "Contatar Vendas"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "Saiba mais"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "Recursos destinados para empresas"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "Recursos prontos para empresas: conectores AD / LDAP, registros auditáveis para conformidade, fácil transferência ..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "MAIS RECURSOS - COMPLIANÇA GDPR - MARCA EXTENDIDA"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "Suporte e Manutenção"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "Obtenha ajuda com a sua instalação diretamente da equipe principal"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "Descubra Pydio Cells Empresarial"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "Atualize agora!"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "Atualização do Cells Empresarial no aplicativo (requer licença)"
   },
   "welc.btn.advanced": {
     "other": "Avançado"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "Sobre parâmetros"
   },
   "welc.btn.start": {
     "other": "Primeiros passos"
@@ -81,18 +81,18 @@
     "other": "Áreas de Trabalho"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "Se você não sabe por onde começar, o Guia do Administrador é definitivamente uma boa leitura!"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Este é o seu painel para gerenciar o Pydio. Usando o menu à esquerda você pode criar <a class=\"doc-link\" data-path=\"/data/workspaces\">espaços de trabalho</a> e <a class=\"doc-link\" data-path=\"/idm/users\">usuários</a>,\n                            verifique todos <a class=\"doc-link\" data-path=\"/admin/logs\">eventos</a> que aconteceram na plataforma, e gerenciar <a class=\"doc-link\" data-path=\"/parameters/core\">configurações</a> e <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "Se você estiver executando uma instalação do Pydio 8, por favor, esteja ciente de que <u>Pydio 8 será considerado (descontinuado) Fim Of-Life no final de 2019</u>. Você pode usar a <a class=\"doc-link\" data-path=\"/data/migration\">Ferramenta de Importação</a> para migrar todos os dados para as Células de Pydio."
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "O local para administrar e monitorar as atividades da sua plataforma"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells v2"
+    "other": "Bem-vindo ao Pydio Cells v2"
   }
 }
