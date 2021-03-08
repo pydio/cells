@@ -122,6 +122,7 @@ func NewUuidRouter(options RouterOptions) *Router {
 	if !options.AdminView {
 		handlers = append(handlers, &UploadLimitFilter{})
 		handlers = append(handlers, &AclLockFilter{})
+		handlers = append(handlers, &AclContentLockFilter{})
 		handlers = append(handlers, &AclQuotaFilter{})
 	}
 	handlers = append(handlers, &EncryptionHandler{}) // retrieves encryption materials from encryption service
