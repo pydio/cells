@@ -130,5 +130,26 @@
   },
   "oauth.authentication.code-copy-failed": {
     "other": "Could not copy to clipboard."
+  },
+  "list.display-mode.list": {
+    "other": "List"
+  },
+  "list.display-mode.details": {
+    "other": "Details"
+  },
+  "list.display-mode.thumbs": {
+    "other": "Thumbs"
+  },
+  "list.display-mode.thumbs-large": {
+    "other": "Thumbs Large"
+  },
+  "list.display-mode.thumbs-small": {
+    "other": "Thumbs Small"
+  },
+  "list.extensions.action": {
+    "other": "Files extensions"
+  },
+  "list.extensions.show": {
+    "other": "Show extensions"
   }
 }

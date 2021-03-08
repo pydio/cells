@@ -21,6 +21,8 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
+import XMLUtils from 'pydio/util/xml'
+import ResourcesManager from 'pydio/http/resources-manager'
 import Action from 'pydio/model/action'
 import ReactDOM from 'react-dom'
 
@@ -33,8 +35,8 @@ import OverlayIcon from './OverlayIcon'
 
 class ComponentConfigsParser {
 
-    constructor() {
-
+    constructor(renderLabel) {
+        this.renderLabel = renderLabel;
     }
 
     getDefaultListColumns() {
@@ -43,7 +45,7 @@ class ComponentConfigsParser {
                 label:'File Name',
                 message:'1',
                 width: '50%',
-                renderCell:MainFilesList.tableEntryRenderCell,
+                renderCell:this.renderLabel,
                 sortType:'file-natural',
                 remoteSortAttribute:'ajxp_label'
             },
@@ -69,22 +71,24 @@ class ComponentConfigsParser {
 
     loadConfigs(componentName) {
         let configs = new Map();
-        let columnsNodes = XMLUtils.XPathSelectNodes(global.pydio.getXmlRegistry(), 'client_configs/component_config[@component="FilesList"]/columns/column|client_configs/component_config[@component="FilesList"]/columns/additional_column');
+        let columnsNodes = XMLUtils.XPathSelectNodes(Pydio.getInstance().getXmlRegistry(), 'client_configs/component_config[@component="FilesList"]/columns/column|client_configs/component_config[@component="FilesList"]/columns/additional_column');
         let columns = {};
-        let messages = global.pydio.MessageHash;
-        columnsNodes.forEach(function(colNode){
+        let messages = Pydio.getMessages();
+        columnsNodes.forEach((colNode) => {
             let name = colNode.getAttribute('attributeName');
             let sortType = colNode.getAttribute('sortType');
             const sorts = {'String':'string', 'StringDirFile':'string', 'MyDate':'number', 'CellSorterValue': 'number'};
             sortType = sorts[sortType] || 'string';
-            if(name === 'bytesize') sortType = 'number';
+            if(name === 'bytesize') {
+                sortType = 'number';
+            }
             columns[name] = {
                 message : colNode.getAttribute('messageId'),
                 label   : colNode.getAttribute('messageString') ? colNode.getAttribute('messageString') : messages[colNode.getAttribute('messageId')],
                 sortType: sortType
             };
             if(name === 'ajxp_label') {
-                columns[name].renderCell = MainFilesList.tableEntryRenderCell;
+                columns[name].renderCell = this.renderLabel;
             }
             if(colNode.getAttribute('reactModifier')){
                 let reactModifier = colNode.getAttribute('reactModifier');
@@ -106,33 +110,41 @@ let MainFilesList = React.createClass({
         horizontalRibbon: React.PropTypes.bool
     },
 
-    statics: {
-        computeLabel:(node)=>{
-            let label = node.getLabel();
-            if(node.isLeaf() && label[0] !== "."){
-                let ext = PathUtils.getFileExtension(label);
-                if(ext){
-                    ext = '.' + ext;
-                    label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:'none'}}>{ext}</span></span>;
-                }
+    tableEntryRenderCell(node){
+        const {showExtensions} = this.state;
+        let label = node.getLabel();
+        if(!showExtensions && node.isLeaf() && label[0] !== "."){
+            let ext = PathUtils.getFileExtension(label);
+            if(ext){
+                ext = '.' + ext;
+                label = label.substring(0, label.length-ext.length);
             }
-            return label;
-        },
-
-        tableEntryRenderCell: function(node){
-            return (
-                <span>
-                    <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
-                    <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{node.getLabel()}</span>
-                </span>
-            );
         }
+        return (
+            <span>
+                <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
+                <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{label}</span>
+            </span>
+        );
+    },
+
+    computeLabel(node){
+        const {showExtensions} = this.state;
+        let label = node.getLabel();
+        if(node.isLeaf() && label[0] !== "."){
+            let ext = PathUtils.getFileExtension(label);
+            if(ext){
+                ext = '.' + ext;
+                label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:showExtensions?null:'none'}}>{ext}</span></span>;
+            }
+        }
+        return label;
     },
 
     getInitialState(){
-        let configParser = new ComponentConfigsParser();
+        let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
         let columns = configParser.loadConfigs('FilesList').get('columns');
-        const dMode = this.displayModeFromPrefs(this.props.displayMode);
+        const dMode = this.getPrefValue('FilesListDisplayMode', this.props.displayMode || 'list');
         let tSize = 200;
         if(dMode === 'grid-320') {
             tSize = 320;
@@ -142,6 +154,7 @@ let MainFilesList = React.createClass({
         return {
             contextNode : this.props.pydio.getContextHolder().getContextNode(),
             displayMode : dMode,
+            showExtensions: this.getPrefValue('FilesListShowExtensions', false),
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
@@ -151,34 +164,35 @@ let MainFilesList = React.createClass({
         }
     },
 
-    displayModeFromPrefs(defaultMode){
+    getPrefValue(prefName, defaultValue){
         const {pydio} = this.props;
         if(!pydio.user){
-            return defaultMode || 'list';
+            return defaultValue;
         }
         const slug = pydio.user.getActiveRepositoryObject().getSlug();
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
-        if(guiPrefs['FilesListDisplayMode'] && guiPrefs['FilesListDisplayMode'][slug]){
-            return guiPrefs['FilesListDisplayMode'][slug];
+        if(guiPrefs[prefName] && guiPrefs[prefName][slug] !== undefined){
+            return guiPrefs[prefName][slug];
         }
-        return defaultMode || 'list';
+        return defaultValue;
     },
 
     /**
      * Save displayMode to user prefs
-     * @param mode
+     * @param prefName
+     * @param value
      * @return {string}
      */
-    displayModeToPrefs(mode){
+    setPrefValue(prefName, value){
         const {pydio} = this.props;
         if(!pydio.user){
             return 'list';
         }
         const slug = pydio.user.getActiveRepositoryObject().getSlug();
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
-        const dPrefs = guiPrefs['FilesListDisplayMode'] || {};
-        dPrefs[slug] = mode;
-        guiPrefs['FilesListDisplayMode'] = dPrefs;
+        const dPrefs = guiPrefs[prefName] || {};
+        dPrefs[slug] = value;
+        guiPrefs[prefName] = dPrefs;
         pydio.user.setPreference('gui_preferences', guiPrefs, true);
         pydio.user.savePreference('gui_preferences');
     },
@@ -221,9 +235,9 @@ let MainFilesList = React.createClass({
     componentWillReceiveProps: function(){
         if(this.state && this.state.repositoryId !== this.props.pydio.repositoryId ){
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
-            let configParser = new ComponentConfigsParser();
+            let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
             const columns = configParser.loadConfigs('FilesList').get('columns');
-            const dMode = this.displayModeFromPrefs(this.state?this.state.displayMode:'list');
+            const dMode = this.getPrefValue('FilesListDisplayMode', this.state && this.state.displayMode ? this.state.displayMode:'list');
             if(this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0){
                 let tSize = 200;
                 if(dMode === 'grid-320') {
@@ -475,7 +489,7 @@ let MainFilesList = React.createClass({
                 near = parseInt(displayMode.split('-')[1]);
             }
             this.recomputeThumbnailsDimension(near);
-            this.displayModeToPrefs(displayMode);
+            this.setPrefValue('FilesListDisplayMode', displayMode);
             if(this.props.onDisplayModeChange) {
                 this.props.onDisplayModeChange(displayMode);
             }
@@ -486,11 +500,11 @@ let MainFilesList = React.createClass({
     buildDisplayModeItems(){
         const {displayMode} = this.state;
         const list = [
-            {name:'List',title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
-            {name:'Detail',title:461,icon_class:'mdi mdi-view-headline',value:'detail',hasAccessKey:true,accessKey:'detail_access_key'},
-            {name:'Thumbs',title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
-            {name:'Thumbs large',title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320',hasAccessKey:false},
-            {name:'Thumbs small',title:229,icon_class:'mdi mdi-view-module',value:'grid-80',hasAccessKey:false}
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.list'],title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.details'],title:461,icon_class:'mdi mdi-view-headline',value:'detail',hasAccessKey:true,accessKey:'detail_access_key'},
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320',hasAccessKey:false},
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80',hasAccessKey:false}
         ];
         return list.map(item => {
             const i = {...item};
@@ -503,9 +517,21 @@ let MainFilesList = React.createClass({
         });
     },
 
+    buildShowExtensionsItems(){
+        const {showExtensions} = this.state;
+        return [
+            {name:Pydio.getMessages()['ajax_gui.list.extensions.show'], icon_class:showExtensions?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
+                this.setState({showExtensions:!showExtensions}, () => {
+                    this.props.pydio.notify('actions_refreshed');
+                    this.setPrefValue('FilesListShowExtensions', !showExtensions);
+                });
+            }}
+        ]
+    },
+
     getPydioActions: function(keysOnly = false){
         if(keysOnly){
-            return ['switch_display_mode'];
+            return ['switch_display_mode', 'toggle_show_extensions'];
         }
         const multiAction = new Action({
             name:'switch_display_mode',
@@ -529,6 +555,27 @@ let MainFilesList = React.createClass({
         });
         let buttons = new Map();
         buttons.set('switch_display_mode', multiAction);
+        const extAction = new Action(
+            {
+                name:'toggle_show_extensions',
+                text_id:'ajax_gui.list.extensions.action',
+                text:Pydio.getMessages()['ajax_gui.list.extensions.action'],
+                subMenu:true,
+                subMenuUpdateImage:true
+            },
+            {
+                selection: false,
+                dir: true,
+                actionBar: true,
+                actionBarGroup:'display_toolbar',
+                contextMenu: false,
+                infoPanel: false
+            }, {}, {},
+            {
+                dynamicBuilder: this.buildShowExtensionsItems.bind(this)
+            }
+        );
+        buttons.set('toggle_show_extensions', extAction);
         return buttons;
     },
 
@@ -639,7 +686,7 @@ let MainFilesList = React.createClass({
                 passScrollingStateToChildren={true}
                 entryRenderIcon={this.entryRenderIcon}
                 entryRenderParentIcon={this.entryRenderIcon}
-                entryRenderFirstLine={(node)=>MainFilesList.computeLabel(node)}
+                entryRenderFirstLine={(node)=>this.computeLabel(node)}
                 entryRenderSecondLine={entryRenderSecondLine}
                 entryRenderActions={this.entryRenderActions}
                 entryHandleClicks={this.entryHandleClicks}
