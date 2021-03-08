@@ -51,6 +51,10 @@ var _reactRouterLibBrowserHistory = require('react-router/lib/browserHistory');
 
 var _reactRouterLibBrowserHistory2 = _interopRequireDefault(_reactRouterLibBrowserHistory);
 
+var _clipboard = require('clipboard');
+
+var _clipboard2 = _interopRequireDefault(_clipboard);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var ModernTextField = _Pydio$requireLib.ModernTextField;
@@ -107,7 +111,7 @@ var OAuthOOBRouter = function OAuthOOBRouter(pydio) {
                 'div',
                 null,
                 _react2['default'].createElement(ErrorDialog, _extends({}, this.state, {
-                    successText: "You were succesfully authenticated. Please copy and paste the code to your command line terminal",
+                    successText: _pydio2['default'].getMessages()['ajax_gui.oauth.authentication.code'],
                     copyText: code
                 })),
                 this.props.children
@@ -149,15 +153,55 @@ exports.OAuthFallbacksRouter = OAuthFallbacksRouter;
 var ErrorDialog = (function (_Component) {
     _inherits(ErrorDialog, _Component);
 
-    function ErrorDialog() {
+    function ErrorDialog(props) {
         _classCallCheck(this, ErrorDialog);
 
-        _Component.apply(this, arguments);
+        _Component.call(this, props);
+        this.state = { open: true };
     }
+
+    ErrorDialog.prototype.componentDidMount = function componentDidMount() {
+        var copyText = this.props.copyText;
+
+        if (copyText) {
+            this.attachClipboard(copyText);
+        }
+    };
 
     ErrorDialog.prototype.dismiss = function dismiss() {
         this.setState({ open: false });
         _reactRouterLibBrowserHistory2['default'].push('/login');
+    };
+
+    ErrorDialog.prototype.getMessage = function getMessage(id) {
+        return _pydio2['default'].getMessages()['ajax_gui.oauth.authentication.' + id] || id;
+    };
+
+    ErrorDialog.prototype.attachClipboard = function attachClipboard(inputValue) {
+        if (this._clip) {
+            this._clip.destroy();
+        }
+        if (!this.refs['copy-button']) {
+            return;
+        }
+        this._clip = new _clipboard2['default'](this.refs['copy-button'], {
+            text: (function (trigger) {
+                return inputValue;
+            }).bind(this)
+        });
+        this._clip.on('success', (function () {
+            this.setState({ copyMessage: this.getMessage('code-copied') }, this.clearCopyMessage.bind(this));
+        }).bind(this));
+        this._clip.on('error', (function () {
+            this.refs['input'].focus();
+            this.setState({ copyMessage: this.getMessage('code-copy-failed') }, this.clearCopyMessage.bind(this));
+        }).bind(this));
+    };
+
+    ErrorDialog.prototype.clearCopyMessage = function clearCopyMessage() {
+        window.setTimeout((function () {
+            this.setState({ copyMessage: '' });
+        }).bind(this), 3000);
     };
 
     ErrorDialog.prototype.render = function render() {
@@ -169,18 +213,28 @@ var ErrorDialog = (function (_Component) {
         var error_hint = _props.error_hint;
         var successText = _props.successText;
         var copyText = _props.copyText;
+        var _state2 = this.state;
+        var open = _state2.open;
+        var copyMessage = _state2.copyMessage;
 
-        var open = true;
-        if (this.state && this.state.open !== undefined) {
-            open = this.state.open;
-        }
+        var copyButtonStyle = {
+            fontSize: 20,
+            margin: 10,
+            color: '#03a9f4',
+            height: 26,
+            width: 26,
+            lineHeight: '28px',
+            textAlign: 'center',
+            cursor: 'pointer'
+        };
+
         return _react2['default'].createElement(
             _materialUi.Dialog,
             {
                 open: open,
                 modal: false,
-                title: error ? "Authentication Error" : "Authentication Success",
-                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "OK", onTouchTap: function () {
+                title: error ? this.getMessage('failed') : this.getMessage('success'),
+                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: _pydio2['default'].getMessages()['48'], onTouchTap: function () {
                         _this.dismiss();
                     } })]
             },
@@ -192,7 +246,27 @@ var ErrorDialog = (function (_Component) {
                     null,
                     successText
                 ),
-                copyText && _react2['default'].createElement(ModernTextField, { value: copyText, fullWidth: true, focusOnMount: true }),
+                copyText && _react2['default'].createElement(
+                    'div',
+                    null,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', width: '100%' } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { flex: 1 } },
+                            _react2['default'].createElement(ModernTextField, { ref: "input", value: copyText, fullWidth: true, onClick: function (e) {
+                                    e.currentTarget.select();
+                                } })
+                        ),
+                        _react2['default'].createElement('span', { style: copyButtonStyle, title: this.getMessage('copy-code'), ref: "copy-button", className: "mdi mdi-content-copy" })
+                    ),
+                    copyMessage && _react2['default'].createElement(
+                        'div',
+                        null,
+                        copyMessage
+                    )
+                ),
                 error && _react2['default'].createElement(
                     'div',
                     null,
