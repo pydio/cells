@@ -80,7 +80,6 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          frontend.VersionHash(),
-		Debug:            config.Get("frontend", "debug").Bool(),
 		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,
 	}

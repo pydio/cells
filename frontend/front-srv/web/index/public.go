@@ -50,7 +50,6 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          common.Version().String(),
-		Debug:            config.Get("frontend", "debug").Bool(),
 	}
 	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)

@@ -35,7 +35,6 @@ type TplConf struct {
 	Theme            string
 	Version          string
 	ErrorMessage     string
-	Debug            bool
 	LoadingString    string
 	CustomHTMLHeader template.HTML
 	StartParameters  map[string]interface{}
@@ -74,7 +73,7 @@ var loading = `<!DOCTYPE html>
 		<title>{{.ApplicationTitle}}</title>
 {{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
-		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
+		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/dist/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	</head>
@@ -95,14 +94,7 @@ var Page = `<!DOCTYPE html>
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-{{if .Debug}}
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/js/vendor/es6/browser-polyfill.js"></script>
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/js/vendor/modernizr/modernizr.min.js"></script>
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/boot.prod.js"></script>
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/PydioCore.js"></script>
-{{else}}
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
-{{end}}
+		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/dist/pydio.boot.min.js?v={{.Version}}"></script>
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
@@ -124,15 +116,8 @@ var Public = `<!DOCTYPE html>
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
-{{if .Debug}}
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/js/vendor/es6/browser-polyfill.js"></script>
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/js/vendor/modernizr/modernizr.min.js"></script>
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/boot.prod.js"></script>
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/PydioCore.js"></script>
-{{else}}
-		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
-{{end}}
+		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/dist/pydio.{{.Theme}}.min.css?v={{.Version}}">
+		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/dist/pydio.boot.min.js?v={{.Version}}"></script>
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">
 	</head>
 	<body style="overflow: hidden;background-color: #424242;" class="react-mui-context">
@@ -152,7 +137,7 @@ var errorTpl = `<!DOCTYPE html>
 		<title>{{.ApplicationTitle}}</title>
 {{if .CustomHTMLHeader}}{{.CustomHTMLHeader}}{{end}}
 		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
-		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
+		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/dist/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		<link rel="icon" type="image/x-png" href="{{.Favicon}}">

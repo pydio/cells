@@ -120,7 +120,7 @@ export default class PydioBootstrap{
         }
 
         if(this.parameters.get('ajxpResourcesFolder')){
-            connexion._libUrl = this.parameters.get('ajxpResourcesFolder') + "/build";
+            connexion._libUrl = this.parameters.get('ajxpResourcesFolder') + "/dist";
             window.ajxpResourcesFolder = this.parameters.get('ajxpResourcesFolder') + "/themes/" + this.parameters.get("theme");
         }
 
@@ -189,13 +189,13 @@ export default class PydioBootstrap{
         const scripts = document.getElementsByTagName('script');
         for(let i=0; i<scripts.length; i++){
             const scriptTag = scripts[i];
-            if(scriptTag.src.match("/build/pydio.boot.min.js") || scriptTag.src.match("/build/boot.prod.js")){
-                if(scriptTag.src.match("/build/pydio.boot.min.js")){
+            if(scriptTag.src.match("/dist/pydio.boot.min.js") || scriptTag.src.match("/dist/boot.prod.js")){
+                if(scriptTag.src.match("/dist/pydio.boot.min.js")){
                     this.parameters.set("debugMode", false);
                 }else{
                     this.parameters.set("debugMode", true);
                 }
-                let src = scriptTag.src.replace('/build/boot.prod.js','').replace('/build/pydio.boot.min.js', '');
+                let src = scriptTag.src.replace('/dist/boot.prod.js','').replace('/dist/pydio.boot.min.js', '');
                 if(src.indexOf("?")!==-1) {
                     src = src.split("?")[0];
                 }
