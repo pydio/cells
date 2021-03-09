@@ -104,7 +104,7 @@
   "background.jobs.title":{
     "other": "Background Jobs"
   },
-  "background.jobs.title":{
+  "background.jobs.running":{
     "other": "Jobs running"
   },
   "websocket.disconnected.title": {
