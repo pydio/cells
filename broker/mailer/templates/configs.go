@@ -62,7 +62,15 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 
 	from := config.Get("services", "pydio.grpc.mailer", "from").Default("do-not-reply@pydio.com").String()
 	fromName := config.Get("services", "pydio.grpc.mailer", "fromName").Default("").String()
-	fromCtl := config.Get("services", "pydio.grpc.mailer", "fromCtl", "@value").Default("user").String()
+
+	// "default" value is interpreted by the configs internal - read map directly instead of looking for "@value"
+	fromCtl := "user"
+	fromMap := config.Get("services", "pydio.grpc.mailer", "fromCtl").Map()
+	if tt, ok := fromMap["@value"]; ok {
+		if s, o := tt.(string); o {
+			fromCtl = s
+		}
+	}
 
 	if fromName == "" {
 		fromName = "Pydio"
