@@ -9315,7 +9315,7 @@
     ]
   },
   "core.authfront": {
-    "CoreActions.js": [
+    "index.js": [
       {
         "description": "",
         "displayName": "LanguagePicker",
