@@ -26,8 +26,10 @@ package mailer
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
+
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 
 	"github.com/micro/go-micro/errors"
 
@@ -66,7 +68,7 @@ func GetQueue(ctx context.Context, t string, conf configx.Values) Queue {
 	return nil
 }
 
-func GetSender(t string, conf configx.Values) (Sender, error) {
+func GetSender(ctx context.Context, t string, conf configx.Values) (Sender, error) {
 
 	var sender Sender
 
@@ -85,9 +87,9 @@ func GetSender(t string, conf configx.Values) (Sender, error) {
 		return nil, errors.NotFound(common.ServiceMailer, "cannot find sender for type %s", t)
 	}
 
-	err := sender.Configure(nil, conf)
+	err := sender.Configure(ctx, conf)
 	if err != nil {
-		fmt.Println(err)
+		log.Logger(ctx).Error("Error while configuring sender", zap.Error(err))
 		return nil, errors.InternalServerError(common.ServiceMailer, "cannot configure sender for type %s", t)
 	}
 
