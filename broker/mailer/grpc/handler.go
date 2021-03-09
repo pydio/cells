@@ -235,7 +235,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 		log.Logger(ctx).Info("Starting mailer with queue '" + queueName + "'")
 	}
 
-	sender, err := mailer.GetSender(senderName, senderConfig)
+	sender, err := mailer.GetSender(ctx, senderName, senderConfig)
 	if err != nil {
 		e = err
 		return

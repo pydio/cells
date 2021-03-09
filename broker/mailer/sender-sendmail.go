@@ -27,6 +27,9 @@ import (
 	"os/exec"
 	"regexp"
 
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/x/filex"
+
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common/proto/mailer"
@@ -38,13 +41,14 @@ type Sendmail struct {
 }
 
 func (s *Sendmail) Configure(ctx context.Context, conf configx.Values) error {
-	s.BinPath = conf.Val("defaults", "sendmail").Default("/usr/bin/mail").String()
+	s.BinPath = conf.Val("#/defaults/sendmail").Default("/usr/bin/sendmail").String()
+	log.Logger(ctx).Info("Configuring sendmail with binary path: " + s.BinPath)
 	return nil
 }
 
 func (s *Sendmail) Check(ctx context.Context) error {
 	// Check that executable path is correct
-	if _, err := os.Stat(s.BinPath); err != nil {
+	if !filex.Exists(s.BinPath) {
 		return errors.New("cannot find executable path")
 	}
 	return nil
