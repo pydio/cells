@@ -53,6 +53,7 @@ exports['default'] = (0, _createReactClass2['default'])({
     },
 
     _handleChangeURL: function _handleChangeURL(id) {
+
         return (function (e, newValue) {
 
             if (this.state.submitting) {

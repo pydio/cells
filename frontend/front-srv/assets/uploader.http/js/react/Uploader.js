@@ -20,7 +20,7 @@
 import React from 'react'
 import createReactClass from 'create-react-class'
 import PydioApi from 'pydio/http/api'
-import {TextField, FontIcon, Divider, Paper, Toolbar, RaisedButton, IconButton} from 'material-ui'
+import {TextField, FontIcon, Divider, Paper, RaisedButton, IconButton} from 'material-ui'
 
 export default createReactClass({
 
@@ -35,6 +35,7 @@ export default createReactClass({
     },
 
     _handleChangeURL(id) {
+
         return function(e, newValue) {
 
             if (this.state.submitting) {
