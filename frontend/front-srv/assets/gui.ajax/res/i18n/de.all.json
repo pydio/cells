@@ -102,7 +102,10 @@
     "other": "Arbeitsumgebungen & Zellen"
   },
   "background.jobs.title": {
-    "other": "Jobs in Bearbeitung"
+    "other": "Hintergrundjobs"
+  },
+  "background.jobs.running": {
+    "other": "Jobs laufen"
   },
   "websocket.disconnected.title": {
     "other": "Verbindungsfehler"
@@ -111,42 +114,42 @@
     "other": "Websocket scheint nicht verbunden zu sein. Stellen Sie sicher, dass der Server aktiv ist und die Websocket-Verbindung funktioniert."
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "Authentifizierung erfolgreich"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "Authentifizierung fehlgeschlagen"
   },
   "oauth.authentication.code": {
-    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "Sie wurden erfolgreich authentifiziert. Bitte kopieren Sie den Code und fügen Sie ihn in Ihr Kommandozeilenterminal ein"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "In die Zwischenablage kopieren"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "Code wird in die Zwischenablage kopiert, Sie können ihn in die Kommandozeile einfügen."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "Konnte nicht in die Zwischenablage kopieren."
   },
   "list.display-mode.list": {
-    "other": "Details"
+    "other": "Liste"
   },
   "list.display-mode.details": {
     "other": "Details"
   },
   "list.display-mode.thumbs": {
-    "other": "Symbole"
+    "other": "Vorschau"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "Vorschaubilder groß"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "Vorschaubilder Klein"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "Dateierweiterungen"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Erweiterungen anzeigen"
   }
 }

@@ -102,7 +102,10 @@
     "other": "Workspace & Celle"
   },
   "background.jobs.title": {
-    "other": "Processi in corso"
+    "other": "Lavori in background"
+  },
+  "background.jobs.running": {
+    "other": "Jobs running"
   },
   "websocket.disconnected.title": {
     "other": "Connection issue"
