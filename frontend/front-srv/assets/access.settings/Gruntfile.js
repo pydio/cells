@@ -69,6 +69,54 @@ module.exports = function(grunt) {
                 files: { 'res/build/AdminServices.js'  : 'res/build/AdminServices/index.js' }
             }
         },
+        uglify: {
+            all:{
+                files: {
+                    'res/dist/AdminComponents.min.js': 'res/build/AdminComponents.js',
+                    'res/dist/AdminWorkspaces.min.js': 'res/build/AdminWorkspaces.js',
+                    'res/dist/AdminPeople.min.js': 'res/build/AdminPeople.js',
+                    'res/dist/AdminPlugins.min.js': 'res/build/AdminPlugins.js',
+                    'res/dist/AdminScheduler.min.js': 'res/build/AdminScheduler.js',
+                    'res/dist/AdminLogs.min.js': 'res/build/AdminLogs.js',
+                    'res/dist/AdminServices.min.js': 'res/build/AdminServices.js'
+                }
+            },
+            components: {
+                files: {
+                    'res/dist/AdminComponents.min.js': 'res/build/AdminComponents.js'
+                }
+            },
+            workspaces: {
+                files: {
+                    'res/dist/AdminWorkspaces.min.js': 'res/build/AdminWorkspaces.js'
+                }
+            },
+            people: {
+                files: {
+                    'res/dist/AdminPeople.min.js': 'res/build/AdminPeople.js'
+                }
+            },
+            plugins: {
+                files: {
+                    'res/dist/AdminPlugins.min.js': 'res/build/AdminPlugins.js'
+                }
+            },
+            scheduler: {
+                files: {
+                    'res/dist/AdminScheduler.min.js': 'res/build/AdminScheduler.js'
+                }
+            },
+            logs: {
+                files: {
+                    'res/dist/AdminLogs.min.js': 'res/build/AdminLogs.js'
+                }
+            },
+            services: {
+                files: {
+                    'res/dist/AdminServices.min.js': 'res/build/AdminServices.js'
+                }
+            }
+        },
         compress: {
             options: {
                 mode: 'gzip',
@@ -76,10 +124,10 @@ module.exports = function(grunt) {
             },
             all: {
                 expand: true,
-                cwd: 'res/build/',
-                src: ['*.js'],
-                dest: 'res/build/',
-                ext: '.js.gz'
+                cwd: 'res/dist/',
+                src: ['*.min.js'],
+                dest: 'res/dist/',
+                ext: '.min.js.gz'
             },
             css: {
                 expand: true,
@@ -110,7 +158,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminComponents/**/*"
                 ],
-                tasks: ['babel:components', 'browserify:components', 'compress:all'],
+                tasks: ['babel:components', 'browserify:components', 'uglify:components', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -119,7 +167,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminWorkspaces/**/*"
                 ],
-                tasks: ['babel:workspaces', 'browserify:workspaces', 'compress:all'],
+                tasks: ['babel:workspaces', 'browserify:workspaces', 'uglify:workspaces', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -128,7 +176,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminPeople/**/*"
                 ],
-                tasks: ['babel:people', 'browserify:people', 'compress:all'],
+                tasks: ['babel:people', 'browserify:people', 'uglify:people', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -137,7 +185,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminPlugins/**/*"
                 ],
-                tasks: ['babel:plugins', 'browserify:plugins', 'compress:all'],
+                tasks: ['babel:plugins', 'browserify:plugins', 'uglify:plugins', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -146,7 +194,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminScheduler/**/*"
                 ],
-                tasks: ['babel:scheduler', 'browserify:scheduler', 'compress:all'],
+                tasks: ['babel:scheduler', 'browserify:scheduler', 'uglify:scheduler', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -155,7 +203,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminLogs/**/*"
                 ],
-                tasks: ['babel:logs', 'browserify:logs', 'compress:all'],
+                tasks: ['babel:logs', 'browserify:logs', 'uglify:logs', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -164,7 +212,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminServices/**/*"
                 ],
-                tasks: ['babel:services', 'browserify:services', 'compress:all'],
+                tasks: ['babel:services', 'browserify:services', 'uglify:services', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -184,8 +232,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('assemble-less');
-    grunt.registerTask('default', ['babel:dist', 'browserify:ui', 'less', 'compress:all', 'compress:css']);
+    grunt.registerTask('default', ['babel:dist', 'browserify:ui', 'less', 'uglify:all', 'compress:all', 'compress:css']);
     grunt.registerTask('type:js', ['babel:dist', 'browserify:ui', 'compress:all']);
     grunt.registerTask('type:css', ['less', 'compress:css']);
 
