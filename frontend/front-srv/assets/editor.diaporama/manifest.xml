@@ -10,7 +10,7 @@
 	</server_settings>
     <client_settings>
         <resources>
-            <js file="plug/editor.diaporama/res/build/PydioDiaporama.js" className="PydioDiaporama"/>
+            <js file="plug/editor.diaporama/res/dist/PydioDiaporama.min.js" className="PydioDiaporama"/>
             <i18n namespace="diaporama" remote="plug/editor.diaporama/res/i18n"/>
             <css file="plug/editor.diaporama/res/rotator.css"/>
         </resources>

@@ -3,7 +3,7 @@
         actions="PydioText.Actions" className="PydioText" mimes="none" formId="edit_box" label="CONF_MESSAGE[Text Editor]" description="CONF_MESSAGE[Very basic text editor]">
 	<client_settings>
         <resources>
-            <js file="plug/editor.text/res/build/PydioText.js" className="PydioText"/>
+            <js file="plug/editor.text/res/dist/PydioText.min.js" className="PydioText"/>
             <i18n remote="plug/editor.text/i18n" namespace="text_editor"/>
         </resources>
 	</client_settings>

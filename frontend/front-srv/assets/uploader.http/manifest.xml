@@ -3,7 +3,7 @@
           description="CONF_MESSAGE[Async downloader to load a file from another source]">
 	<client_settings>
 		<resources>
-			<js file="plug/uploader.http/js/build/HTTPUploader.js" className="HTTPUploader" depends="React"/>
+			<js file="plug/uploader.http/res/dist/HTTPUploader.min.js" className="HTTPUploader" depends="React"/>
 	        <i18n namespace="httpdownloader" remote="plug/uploader.http/resources/i18n" />
 		</resources>
 	</client_settings>

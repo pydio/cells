@@ -7,7 +7,7 @@
     <client_settings>
         <resources>
             <i18n namespace="meta.versions" remote="plug/meta.versions/i18n"/>
-            <js className="PydioVersioning" file="plug/meta.versions/res/build/PydioVersioning.js"/>
+            <js className="PydioVersioning" file="plug/meta.versions/res/dist/PydioVersioning.min.js"/>
         </resources>
     </client_settings>
     <registry_contributions>

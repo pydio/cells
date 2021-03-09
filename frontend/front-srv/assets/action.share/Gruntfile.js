@@ -12,7 +12,7 @@ module.exports = function(grunt) {
                 files: [
                     {
                         expand: true,
-                        cwd: 'res/react/',
+                        cwd: 'res/js/',
                         src: ['**/*.js'],
                         dest: 'res/build/',
                         ext: '.js'
@@ -34,6 +34,16 @@ module.exports = function(grunt) {
                 }
             }
         },
+        uglify: {
+            ui: {
+                files: {
+                    'res/dist/ShareDialog.min.js': 'res/build/ShareDialog.js',
+                    'res/dist/ShareTemplates.min.js': 'res/build/ShareTemplates.js',
+                    'res/dist/ShareActions.min.js': 'res/build/model/ShareActions.js'
+                }
+            }
+        },
+
         compress: {
             options: {
                 mode: 'gzip',
@@ -41,10 +51,10 @@ module.exports = function(grunt) {
             },
             js: {
                 expand: true,
-                cwd: 'res/build/',
-                src: ['ShareDialog.js', 'ShareTemplates.js'],
-                dest: 'res/build/',
-                ext: '.js.gz'
+                cwd: 'res/dist/',
+                src: ['*.min.js'],
+                dest: 'res/dist/',
+                ext: '.min.js.gz'
             },
             css: {
                 expand: true,
@@ -57,9 +67,9 @@ module.exports = function(grunt) {
         watch: {
             js: {
                 files: [
-                    "res/react/**/*"
+                    "res/js/**/*"
                 ],
-                tasks: ['babel', 'browserify', 'compress'],
+                tasks: ['babel', 'browserify', 'uglify', 'compress'],
                 options: {
                     spawn: false
                 }
@@ -70,6 +80,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
-
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['babel', 'browserify', 'uglify', 'compress']);
 };

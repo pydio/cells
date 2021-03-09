@@ -327,6 +327,586 @@
       }
     ]
   },
+  "access.homepage": {
+    "apps/DlAppsCard.js": [
+      {
+        "description": "",
+        "displayName": "DlAppsPanel",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "DlAppsCard",
+        "methods": []
+      }
+    ],
+    "apps/DownloadApp.js": [
+      {
+        "description": "",
+        "displayName": "DownloadApp",
+        "methods": [],
+        "props": {
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": false,
+            "description": ""
+          },
+          "id": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "configs": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          },
+          "configHref": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "iconClassName": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "iconColor": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "messageId": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "tooltipId": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "apps/QRCodeCard.js": [
+      {
+        "description": "",
+        "displayName": "QRCodeCard",
+        "methods": []
+      }
+    ],
+    "board/ColorPaper.js": [
+      {
+        "description": "Generic paper with a background color picked from palette",
+        "displayName": "ColorPaper",
+        "methods": [],
+        "props": {
+          "style": {
+            "type": {
+              "name": "object"
+            },
+            "required": true,
+            "description": "Pass the proper style for grid layout"
+          },
+          "getCloseButton": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": "Legacy way of passing the close button, use closeButton prop instead"
+          },
+          "closeButton": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": "Passed by parent, through the asGridItem HOC"
+          },
+          "paletteIndex": {
+            "type": {
+              "name": "number"
+            },
+            "required": true,
+            "description": "An integer to choose which color to pick"
+          }
+        }
+      }
+    ],
+    "board/ConfigLogo.js": [
+      {
+        "description": "",
+        "displayName": "ConfigLogo",
+        "methods": []
+      }
+    ],
+    "board/Facets.js": [
+      {
+        "description": "",
+        "displayName": "Facet",
+        "methods": [
+          {
+            "name": "select",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "clear",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Facets",
+        "methods": [
+          {
+            "name": "isSelected",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "selected",
+                "type": null
+              },
+              {
+                "name": "facet",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "board/HomeDashboard.js": [
+      {
+        "description": "",
+        "displayName": "AltDashboard",
+        "methods": [
+          {
+            "name": "showTutorial",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "openDrawer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearCloseTimeout",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "board/HomeSearchForm.js": [
+      {
+        "description": "",
+        "displayName": "HomeSearchForm",
+        "methods": [
+          {
+            "name": "update",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "queryString",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "filterByFacet",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "facet",
+                "type": null
+              },
+              {
+                "name": "toggle",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeFacets",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "queryString",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "refreshFacets",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getUserHistoryKey",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "loadHistory",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "pushHistory",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "term",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toggleEmpty",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "board/WelcomeTour.js": [
+      {
+        "description": "",
+        "displayName": "Scheme",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "WorkspacesCard",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "SearchCard",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "WidgetsCard",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "WelcomeTour",
+        "methods": [
+          {
+            "name": "discard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "finished",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "quicksend/QuickSendCard.js": [
+      {
+        "description": "",
+        "displayName": "QuickSendCard",
+        "methods": [
+          {
+            "name": "fileDroppedOrPicked",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "monitor",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onDrop",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "files",
+                "type": null
+              },
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "source",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "targetWorkspaceSelected",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "wsId",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "quicksend/WorkspacePickerDialog.js": [
+      {
+        "description": "",
+        "displayName": "WorkspacePickerDialog",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "workspaceTouchTap",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "wsId",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitleId": {
+            "defaultValue": {
+              "value": "'user_home.90'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogScrollBody": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "recent/SmartRecents.js": [
+      {
+        "description": "",
+        "displayName": "RecentCard",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "SmartRecents",
+        "methods": []
+      }
+    ],
+    "videos/VideoCard.js": [
+      {
+        "description": "Display a list of tutorial videos as a material card",
+        "displayName": "VideoCard",
+        "methods": [
+          {
+            "name": "launchVideo",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "closePlayer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getTitle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "messId",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "browse",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "direction",
+                "type": null
+              },
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "youtubeId": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "contentMessageId": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "videos/VideoPlayer.js": [
+      {
+        "description": "",
+        "displayName": "VideoPlayer",
+        "methods": [],
+        "props": {
+          "videoSrc": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "closePlayer": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "workspaces/WorkspacesListCard.js": [
+      {
+        "description": "",
+        "displayName": "ThemeableTitle",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "WorkspacesListCard",
+        "methods": []
+      }
+    ]
+  },
   "access.settings": {
     "AdminComponents/board/AdminDashboard.js": [
       {
@@ -6690,6 +7270,1447 @@
       }
     ]
   },
+  "action.share": {
+    "ShareTemplates.js": [
+      {
+        "description": "",
+        "displayName": "ConfigLogo",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "Copyright",
+        "methods": []
+      },
+      {
+        "description": "",
+        "methods": [],
+        "props": {
+          "minisiteMode": {
+            "defaultValue": {
+              "value": "'embed'",
+              "computed": false
+            },
+            "required": false
+          },
+          "uniqueNode": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          },
+          "showSearchForm": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false
+          }
+        }
+      },
+      {
+        "description": "",
+        "displayName": "DLTemplate",
+        "methods": [
+          {
+            "name": "triggerDL",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "FolderMinisite",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "FileMinisite",
+        "methods": [
+          {
+            "name": "openEditorForNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              },
+              {
+                "name": "editorData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "DropZoneMinisite",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "FilmStripMinisite",
+        "methods": [
+          {
+            "name": "openEditorForNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              },
+              {
+                "name": "editorData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/cells/CellCard.js": [
+      {
+        "description": "",
+        "displayName": "CellCard",
+        "methods": [
+          {
+            "name": "usersInvitations",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userObjects",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/cells/CreateCellDialog.js": [
+      {
+        "description": "Dialog for letting users create a workspace",
+        "displayName": "CreateCellDialog",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "m",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeSummaryString",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          },
+          "isReadonly": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "dialog/cells/EditCellDialog.js": [
+      {
+        "description": "Dialog for letting users create a workspace",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          },
+          "isReadonly": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "dialog/cells/NodesPicker.js": [
+      {
+        "description": "",
+        "displayName": "NodesPicker",
+        "methods": [
+          {
+            "name": "switchWorkspace",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "ws",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleTouchTap",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleRequestClose",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onValidateNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onNodeSelected",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "renderNodeLine",
+            "docblock": "@param node TreeNode\n@return {XML}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "description": "TreeNode",
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "XML"
+              }
+            },
+            "description": null
+          }
+        ]
+      }
+    ],
+    "dialog/cells/SharedUserEntry.js": [
+      {
+        "description": "",
+        "displayName": "SharedUserEntry",
+        "methods": [
+          {
+            "name": "onRemove",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onInvite",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onUpdateRight",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "name",
+                "type": null
+              },
+              {
+                "name": "checked",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "cellAcl": {
+            "type": {
+              "name": "object"
+            },
+            "required": true,
+            "description": ""
+          },
+          "sendInvitations": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onUserObjectRemove": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "onUserObjectUpdateRight": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/cells/SharedUsers.js": [
+      {
+        "description": "",
+        "displayName": "SharedUsers",
+        "methods": [
+          {
+            "name": "sendInvitationToAllUsers",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "clearAllUsers",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "valueSelected",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userObject",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": false,
+            "description": ""
+          },
+          "cellAcls": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          },
+          "saveSelectionAsTeam": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "sendInvitations": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "showTitle": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onUserObjectAdd": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "onUserObjectRemove": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "onUserObjectUpdateRight": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/cells/UserBadge.js": [
+      {
+        "description": "",
+        "displayName": "UserBadge",
+        "methods": [
+          {
+            "name": "renderMenu",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "label": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "avatar": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "type": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "menus": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          },
+          "muiTheme": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/composite/CellsList.js": [
+      {
+        "description": "",
+        "displayName": "CellsList",
+        "methods": [
+          {
+            "name": "addToCellsMenuItems",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/composite/CompositeCard.js": [
+      {
+        "description": "",
+        "displayName": "CompositeCard",
+        "methods": [
+          {
+            "name": "confirmAndDismiss",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "attachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "detachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "usersInvitations",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userObjects",
+                "type": null
+              },
+              {
+                "name": "cellModel",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "linkInvitation",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "linkModel",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dismissMailer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/composite/CompositeDialog.js": [
+      {
+        "description": "",
+        "displayName": "CompositeDialog",
+        "methods": [],
+        "props": {
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": true,
+            "description": ""
+          },
+          "selection": {
+            "type": {
+              "name": "instanceOf",
+              "value": "PydioDataModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "readonly": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "''",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'lg'",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          },
+          "isReadonly": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "dialog/composite/Mailer.js": [
+      {
+        "description": "",
+        "displayName": "Mailer",
+        "methods": [
+          {
+            "name": "toggleMailerData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dismissMailer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "mailerProcessPost",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "Email",
+                "type": null
+              },
+              {
+                "name": "users",
+                "type": null
+              },
+              {
+                "name": "subject",
+                "type": null
+              },
+              {
+                "name": "message",
+                "type": null
+              },
+              {
+                "name": "link",
+                "type": null
+              },
+              {
+                "name": "callback",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "key",
+                "type": null
+              },
+              {
+                "name": "namespace",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/composite/SimpleLinkCard.js": [
+      {
+        "description": "",
+        "displayName": "SimpleLinkCard",
+        "methods": [
+          {
+            "name": "linkInvitation",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "linkModel",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dismissMailer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/links/Field.js": [
+      {
+        "description": "",
+        "displayName": "PublicLinkField",
+        "methods": [
+          {
+            "name": "toggleEditMode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "changeLink",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearCopyMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "attachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "detachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "openMailer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "toggleQRCode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "linkModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "LinkModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "editAllowed": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onChange": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "showMailer": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/links/LabelPanel.js": [
+      {
+        "description": "",
+        "displayName": "LabelPanel",
+        "methods": []
+      }
+    ],
+    "dialog/links/Panel.js": [
+      {
+        "description": "",
+        "displayName": "PublicLinkPanel",
+        "methods": [
+          {
+            "name": "toggleLink",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "updateTemporaryPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              },
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "enableLinkWithPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "linkModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "LinkModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "compositeModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "CompositeModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": false,
+            "description": ""
+          },
+          "authorizations": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          },
+          "showMailer": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/links/Permissions.js": [
+      {
+        "description": "",
+        "displayName": "PublicLinkPermissions",
+        "methods": [
+          {
+            "name": "changePermission",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "linkModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "LinkModel"
+            },
+            "required": false,
+            "description": ""
+          },
+          "style": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/links/PublicLinkTemplate.js": [
+      {
+        "description": "",
+        "displayName": "PublicLinkTemplate",
+        "methods": [
+          {
+            "name": "onDropDownChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/links/SecureOptions.js": [
+      {
+        "description": "",
+        "displayName": "PublicLinkSecureOptions",
+        "methods": [
+          {
+            "name": "updateDLExpirationField",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "updateDaysExpirationField",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "onDateChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "resetPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "setUpdatingPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changePassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "updatePassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "oldValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "resetDownloads",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "resetExpiration",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "renderPasswordContainer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "formatDate",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "dateObject",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "linkModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "LinkModel"
+            },
+            "required": true,
+            "description": ""
+          },
+          "style": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/links/TargetedUsers.js": [
+      {
+        "description": "",
+        "displayName": "TargetedUserLink",
+        "methods": [
+          {
+            "name": "clearCopyMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "TargetedUsers",
+        "methods": [],
+        "props": {
+          "linkModel": {
+            "type": {
+              "name": "instanceOf",
+              "value": "LinkModel"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/links/VisibilityPanel.js": [
+      {
+        "description": "",
+        "displayName": "VisibilityPanel",
+        "methods": [
+          {
+            "name": "onSavePolicies",
+            "docblock": "Update associated hidden users policies, otherwise\nthe public link visibility cannot be changed\n@param diffPolicies",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "diffPolicies",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": "Update associated hidden users policies, otherwise\nthe public link visibility cannot be changed"
+          },
+          {
+            "name": "diffPolicies",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "policies",
+                "type": null
+              },
+              {
+                "name": "diffPolicies",
+                "type": null
+              },
+              {
+                "name": "resourceId",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/lists/ShareView.js": [
+      {
+        "description": "",
+        "displayName": "Selector",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "ShareView",
+        "methods": [
+          {
+            "name": "load",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getLongestPath",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "goTo",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "appearsIn",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "childContext": {
+          "messages": {
+            "type": {
+              "name": "object"
+            },
+            "required": false
+          },
+          "getMessage": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          },
+          "isReadonly": {
+            "type": {
+              "name": "func"
+            },
+            "required": false
+          }
+        }
+      },
+      {
+        "description": "",
+        "displayName": "ShareViewModal",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "''",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'lg'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogScrollBody": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "dialog/main/ActionButton.js": [
+      {
+        "description": "",
+        "displayName": "ActionButton",
+        "methods": [],
+        "props": {
+          "callback": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onClick": {
+            "type": {
+              "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "mdiIcon": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "messageId": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      }
+    ],
+    "dialog/main/GenericEditor.js": [
+      {
+        "description": "",
+        "displayName": "EditorTab",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "EditorTabContent",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "GenericEditor",
+        "methods": []
+      }
+    ],
+    "dialog/main/InfoPanel.js": [
+      {
+        "description": "",
+        "displayName": "InfoPanel",
+        "methods": [
+          {
+            "name": "openPopover",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ]
+  },
   "action.user": {
     "EmailPanel.js": [
       {
@@ -7545,6 +9566,107 @@
             "required": false
           }
         }
+      }
+    ]
+  },
+  "core.mailer": {
+    "components.js": [
+      {
+        "description": "",
+        "displayName": "DestBadge",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "UserChip",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "Pane",
+        "methods": [
+          {
+            "name": "updateSubject",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "updateMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "addUser",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userObject",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "removeUser",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userId",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "messageId",
+                "type": null
+              },
+              {
+                "name": "nameSpace",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "postEmail",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "repost",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "PreferencesPanel",
+        "methods": []
       }
     ]
   },
@@ -26198,6 +28320,286 @@
       }
     ]
   },
+  "meta.user": {
+    "components.js": [
+      {
+        "description": "",
+        "displayName": "StarsFormPanel",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "MetaStarsRenderer",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "SelectorFilter",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "CSSLabelsFilter",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "MetaSelectorFormPanel",
+        "methods": [
+          {
+            "name": "changeSelector",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "selectedIndex",
+                "type": null
+              },
+              {
+                "name": "payload",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "TagsCloud",
+        "methods": [
+          {
+            "name": "getRealValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "suggestionLoader",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "callback",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "load",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "handleRequestDelete",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "tag",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleUpdateInput",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "searchText",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "handleNewRequest",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "renderChip",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "tag",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "node": {
+            "type": {
+              "name": "instanceOf",
+              "value": "AjxpNode"
+            },
+            "required": false,
+            "description": ""
+          },
+          "column": {
+            "type": {
+              "name": "object"
+            },
+            "required": false,
+            "description": ""
+          }
+        }
+      },
+      {
+        "description": "",
+        "displayName": "UserMetaDialog",
+        "methods": [
+          {
+            "name": "saveMeta",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "UserMetaPanel",
+        "methods": [
+          {
+            "name": "updateValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "name",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              },
+              {
+                "name": "submit",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "name",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getUpdateData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "resetUpdateData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onCheck",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "isInputChecked",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "InfoPanel",
+        "methods": [
+          {
+            "name": "openEditMode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "reset",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "saveMeta",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "saveAndClose",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onChangeUpdateData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "updateData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ]
+  },
   "meta.versions": {
     "HistoryDialog.js": [
       {
@@ -26312,172 +28714,19 @@
       }
     ]
   },
-  "access.homepage": {
-    "apps/DlAppsCard.js": [
+  "uploader.html": {
+    "view/ClearOptionsPane.js": [
       {
         "description": "",
-        "displayName": "DlAppsPanel",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "DlAppsCard",
-        "methods": []
-      }
-    ],
-    "apps/DownloadApp.js": [
-      {
-        "description": "",
-        "displayName": "DownloadApp",
-        "methods": [],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "id": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "configs": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "configHref": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "iconClassName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "iconColor": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "messageId": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "tooltipId": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "apps/QRCodeCard.js": [
-      {
-        "description": "",
-        "displayName": "QRCodeCard",
-        "methods": []
-      }
-    ],
-    "board/ColorPaper.js": [
-      {
-        "description": "Generic paper with a background color picked from palette",
-        "displayName": "ColorPaper",
-        "methods": [],
-        "props": {
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": "Pass the proper style for grid layout"
-          },
-          "getCloseButton": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": "Legacy way of passing the close button, use closeButton prop instead"
-          },
-          "closeButton": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": "Passed by parent, through the asGridItem HOC"
-          },
-          "paletteIndex": {
-            "type": {
-              "name": "number"
-            },
-            "required": true,
-            "description": "An integer to choose which color to pick"
-          }
-        }
-      }
-    ],
-    "board/ConfigLogo.js": [
-      {
-        "description": "",
-        "displayName": "ConfigLogo",
-        "methods": []
-      }
-    ],
-    "board/Facets.js": [
-      {
-        "description": "",
-        "displayName": "Facet",
+        "displayName": "ClearOptionsPane",
         "methods": [
-          {
-            "name": "select",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "clear",
             "docblock": null,
             "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      },
-      {
-        "description": "",
-        "displayName": "Facets",
-        "methods": [
-          {
-            "name": "isSelected",
-            "docblock": null,
-            "modifiers": [],
             "params": [
               {
-                "name": "selected",
-                "type": null
-              },
-              {
-                "name": "facet",
+                "name": "value",
                 "type": null
               }
             ],
@@ -26486,125 +28735,91 @@
         ]
       }
     ],
-    "board/HomeDashboard.js": [
+    "view/ConfirmExists.js": [
       {
         "description": "",
-        "displayName": "AltDashboard",
+        "displayName": "ConfirmExists",
         "methods": [
           {
-            "name": "showTutorial",
+            "name": "cancel",
             "docblock": null,
             "modifiers": [],
             "params": [],
-            "returns": null
-          },
-          {
-            "name": "openDrawer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "clearCloseTimeout",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "board/HomeSearchForm.js": [
-      {
-        "description": "",
-        "displayName": "HomeSearchForm",
-        "methods": [
-          {
-            "name": "update",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "queryString",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "filterByFacet",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "facet",
-                "type": null
-              },
-              {
-                "name": "toggle",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "computeFacets",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "queryString",
-                "type": null
-              }
-            ],
             "returns": null
           },
           {
             "name": "submit",
             "docblock": null,
             "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "checkChange",
+            "docblock": null,
+            "modifiers": [],
             "params": [
               {
-                "name": "refreshFacets",
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "newValue",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "getUserHistoryKey",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "loadHistory",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "pushHistory",
+            "name": "radioChange",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "term",
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "view/DropUploader.js": [
+      {
+        "description": "",
+        "displayName": "DropUploader",
+        "methods": [
+          {
+            "name": "onDrop",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "files",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "toggleEmpty",
+            "name": "onFolderPicked",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "files",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "start",
             "docblock": null,
             "modifiers": [],
             "params": [
@@ -26614,220 +28829,148 @@
               }
             ],
             "returns": null
-          }
-        ]
-      }
-    ],
-    "board/WelcomeTour.js": [
-      {
-        "description": "",
-        "displayName": "Scheme",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "WorkspacesCard",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "SearchCard",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "WidgetsCard",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "WelcomeTour",
-        "methods": [
+          },
           {
-            "name": "discard",
+            "name": "pause",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "finished",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "quicksend/QuickSendCard.js": [
-      {
-        "description": "",
-        "displayName": "QuickSendCard",
-        "methods": [
-          {
-            "name": "fileDroppedOrPicked",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "monitor",
+                "name": "e",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "onDrop",
+            "name": "openClear",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "files",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "source",
+                "name": "e",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "targetWorkspaceSelected",
+            "name": "toggleOptions",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "wsId",
+                "name": "e",
                 "type": null
               }
             ],
             "returns": null
-          }
-        ]
-      }
-    ],
-    "quicksend/WorkspacePickerDialog.js": [
-      {
-        "description": "",
-        "displayName": "WorkspacePickerDialog",
-        "methods": [
+          },
           {
-            "name": "submit",
+            "name": "openFilePicker",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "openFolderPicker",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dialogSubmit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              },
+              {
+                "name": "saveValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dialogCancel",
             "docblock": null,
             "modifiers": [],
             "params": [],
             "returns": null
           },
           {
-            "name": "workspaceTouchTap",
+            "name": "supportsFolder",
             "docblock": null,
             "modifiers": [],
-            "params": [
-              {
-                "name": "wsId",
-                "type": null
-              }
-            ],
+            "params": [],
             "returns": null
           }
-        ],
-        "props": {
-          "dialogTitleId": {
-            "defaultValue": {
-              "value": "'user_home.90'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogSize": {
-            "defaultValue": {
-              "value": "'sm'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogPadding": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogScrollBody": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        }
+        ]
       }
     ],
-    "recent/SmartRecents.js": [
+    "view/Transfer.js": [
       {
         "description": "",
-        "displayName": "RecentCard",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "SmartRecents",
-        "methods": []
-      }
-    ],
-    "videos/VideoCard.js": [
-      {
-        "description": "Display a list of tutorial videos as a material card",
-        "displayName": "VideoCard",
+        "displayName": "Transfer",
         "methods": [
           {
-            "name": "launchVideo",
+            "name": "remove",
             "docblock": null,
             "modifiers": [],
             "params": [],
             "returns": null
           },
           {
-            "name": "closePlayer",
+            "name": "abort",
             "docblock": null,
             "modifiers": [],
             "params": [],
             "returns": null
           },
           {
-            "name": "getTitle",
+            "name": "retry",
             "docblock": null,
             "modifiers": [],
-            "params": [
-              {
-                "name": "messId",
-                "type": null
-              }
-            ],
+            "params": [],
             "returns": null
-          },
+          }
+        ]
+      }
+    ],
+    "view/TransfersList.js": [
+      {
+        "description": "",
+        "displayName": "TransfersList",
+        "methods": []
+      }
+    ],
+    "view/UploadOptionsPane.js": [
+      {
+        "description": "",
+        "displayName": "UploadOptionsPane",
+        "methods": [
           {
-            "name": "browse",
+            "name": "updateField",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "direction",
+                "name": "fName",
                 "type": null
               },
               {
@@ -26836,216 +28979,34 @@
               }
             ],
             "returns": null
-          }
-        ],
-        "props": {
-          "youtubeId": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
           },
-          "contentMessageId": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
+          {
+            "name": "radioChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
           }
-        }
-      }
-    ],
-    "videos/VideoPlayer.js": [
-      {
-        "description": "",
-        "displayName": "VideoPlayer",
-        "methods": [],
-        "props": {
-          "videoSrc": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "closePlayer": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "workspaces/WorkspacesListCard.js": [
-      {
-        "description": "",
-        "displayName": "ThemeableTitle",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "WorkspacesListCard",
-        "methods": []
+        ]
       }
     ]
   },
-  "action.share": {
-    "ShareTemplates.js": [
+  "uploader.http": {
+    "Uploader.js": [
       {
         "description": "",
-        "displayName": "ConfigLogo",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "Copyright",
-        "methods": []
-      },
-      {
-        "description": "",
-        "methods": [],
-        "props": {
-          "minisiteMode": {
-            "defaultValue": {
-              "value": "'embed'",
-              "computed": false
-            },
-            "required": false
-          },
-          "uniqueNode": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        },
-        "childContext": {
-          "messages": {
-            "type": {
-              "name": "object"
-            },
-            "required": false
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          },
-          "showSearchForm": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false
-          }
-        }
-      },
-      {
-        "description": "",
-        "displayName": "DLTemplate",
         "methods": [
           {
-            "name": "triggerDL",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      },
-      {
-        "description": "",
-        "displayName": "FolderMinisite",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "FileMinisite",
-        "methods": [
-          {
-            "name": "openEditorForNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "editorData",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      },
-      {
-        "description": "",
-        "displayName": "DropZoneMinisite",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "FilmStripMinisite",
-        "methods": [
-          {
-            "name": "openEditorForNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "editorData",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/cells/CellCard.js": [
-      {
-        "description": "",
-        "displayName": "CellCard",
-        "methods": [
-          {
-            "name": "usersInvitations",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "userObjects",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/cells/CreateCellDialog.js": [
-      {
-        "description": "Dialog for letting users create a workspace",
-        "displayName": "CreateCellDialog",
-        "methods": [
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "m",
+            "name": "_handleChangeURL",
             "docblock": null,
             "modifiers": [],
             "params": [
@@ -27057,917 +29018,24 @@
             "returns": null
           },
           {
-            "name": "computeSummaryString",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "childContext": {
-          "messages": {
-            "type": {
-              "name": "object"
-            },
-            "required": false
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          },
-          "isReadonly": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          }
-        }
-      }
-    ],
-    "dialog/cells/EditCellDialog.js": [
-      {
-        "description": "Dialog for letting users create a workspace",
-        "methods": [
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "childContext": {
-          "messages": {
-            "type": {
-              "name": "object"
-            },
-            "required": false
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          },
-          "isReadonly": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          }
-        }
-      }
-    ],
-    "dialog/cells/NodesPicker.js": [
-      {
-        "description": "",
-        "displayName": "NodesPicker",
-        "methods": [
-          {
-            "name": "switchWorkspace",
+            "name": "_handleDeleteURL",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "ws",
+                "name": "id",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "handleTouchTap",
+            "name": "_handleChangeCurrentURL",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "handleRequestClose",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onValidateNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onNodeSelected",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderNodeLine",
-            "docblock": "@param node TreeNode\n@return {XML}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "description": "TreeNode",
-                "type": null
-              }
-            ],
-            "returns": {
-              "description": null,
-              "type": {
-                "name": "XML"
-              }
-            },
-            "description": null
-          }
-        ]
-      }
-    ],
-    "dialog/cells/SharedUserEntry.js": [
-      {
-        "description": "",
-        "displayName": "SharedUserEntry",
-        "methods": [
-          {
-            "name": "onRemove",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onInvite",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onUpdateRight",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "name",
-                "type": null
-              },
-              {
-                "name": "checked",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "cellAcl": {
-            "type": {
-              "name": "object"
-            },
-            "required": true,
-            "description": ""
-          },
-          "sendInvitations": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onUserObjectRemove": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onUserObjectUpdateRight": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/cells/SharedUsers.js": [
-      {
-        "description": "",
-        "displayName": "SharedUsers",
-        "methods": [
-          {
-            "name": "sendInvitationToAllUsers",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "clearAllUsers",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "valueSelected",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "userObject",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "cellAcls": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "saveSelectionAsTeam": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "sendInvitations": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showTitle": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onUserObjectAdd": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onUserObjectRemove": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onUserObjectUpdateRight": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/cells/UserBadge.js": [
-      {
-        "description": "",
-        "displayName": "UserBadge",
-        "methods": [
-          {
-            "name": "renderMenu",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "label": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "avatar": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "type": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "menus": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "muiTheme": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/composite/CellsList.js": [
-      {
-        "description": "",
-        "displayName": "CellsList",
-        "methods": [
-          {
-            "name": "addToCellsMenuItems",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/composite/CompositeCard.js": [
-      {
-        "description": "",
-        "displayName": "CompositeCard",
-        "methods": [
-          {
-            "name": "confirmAndDismiss",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "attachClipboard",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "detachClipboard",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "usersInvitations",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "userObjects",
-                "type": null
-              },
-              {
-                "name": "cellModel",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "linkInvitation",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "linkModel",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "dismissMailer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/composite/CompositeDialog.js": [
-      {
-        "description": "",
-        "displayName": "CompositeDialog",
-        "methods": [],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": true,
-            "description": ""
-          },
-          "selection": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "readonly": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dialogTitle": {
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogPadding": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogSize": {
-            "defaultValue": {
-              "value": "'lg'",
-              "computed": false
-            },
-            "required": false
-          }
-        },
-        "childContext": {
-          "messages": {
-            "type": {
-              "name": "object"
-            },
-            "required": false
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          },
-          "isReadonly": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          }
-        }
-      }
-    ],
-    "dialog/composite/Mailer.js": [
-      {
-        "description": "",
-        "displayName": "Mailer",
-        "methods": [
-          {
-            "name": "toggleMailerData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "dismissMailer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "mailerProcessPost",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "Email",
-                "type": null
-              },
-              {
-                "name": "users",
-                "type": null
-              },
-              {
-                "name": "subject",
-                "type": null
-              },
-              {
-                "name": "message",
-                "type": null
-              },
-              {
-                "name": "link",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "getMessage",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "key",
-                "type": null
-              },
-              {
-                "name": "namespace",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/composite/SimpleLinkCard.js": [
-      {
-        "description": "",
-        "displayName": "SimpleLinkCard",
-        "methods": [
-          {
-            "name": "linkInvitation",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "linkModel",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "dismissMailer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/links/Field.js": [
-      {
-        "description": "",
-        "displayName": "PublicLinkField",
-        "methods": [
-          {
-            "name": "toggleEditMode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "changeLink",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "clearCopyMessage",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "attachClipboard",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "detachClipboard",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "openMailer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "toggleQRCode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "linkModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "LinkModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "editAllowed": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showMailer": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/links/LabelPanel.js": [
-      {
-        "description": "",
-        "displayName": "LabelPanel",
-        "methods": []
-      }
-    ],
-    "dialog/links/Panel.js": [
-      {
-        "description": "",
-        "displayName": "PublicLinkPanel",
-        "methods": [
-          {
-            "name": "toggleLink",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "updateTemporaryPassword",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "value",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "enableLinkWithPassword",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "linkModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "LinkModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "compositeModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "CompositeModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "authorizations": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "showMailer": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/links/Permissions.js": [
-      {
-        "description": "",
-        "displayName": "PublicLinkPermissions",
-        "methods": [
-          {
-            "name": "changePermission",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "linkModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "LinkModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/links/PublicLinkTemplate.js": [
-      {
-        "description": "",
-        "displayName": "PublicLinkTemplate",
-        "methods": [
-          {
-            "name": "onDropDownChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "index",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/links/SecureOptions.js": [
-      {
-        "description": "",
-        "displayName": "PublicLinkSecureOptions",
-        "methods": [
-          {
-            "name": "updateDLExpirationField",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "updateDaysExpirationField",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onDateChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
+                "name": "e",
                 "type": null
               },
               {
@@ -27978,352 +29046,24 @@
             "returns": null
           },
           {
-            "name": "resetPassword",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "setUpdatingPassword",
+            "name": "_handleAddURL",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "newValue",
+                "name": "e",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "changePassword",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "updatePassword",
+            "name": "_handleSubmit",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "newValue",
-                "type": null
-              },
-              {
-                "name": "oldValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "resetDownloads",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "resetExpiration",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "renderPasswordContainer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "formatDate",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "dateObject",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "linkModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "LinkModel"
-            },
-            "required": true,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/links/TargetedUsers.js": [
-      {
-        "description": "",
-        "displayName": "TargetedUserLink",
-        "methods": [
-          {
-            "name": "clearCopyMessage",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      },
-      {
-        "description": "",
-        "displayName": "TargetedUsers",
-        "methods": [],
-        "props": {
-          "linkModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "LinkModel"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/links/VisibilityPanel.js": [
-      {
-        "description": "",
-        "displayName": "VisibilityPanel",
-        "methods": [
-          {
-            "name": "onSavePolicies",
-            "docblock": "Update associated hidden users policies, otherwise\nthe public link visibility cannot be changed\n@param diffPolicies",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "diffPolicies",
-                "description": null,
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Update associated hidden users policies, otherwise\nthe public link visibility cannot be changed"
-          },
-          {
-            "name": "diffPolicies",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "policies",
-                "type": null
-              },
-              {
-                "name": "diffPolicies",
-                "type": null
-              },
-              {
-                "name": "resourceId",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "dialog/lists/ShareView.js": [
-      {
-        "description": "",
-        "displayName": "Selector",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "ShareView",
-        "methods": [
-          {
-            "name": "load",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "getLongestPath",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "goTo",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "appearsIn",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "childContext": {
-          "messages": {
-            "type": {
-              "name": "object"
-            },
-            "required": false
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          },
-          "isReadonly": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          }
-        }
-      },
-      {
-        "description": "",
-        "displayName": "ShareViewModal",
-        "methods": [
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "dialogTitle": {
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogSize": {
-            "defaultValue": {
-              "value": "'lg'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogPadding": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogScrollBody": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          }
-        }
-      }
-    ],
-    "dialog/main/ActionButton.js": [
-      {
-        "description": "",
-        "displayName": "ActionButton",
-        "methods": [],
-        "props": {
-          "callback": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "onClick": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "mdiIcon": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "messageId": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "dialog/main/GenericEditor.js": [
-      {
-        "description": "",
-        "displayName": "EditorTab",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "EditorTabContent",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "GenericEditor",
-        "methods": []
-      }
-    ],
-    "dialog/main/InfoPanel.js": [
-      {
-        "description": "",
-        "displayName": "InfoPanel",
-        "methods": [
-          {
-            "name": "openPopover",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
+                "name": "e",
                 "type": null
               }
             ],

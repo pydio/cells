@@ -34,6 +34,14 @@ module.exports = function(grunt) {
                 }
             }
         },
+        uglify: {
+            lib: {
+                files: {
+                    'res/dist/PydioBrowserEditor.min.js': 'res/build/PydioBrowserEditor.js',
+                    'res/dist/PydioBrowserActions.min.js': 'res/build/PydioBrowserActions.js'
+                }
+            }
+        },
         compress: {
             options: {
                 mode: 'gzip',
@@ -41,10 +49,10 @@ module.exports = function(grunt) {
             },
             js: {
                 expand: true,
-                cwd: 'res/build/',
-                src: ['PydioBrowserEditor.js', 'PydioBrowserActions.js'],
-                dest: 'res/build/',
-                ext: '.js.gz'
+                cwd: 'res/dist/',
+                src: ['*.min.js'],
+                dest: 'res/dist/',
+                ext: '.min.js.gz'
             },
         },
         watch: {
@@ -52,7 +60,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/**/*"
                 ],
-                tasks: ['babel', 'browserify:ui', 'compress'],
+                tasks: ['babel', 'browserify:ui', 'uglify', 'compress'],
                 options: {
                     spawn: false
                 }
@@ -63,6 +71,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'browserify:ui', 'compress']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['babel', 'browserify:ui', 'uglify', 'compress']);
 
 };

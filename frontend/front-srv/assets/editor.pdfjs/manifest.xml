@@ -4,7 +4,7 @@
         description="CONF_MESSAGE[JavaScript PDF viewer]">
 	<client_settings>
 		<resources>
-			<js file="plug/editor.pdfjs/res/build/PydioPDFJS.js" className="PydioPDFJS"/>
+			<js file="plug/editor.pdfjs/res/dist/PydioPDFJS.min.js" className="PydioPDFJS"/>
 			<css file="plug/editor.pdfjs/PDFJSViewer.css"/>
 			<i18n remote="plug/editor.pdfjs/i18n" namespace="pdf_viewer"/>
 		</resources>

@@ -7,11 +7,12 @@
   "license": "agpl",
   "devDependencies": {
     "grunt": "^1.0.1",
-    "grunt-browserify": "~4.0.1",
     "grunt-babel": "~5.0.3",
-    "grunt-contrib-watch": "^1.0.0",
+    "grunt-browserify": "~4.0.1",
     "grunt-contrib-compress": "^1.4.3",
-    "grunt-contrib-copy": "1.0.0"
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-uglify": "^5.0.0",
+    "grunt-contrib-watch": "^1.0.0"
   },
   "dependencies": {
     "smart-app-banner": "2.0.0"

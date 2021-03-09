@@ -23,9 +23,9 @@
         <resources>
             <i18n namespace="share_center" remote="plug/action.share/res/i18n"/>
             <css file="plug/action.share/res/react-share-form.css" autoload="true"/>
-            <js file="plug/action.share/res/build/model/ShareActions.js" className="ShareActions"/>
-            <js file="plug/action.share/res/build/ShareTemplates.js" className="ShareTemplates" depends="React,PydioComponents,PydioWorkspaces"/>
-            <js file="plug/action.share/res/build/ShareDialog.js" className="ShareDialog" depends="React,PydioForm,PydioComponents"/>
+            <js file="plug/action.share/res/dist/model/ShareActions.min.js" className="ShareActions"/>
+            <js file="plug/action.share/res/dist/ShareTemplates.min.js" className="ShareTemplates" depends="React,PydioComponents,PydioWorkspaces"/>
+            <js file="plug/action.share/res/dist/ShareDialog.min.js" className="ShareDialog" depends="React,PydioForm,PydioComponents"/>
         </resources>
     </client_settings>
     <registry_contributions>

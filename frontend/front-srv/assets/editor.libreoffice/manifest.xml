@@ -11,7 +11,7 @@
     </server_settings>
     <client_settings>
         <resources>
-            <js file="plug/editor.libreoffice/res/build/PydioLibreOffice.js" className="PydioLibreOffice"/>
+            <js file="plug/editor.libreoffice/res/dist/PydioLibreOffice.min.js" className="PydioLibreOffice"/>
             <i18n namespace="libreoffice" remote="plug/editor.libreoffice/resources/i18n" />
         </resources>
     </client_settings>

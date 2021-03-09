@@ -8,8 +8,8 @@
     </server_settings>
     <client_settings>
         <resources>
-            <js file="plug/uploader.html/js/build/UploaderView.js" className="UploaderView" depends="React,PydioForm,UploaderModel"/>
-            <js file="plug/uploader.html/js/build/UploaderModel.js" className="UploaderModel" depends="React"/>
+            <js file="plug/uploader.html/res/dist/UploaderView.min.js" className="UploaderView" depends="React,PydioForm,UploaderModel"/>
+            <js file="plug/uploader.html/res/dist/UploaderModel.min.js" className="UploaderModel" depends="React"/>
             <i18n remote="plug/uploader.html/i18n" namespace="html_uploader"/>
         </resources>
     </client_settings>

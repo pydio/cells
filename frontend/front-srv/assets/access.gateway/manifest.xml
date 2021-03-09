@@ -5,7 +5,7 @@
         <resources>
             <i18n namespace="openother" remote="plug/access.gateway/i18n/editor.picker"/>
             <i18n namespace="access_fs" remote="plug/access.gateway/i18n/access.fs"/>
-            <js className="FSActions" file="plug/access.gateway/res/build/FSActions.js" depends="PydioComponents"/>
+            <js className="FSActions" file="plug/access.gateway/res/dist/FSActions.min.js" depends="PydioComponents"/>
         </resources>
         <node_provider ajxpClass="MetaNodeProvider" ajxpOptions="{}"/>
     </client_settings>

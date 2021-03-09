@@ -4,7 +4,7 @@
         <resources>
             <i18n namespace="notification_center" remote="plug/core.activitystreams/res/i18n"/>
             <i18n namespace="meta.watch" remote="plug/core.activitystreams/res/i18n/watch"/>
-            <js className="PydioActivityStreams" file="plug/core.activitystreams/res/build/PydioActivityStreams.js" depends="React,PydioComponents,PydioWorkspaces"/>
+            <js className="PydioActivityStreams" file="plug/core.activitystreams/res/dist/PydioActivityStreams.min.js" depends="React,PydioComponents,PydioWorkspaces"/>
         </resources>
     </client_settings>
     <server_settings>
