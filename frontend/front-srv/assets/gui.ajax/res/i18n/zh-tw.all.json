@@ -102,6 +102,9 @@
     "other": "Workspaces & Cells"
   },
   "background.jobs.title": {
+    "other": "Background Jobs"
+  },
+  "background.jobs.running": {
     "other": "Jobs running"
   },
   "websocket.disconnected.title": {
