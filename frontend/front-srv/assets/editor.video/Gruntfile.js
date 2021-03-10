@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 
-    const {initConfig, loadNpmTasks, registerTasks} = require('../gruntConfigCommon.js')
-    const config = initConfig('PydioCodeMirror')
+    const {initConfig, loadNpmTasks} = require('../gruntConfigCommon.js')
+    const config = initConfig('PydioVideo')
     config.copy = {
         swf: {
             expand: true,

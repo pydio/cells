@@ -173,7 +173,7 @@ class MainFilesList extends React.Component {
         };
     }
 
-    getPrefValue = (prefName, defaultValue) => {
+    getPrefValue(prefName, defaultValue){
         const {pydio} = this.props;
         if(!pydio.user){
             return defaultValue;
@@ -184,18 +184,17 @@ class MainFilesList extends React.Component {
             return guiPrefs[prefName][slug];
         }
         return defaultValue;
-    };
+    }
 
     /**
      * Save displayMode to user prefs
      * @param prefName
      * @param value
-     * @return {string}
      */
-    setPrefValue = (prefName, value) => {
+    setPrefValue(prefName, value){
         const {pydio} = this.props;
         if(!pydio.user){
-            return 'list';
+            return;
         }
         const slug = pydio.user.getActiveRepositoryObject().getSlug();
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
@@ -204,7 +203,7 @@ class MainFilesList extends React.Component {
         guiPrefs[prefName] = dPrefs;
         pydio.user.setPreference('gui_preferences', guiPrefs, true);
         pydio.user.savePreference('gui_preferences');
-    };
+    }
 
     componentDidMount() {
         // Hook to the central datamodel
