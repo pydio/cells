@@ -23,6 +23,7 @@ import PydioApi from 'pydio/http/api'
 import qs from 'query-string'
 import {Dialog, FlatButton} from 'material-ui'
 import browserHistory from 'react-router/lib/browserHistory'
+import Clipboard from 'clipboard'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 export const OAuthLoginRouter = (pydio) => {
@@ -71,7 +72,7 @@ export const OAuthOOBRouter = (pydio) => {
                 <div>
                     <ErrorDialog
                         {...this.state}
-                        successText={"You were succesfully authenticated. Please copy and paste the code to your command line terminal"}
+                        successText={Pydio.getMessages()['ajax_gui.oauth.authentication.code']}
                         copyText={code}
                     />
                     {this.props.children}
@@ -107,27 +108,91 @@ export const OAuthFallbacksRouter = (pydio) => {
 
 class ErrorDialog extends Component {
 
+    constructor(props){
+        super(props);
+        this.state = {open: true}
+    }
+
+    componentDidMount(){
+        const {copyText} = this.props;
+        if(copyText){
+            this.attachClipboard(copyText);
+        }
+    }
+
     dismiss() {
         this.setState({open: false});
         browserHistory.push('/login');
     }
 
+    getMessage(id) {
+        return Pydio.getMessages()['ajax_gui.oauth.authentication.' + id] || id;
+    }
+
+    attachClipboard(inputValue){
+        if(this._clip){
+            this._clip.destroy();
+        }
+        if(!this.refs['copy-button']) {
+            return;
+        }
+        this._clip = new Clipboard(this.refs['copy-button'], {
+            text: function(trigger) {
+                return inputValue;
+            }.bind(this)
+        });
+        this._clip.on('success', function(){
+            this.setState({copyMessage:this.getMessage('code-copied')}, this.clearCopyMessage.bind(this));
+        }.bind(this));
+        this._clip.on('error', function(){
+            this.refs['input'].focus();
+            this.setState({copyMessage:this.getMessage('code-copy-failed')}, this.clearCopyMessage.bind(this));
+        }.bind(this));
+    }
+
+    clearCopyMessage(){
+        window.setTimeout(function(){
+            this.setState({copyMessage:''});
+        }.bind(this), 3000);
+    }
+
+
     render(){
         const {error, error_description, error_hint, successText, copyText} = this.props;
-        let open = true;
-        if(this.state && this.state.open !== undefined){
-            open = this.state.open;
-        }
+        const {open, copyMessage} = this.state;
+
+        const copyButtonStyle = {
+            fontSize: 20,
+            margin: 10,
+            color: '#03a9f4',
+            height: 26,
+            width: 26,
+            lineHeight: '28px',
+            textAlign: 'center',
+            cursor: 'pointer'
+        };
+
+
         return (
             <Dialog
                 open={open}
                 modal={false}
-                title={error ? "Authentication Error" : "Authentication Success"}
-                actions={[<FlatButton primary={true} label={"OK"} onClick={() => {this.dismiss()}}/>]}
+                title={error ? this.getMessage('failed') : this.getMessage('success')}
+                actions={[<FlatButton primary={true} label={Pydio.getMessages()['48']} onTouchTap={() => {this.dismiss()}}/>]}
             >
                 <div>
                     {successText && <div>{successText}</div>}
-                    {copyText && <ModernTextField value={copyText} fullWidth={true} focusOnMount={true}/>}
+                    {copyText &&
+                        <div>
+                            <div style={{display:'flex', width:'100%'}}>
+                                <div style={{flex: 1}}>
+                                    <ModernTextField ref={"input"} value={copyText} fullWidth={true} onClick={(e) =>{e.currentTarget.select();}}/>
+                                </div>
+                                <span style={copyButtonStyle} title={this.getMessage('copy-code')} ref={"copy-button"} className={"mdi mdi-content-copy"} />
+                            </div>
+                            {copyMessage && <div>{copyMessage}</div>}
+                        </div>
+                    }
                     {error && <div>{error_description}</div>}
                     {error_hint && <div style={{fontSize:12, marginTop: 8}}>{error_hint}</div>}
                 </div>

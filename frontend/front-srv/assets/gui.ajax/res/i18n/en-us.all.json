@@ -104,7 +104,7 @@
   "background.jobs.title":{
     "other": "Background Jobs"
   },
-  "background.jobs.title":{
+  "background.jobs.running":{
     "other": "Jobs running"
   },
   "websocket.disconnected.title": {
@@ -112,5 +112,44 @@
   },
   "websocket.disconnected.legend": {
     "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+  },
+  "oauth.authentication.success": {
+    "other": "Authentication Success"
+  },
+  "oauth.authentication.failed": {
+    "other": "Authentication Failed"
+  },
+  "oauth.authentication.code": {
+    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+  },
+  "oauth.authentication.copy-code": {
+    "other": "Copy code to your clipboard"
+  },
+  "oauth.authentication.code-copied": {
+    "other": "Code is copied to your clipboard, you can paste it in the command line."
+  },
+  "oauth.authentication.code-copy-failed": {
+    "other": "Could not copy to clipboard."
+  },
+  "list.display-mode.list": {
+    "other": "List"
+  },
+  "list.display-mode.details": {
+    "other": "Details"
+  },
+  "list.display-mode.thumbs": {
+    "other": "Thumbs"
+  },
+  "list.display-mode.thumbs-large": {
+    "other": "Thumbs Large"
+  },
+  "list.display-mode.thumbs-small": {
+    "other": "Thumbs Small"
+  },
+  "list.extensions.action": {
+    "other": "Files extensions"
+  },
+  "list.extensions.show": {
+    "other": "Show extensions"
   }
 }
