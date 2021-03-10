@@ -48,10 +48,7 @@ class Player extends React.Component {
             preload: 'auto',
             autoplay: false,
             controls: true,
-            flash: {
-                swf: "plugins/editor.video/res/dist/video-js.swf"
-            },
-            techOrder: ["html5", "flash", "other supported tech"]
+            techOrder: ["html5"]
         }
 
         return (

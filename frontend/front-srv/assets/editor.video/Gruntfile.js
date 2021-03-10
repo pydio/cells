@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     config.copy = {
         swf: {
             expand: true,
-            src: ['node_modules/video.js/dist/video-js.swf', 'node_modules/video.js/dist/video-js.min.css'],
+            src: ['node_modules/video.js/dist/video-js.min.css'],
             dest: './res/dist/',
             flatten:true
         }
