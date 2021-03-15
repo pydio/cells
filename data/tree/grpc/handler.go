@@ -178,9 +178,13 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	if ds, ok := s.DataSources[dsName]; ok {
 
 		node.Path = dsPath
-		req := &tree.CreateNodeRequest{Node: node}
+		dsReq := &tree.CreateNodeRequest{
+			Node:           node,
+			UpdateIfExists: req.UpdateIfExists,
+			Silent:         req.Silent,
+		}
 
-		response, e := ds.writer.CreateNode(ctx, req)
+		response, e := ds.writer.CreateNode(ctx, dsReq)
 		if e != nil {
 			return e
 		}
@@ -549,9 +553,11 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 		node.Path = dsPath
 
-		response, _ := ds.writer.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node})
-
-		resp.Success = response.Success
+		if response, e := ds.writer.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
+			return e
+		} else {
+			resp.Success = response.Success
+		}
 
 		return nil
 	}
