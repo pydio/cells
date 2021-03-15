@@ -110,8 +110,6 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if e != nil {
 		return input.WithError(e), e
 	}
-	// Prepare ctx with info about the target branch
-	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
 
 	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	request := &tree.CreateVersionRequest{Node: node}
@@ -130,26 +128,34 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithIgnore(), nil
 	}
 
+	// Prepare ctx with info about the target branch - Force storage layout
+	branchInfo := views.BranchInfo{LoadedSource: source}
+	branchInfo.FlatStorage = false
+	ctx = views.WithBranchInfo(ctx, "to", branchInfo)
+
 	targetNode := &tree.Node{
 		Path: node.Uuid + "__" + resp.Version.Uuid,
 	}
 	targetNode.SetMeta(common.MetaNamespaceDatasourcePath, targetNode.Path)
 	sourceNode := proto.Clone(node).(*tree.Node)
 	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
+	if err != nil {
+		return input.WithError(err), err
+	}
 
 	output := input
 	log.TasksLogger(ctx).Info(T("Job.Version.StatusFile", resp.Version))
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
-	if err == nil && written > 0 {
+	if written > 0 {
 		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: resp.Version})
 		if err2 != nil {
 			return input.WithError(err2), err2
 		}
 		log.TasksLogger(ctx).Info(T("Job.Version.StatusMeta", resp.Version))
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
+		ctx = views.WithBranchInfo(ctx, "in", branchInfo)
 		for _, version := range response.PruneVersions {
-			ctx = views.WithBranchInfo(ctx, "in", views.BranchInfo{LoadedSource: source})
 			deleteNode := &tree.Node{Path: node.Uuid + "__" + version.Uuid}
 			deleteNode.SetMeta(common.MetaNamespaceDatasourcePath, deleteNode.Path)
 			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode})

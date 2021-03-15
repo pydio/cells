@@ -128,7 +128,7 @@ func (fs *FileSystem) Mkdir(ctx context.Context, name string, perm os.FileMode) 
 	}
 	_, err = fs.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 		Path: name,
-		Mode: int32(perm.Perm() | os.ModeDir),
+		Mode: int32(os.ModePerm & os.ModeDir),
 		Type: tree.NodeType_COLLECTION,
 	}})
 	return err
@@ -144,6 +144,9 @@ func (fs *FileSystem) OpenFile(ctx context.Context, name string, flag int, perm 
 	var err error
 	if name, err = clearName(name); err != nil {
 		return nil, err
+	}
+	if strings.HasPrefix(path.Base(name), "._") {
+		return nil, errors.Forbidden("DAV", "Server does not support MacOS hidden files")
 	}
 
 	var node *tree.Node
@@ -421,6 +424,10 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 func (fs *FileSystem) Stat(ctx context.Context, name string) (os.FileInfo, error) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
+
+	if strings.HasPrefix(path.Base(name), "._") {
+		return nil, errors.Forbidden("DAV", "Cannot create hidden folders")
+	}
 
 	fi, err := fs.stat(ctx, name)
 	if err == nil {

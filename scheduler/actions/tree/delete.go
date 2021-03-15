@@ -138,7 +138,17 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		}
 		return input.WithError(readE), readE
 	}
-	sourceNode = readR.Node
+	sourceNode = readR.GetNode()
+
+	var isFlat bool
+	var firstLevelFolders []*tree.Node
+	if router, ok := c.Client.(*views.Router); ok {
+		if b, err := router.BranchInfoForNode(ctx, sourceNode); err == nil {
+			isFlat = b.FlatStorage
+		} else {
+			return input.WithError(err), err
+		}
+	}
 
 	if sourceNode.IsLeaf() {
 		_, err := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
@@ -160,11 +170,18 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 			if e != nil {
 				break
 			}
-			if resp.Node.Path == path.Join(sourceNode.Path, common.PydioSyncHiddenFile) && childrenOnly {
+			n := resp.Node
+			if n.Path == path.Join(sourceNode.Path, common.PydioSyncHiddenFile) && childrenOnly {
 				// Do not delete first .pydio!
 				continue
 			}
-			n := resp.Node
+			if isFlat && !n.IsLeaf() { // Do not remove folders yet
+				relPath := strings.Trim(strings.TrimPrefix(n.GetPath(), sourceNode.GetPath()), "/")
+				if childrenOnly && !strings.Contains(relPath, "/") {
+					firstLevelFolders = append(firstLevelFolders, n.Clone())
+				}
+				continue
+			}
 			wg.Add(1)
 			throttle <- struct{}{}
 			go func() {
@@ -187,6 +204,21 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		wg.Wait()
 		if delErr != nil {
 			return input.WithError(delErr), delErr
+		}
+		if isFlat {
+			if !childrenOnly {
+				log.Logger(ctx).Info("Deleting sourceNode", sourceNode.ZapPath())
+				if _, e := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
+					return input.WithError(e), e
+				}
+			} else {
+				for _, n := range firstLevelFolders {
+					log.Logger(ctx).Info("Deleting first level of nodes", n.ZapPath())
+					if _, e := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n}); e != nil {
+						return input.WithError(e), e
+					}
+				}
+			}
 		}
 	}
 

@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/idm/key"
 	"github.com/pydio/minio-go"
 )
@@ -354,6 +355,17 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 			cloneTo.Uuid = uuid.New()
 		} else {
 			cloneTo.Uuid = cloneFrom.Uuid
+		}
+		if destInfo.FlatStorage {
+			// Insert in tree as temporary
+			cloneTo.Type = tree.NodeType_LEAF
+			cloneTo.Etag = common.NodeFlagEtagTemporary
+			if _, er := e.clientsPool.GetTreeClientWrite().CreateNode(writeCtx, &tree.CreateNodeRequest{Node: cloneTo}); er != nil {
+				return 0, er
+			}
+			if move {
+				writeCtx = context2.WithAdditionalMetadata(writeCtx, map[string]string{common.XPydioMoveUuid: cloneTo.Uuid})
+			}
 		}
 		putReqData := &PutRequestData{
 			Size:     cloneFrom.Size,

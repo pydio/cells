@@ -84,6 +84,8 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
+	ds.FlatStorage = config.Get("defaults", "dataSourcesDefaultFlat").Bool()
+
 	// Replace uuid secret if it exists
 	var secretUuid string
 	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {

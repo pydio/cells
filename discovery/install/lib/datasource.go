@@ -50,6 +50,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	if err != nil {
 		return err
 	}
+	conf.FlatStorage = config.Get("defaults", "dataSourcesDefaultFlat").Bool()
 
 	// First store minio config
 	minioConfig, _ := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf, false)

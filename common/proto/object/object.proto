@@ -77,6 +77,11 @@ message DataSource {
     // Not implemented, whether to watch for underlying changes on the FS
     bool Watch = 6;
 
+    // Store data in flat format (object-storage like)
+    bool FlatStorage = 20;
+    // Do not trigger resync at start
+    bool SkipSyncOnRestart = 21;
+
     // Type of encryption applied before sending data to storage
     EncryptionMode EncryptionMode = 7;
     // Encryption key used for encrypting data

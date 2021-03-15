@@ -150,6 +150,7 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 		}
 		node.SetMeta(common.MetaNamespaceDatasourcePath, node.Path)
 		branchInfo := BranchInfo{LoadedSource: source}
+		branchInfo.FlatStorage = false
 		ctx = WithBranchInfo(ctx, "in", branchInfo)
 		log.Logger(ctx).Debug("GetObject With VersionId", zap.Any("node", node))
 	}
@@ -186,9 +187,10 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 			Path: from.Uuid + "__" + requestData.SrcVersionId,
 		}
 		from.SetMeta(common.MetaNamespaceDatasourcePath, from.Path)
-		branchInfo := BranchInfo{LoadedSource: source}
-		ctx = WithBranchInfo(ctx, "from", branchInfo)
-		log.Logger(ctx).Debug("CopyObject With VersionId", zap.Any("from", from), zap.Any("branchInfo", branchInfo), zap.Any("to", to))
+		srcInfo := BranchInfo{LoadedSource: source}
+		srcInfo.FlatStorage = false
+		ctx = WithBranchInfo(ctx, "from", srcInfo)
+		log.Logger(ctx).Debug("CopyObject With VersionId", zap.Any("from", from), zap.Any("branchInfo", srcInfo), zap.Any("to", to))
 	}
 
 	return v.next.CopyObject(ctx, from, to, requestData)

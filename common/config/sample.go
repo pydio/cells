@@ -29,7 +29,8 @@ var SampleConfig = `{
 		"update": {
 			"publicKey": "` + common.UpdateDefaultPublicKey + `",
 			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
-		}
+		},
+		"dataSourcesDefaultFlat": true
 	},
     "ports":{
         "nats": 4222

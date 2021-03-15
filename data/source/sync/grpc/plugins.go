@@ -55,6 +55,7 @@ func init() {
 	plugins.Register(func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.ServiceDataSync)
+		dss := config.ListSourcesFromConfig()
 
 		for _, datasource := range sources {
 
@@ -85,7 +86,7 @@ func init() {
 					s := m.Server()
 					ctx := m.Options().Context
 					datasource := s.Options().Metadata["source"]
-					if datasource == "" {
+					if datasource == "" || dss[datasource] == nil {
 						return fmt.Errorf("could not find source key in service Metadata")
 					}
 
@@ -101,70 +102,77 @@ func init() {
 					object.RegisterDataSourceEndpointHandler(m.Server(), syncHandler)
 					object.RegisterResourceCleanerEndpointHandler(m.Options().Server, syncHandler)
 
-					syncHandler.Start()
+					dsObject := dss[datasource]
 
-					m.Init(
-						micro.AfterStart(func() error {
-							// Now post a job to start indexation in background
-							md := make(map[string]string)
-							md[common.PydioContextUserKey] = common.PydioSystemUsername
-							ctx = metadata.NewContext(ctx, md)
+					if !dsObject.FlatStorage {
+						syncHandler.Start()
+						m.Init(
+							micro.AfterStart(func() error {
+								// Now post a job to start indexation in background
+								md := make(map[string]string)
+								md[common.PydioContextUserKey] = common.PydioSystemUsername
+								ctx = metadata.NewContext(ctx, md)
 
-							e = service.Retry(ctx, func() error {
-								jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
-								if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
-									log.Logger(ctx).Debug("Sending event to start trigger re-indexation")
-									client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
-										JobID:  "resync-ds-" + datasource,
-										RunNow: true,
-									}))
-								} else if errors.Parse(err.Error()).Code == 404 {
-									log.Logger(ctx).Info("Creating job in scheduler to trigger re-indexation")
-									job := &jobs.Job{
-										ID:             "resync-ds-" + datasource,
-										Owner:          common.PydioSystemUsername,
-										Label:          "Sync DataSource " + datasource,
-										Inactive:       false,
-										MaxConcurrency: 1,
-										AutoStart:      true,
-										Actions: []*jobs.Action{
-											{
-												ID: "actions.cmd.resync",
-												Parameters: map[string]string{
-													"service": common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource,
+								e = service.Retry(ctx, func() error {
+									jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+									if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
+										if !dsObject.SkipSyncOnRestart {
+											log.Logger(ctx).Debug("Sending event to start trigger re-indexation")
+											client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
+												JobID:  "resync-ds-" + datasource,
+												RunNow: true,
+											}))
+										}
+									} else if errors.Parse(err.Error()).Code == 404 {
+										log.Logger(ctx).Info("Creating job in scheduler to trigger re-indexation")
+										job := &jobs.Job{
+											ID:             "resync-ds-" + datasource,
+											Owner:          common.PydioSystemUsername,
+											Label:          "Sync DataSource " + datasource,
+											Inactive:       false,
+											MaxConcurrency: 1,
+											AutoStart:      !dsObject.SkipSyncOnRestart,
+											Actions: []*jobs.Action{
+												{
+													ID: "actions.cmd.resync",
+													Parameters: map[string]string{
+														"service": common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource,
+													},
 												},
 											},
-										},
+										}
+										_, e := jobsClient.PutJob(ctx, &jobs.PutJobRequest{
+											Job: job,
+										}, registry.ShortRequestTimeout())
+										return e
+									} else {
+										log.Logger(ctx).Debug("Could not get info about job, retrying...")
+										return err
 									}
-									_, e := jobsClient.PutJob(ctx, &jobs.PutJobRequest{
-										Job: job,
-									}, registry.ShortRequestTimeout())
-									return e
-								} else {
-									log.Logger(ctx).Debug("Could not get info about job, retrying...")
-									return err
+									return nil
+								}, 5*time.Second, 20*time.Second)
+								if e != nil {
+									log.Logger(ctx).Error("service started but could not contact Job service to trigger re-indexation")
+									m.Server().Stop()
+								}
+
+								return nil
+							}),
+							micro.BeforeStop(func() error {
+								if syncHandler != nil {
+									ctx := m.Options().Context
+									log.Logger(ctx).Info("Stopping sync task and registry watch")
+									syncHandler.Stop()
 								}
 								return nil
-							}, 5*time.Second, 20*time.Second)
-							if e != nil {
-								log.Logger(ctx).Error("service started but could not contact Job service to trigger re-indexation")
-								m.Server().Stop()
-							}
-
-							return nil
-						}),
-						micro.BeforeStop(func() error {
-							if syncHandler != nil {
-								ctx := m.Options().Context
-								log.Logger(ctx).Info("Stopping sync task and registry watch")
-								syncHandler.Stop()
-							}
-							return nil
-						}))
+							}),
+						)
+					}
 
 					return nil
 				}),
 			)
+
 			if storage := WithStorage(datasource); storage != nil {
 				sOptions = append(sOptions, storage)
 			}

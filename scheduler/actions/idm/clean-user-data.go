@@ -144,7 +144,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			log.TasksLogger(ctx).Info("Moving personal folder for deleted user to " + targetNode.Path)
 			cleaned = true
 			// Make a Copy then Delete, to make sure UUID are changed and references are cleared
-			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, true, false, status, progress); e != nil {
+			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, false, status, progress); e != nil {
 				done <- true
 				return input.WithError(e), e
 			}

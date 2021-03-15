@@ -108,7 +108,7 @@ func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.Update
 	// TODO CHECK ACLs TO MAKE SURE THE WHOLE TREE IS MOVABLE
 	log.Logger(ctx).Info("Should Copy/Move", source.Zap("from"), target.Zap("target"))
 
-	err := CopyMoveNodes(ctx, h.next, source, target, true, true, false, status, progress)
+	err := CopyMoveNodes(ctx, h.next, source, target, true, false, status, progress)
 	close(done)
 	close(status)
 	close(progress)
