@@ -105,20 +105,6 @@ func init() {
 
 		return str
 	}
-	queries["insertCommit"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-			insert into %%PREFIX%%_idx_commits (
-				uuid, etag, mtime, size
-			) values (
-				?, ?, ?, ?
-			)`
-	}
-	queries["insertCommitWithData"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-			insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size, data)
-			values (?, ?, ?, ?, ?)
-		`
-	}
 	queries["updateTree"] = func(dao sql.DAO, mpathes ...string) string {
 
 		columns := []string{"level", "name", "leaf", "mtime", "etag", "size", "mode", "mpath1", "mpath2", "mpath3", "mpath4", "uuid"}
@@ -178,15 +164,6 @@ func init() {
 		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
 	}
 
-	queries["deleteCommits"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-		delete from %%PREFIX%%_idx_commits where uuid = ?`
-	}
-	queries["selectCommits"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-		select etag, mtime, size, data from %%PREFIX%%_idx_commits where uuid = ? ORDER BY id DESC
-	`
-	}
 	queries["selectNodeUuid"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
 		select uuid, level, mpath1, mpath2, mpath3, mpath4, name, leaf, mtime, etag, size, mode
@@ -511,94 +488,7 @@ func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
 	return err
 }
 
-// PushCommit adds a commit version to the node
-func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
-
-	dao.Lock()
-	defer dao.Unlock()
-
-	mTime := node.MTime
-	if mTime == 0 {
-		mTime = time.Now().Unix()
-	}
-	if stmt, er := dao.GetStmt("insertCommit"); er != nil {
-		return er
-	} else if _, err := stmt.Exec(
-		node.Uuid,
-		node.Etag,
-		mTime,
-		node.Size,
-	); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// DeleteCommits removes the commit versions of the node
-func (dao *IndexSQL) DeleteCommits(node *mtree.TreeNode) error {
-
-	dao.Lock()
-	defer dao.Unlock()
-	stmt, er := dao.GetStmt("deleteCommits")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(node.Uuid)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ListCommits returns a list of all commit versions for a node
-func (dao *IndexSQL) ListCommits(node *mtree.TreeNode) (commits []*tree.ChangeLog, err error) {
-
-	dao.Lock()
-
-	var rows *databasesql.Rows
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-		dao.Unlock()
-	}()
-
-	// First we check if we already have an object with the same key
-	stmt, er := dao.GetStmt("selectCommits")
-	if er != nil {
-		return commits, er
-	}
-	if rows, err = stmt.Query(node.Uuid); err != nil {
-		return commits, err
-	}
-	for rows.Next() {
-		var uid string
-		var mtime int64
-		var size int64
-		var data []byte
-		e := rows.Scan(
-			&uid,
-			&mtime,
-			&size,
-			&data,
-		)
-		if e != nil {
-			return commits, e
-		}
-		changeLog := &tree.ChangeLog{
-			Uuid:  uid,
-			MTime: mtime,
-			Size:  size,
-			Data:  data,
-		}
-		commits = append(commits, changeLog)
-	}
-
-	return commits, err
-}
-
+// etagFromChildren recompute ETag from children ETags
 func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 
 	SEPARATOR := "."

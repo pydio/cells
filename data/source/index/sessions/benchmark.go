@@ -27,7 +27,6 @@ import (
 	"time"
 
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 )
 
@@ -54,10 +53,6 @@ func (bb *BenchBatcher) Notify(topic string, msg interface{}) {
 	} else {
 		bb.batcher.Notify(topic, msg)
 	}
-}
-
-func (bb *BenchBatcher) UpdateMPath(path mtree.MPath, deltaSize int64) {
-	bb.batcher.UpdateMPath(path, deltaSize)
 }
 
 func (bb *BenchBatcher) Flush(ctx context.Context, dao index.DAO) {

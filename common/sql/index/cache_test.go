@@ -31,7 +31,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/pydio/cells/common/utils/mtree"
 
@@ -600,40 +599,6 @@ func TestDaocache_GetNodeFirstAvailableChildIndex(t *testing.T) {
 
 	})
 
-}
-
-func TestCommitsWithCache(t *testing.T) {
-
-	Convey("Test Insert / List / Delete", t, func() {
-
-		node := mtree.NewTreeNode()
-		node.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
-		node.SetMPath(1, 16, 1)
-		node.Etag = "first-etag"
-		node.MTime = time.Now().Unix()
-		node.Size = 2444
-		node.SetMeta("name", "\"bbb\"")
-
-		err := getDAO(ctxWithCache).PushCommit(node)
-		So(err, ShouldBeNil)
-
-		node.Etag = "second-etag"
-		err = getDAO(ctxWithCache).PushCommit(node)
-		So(err, ShouldBeNil)
-
-		logs, err := getDAO(ctxWithCache).ListCommits(node)
-		So(err, ShouldBeNil)
-		So(logs, ShouldHaveLength, 2)
-		So(logs[0].Uuid, ShouldEqual, "second-etag")
-		So(logs[1].Uuid, ShouldEqual, "first-etag")
-
-		err = getDAO(ctxWithCache).DeleteCommits(node)
-		So(err, ShouldBeNil)
-		logs, err = getDAO(ctxWithCache).ListCommits(node)
-		So(err, ShouldBeNil)
-		So(logs, ShouldHaveLength, 0)
-
-	})
 }
 
 func TestStreamsWithCache(t *testing.T) {

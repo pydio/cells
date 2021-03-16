@@ -304,14 +304,6 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 		node.SetMeta("ChildrenFiles", fileCount)
 	}
 
-	if req.WithCommits && node.IsLeaf() {
-		if commits, err := dao.ListCommits(node); err == nil {
-			node.Commits = commits
-		} else {
-			log.Logger(ctx).Error("error while listing node commits", node.Zap(), zap.Error(err))
-		}
-	}
-
 	resp.Node = node.Node
 
 	return nil
@@ -445,14 +437,6 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 			}
 			if limitDepth > 0 && node.Level != limitDepth {
 				continue
-			}
-
-			if req.WithCommits && node.IsLeaf() {
-				if commits, e := dao.ListCommits(node); e == nil {
-					node.Commits = commits
-				} else {
-					log.Logger(ctx).Error("could not list node commits", node.Zap(), zap.Error(err))
-				}
 			}
 			resp.Send(&tree.ListNodesResponse{Node: node.Node})
 		}
@@ -597,10 +581,6 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 	if err := dao.DelNode(node); err != nil {
 		return errors.InternalServerError(name, "Could not delete node at %s, cause: %s", reqPath, err.Error())
-	}
-
-	if err := dao.DeleteCommits(node); err != nil {
-		return errors.InternalServerError(name, "Could not delete node commits for %s, cause: %s", reqPath, err.Error())
 	}
 
 	if err := s.UpdateParentsAndNotify(ctx, dao, node.Size, tree.NodeChangeEvent_DELETE, node, nil, req.IndexationSession); err != nil {
@@ -766,31 +746,6 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	}
 
 	return nil
-}
-
-func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta int64, mPath mtree.MPath) {
-
-	mp := mPath.Parent()
-	for len(mp) > 0 {
-		batcher.UpdateMPath(mp, delta)
-		mp = mp.Parent()
-	}
-
-}
-
-// Batch update nodes on parents.
-func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath mtree.MPath) error {
-
-	b := dao.SetNodes("-1", delta)
-	mp := mPath.Parent()
-	for len(mp) > 0 {
-		parent := mtree.NewTreeNode()
-		parent.SetMPath(mp...)
-		b.Send(parent)
-		mp = mp.Parent()
-	}
-	return b.Close()
-
 }
 
 // CreateNodeStream implementation for the TreeServer.
