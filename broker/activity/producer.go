@@ -23,6 +23,8 @@ package activity
 import (
 	"time"
 
+	"github.com/pydio/cells/common"
+
 	"github.com/golang/protobuf/ptypes/timestamp"
 
 	"github.com/pydio/cells/common/proto/activity"
@@ -59,7 +61,9 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 	ac.Name = "File Event"
 	switch event.Type {
 	case tree.NodeChangeEvent_CREATE:
-		// log.Printf("CREATE %v", event.Type)
+		if event.Target.Etag == common.NodeFlagEtagTemporary {
+			return
+		}
 		ac.Type = activity.ObjectType_Create
 		if event.Target.IsLeaf() {
 			ac.Object = &activity.Object{

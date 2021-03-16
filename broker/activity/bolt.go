@@ -22,11 +22,15 @@ package activity
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/common"
 
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -104,7 +108,38 @@ func (dao *boltdbimpl) getBucket(tx *bolt.Tx, createIfNotExist bool, ownerType a
 	return targetBucket, nil
 }
 
-func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object) error {
+func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
+	return dao.DB().Batch(func(tx *bolt.Tx) error {
+		for _, a := range aa {
+			bucket, err := dao.getBucket(tx, true, a.ownerType, a.ownerId, a.boxName)
+			if err != nil {
+				return err
+			}
+			objectKey, _ := bucket.NextSequence()
+			object := a.Object
+			object.Id = fmt.Sprintf("/activity-%v", objectKey)
+
+			jsonData, _ := json.Marshal(object)
+
+			k := make([]byte, 8)
+			binary.BigEndian.PutUint64(k, objectKey)
+			if err = bucket.Put(k, jsonData); err != nil {
+				return err
+			}
+			if a.publishCtx != nil {
+				client.Publish(a.publishCtx, client.NewPublication(common.TopicActivityEvent, &activity.PostActivityEvent{
+					OwnerType: a.ownerType,
+					OwnerId:   a.ownerId,
+					BoxName:   string(a.boxName),
+					Activity:  object,
+				}))
+			}
+		}
+		return nil
+	})
+}
+
+func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error {
 
 	err := dao.DB().Update(func(tx *bolt.Tx) error {
 
@@ -122,6 +157,14 @@ func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string
 		return bucket.Put(k, jsonData)
 
 	})
+	if err == nil && publishCtx != nil {
+		client.Publish(publishCtx, client.NewPublication(common.TopicActivityEvent, &activity.PostActivityEvent{
+			OwnerType: ownerType,
+			OwnerId:   ownerId,
+			BoxName:   string(boxName),
+			Activity:  object,
+		}))
+	}
 	return err
 
 }
@@ -148,6 +191,9 @@ func (dao *boltdbimpl) UpdateSubscription(subscription *activity.Subscription) e
 
 func (dao *boltdbimpl) ListSubscriptions(objectType activity.OwnerType, objectIds []string) (subs []*activity.Subscription, err error) {
 
+	if len(objectIds) == 0 {
+		return
+	}
 	userIds := make(map[string]bool)
 	e := dao.DB().View(func(tx *bolt.Tx) error {
 
