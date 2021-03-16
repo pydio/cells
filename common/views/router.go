@@ -129,6 +129,7 @@ func NewUuidRouter(options RouterOptions) *Router {
 	}
 	handlers = append(handlers, &EncryptionHandler{}) // retrieves encryption materials from encryption service
 	handlers = append(handlers, &VersionHandler{})
+	handlers = append(handlers, &FlatStorageHandler{})
 	handlers = append(handlers, &Executor{})
 
 	pool := NewClientsPool(options.WatchRegistry)
