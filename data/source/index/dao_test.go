@@ -28,8 +28,6 @@ import (
 	"log"
 	"regexp"
 	"testing"
-	"time"
-
 	// Run test against sqlite
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
@@ -498,41 +496,6 @@ func TestMysql(t *testing.T) {
 		hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.Etag))
 		newEtag2 := hex.EncodeToString(hash2.Sum(nil))
 		So(parentNode.Etag, ShouldEqual, newEtag2)
-
-	})
-
-}
-
-func TestCommits(t *testing.T) {
-
-	Convey("Test Insert / List / Delete", t, func() {
-
-		node := mtree.NewTreeNode()
-		node.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
-		node.SetMPath(1, 16, 1)
-		node.Etag = "first-etag"
-		node.MTime = time.Now().Unix()
-		node.Size = 2444
-		node.SetMeta("name", "\"bbb\"")
-
-		err := getDAO(ctx).PushCommit(node)
-		So(err, ShouldBeNil)
-
-		node.Etag = "second-etag"
-		err = getDAO(ctx).PushCommit(node)
-		So(err, ShouldBeNil)
-
-		logs, err := getDAO(ctx).ListCommits(node)
-		So(err, ShouldBeNil)
-		So(logs, ShouldHaveLength, 2)
-		So(logs[0].Uuid, ShouldEqual, "second-etag")
-		So(logs[1].Uuid, ShouldEqual, "first-etag")
-
-		err = getDAO(ctx).DeleteCommits(node)
-		So(err, ShouldBeNil)
-		logs, err = getDAO(ctx).ListCommits(node)
-		So(err, ShouldBeNil)
-		So(logs, ShouldHaveLength, 0)
 
 	})
 

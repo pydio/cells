@@ -689,15 +689,7 @@ func (d *daocache) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode
 
 	return err
 }
-func (d *daocache) PushCommit(node *mtree.TreeNode) error {
-	return d.DAO.PushCommit(node)
-}
-func (d *daocache) DeleteCommits(node *mtree.TreeNode) error {
-	return d.DAO.DeleteCommits(node)
-}
-func (d *daocache) ListCommits(node *mtree.TreeNode) ([]*tree.ChangeLog, error) {
-	return d.DAO.ListCommits(node)
-}
+
 func (d *daocache) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	err := d.DAO.ResyncDirtyEtags(rootNode)
 
