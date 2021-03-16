@@ -1,0 +1,192 @@
+package activity
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/pydio/cells/x/jsonx"
+
+	"github.com/allegro/bigcache"
+
+	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/utils/cache"
+	"github.com/pydio/cells/x/configx"
+)
+
+func WithCache(dao DAO) DAO {
+	cacheConfig := bigcache.DefaultConfig(5 * time.Minute)
+	cacheConfig.Shards = 64
+	cacheConfig.MaxEntriesInWindow = 10 * 60 * 64
+	cacheConfig.MaxEntrySize = 200
+	cacheConfig.HardMaxCacheSize = 8
+	if limit := os.Getenv("CELLS_CACHES_HARD_LIMIT"); limit != "" {
+		if l, e := strconv.ParseInt(limit, 10, 64); e == nil {
+			if l < 8 {
+				fmt.Println("[ENV] ## WARNING ## CELLS_CACHES_HARD_LIMIT cannot use a value lower than 8 (MB).")
+			} else {
+				cacheConfig.HardMaxCacheSize = int(l)
+			}
+		}
+	}
+	useBatch := false
+	if _, o := dao.(batchDAO); o {
+		useBatch = true
+	}
+	return &Cache{
+		dao:      dao,
+		cache:    cache.NewInstrumentedCache("activities", cacheConfig),
+		useBatch: useBatch,
+	}
+}
+
+type Cache struct {
+	dao   DAO
+	cache *cache.InstrumentedCache
+
+	useBatch bool
+	done     chan bool
+	input    chan *batchActivity
+	inner    []*batchActivity
+}
+
+func (c *Cache) Init(values configx.Values) error {
+	if c.useBatch {
+		c.done = make(chan bool)
+		c.input = make(chan *batchActivity)
+		c.inner = make([]*batchActivity, 0, 500)
+		go c.startBatching()
+	}
+	return c.dao.Init(values)
+}
+
+func (c *Cache) startBatching() {
+	for {
+		select {
+		case a := <-c.input:
+			c.inner = append(c.inner, a)
+			if len(c.inner) >= 500 {
+				c.flushBatch()
+			}
+		case <-time.After(5 * time.Second):
+			c.flushBatch()
+		case <-c.done:
+			c.flushBatch()
+			return
+		}
+	}
+}
+
+func (c *Cache) stopBatching() {
+	close(c.done)
+}
+
+func (c *Cache) flushBatch() {
+	if len(c.inner) == 0 {
+		return
+	}
+	c.dao.(batchDAO).BatchPost(c.inner)
+	c.inner = c.inner[:0]
+}
+
+func (c *Cache) GetConn() dao.Conn {
+	return c.dao.GetConn()
+}
+
+func (c *Cache) SetConn(conn dao.Conn) {
+	c.dao.SetConn(conn)
+}
+
+func (c *Cache) CloseConn() error {
+	if c.useBatch {
+		c.stopBatching()
+	}
+	return c.dao.CloseConn()
+}
+
+func (c *Cache) Driver() string {
+	return c.dao.Driver()
+}
+
+func (c *Cache) Prefix() string {
+	return c.dao.Prefix()
+}
+
+func (c *Cache) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error {
+	if !c.useBatch {
+		return c.dao.PostActivity(ownerType, ownerId, boxName, object, publishCtx)
+	} else {
+		c.input <- &batchActivity{
+			Object:     object,
+			ownerType:  ownerType,
+			ownerId:    ownerId,
+			boxName:    boxName,
+			publishCtx: publishCtx,
+		}
+		return nil
+	}
+}
+
+func (c *Cache) UpdateSubscription(subscription *activity.Subscription) error {
+	// Clear cache
+	c.cache.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
+	return c.dao.UpdateSubscription(subscription)
+}
+
+func (c *Cache) ListSubscriptions(objectType activity.OwnerType, objectIds []string) (res []*activity.Subscription, e error) {
+
+	var filtered []string
+	toCache := make(map[string][]*activity.Subscription)
+
+	for _, id := range objectIds {
+		// We'll cache an empty slice by default
+		toCache[id] = []*activity.Subscription{}
+
+		k := objectType.String() + "-" + id
+		if v, e := c.cache.Get(k); e == nil {
+			var subs []*activity.Subscription
+			if e := jsonx.Unmarshal(v, &subs); e == nil {
+				res = append(res, subs...)
+				continue
+			}
+		}
+		filtered = append(filtered, id)
+	}
+	ss, e := c.dao.ListSubscriptions(objectType, filtered)
+	if e != nil {
+		return
+	}
+	res = append(res, ss...)
+	for _, s := range res {
+		toCache[s.ObjectId] = append(toCache[s.ObjectId], s)
+	}
+	for i, t := range toCache {
+		if data, e := jsonx.Marshal(t); e == nil {
+			c.cache.Set(objectType.String()+"-"+i, data)
+		}
+	}
+	return
+}
+
+func (c *Cache) CountUnreadForUser(userId string) int {
+	return c.dao.CountUnreadForUser(userId)
+}
+
+func (c *Cache) ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
+	return c.dao.ActivitiesFor(ownerType, ownerId, boxName, refBoxOffset, reverseOffset, limit, result, done)
+}
+
+func (c *Cache) StoreLastUserInbox(userId string, boxName BoxName, last []byte, activityId string) error {
+	return c.dao.StoreLastUserInbox(userId, boxName, last, activityId)
+}
+
+func (c *Cache) Delete(ownerType activity.OwnerType, ownerId string) error {
+	return c.dao.Delete(ownerType, ownerId)
+}
+
+func (c *Cache) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error {
+	return c.dao.Purge(logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore)
+}

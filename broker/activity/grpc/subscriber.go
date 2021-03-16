@@ -29,7 +29,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 	"github.com/patrickmn/go-cache"
@@ -73,15 +72,6 @@ func NewEventsSubscriber(dao activity.DAO) *MicroEventsSubscriber {
 	}
 	go m.DebounceAclsEvents()
 	return m
-}
-
-func publishActivityEvent(ctx context.Context, ownerType activity2.OwnerType, ownerId string, boxName activity.BoxName, activity *activity2.Object) {
-	client.Publish(ctx, client.NewPublication(common.TopicActivityEvent, &activity2.PostActivityEvent{
-		OwnerType: ownerType,
-		OwnerId:   ownerId,
-		BoxName:   string(boxName),
-		Activity:  activity,
-	}))
 }
 
 func (e *MicroEventsSubscriber) getTreeClient() tree.NodeProviderClient {
@@ -132,7 +122,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		// Ignore events triggered by initial sync
 		return nil
 	}
-	log.Logger(ctx).Debug("Fan out event to activities", zap.String(common.KEY_USER, author), msg.Zap(), zap.Any(common.KEY_CONTEXT, ctx))
+	log.Logger(ctx).Debug("Fan out event to activities", zap.String(common.KEY_USER, author), msg.Zap())
 
 	// Create Activities and post them to associated inboxes
 	ac, Node := activity.DocumentActivity(author, msg)
@@ -163,28 +153,28 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		// Post to the initial node Outbox
 		//
 		log.Logger(ctx).Debug("Posting Activity to node outbox")
-		dao.PostActivity(activity2.OwnerType_NODE, Node.Uuid, activity.BoxOutbox, ac)
-		publishActivityEvent(ctx, activity2.OwnerType_NODE, Node.Uuid, activity.BoxOutbox, ac)
+		dao.PostActivity(activity2.OwnerType_NODE, Node.Uuid, activity.BoxOutbox, ac, nil)
 
 		//
 		// Post to the author Outbox
 		//
 		log.Logger(ctx).Debug("Posting Activity to author outbox")
-		dao.PostActivity(activity2.OwnerType_USER, author, activity.BoxOutbox, ac)
-		publishActivityEvent(ctx, activity2.OwnerType_USER, author, activity.BoxOutbox, ac)
+		dao.PostActivity(activity2.OwnerType_USER, author, activity.BoxOutbox, ac, ctx)
 
 		//
 		// Post to parents Outbox'es as well
 		//
 		for _, uuid := range parentUuids {
-			dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
-			publishActivityEvent(ctx, activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac)
+			dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac, nil)
 		}
 
 		//
 		// Find followers and post activity to their Inbox
 		//
-		subUuids := append(parentUuids, Node.Uuid)
+		subUuids := parentUuids
+		if msg.Type != tree.NodeChangeEvent_CREATE {
+			subUuids = append(subUuids, Node.Uuid)
+		}
 		subscriptions, err := dao.ListSubscriptions(activity2.OwnerType_NODE, subUuids)
 		log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Any("subs", subscriptions))
 		if err != nil {
@@ -222,8 +212,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 				continue
 			}
 			if accessList.CanRead(ctx, ancestors...) {
-				dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
-				publishActivityEvent(ctx, activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac)
+				dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, ctx)
 			}
 		}
 
@@ -360,12 +349,11 @@ func (e *MicroEventsSubscriber) ProcessBuffer(cE ...*idm.ChangeEvent) {
 			ac := activity.AclActivity(sourceUser.Login, workspaces[r.Acl.WorkspaceID], r.Acl.Action.Name)
 			log.Logger(context.Background()).Debug("Publishing Activity", zap.String("targetUser", targetUser.Login), zap.Any("a", ac))
 			// Post to target User Inbox
-			e.dao.PostActivity(activity2.OwnerType_USER, targetUser.Login, activity.BoxInbox, ac)
+			e.dao.PostActivity(activity2.OwnerType_USER, targetUser.Login, activity.BoxInbox, ac, ctx)
 			if workspaces[r.Acl.WorkspaceID].Scope == idm.WorkspaceScope_ROOM {
 				// Post to node Outbox
-				e.dao.PostActivity(activity2.OwnerType_NODE, r.Acl.NodeID, activity.BoxOutbox, ac)
+				e.dao.PostActivity(activity2.OwnerType_NODE, r.Acl.NodeID, activity.BoxOutbox, ac, nil)
 			}
-			publishActivityEvent(ctx, activity2.OwnerType_USER, targetUser.Login, activity.BoxInbox, ac)
 		}
 	}
 

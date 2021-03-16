@@ -25,12 +25,15 @@
 package activity
 
 import (
+	"context"
 	"time"
 
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/activity"
 )
+
+var testEnv bool
 
 type BoxName string
 
@@ -46,7 +49,7 @@ type DAO interface {
 	dao.DAO
 
 	// Post an activity to target inbox
-	PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object) error
+	PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error
 
 	// Update Subscription status
 	UpdateSubscription(subscription *activity.Subscription) error
@@ -73,10 +76,27 @@ type DAO interface {
 	Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error
 }
 
+type batchActivity struct {
+	*activity.Object
+	ownerType  activity.OwnerType
+	ownerId    string
+	boxName    BoxName
+	publishCtx context.Context
+}
+
+type batchDAO interface {
+	BatchPost([]*batchActivity) error
+}
+
 func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case boltdb.DAO:
-		return &boltdbimpl{DAO: v, InboxMaxSize: 1000}
+		bi := &boltdbimpl{DAO: v, InboxMaxSize: 1000}
+		if testEnv {
+			return bi
+		} else {
+			return WithCache(bi)
+		}
 	}
 	return nil
 }

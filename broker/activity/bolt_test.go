@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-
 	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -47,6 +46,7 @@ func init() {
 	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
 	conf = configx.New()
 	conf.Val("InboxMaxSize").Set(int64(10))
+	testEnv = true
 }
 
 func TestEmptyDao(t *testing.T) {
@@ -67,7 +67,7 @@ func TestEmptyDao(t *testing.T) {
 	Convey("Test getBucket - read - not exists", t, func() {
 		defer os.Remove(tmpDbFilePath)
 		tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-		dao := NewDAO(tmpdao).(*boltdbimpl)
+		dao := NewDAO(tmpdao).(DAO)
 		dao.Init(conf)
 		defer dao.CloseConn()
 
@@ -82,7 +82,7 @@ func TestInsertActivity(t *testing.T) {
 
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
 
@@ -97,7 +97,7 @@ func TestInsertActivity(t *testing.T) {
 			},
 		}
 
-		err := dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac)
+		err := dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
 		So(err, ShouldBeNil)
 
 		results := []*activity.Object{}
@@ -139,7 +139,7 @@ func TestInsertActivity(t *testing.T) {
 			},
 		}
 
-		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac)
+		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac, nil)
 		So(err, ShouldBeNil)
 
 		unread := dao.CountUnreadForUser("john")
@@ -179,7 +179,7 @@ func TestMultipleInsert(t *testing.T) {
 
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
 
@@ -194,9 +194,9 @@ func TestMultipleInsert(t *testing.T) {
 			},
 		}
 
-		err := dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac)
-		err = dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac)
-		err = dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac)
+		err := dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
+		err = dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
+		err = dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
 		So(err, ShouldBeNil)
 
 		results := []*activity.Object{}
@@ -233,7 +233,7 @@ func TestCursor(t *testing.T) {
 
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
 
@@ -248,7 +248,7 @@ func TestCursor(t *testing.T) {
 					Id:   uuid.NewUUID().String(),
 				},
 			}
-			err := dao.PostActivity(activity.OwnerType_USER, "charles", BoxInbox, ac)
+			err := dao.PostActivity(activity.OwnerType_USER, "charles", BoxInbox, ac, nil)
 			So(err, ShouldBeNil)
 		}
 
@@ -328,7 +328,7 @@ func TestCursor(t *testing.T) {
 					Id:   uuid.NewUUID().String(),
 				},
 			}
-			err := dao.PostActivity(activity.OwnerType_USER, "charles", BoxInbox, ac)
+			err := dao.PostActivity(activity.OwnerType_USER, "charles", BoxInbox, ac, nil)
 			So(err, ShouldBeNil)
 		}
 
@@ -352,7 +352,7 @@ func TestDelete(t *testing.T) {
 
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
 
@@ -367,7 +367,7 @@ func TestDelete(t *testing.T) {
 			},
 		}
 
-		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac)
+		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac, nil)
 		So(err, ShouldBeNil)
 
 		err = dao.Delete(activity.OwnerType_USER, "john")
@@ -383,7 +383,7 @@ func TestPurge(t *testing.T) {
 
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
 
@@ -423,11 +423,11 @@ func TestPurge(t *testing.T) {
 		ac2 := &activity.Object{Type: activity.ObjectType_Accept, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Unix()}}
 		ac3 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
 		ac4 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamp.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
-		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac1)
+		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac1, nil)
 		So(err, ShouldBeNil)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
 
 		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{})
 		So(err, ShouldBeNil)
@@ -444,9 +444,9 @@ func TestPurge(t *testing.T) {
 		So(results, ShouldHaveLength, 2)
 
 		// Now test purge by date
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
 		sevenDays := 7 * time.Hour * 24
 		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Now().Add(-sevenDays))
 		So(err, ShouldBeNil)
@@ -455,8 +455,8 @@ func TestPurge(t *testing.T) {
 		So(results, ShouldHaveLength, 2)
 
 		// Purge by date all users - re-add ac3, ac4 removed in previous step
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
 		err = dao.Purge(logger, activity.OwnerType_USER, "*", BoxInbox, 1, 100, time.Now().Add(-sevenDays))
 		So(err, ShouldBeNil)
 		results, err = listJohn()
@@ -470,7 +470,7 @@ func TestSubscriptions(t *testing.T) {
 
 	defer os.Remove(tmpDbFilePath)
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(*boltdbimpl)
+	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
 
