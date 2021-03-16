@@ -34,10 +34,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/utils/mtree"
-
 	"github.com/pborman/uuid"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -46,7 +42,9 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -988,10 +986,49 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	nodeFrom.SetName(nodeTo.Name())
 	nodeFrom.SetMPath(pathTo...)
 
-	// Start by updating the original node
-	if err := dao.SetNode(nodeFrom); err != nil {
-		return err
+	tx, errTx := dao.DB().BeginTx(context.Background(), nil)
+	if errTx != nil {
+		return errTx
 	}
+
+	// Checking transaction went fine
+	defer func() {
+		if errTx != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Start by updating the original node
+	updateTree, er := dao.GetStmt("updateTree")
+	if er != nil {
+		errTx = er
+		return er
+	}
+
+	if _, errTx = tx.Stmt(updateTree).Exec(
+		nodeFrom.Level,
+		nodeFrom.Name(),
+		nodeFrom.IsLeafInt(),
+		nodeFrom.MTime,
+		nodeFrom.Etag,
+		nodeFrom.Size,
+		nodeFrom.Mode,
+		mpath1To,
+		mpath2To,
+		mpath3To,
+		mpath4To,
+		nodeFrom.Uuid,
+	); errTx != nil {
+		return errTx
+	}
+
+	/*
+		if err := dao.SetNode(nodeFrom); err != nil {
+			return err
+		}
+	*/
 
 	// Then replace the children mpaths
 	updateChildren, updateChildrenArgs, err := dao.GetStmtWithArgs("updateReplace",
@@ -1002,6 +1039,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		mpath4From, mpath4To,
 	)
 	if err != nil {
+		errTx = err
 		return err
 	}
 
@@ -1009,11 +1047,12 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		len(pathTo) - len(pathFrom),
 	}, updateChildrenArgs...)
 
-	res, err := updateChildren.Exec(
+	res, err := tx.Stmt(updateChildren).Exec(
 		updateChildrenArgs...,
 	)
 
 	if err != nil {
+		errTx = err
 		return err
 	}
 
@@ -1025,7 +1064,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	t1 := time.Now()
 	ctx := context.Background()
 
-	log.Logger(ctx).Info("[MoveNodeTree] Finished moving", zap.Int64("nodes", nrows), zap.Duration("duration", time.Now().Sub(t1)))
+	log.Logger(ctx).Info("[MoveNodeTree] Finished moving in transaction", zap.Int64("nodes", nrows), zap.Duration("duration", time.Now().Sub(t1)))
 	return nil
 }
 
