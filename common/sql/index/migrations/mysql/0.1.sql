@@ -48,4 +48,4 @@ CREATE TABLE IF NOT EXISTS %%PREFIX%%_commits (
 -- +migrate Down
 DROP TABLE %%PREFIX%%_tree;
 DROP TABLE IF EXISTS %%PREFIX%%_nodes;
-DROP TABLE %%PREFIX%%_commits;
+DROP TABLE IF EXISTS %%PREFIX%%_commits;
