@@ -229,8 +229,12 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			hasData bool
 		)
 
-		claims, _ := session.Get(SessionClaimsKey)
-		uName, _ := session.Get(SessionUsernameKey)
+		claims, o1 := session.Get(SessionClaimsKey)
+		uName, o2 := session.Get(SessionUsernameKey)
+		if !o1 || !o2 {
+			log.Logger(ctx).Warn("Websocket: strange, session has empty key for claims or username")
+			return false
+		}
 		metaCtx := context.Background()
 		metaCtx = metadata.NewContext(metaCtx, map[string]string{
 			common.PydioContextUserKey: uName.(string),
