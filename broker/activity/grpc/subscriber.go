@@ -153,7 +153,11 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		// Post to the initial node Outbox
 		//
 		log.Logger(ctx).Debug("Posting Activity to node outbox")
-		dao.PostActivity(activity2.OwnerType_NODE, Node.Uuid, activity.BoxOutbox, ac, nil)
+		if msg.Type == tree.NodeChangeEvent_DELETE {
+			dao.Delete(activity2.OwnerType_NODE, Node.Uuid)
+		} else {
+			dao.PostActivity(activity2.OwnerType_NODE, Node.Uuid, activity.BoxOutbox, ac, nil)
+		}
 
 		//
 		// Post to the author Outbox

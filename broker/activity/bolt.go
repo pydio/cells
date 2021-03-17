@@ -450,7 +450,8 @@ func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, 
 		}
 	}
 
-	return dao.DB().Update(func(tx *bolt.Tx) error {
+	db := dao.DB()
+	e := db.Update(func(tx *bolt.Tx) error {
 		if ownerId == "*" {
 			mainBucket := tx.Bucket([]byte(ownerType.String()))
 			mainBucket.ForEach(func(k, v []byte) error {
@@ -465,6 +466,12 @@ func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, 
 		}
 		return nil
 	})
+	if e != nil {
+		return e
+	}
+
+	return dao.Compact()
+
 }
 
 func (dao *boltdbimpl) activitiesAreSimilar(acA *activity.Object, acB *activity.Object) bool {
