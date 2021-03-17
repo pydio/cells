@@ -22,6 +22,7 @@ package jobs
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"time"
 
@@ -319,11 +320,10 @@ func (s *BoltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 
 func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, output chan *jobs.Task, offset int32, limit int32, sliceOutput []*jobs.Task) []*jobs.Task {
 
-	var index int32
-	var lastOnly = offset == 0 && limit == 1
-	var lastRecord *jobs.Task
 	c := bucket.Cursor()
-	for k, v := c.Last(); k != nil; k, v = c.Prev() {
+	var all []*jobs.Task
+	// Records are not sorted, load the whole bucket
+	for k, v := c.First(); k != nil; k, v = c.Next() {
 		task := &jobs.Task{}
 		if e := json.Unmarshal(v, task); e != nil {
 			continue
@@ -332,33 +332,27 @@ func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, out
 		if status != jobs.TaskStatus_Any && task.Status != status {
 			continue
 		}
-		if lastOnly {
-			if lastRecord == nil || task.StartTime > lastRecord.StartTime {
-				lastRecord = task
-			}
-			continue
-		}
-		if offset > 0 && index < offset {
-			index++
-			continue
-		}
-		if limit > 0 && index >= offset+limit {
-			break
-		}
-		if output != nil {
-			output <- task
-		}
-		if sliceOutput != nil {
-			sliceOutput = append(sliceOutput, task)
-		}
-		index++
+		all = append(all, task)
 	}
-	if lastOnly && lastRecord != nil {
-		if output != nil {
-			output <- lastRecord
+	sort.Slice(all, func(i, j int) bool {
+		return all[i].StartTime > all[j].StartTime
+	})
+	if offset > 0 {
+		if int(offset) < len(all) {
+			all = all[offset:]
+		} else {
+			all = nil
 		}
-		if sliceOutput != nil {
-			sliceOutput = append(sliceOutput, lastRecord)
+	}
+	if limit > 0 && int(limit) < len(all) {
+		all = all[:limit]
+	}
+	if sliceOutput != nil {
+		sliceOutput = append(sliceOutput, all...)
+	}
+	if output != nil {
+		for _, t := range all {
+			output <- t
 		}
 	}
 
