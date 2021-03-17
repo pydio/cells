@@ -15,7 +15,6 @@ FROM busybox:glibc
 ARG version
 
 ENV CELLS_WORKING_DIR /var/cells
-ENV CELLS_BIND :8080
 ENV CADDYPATH /var/cells/certs 
 
 WORKDIR $CELLS_WORKING_DIR
