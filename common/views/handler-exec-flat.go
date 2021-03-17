@@ -25,9 +25,13 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
+
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
 
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
 
@@ -39,32 +43,15 @@ import (
 	context2 "github.com/pydio/cells/common/utils/context"
 )
 
+var keyClient encryption.NodeKeyManagerClient
+
 // FlatStorageHandler intercepts request to a flat-storage
 type FlatStorageHandler struct {
 	AbstractHandler
 }
 
-func isFlatStorage(ctx context.Context) bool {
-	if info, ok := GetBranchInfo(ctx, "in"); ok && info.FlatStorage && !info.Binary {
-		return true
-	}
-	return false
-}
-
-func (f *FlatStorageHandler) resolveUUID(ctx context.Context, node *tree.Node) error {
-	if node.GetUuid() != "" {
-		return nil
-	}
-	if r, e := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e != nil {
-		return e
-	} else {
-		node.Uuid = r.GetNode().GetUuid()
-	}
-	return nil
-}
-
 func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
-	if !isFlatStorage(ctx) || in.GetNode().IsLeaf() {
+	if !isFlatStorage(ctx, "in") || in.GetNode().IsLeaf() {
 		return f.next.CreateNode(ctx, in, opts...)
 	}
 	// Folder : create directly in index
@@ -72,12 +59,12 @@ func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNode
 }
 
 func (f *FlatStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
-	isFlat := isFlatStorage(ctx)
+	isFlat := isFlatStorage(ctx, "in")
 	if isFlat && !in.GetNode().IsLeaf() {
 		return f.clientsPool.GetTreeClientWrite().DeleteNode(ctx, in)
 	}
 	resp, e := f.next.DeleteNode(ctx, in, opts...)
-	if isFlatStorage(ctx) && e == nil && resp.Success {
+	if isFlat && e == nil && resp.Success {
 		// Update index directly
 		return f.clientsPool.GetTreeClientWrite().DeleteNode(ctx, in)
 	}
@@ -85,7 +72,7 @@ func (f *FlatStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 }
 
 func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
-	if isFlatStorage(ctx) {
+	if isFlatStorage(ctx, "in") {
 		if e := f.resolveUUID(ctx, node); e != nil {
 			return nil, e
 		}
@@ -93,42 +80,9 @@ func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, req
 	return f.next.GetObject(ctx, node, requestData)
 }
 
-// postCreate updates index after upload by re-read newly added S3 object to get ETag
-func (f *FlatStorageHandler) postCreate(ctx context.Context, node *tree.Node, requestMeta map[string]string) error {
-	updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-	if err != nil {
-		return err
-	}
-	updateNode := updateResp.GetNode()
-	stats, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node, ObjectStats: true})
-	if err != nil {
-		return err
-	}
-	updateNode.MTime = stats.GetNode().GetMTime()
-	updateNode.Size = stats.GetNode().GetSize()
-	if requestMeta != nil {
-		if pS, o := requestMeta[common.XAmzMetaClearSize]; o {
-			if metaSize, e := strconv.ParseInt(pS, 10, 64); e == nil {
-				updateNode.Size = metaSize
-			}
-		}
-	}
-	updateNode.Etag = stats.GetNode().GetEtag()
-	_, er := f.clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
-	if er != nil {
-		return er
-	}
-	return nil
-}
-
 func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 
-	// If DS's are same datasource, simple S3 Copy operation. Otherwise it must copy from one to another.
-	destInfo, ok := GetBranchInfo(ctx, "to")
-	if !ok {
-		return 0, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find Client for src or dest")
-	}
-	if destInfo.FlatStorage {
+	if isFlatStorage(ctx, "to") {
 		if len(requestData.SrcVersionId) > 0 {
 			if e := f.resolveUUID(ctx, to); e != nil {
 				return 0, e
@@ -150,8 +104,9 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 		}
 	}
 	i, e := f.next.CopyObject(ctx, from, to, requestData)
-	if e == nil && destInfo.FlatStorage {
+	if e == nil && isFlatStorage(ctx, "to") {
 		// Create an "in" context with resolver
+		destInfo, _ := GetBranchInfo(ctx, "to")
 		tgtCtx := WithBranchInfo(ctx, "in", destInfo)
 		if requestData.Metadata != nil {
 			if _, ok := requestData.Metadata[common.XPydioMoveUuid]; ok {
@@ -159,7 +114,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			}
 		}
 		// Now store in index
-		if er := f.postCreate(tgtCtx, to, requestData.Metadata); er != nil {
+		if er := f.postCreate(tgtCtx, "to", to, requestData.Metadata); er != nil {
 			return i, er
 		}
 	}
@@ -168,8 +123,8 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 
 func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	i, e := f.next.PutObject(ctx, node, reader, requestData)
-	if e == nil && isFlatStorage(ctx) {
-		if er := f.postCreate(ctx, node, requestData.Metadata); er != nil {
+	if e == nil && isFlatStorage(ctx, "in") {
+		if er := f.postCreate(ctx, "in", node, requestData.Metadata); er != nil {
 			return i, er
 		}
 	}
@@ -177,7 +132,7 @@ func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, rea
 }
 
 func (f *FlatStorageHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
-	if isFlatStorage(ctx) {
+	if isFlatStorage(ctx, "in") {
 		if e := f.resolveUUID(ctx, target); e != nil {
 			return minio.ObjectPart{}, e
 		}
@@ -186,13 +141,13 @@ func (f *FlatStorageHandler) MultipartPutObjectPart(ctx context.Context, target 
 }
 
 func (f *FlatStorageHandler) MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []minio.CompletePart) (minio.ObjectInfo, error) {
-	if isFlatStorage(ctx) {
+	if isFlatStorage(ctx, "in") {
 		if e := f.resolveUUID(ctx, target); e != nil {
 			return minio.ObjectInfo{}, e
 		}
 	}
 	info, e := f.next.MultipartComplete(ctx, target, uploadID, uploadedParts)
-	if e == nil && isFlatStorage(ctx) {
+	if e == nil && isFlatStorage(ctx, "in") {
 		// We assume MultipartCreate has already set the clear-size in the index, otherwise we have to find the correct value
 		meta := map[string]string{}
 		if target.Size == 0 {
@@ -207,14 +162,121 @@ func (f *FlatStorageHandler) MultipartComplete(ctx context.Context, target *tree
 				meta[common.XAmzMetaClearSize] = fmt.Sprintf("%d", info.Size)
 			}
 		}
-		if er := f.postCreate(ctx, target, meta); er != nil {
+		if er := f.postCreate(ctx, "in", target, meta); er != nil {
 			return info, er
 		}
 	}
 	return info, e
 }
 
-var keyClient encryption.NodeKeyManagerClient
+func (f *FlatStorageHandler) MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (lpi minio.ListObjectPartsResult, err error) {
+	if isFlatStorage(ctx, "in") {
+		if e := f.resolveUUID(ctx, target); e != nil {
+			return minio.ListObjectPartsResult{}, e
+		}
+	}
+	return f.next.MultipartListObjectParts(ctx, target, uploadID, partNumberMarker, maxParts)
+}
+
+func (f *FlatStorageHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+	if isFlatStorage(ctx, "in") {
+		if e := f.resolveUUID(ctx, target); e != nil {
+			return e
+		}
+	}
+	return f.next.MultipartAbort(ctx, target, uploadID, requestData)
+}
+
+func isFlatStorage(ctx context.Context, identifier string) bool {
+	if info, ok := GetBranchInfo(ctx, identifier); ok && info.FlatStorage && !info.Binary {
+		return true
+	}
+	return false
+}
+
+func (f *FlatStorageHandler) resolveUUID(ctx context.Context, node *tree.Node) error {
+	if node.GetUuid() != "" {
+		return nil
+	}
+	if r, e := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e != nil {
+		return e
+	} else {
+		node.Uuid = r.GetNode().GetUuid()
+	}
+	return nil
+}
+
+// postCreate updates index after upload by re-read newly added S3 object to get ETag
+func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, node *tree.Node, requestMeta map[string]string) error {
+	updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+	if err != nil {
+		return err
+	}
+	updateNode := updateResp.GetNode()
+	stats, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node, ObjectStats: true})
+	if err != nil {
+		return err
+	}
+	updateNode.MTime = stats.GetNode().GetMTime()
+	updateNode.Size = stats.GetNode().GetSize()
+	if requestMeta != nil {
+		if pS, o := requestMeta[common.XAmzMetaClearSize]; o {
+			if metaSize, e := strconv.ParseInt(pS, 10, 64); e == nil {
+				updateNode.Size = metaSize
+			}
+		}
+	}
+	updateNode.Etag = stats.GetNode().GetEtag()
+	if updateNode.Etag == "" || strings.Contains(updateNode.Etag, "-") {
+		newETag, e := f.recomputeETag(ctx, identifier, updateNode)
+		if e == nil {
+			log.Logger(ctx).Info("Recomputed ETag :" + updateNode.Etag + " => " + newETag)
+			updateNode.Etag = newETag
+		} else {
+			log.Logger(ctx).Error("Cannot recompute ETag :"+updateNode.Etag, zap.Error(e))
+		}
+	}
+	_, er := f.clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
+	if er != nil {
+		return er
+	}
+	return nil
+}
+
+func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier string, node *tree.Node) (string, error) {
+
+	// TODO : Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
+	// SHOULD NOT BE NECESSARY FOR REAL MINIO ON FS (but required for Minio as S3 gateway or real S3)
+
+	src, _ := GetBranchInfo(ctx, identifier)
+	copyMeta := make(map[string]string)
+
+	statOpts := minio.StatObjectOptions{}
+	m := map[string]string{}
+	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
+		for k, v := range meta {
+			m[k] = v
+			statOpts.Set(k, v)
+			copyMeta[k] = v
+		}
+	}
+	objectInfo, e := src.Client.StatObject(src.ObjectsBucket, node.GetUuid(), statOpts)
+	if e != nil {
+		return "", e
+	}
+
+	for k, v := range objectInfo.Metadata {
+		copyMeta[k] = strings.Join(v, "")
+	}
+	copyMeta[common.XAmzMetaDirective] = "REPLACE"
+
+	newInfo, copyErr := src.Client.CopyObject(src.ObjectsBucket, objectInfo.Key, src.ObjectsBucket, objectInfo.Key, copyMeta)
+	if copyErr != nil {
+		return "", copyErr
+	}
+	return newInfo.ETag, nil
+
+}
 
 func (f *FlatStorageHandler) encPlainSizeRecompute(ctx context.Context, nodeUUID, dsName string) (int64, error) {
 	if keyClient == nil {
@@ -228,22 +290,4 @@ func (f *FlatStorageHandler) encPlainSizeRecompute(ctx context.Context, nodeUUID
 	} else {
 		return 0, e
 	}
-}
-
-func (f *FlatStorageHandler) MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (lpi minio.ListObjectPartsResult, err error) {
-	if isFlatStorage(ctx) {
-		if e := f.resolveUUID(ctx, target); e != nil {
-			return minio.ListObjectPartsResult{}, e
-		}
-	}
-	return f.next.MultipartListObjectParts(ctx, target, uploadID, partNumberMarker, maxParts)
-}
-
-func (f *FlatStorageHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
-	if isFlatStorage(ctx) {
-		if e := f.resolveUUID(ctx, target); e != nil {
-			return e
-		}
-	}
-	return f.next.MultipartAbort(ctx, target, uploadID, requestData)
 }

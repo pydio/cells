@@ -30,7 +30,7 @@ var SampleConfig = `{
 			"publicKey": "` + common.UpdateDefaultPublicKey + `",
 			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
 		},
-		"dataSourcesDefaultFlat": false
+		"dataSourcesDefaultFlat": true
 	},
     "ports":{
         "nats": 4222
