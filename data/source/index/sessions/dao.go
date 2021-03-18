@@ -25,13 +25,11 @@ import (
 	"context"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 )
 
 type SessionBatcher interface {
 	Notify(topic string, msg interface{})
-	UpdateMPath(path mtree.MPath, deltaSize int64)
 	Flush(ctx context.Context, dao index.DAO)
 }
 

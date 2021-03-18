@@ -26,12 +26,9 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/data/source/index"
 )
 
@@ -51,14 +48,12 @@ type SessionMemoryStore struct {
 	sync.Mutex
 	sessions    map[string]*tree.IndexationSession
 	eventsQueue map[string][]StoredEvent
-	mPathsQueue map[string]map[*mtree.MPath]int64
 }
 
 func NewSessionMemoryStore() *SessionMemoryStore {
 	store := &SessionMemoryStore{}
 	store.sessions = make(map[string]*tree.IndexationSession)
 	store.eventsQueue = make(map[string][]StoredEvent)
-	store.mPathsQueue = make(map[string]map[*mtree.MPath]int64)
 	return store
 }
 
@@ -118,38 +113,9 @@ func (b *MemoryBatcher) Notify(topic string, msg interface{}) {
 	b.store.eventsQueue[b.uuid] = queue
 }
 
-func (b *MemoryBatcher) UpdateMPath(path mtree.MPath, deltaSize int64) {
-	b.store.Lock()
-	defer b.store.Unlock()
-	var queue map[*mtree.MPath]int64
-	var exists bool
-	if queue, exists = b.store.mPathsQueue[b.uuid]; !exists {
-		queue = make(map[*mtree.MPath]int64)
-	}
-	for mpath, size := range queue {
-		if mpath.String() == path.String() {
-			deltaSize = size + deltaSize
-			delete(queue, mpath) // delete this one, will be replaced
-			break
-		}
-	}
-	queue[&path] = deltaSize
-	b.store.mPathsQueue[b.uuid] = queue
-}
-
 func (b *MemoryBatcher) Flush(ctx context.Context, dao index.DAO) {
 	b.store.Lock()
 	defer b.store.Unlock()
-	if queue, exists := b.store.mPathsQueue[b.uuid]; exists {
-		for mpath, delta := range queue {
-			log.Logger(ctx).Debug("Should update size for path now", zap.Any("path", mpath), zap.Int64("size", delta))
-			b := dao.SetNodes("-1", delta)
-			node := mtree.NewTreeNode()
-			node.SetMPath(*mpath...)
-			b.Send(node)
-			b.Close()
-		}
-	}
 
 	cl := defaults.NewClient()
 	count := 0

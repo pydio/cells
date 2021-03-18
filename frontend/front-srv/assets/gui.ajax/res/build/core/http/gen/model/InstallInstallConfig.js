@@ -59,6 +59,7 @@ var InstallInstallConfig = (function () {
         this.dbSocketUser = undefined;
         this.dbSocketPassword = undefined;
         this.dbManualDSN = undefined;
+        this.dbUseDefaults = undefined;
         this.dsName = undefined;
         this.dsPort = undefined;
         this.dsType = undefined;
@@ -132,6 +133,9 @@ var InstallInstallConfig = (function () {
             }
             if (data.hasOwnProperty('dbManualDSN')) {
                 obj['dbManualDSN'] = _ApiClient2['default'].convertToType(data['dbManualDSN'], 'String');
+            }
+            if (data.hasOwnProperty('dbUseDefaults')) {
+                obj['dbUseDefaults'] = _ApiClient2['default'].convertToType(data['dbUseDefaults'], 'Boolean');
             }
             if (data.hasOwnProperty('dsName')) {
                 obj['dsName'] = _ApiClient2['default'].convertToType(data['dsName'], 'String');
@@ -260,6 +264,10 @@ module.exports = exports['default'];
 
 /**
 * @member {String} dbManualDSN
+*/
+
+/**
+* @member {Boolean} dbUseDefaults
 */
 
 /**

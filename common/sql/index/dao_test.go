@@ -28,7 +28,6 @@ import (
 	"strconv"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/pydio/cells/common/utils/mtree"
 
@@ -479,41 +478,6 @@ func TestMysql(t *testing.T) {
 		hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.Etag))
 		newEtag2 := hex.EncodeToString(hash2.Sum(nil))
 		So(parentNode.Etag, ShouldEqual, newEtag2)
-
-	})
-
-}
-
-func TestCommits(t *testing.T) {
-
-	Convey("Test Insert / List / Delete", t, func() {
-
-		node := mtree.NewTreeNode()
-		node.Node = &tree.Node{Uuid: "etag-child-1", Type: tree.NodeType_LEAF}
-		node.SetMPath(1, 16, 1)
-		node.Etag = "first-etag"
-		node.MTime = time.Now().Unix()
-		node.Size = 2444
-		node.SetMeta("name", "\"bbb\"")
-
-		err := getDAO(ctxNoCache).PushCommit(node)
-		So(err, ShouldBeNil)
-
-		node.Etag = "second-etag"
-		err = getDAO(ctxNoCache).PushCommit(node)
-		So(err, ShouldBeNil)
-
-		logs, err := getDAO(ctxNoCache).ListCommits(node)
-		So(err, ShouldBeNil)
-		So(logs, ShouldHaveLength, 2)
-		So(logs[0].Uuid, ShouldEqual, "second-etag")
-		So(logs[1].Uuid, ShouldEqual, "first-etag")
-
-		err = getDAO(ctxNoCache).DeleteCommits(node)
-		So(err, ShouldBeNil)
-		logs, err = getDAO(ctxNoCache).ListCommits(node)
-		So(err, ShouldBeNil)
-		So(logs, ShouldHaveLength, 0)
 
 	})
 

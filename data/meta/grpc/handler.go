@@ -45,16 +45,20 @@ type MetaServer struct {
 	//	Dao           DAO
 	eventsChannel chan *event.EventWithContext
 	cache         *cache.InstrumentedCache
+	cacheMutex    *cache.KeyMutex
 }
 
 func NewMetaServer() *MetaServer {
 	m := &MetaServer{}
 	m.cache = cache.NewInstrumentedCache(common.ServiceGrpcNamespace_ + common.ServiceMeta)
+	m.cacheMutex = cache.NewKeyMutex()
 	return m
 }
 
 func (s *MetaServer) Stop() {
-	s.cache.Close()
+	if s.cache != nil {
+		s.cache.Close()
+	}
 }
 
 // CreateNodeChangeSubscriber that will treat events for the meta server
@@ -143,6 +147,8 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	}
 
 	if s.cache != nil {
+		s.cacheMutex.Lock(req.Node.Uuid)
+		defer s.cacheMutex.Unlock(req.Node.Uuid)
 		data, e := s.cache.Get(req.Node.Uuid)
 		if e == nil {
 			var metaD map[string]string
@@ -245,7 +251,9 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	}
 
 	if s.cache != nil {
-		//log.Logger(ctx).Info("META / Clearing cache for " + req.Node.Uuid)
+		s.cacheMutex.Lock(req.Node.Uuid)
+		defer s.cacheMutex.Unlock(req.Node.Uuid)
+		//log.Logger(ctx).Info("META / Clearing cache for "+req.Node.Uuid, req.Node.Zap())
 		s.cache.Delete(req.Node.Uuid)
 	}
 
@@ -279,7 +287,9 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	}
 
 	if s.cache != nil {
-		//log.Logger(ctx).Info("META / Clearing cache for " + req.To.Uuid)
+		s.cacheMutex.Lock(req.To.Uuid)
+		defer s.cacheMutex.Unlock(req.To.Uuid)
+		//log.Logger(ctx).Info("META / Clearing cache for "+req.To.Uuid, req.To.Zap())
 		s.cache.Delete(req.To.Uuid)
 	}
 
@@ -314,6 +324,8 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 
 	if s.cache != nil {
 		//log.Logger(ctx).Info("META / Clearing cache for " + request.Node.Uuid)
+		s.cacheMutex.Lock(request.Node.Uuid)
+		defer s.cacheMutex.Unlock(request.Node.Uuid)
 		s.cache.Delete(request.Node.Uuid)
 	}
 

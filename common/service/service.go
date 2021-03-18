@@ -46,7 +46,6 @@ import (
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-web"
-	"github.com/micro/misc/lib/addr"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -703,13 +702,9 @@ func (s *service) Regexp() *regexp.Regexp {
 }
 
 func (s *service) Address() string {
-	defaultAddress := "0.0.0.0"
-	address, err := addr.Extract(defaultAddress)
-	if err != nil {
-		return defaultAddress
-	}
-	port := s.Options().Port
+	address := unet.DefaultAdvertiseAddress
 
+	port := s.Options().Port
 	if port != "" {
 		address = net.JoinHostPort(address, port)
 	}

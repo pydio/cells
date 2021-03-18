@@ -65,6 +65,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib("components");
 
 var GenericCard = _Pydio$requireLib.GenericCard;
 var GenericLine = _Pydio$requireLib.GenericLine;
+var QuotaUsageLine = _Pydio$requireLib.QuotaUsageLine;
 
 var CellCard = (function (_React$Component) {
     _inherits(CellCard, _React$Component);
@@ -174,74 +175,89 @@ var CellCard = (function (_React$Component) {
                 }
                 content = _react2['default'].createElement(_EditCellDialog2['default'], _extends({}, this.props, { model: model, sendInvitations: this.usersInvitations.bind(this), editorOneColumn: editorOneColumn }));
             } else if (model) {
-                var nodes = model.getRootNodes().map(function (node) {
-                    return model.getNodeLabelInContext(node);
-                }).join(', ');
-                if (!nodes) {
-                    nodes = model.getRootNodes().length + ' item(s)';
-                }
-                var deleteAction = undefined,
-                    editAction = undefined,
-                    moreMenuItems = undefined;
-                if (mode !== 'infoPanel') {
-                    moreMenuItems = [];
-                    if (model.getUuid() !== pydio.user.activeRepository) {
-                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(246), onTouchTap: function () {
-                                pydio.triggerRepositoryChange(model.getUuid());
-                                _this3.props.onDismiss();
-                            } }));
+                var _ret = (function () {
+                    var nodes = model.getRootNodes().map(function (node) {
+                        return model.getNodeLabelInContext(node);
+                    }).join(', ');
+                    if (!nodes) {
+                        nodes = model.getRootNodes().length + ' item(s)';
                     }
-                    if (model.isEditable()) {
-                        deleteAction = function () {
-                            model.deleteCell().then(function (res) {
-                                _this3.props.onDismiss();
-                            });
-                        };
-                        editAction = function () {
-                            _this3.setState({ edit: true });
-                            if (_this3.props.onHeightChange) {
-                                _this3.props.onHeightChange(500);
+                    var deleteAction = undefined,
+                        editAction = undefined,
+                        moreMenuItems = undefined;
+                    if (mode !== 'infoPanel') {
+                        moreMenuItems = [];
+                        if (model.getUuid() !== pydio.user.activeRepository) {
+                            moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(246), onTouchTap: function () {
+                                    pydio.triggerRepositoryChange(model.getUuid());
+                                    _this3.props.onDismiss();
+                                } }));
+                        }
+                        if (model.isEditable()) {
+                            deleteAction = function () {
+                                model.deleteCell().then(function (res) {
+                                    _this3.props.onDismiss();
+                                });
+                            };
+                            editAction = function () {
+                                _this3.setState({ edit: true });
+                                if (_this3.props.onHeightChange) {
+                                    _this3.props.onHeightChange(500);
+                                }
+                            };
+                            moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(247), onTouchTap: function () {
+                                    return _this3.setState({ edit: true });
+                                } }));
+                            moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(248), onTouchTap: deleteAction }));
+                        }
+                    }
+                    var watchLine = undefined,
+                        quotaLines = [],
+                        bmButton = undefined;
+                    if (extLibs && rootNodes && !loading) {
+                        var selector = _react2['default'].createElement(PydioActivityStreams.WatchSelector, { pydio: pydio, nodes: rootNodes });
+                        watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: pydio.MessageHash['meta.watch.selector.legend'], data: selector, iconStyle: { marginTop: 32 } });
+                        bmButton = _react2['default'].createElement(PydioCoreActions.BookmarkButton, { pydio: pydio, nodes: rootNodes, styles: { iconStyle: { color: 'white' } } });
+                    }
+                    if (rootNodes && !loading) {
+                        rootNodes.forEach(function (node) {
+                            if (node.getMetadata().get("ws_quota")) {
+                                quotaLines.push(_react2['default'].createElement(QuotaUsageLine, { node: node }));
                             }
-                        };
-                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(247), onTouchTap: function () {
-                                return _this3.setState({ edit: true });
-                            } }));
-                        moreMenuItems.push(_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m(248), onTouchTap: deleteAction }));
+                        });
                     }
-                }
-                var watchLine = undefined,
-                    bmButton = undefined;
-                if (extLibs && rootNodes && !loading) {
-                    var selector = _react2['default'].createElement(PydioActivityStreams.WatchSelector, { pydio: pydio, nodes: rootNodes });
-                    watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: pydio.MessageHash['meta.watch.selector.legend'], data: selector, iconStyle: { marginTop: 32 } });
-                    bmButton = _react2['default'].createElement(PydioCoreActions.BookmarkButton, { pydio: pydio, nodes: rootNodes, styles: { iconStyle: { color: 'white' } } });
-                }
 
-                content = _react2['default'].createElement(
-                    GenericCard,
-                    {
-                        pydio: pydio,
-                        title: model.getLabel(),
-                        onDismissAction: this.props.onDismiss,
-                        otherActions: bmButton,
-                        onDeleteAction: deleteAction,
-                        onEditAction: editAction,
-                        headerSmall: mode === 'infoPanel',
-                        moreMenuItems: moreMenuItems
-                    },
-                    !loading && model.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
-                    !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
-                    !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes }),
-                    watchLine,
-                    loading && _react2['default'].createElement(
-                        'div',
-                        { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, fontWeight: 500, color: '#aaa' } },
-                        _pydio2['default'].getMessages()[466]
-                    )
-                );
-                if (mode === 'infoPanel') {
-                    return content;
-                }
+                    content = _react2['default'].createElement(
+                        GenericCard,
+                        {
+                            pydio: pydio,
+                            title: model.getLabel(),
+                            onDismissAction: _this3.props.onDismiss,
+                            otherActions: bmButton,
+                            onDeleteAction: deleteAction,
+                            onEditAction: editAction,
+                            headerSmall: mode === 'infoPanel',
+                            moreMenuItems: moreMenuItems
+                        },
+                        !loading && model.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: m(145), data: model.getDescription() }),
+                        !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-account-multiple', legend: m(54), data: model.getAclsSubjects() }),
+                        !loading && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-folder', legend: m(249), data: nodes }),
+                        quotaLines,
+                        watchLine,
+                        loading && _react2['default'].createElement(
+                            'div',
+                            { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, fontWeight: 500, color: '#aaa' } },
+                            _pydio2['default'].getMessages()[466]
+                        )
+                    );
+                    if (mode === 'infoPanel') {
+                        return {
+                            v: content
+                        };
+                    }
+                })();
+
+                if (typeof _ret === 'object') return _ret.v;
             }
 
             return _react2['default'].createElement(

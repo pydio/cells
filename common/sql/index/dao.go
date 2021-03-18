@@ -60,9 +60,6 @@ type DAO interface {
 	GetNodeChildrenCounts(mtree.MPath) (int, int)
 	MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error
 
-	PushCommit(node *mtree.TreeNode) error
-	DeleteCommits(node *mtree.TreeNode) error
-	ListCommits(node *mtree.TreeNode) ([]*tree.ChangeLog, error)
 	ResyncDirtyEtags(rootNode *mtree.TreeNode) error
 	CleanResourcesOnDeletion() (error, string)
 

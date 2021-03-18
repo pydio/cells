@@ -34,10 +34,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/utils/mtree"
-
 	"github.com/pborman/uuid"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -46,7 +42,9 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -104,20 +102,6 @@ func init() {
 		}
 
 		return str
-	}
-	queries["insertCommit"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-			insert into %%PREFIX%%_idx_commits (
-				uuid, etag, mtime, size
-			) values (
-				?, ?, ?, ?
-			)`
-	}
-	queries["insertCommitWithData"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-			insert into %%PREFIX%%_idx_commits (uuid, etag, mtime, size, data)
-			values (?, ?, ?, ?, ?)
-		`
 	}
 	queries["updateTree"] = func(dao sql.DAO, mpathes ...string) string {
 
@@ -178,15 +162,6 @@ func init() {
 		return `UPDATE %%PREFIX%%_idx_tree set etag = ? WHERE uuid = ?`
 	}
 
-	queries["deleteCommits"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-		delete from %%PREFIX%%_idx_commits where uuid = ?`
-	}
-	queries["selectCommits"] = func(dao sql.DAO, mpathes ...string) string {
-		return `
-		select etag, mtime, size, data from %%PREFIX%%_idx_commits where uuid = ? ORDER BY id DESC
-	`
-	}
 	queries["selectNodeUuid"] = func(dao sql.DAO, mpathes ...string) string {
 		return `
 		select uuid, level, mpath1, mpath2, mpath3, mpath4, name, leaf, mtime, etag, size, mode
@@ -511,94 +486,7 @@ func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
 	return err
 }
 
-// PushCommit adds a commit version to the node
-func (dao *IndexSQL) PushCommit(node *mtree.TreeNode) error {
-
-	dao.Lock()
-	defer dao.Unlock()
-
-	mTime := node.MTime
-	if mTime == 0 {
-		mTime = time.Now().Unix()
-	}
-	if stmt, er := dao.GetStmt("insertCommit"); er != nil {
-		return er
-	} else if _, err := stmt.Exec(
-		node.Uuid,
-		node.Etag,
-		mTime,
-		node.Size,
-	); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// DeleteCommits removes the commit versions of the node
-func (dao *IndexSQL) DeleteCommits(node *mtree.TreeNode) error {
-
-	dao.Lock()
-	defer dao.Unlock()
-	stmt, er := dao.GetStmt("deleteCommits")
-	if er != nil {
-		return er
-	}
-	_, err := stmt.Exec(node.Uuid)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ListCommits returns a list of all commit versions for a node
-func (dao *IndexSQL) ListCommits(node *mtree.TreeNode) (commits []*tree.ChangeLog, err error) {
-
-	dao.Lock()
-
-	var rows *databasesql.Rows
-	defer func() {
-		if rows != nil {
-			rows.Close()
-		}
-		dao.Unlock()
-	}()
-
-	// First we check if we already have an object with the same key
-	stmt, er := dao.GetStmt("selectCommits")
-	if er != nil {
-		return commits, er
-	}
-	if rows, err = stmt.Query(node.Uuid); err != nil {
-		return commits, err
-	}
-	for rows.Next() {
-		var uid string
-		var mtime int64
-		var size int64
-		var data []byte
-		e := rows.Scan(
-			&uid,
-			&mtime,
-			&size,
-			&data,
-		)
-		if e != nil {
-			return commits, e
-		}
-		changeLog := &tree.ChangeLog{
-			Uuid:  uid,
-			MTime: mtime,
-			Size:  size,
-			Data:  data,
-		}
-		commits = append(commits, changeLog)
-	}
-
-	return commits, err
-}
-
+// etagFromChildren recompute ETag from children ETags
 func (dao *IndexSQL) etagFromChildren(node *mtree.TreeNode) (string, error) {
 
 	SEPARATOR := "."
@@ -1098,10 +986,49 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	nodeFrom.SetName(nodeTo.Name())
 	nodeFrom.SetMPath(pathTo...)
 
-	// Start by updating the original node
-	if err := dao.SetNode(nodeFrom); err != nil {
-		return err
+	tx, errTx := dao.DB().BeginTx(context.Background(), nil)
+	if errTx != nil {
+		return errTx
 	}
+
+	// Checking transaction went fine
+	defer func() {
+		if errTx != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	// Start by updating the original node
+	updateTree, er := dao.GetStmt("updateTree")
+	if er != nil {
+		errTx = er
+		return er
+	}
+
+	if _, errTx = tx.Stmt(updateTree).Exec(
+		nodeFrom.Level,
+		nodeFrom.Name(),
+		nodeFrom.IsLeafInt(),
+		nodeFrom.MTime,
+		nodeFrom.Etag,
+		nodeFrom.Size,
+		nodeFrom.Mode,
+		mpath1To,
+		mpath2To,
+		mpath3To,
+		mpath4To,
+		nodeFrom.Uuid,
+	); errTx != nil {
+		return errTx
+	}
+
+	/*
+		if err := dao.SetNode(nodeFrom); err != nil {
+			return err
+		}
+	*/
 
 	// Then replace the children mpaths
 	updateChildren, updateChildrenArgs, err := dao.GetStmtWithArgs("updateReplace",
@@ -1112,6 +1039,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		mpath4From, mpath4To,
 	)
 	if err != nil {
+		errTx = err
 		return err
 	}
 
@@ -1119,11 +1047,12 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		len(pathTo) - len(pathFrom),
 	}, updateChildrenArgs...)
 
-	res, err := updateChildren.Exec(
+	res, err := tx.Stmt(updateChildren).Exec(
 		updateChildrenArgs...,
 	)
 
 	if err != nil {
+		errTx = err
 		return err
 	}
 
@@ -1135,7 +1064,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 	t1 := time.Now()
 	ctx := context.Background()
 
-	log.Logger(ctx).Info("[MoveNodeTree] Finished moving", zap.Int64("nodes", nrows), zap.Duration("duration", time.Now().Sub(t1)))
+	log.Logger(ctx).Info("[MoveNodeTree] Finished moving in transaction", zap.Int64("nodes", nrows), zap.Duration("duration", time.Now().Sub(t1)))
 	return nil
 }
 
