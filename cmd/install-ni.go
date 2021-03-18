@@ -186,7 +186,7 @@ func installFromConf() (*install.InstallConfig, error) {
 			return nil, fmt.Errorf("No DB. Aborting...")
 		}
 		fmt.Println("... Cannot connect to database, wait before retry")
-		<-time.After(6 * time.Second)
+		<-time.After(10 * time.Second)
 	}
 
 	err = lib.Install(context.Background(), installConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
