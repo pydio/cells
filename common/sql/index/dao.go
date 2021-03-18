@@ -22,6 +22,8 @@
 package index
 
 import (
+	"fmt"
+
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
@@ -62,6 +64,8 @@ type DAO interface {
 
 	ResyncDirtyEtags(rootNode *mtree.TreeNode) error
 	CleanResourcesOnDeletion() (error, string)
+	LostAndFounds() ([]LostAndFound, error)
+	FixLostAndFound(lost LostAndFound) error
 
 	GetSQLDAO() sql.DAO
 }
@@ -79,4 +83,14 @@ func NewDAO(o dao.DAO, rootNodeId string) dao.DAO {
 		return &IndexSQL{Handler: v.(*sql.Handler), rootNodeId: rootNodeId}
 	}
 	return nil
+}
+
+type LostAndFound interface {
+	fmt.Stringer
+	IsDuplicate() bool
+	IsLostParent() bool
+	IsDir() bool
+
+	GetUUIDs() []string
+	MarkForDeletion([]string)
 }

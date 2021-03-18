@@ -59,11 +59,6 @@ const (
 	indexLen = 767
 )
 
-var (
-	//	queries = map[string]string{}
-	batch = "?" + strings.Repeat(", ?", batchLen-1)
-)
-
 // BatchSend sql structure
 type BatchSend struct {
 	in  chan *mtree.TreeNode
@@ -640,16 +635,6 @@ func (dao *IndexSQL) DelNode(node *mtree.TreeNode) error {
 	if _, err := stmt.Exec(args...); err != nil {
 		return err
 	}
-
-	/*
-		if len(dao.commitsTableName) > 0 {
-			if _, err = dao.GetStmt("deleteCommits").Exec(
-				mpath, mpathLike,
-			); err != nil {
-				return err
-			}
-		}
-	*/
 
 	return nil
 }

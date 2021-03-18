@@ -27,6 +27,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/pydio/cells/common/proto/sync"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -73,6 +75,7 @@ func init() {
 					tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
 					tree.RegisterSessionIndexerHandler(m.Options().Server, engine)
 					object.RegisterResourceCleanerEndpointHandler(m.Options().Server, engine)
+					sync.RegisterSyncEndpointHandler(m.Options().Server, engine)
 
 					return nil
 				}),
