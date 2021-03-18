@@ -44,6 +44,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var GenericCard = _Pydio$requireLib.GenericCard;
 var GenericLine = _Pydio$requireLib.GenericLine;
+var QuotaUsageLine = _Pydio$requireLib.QuotaUsageLine;
 
 var WorkspaceCard = (function (_React$Component) {
     _inherits(WorkspaceCard, _React$Component);
@@ -96,12 +97,23 @@ var WorkspaceCard = (function (_React$Component) {
         var ASLib = _state.ASLib;
         var CALib = _state.CALib;
 
-        var watchLine = undefined,
-            bookmarkAction = undefined;
+        var lines = [];
+        var bookmarkAction = undefined;
+
+        if (workspace.getDescription()) {
+            lines.push(_react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: pydio.MessageHash['share_center.145'], data: workspace.getDescription() }));
+        }
+        if (rootNodes && rootNodes.length) {
+            rootNodes.forEach(function (node) {
+                if (node.getMetadata().get("ws_quota")) {
+                    lines.push(_react2['default'].createElement(QuotaUsageLine, { node: node }));
+                }
+            });
+        }
         if (pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes) {
 
             var selector = _react2['default'].createElement(PydioActivityStreams.WatchSelector, { pydio: pydio, nodes: rootNodes });
-            watchLine = _react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: pydio.MessageHash['meta.watch.selector.legend'], iconStyle: { marginTop: 32 }, data: selector });
+            lines.push(_react2['default'].createElement(GenericLine, { iconClassName: "mdi mdi-bell-outline", legend: pydio.MessageHash['meta.watch.selector.legend'], iconStyle: { marginTop: 32 }, data: selector }));
         }
         if (CALib && rootNodes) {
             bookmarkAction = _react2['default'].createElement(PydioCoreActions.BookmarkButton, { pydio: pydio, nodes: rootNodes, styles: { iconStyle: { color: 'white' } } });
@@ -116,8 +128,7 @@ var WorkspaceCard = (function (_React$Component) {
                 style: { width: 350 },
                 otherActions: [bookmarkAction]
             },
-            workspace.getDescription() && _react2['default'].createElement(GenericLine, { iconClassName: 'mdi mdi-information', legend: "Description", data: workspace.getDescription() }),
-            watchLine
+            lines
         );
     };
 

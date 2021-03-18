@@ -62,6 +62,10 @@ var _elementsClipboardTextField2 = _interopRequireDefault(_elementsClipboardText
 
 var _elementsGenericCard = require('./elements/GenericCard');
 
+var _elementsQuotaUsageLine = require("./elements/QuotaUsageLine");
+
+var _elementsQuotaUsageLine2 = _interopRequireDefault(_elementsQuotaUsageLine);
+
 var _viewsEmptyStateView = require('./views/EmptyStateView');
 
 var _viewsEmptyStateView2 = _interopRequireDefault(_viewsEmptyStateView);
@@ -181,6 +185,7 @@ var PydioComponents = {
     ModalAppBar: _viewsModalAppBar2['default'],
     GenericCard: _elementsGenericCard.GenericCard,
     GenericLine: _elementsGenericCard.GenericLine,
+    QuotaUsageLine: _elementsQuotaUsageLine2['default'],
 
     ReactEditorOpener: _editorReactEditorOpener2['default'],
     PaperEditorLayout: _editorPaperEditor.PaperEditorLayout,

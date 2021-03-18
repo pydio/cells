@@ -22,7 +22,7 @@ import React from 'react'
 import Pydio from 'pydio'
 import ResourcesManager from 'pydio/http/resources-manager'
 
-const {GenericCard, GenericLine} = Pydio.requireLib('components');
+const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib('components');
 
 class WorkspaceCard extends React.Component {
 
@@ -60,12 +60,23 @@ class WorkspaceCard extends React.Component {
         const {pydio, workspace, onDismiss} = this.props;
         const {rootNodes} = this.state;
         const {ASLib, CALib} = this.state;
+        const lines = [];
+        let bookmarkAction;
 
-        let watchLine, bookmarkAction;
+        if (workspace.getDescription()) {
+            lines.push(<GenericLine iconClassName="mdi mdi-information" legend={pydio.MessageHash['share_center.145']} data={workspace.getDescription()}/>)
+        }
+        if(rootNodes && rootNodes.length) {
+            rootNodes.forEach((node) => {
+                if(node.getMetadata().get("ws_quota")) {
+                    lines.push(<QuotaUsageLine node={node}/>)
+                }
+            })
+        }
         if(pydio.getPluginConfigs('core.activitystreams').get('ACTIVITY_SHOW_ACTIVITIES') && ASLib && rootNodes){
 
             const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
-            watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector}/>
+            lines.push(<GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} iconStyle={{marginTop:32}} data={selector}/>)
 
         }
         if (CALib && rootNodes){
@@ -80,10 +91,7 @@ class WorkspaceCard extends React.Component {
                 style={{width: 350}}
                 otherActions={[bookmarkAction]}
             >
-                {workspace.getDescription() &&
-                    <GenericLine iconClassName="mdi mdi-information" legend={"Description"} data={workspace.getDescription()}/>
-                }
-                {watchLine}
+                {lines}
             </GenericCard>
         );
 
