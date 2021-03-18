@@ -56,6 +56,7 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 			)
 
 			name := s.Name()
+
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 
 			srv := f(
@@ -190,6 +191,7 @@ type genericServer struct {
 // NewGenericServer wraps a micro server out of a simple interface
 func NewGenericServer(srv interface{}, opt ...server.Option) server.Server {
 	opts := server.Options{
+		Address: server.DefaultAddress,
 		Codecs:   make(map[string]codec.NewCodec),
 		Metadata: map[string]string{},
 	}
@@ -233,6 +235,7 @@ func (g *genericServer) Register() error {
 
 	var nodes []*microregistry.Node
 	if a, ok := g.srv.(Addressable); ok {
+
 		for _, address := range a.Addresses() {
 			tcp, ok := address.(*net.TCPAddr)
 			if !ok {
@@ -244,7 +247,7 @@ func (g *genericServer) Register() error {
 			}
 			ad, err := addr.Extract(ip)
 			if err != nil {
-				continue
+				ad = config.Address
 			}
 			md := make(map[string]string, len(config.Metadata))
 			for k, v := range config.Metadata {
