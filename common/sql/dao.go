@@ -52,6 +52,7 @@ type DAO interface {
 	// Helper functions for expressions that can differ from one dao to another
 	Concat(...string) string
 	Hash(...string) string
+	HashParent(string, ...string) string
 }
 
 // Handler for the main functions of the DAO
@@ -239,4 +240,8 @@ func (h *Handler) Concat(s ...string) string {
 
 func (h *Handler) Hash(s ...string) string {
 	return h.helper.Hash(s...)
+}
+
+func (h *Handler) HashParent(name string, mpath ...string) string {
+	return h.helper.HashParent(name, mpath...)
 }
