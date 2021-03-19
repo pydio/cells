@@ -79,10 +79,13 @@ func init() {
 		columns := []string{"uuid", "level", "name", "leaf", "mtime", "etag", "size", "mode", "mpath1", "mpath2", "mpath3", "mpath4"}
 		values := []string{"?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"}
 
-		hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4")
-		if hash != "" {
+		if hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
 			columns = append(columns, "hash")
 			values = append(values, hash)
+		}
+		if hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
+			columns = append(columns, "hash2")
+			values = append(values, hash2)
 		}
 
 		str := `
@@ -103,10 +106,14 @@ func init() {
 		columns := []string{"level", "name", "leaf", "mtime", "etag", "size", "mode", "mpath1", "mpath2", "mpath3", "mpath4", "uuid"}
 		values := []string{"?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"}
 
-		hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4")
-		if hash != "" {
+		if hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
 			columns = append(columns, "hash")
 			values = append(values, hash)
+		}
+		if hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
+			fmt.Println("HASH2", hash2)
+			columns = append(columns, "hash2")
+			values = append(values, hash2)
 		}
 
 		return `
@@ -141,9 +148,11 @@ func init() {
 			mpathSub = append(mpathSub, `mpath4 = `+dao.Concat(`"`+mpath4[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath4[0])+2)+`)`))
 		}
 
-		hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4")
-		if hash != "" {
+		if hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
 			mpathSub = append(mpathSub, `hash = `+hash)
+		}
+		if hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
+			mpathSub = append(mpathSub, `hash2 = `+hash2)
 		}
 
 		return fmt.Sprintf(`
