@@ -318,7 +318,7 @@
     "other": "Standardanzeige"
   },
   "192": {
-    "other": "Details"
+    "other": "Liste"
   },
   "193": {
     "other": "Symbolansicht"
@@ -432,7 +432,7 @@
     "other": "Lesezeichen umbenennen"
   },
   "226": {
-    "other": "Liste"
+    "other": "Details"
   },
   "227": {
     "other": "Zur Detailansicht wechseln"
@@ -1212,10 +1212,10 @@
     "other": "Datei"
   },
   "460": {
-    "other": "Details"
+    "other": "Liste"
   },
   "461": {
-    "other": "Zur Detailansicht wechseln"
+    "other": "Zur Listenansicht wechseln"
   },
   "462": {
     "other": "Vorschau"
@@ -2353,5 +2353,8 @@
   },
   "chat.load-older": {
     "other": "Ältere Einträge"
+  },
+  "workspace.quota-usage": {
+    "other": "Kontingentnutzung"
   }
 }
