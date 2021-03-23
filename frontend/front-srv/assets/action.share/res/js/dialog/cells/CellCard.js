@@ -22,9 +22,9 @@ import Pydio from 'pydio'
 import EditCellDialog from './EditCellDialog'
 import CellModel from 'pydio/model/cell'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {Paper, MenuItem, CircularProgress} from 'material-ui'
+import {Paper, MenuItem} from 'material-ui'
 import ShareHelper from "../main/ShareHelper";
-const {GenericCard, GenericLine} = Pydio.requireLib("components");
+const {GenericCard, GenericLine, QuotaUsageLine} = Pydio.requireLib("components");
 
 class CellCard extends React.Component{
 
@@ -125,12 +125,20 @@ class CellCard extends React.Component{
                     moreMenuItems.push(<MenuItem primaryText={m(248)} onClick={deleteAction}/>);
                 }
             }
-            let watchLine, bmButton;
+            let watchLine, quotaLines =[], bmButton;
             if(extLibs && rootNodes && !loading) {
                 const selector = <PydioActivityStreams.WatchSelector pydio={pydio} nodes={rootNodes}/>;
                 watchLine = <GenericLine iconClassName={"mdi mdi-bell-outline"} legend={pydio.MessageHash['meta.watch.selector.legend']} data={selector} iconStyle={{marginTop: 32}} />;
                 bmButton = <PydioCoreActions.BookmarkButton pydio={pydio} nodes={rootNodes} styles={{iconStyle:{color:'white'}}}/>;
             }
+            if(rootNodes && !loading) {
+                rootNodes.forEach((node) => {
+                    if(node.getMetadata().get("ws_quota")) {
+                        quotaLines.push(<QuotaUsageLine node={node}/>)
+                    }
+                })
+            }
+
 
             content = (
                 <GenericCard
@@ -146,6 +154,7 @@ class CellCard extends React.Component{
                     {!loading && model.getDescription() && <GenericLine iconClassName="mdi mdi-information" legend={m(145)} data={model.getDescription()}/>}
                     <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()} placeHolder placeHolderReady={!loading}/>
                     <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes} placeHolder placeHolderReady={!loading} />
+                    {quotaLines}
                     {watchLine || <GenericLine placeHolder/>}
                 </GenericCard>
             );

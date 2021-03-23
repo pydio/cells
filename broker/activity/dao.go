@@ -88,18 +88,6 @@ type batchDAO interface {
 	BatchPost([]*batchActivity) error
 }
 
-type batchActivity struct {
-	*activity.Object
-	ownerType  activity.OwnerType
-	ownerId    string
-	boxName    BoxName
-	publishCtx context.Context
-}
-
-type batchDAO interface {
-	BatchPost([]*batchActivity) error
-}
-
 func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case boltdb.DAO:
