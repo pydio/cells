@@ -19963,6 +19963,14 @@
         "require": "const {LabelWithTip} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/elements/QuotaUsageLine.js": [
+      {
+        "description": "",
+        "displayName": "QuotaUsageLine",
+        "methods": [],
+        "require": "const {QuotaUsageLine} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/elements/SimpleFigureBadge.js": [
       {
         "description": "Simple MuiPaper with a figure and a legend",
@@ -26100,6 +26108,37 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "getMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "id",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "attachClipboard",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "inputValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "clearCopyMessage",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ],
         "require": "const {OAuthRouter} = require('pydio').requireLib('boot')"
@@ -27440,25 +27479,9 @@
         "displayName": "MainFilesList",
         "methods": [
           {
-            "name": "computeLabel",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "tableEntryRenderCell",
             "docblock": null,
-            "modifiers": [
-              "static"
-            ],
+            "modifiers": [],
             "params": [
               {
                 "name": "node",
@@ -27468,24 +27491,45 @@
             "returns": null
           },
           {
-            "name": "displayModeFromPrefs",
+            "name": "computeLabel",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "defaultMode",
+                "name": "node",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "displayModeToPrefs",
-            "docblock": "Save displayMode to user prefs\n@param mode\n@return {string}",
+            "name": "getPrefValue",
+            "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "mode",
+                "name": "prefName",
+                "type": null
+              },
+              {
+                "name": "defaultValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "setPrefValue",
+            "docblock": "Save displayMode to user prefs\n@param prefName\n@param value\n@return {string}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "prefName",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "value",
                 "description": null,
                 "type": null
               }
@@ -27591,6 +27635,13 @@
           },
           {
             "name": "buildDisplayModeItems",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "buildShowExtensionsItems",
             "docblock": null,
             "modifiers": [],
             "params": [],
