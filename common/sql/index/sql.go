@@ -111,7 +111,6 @@ func init() {
 			values = append(values, hash)
 		}
 		if hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4"); hash2 != "" {
-			fmt.Println("HASH2", hash2)
 			columns = append(columns, "hash2")
 			values = append(values, hash2)
 		}
