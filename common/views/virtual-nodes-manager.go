@@ -233,19 +233,27 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
-			// Silently create the .pydio file if necessary
+			resolved = createResp.GetNode()
 			router := NewStandardRouter(RouterOptions{AdminView: true})
-			newNode := createResp.Node.Clone()
-			newNode.Path = path.Join(newNode.Path, common.PydioSyncHiddenFile)
-			nodeUuid := newNode.Uuid
-			createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
-			_, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))})
-			if pE != nil {
-				log.Logger(ctx).Warn("Creating hidden file for resolved node (may not be required)", newNode.Zap("resolved"), zap.Error(pE))
-			} else if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
-				log.Logger(ctx).Warn("Silently ignoring copyRecycleRoot", newNode.Zap("resolved"), zap.Error(e))
+			isFlat := false
+			if bI, e := router.BranchInfoForNode(ctx, resolved); e == nil {
+				isFlat = bI.FlatStorage
 			}
-			vManagerCache.Set(resolved.Path, createResp.Node, cache.DefaultExpiration)
+			if !isFlat {
+				// Silently create the .pydio if necessary
+				newNode := resolved.Clone()
+				newNode.Path = path.Join(newNode.Path, common.PydioSyncHiddenFile)
+				nodeUuid := newNode.Uuid
+				newNode.Uuid = ""
+				createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+				if _, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))}); pE != nil {
+					log.Logger(ctx).Warn("Creating hidden file for resolved node (may not be required)", newNode.Zap("resolved"), zap.Error(pE))
+				}
+			}
+			if e := m.copyRecycleRootAcl(ctx, vNode, resolved); e != nil {
+				log.Logger(ctx).Warn("Silently ignoring copyRecycleRoot", resolved.Zap("resolved"), zap.Error(e))
+			}
+			vManagerCache.Set(resolved.GetPath(), resolved, cache.DefaultExpiration)
 			return createResp.Node, nil
 		}
 	}
