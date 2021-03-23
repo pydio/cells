@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/registry"
+
 	"github.com/gosimple/slug"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -152,32 +156,28 @@ func DeleteRootNodeRecursively(ctx context.Context, roomNode *tree.Node) error {
 			return err
 		}
 		realNode := &tree.Node{Path: parentNode.Path + "/" + strings.TrimRight(roomNode.Path, "/")}
-		// Now list all children and delete them all
-		stream, err := router.ListNodes(ctx, &tree.ListNodesRequest{Node: realNode, Recursive: true})
-		if err != nil {
-			return err
+		// Now send deletion to scheduler
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+		jobUuid := "cells-delete-" + uuid.New()
+		job := &jobs.Job{
+			ID:             jobUuid,
+			Owner:          common.PydioSystemUsername,
+			Label:          "Deleting Cell specific data",
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID:         "actions.tree.delete",
+					Parameters: map[string]string{},
+					NodesSelector: &jobs.NodesSelector{
+						Pathes: []string{realNode.Path},
+					},
+				},
+			},
 		}
-		defer stream.Close()
-		for {
-			resp, e := stream.Recv()
-			if e != nil {
-				break
-			}
-			if resp == nil {
-				continue
-			}
-			if !resp.Node.IsLeaf() {
-				resp.Node.Path += "/" + common.PydioSyncHiddenFile
-			}
-			log.Logger(ctx).Debug("Deleting room node associated to workspace", realNode.Zap())
-			if _, err := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node}); err != nil {
-				log.Logger(ctx).Error("Error while deleting Room Node children", zap.Error(err))
-				//return err // Continue anyway?
-			}
-		}
-
-		if _, err := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{Path: realNode.Path + "/" + common.PydioSyncHiddenFile}}); err != nil {
-			return err
+		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
+			return er
 		}
 	}
 	return nil
