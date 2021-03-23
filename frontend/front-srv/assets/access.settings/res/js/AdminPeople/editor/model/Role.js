@@ -150,30 +150,44 @@ class Role extends Observable{
             request.Queries.push(q);
             return aclApi.searchAcls(request).then(collection => {
                 let ps = [];
-                if(collection.ACLs) {
-                    collection.ACLs.forEach(existing => {
-                        ps.push(aclApi.deleteAcl(existing));
-                    });
-                }
-                return Promise.all(ps).then(res => {
-                    let p2 = [];
-                    Role.FormatPolicyAclToStore(this.acls).forEach(acl => {
-                        p2.push(aclApi.putAcl(acl));
-                    });
-                    return Promise.all(p2).then((results) => {
-                        let newAcls = [];
-                        results.forEach(res => {
-                            newAcls.push(res);
-                        });
-                        this.acls = Role.FormatPolicyAclFromStore(newAcls);
-                        this.makeSnapshot();
-                        this.dirty = false;
-                        this.notify("update");
-                    });
-                });
+                const previous = collection.ACLs || []
+                const next = Role.FormatPolicyAclToStore(this.acls);
+                const {inserts, deletes} = this.diffAcls(previous, next);
+                return Promise.all(deletes.map(acl => aclApi.deleteAcl(acl))).then(() => {
+                    return Promise.all(inserts.map(acl => aclApi.putAcl(acl))).then((results) => {
+                        // Reload all
+                        return aclApi.searchAcls(request).then(collection => {
+                            this.acls = Role.FormatPolicyAclFromStore(collection.ACLs || [])
+                            this.makeSnapshot();
+                            this.dirty = false;
+                            this.notify("update");
+                        })
+                    })
+                })
             });
 
         });
+    }
+
+    /**
+     *
+     * @param previous Array
+     * @param next Array
+     */
+    diffAcls(previous, next) {
+        const deletes = previous.filter((a) => !next.find((b) => this.equals(a, b)))
+        const inserts = next.filter((a) => !previous.find((b) => this.equals(a, b)))
+        return {inserts, deletes}
+    }
+
+
+    /**
+     *
+     * @param acl1 {IdmACL}
+     * @param acl2 {IdmACL}
+     */
+    equals(acl1, acl2) {
+        return acl1.NodeID === acl2.NodeID && acl1.Action.Name === acl2.Action.Name && acl1.Action.Value === acl2.Action.Value && acl1.WorkspaceID === acl2.WorkspaceID
     }
 
     /**

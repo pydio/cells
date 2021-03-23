@@ -4173,29 +4173,65 @@ var Role = (function (_Observable) {
                 request.Queries.push(q);
                 return aclApi.searchAcls(request).then(function (collection) {
                     var ps = [];
-                    if (collection.ACLs) {
-                        collection.ACLs.forEach(function (existing) {
-                            ps.push(aclApi.deleteAcl(existing));
-                        });
-                    }
-                    return Promise.all(ps).then(function (res) {
-                        var p2 = [];
-                        Role.FormatPolicyAclToStore(_this4.acls).forEach(function (acl) {
-                            p2.push(aclApi.putAcl(acl));
-                        });
-                        return Promise.all(p2).then(function (results) {
-                            var newAcls = [];
-                            results.forEach(function (res) {
-                                newAcls.push(res);
+                    var previous = collection.ACLs || [];
+                    var next = Role.FormatPolicyAclToStore(_this4.acls);
+
+                    var _diffAcls = _this4.diffAcls(previous, next);
+
+                    var inserts = _diffAcls.inserts;
+                    var deletes = _diffAcls.deletes;
+
+                    return Promise.all(deletes.map(function (acl) {
+                        return aclApi.deleteAcl(acl);
+                    })).then(function () {
+                        return Promise.all(inserts.map(function (acl) {
+                            return aclApi.putAcl(acl);
+                        })).then(function (results) {
+                            // Reload all
+                            return aclApi.searchAcls(request).then(function (collection) {
+                                _this4.acls = Role.FormatPolicyAclFromStore(collection.ACLs || []);
+                                _this4.makeSnapshot();
+                                _this4.dirty = false;
+                                _this4.notify("update");
                             });
-                            _this4.acls = Role.FormatPolicyAclFromStore(newAcls);
-                            _this4.makeSnapshot();
-                            _this4.dirty = false;
-                            _this4.notify("update");
                         });
                     });
                 });
             });
+        }
+
+        /**
+         *
+         * @param previous Array
+         * @param next Array
+         */
+    }, {
+        key: 'diffAcls',
+        value: function diffAcls(previous, next) {
+            var _this5 = this;
+
+            var deletes = previous.filter(function (a) {
+                return !next.find(function (b) {
+                    return _this5.equals(a, b);
+                });
+            });
+            var inserts = next.filter(function (a) {
+                return !previous.find(function (b) {
+                    return _this5.equals(a, b);
+                });
+            });
+            return { inserts: inserts, deletes: deletes };
+        }
+
+        /**
+         *
+         * @param acl1 {IdmACL}
+         * @param acl2 {IdmACL}
+         */
+    }, {
+        key: 'equals',
+        value: function equals(acl1, acl2) {
+            return acl1.NodeID === acl2.NodeID && acl1.Action.Name === acl2.Action.Name && acl1.Action.Value === acl2.Action.Value && acl1.WorkspaceID === acl2.WorkspaceID;
         }
 
         /**
@@ -4207,7 +4243,7 @@ var Role = (function (_Observable) {
     }, {
         key: 'setParameter',
         value: function setParameter(aclKey, paramValue) {
-            var _this5 = this;
+            var _this6 = this;
 
             var scope = arguments.length <= 2 || arguments[2] === undefined ? 'PYDIO_REPO_SCOPE_ALL' : arguments[2];
 
@@ -4219,11 +4255,11 @@ var Role = (function (_Observable) {
                     var foundAcl = vals[0];
                     // Check if we are switching back to an inherited value
                     var parentValue = undefined;
-                    _this5.parentRoles.forEach(function (role) {
-                        parentValue = _this5.getAclValue(_this5.parentAcls[role.Uuid], aclKey, scope, parentValue);
+                    _this6.parentRoles.forEach(function (role) {
+                        parentValue = _this6.getAclValue(_this6.parentAcls[role.Uuid], aclKey, scope, parentValue);
                     });
                     if (parentValue !== undefined && parentValue === paramValue) {
-                        _this5.acls = _this5.acls.filter(function (acl) {
+                        _this6.acls = _this6.acls.filter(function (acl) {
                             return acl !== foundAcl;
                         }); // Remove ACL
                     } else {
@@ -4266,13 +4302,13 @@ var Role = (function (_Observable) {
     }, {
         key: 'getParameterValue',
         value: function getParameterValue(aclKey) {
-            var _this6 = this;
+            var _this7 = this;
 
             var scope = arguments.length <= 1 || arguments[1] === undefined ? 'PYDIO_REPO_SCOPE_ALL' : arguments[1];
 
             var value = undefined;
             this.parentRoles.forEach(function (role) {
-                value = _this6.getAclValue(_this6.parentAcls[role.Uuid], aclKey, scope, value);
+                value = _this7.getAclValue(_this7.parentAcls[role.Uuid], aclKey, scope, value);
             });
             return this.getAclValue(this.acls, aclKey, scope, value);
         }
@@ -4284,7 +4320,7 @@ var Role = (function (_Observable) {
     }, {
         key: 'listParametersAndActions',
         value: function listParametersAndActions() {
-            var _this7 = this;
+            var _this8 = this;
 
             var filterParam = function filterParam(a) {
                 return a.Action.Name && (a.Action.Name.indexOf("parameter:") === 0 || a.Action.Name.indexOf("action:") === 0);
@@ -4293,7 +4329,7 @@ var Role = (function (_Observable) {
             var acls = this.acls || [];
             acls = acls.filter(filterParam);
             this.parentRoles.forEach(function (role) {
-                var inherited = _this7.parentAcls[role.Uuid] || [];
+                var inherited = _this8.parentAcls[role.Uuid] || [];
                 inherited = inherited.filter(filterParam).filter(function (a) {
                     return !acls.filter(function (f) {
                         return f.Action.Name === a.Action.Name;
@@ -4331,7 +4367,7 @@ var Role = (function (_Observable) {
     }, {
         key: 'getAclString',
         value: function getAclString(workspace, nodeUuid) {
-            var _this8 = this;
+            var _this9 = this;
 
             var inherited = false;
             var wsId = undefined,
@@ -4348,7 +4384,7 @@ var Role = (function (_Observable) {
             var rights = undefined;
             var parentRights = undefined;
             this.parentRoles.forEach(function (role) {
-                var parentRight = _this8._aclStringForAcls(_this8.parentAcls[role.Uuid], wsId, nodeId);
+                var parentRight = _this9._aclStringForAcls(_this9.parentAcls[role.Uuid], wsId, nodeId);
                 if (parentRight !== undefined) {
                     parentRights = parentRight;
                 }
@@ -4407,7 +4443,7 @@ var Role = (function (_Observable) {
     }, {
         key: 'updateAcl',
         value: function updateAcl(workspace, nodeUuid, value) {
-            var _this9 = this;
+            var _this10 = this;
 
             var nodeWs = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
 
@@ -4440,9 +4476,9 @@ var Role = (function (_Observable) {
                         } else if (isRoot) {
                             acl.WorkspaceID = nodeWs.UUID;
                         }
-                        acl.RoleID = _this9.idmRole.Uuid;
+                        acl.RoleID = _this10.idmRole.Uuid;
                         acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
-                        _this9.acls.push(acl);
+                        _this10.acls.push(acl);
                     });
                 });
             }
@@ -4457,13 +4493,13 @@ var Role = (function (_Observable) {
     }, {
         key: 'buildProxy',
         value: function buildProxy(object) {
-            var _this10 = this;
+            var _this11 = this;
 
             return new Proxy(object, {
                 set: function set(target, p, value) {
                     target[p] = value;
-                    _this10.dirty = true;
-                    _this10.notify('update');
+                    _this11.dirty = true;
+                    _this11.notify('update');
                     return true;
                 },
                 get: function get(target, p) {
@@ -4471,7 +4507,7 @@ var Role = (function (_Observable) {
                     if (out instanceof Array) {
                         return out;
                     } else if (out instanceof Object) {
-                        return _this10.buildProxy(out);
+                        return _this11.buildProxy(out);
                     } else {
                         return out;
                     }
