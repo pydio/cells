@@ -435,7 +435,7 @@ func DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scope idm.Workspa
 				}
 			}
 			if roomNode != nil {
-				if err := DeleteRootNodeRecursively(ctx, roomNode); err != nil {
+				if err := DeleteRootNodeRecursively(ctx, ownerUser.GetLogin(), roomNode); err != nil {
 					return err
 				}
 			}

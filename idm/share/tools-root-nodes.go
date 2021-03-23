@@ -146,7 +146,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 
 // DeleteRootNodeRecursively loads all children of a root node and delete them, including the
 // .pydio hidden files when they are folders.
-func DeleteRootNodeRecursively(ctx context.Context, roomNode *tree.Node) error {
+func DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
 
 	manager := views.GetVirtualNodesManager()
 	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false, AdminView: true})
@@ -161,7 +161,7 @@ func DeleteRootNodeRecursively(ctx context.Context, roomNode *tree.Node) error {
 		jobUuid := "cells-delete-" + uuid.New()
 		job := &jobs.Job{
 			ID:             jobUuid,
-			Owner:          common.PydioSystemUsername,
+			Owner:          ownerName,
 			Label:          "Deleting Cell specific data",
 			MaxConcurrency: 1,
 			AutoStart:      true,
