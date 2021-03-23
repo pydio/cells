@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	bolt "github.com/etcd-io/bbolt"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/x/jsonx"
@@ -419,9 +418,9 @@ func TestMassivePurge(t *testing.T) {
 		<-time.After(5 * time.Second)
 		deleted := 0
 		// Now Purge
-		e = dao.Purge(func(s string) { deleted++ }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{})
+		e = dao.Purge(func(s string) { deleted++ }, activity.OwnerType_NODE, "node-id", BoxOutbox, 0, 10, time.Time{}, true)
 		So(e, ShouldBeNil)
-		So(deleted, ShouldBeGreaterThan, 0)
+		So(deleted, ShouldBeGreaterThan, 1)
 		st, _ = os.Stat(tmpMassivePurge)
 		newSize := st.Size()
 		t.Log("DB Size is now", humanize.Bytes(uint64(newSize)), "after", deleted, "deletes and compaction")
@@ -431,21 +430,6 @@ func TestMassivePurge(t *testing.T) {
 
 	})
 
-}
-
-func copyValuesOrBucket(bW, bR *bolt.Bucket) error {
-	return bR.ForEach(func(k, v []byte) error {
-		if v == nil {
-			newBW, e := bW.CreateBucketIfNotExists(k)
-			if e != nil {
-				return e
-			}
-			newBR := bR.Bucket(k)
-			return copyValuesOrBucket(newBW, newBR)
-		} else {
-			return bW.Put(k, v)
-		}
-	})
 }
 
 func TestPurge(t *testing.T) {
@@ -498,14 +482,14 @@ func TestPurge(t *testing.T) {
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
 
-		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{})
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true)
 		So(err, ShouldBeNil)
 
 		results, err := listJohn()
 		So(err, ShouldBeNil)
 		So(results, ShouldHaveLength, 4)
 
-		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 2, time.Time{})
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 2, time.Time{}, true)
 		So(err, ShouldBeNil)
 
 		results, err = listJohn()
@@ -517,7 +501,7 @@ func TestPurge(t *testing.T) {
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
 		sevenDays := 7 * time.Hour * 24
-		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Now().Add(-sevenDays))
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Now().Add(-sevenDays), true)
 		So(err, ShouldBeNil)
 		results, err = listJohn()
 		So(err, ShouldBeNil)
@@ -526,7 +510,7 @@ func TestPurge(t *testing.T) {
 		// Purge by date all users - re-add ac3, ac4 removed in previous step
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
-		err = dao.Purge(logger, activity.OwnerType_USER, "*", BoxInbox, 1, 100, time.Now().Add(-sevenDays))
+		err = dao.Purge(logger, activity.OwnerType_USER, "*", BoxInbox, 1, 100, time.Now().Add(-sevenDays), true)
 		So(err, ShouldBeNil)
 		results, err = listJohn()
 		So(err, ShouldBeNil)

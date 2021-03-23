@@ -29,6 +29,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dustin/go-humanize"
+
 	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common"
 
@@ -420,7 +422,7 @@ func (dao *boltdbimpl) Delete(ownerType activity.OwnerType, ownerId string) erro
 
 // Purge removes records based on a maximum number of records and/or based on the activity update date
 // It keeps at least minCount record(s) - to see last activity - even if older than expected date
-func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error {
+func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, clearBackup bool) error {
 
 	purgeBucket := func(bucket *bolt.Bucket, owner string) {
 		c := bucket.Cursor()
@@ -470,7 +472,11 @@ func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, 
 		return e
 	}
 
-	return dao.Compact()
+	old, newSize, er := dao.Compact(map[string]interface{}{"ClearBackup": clearBackup})
+	if er == nil {
+		logger(fmt.Sprintf("Successfully compacted DB, from %s to %s", humanize.Bytes(uint64(old)), humanize.Bytes(uint64(newSize))))
+	}
+	return er
 
 }
 
