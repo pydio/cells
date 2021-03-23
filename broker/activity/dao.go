@@ -73,7 +73,19 @@ type DAO interface {
 
 	// Purge removes records based on a maximum number of records and/or based on the activity update date
 	// It keeps at least minCount record(s) - to see last activity - even if older than expected date
-	Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error
+	Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, clearBackup bool) error
+}
+
+type batchActivity struct {
+	*activity.Object
+	ownerType  activity.OwnerType
+	ownerId    string
+	boxName    BoxName
+	publishCtx context.Context
+}
+
+type batchDAO interface {
+	BatchPost([]*batchActivity) error
 }
 
 type batchActivity struct {

@@ -187,6 +187,6 @@ func (c *Cache) Delete(ownerType activity.OwnerType, ownerId string) error {
 	return c.dao.Delete(ownerType, ownerId)
 }
 
-func (c *Cache) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time) error {
-	return c.dao.Purge(logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore)
+func (c *Cache) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, clearBackup bool) error {
+	return c.dao.Purge(logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, clearBackup)
 }

@@ -326,21 +326,6 @@ func (c *config) Bytes() []byte {
 	if v == nil {
 		return []byte{}
 	}
-	switch v := c.v.(type) {
-	case []interface{}, map[string]interface{}:
-		data, err := json.Marshal(v)
-		if err != nil {
-			return []byte{}
-		}
-
-		return data
-	case string:
-		// Need to handle it differently
-		if v == "default" {
-			c.v = nil
-		}
-	}
-
 	return []byte(cast.ToString(v))
 }
 func (c *config) Int() int {

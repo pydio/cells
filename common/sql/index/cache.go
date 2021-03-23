@@ -700,3 +700,11 @@ func (d *daocache) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 func (d *daocache) CleanResourcesOnDeletion() (error, string) {
 	return d.DAO.CleanResourcesOnDeletion()
 }
+
+func (d *daocache) LostAndFounds() ([]LostAndFound, error) {
+	return d.DAO.LostAndFounds()
+}
+
+func (d *daocache) FixLostAndFound(lost LostAndFound) error {
+	return d.DAO.FixLostAndFound(lost)
+}

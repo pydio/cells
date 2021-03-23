@@ -26,9 +26,13 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
@@ -46,6 +50,56 @@ import (
 // AclQuotaFilter applies storage quota limitation on a per-workspace basis.
 type AclQuotaFilter struct {
 	AbstractHandler
+	readCache *cache.Cache
+}
+
+// ReadNode append quota info on workspace roots
+func (a *AclQuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
+	resp, err := a.next.ReadNode(ctx, in, opts...)
+	if err != nil {
+		return resp, err
+	}
+
+	branch, set := GetBranchInfo(ctx, "in")
+	if !set || branch.UUID == "ROOT" || branch.Workspace.UUID == "" || branch.Root == nil || branch.Root.Uuid != resp.Node.Uuid {
+		return resp, err
+	}
+	type qCache struct {
+		no bool
+		q  int64
+		u  int64
+	}
+	if a.readCache == nil {
+		a.readCache = cache.New(1*time.Minute, 5*time.Minute)
+	}
+	var cacheKey string
+	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+		cacheKey = branch.Workspace.UUID + "-" + claims.Name
+		if data, o := a.readCache.Get(cacheKey); o {
+			if qc, y := data.(*qCache); y {
+				if qc.no {
+					return resp, nil
+				}
+				n := resp.Node.Clone()
+				n.SetMeta("ws_quota", qc.q)
+				n.SetMeta("ws_quota_usage", qc.u)
+				resp.Node = n
+				return resp, nil
+			}
+		}
+	}
+	if q, u, e := a.ComputeQuota(ctx, &branch.Workspace); e == nil && q > 0 {
+		n := resp.Node.Clone()
+		n.SetMeta("ws_quota", q)
+		n.SetMeta("ws_quota_usage", u)
+		resp.Node = n
+		if cacheKey != "" {
+			a.readCache.Set(cacheKey, &qCache{q: q, u: u}, cache.DefaultExpiration)
+		}
+	} else if cacheKey != "" {
+		a.readCache.Set(cacheKey, &qCache{no: true}, cache.DefaultExpiration)
+	}
+	return resp, err
 }
 
 // PutObject checks quota on PutObject operation.
@@ -167,7 +221,6 @@ func (a *AclQuotaFilter) ComputeQuota(ctx context.Context, workspace *idm.Worksp
 }
 
 // FindParentWorkspaces finds possible parents for the current workspace based on the RESOURCE_OWNER uuid.
-// TODO: add virtual nodes manager.
 func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.Workspace) (parentWorkspaces []*idm.Workspace, parentContext context.Context, err error) {
 
 	var ownerUuid string

@@ -31,6 +31,7 @@ import LabelWithTip from './elements/LabelWithTip'
 import SimpleFigureBadge from './elements/SimpleFigureBadge'
 import ClipboardTextField from './elements/ClipboardTextField'
 import {GenericCard, GenericLine} from './elements/GenericCard'
+import QuotaUsageLine from "./elements/QuotaUsageLine";
 import EmptyStateView from './views/EmptyStateView'
 import ModalAppBar from './views/ModalAppBar'
 
@@ -83,6 +84,7 @@ const PydioComponents = {
     ModalAppBar             : ModalAppBar,
     GenericCard,
     GenericLine,
+    QuotaUsageLine,
 
     ReactEditorOpener       : ReactEditorOpener,
     PaperEditorLayout       : PaperEditorLayout,

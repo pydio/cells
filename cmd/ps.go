@@ -161,9 +161,9 @@ EXAMPLE
 			return len(args) > 0
 		})
 
-		// Filtering services by regexp
+		// Adding child services by regexp
 		registry.Default.Filter(func(s registry.Service) bool {
-			reg := s.Regexp()
+			reg := regexp.MustCompile(`^` + s.Name() + `\..*`)
 			if reg == nil {
 				return false
 			}
@@ -186,8 +186,6 @@ EXAMPLE
 						)
 					}
 				}
-				// Then filter out the one with just the regexp
-				return true
 			}
 			return false
 		})

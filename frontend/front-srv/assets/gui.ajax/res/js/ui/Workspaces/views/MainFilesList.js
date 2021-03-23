@@ -112,6 +112,11 @@ class MainFilesList extends React.Component {
         horizontalRibbon: PropTypes.bool
     };
 
+    propTypes: {
+        pydio: React.PropTypes.instanceOf(Pydio),
+        horizontalRibbon: React.PropTypes.bool
+    },
+
     tableEntryRenderCell(node){
         const {showExtensions} = this.state;
         let label = node.getLabel();
@@ -128,13 +133,8 @@ class MainFilesList extends React.Component {
                 <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{label}</span>
             </span>
         );
-    }
+    },
 
-    /**
-     * Compute label with or without extension
-     * @param node
-     * @return {JSX.Element}
-     */
     computeLabel(node){
         const {showExtensions} = this.state;
         let label = node.getLabel();
@@ -146,7 +146,7 @@ class MainFilesList extends React.Component {
             }
         }
         return label;
-    }
+    },
 
     constructor(props, context) {
         super(props, context);
@@ -184,12 +184,13 @@ class MainFilesList extends React.Component {
             return guiPrefs[prefName][slug];
         }
         return defaultValue;
-    }
+    },
 
     /**
      * Save displayMode to user prefs
      * @param prefName
      * @param value
+     * @return {string}
      */
     setPrefValue(prefName, value){
         const {pydio} = this.props;

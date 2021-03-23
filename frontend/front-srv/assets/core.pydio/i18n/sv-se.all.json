@@ -2353,5 +2353,8 @@
   },
   "chat.load-older": {
     "other": "Older entries"
+  },
+  "workspace.quota-usage": {
+    "other": "Quota Usage"
   }
 }

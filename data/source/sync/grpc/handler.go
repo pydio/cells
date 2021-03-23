@@ -71,11 +71,12 @@ type Handler struct {
 	dsName         string
 	errorsDetected chan string
 
-	IndexClient  tree.NodeProviderClient
-	S3client     model.PathSyncTarget
-	syncTask     *task.Sync
-	SyncConfig   *object.DataSource
-	ObjectConfig *object.MinioConfig
+	IndexClient      tree.NodeProviderClient
+	IndexCleanClient protosync.SyncEndpointClient
+	S3client         model.PathSyncTarget
+	syncTask         *task.Sync
+	SyncConfig       *object.DataSource
+	ObjectConfig     *object.MinioConfig
 
 	watcher    configx.Receiver
 	reloadChan chan bool
@@ -329,6 +330,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 
 	s.S3client = source
 	s.IndexClient = indexClientRead
+	s.IndexCleanClient = protosync.NewSyncEndpointClient(indexName, indexClient)
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
 	s.syncTask = task.NewSync(source, target, model.DirectionRight)
@@ -508,6 +510,16 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			}
 		}()
 	}
+
+	// First trigger a Resync on index, to clean potential issues
+	if _, e := s.IndexCleanClient.TriggerResync(c, req); e != nil {
+		if req.Task != nil {
+			log.TasksLogger(c).Error("Could not run index Lost+found "+e.Error(), zap.Error(e))
+		} else {
+			log.Logger(c).Error("Could not run index Lost+found "+e.Error(), zap.Error(e))
+		}
+	}
+
 	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
 	// Copy context
 	bg := context.Background()

@@ -22,6 +22,12 @@
 package boltdb
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	bolt "github.com/etcd-io/bbolt"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/x/configx"
@@ -31,6 +37,7 @@ import (
 type DAO interface {
 	dao.DAO
 	DB() *bolt.DB
+	Compact(opts map[string]interface{}) (int64, int64, error)
 }
 
 // Handler for the main functions of the DAO
@@ -64,4 +71,82 @@ func (h *Handler) DB() *bolt.DB {
 		return conn.(*bolt.DB)
 	}
 	return nil
+}
+
+// Compact makes a copy of the current DB and replace it as a connection
+func (h *Handler) Compact(opts map[string]interface{}) (old int64, new int64, err error) {
+	db := h.DB()
+	p := db.Path()
+	if st, e := os.Stat(p); e == nil {
+		old = st.Size()
+	}
+	dir, base := filepath.Split(p)
+	ext := filepath.Ext(base)
+	base = strings.TrimSuffix(base, ext)
+
+	copyPath := filepath.Join(dir, base+"-compact-copy"+ext)
+	copyDB, e := bolt.Open(copyPath, 0600, &bolt.Options{Timeout: 5 * time.Second})
+	if e != nil {
+		return 0, 0, e
+	}
+	if e := copyDB.Update(func(txW *bolt.Tx) error {
+		return db.View(func(txR *bolt.Tx) error {
+			return txR.ForEach(func(name []byte, b *bolt.Bucket) error {
+				bW, e := txW.CreateBucketIfNotExists(name)
+				if e != nil {
+					return e
+				}
+				return copyValuesOrBucket(bW, b)
+			})
+		})
+	}); e != nil {
+		copyDB.Close()
+		os.Remove(copyPath)
+		return 0, 0, e
+	}
+	copyDB.Close()
+
+	if e := h.CloseConn(); e != nil {
+		return 0, 0, e
+	}
+	bakPath := filepath.Join(dir, fmt.Sprintf("%s-%d%s", base, time.Now().Unix(), ext))
+	if er := os.Rename(p, bakPath); er != nil {
+		return 0, 0, er
+	}
+	if er := os.Rename(copyPath, p); er != nil {
+		return 0, 0, er
+	}
+	if copyDB, e = bolt.Open(p, 0600, &bolt.Options{Timeout: 5 * time.Second}); e != nil {
+		return 0, 0, e
+	}
+	h.SetConn(copyDB)
+	if opts != nil {
+		if clear, ok := opts["ClearBackup"]; ok {
+			if c, o := clear.(bool); o && c {
+				if er := os.Remove(bakPath); er != nil {
+					err = er
+				}
+			}
+		}
+	}
+	if st, e := os.Stat(p); e == nil {
+		new = st.Size()
+	}
+	return
+}
+
+func copyValuesOrBucket(bW, bR *bolt.Bucket) error {
+	return bR.ForEach(func(k, v []byte) error {
+		if v == nil {
+			newBW, e := bW.CreateBucketIfNotExists(k)
+			if e != nil {
+				return e
+			}
+			newBR := bR.Bucket(k)
+			newBW.SetSequence(newBR.Sequence())
+			return copyValuesOrBucket(newBW, newBR)
+		} else {
+			return bW.Put(k, v)
+		}
+	})
 }
