@@ -406,7 +406,7 @@ importers:
   gui.ajax:
     dependencies:
       aws-sdk: 2.856.0
-      cells-sdk: 1.0.0
+      cells-sdk: github.com/pydio/cells-sdk-js/bc7611177729cc5614e16e77d7c70903f95efb5e
       chart.js: 1.1.1
       classnames: 2.1.5
       clipboard: 1.7.1
@@ -485,7 +485,7 @@ importers:
       assemble-less: ~0.7.0
       aws-sdk: ^2.847.0
       browserify-shim: ^3.8.14
-      cells-sdk: ^1.0.0
+      cells-sdk: github:pydio/cells-sdk-js#next
       chart.js: ^1.0.2
       classnames: ~2.1.3
       clipboard: ^1.5.8
@@ -2406,12 +2406,6 @@ packages:
     optional: true
     resolution:
       integrity: sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
-  /cells-sdk/1.0.0:
-    dependencies:
-      superagent: 6.1.0
-    dev: false
-    resolution:
-      integrity: sha512-vGOfb/OS+qspYOCBg0jVpn28feqSPcwrtheEkI97XGvw/csKZArV2OWzi/VJgU63l1MJj8QXfE6JUHUHntnMhA==
   /center-align/0.1.3:
     dependencies:
       align-text: 0.1.4
@@ -6788,6 +6782,14 @@ packages:
     dev: true
     resolution:
       integrity: sha1-MbGtBYVnZRxSaSFQa5qHk5EaA4Q=
+  /qs/6.10.1:
+    dependencies:
+      side-channel: 1.0.4
+    dev: false
+    engines:
+      node: '>=0.6'
+    resolution:
+      integrity: sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==
   /qs/6.4.0:
     dev: true
     engines:
@@ -7970,7 +7972,7 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
-  /semver/7.3.4:
+  /semver/7.3.5:
     dependencies:
       lru-cache: 6.0.0
     dev: false
@@ -7978,7 +7980,7 @@ packages:
       node: '>=10'
     hasBin: true
     resolution:
-      integrity: sha512-tCfb2WLjqFAtXn4KEdxIhalnRtoKFN7nAwj0B3ZXCbQloV2tq5eDbcTmT68JJD3nRJq24/XgxtQKFIpQdtvmVw==
+      integrity: sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==
   /serialize-error/2.1.0:
     dev: false
     engines:
@@ -8038,6 +8040,14 @@ packages:
   /shell-quote/1.7.2:
     resolution:
       integrity: sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==
+  /side-channel/1.0.4:
+    dependencies:
+      call-bind: 1.0.2
+      get-intrinsic: 1.1.1
+      object-inspect: 1.9.0
+    dev: false
+    resolution:
+      integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==
   /sigmund/1.0.1:
     dev: true
     resolution:
@@ -8477,9 +8487,9 @@ packages:
       formidable: 1.2.2
       methods: 1.1.2
       mime: 2.5.2
-      qs: 6.9.6
+      qs: 6.10.1
       readable-stream: 3.6.0
-      semver: 7.3.4
+      semver: 7.3.5
     dev: false
     engines:
       node: '>= 7.0.0'
@@ -9297,6 +9307,14 @@ packages:
     dev: true
     resolution:
       integrity: sha1-T6akXQDbwV8xikr6HZr8Aljhdsw=
+  github.com/pydio/cells-sdk-js/bc7611177729cc5614e16e77d7c70903f95efb5e:
+    dependencies:
+      superagent: 6.1.0
+    dev: false
+    name: cells-sdk
+    resolution:
+      tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/bc7611177729cc5614e16e77d7c70903f95efb5e
+    version: 2.3.0
   github.com/pydio/pydio-sdk-js/b82cab5bb5bb495fb7cde736814681b52e158a9c:
     dependencies:
       superagent: 3.5.2

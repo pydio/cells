@@ -99,6 +99,7 @@ class DataSource extends Observable {
             this.model.EncryptionMode = ObjectEncryptionMode.constructFromObject('CLEAR');
             this.model.StorageType = ObjectStorageType.constructFromObject('LOCAL');
             this.model.StorageConfiguration = {"folder":"", "normalize":"false"};
+            this.model.FlatStorage = true;
         }
         this.observableModel = this.buildProxy(this.model);
 

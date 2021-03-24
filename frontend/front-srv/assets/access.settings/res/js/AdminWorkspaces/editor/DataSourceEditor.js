@@ -371,6 +371,32 @@ class DataSourceEditor extends React.Component{
                 <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('datamanagement')}</div>
 
+                    <div>
+                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.flatStorage')}</div>
+                        <Toggle
+                            label={m('storage.flatStorage')}
+                            labelPosition={"right"}
+                            disabled={!create}
+                            toggled={!model.FlatStorage}
+                            onToggle={(e,v)=>{model.FlatStorage = !v}}
+                            {...ModernStyles.toggleField}
+                        />
+                    </div>
+
+                    {!model.FlatStorage &&
+                    <div>
+                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.skipResync')}</div>
+                        <Toggle
+                            label={m('storage.skipResync')}
+                            labelPosition={"right"}
+                            toggled={model.SkipSyncOnRestart}
+                            onToggle={(e,v)=>{model.SkipSyncOnRestart = v}}
+                            {...ModernStyles.toggleField}
+                        />
+                    </div>
+                    }
+
+
                     <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
                     <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
