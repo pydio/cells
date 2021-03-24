@@ -535,6 +535,22 @@
             "format": "boolean"
           },
           {
+            "name": "FlatStorage",
+            "description": "Store data in flat format (object-storage like).",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          },
+          {
+            "name": "SkipSyncOnRestart",
+            "description": "Do not trigger resync at start.",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          },
+          {
             "name": "EncryptionMode",
             "description": "Type of encryption applied before sending data to storage.",
             "in": "query",
@@ -5809,6 +5825,16 @@
           "type": "boolean",
           "format": "boolean",
           "title": "Not implemented, whether to watch for underlying changes on the FS"
+        },
+        "FlatStorage": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Store data in flat format (object-storage like)"
+        },
+        "SkipSyncOnRestart": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Do not trigger resync at start"
         },
         "EncryptionMode": {
           "$ref": "#/definitions/objectEncryptionMode",
