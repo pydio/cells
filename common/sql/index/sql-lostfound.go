@@ -16,12 +16,12 @@ func init() {
 		cc := dao.Concat("mpath1", "mpath2", "mpath3", "mpath4")
 		return fmt.Sprintf(`
 				select
-					name,
+					concat(name, "_") safename,
 					SUBSTRING_INDEX(` + cc + `,'.',level - 1) as pmpath,
 					min(` + cc + `)
 				from
 					%%PREFIX%%_idx_tree
-				group by concat(name, "_"), pmpath
+				group by safename, pmpath
 				having count(pmpath) > 1`)
 	}
 
@@ -54,7 +54,7 @@ func init() {
 				from
 					%%PREFIX%%_idx_tree
 				where
-					name like ?
+					name = ?
 				and SUBSTRING_INDEX(` + cc + `, '.', level - 1) = ?
 				order by char_length(` + cc + `), ` + cc + `
 		`)
@@ -118,11 +118,11 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 	var duplicates []duplicate
 
 	for rows.Next() {
-		var name, pmpath, mpath string
-		if err := rows.Scan(&name, &pmpath, &mpath); err != nil {
+		var safename, pmpath, mpath string
+		if err := rows.Scan(&safename, &pmpath, &mpath); err != nil {
 			return nil, err
 		}
-		duplicates = append(duplicates, duplicate{name, pmpath})
+		duplicates = append(duplicates, duplicate{strings.TrimSuffix(safename, "_"), pmpath})
 	}
 
 	for _, t := range duplicates {

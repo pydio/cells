@@ -313,6 +313,7 @@ func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest
 	if servicecontext.GetDAO(ctx) == nil {
 		return fmt.Errorf("no DAO found, wrong initialization")
 	}
+	defer response.Close()
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 	autoApplies, er := h.loadAutoAppliesRoles(ctx)
 	if er != nil {
@@ -338,8 +339,6 @@ func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest
 			return errors.InternalServerError(common.ServiceUser, "wrong type received, should have been idm.User or idm.Group")
 		}
 	}
-
-	response.Close()
 
 	return nil
 }

@@ -62,7 +62,6 @@ var (
 				&install.TLSLetsEncrypt{
 					Email:      "sofia@example.com",
 					AcceptEULA: true,
-					StagingCA:  true,
 				},
 			},
 		},
@@ -154,7 +153,6 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetLetsEncrypt(), ShouldNotBeNil)
 				So(pc.GetLetsEncrypt().GetEmail(), ShouldEqual, "sofia@example.com")
 				So(pc.GetLetsEncrypt().GetAcceptEULA(), ShouldBeTrue)
-				So(pc.GetLetsEncrypt().GetStagingCA(), ShouldBeTrue)
 
 				niYamlFile = ""
 			})
@@ -223,7 +221,6 @@ func TestUnmarshallConf(t *testing.T) {
 				So(pc.GetLetsEncrypt(), ShouldNotBeNil)
 				So(pc.GetLetsEncrypt().GetEmail(), ShouldEqual, "sofia@example.com")
 				So(pc.GetLetsEncrypt().GetAcceptEULA(), ShouldBeTrue)
-				So(pc.GetLetsEncrypt().GetStagingCA(), ShouldBeTrue)
 
 				niJsonFile = ""
 			})

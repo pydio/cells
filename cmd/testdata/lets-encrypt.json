@@ -8,8 +8,7 @@
         "TLSConfig": {
             "LetsEncrypt": {
                 "Email": "sofia@example.com",
-                "AcceptEULA": true,
-                "StagingCA": true
+                "AcceptEULA": true
             }
         }
     }
