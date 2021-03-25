@@ -51,6 +51,7 @@ import JobsStore from './tasks/JobsStore'
 import SingleJobProgress from './tasks/SingleJobProgress'
 
 import Tooltip from 'material-ui/internal/Tooltip'
+import './modal/popoverFix'
 
 export {
     Builder,

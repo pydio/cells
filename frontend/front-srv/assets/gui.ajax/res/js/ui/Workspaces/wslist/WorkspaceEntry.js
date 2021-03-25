@@ -28,8 +28,8 @@ import PropTypes from 'prop-types';
 import Pydio from "pydio";
 import {muiThemeable} from "material-ui/styles";
 import Color from 'color'
-import {CircularProgress, Popover, Dialog} from 'material-ui'
-import { DragSource, DropTarget, flow } from 'react-dnd';
+import {CircularProgress, Popover, Dialog, Menu} from 'material-ui'
+import { DropTarget} from 'react-dnd';
 import Node from "pydio/model/node";
 import DOMUtils from 'pydio/util/dom'
 import ResourcesManager from 'pydio/http/resources-manager'
@@ -86,10 +86,10 @@ class Confirm extends React.Component {
             ];
         }
 
-        for (let key in this.props.replacements) {
+        Object.keys(this.props.replacements).forEach((key) => {
             messageTitle = messageTitle.replace(new RegExp(key), this.props.replacements[key]);
             messageBody = messageBody.replace(new RegExp(key), this.props.replacements[key]);
-        }
+        });
 
         // TODO Retest this component as Dialog replace legacy materialui dialog
         return <div className='react-mui-context' style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'transparent'}}>
@@ -416,7 +416,7 @@ class WorkspaceEntry extends React.Component {
                     targetOrigin={{horizontal:"left",vertical:popoverTop?"bottom":"center"}}
                     zDepth={3}
                     style={{overflow:'hidden', borderRadius: 10, height: popoverHeight}}
-                >{this.state.popoverContent}</Popover>
+                ><Menu style={{maxWidth:350}} listStyle={{paddingBottom: 0, paddingTop: 0}}>{this.state.popoverContent}</Menu></Popover>
             </ContextMenuWrapper>
         );
 
