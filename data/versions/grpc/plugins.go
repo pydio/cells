@@ -24,6 +24,7 @@ package grpc
 import (
 	"context"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/pydio/cells/common/registry"
@@ -88,8 +89,13 @@ func init() {
 				to := registry.ShortRequestTimeout()
 				ctx := m.Options().Context
 				for _, j := range getDefaultJobs() {
-					if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: j.ID}, to); err != nil {
+					if resp, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: j.ID}, to); err != nil {
 						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
+					} else if resp.GetJob().GetID() == "prune-versions-job" && resp.GetJob().GetSchedule() != nil {
+						if strings.HasSuffix(resp.GetJob().GetSchedule().GetIso8601Schedule(), "PT15M") {
+							log.Logger(ctx).Info("Updating prune-versions-job schedule to lower frequency")
+							jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
+						}
 					}
 				}
 
