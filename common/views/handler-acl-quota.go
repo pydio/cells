@@ -250,20 +250,14 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 		GroupPath: userObject.GroupPath,
 	}
 	parentContext = context.WithValue(ctx, claim.ContextKey, claims)
-
-	vManager := GetVirtualNodesManager()
+	vResolver := GetVirtualNodesManager().GetResolver(a.clientsPool, false)
 	ownerWsRoots := make(map[string]*idm.Workspace)
+
 	for _, ws := range ownerAcls.Workspaces {
 		for _, originalRoot := range ws.RootUUIDs {
 			realId := originalRoot
-			if virtual, exists := vManager.ByUuid(originalRoot); exists {
-				resolvedRoot, e := vManager.ResolveInContext(parentContext, virtual, a.clientsPool, false)
-				if e != nil {
-					err = e
-					return
-				}
-				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("resolved", resolvedRoot))
-				realId = resolvedRoot.Uuid
+			if n, o := vResolver(parentContext, &tree.Node{Uuid: realId}); o {
+				realId = n.Uuid
 			}
 			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, permissions.FlagRead) && !aclNodeMask.HasFlag(ctx, permissions.FlagDeny) {
 				ownerWsRoots[realId] = ws
@@ -273,17 +267,9 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 
 	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 	for _, root := range workspace.RootUUIDs {
-
-		if virtual, exists := vManager.ByUuid(root); exists {
-			resolvedRoot, e := vManager.ResolveInContext(ctx, virtual, a.clientsPool, false)
-			if e != nil {
-				err = e
-				return
-			}
-			log.Logger(ctx).Debug("Updating Workspace Root To", zap.Any("resolved", resolvedRoot))
-			root = resolvedRoot.Uuid
+		if n, o := vResolver(ctx, &tree.Node{Uuid: root}); o {
+			root = n.Uuid
 		}
-
 		ancestors, er := BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
 		if er != nil {
 			log.Logger(ctx).Error("AncestorsList for rootNode", zap.Any("r", root), zap.Any("ancestors", ancestors), zap.Any("ownerWsRoots", ownerWsRoots))
@@ -349,16 +335,14 @@ func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.W
 		}
 	}
 
-	vManager := GetVirtualNodesManager()
 	if maxQuota > 0 {
 		log.Logger(ctx).Debug("Found Quota", zap.Any("q", maxQuota), zap.Any("roots", detectedRoots))
 		treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+		resolver := GetVirtualNodesManager().GetResolver(a.clientsPool, false)
 		for nodeId, _ := range detectedRoots {
 			var rootNode *tree.Node
-			if root, exists := vManager.ByUuid(nodeId); exists {
-				if rootNode, err = vManager.ResolveInContext(ctx, root, a.clientsPool, false); err != nil {
-					return
-				}
+			if n, o := resolver(ctx, &tree.Node{Uuid: nodeId}); o {
+				rootNode = n
 			} else {
 				if resp, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}}); e != nil {
 					err = e

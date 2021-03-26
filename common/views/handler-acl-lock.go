@@ -139,11 +139,5 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 }
 
 func (a *AclLockFilter) virtualResolver(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-	vManager := GetVirtualNodesManager()
-	if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
-		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, a.clientsPool, false); e == nil {
-			return resolved, true
-		}
-	}
-	return nil, false
+	return GetVirtualNodesManager().GetResolver(a.clientsPool, false)(ctx, node)
 }
