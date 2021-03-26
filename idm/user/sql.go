@@ -134,6 +134,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 		return fmt.Errorf("cannot initialise index DAO: %v", err)
 	}
 
+	s.IndexSQL.FixRandHash2()
+
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../idm/user/migrations"),
