@@ -40,6 +40,7 @@ type Service interface {
 	Check(context.Context) error
 
 	Name() string
+	ID() string
 	Address() string
 	Regexp() *regexp.Regexp
 	Version() string

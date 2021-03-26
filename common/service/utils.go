@@ -35,24 +35,31 @@ func Retry(ctx context.Context, f func() error, seconds ...time.Duration) error 
 		return nil
 	}
 
-	tick := time.Tick(1 * time.Second)
-	timeout := time.After(30 * time.Second)
-	if len(seconds) == 2 {
-		tick = time.Tick(seconds[0])
-		timeout = time.After(seconds[1])
+	var tick *time.Ticker
+	var timeout *time.Timer
+	if len(seconds) == 0 {
+		tick = time.NewTicker(1 * time.Second)
+		timeout = time.NewTimer(30 * time.Second)
+	} else if len(seconds) == 2 {
+		tick = time.NewTicker(seconds[0])
+		timeout = time.NewTimer(seconds[1])
 	} else if len(seconds) == 1 {
-		tick = time.Tick(seconds[0])
+		tick = time.NewTicker(seconds[0])
+		timeout = time.NewTimer(30 * time.Second)
 	}
+
+	defer tick.Stop()
+	defer timeout.Stop()
 
 	for {
 		select {
-		case <-tick:
+		case <-tick.C:
 			if err := f(); err == nil {
 				return nil
 			}
 		case <-ctx.Done():
 			return nil
-		case <-timeout:
+		case <-timeout.C:
 			return fmt.Errorf("timeout")
 		}
 	}

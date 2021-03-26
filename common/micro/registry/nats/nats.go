@@ -21,6 +21,7 @@ type natsRegistry struct {
 	watchTopic string
 
 	sync.RWMutex
+
 	conn      *nats.Conn
 	services  map[string][]*registry.Service
 	listeners map[string]chan bool

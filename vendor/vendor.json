@@ -3733,6 +3733,12 @@
 			"revisionTime": "2018-03-17T19:19:20Z"
 		},
 		{
+			"checksumSHA1": "Umz2jfDHX4zDoycZwiuuFiyLOQ0=",
+			"path": "github.com/nats-io/stan.go",
+			"revision": "910e9bca44c8caf96e3e479874a589bf6c36e817",
+			"revisionTime": "2021-02-26T01:03:51Z"
+		},
+		{
 			"checksumSHA1": "uEc9/1HbYGeK7wPStF6FmUlfzGE=",
 			"path": "github.com/nicksnyder/go-i18n/i18n",
 			"revision": "a872b3191e0ec630a6c1219d74e56fe2053ab1c3",

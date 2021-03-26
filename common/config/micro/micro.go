@@ -53,6 +53,10 @@ func (m *mem) Del() error {
 	return nil
 }
 
+func (m *mem) Save(ctxUser, ctxMessage string) error {
+	return nil
+}
+
 func (m *mem) Watch(path ...string) (configx.Receiver, error) {
 	w, err := m.config.Watch(path...)
 	if err != nil {

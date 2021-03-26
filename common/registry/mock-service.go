@@ -82,6 +82,9 @@ func (m *mockService) Check(context.Context) error {
 func (m *mockService) Name() string {
 	return m.name
 }
+func (m *mockService) ID() string {
+	return m.name
+}
 func (m *mockService) Address() string {
 	return ""
 }

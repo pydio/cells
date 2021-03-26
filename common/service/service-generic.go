@@ -30,7 +30,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/codec"
 	"github.com/micro/go-micro/server"
@@ -61,6 +60,7 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 			srv := f(
 				server.Name(name),
+				server.Id(o.ID),
 				server.Address(s.Address()),
 			)
 
@@ -69,8 +69,6 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				// micro.RegisterTTL(time.Second*30),
-				// micro.RegisterInterval(time.Second*10),
 				micro.RegisterTTL(10*time.Minute),
 				micro.RegisterInterval(5*time.Minute),
 				micro.Transport(defaults.Transport()),
@@ -121,7 +119,7 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 
 			srv := defaults.NewHTTPServer(
 				server.Name(name),
-				server.Id(uuid.New().String()),
+				server.Id(o.ID),
 			)
 
 			hd := srv.NewHandler(handlerFunc())
@@ -136,8 +134,6 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
-				// micro.RegisterTTL(time.Second*30),
-				// micro.RegisterInterval(time.Second*10),
 				micro.RegisterTTL(10*time.Minute),
 				micro.RegisterInterval(5*time.Minute),
 				micro.AfterStart(func() error {
@@ -191,7 +187,7 @@ type genericServer struct {
 // NewGenericServer wraps a micro server out of a simple interface
 func NewGenericServer(srv interface{}, opt ...server.Option) server.Server {
 	opts := server.Options{
-		Address: server.DefaultAddress,
+		Address:  server.DefaultAddress,
 		Codecs:   make(map[string]codec.NewCodec),
 		Metadata: map[string]string{},
 	}
@@ -236,7 +232,7 @@ func (g *genericServer) Register() error {
 	var nodes []*microregistry.Node
 	if a, ok := g.srv.(Addressable); ok {
 
-		for _, address := range a.Addresses() {
+		for k, address := range a.Addresses() {
 			tcp, ok := address.(*net.TCPAddr)
 			if !ok {
 				continue
@@ -253,9 +249,14 @@ func (g *genericServer) Register() error {
 			for k, v := range config.Metadata {
 				md[k] = v
 			}
+
+			id := config.Name + "-" + config.Id
+			if k > 0 {
+				id = fmt.Sprintf("%s-%d", id, k)
+			}
 			// register service
 			node := &microregistry.Node{
-				Id:       fmt.Sprintf("%s-%s-%d", config.Name, ip, tcp.Port),
+				Id:       id,
 				Address:  ad,
 				Port:     tcp.Port,
 				Metadata: md,

@@ -4,6 +4,8 @@ import (
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/packr"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 func NewDAO(o dao.DAO) dao.DAO {
@@ -35,6 +37,17 @@ func (s *sqlimpl) Init(options configx.Values) error {
 
 	// super
 	s.DAO.Init(options)
+
+	migrations := &sql.PackrMigrationSource{
+		Box:         packr.NewBox("../../../common/config/sql/migrations"),
+		Dir:         "./" + s.DAO.Driver(),
+		TablePrefix: s.DAO.Prefix(),
+	}
+
+	_, err := sql.ExecMigration(s.DAO.DB(), s.DAO.Driver(), migrations, migrate.Up, s.DAO.Prefix())
+	if err != nil {
+		return err
+	}
 
 	// Preparing the db statements
 	if options.Val("prepare").Default(true).Bool() {

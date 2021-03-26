@@ -32,7 +32,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-web"
+	web "github.com/micro/go-web"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/cells/common/config/migrations"
+	"github.com/pydio/cells/common/config/remote"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
@@ -184,9 +185,15 @@ func initConfig() {
 	switch viper.GetString("config") {
 	case "mysql":
 		vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
-		defaultConfig = config.NewVault(
-			config.New(config.NewVersionStore(versionsStore, sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"))),
-			vaultConfig,
+		defaultConfig = config.New(
+			sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"),
+		)
+	case "remote":
+		vaultConfig = config.New(
+			remote.New("vault"),
+		)
+		defaultConfig = config.New(
+			remote.New("config"),
 		)
 	default:
 		source := file.NewSource(
@@ -207,18 +214,17 @@ func initConfig() {
 				),
 			))
 
-		defaultConfig =
-			config.NewVault(
-				config.New(
-					config.NewVersionStore(versionsStore, micro.New(
-						microconfig.NewConfig(
-							microconfig.WithSource(source),
-							microconfig.PollInterval(10*time.Second),
-						),
-					),
-					)),
-				vaultConfig,
-			)
+		defaultConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(source),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
+		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
 	}
 
 	config.Register(defaultConfig)
@@ -268,6 +274,7 @@ func initAdvertiseIP() {
 		log2.Fatal(err.Error())
 	}
 	if !ok {
+
 		net.DefaultAdvertiseAddress = advertise
 		web.DefaultAddress = advertise + ":0"
 		server.DefaultAddress = advertise + ":0"

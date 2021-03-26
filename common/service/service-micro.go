@@ -92,7 +92,10 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
 
-			srvOpts = append(srvOpts, server.Version(o.Version))
+			srvOpts = append(srvOpts,
+				server.Id(o.ID),
+				server.Version(o.Version),
+			)
 
 			srv := defaults.NewServer(srvOpts...)
 			svc.Init(

@@ -97,6 +97,7 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 
 			srv := defaults.NewHTTPServer(
 				server.Name(name),
+				server.Id(o.ID),
 			)
 
 			svc.Init(
@@ -104,8 +105,6 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Version(o.Version),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				// micro.RegisterTTL(time.Second*30),
-				// micro.RegisterInterval(time.Second*10),
 				micro.RegisterTTL(10*time.Minute),
 				micro.RegisterInterval(5*time.Minute),
 				micro.Context(ctx),

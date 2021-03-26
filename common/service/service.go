@@ -54,7 +54,6 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
@@ -76,12 +75,12 @@ func buildForkStartParams(name string) []string {
 	params := []string{
 		"start",
 		"--fork",
+		"--config", viper.GetString("config"),
 		"--registry", viper.GetString("registry"),
-		"--registry_address", viper.GetString("registry_address"),
-		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
-		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
 		"--broker", viper.GetString("broker"),
-		"--broker_address", viper.GetString("broker_address"),
+		"--nats_address", viper.GetString("nats_address"),
+		"--nats_cluster_address", viper.GetString("nats_cluster_address"),
+		"--nats_cluster_routes", viper.GetString("nats_cluster_routes"),
 	}
 	if viper.GetBool("enable_metrics") {
 		params = append(params, "--enable_metrics")
@@ -167,7 +166,6 @@ func NewService(opts ...ServiceOption) Service {
 		opts: newOptions(append(mandatoryOptions, opts...)...),
 		done: make(chan struct{}),
 	}
-	//opts: newOptions(append(mandatoryOptions(), opts...)...),
 
 	name := s.Options().Name
 
@@ -254,32 +252,6 @@ var mandatoryOptions = []ServiceOption{
 	AfterInit(func(s Service) error {
 		s.(*service).origCtx = s.Options().Context
 
-		return nil
-	}),
-
-	// Adding a check before starting the service to ensure only one is started if unique
-	BeforeStart(func(s Service) error {
-
-		// TODO - REDO THAT
-		// if s.MustBeUnique() && defaults.RuntimeIsCluster() {
-		// 	ctx := s.Options().Context
-		// 	serviceName := s.Name()
-		// 	cluster := registry.GetCluster(ctx, serviceName, &registry.NullFSM{})
-		// 	nodeId := s.Options().Micro.Server().Options().Id
-		// 	if err := cluster.Join(nodeId); err != nil {
-		// 		return err
-		// 	}
-		// 	s.Init(Cluster(cluster))
-		// 	<-cluster.LeadershipAcquired()
-		// }
-
-		return nil
-	}),
-
-	BeforeStop(func(s Service) error {
-		if s.MustBeUnique() && defaults.RuntimeIsCluster() && s.Options().Cluster != nil {
-			return s.Options().Cluster.Leave()
-		}
 		return nil
 	}),
 
@@ -395,7 +367,7 @@ var mandatoryOptions = []ServiceOption{
 				}
 
 				return fmt.Errorf("dependency %s not found", d.Name)
-			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
+			}, 50*time.Millisecond, 20*time.Minute) // This is long for distributed setup
 
 			if err != nil {
 				return err
@@ -406,6 +378,58 @@ var mandatoryOptions = []ServiceOption{
 
 		return nil
 	}),
+
+	// Adding a check before starting the service to ensure only one is started if unique
+	BeforeStart(func(s Service) error {
+		if !s.MustBeUnique() {
+			return nil
+		}
+
+		ticker := time.Tick(1 * time.Second)
+
+	loop:
+		for {
+			select {
+			case <-ticker:
+				if !s.IsRunning() {
+					break loop
+				}
+			}
+		}
+
+		return nil
+	}),
+
+	// Adding a check before starting the service to ensure only one is started if unique
+	// BeforeStart(func(s Service) error {
+	// 	if !s.MustBeUnique() {
+	// 		return nil
+	// 	}
+
+	// 	ctx := s.Options().Context
+	// 	serviceName := s.Name()
+	// 	cluster := registry.GetCluster(ctx, serviceName)
+
+	// 	s.Init(Cluster(cluster))
+
+	// 	nodeID := s.Options().ID
+	// 	if err := cluster.Join(nodeID); err != nil {
+	// 		return err
+	// 	}
+
+	// 	<-cluster.LeadershipAcquired()
+
+	// 	go func() {
+	// 		select {
+	// 		case <-cluster.LeadershipLost():
+	// 			s.Stop()
+	// 		case <-ctx.Done():
+	// 			return
+	// 		}
+	// 	}()
+
+	// 	return nil
+	// }),
 
 	// Adding the dao to the context
 	BeforeStart(func(s Service) error {
@@ -685,6 +709,10 @@ func (s *service) Name() string {
 	return s.Options().Name
 }
 
+func (s *service) ID() string {
+	return s.Options().ID
+}
+
 func (s *service) Tags() []string {
 	return s.Options().Tags
 }
@@ -776,8 +804,7 @@ func (s *service) RequiresFork() bool {
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) MustBeUnique() bool {
-	ctx := s.Options().Context
-	return s.Options().Unique || servicecontext.GetConfig(ctx).Val("unique").Bool()
+	return s.Options().Unique || config.Get("services", s.Options().Name, "unique").Bool()
 }
 
 // func (s *service) Client() (string, client.Client) {

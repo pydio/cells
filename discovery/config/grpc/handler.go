@@ -78,12 +78,8 @@ func (h *Handler) Read(ctx context.Context, request *proto.ReadRequest, response
 		} else {
 			value = config.Get().Bytes()
 		}
-		// } else if request.Id == "vault" {
-		// 	if request.Path != "" {
-		// 		value = config.Vault().Get(strings.Split(request.Path, "/")...).Bytes()
-		// 	} else {
-		// 		value = config.Vault().Bytes()
-		// 	}
+	} else if request.Id == "vault" {
+		value = config.Vault().Val(request.Path).Bytes()
 	} else {
 		return errors.BadRequest("config.read", "config ID not supported, please use config or vault")
 	}
@@ -111,6 +107,34 @@ func (h *Handler) AuditLog(ctx context.Context, request *proto.AuditLogRequest, 
 }
 
 func (h *Handler) Watch(ctx context.Context, request *proto.WatchRequest, stream proto.Config_WatchStream) error {
-	// TODO
+	if request.Id == "config" {
+		w, err := config.Watch()
+		if err != nil {
+			return err
+		}
+
+		for {
+			next, err := w.Next()
+			if err != nil {
+				return err
+			}
+
+			value := next.Bytes()
+
+			hasher := md5.New()
+			hasher.Write(value)
+			checksum := fmt.Sprintf("%x", hasher.Sum(nil))
+
+			stream.Send(&proto.WatchResponse{
+				Id: "config",
+				ChangeSet: &go_micro_os_config.ChangeSet{
+					Data:      string(value),
+					Source:    request.Id,
+					Checksum:  checksum,
+					Timestamp: time.Now().Unix(),
+				},
+			})
+		}
+	}
 	return nil
 }

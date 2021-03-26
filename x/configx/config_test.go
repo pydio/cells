@@ -22,6 +22,7 @@ var (
 		},
 		"service": {
 			"val": "test",
+			"@value": "default",
 			"map": {
 				"val": "test"
 			},
@@ -53,6 +54,8 @@ func TestStd(t *testing.T) {
 
 		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
+		So(m.Val("service/@value").Get().String(), ShouldEqual, "test")
+		So(m.Val("service", "@value").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/fakeval").Get(), ShouldBeNil)
 
 		So(m.Val("service").Val("val").Default("").String(), ShouldEqual, "test")

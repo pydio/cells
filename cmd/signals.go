@@ -34,6 +34,11 @@ func handleSignals() {
 			case syscall.SIGTERM:
 				fallthrough
 			case syscall.SIGINT:
+				// Start services that have not been deregistered via flags and filtering.
+				for _, service := range allServices {
+					service.Stop()
+				}
+
 				// Stopping the main context will trigger the stop of all services
 				log.Info("Cancelling main context")
 				cancel()
