@@ -253,6 +253,18 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 
 }
 
+// GetResolver injects some dependencies to generate a simple resolver function
+func (m *VirtualNodesManager) GetResolver(pool SourcesPool, createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
+	return func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+		if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
+			if resolved, e := vManager.ResolveInContext(ctx, virtualNode, pool, createIfNotExists); e == nil {
+				return resolved, true
+			}
+		}
+		return nil, false
+	}
+}
+
 func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
 	cl := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	// Check if vNode has this flag set

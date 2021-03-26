@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
@@ -53,7 +54,7 @@ const LimiterBurst = 20
 func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool views.SourcesPool) {
 
 	ctx := context.WithValue(context.Background(), claim.ContextKey, claims)
-	vNodeManager := views.GetVirtualNodesManager()
+	vNodeResolver := views.GetVirtualNodesManager().GetResolver(pool, true)
 	if accessList, err := permissions.AccessListFromContextClaims(ctx); err == nil {
 		roles := accessList.OrderedRoles
 		workspaces := accessList.Workspaces
@@ -61,13 +62,11 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 		for _, workspaces := range workspaces {
 			var resolvedRoots []string
 			for _, rootId := range workspaces.RootUUIDs {
-				if vNode, exists := vNodeManager.ByUuid(rootId); exists {
-					if resolved, e := vNodeManager.ResolveInContext(ctx, vNode, pool, true); e == nil && resolved.Uuid != "" {
-						resolvedRoots = append(resolvedRoots, resolved.Uuid)
-					}
-					continue // skip this node totally if the resolution failed
+				if resolved, ok := vNodeResolver(ctx, &tree.Node{Uuid: rootId}); ok {
+					resolvedRoots = append(resolvedRoots, resolved.Uuid)
+				} else {
+					resolvedRoots = append(resolvedRoots, rootId)
 				}
-				resolvedRoots = append(resolvedRoots, rootId)
 			}
 			workspaces.RootUUIDs = resolvedRoots
 		}
