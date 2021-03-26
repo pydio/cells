@@ -50,7 +50,7 @@ const (
 const LimiterRate = 30
 const LimiterBurst = 20
 
-func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool *views.ClientsPool) {
+func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool views.SourcesPool) {
 
 	ctx := context.WithValue(context.Background(), claim.ContextKey, claims)
 	vNodeManager := views.GetVirtualNodesManager()

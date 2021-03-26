@@ -53,8 +53,8 @@ var (
 // VirtualNodesManager keeps an internal list of virtual nodes.
 // They are cached for one minute to avoid too many requests on docstore service.
 type VirtualNodesManager struct {
-	VirtualNodes []*tree.Node
-	loginLower   bool
+	nodes      []*tree.Node
+	loginLower bool
 }
 
 // GetVirtualNodesManager creates a new VirtualNodesManager.
@@ -75,12 +75,12 @@ func GetVirtualNodesManager() *VirtualNodesManager {
 func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	if len(forceReload) == 0 || !forceReload[0] {
 		if vNodes, found := vManagerCache.Get("###virtual-nodes###"); found {
-			m.VirtualNodes = vNodes.([]*tree.Node)
+			m.nodes = vNodes.([]*tree.Node)
 			return
 		}
 	}
 	log.Logger(context.Background()).Debug("Reloading virtual nodes to cache")
-	m.VirtualNodes = []*tree.Node{}
+	m.nodes = []*tree.Node{}
 	cli := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	stream, e := cli.ListDocuments(context.Background(), &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
@@ -105,10 +105,10 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 			log.Logger(context.Background()).Error("Cannot unmarshal data: "+data, zap.Error(er))
 		} else {
 			log.Logger(context.Background()).Debug("Loading virtual node: ", zap.Any("node", node))
-			m.VirtualNodes = append(m.VirtualNodes, &node)
+			m.nodes = append(m.nodes, &node)
 		}
 	}
-	vManagerCache.Set("###virtual-nodes###", m.VirtualNodes, cache.DefaultExpiration)
+	vManagerCache.Set("###virtual-nodes###", m.nodes, cache.DefaultExpiration)
 	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
 		m.loginLower = true
 	}
@@ -117,7 +117,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 // ByUuid finds a VirtualNode by its Uuid.
 func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 
-	for _, n := range m.VirtualNodes {
+	for _, n := range m.nodes {
 		if n.Uuid == uuid {
 			return n, true
 		}
@@ -129,7 +129,7 @@ func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 // ByPath finds a VirtualNode by its Path.
 func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
-	for _, n := range m.VirtualNodes {
+	for _, n := range m.nodes {
 		if strings.Trim(n.Path, "/") == strings.Trim(path, "/") {
 			return n, true
 		}
@@ -140,22 +140,22 @@ func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
 // ListNodes simply returns the internally cached list.
 func (m *VirtualNodesManager) ListNodes() []*tree.Node {
-	return m.VirtualNodes
+	return m.nodes
 }
 
 // ResolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
-func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool *ClientsPool) (*tree.Node, error) {
+func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool SourcesPool) (*tree.Node, error) {
 
 	resolved := &tree.Node{}
 	resolutionString := vNode.MetaStore["resolution"]
 	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
 
 		datasourceKeys := map[string]string{}
-		if len(clientsPool.Sources) == 0 {
+		if len(clientsPool.GetDataSources()) == 0 {
 			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
-			clientsPool.listDatasources()
+			clientsPool.LoadDataSources()
 		}
-		for key, _ := range clientsPool.Sources {
+		for key, _ := range clientsPool.GetDataSources() {
 			datasourceKeys[key] = key
 		}
 		uName := vars["User.Name"]
@@ -193,7 +193,7 @@ func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tr
 
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
 // and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool, retry ...bool) (*tree.Node, error) {
+func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool SourcesPool, create bool, retry ...bool) (*tree.Node, error) {
 
 	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
 
@@ -222,11 +222,11 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	} else if errors.Parse(e.Error()).Code == 404 {
 		if len(retry) == 0 {
 			// Retry once
-			clientsPool.listDatasources()
-			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.Sources)))
+			clientsPool.LoadDataSources()
+			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.GetDataSources())))
 			return m.ResolveInContext(ctx, vNode, clientsPool, create, true)
 		} else {
-			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.Sources))
+			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.GetDataSources()))
 		}
 	}
 	if create {

@@ -48,7 +48,7 @@ const (
 
 type ChatHandler struct {
 	Websocket *melody.Melody
-	Pool      *views.ClientsPool
+	Pool      views.SourcesPool
 }
 
 // NewChatHandler creates a new ChatHandler

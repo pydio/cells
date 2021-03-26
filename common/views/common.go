@@ -71,6 +71,15 @@ type (
 		Client *minio.Core
 	}
 
+	SourcesPool interface {
+		Close()
+		GetTreeClient() tree.NodeProviderClient
+		GetTreeClientWrite() tree.NodeReceiverClient
+		GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error)
+		GetDataSources() map[string]LoadedSource
+		LoadDataSources()
+	}
+
 	BranchInfo struct {
 		LoadedSource
 		idm.Workspace
@@ -136,7 +145,7 @@ type Handler interface {
 	ListNodesWithCallback(ctx context.Context, request *tree.ListNodesRequest, callback WalkFunc, ignoreCbError bool, filters ...WalkFilter) error
 
 	SetNextHandler(h Handler)
-	SetClientsPool(p *ClientsPool)
+	SetClientsPool(p SourcesPool)
 }
 
 func WithBranchInfo(ctx context.Context, identifier string, branchInfo BranchInfo, reset ...bool) context.Context {
@@ -181,7 +190,7 @@ func AccessListFromContext(ctx context.Context) (*permissions.AccessList, error)
 	}
 }
 
-func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p *ClientsPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
+func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier string, p SourcesPool, orParents bool) (updatedContext context.Context, parentsList []*tree.Node, e error) {
 
 	branchInfo, hasBranchInfo := GetBranchInfo(ctx, identifier)
 	if hasBranchInfo && branchInfo.AncestorsList != nil {

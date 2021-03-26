@@ -23,9 +23,6 @@ package views
 import (
 	"context"
 
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -58,9 +55,7 @@ func (v *VirtualNodesResolver) updateInput(ctx context.Context, node *tree.Node,
 			branchInfo.Root = resolvedRoot
 			ctx = WithBranchInfo(ctx, identifier, branchInfo)
 			if accessList, err := AccessListFromContext(ctx); err == nil {
-				if aclNodeMask, has := accessList.GetNodesBitmasks()[originalUuid]; has {
-					log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", virtual), zap.Any("resolved", resolvedRoot))
-					accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
+				if copied := accessList.ReplicateBitmask(originalUuid, resolvedRoot.Uuid); copied {
 					ctx = context.WithValue(ctx, CtxUserAccessListKey{}, accessList)
 				}
 			}

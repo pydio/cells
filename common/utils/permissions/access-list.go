@@ -140,6 +140,15 @@ func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
 	return a.NodesAcls
 }
 
+// ReplicateBitmask copies a bitmask value from one position to another
+func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string) bool {
+	if b, o := a.NodesAcls[fromUuid]; o {
+		a.NodesAcls[toUuid] = b
+		return true
+	}
+	return false
+}
+
 // GetAccessibleWorkspaces retrieves a map of accessible workspaces.
 func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]string {
 	accessListWsNodes := a.GetWorkspacesNodes()
