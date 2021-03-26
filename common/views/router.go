@@ -137,7 +137,7 @@ func NewUuidRouter(options RouterOptions) *Router {
 }
 
 // NewRouter creates and configures a new router with given ClientsPool and Handlers.
-func NewRouter(pool *ClientsPool, handlers []Handler) *Router {
+func NewRouter(pool SourcesPool, handlers []Handler) *Router {
 	r := &Router{
 		handlers: handlers,
 		pool:     pool,
@@ -148,7 +148,7 @@ func NewRouter(pool *ClientsPool, handlers []Handler) *Router {
 
 type Router struct {
 	handlers []Handler
-	pool     *ClientsPool
+	pool     SourcesPool
 }
 
 func (v *Router) initHandlers() {
@@ -298,8 +298,8 @@ func (v *Router) CanApply(ctx context.Context, operation *tree.NodeChangeEvent) 
 }
 
 // To respect Handler interface
-func (v *Router) SetNextHandler(h Handler)      {}
-func (v *Router) SetClientsPool(p *ClientsPool) {}
+func (v *Router) SetNextHandler(Handler)     {}
+func (v *Router) SetClientsPool(SourcesPool) {}
 
 // GetExecutor uses the very last handler (Executor) to send a request with a previously filled context.
 func (v *Router) GetExecutor() Handler {
@@ -307,6 +307,6 @@ func (v *Router) GetExecutor() Handler {
 }
 
 // Specific to Router
-func (v *Router) GetClientsPool() *ClientsPool {
+func (v *Router) GetClientsPool() SourcesPool {
 	return v.pool
 }

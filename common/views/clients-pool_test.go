@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-var pools []*ClientsPool
+var pools []SourcesPool
 
 func BenchmarkClientsPoolWithoutRegistryWatch(b *testing.B) {
 

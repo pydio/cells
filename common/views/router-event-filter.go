@@ -144,7 +144,7 @@ func (r *RouterEventFilter) NodeIsChildOfRoot(ctx context.Context, node *tree.No
 
 }
 
-// getRoot provides a loaded root node from the cache or from the TreeClient
+// getRoot provides a loaded root node from the cache or from the treeClient
 func (r *RouterEventFilter) getRoot(ctx context.Context, rootId string) *tree.Node {
 
 	if node, ok := r.RootNodesCache.Get(rootId); ok {
