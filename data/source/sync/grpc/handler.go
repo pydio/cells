@@ -519,6 +519,13 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			log.Logger(c).Error("Could not run index Lost+found "+e.Error(), zap.Error(e))
 		}
 	}
+	if s.SyncConfig.FlatStorage {
+		if doneChan != nil {
+			doneChan <- true
+		}
+		resp.Success = true
+		return nil
+	}
 
 	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
 	// Copy context
