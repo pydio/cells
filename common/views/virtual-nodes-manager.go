@@ -34,6 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
@@ -150,13 +151,12 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
 
 	resolved := &tree.Node{}
-	userName, _ := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
+	userName, claim := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
-		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
+		return nil, errors.New("claims.not.found", "No Claims found in context", 500)
 	}
-	vars := map[string]string{"User.Name": userName}
-	resolved, e := m.resolvePathWithVars(ctx, vNode, vars, clientsPool)
+	resolved, e := m.resolvePathWithClaims(ctx, vNode, claim, clientsPool)
 	if e != nil {
 		return nil, e
 	}
@@ -217,10 +217,34 @@ func (m *VirtualNodesManager) GetResolver(pool SourcesPool, createIfNotExists bo
 	}
 }
 
-// resolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
-func (m *VirtualNodesManager) resolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool SourcesPool) (*tree.Node, error) {
+// toJsUser transforms claims to JsUser
+func (m *VirtualNodesManager) toJsUser(c claim.Claims) *permissions.JsUser {
+	uName := c.Name
+	if m.loginLower {
+		uName = strings.ToLower(uName)
+	}
+	gFlat := strings.Join(strings.Split(strings.Trim(c.GroupPath, "/"), "/"), "_")
+	if gFlat == "" {
+		gFlat = "root_group_flat"
+	}
+	return &permissions.JsUser{
+		Uuid:        c.Subject,
+		Name:        uName,
+		GroupPath:   strings.Trim(c.GroupPath, "/"),
+		GroupFlat:   gFlat,
+		Profile:     c.Profile,
+		DisplayName: c.DisplayName,
+		Email:       c.Email,
+		AuthSource:  c.AuthSource,
+		Roles:       strings.Split(c.Roles, ","),
+	}
+}
+
+// resolvePathWithClaims performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
+func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *tree.Node, c claim.Claims, clientsPool SourcesPool) (*tree.Node, error) {
 
 	resolved := &tree.Node{}
+	jsUser := m.toJsUser(c)
 	resolutionString := vNode.MetaStore["resolution"]
 	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
 
@@ -232,12 +256,8 @@ func (m *VirtualNodesManager) resolvePathWithVars(ctx context.Context, vNode *tr
 		for key, _ := range clientsPool.GetDataSources() {
 			datasourceKeys[key] = key
 		}
-		uName := vars["User.Name"]
-		if m.loginLower {
-			uName = strings.ToLower(uName)
-		}
 		in := map[string]interface{}{
-			"User":        &permissions.JsUser{Name: uName},
+			"User":        jsUser,
 			"DataSources": datasourceKeys,
 		}
 		out := map[string]interface{}{
@@ -245,14 +265,13 @@ func (m *VirtualNodesManager) resolvePathWithVars(ctx context.Context, vNode *tr
 		}
 		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
 			resolved.Path = out["Path"].(string)
-			//log.Logger(ctx).Debug("Javascript Resolved Objects", zap.Any("in", in), zap.Any("out", out))
 		} else {
 			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
 			return nil, e
 		}
 
 	} else {
-		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", vars["User.Name"], -1)
+		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", jsUser.Name, -1)
 	}
 
 	resolved.Type = vNode.Type
