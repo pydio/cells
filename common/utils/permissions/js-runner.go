@@ -33,9 +33,15 @@ import (
 )
 
 type JsUser struct {
-	Name               string
-	GroupPath          string
-	GroupPathFlattened string
+	Uuid        string
+	Name        string
+	GroupPath   string
+	GroupFlat   string
+	Profile     string
+	DisplayName string
+	Email       string
+	AuthSource  string
+	Roles       []string
 }
 
 type JsRequest struct {
