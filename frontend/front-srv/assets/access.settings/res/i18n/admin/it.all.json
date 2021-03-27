@@ -1085,6 +1085,12 @@
   "virtual.code.edit": {
     "other": "Modifica codice"
   },
+  "virtual.card.title": {
+    "other": "Dynamically computed path"
+  },
+  "virtual.card.cleanOnDelete": {
+    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
+  },
   "ws.1": {
     "other": "Gestisci i DataSource"
   },
