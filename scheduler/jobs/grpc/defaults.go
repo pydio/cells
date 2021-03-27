@@ -115,6 +115,9 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
+	usersOnlyQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+		NodeType: idm.NodeType_USER,
+	})
 	cleanUserDataJob := &jobs.Job{
 		ID:                "clean-user-data",
 		Owner:             common.PydioSystemUsername,
@@ -124,6 +127,12 @@ func getDefaultJobs() []*jobs.Job {
 		TasksSilentUpdate: true,
 		EventNames: []string{
 			jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_DELETE),
+		},
+		IdmFilter: &jobs.IdmSelector{
+			Type: jobs.IdmSelectorType_User,
+			Query: &service.Query{
+				SubQueries: []*any.Any{usersOnlyQ},
+			},
 		},
 		Actions: []*jobs.Action{
 			{
