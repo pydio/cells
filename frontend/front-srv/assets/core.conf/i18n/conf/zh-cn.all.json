@@ -12,7 +12,7 @@
     "other": "Allow Role Listing"
   },
   "Allow the users to create a new user when sharing a folder": {
-    "other": "Allow the users to create a new user when sharing a folder"
+    "other": "允许用户在共享文件夹时创建新用户"
   },
   "Allow the users to pick an existing user when sharing a folder": {
     "other": "Allow the users to pick an existing user when sharing a folder"
@@ -120,7 +120,7 @@
     "other": "List existing from all groups"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "List of parameters to be edited when creating a new shared user."
+    "other": "创建新共享用户时要编辑的参数列表。"
   },
   "Make regexp mandatory": {
     "other": "Make regexp mandatory"
@@ -129,10 +129,10 @@
     "other": "每个用户的最大共享用户数"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "Maximum number of users displayed in the users autocompleter"
+    "other": "用户自动完成时显示的最大用户数"
   },
   "Minimum number of characters to trigger the auto completion feature": {
-    "other": "Minimum number of characters to trigger the auto completion feature"
+    "other": "触发自动完成功能的最小字符数"
   },
   "Name": {
     "other": "组名"
@@ -180,7 +180,7 @@
     "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
-    "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
+    "other": "使用此选项以避免自动重新加载界面状态(如最后一个文件夹，打开标签等)"
   },
   "User Language": {
     "other": "用户语言"
@@ -189,7 +189,7 @@
     "other": "User roles only"
   },
   "Users Directory Listing": {
-    "other": "Users Directory Listing"
+    "other": "用户目录列表"
   },
   "Users Lock Action": {
     "other": "Users Lock Action"
