@@ -143,54 +143,6 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 	return m.nodes
 }
 
-// ResolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
-func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool SourcesPool) (*tree.Node, error) {
-
-	resolved := &tree.Node{}
-	resolutionString := vNode.MetaStore["resolution"]
-	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
-
-		datasourceKeys := map[string]string{}
-		if len(clientsPool.GetDataSources()) == 0 {
-			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
-			clientsPool.LoadDataSources()
-		}
-		for key, _ := range clientsPool.GetDataSources() {
-			datasourceKeys[key] = key
-		}
-		uName := vars["User.Name"]
-		if m.loginLower {
-			uName = strings.ToLower(uName)
-		}
-		in := map[string]interface{}{
-			"User":        &permissions.JsUser{Name: uName},
-			"DataSources": datasourceKeys,
-		}
-		out := map[string]interface{}{
-			"Path": "",
-		}
-		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
-			resolved.Path = out["Path"].(string)
-			//log.Logger(ctx).Debug("Javascript Resolved Objects", zap.Any("in", in), zap.Any("out", out))
-		} else {
-			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
-			return nil, e
-		}
-
-	} else {
-		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", vars["User.Name"], -1)
-	}
-
-	resolved.Type = vNode.Type
-
-	parts := strings.Split(resolved.Path, "/")
-	resolved.SetMeta(common.MetaNamespaceDatasourceName, parts[0])
-	resolved.SetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[1:], "/"))
-
-	return resolved, nil
-
-}
-
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
 // and the current metadata contained in context.
 func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool SourcesPool, create bool, retry ...bool) (*tree.Node, error) {
@@ -204,7 +156,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
 	}
 	vars := map[string]string{"User.Name": userName}
-	resolved, e := m.ResolvePathWithVars(ctx, vNode, vars, clientsPool)
+	resolved, e := m.resolvePathWithVars(ctx, vNode, vars, clientsPool)
 	if e != nil {
 		return nil, e
 	}
@@ -265,6 +217,55 @@ func (m *VirtualNodesManager) GetResolver(pool SourcesPool, createIfNotExists bo
 	}
 }
 
+// resolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
+func (m *VirtualNodesManager) resolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool SourcesPool) (*tree.Node, error) {
+
+	resolved := &tree.Node{}
+	resolutionString := vNode.MetaStore["resolution"]
+	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
+
+		datasourceKeys := map[string]string{}
+		if len(clientsPool.GetDataSources()) == 0 {
+			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
+			clientsPool.LoadDataSources()
+		}
+		for key, _ := range clientsPool.GetDataSources() {
+			datasourceKeys[key] = key
+		}
+		uName := vars["User.Name"]
+		if m.loginLower {
+			uName = strings.ToLower(uName)
+		}
+		in := map[string]interface{}{
+			"User":        &permissions.JsUser{Name: uName},
+			"DataSources": datasourceKeys,
+		}
+		out := map[string]interface{}{
+			"Path": "",
+		}
+		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
+			resolved.Path = out["Path"].(string)
+			//log.Logger(ctx).Debug("Javascript Resolved Objects", zap.Any("in", in), zap.Any("out", out))
+		} else {
+			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
+			return nil, e
+		}
+
+	} else {
+		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", vars["User.Name"], -1)
+	}
+
+	resolved.Type = vNode.Type
+
+	parts := strings.Split(resolved.Path, "/")
+	resolved.SetMeta(common.MetaNamespaceDatasourceName, parts[0])
+	resolved.SetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[1:], "/"))
+
+	return resolved, nil
+
+}
+
+// copyRecycleRootAcl creates recycle_root ACL on newly created node
 func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
 	cl := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	// Check if vNode has this flag set
