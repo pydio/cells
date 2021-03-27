@@ -1085,6 +1085,12 @@
   "virtual.code.edit": {
     "other": "Editer le code"
   },
+  "virtual.card.title": {
+    "other": "Chemin calculé dynamiquement"
+  },
+  "virtual.card.cleanOnDelete": {
+    "other": "Lors de la suppression d'un utilisateur, renommer le dossier en {deleted-NAME-UUID}."
+  },
   "ws.1": {
     "other": "Gérer les Datasources"
   },

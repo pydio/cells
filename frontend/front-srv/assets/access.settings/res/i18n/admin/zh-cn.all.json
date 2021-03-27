@@ -288,10 +288,10 @@
     "other": "Do not enable versioning"
   },
   "ds.encryption": {
-    "other": "Encrypted"
+    "other": "已加密"
   },
   "ds.encryption.key.emptyState": {
-    "other": "No master key created"
+    "other": "未创建主密钥"
   },
   "ds.encryption.key.create": {
     "other": "创建密钥"
@@ -327,7 +327,7 @@
     "other": "导入私钥"
   },
   "ds.encryption.key.import.content": {
-    "other": "Paste key here from your backup file"
+    "other": "从您的备份文件粘贴密钥至此"
   },
   "ds.encryption.key.import.fail": {
     "other": "导入时出现错误"
@@ -405,7 +405,7 @@
     "other": "创建版本中"
   },
   "ds.syncStatus": {
-    "other": "Last Sync"
+    "other": "上次同步"
   },
   "ds.emptyState": {
     "other": "No datasources created yet"
@@ -417,7 +417,7 @@
     "other": "名称"
   },
   "ds.versioning.periods": {
-    "other": "Retention Strategy"
+    "other": "保留策略"
   },
   "logs.1": {
     "other": "服务器日志"
@@ -987,22 +987,22 @@
     "other": "Last connected"
   },
   "user.filter.tooltip": {
-    "other": "Filter users list..."
+    "other": "过滤用户列表..."
   },
   "user.filter.internal": {
     "other": "内部用户"
   },
   "user.filter.shared": {
-    "other": "Shared users"
+    "other": "共享用户"
   },
   "user.filter.admins": {
-    "other": "Admins only"
+    "other": "仅管理员可用"
   },
   "user.filter.all": {
     "other": "所有用户"
   },
   "user.filter.anon": {
-    "other": "Show anonymous"
+    "other": "显示匿名信息"
   },
   "versions.editor.delete": {
     "other": "Delete Policy"
@@ -1017,10 +1017,10 @@
     "other": "Policy %s"
   },
   "versions.period.keep-all": {
-    "other": "Keep all"
+    "other": "保持所有"
   },
   "versions.period.keep-all.always": {
-    "other": "Always keep all versions"
+    "other": "总是保留所有版本"
   },
   "versions.period.keep-n": {
     "other": "Keep %s versions"
@@ -1038,7 +1038,7 @@
     "other": "Remove all after %s"
   },
   "versions.period.retentions-n": {
-    "other": "%s retention periods"
+    "other": "%s 保留期"
   },
   "virtual.create": {
     "other": "+ Template Path"
@@ -1084,6 +1084,12 @@
   },
   "virtual.code.edit": {
     "other": "Edit code"
+  },
+  "virtual.card.title": {
+    "other": "Dynamically computed path"
+  },
+  "virtual.card.cleanOnDelete": {
+    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
   },
   "ws.1": {
     "other": "Manage DataSources"
@@ -1155,7 +1161,7 @@
     "other": "+ 添加工作区"
   },
   "ws.filter.workspaces": {
-    "other": "Filter workspaces..."
+    "other": "过滤工作区..."
   },
   "ws.30": {
     "other": "通用设置"
@@ -1431,16 +1437,16 @@
     "other": "Technical name used for example in URLs, automatically computed but you can customize it."
   },
   "services.filter.nofilter": {
-    "other": "All Services"
+    "other": "所有服务"
   },
   "services.filter.started": {
-    "other": "Running Only"
+    "other": "仅运行中"
   },
   "services.filter.stopped": {
-    "other": "Stopped Only"
+    "other": "仅已停止"
   },
   "services.peerfilter.title": {
-    "other": "Select Node"
+    "other": "选择节点"
   },
   "services.toggle.details": {
     "other": "Show Details"

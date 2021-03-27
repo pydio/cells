@@ -75,7 +75,7 @@
     "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
   },
   "Minimum number of characters required for passwords in the application": {
-    "other": "Minimum number of characters required for passwords in the application"
+    "other": "应用程序中密码所需的最小字符数"
   },
   "Mode": {
     "other": "Mode"
@@ -90,7 +90,7 @@
     "other": "Password length"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
-    "other": "Raise the security of the login form by disabling autocompletion and remember me feature"
+    "other": "禁用自动完成和记住我的功能，从而提高登录表单的安全性"
   },
   "Secondary Instance (optional)": {
     "other": "Secondary Instance (optional)"
@@ -135,7 +135,7 @@
     "other": "安全性"
   },
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
-    "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
+    "other": "点击忘记密码时触发的动作。如果您依赖外部身份验证系统，可以修改它来触发自定义动作。"
   },
   "Let user create new cells": {
     "other": "允许用户创建新资料库"
@@ -144,10 +144,10 @@
     "other": "用户是否可以创建自己的资料库"
   },
   "Delegation": {
-    "other": "Delegation"
+    "other": "委托"
   },
   "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
-    "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."
+    "other": "目录搜索时，是寻找以该字符串”起始“的标签。开启此选项将会在关键字前面增加通配符，以寻找”包含“该字符串的标签。"
   },
   "Auto-wildcard search": {
     "other": "Auto-wildcard search"
