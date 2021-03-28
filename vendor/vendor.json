@@ -5285,6 +5285,12 @@
 			"revisionTime": "2018-04-03T08:00:15Z"
 		},
 		{
+			"checksumSHA1": "Ok3qA+4QimzFsCKF9q4GhjxACEU=",
+			"path": "golang.org/x/crypto/chacha20poly1305",
+			"revision": "4b2356b1ed79e6be3deca3737a3db3d132d2847a",
+			"revisionTime": "2020-04-23T13:34:55Z"
+		},
+		{
 			"checksumSHA1": "IQkUIOnvlf0tYloFx9mLaXSvXWQ=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/lucas-clemente/quic-go/vendor/golang.org/x/crypto/curve25519",
 			"path": "golang.org/x/crypto/curve25519",
@@ -5309,6 +5315,12 @@
 			"path": "golang.org/x/crypto/hkdf",
 			"revision": "f1eaae9b0d4a6e37882ba2cd38cc842513c502cf",
 			"revisionTime": "2018-03-19T02:42:43Z"
+		},
+		{
+			"checksumSHA1": "/U7f2gaH6DnEmLguVLDbipU6kXU=",
+			"path": "golang.org/x/crypto/internal/subtle",
+			"revision": "4b2356b1ed79e6be3deca3737a3db3d132d2847a",
+			"revisionTime": "2020-04-23T13:34:55Z"
 		},
 		{
 			"checksumSHA1": "Y6BnkY5EoAxAtT13cbEj5vn6Qvc=",
