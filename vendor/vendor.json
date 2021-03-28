@@ -1209,10 +1209,10 @@
 			"versionExact": "v1.3.4"
 		},
 		{
-			"checksumSHA1": "XEBl9iQQvfXNlwCSzyAOCqAlYEA=",
+			"checksumSHA1": "TQW9E4NflWzBAJltFg9MI8Bv+jw=",
 			"path": "github.com/fatih/color",
-			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
-			"revisionTime": "2018-03-13T15:00:56Z"
+			"revision": "4d2835ff85a014514ee435d49f76dc8b25c9cee3",
+			"revisionTime": "2021-01-31T22:15:18Z"
 		},
 		{
 			"checksumSHA1": "/rTYnixxZiY35IM5tGJzyhf4al8=",
@@ -2306,6 +2306,14 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
+			"checksumSHA1": "daFoVTCGe8Mr968z1Hiof7EIfKI=",
+			"path": "github.com/hashicorp/go-hclog",
+			"revision": "4a9e55fb9e7db75382c419e20dd1eb26821ec85e",
+			"revisionTime": "2020-06-01T16:38:14Z",
+			"version": "v0.14.1",
+			"versionExact": "v0.14.1"
+		},
+		{
 			"checksumSHA1": "Cas2nprG6pWzf05A2F/OlnjUu2Y=",
 			"path": "github.com/hashicorp/go-immutable-radix",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
@@ -2474,10 +2482,12 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "LnMh6ZxLFqLXfyVJxVswjjjhszQ=",
+			"checksumSHA1": "7uxdrYDA+5NMGSr8zBEh7fWZTbI=",
 			"path": "github.com/hashicorp/raft",
-			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
-			"revisionTime": "2018-04-06T17:35:14Z"
+			"revision": "ecd4720b4481723c8141daea7015b53d9d79c9f8",
+			"revisionTime": "2020-10-05T19:26:26Z",
+			"version": "v1.2.0",
+			"versionExact": "v1.2.0"
 		},
 		{
 			"checksumSHA1": "vXgcIihk16l/7ddKIlZoXsR79Qo=",
@@ -2638,6 +2648,12 @@
 			"path": "github.com/karrick/godirwalk",
 			"revision": "5e617d9cfec6f870e63b168e9a2fb7c490a1c108",
 			"revisionTime": "2019-05-10T20:35:04Z"
+		},
+		{
+			"checksumSHA1": "9igSnG+tvh/tWb04uZIqYcVEti0=",
+			"path": "github.com/klauspost/compress/s2",
+			"revision": "a3b7545c88eea469c2246bee0e6c130525d56190",
+			"revisionTime": "2021-03-26T09:59:41Z"
 		},
 		{
 			"checksumSHA1": "ZAwOhj3rRI9u1+XelsFJmYMSGpY=",
@@ -3572,6 +3588,12 @@
 			"revisionTime": "2018-04-06T15:09:55Z"
 		},
 		{
+			"checksumSHA1": "tZN/JWQ0R3j2GGv31wzegOeptn0=",
+			"path": "github.com/minio/highwayhash",
+			"revision": "08ce0b4fa7932a018438133f1b632e1c674d4107",
+			"revisionTime": "2021-03-25T15:26:29Z"
+		},
+		{
 			"checksumSHA1": "GzfpPGtV2UJH9hFsKwzGjKrhp/A=",
 			"path": "github.com/mitchellh/cli",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
@@ -3695,12 +3717,130 @@
 			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
+			"checksumSHA1": "O5wmj7oYvST/K2a5E3KYZJYrmLg=",
+			"path": "github.com/nats-io/jwt",
+			"revision": "22bf1cf3386b569ad632f92d4e944c27ddecd875",
+			"revisionTime": "2021-03-14T23:05:23Z"
+		},
+		{
+			"checksumSHA1": "Yb4+CduSzpJEtsHZaedzXLDvjUo=",
+			"path": "github.com/nats-io/jwt/v2",
+			"revision": "22bf1cf3386b569ad632f92d4e944c27ddecd875",
+			"revisionTime": "2021-03-14T23:05:23Z"
+		},
+		{
 			"checksumSHA1": "JfriV4PsYnnLZwl10HxoJKCCVaY=",
 			"path": "github.com/nats-io/nats",
 			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
 			"revisionTime": "2019-06-03T23:44:50Z",
 			"version": "v1.8.0",
 			"versionExact": "v1.8.0"
+		},
+		{
+			"checksumSHA1": "lZ02rQ/OeznRaRMb9wwBwqZKn6U=",
+			"origin": "github.com/nats-io/nats-server/conf",
+			"path": "github.com/nats-io/nats-server/v2/conf",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "VGaiEp3HkTcx4QSENgQc7baJwlk=",
+			"origin": "github.com/nats-io/nats-server/internal/ldap",
+			"path": "github.com/nats-io/nats-server/v2/internal/ldap",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "eaQuwTGoVpsFluK5Zdw+rDuKFkg=",
+			"origin": "github.com/nats-io/nats-server/logger",
+			"path": "github.com/nats-io/nats-server/v2/logger",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "kCbrK25eJocZjv4pJZ5c+BkhWZw=",
+			"origin": "github.com/nats-io/nats-server/server",
+			"path": "github.com/nats-io/nats-server/v2/server",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "mayVj3XD7PGUxKn8riMiSCa/7KM=",
+			"origin": "github.com/nats-io/nats-server/server/pse",
+			"path": "github.com/nats-io/nats-server/v2/server/pse",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "vqHCbVnlEPPiW8UCZgWJEj6od58=",
+			"origin": "github.com/nats-io/nats-server/server/sysmem",
+			"path": "github.com/nats-io/nats-server/v2/server/sysmem",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "v3/y/6NKoXjFYa6fAT0kemmLabc=",
+			"path": "github.com/nats-io/nats-streaming-server",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "Rf/i4ehkGZwbvjhEcpePaghE8uU=",
+			"path": "github.com/nats-io/nats-streaming-server/logger",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "G+bTG4BkXtWbUWJphiy3pDhHPLY=",
+			"path": "github.com/nats-io/nats-streaming-server/server",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "vIewFCUUAiW20dnzsXNR/HQCZe0=",
+			"path": "github.com/nats-io/nats-streaming-server/spb",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "I4EbFXo+vndIJLm6L85oItw+b0g=",
+			"path": "github.com/nats-io/nats-streaming-server/stores",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "pmQcPBnMjn3F8UsfmkPFMITlHkk=",
+			"path": "github.com/nats-io/nats-streaming-server/stores/pqdeadlines",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "bM75v1JFAMMztMajx1cltGlILac=",
+			"path": "github.com/nats-io/nats-streaming-server/util",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "lPlnpHy07ZzxqMp6/8anTH6DWOU=",
+			"path": "github.com/nats-io/nats.go",
+			"revision": "120703c6d80965e2f1e7a542c88dc574987b17e1",
+			"revisionTime": "2020-05-14T01:22:14Z",
+			"version": "v1.10.0",
+			"versionExact": "v1.10.0"
 		},
 		{
 			"checksumSHA1": "wTJ0MPVAQnb2a+vdzNWSSqxfiyM=",
@@ -3721,10 +3861,12 @@
 			"revisionTime": "2018-03-13T15:00:56Z"
 		},
 		{
-			"checksumSHA1": "6xwMpun2lAxptGPocW+HKJg1Xoc=",
+			"checksumSHA1": "zblb5IrqPNx9rQA4hC2tw7XR888=",
 			"path": "github.com/nats-io/nkeys",
-			"revision": "1546a3320a8f195a5b5c84aef8309377c2e411d5",
-			"revisionTime": "2018-12-05T15:18:57Z"
+			"revision": "b5fd77f98a683853cab7313d1263093d2c0d4113",
+			"revisionTime": "2020-03-30T22:54:04Z",
+			"version": "v0.1.4",
+			"versionExact": "v0.1.4"
 		},
 		{
 			"checksumSHA1": "xPMK9Y2UbdQclakznIrDWV1c64o=",
@@ -5039,6 +5181,12 @@
 			"path": "github.com/zalando/go-keyring/secret_service",
 			"revision": "6d81c293b3fbc8a9b1bcf4bc9c167c2e1d1f52cf",
 			"revisionTime": "2018-02-21T09:33:47Z"
+		},
+		{
+			"checksumSHA1": "C97JA4dedgx1csaW3/Rk/seZs+8=",
+			"path": "go.etcd.io/bbolt",
+			"revision": "5082d3bbc22e385ea0f7ffa915cb8b2a4efceb59",
+			"revisionTime": "2021-03-24T17:22:49Z"
 		},
 		{
 			"checksumSHA1": "HedK9m8E8iyib4bIBtIX7xprOgo=",

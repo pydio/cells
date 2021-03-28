@@ -2,10 +2,11 @@ package raft
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
+	"github.com/hashicorp/go-hclog"
 	"io"
-	"log"
 	"net"
 	"os"
 	"sync"
@@ -18,6 +19,7 @@ const (
 	rpcAppendEntries uint8 = iota
 	rpcRequestVote
 	rpcInstallSnapshot
+	rpcTimeoutNow
 
 	// DefaultTimeoutScale is the default TimeoutScale in a NetworkTransport.
 	DefaultTimeoutScale = 256 * 1024 // 256KB
@@ -64,7 +66,7 @@ type NetworkTransport struct {
 	heartbeatFn     func(RPC)
 	heartbeatFnLock sync.Mutex
 
-	logger *log.Logger
+	logger hclog.Logger
 
 	maxPool int
 
@@ -76,6 +78,11 @@ type NetworkTransport struct {
 
 	stream StreamLayer
 
+	// streamCtx is used to cancel existing connection handlers.
+	streamCtx     context.Context
+	streamCancel  context.CancelFunc
+	streamCtxLock sync.RWMutex
+
 	timeout      time.Duration
 	TimeoutScale int
 }
@@ -85,7 +92,7 @@ type NetworkTransportConfig struct {
 	// ServerAddressProvider is used to override the target address when establishing a connection to invoke an RPC
 	ServerAddressProvider ServerAddressProvider
 
-	Logger *log.Logger
+	Logger hclog.Logger
 
 	// Dialer
 	Stream StreamLayer
@@ -98,6 +105,7 @@ type NetworkTransportConfig struct {
 	Timeout time.Duration
 }
 
+// ServerAddressProvider is a target address to which we invoke an RPC when establishing a connection
 type ServerAddressProvider interface {
 	ServerAddr(id ServerID) (ServerAddress, error)
 }
@@ -141,7 +149,11 @@ func NewNetworkTransportWithConfig(
 	config *NetworkTransportConfig,
 ) *NetworkTransport {
 	if config.Logger == nil {
-		config.Logger = log.New(os.Stderr, "", log.LstdFlags)
+		config.Logger = hclog.New(&hclog.LoggerOptions{
+			Name:   "raft-net",
+			Output: hclog.DefaultOutput,
+			Level:  hclog.DefaultLevel,
+		})
 	}
 	trans := &NetworkTransport{
 		connPool:              make(map[ServerAddress][]*netConn),
@@ -154,7 +166,11 @@ func NewNetworkTransportWithConfig(
 		TimeoutScale:          DefaultTimeoutScale,
 		serverAddressProvider: config.ServerAddressProvider,
 	}
+
+	// Create the connection context and then start our listener.
+	trans.setupStreamContext()
 	go trans.listen()
+
 	return trans
 }
 
@@ -171,7 +187,11 @@ func NewNetworkTransport(
 	if logOutput == nil {
 		logOutput = os.Stderr
 	}
-	logger := log.New(logOutput, "", log.LstdFlags)
+	logger := hclog.New(&hclog.LoggerOptions{
+		Name:   "raft-net",
+		Output: logOutput,
+		Level:  hclog.DefaultLevel,
+	})
 	config := &NetworkTransportConfig{Stream: stream, MaxPool: maxPool, Timeout: timeout, Logger: logger}
 	return NewNetworkTransportWithConfig(config)
 }
@@ -184,10 +204,25 @@ func NewNetworkTransportWithLogger(
 	stream StreamLayer,
 	maxPool int,
 	timeout time.Duration,
-	logger *log.Logger,
+	logger hclog.Logger,
 ) *NetworkTransport {
 	config := &NetworkTransportConfig{Stream: stream, MaxPool: maxPool, Timeout: timeout, Logger: logger}
 	return NewNetworkTransportWithConfig(config)
+}
+
+// setupStreamContext is used to create a new stream context. This should be
+// called with the stream lock held.
+func (n *NetworkTransport) setupStreamContext() {
+	ctx, cancel := context.WithCancel(context.Background())
+	n.streamCtx = ctx
+	n.streamCancel = cancel
+}
+
+// getStreamContext is used retrieve the current stream context.
+func (n *NetworkTransport) getStreamContext() context.Context {
+	n.streamCtxLock.RLock()
+	defer n.streamCtxLock.RUnlock()
+	return n.streamCtx
 }
 
 // SetHeartbeatHandler is used to setup a heartbeat handler
@@ -197,6 +232,31 @@ func (n *NetworkTransport) SetHeartbeatHandler(cb func(rpc RPC)) {
 	n.heartbeatFnLock.Lock()
 	defer n.heartbeatFnLock.Unlock()
 	n.heartbeatFn = cb
+}
+
+// CloseStreams closes the current streams.
+func (n *NetworkTransport) CloseStreams() {
+	n.connPoolLock.Lock()
+	defer n.connPoolLock.Unlock()
+
+	// Close all the connections in the connection pool and then remove their
+	// entry.
+	for k, e := range n.connPool {
+		for _, conn := range e {
+			conn.Release()
+		}
+
+		delete(n.connPool, k)
+	}
+
+	// Cancel the existing connections and create a new context. Both these
+	// operations must always be done with the lock held otherwise we can create
+	// connection handlers that are holding a context that will never be
+	// cancelable.
+	n.streamCtxLock.Lock()
+	n.streamCancel()
+	n.setupStreamContext()
+	n.streamCtxLock.Unlock()
 }
 
 // Close is used to stop the network transport.
@@ -259,7 +319,7 @@ func (n *NetworkTransport) getProviderAddressOrFallback(id ServerID, target Serv
 	if n.serverAddressProvider != nil {
 		serverAddressOverride, err := n.serverAddressProvider.ServerAddr(id)
 		if err != nil {
-			n.logger.Printf("[WARN] Unable to get address for server id %v, using fallback address %v: %v", id, target, err)
+			n.logger.Warn("unable to get address for server, using fallback address", "id", id, "fallback", target, "error", err)
 		} else {
 			return serverAddressOverride
 		}
@@ -409,27 +469,56 @@ func (n *NetworkTransport) DecodePeer(buf []byte) ServerAddress {
 	return ServerAddress(buf)
 }
 
+// TimeoutNow implements the Transport interface.
+func (n *NetworkTransport) TimeoutNow(id ServerID, target ServerAddress, args *TimeoutNowRequest, resp *TimeoutNowResponse) error {
+	return n.genericRPC(id, target, rpcTimeoutNow, args, resp)
+}
+
 // listen is used to handling incoming connections.
 func (n *NetworkTransport) listen() {
+	const baseDelay = 5 * time.Millisecond
+	const maxDelay = 1 * time.Second
+
+	var loopDelay time.Duration
 	for {
 		// Accept incoming connections
 		conn, err := n.stream.Accept()
 		if err != nil {
-			if n.IsShutdown() {
-				return
+			if loopDelay == 0 {
+				loopDelay = baseDelay
+			} else {
+				loopDelay *= 2
 			}
-			n.logger.Printf("[ERR] raft-net: Failed to accept connection: %v", err)
-			continue
+
+			if loopDelay > maxDelay {
+				loopDelay = maxDelay
+			}
+
+			if !n.IsShutdown() {
+				n.logger.Error("failed to accept connection", "error", err)
+			}
+
+			select {
+			case <-n.shutdownCh:
+				return
+			case <-time.After(loopDelay):
+				continue
+			}
 		}
-		n.logger.Printf("[DEBUG] raft-net: %v accepted connection from: %v", n.LocalAddr(), conn.RemoteAddr())
+		// No error, reset loop delay
+		loopDelay = 0
+
+		n.logger.Debug("accepted connection", "local-address", n.LocalAddr(), "remote-address", conn.RemoteAddr().String())
 
 		// Handle the connection in dedicated routine
-		go n.handleConn(conn)
+		go n.handleConn(n.getStreamContext(), conn)
 	}
 }
 
-// handleConn is used to handle an inbound connection for its lifespan.
-func (n *NetworkTransport) handleConn(conn net.Conn) {
+// handleConn is used to handle an inbound connection for its lifespan. The
+// handler will exit when the passed context is cancelled or the connection is
+// closed.
+func (n *NetworkTransport) handleConn(connCtx context.Context, conn net.Conn) {
 	defer conn.Close()
 	r := bufio.NewReader(conn)
 	w := bufio.NewWriter(conn)
@@ -437,14 +526,21 @@ func (n *NetworkTransport) handleConn(conn net.Conn) {
 	enc := codec.NewEncoder(w, &codec.MsgpackHandle{})
 
 	for {
+		select {
+		case <-connCtx.Done():
+			n.logger.Debug("stream layer is closed")
+			return
+		default:
+		}
+
 		if err := n.handleCommand(r, dec, enc); err != nil {
 			if err != io.EOF {
-				n.logger.Printf("[ERR] raft-net: Failed to decode incoming command: %v", err)
+				n.logger.Error("failed to decode incoming command", "error", err)
 			}
 			return
 		}
 		if err := w.Flush(); err != nil {
-			n.logger.Printf("[ERR] raft-net: Failed to flush response: %v", err)
+			n.logger.Error("failed to flush response", "error", err)
 			return
 		}
 	}
@@ -495,6 +591,13 @@ func (n *NetworkTransport) handleCommand(r *bufio.Reader, dec *codec.Decoder, en
 		}
 		rpc.Command = &req
 		rpc.Reader = io.LimitReader(r, req.Size)
+
+	case rpcTimeoutNow:
+		var req TimeoutNowRequest
+		if err := dec.Decode(&req); err != nil {
+			return err
+		}
+		rpc.Command = &req
 
 	default:
 		return fmt.Errorf("unknown rpc type %d", rpcType)

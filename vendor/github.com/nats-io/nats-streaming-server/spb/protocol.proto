@@ -1,0 +1,177 @@
+// Copyright 2016-2020 The NATS Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Uses https://github.com/gogo/protobuf
+// compiled via `protoc -I=. -I=$GOPATH/src  --gogofaster_out=. protocol.proto`
+
+syntax = "proto3";
+package spb;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/nats-io/stan.go/pb/protocol.proto";
+
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+
+// SubState represents the state of a Subscription
+message SubState {
+  uint64        ID             = 1;  // Subscription ID assigned by the SubStore interface
+  string        clientID       = 2;  // ClientID
+  string        qGroup         = 3;  // Optional queue group
+  string        inbox          = 4;  // Inbox subject to deliver messages on
+  string        ackInbox       = 5;  // Inbox for acks
+  int32         maxInFlight    = 6;  // Maximum inflight messages without an ack allowed
+  int32         ackWaitInSecs  = 7;  // Timeout for receiving an ack from the client
+  string        durableName    = 8;  // Optional durable name which survives client restarts
+  uint64        lastSent       = 9;  // Start position
+  bool          isDurable      =10;  // Indicate durability for this subscriber
+  bool          isClosed       =11;  // Indicate that the durable subscriber is closed
+}
+
+// SubStateDelete marks a Subscription as deleted
+message SubStateDelete {
+  uint64        ID = 1; // Subscription ID being deleted
+}
+
+// SubStateUpdate represents a subscription update (either Msg or Ack)
+message SubStateUpdate {
+  uint64 ID 	 = 1; // Subscription ID
+  uint64 seqno = 2; // Sequence of the message (pending or ack'ed)
+}
+
+// ServerInfo contains basic information regarding the Server
+message ServerInfo {
+  string ClusterID   = 1; // Cluster ID
+  string Discovery   = 2; // Subject server receives connect requests on.
+  string Publish     = 3; // Subject prefix server receives published messages on.
+  string Subscribe   = 4; // Subject server receives subscription requests on.
+  string Unsubscribe = 5; // Subject server receives unsubscribe requests on.
+  string Close       = 6; // Subject server receives close requests on.
+  string SubClose    = 7; // Subject server receives subscription close requests on.
+  string AcksSubs    = 8; // Subject prefix server receives subscription acks when using pool of ack subscribers.
+  string NodeID      = 9; // Clustering node ID.
+}
+
+// ClientInfo contains information related to a Client
+message ClientInfo {
+  string ID           = 1; // Client ID
+  string HbInbox      = 2; // The inbox heartbeats are sent to
+  bytes  ConnID       = 3; // Connection ID (no connection should ever have the same)
+  int32  Protocol     = 4; // Protocol the client is at
+  int32  PingInterval = 5; // Interval at which the client is sending PINGs (expressed in seconds)
+  int32  PingMaxOut   = 6; // Number of PINGs without response before the connection can be considered lost
+}
+
+message ClientDelete {
+  string ID = 1; // ID of the client being unregistered
+}
+
+message CtrlMsg {
+  enum Type {
+    SubUnsubscribe = 0; // DEPRECATED.
+    SubClose       = 1; // DEPRECATED.
+    ConnClose      = 2; // DEPRECATED.
+    FTHeartbeat    = 3; // FT heartbeats.
+    Partitioning   = 4; // When partitioning is enabled, server sends this to other servers with same cluster ID.
+  }
+  Type    MsgType  = 1; // Type of the control message.
+  string  ServerID = 2; // Allows a server to detect if it is the intended receipient.
+  bytes   Data     = 3; // Optional bytes that carries context information.    
+
+  string  RefID    = 4; // DEPRECATED.
+}
+
+// RaftJoinRequest is a request to join a Raft group.
+message RaftJoinRequest {
+  string NodeID   = 1; // ID of the joining node.
+  string NodeAddr = 2; // Address of the joining node.
+}
+
+// RaftJoinResponse is a response to a RaftJoinRequest.
+message RaftJoinResponse {
+  string Error = 1; // Error string, omitted if no error. 
+}
+
+// RaftOperation is a Raft log message.
+message RaftOperation {
+  enum Type {
+    Publish            = 0; // Message publish.
+    Subscribe          = 1; // Create client subscription.
+    RemoveSubscription = 2; // Remove client subscription.
+    CloseSubscription  = 3; // Close durable client subscription.
+    SendAndAck         = 4; // Messages send or ack'ed.
+    Connect            = 6; // Client connection.
+    Disconnect         = 7; // Client disconnect.
+    DeleteChannel      = 8; // Delete the channel.
+  }
+  Type                  OpType           = 1; // Log message type.
+  Batch                 PublishBatch     = 2; // Publish operation data.
+  AddSubscription       Sub              = 3; // Subscribe operation data.
+  pb.UnsubscribeRequest Unsub            = 4; // Close/Remove Subscription operation data.
+  SubSentAndAck         SubSentAck       = 5; // Send and/or Ack operation data.
+  AddClient             ClientConnect    = 7; // Connect operation data.
+  pb.CloseRequest       ClientDisconnect = 8; // Disconnect operation data.
+  string                Channel          = 9; // Channel name.
+  uint64                ChannelID        =10; // Channel ID.
+}
+
+// Batch is a batch of messages for replication.
+message Batch {
+  repeated pb.MsgProto Messages = 1; // Serialized MsgProtos to replicate.
+}
+
+// AddSubscription is used to replicate a new client subscription.
+message AddSubscription {
+  pb.SubscriptionRequest Request  = 1; // Subscription request to replicate.
+  string                 AckInbox = 2; // Ack inbox for the subscription.
+  uint64                 ID       = 3; // Subscription ID.
+}
+
+// SubSentAndAck is used to replicate a sent and/or ack messages.
+message SubSentAndAck {
+  string          Channel  = 1; // Subscription channel.
+  string          AckInbox = 2; // Subscription ack inbox.
+  repeated uint64 Sent     = 3; // Message sequences that were sent.
+  repeated uint64 Ack      = 4; // Message sequences that were ack'ed.
+}
+
+// AddClient is used to replicate a new client connection.
+message AddClient {
+  pb.ConnectRequest Request = 1; // Connection request to replicate
+  bool              Refresh = 2; // Whether or not this is an existing client being refreshed.
+}
+
+// RaftSnapshot is a snapshot of the state of the server.
+message RaftSnapshot {
+  repeated ClientInfo      Clients  = 1;
+  repeated ChannelSnapshot Channels = 2;
+  bytes                    Padding  = 3;
+}
+
+// ChannelSnapshot is a snapshot of a channel
+message ChannelSnapshot {
+  string                        Channel       = 1;
+  uint64                        First         = 2;
+  uint64                        Last          = 3;
+  repeated SubscriptionSnapshot Subscriptions = 4;
+  uint64                        NextSubID     = 5;
+  uint64                        ChannelID     = 6;
+}
+
+// SubscriptionSnaphot is the snapshot of a subscription
+message SubscriptionSnapshot {
+  SubState        State       = 1; // Subscription data.
+  repeated uint64 AcksPending = 2; // Sequences of unacknowledged messages.
+}
