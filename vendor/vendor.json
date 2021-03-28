@@ -3705,8 +3705,8 @@
 		{
 			"checksumSHA1": "wTJ0MPVAQnb2a+vdzNWSSqxfiyM=",
 			"path": "github.com/nats-io/nats.go/encoders/builtin",
-			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
-			"revisionTime": "2019-06-03T23:44:50Z"
+			"revision": "c48e770e0b417d0f0600aae6889d6877e542ed10",
+			"revisionTime": "2020-04-30T14:38:48Z"
 		},
 		{
 			"checksumSHA1": "3m3PAW0haWNC6A3A30LKTdkg02s=",
