@@ -406,7 +406,7 @@ importers:
   gui.ajax:
     dependencies:
       aws-sdk: 2.856.0
-      cells-sdk: github.com/pydio/cells-sdk-js/bc7611177729cc5614e16e77d7c70903f95efb5e
+      cells-sdk: github.com/pydio/cells-sdk-js/3bb516cd5d19ce554580c686e1a3bb50c6494dc9
       chart.js: 1.1.1
       classnames: 2.1.5
       clipboard: 1.7.1
@@ -9307,14 +9307,14 @@ packages:
     dev: true
     resolution:
       integrity: sha1-T6akXQDbwV8xikr6HZr8Aljhdsw=
-  github.com/pydio/cells-sdk-js/bc7611177729cc5614e16e77d7c70903f95efb5e:
+  github.com/pydio/cells-sdk-js/3bb516cd5d19ce554580c686e1a3bb50c6494dc9:
     dependencies:
       superagent: 6.1.0
     dev: false
     name: cells-sdk
     resolution:
-      tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/bc7611177729cc5614e16e77d7c70903f95efb5e
-    version: 2.3.0
+      tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/3bb516cd5d19ce554580c686e1a3bb50c6494dc9
+    version: 2.3.1
   github.com/pydio/pydio-sdk-js/b82cab5bb5bb495fb7cde736814681b52e158a9c:
     dependencies:
       superagent: 3.5.2
