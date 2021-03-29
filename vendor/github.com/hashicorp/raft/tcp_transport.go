@@ -2,8 +2,8 @@ package raft
 
 import (
 	"errors"
+	"github.com/hashicorp/go-hclog"
 	"io"
-	"log"
 	"net"
 	"time"
 )
@@ -40,15 +40,15 @@ func NewTCPTransportWithLogger(
 	advertise net.Addr,
 	maxPool int,
 	timeout time.Duration,
-	logger *log.Logger,
+	logger hclog.Logger,
 ) (*NetworkTransport, error) {
 	return newTCPTransport(bindAddr, advertise, func(stream StreamLayer) *NetworkTransport {
 		return NewNetworkTransportWithLogger(stream, maxPool, timeout, logger)
 	})
 }
 
-// NewTCPTransportWithLogger returns a NetworkTransport that is built on top of
-// a TCP streaming transport layer, using a default logger and the address provider
+// NewTCPTransportWithConfig returns a NetworkTransport that is built on top of
+// a TCP streaming transport layer, using the given config struct.
 func NewTCPTransportWithConfig(
 	bindAddr string,
 	advertise net.Addr,
@@ -81,7 +81,7 @@ func newTCPTransport(bindAddr string,
 		list.Close()
 		return nil, errNotTCP
 	}
-	if addr.IP.IsUnspecified() {
+	if addr.IP == nil || addr.IP.IsUnspecified() {
 		list.Close()
 		return nil, errNotAdvertisable
 	}

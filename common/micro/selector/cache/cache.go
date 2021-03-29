@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-log"
+	log "github.com/micro/go-log"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
@@ -308,6 +308,7 @@ func (c *cacheSelector) watch(w registry.Watcher) error {
 		if err != nil {
 			return err
 		}
+
 		c.update(res)
 	}
 }

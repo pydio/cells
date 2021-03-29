@@ -30,10 +30,10 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
 	grpcclient "github.com/pydio/cells/common/micro/client/grpc"
 	grpcserver "github.com/pydio/cells/common/micro/server/grpc"
 	httpserver "github.com/pydio/cells/common/micro/server/http"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 var (

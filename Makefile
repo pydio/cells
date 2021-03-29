@@ -44,6 +44,7 @@ xgo:
 dev:
 	go build\
 	 -tags dev\
+         -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/common.version=${DEV_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=2018-01-01T00:00:00\
 	 -X github.com/pydio/cells/common.BuildRevision=dev"\

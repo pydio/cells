@@ -33,6 +33,7 @@ import (
 // ListRunningServices returns a list of services that are registered with the main registry
 // They may or may not belong to the app registry so we create a mock service in case they don't
 func (c *pydioregistry) ListRunningServices() ([]Service, error) {
+
 	c.runninglock.RLock()
 	defer c.runninglock.RUnlock()
 
@@ -79,6 +80,7 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 }
 
 func (c *pydioregistry) maintainRunningServicesList() {
+
 	c.runninglock.Lock()
 	defer c.runninglock.Unlock()
 
@@ -106,7 +108,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 
 			results <- res
 		}
-
 	}()
 
 	go func() {
@@ -127,7 +128,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			select {
 			case <-ticker:
 				continue
-
 			}
 		}
 	}()

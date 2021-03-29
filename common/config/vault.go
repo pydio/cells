@@ -21,7 +21,6 @@
 package config
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -45,7 +44,7 @@ type vault struct {
 }
 
 // NewVault creates a new vault with a standard config store and a vault store
-func NewVault(configStore Store, vaultStore Store) Store {
+func NewVault(vaultStore, configStore Store) Store {
 	return &vault{
 		configStore,
 		vaultStore,
@@ -64,7 +63,7 @@ func (v *vault) Get() configx.Value {
 
 // Set new value
 func (v *vault) Set(val interface{}) error {
-	return fmt.Errorf("not implemented")
+	return v.config.Set(val)
 }
 
 // Val of the path

@@ -28,8 +28,6 @@ import (
 	"text/tabwriter"
 	"text/template"
 
-	"github.com/pydio/cells/discovery/nats"
-
 	micro "github.com/micro/go-micro"
 	"github.com/spf13/cobra"
 
@@ -38,6 +36,7 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 )
 
 var (
@@ -107,7 +106,9 @@ EXAMPLE
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		nats.Init()
+		natsstreaming.Init()
+		// nats.Init
+
 		// Initialise the default registry
 		handleRegistry()
 

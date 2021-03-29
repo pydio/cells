@@ -2,6 +2,8 @@ package sql
 
 import (
 	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/packr"
+	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/sql"
@@ -36,11 +38,39 @@ func New(driver string, dsn string, prefix string) configx.Entrypoint {
 	}
 }
 
+// Init handler for the SQL DAO
+func (s *SQL) Init(options configx.Values) error {
+
+	migrations := &sql.PackrMigrationSource{
+		Box:         packr.NewBox("../../../common/config/sql/migrations"),
+		Dir:         "./" + s.dao.Driver(),
+		TablePrefix: s.dao.Prefix(),
+	}
+
+	sqldao := s.dao.(sql.DAO)
+
+	_, err := sql.ExecMigration(sqldao.DB(), s.dao.Driver(), migrations, migrate.Up, s.dao.Prefix())
+	if err != nil {
+		return err
+	}
+
+	// Preparing the db statements
+	if options.Val("prepare").Default(true).Bool() {
+		for key, query := range queries {
+			if err := sqldao.Prepare(key, query); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (s *SQL) Val(path ...string) configx.Values {
 	if s.config == nil {
 		s.Get()
 	}
-	return s.config.Val(path...)
+	return &wrappedConfig{s.config.Val(path...), s}
 }
 
 func (s *SQL) Get() configx.Value {
@@ -75,6 +105,10 @@ func (s *SQL) Del() error {
 	return s.Set(nil)
 }
 
+func (s *SQL) Save(ctxUser, ctxMessage string) error {
+	return nil
+}
+
 func (s *SQL) Watch(path ...string) (configx.Receiver, error) {
 	return &receiver{}, nil
 }
@@ -90,4 +124,18 @@ func (r *receiver) Next() (configx.Values, error) {
 }
 
 func (r *receiver) Stop() {
+}
+
+type wrappedConfig struct {
+	configx.Values
+	s *SQL
+}
+
+func (w *wrappedConfig) Set(val interface{}) error {
+	err := w.Values.Set(val)
+	if err != nil {
+		return err
+	}
+
+	return w.s.Set(w.Values.Val("#").Map())
 }

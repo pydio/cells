@@ -2,19 +2,19 @@ package config
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/pkg/errors"
 	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/cells/x/filex"
 )
 
 type versionStore struct {
 	filex.VersionsStore
-	store configx.Entrypoint
+	store Store
 }
 
 // NewVersionStore based on a file Version Store and a store
-func NewVersionStore(vs filex.VersionsStore, store configx.Entrypoint) configx.Entrypoint {
+func NewVersionStore(vs filex.VersionsStore, store Store) Store {
 	return &versionStore{
 		vs,
 		store,
@@ -38,21 +38,7 @@ func (v *versionStore) Get() configx.Value {
 
 // Set new value
 func (v *versionStore) Set(data interface{}) error {
-
-	version, ok := data.(*filex.Version)
-	if !ok {
-		return errors.New("Could not save version")
-	}
-
-	if err := v.store.Set(version.Data); err != nil {
-		return err
-	}
-
-	if err := VersionsStore.Put(version); err != nil {
-		return err
-	}
-
-	return nil
+	return v.store.Set(data)
 }
 
 // Del version store
@@ -68,4 +54,20 @@ func (v *versionStore) Watch(path ...string) (configx.Receiver, error) {
 	}
 
 	return watcher.Watch(path...)
+}
+
+// Save the config in the underlying storage
+func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
+	data := v.store.Get().Map()
+
+	if err := VersionsStore.Put(&filex.Version{
+		Date: time.Now(),
+		User: ctxUser,
+		Log:  ctxMessage,
+		Data: data,
+	}); err != nil {
+		return err
+	}
+
+	return v.store.Save(ctxUser, ctxMessage)
 }

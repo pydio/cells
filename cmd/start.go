@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/discovery/nats"
+	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 	"github.com/pydio/cells/x/filex"
 )
 
@@ -122,26 +123,18 @@ ENVIRONMENT
 			"fork": "is_fork",
 		})
 
-		if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
+		if config.RuntimeIsLocal() && !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
 			return triggerInstall(
 				"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
 				"Do you want to create one now",
 				cmd, args)
 		}
 
-		initConfig()
-
-		// Pre-check that pydio.json is properly configured
-		if a, _ := config.GetDatabase("default"); a == "" {
-			return triggerInstall(
-				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
-				"Do you want to reset the initial configuration", cmd, args)
-		}
-
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
 
-			nats.Init()
+			// nats.Init()
+			natsstreaming.Init()
 
 			metrics.Init()
 
@@ -157,6 +150,15 @@ ENVIRONMENT
 			// Making sure we capture the signals
 			handleSignals()
 		})
+
+		initConfig()
+
+		// Pre-check that pydio.json is properly configured
+		if a, _ := config.GetDatabase("default"); a == "" {
+			return triggerInstall(
+				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
+				"Do you want to reset the initial configuration", cmd, args)
+		}
 
 		plugins.Init(cmd.Context())
 
@@ -270,9 +272,12 @@ ENVIRONMENT
 		}
 
 		// When the process is stopped the context is stopped
-		<-cmd.Context().Done()
-
-		return nil
+		select {
+		case err := <-nats.Monitor():
+			return err
+		case <-cmd.Context().Done():
+			return nil
+		}
 	},
 
 	PostRunE: func(cmd *cobra.Command, args []string) error {
@@ -306,6 +311,8 @@ func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
 	// Registry / Broker Flags
+	addNatsFlags(StartCmd.Flags())
+	addNatsStreamingFlags(StartCmd.Flags())
 	addRegistryFlags(StartCmd.Flags())
 
 	// Grpc Gateway Flags

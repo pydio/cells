@@ -252,6 +252,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("Main HTTP proxy for exposing a unique address to the world"),
+			service.Unique(true),
 			service.WithGeneric(func(opts ...server.Option) server.Server {
 				srv := &gatewayProxyServer{context.TODO()}
 
