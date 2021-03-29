@@ -67,6 +67,16 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		output.Services = append(output.Services, h.serviceToRest(s, true))
 	}
 
+	disabledDss := map[string]struct{}{}
+	if dss, e := h.getDataSources(req.Request.Context()); e == nil {
+		for _, ds := range dss {
+			if ds.Disabled {
+				disabledDss[common.ServiceGrpcNamespace_+common.ServiceDataIndex_+ds.Name] = struct{}{}
+				disabledDss[common.ServiceGrpcNamespace_+common.ServiceDataSync_+ds.Name] = struct{}{}
+				disabledDss[common.ServiceGrpcNamespace_+common.ServiceDataObjects_+ds.Name] = struct{}{}
+			}
+		}
+	}
 	for _, s := range all {
 		runningFound := false
 		for _, k := range running {
@@ -76,6 +86,10 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 			}
 		}
 		if !runningFound {
+			// Ignore disabled services
+			if _, has := disabledDss[s.Name()]; has {
+				continue
+			}
 			output.Services = append(output.Services, h.serviceToRest(s, false))
 		}
 	}
