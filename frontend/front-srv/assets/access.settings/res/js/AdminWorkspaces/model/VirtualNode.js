@@ -82,6 +82,15 @@ class VirtualNode extends Observable {
         this.notify('update');
     }
 
+    getOnDelete() {
+        return this.data.MetaStore.onDelete
+    }
+
+    setOnDelete(value){
+        this.data.MetaStore.onDelete = value;
+        this.notify('update');
+    }
+
     save(callback) {
         ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
             const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());

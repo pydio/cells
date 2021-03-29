@@ -210,12 +210,13 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 				log.Logger(ctx).Error("Could not load access list", zap.Error(er))
 				continue
 			}
-			ancestors, ez := views.BuildAncestorsListOrParent(auth.WithImpersonate(ctx, user), e.getTreeClient(), loadedNode)
+			userCtx := auth.WithImpersonate(ctx, user)
+			ancestors, ez := views.BuildAncestorsListOrParent(userCtx, e.getTreeClient(), loadedNode)
 			if ez != nil {
 				log.Logger(ctx).Error("Could not load ancestors list", zap.Error(er))
 				continue
 			}
-			if accessList.CanRead(ctx, ancestors...) {
+			if accessList.CanReadWithResolver(userCtx, e.vNodeResolver, ancestors...) {
 				dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, ctx)
 			}
 		}
@@ -223,6 +224,11 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	}
 
 	return nil
+}
+
+func (e *MicroEventsSubscriber) vNodeResolver(ctx context.Context, n *tree.Node) (*tree.Node, bool) {
+	pool := views.NewClientsPool(false)
+	return views.GetVirtualNodesManager().GetResolver(pool, false)(ctx, n)
 }
 
 func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.ChangeEvent) error {

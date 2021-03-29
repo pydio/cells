@@ -23,8 +23,6 @@ package views
 import (
 	"context"
 	"fmt"
-	"io"
-	"path"
 	"strings"
 	"sync"
 	"time"
@@ -59,12 +57,12 @@ type sourceAlias struct {
 // ClientsPool is responsible for discovering available datasources and
 // keeping an up to date registry that is used by the routers.
 type ClientsPool struct {
-	Sources map[string]LoadedSource
+	sources map[string]LoadedSource
 	aliases map[string]sourceAlias
 
 	// Statically set for testing
-	TreeClient      tree.NodeProviderClient
-	TreeClientWrite tree.NodeReceiverClient
+	treeClient      tree.NodeProviderClient
+	treeClientWrite tree.NodeReceiverClient
 
 	genericClient client.Client
 	configMutex   *sync.Mutex
@@ -82,10 +80,10 @@ func NewSource(data *object.DataSource) (LoadedSource, error) {
 }
 
 // NewClientsPool creates a client pool and initialises it by calling the registry.
-func NewClientsPool(watchRegistry bool) (pool *ClientsPool) {
+func NewClientsPool(watchRegistry bool) *ClientsPool {
 
-	pool = &ClientsPool{
-		Sources: make(map[string]LoadedSource),
+	pool := &ClientsPool{
+		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 	}
 
@@ -96,7 +94,7 @@ func NewClientsPool(watchRegistry bool) (pool *ClientsPool) {
 		return pool
 	}
 
-	pool.listDatasources()
+	pool.LoadDataSources()
 	if watchRegistry {
 		go pool.watchRegistry()
 		go pool.watchConfigChanges()
@@ -117,16 +115,16 @@ func (p *ClientsPool) Close() {
 
 // GetTreeClient returns the internal NodeProviderClient pointing to the TreeService.
 func (p *ClientsPool) GetTreeClient() tree.NodeProviderClient {
-	if p.TreeClient != nil {
-		return p.TreeClient
+	if p.treeClient != nil {
+		return p.treeClient
 	}
 	return tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
 
 // GetTreeClientWrite returns the internal NodeReceiverClient pointing to the TreeService.
 func (p *ClientsPool) GetTreeClientWrite() tree.NodeReceiverClient {
-	if p.TreeClientWrite != nil {
-		return p.TreeClientWrite
+	if p.treeClientWrite != nil {
+		return p.treeClientWrite
 	}
 	return tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 }
@@ -139,7 +137,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		dsName = config.Get("defaults", "datasource").Default("default").String()
 	}
 
-	if cl, ok := p.Sources[dsName]; ok {
+	if cl, ok := p.sources[dsName]; ok {
 
 		return cl, nil
 
@@ -170,14 +168,14 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		log.Logger(context.Background()).Debug(fmt.Sprintf("[ClientsPool] cannot find datasource, retrying in %ds...", delay), zap.String("ds", dsName), zap.Any("retries", retry))
 
 		<-time.After(time.Duration(delay) * time.Second)
-		p.listDatasources()
+		p.LoadDataSources()
 		return p.GetDataSourceInfo(dsName, retry+1)
 
 	} else {
 
 		e := fmt.Errorf("Could not find DataSource " + dsName)
 		var keys []string
-		for k, _ := range p.Sources {
+		for k, _ := range p.sources {
 			keys = append(keys, k)
 		}
 		log.Logger(context.Background()).Error(e.Error(), zap.Strings("currentSources", keys))
@@ -187,7 +185,13 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 
 }
 
-func (p *ClientsPool) listDatasources() {
+// GetDataSources returns currently loaded datasources
+func (p *ClientsPool) GetDataSources() map[string]LoadedSource {
+	return p.sources
+}
+
+// LoadDataSources queries the registry to reload available datasources
+func (p *ClientsPool) LoadDataSources() {
 
 	if IsUnitTestEnv {
 		// Workaround the fact that no registry is present when doing unit tests
@@ -261,13 +265,13 @@ func (p *ClientsPool) watchRegistry() {
 				dsName := strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 
 				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name()))
-				if _, ok := p.Sources[dsName]; ok && result.Action == "stopped" {
+				if _, ok := p.sources[dsName]; ok && result.Action == "stopped" {
 					// Reset list
 					p.configMutex.Lock()
-					delete(p.Sources, dsName)
+					delete(p.sources, dsName)
 					p.configMutex.Unlock()
 				}
-				p.listDatasources()
+				p.LoadDataSources()
 			}
 		}
 	}
@@ -283,7 +287,7 @@ func (p *ClientsPool) watchConfigChanges() {
 	for {
 		event, err := watcher.Next()
 		if event != nil && err == nil {
-			p.listDatasources()
+			p.LoadDataSources()
 		}
 	}
 
@@ -299,7 +303,7 @@ func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSour
 		return err
 	}
 
-	p.Sources[dataSourceName] = loaded
+	p.sources[dataSourceName] = loaded
 	return nil
 }
 
@@ -311,81 +315,4 @@ func filterServices(vs []registry.Service, f func(string) bool) []string {
 		}
 	}
 	return vsf
-}
-
-// BuildAncestorsList uses ListNodes with "Ancestors" flag to build the list of parent nodes.
-// It uses an internal short-lived cache to throttle calls to the TreeService
-func BuildAncestorsList(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
-	/*
-		sT := time.Now()
-		defer func() {
-			fmt.Println("--- End BuildAncestorsList for "+node.GetPath(), time.Now().Sub(sT))
-		}()
-	*/
-	dirPath := path.Dir(node.GetPath())
-	if node.GetPath() != "" {
-		if cached, has := ancestorsParentsCache.Get(dirPath); has {
-			if parents, ok := cached.([]*tree.Node); ok {
-				// Lookup First node
-				if cachedNode, h := ancestorsNodesCache.Get(node.GetPath()); h {
-					parentUuids = append(parentUuids, cachedNode.(*tree.Node))
-				} else {
-					r, er := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-					if er != nil {
-						return parentUuids, er
-					}
-					ancestorsNodesCache.SetDefault(node.GetPath(), r.GetNode())
-					parentUuids = append(parentUuids, r.GetNode())
-				}
-				parentUuids = append(parentUuids, parents...)
-				return parentUuids, nil
-			}
-		}
-	}
-
-	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
-		Node:      node,
-		Ancestors: true,
-	})
-	if lErr != nil {
-		return parentUuids, lErr
-	}
-	defer ancestorStream.Close()
-	for {
-		parent, e := ancestorStream.Recv()
-		if e != nil {
-			if e == io.EOF || e == io.ErrUnexpectedEOF {
-				break
-			} else {
-				return nil, e
-			}
-		}
-		if parent == nil {
-			continue
-		}
-		parentUuids = append(parentUuids, parent.Node)
-	}
-	if dirPath != "" && parentUuids != nil && len(parentUuids) > 1 {
-		cNode := parentUuids[0]
-		pNodes := parentUuids[1:]
-		ancestorsNodesCache.SetDefault(node.GetPath(), cNode)
-		ancestorsParentsCache.SetDefault(dirPath, pNodes)
-	}
-	return parentUuids, err
-}
-
-// BuildAncestorsListOrParent builds ancestors list when the node does not exists yet, by trying to find all existing parents.
-func BuildAncestorsListOrParent(ctx context.Context, treeClient tree.NodeProviderClient, node *tree.Node) (parentUuids []*tree.Node, err error) {
-	parents, err := BuildAncestorsList(ctx, treeClient, node)
-	nodePathParts := strings.Split(node.Path, "/")
-	if err != nil && len(nodePathParts) > 1 {
-		// Try to list parent node right
-		parentNode := &tree.Node{}
-		parentNode.Path = strings.Join(nodePathParts[0:len(nodePathParts)-1], "/")
-		parents, err = BuildAncestorsListOrParent(ctx, treeClient, parentNode)
-		if err != nil {
-			return parents, err
-		}
-	}
-	return parents, nil
 }

@@ -1,6 +1,7 @@
 package index
 
 import (
+	sql2 "database/sql"
 	"fmt"
 	"strings"
 
@@ -60,6 +61,35 @@ func init() {
 		`)
 	}
 
+	queries["fixRandHash2"] = func(dao sql.DAO, args ...string) string {
+		hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4")
+		return `
+				update
+					%%PREFIX%%_idx_tree
+				set 
+					hash2 = ` + hash2 + `
+				where 
+					hash2 like 'random-%'
+		`
+	}
+
+	queries["fixRandHash2WithExcludes"] = func(dao sql.DAO, args ...string) string {
+		hash2 := dao.HashParent("name", "mpath1", "mpath2", "mpath3", "mpath4")
+		var marks []string
+		for range args {
+			marks = append(marks, "?")
+		}
+		return `
+				update
+					%%PREFIX%%_idx_tree
+				set 
+					hash2 = ` + hash2 + `
+				where 
+					hash2 like 'random-%'
+					and
+					uuid not in (` + strings.Join(marks, ", ") + `)
+		`
+	}
 }
 
 type lostFoundImpl struct {
@@ -200,4 +230,43 @@ func (dao *IndexSQL) FixLostAndFound(lost LostAndFound) error {
 		}
 	}
 	return nil
+}
+
+// FixRandHash2 looks up for hash2 in the form 'random-%' and recompute them
+// as proper has of parents + name
+func (dao *IndexSQL) FixRandHash2(excludes ...LostAndFound) (int64, error) {
+	dao.Lock()
+	defer dao.Unlock()
+	var xUuid []interface{}
+	for _, l := range excludes {
+		for _, uid := range l.GetUUIDs() {
+			xUuid = append(xUuid, uid)
+		}
+	}
+
+	var s *sql2.Stmt
+	var e error
+	if len(xUuid) > 0 {
+		s, e = dao.GetStmt("fixRandHash2WithExcludes", xUuid...)
+	} else {
+		s, e = dao.GetStmt("fixRandHash2")
+	}
+	if e != nil {
+		return 0, e
+	}
+	var r sql2.Result
+	if len(xUuid) > 0 {
+		r, e = s.Exec(xUuid...)
+	} else {
+		r, e = s.Exec()
+	}
+	var affected int64
+	if e == nil {
+		if a, e2 := r.RowsAffected(); e2 == nil {
+			affected = a
+		}
+	} else if strings.Contains(e.Error(), "duplicate") { // Replace duplicate by dup, to avoid auto-retry
+		return 0, fmt.Errorf(strings.ReplaceAll(e.Error(), "duplicate", "dup"))
+	}
+	return affected, e
 }

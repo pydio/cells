@@ -70,7 +70,7 @@ func getDefaultJobs() []*jobs.Job {
 			Inactive:       false,
 			MaxConcurrency: 1,
 			Schedule: &jobs.Schedule{
-				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT15M",
+				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
 			},
 			Actions: []*jobs.Action{{
 				ID: "actions.versioning.prune",

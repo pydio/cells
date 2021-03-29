@@ -4,8 +4,6 @@ import (
 	"context"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 
@@ -195,26 +193,44 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 
 func (h *WorkspaceHandler) extractDefaultRights(ctx context.Context, workspace *idm.Workspace) (string, string) {
 	var rightsValue, quotaValue string
-	if workspace.Attributes != "" {
-		var atts map[string]interface{}
-		if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
-			var modif bool
-			if passed, ok := atts["DEFAULT_RIGHTS"]; ok {
-				rightsValue = passed.(string)
-				delete(atts, "DEFAULT_RIGHTS")
-				modif = true
-			}
-			if q, ok := atts["QUOTA"]; ok {
-				quotaValue = q.(string)
-				delete(atts, "QUOTA")
-				modif = true
-			}
-			if modif {
-				jsonAttributes, _ := json.Marshal(atts)
-				workspace.Attributes = string(jsonAttributes)
+	wsAttr := workspace.LoadAttributes()
+	var modified bool
+	if wsAttr.DefaultRights != "" {
+		rightsValue = wsAttr.DefaultRights
+		wsAttr.DefaultRights = ""
+		modified = true
+	}
+	if wsAttr.QuotaValue != "" {
+		quotaValue = wsAttr.QuotaValue
+		wsAttr.QuotaValue = ""
+		modified = true
+	}
+	if modified {
+		workspace.SetAttributes(wsAttr)
+	}
+
+	/*
+		if workspace.Attributes != "" {
+			var atts map[string]interface{}
+			if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
+				var modif bool
+				if passed, ok := atts["DEFAULT_RIGHTS"]; ok {
+					rightsValue = passed.(string)
+					delete(atts, "DEFAULT_RIGHTS")
+					modif = true
+				}
+				if q, ok := atts["QUOTA"]; ok {
+					quotaValue = q.(string)
+					delete(atts, "QUOTA")
+					modif = true
+				}
+				if modif {
+					jsonAttributes, _ := json.Marshal(atts)
+					workspace.Attributes = string(jsonAttributes)
+				}
 			}
 		}
-	}
+	*/
 	return rightsValue, quotaValue
 }
 
@@ -264,23 +280,16 @@ func (h *WorkspaceHandler) bulkReadDefaultRights(ctx context.Context, uuids []st
 		}
 	}
 	for uuid, workspace := range wss {
-		attributes := make(map[string]interface{})
-		if workspace.Attributes != "" {
-			var atts map[string]interface{}
-			if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
-				attributes = atts
-			}
-		}
+		attributes := workspace.LoadAttributes()
 		// Apply permission if found
 		if r, o := rightStrings[uuid]; o {
-			attributes["DEFAULT_RIGHTS"] = r
+			attributes.DefaultRights = r
 		}
 		// Apply quota if found
 		if q, o := quotaStrings[uuid]; o {
-			attributes["QUOTA"] = q
+			attributes.QuotaValue = q
 		}
-		jsonAttributes, _ := json.Marshal(attributes)
-		workspace.Attributes = string(jsonAttributes)
+		workspace.SetAttributes(attributes)
 	}
 	return nil
 }
@@ -331,19 +340,12 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 		if write {
 			s += "w"
 		}
-		attributes := make(map[string]interface{}, 1)
-		if workspace.Attributes != "" {
-			var atts map[string]interface{}
-			if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
-				attributes = atts
-			}
-		}
-		attributes["DEFAULT_RIGHTS"] = s
+		attributes := workspace.LoadAttributes()
+		attributes.DefaultRights = s
 		if strQuota != "" {
-			attributes["QUOTA"] = strQuota
+			attributes.QuotaValue = strQuota
 		}
-		jsonAttributes, _ := json.Marshal(attributes)
-		workspace.Attributes = string(jsonAttributes)
+		workspace.SetAttributes(attributes)
 
 	} else {
 		log.Logger(ctx).Debug("Manage default Rights: " + rightsValue)

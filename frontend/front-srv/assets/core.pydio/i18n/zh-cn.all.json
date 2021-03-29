@@ -414,7 +414,7 @@
     "other": "PHP 脚本"
   },
   "220": {
-    "other": "空的"
+    "other": "清空"
   },
   "221": {
     "other": "清空回收站"
@@ -1587,10 +1587,10 @@
     "other": "You are not allowed to create teams, but some authorized users may share teams with you"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "创建和编辑团队"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "让用户创建和编辑自己的团队"
   },
   "573": {
     "other": "Add user to team"
@@ -1617,7 +1617,7 @@
     "other": "CSS File"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "编辑团队标签"
   },
   "581": {
     "other": "User belongs to %s team(s)"
@@ -1686,7 +1686,7 @@
     "other": "RAR File"
   },
   "600": {
-    "other": "Edit user"
+    "other": "编辑用户"
   },
   "601": {
     "other": "一个共享的资料库"
@@ -2064,7 +2064,7 @@
     "other": "How configuration data are stored in the backend"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "数据加密插件"
   },
   "plugtype.desc.editor": {
     "other": "Viewers or editors for wide range of mime types"

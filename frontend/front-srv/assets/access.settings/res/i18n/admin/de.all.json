@@ -1085,6 +1085,12 @@
   "virtual.code.edit": {
     "other": "Code bearbeiten"
   },
+  "virtual.card.title": {
+    "other": "Dynamisch berechneter Pfad"
+  },
+  "virtual.card.cleanOnDelete": {
+    "other": "Benennen Sie die Daten beim Löschen des Benutzers in {deleted-NAME-UUID} um."
+  },
   "ws.1": {
     "other": "Vorlagen verwalten"
   },

@@ -27,7 +27,8 @@ export default function (pydio) {
 
     return function(){
         let message = MessageHash[176];
-        if (pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
+        if (pydio.getContextHolder().getRootNode().getMetadata().get("ws_skip_recycle") === "true"
+            || pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
             message = MessageHash[177];
         }
         // Detect shared node - Disabled for now as this is NOT disabled by the delete action

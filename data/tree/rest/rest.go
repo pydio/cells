@@ -284,7 +284,8 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 					return fmt.Errorf("please do not modify directly the root of a workspace")
 				}
 			}
-			if sourceInRecycle(ctx, filtered, ancestors) {
+			attributes := bi.LoadAttributes()
+			if attributes.SkipRecycle || sourceInRecycle(ctx, filtered, ancestors) {
 				// This is a real delete!
 				if er := router.WrappedCanApply(ctx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_DELETE, Source: filtered}); er != nil {
 					return er

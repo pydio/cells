@@ -23,10 +23,9 @@ package grpc
 import (
 	"context"
 	"net/url"
+	"path"
 	"sync"
 	"time"
-
-	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
@@ -44,7 +43,9 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/data/versions"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var policiesCache *cache.Cache
@@ -171,46 +172,67 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 	cl := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 
 	var idsToDelete []string
+	router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
 
 	if request.AllDeletedNodes {
 
-		// Load whole tree in memory
-		existingIds := make(map[string]struct{})
-		streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
-		if sErr != nil {
-			return sErr
+		var versionedDsRoots []*tree.Node
+		st, e := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: false})
+		if e != nil {
+			return e
 		}
-		defer streamer.Close()
+		defer st.Close()
 		for {
-			r, e := streamer.Recv()
+			r, e := st.Recv()
 			if e != nil {
 				break
 			}
-			existingIds[r.Node.GetUuid()] = struct{}{}
-		}
-
-		wg := &sync.WaitGroup{}
-		wg.Add(1)
-		runner := func() error {
-			defer wg.Done()
-			uuids, done, errs := h.db.ListAllVersionedNodesUuids()
-			for {
-				select {
-				case id := <-uuids:
-					if _, o := existingIds[id]; !o {
-						idsToDelete = append(idsToDelete, id)
-					}
-				case e := <-errs:
-					return e
-				case <-done:
-					return nil
-				}
+			dsName := path.Base(r.GetNode().GetPath())
+			if loaded, e := router.GetClientsPool().GetDataSourceInfo(dsName); e == nil && loaded.VersioningPolicyName != "" {
+				versionedDsRoots = append(versionedDsRoots, r.GetNode())
 			}
 		}
-		err := runner()
-		wg.Wait()
-		if err != nil {
-			return err
+
+		for _, dsRoot := range versionedDsRoots {
+			log.TasksLogger(ctx).Info("Listing datasource " + dsRoot.GetPath() + " for pruning")
+			// Load datasource tree in memory
+			existingIds := make(map[string]struct{})
+			streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: dsRoot, Recursive: true})
+			if sErr != nil {
+				return sErr
+			}
+			defer streamer.Close()
+			for {
+				r, e := streamer.Recv()
+				if e != nil {
+					break
+				}
+				existingIds[r.Node.GetUuid()] = struct{}{}
+			}
+
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			runner := func() error {
+				defer wg.Done()
+				uuids, done, errs := h.db.ListAllVersionedNodesUuids()
+				for {
+					select {
+					case id := <-uuids:
+						if _, o := existingIds[id]; !o {
+							idsToDelete = append(idsToDelete, id)
+						}
+					case e := <-errs:
+						return e
+					case <-done:
+						return nil
+					}
+				}
+			}
+			err := runner()
+			wg.Wait()
+			if err != nil {
+				return err
+			}
 		}
 
 	} else if request.UniqueNode != nil {

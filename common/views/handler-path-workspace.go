@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	servicecontext "github.com/pydio/cells/common/service/context"
 	context2 "github.com/pydio/cells/common/utils/context"
 
@@ -159,23 +157,9 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 					node.SetMeta(common.MetaFlagWorkspaceDescription, ws.Description)
 					node.SetMeta(common.MetaFlagWorkspaceSlug, ws.Slug)
 					node.SetMeta(common.MetaFlagWorkspaceUuid, ws.UUID)
-					if common.PackageType == "PydioHome" && ws.Scope == idm.WorkspaceScope_ADMIN {
+					attributes := ws.LoadAttributes()
+					if (common.PackageType == "PydioHome" && ws.Scope == idm.WorkspaceScope_ADMIN) || attributes.AllowSync {
 						node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
-					} else {
-						if ws.Attributes != "" && ws.Attributes != "{}" {
-							var aa map[string]interface{}
-							if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
-								if canSync, ok := aa["ALLOW_SYNC"]; ok {
-									if b, o := canSync.(bool); o && b {
-										node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
-									} else if s, o := canSync.(string); o {
-										if s == "true" {
-											node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
-										}
-									}
-								}
-							}
-						}
 					}
 					streamer.Send(&tree.ListNodesResponse{Node: node})
 				}

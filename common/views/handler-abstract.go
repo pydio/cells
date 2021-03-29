@@ -40,7 +40,7 @@ type ContextWrapper func(ctx context.Context) (context.Context, error)
 // all calls to the next handler
 type AbstractHandler struct {
 	next        Handler
-	clientsPool *ClientsPool
+	clientsPool SourcesPool
 	CtxWrapper  ContextWrapper
 }
 
@@ -56,7 +56,7 @@ func (a *AbstractHandler) SetNextHandler(h Handler) {
 	a.next = h
 }
 
-func (a *AbstractHandler) SetClientsPool(p *ClientsPool) {
+func (a *AbstractHandler) SetClientsPool(p SourcesPool) {
 	a.clientsPool = p
 }
 

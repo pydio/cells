@@ -42,7 +42,7 @@ var (
 
 type PruneVersionsAction struct {
 	Handler views.Handler
-	Pool    *views.ClientsPool
+	Pool    views.SourcesPool
 }
 
 func (c *PruneVersionsAction) GetDescription(lang ...string) actions.ActionDescription {

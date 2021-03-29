@@ -60,7 +60,7 @@ func (r MockReadCloser) Close() error {
 
 func (h *HandlerMock) SetNextHandler(handler Handler) {}
 
-func (h *HandlerMock) SetClientsPool(p *ClientsPool) {}
+func (h *HandlerMock) SetClientsPool(p SourcesPool) {}
 
 func (h *HandlerMock) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
 	return provider(inputFilter, outputFilter)

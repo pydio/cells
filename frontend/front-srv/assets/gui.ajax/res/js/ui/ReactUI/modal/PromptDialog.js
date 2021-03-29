@@ -1,11 +1,3 @@
-import React from "react";
-import createReactClass from 'create-react-class';
-import {TextField} from "material-ui";
-import DOMUtils from 'pydio/util/dom';
-import ActionDialogMixin from './ActionDialogMixin'
-import CancelButtonProviderMixin from './CancelButtonProviderMixin'
-import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26,7 +18,13 @@ import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from "react";
 import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
+import DOMUtils from 'pydio/util/dom';
+import ActionDialogMixin from './ActionDialogMixin'
+import CancelButtonProviderMixin from './CancelButtonProviderMixin'
+import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
 
 import Pydio from 'pydio'
 const {ModernTextField} = Pydio.requireLib("hoc");

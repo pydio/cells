@@ -1406,6 +1406,12 @@
   "ws.editor.other.layout.easy": {
     "other": "Easy Transfer Layout (enterprise only)"
   },
+  "ws.editor.other.skiprecycle": {
+    "other": "Skip Recycle Bin"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Disable recycle bin on this workspace : all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
+  },
   "ws.editor.other.sync": {
     "other": "Allow desktop synchronisation"
   },
