@@ -25,7 +25,9 @@ type stanRegistry struct {
 
 	connectTimeout time.Duration
 	connectRetry   bool
+
 	services       map[string][]*registry.Service
+	servicesLock *sync.RWMutex
 
 	watchers map[string]chan*PeerEvent
 	watcherLock *sync.RWMutex
@@ -86,9 +88,13 @@ func (n *stanRegistry) watch() error {
 		service := ev.Service
 		name := service.Name
 		if ev.Action == "create" {
+			n.servicesLock.Lock()
 			n.services[name] = addServices(n.services[name], []*registry.Service{service})
+			n.servicesLock.Unlock()
 		} else if ev.Action == "delete" {
+			n.servicesLock.Lock()
 			n.services[name] = delServices(n.services[name], []*registry.Service{service})
+			n.servicesLock.Unlock()
 		}
 	}
 }
@@ -207,8 +213,13 @@ func (n *stanRegistry) Deregister(s *registry.Service) error {
 }
 
 func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
+
+	n.servicesLock.RLock()
+	servicesMap := n.services[s]
+	n.servicesLock.RUnlock()
+
 	var services []*registry.Service
-	for _, service := range n.services[s] {
+	for _, service := range servicesMap {
 		if service.Name == s {
 			services = append(services, service)
 		}
@@ -217,8 +228,12 @@ func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
 }
 
 func (n *stanRegistry) ListServices() ([]*registry.Service, error) {
+	n.servicesLock.RLock()
+	servicesMap := n.services
+	n.servicesLock.RUnlock()
+
 	var services []*registry.Service
-	for _, v := range n.services {
+	for _, v := range servicesMap {
 		services = append(services, v...)
 	}
 	return services, nil
@@ -295,6 +310,7 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		// queryTopic: queryTopic,
 		// watchTopic: watchTopic,
 		services: make(map[string][]*registry.Service),
+		servicesLock: &sync.RWMutex{},
 		watchers: make(map[string]chan*PeerEvent),
 		watcherLock : &sync.RWMutex{},
 	}
