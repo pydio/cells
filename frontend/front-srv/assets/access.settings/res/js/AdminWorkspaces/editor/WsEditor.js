@@ -260,6 +260,21 @@ class WsEditor extends React.Component {
                 {advanced &&
                     <Paper zDepth={0} style={styles.section}>
                         <div style={styles.title}>{m('ws.editor.other')}</div>
+
+                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.skiprecycle.legend')}</div>
+                        <div style={styles.toggleDiv}>
+                            <Toggle
+                                label={m('ws.editor.other.skiprecycle')}
+                                labelPosition={"right"}
+                                toggled={workspace.Attributes['SKIP_RECYCLE']}
+                                onToggle={(e,v) =>{
+                                    workspace.Attributes['SKIP_RECYCLE'] = v;
+                                }}
+                                {...ModernStyles.toggleField}
+                            />
+                        </div>
+
+
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.sync.legend')}</div>
                         <div style={styles.toggleDiv}>
                             <Toggle
