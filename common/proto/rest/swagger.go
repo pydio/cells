@@ -6248,6 +6248,11 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Whether to delete all the children if node is a folder"
+        },
+        "RemovePermanently": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Force permanent deletion even if a recycle bin is defined"
         }
       }
     },

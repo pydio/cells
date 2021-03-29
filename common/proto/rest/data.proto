@@ -107,6 +107,8 @@ message DeleteNodesRequest {
     repeated tree.Node Nodes = 1;
     // Whether to delete all the children if node is a folder
     bool Recursive = 2;
+    // Force permanent deletion even if a recycle bin is defined
+    bool RemovePermanently = 3;
 }
 
 message BackgroundJobResult {
