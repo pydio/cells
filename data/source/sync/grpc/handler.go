@@ -166,7 +166,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			log.Logger(ctx).Info("Sync " + dataSource + " - Try to contact Objects")
 			cli := object.NewObjectsEndpointClient(registry.GetClient(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
-			if err != nil {
+			if err != nil || resp.MinioConfig == nil {
 				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
 				return err
 			}
