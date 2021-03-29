@@ -41,6 +41,9 @@ DESCRIPTION
 }
 
 func init() {
+	// Registry / Broker Flags
+	addNatsFlags(AdminCmd.PersistentFlags())
+	addNatsStreamingFlags(AdminCmd.PersistentFlags())
 	addRegistryFlags(AdminCmd.PersistentFlags())
 	RootCmd.AddCommand(AdminCmd)
 }
