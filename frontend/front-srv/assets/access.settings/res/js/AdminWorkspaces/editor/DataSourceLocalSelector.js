@@ -26,7 +26,7 @@ import {SelectField, TextField, MenuItem, FontIcon, IconButton, AutoComplete, Re
 import debounce from 'lodash.debounce'
 import LangUtils from 'pydio/util/lang'
 import PathUtils from 'pydio/util/path'
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 class AutocompleteTree extends React.Component{
 
@@ -202,7 +202,7 @@ class AutocompleteTree extends React.Component{
                         />
                     </div>
                 }
-                <AutoComplete
+                <ModernAutoComplete
                     fullWidth={true}
                     searchText={displayText}
                     onUpdateInput={this.handleUpdateInput.bind(this)}
@@ -212,7 +212,6 @@ class AutocompleteTree extends React.Component{
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
                     openOnFocus={true}
                     menuProps={{maxHeight: 200}}
-                    {...ModernStyles.textField}
                 />
             </div>
 
@@ -315,6 +314,7 @@ class DataSourceLocalSelector extends React.Component{
                     <div style={styles.subLegend}>{m('storage.legend.fs.peer')}</div>
                     <ModernSelectField
                         value={model.PeerAddress || ''}
+                        variant={'v2'}
                         hintText={m('selector.peer') + ' *'}
                         onChange={(e,i,v) => this.onPeerChange(v)}
                         fullWidth={true}
@@ -344,6 +344,7 @@ class DataSourceLocalSelector extends React.Component{
                     <ModernTextField
                         style={{marginTop: -3}}
                         fullWidth={true}
+                        variant={'v2'}
                         disabled={true}
                         value={model.StorageConfiguration.folder}
                         floatingLabelText={m('selector.folder') + ' *'}

@@ -19,7 +19,7 @@
  */
 import Pydio from 'pydio'
 import React from 'react'
-import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, Dialog} from 'material-ui'
+import {FlatButton, Paper, Checkbox, MenuItem, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
@@ -112,6 +112,7 @@ class WsEditor extends React.Component {
             buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", ()=>{this.save()} ,saving || (!(container.isDirty() && container.isValid()))));
         }
 
+        /*
         let delButton;
         if(!container.create && !readonly){
             delButton = (
@@ -121,20 +122,7 @@ class WsEditor extends React.Component {
                 </div>
             );
         }
-        const leftNav = (
-            <div>
-                <div style={{padding: 16, color:'#9e9e9e'}}>
-                    <div style={{fontSize: 120, textAlign:'center', paddingBottom: 10}}>
-                        <i className={"mdi mdi-folder-open"}/>
-                    </div>
-                    {m('ws.editor.help.1')}
-                    <br/><br/>
-                    {m('ws.editor.help.2')}
-                </div>
-                {delButton && <Divider/>}
-                {delButton}
-            </div>
-        );
+         */
 
         const adminStyles = AdminStyles(this.props.muiTheme.palette);
         const styles = {
@@ -145,7 +133,7 @@ class WsEditor extends React.Component {
             },
             legend: {color: '#9E9E9E', paddingTop: 10},
             section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white', ...adminStyles.body.block.container},
-            toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
+            toggleDiv:{}
         };
 
         const roots = workspace.RootNodes;
@@ -233,7 +221,6 @@ class WsEditor extends React.Component {
                         onChange={(e,v)=>{workspace.Description = v}}
                         variant={'v2'}
                     />
-                    <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.slug.legend')}</div>
                     <ModernTextField
                         fullWidth={true}
                         errorText={(workspace.Label && !workspace.Slug) ? m('ws.editor.slug.legend') : ""}
@@ -252,6 +239,8 @@ class WsEditor extends React.Component {
                         fullWidth={true}
                         value={workspace.Attributes['DEFAULT_RIGHTS'] || ''}
                         onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
+                        hintText={'Default Rights'}
+                        variant={'v2'}
                     >
                         <MenuItem primaryText={m('ws.editor.default_rights.none')} value={""}/>
                         <MenuItem primaryText={m('ws.editor.default_rights.read')} value={"r"}/>
@@ -265,25 +254,25 @@ class WsEditor extends React.Component {
 
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.skiprecycle.legend')}</div>
                         <div style={styles.toggleDiv}>
-                            <Toggle
+                            <Checkbox
                                 label={m('ws.editor.other.skiprecycle')}
                                 labelPosition={"right"}
-                                toggled={workspace.Attributes['SKIP_RECYCLE']}
-                                onToggle={(e,v) =>{
+                                checked={workspace.Attributes['SKIP_RECYCLE']}
+                                onCheck={(e,v) =>{
                                     workspace.Attributes['SKIP_RECYCLE'] = v;
                                 }}
-                                {...ModernStyles.toggleField}
+                                {...ModernStyles.toggleFieldV2}
                             />
                         </div>
 
 
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.sync.legend')}</div>
                         <div style={styles.toggleDiv}>
-                            <Toggle
+                            <Checkbox
                                 label={m('ws.editor.other.sync')}
                                 labelPosition={"right"}
-                                toggled={workspace.Attributes['ALLOW_SYNC']}
-                                onToggle={(e,v) =>{
+                                checked={workspace.Attributes['ALLOW_SYNC']}
+                                onCheck={(e,v) =>{
                                     if(!container.hasTemplatePath() && v) {
                                         this.enableSync(v)
                                     } else if (!v) {
@@ -292,7 +281,7 @@ class WsEditor extends React.Component {
                                         workspace.Attributes['ALLOW_SYNC'] = v;
                                     }
                                 }}
-                                {...ModernStyles.toggleField}
+                                {...ModernStyles.toggleFieldV2}
                             />
                         </div>
 
@@ -307,7 +296,7 @@ class WsEditor extends React.Component {
                         } }/>
 
                         <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.layout')}</div>
-                        <ModernSelectField fullWidth={true} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
+                        <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
                             <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
                             <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
                         </ModernSelectField>

@@ -18,11 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {TextField, SelectField} from 'material-ui'
+import {TextField, SelectField, AutoComplete} from 'material-ui'
 
 const noWrap = {
     whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
 };
+
+const v2Block = {
+    backgroundColor:'rgb(246, 246, 248)',
+    borderRadius:'3px 3px 0 0',
+    height:52,
+    marginTop: 8
+}
 
 const styles = {
     textField:{
@@ -31,6 +38,17 @@ const styles = {
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
         errorStyle:{bottom:-4}
+    },
+    textFieldV2:{
+        style:{...v2Block},
+        inputStyle:{position: 'absolute', height:30, marginTop:0, bottom: 2, paddingLeft: 8, paddingRight: 8},
+        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
+        underlineStyle:{opacity:1, bottom: 0},
+        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
+        floatingLabelFixed: true,
+        floatingLabelStyle:{top:26, left: 8, ...noWrap},
+        floatingLabelShrinkStyle:{top:26, left: 8},
+        errorStyle:{position:'absolute', bottom:8, right:8}
     },
     textareaField:{
         rows: 4,
@@ -47,6 +65,16 @@ const styles = {
         hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
         underlineShow: false
     },
+    selectFieldV2:{
+        style:{...v2Block, padding: 8, paddingRight: 0},
+        menuStyle:{marginTop: -6},
+        hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
+        underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0},
+        underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
+        floatingLabelFixed: true,
+        floatingLabelStyle:{top:26, left: 8, ...noWrap},
+        floatingLabelShrinkStyle:{top:26, left: 8}
+    },
     div:{
         backgroundColor:'rgba(224, 224, 224, 0.33)', color:'rgba(0,0,0,.5)',
         height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0
@@ -59,8 +87,37 @@ const styles = {
             fontSize: 15,
             margin:'6px 0 7px'
         }
+    },
+    toggleFieldV2:{
+        style:{
+            ...v2Block,
+            borderRadius: 4,
+            fontSize: 15,
+            /*
+            backgroundColor:'transparent',
+            border: '1px solid rgb(224, 224, 224)',
+             */
+            padding: '15px 10px 4px'
+        }
+    },
+    fillBlockV2Right:{
+        ...v2Block,
+        borderRadius:'0 4px 0 0',
+        borderBottom:'1px solid rgb(224, 224, 224)'
+    },
+    fillBlockV2Left:{
+        ...v2Block,
+        borderRadius:'4px 0 0 0',
+        borderBottom:'1px solid rgb(224, 224, 224)'
     }
 };
+
+function getV2WithBlocks(styles, hasLeft, hasRight){
+    if(styles.style){
+        styles.style.borderRadius = (hasLeft?'0 ':'4px ') + (hasRight?'0 ':'4px ') + '0 0';
+    }
+    return styles;
+}
 
 function withModernTheme(formComponent) {
 
@@ -100,22 +157,48 @@ function withModernTheme(formComponent) {
 
         render() {
 
-            const {floatingLabelText, ...otherProps} = this.props;
-            if(floatingLabelText){
-                otherProps["hintText"] = floatingLabelText;
+            let {variant, hasLeftBlock, hasRightBlock, ...otherProps} = this.props;
+            if(variant === 'v2' || formComponent === AutoComplete) {
+                if(!otherProps.floatingLabelText){
+                    otherProps.floatingLabelText = otherProps.hintText
+                    delete(otherProps.hintText);
+                }
+            } else {
+                if(otherProps.floatingLabelText){
+                    otherProps.hintText = otherProps.floatingLabelText;
+                    delete(otherProps.floatingLabelText);
+                }
             }
 
             if (formComponent === TextField) {
                 let styleProps;
-                if (this.props.multiLine){
+                if (this.props.multiLine) {
                     styleProps = this.mergedProps({...styles.textareaField});
+                } else if(variant === 'v2') {
+                    styleProps = this.mergedProps(getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock));
                 } else {
                     styleProps = this.mergedProps({...styles.textField});
                 }
                 return <TextField {...otherProps} {...styleProps} ref={"component"} />
             } else if (formComponent === SelectField) {
-                const styleProps = this.mergedProps({...styles.selectField});
+                let styleProps;
+                if (variant === 'v2') {
+                    styleProps = this.mergedProps(getV2WithBlocks({...styles.selectFieldV2}, hasLeftBlock, hasRightBlock));
+                } else {
+                    styleProps = this.mergedProps({...styles.selectField});
+                }
                 return <SelectField {...otherProps} {...styleProps} ref={"component"}/>
+            } else if (formComponent === AutoComplete) {
+
+                const {style, ...tfStyles} = getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock)
+
+                return <AutoComplete
+                    {...otherProps}
+                    ref={"component"}
+                    textFieldStyle={style}
+                    {...tfStyles}
+                />
+
             } else {
                 return formComponent;
             }
@@ -128,4 +211,5 @@ function withModernTheme(formComponent) {
 
 const ModernTextField = withModernTheme(TextField);
 const ModernSelectField = withModernTheme(SelectField);
-export {ModernTextField, ModernSelectField, withModernTheme, styles as ModernStyles}
+const ModernAutoComplete = withModernTheme(AutoComplete);
+export {ModernTextField, ModernSelectField, ModernAutoComplete, withModernTheme, styles as ModernStyles}

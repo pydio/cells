@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio';
 import React from 'react'
 import DataSource from '../model/DataSource'
-import {Dialog, Divider, Subheader, SelectField, Toggle, FlatButton, RaisedButton, MenuItem, Paper} from 'material-ui'
+import {Dialog, Divider, Checkbox, Toggle, FlatButton, RaisedButton, MenuItem, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
@@ -158,7 +158,7 @@ class DataSourceEditor extends React.Component{
 
     render(){
         const {storageTypes, pydio, readonly} = this.props;
-        const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, s3Custom, m} = this.state;
+        const {currentPane = 'main', model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, s3Custom, m} = this.state;
 
         let titleActionBarButtons = [];
         if(!readonly){
@@ -245,7 +245,6 @@ class DataSourceEditor extends React.Component{
             },
             section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white', ...adminStyles.body.block.container},
             storageSection: {padding: 20, marginTop: -1},
-            toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
         };
 
         let storages = {
@@ -263,6 +262,13 @@ class DataSourceEditor extends React.Component{
         }
 
         const cannotEnableEnc = model.EncryptionMode !== 'MASTER' && (!encryptionKeys || !encryptionKeys.length);
+        const makeStyle = (style, key) => {
+            if(create || key === currentPane){
+                return style
+            } else {
+                return {...style, display:'none'};
+            }
+        }
 
         return (
             <PaperEditorLayout
@@ -270,7 +276,9 @@ class DataSourceEditor extends React.Component{
                 titleLeftIcon={"mdi mdi-database"}
                 titleActionBar={titleActionBarButtons}
                 closeAction={this.props.closeEditor}
-                //leftNav={leftNav}
+                leftNavItems={create?null:[{label:'Main Options', value:'main'},{label:'Data Lifecycle', value:'data'},{label:'Advanced', value:'advanced'}]}
+                leftNavSelected={currentPane}
+                leftNavChange={(key) => {this.setState({currentPane:key})}}
                 className="workspace-editor"
                 contentFill={false}
             >
@@ -296,39 +304,39 @@ class DataSourceEditor extends React.Component{
                         </div>
                     }
                 </Dialog>
-                <Paper zDepth={0} style={styles.section}>
+                <Paper zDepth={0} style={makeStyle(styles.section, 'main')}>
                     <div style={styles.title}>{m('options')}</div>
-                    <ModernTextField fullWidth={true}  hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}} errorText={observable.getNameError(m)}/>
+                    <ModernTextField fullWidth={true} variant={'v2'} hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}} errorText={observable.getNameError(m)}/>
                     {!create &&
-                        <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('options.enabled')} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} {...ModernStyles.toggleField} /></div>
+                        <div><Checkbox labelPosition={"right"} label={m('options.enabled')} checked={!model.Disabled} onCheck={(e,v) =>{model.Disabled = !v}} {...ModernStyles.toggleFieldV2} /></div>
                     }
                 </Paper>
-                <Paper zDepth={0} style={{...styles.section, padding: 0}}>
+                <Paper zDepth={0} style={makeStyle({...styles.section, padding: 0}, 'main')}>
                     <DsStorageSelector disabled={!create} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}} values={storageData}/>
                     {model.StorageType === 'LOCAL' &&
                     <div style={styles.storageSection}>
                         <div style={styles.legend}>{m('storage.legend.fs')}</div>
                         <DataSourceLocalSelector model={model} pydio={this.props.pydio} styles={styles}/>
-                        <div style={styles.toggleDiv}><Toggle labelPosition={"right"} label={m('storage.fs.macos')} toggled={storageConfig.normalize === "true"} onToggle={(e,v)=>{storageConfig.normalize = (v?"true":"false")}} {...ModernStyles.toggleField}/></div>
+                        <div><Checkbox labelPosition={"right"} label={m('storage.fs.macos')} checked={storageConfig.normalize === "true"} onCheck={(e,v)=>{storageConfig.normalize = (v?"true":"false")}} {...ModernStyles.toggleFieldV2}/></div>
                     </div>
                     }
                     {model.StorageType === 'S3' &&
                         <div style={styles.storageSection}>
                             <div style={styles.legend}>{m('storage.legend.s3')}</div>
-                            <ModernSelectField fullWidth={true} value={s3Custom} onChange={(e,i,v)=>{this.toggleS3Custom(v)}}>
+                            <ModernSelectField fullWidth={true} variant={'v2'} hintText={"Endpoint type"} value={s3Custom} onChange={(e,i,v)=>{this.toggleS3Custom(v)}}>
                                 <MenuItem value={"aws"} primaryText={m('storage.s3.endpoint.amazon')}/>
                                 <MenuItem value={"custom"} primaryText={m('storage.s3.endpoint.custom')}/>
                             </ModernSelectField>
                             {s3Custom === 'custom' &&
                             <div>
-                                <ModernTextField fullWidth={true} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
-                                <ModernTextField fullWidth={true} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
+                                <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.endpoint') + ' - ' + m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => {model.StorageConfiguration.customEndpoint = v}}/>
+                                <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.region')} value={model.StorageConfiguration.customRegion} onChange={(e, v) => {model.StorageConfiguration.customRegion = v}}/>
                             </div>
                             }
-                            <ModernTextField fullWidth={true} hintText={m('storage.s3.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
+                            <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
                             <form autoComplete={"off"}>
                                 <input type="hidden" value="something"/>
-                                <ModernTextField autoComplete={"off"} fullWidth={true} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
+                                <ModernTextField autoComplete={"off"} fullWidth={true} variant={'v2'} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                             </form>
                             <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
                             <div style={{...styles.subLegend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
@@ -336,6 +344,7 @@ class DataSourceEditor extends React.Component{
                                 <div style={{flex:1, marginRight: 5}}>
                                     <ModernTextField
                                         fullWidth={true}
+                                        variant={'v2'}
                                         disabled={!!model.ObjectsBucket}
                                         hintText={m('storage.s3.bucketsTags')}
                                         value={model.StorageConfiguration.bucketsTags || ''}
@@ -345,6 +354,7 @@ class DataSourceEditor extends React.Component{
                                     <ModernTextField
                                         disabled={true}
                                         fullWidth={true}
+                                        variant={'v2'}
                                         hintText={m('storage.s3.objectsTags') + ' (not implemented yet)'}
                                         value={model.StorageConfiguration.objectsTags || ''}
                                         onChange={(e,v)=>{model.StorageConfiguration.objectsTags = v;}}/>
@@ -355,66 +365,85 @@ class DataSourceEditor extends React.Component{
                     {model.StorageType === 'AZURE' &&
                         <div style={styles.storageSection}>
                             <div style={styles.legend}>{m('storage.legend.azure')}</div>
-                            <ModernTextField fullWidth={true}  hintText={m('storage.azure.bucket') + ' *'} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
-                            <ModernTextField fullWidth={true} hintText={m('storage.azure.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
-                            <ModernTextField fullWidth={true} type={"password"} hintText={m('storage.azure.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
+                            <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.azure.bucket') + ' *'} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
+                            <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.azure.api') + ' *'} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
+                            <ModernTextField fullWidth={true} variant={'v2'} type={"password"} hintText={m('storage.azure.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                         </div>
                     }
                     {model.StorageType === 'GCS' &&
                     <div style={styles.storageSection}>
                         <div style={styles.legend}>{m('storage.legend.gcs')}</div>
-                        <ModernTextField fullWidth={true} hintText={m('storage.gcs.bucket') + ' *'} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
-                        <ModernTextField fullWidth={true} hintText={m('storage.gcs.credentials') + ' *'} value={model.StorageConfiguration.jsonCredentials} onChange={(e,v)=>{model.StorageConfiguration.jsonCredentials = v}} multiLine={true}/>
-                        <ModernTextField fullWidth={true} hintText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
+                        <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.gcs.bucket') + ' *'} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
+                        <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.gcs.credentials') + ' *'} value={model.StorageConfiguration.jsonCredentials} onChange={(e,v)=>{model.StorageConfiguration.jsonCredentials = v}} multiLine={true}/>
+                        <ModernTextField fullWidth={true} variant={'v2'} hintText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
                     </div>
                     }
                 </Paper>
-                <Paper zDepth={0} style={styles.section}>
+                <Paper zDepth={0} style={makeStyle(styles.section, 'data')}>
+
                     <div style={styles.title}>{m('datamanagement')}</div>
 
-                    <div>
-                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.flatStorage')}</div>
-                        <Toggle
-                            label={m('storage.flatStorage')}
-                            labelPosition={"right"}
-                            disabled={!create}
-                            toggled={!model.FlatStorage}
-                            onToggle={(e,v)=>{model.FlatStorage = !v}}
-                            {...ModernStyles.toggleField}
-                        />
-                    </div>
-
-                    {!model.FlatStorage &&
-                    <div>
-                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.skipResync')}</div>
-                        <Toggle
-                            label={m('storage.skipResync')}
-                            labelPosition={"right"}
-                            toggled={model.SkipSyncOnRestart}
-                            onToggle={(e,v)=>{model.SkipSyncOnRestart = v}}
-                            {...ModernStyles.toggleField}
-                        />
-                    </div>
-                    }
-
-
                     <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
-                    <ModernSelectField fullWidth={true} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
+                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {
                             return <MenuItem value={key.Uuid} primaryText={key.Name}/>
                         })}
                     </ModernSelectField>
 
+
+                    <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
+                    <div>
+                        <Checkbox labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} checked={model.EncryptionMode === "MASTER"} onCheck={(e,v)=>{this.toggleEncryption(v)}}
+                                  disabled={cannotEnableEnc} {...ModernStyles.toggleFieldV2}/>
+                    </div>
+                    {model.EncryptionMode === "MASTER" &&
+                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('enc.key')} value={model.EncryptionKey} onChange={(e,i,v)=>{model.EncryptionKey = v}}>
+                        {encryptionKeys.map(key => {
+                            return <MenuItem value={key.ID} primaryText={key.Label}/>
+                        })}
+                    </ModernSelectField>
+                    }
+
+                </Paper>
+                <Paper zDepth={0} style={makeStyle(styles.section, 'advanced')}>
+                    <div style={styles.title}>{'Advanced storage options'}</div>
+
+                    <div>
+                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.flatStorage')}</div>
+                        <Checkbox
+                            label={m('storage.flatStorage')}
+                            labelPosition={"right"}
+                            disabled={!create}
+                            checked={!model.FlatStorage}
+                            onCheck={(e,v)=>{model.FlatStorage = !v}}
+                            {...ModernStyles.toggleFieldV2}
+                        />
+                    </div>
+
+                    {!model.FlatStorage &&
+                    <div>
+                        <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.skipResync')}</div>
+                        <Checkbox
+                            label={m('storage.skipResync')}
+                            labelPosition={"right"}
+                            checked={model.SkipSyncOnRestart}
+                            onCheck={(e,v)=>{model.SkipSyncOnRestart = v}}
+                            {...ModernStyles.toggleFieldV2}
+                        />
+                    </div>
+                    }
+
+
                     {model.StorageType !== 'LOCAL' &&
                     <div>
                         <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.readOnly')}</div>
-                        <Toggle
+                        <Checkbox
                             label={m('storage.readOnly')}
                             labelPosition={"right"}
-                            toggled={model.StorageConfiguration.readOnly === 'true'}
-                            onToggle={(e,v)=>{model.StorageConfiguration.readOnly = (v ? 'true' : '');}}
-                            {...ModernStyles.toggleField}
+                            checked={model.StorageConfiguration.readOnly === 'true'}
+                            onCheck={(e,v)=>{model.StorageConfiguration.readOnly = (v ? 'true' : '');}}
+                            {...ModernStyles.toggleFieldV2}
                         />
                     </div>
                     }
@@ -422,39 +451,27 @@ class DataSourceEditor extends React.Component{
                     {(!model.StorageConfiguration.readOnly || model.StorageConfiguration.readOnly !== 'true') &&
                     <div>
                         <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.checksumMapper')}</div>
-                        <Toggle
+                        <Checkbox
                             label={m('storage.nativeEtags')}
                             labelPosition={"right"}
-                            toggled={model.StorageConfiguration.nativeEtags}
-                            onToggle={(e,v)=>{model.StorageConfiguration.nativeEtags = (v ? 'true' : '');}}
-                            {...ModernStyles.toggleField}
+                            checked={model.StorageConfiguration.nativeEtags}
+                            onCheck={(e,v)=>{model.StorageConfiguration.nativeEtags = (v ? 'true' : '');}}
+                            {...ModernStyles.toggleFieldV2}
                         />
                         {!model.StorageConfiguration.nativeEtags &&
                             <div>
-                                <Toggle
+                                <Checkbox
                                     label={m('storage.checksumMapper')}
                                     labelPosition={"right"}
-                                    toggled={model.StorageConfiguration.checksumMapper === 'dao'}
-                                    onToggle={(e,v)=>{model.StorageConfiguration.checksumMapper = (v ? 'dao' : '');}}
-                                {...ModernStyles.toggleField}
+                                    checked={model.StorageConfiguration.checksumMapper === 'dao'}
+                                    onCheck={(e,v)=>{model.StorageConfiguration.checksumMapper = (v ? 'dao' : '');}}
+                                {...ModernStyles.toggleFieldV2}
                                 />
                             </div>
                         }
                     </div>
                     }
 
-                    <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
-                    <div style={styles.toggleDiv}>
-                        <Toggle labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}
-                                disabled={cannotEnableEnc} {...ModernStyles.toggleField}/>
-                    </div>
-                    {model.EncryptionMode === "MASTER" &&
-                        <ModernSelectField fullWidth={true} hintText={m('enc.key')} value={model.EncryptionKey} onChange={(e,i,v)=>{model.EncryptionKey = v}}>
-                            {encryptionKeys.map(key => {
-                                return <MenuItem value={key.ID} primaryText={key.Label}/>
-                            })}
-                        </ModernSelectField>
-                    }
                 </Paper>
 
             </PaperEditorLayout>

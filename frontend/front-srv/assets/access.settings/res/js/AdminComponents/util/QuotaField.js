@@ -87,16 +87,21 @@ class QuotaField extends React.Component{
                 <div style={{display:'flex'}}>
                     <ModernTextField
                         value={this.state.quota > 0 ? this.state.quota : null}
-                        hintText={"No Quota"}
+                        hintText={"Bytes Value"}
                         hintStyle={{paddingLeft: 52}}
-                        style={{flex: 2, marginRight: 4}}
+                        style={{flex: 2}}
                         type={"number"}
+                        variant={"v2"}
+                        hasRightBlock={true}
                         onChange={(e,v) => {
                             this.setState({quota: Math.max(0, v) || 0})
                         }}
                     />
                     <ModernSelectField
                         value={this.state.unit}
+                        variant={"v2"}
+                        hintText={"Unit"}
+                        hasRightLeft={true}
                         onChange={(e,i,v) => {
                             let {quota, unit} = this.state;
                             if(v !== unit) {
@@ -104,7 +109,7 @@ class QuotaField extends React.Component{
                             }
                             this.setState({quota, unit: v});
                         }}
-                        style={{marginLeft: 4, flex: 1}}
+                        style={{flex: 1}}
                     >
                         <MenuItem value={''} primaryText={sizeUnit}/>
                         <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
