@@ -51,8 +51,8 @@ func init() {
 
 	docOpenApiCmd.Flags().StringVarP(&openApiTargetFolder, "path", "p", "./", "Path to output folder")
 	docOpenApiCmd.Flags().StringVarP(&docs.ApiDocsMenuName, "menu", "m", "menu-admin-guide-v7", "Pydio Docs menu name")
-	docOpenApiCmd.Flags().StringVarP(&docs.ApiDocsOutputRootId, "root", "r", "1_cells_api", "Pydio Docs root markdown file")
-	docOpenApiCmd.Flags().StringVarP(&docs.ApiDocsOutputRootTitle, "title", "t", "REST Api", "Pydio Docs root markdown title")
-	docOpenApiCmd.Flags().IntVarP(&docs.ApiDocsOutputRootWeight, "weight", "w", 1, "Pydio Docs root menu weight")
+	docOpenApiCmd.Flags().StringVarP(&docs.ApiDocsOutputRootId, "root", "r", "2_cells_api", "Pydio Docs root markdown file")
+	docOpenApiCmd.Flags().StringVarP(&docs.ApiDocsOutputRootTitle, "title", "t", "Rest API", "Pydio Docs root markdown title")
+	docOpenApiCmd.Flags().IntVarP(&docs.ApiDocsOutputRootWeight, "weight", "w", 2, "Pydio Docs root menu weight")
 	DocCmd.AddCommand(docOpenApiCmd)
 }
