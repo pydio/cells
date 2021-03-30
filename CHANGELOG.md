@@ -1,7 +1,9 @@
-# Changes between v2.2.3 and v2.2.4-rc1
+# Changes between v2.2.3 and v2.2.4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.3...v2.2.4-rc1)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.3...v2.2.4)
 
+- [#25a30ab](https://github.com/pydio/cells/commit/25a30abf6b1b502fa0e83f337204bf34718b0030): Adapt defaults to be in-line with the current status of the doc
+- [#55d51dc](https://github.com/pydio/cells/commit/55d51dcfe87baabc6330db99289d7bcf12eecc7b): Release v2.2.4-rc1
 - [#926b570](https://github.com/pydio/cells/commit/926b57015563aa3670d4905134b750e63eeffef4): 2 more messages + DE / FR translation + more Chinese
 - [#b8102bf](https://github.com/pydio/cells/commit/b8102bf7470d6e1eb132c58de635797f2cdb110a): 2 more messages + DE / FR translation + more Chinese
 - [#314](https://github.com/pydio/cells/pull/314): New Crowdin updates
