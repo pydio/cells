@@ -1496,9 +1496,8 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     top: 60px;
   }
 }
-.react-mui-context .edit-object-user .paper-editor-left .mui-subheader:first-child {
-  margin-top: 152px !important;
-  opacity: 0;
+.react-mui-context .edit-object-user .paper-editor-left div[role="menu"] {
+  top: 256px !important;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image {
   position: absolute;
@@ -1511,7 +1510,7 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   border-radius: 0;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone {
-  width: 256px !important;
+  width: 200px !important;
   height: 200px !important;
   border-radius: 0;
   background-color: #e0e0e0;

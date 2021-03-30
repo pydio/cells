@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 
 
 import Pydio from 'pydio';
-const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.requireLib('components');
+const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader, PluginsLoader} = AdminComponents;
 
 import Role from './model/Role'
 import User from './model/User'
@@ -55,7 +55,7 @@ class Editor extends React.Component{
             };
             this.loadRoleData(true);
         }
-        const loader = AdminComponents.PluginsLoader.getInstance(this.props.pydio);
+        const loader = PluginsLoader.getInstance(this.props.pydio);
         loader.loadPlugins().then(plugins => {
             this.setState({pluginsRegistry: plugins});
         })
@@ -222,15 +222,15 @@ class Editor extends React.Component{
             PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)
         ];
 
-        const leftNav = [
-            <PaperEditorNavHeader key="1" label={this.getMessage('ws.28', 'ajxp_admin')}/>,
-            <PaperEditorNavEntry key="info" keyName="info" onClick={this.setSelectedPane.bind(this)} label={infoMenuTitle} selectedKey={currentPane}/>,
-            <PaperEditorNavHeader key="2" label={this.getMessage('34')}/>,
-            <PaperEditorNavEntry key="workspaces" keyName="workspaces" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('35')} selectedKey={currentPane}/>,
-            <PaperEditorNavEntry key="pages" keyName="pages" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('36')} selectedKey={currentPane}/>,
-            <PaperEditorNavHeader key="3" label={this.getMessage('37')}/>,
-            <PaperEditorNavEntry key="params" keyName="params" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('38')} selectedKey={currentPane}/>,
-        ];
+        const leftNavItems=[
+//            {subHeader: this.getMessage('ws.28', 'ajxp_admin')},
+            {value: "info", label:infoMenuTitle},
+//            {subHeader: this.getMessage('34')},
+            {value: "workspaces", label:this.getMessage('35')},
+            {value: "pages", label:this.getMessage('36')},
+//            {subHeader: this.getMessage('37')},
+            {value: "params", label:this.getMessage('38')},
+        ]
 
         let panes = [];
         const classFor = key => currentPane === key ? 'layout-fill' : '';
@@ -314,10 +314,13 @@ class Editor extends React.Component{
         return (
             <PaperEditorLayout
                 title={title}
+                titleLeftIcon={"mdi mdi-account"}
                 titleActionBar={rightButtons}
                 closeAction={() => {this.props.onRequestTabClose();}}
                 contentFill={true}
-                leftNav={leftNav}
+                leftNavItems={leftNavItems}
+                leftNavSelected={currentPane}
+                leftNavChange={(key)=> {this.setSelectedPane(key)}}
                 className={"edit-object-" + this.state.roleType }
             >
                 <Snackbar

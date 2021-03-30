@@ -19,13 +19,12 @@
  */
 import Pydio from 'pydio'
 import React from 'react'
-import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader, Dialog} from 'material-ui'
+import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
-const {PaperEditorLayout} = Pydio.requireLib('components');
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
-const {QuotaField} = AdminComponents;
+const {PaperEditorLayout, QuotaField, AdminStyles} = AdminComponents;
 
 class WsEditor extends React.Component {
 
@@ -137,7 +136,7 @@ class WsEditor extends React.Component {
             </div>
         );
 
-        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        const adminStyles = AdminStyles(this.props.muiTheme.palette);
         const styles = {
             title: {
                 fontSize: 20,
@@ -188,9 +187,9 @@ class WsEditor extends React.Component {
         return (
             <PaperEditorLayout
                 title={workspace.Label || mS('90')}
+                titleLeftIcon={"mdi mdi-folder-open"}
                 titleActionBar={buttons}
                 closeAction={closeEditor}
-                leftNav={leftNav}
                 className="workspace-editor"
                 contentFill={false}
             >
@@ -225,12 +224,14 @@ class WsEditor extends React.Component {
                         floatingLabelText={mS('8')}
                         value={workspace.Label}
                         onChange={(e,v)=>{workspace.Label = v}}
+                        variant={'v2'}
                     />
                     <ModernTextField
                         fullWidth={true}
                         floatingLabelText={m("ws.editor.description")}
                         value={workspace.Description}
                         onChange={(e,v)=>{workspace.Description = v}}
+                        variant={'v2'}
                     />
                     <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.slug.legend')}</div>
                     <ModernTextField
@@ -239,6 +240,7 @@ class WsEditor extends React.Component {
                         floatingLabelText={m('ws.5')}
                         value={workspace.Slug}
                         onChange={(e,v)=>{workspace.Slug = v}}
+                        variant={'v2'}
                     />
                 </Paper>
                 <Paper zDepth={0} style={styles.section}>

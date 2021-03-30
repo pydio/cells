@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import VersionPolicyPeriods from './VersionPolicyPeriods'
 const PydioForm = Pydio.requireLib('form');
-const {PaperEditorLayout} = Pydio.requireLib('components');
+const {PaperEditorLayout} = AdminComponents;
 
 class VersionPolicyEditor extends React.Component{
 
@@ -184,12 +184,13 @@ class VersionPolicyEditor extends React.Component{
         return (
             <PaperEditorLayout
                 title={loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.loading']}
+                titleLeftIcon={"mdi mdi-clock-start"}
                 titleActionBar={titleActionBarButtons}
                 closeAction={this.props.closeEditor}
                 className="workspace-editor"
                 contentFill={true}
             >
-                <Paper zDepth={1} style={{padding:'0 16px', backgroundColor:'#ECEFF1'}}>
+                <Paper zDepth={0} style={{padding:'0 12px', backgroundColor:'#ECEFF1'}}>
                     <div style={{overflowX: 'auto'}}>
                         <VersionPolicyPeriods pydio={pydio} periods={saveValue?saveValue.KeepPeriods:policy.KeepPeriods}/>
                     </div>

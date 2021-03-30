@@ -28,7 +28,7 @@ import {muiThemeable} from 'material-ui/styles'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
 import DataSourceBucketSelector from './DataSourceBucketSelector'
-const {PaperEditorLayout} = Pydio.requireLib('components');
+const {PaperEditorLayout, AdminStyles} = AdminComponents;
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 
 class DataSourceEditor extends React.Component{
@@ -228,7 +228,7 @@ class DataSourceEditor extends React.Component{
 
         const title = model.Name ? m('title').replace('%s', model.Name) : m('new');
         let storageConfig = model.StorageConfiguration;
-        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette)
+        const adminStyles = AdminStyles(this.props.muiTheme.palette)
         const styles = {
             title: {
                 fontSize: 20,
@@ -265,11 +265,12 @@ class DataSourceEditor extends React.Component{
         const cannotEnableEnc = model.EncryptionMode !== 'MASTER' && (!encryptionKeys || !encryptionKeys.length);
 
         return (
-            <PydioComponents.PaperEditorLayout
+            <PaperEditorLayout
                 title={title}
+                titleLeftIcon={"mdi mdi-database"}
                 titleActionBar={titleActionBarButtons}
                 closeAction={this.props.closeEditor}
-                leftNav={leftNav}
+                //leftNav={leftNav}
                 className="workspace-editor"
                 contentFill={false}
             >
@@ -456,7 +457,7 @@ class DataSourceEditor extends React.Component{
                     }
                 </Paper>
 
-            </PydioComponents.PaperEditorLayout>
+            </PaperEditorLayout>
         );
     }
 }

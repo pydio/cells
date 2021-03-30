@@ -33,6 +33,8 @@ import AdminStyles from './styles/AdminStyles'
 import Header from './styles/Header'
 import SubHeader from './styles/SubHeader'
 
+import {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} from './styles/PaperEditor'
+
 window.AdminComponents = {
     AdminDashboard,
     SimpleDashboard,
@@ -49,4 +51,8 @@ window.AdminComponents = {
     AdminStyles,
     Header,
     SubHeader,
+
+    PaperEditorLayout,
+    PaperEditorNavEntry,
+    PaperEditorNavHeader
 };

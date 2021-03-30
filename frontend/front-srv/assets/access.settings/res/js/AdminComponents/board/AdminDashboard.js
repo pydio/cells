@@ -285,6 +285,19 @@ let AdminDashboard = createReactClass({
         });
         const adminStyles = AdminStyles(theme.palette);
 
+        let overlay = {visibility:'hidden', opacity:'0'};
+        if(rightPanel){
+            overlay = {visibility: 'visible', opacity: '1'};
+        }
+        overlay = {
+            position:'absolute',
+            transition:'visibility 0s, opacity 150ms linear',
+            top: 0, right: 0, left: 0, bottom: 0,
+            backgroundColor:'rgba(0,0,0,.54)',
+            zIndex: 10,
+            ...overlay
+        };
+
         return (
             <MuiThemeProvider muiTheme={theme}>
                 <div className="app-canvas">
@@ -301,7 +314,8 @@ let AdminDashboard = createReactClass({
                     <Paper zDepth={0} className="main-panel" style={{...adminStyles.body.mainPanel, left: LeftToggleListener.getInstance().isActive() ? 0 : 256}}>
                         {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
                     </Paper>
-                    <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
+                    <div style={overlay}/>
+                    <Paper zDepth={5} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')} style={{zIndex: 11, borderRadius: '4px 4px 0 0'}}>
                         {rPanelContent}
                     </Paper>
                 </div>

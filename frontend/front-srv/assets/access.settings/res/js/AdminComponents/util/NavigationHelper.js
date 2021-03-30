@@ -50,12 +50,6 @@ class NavigationHelper{
     static buildNavigationItems(pydio, rootNode, palette, showAdvanced = false, noIcon = false){
 
         let items = [];
-
-        const headerStyle = {
-            fontSize: 12,
-            color: 'rgba(0,0,0,0.25)',
-            textTransform: 'uppercase'
-        };
         const {menu} = AdminStyles(palette);
 
         if(rootNode.getMetadata().get('component')){

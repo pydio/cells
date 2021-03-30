@@ -25,7 +25,7 @@ import AjxpNode from 'pydio/model/node'
 import React from 'react'
 import createReactClass from 'create-react-class';
 import ServicesList from './ServicesList'
-import {Toggle, DropDownMenu, MenuItem, IconButton, Paper} from 'material-ui'
+import {Toggle, MenuItem} from 'material-ui'
 const {ModernStyles, ModernSelectField} = Pydio.requireLib('hoc');
 
 export default createReactClass({
