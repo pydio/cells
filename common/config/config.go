@@ -156,7 +156,7 @@ func (c *cacheconfig) Set(v interface{}) error {
 
 // Del value at a certain path
 func (c *cacheconfig) Del() error {
-	return c.im.Del()
+	return c.store.Del()
 }
 
 func (c *cacheconfig) Val(k ...string) configx.Values {
@@ -185,6 +185,15 @@ func (c *cacheValues) Set(v interface{}) error {
 	}
 
 	return c.store.Val(c.path...).Set(v)
+}
+
+func (c *cacheValues) Del() error {
+	err := c.Values.Del()
+	if err != nil {
+		return err
+	}
+
+	return c.store.Val(c.path...).Del()
 }
 
 func (c *cacheValues) MarshalJSON() ([]byte, error) {
