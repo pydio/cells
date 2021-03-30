@@ -294,6 +294,9 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 	if srcInfo.EncryptionMode != object.EncryptionMode_MASTER && destInfo.EncryptionMode != object.EncryptionMode_MASTER {
 		return e.next.CopyObject(ctx, from, to, requestData)
 	}
+	if requestData.Metadata == nil {
+		requestData.Metadata = map[string]string{}
+	}
 	// Move
 	var move, sameClient bool
 	if d, ok := requestData.Metadata[common.XAmzMetaDirective]; ok && d == "COPY" {
