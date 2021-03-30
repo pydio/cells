@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encryption/decryption of the data."
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Set an identifier for the new key"
+  },
   "ds.editor.enc.key": {
     "other": "Encryption Key"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "No Encryption"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
     "other": "I Understand"

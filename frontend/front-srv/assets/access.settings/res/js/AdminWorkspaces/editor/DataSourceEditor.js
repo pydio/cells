@@ -21,6 +21,7 @@
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio';
+import PydioApi from 'pydio/http/api'
 import React from 'react'
 import DataSource from '../model/DataSource'
 import {Dialog, Divider, Checkbox, Toggle, FlatButton, RaisedButton, MenuItem, Paper} from 'material-ui'
@@ -30,6 +31,7 @@ import DsStorageSelector from './DsStorageSelector'
 import DataSourceBucketSelector from './DataSourceBucketSelector'
 const {PaperEditorLayout, AdminStyles} = AdminComponents;
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+import {ConfigServiceApi, EncryptionAdminCreateKeyRequest} from 'cells-sdk'
 
 class DataSourceEditor extends React.Component{
 
@@ -131,18 +133,42 @@ class DataSourceEditor extends React.Component{
     }
 
     toggleEncryption(value){
-        if(value){
+        const {model} = this.state
+        if(value === 'VALUE_CREATE'){
+            this.setState({showDialog:'enableEncryptionWithCreate', dialogTargetValue: value, newKeyName:model.Name||''});
+        } else if (value === 'VALUE_CLEAR') {
+            this.setState({showDialog:'disableEncryption', dialogTargetValue: value});
+        } else if (model.EncryptionMode !== 'MASTER') {
             this.setState({showDialog:'enableEncryption', dialogTargetValue: value});
         } else {
-            this.setState({showDialog:'disableEncryption', dialogTargetValue: value});
+            model.EncryptionKey = value;
         }
     }
 
     confirmEncryption(value){
-        const {model, encryptionKeys} = this.state;
-        model.EncryptionMode = (value?"MASTER":"CLEAR");
-        if(value && !model.EncryptionKey && encryptionKeys && encryptionKeys.length){
-            model.EncryptionKey = encryptionKeys[0].ID;
+        const {model, newKeyName} = this.state;
+
+        if(value === 'VALUE_CREATE') {
+            const api = new ConfigServiceApi(PydioApi.getRestClient());
+            let req = new EncryptionAdminCreateKeyRequest();
+            req.KeyID = newKeyName;
+            req.Label = newKeyName;
+            api.createEncryptionKey(req).then((result) => {
+                model.EncryptionMode = 'MASTER';
+                model.EncryptionKey = newKeyName;
+                this.setState({showDialog: false, dialogTargetValue:null, encryptionKeys:[{ID:newKeyName, Label:newKeyName}]})
+            }).catch(() => {
+                //this.setState({showDialog: false})
+            })
+            return
+        }
+
+        if(value === 'VALUE_CLEAR') {
+            model.EncryptionMode = 'CLEAR';
+            model.EncryptionKey = '';
+        } else {
+            model.EncryptionMode = 'MASTER';
+            model.EncryptionKey = value;
         }
         this.setState({showDialog: false, dialogTargetValue: null});
     }
@@ -158,7 +184,7 @@ class DataSourceEditor extends React.Component{
 
     render(){
         const {storageTypes, pydio, readonly} = this.props;
-        const {currentPane = 'main', model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, s3Custom, m} = this.state;
+        const {currentPane = 'main', model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, newKeyName, s3Custom, m} = this.state;
 
         let titleActionBarButtons = [];
         if(!readonly){
@@ -285,17 +311,20 @@ class DataSourceEditor extends React.Component{
                 <Dialog
                     open={showDialog}
                     title={m('enc.warning')}
-                    onRequestClose={()=>{this.confirmEncryption(!dialogTargetValue)}}
+                    onRequestClose={()=>{this.setState({showDialog:false, dialogTargetValue:null})}}
                     actions={[
-                        <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.confirmEncryption(!dialogTargetValue)}}/>,
-                        <FlatButton label={m('enc.validate')} onClick={()=>{this.confirmEncryption(dialogTargetValue)}}/>
+                        <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showDialog:false, dialogTargetValue:null})}}/>,
+                        <FlatButton label={m('enc.validate')} disabled={showDialog === 'enableEncryptionWithCreate' && !newKeyName} onClick={()=>{this.confirmEncryption(dialogTargetValue)}}/>
                     ]}
                 >
-                    {showDialog === 'enableEncryption' &&
+                    {(showDialog === 'enableEncryption' || showDialog === 'enableEncryptionWithCreate' ) &&
                         <div>
                             <p>{m('enc.dialog.enable.1')}</p>
                             <p>{m('enc.dialog.enable.2')} <b>{m('enc.dialog.enable.2bold')}</b></p>
                             <p>{m('enc.dialog.enable.3')}</p>
+                            {showDialog === 'enableEncryptionWithCreate' &&
+                                <ModernTextField hintText={m('enc.dialog.enable.create')} fullWidth={true} variant={'v2'} value={newKeyName} onChange={(e,v) => {this.setState({newKeyName:v})}} />
+                            }
                         </div>
                     }
                     {showDialog === 'disableEncryption' &&
@@ -393,17 +422,13 @@ class DataSourceEditor extends React.Component{
 
 
                     <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
-                    <div>
-                        <Checkbox labelPosition={"right"} label={m('enc') + (cannotEnableEnc ? ' (' + pydio.MessageHash['ajxp_admin.ds.encryption.key.emptyState']+')' :'')} checked={model.EncryptionMode === "MASTER"} onCheck={(e,v)=>{this.toggleEncryption(v)}}
-                                  disabled={cannotEnableEnc} {...ModernStyles.toggleFieldV2}/>
-                    </div>
-                    {model.EncryptionMode === "MASTER" &&
-                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('enc.key')} value={model.EncryptionKey} onChange={(e,i,v)=>{model.EncryptionKey = v}}>
+                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('enc.key')} value={model.EncryptionMode === 'MASTER' ? model.EncryptionKey : 'VALUE_CLEAR'} onChange={(e, i, v)=>{this.toggleEncryption(v)}}>
+                        <MenuItem value={'VALUE_CLEAR'} primaryText={m('enc.key.clear')}/>
                         {encryptionKeys.map(key => {
                             return <MenuItem value={key.ID} primaryText={key.Label}/>
                         })}
+                        {model.EncryptionMode !== 'MASTER' && encryptionKeys.length === 0 && <MenuItem value={'VALUE_CREATE'} primaryText={m('enc.key.create')}/>}
                     </ModernSelectField>
-                    }
 
                 </Paper>
                 <Paper zDepth={0} style={makeStyle(styles.section, 'advanced')}>
