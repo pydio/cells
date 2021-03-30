@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {TextField, IconButton, Paper} from 'material-ui'
+import {Checkbox, IconButton, FlatButton} from 'material-ui'
 
 class NodeCard extends React.Component{
 
@@ -29,12 +29,12 @@ class NodeCard extends React.Component{
         let dirty = false;
         if (!value){
             value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
-        } else {
             dirty = true
         }
         this.state = {
             value: value,
-            dirty: true
+            cleanOnDelete: props.node.getOnDelete() === 'rename-uuid',
+            dirty: dirty
         };
     }
 
@@ -47,9 +47,14 @@ class NodeCard extends React.Component{
 
     save(){
         const {node, onSave = () => {}} = this.props;
-        const {value} = this.state;
+        const {value, cleanOnDelete} = this.state;
 
         node.setValue(value);
+        if(cleanOnDelete){
+            node.setOnDelete('rename-uuid')
+        } else {
+            node.setOnDelete('')
+        }
 
         node.save(() => {
             this.setState({
@@ -67,7 +72,7 @@ class NodeCard extends React.Component{
     render(){
 
         const {pydio, dataSources, readonly, oneLiner, onClose = () => {}} = this.props;
-        const {value, dirty} = this.state;
+        const {value, dirty, cleanOnDelete} = this.state;
         const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
 
         let ds = {};
@@ -79,7 +84,17 @@ class NodeCard extends React.Component{
         const globalScope = {
             Path:'',
             DataSources:ds,
-            User:{Name:''}
+            User:{
+                Name:'',
+                Uuid: '',
+                GroupPath: '',
+                GroupFlat: '',
+                Profile: '',
+                DisplayName: '',
+                Email: '',
+                AuthSource:'',
+                Roles: []
+            }
         };
 
         const codeMirrorField = (
@@ -104,12 +119,20 @@ class NodeCard extends React.Component{
             );
         } else {
             return (
-                <div style={{backgroundColor:'#f5f5f5', paddingBottom: 24}}>
-                    <div style={{padding: readonly?'12px 24px':'0 24px', fontWeight:500, display:'flex', alignItems:'center'}}>
-                        <div>Template Path Code</div>
-                        {!readonly && <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!dirty} tooltip={m('save')} style={{width:36, height: 36, padding: 8}} iconStyle={{fontSize: 20, color:'rgba(0,0,0,.33)'}}/>}
+                <div style={{backgroundColor:'#f5f5f5', paddingBottom: 12}}>
+                    <div style={{padding: readonly?'16px 24px 8px':'10px 24px 0', fontWeight:500, display:'flex', alignItems:'center'}}>
+                        <div style={{flex: 1}}>{m('card.title')}</div>
+                        {!readonly && <FlatButton onClick={this.save.bind(this)} primary={true} disabled={!dirty} label={m('save')}/>}
                     </div>
-                    <div style={{margin:'12px 24px 0 24px', border:'1px solid #e0e0e0'}}>{codeMirrorField}</div>
+                    <div style={{margin:'6px 24px 0 24px', border:'1px solid #e0e0e0'}}>{codeMirrorField}</div>
+                    <div style={{margin:'12px 24px'}}>
+                        <Checkbox
+                            disabled={readonly}
+                            checked={cleanOnDelete}
+                            onCheck={(e,v) => {this.setState({cleanOnDelete: v, dirty: true})}}
+                            label={m('card.cleanOnDelete')}
+                        />
+                    </div>
                 </div>
             );
         }

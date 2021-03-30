@@ -140,6 +140,15 @@ func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
 	return a.NodesAcls
 }
 
+// ReplicateBitmask copies a bitmask value from one position to another
+func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string) bool {
+	if b, o := a.NodesAcls[fromUuid]; o {
+		a.NodesAcls[toUuid] = b
+		return true
+	}
+	return false
+}
+
 // GetAccessibleWorkspaces retrieves a map of accessible workspaces.
 func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]string {
 	accessListWsNodes := a.GetWorkspacesNodes()
@@ -172,6 +181,26 @@ func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
 
 // CanWrite checks if a node has WRITE access.
 func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
+	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
+		return false
+	}
+	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
+}
+
+// CanRead checks if a node has READ access.
+func (a *AccessList) CanReadWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	a.replicateMasksResolved(ctx, resolver)
+	if a.claimsScopesDeny(ctx, nodes[0], FlagRead) {
+		return false
+	}
+	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
+}
+
+// CanWrite checks if a node has WRITE access.
+func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	a.replicateMasksResolved(ctx, resolver)
 	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
 		return false
 	}
@@ -272,6 +301,14 @@ func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPath
 		a.nodesPathsAcls[strings.TrimSuffix(resp.Node.Path, "/")] = b
 	}
 	return nil
+}
+
+func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
+	for id, _ := range a.NodesAcls {
+		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
+			a.ReplicateBitmask(id, res.Uuid)
+		}
+	}
 }
 
 // FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs

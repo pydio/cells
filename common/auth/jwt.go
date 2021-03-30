@@ -409,6 +409,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 	}
 	// Build Claims Now
 	c := claim.Claims{
+		Subject:   user.Uuid,
 		Name:      user.Login,
 		GroupPath: user.GroupPath,
 		Roles:     strings.Join(roles, ","),
@@ -419,6 +420,12 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 		}
 		if e, o := user.Attributes[idm.UserAttrEmail]; o {
 			c.Email = e
+		}
+		if a, o := user.Attributes[idm.UserAttrAuthSource]; o {
+			c.AuthSource = a
+		}
+		if dn, o := user.Attributes[idm.UserAttrDisplayName]; o {
+			c.DisplayName = dn
 		}
 	}
 	ctx = context2.WithMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})

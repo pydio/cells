@@ -122,6 +122,17 @@ var VirtualNode = (function (_Observable) {
             this.notify('update');
         }
     }, {
+        key: 'getOnDelete',
+        value: function getOnDelete() {
+            return this.data.MetaStore.onDelete;
+        }
+    }, {
+        key: 'setOnDelete',
+        value: function setOnDelete(value) {
+            this.data.MetaStore.onDelete = value;
+            this.notify('update');
+        }
+    }, {
         key: 'save',
         value: function save(callback) {
             var _this = this;

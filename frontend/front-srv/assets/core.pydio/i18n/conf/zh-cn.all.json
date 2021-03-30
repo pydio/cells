@@ -303,7 +303,7 @@
     "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
   },
   "Maximum characters length of new files or folders": {
-    "other": "Maximum characters length of new files or folders"
+    "other": "新文件或文件夹的最大字符长度"
   },
   "Metadata and indexation": {
     "other": "Metadata and indexation"

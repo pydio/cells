@@ -81,6 +81,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 	roots := workspace.RootUUIDs
 	var ancestors []*tree.Node
 	var ancestorsLoaded bool
+	resolver := GetVirtualNodesManager().GetResolver(r.pool, false)
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
 			if accessList != nil {
@@ -93,8 +94,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 						ancestorsLoaded = true
 					}
 				}
-				if !accessList.CanReadPath(ctx, r.virtualResolver, ancestors...) {
-					//log.Logger(ctx).Info("[WorkspaceCanSeeNode] CanReadPath fail - Skipping", node.ZapPath())
+				if !accessList.CanReadPath(ctx, resolver, ancestors...) {
 					continue
 				}
 			}
@@ -111,16 +111,6 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 			return newNode, true
 		} else {
 
-		}
-	}
-	return nil, false
-}
-
-func (r *RouterEventFilter) virtualResolver(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
-	vManager := GetVirtualNodesManager()
-	if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
-		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, r.GetClientsPool(), false); e == nil {
-			return resolved, true
 		}
 	}
 	return nil, false
@@ -144,7 +134,7 @@ func (r *RouterEventFilter) NodeIsChildOfRoot(ctx context.Context, node *tree.No
 
 }
 
-// getRoot provides a loaded root node from the cache or from the TreeClient
+// getRoot provides a loaded root node from the cache or from the treeClient
 func (r *RouterEventFilter) getRoot(ctx context.Context, rootId string) *tree.Node {
 
 	if node, ok := r.RootNodesCache.Get(rootId); ok {

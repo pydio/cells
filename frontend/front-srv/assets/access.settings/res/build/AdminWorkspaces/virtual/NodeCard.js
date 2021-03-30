@@ -51,12 +51,12 @@ var NodeCard = (function (_React$Component) {
         var dirty = false;
         if (!value) {
             value = "// Compute the Path variable that this node must resolve to. \n// Use Ctrl+Space to see the objects available for completion.\nPath = \"\";";
-        } else {
             dirty = true;
         }
         this.state = {
             value: value,
-            dirty: true
+            cleanOnDelete: props.node.getOnDelete() === 'rename-uuid',
+            dirty: dirty
         };
     }
 
@@ -77,9 +77,16 @@ var NodeCard = (function (_React$Component) {
             var node = _props.node;
             var _props$onSave = _props.onSave;
             var onSave = _props$onSave === undefined ? function () {} : _props$onSave;
-            var value = this.state.value;
+            var _state = this.state;
+            var value = _state.value;
+            var cleanOnDelete = _state.cleanOnDelete;
 
             node.setValue(value);
+            if (cleanOnDelete) {
+                node.setOnDelete('rename-uuid');
+            } else {
+                node.setOnDelete('');
+            }
 
             node.save(function () {
                 _this.setState({
@@ -99,6 +106,8 @@ var NodeCard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this3 = this;
+
             var _props2 = this.props;
             var pydio = _props2.pydio;
             var dataSources = _props2.dataSources;
@@ -106,9 +115,10 @@ var NodeCard = (function (_React$Component) {
             var oneLiner = _props2.oneLiner;
             var _props2$onClose = _props2.onClose;
             var onClose = _props2$onClose === undefined ? function () {} : _props2$onClose;
-            var _state = this.state;
-            var value = _state.value;
-            var dirty = _state.dirty;
+            var _state2 = this.state;
+            var value = _state2.value;
+            var dirty = _state2.dirty;
+            var cleanOnDelete = _state2.cleanOnDelete;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
@@ -123,7 +133,17 @@ var NodeCard = (function (_React$Component) {
             var globalScope = {
                 Path: '',
                 DataSources: ds,
-                User: { Name: '' }
+                User: {
+                    Name: '',
+                    Uuid: '',
+                    GroupPath: '',
+                    GroupFlat: '',
+                    Profile: '',
+                    DisplayName: '',
+                    Email: '',
+                    AuthSource: '',
+                    Roles: []
+                }
             };
 
             var codeMirrorField = _react2['default'].createElement(AdminComponents.CodeMirrorField, {
@@ -155,21 +175,33 @@ var NodeCard = (function (_React$Component) {
             } else {
                 return _react2['default'].createElement(
                     'div',
-                    { style: { backgroundColor: '#f5f5f5', paddingBottom: 24 } },
+                    { style: { backgroundColor: '#f5f5f5', paddingBottom: 12 } },
                     _react2['default'].createElement(
                         'div',
-                        { style: { padding: readonly ? '12px 24px' : '0 24px', fontWeight: 500, display: 'flex', alignItems: 'center' } },
+                        { style: { padding: readonly ? '16px 24px 8px' : '10px 24px 0', fontWeight: 500, display: 'flex', alignItems: 'center' } },
                         _react2['default'].createElement(
                             'div',
-                            null,
-                            'Template Path Code'
+                            { style: { flex: 1 } },
+                            m('card.title')
                         ),
-                        !readonly && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !dirty, tooltip: m('save'), style: { width: 36, height: 36, padding: 8 }, iconStyle: { fontSize: 20, color: 'rgba(0,0,0,.33)' } })
+                        !readonly && _react2['default'].createElement(_materialUi.FlatButton, { onClick: this.save.bind(this), primary: true, disabled: !dirty, label: m('save') })
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: { margin: '12px 24px 0 24px', border: '1px solid #e0e0e0' } },
+                        { style: { margin: '6px 24px 0 24px', border: '1px solid #e0e0e0' } },
                         codeMirrorField
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { margin: '12px 24px' } },
+                        _react2['default'].createElement(_materialUi.Checkbox, {
+                            disabled: readonly,
+                            checked: cleanOnDelete,
+                            onCheck: function (e, v) {
+                                _this3.setState({ cleanOnDelete: v, dirty: true });
+                            },
+                            label: m('card.cleanOnDelete')
+                        })
                     )
                 );
             }

@@ -34,6 +34,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
@@ -53,8 +54,8 @@ var (
 // VirtualNodesManager keeps an internal list of virtual nodes.
 // They are cached for one minute to avoid too many requests on docstore service.
 type VirtualNodesManager struct {
-	VirtualNodes []*tree.Node
-	loginLower   bool
+	nodes      []*tree.Node
+	loginLower bool
 }
 
 // GetVirtualNodesManager creates a new VirtualNodesManager.
@@ -75,12 +76,12 @@ func GetVirtualNodesManager() *VirtualNodesManager {
 func (m *VirtualNodesManager) Load(forceReload ...bool) {
 	if len(forceReload) == 0 || !forceReload[0] {
 		if vNodes, found := vManagerCache.Get("###virtual-nodes###"); found {
-			m.VirtualNodes = vNodes.([]*tree.Node)
+			m.nodes = vNodes.([]*tree.Node)
 			return
 		}
 	}
 	log.Logger(context.Background()).Debug("Reloading virtual nodes to cache")
-	m.VirtualNodes = []*tree.Node{}
+	m.nodes = []*tree.Node{}
 	cli := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 	stream, e := cli.ListDocuments(context.Background(), &docstore.ListDocumentsRequest{
 		StoreID: common.DocStoreIdVirtualNodes,
@@ -105,10 +106,10 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 			log.Logger(context.Background()).Error("Cannot unmarshal data: "+data, zap.Error(er))
 		} else {
 			log.Logger(context.Background()).Debug("Loading virtual node: ", zap.Any("node", node))
-			m.VirtualNodes = append(m.VirtualNodes, &node)
+			m.nodes = append(m.nodes, &node)
 		}
 	}
-	vManagerCache.Set("###virtual-nodes###", m.VirtualNodes, cache.DefaultExpiration)
+	vManagerCache.Set("###virtual-nodes###", m.nodes, cache.DefaultExpiration)
 	if config.Get("services", "pydio.grpc.user", "loginCI").Default(false).Bool() {
 		m.loginLower = true
 	}
@@ -117,7 +118,7 @@ func (m *VirtualNodesManager) Load(forceReload ...bool) {
 // ByUuid finds a VirtualNode by its Uuid.
 func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 
-	for _, n := range m.VirtualNodes {
+	for _, n := range m.nodes {
 		if n.Uuid == uuid {
 			return n, true
 		}
@@ -129,7 +130,7 @@ func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 // ByPath finds a VirtualNode by its Path.
 func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
-	for _, n := range m.VirtualNodes {
+	for _, n := range m.nodes {
 		if strings.Trim(n.Path, "/") == strings.Trim(path, "/") {
 			return n, true
 		}
@@ -140,71 +141,22 @@ func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
 // ListNodes simply returns the internally cached list.
 func (m *VirtualNodesManager) ListNodes() []*tree.Node {
-	return m.VirtualNodes
-}
-
-// ResolvePathWithVars performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
-func (m *VirtualNodesManager) ResolvePathWithVars(ctx context.Context, vNode *tree.Node, vars map[string]string, clientsPool *ClientsPool) (*tree.Node, error) {
-
-	resolved := &tree.Node{}
-	resolutionString := vNode.MetaStore["resolution"]
-	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
-
-		datasourceKeys := map[string]string{}
-		if len(clientsPool.Sources) == 0 {
-			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
-			clientsPool.listDatasources()
-		}
-		for key, _ := range clientsPool.Sources {
-			datasourceKeys[key] = key
-		}
-		uName := vars["User.Name"]
-		if m.loginLower {
-			uName = strings.ToLower(uName)
-		}
-		in := map[string]interface{}{
-			"User":        &permissions.JsUser{Name: uName},
-			"DataSources": datasourceKeys,
-		}
-		out := map[string]interface{}{
-			"Path": "",
-		}
-		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
-			resolved.Path = out["Path"].(string)
-			//log.Logger(ctx).Debug("Javascript Resolved Objects", zap.Any("in", in), zap.Any("out", out))
-		} else {
-			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
-			return nil, e
-		}
-
-	} else {
-		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", vars["User.Name"], -1)
-	}
-
-	resolved.Type = vNode.Type
-
-	parts := strings.Split(resolved.Path, "/")
-	resolved.SetMeta(common.MetaNamespaceDatasourceName, parts[0])
-	resolved.SetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[1:], "/"))
-
-	return resolved, nil
-
+	return m.nodes
 }
 
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
 // and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool *ClientsPool, create bool, retry ...bool) (*tree.Node, error) {
+func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool SourcesPool, create bool, retry ...bool) (*tree.Node, error) {
 
 	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
 
 	resolved := &tree.Node{}
-	userName, _ := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
+	userName, claim := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
-		return nil, errors.New(VIEWS_LIBRARY_NAME, "No Claims found in context", 500)
+		return nil, errors.New("claims.not.found", "No Claims found in context", 500)
 	}
-	vars := map[string]string{"User.Name": userName}
-	resolved, e := m.ResolvePathWithVars(ctx, vNode, vars, clientsPool)
+	resolved, e := m.resolvePathWithClaims(ctx, vNode, claim, clientsPool)
 	if e != nil {
 		return nil, e
 	}
@@ -222,11 +174,11 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	} else if errors.Parse(e.Error()).Code == 404 {
 		if len(retry) == 0 {
 			// Retry once
-			clientsPool.listDatasources()
-			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.Sources)))
+			clientsPool.LoadDataSources()
+			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.GetDataSources())))
 			return m.ResolveInContext(ctx, vNode, clientsPool, create, true)
 		} else {
-			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.Sources))
+			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.GetDataSources()))
 		}
 	}
 	if create {
@@ -253,6 +205,86 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 
 }
 
+// GetResolver injects some dependencies to generate a simple resolver function
+func (m *VirtualNodesManager) GetResolver(pool SourcesPool, createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
+	return func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
+		if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
+			if resolved, e := vManager.ResolveInContext(ctx, virtualNode, pool, createIfNotExists); e == nil {
+				return resolved, true
+			}
+		}
+		return nil, false
+	}
+}
+
+// toJsUser transforms claims to JsUser
+func (m *VirtualNodesManager) toJsUser(c claim.Claims) *permissions.JsUser {
+	uName := c.Name
+	if m.loginLower {
+		uName = strings.ToLower(uName)
+	}
+	gFlat := strings.Join(strings.Split(strings.Trim(c.GroupPath, "/"), "/"), "_")
+	if gFlat == "" {
+		gFlat = "root_group_flat"
+	}
+	return &permissions.JsUser{
+		Uuid:        c.Subject,
+		Name:        uName,
+		GroupPath:   strings.Trim(c.GroupPath, "/"),
+		GroupFlat:   gFlat,
+		Profile:     c.Profile,
+		DisplayName: c.DisplayName,
+		Email:       c.Email,
+		AuthSource:  c.AuthSource,
+		Roles:       strings.Split(c.Roles, ","),
+	}
+}
+
+// resolvePathWithClaims performs the actual Path resolution and returns a node. There is no guarantee that the node exists.
+func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *tree.Node, c claim.Claims, clientsPool SourcesPool) (*tree.Node, error) {
+
+	resolved := &tree.Node{}
+	jsUser := m.toJsUser(c)
+	resolutionString := vNode.MetaStore["resolution"]
+	if cType, exists := vNode.MetaStore["contentType"]; exists && cType == "text/javascript" {
+
+		datasourceKeys := map[string]string{}
+		if len(clientsPool.GetDataSources()) == 0 {
+			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
+			clientsPool.LoadDataSources()
+		}
+		for key, _ := range clientsPool.GetDataSources() {
+			datasourceKeys[key] = key
+		}
+		in := map[string]interface{}{
+			"User":        jsUser,
+			"DataSources": datasourceKeys,
+		}
+		out := map[string]interface{}{
+			"Path": "",
+		}
+		if e := permissions.RunJavaScript(ctx, resolutionString, in, out); e == nil {
+			resolved.Path = out["Path"].(string)
+		} else {
+			log.Logger(ctx).Error("Cannot Run Javascript "+resolutionString, zap.Error(e), zap.Any("in", in), zap.Any("out", out))
+			return nil, e
+		}
+
+	} else {
+		resolved.Path = strings.Replace(resolutionString, "{USERNAME}", jsUser.Name, -1)
+	}
+
+	resolved.Type = vNode.Type
+
+	parts := strings.Split(resolved.Path, "/")
+	resolved.SetMeta(common.MetaNamespaceDatasourceName, parts[0])
+	resolved.SetMeta(common.MetaNamespaceDatasourcePath, strings.Join(parts[1:], "/"))
+
+	return resolved, nil
+
+}
+
+// copyRecycleRootAcl creates recycle_root ACL on newly created node
 func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
 	cl := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	// Check if vNode has this flag set

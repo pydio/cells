@@ -7,10 +7,12 @@ import (
 
 	"github.com/micro/go-micro/client"
 
+	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -114,44 +116,52 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			continue
 		}
 		// Check if node exists
-		resolved, e := vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": u.Login}, clientsPool)
+		resolved, e := vNodesManager.ResolveInContext(auth.WithImpersonate(ctx, u), vNode, clientsPool, false)
 		if e != nil {
 			done <- true
 			return input.WithError(e), e
 		}
-		if resp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil && resp.Node != nil {
-			realNode := resp.Node
-			// Resolve as Uuid - Move Node
-			folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
-			var targetNode *tree.Node
-			if tp != "" {
-				// As we consider it's a parent node, make sure it exists
-				targetParent := &tree.Node{Path: tp, Type: tree.NodeType_COLLECTION}
-				targetNode = &tree.Node{Path: path.Join(tp, folderName), Type: tree.NodeType_COLLECTION}
-				if _, er := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: targetParent}); er != nil {
-					if _, e := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: targetParent}); e != nil {
-						log.TasksLogger(ctx).Error("Could not create parent destination folder, switching to default path instead")
-						targetNode, _ = vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
-					} else {
-						// Wait for indexation
-						<-time.After(3 * time.Second)
+		resp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved})
+		if e != nil || resp.Node == nil {
+			continue
+		}
+		realNode := resp.Node
+		var targetParentNode *tree.Node
+		if tp != "" {
+			// Make sure parent exists
+			targetParent := &tree.Node{Path: tp, Type: tree.NodeType_COLLECTION}
+			if tpEx, er := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: targetParent}); er == nil {
+				targetParentNode = tpEx.GetNode()
+			} else if _, e := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: targetParent}); e == nil {
+				// Wait for indexation
+				service.Retry(ctx, func() error {
+					tpEx, er := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: targetParent})
+					if er == nil {
+						targetParentNode = tpEx.GetNode()
 					}
-				}
-			} else {
-				targetNode, _ = vNodesManager.ResolvePathWithVars(ctx, vNode, map[string]string{"User.Name": folderName}, clientsPool)
+					return er
+				}, 1*time.Second, 5*time.Second)
 			}
-			log.Logger(ctx).Info("Copy/Delete user personal folder", u.ZapLogin(), targetNode.ZapPath())
-			log.TasksLogger(ctx).Info("Moving personal folder for deleted user to " + targetNode.Path)
-			cleaned = true
-			// Make a Copy then Delete, to make sure UUID are changed and references are cleared
-			if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, true, false, status, progress); e != nil {
-				done <- true
-				return input.WithError(e), e
-			}
-			if _, e := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: realNode}); e != nil {
-				done <- true
-				return input.WithError(e), e
-			}
+		}
+		if targetParentNode == nil {
+			// Parent not defined or not found/not created - just point to resolved sibling
+			targetParentNode = &tree.Node{Path: path.Dir(realNode.GetPath())}
+		}
+
+		// Resolve as Uuid - Move Node
+		folderName := "deleted-" + u.Login + "-" + u.Uuid[0:13]
+		targetNode := &tree.Node{Path: path.Join(targetParentNode.GetPath(), folderName)}
+		log.Logger(ctx).Info("Copy/Delete user personal folder", u.ZapLogin(), targetNode.ZapPath())
+		log.TasksLogger(ctx).Info("Moving personal folder for deleted user to " + targetNode.Path)
+		cleaned = true
+		// Make a Copy then Delete, to make sure UUID are changed and references are cleared
+		if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, true, false, status, progress); e != nil {
+			done <- true
+			return input.WithError(e), e
+		}
+		if _, e := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: realNode}); e != nil {
+			done <- true
+			return input.WithError(e), e
 		}
 	}
 	if !cleaned {
