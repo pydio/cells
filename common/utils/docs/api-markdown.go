@@ -147,8 +147,8 @@ var fMap = template.FuncMap{
 	},
 }
 
-var ApiDocsOutputRootTitle = "REST API"
-var ApiDocsOutputRootId = "1_all_api"
+var ApiDocsOutputRootTitle = "Rest API"
+var ApiDocsOutputRootId = "2_cells_api"
 var ApiDocsOutputRootWeight = 1
 var ApiDocsMenuName = ""
 var ApiDocsGeneratedBy = ""
