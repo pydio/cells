@@ -24,7 +24,7 @@ import Pydio from 'pydio';
 import PydioApi from 'pydio/http/api'
 import React from 'react'
 import DataSource from '../model/DataSource'
-import {Dialog, Divider, Checkbox, FlatButton, RaisedButton, MenuItem, Paper, Stepper, Step, StepLabel} from 'material-ui'
+import {Dialog, Divider, Checkbox, Toggle, FlatButton, RaisedButton, MenuItem, Paper, Stepper, Step, StepLabel} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
 import DsStorageSelector from './DsStorageSelector'
@@ -204,10 +204,10 @@ class DataSourceEditor extends React.Component{
         const {currentPane = 'main', model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, newKeyName, s3Custom, m} = this.state;
 
         let titleActionBarButtons = [];
-        if(!readonly){
-            if(!create){
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
-            }
+        if(!readonly && !create){
+            titleActionBarButtons.push(<Toggle style={{borderRight: '1px solid #e0e0e0', paddingRight: 14, zoom: 0.8}} labelStyle={{fontSize:17}} toggled={!model.Disabled} onToggle={(e,v)=>{model.Disabled=!v}} labelPosition={"right"} label={m('options.enabled')}/>)
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.dirty));
         }
 
         const leftNavOldLegends = (
@@ -396,13 +396,10 @@ class DataSourceEditor extends React.Component{
             <Paper zDepth={0} style={makeStyle(styles.section, 'main')}>
                 <div style={styles.title}>{m('options')}</div>
                 <ModernTextField fullWidth={true} variant={'v2'} hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}} errorText={observable.getNameError(m)}/>
-                {!create &&
-                <div><Checkbox labelPosition={"right"} label={m('options.enabled')} checked={!model.Disabled} onCheck={(e,v) =>{model.Disabled = !v}} {...ModernStyles.toggleFieldV2} /></div>
-                }
             </Paper>
         );
         const DsType = (
-            <Paper zDepth={0} style={makeStyle({...styles.section, padding: 0, marginBottom: 200}, create?'storage':'main')}>
+            <Paper zDepth={0} style={makeStyle({...styles.section, padding: 0, marginBottom: create?200:null}, create?'storage':'main')}>
                 <DsStorageSelector disabled={!create} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}} values={storageData}/>
                 {model.StorageType === 'LOCAL' &&
                 <div style={styles.storageSection}>
@@ -581,8 +578,8 @@ class DataSourceEditor extends React.Component{
             >
                 {Steps}
                 {EncDialog}
-                {MainOptions}
                 {DsType}
+                {MainOptions}
                 {DataLifecycle}
                 {AdvancedOptions}
                 {CreateButton}

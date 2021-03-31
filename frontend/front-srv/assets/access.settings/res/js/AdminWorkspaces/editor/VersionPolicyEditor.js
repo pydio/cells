@@ -1,6 +1,7 @@
 import React from "react";
 import ResourcesManager from 'pydio/http/resources-manager'
-import {FlatButton, RaisedButton, Paper} from 'material-ui'
+import {Paper} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
@@ -8,7 +9,7 @@ import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import VersionPolicyPeriods from './VersionPolicyPeriods'
 const PydioForm = Pydio.requireLib('form');
-const {PaperEditorLayout} = AdminComponents;
+const {PaperEditorLayout, AdminStyles} = AdminComponents;
 
 class VersionPolicyEditor extends React.Component{
 
@@ -146,8 +147,18 @@ class VersionPolicyEditor extends React.Component{
     }
 
     render(){
-        const {create, readonly, pydio} = this.props;
+        const {create, readonly, pydio, muiTheme} = this.props;
         const {loaded, parameters, policy, saveValue, m} = this.state;
+        const palette = muiTheme.palette;
+        const adminStyles = AdminStyles(palette);
+        const formCSS = `
+        .react-mui-context .policy-form > .pydio-form-group {
+            background-color:white;
+            padding: 16px;  
+            border:`+adminStyles.body.block.container.border+`;
+            border-radius:`+adminStyles.body.block.container.borderRadius+`px;                      
+        }
+        `;
         let form;
         if(parameters && loaded){
             let values = VersionPolicyEditor.TreeVersioningPolicyToValues(policy);
@@ -158,7 +169,7 @@ class VersionPolicyEditor extends React.Component{
                 <PydioForm.FormPanel
                     parameters={parameters}
                     values={values}
-                    className="full-width"
+                    className="full-width policy-form"
                     onChange={this.onFormChange.bind(this)}
                     onValidStatusChange={this.updateValidStatus.bind(this)}
                     disabled={readonly}
@@ -196,11 +207,13 @@ class VersionPolicyEditor extends React.Component{
                     </div>
                 </Paper>
                 {form}
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:formCSS}}/>
             </PaperEditorLayout>
         );
     }
 }
 
+VersionPolicyEditor = muiThemeable()(VersionPolicyEditor)
 VersionPolicyEditor.contextTypes = {
     messages    : PropTypes.object,
     getMessage  : PropTypes.func
