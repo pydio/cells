@@ -226,12 +226,98 @@ func (g *genericServer) Subscribe(server.Subscriber) error {
 func (g *genericServer) Register() error {
 	// parse address for host, port
 	config := g.opts
+
+	nodes, err := g.getNodes()
+	if err != nil {
+		return err
+	}
+
+	service := &microregistry.Service{
+		Name:    config.Name,
+		Version: config.Version,
+		Nodes:   nodes,
+	}
+
+	g.Lock()
+	registered := g.registered
+	g.Unlock()
+
+	// create registry options
+	rOpts := []microregistry.RegisterOption{
+		microregistry.RegisterTTL(config.RegisterTTL),
+	}
+
+	if err := config.Registry.Register(service, rOpts...); err != nil {
+		return err
+	}
+
+	// already registered? don't need to register subscribers
+	if registered {
+		return nil
+	}
+
+	g.Lock()
+	defer g.Unlock()
+
+	g.registered = true
+
+	return nil
+}
+
+func (g *genericServer) Deregister() error {
+	config := g.opts
+
+	nodes, err := g.getNodes()
+	if err != nil {
+		return err
+	}
+
+	service := &microregistry.Service{
+		Name:    config.Name,
+		Version: config.Version,
+		Nodes:   nodes,
+	}
+
+	if err := config.Registry.Deregister(service); err != nil {
+		return err
+	}
+
+	g.Lock()
+
+	if !g.registered {
+		g.Unlock()
+		return nil
+	}
+
+	g.registered = false
+
+	return nil
+}
+
+func (g *genericServer) Start() error {
+	if s, ok := g.srv.(Starter); ok {
+		return s.Start()
+	}
+	return nil
+}
+func (g *genericServer) Stop() error {
+	if s, ok := g.srv.(Stopper); ok {
+		return s.Stop()
+	}
+	return nil
+}
+func (g *genericServer) String() string {
+	return "generic"
+}
+
+func (g *genericServer) getNodes() ([]*microregistry.Node, error) {
+	config := g.opts
+
 	var advt, host string
 	var port int
 
 	var nodes []*microregistry.Node
 	if a, ok := g.srv.(Addressable); ok {
-
 		for k, address := range a.Addresses() {
 			tcp, ok := address.(*net.TCPAddr)
 			if !ok {
@@ -289,7 +375,7 @@ func (g *genericServer) Register() error {
 
 		ad, err := addr.Extract(host)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		md := make(map[string]string, len(config.Metadata))
 		for k, v := range config.Metadata {
@@ -315,110 +401,5 @@ func (g *genericServer) Register() error {
 		nodes = append(nodes, node)
 	}
 
-	service := &microregistry.Service{
-		Name:    config.Name,
-		Version: config.Version,
-		Nodes:   nodes,
-	}
-
-	g.Lock()
-	registered := g.registered
-	g.Unlock()
-
-	// create registry options
-	rOpts := []microregistry.RegisterOption{
-		microregistry.RegisterTTL(config.RegisterTTL),
-	}
-
-	if err := config.Registry.Register(service, rOpts...); err != nil {
-		return err
-	}
-
-	// already registered? don't need to register subscribers
-	if registered {
-		return nil
-	}
-
-	g.Lock()
-	defer g.Unlock()
-
-	g.registered = true
-
-	return nil
-}
-func (g *genericServer) Deregister() error {
-	config := g.opts
-	var advt, host string
-	var port int
-
-	// check the advertise address first
-	// if it exists then use it, otherwise
-	// use the address
-	if len(config.Advertise) > 0 {
-		advt = config.Advertise
-	} else {
-		advt = config.Address
-	}
-
-	parts := strings.Split(advt, ":")
-	if len(parts) > 1 {
-		host = strings.Join(parts[:len(parts)-1], ":")
-		port, _ = strconv.Atoi(parts[len(parts)-1])
-	} else {
-		host = parts[0]
-	}
-
-	addr, err := addr.Extract(host)
-	if err != nil {
-		return err
-	}
-
-	md := make(map[string]string, len(config.Metadata))
-	for k, v := range config.Metadata {
-		md[k] = v
-	}
-
-	node := &microregistry.Node{
-		Id:       config.Name + "-" + config.Id,
-		Address:  addr,
-		Port:     port,
-		Metadata: md,
-	}
-
-	service := &microregistry.Service{
-		Name:    config.Name,
-		Version: config.Version,
-		Nodes:   []*microregistry.Node{node},
-	}
-
-	if err := config.Registry.Deregister(service); err != nil {
-		return err
-	}
-
-	g.Lock()
-
-	if !g.registered {
-		g.Unlock()
-		return nil
-	}
-
-	g.registered = false
-
-	return nil
-}
-
-func (g *genericServer) Start() error {
-	if s, ok := g.srv.(Starter); ok {
-		return s.Start()
-	}
-	return nil
-}
-func (g *genericServer) Stop() error {
-	if s, ok := g.srv.(Stopper); ok {
-		return s.Stop()
-	}
-	return nil
-}
-func (g *genericServer) String() string {
-	return "generic"
+	return nodes, nil
 }
