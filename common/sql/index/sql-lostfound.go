@@ -27,20 +27,22 @@ func init() {
 	}
 
 	queries["findLostChildren"] = func(dao sql.DAO, args ...string) string {
-		cc1 := dao.Concat("t1.mpath1", "t1.mpath2", "t1.mpath3", "t1.mpath4")
-		cc2 := dao.Concat("t2.mpath1", "t2.mpath2", "t2.mpath3", "t2.mpath4")
+		//cc1 := dao.Concat("t1.mpath1", "t1.mpath2", "t1.mpath3", "t1.mpath4")
+		//cc2 := dao.Concat("t2.mpath1", "t2.mpath2", "t2.mpath3", "t2.mpath4")
 		return fmt.Sprintf(`
 				select
 					t1.uuid,
 					t1.name,
 					t1.leaf,
-					` + cc1 + `
+					t1.mpath1
 				from
 					%%PREFIX%%_idx_tree t1
 				where
-					t1.level > 1 
+					t1.level > 1
+				and 
+					t1.mpath2 = ''
 				and
-					NOT EXISTS (SELECT 1 FROM %%PREFIX%%_idx_tree t2 WHERE ` + cc2 + `=SUBSTRING_INDEX(` + cc1 + `,'.',t1.level - 1)) 
+					NOT EXISTS (SELECT 1 FROM %%PREFIX%%_idx_tree t2 WHERE t2.mpath1=SUBSTRING_INDEX(t1.mpath1,'.',t1.level - 1)) 
 		`)
 	}
 
