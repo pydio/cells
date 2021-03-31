@@ -40,7 +40,7 @@ class PaperEditorLayout extends React.Component{
     }
 
     render(){
-        const {muiTheme, closeAction, className, title, titleLeftIcon, titleActionBar, leftNav, leftNavItems, leftNavSelected, leftNavChange, contentFill, children} = this.props;
+        const {muiTheme, closeAction, className, title, titleLeftIcon, titleActionBar, rightPanelStyle, leftNavItems, leftNavSelected, leftNavChange, contentFill, children} = this.props;
         const {forceLeftOpen} = this.state;
         const adminStyles = AdminStyles(muiTheme.palette)
 
@@ -82,7 +82,8 @@ class PaperEditorLayout extends React.Component{
             },
             rightPanelStyle: {
                 backgroundColor: adminStyles.body.mainPanel.backgroundColor,
-                overflowY:contentFill?null:'auto'
+                overflowY:contentFill?null:'auto',
+                ...rightPanelStyle
             }
         };
         let closeButton;
