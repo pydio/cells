@@ -25,7 +25,7 @@ if [ "$needInstall" = true -a "$1" = "cells" -a "$2" = "start" ]; then
 fi
 
 # Solve issue when no bind is defined on configure
-if [ "$needInstall" = true -a "xxx$CEC_BIND" = "xxx" ]; then   
+if [ "$needInstall" = true -a "xxx$CELLS_BIND" = "xxx" ]; then   
 	# we have to check in ENV and all flags
 	bindFlag=false
 	for currArg in "$@"
