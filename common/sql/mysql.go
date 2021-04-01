@@ -20,5 +20,5 @@ func (m *mysql) Hash(s ...string) string {
 
 func (m *mysql) HashParent(name string, s ...string) string {
 	pmpath := `SUBSTRING_INDEX(` + m.Concat(s...) + `, '.', level-1)`
-	return m.Hash(pmpath, name)
+	return m.Hash(name, "__###PARENT_HASH###__", pmpath)
 }
