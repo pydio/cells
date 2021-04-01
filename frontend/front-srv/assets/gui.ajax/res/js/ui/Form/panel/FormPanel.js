@@ -1,9 +1,3 @@
-import React from "react";
-import createReactClass from 'create-react-class';
-import GroupSwitchPanel from './GroupSwitchPanel'
-import ReplicationPanel from './ReplicationPanel'
-import FormManager from '../manager/Manager'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24,8 +18,13 @@ import FormManager from '../manager/Manager'
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from "react";
+import createReactClass from 'create-react-class';
+import GroupSwitchPanel from './GroupSwitchPanel'
+import ReplicationPanel from './ReplicationPanel'
+import FormManager from '../manager/Manager'
 import PropTypes from 'prop-types';
-
+import Pydio from 'pydio';
 import LangUtils from "pydio/util/lang";
 import {Paper, Tab, Tabs} from "material-ui";
 
@@ -284,7 +283,7 @@ export default createReactClass({
         let groupsOrdered = ['__DEFAULT__'];
         allGroups['__DEFAULT__'] = {FIELDS:[]};
         const replicationGroups = {};
-        const {parameters, values, skipFieldsTypes, disabled, binary_context} = this.props;
+        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant} = this.props;
         const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch} = this.props;
 
         parameters.map(function(attributes){
@@ -381,7 +380,8 @@ export default createReactClass({
                         binary_context:binary_context,
                         displayContext:'form',
                         applyButtonAction:this.applyButtonAction,
-                        errorText:mandatoryMissing? pydio.MessageHash['621']:( attributes.errorText?attributes.errorText:null ),
+                        variant:variant,
+                        errorText:mandatoryMissing? Pydio.getInstance().MessageHash['621']:( attributes.errorText?attributes.errorText:null ),
                         onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip
                     };
 

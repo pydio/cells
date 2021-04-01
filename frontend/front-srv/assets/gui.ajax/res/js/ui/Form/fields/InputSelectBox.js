@@ -60,29 +60,29 @@ class InputSelectBox extends React.Component{
 
     render(){
         let currentValue = this.props.value;
-        let menuItems = [], multipleOptions = [];
-        if(!this.props.attributes['mandatory'] || this.props.attributes['mandatory'] !== "true"){
-            menuItems.push(<MenuItem value={-1} primaryText={this.props.attributes['label'] +  '...'}/>);
+        let menuItems = [];
+        const {attributes, isDisplayGrid, toggleEditMode, editMode, disabled, multiple, className, variant} = this.props;
+        if(!attributes['mandatory'] || attributes['mandatory'] !== "true"){
+            menuItems.push(<MenuItem value={-1} primaryText={attributes['label'] +  '...'}/>);
         }
         const {choices} = this.props;
         choices.forEach(function(value, key){
             menuItems.push(<MenuItem value={key} primaryText={value}/>);
-            multipleOptions.push({value:key, label:value});
         });
-        if((this.props.isDisplayGrid() && !this.props.editMode) || this.props.disabled){
+        if((isDisplayGrid() && !editMode) || disabled){
             let value = this.props.value;
             if(choices.get(value)) {
                 value = choices.get(value);
             }
             return (
                 <div
-                    onClick={this.props.disabled?function(){}:this.props.toggleEditMode}
+                    onClick={disabled?function(){}:toggleEditMode}
                     className={value?'':'paramValue-empty'}>
                     {value ? value : 'Empty'} &nbsp;&nbsp;<span className="icon-caret-down"></span>
                 </div>
             );
         } else {
-            if(this.props.multiple && this.props.multiple === true){
+            if(multiple && multiple === true){
                 let currentValues = currentValue;
                 if(typeof currentValue === "string"){
                     currentValues = currentValue.split(",");
@@ -96,7 +96,8 @@ class InputSelectBox extends React.Component{
                             value={-1}
                             onChange={(e,i,v) => this.onMultipleSelect(e,i,v)}
                             fullWidth={true}
-                            className={this.props.className}
+                            className={className}
+                            variant={variant}
                         >{menuItems}</ModernSelectField>
 
                     </span>
@@ -105,11 +106,12 @@ class InputSelectBox extends React.Component{
                 return(
                     <span>
                         <ModernSelectField
-                            hintText={this.props.attributes.label}
+                            hintText={attributes.label}
                             value={currentValue}
                             onChange={(e,i,v) => this.onDropDownChange(e,i,v)}
                             fullWidth={true}
-                            className={this.props.className}
+                            className={className}
+                            variant={variant}
                         >{menuItems}</ModernSelectField>
                     </span>
                 );

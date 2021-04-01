@@ -151,14 +151,6 @@ class VersionPolicyEditor extends React.Component{
         const {loaded, parameters, policy, saveValue, m} = this.state;
         const palette = muiTheme.palette;
         const adminStyles = AdminStyles(palette);
-        const formCSS = `
-        .react-mui-context .policy-form > .pydio-form-group {
-            background-color:white;
-            padding: 16px;  
-            border:`+adminStyles.body.block.container.border+`;
-            border-radius:`+adminStyles.body.block.container.borderRadius+`px;                      
-        }
-        `;
         let form;
         if(parameters && loaded){
             let values = VersionPolicyEditor.TreeVersioningPolicyToValues(policy);
@@ -169,11 +161,12 @@ class VersionPolicyEditor extends React.Component{
                 <PydioForm.FormPanel
                     parameters={parameters}
                     values={values}
-                    className="full-width policy-form"
+                    className="full-width"
                     onChange={this.onFormChange.bind(this)}
                     onValidStatusChange={this.updateValidStatus.bind(this)}
                     disabled={readonly}
                     depth={-2}
+                    variant={'v2'}
                 />
             );
         }
@@ -201,13 +194,13 @@ class VersionPolicyEditor extends React.Component{
                 className="workspace-editor"
                 contentFill={true}
             >
-                <Paper zDepth={0} style={{padding:'0 12px', backgroundColor:'#ECEFF1'}}>
-                    <div style={{overflowX: 'auto'}}>
+                <Paper zDepth={0} style={{backgroundColor:adminStyles.body.block.header.backgroundColor, padding: '0px 20px', height: 64, display: 'flex', alignItems: 'center'}}>
+                    <div style={{overflowX: 'auto', width: '100%'}}>
                         <VersionPolicyPeriods pydio={pydio} periods={saveValue?saveValue.KeepPeriods:policy.KeepPeriods}/>
                     </div>
                 </Paper>
                 {form}
-                <style type={"text/css"} dangerouslySetInnerHTML={{__html:formCSS}}/>
+                {adminStyles.formSimpleCss()}
             </PaperEditorLayout>
         );
     }

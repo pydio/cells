@@ -30,27 +30,28 @@ const {ModernTextField} = Pydio.requireLib('hoc');
 class TextField extends React.Component{
 
     render(){
-        const {editMode, value} = this.props;
+        const {editMode, value, variant, isDisplayGrid, isDisplayForm, onChange, enterToToggle, attributes, disabled, errorText, toggleEditMode} = this.props;
 
-        if(this.props.isDisplayGrid() && !editMode){
+        if(isDisplayGrid() && !editMode){
             let val = value;
-            if(this.props.attributes['type'] === 'password' && value){
+            if(attributes['type'] === 'password' && value){
                 val = '***********';
             }
-            return <div onClick={this.props.disabled?function(){}:this.props.toggleEditMode} className={val?'':'paramValue-empty'}>{val ? val : 'Empty'}</div>;
+            return <div onClick={disabled?function(){}:toggleEditMode} className={val?'':'paramValue-empty'}>{val ? val : 'Empty'}</div>;
         }else{
             let field = (
                 <ModernTextField
-                    hintText={this.props.isDisplayForm()?this.props.attributes.label:null}
+                    hintText={isDisplayForm()?attributes.label:null}
                     value={value || ""}
-                    onChange={this.props.onChange}
-                    onKeyDown={this.props.enterToToggle}
-                    type={this.props.attributes['type'] === 'password'?'password':null}
-                    multiLine={this.props.attributes['type'] === 'textarea'}
-                    disabled={this.props.disabled}
-                    errorText={this.props.errorText}
+                    onChange={onChange}
+                    onKeyDown={enterToToggle}
+                    type={attributes['type'] === 'password'?'password':null}
+                    multiLine={attributes['type'] === 'textarea'}
+                    disabled={disabled}
+                    errorText={errorText}
                     autoComplete="off"
                     fullWidth={true}
+                    variant={variant}
                 />
             );
             if(this.props.attributes['type'] === 'password'){

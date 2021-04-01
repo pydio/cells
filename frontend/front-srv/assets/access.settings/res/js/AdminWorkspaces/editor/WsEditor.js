@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
-import React from 'react'
+import React, {Fragment, Component} from 'react'
 import {FlatButton, Paper, Checkbox, MenuItem, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
@@ -26,7 +26,7 @@ import WsAutoComplete from './WsAutoComplete'
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {PaperEditorLayout, QuotaField, AdminStyles} = AdminComponents;
 
-class WsEditor extends React.Component {
+class WsEditor extends Component {
 
     constructor(props){
         super(props);
@@ -126,14 +126,12 @@ class WsEditor extends React.Component {
 
         const adminStyles = AdminStyles(this.props.muiTheme.palette);
         const styles = {
-            title: {
-                fontSize: 20,
-                paddingTop: 20,
-                marginBottom: 0,
-            },
-            legend: {color: '#9E9E9E', paddingTop: 10},
+            title: {...adminStyles.body.block.headerFull, margin:'0 -20px'},
+            /*legend: {color: '#9E9E9E', paddingTop: 10, paddingLeft: 4},*/
+            legend: {padding:'16px 4px 8px'},
             section: {padding: '0 20px 20px', margin: 10, backgroundColor:'white', ...adminStyles.body.block.container},
-            toggleDiv:{}
+            toggleDiv:{},
+            divider:{margin: '24px -20px 0px', height: 1, border: 'none', backgroundColor: 'rgb(236 239 241)'}
         };
 
         const roots = workspace.RootNodes;
@@ -232,9 +230,8 @@ class WsEditor extends React.Component {
                 </Paper>
                 <Paper zDepth={0} style={styles.section}>
                     <div style={styles.title}>{m('ws.editor.data.title')}</div>
-                    <div style={styles.legend}>{m('ws.editor.data.legend')}</div>
+                    <div style={styles.legend}>{m('ws.editor.data.legend')} {m('ws.editor.default_rights')}</div>
                     {completers}
-                    <div style={styles.legend}>{m('ws.editor.default_rights')}</div>
                     <ModernSelectField
                         fullWidth={true}
                         value={workspace.Attributes['DEFAULT_RIGHTS'] || ''}
@@ -252,7 +249,7 @@ class WsEditor extends React.Component {
                     <Paper zDepth={0} style={styles.section}>
                         <div style={styles.title}>{m('ws.editor.other')}</div>
 
-                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.skiprecycle.legend')}</div>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.skiprecycle.legend')}</div>
                         <div style={styles.toggleDiv}>
                             <Checkbox
                                 label={m('ws.editor.other.skiprecycle')}
@@ -265,8 +262,8 @@ class WsEditor extends React.Component {
                             />
                         </div>
 
-
-                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.sync.legend')}</div>
+                        <hr style={styles.divider}/>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.sync.legend')}</div>
                         <div style={styles.toggleDiv}>
                             <Checkbox
                                 label={m('ws.editor.other.sync')}
@@ -285,7 +282,8 @@ class WsEditor extends React.Component {
                             />
                         </div>
 
-                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.quota')}</div>
+                        <hr style={styles.divider}/>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.quota')}</div>
                         <QuotaField value={workspace.Attributes['QUOTA'] || 0} onChange={(e,v) => {
                             if(v > 0){
                                 workspace.Attributes['QUOTA'] = v + '';
@@ -295,7 +293,8 @@ class WsEditor extends React.Component {
                             }
                         } }/>
 
-                        <div style={{...styles.legend, marginTop: 8}}>{m('ws.editor.other.layout')}</div>
+                        <hr style={styles.divider}/>
+                        <div style={{...styles.legend}}>{m('ws.editor.other.layout')}</div>
                         <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
                             <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
                             <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>

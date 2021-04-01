@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 
 
 import Pydio from 'pydio';
-const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader, PluginsLoader} = AdminComponents;
+const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader, PluginsLoader, AdminStyles} = AdminComponents;
 
 import Role from './model/Role'
 import User from './model/User'
@@ -32,8 +32,8 @@ import WorkspacesAcls from './acl/WorkspacesAcls'
 import PagesAcls from './acl/PagesAcls'
 import React from "react";
 import PathUtils from "pydio/util/path";
-import {requireLib} from "pydio";
-import {FlatButton, IconButton, IconMenu, MenuItem, RaisedButton, Snackbar} from "material-ui";
+import {Snackbar} from "material-ui";
+import {muiThemeable} from 'material-ui/styles';
 
 import RoleInfo from './info/RoleInfo'
 import UserInfo from './info/UserInfo'
@@ -169,7 +169,7 @@ class Editor extends React.Component{
 
 
     render(){
-        const {advancedAcl, pydio} = this.props;
+        const {advancedAcl, pydio, muiTheme} = this.props;
 
         const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
 
@@ -334,6 +334,7 @@ class Editor extends React.Component{
                 {modal}
                 {loadingMessage}
                 {panes}
+                {AdminStyles(muiTheme.palette).formSimpleCss()}
             </PaperEditorLayout>
         );
 
@@ -358,5 +359,7 @@ Editor.propTypes ={
     closeEditor:PropTypes.func,
     registerCloseCallback:PropTypes.func
 };
+
+Editor = muiThemeable()(Editor);
 
 export {Editor as default}

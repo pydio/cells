@@ -52,7 +52,7 @@ class InputInteger extends React.Component{
     }
 
     render(){
-        const {value, isDisplayGrid, isDisplayForm, editMode, disabled, toggleEditMode, attributes} = this.props;
+        const {value, isDisplayGrid, isDisplayForm, editMode, disabled, toggleEditMode, attributes, variant} = this.props;
         if(isDisplayGrid() && !editMode){
             return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
         }else{
@@ -73,6 +73,7 @@ class InputInteger extends React.Component{
                         onKeyDown={(e) => this.keyDown(e)}
                         disabled={disabled}
                         fullWidth={true}
+                        variant={variant}
                         hintText={isDisplayForm()?attributes.label:null}
                     />
                 </span>

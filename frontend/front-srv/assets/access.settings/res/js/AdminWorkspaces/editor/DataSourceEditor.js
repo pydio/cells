@@ -273,9 +273,8 @@ class DataSourceEditor extends React.Component{
         const adminStyles = AdminStyles(this.props.muiTheme.palette)
         const styles = {
             title: {
-                fontSize: 20,
-                paddingTop: 20,
-                marginBottom: 10,
+                ...adminStyles.body.block.headerFull,
+                margin: '0 -20px',
             },
             legend: {},
             subLegend:{
