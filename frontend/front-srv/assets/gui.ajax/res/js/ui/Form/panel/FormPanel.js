@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from "react";
+import React, {Fragment} from "react";
 import createReactClass from 'create-react-class';
 import GroupSwitchPanel from './GroupSwitchPanel'
 import ReplicationPanel from './ReplicationPanel'
@@ -283,7 +283,7 @@ export default createReactClass({
         let groupsOrdered = ['__DEFAULT__'];
         allGroups['__DEFAULT__'] = {FIELDS:[]};
         const replicationGroups = {};
-        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant} = this.props;
+        const {parameters, values, skipFieldsTypes, disabled, binary_context, variant, variantShowLegend} = this.props;
         const {altTextSwitchIcon, altTextSwitchTip, onAltTextSwitch} = this.props;
 
         parameters.map(function(attributes){
@@ -367,27 +367,34 @@ export default createReactClass({
                         }
                     }
 
+                    const {warningText, description, type, readonly, multiple, errorText} = attributes;
+                    const legendLabel = warningText?warningText:description;
+                    let {label} = attributes;
+                    if(variantShowLegend){
+                        label = <Fragment>{label} <span style={{color:'#03a9f4'}}>- {legendLabel}</span></Fragment>;
+                    }
+
                     const props = {
                         ref:"form-element-" + paramName,
-                        attributes:attributes,
+                        attributes:{...attributes, label},
                         name:paramName,
                         value:values[paramName],
                         onChange: (newValue, oldValue, additionalFormData) => {
                             this.onParameterChange(paramName, newValue, oldValue, additionalFormData);
                         },
-                        disabled:disabled || attributes['readonly'],
-                        multiple:attributes['multiple'],
+                        disabled:disabled || readonly,
+                        multiple:multiple,
                         binary_context:binary_context,
                         displayContext:'form',
                         applyButtonAction:this.applyButtonAction,
                         variant:variant,
-                        errorText:mandatoryMissing? Pydio.getInstance().MessageHash['621']:( attributes.errorText?attributes.errorText:null ),
+                        errorText:mandatoryMissing? Pydio.getInstance().MessageHash['621']:( errorText?errorText:null ),
                         onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip
                     };
 
                     field = (
-                        <div key={paramName} className={'form-entry-' + attributes['type']}>
-                            <div className={classLegend}>{attributes['warningText'] ? attributes['warningText'] : attributes['description']} {helperMark}</div>
+                        <div key={paramName} className={'form-entry-' + type}>
+                            {variant !== 'v2' && <div className={classLegend}>{legendLabel} {helperMark}</div>}
                             {FormManager.createFormElement(props)}
                         </div>
                     );

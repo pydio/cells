@@ -19,7 +19,7 @@
  */
 import Pydio from 'pydio'
 import React from "react";
-import {Toggle} from "material-ui";
+import {Toggle, Checkbox} from "material-ui";
 import asFormField from "../hoc/asFormField";
 const {ModernStyles} = Pydio.requireLib('hoc');
 
@@ -30,11 +30,23 @@ class InputBoolean extends React.Component {
 
     render(){
         let boolVal = this.props.value;
+        const {variant} = this.props;
         if(typeof boolVal  === 'string'){
             boolVal = (boolVal === "true");
         }
         return(
             <span>
+                {variant === 'v2' &&
+                <Checkbox
+                    checked={boolVal}
+                    onCheck={(e,v) => this.props.onChange(e,v)}
+                    disabled={this.props.disabled}
+                    label={this.props.isDisplayForm()?this.props.attributes.label:null}
+                    labelPosition={'right'}
+                    {...ModernStyles.toggleFieldV2}
+                />
+                }
+                {variant !== 'v2' &&
                 <Toggle
                     toggled={boolVal}
                     onToggle={(e,v)=>this.props.onChange(e,v)}
@@ -43,6 +55,7 @@ class InputBoolean extends React.Component {
                     labelPosition={this.props.isDisplayForm()?'left':'right'}
                     {...ModernStyles.toggleField}
                 />
+                }
             </span>
         );
     }

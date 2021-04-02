@@ -245,62 +245,64 @@ class WsEditor extends Component {
                         <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
                     </ModernSelectField>
                 </Paper>
-                {advanced &&
-                    <Paper zDepth={0} style={styles.section}>
-                        <div style={styles.title}>{m('ws.editor.other')}</div>
+                <Paper zDepth={0} style={styles.section}>
+                    <div style={styles.title}>{m('ws.editor.other')}</div>
 
-                        <div style={{...styles.legend}}>{m('ws.editor.other.skiprecycle.legend')}</div>
-                        <div style={styles.toggleDiv}>
-                            <Checkbox
-                                label={m('ws.editor.other.skiprecycle')}
-                                labelPosition={"right"}
-                                checked={workspace.Attributes['SKIP_RECYCLE']}
-                                onCheck={(e,v) =>{
-                                    workspace.Attributes['SKIP_RECYCLE'] = v;
-                                }}
-                                {...ModernStyles.toggleFieldV2}
-                            />
-                        </div>
+                    <div style={{...styles.legend}}>{m('ws.editor.other.skiprecycle.legend')}</div>
+                    <div style={styles.toggleDiv}>
+                        <Checkbox
+                            label={m('ws.editor.other.skiprecycle')}
+                            labelPosition={"right"}
+                            checked={workspace.Attributes['SKIP_RECYCLE']}
+                            onCheck={(e,v) =>{
+                                workspace.Attributes['SKIP_RECYCLE'] = v;
+                            }}
+                            {...ModernStyles.toggleFieldV2}
+                        />
+                    </div>
 
-                        <hr style={styles.divider}/>
-                        <div style={{...styles.legend}}>{m('ws.editor.other.sync.legend')}</div>
-                        <div style={styles.toggleDiv}>
-                            <Checkbox
-                                label={m('ws.editor.other.sync')}
-                                labelPosition={"right"}
-                                checked={workspace.Attributes['ALLOW_SYNC']}
-                                onCheck={(e,v) =>{
-                                    if(!container.hasTemplatePath() && v) {
-                                        this.enableSync(v)
-                                    } else if (!v) {
-                                        this.enableSync(v)
-                                    } else {
-                                        workspace.Attributes['ALLOW_SYNC'] = v;
-                                    }
-                                }}
-                                {...ModernStyles.toggleFieldV2}
-                            />
-                        </div>
+                    {advanced &&
+                        <Fragment>
+                            <hr style={styles.divider}/>
+                            <div style={{...styles.legend}}>{m('ws.editor.other.sync.legend')}</div>
+                            <div style={styles.toggleDiv}>
+                                <Checkbox
+                                    label={m('ws.editor.other.sync')}
+                                    labelPosition={"right"}
+                                    checked={workspace.Attributes['ALLOW_SYNC']}
+                                    onCheck={(e,v) =>{
+                                        if(!container.hasTemplatePath() && v) {
+                                            this.enableSync(v)
+                                        } else if (!v) {
+                                            this.enableSync(v)
+                                        } else {
+                                            workspace.Attributes['ALLOW_SYNC'] = v;
+                                        }
+                                    }}
+                                    {...ModernStyles.toggleFieldV2}
+                                />
+                            </div>
 
-                        <hr style={styles.divider}/>
-                        <div style={{...styles.legend}}>{m('ws.editor.other.quota')}</div>
-                        <QuotaField value={workspace.Attributes['QUOTA'] || 0} onChange={(e,v) => {
-                            if(v > 0){
-                                workspace.Attributes['QUOTA'] = v + '';
-                            } else {
-                                workspace.Attributes['QUOTA'] = '0';
-                                delete(workspace.Attributes['QUOTA']);
-                            }
-                        } }/>
+                            <hr style={styles.divider}/>
+                            <div style={{...styles.legend}}>{m('ws.editor.other.quota')}</div>
+                            <QuotaField value={workspace.Attributes['QUOTA'] || 0} onChange={(e,v) => {
+                                if(v > 0){
+                                    workspace.Attributes['QUOTA'] = v + '';
+                                } else {
+                                    workspace.Attributes['QUOTA'] = '0';
+                                    delete(workspace.Attributes['QUOTA']);
+                                }
+                            } }/>
 
-                        <hr style={styles.divider}/>
-                        <div style={{...styles.legend}}>{m('ws.editor.other.layout')}</div>
-                        <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
-                            <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
-                            <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
-                        </ModernSelectField>
-                    </Paper>
-                }
+                            <hr style={styles.divider}/>
+                            <div style={{...styles.legend}}>{m('ws.editor.other.layout')}</div>
+                            <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
+                                <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
+                                <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
+                            </ModernSelectField>
+                        </Fragment>
+                    }
+                </Paper>
             </PaperEditorLayout>
         );
 

@@ -74,7 +74,7 @@ class UserInfo extends React.Component {
     render(){
 
         const {user, pydio} = this.props;
-        const {parameters} = this.state;
+        const {parameters, showLegends} = this.state;
         if(!parameters){
             return <div>Loading...</div>;
         }
@@ -133,13 +133,15 @@ class UserInfo extends React.Component {
 
         return (
             <div>
-                <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center'}}>
+                <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center', paddingLeft:26, paddingRight:26}}>
                     <div style={{flex:1}}>
                         {pydio.MessageHash['pydio_role.24']}
                         <div className={"section-legend"}>{pydio.MessageHash['pydio_role.54']}</div>
                     </div>
+                    <div style={{lineHeight:'24px'}}>
+                    <IconButton iconClassName={"mdi mdi-help-circle-outline"} tooltip={'Show/hide form legends'} tooltipPosition={'bottom-left'} onClick={()=>{this.setState({showLegends:!showLegends})}}/>
                     <IconMenu
-                        iconButtonElement={<IconButton iconClassName={"mdi mdi-dots-vertical"}/>}
+                        iconButtonElement={<IconButton primary={true} tooltip={'Security Actions'} tooltipPosition={'bottom-left'} iconClassName={"mdi mdi-lock"+(locks.indexOf('logout')>-1?'-open':'')} iconStyle={{color:locks.indexOf('logout')>-1?'#e53935':''}}/>}
                         anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                         targetOrigin={{horizontal: 'right', vertical: 'top'}}
                         tooltip={"Actions"}
@@ -148,12 +150,15 @@ class UserInfo extends React.Component {
                         <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('logout') > -1?'27':'26'))} onClick={() => this.buttonCallback('user_set_lock-lock')}/>
                         <MenuItem primaryText={this.getPydioRoleMessage((locks.indexOf('pass_change') > -1?'28b':'28'))} onClick={() => this.buttonCallback('user_set_lock-pass_change')}/>
                     </IconMenu>
+                    </div>
                 </h3>
                 <FormPanel
                     parameters={params}
                     onParameterChange={this.onParameterChange.bind(this)}
                     values={values}
                     depth={-2}
+                    variant={'v2'}
+                    variantShowLegend={showLegends}
                     binary_context={this.getBinaryContext()}
                 />
                 {rolesPicker}

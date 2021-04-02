@@ -102,7 +102,7 @@ export default class ParametersPanel extends React.Component {
                     </span>
                     <div style={{width: 160}}><SelectField fullWidth={true} value={1}>{wsItems}</SelectField></div>
                 </h3>
-                <div style={{padding: '0 20px'}}>
+                <div style={{padding: '0 20px', backgroundColor:'white'}}>
                     {Object.keys(scopes).map(s => {
                         let scopeLabel;
                         let odd = false;

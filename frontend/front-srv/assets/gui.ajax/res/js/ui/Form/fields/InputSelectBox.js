@@ -42,7 +42,7 @@ class InputSelectBox extends React.Component{
         }
         const currentValue = this.props.value;
         let currentValues = (typeof currentValue === 'string' ? currentValue.split(',') : currentValue);
-        if(!currentValues.indexOf(newValue) !== -1){
+        if(currentValues.indexOf(newValue) === -1){
             currentValues.push(newValue);
             this.props.onChange(event, currentValues.join(','));
         }
@@ -87,17 +87,32 @@ class InputSelectBox extends React.Component{
                 if(typeof currentValue === "string"){
                     currentValues = currentValue.split(",");
                 }
+                const chips = (
+                    <div style={{display:'flex', flexWrap:'wrap', marginTop:variant==='v2'?22:8}}>{currentValues.map((v) => {
+                        return <Chip style={{marginRight: 8}} onRequestDelete={() => {this.onMultipleRemove(v)}}>{choices.get(v) || v}</Chip>;
+                    })}</div>
+                );
+                const props = {};
+                if(variant === 'v2'){
+                    // Rebuild Menu Items
+                    menuItems = [<MenuItem value={-1} primaryText={chips}/>]
+                    choices.forEach(function(value, key){
+                        menuItems.push(<MenuItem value={key} primaryText={value}/>);
+                    });
+                    props.hintText=attributes.label;
+                    props.style={height: 72};
+                    props.dropDownMenuProps={iconStyle:{fill: '#9e9e9e', top: 22}};
+                }
                 return (
                     <span className={"multiple has-value"}>
-                        <div style={{display:'flex', flexWrap:'wrap'}}>{currentValues.map((v) => {
-                            return <Chip onRequestDelete={() => {this.onMultipleRemove(v)}}>{v}</Chip>;
-                        })}</div>
+                        {variant !== 'v2' && chips}
                         <ModernSelectField
                             value={-1}
                             onChange={(e,i,v) => this.onMultipleSelect(e,i,v)}
                             fullWidth={true}
                             className={className}
                             variant={variant}
+                            {...props}
                         >{menuItems}</ModernSelectField>
 
                     </span>

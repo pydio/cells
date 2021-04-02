@@ -66,14 +66,15 @@ const styles = {
         underlineShow: false
     },
     selectFieldV2:{
-        style:{...v2Block, padding: 8, paddingRight: 0},
+        style:{...v2Block, padding: 8, paddingRight: 0, overflow:'hidden'},
         menuStyle:{marginTop: -6},
         hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
         underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0},
         underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
         floatingLabelFixed: true,
         floatingLabelStyle:{top:26, left: 8, ...noWrap},
-        floatingLabelShrinkStyle:{top:26, left: 8}
+        floatingLabelShrinkStyle:{top:26, left: 8},
+        dropDownMenuProps:{iconStyle:{fill: '#9e9e9e'}}
     },
     div:{
         backgroundColor:'rgba(224, 224, 224, 0.33)', color:'rgba(0,0,0,.5)',

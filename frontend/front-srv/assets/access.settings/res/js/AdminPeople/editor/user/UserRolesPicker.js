@@ -101,20 +101,20 @@ export default createReactClass({
         const fixedRoleStyle = {
             padding: 10,
             fontSize: 14,
-            backgroundColor: '#ffffff',
+            backgroundColor: 'rgb(246 246 248)',
             borderRadius: 2,
             margin: '8px 0'
         };
 
         return (
-            <div className="user-roles-picker" style={{padding:0, margin: '-30px 20px 40px', backgroundColor:'#f5f5f5', borderRadius: 3}}>
-                <div style={{paddingLeft: 10, marginBottom: -6, display: 'flex', alignItems: 'center'}}>
-                    <div style={{flex: 1, color: '#a1a1a1', fontSize: 16}}>{ctx.getMessage('roles.picker.title')} {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
+            <div className="user-roles-picker" style={{padding:0, paddingBottom:12, margin: '-30px 20px 40px', backgroundColor:'white', borderRadius: 6, border: '1px solid #dfe3e5'}}>
+                <div style={{paddingLeft: 16, display: 'flex', alignItems: 'center'}}>
+                    <div style={{flex: 1, fontSize: 16}}>{ctx.getMessage('roles.picker.title')} {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
                     <div className="roles-picker-menu" style={{marginBottom: -12}}>
                         <DropDownMenu underlineStyle={{display:'none'}} onChange={this.onChange} value={-1}>{addableRoles}</DropDownMenu>
                     </div>
                 </div>
-                <div className="roles-list" style={{margin: '0 8px', paddingBottom:1}}>
+                <div className="roles-list" style={{margin: '0 16px', paddingBottom:1}}>
                     {groups.map(function(g){
                         return <div key={"group-"+g} style={fixedRoleStyle}>{g}</div>;
                     })}

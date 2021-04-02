@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import asFormField from "../hoc/asFormField";
 import withChoices from '../hoc/withChoices'
 const {AutoComplete, MenuItem, RefreshIndicator} = require('material-ui');
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 class AutocompleteBox extends React.Component{
 
@@ -41,7 +41,7 @@ class AutocompleteBox extends React.Component{
 
     render(){
 
-        const {choices, isDisplayGrid, editMode, disabled,toggleEditMode} = this.props;
+        const {choices, isDisplayGrid, editMode, disabled,toggleEditMode, variant} = this.props;
         let dataSource = [];
         let labels = {};
         choices.forEach((choice, key) => {
@@ -81,7 +81,7 @@ class AutocompleteBox extends React.Component{
                         status="loading"
                     />
                 }
-                {dataSource.length &&
+                {variant !== 'v2' && dataSource.length &&
                     <AutoComplete
                         fullWidth={true}
                         searchText={value}
@@ -97,6 +97,26 @@ class AutocompleteBox extends React.Component{
                         }}
                         openOnFocus={true}
                         menuProps={{maxHeight: 200}}
+                        {...ModernStyles.textField}
+                    />
+                }
+                {variant === 'v2' && dataSource.length &&
+                    <ModernAutoComplete
+                        fullWidth={true}
+                        searchText={value}
+                        onUpdateInput={(s) => this.handleUpdateInput(s)}
+                        onNewRequest={(v) => this.handleNewRequest(v)}
+                        dataSource={dataSource}
+                        hintText={this.props.attributes['label']}
+                        filter={(searchText, key) => {
+                            if(!key || !searchText) {
+                                return false;
+                            }
+                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0
+                        }}
+                        openOnFocus={true}
+                        menuProps={{maxHeight: 200}}
+                        autoComplete={'no-completion'}
                         {...ModernStyles.textField}
                     />
                 }

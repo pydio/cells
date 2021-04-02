@@ -223,12 +223,9 @@ class Editor extends React.Component{
         ];
 
         const leftNavItems=[
-//            {subHeader: this.getMessage('ws.28', 'ajxp_admin')},
             {value: "info", label:infoMenuTitle},
-//            {subHeader: this.getMessage('34')},
             {value: "workspaces", label:this.getMessage('35')},
             {value: "pages", label:this.getMessage('36')},
-//            {subHeader: this.getMessage('37')},
             {value: "params", label:this.getMessage('38')},
         ]
 

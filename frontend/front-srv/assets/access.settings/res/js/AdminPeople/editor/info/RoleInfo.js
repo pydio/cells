@@ -86,6 +86,7 @@ class RoleInfo extends React.Component {
                 onParameterChange={this.onParameterChange.bind(this)}
                 values={values}
                 depth={-2}
+                variant={'v2'}
             />
         );
 
