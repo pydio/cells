@@ -27,7 +27,6 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -323,7 +322,8 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 			cloneFrom.Uuid = rsp.Node.Uuid
 		}
 		// Force target Uuid to copy encryption material
-		cloneTo.Uuid = uuid.New()
+		cloneTo.RenewUuidIfEmpty(cloneTo.Uuid == cloneFrom.Uuid)
+
 		// Just add the metadata and let underlying handler do the job
 		requestData.Metadata[common.XAmzMetaNodeUuid] = cloneTo.Uuid
 		requestData.Metadata[common.XAmzMetaClearSize] = fmt.Sprintf("%d", cloneFrom.Size)
@@ -338,15 +338,17 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 	} else {
 		// We have to encrypt/decrypt on the fly
 		destPath := cloneTo.ZapPath()
-		rsp, readErr := e.next.ReadNode(readCtx, &tree.ReadNodeRequest{
-			Node: cloneFrom,
-		})
-		if readErr != nil {
-			return 0, readErr
-		} else if rsp.Node == nil {
-			return 0, errors.NotFound("views.handler.encryption.CopyObject", "no node found that matches %s", cloneFrom)
+		if cloneFrom.Uuid == "" || cloneFrom.Size == 0 {
+			rsp, readErr := e.next.ReadNode(readCtx, &tree.ReadNodeRequest{
+				Node: cloneFrom,
+			})
+			if readErr != nil {
+				return 0, readErr
+			} else if rsp.Node == nil {
+				return 0, errors.NotFound("views.handler.encryption.CopyObject", "no node found that matches %s", cloneFrom)
+			}
+			cloneFrom = rsp.Node
 		}
-		cloneFrom = rsp.Node
 		reader, err := e.GetObject(readCtx, cloneFrom, &GetRequestData{StartOffset: 0, Length: cloneFrom.Size})
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.CopyObject: Different Clients - Read Source Error", zap.Any("srcInfo", srcInfo), cloneFrom.Zap("readFrom"), zap.Error(err))
@@ -355,9 +357,9 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 		defer reader.Close()
 		log.Logger(ctx).Debug("views.handler.encryption.CopyObject: from one DS to another - force UUID", cloneTo.Zap("to"), zap.Any("srcInfo", srcInfo), zap.Any("destInfo", destInfo))
 		if !move {
-			cloneTo.Uuid = uuid.New()
+			cloneTo.RenewUuidIfEmpty(cloneTo.GetUuid() == cloneFrom.GetUuid())
 		} else {
-			cloneTo.Uuid = cloneFrom.Uuid
+			cloneTo.Uuid = cloneFrom.GetUuid()
 		}
 		if destInfo.FlatStorage {
 			// Insert in tree as temporary
@@ -386,7 +388,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 				zap.Any("destInfo", destInfo),
 				zap.Any("targetPath", destPath))
 		} else {
-			log.Logger(ctx).Debug("views.handler.encryption.CopyObject: Different Clients", rsp.Node.Zap("from"), zap.Int64("written", oi))
+			log.Logger(ctx).Debug("views.handler.encryption.CopyObject: Different Clients", cloneFrom.Zap("from"), zap.Int64("written", oi))
 		}
 		return oi, err
 	}

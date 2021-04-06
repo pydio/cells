@@ -125,7 +125,7 @@ func (v *VersionHandler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest
 	return v.next.ReadNode(ctx, req, opts...)
 }
 
-// Redirect to Version Store if request contains a VersionID
+// GetObject redirects to Version Store if request contains a VersionID
 func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
 	ctx, err := v.wrapContext(ctx)
 	if err != nil {
@@ -133,10 +133,6 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 	}
 	if len(requestData.VersionId) > 0 {
 
-		source, e := v.clientsPool.GetDataSourceInfo(common.PydioVersionsNamespace)
-		if e != nil {
-			return nil, e
-		}
 		// We are trying to load a specific versionId => switch to vID store
 		if len(node.Uuid) == 0 {
 			resp, e := v.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
@@ -145,12 +141,22 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 			}
 			node = resp.Node
 		}
-		node = &tree.Node{
-			Path: node.Uuid + "__" + requestData.VersionId,
+		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: node, VersionId: requestData.VersionId})
+		if err != nil {
+			return nil, err
 		}
-		node.SetMeta(common.MetaNamespaceDatasourcePath, node.Path)
+		node = vResp.Version.GetLocation()
+		// Append Version information
+		node.Size = vResp.Version.Size
+		node.Etag = string(vResp.Version.Data)
+		node.MTime = vResp.Version.MTime
+		// Refresh context from location
+		dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
+		source, e := v.clientsPool.GetDataSourceInfo(dsName)
+		if e != nil {
+			return nil, e
+		}
 		branchInfo := BranchInfo{LoadedSource: source}
-		branchInfo.FlatStorage = false
 		ctx = WithBranchInfo(ctx, "in", branchInfo)
 		log.Logger(ctx).Debug("GetObject With VersionId", zap.Any("node", node))
 	}
@@ -158,7 +164,7 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 
 }
 
-// Read from Version Store if request contains a VersionID
+// CopyObject intercept request with a SrcVersionId to read original from Version Store
 func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 	ctx, err := v.wrapContext(ctx)
 	if err != nil {
@@ -167,10 +173,6 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 	log.Logger(ctx).Debug("CopyObject Has VersionId?", zap.Any("from", from), zap.Any("to", to), zap.Any("requestData", requestData))
 	if len(requestData.SrcVersionId) > 0 {
 
-		source, e := v.clientsPool.GetDataSourceInfo(common.PydioVersionsNamespace)
-		if e != nil {
-			return 0, e
-		}
 		// We are trying to load a specific versionId => switch to vID store
 		if len(from.Uuid) == 0 {
 			resp, e := v.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: from})
@@ -179,16 +181,21 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 			}
 			from = resp.Node
 		}
+		vResp, err := v.getVersionClient().HeadVersion(ctx, &tree.HeadVersionRequest{Node: from, VersionId: requestData.SrcVersionId})
+		if err != nil {
+			return 0, err
+		}
 		if requestData.Metadata == nil {
 			requestData.Metadata = make(map[string]string, 1)
 		}
 		requestData.Metadata[common.XAmzMetaNodeUuid] = from.Uuid // Make sure to keep Uuid!
-		from = &tree.Node{
-			Path: from.Uuid + "__" + requestData.SrcVersionId,
+		from = vResp.GetVersion().GetLocation()
+		// Refresh context from location
+		source, e := v.clientsPool.GetDataSourceInfo(from.GetStringMeta(common.MetaNamespaceDatasourceName))
+		if e != nil {
+			return 0, e
 		}
-		from.SetMeta(common.MetaNamespaceDatasourcePath, from.Path)
 		srcInfo := BranchInfo{LoadedSource: source}
-		srcInfo.FlatStorage = false
 		ctx = WithBranchInfo(ctx, "from", srcInfo)
 		log.Logger(ctx).Debug("CopyObject With VersionId", zap.Any("from", from), zap.Any("branchInfo", srcInfo), zap.Any("to", to))
 	}

@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pborman/uuid"
+
 	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -66,6 +68,13 @@ func (node *Node) GetModTime() time.Time {
 // HasSource checks if node has a DataSource and Object Service metadata set
 func (node *Node) HasSource() bool {
 	return node.HasMetaKey(common.MetaNamespaceDatasourceName)
+}
+
+// RenewUuidIfEmpty generates a new UUID if it is currently empty or force is set to true
+func (node *Node) RenewUuidIfEmpty(force bool) {
+	if node.Uuid == "" || force {
+		node.Uuid = uuid.New()
+	}
 }
 
 /* METADATA MANAGEMENT */

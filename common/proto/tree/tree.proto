@@ -287,7 +287,7 @@ message PruneVersionsRequest{
 }
 
 message PruneVersionsResponse{
-    repeated string DeletedVersions = 1;
+    repeated ChangeLog DeletedVersions = 1;
 }
 
 message VersioningPolicy {
@@ -378,6 +378,8 @@ message ChangeLog{
     string OwnerUuid = 6;
     // Event that triggered this change
     NodeChangeEvent Event = 7;
+    // Actual location of the stored version
+    Node Location = 8;
 }
 
 // Search Queries

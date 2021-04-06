@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/errors"
-	"github.com/patrickmn/go-cache"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -39,16 +38,12 @@ import (
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	activity2 "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/data/versions"
-	json "github.com/pydio/cells/x/jsonx"
 )
-
-var policiesCache *cache.Cache
 
 type Handler struct {
 	db versions.DAO
@@ -89,6 +84,9 @@ func (h *Handler) ListVersions(ctx context.Context, request *tree.ListVersionsRe
 	for {
 		select {
 		case l := <-logs:
+			if l.GetLocation() == nil {
+				l.Location = versions.DefaultLocation(request.Node.Uuid, l.Uuid)
+			}
 			l.Description = h.buildVersionDescription(ctx, l)
 			resp := &tree.ListVersionsResponse{Version: l}
 			e := versionsStream.Send(resp)
@@ -108,6 +106,9 @@ func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequ
 		return e
 	}
 	if (v != &tree.ChangeLog{}) {
+		if v.GetLocation() == nil {
+			v.Location = versions.DefaultLocation(request.Node.Uuid, v.Uuid)
+		}
 		resp.Version = v
 	}
 	return nil
@@ -129,7 +130,7 @@ func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersion
 
 func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRequest, resp *tree.StoreVersionResponse) error {
 
-	p := h.findPolicyForNode(ctx, request.Node)
+	p := versions.PolicyForNode(ctx, request.Node)
 	if p == nil {
 		log.Logger(ctx).Info("Ignoring StoreVersion for this node")
 		return nil
@@ -162,6 +163,11 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 			return err
 		}
 		resp.PruneVersions = toRemove
+	}
+	for _, pv := range resp.PruneVersions {
+		if pv.Location == nil {
+			pv.Location = versions.DefaultLocation(request.Node.Uuid, pv.Uuid)
+		}
 	}
 
 	return err
@@ -255,7 +261,10 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 			for {
 				select {
 				case cLog := <-allLogs:
-					resp.DeletedVersions = append(resp.DeletedVersions, i+"__"+cLog.Uuid)
+					if cLog.Location == nil {
+						cLog.Location = versions.DefaultLocation(i, cLog.Uuid)
+					}
+					resp.DeletedVersions = append(resp.DeletedVersions, cLog)
 				case <-done:
 					return
 				}
@@ -269,41 +278,6 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 	}
 
 	log.Logger(ctx).Debug("Responding to Prune with these versions", zap.Any("versions", resp.DeletedVersions))
-
-	return nil
-}
-
-func (h *Handler) findPolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
-
-	if policiesCache == nil {
-		policiesCache = cache.New(1*time.Hour, 1*time.Hour)
-	}
-
-	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
-	policyName := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, "VersioningPolicyName").String()
-	if policyName == "" {
-		return nil
-	}
-
-	if v, ok := policiesCache.Get(policyName); ok {
-		return v.(*tree.VersioningPolicy)
-	}
-
-	dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
-	r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
-		StoreID:    common.DocStoreIdVersioningPolicies,
-		DocumentID: policyName,
-	})
-	if e != nil || r.Document == nil {
-		return nil
-	}
-
-	var p *tree.VersioningPolicy
-	if er := json.Unmarshal([]byte(r.Document.Data), &p); er == nil {
-		log.Logger(ctx).Debug("[VERSION] found policy for node", zap.Any("p", p))
-		policiesCache.Set(policyName, p, cache.DefaultExpiration)
-		return p
-	}
 
 	return nil
 }

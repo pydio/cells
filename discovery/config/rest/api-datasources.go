@@ -84,9 +84,6 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	// TODO REMOVE ME - THIS FORCES ALL NEW DS TO BE FLAT, FOR INTEGRATION TESTS IN BRANCH NEXT
-	ds.FlatStorage = config.Get("defaults", "dataSourcesDefaultFlat").Bool()
-
 	// Replace uuid secret if it exists
 	var secretUuid string
 	if sec := config.GetSecret(ds.ApiSecret).String(); sec != "" {

@@ -294,6 +294,13 @@ func (this *PruneVersionsRequest) Validate() error {
 	return nil
 }
 func (this *PruneVersionsResponse) Validate() error {
+	for _, item := range this.DeletedVersions {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DeletedVersions", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *VersioningPolicy) Validate() error {
@@ -334,6 +341,11 @@ func (this *ChangeLog) Validate() error {
 	if this.Event != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Event); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Event", err)
+		}
+	}
+	if this.Location != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Location); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Location", err)
 		}
 	}
 	return nil

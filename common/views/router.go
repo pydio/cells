@@ -94,8 +94,8 @@ func NewStandardRouter(options RouterOptions) *Router {
 	if options.SynchronousTasks {
 		handlers = append(handlers, &SyncFolderTasksHandler{})
 	}
-	handlers = append(handlers, &EncryptionHandler{})
 	handlers = append(handlers, &VersionHandler{})
+	handlers = append(handlers, &EncryptionHandler{})
 	handlers = append(handlers, &FlatStorageHandler{})
 	handlers = append(handlers, &Executor{})
 
@@ -127,8 +127,8 @@ func NewUuidRouter(options RouterOptions) *Router {
 		handlers = append(handlers, &AclContentLockFilter{})
 		handlers = append(handlers, &AclQuotaFilter{})
 	}
-	handlers = append(handlers, &EncryptionHandler{}) // retrieves encryption materials from encryption service
 	handlers = append(handlers, &VersionHandler{})
+	handlers = append(handlers, &EncryptionHandler{}) // retrieves encryption materials from encryption service
 	handlers = append(handlers, &FlatStorageHandler{})
 	handlers = append(handlers, &Executor{})
 
