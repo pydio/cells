@@ -23,6 +23,9 @@ package versions
 import (
 	"context"
 
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/proto/object"
+
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
@@ -78,6 +81,26 @@ func (c *PruneVersionsAction) Init(job *jobs.Job, cl client.Client, action *jobs
 
 // Run processes the actual action code.
 func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
+
+	// First check if versioning is enabled on any datasource
+	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+	var versioningFound bool
+	for _, src := range sources {
+		var ds *object.DataSource
+		if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src).Scan(&ds); err == nil {
+			if ds.VersioningPolicyName != "" {
+				versioningFound = true
+				break
+			}
+		}
+	}
+
+	if !versioningFound {
+		log.TasksLogger(ctx).Info("Ignoring action: no datasources found with versioning enabled.")
+		return input.WithIgnore(), nil
+	} else {
+		log.TasksLogger(ctx).Info("Starting action: one or more datasources found with versioning enabled.")
+	}
 
 	source, e := c.Pool.GetDataSourceInfo(common.PydioVersionsNamespace)
 	if e != nil {

@@ -23,9 +23,10 @@ package grpc
 import (
 	"context"
 	"net/url"
-	"path"
 	"sync"
 	"time"
+
+	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
@@ -43,9 +44,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/data/versions"
-	json "github.com/pydio/cells/x/jsonx"
 )
 
 var policiesCache *cache.Cache
@@ -172,44 +171,24 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 	cl := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 
 	var idsToDelete []string
-	router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
 
 	if request.AllDeletedNodes {
 
-		var versionedDsRoots []*tree.Node
-		st, e := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: false})
-		if e != nil {
-			return e
+		// Load whole tree in memory
+		existingIds := make(map[string]struct{})
+		streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
+		if sErr != nil {
+			return sErr
 		}
-		defer st.Close()
+		defer streamer.Close()
 		for {
-			r, e := st.Recv()
+			r, e := streamer.Recv()
 			if e != nil {
 				break
 			}
-			dsName := path.Base(r.GetNode().GetPath())
-			if loaded, e := router.GetClientsPool().GetDataSourceInfo(dsName); e == nil && loaded.VersioningPolicyName != "" {
-				versionedDsRoots = append(versionedDsRoots, r.GetNode())
-			}
+			existingIds[r.Node.GetUuid()] = struct{}{}
 		}
 
-		// Load datasource tree in memory
-		existingIds := make(map[string]struct{})
-		for _, dsRoot := range versionedDsRoots {
-			log.TasksLogger(ctx).Info("Listing datasource " + dsRoot.GetPath() + " for pruning")
-			streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: dsRoot, Recursive: true})
-			if sErr != nil {
-				return sErr
-			}
-			for {
-				r, e := streamer.Recv()
-				if e != nil {
-					break
-				}
-				existingIds[r.Node.GetUuid()] = struct{}{}
-			}
-			streamer.Close()
-		}
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		runner := func() error {
