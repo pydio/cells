@@ -1,55 +1,6 @@
-# Changes between v2.2.3 and v2.2.4
+# Changes between v2.2.4 and v2.2.5
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.3...v2.2.4)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.4...v2.2.5)
 
-- [#5920d2b](https://github.com/pydio/cells/commit/5920d2b0d4508a58eac1164cdec300979482b812): Fix corner case (again) on hash2 computation
-- [#decb7f6](https://github.com/pydio/cells/commit/decb7f61c37b69f98b82ccfabe4e37a01be23161): Fix corner case on hash2 computation
-- [#d9c7e10](https://github.com/pydio/cells/commit/d9c7e108a9dd927278ea7a0865a37167cc9c3265): Restrict findLostChildren request to mpath1 for performances reasons.
-- [#d77551a](https://github.com/pydio/cells/commit/d77551a5b83d6fa91895cbf16a8610248d9933e8): Fix typo on flag check
-- [#41808da](https://github.com/pydio/cells/commit/41808da78927ea7bd404981f95b3bea93eadb41f): Next development cycle
-- [#93c27d0](https://github.com/pydio/cells/commit/93c27d020e3898dca917f7b682c3ba967bf51bf2): Release v2.2.4
-- [#25a30ab](https://github.com/pydio/cells/commit/25a30abf6b1b502fa0e83f337204bf34718b0030): Adapt defaults to be in-line with the current status of the doc
-- [#55d51dc](https://github.com/pydio/cells/commit/55d51dcfe87baabc6330db99289d7bcf12eecc7b): Release v2.2.4-rc1
-- [#926b570](https://github.com/pydio/cells/commit/926b57015563aa3670d4905134b750e63eeffef4): 2 more messages + DE / FR translation + more Chinese
-- [#b8102bf](https://github.com/pydio/cells/commit/b8102bf7470d6e1eb132c58de635797f2cdb110a): 2 more messages + DE / FR translation + more Chinese
-- [#314](https://github.com/pydio/cells/pull/314): New Crowdin updates
-- [#f0ed504](https://github.com/pydio/cells/commit/f0ed504580ddfc9b508a1c158f593d4559c5d891): New Crowdin updates
-- [#0d62be7](https://github.com/pydio/cells/commit/0d62be707edce65e2e57b16b139e4a6155e62666): Show more info in template path ux NodeCard
-- [#974bcd4](https://github.com/pydio/cells/commit/974bcd4109db4cca879d2e9b8f42b40abc6cb8b2): Resolve more variables for template paths
-- [#234c40a](https://github.com/pydio/cells/commit/234c40aa64ee69b44056cd49f44ffc88c2ee49fa): clean-user-data : if no parent given, just create a sibling folder instead of recomputing resolved node.
-- [#8e7521d](https://github.com/pydio/cells/commit/8e7521d6e42ed0bbf62b3df557361f8e1019fc93): Fix activities inside template-path - Clean views package
-- [#e3c5049](https://github.com/pydio/cells/commit/e3c50490f8ac889fb02a0f38a5a8efe5be22cbf2): Clean pools / extract interfaces
-- [#7b93eb1](https://github.com/pydio/cells/commit/7b93eb11af6be77096486067255609610b427225): Refix migration 0.5 (use an UUID). Clean randoms in user_tree as well.
-- [#49b7c6e](https://github.com/pydio/cells/commit/49b7c6e8227656a2dc4c5241993dafbfad4f99fa): Pruning versions : lower frequency on existing instances
-- [#fdb3b61](https://github.com/pydio/cells/commit/fdb3b61abb07e50e04687590c7cd86c7da40cdf1): Pruning versions : run only on versioned datasources. Lower frequency as well.
-- [#10e1e35](https://github.com/pydio/cells/commit/10e1e35405add82a46c7ba3522d6568b6e1f42f6): Rework new hash2 migration and fix dups
-- [#1dca32a](https://github.com/pydio/cells/commit/1dca32a41eb9bb0e1d8272a541cd6041d0f41385): Fix findDuplicates query to avoid modification of sql global
-- [#fcbb08d](https://github.com/pydio/cells/commit/fcbb08de0dd213e1032b9adf2ea2a10eb57aae46): Put stream.Close in defer
-- [#7084257](https://github.com/pydio/cells/commit/7084257af8d4d7c1533bb5631772af3268d2a693): Lower down number of delete/put ACLs by diffing old and new ones
-- [#233062e](https://github.com/pydio/cells/commit/233062e06ccc68782d540683e529eebb83d577d0): Fix tests after removal of stagingCA flag in samples
-- [#323fe55](https://github.com/pydio/cells/commit/323fe55e16aeb30d6b1c36fc60d27ea45d0276e4): Forgotten logs
-- [#90e6451](https://github.com/pydio/cells/commit/90e6451dcc70c164bf1b6e31a820020afa7bec31): Remove hidden flag from example
-- [#7031c8f](https://github.com/pydio/cells/commit/7031c8f743cc148eb6fa962fd4a70521d03b4e0b): Merge remote-tracking branch 'origin/master'
-- [#7e32b6a](https://github.com/pydio/cells/commit/7e32b6a0423dd84554cfc8a5c25f0218590e2ac8): More parameters on returns on bolt dao.Compact() method
-- [#f70ec69](https://github.com/pydio/cells/commit/f70ec69f761a0083e160514ba81517aa934d3e6c): New String + Fix some German messages
-- [#db391e3](https://github.com/pydio/cells/commit/db391e373e89a9392ddf4ceb3716701681b1a043): New String + Fix some German messages
-- [#a277d17](https://github.com/pydio/cells/commit/a277d17523e932b4928265ed3e20f54ec121894e): Add a second hash to index table
-- [#c0629fb](https://github.com/pydio/cells/commit/c0629fbb4cf27b446f429576f1e3a4c41c92039d): Unused regexp and matching running services
-- [#537e59b](https://github.com/pydio/cells/commit/537e59bb6a7ad5e5e0d0ce745ff34d2df8539431): Merge remote-tracking branch 'origin/master'
-- [#2d9149c](https://github.com/pydio/cells/commit/2d9149cb14d1717ea33237fedf6c044a4e674cd3): Integrate find-duplicate command directly in indexation process
-- [#dd6bf0f](https://github.com/pydio/cells/commit/dd6bf0fe1055f62132417ef98ccae0c1eceee4ae): Wait a little bit longer before retries
-- [#8eb5fba](https://github.com/pydio/cells/commit/8eb5fbaa2ae583c472321875e86c20681c099995): Fixing private IP issue preventing the data gateway to start properly
-- [#b18ab1e](https://github.com/pydio/cells/commit/b18ab1ea8e3aaa99d98e3b55410f79f8045f9f34): Add ws_quota in node meta during ReadNode
-- [#8f17f01](https://github.com/pydio/cells/commit/8f17f011c9c050b62c518d6040c5fd4d2f89035c): Quota usage indicator in WorkspaceCard/CellCard
-- [#5e2a2a1](https://github.com/pydio/cells/commit/5e2a2a1e84733f543d22761407cae2da6e443424): BoltDAO.Compact() method creates a clean copy to reclaim disk space. Activities: remove node activities on delete event, call Compact() after purge action.
-- [#398b631](https://github.com/pydio/cells/commit/398b631767f728141952db8c7161a702be8dc145): Merge remote-tracking branch 'origin/master'
-- [#57334be](https://github.com/pydio/cells/commit/57334be1563c3413f18b83686ac813421006fbc3): Job tasks in bolt : always sort results
-- [#254ffa4](https://github.com/pydio/cells/commit/254ffa48c5d20bbc1a6dfc1f272a902f6207695e): Finer management of defaults for vanilla docker runs
-- [#2437530](https://github.com/pydio/cells/commit/243753092bc1e2edf139d68541c8d36bab99af29): Prevent error in ws-handler
-- [#856052d](https://github.com/pydio/cells/commit/856052d206263845233ae8e7641beeb3ebb54ed3): Activity service : cache ListSubscriptions and batch PostActivity
-- [#b08e5b6](https://github.com/pydio/cells/commit/b08e5b6c9d8cbc861c0fde4fea4d3c7d82c20fc6): Down Migration : drop table commits IF EXISTS (no more necessary)
-- [#40e79e5](https://github.com/pydio/cells/commit/40e79e526a93c19c3c2a677a08476d930ffec2c9): Add transaction in MoveNodeTree
-- [#2445248](https://github.com/pydio/cells/commit/244524827b205525f08cce8b549f529af18fdb54): Remove unused _commits table in indexes
-- [#780f405](https://github.com/pydio/cells/commit/780f4054ee7a75fa1e09ff6b971a6d54ede9f07c): Add a key-based lock for meta service cache
-- [#20a2b14](https://github.com/pydio/cells/commit/20a2b14f6bd2f716754954cbac8c722f5462c049): Fix #309 Explicitly define default bind address
-- [#853fba7](https://github.com/pydio/cells/commit/853fba7d83a5a058701cd1b89ae89559ba20efd2): Next development cycle
+- [#40235cd](https://github.com/pydio/cells/commit/40235cdafda64e86cd9370365e1a05b6c2a95918): Revert pruning versions for deleted files optimization - Add a check for versinoning datasources instead.
+- [#0dcfba5](https://github.com/pydio/cells/commit/0dcfba55f1525ba2706b3b61615fbab81c8ae929): Fix versions pruning for deleted files
