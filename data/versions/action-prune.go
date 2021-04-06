@@ -27,10 +27,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
@@ -79,14 +81,25 @@ func (c *PruneVersionsAction) Init(job *jobs.Job, cl client.Client, action *jobs
 // Run processes the actual action code.
 func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
-	/*
-		source, e := c.Pool.GetDataSourceInfo(common.PydioVersionsNamespace)
-		if e != nil {
-			return input.WithError(e), e
+	// First check if versioning is enabled on any datasource
+	sources := config.SourceNamesForDataServices(common.ServiceDataIndex)
+	var versioningFound bool
+	for _, src := range sources {
+		var ds *object.DataSource
+		if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+src).Scan(&ds); err == nil {
+			if ds.VersioningPolicyName != "" {
+				versioningFound = true
+				break
+			}
 		}
-		// Prepare ctx with info about the target branch
-		ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
-	*/
+	}
+
+	if !versioningFound {
+		log.TasksLogger(ctx).Info("Ignoring action: no datasources found with versioning enabled.")
+		return input.WithIgnore(), nil
+	} else {
+		log.TasksLogger(ctx).Info("Starting action: one or more datasources found with versioning enabled.")
+	}
 	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
 		for _, version := range response.DeletedVersions {
