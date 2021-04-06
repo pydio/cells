@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/discovery/nats"
-	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 	"github.com/pydio/cells/x/filex"
 )
 
@@ -134,7 +133,7 @@ ENVIRONMENT
 			initLogLevel()
 
 			// nats.Init()
-			natsstreaming.Init()
+			// natsstreaming.Init()
 
 			metrics.Init()
 
@@ -294,7 +293,7 @@ ENVIRONMENT
 				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
 					return nil
 				}
-				log.Info("Services are still running ", zap.Any("services", process.Services))
+				log.Debug("Services are still running ", zap.Any("services", process.Services))
 				continue
 			case <-timeout:
 				return nil

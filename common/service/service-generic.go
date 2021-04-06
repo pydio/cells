@@ -69,8 +69,10 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				//micro.RegisterTTL(10*time.Minute),
+				//micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(2*time.Minute),
+				micro.RegisterInterval(1*time.Minute),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
@@ -134,8 +136,10 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				//micro.RegisterTTL(10*time.Minute),
+				//micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(2*time.Minute),
+				micro.RegisterInterval(1*time.Minute),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 

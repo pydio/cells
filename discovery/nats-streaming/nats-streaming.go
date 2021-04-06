@@ -20,6 +20,8 @@ func Init() {
 		stanOpts := stand.GetDefaultOptions()
 		natsOpts := stand.NewNATSOptions()
 
+		natsOpts.NoSigs = true
+
 		stanOpts.ID = viper.GetString("nats_streaming_cluster_id")
 		stanOpts.StoreType = viper.GetString("nats_streaming_store")
 
@@ -28,7 +30,8 @@ func Init() {
 		}
 
 		// TODO - do the sql opts
-
+		// stanOpts.FTGroupName = "test"
+		stanOpts.HandleSignals = false
 		stanOpts.Clustering.Clustered = viper.GetBool("nats_streaming_clustered")
 		stanOpts.Clustering.NodeID = viper.GetString("nats_streaming_cluster_node_id")
 		stanOpts.Clustering.Bootstrap = viper.GetBool("nats_streaming_cluster_bootstrap")
@@ -57,7 +60,6 @@ func Init() {
 			clusterOpts.Port = clusterPort
 
 			// natsOpts.Cluster = *clusterOpts
-
 		}
 
 		natsOpts.RoutesStr = viper.GetString("nats_cluster_routes")
@@ -66,5 +68,6 @@ func Init() {
 		if _, err := stand.RunServerWithOpts(stanOpts, natsOpts); err != nil {
 			return
 		}
+
 	}
 }

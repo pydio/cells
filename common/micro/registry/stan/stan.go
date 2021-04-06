@@ -4,6 +4,7 @@ package stan
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -31,6 +32,8 @@ type stanRegistry struct {
 
 	watchers map[string]chan*PeerEvent
 	watcherLock *sync.RWMutex
+
+	exit chan struct{}
 }
 
 var (
@@ -46,6 +49,7 @@ const (
 
 type PeerEvent struct {
 	Service *registry.Service
+	TTL     time.Duration
 	Type    PeerEventType
 }
 
@@ -81,8 +85,7 @@ func (n *stanRegistry) watch() error {
 	for {
 		ev, err := watcher.Next()
 		if err != nil {
-			time.Sleep(1 * time.Second)
-			continue
+			return err
 		}
 
 		service := ev.Service
@@ -102,8 +105,15 @@ func (n *stanRegistry) watch() error {
 func (n *stanRegistry) newConn() (stan.Conn, error) {
 	opts := n.nopts
 
+	opts = append(opts, stan.SetConnectionLostHandler(func (_ stan.Conn, _ error) {
+		fmt.Println("Lost connection")
+		n.exit <- struct{}{}
+		n.conn = nil
+	}))
+
 	conn, err := stan.Connect("cells", uuid.New().String(), opts...)
 	if err != nil {
+		fmt.Println("Connection error ",err)
 		return nil, err
 	}
 
@@ -125,6 +135,13 @@ func (n *stanRegistry) newConn() (stan.Conn, error) {
 	go func() {
 		for {
 			select {
+			case <-n.exit:
+				n.watcherLock.RLock()
+				for _, watcher := range n.watchers {
+					watcher <- nil
+				}
+				n.watcherLock.RUnlock()
+				return
 			case ev := <-msgCh:
 				n.watcherLock.RLock()
 				for _, watcher := range n.watchers {
@@ -164,6 +181,11 @@ func (n *stanRegistry) Register(s *registry.Service, opts ...registry.RegisterOp
 	conn, err := n.getConn()
 	if err != nil {
 		return err
+	}
+
+	o := new(registry.RegisterOptions)
+	for _, opt := range opts {
+		opt(o)
 	}
 
 	n.Lock()
@@ -236,6 +258,7 @@ func (n *stanRegistry) ListServices() ([]*registry.Service, error) {
 	for _, v := range servicesMap {
 		services = append(services, v...)
 	}
+
 	return services, nil
 }
 
@@ -313,6 +336,7 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		servicesLock: &sync.RWMutex{},
 		watchers: make(map[string]chan*PeerEvent),
 		watcherLock : &sync.RWMutex{},
+		exit: make(chan struct{}, 1),
 	}
 
 	n.getConn()

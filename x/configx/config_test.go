@@ -1,6 +1,7 @@
 package configx
 
 import (
+	"fmt"
 	"testing"
 
 	json "github.com/pydio/cells/x/jsonx"
@@ -38,7 +39,9 @@ var (
 			},
 			"pointerArray": [{
 				"$ref": "#/defaults/val2"
-			}]
+			}],
+			"toDelete1": true,
+			"toDelete2": true
 		}
 	}`)
 )
@@ -54,8 +57,8 @@ func TestStd(t *testing.T) {
 
 		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/val").Get().String(), ShouldEqual, "test")
-		So(m.Val("service/@value").Get().String(), ShouldEqual, "test")
-		So(m.Val("service", "@value").Get().String(), ShouldEqual, "test")
+		// So(m.Val("service/@value").Get().String(), ShouldEqual, "test")
+		// So(m.Val("service", "@value").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/fakeval").Get(), ShouldBeNil)
 
 		So(m.Val("service").Val("val").Default("").String(), ShouldEqual, "test")
@@ -76,6 +79,10 @@ func TestStd(t *testing.T) {
 		So(m.Val("service/arrayMap[1]/val").Get(), ShouldBeNil)
 		So(m.Val("service/arrayMap[0]/map/val").Get().String(), ShouldEqual, "test")
 		So(m.Val("service/arrayMap[0]/map[val]").Get().String(), ShouldEqual, "test")
+
+		m.Val("service/toDelete1").Del()
+		// m.Val("service/toDelete2").Del()
+		fmt.Println(m.Map())
 	})
 
 	Convey("Testing map full set", t, func() {
