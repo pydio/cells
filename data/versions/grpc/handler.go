@@ -193,15 +193,14 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 			}
 		}
 
+		// Load datasource tree in memory
+		existingIds := make(map[string]struct{})
 		for _, dsRoot := range versionedDsRoots {
 			log.TasksLogger(ctx).Info("Listing datasource " + dsRoot.GetPath() + " for pruning")
-			// Load datasource tree in memory
-			existingIds := make(map[string]struct{})
 			streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: dsRoot, Recursive: true})
 			if sErr != nil {
 				return sErr
 			}
-			defer streamer.Close()
 			for {
 				r, e := streamer.Recv()
 				if e != nil {
@@ -209,30 +208,30 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 				}
 				existingIds[r.Node.GetUuid()] = struct{}{}
 			}
-
-			wg := &sync.WaitGroup{}
-			wg.Add(1)
-			runner := func() error {
-				defer wg.Done()
-				uuids, done, errs := h.db.ListAllVersionedNodesUuids()
-				for {
-					select {
-					case id := <-uuids:
-						if _, o := existingIds[id]; !o {
-							idsToDelete = append(idsToDelete, id)
-						}
-					case e := <-errs:
-						return e
-					case <-done:
-						return nil
+			streamer.Close()
+		}
+		wg := &sync.WaitGroup{}
+		wg.Add(1)
+		runner := func() error {
+			defer wg.Done()
+			uuids, done, errs := h.db.ListAllVersionedNodesUuids()
+			for {
+				select {
+				case id := <-uuids:
+					if _, o := existingIds[id]; !o {
+						idsToDelete = append(idsToDelete, id)
 					}
+				case e := <-errs:
+					return e
+				case <-done:
+					return nil
 				}
 			}
-			err := runner()
-			wg.Wait()
-			if err != nil {
-				return err
-			}
+		}
+		err := runner()
+		wg.Wait()
+		if err != nil {
+			return err
 		}
 
 	} else if request.UniqueNode != nil {
@@ -268,7 +267,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		return e
 	}
 
-	log.Logger(ctx).Debug("Responding to Prune with these versions", zap.Any("versions", resp.DeletedVersions))
+	log.Logger(ctx).Debug("Responding to Prune with versions", zap.Int("versions", len(resp.DeletedVersions)))
 
 	return nil
 }
