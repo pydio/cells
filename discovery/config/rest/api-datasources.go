@@ -139,11 +139,13 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	} else {
 		config.Del("services", "pydio.grpc.data.index."+dsName, "Disabled")
 	}
+	config.Get().Map()
 	if ds.PeerAddress != "" {
 		config.Set(ds.PeerAddress, "services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	} else {
 		config.Del("services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	}
+	config.Get().Map()
 	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
 	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC

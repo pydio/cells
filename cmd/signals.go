@@ -26,6 +26,7 @@ func handleSignals() {
 
 	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
 	// signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGSTOP)
+	signal.Ignore()
 	signal.Notify(c)
 
 	go func() {

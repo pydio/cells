@@ -21,6 +21,7 @@
 package config
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -32,6 +33,20 @@ func TestConfig(t *testing.T) {
 		err := Set("my-test-config-value", "test")
 		So(err, ShouldBeNil)
 		So(Get("test").Default("").String(), ShouldEqual, "my-test-config-value")
+	})
+
+	Convey("Test Del", t, func() {
+		err := Set(map[string]interface{}{
+			"bool1": true,
+			"bool2": false,
+		}, "test")
+
+		So(err, ShouldBeNil)
+		Get("test/bool1").Del()
+		// Get("test/bool2").Del()
+		Save("test", "test")
+
+		fmt.Println(Get("test").Map())
 	})
 
 	Convey("Test Watch", t, func() {

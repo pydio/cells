@@ -111,8 +111,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 	}()
 
 	go func() {
-		ticker := time.Tick(5 * time.Minute)
-
 		for {
 			services, err := defaults.Registry().ListServices()
 			if err != nil {
@@ -125,10 +123,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 				}
 			}
 
-			select {
-			case <-ticker:
-				continue
-			}
+			time.Sleep(5 * time.Minute)
 		}
 	}()
 
@@ -167,4 +162,16 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			}
 		}
 	}()
+
+	// Get the list of services once to kickstart things
+	services, err := defaults.Registry().ListServices()
+	if err != nil {
+		return
+	}
+	for _, srv := range services {
+		results <- &registry.Result{
+			Action:  "create",
+			Service: srv,
+		}
+	}
 }

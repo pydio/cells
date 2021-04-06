@@ -13,7 +13,6 @@ import (
 	gonats "github.com/nats-io/nats.go"
 	gostan "github.com/nats-io/stan.go"
 
-
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/micro/registry/nats"
 	"github.com/pydio/cells/common/micro/registry/stan"
@@ -49,20 +48,29 @@ func EnableNats() {
 }
 
 func EnableStan() {
-	addr := viper.GetString("stan_address")
+	addr := viper.GetString("nats_address")
 	nc, _ := gonats.Connect(addr,
 		gonats.Name(uuid.New().String()),
-		gonats.MaxReconnects(-1),
-		gonats.ReconnectBufSize(-1),
 	)
 	nc.SetDisconnectErrHandler(func(_ *gonats.Conn, _ error) {
 		// Attempting to start a server if we've been kicked off
 		natsstreaming.Init()
 	})
 
+	if nc == nil {
+		natsstreaming.Init()
+
+		nc, _ = gonats.Connect(addr,
+			gonats.Name(uuid.New().String()),
+		)
+	}
+
 	r := stan.NewRegistry(
 		registry.Addrs(addr),
-		stan.Options(gostan.NatsConn(nc)),
+		stan.Options(
+			gostan.NatsURL(viper.GetString("nats_address")),
+			gostan.NatsConn(nc),
+			),
 	)
 
 	s := cache.NewSelector(selector.Registry(r))
