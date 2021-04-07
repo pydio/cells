@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -158,6 +159,26 @@ func (a *ActionMessage) WithAcls(aa ...*idm.ACL) ActionMessage {
 
 	b := *a
 	b.Acls = append(b.Acls, aa...)
+	return b
+
+}
+
+func (a *ActionMessage) WithDataSource(ds *object.DataSource) ActionMessage {
+
+	b := *a
+	if ds == nil {
+		b.DataSources = []*object.DataSource{}
+	} else {
+		b.DataSources = []*object.DataSource{ds}
+	}
+	return b
+
+}
+
+func (a *ActionMessage) WithDataSources(ds ...*object.DataSource) ActionMessage {
+
+	b := *a
+	b.DataSources = append(b.DataSources, ds...)
 	return b
 
 }

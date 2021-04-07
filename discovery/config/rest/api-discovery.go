@@ -26,8 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/discovery/config/lang"
-
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/spec"
 	"github.com/micro/go-micro/errors"
@@ -44,12 +42,14 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/discovery/config/lang"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -276,6 +276,10 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			form = protos.GenerateProtoToForm("treeQuery", &tree.Query{}, asSwitch)
 		case "jobs.ActionOutputSingleQuery":
 			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.TriggerFilterQuery":
+			form = protos.GenerateProtoToForm("triggerFilterQuery", &jobs.TriggerFilterQuery{}, asSwitch)
+		case "object.DataSourceSingleQuery":
+			form = protos.GenerateProtoToForm("dataSourceSingleQuery", &object.DataSourceSingleQuery{}, asSwitch)
 		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
 			// Add SwitchField for PolicyCondition
 			condField := &forms.SwitchField{

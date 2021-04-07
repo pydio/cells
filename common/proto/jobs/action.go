@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -95,8 +96,8 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output 
 	if a.ContextMetaFilter != nil {
 		output, passThrough = a.ContextMetaFilter.Filter(ctx, output)
 	}
-	if a.DataSourceSelector != nil {
-		output, excluded, passThrough = a.DataSourceSelector.Filter(ctx, output)
+	if a.DataSourceFilter != nil {
+		output, excluded, passThrough = a.DataSourceFilter.Filter(ctx, output)
 	}
 	if a.TriggerFilter != nil {
 		output, excluded, passThrough = a.TriggerFilter.Filter(ctx, output)
@@ -152,22 +153,25 @@ func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector 
 	go func() {
 		for {
 			select {
-			case object := <-wire:
-				if nodeP, o := object.(*tree.Node); o {
+			case obj := <-wire:
+				if nodeP, o := obj.(*tree.Node); o {
 					node := *nodeP // copy
 					input = input.WithNode(&node)
-				} else if userP, oU := object.(*idm.User); oU {
+				} else if userP, oU := obj.(*idm.User); oU {
 					user := *userP
 					input = input.WithUser(&user)
-				} else if roleP, oR := object.(*idm.Role); oR {
+				} else if roleP, oR := obj.(*idm.Role); oR {
 					role := *roleP
 					input = input.WithRole(&role)
-				} else if wsP, oW := object.(*idm.Workspace); oW {
+				} else if wsP, oW := obj.(*idm.Workspace); oW {
 					ws := *wsP
 					input = input.WithWorkspace(&ws)
-				} else if aclP, oA := object.(*idm.ACL); oA {
+				} else if aclP, oA := obj.(*idm.ACL); oA {
 					acl := *aclP
 					input = input.WithAcl(&acl)
+				} else if dsP, oD := obj.(*object.DataSource); oD {
+					ds := *dsP
+					input = input.WithDataSource(&ds)
 				}
 				output <- input
 			case <-selectDone:
@@ -190,6 +194,7 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 	var roles []*idm.Role
 	var workspaces []*idm.Workspace
 	var acls []*idm.ACL
+	var dss []*object.DataSource
 
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
@@ -199,17 +204,19 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 		defer wg.Done()
 		for {
 			select {
-			case object := <-wire:
-				if node, o := object.(*tree.Node); o {
+			case obj := <-wire:
+				if node, o := obj.(*tree.Node); o {
 					nodes = append(nodes, node)
-				} else if user, oU := object.(*idm.User); oU {
+				} else if user, oU := obj.(*idm.User); oU {
 					users = append(users, user)
-				} else if role, oR := object.(*idm.Role); oR {
+				} else if role, oR := obj.(*idm.Role); oR {
 					roles = append(roles, role)
-				} else if ws, oW := object.(*idm.Workspace); oW {
+				} else if ws, oW := obj.(*idm.Workspace); oW {
 					workspaces = append(workspaces, ws)
-				} else if acl, oA := object.(*idm.ACL); oA {
+				} else if acl, oA := obj.(*idm.ACL); oA {
 					acls = append(acls, acl)
+				} else if ds, oD := obj.(*object.DataSource); oD {
+					dss = append(dss, ds)
 				}
 			case <-selectDone:
 				close(wire)
@@ -226,6 +233,7 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 	input = input.WithWorkspaces(workspaces...)
 	input = input.WithAcls(acls...)
 	input = input.WithUsers(users...)
+	input = input.WithDataSources(dss...)
 	output <- input
 	done <- true
 }
