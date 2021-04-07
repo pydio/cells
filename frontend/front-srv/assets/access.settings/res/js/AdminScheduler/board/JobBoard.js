@@ -81,7 +81,7 @@ class JobBoard extends React.Component {
         const flatProps = {...adminStyles.props.header.flatButton};
         const iconColor = adminStyles.props.header.flatButton.labelStyle.color;
         if(!create){
-            if(!job.EventNames){
+            if(!job.EventNames || job.Schedule){
                 if(jobsEditable){
                     actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
                 }

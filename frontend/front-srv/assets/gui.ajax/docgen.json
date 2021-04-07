@@ -1,5 +1,12 @@
 {
   "access.gateway": {
+    "callback/deleteAction.js": [
+      {
+        "description": "",
+        "displayName": "PermanentRemoveCheckbox",
+        "methods": []
+      }
+    ],
     "dialog/CrossWsDropDialog.js": [
       {
         "description": "",
@@ -1104,6 +1111,11 @@
       {
         "description": "",
         "displayName": "cssFormGroupFullStyle",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "cssFormSimpleStyle",
         "methods": []
       }
     ],
@@ -5443,6 +5455,20 @@
                 "type": null
               }
             ],
+            "returns": null
+          },
+          {
+            "name": "stepperBack",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "stepperNext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           }
         ],

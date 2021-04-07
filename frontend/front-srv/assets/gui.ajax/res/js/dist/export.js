@@ -28,6 +28,6 @@ window.MaterialUI.Color = require('color');
 window.ReactDraggable = require('react-draggable');
 window.ReactDND = require('react-dnd');
 window.ReactDND.HTML5Backend = require('react-dnd-html5-backend');
-window.ReactDND.flow = require('lodash/function/flow');
+window.ReactDND.flow = require('lodash/flow');
 window.classNames = require('classnames');
 window.Clipboard = require('clipboard');
