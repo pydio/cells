@@ -5840,21 +5840,7 @@
             ],
             "returns": null
           }
-        ],
-        "context": {
-          "messages": {
-            "type": {
-              "name": "object"
-            },
-            "required": false
-          },
-          "getMessage": {
-            "type": {
-              "name": "func"
-            },
-            "required": false
-          }
-        }
+        ]
       }
     ],
     "AdminWorkspaces/editor/VersionPolicyPeriods.js": [
