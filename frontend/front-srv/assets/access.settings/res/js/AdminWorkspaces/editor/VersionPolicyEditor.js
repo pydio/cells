@@ -175,9 +175,9 @@ class VersionPolicyEditor extends React.Component{
         if(!readonly){
             if(!create){
                 titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', ()=>{this.deleteSource()}));
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(pydio.MessageHash['ajxp_admin.plugins.6'], 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
             }
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.valid || !this.state.dirty));
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.valid || !this.state.dirty));
         }
 
         let policyName = saveValue ? saveValue.Name : policy.Name;
@@ -207,9 +207,5 @@ class VersionPolicyEditor extends React.Component{
 }
 
 VersionPolicyEditor = muiThemeable()(VersionPolicyEditor)
-VersionPolicyEditor.contextTypes = {
-    messages    : PropTypes.object,
-    getMessage  : PropTypes.func
-};
 
 export {VersionPolicyEditor as default};
