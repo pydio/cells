@@ -65,12 +65,20 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 	res := make(map[string]*object.DataSource)
 	names := SourceNamesForDataServices(common.ServiceDataSync)
 	for _, name := range names {
-		var conf *object.DataSource
-		if e := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+name)).Scan(&conf); e == nil {
+		if conf, e := GetSourceInfoByName(name); e == nil {
 			res[name] = conf
 		}
 	}
 	return res
+}
+
+func GetSourceInfoByName(dsName string) (*object.DataSource, error) {
+	var conf *object.DataSource
+	if e := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName)).Scan(&conf); e == nil {
+		return conf, nil
+	} else {
+		return nil, e
+	}
 }
 
 // SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key

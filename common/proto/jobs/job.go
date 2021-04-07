@@ -23,6 +23,9 @@ package jobs
 import (
 	"time"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -121,4 +124,18 @@ func (task *Task) WithoutLogs() *Task {
 		CanStop:       task.CanStop,
 		ActionsLogs:   []*ActionLog{},
 	}
+}
+
+// MustMarshalAny is an util function to avoid error check
+func MustMarshalAny(pb proto.Message) *any.Any {
+	mm, _ := ptypes.MarshalAny(pb)
+	return mm
+}
+
+// MustMarshalAnyMultiple is an util function to avoid error check
+func MustMarshalAnyMultiple(pbs ...proto.Message) (out []*any.Any) {
+	for _, pb := range pbs {
+		out = append(out, MustMarshalAny(pb))
+	}
+	return
 }

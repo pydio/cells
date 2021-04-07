@@ -22,7 +22,7 @@ package grpc
 
 import (
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/protobuf/ptypes"
+	"github.com/pydio/cells/common/proto/object"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -36,9 +36,32 @@ import (
 func getDefaultJobs() []*jobs.Job {
 
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
-	searchQuery, _ := ptypes.MarshalAny(&tree.Query{
-		Type: tree.NodeType_LEAF,
-	})
+
+	triggerCreate := &jobs.TriggerFilter{
+		Label:       "Create/Update",
+		Description: "Trigger on file creation or modification",
+		Query: &service.Query{SubQueries: []*any.Any{
+			jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
+				EventNames: []string{
+					jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
+					jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
+				},
+			}),
+		}},
+	}
+
+	triggerPrune := &jobs.TriggerFilter{
+		Label:       "Prune",
+		Description: "Schedule-based pruning",
+		Query: &service.Query{
+			SubQueries: jobs.MustMarshalAnyMultiple(&jobs.TriggerFilterQuery{
+				IsSchedule: true,
+			}, &jobs.TriggerFilterQuery{
+				IsManual: true,
+			}),
+			Operation: service.OperationType_OR,
+		},
+	}
 
 	return []*jobs.Job{
 		{
@@ -52,30 +75,54 @@ func getDefaultJobs() []*jobs.Job {
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
 			},
+			Schedule: &jobs.Schedule{
+				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
+			},
+			DataSourceFilter: &jobs.DataSourceSelector{
+				Label:       "Versioned?",
+				Description: "Excluded non versioned datasources",
+				Type:        jobs.DataSourceSelectorType_DataSource,
+				Query: &service.Query{
+					SubQueries: []*any.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
+						IsVersioned: true,
+					})},
+				},
+			},
 			Actions: []*jobs.Action{
 				{
 					ID: "actions.versioning.create",
 					NodesFilter: &jobs.NodesSelector{
 						Query: &service.Query{
-							SubQueries: []*any.Any{searchQuery},
+							SubQueries: []*any.Any{
+								jobs.MustMarshalAny(&tree.Query{
+									Type: tree.NodeType_LEAF,
+								}),
+							},
 						},
 					},
+					TriggerFilter: triggerCreate,
+				},
+				{
+					ID:            "actions.versioning.prune",
+					TriggerFilter: triggerPrune,
 				},
 			},
 		},
-		{
-			ID:             "prune-versions-job",
-			Owner:          common.PydioSystemUsername,
-			Label:          T("Job.Pruning.Title"),
-			Inactive:       false,
-			MaxConcurrency: 1,
-			Schedule: &jobs.Schedule{
-				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
+		/*
+			{
+				ID:             "prune-versions-job",
+				Owner:          common.PydioSystemUsername,
+				Label:          T("Job.Pruning.Title"),
+				Inactive:       true,
+				MaxConcurrency: 1,
+				Schedule: &jobs.Schedule{
+					Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
+				},
+				Actions: []*jobs.Action{{
+					ID: "actions.versioning.prune",
+				}},
 			},
-			Actions: []*jobs.Action{{
-				ID: "actions.versioning.prune",
-			}},
-		},
+		*/
 	}
 
 }

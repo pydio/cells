@@ -39,6 +39,9 @@ func (this *DataSourceEvent) Validate() error {
 	}
 	return nil
 }
+func (this *DataSourceSingleQuery) Validate() error {
+	return nil
+}
 func (this *GetMinioConfigRequest) Validate() error {
 	return nil
 }

@@ -136,6 +136,30 @@ message DataSourceEvent {
     DataSource Config = 3;
 }
 
+enum StorageTypeFilter {
+    ANY = 0;
+    LOCALFS = 1;
+    REMOTE = 2;
+}
+
+message DataSourceSingleQuery {
+    string Name = 1;
+    bool IsDisabled = 2;
+    StorageTypeFilter StorageType = 3;
+    string PeerAddress = 4;
+    bool FlatStorage = 5;
+    bool SkipSyncOnRestart = 6;
+    bool IsVersioned = 9;
+    bool IsEncrypted = 17;
+    EncryptionMode EncryptionMode = 7;
+    string EncryptionKey = 8;
+    string VersioningPolicyName = 10;
+    string StorageConfigurationName = 13;
+    string StorageConfigurationValue = 14;
+    string ObjectServiceName = 15;
+    bool Not = 16;
+}
+
 message GetMinioConfigRequest {}
 
 message GetMinioConfigResponse {

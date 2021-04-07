@@ -71,6 +71,9 @@ func (a *Action) getSelectors() []InputSelector {
 	if a.UsersSelector != nil {
 		selectors = append(selectors, a.UsersSelector)
 	}
+	if a.DataSourceSelector != nil {
+		selectors = append(selectors, a.DataSourceSelector)
+	}
 	return selectors
 }
 
@@ -91,6 +94,12 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output 
 	}
 	if a.ContextMetaFilter != nil {
 		output, passThrough = a.ContextMetaFilter.Filter(ctx, output)
+	}
+	if a.DataSourceSelector != nil {
+		output, excluded, passThrough = a.DataSourceSelector.Filter(ctx, output)
+	}
+	if a.TriggerFilter != nil {
+		output, excluded, passThrough = a.TriggerFilter.Filter(ctx, output)
 	}
 	return
 }

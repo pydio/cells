@@ -13,6 +13,7 @@ It has these top-level messages:
 	DataSource
 	MinioConfig
 	DataSourceEvent
+	DataSourceSingleQuery
 	GetMinioConfigRequest
 	GetMinioConfigResponse
 	StorageStatsRequest

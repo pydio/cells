@@ -32,16 +32,19 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/go-micro/server"
-	context2 "github.com/pydio/cells/common/utils/context"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/cache"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -320,7 +323,22 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		}
 		sameJobUuid := s.contextJobSameUuid(ctx, jobId)
 		tCtx := s.prepareTaskContext(ctx, jobData, false)
-
+		var eventMatch string
+		for _, eName := range jobData.EventNames {
+			if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
+				if event.Type == eType {
+					if sameJobUuid {
+						log.Logger(tCtx).Debug("Preventing loop for job " + jobData.Label + " on event " + eName)
+						continue
+					}
+					eventMatch = eName
+					break
+				}
+			}
+		}
+		if eventMatch == "" {
+			continue
+		}
 		if jobData.ContextMetaFilter != nil && !s.jobLevelContextFilterPass(tCtx, jobData.ContextMetaFilter) {
 			continue
 		}
@@ -330,19 +348,13 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 		if jobData.IdmFilter != nil && !s.jobLevelIdmFilterPass(tCtx, createMessageFromEvent(event), jobData.IdmFilter) {
 			continue
 		}
-		for _, eName := range jobData.EventNames {
-			if eType, ok := jobs.ParseNodeChangeEventName(eName); ok {
-				if event.Type == eType {
-					if sameJobUuid {
-						log.Logger(tCtx).Debug("Preventing loop for job " + jobData.Label + " on event " + eName)
-						continue
-					}
-					log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
-					task := NewTaskFromEvent(tCtx, jobData, event)
-					go task.EnqueueRunnables(s.Client, s.MainQueue)
-				}
-			}
+		if jobData.DataSourceFilter != nil && !s.jobLevelDataSourceFilterPass(ctx, event, jobData.DataSourceFilter) {
+			continue
 		}
+
+		log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eventMatch)
+		task := NewTaskFromEvent(tCtx, jobData, event)
+		go task.EnqueueRunnables(s.Client, s.MainQueue)
 	}
 
 }
@@ -380,7 +392,7 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 	return nil
 }
 
-// Check if a node must go through jobs at all (if there is a NodesSelector at the job level)
+// jobLevelFilterPass checks if a node must go through jobs at all (if there is a NodesSelector at the job level)
 func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeChangeEvent, filter *jobs.NodesSelector) bool {
 	var refNode *tree.Node
 	if event.Target != nil {
@@ -396,16 +408,39 @@ func (s *Subscriber) jobLevelFilterPass(ctx context.Context, event *tree.NodeCha
 	return pass
 }
 
-// Test filter and return false if all input IDM slots are empty
+// jobLevelIdmFilterPass tests filter and return false if all input IDM slots are empty
 func (s *Subscriber) jobLevelIdmFilterPass(ctx context.Context, input jobs.ActionMessage, filter *jobs.IdmSelector) bool {
 	_, _, pass := filter.Filter(ctx, input)
 	return pass
 }
 
-// Test filter and return false if context is filtered out
+// jobLevelContextFilterPass tests filter and return false if context is filtered out
 func (s *Subscriber) jobLevelContextFilterPass(ctx context.Context, filter *jobs.ContextMetaFilter) bool {
 	_, pass := filter.Filter(ctx, jobs.ActionMessage{})
 	return pass
+}
+
+// jobLevelDataSourceFilterPass tests filter and return false if datasource is filtered out
+func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tree.NodeChangeEvent, filter *jobs.DataSourceSelector) bool {
+	var refNode *tree.Node
+	if event.Target != nil {
+		refNode = event.Target
+	} else if event.Source != nil {
+		refNode = event.Source
+	}
+	if refNode == nil {
+		return true // Ignore
+	}
+	if dsName := refNode.GetStringMeta(common.MetaNamespaceDatasourceName); dsName != "" {
+		if ds, e := config.GetSourceInfoByName(dsName); e == nil {
+			_, _, pass := filter.Filter(ctx, jobs.ActionMessage{DataSources: []*object.DataSource{ds}})
+			log.Logger(ctx).Debug("Filtering on node datasource (from node meta)", zap.Bool("pass", pass))
+			return pass
+		}
+	} else {
+		log.Logger(ctx).Warn("There is a datasource filter but datasource name is not provided")
+	}
+	return true
 }
 
 // contextJobSameUuid checks if JobUuid can already be found in context and detects if it is the same

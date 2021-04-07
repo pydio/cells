@@ -4883,6 +4883,14 @@ var SwaggerJson = `{
           "$ref": "#/definitions/jobsIdmSelector",
           "title": "Idm objects filter"
         },
+        "DataSourceSelector": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects collector"
+        },
+        "DataSourceFilter": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects filter"
+        },
         "ActionOutputFilter": {
           "$ref": "#/definitions/jobsActionOutputFilter",
           "title": "Previous action output filter"
@@ -4890,6 +4898,10 @@ var SwaggerJson = `{
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Metadata policy-based filter"
+        },
+        "TriggerFilter": {
+          "$ref": "#/definitions/jobsTriggerFilter",
+          "title": "Filter on specific triggers"
         },
         "Parameters": {
           "type": "object",
@@ -4976,6 +4988,13 @@ var SwaggerJson = `{
             "$ref": "#/definitions/activityObject"
           },
           "title": "One or more Activity"
+        },
+        "DataSources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/objectDataSource"
+          },
+          "title": "One or more DataSource"
         },
         "OutputChain": {
           "type": "array",
@@ -5125,6 +5144,46 @@ var SwaggerJson = `{
         }
       },
       "title": "Response to the CtrlCommand"
+    },
+    "jobsDataSourceSelector": {
+      "type": "object",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
+        },
+        "Type": {
+          "$ref": "#/definitions/jobsDataSourceSelectorType",
+          "title": "Selector type, either DataSource or Object service"
+        },
+        "All": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Select all"
+        },
+        "Collect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Collect results"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Composition of DataSourceSingleQueries"
+        }
+      },
+      "title": "Selector/Filter for DataSource objects"
+    },
+    "jobsDataSourceSelectorType": {
+      "type": "string",
+      "enum": [
+        "DataSource",
+        "Object"
+      ],
+      "default": "DataSource"
     },
     "jobsDeleteTasksRequest": {
       "type": "object",
@@ -5300,6 +5359,10 @@ var SwaggerJson = `{
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Event Context Filter"
+        },
+        "DataSourceFilter": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects filter"
         },
         "Parameters": {
           "type": "array",
@@ -5498,6 +5561,24 @@ var SwaggerJson = `{
       ],
       "default": "Unknown",
       "title": "/////////////////\nTASK SERVICE  //\n/////////////////"
+    },
+    "jobsTriggerFilter": {
+      "type": "object",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Filter custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Filter additional description"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Filter type"
+        }
+      },
+      "title": "Filter for events, can be applied on action branches"
     },
     "jobsUsersSelector": {
       "type": "object",
@@ -7856,6 +7937,10 @@ var SwaggerJson = `{
         "Event": {
           "$ref": "#/definitions/treeNodeChangeEvent",
           "title": "Event that triggered this change"
+        },
+        "Location": {
+          "$ref": "#/definitions/treeNode",
+          "title": "Actual location of the stored version"
         }
       }
     },
