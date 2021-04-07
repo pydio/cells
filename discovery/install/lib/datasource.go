@@ -64,7 +64,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 
 	// Store keys
-	sources := []string{conf.Name, "personal", "cellsdata"}
+	sources := []string{conf.Name, "personal", "cellsdata", "versions"}
 	config.Set(sources, "services", "pydio.grpc.data.index", "sources")
 	config.Set(sources, "services", "pydio.grpc.data.sync", "sources")
 	s3buckets := make(map[string]string, len(sources))
@@ -73,10 +73,12 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		s3buckets[conf.Name] = conf.Name
 		s3buckets["personal"] = "personal"
 		s3buckets["cellsdata"] = "cellsdata"
+		s3buckets["versions"] = "versions"
 	} else {
 		s3buckets[conf.Name] = c.GetDsS3BucketDefault()
 		s3buckets["personal"] = c.GetDsS3BucketPersonal()
 		s3buckets["cellsdata"] = c.GetDsS3BucketCells()
+		s3buckets["versions"] = c.GetDsS3BucketVersions()
 	}
 
 	for _, source := range sources {
@@ -92,6 +94,9 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
+		if source == "versions" {
+			sourceConf.FlatStorage = true
+		}
 		sourceConf.ObjectsBucket = s3buckets[source]
 		if storageFolder != "" {
 			sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
@@ -110,8 +115,12 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	if conf.StorageType == object.StorageType_S3 {
 		config.Set(c.GetDsS3BucketBinaries(), "services", "pydio.docstore-binaries", "bucket")
 		config.Set(c.GetDsS3BucketThumbs(), "services", "pydio.thumbs_store", "bucket")
-		config.Set(c.GetDsS3BucketVersions(), "services", "pydio.versions-store", "bucket")
 	}
+	vStoreConf := map[string]string{
+		"datasource": "versions",
+		"bucket":     s3buckets["versions"],
+	}
+	config.Set(vStoreConf, "services", "pydio.versions-store")
 
 	config.Save("cli", "Install / Setting default DataSources")
 
