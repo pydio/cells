@@ -278,6 +278,43 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
 		case "jobs.TriggerFilterQuery":
 			form = protos.GenerateProtoToForm("triggerFilterQuery", &jobs.TriggerFilterQuery{}, asSwitch)
+			eventsField := &forms.FormField{
+				Type: forms.ParamSelect,
+				ChoicePresetList: []map[string]string{
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE): "Create Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_READ): "Read Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE): "Delete Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_PATH): "Move Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT): "Content Updated"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_META): "Meta Updated"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_USER_META): "User Meta Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_CREATE): "User Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_DELETE): "User Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_LOGIN): "User Logs In"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_LOGOUT): "User Logs Out"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_UPDATE): "User Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_READ): "User Accessed"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Role, idm.ChangeEventType_CREATE): "Role Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Role, idm.ChangeEventType_DELETE): "Role Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Role, idm.ChangeEventType_UPDATE): "Role Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Workspace, idm.ChangeEventType_CREATE): "Workspace Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Workspace, idm.ChangeEventType_DELETE): "Workspace Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Workspace, idm.ChangeEventType_UPDATE): "Workspace Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Acl, idm.ChangeEventType_CREATE): "Acl Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Acl, idm.ChangeEventType_DELETE): "Acl Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Acl, idm.ChangeEventType_UPDATE): "Acl Updated"},
+				},
+			}
+			if asSwitch {
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				for _, f := range sw.Values {
+					if f.Name == "EventNames" {
+						eventsField.Label = f.Label
+						replicable := f.Fields[0].(*forms.ReplicableFields)
+						replicable.Fields = []forms.Field{eventsField}
+					}
+				}
+			}
 		case "object.DataSourceSingleQuery":
 			form = protos.GenerateProtoToForm("dataSourceSingleQuery", &object.DataSourceSingleQuery{}, asSwitch)
 		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
