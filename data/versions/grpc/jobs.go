@@ -40,26 +40,25 @@ func getDefaultJobs() []*jobs.Job {
 	triggerCreate := &jobs.TriggerFilter{
 		Label:       "Create/Update",
 		Description: "Trigger on file creation or modification",
-		Query: &service.Query{SubQueries: []*any.Any{
-			jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
+		Query: &service.Query{
+			SubQueries: jobs.MustMarshalAnyMultiple(&jobs.TriggerFilterQuery{
 				EventNames: []string{
 					jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 					jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
 				},
 			}),
-		}},
+		},
 	}
 
-	triggerPrune := &jobs.TriggerFilter{
-		Label:       "Prune",
-		Description: "Schedule-based pruning",
+	triggerDelete := &jobs.TriggerFilter{
+		Label:       "Delete",
+		Description: "Trigger on file deletion",
 		Query: &service.Query{
 			SubQueries: jobs.MustMarshalAnyMultiple(&jobs.TriggerFilterQuery{
-				IsSchedule: true,
-			}, &jobs.TriggerFilterQuery{
-				IsManual: true,
+				EventNames: []string{
+					jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
+				},
 			}),
-			Operation: service.OperationType_OR,
 		},
 	}
 
@@ -74,13 +73,11 @@ func getDefaultJobs() []*jobs.Job {
 			EventNames: []string{
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
-			},
-			Schedule: &jobs.Schedule{
-				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
+				jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
 			},
 			DataSourceFilter: &jobs.DataSourceSelector{
-				Label:       "Versioned?",
-				Description: "Excluded non versioned datasources",
+				Label:       "Is Versioned?",
+				Description: "Excluded non versioned DataSources",
 				Type:        jobs.DataSourceSelectorType_DataSource,
 				Query: &service.Query{
 					SubQueries: []*any.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
@@ -88,41 +85,34 @@ func getDefaultJobs() []*jobs.Job {
 					})},
 				},
 			},
+			NodeEventFilter: &jobs.NodesSelector{
+				Query: &service.Query{
+					SubQueries: jobs.MustMarshalAnyMultiple(
+						&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
+							Type: tree.NodeType_LEAF,
+						})},
+						&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
+							FileName: common.PydioSyncHiddenFile,
+							Not:      true,
+						})},
+					),
+					Operation: service.OperationType_AND,
+				},
+			},
 			Actions: []*jobs.Action{
 				{
-					ID: "actions.versioning.create",
-					NodesFilter: &jobs.NodesSelector{
-						Query: &service.Query{
-							SubQueries: []*any.Any{
-								jobs.MustMarshalAny(&tree.Query{
-									Type: tree.NodeType_LEAF,
-								}),
-							},
-						},
-					},
+					ID:            "actions.versioning.create",
 					TriggerFilter: triggerCreate,
 				},
 				{
-					ID:            "actions.versioning.prune",
-					TriggerFilter: triggerPrune,
+					ID:            "actions.versioning.ondelete",
+					TriggerFilter: triggerDelete,
+					Parameters: map[string]string{
+						"rootFolder": "$DELETED$",
+					},
 				},
 			},
 		},
-		/*
-			{
-				ID:             "prune-versions-job",
-				Owner:          common.PydioSystemUsername,
-				Label:          T("Job.Pruning.Title"),
-				Inactive:       true,
-				MaxConcurrency: 1,
-				Schedule: &jobs.Schedule{
-					Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
-				},
-				Actions: []*jobs.Action{{
-					ID: "actions.versioning.prune",
-				}},
-			},
-		*/
 	}
 
 }

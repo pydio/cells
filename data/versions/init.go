@@ -56,6 +56,10 @@ func init() {
 		return &PruneVersionsAction{}
 	})
 
+	manager.Register(onDeleteVersionsActionName, func() actions.ConcreteAction {
+		return &OnDeleteVersionsAction{}
+	})
+
 }
 
 // PolicyForNode checks datasource name and find corresponding VersioningPolicy (if set). Returns nil otherwise.
