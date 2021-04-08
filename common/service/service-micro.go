@@ -21,8 +21,6 @@
 package service
 
 import (
-	"time"
-
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
@@ -95,6 +93,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			srvOpts = append(srvOpts,
 				server.Id(o.ID),
 				server.Version(o.Version),
+				server.RegisterTTL(DefaultRegisterTTL),
 			)
 
 			srv := defaults.NewServer(srvOpts...)
@@ -102,10 +101,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				//micro.RegisterTTL(10*time.Minute),
-				//micro.RegisterInterval(5*time.Minute),
-				micro.RegisterTTL(2*time.Minute),
-				micro.RegisterInterval(1*time.Minute),
+				micro.RegisterTTL(DefaultRegisterTTL),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)

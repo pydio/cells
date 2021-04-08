@@ -62,6 +62,10 @@ import (
 	"github.com/pydio/cells/x/configx"
 )
 
+var (
+	DefaultRegisterTTL = 30 * time.Second
+)
+
 // Service definition
 type Service interface {
 	registry.Service
@@ -78,6 +82,7 @@ func buildForkStartParams(name string) []string {
 		"--config", viper.GetString("config"),
 		"--registry", viper.GetString("registry"),
 		"--broker", viper.GetString("broker"),
+		"--nats_streaming_store", viper.GetString("nats_streaming_store"),
 		"--nats_address", viper.GetString("nats_address"),
 		"--nats_cluster_address", viper.GetString("nats_cluster_address"),
 		"--nats_cluster_routes", viper.GetString("nats_cluster_routes"),
@@ -365,6 +370,8 @@ var mandatoryOptions = []ServiceOption{
 						return nil
 					}
 				}
+
+				log.Logger(ctx).Debug(	"BeforeStart - Check dependency retry", zap.String("service", d.Name))
 
 				return fmt.Errorf("dependency %s not found", d.Name)
 			}, 50*time.Millisecond, 20*time.Minute) // This is long for distributed setup
@@ -842,3 +849,13 @@ func (s *service) getContext() context.Context {
 
 // RestHandlerBuilder builds a RestHandler
 type RestHandlerBuilder func(service web.Service, defaultClient client.Client) interface{}
+
+// randomTimeout returns a value that is between the minVal and 2x minVal.
+func randomTimeout(minVal time.Duration) time.Duration {
+	return minVal
+	//if minVal == 0 {
+	//	return minVal
+	//}
+	//extra := time.Duration(rand.Int63()) % minVal
+	//return minVal + extra
+}

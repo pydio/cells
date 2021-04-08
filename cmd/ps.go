@@ -22,7 +22,7 @@ package cmd
 
 import (
 	"fmt"
-	"net"
+	//"net"
 	"os"
 	"regexp"
 	"text/tabwriter"
@@ -116,16 +116,21 @@ EXAMPLE
 
 		// If we have an error (registry not running) the running list simply is empty
 		services, _ := defaults.Registry().ListServices()
+
 		for _, srv := range services {
 			// Initially, we retrieve each service to ensure we have the correct list
-			for _, n := range srv.Nodes {
-				_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
-				if err != nil {
-					continue
-				}
+			fmt.Println("In ps ", srv.Nodes)
+			// for _, n := range srv.Nodes {
+				//_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
+				//if err != nil {
+				//
+				//	continue
+				//}
 				runningServices = append(runningServices, srv.Name)
-			}
+			// }
 		}
+
+		fmt.Println("We have in ps ", runningServices)
 
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
@@ -218,6 +223,8 @@ func init() {
 	psCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
 	psCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
 
+	addNatsFlags(psCmd.Flags())
+	addNatsStreamingFlags(psCmd.Flags())
 	addRegistryFlags(psCmd.Flags())
 
 	RootCmd.AddCommand(psCmd)

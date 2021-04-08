@@ -21,7 +21,9 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	defaults "github.com/pydio/cells/common/micro"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -271,11 +273,27 @@ ENVIRONMENT
 		}
 
 		// When the process is stopped the context is stopped
-		select {
-		case err := <-nats.Monitor():
-			return err
-		case <-cmd.Context().Done():
-			return nil
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case err := <-nats.Monitor():
+				return err
+			case <-ticker.C:
+				if defaults.RuntimeIsFork() {
+					// Check that the parent is still alive
+					ppid := fmt.Sprintf("%d", os.Getppid())
+					_, ok := registry.GetProcesses()[ppid]
+					if !ok {
+						fmt.Println("HERE WE GO")
+						return errors.New("parent process died")
+					}
+				}
+				continue
+			case <-cmd.Context().Done():
+				return nil
+			}
 		}
 	},
 

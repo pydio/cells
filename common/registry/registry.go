@@ -85,6 +85,8 @@ type pydioregistry struct {
 
 	opts  Options
 	flags pflag.FlagSet
+
+	results chan *registry.Result
 }
 
 // Init the default registry
