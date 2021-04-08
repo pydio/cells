@@ -432,6 +432,6 @@
     "other": "Manual Trigger"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events-based"
+    "other": "Events"
   }
 }

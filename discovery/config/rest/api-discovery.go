@@ -279,6 +279,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 		case "jobs.TriggerFilterQuery":
 			form = protos.GenerateProtoToForm("triggerFilterQuery", &jobs.TriggerFilterQuery{}, asSwitch)
 			eventsField := &forms.FormField{
+				Name: "EventNames",
 				Type: forms.ParamSelect,
 				ChoicePresetList: []map[string]string{
 					{jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE): "Create Node"},
@@ -312,6 +313,14 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 						eventsField.Label = f.Label
 						replicable := f.Fields[0].(*forms.ReplicableFields)
 						replicable.Fields = []forms.Field{eventsField}
+					}
+				}
+			} else {
+				for _, f := range form.Groups[0].Fields {
+					if field, ok := f.(*forms.ReplicableFields); ok && field.Id == "EventNames" {
+						eventsField.Label = field.Fields[0].(*forms.FormField).Label
+						eventsField.Description = field.Fields[0].(*forms.FormField).Description
+						field.Fields = []forms.Field{eventsField}
 					}
 				}
 			}

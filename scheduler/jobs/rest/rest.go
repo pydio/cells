@@ -94,6 +94,9 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		request.Owner = uName
 	}
 
+	var hasRunning []string
+	loadedJobs := make(map[string]*jobs.Job)
+
 	streamer, err := cli.ListJobs(ctx, &request)
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
@@ -110,7 +113,36 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		}
 		j := resp.GetJob()
 		j.Label = T(j.Label)
+		if request.TasksLimit == 1 && len(j.Tasks) > 0 && j.Tasks[0].Status == jobs.TaskStatus_Running {
+			hasRunning = append(hasRunning, j.ID)
+		}
 		output.Jobs = append(output.Jobs, j)
+		loadedJobs[j.ID] = j
+	}
+
+	// For request.TasksLimit == 1, reload all running tasks to display a correct count
+	if len(hasRunning) > 0 {
+		stream2, err := cli.ListJobs(ctx, &jobs.ListJobsRequest{
+			Owner:      request.Owner,
+			EventsOnly: request.EventsOnly,
+			TimersOnly: request.TimersOnly,
+			LoadTasks:  jobs.TaskStatus_Running,
+			JobIDs:     hasRunning,
+		})
+		if err == nil {
+			defer stream2.Close()
+			for {
+				resp, e := stream2.Recv()
+				if e != nil {
+					break
+				}
+				if resp == nil {
+					continue
+				}
+				// Update running tasks
+				loadedJobs[resp.Job.ID].Tasks = resp.Job.Tasks
+			}
+		}
 	}
 	rsp.WriteEntity(output)
 }
