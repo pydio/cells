@@ -116,6 +116,15 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 
 func (v *PathDataSourceHandler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
+	// Reload DS info - may be necessary for outputFiltering case
+	if branchInfo, ok := GetBranchInfo(ctx, identifier); (!ok || branchInfo.Name == "") && node.GetStringMeta(common.MetaNamespaceDatasourceName) != "" {
+		dsName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
+		if source, err := v.clientsPool.GetDataSourceInfo(dsName); err == nil {
+			branchInfo.LoadedSource = source
+			ctx = WithBranchInfo(ctx, identifier, branchInfo)
+		}
+	}
+
 	if branchInfo, ok := GetBranchInfo(ctx, identifier); ok && branchInfo.LoadedSource.Name != "" && branchInfo.LoadedSource.ObjectsBucket == "" {
 		sLen := len(strings.Split(strings.Trim(node.Path, "/"), "/"))
 		if sLen == 1 {
