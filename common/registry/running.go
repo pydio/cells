@@ -145,6 +145,25 @@ func (c *pydioregistry) maintainRunningServicesList() {
 						})
 					}
 					c.registerProcessFromNode(n, s.Name)
+
+					// We check the service has just been started
+					ss, err := defaults.Registry().GetService(s.Name)
+					if err != nil || len(ss) == 0 {
+						// Hmm, we shouldn't be here
+						continue
+					}
+
+					// We check the service has just been stopped
+					if len(ss[0].Nodes) == 1 {
+						s, ok := c.register[ss[0].Name]
+						if !ok {
+							s = NewMockFromMicroService(ss[0])
+						}
+						send(&Result{
+							Action: "started",
+							Service: s,
+						})
+					}
 				}
 			case "delete":
 				for _, n := range s.Nodes {
@@ -158,6 +177,24 @@ func (c *pydioregistry) maintainRunningServicesList() {
 						})
 					}
 					c.deregisterProcessFromNode(n, s.Name)
+
+					ss, err := defaults.Registry().GetService(s.Name)
+					if err != nil || len(ss) == 0 {
+						// Hmm, we shouldn't be here
+						continue
+					}
+
+					// We check the service has just been stopped
+					if len(ss[0].Nodes) == 0 {
+						s, ok := c.register[ss[0].Name]
+						if !ok {
+							s = NewMockFromMicroService(ss[0])
+						}
+						send(&Result{
+							Action: "stopped",
+							Service: s,
+						})
+					}
 				}
 			}
 		}
