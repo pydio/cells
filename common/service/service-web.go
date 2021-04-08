@@ -26,8 +26,6 @@ import (
 	"reflect"
 	"strings"
 	"sync"
-	"time"
-
 	// json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
@@ -98,6 +96,7 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 			srv := defaults.NewHTTPServer(
 				server.Name(name),
 				server.Id(o.ID),
+				server.RegisterTTL(DefaultRegisterTTL),
 			)
 
 			svc.Init(
@@ -105,10 +104,8 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Version(o.Version),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				//micro.RegisterTTL(10*time.Minute),
-				//micro.RegisterInterval(5*time.Minute),
-				micro.RegisterTTL(2*time.Minute),
-				micro.RegisterInterval(1*time.Minute),
+				micro.RegisterTTL(DefaultRegisterTTL),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")

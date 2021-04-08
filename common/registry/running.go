@@ -110,22 +110,22 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		}
 	}()
 
-	go func() {
-		for {
-			services, err := defaults.Registry().ListServices()
-			if err != nil {
-				return
-			}
-			for _, srv := range services {
-				results <- &registry.Result{
-					Action:  "create",
-					Service: srv,
-				}
-			}
-
-			time.Sleep(5 * time.Minute)
-		}
-	}()
+	//go func() {
+	//	for {
+	//		services, err := defaults.Registry().ListServices()
+	//		if err != nil {
+	//			return
+	//		}
+	//		for _, srv := range services {
+	//			results <- &registry.Result{
+	//				Action:  "create",
+	//				Service: srv,
+	//			}
+	//		}
+	//
+	//		time.Sleep(1 * time.Minute)
+	//	}
+	//}()
 
 	go func() {
 		for res := range results {

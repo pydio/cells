@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pydio/cells/common/service"
 	"strings"
 	"sync"
 	"time"
@@ -49,7 +50,6 @@ const (
 
 type PeerEvent struct {
 	Service *registry.Service
-	TTL     time.Duration
 	Type    PeerEventType
 }
 
@@ -130,7 +130,7 @@ func (n *stanRegistry) newConn() (stan.Conn, error) {
 		}
 
 		msgCh <- ev
-	}, stan.DeliverAllAvailable())
+	}, stan.StartAtTimeDelta(service.DefaultRegisterTTL))
 
 	go func() {
 		for {
@@ -191,6 +191,12 @@ func (n *stanRegistry) Register(s *registry.Service, opts ...registry.RegisterOp
 	n.Lock()
 	defer n.Unlock()
 
+	// Adding time as a string metadata for the nodes
+	for _, node := range s.Nodes {
+		data, _ := time.Now().Add(o.TTL).MarshalText()
+		node.Metadata["expiry"] = string(data)
+	}
+
 	data, err := json.Marshal(&PeerEvent{
 		Service: s,
 		Type:    PeerEventType_REGISTER,
@@ -235,7 +241,6 @@ func (n *stanRegistry) Deregister(s *registry.Service) error {
 }
 
 func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
-
 	n.servicesLock.RLock()
 	servicesMap := n.services[s]
 	n.servicesLock.RUnlock()
@@ -243,20 +248,93 @@ func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
 	var services []*registry.Service
 	for _, service := range servicesMap {
 		if service.Name == s {
+			// Check expiry
+			nodes, _ := checkExpiredNodes(service)
+
+			if len(nodes) == 0 {
+				continue
+			}
+
+			service.Nodes = nodes
 			services = append(services, service)
 		}
 	}
 	return services, nil
 }
 
+func checkExpiredNodes(service *registry.Service) (valid []*registry.Node, expired []*registry.Node) {
+	for _, node := range service.Nodes {
+		t := new(time.Time)
+
+		err := t.UnmarshalText([]byte(node.Metadata["expiry"]))
+		if err != nil || t.After(time.Now()) {
+			// If we can't read the expiry or the expiry is not reached, then we consider it as valid
+			valid = append(valid, node)
+		} else {
+			expired = append(expired, node)
+		}
+	}
+
+	if len(expired) > 0 {
+		for _, node := range expired {
+			// Sending messages to the watchers that this has been canned
+
+
+			fmt.Println("The expired node is ? ", service.Name, node.Id, node.Metadata["expiry"])
+		}
+	}
+
+	return
+}
+
 func (n *stanRegistry) ListServices() ([]*registry.Service, error) {
+	conn, err := n.getConn()
+	if err != nil {
+		return nil, err
+	}
+
+
 	n.servicesLock.RLock()
 	servicesMap := n.services
 	n.servicesLock.RUnlock()
 
 	var services []*registry.Service
 	for _, v := range servicesMap {
-		services = append(services, v...)
+		for _, service := range v {
+			// Check expiry
+			name := service.Name
+
+			nodes, expired := checkExpiredNodes(service)
+
+			if len(expired) > 0 {
+				expiredService := new(registry.Service)
+				*expiredService = *service
+				expiredService.Name = name
+				expiredService.Nodes = expired
+
+				data, err := json.Marshal(&PeerEvent{
+					Service: expiredService,
+					Type:    PeerEventType_DEREGISTER,
+				})
+
+				if err != nil {
+					return nil, err
+				}
+
+				// Sending a log to make everybody aware
+				if err := conn.Publish(defaultPeerTopic, data); err != nil {
+					return nil, err
+				}
+			}
+
+			if len(nodes) == 0 {
+				continue
+			}
+
+			service.Nodes = nodes
+
+			services = append(services, service)
+		}
 	}
 
 	return services, nil
