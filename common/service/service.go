@@ -33,6 +33,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"math/rand"
 	"net"
 	"os"
 	"os/exec"
@@ -63,7 +64,7 @@ import (
 )
 
 var (
-	DefaultRegisterTTL = 30 * time.Second
+	DefaultRegisterTTL = 2 * time.Minute
 )
 
 // Service definition
@@ -852,10 +853,10 @@ type RestHandlerBuilder func(service web.Service, defaultClient client.Client) i
 
 // randomTimeout returns a value that is between the minVal and 2x minVal.
 func randomTimeout(minVal time.Duration) time.Duration {
-	return minVal
-	//if minVal == 0 {
-	//	return minVal
-	//}
-	//extra := time.Duration(rand.Int63()) % minVal
-	//return minVal + extra
+	//return minVal
+	if minVal == 0 {
+		return minVal
+	}
+	extra := time.Duration(rand.Int63()) % minVal
+	return minVal + extra
 }

@@ -133,9 +133,9 @@ func send(res *Result) {
 }
 
 func newWatcher() Watcher {
-	if !watching {
-		go watch()
-	}
+	//if !watching {
+	//	go watch()
+	//}
 
 	c := make(chan *Result, 1)
 	s := make(chan bool)

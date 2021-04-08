@@ -195,6 +195,8 @@ func initConfig() {
 		defaultConfig = config.New(
 			remote.New("config"),
 		)
+
+		time.Sleep(3 * time.Second)
 	default:
 		source := file.NewSource(
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
