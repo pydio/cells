@@ -24,7 +24,7 @@ import createReactClass from 'create-react-class'
 import HistoryApi from './HistoryApi'
 import PathUtils from 'pydio/util/path'
 import ReactMarkdown from 'react-markdown';
-import {Toolbar, ToolbarGroup, Divider, IconButton} from 'material-ui'
+import {Toolbar, Paper, ToolbarGroup, FlatButton, IconButton, FontIcon} from 'material-ui'
 const Node = require('pydio/model/node');
 const PydioReactUi = Pydio.requireLib('boot');
 const {UserAvatar, NodeListCustomProvider, SimpleList} = Pydio.requireLib('components');
@@ -38,7 +38,7 @@ const UserLinkWrapper = ({href, children}) => {
                 userId={userId}
                 displayAvatar={false}
                 richOnClick={false}
-                style={{cursor:'pointer', display:'inline-block', color: 'rgb(66, 140, 179)'}}
+                style={{display:'inline-block', fontWeight: 500}}
                 pydio={Pydio.getInstance()}
             />)
     }
@@ -48,14 +48,14 @@ const UserLinkWrapper = ({href, children}) => {
 const Paragraph = ({children}) => <span>{children}</span>;
 
 
-let HistoryBrowser = createReactClass({
+class HistoryBrowser extends React.Component{
 
-    propTypes: {
-        node: PropTypes.instanceOf(Node).isRequired,
-        onRequestClose: PropTypes.func
-    },
+    constructor(props) {
+        super(props);
+        this.state = this.propsToState(props.node);
+    }
 
-    propsToState: function(node){
+    propsToState(node){
         if(this.state && this.state.api) {
             this.state.api.stopObserving('selection_changed');
         }
@@ -69,23 +69,20 @@ let HistoryBrowser = createReactClass({
         }.bind(this);
         api.getDataModel().observe('selection_changed', this._selectionObserver);
         return {api: api};
-    },
+    }
 
-    getInitialState: function(){
-        return this.propsToState(this.props.node);
-    },
 
-    componentWillReceiveProps: function(nextProps){
+    componentWillReceiveProps(nextProps){
         if(nextProps.node !== this.props.node){
             this.setState(this.propsToState(nextProps.node));
         }
-    },
+    }
 
-    nodeClicked: function(node){
+    nodeClicked(node){
         this.state.api.getDataModel().setSelectedNodes([node]);
-    },
+    }
 
-    applyAction: function(action){
+    applyAction(action){
         const {api, selectedNode} = this.state;
         switch(action){
             case 'dl':
@@ -101,44 +98,45 @@ let HistoryBrowser = createReactClass({
             default:
                 break;
         }
-    },
+    }
 
-    render: function(){
+    render(){
 
         const mess = window.pydio.MessageHash;
         const tableKeys = {
             index: {label: mess['meta.versions.9'], sortType: 'string', width: '10%', renderCell:data=>{
-                    return "#" + data.getMetadata().get('versionId').substr(0, 6);
+                return "#" + data.getMetadata().get('versionId').substr(0, 6);
             }},
             Size:{label: mess['2'], sortType: 'number', width: '10%', renderCell:data=>{
-                    const s = parseInt(data.getMetadata().get('bytesize'));
-                    return PathUtils.roundFileSize(s);
+                const s = parseInt(data.getMetadata().get('bytesize'));
+                return PathUtils.roundFileSize(s);
             }},
             ajxp_modiftime: {label: mess['meta.versions.10'], sortType: 'string', width: '25%'},
             versionDescription: {label: mess['meta.versions.11'], sortType: 'string', width: '55%', renderCell: data => {
-                    return <span title={mess['meta.versions.11']}><ReactMarkdown source={data.getMetadata().get('versionDescription')} renderers={{'link': UserLinkWrapper, 'paragraph':Paragraph}}/></span>
+                return (
+                    <ReactMarkdown source={data.getMetadata().get('versionDescription')} renderers={{'link': UserLinkWrapper, 'paragraph':Paragraph}}/>
+                );
             }},
         };
 
+        const css = `
+        .version-history .material-list-line-1 {
+            line-height: 13px !important;
+        }
+        `;
         let disabled = !this.state.selectedNode;
         return (
-            <div style={{display:'flex', flexDirection:'column'}}>
-                <Toolbar>
-                    <ToolbarGroup firstChild={true}>
-                        <div style={{paddingLeft:20, color: 'white', fontSize: 18}}>{mess['meta.versions.16'].replace('%s', this.props.node.getLabel())}</div>
-                    </ToolbarGroup>
-                    <ToolbarGroup lastChild={true} style={{paddingRight: 7}}>
-                        <IconButton iconClassName={"mdi mdi-download"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.3']} tooltip={mess['meta.versions.4']} onClick={this.applyAction.bind(this, 'dl')}/>
-                        <IconButton iconClassName={"mdi mdi-backup-restore"} tooltipPosition={"bottom-left"} iconStyle={disabled?{}:{color:'white'}} disabled={disabled} label={mess['meta.versions.7']} tooltip={mess['meta.versions.8']} onClick={this.applyAction.bind(this, 'revert')}/>
-                    </ToolbarGroup>
-                </Toolbar>
+            <div style={{display:'flex', flexDirection:'column', color:'rgba(0,0,0,.67)'}} className={"version-history"}>
+                <Paper zDepth={1} rounded={false} style={{width:'100%', height:56, position:'absolute', zIndex: 1, backgroundColor:'rgb(19, 78, 108)', color:'white'}}>
+                    <div style={{padding:18, fontSize: 18}}>{mess['meta.versions.16'].replace('%s', this.props.node.getLabel())}</div>
+                </Paper>
                 <NodeListCustomProvider
-                    style={{flex:1}}
+                    style={{flex:1, marginTop: 56}}
                     presetDataModel={this.state.api.getDataModel()}
                     actionBarGroups={[]}
                     elementHeight={SimpleList.HEIGHT_ONE_LINE}
                     tableKeys={tableKeys}
-                    entryHandleClicks={this.nodeClicked}
+                    entryHandleClicks={this.nodeClicked.bind(this)}
                     emptyStateProps={{
                         iconClassName: "mdi mdi-backup-restore",
                         primaryTextId: "meta.versions.14",
@@ -150,13 +148,17 @@ let HistoryBrowser = createReactClass({
                     }}
 
                 />
-                <Divider/>
+                <div style={{position:'absolute', bottom: 8, left: 8}}>
+                    <FlatButton icon={<FontIcon className={"mdi mdi-download"}/>} secondary={true} disabled={disabled} label={mess['meta.versions.3']} tooltip={mess['meta.versions.4']} onClick={() => this.applyAction('dl')}/>
+                    <FlatButton icon={<FontIcon className={"mdi mdi-backup-restore"}/>} secondary={true} disabled={disabled} label={mess['meta.versions.7']} tooltip={mess['meta.versions.8']} onClick={() => this.applyAction('revert')}/>
+                </div>
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
             </div>
         );
 
     }
 
-});
+}
 
 if(window.ReactDND){
     const FakeDndBackend = function(){
