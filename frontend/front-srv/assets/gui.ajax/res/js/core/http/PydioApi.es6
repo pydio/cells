@@ -443,8 +443,16 @@ class PydioApi{
 
         const resolver = (jwt, cb) => {
 
-            
-            let cacheKey = node.getMetadata().get('uuid') + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
+            let seed = node.getMetadata().get('etag');
+            if(!seed) {
+                seed = node.getMetadata().get('ajxp_modiftime');
+            }
+            if(seed) {
+                seed = '-' + seed;
+            } else {
+                seed = '';
+            }
+            let cacheKey = node.getMetadata().get('uuid') + seed + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
             if(cType){
                cacheKey += "#" + cType;
             }
