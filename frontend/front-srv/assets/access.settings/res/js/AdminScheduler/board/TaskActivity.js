@@ -43,7 +43,7 @@ class TaskActivity extends React.Component{
         this.loadActivity(this.props);
         this._loadDebounced = debounce((jobId) => {
             if (jobId && this.props.task && this.props.task.JobID === jobId) {
-                this.loadActivity(this.props);
+                this.loadActivity(this.props, 0, 4);
             }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
@@ -53,7 +53,7 @@ class TaskActivity extends React.Component{
                 if(!Pydio.getInstance().WebSocketClient.getStatus()){
                     return
                 }
-                this.loadActivity(this.props);
+                this.loadActivity(this.props, (this.state && this.state.page?this.state.page:0), 4);
             }, poll);
         }
     }
@@ -76,9 +76,9 @@ class TaskActivity extends React.Component{
         }
     }
 
-    loadActivity(props, page = 0){
+    loadActivity(props, page = 0, retry = 0){
 
-        const {task} = props;
+        const {task, poll} = props;
         if(!task){
             return;
         }
@@ -94,6 +94,9 @@ class TaskActivity extends React.Component{
         api.listTasksLogs(request).then(response => {
             const ll = response.Logs || [];
             this.setState({activity:ll, loading: false, page: page})
+            if(!ll.length && retry < 3 && !poll) {
+                setTimeout(() => this.loadActivity(props, page, retry + 1), 2000);
+            }
         }).catch(()=>{
             this.setState({activity:[], loading: false, page: page})
         });
