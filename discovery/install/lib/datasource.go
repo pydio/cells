@@ -96,6 +96,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		sourceConf.Name = source
 		if source == "versions" {
 			sourceConf.FlatStorage = true
+			sourceConf.StorageConfiguration["cellsInternal"] = "true"
 		}
 		sourceConf.ObjectsBucket = s3buckets[source]
 		if storageFolder != "" {
