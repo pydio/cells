@@ -69,7 +69,7 @@ class InputSelectBox extends React.Component{
         choices.forEach(function(value, key){
             menuItems.push(<MenuItem value={key} primaryText={value}/>);
         });
-        if((isDisplayGrid() && !editMode) || disabled){
+        if(isDisplayGrid() && !editMode){
             let value = this.props.value;
             if(choices.get(value)) {
                 value = choices.get(value);
@@ -112,6 +112,7 @@ class InputSelectBox extends React.Component{
                             fullWidth={true}
                             className={className}
                             variant={variant}
+                            disabled={disabled}
                             {...props}
                         >{menuItems}</ModernSelectField>
 
@@ -127,6 +128,7 @@ class InputSelectBox extends React.Component{
                             fullWidth={true}
                             className={className}
                             variant={variant}
+                            disabled={disabled}
                         >{menuItems}</ModernSelectField>
                     </span>
                 );

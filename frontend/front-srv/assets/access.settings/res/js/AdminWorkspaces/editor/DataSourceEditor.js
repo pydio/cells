@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio';
 import PydioApi from 'pydio/http/api'
-import React from 'react'
+import React,{Fragment} from 'react'
 import DataSource from '../model/DataSource'
 import {Dialog, Divider, Checkbox, Toggle, FlatButton, RaisedButton, MenuItem, Paper, Stepper, Step, StepLabel} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
@@ -39,10 +39,11 @@ class DataSourceEditor extends React.Component{
 
     constructor(props){
         super(props);
-        const observable = new DataSource(props.dataSource, props.existingNames);
+        const {pydio, create, dataSource, existingNames, createStructure} = props;
+        const observable = new DataSource(dataSource, existingNames, createStructure);
         this.state = {
             dirty:false,
-            create: props.create,
+            create: create,
             observable: observable,
             model: observable.getModel(),
             loaded :false,
@@ -50,7 +51,7 @@ class DataSourceEditor extends React.Component{
             encryptionKeys: [],
             versioningPolicies: [],
             s3Custom: observable.getModel().StorageConfiguration.customEndpoint ? 'custom' : 'aws',
-            m: (id) => props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id
+            m: (id) => pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id
         };
         DataSource.loadEncryptionKeys().then(res => {
             this.setState({encryptionKeys: res.Keys || []});
@@ -350,14 +351,15 @@ class DataSourceEditor extends React.Component{
                             </Step>
                         </Stepper>
                     </div>
-                    {PaperEditorLayout.actionButton('Back', 'mdi mdi-chevron-left', ()=>{this.stepperBack()}, backDisabled)}
-                    {PaperEditorLayout.actionButton('Next', 'mdi mdi-chevron-right', ()=>{this.stepperNext()}, nextDisabled)}
                 </div>
             );
             CreateButton = (
                 <div style={{...stepperStyle, top: null, bottom: 0, backgroundColor:'white', boxShadow:'rgba(0, 0, 0, .1) 0px -1px 2px'}}>
                     <span style={{flex: 1}}/>
-                    <FlatButton primary={true} label={"Create DataSource"} onClick={()=>this.saveSource()} disabled={!observable.isValid()}/>
+                    <FlatButton primary={true} label={"Back"} onClick={()=>this.stepperBack()} disabled={backDisabled}/>
+                    <FlatButton primary={true} label={"Next"} onClick={()=>this.stepperNext()} disabled={nextDisabled}/>
+                    <div style={{width:1, height:40, backgroundColor:'#efefef', margin:'0 5px'}}/>
+                    <FlatButton primary={true} label={"Create"} onClick={()=>this.saveSource()} disabled={!observable.isValid()}/>
                 </div>
             );
         }
@@ -393,7 +395,7 @@ class DataSourceEditor extends React.Component{
 
         const MainOptions = (
             <Paper zDepth={0} style={makeStyle(styles.section, 'main')}>
-                <div style={styles.title}>{m('options')}</div>
+                <div style={{...styles.title, marginBottom:16}}>{m('options')}</div>
                 <ModernTextField fullWidth={true} variant={'v2'} hintText={m('options.id') + ' *'} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}} errorText={observable.getNameError(m)}/>
             </Paper>
         );
@@ -404,7 +406,17 @@ class DataSourceEditor extends React.Component{
                 <div style={styles.storageSection}>
                     <div style={styles.legend}>{m('storage.legend.fs')}</div>
                     <DataSourceLocalSelector model={model} pydio={this.props.pydio} styles={styles}/>
-                    <div><Checkbox labelPosition={"right"} label={m('storage.fs.macos')} checked={storageConfig.normalize === "true"} onCheck={(e,v)=>{storageConfig.normalize = (v?"true":"false")}} {...ModernStyles.toggleFieldV2}/></div>
+                    {!model.FlatStorage &&
+                        <div>
+                            <Checkbox
+                                labelPosition={"right"}
+                                label={m('storage.fs.macos')}
+                                checked={storageConfig.normalize === "true"}
+                                onCheck={(e,v)=>{storageConfig.normalize = (v?"true":"false")}}
+                                {...ModernStyles.toggleFieldV2}
+                            />
+                        </div>
+                    }
                 </div>
                 }
                 {model.StorageType === 'S3' &&
@@ -472,14 +484,17 @@ class DataSourceEditor extends React.Component{
 
                 <div style={styles.title}>{m('datamanagement')}</div>
 
-                <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
-                <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
-                    <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
-                    {versioningPolicies.map(key => {
-                        return <MenuItem value={key.Uuid} primaryText={key.Name}/>
-                    })}
-                </ModernSelectField>
-
+                {!model.StorageConfiguration.cellsInternal &&
+                <Fragment>
+                    <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.versioning')}</div>
+                    <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
+                        <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
+                        {versioningPolicies.map(key => {
+                            return <MenuItem value={key.Uuid} primaryText={key.Name}/>
+                        })}
+                    </ModernSelectField>
+                </Fragment>
+                }
 
                 <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.encryption')}</div>
                 <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('enc.key')} value={model.EncryptionMode === 'MASTER' ? model.EncryptionKey : 'VALUE_CLEAR'} onChange={(e, i, v)=>{this.toggleEncryption(v)}}>
@@ -496,6 +511,7 @@ class DataSourceEditor extends React.Component{
             <Paper zDepth={0} style={makeStyle(styles.section, 'advanced')}>
                 <div style={styles.title}>{'Advanced storage options'}</div>
 
+                {!model.StorageConfiguration.cellsInternal &&
                 <div>
                     <div style={{...styles.subLegend, paddingTop: 20}}>{m('storage.legend.flatStorage')}</div>
                     <Checkbox
@@ -507,6 +523,7 @@ class DataSourceEditor extends React.Component{
                         {...ModernStyles.toggleFieldV2}
                     />
                 </div>
+                }
 
                 {!model.FlatStorage &&
                 <div>
@@ -568,7 +585,11 @@ class DataSourceEditor extends React.Component{
                 titleLeftIcon={'mdi mdi-database'}
                 titleActionBar={titleActionBarButtons}
                 closeAction={this.props.closeEditor}
-                leftNavItems={create?null:[{label:'Main Options', value:'main'},{label:'Data Lifecycle', value:'data'},{label:'Advanced', value:'advanced'}]}
+                leftNavItems={create?null:[{
+                    label:'Main Options', value:'main', icon:'mdi mdi-database-plus'},
+                    {label:'Data Lifecycle', value:'data', icon:'mdi mdi-recycle'},
+                    {label:'Advanced', value:'advanced', icon:'mdi mdi-settings'}
+                    ]}
                 leftNavSelected={currentPane}
                 leftNavChange={(key) => {this.setState({currentPane:key})}}
                 className="workspace-editor"

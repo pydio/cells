@@ -118,10 +118,14 @@ class PaperEditorLayout extends React.Component{
                                     if(i.subHeader){
                                         return <Subheader style={adminStyles.menu.subHeader}>{i.subHeader}</Subheader>
                                     } else {
+                                        let primaryText = i.label;
+                                        if(i.icon) {
+                                            primaryText = <span style={{display:'flex', alignItems:'center'}}><span style={{fontSize: 20, marginRight: 16}} className={i.icon}/> {i.label}</span>
+                                        }
                                         return <MenuItem
                                             style={adminStyles.menu.menuItem}
                                             value={i.value}
-                                            primaryText={i.label}
+                                            primaryText={primaryText}
                                         />
                                     }
                                 })}

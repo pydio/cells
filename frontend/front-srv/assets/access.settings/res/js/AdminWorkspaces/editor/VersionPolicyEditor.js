@@ -147,12 +147,22 @@ class VersionPolicyEditor extends React.Component{
     }
 
     render(){
-        const {create, readonly, pydio, muiTheme} = this.props;
-        const {loaded, parameters, policy, saveValue, m} = this.state;
+        const {create, readonly, pydio, muiTheme, internalSources} = this.props;
+        const {loaded, policy, saveValue, m} = this.state;
+        let {parameters} =  this.state;
         const palette = muiTheme.palette;
         const adminStyles = AdminStyles(palette);
         let form;
         if(parameters && loaded){
+            if(internalSources) {
+                parameters = parameters.map(p => {
+                    if(p.name === 'VersionsDataSourceName') {
+                        // Update choices list with detected internal datasources
+                        p.choices += ',' + internalSources.map(s => s+'|DataSource '+s).join(',');
+                    }
+                    return p;
+                })
+            }
             let values = VersionPolicyEditor.TreeVersioningPolicyToValues(policy);
             if (saveValue){
                 values = VersionPolicyEditor.TreeVersioningPolicyToValues(saveValue);
