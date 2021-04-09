@@ -1,6 +1,7 @@
 package natsstreaming
 
 import (
+	"fmt"
 	"github.com/nats-io/gnatsd/server"
 	stand "github.com/nats-io/nats-streaming-server/server"
 	"github.com/nats-io/nats-streaming-server/stores"
@@ -27,6 +28,13 @@ func Init() {
 
 		if stanOpts.StoreType == stores.TypeFile {
 			stanOpts.FilestoreDir = filepath.Join(config.ApplicationWorkingDir(), "nats")
+		} else if stanOpts.StoreType == stores.TypeSQL {
+			driver, dsn := config.GetDatabase("default")
+			fmt.Println("The driver is ", driver, dsn)
+			stanOpts.SQLStoreOpts = stores.SQLStoreOptions{
+				Driver: driver,
+				Source: dsn,
+			}
 		}
 
 		// TODO - do the sql opts
@@ -66,6 +74,7 @@ func Init() {
 		natsOpts.Routes = server.RoutesFromStr(natsOpts.RoutesStr)
 
 		if _, err := stand.RunServerWithOpts(stanOpts, natsOpts); err != nil {
+			fmt.Println("Failed to run nats streaming ", err)
 			return
 		}
 

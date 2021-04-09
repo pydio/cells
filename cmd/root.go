@@ -24,6 +24,9 @@ package cmd
 import (
 	"context"
 	"fmt"
+	p "github.com/manifoldco/promptui"
+	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/discovery/install/lib"
 	log2 "log"
 	"os"
 	"path/filepath"
@@ -171,6 +174,59 @@ func skipCoreInit() bool {
 	return false
 }
 
+func initLocalConfig() {
+
+	if skipCoreInit() {
+		return
+	}
+
+	versionsStore := filex.NewStore(config.PydioConfigDir)
+
+	var vaultConfig config.Store
+	var defaultConfig config.Store
+
+	source := file.NewSource(
+		microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+	)
+
+	vaultConfig = config.New(
+		micro.New(
+			microconfig.NewConfig(
+				microconfig.WithSource(
+					vault.NewVaultSource(
+						filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
+						filepath.Join(config.PydioConfigDir, "cells-vault-key"),
+						true,
+					),
+				),
+				microconfig.PollInterval(10*time.Second),
+			),
+		))
+
+	defaultConfig = config.New(
+		micro.New(
+			microconfig.NewConfig(
+				microconfig.WithSource(source),
+				microconfig.PollInterval(10*time.Second),
+			),
+		),
+	)
+
+	defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
+	defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+
+	config.Register(defaultConfig)
+	config.RegisterVault(vaultConfig)
+	config.RegisterVersionStore(versionsStore)
+
+	// Need to do something for the versions
+	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val(), common.Version()); err == nil && save {
+		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
+			log.Fatal("Could not save config migrations", zap.Error(err))
+		}
+	}
+}
+
 func initConfig() {
 
 	if skipCoreInit() {
@@ -184,10 +240,55 @@ func initConfig() {
 
 	switch viper.GetString("config") {
 	case "mysql":
-		vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
+
+		var proxyConf *install.ProxyConfig
+
+		localSource := file.NewSource(
+			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+		)
+
+		localConfig := config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(localSource),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		config.Register(localConfig)
+
+		// Pre-check that pydio.json is properly configured
+		if a, _ := config.GetDatabase("default"); a == "" {
+			cliConfig := lib.GenerateDefaultConfig()
+			cliConfig.ProxyConfig = proxyConf
+
+			if e := applyAdditionalPrompt("boot", cliConfig); e != nil {
+				return
+			}
+
+			fmt.Println("\n\033[1m## Database Connection\033[0m")
+			_, e := promptDB(cliConfig)
+			if e != nil {
+				return
+			}
+
+			fmt.Println("\n\033[1m## Applying configuration\033[0m")
+			e = lib.Install(context.Background(), cliConfig, lib.INSTALL_DB, func(event *lib.InstallProgressEvent) {
+				fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
+			})
+			if e != nil {
+				return
+			}
+			fmt.Println(p.IconGood + " Configuration done")
+		}
+
+		driver, dsn := config.GetDatabase("default")
+		vaultConfig = config.New(sql.New(driver, dsn, "vault"))
 		defaultConfig = config.New(
 			sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"),
 		)
+		fmt.Println("Setting default database to MYSQL")
 	case "remote":
 		vaultConfig = config.New(
 			remote.New("vault"),
