@@ -272,7 +272,7 @@ class MaterialTable extends React.Component{
     render(){
 
         const {columns, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
-        const {actions} = this.props;
+        const {actions, hideHeaders} = this.props;
         let {data, showCheckboxes} = this.props;
 
         const actionsColor = masterStyles.actionsColor || 'rgba(0,0,0,.33)';
@@ -350,15 +350,20 @@ class MaterialTable extends React.Component{
                     })}
                     {actionsColumn &&
                         <TableRowColumn style={{overflow:'visible', textOverflow:'none', width:actions.length*48+32}}>
-                            {actions.map(a =>
-                                <IconButton
-                                    style={{padding: 14}}
-                                    iconStyle={{fontSize:20, color:actionsColor}}
-                                    onClick={(e)=>{e.stopPropagation();a.onClick(model)}}
-                                    iconClassName={a.iconClassName}
-                                    tooltip={a.tooltip}
-                                    disabled={a.disable?a.disable(model):null}
-                                />
+                            {actions.map(a => {
+                                    const disabled = a.disable ? a.disable(model) : false
+                                    return (<IconButton
+                                        style={{padding: 14,opacity:(disabled?.5:null)}}
+                                        iconStyle={{fontSize: 20, color: actionsColor}}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            a.onClick(model)
+                                        }}
+                                        iconClassName={a.iconClassName}
+                                        tooltip={a.tooltip}
+                                        disabled={disabled}
+                                    />)
+                                }
                             )}
                         </TableRowColumn>
                     }
@@ -404,8 +409,6 @@ class MaterialTable extends React.Component{
                 }</TableRow>
             );
         }
-
-        const {hideHeaders} = this.props;
 
         return (
             <Table onRowSelection={this.onRowSelection.bind(this)} multiSelectable={showCheckboxes}>

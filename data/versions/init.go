@@ -105,7 +105,9 @@ func DataSourceForPolicy(ctx context.Context, policy *tree.VersioningPolicy) (vi
 		return getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
 	}
 	if ls, err := getRouter().GetClientsPool().GetDataSourceInfo(policy.VersionsDataSourceName); err == nil {
-		ls.ObjectsBucket = policy.VersionsDataSourceBucket
+		if policy.VersionsDataSourceBucket != "" {
+			ls.ObjectsBucket = policy.VersionsDataSourceBucket
+		}
 		return ls, nil
 	} else {
 		return views.LoadedSource{}, err

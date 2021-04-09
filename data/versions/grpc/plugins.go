@@ -118,8 +118,7 @@ func InitDefaults(ctx context.Context) error {
 			{IntervalStart: "15d", MaxNumber: 10},
 			{IntervalStart: "30d"},
 		},
-		VersionsDataSourceBucket: "versions",
-		VersionsDataSourceName:   "default",
+		VersionsDataSourceName: "default",
 	})
 
 	keepAll, _ := json.Marshal(&tree.VersioningPolicy{
@@ -129,8 +128,7 @@ func InitDefaults(ctx context.Context) error {
 		KeepPeriods: []*tree.VersioningKeepPeriod{
 			{IntervalStart: "0", MaxNumber: -1},
 		},
-		VersionsDataSourceBucket: "versions",
-		VersionsDataSourceName:   "default",
+		VersionsDataSourceName: "default",
 	})
 
 	regular, _ := json.Marshal(&tree.VersioningPolicy{
@@ -145,8 +143,7 @@ func InitDefaults(ctx context.Context) error {
 			{IntervalStart: "10d", MaxNumber: 10},
 			{IntervalStart: "30d", MaxNumber: 0},
 		},
-		VersionsDataSourceBucket: "versions",
-		VersionsDataSourceName:   "default",
+		VersionsDataSourceName: "default",
 	})
 
 	return service.Retry(ctx, func() error {
