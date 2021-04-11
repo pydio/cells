@@ -167,6 +167,18 @@ func init() {
 								return nil
 							}),
 						)
+					} else {
+						syncHandler.StartConfigsOnly()
+						m.Init(
+							micro.BeforeStop(func() error {
+								if syncHandler != nil {
+									ctx := m.Options().Context
+									log.Logger(ctx).Info("Stopping configs watch")
+									syncHandler.StopConfigsOnly()
+								}
+								return nil
+							}),
+						)
 					}
 
 					return nil

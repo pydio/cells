@@ -57,6 +57,7 @@ type sourceAlias struct {
 // ClientsPool is responsible for discovering available datasources and
 // keeping an up to date registry that is used by the routers.
 type ClientsPool struct {
+	sync.Mutex
 	sources map[string]LoadedSource
 	aliases map[string]sourceAlias
 
@@ -65,7 +66,6 @@ type ClientsPool struct {
 	treeClientWrite tree.NodeReceiverClient
 
 	genericClient client.Client
-	configMutex   *sync.Mutex
 	watcher       registry.Watcher
 	confWatcher   configx.Receiver
 }
@@ -86,8 +86,6 @@ func NewClientsPool(watchRegistry bool) *ClientsPool {
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 	}
-
-	pool.configMutex = &sync.Mutex{}
 
 	if IsUnitTestEnv {
 		// Workaround the fact that no registry is present when doing unit tests
@@ -221,8 +219,8 @@ func (p *ClientsPool) LoadDataSources() {
 		if dataSourceName == "" {
 			continue
 		}
-		s3endpointClient := object.NewDataSourceEndpointClient(common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, cli)
-		response, err := s3endpointClient.GetDataSourceConfig(ctx, &object.GetDataSourceConfigRequest{})
+		endpointClient := object.NewDataSourceEndpointClient(common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, cli)
+		response, err := endpointClient.GetDataSourceConfig(ctx, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
 			log.Logger(ctx).Debug("Creating client for datasource " + dataSourceName)
 			p.createClientsForDataSource(dataSourceName, response.DataSource)
@@ -241,8 +239,8 @@ func (p *ClientsPool) registerAlternativeClient(namespace string) error {
 	if err != nil {
 		return err
 	}
-	p.configMutex.Lock()
-	defer p.configMutex.Unlock()
+	p.Lock()
+	defer p.Unlock()
 	p.aliases[namespace] = sourceAlias{
 		dataSource: dataSource,
 		bucket:     bucket,
@@ -267,9 +265,9 @@ func (p *ClientsPool) watchRegistry() {
 				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name()))
 				if _, ok := p.sources[dsName]; ok && result.Action == "stopped" {
 					// Reset list
-					p.configMutex.Lock()
+					p.Lock()
 					delete(p.sources, dsName)
-					p.configMutex.Unlock()
+					p.Unlock()
 				}
 				p.LoadDataSources()
 			}
@@ -296,8 +294,8 @@ func (p *ClientsPool) watchConfigChanges() {
 func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSource *object.DataSource, registerKey ...string) error {
 
 	log.Logger(context.Background()).Debug("Adding dataSource", zap.String("dsname", dataSourceName))
-	p.configMutex.Lock()
-	defer p.configMutex.Unlock()
+	p.Lock()
+	defer p.Unlock()
 	loaded, err := NewSource(dataSource)
 	if err != nil {
 		return err

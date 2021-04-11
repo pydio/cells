@@ -117,6 +117,16 @@ func (s *Handler) Stop() {
 	}
 }
 
+func (s *Handler) StartConfigsOnly() {
+	go s.watchConfigs()
+}
+
+func (s *Handler) StopConfigsOnly() {
+	if s.watcher != nil {
+		s.watcher.Stop()
+	}
+}
+
 // BroadcastCloseSession forwards session id to underlying sync task
 func (s *Handler) BroadcastCloseSession(sessionUuid string) {
 	if s.syncTask == nil {

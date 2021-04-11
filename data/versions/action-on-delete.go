@@ -45,8 +45,8 @@ var (
 )
 
 type OnDeleteVersionsAction struct {
-	Handler views.Handler
-	Pool    views.SourcesPool
+	Handler    views.Handler
+	Pool       views.SourcesPool
 	rootFolder string
 }
 
@@ -74,7 +74,7 @@ func (c *OnDeleteVersionsAction) GetParametersForm() *forms.Form {
 					Description: "Folder where to backup versions for deleted files",
 					Mandatory:   true,
 					Editable:    true,
-					Default: "$DELETED",
+					Default:     "$DELETED",
 				},
 			},
 		},
@@ -128,17 +128,31 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{UniqueNode: node}); err == nil {
+		deleteStrategy := policy.GetNodeDeletedStrategy()
 		for i, version := range response.DeletedVersions {
+			move := true
+			if deleteStrategy == tree.VersioningNodeDeletedStrategy_KeepNone || (deleteStrategy == tree.VersioningNodeDeletedStrategy_KeepLast && i > 0) {
+				move = false
+			}
 			deleteNode := version.GetLocation()
-			backupNode := deleteNode.Clone()
-			// Create base-{DATE}-001-vUUID.ext
-			seeded := fmt.Sprintf("%s-%02d-%s-%s%s", prefix, i+1, time.Now().Format("2006-01-02"), strings.Split(version.GetUuid(), "-")[0], ext)
-			backupNode.Path = path.Join(dir, seeded)
-			_, err := c.Handler.UpdateNode(ctx, &tree.UpdateNodeRequest{From: deleteNode, To: backupNode})
-			if err != nil {
-				log.TasksLogger(ctx).Error("Error while trying to move file "+deleteNode.Uuid+" to "+ backupNode.Path, zap.Error(err))
+			if move {
+				backupNode := deleteNode.Clone()
+				// Create base-{DATE}-001-vUUID.ext
+				seeded := fmt.Sprintf("%s-%03d-%s-%s%s", prefix, i+1, time.Now().Format("2006-01-02"), strings.Split(version.GetUuid(), "-")[0], ext)
+				backupNode.Path = path.Join(dir, seeded)
+				_, err := c.Handler.UpdateNode(ctx, &tree.UpdateNodeRequest{From: deleteNode, To: backupNode})
+				if err != nil {
+					log.TasksLogger(ctx).Error("Error while trying to move version "+deleteNode.Uuid+" to "+backupNode.Path, zap.Error(err))
+				} else {
+					log.TasksLogger(ctx).Info("[Delete Versions Task] Moved version to "+backupNode.Path, zap.String("fileId", deleteNode.Uuid))
+				}
 			} else {
-				log.TasksLogger(ctx).Info("[Delete Versions Task] Moved version file to "+backupNode.Path, zap.String("fileId", deleteNode.Uuid))
+				_, err := c.Handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode})
+				if err != nil {
+					log.TasksLogger(ctx).Error("Error while trying to delete version "+deleteNode.Uuid, zap.Error(err))
+				} else {
+					log.TasksLogger(ctx).Info("[Delete Versions Task] Deleted version "+deleteNode.Uuid, zap.String("fileId", deleteNode.Uuid))
+				}
 			}
 		}
 	} else {

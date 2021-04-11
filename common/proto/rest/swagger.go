@@ -1122,6 +1122,18 @@ var SwaggerJson = `{
             "required": false,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "NodeDeletedStrategy",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "KeepAll",
+              "KeepLast",
+              "KeepNone"
+            ],
+            "default": "KeepAll"
           }
         ],
         "tags": [
@@ -8313,6 +8325,15 @@ var SwaggerJson = `{
         }
       }
     },
+    "treeVersioningNodeDeletedStrategy": {
+      "type": "string",
+      "enum": [
+        "KeepAll",
+        "KeepLast",
+        "KeepNone"
+      ],
+      "default": "KeepAll"
+    },
     "treeVersioningPolicy": {
       "type": "object",
       "properties": {
@@ -8348,6 +8369,9 @@ var SwaggerJson = `{
           "items": {
             "$ref": "#/definitions/treeVersioningKeepPeriod"
           }
+        },
+        "NodeDeletedStrategy": {
+          "$ref": "#/definitions/treeVersioningNodeDeletedStrategy"
         }
       }
     },

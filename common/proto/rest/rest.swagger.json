@@ -1121,6 +1121,18 @@
             "required": false,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "NodeDeletedStrategy",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "KeepAll",
+              "KeepLast",
+              "KeepNone"
+            ],
+            "default": "KeepAll"
           }
         ],
         "tags": [
@@ -8312,6 +8324,15 @@
         }
       }
     },
+    "treeVersioningNodeDeletedStrategy": {
+      "type": "string",
+      "enum": [
+        "KeepAll",
+        "KeepLast",
+        "KeepNone"
+      ],
+      "default": "KeepAll"
+    },
     "treeVersioningPolicy": {
       "type": "object",
       "properties": {
@@ -8347,6 +8368,9 @@
           "items": {
             "$ref": "#/definitions/treeVersioningKeepPeriod"
           }
+        },
+        "NodeDeletedStrategy": {
+          "$ref": "#/definitions/treeVersioningNodeDeletedStrategy"
         }
       }
     },

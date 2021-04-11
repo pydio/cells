@@ -290,6 +290,12 @@ message PruneVersionsResponse{
     repeated ChangeLog DeletedVersions = 1;
 }
 
+enum VersioningNodeDeletedStrategy {
+    KeepAll = 0;
+    KeepLast = 1;
+    KeepNone = 2;
+}
+
 message VersioningPolicy {
     string Uuid = 1;
     string Name = 2;
@@ -302,6 +308,7 @@ message VersioningPolicy {
     int64 IgnoreFilesGreaterThan = 8;
 
     repeated VersioningKeepPeriod KeepPeriods = 9;
+    VersioningNodeDeletedStrategy NodeDeletedStrategy = 10;
 }
 
 message VersioningKeepPeriod {

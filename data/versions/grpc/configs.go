@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/data/versions/lang"
 )
 
@@ -114,6 +115,20 @@ var ExposedConfigs = &forms.Form{
 							Type:        forms.ParamInteger,
 							Mandatory:   true,
 						},
+					},
+				},
+				&forms.FormField{
+					Name:        "NodeDeletedStrategy",
+					Type:        forms.ParamSelect,
+					Label:       "Config.GroupRetention.NodeDeletedStrategy.Name",
+					Description: "Config.GroupRetention.NodeDeletedStrategy.Description",
+					Default:     "KeepAll",
+					Mandatory:   true,
+					Editable:    true,
+					ChoicePresetList: []map[string]string{
+						{tree.VersioningNodeDeletedStrategy_KeepAll.String(): "Config.GroupRetention.NodeDeletedStrategy.KeepAll"},
+						{tree.VersioningNodeDeletedStrategy_KeepLast.String(): "Config.GroupRetention.NodeDeletedStrategy.KeepLast"},
+						{tree.VersioningNodeDeletedStrategy_KeepNone.String(): "Config.GroupRetention.NodeDeletedStrategy.KeepNone"},
 					},
 				},
 			},
