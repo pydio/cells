@@ -63,6 +63,9 @@ func New(store configx.Entrypoint) Store {
 		v.Scan(&im)
 
 		ret.im = im
+	} else {
+		im := configx.New(configx.WithJSON())
+		ret.im = im
 	}
 
 	go func() {

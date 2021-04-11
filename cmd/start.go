@@ -131,6 +131,10 @@ ENVIRONMENT
 				cmd, args)
 		}
 
+		// TO REMOVE
+		// TO REMOVE
+		initConfig()
+
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
 
