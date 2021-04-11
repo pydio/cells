@@ -69,6 +69,7 @@ const (
 	ParamValidPassword ParamType = "valid-password"
 	ParamBool          ParamType = "boolean"
 	ParamInteger       ParamType = "integer"
+	ParamIntegerBytes  ParamType = "integer-bytes"
 	ParamLegend        ParamType = "legend"
 	ParamHidden        ParamType = "hidden"
 
