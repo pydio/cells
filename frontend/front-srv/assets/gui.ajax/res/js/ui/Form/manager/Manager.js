@@ -21,6 +21,7 @@
 import React from 'react'
 import ValidLogin from '../fields/ValidLogin'
 import AltText from "../fields/AltText";
+import InputIntegerBytes from "../fields/InputIntegerBytes";
 const XMLUtils = require('pydio/util/xml');
 const InputBoolean = require('./../fields/InputBoolean');
 const InputText = require('./../fields/TextField');
@@ -98,7 +99,7 @@ export default class Manager{
             if(paramsObject['default'] !== undefined) {
                 paramsObject['default'] = (paramsObject['default'] === "true");
             }
-        }else if(paramsObject['type'] === 'integer'){
+        }else if(paramsObject['type'] === 'integer' || paramsObject['type'] === 'integer-bytes'){
             if(paramsObject['value'] !== undefined) {
                 paramsObject['value'] = parseInt(paramsObject['value']);
             }
@@ -132,7 +133,8 @@ export default class Manager{
                 value = <ValidLogin {...props}/>;
                 break;
             case 'integer':
-                value = <InputInteger {...props}/>;
+            case 'integer-bytes':
+                value = attributes['type'] === 'integer-bytes' ? <InputIntegerBytes {...props}/> : <InputInteger {...props}/>;
                 if(onAltTextSwitch){
                     value = <AltText {...props}  {...switchProps} altIcon={"mdi mdi-number"}>{value}</AltText>;
                 }
@@ -302,10 +304,10 @@ export default class Manager{
             var type = clientParams[typeKey];
             delete clientParams[typeKey];
             if(parentKey && !parentKey[parentName]) {
-                if(type == "boolean"){
+                if(type === "boolean"){
                     var v = clientParams[key];
-                    parentKey[parentName] = (v == "true" || v == 1 || v === true );
-                }else if(type == "integer") {
+                    parentKey[parentName] = (v === "true" || v === 1 || v === true );
+                }else if(type === "integer" || type === "integer-bytes") {
                     parentKey[parentName] = parseInt(clientParams[key]);
                 }else if(type && type.startsWith("group_switch:") && typeof clientParams[key] == "string"){
                     parentKey[parentName] = {group_switch_value:clientParams[key]};

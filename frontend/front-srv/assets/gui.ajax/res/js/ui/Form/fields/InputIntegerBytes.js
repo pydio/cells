@@ -20,32 +20,20 @@
 
 import React from 'react'
 import Pydio from 'pydio';
+import asFormField from "../hoc/asFormField";
 const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
 import {MenuItem} from 'material-ui'
 
-class QuotaField extends React.Component{
-
-    constructor(props) {
-        super(props);
-        if(props.value){
-            this.state = this.divide(parseInt(props.value))
-        } else {
-            this.state = {
-                quota: 0,
-                unit: 'G',
-            }
-        }
-    }
+class InputIntegerBytes extends React.Component{
 
     divide(initialValue) {
         // Find lowest unit
         const uu = ["k", "M", "G", "T", "P"];
-        let res = {quota: initialValue, unit: ''};
+        let res = {bytesValue: initialValue, unit: ''};
         for (let i=0;i<uu.length;i++) {
             const check = this.multiple(1, uu[i]);
-            console.log(initialValue % check);
             if(initialValue >= check && initialValue % check === 0){
-                res = {quota: initialValue / check, unit: uu[i]};
+                res = {bytesValue: initialValue / check, unit: uu[i]};
             }
         }
         return res;
@@ -69,49 +57,49 @@ class QuotaField extends React.Component{
         }
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState === this.state) {
-            return;
-        }
-
-        let {quota, unit} = nextState;
-        this.props.onChange(null, this.multiple(quota, unit))
-    }
-
     render() {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
-        const noQuota = Pydio.getMessages()['ajxp_admin.ws.editor.other.quota.noquota'];
+        //const noQuota = Pydio.getMessages()['ajxp_admin.ws.editor.other.bytesValue.noquota'];
+        const {value, onChange, isDisplayGrid, isDisplayForm, editMode, disabled, toggleEditMode, attributes, variant} = this.props;
 
+        let bytesValue = 0, unit = '';
+        if(value){
+            const {bytesValue:b, unit:u} = this.divide(parseInt(value))
+            bytesValue = b
+            unit = u
+        }
+
+        if(isDisplayGrid() && !editMode) {
+            return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? bytesValue + unit : 'Empty'}</div>;
+        }
         return (
             <div>
                 <div style={{display:'flex'}}>
                     <ModernTextField
-                        value={this.state.quota > 0 ? this.state.quota : null}
-                        hintText={"Bytes Value"}
-                        hintStyle={{paddingLeft: 52}}
+                        value={bytesValue}
+                        hintText={isDisplayForm()?attributes.label:null}
                         style={{flex: 2}}
                         type={"number"}
-                        variant={"v2"}
+                        variant={variant}
                         hasRightBlock={true}
+                        disabled={disabled}
                         onChange={(e,v) => {
-                            this.setState({quota: Math.max(0, v) || 0})
+                            const bv = Math.max(0, v) || 0;
+                            onChange(e, this.multiple(bv, unit));
                         }}
                     />
                     <ModernSelectField
-                        value={this.state.unit}
-                        variant={"v2"}
+                        value={unit||'b'}
+                        variant={variant}
                         hintText={"Unit"}
-                        hasRightLeft={true}
+                        hasLeftBlock={true}
+                        disabled={disabled}
                         onChange={(e,i,v) => {
-                            let {quota, unit} = this.state;
-                            if(v !== unit) {
-                                quota = quota * this.multiple(1, unit) / this.multiple(1, v);
-                            }
-                            this.setState({quota, unit: v});
+                            onChange(e, this.multiple(bytesValue, v));
                         }}
                         style={{flex: 1}}
                     >
-                        <MenuItem value={''} primaryText={sizeUnit}/>
+                        <MenuItem value={'b'} primaryText={sizeUnit}/>
                         <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
                         <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
                         <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
@@ -125,4 +113,4 @@ class QuotaField extends React.Component{
 
 }
 
-export default QuotaField;
+export default asFormField(InputIntegerBytes);

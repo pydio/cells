@@ -235,7 +235,7 @@ export default createReactClass({
     checkValidStatus(values){
         var failedMandatories = [];
         this.props.parameters.map(function(p){
-            if (['string', 'textarea', 'password', 'integer'].indexOf(p.type) > -1 && (p.mandatory === "true" || p.mandatory === true)) {
+            if (['string', 'textarea', 'password', 'integer', 'integer-bytes'].indexOf(p.type) > -1 && (p.mandatory === "true" || p.mandatory === true)) {
                 if(!values || !values.hasOwnProperty(p.name) || values[p.name] === undefined || values[p.name] === ""){
                     failedMandatories.push(p);
                 }
@@ -360,8 +360,8 @@ export default createReactClass({
                         classLegend = "form-legend mandatory-missing";
                     }else if(attributes['warningText']){
                         classLegend = "form-legend warning-message";
-                    }else if( attributes['mandatory'] && (attributes['mandatory'] === "true" || attributes['mandatory'] === true) ){
-                        if(['string', 'textarea', 'image', 'integer'].indexOf(attributes['type']) !== -1 && !values[paramName]){
+                    }else if( attributes['mandatory'] && (attributes['mandatory'] === "true" || attributes['mandatory'] === true)){
+                        if(['string', 'textarea', 'image', 'integer', 'integer-bytes'].indexOf(attributes['type']) !== -1 && !values[paramName]){
                             mandatoryMissing = true;
                             classLegend = "form-legend mandatory-missing";
                         }

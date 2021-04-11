@@ -22,6 +22,7 @@ import Manager from './manager/Manager'
 import InputText from './fields/TextField'
 import ValidPassword from './fields/ValidPassword'
 import InputInteger from './fields/InputInteger'
+import InputIntegerBytes from './fields/InputIntegerBytes'
 import InputBoolean from './fields/InputBoolean'
 import InputSelectBox from './fields/InputSelectBox'
 import AutocompleteBox from './fields/AutocompleteBox'
@@ -38,6 +39,7 @@ let PydioForm = {
     ValidPassword,
     InputBoolean,
     InputInteger,
+    InputIntegerBytes,
     InputSelectBox,
     AutocompleteBox,
     AutocompleteTree,

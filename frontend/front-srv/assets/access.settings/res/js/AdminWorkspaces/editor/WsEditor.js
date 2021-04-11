@@ -24,7 +24,8 @@ import {muiThemeable} from 'material-ui/styles'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
-const {PaperEditorLayout, QuotaField, AdminStyles} = AdminComponents;
+const {InputIntegerBytes} = Pydio.requireLib('form');
+const {PaperEditorLayout, AdminStyles} = AdminComponents;
 
 class WsEditor extends Component {
 
@@ -111,18 +112,6 @@ class WsEditor extends Component {
         if(!readonly){
             buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", ()=>{this.save()} ,saving || (!(container.isDirty() && container.isValid()))));
         }
-
-        /*
-        let delButton;
-        if(!container.create && !readonly){
-            delButton = (
-                <div style={{padding: 16, textAlign:'center'}}>
-                    {m('ws.editor.help.delete')}<br/><br/>
-                    <RaisedButton secondary={true} label={m('ws.23')} onClick={()=>{this.remove()}}/>
-                </div>
-            );
-        }
-         */
 
         const adminStyles = AdminStyles(this.props.muiTheme.palette);
         const styles = {
@@ -285,15 +274,19 @@ class WsEditor extends Component {
 
                             <hr style={styles.divider}/>
                             <div style={{...styles.legend}}>{m('ws.editor.other.quota')}</div>
-                            <QuotaField value={workspace.Attributes['QUOTA'] || 0} onChange={(e,v) => {
-                                if(v > 0){
-                                    workspace.Attributes['QUOTA'] = v + '';
-                                } else {
-                                    workspace.Attributes['QUOTA'] = '0';
-                                    delete(workspace.Attributes['QUOTA']);
-                                }
-                            } }/>
-
+                            <InputIntegerBytes
+                                variant={'v2'}
+                                attributes={{label:'Quota'}}
+                                value={workspace.Attributes['QUOTA'] || 0}
+                                onChange={(v) => {
+                                    if(v > 0){
+                                        workspace.Attributes['QUOTA'] = v + '';
+                                    } else {
+                                        workspace.Attributes['QUOTA'] = '0';
+                                        delete(workspace.Attributes['QUOTA']);
+                                    }
+                                }}
+                            />
                             <hr style={styles.divider}/>
                             <div style={{...styles.legend}}>{m('ws.editor.other.layout')}</div>
                             <ModernSelectField fullWidth={true} floatingLabelText={m('ws.editor.other.layout')} variant={"v2"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
