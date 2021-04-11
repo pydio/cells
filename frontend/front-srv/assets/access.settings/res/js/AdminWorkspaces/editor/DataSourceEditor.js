@@ -490,7 +490,7 @@ class DataSourceEditor extends React.Component{
                     <ModernSelectField fullWidth={true} variant={'v2'} hintText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {
-                            return <MenuItem value={key.Uuid} primaryText={key.Name}/>
+                            return <MenuItem value={key.Uuid} primaryText={key.Name + ' (stored in ' + key.VersionsDataSourceName + ')'}/>
                         })}
                     </ModernSelectField>
                 </Fragment>

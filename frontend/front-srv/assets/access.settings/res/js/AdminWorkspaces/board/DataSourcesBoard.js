@@ -239,7 +239,7 @@ class DataSourcesBoard extends React.Component {
         return this.makeStatusLabel('ok', task.StatusMessage);
     }
 
-    openVersionPolicy(versionPolicies = undefined){
+    openVersionPolicy(versionPolicies = undefined, clone = false){
         if(versionPolicies !== undefined && !versionPolicies.length){
             return;
         }
@@ -249,14 +249,20 @@ class DataSourcesBoard extends React.Component {
             create = true;
             versionPolicy = new TreeVersioningPolicy();
             versionPolicy.Uuid = uuid();
-            versionPolicy.VersionsDataSourceName = "default";
-            versionPolicy.VersionsDataSourceBucket = "versions";
+            versionPolicy.VersionsDataSourceName = "versions";
+            versionPolicy.NodeDeletedStrategy = "KeepAll";
             const period = new TreeVersioningKeepPeriod();
             period.IntervalStart = "0";
             period.MaxNumber = -1;
             versionPolicy.KeepPeriods = [period];
         }else{
             versionPolicy = versionPolicies[0];
+            if (clone) {
+                create = true;
+                versionPolicy = TreeVersioningPolicy.constructFromObject(JSON.parse(JSON.stringify(versionPolicy)));
+                versionPolicy.Uuid = uuid();
+                versionPolicy.Name += ' (Copy)';
+            }
         }
         const {openRightPane, pydio, versioningReadonly, accessByName} = this.props;
         const {dataSources} = this.state;
@@ -433,7 +439,8 @@ class DataSourcesBoard extends React.Component {
         if(accessByName('CreateDatasource')){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onClick={() => this.setState({createDialog:true})} {...adminStyles.props.header.flatButton}/>)
         }
-        const versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
+        // TMP TODO
+        const versioningEditable = true; !versioningReadonly && accessByName('CreateVersioning');
         if(versioningEditable){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onClick={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
@@ -441,8 +448,9 @@ class DataSourcesBoard extends React.Component {
             {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}, sorter:{type:'string', default:true}},
             {name:'Description', label: m('versioning.description'), sorter:{type:'string'}},
             {name:'KeepPeriods', hideSmall:true, label: m('versioning.periods'), renderCell:(row) => {
-                return <VersionPolicyPeriods rendering="short" periods={row.KeepPeriods} pydio={pydio}/>
-            }}
+                return <VersionPolicyPeriods rendering="short" policy={row} pydio={pydio}/>
+            }},
+            {name:'VersionsDataSourceName', style:{width:180}, headerStyle:{width:180}, label: m('versioning.storage'), sorter:{type:'string'}, hideSmall:true}
         ];
 
         const dsActions = [];
@@ -482,6 +490,11 @@ class DataSourcesBoard extends React.Component {
             onClick:row => {this.openVersionPolicy([row])}
         });
         if(versioningEditable){
+            vsActions.push({
+                iconClassName:'mdi mdi-content-copy',
+                tooltip:'Duplicate policy',
+                onClick:row => this.openVersionPolicy([row], true)
+            })
             vsActions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:'Delete policy',

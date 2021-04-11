@@ -440,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "Retention Strategy"
   },
+  "ds.versioning.storage": {
+    "other": "Storage"
+  },
   "logs.1": {
     "other": "Server Logs"
   },

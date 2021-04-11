@@ -4329,6 +4329,10 @@
               {
                 "name": "page",
                 "type": null
+              },
+              {
+                "name": "retry",
+                "type": null
               }
             ],
             "returns": null
@@ -4836,7 +4840,12 @@
             "name": "createDataSource",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "storageStructure",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -5326,6 +5335,21 @@
             "description": ""
           }
         }
+      }
+    ],
+    "AdminWorkspaces/editor/CreateDSDialog.js": [
+      {
+        "description": "",
+        "displayName": "CreateDSDialog",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
       }
     ],
     "AdminWorkspaces/editor/DataSourceBucketSelector.js": [
@@ -28677,6 +28701,7 @@
       },
       {
         "description": "",
+        "displayName": "HistoryBrowser",
         "methods": [
           {
             "name": "propsToState",
@@ -28714,24 +28739,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "node": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Node"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onRequestClose": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       },
       {
         "description": "",
