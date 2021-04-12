@@ -239,6 +239,9 @@ func (log *ChangeLog) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if log.Event != nil {
 		encoder.AddReflected("Event", log.Event)
 	}
+	if log.Location != nil {
+		encoder.AddReflected("Location", log.Location)
+	}
 	return nil
 }
 

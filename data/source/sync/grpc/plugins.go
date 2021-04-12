@@ -26,12 +26,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/data/source/sync"
-
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
+	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -43,7 +43,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	_ "github.com/pydio/cells/data/source/sync"
+	"github.com/pydio/cells/data/source/sync"
 )
 
 var (
@@ -104,6 +104,12 @@ func init() {
 
 					dsObject := dss[datasource]
 
+					md := make(map[string]string)
+					md[common.PydioContextUserKey] = common.PydioSystemUsername
+					jobCtx := metadata.NewContext(ctx, md)
+					jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+					serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
+
 					if !dsObject.FlatStorage {
 						syncHandler.Start()
 						m.Init(
@@ -113,18 +119,17 @@ func init() {
 								md[common.PydioContextUserKey] = common.PydioSystemUsername
 								ctx = metadata.NewContext(ctx, md)
 
-								e = service.Retry(ctx, func() error {
-									jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
-									if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
+								e = service.Retry(jobCtx, func() error {
+									if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
 										if !dsObject.SkipSyncOnRestart {
-											log.Logger(ctx).Debug("Sending event to start trigger re-indexation")
-											client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
+											log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
+											client.Publish(jobCtx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
 												JobID:  "resync-ds-" + datasource,
 												RunNow: true,
 											}))
 										}
 									} else if errors.Parse(err.Error()).Code == 404 {
-										log.Logger(ctx).Info("Creating job in scheduler to trigger re-indexation")
+										log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
 										job := &jobs.Job{
 											ID:             "resync-ds-" + datasource,
 											Owner:          common.PydioSystemUsername,
@@ -136,23 +141,23 @@ func init() {
 												{
 													ID: "actions.cmd.resync",
 													Parameters: map[string]string{
-														"service": common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource,
+														"service": serviceName,
 													},
 												},
 											},
 										}
-										_, e := jobsClient.PutJob(ctx, &jobs.PutJobRequest{
+										_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 											Job: job,
 										}, registry.ShortRequestTimeout())
 										return e
 									} else {
-										log.Logger(ctx).Debug("Could not get info about job, retrying...")
+										log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
 										return err
 									}
 									return nil
 								}, 5*time.Second, 20*time.Second)
 								if e != nil {
-									log.Logger(ctx).Error("service started but could not contact Job service to trigger re-indexation")
+									log.Logger(jobCtx).Error("service started but could not contact Job service to trigger re-indexation")
 									m.Server().Stop()
 								}
 
@@ -170,6 +175,41 @@ func init() {
 					} else {
 						syncHandler.StartConfigsOnly()
 						m.Init(
+							micro.AfterStart(func() error {
+								if _, has := dsObject.StorageConfiguration["initFromBucket"]; !has {
+									return nil
+								}
+								// If initFromBucket is set Sync bucket to index once
+								return service.Retry(jobCtx, func() error {
+									log.Logger(jobCtx).Info("[initFromBucket] Registering job to sync flat index from bucket")
+									job := &jobs.Job{
+										ID:             uuid.New(),
+										Owner:          common.PydioSystemUsername,
+										Label:          "Sync DataSource " + datasource,
+										Inactive:       false,
+										MaxConcurrency: 1,
+										AutoStart:      true,
+										AutoClean:      true,
+										Actions: []*jobs.Action{
+											{
+												ID: "actions.cmd.resync",
+												Parameters: map[string]string{
+													"service": serviceName,
+												},
+											},
+										},
+									}
+									_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
+										Job: job,
+									}, registry.ShortRequestTimeout())
+									// Now save config without "initFromBucket" key
+									newValue := proto.Clone(dsObject).(*object.DataSource)
+									delete(newValue.StorageConfiguration, "initFromBucket")
+									config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration")
+									config.Save(common.PydioSystemUsername, "Removing initFromBucket key from datasource")
+									return e
+								}, 5*time.Second, 20*time.Second)
+							}),
 							micro.BeforeStop(func() error {
 								if syncHandler != nil {
 									ctx := m.Options().Context

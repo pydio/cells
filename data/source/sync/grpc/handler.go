@@ -71,12 +71,15 @@ type Handler struct {
 	dsName         string
 	errorsDetected chan string
 
-	IndexClient      tree.NodeProviderClient
-	IndexCleanClient protosync.SyncEndpointClient
-	S3client         model.PathSyncTarget
-	syncTask         *task.Sync
-	SyncConfig       *object.DataSource
-	ObjectConfig     *object.MinioConfig
+	indexClientRead    tree.NodeProviderClient
+	indexClientWrite   tree.NodeReceiverClient
+	indexClientClean   protosync.SyncEndpointClient
+	indexClientSession tree.SessionIndexerClient
+	s3client           model.PathSyncTarget
+
+	syncTask     *task.Sync
+	SyncConfig   *object.DataSource
+	ObjectConfig *object.MinioConfig
 
 	watcher    configx.Receiver
 	reloadChan chan bool
@@ -328,19 +331,19 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	}
 
 	indexName, indexClient := registry.GetClient(common.ServiceDataIndex_ + dataSource)
-	indexClientWrite := tree.NewNodeReceiverClient(indexName, indexClient)
-	indexClientRead := tree.NewNodeProviderClient(indexName, indexClient)
-	sessionClient := tree.NewSessionIndexerClient(indexName, indexClient)
+	s.indexClientWrite = tree.NewNodeReceiverClient(indexName, indexClient)
+	s.indexClientRead = tree.NewNodeProviderClient(indexName, indexClient)
+	s.indexClientClean = protosync.NewSyncEndpointClient(indexName, indexClient)
+	s.indexClientSession = tree.NewSessionIndexerClient(indexName, indexClient)
+
 	var target model.Endpoint
 	if syncMetas {
-		target = index.NewClientWithMeta(dataSource, indexClientRead, indexClientWrite, sessionClient)
+		target = index.NewClientWithMeta(dataSource, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
 	} else {
-		target = index.NewClient(dataSource, indexClientRead, indexClientWrite, sessionClient)
+		target = index.NewClient(dataSource, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
 	}
 
-	s.S3client = source
-	s.IndexClient = indexClientRead
-	s.IndexCleanClient = protosync.NewSyncEndpointClient(indexName, indexClient)
+	s.s3client = source
 	s.SyncConfig = syncConfig
 	s.ObjectConfig = minioConfig
 	s.syncTask = task.NewSync(source, target, model.DirectionRight)
@@ -522,7 +525,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 	}
 
 	// First trigger a Resync on index, to clean potential issues
-	if _, e := s.IndexCleanClient.TriggerResync(c, req); e != nil {
+	if _, e := s.indexClientClean.TriggerResync(c, req); e != nil {
 		if req.Task != nil {
 			log.TasksLogger(c).Error("Could not run index Lost+found "+e.Error(), zap.Error(e))
 		} else {
@@ -530,6 +533,11 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		}
 	}
 	if s.SyncConfig.FlatStorage {
+		if req.GetPath() != "" && req.GetPath() != "/" {
+			s.FlatLoadFromSnapshot(c, req.GetPath())
+		} else {
+			s.FlatScanEmpty(c)
+		}
 		if doneChan != nil {
 			doneChan <- true
 		}
