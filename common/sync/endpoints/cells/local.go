@@ -29,7 +29,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common"
-	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
+	microbroker "github.com/pydio/cells/common/micro/broker"
 	microregistry "github.com/pydio/cells/common/micro/registry"
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/proto/tree"
@@ -58,7 +58,7 @@ func NewLocal(root string, options Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
 			microregistry.EnableNats()
-			natsbroker.Enable()
+			microbroker.EnableNATS()
 			grpctransport.Enable()
 			registry.Init()
 		})
