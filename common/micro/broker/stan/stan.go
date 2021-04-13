@@ -181,10 +181,10 @@ func (n *stanBroker) connect() error {
 		case <-ticker.C:
 			err := fn()
 			if err == nil {
-				log.Print("[stan]: successeful connected to %v", n.addrs)
+				log.Printf("[stan]: successeful connected to %v", n.addrs)
 				return nil
 			}
-			log.Print("[stan]: failed to connect %v: %v\n", n.addrs, err)
+			log.Printf("[stan]: failed to connect %v: %v\n", n.addrs, err)
 		}
 	}
 

@@ -347,22 +347,32 @@ func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (s
 	// get the service
 	// try the cache first
 	// if that fails go directly to the registry
-	services, err := c.get(service)
-	if err != nil {
-		return nil, err
+	i := 0
+	for {
+		if i == 5 {
+			break
+		}
+
+		services, err := c.get(service)
+		if err != nil {
+			return nil, err
+		}
+
+		// apply the filters
+		for _, filter := range sopts.Filters {
+			services = filter(services)
+		}
+
+		// if there's nothing left, return
+		if len(services) > 0 {
+			return sopts.Strategy(services), nil
+		}
+
+		time.Sleep(1 * time.Second)
+		i++
 	}
 
-	// apply the filters
-	for _, filter := range sopts.Filters {
-		services = filter(services)
-	}
-
-	// if there's nothing left, return
-	if len(services) == 0 {
-		return nil, selector.ErrNoneAvailable
-	}
-
-	return sopts.Strategy(services), nil
+	return nil, selector.ErrNoneAvailable
 }
 
 func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {

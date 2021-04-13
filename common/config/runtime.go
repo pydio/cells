@@ -6,3 +6,8 @@ import "github.com/spf13/viper"
 func RuntimeIsLocal() bool {
 	return viper.GetString("config") == "local"
 }
+
+// RuntimeIsRemote check if the environment runtime config is a remote server
+func RuntimeIsRemote() bool {
+	return viper.GetString("config") == "remote"
+}

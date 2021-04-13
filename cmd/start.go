@@ -124,16 +124,21 @@ ENVIRONMENT
 			"fork": "is_fork",
 		})
 
-		if config.RuntimeIsLocal() && !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
-			return triggerInstall(
-				"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
-				"Do you want to create one now",
-				cmd, args)
-		}
+		if !config.RuntimeIsRemote() {
+			if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
+				return triggerInstall(
+					"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
+					"Do you want to create one now",
+					cmd, args)
+			}
 
-		// TO REMOVE
-		// TO REMOVE
-		initConfig()
+
+			if initConfig() {
+				return triggerInstall(
+					"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
+					"Do you want to reset the initial configuration", cmd, args)
+			}
+		}
 
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
@@ -156,10 +161,13 @@ ENVIRONMENT
 			handleSignals()
 		})
 
-		initConfig()
+		if config.RuntimeIsRemote() {
+			// For a remote server, we are waiting for the registry to be set to initiate config
+			initConfig()
+		}
 
 		// Pre-check that pydio.json is properly configured
-		if a, _ := config.GetDatabase("default"); a == "" {
+		if v := config.Get("version").String(); v == "" {
 			return triggerInstall(
 				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
 				"Do you want to reset the initial configuration", cmd, args)

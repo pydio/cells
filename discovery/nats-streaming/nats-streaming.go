@@ -30,7 +30,6 @@ func Init() {
 			stanOpts.FilestoreDir = filepath.Join(config.ApplicationWorkingDir(), "nats")
 		} else if stanOpts.StoreType == stores.TypeSQL {
 			driver, dsn := config.GetDatabase("default")
-			fmt.Println("The driver is ", driver, dsn)
 			stanOpts.SQLStoreOpts = stores.SQLStoreOptions{
 				Driver: driver,
 				Source: dsn,

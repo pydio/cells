@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	p "github.com/manifoldco/promptui"
 	"github.com/pydio/cells/common/proto/install"
@@ -143,21 +144,6 @@ SERVICES DISCOVERY
 	},
 }
 
-func skipInstallInit() bool {
-	if len(os.Args) <= 1 {
-		return true
-	}
-	arg := os.Args[1]
-
-	for _, skip := range installCommands {
-		if arg == skip {
-			return false
-		}
-	}
-
-	return true
-}
-
 func skipCoreInit() bool {
 	if len(os.Args) == 1 {
 		return true
@@ -174,60 +160,7 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initLocalConfig() {
-
-	if skipCoreInit() {
-		return
-	}
-
-	versionsStore := filex.NewStore(config.PydioConfigDir)
-
-	var vaultConfig config.Store
-	var defaultConfig config.Store
-
-	source := file.NewSource(
-		microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-	)
-
-	vaultConfig = config.New(
-		micro.New(
-			microconfig.NewConfig(
-				microconfig.WithSource(
-					vault.NewVaultSource(
-						filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
-						filepath.Join(config.PydioConfigDir, "cells-vault-key"),
-						true,
-					),
-				),
-				microconfig.PollInterval(10*time.Second),
-			),
-		))
-
-	defaultConfig = config.New(
-		micro.New(
-			microconfig.NewConfig(
-				microconfig.WithSource(source),
-				microconfig.PollInterval(10*time.Second),
-			),
-		),
-	)
-
-	defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
-	defaultConfig = config.NewVault(vaultConfig, defaultConfig)
-
-	config.Register(defaultConfig)
-	config.RegisterVault(vaultConfig)
-	config.RegisterVersionStore(versionsStore)
-
-	// Need to do something for the versions
-	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val(), common.Version()); err == nil && save {
-		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
-			log.Fatal("Could not save config migrations", zap.Error(err))
-		}
-	}
-}
-
-func initConfig() {
+func initConfig() (new bool) {
 
 	if skipCoreInit() {
 		return
@@ -240,7 +173,6 @@ func initConfig() {
 
 	switch viper.GetString("config") {
 	case "mysql":
-
 		var proxyConf *install.ProxyConfig
 
 		localSource := file.NewSource(
@@ -257,6 +189,7 @@ func initConfig() {
 		)
 
 		config.Register(localConfig)
+		config.RegisterLocal(localConfig)
 
 		// Pre-check that pydio.json is properly configured
 		if a, _ := config.GetDatabase("default"); a == "" {
@@ -285,19 +218,31 @@ func initConfig() {
 
 		driver, dsn := config.GetDatabase("default")
 		vaultConfig = config.New(sql.New(driver, dsn, "vault"))
-		defaultConfig = config.New(
-			sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"),
-		)
-		fmt.Println("Setting default database to MYSQL")
+		defaultConfig = config.New(sql.New(driver, dsn, "default"))
+
+
 	case "remote":
+		localSource := file.NewSource(
+			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+		)
+
+		localConfig := config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(localSource),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		config.RegisterLocal(localConfig)
+
 		vaultConfig = config.New(
 			remote.New("vault"),
 		)
 		defaultConfig = config.New(
 			remote.New("config"),
 		)
-
-		time.Sleep(3 * time.Second)
 	default:
 		source := file.NewSource(
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
@@ -328,6 +273,24 @@ func initConfig() {
 
 		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
 		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+
+		config.RegisterLocal(defaultConfig)
+	}
+
+	if defaultConfig.Val("version").String() == "" {
+		new = true
+
+		var data interface{}
+		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+			if err := defaultConfig.Val().Set(data); err == nil {
+				versionsStore.Put(&filex.Version{
+					User: "cli",
+					Date: time.Now(),
+					Log:  "Initialize with sample config",
+					Data: data,
+				})
+			}
+		}
 	}
 
 	config.Register(defaultConfig)
@@ -340,6 +303,8 @@ func initConfig() {
 			log.Fatal("Could not save config migrations", zap.Error(err))
 		}
 	}
+
+	return
 }
 
 func initLogLevel() {
