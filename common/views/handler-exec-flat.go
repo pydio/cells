@@ -82,6 +82,7 @@ func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, req
 
 func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 
+	var revertNode *tree.Node
 	if isFlatStorage(ctx, "to") {
 		if len(requestData.SrcVersionId) > 0 {
 			if e := f.resolveUUID(ctx, to); e != nil {
@@ -103,6 +104,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			}
 			// Attach Uuid to target node
 			to.Uuid = temporary.Uuid
+			revertNode = temporary
 		}
 	}
 	i, e := f.next.CopyObject(ctx, from, to, requestData)
@@ -118,6 +120,12 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 		// Now store in index
 		if er := f.postCreate(tgtCtx, "to", to, requestData.Metadata); er != nil {
 			return i, er
+		}
+	} else if e != nil && revertNode != nil {
+		if _, de := f.clientsPool.GetTreeClientWrite().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: revertNode}); de != nil {
+			log.Logger(ctx).Error("Error while copying object and error while reverting index node", zap.Error(de), revertNode.ZapPath())
+		} else {
+			log.Logger(ctx).Warn("Error while copying object, reverted index node", revertNode.ZapPath())
 		}
 	}
 	return i, e

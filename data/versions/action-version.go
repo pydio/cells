@@ -22,10 +22,12 @@ package versions
 
 import (
 	"context"
+	"fmt"
 	"path"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/micro/go-micro/client"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -95,14 +97,6 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithIgnore(), nil // Ignore
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
-	/*
-		var hasPolicy bool
-		if nodeSource, e := getRouter().GetClientsPool().GetDataSourceInfo(node.GetStringMeta(common.MetaNamespaceDatasourceName)); e == nil {
-			if nodeSource.VersioningPolicyName != "" {
-				hasPolicy = true
-			}
-		}
-	*/
 	policy := PolicyForNode(ctx, node)
 	if policy == nil {
 		return input.WithIgnore(), nil
@@ -149,6 +143,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
 	if err != nil {
+		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
 	}
 
