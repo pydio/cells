@@ -1,4 +1,4 @@
-// build +ignore
+// +build ignore
 
 // Package etcd provides an etcd service registry
 package etcd
