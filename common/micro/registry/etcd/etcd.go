@@ -1,3 +1,5 @@
+// build +ignore
+
 // Package etcd provides an etcd service registry
 package etcd
 
@@ -14,7 +16,7 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
-	"github.com/etcd.io/etcd/client"
+	"go.etcd.io/etcd/clientv3"
 	"github.com/micro/go-micro/registry"
 	hash "github.com/mitchellh/hashstructure"
 	"go.uber.org/zap"
@@ -25,7 +27,7 @@ var (
 )
 
 type etcdRegistry struct {
-	client  *client.Client
+	client  *clientv3.Client
 	options registry.Options
 
 	sync.RWMutex
