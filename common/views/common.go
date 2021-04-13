@@ -233,6 +233,11 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 
 }
 
+// IsInternal check if either datasource is internal or branch has Binary flag
+func (b BranchInfo) IsInternal() bool {
+	return b.Binary || b.LoadedSource.IsInternal()
+}
+
 // WithBucketName creates a copy of a LoadedSource with a bucket name
 func WithBucketName(s LoadedSource, bucket string) LoadedSource {
 	out := LoadedSource{

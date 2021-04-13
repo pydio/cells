@@ -9,7 +9,7 @@ import (
 // CreateNode Forwards to Index
 func (s *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
 
-	e := s.S3client.CreateNode(ctx, req.Node, req.UpdateIfExists)
+	e := s.s3client.CreateNode(ctx, req.Node, req.UpdateIfExists)
 	if e != nil {
 		return e
 	}
@@ -20,7 +20,7 @@ func (s *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, r
 // UpdateNode Forwards to S3
 func (s *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) error {
 
-	e := s.S3client.MoveNode(ctx, req.From.Path, req.To.Path)
+	e := s.s3client.MoveNode(ctx, req.From.Path, req.To.Path)
 	if e != nil {
 		resp.Success = false
 		return e
@@ -32,7 +32,7 @@ func (s *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, r
 // DeleteNode Forwards to S3
 func (s *Handler) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) error {
 
-	e := s.S3client.DeleteNode(ctx, req.Node.Path)
+	e := s.s3client.DeleteNode(ctx, req.Node.Path)
 	if e != nil {
 		resp.Success = false
 		return e
@@ -44,7 +44,7 @@ func (s *Handler) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, r
 // ReadNode Forwards to Index
 func (s *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
-	r, e := s.IndexClient.ReadNode(ctx, req)
+	r, e := s.indexClientRead.ReadNode(ctx, req)
 	if e != nil {
 		return e
 	}
@@ -57,7 +57,7 @@ func (s *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp 
 // ListNodes Forward to index
 func (s *Handler) ListNodes(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream) error {
 
-	client, e := s.IndexClient.ListNodes(ctx, req)
+	client, e := s.indexClientRead.ListNodes(ctx, req)
 	if e != nil {
 		return e
 	}

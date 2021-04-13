@@ -36,6 +36,12 @@ type EventsSubscriber struct {
 // Handle the events received and send them to the subscriber
 func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 
+	if msg.GetTarget() != nil && msg.GetTarget().HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+		return nil
+	}
+	if msg.GetType() == tree.NodeChangeEvent_DELETE && msg.GetSource().HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+		return nil
+	}
 	if msg.GetType() == tree.NodeChangeEvent_CREATE && (msg.GetTarget().Etag == common.NodeFlagEtagTemporary || tree.IgnoreNodeForOutput(ctx, msg.GetTarget())) {
 		return nil
 	}

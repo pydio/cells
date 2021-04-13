@@ -57,7 +57,7 @@ func (h *HandlerEventRead) feedNodeUuid(ctx context.Context, node *tree.Node) er
 
 func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	c, e := h.next.ListNodes(ctx, in, opts...)
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
 		return c, e
 	}
 	if e == nil && in.Node != nil {
@@ -97,7 +97,7 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 	}
 
 	reader, e := h.next.GetObject(ctx, node, requestData)
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
 		return reader, e
 	}
 	if e == nil && requestData.StartOffset == 0 {

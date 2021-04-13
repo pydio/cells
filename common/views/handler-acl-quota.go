@@ -108,7 +108,7 @@ func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader 
 	// Note : as the temporary file created by PutHandler is already in index,
 	// currentUsage ALREADY takes into account the input data size.
 
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
@@ -122,7 +122,7 @@ func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader 
 // MultipartPutObjectPart checks quota on MultipartPutObjectPart.
 func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
 
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return minio.ObjectPart{}, err
 		} else if maxQuota > 0 && currentUsage > maxQuota {
@@ -136,7 +136,7 @@ func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tre
 // CopyObject checks quota on CopyObject operation.
 func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 
-	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok && !branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
 		} else if maxQuota > 0 && currentUsage+from.Size > maxQuota {
@@ -152,7 +152,7 @@ func (a *AclQuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx conte
 	switch operation.GetType() {
 	case tree.NodeChangeEvent_CREATE:
 		targetNode := operation.GetTarget()
-		if bI, ok := GetBranchInfo(targetCtx, "in"); ok && !bI.Binary {
+		if bI, ok := GetBranchInfo(targetCtx, "in"); ok && !bI.IsInternal() {
 			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, &bI.Workspace); err != nil {
 				return err
 			} else if maxQuota > 0 && currentUsage+targetNode.Size > maxQuota {

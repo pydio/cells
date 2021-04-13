@@ -227,7 +227,7 @@ func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary b
 	wsScope = zap.String(common.KEY_WORKSPACE_SCOPE, "")
 
 	branchInfo, ok := GetBranchInfo(ctx, identifier)
-	if ok && branchInfo.Binary {
+	if ok && branchInfo.IsInternal() {
 		return true, wsInfo, wsScope
 	}
 
