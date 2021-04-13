@@ -55,6 +55,14 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	chatDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceChat)
 
 	// Easy finding usage of srvUrl
+	if err := config.SetDatabase(common.ServiceGrpcNamespace_ + common.ServiceActivity, "boltdb", filepath.Join(acDir, "activities.db")); err != nil {
+		return err
+	}
+	if err := config.SetDatabase(common.ServiceGrpcNamespace_ + common.ServiceChat, "boltdb", filepath.Join(acDir, "chat.db")); err != nil {
+		return err
+	}
+
+	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{
 		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceActivity + "/driver": "boltdb",
 		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceActivity + "/dsn":    filepath.Join(acDir, "activities.db"),

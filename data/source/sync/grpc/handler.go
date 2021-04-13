@@ -423,33 +423,43 @@ func (s *Handler) watchErrors() {
 
 func (s *Handler) watchConfigs() {
 	serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + s.dsName
-	watcher, e := config.Watch("services", serviceName)
-	if e != nil {
-		return
-	}
-	s.watcher = watcher
+
+	// TODO - should be linked to context
 	for {
-		event, err := watcher.Next()
-		if err != nil {
+		watcher, e := config.Watch("services", serviceName)
+		if e != nil {
+			time.Sleep(1 * time.Second)
 			continue
 		}
-		var cfg object.DataSource
-		if err := event.Scan(&cfg); err == nil {
-			log.Logger(s.globalCtx).Debug("Config changed on "+serviceName+", comparing", zap.Any("old", s.SyncConfig), zap.Any("new", &cfg))
-			if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
-				// @TODO - Object service must be restarted before restarting sync
-				log.Logger(s.globalCtx).Info("Path changed on " + serviceName + ", should reload sync task entirely - Please restart service")
-			} else if s.SyncConfig.VersioningPolicyName != cfg.VersioningPolicyName || s.SyncConfig.EncryptionMode != cfg.EncryptionMode {
-				log.Logger(s.globalCtx).Info("Versioning policy changed on "+serviceName+", updating internal config", zap.Any("cfg", &cfg))
-				s.SyncConfig.VersioningPolicyName = cfg.VersioningPolicyName
-				s.SyncConfig.EncryptionMode = cfg.EncryptionMode
-				s.SyncConfig.EncryptionKey = cfg.EncryptionKey
-				<-time.After(2 * time.Second)
-				config.TouchSourceNamesForDataServices(common.ServiceDataSync)
+
+		s.watcher = watcher
+		for {
+			event, err := watcher.Next()
+			if err != nil {
+				break
 			}
-		} else {
-			log.Logger(s.globalCtx).Error("Could not scan event", zap.Error(err))
+
+			var cfg object.DataSource
+			if err := event.Scan(&cfg); err == nil {
+				log.Logger(s.globalCtx).Debug("Config changed on "+serviceName+", comparing", zap.Any("old", s.SyncConfig), zap.Any("new", &cfg))
+				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
+					// @TODO - Object service must be restarted before restarting sync
+					log.Logger(s.globalCtx).Info("Path changed on " + serviceName + ", should reload sync task entirely - Please restart service")
+				} else if s.SyncConfig.VersioningPolicyName != cfg.VersioningPolicyName || s.SyncConfig.EncryptionMode != cfg.EncryptionMode {
+					log.Logger(s.globalCtx).Info("Versioning policy changed on "+serviceName+", updating internal config", zap.Any("cfg", &cfg))
+					s.SyncConfig.VersioningPolicyName = cfg.VersioningPolicyName
+					s.SyncConfig.EncryptionMode = cfg.EncryptionMode
+					s.SyncConfig.EncryptionKey = cfg.EncryptionKey
+					<-time.After(2 * time.Second)
+					config.TouchSourceNamesForDataServices(common.ServiceDataSync)
+				}
+			} else {
+				log.Logger(s.globalCtx).Error("Could not scan event", zap.Error(err))
+			}
 		}
+
+		watcher.Stop()
+		time.Sleep(1 * time.Second)
 	}
 }
 

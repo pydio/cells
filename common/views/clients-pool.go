@@ -276,19 +276,32 @@ func (p *ClientsPool) watchRegistry() {
 }
 
 func (p *ClientsPool) watchConfigChanges() {
-
-	watcher, err := config.Watch("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
-	if err != nil {
-		return
-	}
-	p.confWatcher = watcher
 	for {
-		event, err := watcher.Next()
-		if event != nil && err == nil {
-			p.LoadDataSources()
+		watcher, err := config.Watch("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources")
+		if err != nil {
+			// Cool-off period
+			time.Sleep(1 * time.Second)
+			continue
 		}
-	}
 
+		p.confWatcher = watcher
+		for {
+			event, err := watcher.Next()
+			if err != nil {
+				break
+			}
+
+			if event != nil {
+				p.LoadDataSources()
+			}
+		}
+
+		watcher.Stop()
+
+
+		// Cool-off period
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSource *object.DataSource, registerKey ...string) error {

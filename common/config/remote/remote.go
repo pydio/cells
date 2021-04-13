@@ -3,7 +3,6 @@ package remote
 import (
 	"context"
 	"encoding/json"
-
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/x/configx"
@@ -13,6 +12,9 @@ import (
 type remote struct {
 	id     string
 	config configx.Values
+
+	ctx context.Context
+	stream proto.ConfigClient
 }
 
 func New(id string) configx.Entrypoint {
@@ -60,7 +62,10 @@ func (r *remote) Del() error {
 
 func (r *remote) Watch(path ...string) (configx.Receiver, error) {
 	cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
-	stream, err := cli.Watch(context.TODO(), &proto.WatchRequest{
+
+	r.ctx = context.Background()
+
+	stream, err := cli.Watch(r.ctx, &proto.WatchRequest{
 		Id: r.id,
 		// 	Path: strings.Join(path, "/"),
 	})

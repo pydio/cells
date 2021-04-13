@@ -32,11 +32,17 @@ import (
 
 var (
 	std Store = New(micro.New(config.NewConfig(config.WithSource(memory.NewSource(memory.WithJSON([]byte{}))))))
+	local Store = std
 )
 
 // Register the default config store
 func Register(store Store) {
 	std = store
+}
+
+// Register local
+func RegisterLocal(store Store) {
+	local = store
 }
 
 // Store defines the functionality a config must provide

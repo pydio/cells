@@ -242,8 +242,9 @@ func (n *stanRegistry) Deregister(s *registry.Service) error {
 
 func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
 	n.servicesLock.RLock()
+	defer n.servicesLock.RUnlock()
+
 	servicesMap := n.services[s]
-	n.servicesLock.RUnlock()
 
 	var services []*registry.Service
 	for _, service := range servicesMap {
@@ -275,14 +276,12 @@ func checkExpiredNodes(service *registry.Service) (valid []*registry.Node, expir
 		}
 	}
 
-	if len(expired) > 0 {
-		for _, node := range expired {
-			// Sending messages to the watchers that this has been canned
-
-
-			fmt.Println("The expired node is ? ", service.Name, node.Id, node.Metadata["expiry"])
-		}
-	}
+	//if len(expired) > 0 {
+	//	for _, node := range expired {
+	//		// Sending messages to the watchers that this has been canned
+	//		fmt.Println("The expired node is ? ", service.Name, node.Id, node.Metadata["expiry"])
+	//	}
+	//}
 
 	return
 }
@@ -295,8 +294,9 @@ func (n *stanRegistry) ListServices() ([]*registry.Service, error) {
 
 
 	n.servicesLock.RLock()
+	defer n.servicesLock.RUnlock()
+
 	servicesMap := n.services
-	n.servicesLock.RUnlock()
 
 	var services []*registry.Service
 	for _, v := range servicesMap {

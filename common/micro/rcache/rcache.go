@@ -34,6 +34,8 @@ type cache struct {
 	ttls    map[string]time.Time
 	watched map[string]bool
 
+	eventslock *sync.RWMutex
+
 	exit chan bool
 }
 
@@ -267,7 +269,10 @@ func (c *cache) update(res *registry.Result) {
 func (c *cache) run(service string) {
 
 	ch := make(chan *registry.Result)
+
+	c.eventslock.Lock()
 	c.events[service] = ch
+	c.eventslock.Unlock()
 
 	for {
 		// exit early if already dead
@@ -353,7 +358,9 @@ func (c *cache) mainWatch(w registry.Watcher) error {
 			return err
 		}
 
+		c.eventslock.RLock()
 		ch, ok := c.events[res.Service.Name]
+		c.eventslock.RUnlock()
 		if !ok {
 			continue
 		}
@@ -364,6 +371,7 @@ func (c *cache) mainWatch(w registry.Watcher) error {
 
 // New returns a new cache
 func New(r registry.Registry, opts ...Option) Cache {
+
 	options := Options{
 		TTL: DefaultTTL,
 	}
@@ -380,6 +388,7 @@ func New(r registry.Registry, opts ...Option) Cache {
 		cache:    make(map[string][]*registry.Service),
 		ttls:     make(map[string]time.Time),
 		exit:     make(chan bool),
+		eventslock: new(sync.RWMutex),
 	}
 
 	go c.mainRun()

@@ -80,7 +80,7 @@ func buildForkStartParams(name string) []string {
 	params := []string{
 		"start",
 		"--fork",
-		"--config", viper.GetString("config"),
+		"--config", "remote",
 		"--registry", viper.GetString("registry"),
 		"--broker", viper.GetString("broker"),
 		"--nats_streaming_store", viper.GetString("nats_streaming_store"),
@@ -408,37 +408,6 @@ var mandatoryOptions = []ServiceOption{
 		return nil
 	}),
 
-	// Adding a check before starting the service to ensure only one is started if unique
-	// BeforeStart(func(s Service) error {
-	// 	if !s.MustBeUnique() {
-	// 		return nil
-	// 	}
-
-	// 	ctx := s.Options().Context
-	// 	serviceName := s.Name()
-	// 	cluster := registry.GetCluster(ctx, serviceName)
-
-	// 	s.Init(Cluster(cluster))
-
-	// 	nodeID := s.Options().ID
-	// 	if err := cluster.Join(nodeID); err != nil {
-	// 		return err
-	// 	}
-
-	// 	<-cluster.LeadershipAcquired()
-
-	// 	go func() {
-	// 		select {
-	// 		case <-cluster.LeadershipLost():
-	// 			s.Stop()
-	// 		case <-ctx.Done():
-	// 			return
-	// 		}
-	// 	}()
-
-	// 	return nil
-	// }),
-
 	// Adding the dao to the context
 	BeforeStart(func(s Service) error {
 
@@ -637,7 +606,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	case <-ctx.Done():
 		return
 	default:
-		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
+		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now " +  name)
 		s.ForkStart(ctx, r+1)
 	}
 }
