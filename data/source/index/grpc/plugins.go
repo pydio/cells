@@ -25,6 +25,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/pydio/cells/common/proto/sync"
@@ -66,9 +67,12 @@ func init() {
 				service.WithMicro(func(m micro.Service) error {
 
 					server := m.Server()
-					source := server.Options().Metadata["source"]
-
-					engine := NewTreeServer(source)
+					sourceOpt := server.Options().Metadata["source"]
+					dsObject, e := config.GetSourceInfoByName(sourceOpt)
+					if e != nil {
+						return fmt.Errorf("cannot find datasource configuration for " + sourceOpt)
+					}
+					engine := NewTreeServer(dsObject)
 					tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
 					tree.RegisterNodeProviderHandler(m.Options().Server, engine)
 					tree.RegisterNodeReceiverStreamHandler(m.Options().Server, engine)

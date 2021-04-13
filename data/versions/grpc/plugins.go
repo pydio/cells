@@ -24,7 +24,6 @@ package grpc
 import (
 	"context"
 	"path"
-	"strings"
 	"time"
 
 	"github.com/pydio/cells/common/registry"
@@ -88,15 +87,16 @@ func init() {
 				jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 				to := registry.ShortRequestTimeout()
 				ctx := m.Options().Context
-				for _, j := range getDefaultJobs() {
-					if resp, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: j.ID}, to); err != nil {
-						jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
-					} else if resp.GetJob().GetID() == "prune-versions-job" && resp.GetJob().GetSchedule() != nil {
-						if strings.HasSuffix(resp.GetJob().GetSchedule().GetIso8601Schedule(), "PT15M") {
-							log.Logger(ctx).Info("Updating prune-versions-job schedule to lower frequency")
-							jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
-						}
-					}
+				// Migration from old prune-versions-job : delete if exists, replaced by composed job
+				var reinsert bool
+				if _, e := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
+					jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
+					reinsert = true
+				}
+				vJob := getVersioningJob()
+				if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: vJob.ID}, to); err != nil || reinsert {
+					log.Logger(ctx).Info("Inserting versioning job")
+					jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: vJob}, to)
 				}
 
 				return nil

@@ -41,9 +41,18 @@ func (d *DataSource) CreateClient() (*minio.Core, error) {
 
 }
 
-// Builds the url used for clients
+// BuildUrl builds the url used for clients
 func (d *MinioConfig) BuildUrl() string {
 	return fmt.Sprintf("%s:%d", d.RunningHost, d.RunningPort)
+}
+
+// IsInternal is a short hand to check StorageConfiguration["cellsInternal"] key
+func (d *DataSource) IsInternal() bool {
+	if d.StorageConfiguration != nil {
+		_, i := d.StorageConfiguration["cellsInternal"]
+		return i
+	}
+	return false
 }
 
 /* LOGGING SUPPORT */

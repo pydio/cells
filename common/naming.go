@@ -139,6 +139,7 @@ const (
 const (
 	MetaNamespaceDatasourceName      = "pydio:meta-data-source-name"
 	MetaNamespaceDatasourcePath      = "pydio:meta-data-source-path"
+	MetaNamespaceDatasourceInternal  = "pydio:meta-data-source-internal"
 	MetaNamespaceNodeTestLocalFolder = "pydio:test:local-folder-storage"
 	MetaNamespaceRecycleRestore      = "pydio:recycle_restore"
 	MetaNamespaceNodeName            = "name"

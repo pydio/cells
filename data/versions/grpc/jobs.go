@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/data/versions/lang"
 )
 
-func getDefaultJobs() []*jobs.Job {
+func getVersioningJob() *jobs.Job {
 
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
@@ -62,54 +62,52 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
-	return []*jobs.Job{
-		{
-			ID:                "versioning-job",
-			Owner:             common.PydioSystemUsername,
-			Label:             T("Job.Version.Title"),
-			Inactive:          false,
-			MaxConcurrency:    5,
-			TasksSilentUpdate: true,
-			EventNames: []string{
-				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
-				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
-				jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
+	return &jobs.Job{
+		ID:                "versioning-job",
+		Owner:             common.PydioSystemUsername,
+		Label:             T("Job.Version.Title"),
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
+		EventNames: []string{
+			jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
+			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
+			jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
+		},
+		DataSourceFilter: &jobs.DataSourceSelector{
+			Label:       "Is Versioned?",
+			Description: "Excluded non versioned DataSources",
+			Type:        jobs.DataSourceSelectorType_DataSource,
+			Query: &service.Query{
+				SubQueries: []*any.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
+					IsVersioned: true,
+				})},
 			},
-			DataSourceFilter: &jobs.DataSourceSelector{
-				Label:       "Is Versioned?",
-				Description: "Excluded non versioned DataSources",
-				Type:        jobs.DataSourceSelectorType_DataSource,
-				Query: &service.Query{
-					SubQueries: []*any.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
-						IsVersioned: true,
+		},
+		NodeEventFilter: &jobs.NodesSelector{
+			Query: &service.Query{
+				SubQueries: jobs.MustMarshalAnyMultiple(
+					&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
+						Type: tree.NodeType_LEAF,
 					})},
-				},
+					&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
+						FileName: common.PydioSyncHiddenFile,
+						Not:      true,
+					})},
+				),
+				Operation: service.OperationType_AND,
 			},
-			NodeEventFilter: &jobs.NodesSelector{
-				Query: &service.Query{
-					SubQueries: jobs.MustMarshalAnyMultiple(
-						&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
-							Type: tree.NodeType_LEAF,
-						})},
-						&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
-							FileName: common.PydioSyncHiddenFile,
-							Not:      true,
-						})},
-					),
-					Operation: service.OperationType_AND,
-				},
+		},
+		Actions: []*jobs.Action{
+			{
+				ID:            "actions.versioning.create",
+				TriggerFilter: triggerCreate,
 			},
-			Actions: []*jobs.Action{
-				{
-					ID:            "actions.versioning.create",
-					TriggerFilter: triggerCreate,
-				},
-				{
-					ID:            "actions.versioning.ondelete",
-					TriggerFilter: triggerDelete,
-					Parameters: map[string]string{
-						"rootFolder": "$DELETED$",
-					},
+			{
+				ID:            "actions.versioning.ondelete",
+				TriggerFilter: triggerDelete,
+				Parameters: map[string]string{
+					"rootFolder": "$DELETED$",
 				},
 			},
 		},

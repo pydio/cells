@@ -184,6 +184,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 				return err
 			}
 			minioConfig = resp.MinioConfig
+			if minioConfig == nil {
+				return fmt.Errorf("empty minio config - retrying")
+			}
 			if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
 				minioConfig.ApiSecret = sec
 			}
