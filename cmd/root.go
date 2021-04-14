@@ -25,9 +25,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	p "github.com/manifoldco/promptui"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/discovery/install/lib"
 	log2 "log"
 	"os"
 	"path/filepath"
@@ -173,8 +170,6 @@ func initConfig() (new bool) {
 
 	switch viper.GetString("config") {
 	case "mysql":
-		var proxyConf *install.ProxyConfig
-
 		localSource := file.NewSource(
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
 		)
@@ -193,27 +188,7 @@ func initConfig() (new bool) {
 
 		// Pre-check that pydio.json is properly configured
 		if a, _ := config.GetDatabase("default"); a == "" {
-			cliConfig := lib.GenerateDefaultConfig()
-			cliConfig.ProxyConfig = proxyConf
-
-			if e := applyAdditionalPrompt("boot", cliConfig); e != nil {
-				return
-			}
-
-			fmt.Println("\n\033[1m## Database Connection\033[0m")
-			_, e := promptDB(cliConfig)
-			if e != nil {
-				return
-			}
-
-			fmt.Println("\n\033[1m## Applying configuration\033[0m")
-			e = lib.Install(context.Background(), cliConfig, lib.INSTALL_DB, func(event *lib.InstallProgressEvent) {
-				fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
-			})
-			if e != nil {
-				return
-			}
-			fmt.Println(p.IconGood + " Configuration done")
+			return
 		}
 
 		driver, dsn := config.GetDatabase("default")

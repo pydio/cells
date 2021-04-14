@@ -68,6 +68,15 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, e
 	}
 
+	e = lib.Install(context.Background(), cliConfig, lib.INSTALL_DB, func(event *lib.InstallProgressEvent) {
+		fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
+	})
+	if e != nil {
+		return nil, fmt.Errorf("could not perform installation: %s", e.Error())
+	}
+
+	initConfig()
+
 	fmt.Println("\n\033[1m## Administrative User Configuration\033[0m")
 	if e := promptFrontendAdmin(cliConfig, adminRequired); e != nil {
 		return nil, e
