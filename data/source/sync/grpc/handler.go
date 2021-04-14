@@ -179,14 +179,14 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			log.Logger(ctx).Info("Sync " + dataSource + " - Try to contact Objects")
 			cli := object.NewObjectsEndpointClient(registry.GetClient(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
-			if err != nil || resp.MinioConfig == nil {
+			if err != nil {
 				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
 				return err
+			} else if resp.MinioConfig == nil {
+				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
+				return fmt.Errorf("empty config")
 			}
 			minioConfig = resp.MinioConfig
-			if minioConfig == nil {
-				return fmt.Errorf("empty minio config - retrying")
-			}
 			if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
 				minioConfig.ApiSecret = sec
 			}
