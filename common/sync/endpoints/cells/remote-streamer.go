@@ -21,6 +21,8 @@ package cells
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"time"
 
 	"github.com/micro/go-micro/client"
@@ -100,20 +102,34 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		streamer.Close()
-		c.sessionsCreates = []*tree.CreateNodeRequest{}
-	}()
-	for _, create := range c.sessionsCreates {
+	var creates []*tree.CreateNodeRequest
+
+	cut := int(math.Min(300, float64(len(c.sessionsCreates))))
+	creates = c.sessionsCreates[:cut]
+	c.sessionsCreates = c.sessionsCreates[cut:]
+
+	// do not close defered as it is recursive
+	//defer func() {
+	//	streamer.Close()
+	//}()
+	for _, create := range creates {
 		if e := streamer.Send(create); e != nil {
+			streamer.Close()
 			return e
 		}
 		if resp, e := streamer.Recv(); e == nil {
 			log.Logger(ctx).Debug("Got create node response in session", zap.Any("r", resp))
 			c.recentMkDirs = append(c.recentMkDirs, resp.Node)
 		} else {
+			streamer.Close()
 			return e
 		}
+	}
+	streamer.Close()
+	if len(c.sessionsCreates) > 0 {
+		<-time.After(500 * time.Millisecond)
+		log.Logger(ctx).Info(fmt.Sprintf("[Remote Streamer] Flushing creates session, there are %d left to apply", len(c.sessionsCreates)))
+		return c.FlushSession(ctx, sessionUuid)
 	}
 	return nil
 }

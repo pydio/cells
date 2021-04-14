@@ -64,8 +64,6 @@ func (pr *Processor) processCreateFolder(cancelCtx context.Context, operation me
 	err := operation.Target().CreateNode(ctx, operation.GetNode(), false)
 	if err != nil && strings.Contains(string(err.Error()), "Duplicate entry") {
 		pr.Logger().Error("Duplicate UUID found, we should have refreshed uuids on source?", zap.Error(err))
-		return err
 	}
-
-	return nil
+	return err
 }

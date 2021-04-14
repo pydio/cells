@@ -132,12 +132,14 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// if necessary. Flush is triggered between each operation type by checking if next type has
 	// some Pending operations.
 	flusher := func(tt ...merger.OperationType) {}
+	finalFlusher := func() {}
 	if session, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
-		defer func() {
+		finalFlusher = func() {
+			log.Logger(pr.GlobalContext).Info("Finishing patch session")
 			if e := patch.FinishSession(session.Uuid); e != nil {
 				patch.SetPatchError(e)
 			}
-		}()
+		}
 		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
@@ -154,6 +156,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
 	// Listen to cmd Chan
 	ctx, cancel := context.WithCancel(pr.GlobalContext)
+	defer cancel()
 	var cmdChan chan model.SyncCmd
 	if cmd != nil {
 		var unsub chan bool
@@ -257,6 +260,8 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
 	// Now that all files are created, we can process metadata operations
 	patch.WalkOperations([]merger.OperationType{merger.OpCreateMeta, merger.OpUpdateMeta, merger.OpDeleteMeta}, serialWalker)
+
+	finalFlusher()
 
 	if pE, h := patch.HasErrors(); !h && !pr.SkipTargetChecks {
 		if err := patch.Validate(ctx); err != nil {
