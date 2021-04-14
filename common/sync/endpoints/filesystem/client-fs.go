@@ -656,6 +656,10 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 	e := godirwalk.Walk(realPath, &godirwalk.Options{
 		Unsorted: true,
 		Callback: func(osPathname string, directoryEntry *godirwalk.Dirent) error {
+			// Check if file is ignored (must use forward slash)
+			if model.IsIgnoredFile(strings.Join(strings.Split(osPathname, string(filepath.Separator)), "/")) {
+				return nil
+			}
 			if !directoryEntry.IsRegular() {
 				if osPathname != realPath {
 					folders++
