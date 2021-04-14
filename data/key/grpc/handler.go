@@ -81,7 +81,7 @@ func (km *NodeKeyManagerHandler) GetNodeInfo(ctx context.Context, req *encryptio
 
 	rsp.NodeInfo.NodeKey, err = dao.GetNodeKey(req.NodeId, req.UserId)
 	if err != nil {
-		log.Logger(ctx).Error("data.key.handler: failed to get node key for "+req.NodeId+" - "+req.UserId, zap.Error(err))
+		log.Logger(ctx).Debug("data.key.handler: failed to get node key for "+req.NodeId+" - "+req.UserId, zap.Error(err))
 		return err
 	}
 
