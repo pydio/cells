@@ -22,10 +22,13 @@ package views
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/pydio/cells/common/sync/endpoints/s3"
 
 	"go.uber.org/zap"
 
@@ -255,36 +258,59 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, 
 
 func (f *FlatStorageHandler) recomputeETag(ctx context.Context, identifier string, node *tree.Node) (string, error) {
 
-	// TODO : Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
-	// SHOULD NOT BE NECESSARY FOR REAL MINIO ON FS (but required for Minio as S3 gateway or real S3)
-
 	src, _ := GetBranchInfo(ctx, identifier)
-	copyMeta := make(map[string]string)
 
+	// Init contextual metadata structures
+	copyMeta := map[string]string{
+		common.XAmzMetaDirective: "REPLACE",
+	}
 	statOpts := minio.StatObjectOptions{}
-	m := map[string]string{}
+	getOpts := minio.GetObjectOptions{}
 	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
 		for k, v := range meta {
-			m[k] = v
 			statOpts.Set(k, v)
+			getOpts.Set(k, v)
 			copyMeta[k] = v
 		}
 	}
+
+	// Load current metadata
 	objectInfo, e := src.Client.StatObject(src.ObjectsBucket, node.GetUuid(), statOpts)
 	if e != nil {
 		return "", e
 	}
-
 	for k, v := range objectInfo.Metadata {
 		copyMeta[k] = strings.Join(v, "")
 	}
-	copyMeta[common.XAmzMetaDirective] = "REPLACE"
 
-	newInfo, copyErr := src.Client.CopyObject(src.ObjectsBucket, objectInfo.Key, src.ObjectsBucket, objectInfo.Key, copyMeta)
-	if copyErr != nil {
-		return "", copyErr
+	if objectInfo.Size > s3.MaxCopyObjectSize && src.StorageType != object.StorageType_LOCAL {
+
+		// Cannot CopyObject on itself for files bigger than 5GB - compute Md5 and store it as metadata instead
+		// Not necessary for real minio on fs (but required for Minio as S3 gateway or real S3)
+		readCloser, _, e := src.Client.GetObject(src.ObjectsBucket, node.GetUuid(), getOpts)
+		if e != nil {
+			return "", e
+		}
+		defer readCloser.Close()
+		h := md5.New()
+		if _, err := io.Copy(h, readCloser); err != nil {
+			return "", err
+		}
+		checksum := fmt.Sprintf("%x", h.Sum(nil))
+		copyMeta[common.XAmzMetaContentMd5] = checksum
+		err := s3.CopyObjectMultipart(context.Background(), src.Client, objectInfo, src.ObjectsBucket, objectInfo.Key, src.ObjectsBucket, objectInfo.Key, copyMeta, nil)
+		return checksum, err
+
+	} else {
+
+		// Perform in-place copy to trigger ETag recomputation inside storage
+		newInfo, copyErr := src.Client.CopyObject(src.ObjectsBucket, objectInfo.Key, src.ObjectsBucket, objectInfo.Key, copyMeta)
+		if copyErr != nil {
+			return "", copyErr
+		}
+		return newInfo.ETag, nil
+
 	}
-	return newInfo.ETag, nil
 
 }
 
