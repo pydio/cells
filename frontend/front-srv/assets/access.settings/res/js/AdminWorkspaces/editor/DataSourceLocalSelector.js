@@ -124,7 +124,8 @@ class AutocompleteTree extends React.Component{
             this.lastSearch = null; // Force reload
             this.loadValues(value).then(()=>{
                 // Select path after reload
-                this.handleNewRequest(createRequest.Path);
+                this.handleNewRequest({key:createRequest.Path});
+                this.setState({searchText: createRequest.Path});
             });
         }).catch(e => {
             pydio.UI.displayMessage('ERROR', e.message);
@@ -184,21 +185,22 @@ class AutocompleteTree extends React.Component{
 
         return (
             <div style={{position:'relative', marginTop: -5}}>
-                <div style={{position:'absolute', right: 0, top: 30, width: 30}}>
+                <div style={{position:'absolute', right: 6, top: 29, width: 30, zIndex: 1}}>
                     <RefreshIndicator
-                        size={30}
+                        size={25}
                         left={0}
                         top={0}
                         status={loading ? "loading" : "hide"}
                     />
                 </div>
                 {value && exist && !loading && (!searchText || searchText === value) &&
-                    <div style={{position:'absolute', right: 0}}>
+                    <div style={{position:'absolute', right: 0, zIndex: 1, top: 18}}>
                         <IconButton
                             iconClassName={"mdi mdi-folder-plus"}
                             iconStyle={{color:'#9e9e9e'}}
                             onClick={()=>this.showCreateDialog()}
                             tooltip={pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']}
+                            tooltipPosition={"top-center"}
                         />
                     </div>
                 }
