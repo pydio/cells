@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"io"
+	"os"
 
 	"github.com/micro/go-micro/errors"
 
@@ -12,6 +13,14 @@ import (
 
 type TreeHandler struct {
 	router views.Handler
+}
+
+func (t *TreeHandler) fixMode(n *tree.Node) {
+	if n.IsLeaf() {
+		n.Mode = int32(os.ModePerm)
+	} else {
+		n.Mode = int32(os.ModePerm & os.ModeDir)
+	}
 }
 
 func (t *TreeHandler) ReadNodeStream(ctx context.Context, s tree.NodeProviderStreamer_ReadNodeStreamStream) error {
@@ -54,6 +63,7 @@ func (t *TreeHandler) CreateNodeStream(ctx context.Context, s tree.NodeReceiverS
 			}
 			break
 		}
+		t.fixMode(r.Node)
 		resp, er := router.CreateNode(ctx, r)
 		if er != nil {
 			s.SendMsg(er)
@@ -133,6 +143,7 @@ func (t *TreeHandler) StreamChanges(ctx context.Context, req *tree.StreamChanges
 
 // CreateNode is used for creating folders
 func (t *TreeHandler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
+	t.fixMode(req.Node)
 	r, e := t.getRouter().CreateNode(ctx, req)
 	if e != nil {
 		resp.Success = false
