@@ -95,8 +95,6 @@ func (n *stanRegistry) watch() error {
 			n.services[name] = addServices(n.services[name], []*registry.Service{service})
 			n.servicesLock.Unlock()
 		} else if ev.Action == "delete" {
-
-			fmt.Println("Received a delete for ", name, service.Nodes)
 			n.servicesLock.Lock()
 			n.services[name] = delServices(n.services[name], []*registry.Service{service})
 			n.servicesLock.Unlock()
