@@ -9,5 +9,5 @@ func RuntimeIsFork() bool {
 
 // RuntimeIsCluster checks if the runtime is configured to use cluster routes
 func RuntimeIsCluster() bool {
-	return viper.GetString("registry_cluster_address") != ""
+	return viper.GetString("nats_cluster_address") != ""
 }
