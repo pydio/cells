@@ -250,7 +250,7 @@ func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
 	for _, service := range servicesMap {
 		if service.Name == s {
 			// Check expiry
-			nodes, _ := checkExpiredNodes(service)
+			nodes, _ := n.checkExpiredNodes(service)
 
 			if len(nodes) == 0 {
 				continue
@@ -263,7 +263,7 @@ func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
 	return services, nil
 }
 
-func checkExpiredNodes(service *registry.Service) (valid []*registry.Node, expired []*registry.Node) {
+func (n *stanRegistry) checkExpiredNodes(service *registry.Service) (valid []*registry.Node, expired []*registry.Node) {
 	for _, node := range service.Nodes {
 		t := new(time.Time)
 
@@ -276,23 +276,19 @@ func checkExpiredNodes(service *registry.Service) (valid []*registry.Node, expir
 		}
 	}
 
-	//if len(expired) > 0 {
-	//	for _, node := range expired {
-	//		// Sending messages to the watchers that this has been canned
-	//		fmt.Println("The expired node is ? ", service.Name, node.Id, node.Metadata["expiry"])
-	//	}
-	//}
+	if len(expired) > 0 {
+		n.Deregister(&registry.Service{
+			Name: service.Name,
+			Version: service.Version,
+			Nodes: expired,
+			Metadata: service.Metadata,
+		})
+	}
 
 	return
 }
 
 func (n *stanRegistry) ListServices() ([]*registry.Service, error) {
-	conn, err := n.getConn()
-	if err != nil {
-		return nil, err
-	}
-
-
 	n.servicesLock.RLock()
 	defer n.servicesLock.RUnlock()
 
@@ -302,30 +298,7 @@ func (n *stanRegistry) ListServices() ([]*registry.Service, error) {
 	for _, v := range servicesMap {
 		for _, service := range v {
 			// Check expiry
-			name := service.Name
-
-			nodes, expired := checkExpiredNodes(service)
-
-			if len(expired) > 0 {
-				expiredService := new(registry.Service)
-				*expiredService = *service
-				expiredService.Name = name
-				expiredService.Nodes = expired
-
-				data, err := json.Marshal(&PeerEvent{
-					Service: expiredService,
-					Type:    PeerEventType_DEREGISTER,
-				})
-
-				if err != nil {
-					return nil, err
-				}
-
-				// Sending a log to make everybody aware
-				if err := conn.Publish(defaultPeerTopic, data); err != nil {
-					return nil, err
-				}
-			}
+			nodes, _ := n.checkExpiredNodes(service)
 
 			if len(nodes) == 0 {
 				continue

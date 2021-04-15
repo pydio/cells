@@ -110,22 +110,12 @@ func (c *pydioregistry) maintainRunningServicesList() {
 		}
 	}()
 
-	//go func() {
-	//	for {
-	//		services, err := defaults.Registry().ListServices()
-	//		if err != nil {
-	//			return
-	//		}
-	//		for _, srv := range services {
-	//			results <- &registry.Result{
-	//				Action:  "create",
-	//				Service: srv,
-	//			}
-	//		}
-	//
-	//		time.Sleep(1 * time.Minute)
-	//	}
-	//}()
+	go func() {
+		for {
+			defaults.Registry().ListServices()
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	go func() {
 		for res := range results {
@@ -146,22 +136,20 @@ func (c *pydioregistry) maintainRunningServicesList() {
 					}
 					c.registerProcessFromNode(n, s.Name)
 
-					// We check the service has just been started
-					ss, err := defaults.Registry().GetService(s.Name)
-					if err != nil || len(ss) == 0 {
-						// Hmm, we shouldn't be here
-						continue
+					// We check the overall service has just been started
+					cnt := 0
+					for _, peer := range c.peers {
+						cnt = cnt + len(peer.GetServices(s.Name))
 					}
 
-					// We check the service has just been stopped
-					if len(ss[0].Nodes) == 1 {
-						s, ok := c.register[ss[0].Name]
+					if cnt == 1 {
+						ss, ok := c.register[s.Name]
 						if !ok {
-							s = NewMockFromMicroService(ss[0])
+							ss = NewMockFromMicroService(s)
 						}
 						send(&Result{
 							Action: "started",
-							Service: s,
+							Service: ss,
 						})
 					}
 				}
@@ -178,21 +166,20 @@ func (c *pydioregistry) maintainRunningServicesList() {
 					}
 					c.deregisterProcessFromNode(n, s.Name)
 
-					ss, err := defaults.Registry().GetService(s.Name)
-					if err != nil || len(ss) == 0 {
-						// Hmm, we shouldn't be here
-						continue
+					// We check the overall service has just been stopped
+					cnt := 0
+					for _, peer := range c.peers {
+						cnt = cnt + len(peer.GetServices(s.Name))
 					}
 
-					// We check the service has just been stopped
-					if len(ss[0].Nodes) == 0 {
-						s, ok := c.register[ss[0].Name]
+					if cnt == 1 {
+						ss, ok := c.register[s.Name]
 						if !ok {
-							s = NewMockFromMicroService(ss[0])
+							ss = NewMockFromMicroService(s)
 						}
 						send(&Result{
 							Action: "stopped",
-							Service: s,
+							Service: ss,
 						})
 					}
 				}
