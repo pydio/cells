@@ -125,6 +125,10 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			switch a {
 			case "create":
 				for _, n := range s.Nodes {
+					if n == nil {
+						continue
+					}
+					
 					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
 						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
 							Body: []byte(common.EventTypeServiceRegistered),
