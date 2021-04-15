@@ -266,6 +266,9 @@ func (n *stanRegistry) GetService(s string) ([]*registry.Service, error) {
 
 func (n *stanRegistry) checkExpiredNodes(service *registry.Service) (valid []*registry.Node, expired []*registry.Node) {
 	for _, node := range service.Nodes {
+		if node == nil {
+			continue
+		}
 		t := new(time.Time)
 
 		err := t.UnmarshalText([]byte(node.Metadata["expiry"]))

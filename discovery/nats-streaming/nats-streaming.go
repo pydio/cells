@@ -43,6 +43,9 @@ func Init() {
 		stanOpts.Clustering.NodeID = viper.GetString("nats_streaming_cluster_node_id")
 		stanOpts.Clustering.Bootstrap = viper.GetBool("nats_streaming_cluster_bootstrap")
 		stanOpts.Clustering.Peers = strings.Split(viper.GetString("nats_streaming_cluster_peers"), ",")
+		stanOpts.Clustering.RaftLogPath = config.ApplicationWorkingDir(config.ApplicationDirLogs) + "/raft"
+		stanOpts.Clustering.LogSnapshots = 1
+		stanOpts.Clustering.LogCacheSize = 100
 
 		host, p, err := net.SplitHostPort(viper.GetString("nats_address"))
 		if err != nil {
