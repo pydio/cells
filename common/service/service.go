@@ -64,7 +64,7 @@ import (
 )
 
 var (
-	DefaultRegisterTTL = 10 * time.Second
+	DefaultRegisterTTL = 30 * time.Second
 )
 
 // Service definition

@@ -95,6 +95,8 @@ func (n *stanRegistry) watch() error {
 			n.services[name] = addServices(n.services[name], []*registry.Service{service})
 			n.servicesLock.Unlock()
 		} else if ev.Action == "delete" {
+
+			fmt.Println("Received a delete for ", name, service.Nodes)
 			n.servicesLock.Lock()
 			n.services[name] = delServices(n.services[name], []*registry.Service{service})
 			n.servicesLock.Unlock()
@@ -193,7 +195,8 @@ func (n *stanRegistry) Register(s *registry.Service, opts ...registry.RegisterOp
 
 	// Adding time as a string metadata for the nodes
 	for _, node := range s.Nodes {
-		data, _ := time.Now().Add(o.TTL).MarshalText()
+		// Adding twice the ttl to make sure we don't have any false positive
+		data, _ := time.Now().Add(o.TTL * 2).MarshalText()
 		node.Metadata["expiry"] = string(data)
 	}
 
@@ -272,6 +275,7 @@ func (n *stanRegistry) checkExpiredNodes(service *registry.Service) (valid []*re
 			// If we can't read the expiry or the expiry is not reached, then we consider it as valid
 			valid = append(valid, node)
 		} else {
+			fmt.Println("node is expired ", node, t, time.Now() )
 			expired = append(expired, node)
 		}
 	}
