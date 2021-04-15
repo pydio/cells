@@ -2,7 +2,7 @@ package natsstreaming
 
 import (
 	"fmt"
-	"github.com/nats-io/gnatsd/server"
+	"github.com/nats-io/nats-server/v2/server"
 	stand "github.com/nats-io/nats-streaming-server/server"
 	"github.com/nats-io/nats-streaming-server/stores"
 	"github.com/pydio/cells/common/config"
@@ -69,11 +69,15 @@ func Init() {
 			clusterOpts.Host = clusterHost
 			clusterOpts.Port = clusterPort
 
-			// natsOpts.Cluster = *clusterOpts
+			natsOpts.Cluster = *clusterOpts
 		}
 
 		natsOpts.RoutesStr = viper.GetString("nats_cluster_routes")
 		natsOpts.Routes = server.RoutesFromStr(natsOpts.RoutesStr)
+
+		natsOpts.Debug = true
+		stanOpts.Debug = true
+
 
 		if _, err := stand.RunServerWithOpts(stanOpts, natsOpts); err != nil {
 			fmt.Println("Failed to run nats streaming ", err)
