@@ -25,7 +25,7 @@ type cacheSelector struct {
 
 	watched map[string]bool
 
-	nodesInErrorLock *sync.Mutex
+	nodesInErrorLock *sync.RWMutex
 	nodesInError     map[string]int
 
 	// used to close or reload watcher
@@ -390,7 +390,9 @@ func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
 	// retry on timeout or internal server error
 	case 408, 500:
 		if strings.Contains(e.Detail, balancer.ErrTransientFailure.Error()) {
+			c.nodesInErrorLock.RLock()
 			cnt, ok := c.nodesInError[node.Id]
+			c.nodesInErrorLock.RUnlock()
 			if !ok {
 				cnt = 0
 			}
