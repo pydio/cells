@@ -119,9 +119,17 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			o.Version = common.Version().String()
 
-			srv := defaults.NewHTTPServer(
+			opts := []server.Option{
 				server.Name(name),
 				server.Id(uuid.New().String()),
+			}
+
+			if port := s.Options().Port; port != "0" {
+				opts = append(opts, server.Address(":" + port))
+			}
+
+			srv := defaults.NewHTTPServer(
+				opts...,
 			)
 
 			hd := srv.NewHandler(handlerFunc())

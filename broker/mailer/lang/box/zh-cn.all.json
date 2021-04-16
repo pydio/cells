@@ -195,10 +195,10 @@
     "other": "如果您的 SMTP 服务器证书是自签名，请禁用证书验证"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "拨号器本地名称"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "默认情况下，SMTP拨号程序在EHLO命令中发送 “localhost”，使用此字段设置自定义本地名称"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid 服务"
