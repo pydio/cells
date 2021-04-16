@@ -19,7 +19,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/common/views"
 )
@@ -152,20 +151,13 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 }
 
 func (b *Batch) createBackgroundContext() context.Context {
-	bgClaim := claim.Claims{
+	ctx := auth.ContextFromClaims(context.Background(), claim.Claims{
 		Name:      common.PydioSystemUsername,
 		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",
-	}
-	md := map[string]string{
-		common.PydioContextUserKey: common.PydioSystemUsername,
-	}
-	ctx := context.WithValue(context.Background(), claim.ContextKey, bgClaim)
-	ctx = auth.ToMetadata(ctx, bgClaim)
-	ctx = context.WithValue(ctx, common.PydioContextUserKey, bgClaim.Name)
+	})
 	ctx = servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
 	ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
-	ctx = context2.WithAdditionalMetadata(ctx, md)
 	return ctx
 }
 
