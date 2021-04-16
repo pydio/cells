@@ -434,7 +434,7 @@ func NewSelector(opts ...selector.Option) selector.Selector {
 		watched:          make(map[string]bool),
 		cache:            make(map[string][]*registry.Service),
 		ttls:             make(map[string]time.Time),
-		nodesInErrorLock: &sync.Mutex{},
+		nodesInErrorLock: &sync.RWMutex{},
 		nodesInError:     make(map[string]int),
 		reload:           make(chan bool, 1),
 		exit:             make(chan bool),
