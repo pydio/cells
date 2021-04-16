@@ -230,20 +230,15 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		)
 
 		claims, o1 := session.Get(SessionClaimsKey)
-		uName, o2 := session.Get(SessionUsernameKey)
-		if !o1 || !o2 {
-			log.Logger(ctx).Warn("Websocket: strange, session has empty key for claims or username")
+		if !o1 {
+			log.Logger(ctx).Warn("WebSocket: strange, session has empty key for claims or username")
 			return false
 		}
-		metaCtx := context.Background()
-		metaCtx = metadata.NewContext(metaCtx, map[string]string{
-			common.PydioContextUserKey: uName.(string),
-		})
+		metaCtx := auth.ContextFromClaims(context.Background(), claims.(claim.Claims))
+		metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 		if md, o := session.Get(SessionMetaContext); o {
 			metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
 		}
-		metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
-		metaCtx = auth.ToMetadata(metaCtx, claims.(claim.Claims))
 
 		if event.refreshTarget && event.Target != nil {
 			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(metaCtx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {

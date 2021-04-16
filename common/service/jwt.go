@@ -50,7 +50,7 @@ func newClaimsProvider(service micro.Service) error {
 func NewClaimsHandlerWrapper() server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			if claims, exists := auth.FromMetadata(ctx); exists {
+			if claims, exists := auth.ClaimsFromMetadata(ctx); exists {
 				ctx = context.WithValue(ctx, claim.ContextKey, claims)
 			}
 			err := h(ctx, req, rsp)

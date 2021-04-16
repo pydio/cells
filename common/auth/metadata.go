@@ -39,26 +39,32 @@ const (
 	claimsContextKey   = "x-pydio-claims"
 )
 
-// ToMetadata stores Claims in metadata (to be passed along by grpc queries)
-func ToMetadata(ctx context.Context, claims claim.Claims) context.Context {
+// ContextFromClaims feeds context with correct Keys and Metadata for a given Claims
+func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context {
 	// Check string length for Roles as it may blow up the Header size
 	if len(claims.Roles) > rolesMaxLength {
 		//fmt.Println("Removing Roles from Claims", len(claims.Roles))
 		claims.Roles = rolesRequireReload
 	}
+	// Set context keys
+	ctx = context.WithValue(ctx, claim.ContextKey, claims)
+	ctx = context.WithValue(ctx, common.PydioContextUserKey, claims.Name)
+
+	// Set context Metadata
 	md := make(map[string]string)
 	if existing, ok := metadata.FromContext(ctx); ok {
 		for k, v := range existing {
 			md[k] = v
 		}
 	}
+	md[common.PydioContextUserKey] = claims.Name
 	data, _ := json.Marshal(claims)
 	md[claimsContextKey] = string(data)
 	return metadata.NewContext(ctx, md)
 }
 
-// FromMetadata loads Claims from metadata (be passed along by grpc queries)
-func FromMetadata(ctx context.Context) (c claim.Claims, o bool) {
+// ClaimsFromMetadata loads Claims from metadata (be passed along by grpc queries)
+func ClaimsFromMetadata(ctx context.Context) (c claim.Claims, o bool) {
 	md, o := metadata.FromContext(ctx)
 	if !o {
 		return c, false
