@@ -89,7 +89,8 @@ func buildForkStartParams(name string) []string {
 	if viper.GetBool("enable_pprof") {
 		params = append(params, "--enable_pprof")
 	}
-	params = append(params, name)
+	// Use regexp to specify that we want to start that specific service
+	params = append(params, "^"+name+"$")
 	bindFlags := config.DefaultBindOverrideToFlags()
 	if len(bindFlags) > 0 {
 		params = append(params, bindFlags...)
