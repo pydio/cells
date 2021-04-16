@@ -182,6 +182,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		}
 	}
 	if create {
+		resolved.MTime = time.Now().Unix()
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
