@@ -1,20 +1,20 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "索引内容"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "如果设置为true，索引器将查找 ContentRef 元数据，从该引用中读取内容并为其编制索引以进行搜索"
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "文件名分析器"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "用于文件名的分析器"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "内容分析器"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "用于内容的分析器"
   }
 }
