@@ -93,7 +93,7 @@
     "other": "{{.TplData.Inviter}} partage un fichier avec vous"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} partage un fichier avec vous.\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}}Le lien va expirer le {{.TplData.Expire}}{{end}}.\n{{if .TplData.MaxDownloads}}Nombre de téléchargements limités à {{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}} partage un fichier avec vous.\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}}Le lien expirera le {{.TplData.Expire}}.{{end}}\n\n{{if .TplData.MaxDownloads}}Nombre de téléchargements limités à {{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
     "other": "Ouvrir {{.TplData.FileName}}"
@@ -108,7 +108,7 @@
     "other": "{{.TplData.Inviter}} partage un répertoire avec vous"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} a partagé un répertoire avec vous.\n\n'{{.TplData.Message}}' \n\n{{if .TplData.Expire}}Ce lien expirera le {{.TplData.Expire}}{{end}}"
+    "other": "{{.TplData.Inviter}} a partagé un répertoire avec vous.\n\n'{{.TplData.Message}}' \n\n{{if .TplData.Expire}}Ce lien expirera le {{.TplData.Expire}}.{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
     "other": "Ouvrir {{.TplData.FolderName}}"
