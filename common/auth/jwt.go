@@ -27,10 +27,7 @@ import (
 	"sort"
 	"strings"
 
-	context2 "github.com/pydio/cells/common/utils/context"
-
 	errors2 "github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 
@@ -38,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -305,16 +303,7 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		return ctx, *claims, err
 	}
 
-	ctx = context.WithValue(ctx, claim.ContextKey, *claims)
-	md := make(map[string]string)
-	if existing, ok := metadata.FromContext(ctx); ok {
-		for k, v := range existing {
-			md[k] = v
-		}
-	}
-	md[common.PydioContextUserKey] = claims.Name
-	ctx = metadata.NewContext(ctx, md)
-	ctx = ToMetadata(ctx, *claims)
+	ctx = ContextFromClaims(ctx, *claims)
 
 	return ctx, *claims, nil
 }

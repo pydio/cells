@@ -89,7 +89,7 @@ func NewClient(ctx context.Context, host string, key string, secret string, buck
 func (c *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
+		URI: "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
 		RequiresFoldersRescan: false,
 		RequiresNormalization: c.ServerRequiresNormalization,
 	}
