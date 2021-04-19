@@ -41,6 +41,8 @@ var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var IdmApi = _pydioHttpApi2['default'].getRestClient().getIdmApi();
 
+var StdLimit = 50;
+
 var Loaders = (function () {
     function Loaders() {
         _classCallCheck(this, Loaders);
@@ -99,7 +101,7 @@ var Loaders = (function () {
 
     Loaders.loadTeams = function loadTeams(entry, callback) {
         var offset = 0,
-            limit = 50;
+            limit = -1; // Roles API does not provide pagination info !
         if (entry.range) {
             var _entry$range$split = entry.range.split('-');
 
@@ -168,7 +170,7 @@ var Loaders = (function () {
     Loaders.loadExternalUsers = function loadExternalUsers(entry, callback) {
         var filter = '',
             offset = 0,
-            limit = 50;
+            limit = StdLimit;
         if (entry.currentParams && entry.currentParams.alpha_pages) {
             filter = entry.currentParams.value;
         }
@@ -206,7 +208,7 @@ var Loaders = (function () {
         var path = '/',
             filter = '',
             offset = 0,
-            limit = 50;
+            limit = StdLimit;
         if (entry.IdmUser) {
             path = _pydioUtilLang2['default'].trimRight(entry.IdmUser.GroupPath, '/') + '/' + entry.IdmUser.GroupLabel;
         }
@@ -244,7 +246,7 @@ var Loaders = (function () {
 
     Loaders.loadTeamUsers = function loadTeamUsers(entry, callback) {
         var offset = 0,
-            limit = 50,
+            limit = StdLimit,
             filter = '';
         if (entry.range) {
             var _entry$range$split4 = entry.range.split('-');

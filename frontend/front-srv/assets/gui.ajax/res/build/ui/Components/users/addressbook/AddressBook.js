@@ -530,6 +530,13 @@ var AddressBook = _react2['default'].createClass({
             } else if (selectedItem.id === 'ext') {
                 emptyStatePrimary = getMessage(585, '');
                 emptyStateSecondary = getMessage(586, '');
+                if (selectedItem.pagination) {
+                    otherProps = {
+                        showSubheaders: true,
+                        paginatorType: 'alpha',
+                        paginatorCallback: this.reloadCurrentAtPage.bind(this)
+                    };
+                }
             } else if (selectedItem.IdmUser && selectedItem.IdmUser.IsGroup || selectedItem.id === 'PYDIO_GRP_/' || selectedItem.IdmRole && selectedItem.IdmRole.IsTeam) {
                 otherProps = {
                     showSubheaders: true,
