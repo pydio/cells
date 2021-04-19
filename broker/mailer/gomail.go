@@ -22,22 +22,11 @@ package mailer
 
 import (
 	"fmt"
-	"regexp"
 
 	"gopkg.in/gomail.v2"
 
 	"github.com/pydio/cells/common/proto/mailer"
 )
-
-var (
-	sendmailCheck   *regexp.Regexp
-	semdmailReplace = ". "
-)
-
-func init() {
-	// Check for line containing just one dot, to avoid truncating sendmail input
-	sendmailCheck = regexp.MustCompile("(?m)^\\.$")
-}
 
 // NewGomailMessage prepares a new Message to be sent.
 func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
@@ -75,9 +64,9 @@ func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 	m.SetHeader("Subject", email.Subject)
 
 	if len(email.ContentHtml) > 0 {
-		m.SetBody("text/html", sendmailCheck.ReplaceAllString(email.ContentHtml, semdmailReplace))
+		m.SetBody("text/html", email.ContentHtml)
 	} else {
-		m.SetBody("text/plain", sendmailCheck.ReplaceAllString(email.ContentPlain, semdmailReplace))
+		m.SetBody("text/plain", email.ContentPlain)
 	}
 	for _, a := range email.Attachments {
 		m.Attach(a)
