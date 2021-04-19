@@ -607,12 +607,17 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	_, hasEmailAddress := u.Attributes["email"]
 	if sendEmail && hasEmailAddress {
 		// Now send email to user in background
+		lang := ""
+		if l, o := u.Attributes["parameter:core.conf:lang"]; o {
+			lang = strings.Trim(l, `"`)
+		}
 		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
 		email := &mailer.Mail{
 			To: []*mailer.User{{
-				Uuid:    u.Uuid,
-				Name:    u.Attributes["displayName"],
-				Address: u.Attributes["email"],
+				Uuid:     u.Uuid,
+				Name:     u.Attributes["displayName"],
+				Address:  u.Attributes["email"],
+				Language: lang,
 			}},
 			TemplateId: "Welcome",
 			TemplateData: map[string]string{
