@@ -22,6 +22,8 @@ import PydioApi from 'pydio/http/api';
 import LangUtils from 'pydio/util/lang';
 const IdmApi = PydioApi.getRestClient().getIdmApi();
 
+const StdLimit = 50;
+
 class Loaders{
 
     static childrenAsPromise(item, leaf = false){
@@ -71,7 +73,7 @@ class Loaders{
     }
 
     static loadTeams(entry, callback){
-        let offset = 0, limit = 50;
+        let offset = 0, limit = -1; // Roles API does not provide pagination info !
         if(entry.range){
             let [start, end] = entry.range.split('-');
             offset = parseInt(start);
@@ -133,7 +135,7 @@ class Loaders{
     }
 
     static loadExternalUsers(entry, callback){
-        let filter = '', offset = 0, limit = 50;
+        let filter = '', offset = 0, limit = StdLimit;
         if(entry.currentParams && entry.currentParams.alpha_pages){
             filter = entry.currentParams.value;
         }
@@ -162,7 +164,7 @@ class Loaders{
     }
 
     static loadGroupUsers(entry, callback){
-        let path = '/', filter = '', offset = 0, limit = 50;
+        let path = '/', filter = '', offset = 0, limit = StdLimit;
         if(entry.IdmUser){
             path = LangUtils.trimRight(entry.IdmUser.GroupPath, '/') + '/' + entry.IdmUser.GroupLabel;
         }
@@ -193,7 +195,7 @@ class Loaders{
     }
 
     static loadTeamUsers(entry, callback){
-        let offset = 0, limit = 50, filter = '';
+        let offset = 0, limit = StdLimit, filter = '';
         if(entry.range){
             let [start, end] = entry.range.split('-');
             offset = parseInt(start);

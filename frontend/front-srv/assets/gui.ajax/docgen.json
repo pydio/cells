@@ -1172,42 +1172,6 @@
         "methods": []
       }
     ],
-    "AdminComponents/util/QuotaField.js": [
-      {
-        "description": "",
-        "displayName": "QuotaField",
-        "methods": [
-          {
-            "name": "divide",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "initialValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "multiple",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "v",
-                "type": null
-              },
-              {
-                "name": "u",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
     "AdminLogs/board/LogBoard.js": [
       {
         "description": "",
@@ -4819,6 +4783,10 @@
             "params": [
               {
                 "name": "versionPolicies",
+                "type": null
+              },
+              {
+                "name": "clone",
                 "type": null
               }
             ],
@@ -24576,6 +24544,43 @@
           }
         ],
         "require": "const {InputInteger} = require('pydio').requireLib('form')"
+      }
+    ],
+    "Form/fields/InputIntegerBytes.js": [
+      {
+        "description": "",
+        "displayName": "InputIntegerBytes",
+        "methods": [
+          {
+            "name": "divide",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "initialValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "multiple",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "v",
+                "type": null
+              },
+              {
+                "name": "u",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {InputIntegerBytes} = require('pydio').requireLib('form')"
       }
     ],
     "Form/fields/InputSelectBox.js": [
