@@ -70,7 +70,7 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
@@ -117,10 +117,17 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
 			o.Version = common.Version().String()
 
-			srv := defaults.NewHTTPServer(
+			opts := []server.Option{
 				server.Name(name),
 				server.Id(o.ID),
 				server.RegisterTTL(DefaultRegisterTTL),
+			}
+			if port := s.Options().Port; port != "0" {
+				opts = append(opts, server.Address(":"+port))
+			}
+
+			srv := defaults.NewHTTPServer(
+				opts...,
 			)
 
 			hd := srv.NewHandler(handlerFunc())
@@ -136,7 +143,7 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 
