@@ -27,22 +27,26 @@ import (
 	"os/exec"
 	"regexp"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/x/filex"
-
 	"github.com/pkg/errors"
 
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/x/filex"
 )
 
 type Sendmail struct {
-	BinPath string
+	BinPath   string
+	BinParams []string
 }
 
 func (s *Sendmail) Configure(ctx context.Context, conf configx.Values) error {
 	s.BinPath = conf.Val("#/defaults/sendmail").Default("/usr/bin/sendmail").String()
 	log.Logger(ctx).Info("Configuring sendmail with binary path: " + s.BinPath)
+	params := conf.Val("#/defaults/sendmailParams").StringArray()
+	if len(params) > 0 {
+		s.BinParams = params
+	}
 	return nil
 }
 
@@ -80,7 +84,9 @@ func (d *Sendmail) Send(email *mailer.Mail) error {
 	toStr = "\"" + toStr + "\""
 
 	// Call the system command
-	cmd := exec.Command(d.BinPath, "-t", toStr)
+	params := d.BinParams
+	params = append(params, "-t", toStr)
+	cmd := exec.Command(d.BinPath, params...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
