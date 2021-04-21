@@ -165,8 +165,10 @@ func initConfig() (new bool) {
 
 	versionsStore := filex.NewStore(config.PydioConfigDir)
 
+	var localConfig config.Store
 	var vaultConfig config.Store
 	var defaultConfig config.Store
+	var versionsConfig config.Store
 
 	switch viper.GetString("config") {
 	case "mysql":
@@ -174,7 +176,7 @@ func initConfig() (new bool) {
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
 		)
 
-		localConfig := config.New(
+		localConfig = config.New(
 			micro.New(
 				microconfig.NewConfig(
 					microconfig.WithSource(localSource),
@@ -194,14 +196,19 @@ func initConfig() (new bool) {
 		driver, dsn := config.GetDatabase("default")
 		vaultConfig = config.New(sql.New(driver, dsn, "vault"))
 		defaultConfig = config.New(sql.New(driver, dsn, "default"))
+		versionsConfig = config.New(sql.New(driver, dsn, "versions"))
 
+		versionsStore, _ = config.NewConfigStore(versionsConfig)
+
+		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
 
 	case "remote":
 		localSource := file.NewSource(
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
 		)
 
-		localConfig := config.New(
+		localConfig = config.New(
 			micro.New(
 				microconfig.NewConfig(
 					microconfig.WithSource(localSource),
@@ -249,7 +256,9 @@ func initConfig() (new bool) {
 		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
 		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
 
-		config.RegisterLocal(defaultConfig)
+		localConfig = defaultConfig
+
+		config.RegisterLocal(localConfig)
 	}
 
 	if defaultConfig.Val("version").String() == "" {

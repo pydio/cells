@@ -1,18 +1,20 @@
 package sql
 
 import (
-	json "github.com/pydio/cells/x/jsonx"
-	"github.com/pydio/packr"
-	migrate "github.com/rubenv/sql-migrate"
-
+	"bytes"
+	"errors"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/packr"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 type SQL struct {
 	dao    dao.DAO
 	config configx.Values
+	watchers []*receiver
 }
 
 func New(driver string, dsn string, prefix string) configx.Entrypoint {
@@ -98,7 +100,28 @@ func (s *SQL) Set(data interface{}) error {
 		return err
 	}
 
-	return dao.Set(b)
+	if err := dao.Set(b); err != nil {
+		return err
+	}
+
+	v := configx.New(configx.WithJSON())
+	v.Set(b)
+
+	s.config = v
+
+	s.update()
+
+	return nil
+}
+
+func (s *SQL) update() {
+	for _, w := range s.watchers {
+		v := s.Val(w.path...).Bytes()
+		select {
+		case w.updates <- v:
+			default:
+		}
+	}
 }
 
 func (s *SQL) Del() error {
@@ -110,20 +133,53 @@ func (s *SQL) Save(ctxUser, ctxMessage string) error {
 }
 
 func (s *SQL) Watch(path ...string) (configx.Receiver, error) {
-	return &receiver{}, nil
+
+	r := &receiver{
+		exit: make(chan bool),
+		path: path,
+		value: s.Val(path...).Bytes(),
+		updates: make(chan []byte),
+	}
+
+	s.watchers = append(s.watchers, r)
+
+	return r, nil
 }
 
 type receiver struct {
+	exit chan bool
+	path []string
+	value []byte
+	updates chan []byte
 }
 
 func (r *receiver) Next() (configx.Values, error) {
-	ch := make(chan bool, 1)
-	<-ch
+	for {
+		select {
+		case <-r.exit:
+			return nil, errors.New("watcher stopped")
+		case v := <-r.updates:
+			if len(r.value) == 0 && len(v) == 0 {
+				continue
+			}
 
-	return nil, nil
+			if bytes.Equal(r.value, v) {
+				continue
+			}
+
+			r.value = v
+
+			ret := configx.New(configx.WithJSON())
+			if err := ret.Set(v); err != nil {
+				return nil, err
+			}
+			return ret, nil
+		}
+	}
 }
 
 func (r *receiver) Stop() {
+	close(r.exit)
 }
 
 type wrappedConfig struct {
