@@ -28,7 +28,10 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
+
+	"go.uber.org/zap/buffer"
 
 	micro "github.com/micro/go-log"
 	"github.com/micro/go-micro/metadata"
@@ -70,10 +73,19 @@ func Init() {
 
 		var logger *zap.Logger
 
-		if common.LogConfig == common.LogConfigProduction {
+		// Create core for internal indexing service
+		// It forwards logs to the pydio.grpc.logs service to store them
+		// Format is always JSON + ProductionEncoderConfig
+		srvConfig := zap.NewProductionEncoderConfig()
+		srvConfig.EncodeTime = RFC3369TimeEncoder
+		serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
+		serverCore := zapcore.NewCore(
+			zapcore.NewJSONEncoder(srvConfig),
+			serverSync,
+			zapcore.InfoLevel,
+		)
 
-			// Forwards logs to the pydio.grpc.logs service to store them
-			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
+		if common.LogConfig == common.LogConfigProduction {
 
 			// Additional logger: stores messages in local file
 			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
@@ -84,7 +96,7 @@ func Init() {
 				MaxAge:     28, // days
 			})
 
-			syncers := []zapcore.WriteSyncer{StdOut, serverSync, rotaterSync}
+			syncers := []zapcore.WriteSyncer{StdOut, rotaterSync}
 			syncers = append(syncers, customSyncers...)
 			w := zapcore.NewMultiWriteSyncer(syncers...)
 
@@ -95,8 +107,10 @@ func Init() {
 			core := zapcore.NewCore(
 				zapcore.NewJSONEncoder(config),
 				w,
-				zapcore.InfoLevel,
+				common.LogLevel,
 			)
+
+			core = zapcore.NewTee(core, serverCore)
 
 			logger = zap.New(core)
 		} else {
@@ -111,10 +125,12 @@ func Init() {
 				syncer = zapcore.NewMultiWriteSyncer(syncers...)
 			}
 			core := zapcore.NewCore(
-				zapcore.NewConsoleEncoder(config),
+				newColorConsoleEncoder(config),
 				syncer,
 				common.LogLevel,
 			)
+
+			core = zapcore.NewTee(core, serverCore)
 
 			if common.LogLevel == zap.DebugLevel {
 				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
@@ -122,6 +138,7 @@ func Init() {
 				logger = zap.New(core)
 			}
 		}
+
 		nop := zap.NewNop()
 		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
 		micro.SetLogger(micrologger{nop})
@@ -177,11 +194,7 @@ func Logger(ctx context.Context) *zap.Logger {
 
 	if ctx != nil {
 		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			if serviceColor := servicecontext.GetServiceColor(ctx); serviceColor > 0 && common.LogConfig != common.LogConfigProduction {
-				newLogger = newLogger.Named(fmt.Sprintf("\x1b[%dm%s\x1b[0m", serviceColor, serviceName))
-			} else {
-				newLogger = newLogger.Named(serviceName)
-			}
+			newLogger = newLogger.Named(serviceName)
 		}
 		if opID, opLabel := servicecontext.GetOperationID(ctx); opID != "" {
 			if opLabel != "" {
@@ -331,4 +344,27 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 		)
 	}
 	return logger
+}
+
+func newColorConsoleEncoder(config zapcore.EncoderConfig) zapcore.Encoder {
+	return &colorConsoleEncoder{Encoder: zapcore.NewConsoleEncoder(config)}
+}
+
+type colorConsoleEncoder struct {
+	zapcore.Encoder
+}
+
+func (c *colorConsoleEncoder) Clone() zapcore.Encoder {
+	return &colorConsoleEncoder{Encoder: c.Encoder.Clone()}
+}
+
+func (c *colorConsoleEncoder) EncodeEntry(e zapcore.Entry, ff []zapcore.Field) (*buffer.Buffer, error) {
+	color := servicecontext.ServiceColorOther
+	if strings.HasPrefix(e.LoggerName, common.ServiceGrpcNamespace_) {
+		color = servicecontext.ServiceColorGrpc
+	} else if strings.HasPrefix(e.LoggerName, common.ServiceRestNamespace_) {
+		color = servicecontext.ServiceColorRest
+	}
+	e.LoggerName = fmt.Sprintf("\x1b[%dm%s\x1b[0m", color, e.LoggerName)
+	return c.Encoder.EncodeEntry(e, ff)
 }

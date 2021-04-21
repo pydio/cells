@@ -17,7 +17,6 @@ func (this *RecorderPutResponse) Validate() error {
 	return nil
 }
 func (this *Log) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *LogMessage) Validate() error {

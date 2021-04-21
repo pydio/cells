@@ -18,7 +18,8 @@ message RecorderPutResponse{}
 // Log is a generic message format used by the sync service 
 // to publish log messages to the various log repositories (typically, bleve).
 message Log {
-    map<string, string> message = 1;
+    bytes Message = 1;
+    int32 Nano = 2;
 }
 
 
@@ -60,6 +61,9 @@ message LogMessage {
     string SchedulerJobUuid = 23;
     string SchedulerTaskUuid = 24;
     string SchedulerTaskActionPath = 25;
+
+    // Other Unkown Fields
+    string JsonZaps = 26;
 }
 
 // ListLogRequest launches a parameterised query in the log repository and streams the results.

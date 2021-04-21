@@ -30,6 +30,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/blevesearch/bleve/mapping"
+
 	"go.uber.org/zap"
 
 	"github.com/blevesearch/bleve"
@@ -184,7 +186,7 @@ func (s *SyslogServer) watchInserts() {
 			var msg *IndexableLog
 			if m, ok := in.(*IndexableLog); ok {
 				msg = m
-			} else if line, ok := in.(map[string]string); ok {
+			} else if line, ok := in.(*log.Log); ok {
 				var err error
 				msg, err = MarshallLogMsg(line)
 				if err != nil {
@@ -256,7 +258,7 @@ func (s *SyslogServer) flush() {
 }
 
 // PutLog  adds a new LogMessage in the syslog index.
-func (s *SyslogServer) PutLog(line map[string]string) error {
+func (s *SyslogServer) PutLog(line *log.Log) error {
 	s.inserts <- line
 	return nil
 }
@@ -377,6 +379,8 @@ func openOneIndex(bleveIndexPath string, mappingName string) (bleve.Index, error
 		indexMapping := bleve.NewIndexMapping()
 		// Create, configure and add a specific document mapping
 		logMapping := bleve.NewDocumentMapping()
+		// Exclude JSONZaps from indexing
+		logMapping.AddFieldMapping(&mapping.FieldMapping{Type: "text", Name: "JsonZaps", Index: false, Store: true})
 		indexMapping.AddDocumentMapping(mappingName, logMapping)
 
 		// Creates the new index and initializes the server

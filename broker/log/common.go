@@ -34,7 +34,7 @@ import (
 
 // MessageRepository exposes interface methods to manage the log messages provided by Pydio.
 type MessageRepository interface {
-	PutLog(map[string]string) error
+	PutLog(log2 *log.Log) error
 	ListLogs(string, int32, int32) (chan log.ListLogResponse, error)
 	DeleteLogs(string) (int64, error)
 	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
