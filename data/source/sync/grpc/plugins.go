@@ -26,7 +26,10 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/golang/protobuf/proto"
+
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -180,7 +183,7 @@ func init() {
 									return nil
 								}
 								// If initFromBucket is set Sync bucket to index once
-								return service.Retry(jobCtx, func() error {
+								re := service.Retry(jobCtx, func() error {
 									log.Logger(jobCtx).Info("[initFromBucket] Registering job to sync flat index from bucket")
 									job := &jobs.Job{
 										ID:             uuid.New(),
@@ -202,13 +205,19 @@ func init() {
 									_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 										Job: job,
 									}, registry.ShortRequestTimeout())
+									return e
+								}, 5*time.Second, 20*time.Second)
+								if re == nil {
 									// Now save config without "initFromBucket" key
 									newValue := proto.Clone(dsObject).(*object.DataSource)
 									delete(newValue.StorageConfiguration, "initFromBucket")
-									config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration")
-									config.Save(common.PydioSystemUsername, "Removing initFromBucket key from datasource")
-									return e
-								}, 5*time.Second, 20*time.Second)
+									if ce := config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration"); ce != nil {
+										log.Logger(jobCtx).Error("[initFromBucket] Removing initFromBucket key from datasource", zap.Error(ce))
+									} else {
+										log.Logger(jobCtx).Info("[initFromBucket] Removed initFromBucket key from datasource", zap.Any("ds", newValue.StorageConfiguration))
+									}
+								}
+								return re
 							}),
 							micro.BeforeStop(func() error {
 								if syncHandler != nil {
