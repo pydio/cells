@@ -154,9 +154,15 @@ class LogDetail extends React.Component{
         let userLegend;
         if(log.Profile || log.RoleUuids || log.GroupPath){
             let leg = [];
-            if(log.Profile) leg.push('Profile: ' + log.Profile);
-            if(log.GroupPath) leg.push('Group: ' + log.GroupPath);
-            if(log.RoleUuids) leg.push('Roles: ' + log.RoleUuids.join(','));
+            if(log.Profile) {
+                leg.push('Profile: ' + log.Profile);
+            }
+            if(log.GroupPath) {
+                leg.push('Group: ' + log.GroupPath);
+            }
+            if(log.RoleUuids) {
+                leg.push('Roles: ' + log.RoleUuids.join(','));
+            }
             userLegend = leg.join(' - ');
         }
 

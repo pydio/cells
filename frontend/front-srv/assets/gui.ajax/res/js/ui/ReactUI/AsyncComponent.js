@@ -87,9 +87,21 @@ class AsyncComponent extends Component {
         this._handleLoad();
     }
 
+    componentDidCatch(error, errorInfo) {
+        console.error(error, errorInfo);
+    }
+
+    static getDerivedStateFromError(error) {
+        // Mettez à jour l'état, de façon à montrer l'UI de repli au prochain rendu.
+        return { hasError: true };
+    }
+
     render() {
         if (!this.state.loaded) {
             return null;
+        }
+        if(this.state.hasError) {
+            return <div>Oops, something went wrong, please reload the window!</div>
         }
 
         let props = this.props;

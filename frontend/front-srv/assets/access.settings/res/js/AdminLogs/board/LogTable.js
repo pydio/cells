@@ -84,7 +84,9 @@ class LogTable extends React.Component {
                 l.IsOpen = root.open;
                 if(!l.RemoteAddress) {
                     const cRemote = root.children.filter(c => c.RemoteAddress);
-                    if(cRemote.length) l.RemoteAddress = cRemote[0].RemoteAddress;
+                    if(cRemote.length) {
+                        l.RemoteAddress = cRemote[0].RemoteAddress;
+                    }
                 }
             }
             result.push(l);
@@ -143,7 +145,11 @@ class LogTable extends React.Component {
         let logs = this.openSpans();
         if(selectedRows.length){
             const expStyle = {paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10};
-            const first = JSON.stringify(selectedRows[0]);
+            const firstRow = selectedRows[0];
+            if (firstRow.expandedRow){
+                delete(firstRow.expandedRow);
+            }
+            const first = JSON.stringify(firstRow);
             logs = logs.map(log => {
                 if(JSON.stringify(log) === first){
                     return {
