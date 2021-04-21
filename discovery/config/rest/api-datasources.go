@@ -119,7 +119,10 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	currentSources := config.ListSourcesFromConfig()
 	currentMinios := config.ListMinioConfigsFromConfig()
 	initialDs, update := currentSources[ds.Name]
-	initialVersioningEmpty := initialDs.VersioningPolicyName == ""
+	var initialVersioningEmpty bool
+	if update {
+		initialVersioningEmpty = initialDs.VersioningPolicyName == ""
+	}
 
 	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
 	if e != nil {
@@ -176,6 +179,10 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 				if e := createFullVersioningJob(ctx, dsName); e != nil {
 					log.Logger(ctx).Warn("Could not insert full versioning job for datasource " + dsName)
 				}
+			} else if ds.VersioningPolicyName == "" && !initialVersioningEmpty {
+				if e := removeFullVersioningJob(ctx, dsName); e != nil {
+					log.Logger(ctx).Warn("Could not insert full versioning job for datasource " + dsName)
+				}
 			}
 		}
 
@@ -201,6 +208,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 
 func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response) {
 
+	ctx := req.Request.Context()
 	dsName := req.PathParameter("Name")
 	if dsName == "" {
 		service.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
@@ -220,9 +228,13 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	}
 	currentSources := config.ListSourcesFromConfig()
 
-	if _, ok := currentSources[dsName]; !ok {
+	if existingDS, ok := currentSources[dsName]; !ok {
 		service.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
 		return
+	} else if existingDS.VersioningPolicyName != "" {
+		if e := removeFullVersioningJob(ctx, dsName); e != nil {
+			log.Logger(ctx).Warn("Error while removing full versioning job on ds deletion", zap.Error(e))
+		}
 	}
 	delete(currentSources, dsName)
 	config.SourceNamesToConfig(currentSources)
@@ -421,6 +433,14 @@ func (s *Handler) findWorkspacesForDatasource(ctx context.Context, dsName string
 	}
 
 	return false, nil
+}
+
+func removeFullVersioningJob(ctx context.Context, dsName string) error {
+	jId := "full-versioning-job-" + dsName
+	jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	to := registry.ShortRequestTimeout()
+	_, e := jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: jId}, to)
+	return e
 }
 
 func createFullVersioningJob(ctx context.Context, dsName string) error {
