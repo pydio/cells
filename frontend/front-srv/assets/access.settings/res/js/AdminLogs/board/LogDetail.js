@@ -1,6 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom'
-
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,6 +17,9 @@ import ReactDOM from 'react-dom'
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+import React, {Fragment} from 'react';
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
@@ -164,6 +164,13 @@ class LogDetail extends React.Component{
         if (log.Level === 'error') {
             msg = <span style={{color: '#e53935'}}>{log.Msg}</span>
         }
+        let zaps = {};
+        if (log.JsonZaps) {
+            const data = JSON.parse(log.JsonZaps)
+            Object.keys(data).map(k => {
+                zaps[k] = JSON.stringify(data[k])
+            });
+        }
 
         return (
             <div style={{fontSize: 13, color:'rgba(0,0,0,.87)', paddingBottom: 10, ...style}}>
@@ -188,13 +195,13 @@ class LogDetail extends React.Component{
                     {userDisplay === "avatar" && userLegend && <div style={styles.userLegend}>{userLegend}</div>}
                 </Paper>
                 {log.UserName && userDisplay === 'inline' &&
-                    <div>
-                        <GenericLine iconClassName={"mdi mdi-account"} legend={"User"} data={log.UserName} />
-                        {userLegend &&
-                            <GenericLine iconClassName={"mdi mdi-account-multiple"} legend={"User Attributes"} data={userLegend}/>
-                        }
-                        <Divider style={styles.divider}/>
-                    </div>
+                <Fragment>
+                    <GenericLine iconClassName={"mdi mdi-account"} legend={"User"} data={log.UserName} />
+                    {userLegend &&
+                        <GenericLine iconClassName={"mdi mdi-account-multiple"} legend={"User Attributes"} data={userLegend}/>
+                    }
+                    <Divider style={styles.divider}/>
+                </Fragment>
                 }
                 <GenericLine iconClassName={"mdi mdi-calendar"} legend={"Event Date"} data={new Date(log.Ts * 1000).toLocaleString()}/>
                 <GenericLine iconClassName={"mdi mdi-comment-text"} legend={"Event Message"} data={msg} />
@@ -207,11 +214,17 @@ class LogDetail extends React.Component{
                 {log.UserAgent && <GenericLine iconClassName={"mdi mdi-cellphone-link"} legend={"User Agent"} data={log.UserAgent} />}
                 {log.HttpProtocol && <GenericLine iconClassName={"mdi mdi-open-in-app"} legend={"Protocol"} data={log.HttpProtocol} />}
                 {log.NodePath &&
-                <div>
+                <Fragment>
                     <Divider style={styles.divider}/>
                     <GenericLine iconClassName={"mdi mdi-file-tree"} legend={"File/Folder"} data={log.NodePath} />
                     <GenericLine iconClassName={"mdi mdi-folder-open"} legend={"In Workspace"} data={log.WsUuid} />
-                </div>
+                </Fragment>
+                }
+                {Object.keys(zaps).length > 0 &&
+                <Fragment>
+                    <Divider style={styles.divider}/>
+                    {Object.keys(zaps).map(k => <GenericLine iconClassName={"mdi mdi-tag"} legend={k} data={zaps[k]}/>)}
+                </Fragment>
                 }
             </div>
         );
