@@ -59,12 +59,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var store filex.VersionsStore
-		if configVersionDb != "" {
-			store = &filex.BoltStore{FileName: configVersionDb}
-		} else {
-			store = config.VersionsStore
-		}
+		store := config.VersionsStore
 
 		if configVersionShow != "" {
 			if id, e := strconv.ParseUint(configVersionShow, 10, 64); e == nil {

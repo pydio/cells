@@ -66,8 +66,7 @@ func New(store configx.Entrypoint) Store {
 	// we initialise the store and save it in memory for easy access
 	if v != nil {
 		im := configx.New(configx.WithJSON())
-		v.Scan(&im)
-
+		im.Set(v)
 		ret.im = im
 	} else {
 		im := configx.New(configx.WithJSON())
@@ -93,8 +92,7 @@ func New(store configx.Entrypoint) Store {
 			}
 
 			im := configx.New(configx.WithJSON())
-			resp.Scan(&im)
-
+			im.Set(resp)
 			ret.im = im
 		}
 	}()

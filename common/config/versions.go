@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/pydio/cells/x/configx"
@@ -58,7 +59,7 @@ func (v *versionStore) Watch(path ...string) (configx.Receiver, error) {
 
 // Save the config in the underlying storage
 func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
-	data := v.store.Get().Map()
+	data := v.store.Val().Map()
 
 	if err := VersionsStore.Put(&filex.Version{
 		Date: time.Now(),
@@ -70,4 +71,51 @@ func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
 	}
 
 	return v.store.Save(ctxUser, ctxMessage)
+}
+
+type configStore struct {
+	store Store
+}
+
+func NewConfigStore(values Store) (filex.VersionsStore, error) {
+	return &configStore{
+		values,
+	}, nil
+}
+
+// Put stores version in Bolt
+func (s *configStore) Put(version *filex.Version) error {
+	var versions []*filex.Version
+	v := s.store.Val()
+	if err := v.Scan(&versions); err != nil {
+		return err
+	}
+
+	version.Id = uint64(len(versions))
+
+	versions = append(versions, version)
+
+	return s.store.Set(versions)
+}
+
+// List all version starting at a given id
+func (s *configStore) List(offset uint64, limit uint64) (result []*filex.Version, err error) {
+	var versions []*filex.Version
+
+	if err := s.store.Val().Scan(&versions); err != nil {
+		return nil, err
+	}
+
+	return versions, nil
+}
+
+// Retrieve loads data from db by version ID
+func (s *configStore) Retrieve(id uint64) (*filex.Version, error) {
+	var version *filex.Version
+
+	if err := s.store.Val(strconv.Itoa(int(id))).Scan(&version); err != nil {
+		return nil, err
+	}
+
+	return version, nil
 }
