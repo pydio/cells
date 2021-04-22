@@ -225,6 +225,8 @@ func initConfig() (new bool) {
 		defaultConfig = config.New(
 			remote.New("config"),
 		)
+
+		defaultConfig.Val("test").Set("test")
 	default:
 		source := file.NewSource(
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
@@ -259,6 +261,8 @@ func initConfig() (new bool) {
 		localConfig = defaultConfig
 
 		config.RegisterLocal(localConfig)
+
+
 	}
 
 	if defaultConfig.Val("version").String() == "" {

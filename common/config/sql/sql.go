@@ -133,7 +133,6 @@ func (s *SQL) Save(ctxUser, ctxMessage string) error {
 }
 
 func (s *SQL) Watch(path ...string) (configx.Receiver, error) {
-
 	r := &receiver{
 		exit: make(chan bool),
 		path: path,
@@ -179,7 +178,12 @@ func (r *receiver) Next() (configx.Values, error) {
 }
 
 func (r *receiver) Stop() {
-	close(r.exit)
+	select {
+	case <-r.exit:
+	default:
+		close(r.exit)
+	}
+	return
 }
 
 type wrappedConfig struct {

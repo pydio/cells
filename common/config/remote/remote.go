@@ -1,24 +1,80 @@
 package remote
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/discovery/config/grpc"
 	"github.com/pydio/cells/x/configx"
 	proto "github.com/pydio/config-srv/proto/config"
+	go_micro_os_config "github.com/pydio/go-os/config/proto"
+	"time"
 )
 
 type remote struct {
 	id     string
 	config configx.Values
 
+	watchers []*receiver
+
 	ctx context.Context
 	stream proto.ConfigClient
 }
 
 func New(id string) configx.Entrypoint {
-	return &remote{id: id}
+
+	r := &remote{
+		id: id,
+	}
+
+	go func() {
+		for {
+			cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
+
+			stream, err := cli.Watch(context.Background(), &proto.WatchRequest{
+				Id: id,
+				// 	Path: strings.Join(path, "/"),
+			})
+
+			if err != nil {
+				time.Sleep(1 * time.Second)
+				continue
+			}
+
+			for {
+				rsp, err := stream.Recv()
+				if err != nil {
+					if err == grpc.NotImplemented {
+						fmt.Println(id + " not implemented")
+						return
+					}
+					time.Sleep(1 * time.Second)
+					break
+				}
+
+				c := configx.New(configx.WithJSON())
+				c.Set(rsp.ChangeSet.Data)
+
+				for _, w := range r.watchers {
+
+					v := c.Val(w.path...).Bytes()
+
+					select {
+					case w.updates <- v:
+					default:
+					}
+				}
+			}
+
+			stream.Close()
+		}
+	}()
+
+	return r
 }
 
 func (r *remote) Val(path ...string) configx.Values {
@@ -26,7 +82,7 @@ func (r *remote) Val(path ...string) configx.Values {
 		r.Get()
 	}
 
-	return r.config.Val(path...)
+	return &wrappedConfig{r.config.Val(path...), r}
 }
 
 func (r *remote) Get() configx.Value {
@@ -53,6 +109,25 @@ func (r *remote) Get() configx.Value {
 }
 
 func (r *remote) Set(data interface{}) error {
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
+
+	if _, err := cli.Update(context.TODO(), &proto.UpdateRequest{
+		Change: &proto.Change{
+			Id: r.id,
+			ChangeSet: &go_micro_os_config.ChangeSet{
+				Data: string(b),
+			},
+		},
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -61,43 +136,70 @@ func (r *remote) Del() error {
 }
 
 func (r *remote) Watch(path ...string) (configx.Receiver, error) {
-	cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
-
-	r.ctx = context.Background()
-
-	stream, err := cli.Watch(r.ctx, &proto.WatchRequest{
-		Id: r.id,
-		// 	Path: strings.Join(path, "/"),
-	})
-
-	if err != nil {
-		return nil, err
+	rcvr := &receiver{
+		exit: make(chan bool),
+		path: path,
+		value: r.Val(path...).Bytes(),
+		updates: make(chan []byte),
 	}
 
-	return &receiver{stream: stream}, nil
+	r.watchers = append(r.watchers, rcvr)
+
+	return rcvr, nil
 }
 
 type receiver struct {
-	stream proto.Config_WatchClient
+	exit chan bool
+	path []string
+	value []byte
+	updates chan []byte
 }
 
 func (r *receiver) Next() (configx.Values, error) {
-	var m interface{}
-	rsp, err := r.stream.Recv()
-	if err != nil {
-		return nil, err
+	for {
+		select {
+		case <-r.exit:
+			return nil, errors.New("watcher stopped")
+		case v := <-r.updates:
+			if len(r.value) == 0 && len(v) == 0 {
+				continue
+			}
+
+			if bytes.Equal(r.value, v) {
+				continue
+			}
+
+			r.value = v
+
+			ret := configx.New(configx.WithJSON())
+			if err := ret.Set(v); err != nil {
+				return nil, err
+			}
+			return ret, nil
+		}
 	}
-
-	if err := json.Unmarshal([]byte(rsp.ChangeSet.Data), &m); err != nil {
-		return nil, err
-	}
-
-	v := configx.New(configx.WithJSON())
-
-	v.Set(m)
-
-	return v, err
 }
 
+
 func (r *receiver) Stop() {
+	select {
+	case <-r.exit:
+	default:
+		close(r.exit)
+	}
+	return
+}
+
+type wrappedConfig struct {
+	configx.Values
+	r *remote
+}
+
+func (w *wrappedConfig) Set(val interface{}) error {
+	err := w.Values.Set(val)
+	if err != nil {
+		return err
+	}
+
+	return w.r.Set(w.Values.Val("#").Map())
 }
