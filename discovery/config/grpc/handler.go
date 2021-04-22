@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	notImplemented = errors.New("notimplemented", "service not implemented", 501)
+	NotImplemented = errors.New("notimplemented", "service not implemented", 501)
 )
 
 type Handler struct{}
@@ -65,7 +65,7 @@ func (h *Handler) Delete(ctx context.Context, request *proto.DeleteRequest, resp
 }
 
 func (h *Handler) Search(ctx context.Context, request *proto.SearchRequest, response *proto.SearchResponse) error {
-	return notImplemented
+	return NotImplemented
 }
 
 // Read will grab info from local config or vault
@@ -103,7 +103,7 @@ func (h *Handler) Read(ctx context.Context, request *proto.ReadRequest, response
 }
 
 func (h *Handler) AuditLog(ctx context.Context, request *proto.AuditLogRequest, response *proto.AuditLogResponse) error {
-	return notImplemented
+	return NotImplemented
 }
 
 func (h *Handler) Watch(ctx context.Context, request *proto.WatchRequest, stream proto.Config_WatchStream) error {
@@ -136,5 +136,6 @@ func (h *Handler) Watch(ctx context.Context, request *proto.WatchRequest, stream
 			})
 		}
 	}
+
 	return nil
 }
