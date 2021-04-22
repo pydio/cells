@@ -267,7 +267,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		node.SetMeta(MetadataThumbnails, nil)
 	}
 
-	log.Logger(ctx).Info("Thumbs Generated for", zap.String(common.KEY_NODE_PATH, errPath), zap.Any("meta", meta))
+	log.Logger(ctx).Info("Thumbs Generated for", zap.String(common.KeyNodePath, errPath), zap.Any("meta", meta))
 	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 	if err != nil {
 		err = errors.Wrap(err, errPath)

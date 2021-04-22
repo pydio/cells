@@ -130,14 +130,14 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	if update {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated workspace [%s]", u.Slug),
-			log.GetAuditId(common.AUDIT_WS_UPDATE),
+			log.GetAuditId(common.AuditWsUpdate),
 			u.ZapUuid(),
 		)
 
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Created workspace [%s]", u.Slug),
-			log.GetAuditId(common.AUDIT_WS_CREATE),
+			log.GetAuditId(common.AuditWsCreate),
 			u.ZapUuid(),
 		)
 	}
@@ -169,7 +169,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 			if !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service.ResourcePolicyAction_WRITE) {
 				log.Auditer(ctx).Error(
 					fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
-					log.GetAuditId(common.AUDIT_WS_DELETE),
+					log.GetAuditId(common.AuditWsDelete),
 				)
 				service2.RestError403(req, rsp, errors.Forbidden(common.ServiceWorkspace, "You are not allowed to edit this workspace!"))
 				return
@@ -183,7 +183,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Removed workspace [%s]", slug),
-			log.GetAuditId(common.AUDIT_WS_DELETE),
+			log.GetAuditId(common.AuditWsDelete),
 		)
 		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
 	}

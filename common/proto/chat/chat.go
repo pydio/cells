@@ -33,7 +33,7 @@ import (
 
 // Zap simply returns a zapcore.Field object populated with this ChatRoom under a standard key
 func (c *ChatRoom) Zap() zapcore.Field {
-	return zap.Object(common.KEY_CHAT_ROOM, c)
+	return zap.Object(common.KeyChatRoom, c)
 }
 
 // MarshalLogObject implements custom marshalling for logs

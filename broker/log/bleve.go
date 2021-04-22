@@ -104,7 +104,7 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 		q = bleve.NewQueryStringQuery(str)
 	}
 	req := bleve.NewSearchRequest(q)
-	req.SortBy([]string{"-" + common.KEY_TS, "-" + common.KEY_NANO})
+	req.SortBy([]string{"-" + common.KeyTs, "-" + common.KeyNano})
 	req.Size = int(size)
 	req.Fields = []string{"*"}
 	req.From = int(page * size)
@@ -188,29 +188,29 @@ func MarshallLogMsg(line *log.Log) (*IndexableLog, error) {
 			msg.Ts = convertTimeToTs(t)
 		case "level":
 			msg.Level = val
-		case common.KEY_MSG_ID:
+		case common.KeyMsgId:
 			msg.MsgId = val
 		case "logger": // name of the service that is currently logging.
 			msg.Logger = val
 		// Node specific info
-		case common.KEY_NODE_UUID:
+		case common.KeyNodeUuid:
 			msg.NodeUuid = val
-		case common.KEY_NODE_PATH:
+		case common.KeyNodePath:
 			msg.NodePath = val
-		case common.KEY_WORKSPACE_UUID:
+		case common.KeyWorkspaceUuid:
 			msg.WsUuid = val
-		case common.KEY_WORKSPACE_SCOPE:
+		case common.KeyWorkspaceScope:
 			msg.WsScope = val
 		// User specific info
-		case common.KEY_USERNAME:
+		case common.KeyUsername:
 			msg.UserName = val
-		case common.KEY_USER_UUID:
+		case common.KeyUserUuid:
 			msg.UserUuid = val
-		case common.KEY_GROUP_PATH:
+		case common.KeyGroupPath:
 			msg.GroupPath = val
-		case common.KEY_ROLES:
+		case common.KeyRoles:
 			msg.RoleUuids = strings.Split(val, ",")
-		case common.KEY_PROFILE:
+		case common.KeyProfile:
 			msg.Profile = val
 		// Session and remote client info
 		case servicecontext.HttpMetaRemoteAddress:
@@ -220,22 +220,22 @@ func MarshallLogMsg(line *log.Log) (*IndexableLog, error) {
 		case servicecontext.HttpMetaProtocol:
 			msg.HttpProtocol = val
 		// Span enable following a given request between the various services
-		case common.KEY_SPAN_UUID:
+		case common.KeySpanUuid:
 			msg.SpanUuid = val
-		case common.KEY_SPAN_PARENT_UUID:
+		case common.KeySpanParentUuid:
 			msg.SpanParentUuid = val
-		case common.KEY_SPAN_ROOT_UUID:
+		case common.KeySpanRootUuid:
 			msg.SpanRootUuid = val
 		// Group messages for a given high level operation
-		case common.KEY_OPERATION_UUID:
+		case common.KeyOperationUuid:
 			msg.OperationUuid = val
-		case common.KEY_OPERATION_LABEL:
+		case common.KeyOperationLabel:
 			msg.OperationLabel = val
-		case common.KEY_SCHEDULER_JOB_ID:
+		case common.KeySchedulerJobId:
 			msg.SchedulerJobUuid = val
-		case common.KEY_SCHEDULER_TASK_ID:
+		case common.KeySchedulerTaskId:
 			msg.SchedulerTaskUuid = val
-		case common.KEY_SCHEDULER_ACTION_PATH:
+		case common.KeySchedulerActionPath:
 			msg.SchedulerTaskActionPath = val
 		case "msg", "error":
 			break
@@ -323,28 +323,28 @@ func UnmarshallLogMsgFromFields(m map[string]interface{}, msg *log.LogMessage) {
 		msg.WsUuid = val.(string)
 	}
 
-	if val, ok := m[common.KEY_SPAN_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySpanUuid]; ok && val.(string) != "" {
 		msg.SpanUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SPAN_ROOT_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySpanRootUuid]; ok && val.(string) != "" {
 		msg.SpanRootUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SPAN_PARENT_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySpanParentUuid]; ok && val.(string) != "" {
 		msg.SpanParentUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_OPERATION_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeyOperationUuid]; ok && val.(string) != "" {
 		msg.OperationUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_OPERATION_LABEL]; ok && val.(string) != "" {
+	if val, ok := m[common.KeyOperationLabel]; ok && val.(string) != "" {
 		msg.OperationLabel = val.(string)
 	}
-	if val, ok := m[common.KEY_SCHEDULER_JOB_ID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySchedulerJobId]; ok && val.(string) != "" {
 		msg.SchedulerJobUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SCHEDULER_TASK_ID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySchedulerTaskId]; ok && val.(string) != "" {
 		msg.SchedulerTaskUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SCHEDULER_ACTION_PATH]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySchedulerActionPath]; ok && val.(string) != "" {
 		msg.SchedulerTaskActionPath = val.(string)
 	}
 	if val, ok := m["JsonZaps"]; ok && val.(string) != "" {

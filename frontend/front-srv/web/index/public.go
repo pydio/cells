@@ -146,9 +146,9 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		ctx = servicecontext.WithServiceName(ctx, common.ServiceWebNamespace_+common.ServiceFrontend)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Public Link %s accessed", linkId),
-			log.GetAuditId(common.AUDIT_LOGIN_SUCCEED),
-			zap.String(common.KEY_WORKSPACE_UUID, linkData.RepositoryId),
-			zap.String(common.KEY_USER_UUID, uField),
+			log.GetAuditId(common.AuditLoginSucceed),
+			zap.String(common.KeyWorkspaceUuid, linkData.RepositoryId),
+			zap.String(common.KeyUserUuid, uField),
 		)
 	}
 

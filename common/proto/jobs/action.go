@@ -248,10 +248,10 @@ func (a *Action) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // Zap simply returns a zapcore.Field object populated with this Action under a standard key
 func (a *Action) Zap() zapcore.Field {
-	return zap.Object(common.KEY_ACTION, a)
+	return zap.Object(common.KeyAction, a)
 }
 
 // ZapId simply calls zap.String() with ActionId standard key and this Action id
 func (a *Action) ZapId() zapcore.Field {
-	return zap.String(common.KEY_ACTION_ID, a.GetID())
+	return zap.String(common.KeyActionId, a.GetID())
 }

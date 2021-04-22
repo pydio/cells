@@ -154,7 +154,7 @@ func jwtWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc)
 					if err != nil {
 						log.Auditer(serviceCtx).Error(
 							"Blocked invalid JWT",
-							log.GetAuditId(common.AUDIT_INVALID_JWT),
+							log.GetAuditId(common.AuditInvalidJwt),
 						)
 						return err
 					} else {

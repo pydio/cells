@@ -28,10 +28,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"time"
-
-	"go.uber.org/zap/buffer"
 
 	micro "github.com/micro/go-log"
 	"github.com/micro/go-micro/metadata"
@@ -190,25 +187,7 @@ func SetLoggerInit(f func() *zap.Logger) {
 
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) *zap.Logger {
-	newLogger := mainLogger.get()
-
-	if ctx != nil {
-		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			newLogger = newLogger.Named(serviceName)
-		}
-		if opID, opLabel := servicecontext.GetOperationID(ctx); opID != "" {
-			if opLabel != "" {
-				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID), zap.String(common.KEY_OPERATION_LABEL, opLabel))
-			} else {
-				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID))
-			}
-		}
-		if common.LogConfig == common.LogConfigProduction {
-			newLogger = fillLogContext(ctx, newLogger)
-		}
-	}
-
-	return newLogger
+	return fillLogContext(ctx, mainLogger.get())
 }
 
 // SetAuditerInit defines what function to use to init the auditer
@@ -218,18 +197,7 @@ func SetAuditerInit(f func() *zap.Logger) {
 
 // Auditer returns a zap logger with as much context as possible
 func Auditer(ctx context.Context) *zap.Logger {
-	newLogger := auditLogger.get()
-
-	if ctx != nil {
-		newLogger = newLogger.With(zap.String("LogType", "audit"))
-		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			newLogger = newLogger.Named(serviceName)
-		}
-		// Add context info to the logger
-		newLogger = fillLogContext(ctx, newLogger)
-	}
-
-	return newLogger
+	return fillLogContext(ctx, auditLogger.get(), zap.String("LogType", "audit"))
 }
 
 // SetTasksLoggerInit defines what function to use to init the tasks logger
@@ -239,22 +207,12 @@ func SetTasksLoggerInit(f func() *zap.Logger) {
 
 // TasksLogger returns a zap logger with as much context as possible.
 func TasksLogger(ctx context.Context) *zap.Logger {
-	newLogger := tasksLogger.get()
-	if ctx != nil {
-		newLogger = newLogger.With(zap.String("LogType", "tasks"))
-		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			newLogger = newLogger.Named(serviceName)
-		}
-		// Add context info to the logger
-		newLogger = fillLogContext(ctx, newLogger)
-	}
-
-	return newLogger
+	return fillLogContext(ctx, tasksLogger.get(), zap.String("LogType", "tasks"))
 }
 
 // GetAuditId simply returns a zap field that contains this message id to ease audit log analysis.
 func GetAuditId(msgId string) zapcore.Field {
-	return zap.String(common.KEY_MSG_ID, msgId)
+	return zap.String(common.KeyMsgId, msgId)
 }
 
 type micrologger struct {
@@ -295,31 +253,41 @@ func Info(msg string, fields ...zapcore.Field) {
 }
 
 // Enrich the passed logger with generic context info, used by both syslog and audit loggers
-func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
+func fillLogContext(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger {
 
+	if ctx == nil {
+		return logger
+	}
+
+	// Name Logger
+	if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
+		logger = logger.Named(serviceName)
+	}
+
+	// Compute all fields
 	if span, ok := servicecontext.SpanFromContext(ctx); ok {
 		if len(span.RootParentId) > 0 {
-			logger = logger.With(zap.String(common.KEY_SPAN_ROOT_UUID, span.RootParentId))
+			fields = append(fields, zap.String(common.KeySpanRootUuid, span.RootParentId))
 		}
 		if len(span.ParentId) > 0 {
-			logger = logger.With(zap.String(common.KEY_SPAN_PARENT_UUID, span.RootParentId))
+			fields = append(fields, zap.String(common.KeySpanParentUuid, span.RootParentId))
 		}
-		logger = logger.With(zap.String(common.KEY_SPAN_UUID, span.SpanId))
+		fields = append(fields, zap.String(common.KeySpanUuid, span.SpanId))
 	}
 	if opId, opLabel := servicecontext.GetOperationID(ctx); opId != "" {
-		logger = logger.With(zap.String(common.KEY_OPERATION_UUID, opId))
+		fields = append(fields, zap.String(common.KeyOperationUuid, opId))
 		if opLabel != "" {
-			logger = logger.With(zap.String(common.KEY_OPERATION_LABEL, opLabel))
+			fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
 		}
 	}
 	if jobId, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
-		logger = logger.With(zap.String(common.KEY_SCHEDULER_JOB_ID, jobId))
+		fields = append(fields, zap.String(common.KeySchedulerJobId, jobId))
 	}
 	if taskUuid, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
-		logger = logger.With(zap.String(common.KEY_SCHEDULER_TASK_ID, taskUuid))
+		fields = append(fields, zap.String(common.KeySchedulerTaskId, taskUuid))
 	}
 	if taskPath, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
-		logger = logger.With(zap.String(common.KEY_SCHEDULER_ACTION_PATH, taskPath))
+		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
 	}
 	if ctxMeta, has := metadata.FromContext(ctx); has {
 		for _, key := range []string{
@@ -329,42 +297,22 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 			servicecontext.HttpMetaProtocol,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
-				logger = logger.With(zap.String(key, val))
+				fields = append(fields, zap.String(key, val))
 			}
 		}
 	}
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		uuid := claims.Subject
-		logger = logger.With(
-			zap.String(common.KEY_USERNAME, claims.Name),
-			zap.String(common.KEY_USER_UUID, uuid),
-			zap.String(common.KEY_GROUP_PATH, claims.GroupPath),
-			zap.String(common.KEY_PROFILE, claims.Profile),
-			zap.String(common.KEY_ROLES, claims.Roles),
+		fields = append(fields,
+			zap.String(common.KeyUsername, claims.Name),
+			zap.String(common.KeyUserUuid, uuid),
+			zap.String(common.KeyGroupPath, claims.GroupPath),
+			zap.String(common.KeyProfile, claims.Profile),
+			zap.String(common.KeyRoles, claims.Roles),
 		)
 	}
-	return logger
-}
-
-func newColorConsoleEncoder(config zapcore.EncoderConfig) zapcore.Encoder {
-	return &colorConsoleEncoder{Encoder: zapcore.NewConsoleEncoder(config)}
-}
-
-type colorConsoleEncoder struct {
-	zapcore.Encoder
-}
-
-func (c *colorConsoleEncoder) Clone() zapcore.Encoder {
-	return &colorConsoleEncoder{Encoder: c.Encoder.Clone()}
-}
-
-func (c *colorConsoleEncoder) EncodeEntry(e zapcore.Entry, ff []zapcore.Field) (*buffer.Buffer, error) {
-	color := servicecontext.ServiceColorOther
-	if strings.HasPrefix(e.LoggerName, common.ServiceGrpcNamespace_) {
-		color = servicecontext.ServiceColorGrpc
-	} else if strings.HasPrefix(e.LoggerName, common.ServiceRestNamespace_) {
-		color = servicecontext.ServiceColorRest
+	if len(fields) == 0 {
+		return logger
 	}
-	e.LoggerName = fmt.Sprintf("\x1b[%dm%s\x1b[0m", color, e.LoggerName)
-	return c.Encoder.EncodeEntry(e, ff)
+	return logger.With(fields...)
 }
