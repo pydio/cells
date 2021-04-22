@@ -23,12 +23,13 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	defaults "github.com/pydio/cells/common/micro"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
+
+	defaults "github.com/pydio/cells/common/micro"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -131,7 +132,6 @@ ENVIRONMENT
 					"Do you want to create one now",
 					cmd, args)
 			}
-
 
 			if initConfig() {
 				return triggerInstall(
@@ -350,7 +350,8 @@ func init() {
 	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")
 
 	// Other internal flags
-	StartCmd.Flags().String("log", "info", "Sets the log level mode")
+	StartCmd.Flags().String("log", "info", "Sets the log level : 'info', 'debug', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
+	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text. Necessary for production.")
 	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")

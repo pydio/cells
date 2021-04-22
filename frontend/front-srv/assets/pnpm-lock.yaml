@@ -406,7 +406,7 @@ importers:
   gui.ajax:
     dependencies:
       aws-sdk: 2.856.0
-      cells-sdk: github.com/pydio/cells-sdk-js/ce077b570c35023f0b35eb55ebb506664cf6a209
+      cells-sdk: github.com/pydio/cells-sdk-js/d7507b9f40eae18aafb35ad56a1dda19d023896a
       chart.js: 1.1.1
       classnames: 2.1.5
       clipboard: 1.7.1
@@ -6287,6 +6287,10 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-fn2Fi3gb18mRpBupde04EnVOmYw=
+  /object-inspect/1.10.2:
+    dev: false
+    resolution:
+      integrity: sha512-gz58rdPpadwztRrPjZE9DZLOABUpTGdcANUgOwBFO1C+HZZhePoP83M65WGDmbpwFYJSWqavbl4SgDn4k8RYTA==
   /object-inspect/1.9.0:
     dev: false
     resolution:
@@ -8058,7 +8062,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       get-intrinsic: 1.1.1
-      object-inspect: 1.9.0
+      object-inspect: 1.10.2
     dev: false
     resolution:
       integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==
@@ -9321,14 +9325,14 @@ packages:
     dev: true
     resolution:
       integrity: sha1-T6akXQDbwV8xikr6HZr8Aljhdsw=
-  github.com/pydio/cells-sdk-js/ce077b570c35023f0b35eb55ebb506664cf6a209:
+  github.com/pydio/cells-sdk-js/d7507b9f40eae18aafb35ad56a1dda19d023896a:
     dependencies:
       superagent: 6.1.0
     dev: false
     name: cells-sdk
     resolution:
-      tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/ce077b570c35023f0b35eb55ebb506664cf6a209
-    version: 2.3.3
+      tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/d7507b9f40eae18aafb35ad56a1dda19d023896a
+    version: 2.3.4
   github.com/pydio/pydio-sdk-js/b82cab5bb5bb495fb7cde736814681b52e158a9c:
     dependencies:
       superagent: 3.5.2

@@ -19,13 +19,13 @@ package gateway
 import (
 	// Import all gateways.
 	_ "github.com/pydio/minio-srv/cmd/gateway/azure"
-	_ "github.com/pydio/minio-srv/cmd/gateway/b2"
+//	_ "github.com/pydio/minio-srv/cmd/gateway/b2"
 	_ "github.com/pydio/minio-srv/cmd/gateway/gcs"
-	_ "github.com/pydio/minio-srv/cmd/gateway/manta"
-	_ "github.com/pydio/minio-srv/cmd/gateway/nas"
-	_ "github.com/pydio/minio-srv/cmd/gateway/oss"
+//	_ "github.com/pydio/minio-srv/cmd/gateway/manta"
+//	_ "github.com/pydio/minio-srv/cmd/gateway/nas"
+	//_ "github.com/pydio/minio-srv/cmd/gateway/oss"
 	_ "github.com/pydio/minio-srv/cmd/gateway/s3"
-	_ "github.com/pydio/minio-srv/cmd/gateway/sia"
+//	_ "github.com/pydio/minio-srv/cmd/gateway/sia"
 	// Add your gateway here.
 	_ "github.com/pydio/minio-srv/cmd/gateway/pydio"
 )

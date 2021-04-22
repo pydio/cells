@@ -5738,6 +5738,10 @@ var SwaggerJson = `{
         },
         "SchedulerTaskActionPath": {
           "type": "string"
+        },
+        "JsonZaps": {
+          "type": "string",
+          "title": "Other Unkown Fields"
         }
       },
       "description": "LogMessage is the format used to transmit log messages to clients via the REST API."

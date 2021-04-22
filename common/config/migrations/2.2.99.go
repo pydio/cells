@@ -33,7 +33,7 @@ func updateVersionsStore(conf configx.Values) error {
 	}
 	var newDsName = "versions"
 	if _, exists := config.ListSourcesFromConfig()[newDsName]; exists {
-		newDsName = "versions-" + uuid.New()[0:6]
+		newDsName = "versions" + uuid.New()[0:6]
 	}
 	dsCopy := proto.Clone(dsObject).(*object.DataSource)
 	dsCopy.Name = newDsName

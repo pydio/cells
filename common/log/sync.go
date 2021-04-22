@@ -22,11 +22,8 @@ package log
 
 import (
 	"context"
-	"strconv"
 	"sync/atomic"
 	"time"
-
-	json "github.com/pydio/cells/x/jsonx"
 
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/log"
@@ -37,8 +34,8 @@ type LogSyncer struct {
 	ctx               context.Context
 	cli               log.LogRecorder_PutLogClient
 
-	logSyncerMessages chan map[string]string
-	buf               []map[string]string
+	logSyncerMessages chan *log.Log
+	buf               []*log.Log
 	reconnecting      int32
 }
 
@@ -46,7 +43,7 @@ func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 	syncer := &LogSyncer{
 		serverServiceName: serviceName,
 		ctx:               ctx,
-		logSyncerMessages: make(chan map[string]string, 10),
+		logSyncerMessages: make(chan *log.Log, 10),
 	}
 
 	go syncer.logSyncerWatch()
@@ -69,7 +66,7 @@ func (syncer *LogSyncer) logSyncerClientReconnect() {
 
 	// Emptying buffer
 	for i, m := range syncer.buf {
-		err := cli.Send(&log.Log{Message: m})
+		err := cli.Send(m)
 		if err != nil {
 			syncer.buf = syncer.buf[i:]
 			syncer.logSyncerClientReconnect()
@@ -90,7 +87,7 @@ func (syncer *LogSyncer) logSyncerWatch() {
 			continue
 		}
 
-		err := syncer.cli.Send(&log.Log{Message: m})
+		err := syncer.cli.Send(m)
 		if err != nil {
 			syncer.cli.Close()
 			syncer.cli = nil
@@ -107,19 +104,25 @@ func (syncer *LogSyncer) logSyncerWatch() {
 
 func (l *LogSyncer) Write(p []byte) (n int, err error) {
 
-	var d map[string]interface{}
-	err = json.Unmarshal(p, &d)
+	/*
+		var d map[string]interface{}
+		err = json.Unmarshal(p, &d)
 
-	m := make(map[string]string)
-	for key, value := range d {
-		switch value := value.(type) {
-		case string:
-			m[key] = value
+		m := make(map[string]string)
+		for key, value := range d {
+			switch value := value.(type) {
+			case string:
+				m[key] = value
+			}
 		}
-	}
-	// Add nano time for better sorting
-	m["nano"] = strconv.Itoa(time.Now().Nanosecond())
+		// Add nano time for better sorting
+		m["nano"] = strconv.Itoa(time.Now().Nanosecond())
 
-	l.logSyncerMessages <- m
+	*/
+
+	l.logSyncerMessages <- &log.Log{
+		Nano:    int32(time.Now().Nanosecond()),
+		Message: p,
+	}
 	return len(p), nil
 }

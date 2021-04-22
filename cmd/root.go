@@ -303,22 +303,30 @@ func initLogLevel() {
 
 	// Init log level
 	logLevel := viper.GetString("logs_level")
+	logJson := viper.GetBool("log_json")
+
+	// Backward compatibility
+	if logLevel == "production" {
+		logLevel = "info"
+		logJson = true
+	}
 
 	// Making sure the log level is passed everywhere (fork processes for example)
 	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
 
-	if logLevel == "production" {
+	if logJson {
+		os.Setenv("CELLS_LOG_JSON", "true")
 		common.LogConfig = common.LogConfigProduction
 	} else {
 		common.LogConfig = common.LogConfigConsole
-		switch logLevel {
-		case "info":
-			common.LogLevel = zap.InfoLevel
-		case "debug":
-			common.LogLevel = zap.DebugLevel
-		case "error":
-			common.LogLevel = zap.ErrorLevel
-		}
+	}
+	switch logLevel {
+	case "info":
+		common.LogLevel = zap.InfoLevel
+	case "debug":
+		common.LogLevel = zap.DebugLevel
+	case "error":
+		common.LogLevel = zap.ErrorLevel
 	}
 
 	log.Init()

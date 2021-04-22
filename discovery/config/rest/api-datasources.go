@@ -28,6 +28,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pydio/cells/common/registry"
+
+	"github.com/pydio/cells/common/proto/jobs"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -114,7 +118,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 
 	currentSources := config.ListSourcesFromConfig()
 	currentMinios := config.ListMinioConfigsFromConfig()
-	_, update := currentSources[ds.Name]
+	initialDs, update := currentSources[ds.Name]
+	var initialVersioningEmpty bool
+	if update {
+		initialVersioningEmpty = initialDs.VersioningPolicyName == ""
+	}
 
 	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
 	if e != nil {
@@ -167,6 +175,15 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		eventType := object.DataSourceEvent_CREATE
 		if update {
 			eventType = object.DataSourceEvent_UPDATE
+			if initialVersioningEmpty && ds.VersioningPolicyName != "" {
+				if e := createFullVersioningJob(ctx, dsName); e != nil {
+					log.Logger(ctx).Warn("Could not insert full versioning job for datasource " + dsName)
+				}
+			} else if ds.VersioningPolicyName == "" && !initialVersioningEmpty {
+				if e := removeFullVersioningJob(ctx, dsName); e != nil {
+					log.Logger(ctx).Warn("Could not insert full versioning job for datasource " + dsName)
+				}
+			}
 		}
 
 		if err = client.Publish(ctx, client.NewPublication(common.TopicDatasourceEvent, &object.DataSourceEvent{
@@ -191,6 +208,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 
 func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response) {
 
+	ctx := req.Request.Context()
 	dsName := req.PathParameter("Name")
 	if dsName == "" {
 		service.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
@@ -210,9 +228,13 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	}
 	currentSources := config.ListSourcesFromConfig()
 
-	if _, ok := currentSources[dsName]; !ok {
+	if existingDS, ok := currentSources[dsName]; !ok {
 		service.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
 		return
+	} else if existingDS.VersioningPolicyName != "" {
+		if e := removeFullVersioningJob(ctx, dsName); e != nil {
+			log.Logger(ctx).Warn("Error while removing full versioning job on ds deletion", zap.Error(e))
+		}
 	}
 	delete(currentSources, dsName)
 	config.SourceNamesToConfig(currentSources)
@@ -411,4 +433,56 @@ func (s *Handler) findWorkspacesForDatasource(ctx context.Context, dsName string
 	}
 
 	return false, nil
+}
+
+func removeFullVersioningJob(ctx context.Context, dsName string) error {
+	jId := "full-versioning-job-" + dsName
+	jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	to := registry.ShortRequestTimeout()
+	_, e := jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: jId}, to)
+	return e
+}
+
+func createFullVersioningJob(ctx context.Context, dsName string) error {
+
+	//T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
+
+	j := &jobs.Job{
+		ID:                "full-versioning-job-" + dsName,
+		Owner:             common.PydioSystemUsername,
+		Label:             "[Versioning] Create new version for all files inside " + dsName,
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.versioning.create",
+				NodesSelector: &jobs.NodesSelector{
+					Query: &service2.Query{
+						SubQueries: jobs.MustMarshalAnyMultiple(
+							&tree.Query{
+								Type:       tree.NodeType_LEAF,
+								PathPrefix: []string{dsName + "/"},
+							},
+							&tree.Query{
+								FileName: common.PydioSyncHiddenFile,
+								Not:      true,
+							},
+						),
+						Operation: service2.OperationType_AND,
+					},
+				},
+			},
+		},
+	}
+
+	jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	to := registry.ShortRequestTimeout()
+	if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: j.ID}, to); err != nil {
+		log.Logger(ctx).Info("Inserting full versioning job")
+		_, e := jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
+		return e
+	}
+
+	return nil
 }
