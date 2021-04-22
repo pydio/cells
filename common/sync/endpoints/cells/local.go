@@ -80,7 +80,6 @@ func NewLocal(root string, options Options) *Local {
 	l.source = l
 	logCtx := context.Background()
 	logCtx = servicecontext.WithServiceName(logCtx, "endpoint.cells.remote")
-	logCtx = servicecontext.WithServiceColor(logCtx, servicecontext.ServiceColorGrpc)
 	l.globalCtx = logCtx
 	return l
 }
@@ -88,7 +87,7 @@ func NewLocal(root string, options Options) *Local {
 // GetEndpointInfo returns info about this endpoint
 func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI:                   "router:///" + l.root,
+		URI: "router:///" + l.root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,

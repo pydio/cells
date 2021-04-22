@@ -105,7 +105,7 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
@@ -191,7 +191,7 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 			if wrapped, e = NewConfigHTTPHandlerWrapper(wrapped, name); e != nil {
 				return e
 			}
-			wrapped = NewLogHTTPHandlerWrapper(wrapped, name, servicecontext.GetServiceColor(ctx))
+			wrapped = NewLogHTTPHandlerWrapper(wrapped, name)
 
 			wrapped = cors.Default().Handler(wrapped)
 

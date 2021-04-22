@@ -157,7 +157,6 @@ func (b *Batch) createBackgroundContext() context.Context {
 		GroupPath: "/",
 	})
 	ctx = servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 	return ctx
 }
 

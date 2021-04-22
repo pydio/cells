@@ -192,17 +192,9 @@ func NewService(opts ...ServiceOption) Service {
 	// Setting context
 	ctx = servicecontext.WithServiceName(ctx, name)
 
-	if s.IsGRPC() {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
-	} else if s.IsREST() {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
-
-		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
-		if s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
-			s.Init(WithWebAuth())
-		}
-	} else {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
+	// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
+	if s.IsREST() && s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
+		s.Init(WithWebAuth())
 	}
 
 	s.origCtx = ctx
@@ -373,7 +365,7 @@ var mandatoryOptions = []ServiceOption{
 					}
 				}
 
-				log.Logger(ctx).Debug(	"BeforeStart - Check dependency retry", zap.String("service", d.Name))
+				log.Logger(ctx).Debug("BeforeStart - Check dependency retry", zap.String("service", d.Name))
 
 				return fmt.Errorf("dependency %s not found", d.Name)
 			}, 50*time.Millisecond, 20*time.Minute) // This is long for distributed setup
@@ -607,7 +599,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	case <-ctx.Done():
 		return
 	default:
-		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now " +  name)
+		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now " + name)
 		s.ForkStart(ctx, r+1)
 	}
 }

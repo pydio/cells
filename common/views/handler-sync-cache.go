@@ -82,10 +82,9 @@ func NewSynchronousCacheHandler() *SynchronousCacheHandler {
 			var event tree.NodeChangeEvent
 			if e := proto.Unmarshal(publication.Message().Body, &event); e == nil && !event.Optimistic {
 				if event.Type == tree.NodeChangeEvent_CREATE || event.Type == tree.NodeChangeEvent_UPDATE_PATH || event.Type == tree.NodeChangeEvent_DELETE {
-					c := metadata.NewContext(context.Background(), publication.Message().Header)
-					c = servicecontext.WithServiceName(c, VIEWS_LIBRARY_NAME)
-					c = servicecontext.WithServiceColor(c, servicecontext.ServiceColorOther)
-					s.cacheEvent(c, &event)
+					ctx := metadata.NewContext(context.Background(), publication.Message().Header)
+					ctx = servicecontext.WithServiceName(ctx, VIEWS_LIBRARY_NAME)
+					s.cacheEvent(ctx, &event)
 				}
 			}
 			return nil

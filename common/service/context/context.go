@@ -23,7 +23,6 @@ package servicecontext
 
 import (
 	"context"
-	"sync/atomic"
 
 	"github.com/pkg/errors"
 
@@ -34,12 +33,7 @@ import (
 type contextType int
 
 const (
-	ServiceColorRest  = 32
-	ServiceColorGrpc  = 35
-	ServiceColorOther = 36
-
-	serviceColorKey contextType = iota
-	serviceNameKey
+	serviceNameKey contextType = iota
 	operationIDKey
 	operationLabelKey
 	daoKey
@@ -49,18 +43,6 @@ const (
 	ContextMetaTaskUuid       = "X-Pydio-Task-Uuid"
 	ContextMetaTaskActionPath = "X-Pydio-Task-ActionPath"
 )
-
-var serviceColorCount uint64 = 30
-
-// WithServiceColor returns a context which knows its service assigned color
-func WithServiceColor(ctx context.Context, color ...uint64) context.Context {
-	if len(color) > 0 {
-		return context.WithValue(ctx, serviceColorKey, color[0])
-	}
-
-	atomic.AddUint64(&serviceColorCount, 1)
-	return context.WithValue(ctx, serviceColorKey, atomic.LoadUint64(&serviceColorCount))
-}
 
 // WithServiceName returns a context which knows its service name
 func WithServiceName(ctx context.Context, serviceName string) context.Context {
@@ -84,14 +66,6 @@ func WithDAO(ctx context.Context, dao dao.DAO) context.Context {
 // WithConfig links a config to the context
 func WithConfig(ctx context.Context, config configx.Values) context.Context {
 	return context.WithValue(ctx, configKey, config)
-}
-
-// GetServiceColor returns the service name associated to this context
-func GetServiceColor(ctx context.Context) uint64 {
-	if color, ok := ctx.Value(serviceColorKey).(uint64); ok {
-		return color
-	}
-	return 0
 }
 
 // GetServiceName returns the service name associated to this context

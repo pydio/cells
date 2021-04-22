@@ -55,7 +55,7 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 		if e != nil || len(metas) == 0 {
 			return
 		}
-		ctx = servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, Name), servicecontext.ServiceColorGrpc)
+		ctx = servicecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Info(fmt.Sprintf("Cleaning %d bookmarks for user %s", len(metas), msg.User.Login))
 		for _, m := range metas {
 			c.Dao.Del(m)

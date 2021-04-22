@@ -120,7 +120,6 @@ func Init() {
 
 	// Configure the logger based on the flags
 	ctx := servicecontext.WithServiceName(context.Background(), "nats")
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 	hd.SetLogger(logger{log.Logger(ctx)}, true, false)
 
 	// Start things up. Block here until done.

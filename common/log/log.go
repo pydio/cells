@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -56,7 +56,8 @@ var (
 
 	StdOut *os.File
 
-	customSyncers []zapcore.WriteSyncer
+	skipServerSync bool
+	customSyncers  []zapcore.WriteSyncer
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
@@ -70,17 +71,20 @@ func Init() {
 
 		var logger *zap.Logger
 
-		// Create core for internal indexing service
-		// It forwards logs to the pydio.grpc.logs service to store them
-		// Format is always JSON + ProductionEncoderConfig
-		srvConfig := zap.NewProductionEncoderConfig()
-		srvConfig.EncodeTime = RFC3369TimeEncoder
-		serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
-		serverCore := zapcore.NewCore(
-			zapcore.NewJSONEncoder(srvConfig),
-			serverSync,
-			common.LogLevel,
-		)
+		serverCore := zapcore.NewNopCore()
+		if !skipServerSync {
+			// Create core for internal indexing service
+			// It forwards logs to the pydio.grpc.logs service to store them
+			// Format is always JSON + ProductionEncoderConfig
+			srvConfig := zap.NewProductionEncoderConfig()
+			srvConfig.EncodeTime = RFC3369TimeEncoder
+			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
+			serverCore = zapcore.NewCore(
+				zapcore.NewJSONEncoder(srvConfig),
+				serverSync,
+				common.LogLevel,
+			)
+		}
 
 		if common.LogConfig == common.LogConfigProduction {
 
@@ -178,6 +182,12 @@ func RegisterWriteSyncer(syncer WriteSyncer) {
 	customSyncers = append(customSyncers, syncer)
 
 	mainLogger.forceReset() // Will force reinit next time
+}
+
+// SetSkipServerSync can disable the core syncing to cells service
+// Must be called before initialization
+func SetSkipServerSync() {
+	skipServerSync = true
 }
 
 // SetLoggerInit defines what function to use to init the logger
