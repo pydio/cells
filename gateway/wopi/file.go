@@ -180,7 +180,7 @@ func findNodeFromRequest(r *http.Request) (*tree.Node, error) {
 		Node: &tree.Node{Uuid: uuid},
 	})
 	if err != nil {
-		log.Logger(r.Context()).Error("cannot retrieve node with uuid", zap.String(common.KEY_NODE_UUID, uuid), zap.Error(err))
+		log.Logger(r.Context()).Error("cannot retrieve node with uuid", zap.String(common.KeyNodeUuid, uuid), zap.Error(err))
 		return nil, err
 	}
 

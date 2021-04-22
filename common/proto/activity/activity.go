@@ -50,7 +50,7 @@ func (s *Subscription) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // Zap simply returns a zapcore.Field object populated with this Activity Subscription under a standard key
 func (s *Subscription) Zap() zapcore.Field {
-	return zap.Object(common.KEY_ACTIVITY_SUBSCRIPTION, s)
+	return zap.Object(common.KeyActivitySubscription, s)
 }
 
 // MarshalLogObject implements custom marshalling for logs
@@ -80,7 +80,7 @@ func (s *StreamActivitiesRequest) MarshalLogObject(encoder zapcore.ObjectEncoder
 
 // Zap simply returns a zapcore.Field object populated with this StreamActivitiesRequest under a standard key
 func (s *StreamActivitiesRequest) Zap() zapcore.Field {
-	return zap.Object(common.KEY_ACTIVITY_STREAM_REQUEST, s)
+	return zap.Object(common.KeyActivityStreamRequest, s)
 }
 
 // MarshalLogObject implements custom marshalling for logs
@@ -102,10 +102,10 @@ func (p *PostActivityEvent) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 
 // Zap simply returns a zapcore.Field object populated with this PostActivityEvent under a standard key
 func (p *PostActivityEvent) Zap() zapcore.Field {
-	return zap.Object(common.KEY_ACTIVITY_POST_EVENT, p)
+	return zap.Object(common.KeyActivityPostEvent, p)
 }
 
 // // Zap simply returns a zapcore.Field object populated with this Activity OBJECT under a standard key
 // func (o *Object) Zap() zapcore.Field {
-// 	return zap.Any(common.KEY_ACTIVITY_OBJECT, o)
+// 	return zap.Any(common.KeyActivityObject, o)
 // }

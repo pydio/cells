@@ -159,7 +159,7 @@ func (i *Client) DeleteNode(ctx context.Context, path string) (err error) {
 	session := i.indexationSession()
 
 	if session == "" {
-		log.Logger(ctx).Info("DeleteNode", zap.String(common.KEY_NODE_PATH, path))
+		log.Logger(ctx).Info("DeleteNode", zap.String(common.KeyNodePath, path))
 	}
 
 	_, err = i.writerClient.DeleteNode(ctx, &tree.DeleteNodeRequest{
@@ -173,7 +173,7 @@ func (i *Client) DeleteNode(ctx context.Context, path string) (err error) {
 
 func (i *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 
-	log.Logger(ctx).Info("MoveNode", zap.String(common.KEY_NODE_PATH, oldPath), zap.String("newPath", newPath))
+	log.Logger(ctx).Info("MoveNode", zap.String(common.KeyNodePath, oldPath), zap.String("newPath", newPath))
 
 	_, err = i.writerClient.UpdateNode(ctx, &tree.UpdateNodeRequest{
 		From: &tree.Node{

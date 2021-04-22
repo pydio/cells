@@ -126,7 +126,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		// Ignore events triggered by initial sync
 		return nil
 	}
-	log.Logger(ctx).Debug("Fan out event to activities", zap.String(common.KEY_USER, author), msg.Zap())
+	log.Logger(ctx).Debug("Fan out event to activities", zap.String(common.KeyUser, author), msg.Zap())
 
 	// Create Activities and post them to associated inboxes
 	ac, node := activity.DocumentActivity(author, msg)

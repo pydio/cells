@@ -59,7 +59,7 @@ func TestNewBleveEngine(t *testing.T) {
 		// Wait for batch to be processed
 		<-time.After(4 * time.Second)
 
-		results, err := server.ListLogs(fmt.Sprintf(`+%s:info`, common.KEY_LEVEL), 0, 1000)
+		results, err := server.ListLogs(fmt.Sprintf(`+%s:info`, common.KeyLevel), 0, 1000)
 		So(err, ShouldBeNil)
 		var msg log.LogMessage
 
@@ -103,9 +103,9 @@ func TestNewBleveEngine(t *testing.T) {
 		results, err := server.ListLogs(
 			fmt.Sprintf(
 				`+%s:test +%s:INFO +%s:>1142080000`, // ~01.01.2006
-				common.KEY_MSG,
-				common.KEY_LEVEL,
-				common.KEY_TS,
+				common.KeyMsg,
+				common.KeyLevel,
+				common.KeyTs,
 			), 0, 1000)
 		So(err, ShouldBeNil)
 

@@ -273,7 +273,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Auditer(ctx).Error(
 				fmt.Sprintf("Forbidden action: could not delete user [%s]", response.User.Login),
-				log.GetAuditId(common.AUDIT_USER_DELETE),
+				log.GetAuditId(common.AuditUserDelete),
 				response.User.ZapUuid(),
 			)
 			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "You are not allowed to edit this resource"))
@@ -325,7 +325,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			}
 
 			log.Auditer(ctx).Info(msg,
-				log.GetAuditId(common.AUDIT_USER_DELETE),
+				log.GetAuditId(common.AuditUserDelete),
 			)
 			rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
 		}
@@ -364,7 +364,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Auditer(ctx).Error(
 				fmt.Sprintf("Forbidden action: could not edit user [%s]", update.GetLogin()),
-				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				log.GetAuditId(common.AuditUserUpdate),
 				update.ZapUuid(),
 			)
 			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUser, "You are not allowed to edit this user!"))
@@ -379,7 +379,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 			log.Auditer(ctx).Error(
 				fmt.Sprintf("Forbidden action: could not assign roles on [%s]", update.GetLogin()),
-				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				log.GetAuditId(common.AuditUserUpdate),
 				update.ZapUuid(),
 			)
 			service.RestError403(req, rsp, err)
@@ -516,13 +516,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated group [%s]", out.GroupPath),
-				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
+				log.GetAuditId(common.AuditGroupUpdate),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated user [%s%s]", path, out.Login),
-				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				log.GetAuditId(common.AuditUserUpdate),
 				out.ZapUuid(),
 			)
 		}
@@ -530,13 +530,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Created group [%s]", out.GroupPath),
-				log.GetAuditId(common.AUDIT_GROUP_CREATE),
+				log.GetAuditId(common.AuditGroupCreate),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Created user [%s%s]", path, out.Login),
-				log.GetAuditId(common.AUDIT_USER_CREATE),
+				log.GetAuditId(common.AuditUserCreate),
 				out.ZapUuid(),
 			)
 		}
@@ -675,7 +675,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 		log.Auditer(ctx).Error(
 			fmt.Sprintf("Forbidden action: could not assign roles to user [%s]", update.GetLogin()),
-			log.GetAuditId(common.AUDIT_USER_UPDATE),
+			log.GetAuditId(common.AuditUserUpdate),
 			zap.Any("rolesToCheck", rolesToCheck),
 			update.ZapUuid(),
 			zap.Any("rolesToCheck", rolesToCheck),
@@ -697,7 +697,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 		u.Roles = update.Roles
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated roles on user [%s]", response.User.GetLogin()),
-			log.GetAuditId(common.AUDIT_USER_UPDATE),
+			log.GetAuditId(common.AuditUserUpdate),
 			response.User.ZapUuid(),
 			zap.Any("Roles", u.Roles),
 		)

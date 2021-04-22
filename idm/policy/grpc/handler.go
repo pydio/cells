@@ -107,7 +107,7 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 	response.PolicyGroup = stored
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Stored policy group [%s]", stored.Name),
-		log.GetAuditId(common.AUDIT_POLICY_GROUP_STORE),
+		log.GetAuditId(common.AuditPolicyGroupStore),
 		stored.ZapUuid(),
 	)
 
@@ -125,7 +125,7 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 	response.Success = true
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Deleted policy group [%s]", request.PolicyGroup.Name),
-		log.GetAuditId(common.AUDIT_POLICY_GROUP_DELETE),
+		log.GetAuditId(common.AuditPolicyGroupDelete),
 		request.PolicyGroup.ZapUuid(),
 	)
 

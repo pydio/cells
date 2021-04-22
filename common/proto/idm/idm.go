@@ -51,10 +51,10 @@ func (role *Role) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 // Zap simply returns a zapcore.Field object populated with this role under a standard key
-func (role *Role) Zap() zapcore.Field { return zap.Object(common.KEY_ROLE, role) }
+func (role *Role) Zap() zapcore.Field { return zap.Object(common.KeyRole, role) }
 
 // ZapUuid simply calls zap.String() with RoleUuid standard key and this role uuid
-func (role *Role) ZapUuid() zapcore.Field { return zap.String(common.KEY_ROLE_UUID, role.GetUuid()) }
+func (role *Role) ZapUuid() zapcore.Field { return zap.String(common.KeyRoleUuid, role.GetUuid()) }
 
 // MarshalLogObject implements custom marshalling for logs
 func (user *User) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
@@ -71,13 +71,13 @@ func (user *User) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 // Zap simply returns a zapcore.Field object populated with this user under a standard key
-func (user *User) Zap() zapcore.Field { return zap.Object(common.KEY_USER, user) }
+func (user *User) Zap() zapcore.Field { return zap.Object(common.KeyUser, user) }
 
 // ZapUuid simply calls zap.String() with UserUuid standard key and this user uuid
-func (user *User) ZapUuid() zapcore.Field { return zap.String(common.KEY_USER_UUID, user.GetUuid()) }
+func (user *User) ZapUuid() zapcore.Field { return zap.String(common.KeyUserUuid, user.GetUuid()) }
 
 // ZapUuid simply calls zap.String() with Login standard key and this user login
-func (user *User) ZapLogin() zapcore.Field { return zap.String(common.KEY_USERNAME, user.GetLogin()) }
+func (user *User) ZapLogin() zapcore.Field { return zap.String(common.KeyUsername, user.GetLogin()) }
 
 /*
 POLICIES, ACLS
@@ -96,11 +96,11 @@ func (pg *PolicyGroup) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 // Zap simply returns a zapcore.Field object populated with this policy group under a standard key
-func (pg *PolicyGroup) Zap() zapcore.Field { return zap.Object(common.KEY_POLICY_GROUP, pg) }
+func (pg *PolicyGroup) Zap() zapcore.Field { return zap.Object(common.KeyPolicyGroup, pg) }
 
 // ZapUuid simply calls zap.String() with PolicyGroupUuid standard key and this policy group uuid
 func (pg *PolicyGroup) ZapUuid() zapcore.Field {
-	return zap.String(common.KEY_POLICY_GROUP_UUID, pg.GetUuid())
+	return zap.String(common.KeyPolicyGroupUuid, pg.GetUuid())
 }
 
 // MarshalLogObject implements custom marshalling for logs
@@ -115,10 +115,10 @@ func (policy *Policy) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 // Zap simply returns a zapcore.Field object populated with this policy under a standard key
-func (policy *Policy) Zap() zapcore.Field { return zap.Object(common.KEY_POLICY, policy) }
+func (policy *Policy) Zap() zapcore.Field { return zap.Object(common.KeyPolicy, policy) }
 
 // ZapId simply calls zap.String() with PolicyId standard key and this policy id
-func (policy *Policy) ZapId() zapcore.Field { return zap.String(common.KEY_POLICY_ID, policy.GetId()) }
+func (policy *Policy) ZapId() zapcore.Field { return zap.String(common.KeyPolicyId, policy.GetId()) }
 
 // MarshalLogObject implements custom marshalling for logs
 func (acl *ACL) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
@@ -137,10 +137,10 @@ func (action *ACLAction) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 // Zap simply returns a zapcore.Field object populated with this acl under a standard key
-func (acl *ACL) Zap() zapcore.Field { return zap.Object(common.KEY_ACL, acl) }
+func (acl *ACL) Zap() zapcore.Field { return zap.Object(common.KeyAcl, acl) }
 
 // ZapId simply calls zap.String() with AclId standard key and this acl id
-func (acl *ACL) ZapId() zapcore.Field { return zap.String(common.KEY_ACL_ID, acl.GetID()) }
+func (acl *ACL) ZapId() zapcore.Field { return zap.String(common.KeyAclId, acl.GetID()) }
 
 /*         WORSPACES, CELLS
  */
@@ -166,9 +166,9 @@ func (workspace *Workspace) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 }
 
 // Zap simply returns a zapcore.Field object populated with this workspace under a standard key
-func (workspace *Workspace) Zap() zapcore.Field { return zap.Object(common.KEY_WORKSPACE, workspace) }
+func (workspace *Workspace) Zap() zapcore.Field { return zap.Object(common.KeyWorkspace, workspace) }
 
 // ZapUuid simply calls zap.String() with WorkspaceUuid standard key and this Workspace uuid
 func (workspace *Workspace) ZapUuid() zapcore.Field {
-	return zap.String(common.KEY_WORKSPACE_UUID, workspace.GetUUID())
+	return zap.String(common.KeyWorkspaceUuid, workspace.GetUUID())
 }

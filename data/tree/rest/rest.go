@@ -298,7 +298,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
 				log.Auditer(ctx).Info(
 					fmt.Sprintf("Definitively deleted [%s]", node.GetPath()),
-					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
+					log.GetAuditId(common.AuditNodeMovedToBin),
 					node.ZapUuid(),
 					node.ZapPath(),
 				)
@@ -328,7 +328,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 				log.Auditer(ctx).Info(
 					fmt.Sprintf("Moved [%s] to recycle bin", node.GetPath()),
-					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
+					log.GetAuditId(common.AuditNodeMovedToBin),
 					node.ZapUuid(),
 					node.ZapPath(),
 				)

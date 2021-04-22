@@ -56,8 +56,8 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		if permissions.IsUserLocked(user) {
 			log.Auditer(ctx).Error(
 				"Locked user ["+user.Login+"] tried to log in.",
-				log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
-				zap.String(common.KEY_USER_UUID, user.Uuid),
+				log.GetAuditId(common.AuditLoginPolicyDenial),
+				zap.String(common.KeyUserUuid, user.Uuid),
 			)
 			log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(fmt.Errorf("blocked login")))
 			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" has been blocked. Contact your sysadmin.")
@@ -90,12 +90,12 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		if resp, err := cli.IsAllowed(ctx, policyRequest); err != nil || resp.Allowed == false {
 			log.Auditer(ctx).Error(
 				"Policy denied login to ["+user.Login+"]",
-				log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
-				zap.String(common.KEY_USER_UUID, user.Uuid),
-				zap.Any(common.KEY_POLICY_REQUEST, policyRequest),
+				log.GetAuditId(common.AuditLoginPolicyDenial),
+				zap.String(common.KeyUserUuid, user.Uuid),
+				zap.Any(common.KeyPolicyRequest, policyRequest),
 				zap.Error(err),
 			)
-			log.Logger(ctx).Error("policy denies login for request", zap.Any(common.KEY_POLICY_REQUEST, policyRequest), zap.Error(err))
+			log.Logger(ctx).Error("policy denies login for request", zap.Any(common.KeyPolicyRequest, policyRequest), zap.Error(err))
 			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" is not authorized to log in")
 		}
 
@@ -174,9 +174,9 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 			log.Logger(ctx).Error(msg, user.ZapLogin())
 			log.Auditer(ctx).Error(
 				msg,
-				log.GetAuditId(common.AUDIT_LOCK_USER),
+				log.GetAuditId(common.AuditLockUser),
 				user.ZapLogin(),
-				zap.String(common.KEY_USER_UUID, user.GetUuid()),
+				zap.String(common.KeyUserUuid, user.GetUuid()),
 			)
 			hardLock = true
 		}

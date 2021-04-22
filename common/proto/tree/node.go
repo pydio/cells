@@ -194,12 +194,12 @@ func (node *Node) Zap(key ...string) zapcore.Field {
 	if len(key) > 0 {
 		return zap.Object(key[0], node)
 	} else {
-		return zap.Object(common.KEY_NODE, node)
+		return zap.Object(common.KeyNode, node)
 	}
 }
 
 func (node *Node) Zaps(key ...string) []zapcore.Field {
-	k := common.KEY_NODE
+	k := common.KeyNode
 	if len(key) > 0 {
 		k = key[0]
 	}
@@ -208,12 +208,12 @@ func (node *Node) Zaps(key ...string) []zapcore.Field {
 
 // ZapPath simply calls zap.String() with NodePath standard key and this node path
 func (node *Node) ZapPath() zapcore.Field {
-	return zap.String(common.KEY_NODE_PATH, node.GetPath())
+	return zap.String(common.KeyNodePath, node.GetPath())
 }
 
 // ZapUuid simply calls zap.String() with NodeUuid standard key and this node uuid
 func (node *Node) ZapUuid() zapcore.Field {
-	return zap.String(common.KEY_NODE_UUID, node.GetUuid())
+	return zap.String(common.KeyNodeUuid, node.GetUuid())
 }
 
 // MarshalLogObject implements custom marshalling for logs
@@ -247,7 +247,7 @@ func (log *ChangeLog) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // Zap simply returns a zapcore.Field object populated with this ChangeLog uneder a standard key
 func (log *ChangeLog) Zap() zapcore.Field {
-	return zap.Object(common.KEY_CHANGE_LOG, log)
+	return zap.Object(common.KeyChangeLog, log)
 }
 
 // MarshalLogObject implements custom marshalling for logs
@@ -287,12 +287,12 @@ func (policy *VersioningPolicy) MarshalLogObject(encoder zapcore.ObjectEncoder) 
 
 // Zap simply returns a zapcore.Field object populated with this VersioningPolicy under a standard key
 func (policy *VersioningPolicy) Zap() zapcore.Field {
-	return zap.Object(common.KEY_VERSIONING_POLICY, policy)
+	return zap.Object(common.KeyVersioningPolicy, policy)
 }
 
 // Zap simply returns a zapcore.Field object populated with this NodeChangeEvent under a standard key
 func (msg *NodeChangeEvent) Zap() zapcore.Field {
-	return zap.Any(common.KEY_NODE_CHANGE_EVENT, msg)
+	return zap.Any(common.KeyNodeChangeEvent, msg)
 }
 
 /*PACKAGE PROTECTED METHODS */

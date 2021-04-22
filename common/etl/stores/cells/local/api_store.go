@@ -570,9 +570,9 @@ func (apiStore *ApiStore) createShareLink(ctx context.Context, ownerUser *idm.Us
 	}
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Created share link [%s]", link.Label),
-		log.GetAuditId(common.AUDIT_LINK_CREATE),
-		zap.String(common.KEY_LINK_UUID, link.Uuid),
-		zap.String(common.KEY_WORKSPACE_UUID, link.Uuid),
+		log.GetAuditId(common.AuditLinkCreate),
+		zap.String(common.KeyLinkUuid, link.Uuid),
+		zap.String(common.KeyWorkspaceUuid, link.Uuid),
 	)
 
 	// Update HashDocument
@@ -628,9 +628,9 @@ func (apiStore *ApiStore) createCell(ctx context.Context, ownerUser *idm.User, c
 	// Put an Audit log if this cell has been newly created
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Created cell [%s]", cell.Label),
-		log.GetAuditId(common.AUDIT_CELL_CREATE),
-		zap.String(common.KEY_CELL_UUID, cell.Uuid),
-		zap.String(common.KEY_WORKSPACE_UUID, cell.Uuid),
+		log.GetAuditId(common.AuditCellCreate),
+		zap.String(common.KeyCellUuid, cell.Uuid),
+		zap.String(common.KeyWorkspaceUuid, cell.Uuid),
 	)
 
 	return nil

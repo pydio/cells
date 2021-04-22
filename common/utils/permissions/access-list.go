@@ -345,7 +345,7 @@ func (a *AccessList) FlattenedFrontValues() configx.Values {
 
 // Zap simply returns a zapcore.Field object populated with this aggregated AccessList under a standard key
 func (a *AccessList) Zap() zapcore.Field {
-	return zap.Any(common.KEY_ACCESS_LIST, a)
+	return zap.Any(common.KeyAccessList, a)
 }
 
 /***************

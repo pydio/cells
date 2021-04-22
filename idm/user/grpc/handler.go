@@ -164,13 +164,13 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated group [%s]", out.GroupLabel),
-				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
+				log.GetAuditId(common.AuditGroupUpdate),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated user [%s]", out.Login),
-				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				log.GetAuditId(common.AuditUserUpdate),
 				out.ZapUuid(),
 			)
 		}
@@ -183,7 +183,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Created group [%s]", out.GroupPath),
-				log.GetAuditId(common.AUDIT_GROUP_CREATE),
+				log.GetAuditId(common.AuditGroupCreate),
 				out.ZapUuid(),
 			)
 		} else {
@@ -193,7 +193,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 			}
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Created user [%s%s]", path, out.Login),
-				log.GetAuditId(common.AUDIT_USER_CREATE),
+				log.GetAuditId(common.AuditUserCreate),
 				out.ZapUuid(),
 				zap.String("GroupPath", out.GroupPath),
 			)
@@ -260,10 +260,10 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 					var msg string
 					if deleted.IsGroup {
 						msg = fmt.Sprintf("Deleted group [%s]", path.Join(deleted.GroupPath, deleted.GroupLabel))
-						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AUDIT_GROUP_DELETE), deleted.ZapUuid())
+						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AuditGroupDelete), deleted.ZapUuid())
 					} else {
 						msg = fmt.Sprintf("Deleted user [%s] from [%s]", deleted.Login, deleted.GroupPath)
-						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AUDIT_USER_DELETE), deleted.ZapUuid())
+						log.Auditer(ctx).Info(msg, log.GetAuditId(common.AuditUserDelete), deleted.ZapUuid())
 					}
 					crt++
 					percent := crt / total

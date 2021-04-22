@@ -22,171 +22,171 @@ package common
 
 // Define string used as keys.
 const (
-	KEY_MSG_ID = "MsgId"
-	KEY_TS     = "Ts"
-	KEY_NANO   = "Nano"
-	KEY_LEVEL  = "Level"
-	KEY_LOGGER = "Logger"
-	KEY_MSG    = "Msg"
+	KeyMsgId  = "MsgId"
+	KeyTs     = "Ts"
+	KeyNano   = "Nano"
+	KeyLevel  = "Level"
+	KeyLogger = "Logger"
+	KeyMsg    = "Msg"
 )
 
 // Known audit message IDs
 const (
 	// Login
-	AUDIT_LOGIN_SUCCEED       = "1"
-	AUDIT_LOGIN_FAILED        = "2"
-	AUDIT_LOGIN_POLICY_DENIAL = "3"
-	AUDIT_INVALID_JWT         = "4"
-	AUDIT_LOCK_USER           = "5"
+	AuditLoginSucceed      = "1"
+	AuditLoginFailed       = "2"
+	AuditLoginPolicyDenial = "3"
+	AuditInvalidJwt        = "4"
+	AuditLockUser          = "5"
 
 	// Tree events
-	AUDIT_NODE_CREATE       = "11"
-	AUDIT_NODE_READ         = "12"
-	AUDIT_NODE_LIST         = "13"
-	AUDIT_NODE_UPDATE       = "14"
-	AUDIT_NODE_DELETE       = "15"
-	AUDIT_WS_CREATE         = "16"
-	AUDIT_WS_UPDATE         = "17"
-	AUDIT_WS_DELETE         = "18"
-	AUDIT_NODE_MOVED_TO_BIN = "19"
+	AuditNodeCreate     = "11"
+	AuditNodeRead       = "12"
+	AuditNodeList       = "13"
+	AuditNodeUpdate     = "14"
+	AuditNodeDelete     = "15"
+	AuditWsCreate       = "16"
+	AuditWsUpdate       = "17"
+	AuditWsDelete       = "18"
+	AuditNodeMovedToBin = "19"
 
 	// S3 Objects
-	AUDIT_OBJECT_GET = "21"
-	AUDIT_OBJECT_PUT = "22"
+	AuditObjectGet = "21"
+	AuditObjectPut = "22"
 
 	// Users, Group, Roles
-	AUDIT_USER_CREATE  = "41"
-	AUDIT_USER_READ    = "42"
-	AUDIT_USER_UPDATE  = "43"
-	AUDIT_USER_DELETE  = "44"
-	AUDIT_GROUP_CREATE = "46"
-	AUDIT_GROUP_READ   = "47"
-	AUDIT_GROUP_UPDATE = "48"
-	AUDIT_GROUP_DELETE = "49"
-	AUDIT_ROLE_CREATE  = "51"
-	AUDIT_ROLE_READ    = "52"
-	AUDIT_ROLE_UPDATE  = "53"
-	AUDIT_ROLE_DELETE  = "54"
+	AuditUserCreate  = "41"
+	AuditUserRead    = "42"
+	AuditUserUpdate  = "43"
+	AuditUserDelete  = "44"
+	AuditGroupCreate = "46"
+	AuditGroupRead   = "47"
+	AuditGroupUpdate = "48"
+	AuditGroupDelete = "49"
+	AuditRoleCreate  = "51"
+	AuditRoleRead    = "52"
+	AuditRoleUpdate  = "53"
+	AuditRoleDelete  = "54"
 
 	// Policies
-	AUDIT_POLICY_GROUP_STORE  = "61"
-	AUDIT_POLICY_GROUP_DELETE = "62"
-	AUDIT_POLICY_STORE        = "63"
-	AUDIT_POLICY_DELETE       = "64"
+	AuditPolicyGroupStore  = "61"
+	AuditPolicyGroupDelete = "62"
+	AuditPolicyStore       = "63"
+	AuditPolicyDelete      = "64"
 
 	// ShareLinks And Cells
-	AUDIT_CELL_CREATE = "71"
-	AUDIT_CELL_READ   = "72"
-	AUDIT_CELL_UPDATE = "73"
-	AUDIT_CELL_DELETE = "74"
-	AUDIT_LINK_CREATE = "75"
-	AUDIT_LINK_READ   = "76"
-	AUDIT_LINK_UPDATE = "77"
-	AUDIT_LINK_DELETE = "78"
+	AuditCellCreate = "71"
+	AuditCellRead   = "72"
+	AuditCellUpdate = "73"
+	AuditCellDelete = "74"
+	AuditLinkCreate = "75"
+	AuditLinkRead   = "76"
+	AuditLinkUpdate = "77"
+	AuditLinkDelete = "78"
 )
 
 // Known audit message IDs
 const (
-	KEY_CONTEXT = "Context"
+	KeyContext = "Context"
 
 	// Follow a given request between the various services
-	KEY_SPAN_UUID        = "SpanUuid"
-	KEY_SPAN_PARENT_UUID = "SpanParentUuid"
-	KEY_SPAN_ROOT_UUID   = "SpanRootUuid"
+	KeySpanUuid       = "SpanUuid"
+	KeySpanParentUuid = "SpanParentUuid"
+	KeySpanRootUuid   = "SpanRootUuid"
 
 	// Group messages for a given high level operation
-	KEY_OPERATION_UUID  = "OperationUuid"
-	KEY_OPERATION_LABEL = "OperationLabel"
+	KeyOperationUuid  = "OperationUuid"
+	KeyOperationLabel = "OperationLabel"
 
-	KEY_NODE      = "Node"
-	KEY_NODE_UUID = "NodeUuid"
-	KEY_NODE_PATH = "NodePath"
+	KeyNode     = "Node"
+	KeyNodeUuid = "NodeUuid"
+	KeyNodePath = "NodePath"
 
-	KEY_WORKSPACE       = "Workspace"
-	KEY_WORKSPACE_UUID  = "WorkspaceUuid"
-	KEY_WORKSPACE_SCOPE = "WorkspaceScope"
+	KeyWorkspace      = "Workspace"
+	KeyWorkspaceUuid  = "WorkspaceUuid"
+	KeyWorkspaceScope = "WorkspaceScope"
 
-	KEY_CHANGE_LOG        = "ChangeLog"
-	KEY_NODE_CHANGE_EVENT = "NodeChangeEvent"
-	KEY_VERSIONING_POLICY = "VersioningPolicy"
+	KeyChangeLog        = "ChangeLog"
+	KeyNodeChangeEvent  = "NodeChangeEvent"
+	KeyVersioningPolicy = "VersioningPolicy"
 
-	KEY_ACTIVITY_SUBSCRIPTION   = "ActivitySubscription"
-	KEY_ACTIVITY_STREAM_REQUEST = "StreamActivitiesRequest"
-	KEY_ACTIVITY_POST_EVENT     = "PostActivityEvent"
-	KEY_ACTIVITY_OBJECT         = "ActivityObject"
+	KeyActivitySubscription  = "ActivitySubscription"
+	KeyActivityStreamRequest = "StreamActivitiesRequest"
+	KeyActivityPostEvent     = "PostActivityEvent"
+	KeyActivityObject        = "ActivityObject"
 
-	KEY_ROLE      = "Role"
-	KEY_ROLE_UUID = "RoleUuid"
-	KEY_ROLES     = "Roles"
-	KEY_PROFILE   = "Profile"
+	KeyRole     = "Role"
+	KeyRoleUuid = "RoleUuid"
+	KeyRoles    = "Roles"
+	KeyProfile  = "Profile"
 
-	KEY_USER      = "User"
-	KEY_USERNAME  = "UserName"
-	KEY_USER_UUID = "UserUuid"
+	KeyUser     = "User"
+	KeyUsername = "UserName"
+	KeyUserUuid = "UserUuid"
 
-	KEY_GROUP_PATH = "GroupPath"
+	KeyGroupPath = "GroupPath"
 
-	KEY_CONNECTOR = "Connector"
+	KeyConnector = "Connector"
 
 	// Should be ACL and ACLID if we use proto names, changed to stay homogeneous with the other fields
-	KEY_ACL    = "Acl"
-	KEY_ACL_ID = "AclId"
+	KeyAcl   = "Acl"
+	KeyAclId = "AclId"
 
 	// Pydio internal merged representation of all ACLs that a user has access to
-	KEY_ACCESS_LIST = "AccessList"
+	KeyAccessList = "AccessList"
 
-	KEY_POLICY_GROUP      = "PolicyGroup"
-	KEY_POLICY_GROUP_UUID = "PolicyGroupUuid"
-	KEY_POLICY            = "Policy"
-	KEY_POLICY_ID         = "PolicyId"
-	KEY_POLICY_REQUEST    = "PolicyRequest"
+	KeyPolicyGroup     = "PolicyGroup"
+	KeyPolicyGroupUuid = "PolicyGroupUuid"
+	KeyPolicy          = "Policy"
+	KeyPolicyId        = "PolicyId"
+	KeyPolicyRequest   = "PolicyRequest"
 
 	// Scheduler
-	KEY_JOB       = "Job"
-	KEY_JOB_ID    = "JobId"
-	KEY_ACTION    = "Action"
-	KEY_ACTION_ID = "ActionId"
-	KEY_TASK      = "Task"
-	KEY_TASK_ID   = "TaskId"
+	KeyJob      = "Job"
+	KeyJobId    = "JobId"
+	KeyAction   = "Action"
+	KeyActionId = "ActionId"
+	KeyTask     = "Task"
+	KeyTaskId   = "TaskId"
 	// Running tasks in scheduler
-	KEY_SCHEDULER_JOB_ID      = "SchedulerJobUuid"
-	KEY_SCHEDULER_TASK_ID     = "SchedulerTaskUuid"
-	KEY_SCHEDULER_ACTION_PATH = "SchedulerTaskActionPath"
+	KeySchedulerJobId      = "SchedulerJobUuid"
+	KeySchedulerTaskId     = "SchedulerTaskUuid"
+	KeySchedulerActionPath = "SchedulerTaskActionPath"
 
 	// Cells
-	KEY_CELL      = "Cell"
-	KEY_CELL_UUID = "CellUuid"
-	KEY_LINK      = "ShareLink"
-	KEY_LINK_UUID = "ShareLinkUuid"
+	KeyCell     = "Cell"
+	KeyCellUuid = "CellUuid"
+	KeyLink     = "ShareLink"
+	KeyLinkUuid = "ShareLinkUuid"
 
 	// Chat
-	KEY_CHAT_ROOM          = "ChatRoom"
-	KEY_CHAT_LIST_ROOM_REQ = "ChatListRoomRequest"
-	KEY_CHAT_LIST_MSG_REQ  = "ChatListMsgRequest"
-	KEY_CHAT_POST_MSG_REQ  = "ChatPostMsgRequest"
+	KeyChatRoom        = "ChatRoom"
+	KeyChatListRoomReq = "ChatListRoomRequest"
+	KeyChatListMsgReq  = "ChatListMsgRequest"
+	KeyChatPostMsgReq  = "ChatPostMsgRequest"
 )
 
 // Keys for the front end
 const (
-	KEY_FRONT_IP      = "FrontIp"
-	KEY_FRONT_USERID  = "UserId"
-	KEY_FRONT_WKSID   = "WorkspaceId"
-	KEY_FRONT_SOURCE  = "Source"
-	KEY_FRONT_PREFIX  = "Prefix"
-	KEY_FRONT_MESSAGE = "Message"
-	KEY_FRONT_NODES   = "Nodes"
+	KeyFrontIp      = "FrontIp"
+	KeyFrontUserid  = "UserId"
+	KeyFrontWksid   = "WorkspaceId"
+	KeyFrontSource  = "Source"
+	KeyFrontPrefix  = "Prefix"
+	KeyFrontMessage = "Message"
+	KeyFrontNodes   = "Nodes"
 )
 
 var (
 	LogEventLabels = map[string]string{
-		AUDIT_LOGIN_SUCCEED: "Login succeed",
-		AUDIT_LOGIN_FAILED:  "Login failed",
-		AUDIT_NODE_CREATE:   "Create Node",
-		AUDIT_NODE_READ:     "Read Node",
-		AUDIT_NODE_LIST:     "List Node",
-		AUDIT_NODE_UPDATE:   "Upadate Node",
-		AUDIT_NODE_DELETE:   "Delete Node",
-		AUDIT_OBJECT_GET:    "Get Object",
-		AUDIT_OBJECT_PUT:    "Put Object",
+		AuditLoginSucceed: "Login succeed",
+		AuditLoginFailed:  "Login failed",
+		AuditNodeCreate:   "Create Node",
+		AuditNodeRead:     "Read Node",
+		AuditNodeList:     "List Node",
+		AuditNodeUpdate:   "Upadate Node",
+		AuditNodeDelete:   "Delete Node",
+		AuditObjectGet:    "Get Object",
+		AuditObjectPut:    "Put Object",
 	}
 )

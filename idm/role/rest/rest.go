@@ -181,8 +181,8 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Deleted role [%s]", uuid),
-			log.GetAuditId(common.AUDIT_ROLE_DELETE),
-			zap.String(common.KEY_ROLE_UUID, uuid),
+			log.GetAuditId(common.AuditRoleDelete),
+			zap.String(common.KeyRoleUuid, uuid),
 		)
 		rsp.WriteEntity(&idm.Role{Uuid: uuid})
 	}
@@ -215,7 +215,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated role [%s]", inputRole.Label),
-			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
+			log.GetAuditId(common.AuditRoleUpdate),
 			inputRole.Zap(),
 		)
 		rsp.WriteEntity(resp.Role)
