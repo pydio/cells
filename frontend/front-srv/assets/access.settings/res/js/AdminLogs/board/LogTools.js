@@ -36,15 +36,16 @@ class LogTools extends React.Component{
             filterMode: "fulltext",
             levelShow:false,
             serviceFilterShow: false,
+            darkTheme: false
         };
         this.publishStateChange = debounce(this.publishStateChange.bind(this), 250);
     }
 
 
     publishStateChange(){
-        const {filter, serviceFilter, level, remoteAddress, userName, date, endDate} = this.state;
+        const {filter, serviceFilter, level, remoteAddress, userName, date, endDate, darkTheme} = this.state;
         const query = Log.buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
-        this.props.onStateChange({query});
+        this.props.onStateChange({query, darkTheme});
     }
 
     handleToggleShow(field){
@@ -66,6 +67,11 @@ class LogTools extends React.Component{
             s['endDateShow'] = false;
         }
         this.setState(s, this.publishStateChange.bind(this));
+    }
+
+    toggleDarkTheme() {
+        const {darkTheme} = this.state;
+        this.setState({darkTheme:!darkTheme}, this.publishStateChange.bind(this));
     }
 
     handleFilterChange(val, keyName) {
@@ -252,7 +258,7 @@ class LogTools extends React.Component{
                         {MessageHash['ajxp_admin.logs.export.clicklink']}: <a style={{textDecoration:'underline'}} href={exportUrl} download={exportFilename} onClick={exportOnClick}>{exportFilename}</a>
                     </span>
                 </Dialog>
-
+                <IconButton iconClassName={"mdi mdi-brightness-6"} onClick={() => this.toggleDarkTheme()} iconStyle={{...adminStyles.props.header.iconButton.iconStyle, transform:this.state.darkTheme?'rotate(180deg)':''}} />
             </div>
         )
     }

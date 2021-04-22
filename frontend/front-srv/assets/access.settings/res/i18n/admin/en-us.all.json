@@ -497,6 +497,9 @@
   "logs.9": {
     "other": "File will be export as CSV format with semi-colmuns (;) separators and fields enclosed in double-quotes (\")."
   },
+  "logs.level":{
+    "other": "Level"
+  },
   "logs.service":{
     "other": "Service"
   },
