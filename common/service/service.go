@@ -67,6 +67,13 @@ var (
 	DefaultRegisterTTL = 10 * time.Second
 )
 
+const (
+	configSrvKeyFork      = "fork"
+	configSrvKeyAutoStart = "autostart"
+	configSrvKeyForkDebug = "debugFork"
+	configSrvKeyUnique    = "unique"
+)
+
 // Service definition
 type Service interface {
 	registry.Service
@@ -76,7 +83,7 @@ type Service interface {
 	Done() chan (struct{})
 }
 
-func buildForkStartParams(name string) []string {
+func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
 		"--fork",
@@ -94,8 +101,11 @@ func buildForkStartParams(name string) []string {
 	if viper.GetBool("enable_pprof") {
 		params = append(params, "--enable_pprof")
 	}
+	if config.Get("services", serviceName, configSrvKeyForkDebug).Bool() {
+		params = append(params, "--log", "debug")
+	}
 	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^"+name+"$")
+	params = append(params, "^"+serviceName+"$")
 	bindFlags := config.DefaultBindOverrideToFlags()
 	if len(bindFlags) > 0 {
 		params = append(params, bindFlags...)
@@ -763,18 +773,18 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) AutoStart() bool {
 	//ctx := s.Options().Context
-	return s.Options().AutoStart || config.Get("services", s.Options().Name, "autostart").Bool()
+	return s.Options().AutoStart || config.Get("services", s.Options().Name, configSrvKeyAutoStart).Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	// ctx := s.Options().Context
-	return s.Options().Fork || config.Get("services", s.Options().Name, "fork").Bool()
+	return s.Options().Fork || config.Get("services", s.Options().Name, configSrvKeyFork).Bool() || config.Get("services", s.Options().Name, configSrvKeyForkDebug).Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) MustBeUnique() bool {
-	return s.Options().Unique || config.Get("services", s.Options().Name, "unique").Bool()
+	return s.Options().Unique || config.Get("services", s.Options().Name, configSrvKeyUnique).Bool()
 }
 
 // func (s *service) Client() (string, client.Client) {
