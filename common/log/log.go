@@ -32,15 +32,15 @@ import (
 
 	micro "github.com/micro/go-log"
 	"github.com/micro/go-micro/metadata"
-	context2 "github.com/pydio/cells/common/utils/context"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
 	servicecontext "github.com/pydio/cells/common/service/context"
-	"gopkg.in/natefinch/lumberjack.v2"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -79,13 +79,13 @@ func Init() {
 		serverCore := zapcore.NewCore(
 			zapcore.NewJSONEncoder(srvConfig),
 			serverSync,
-			zapcore.InfoLevel,
+			common.LogLevel,
 		)
 
 		if common.LogConfig == common.LogConfigProduction {
 
 			// Additional logger: stores messages in local file
-			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
+			logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
 			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   filepath.Join(logDir, "pydio.log"),
 				MaxSize:    10, // megabytes
@@ -98,11 +98,11 @@ func Init() {
 			w := zapcore.NewMultiWriteSyncer(syncers...)
 
 			// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
-			config := zap.NewProductionEncoderConfig()
-			config.EncodeTime = RFC3369TimeEncoder
+			cfg := zap.NewProductionEncoderConfig()
+			cfg.EncodeTime = RFC3369TimeEncoder
 
 			core := zapcore.NewCore(
-				zapcore.NewJSONEncoder(config),
+				zapcore.NewJSONEncoder(cfg),
 				w,
 				common.LogLevel,
 			)
@@ -111,8 +111,8 @@ func Init() {
 
 			logger = zap.New(core)
 		} else {
-			config := zap.NewDevelopmentEncoderConfig()
-			config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+			cfg := zap.NewDevelopmentEncoderConfig()
+			cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
 			var syncer zapcore.WriteSyncer
 			syncer = StdOut
@@ -122,7 +122,7 @@ func Init() {
 				syncer = zapcore.NewMultiWriteSyncer(syncers...)
 			}
 			core := zapcore.NewCore(
-				newColorConsoleEncoder(config),
+				newColorConsoleEncoder(cfg),
 				syncer,
 				common.LogLevel,
 			)
