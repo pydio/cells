@@ -113,9 +113,6 @@ var SampleConfig = `{
         "pydio.grpc.user-key": {
             "dsn": "default"
         },
-        "pydio.grpc.changes": {
-            "dsn": "default"
-        },
 		"pydio.grpc.update" : {
 			"channel": "` + common.UpdateDefaultChannel + `"
 		},

@@ -49,6 +49,9 @@ class LogBoard extends React.Component {
         if(newProps.query !== undefined && newProps.query !== this.state.query){
             this.setState({query: newProps.query, page: 0});
         }
+        if(newProps.darkTheme !== undefined){
+            this.setState({darkTheme: newProps.darkTheme})
+        }
     }
 
     handleReload() {
