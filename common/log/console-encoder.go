@@ -31,9 +31,9 @@ import (
 )
 
 const (
-	ServiceColorRest  = 32
-	ServiceColorGrpc  = 35
-	ServiceColorOther = 36
+	ConsoleColorRest  = 32
+	ConsoleColorGrpc  = 35
+	ConsoleColorOther = 36
 )
 
 func newColorConsoleEncoder(config zapcore.EncoderConfig) zapcore.Encoder {
@@ -92,11 +92,11 @@ func (c *colorConsoleEncoder) Clone() zapcore.Encoder {
 }
 
 func (c *colorConsoleEncoder) EncodeEntry(e zapcore.Entry, ff []zapcore.Field) (*buffer.Buffer, error) {
-	color := ServiceColorOther
+	color := ConsoleColorOther
 	if strings.HasPrefix(e.LoggerName, common.ServiceGrpcNamespace_) {
-		color = ServiceColorGrpc
+		color = ConsoleColorGrpc
 	} else if strings.HasPrefix(e.LoggerName, common.ServiceRestNamespace_) {
-		color = ServiceColorRest
+		color = ConsoleColorRest
 	}
 	if consoleNamedColors != nil {
 		if col, o := consoleNamedColors[e.LoggerName]; o {
