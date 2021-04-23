@@ -45,6 +45,9 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 			log.TasksLogger(ctx).Info(" - Indexing s3 object "+clone.GetPath(), clone.ZapPath(), clone.ZapUuid())
 		}
 	}, "", true)
+	if syncDone != nil{
+		syncDone <- true
+	}
 	return stats.withData("nodesCreated", nodesCreated), e
 }
 
@@ -69,8 +72,18 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, mode string, snapName st
 	}()
 	if mode == "write" {
 		log.Logger(ctx).Info("Loading capture from index to boltdb")
-		stats := &flatSyncStater{source: "index", target: "snapshot"}
-		return stats, snapshotClient.Capture(ctx, indexClient)
+		e := snapshotClient.Capture(ctx, indexClient)
+		if syncStatus != nil {
+			status := model.NewProcessingStatus("Captured index into BoltDB file")
+			if e != nil {
+				status.SetError(e)
+			}
+			syncStatus <- status
+		}
+		if syncDone != nil {
+			syncDone <- true
+		}
+		return &flatSyncStater{source: "index", target: "snapshot"}, e
 	} else {
 		syncTask := task.NewSync(snapshotClient, indexClient, model.DirectionRight)
 		syncTask.SkipTargetChecks = true

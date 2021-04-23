@@ -58,6 +58,7 @@ func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query,
 	var bb []bool
 	for _, q := range query.SubQueries {
 		msg := &object.DataSourceSingleQuery{}
+		subQ := &service.Query{}
 		if e := ptypes.UnmarshalAny(q, msg); e == nil {
 			// Evaluate fields
 			msg.Name = EvaluateFieldStr(ctx, input, msg.Name)
@@ -68,6 +69,8 @@ func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query,
 			msg.EncryptionKey = EvaluateFieldStr(ctx, input, msg.EncryptionKey)
 			msg.VersioningPolicyName = EvaluateFieldStr(ctx, input, msg.VersioningPolicyName)
 			bb = append(bb, msg.Matches(dsObject))
+		} else if e := ptypes.UnmarshalAny(q, subQ); e == nil {
+			bb = append(bb, m.evaluate(ctx, subQ, input, dsObject))
 		}
 	}
 	return service.ReduceQueryBooleans(bb, query.Operation)
