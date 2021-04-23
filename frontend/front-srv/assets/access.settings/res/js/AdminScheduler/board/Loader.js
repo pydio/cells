@@ -34,7 +34,6 @@ class Loader extends Observable {
             return true
         }
         let hasManualFilter = false;
-        console.log(job);
         try{
             job.Actions.forEach(a => {
                 if (!a.TriggerFilter) {
