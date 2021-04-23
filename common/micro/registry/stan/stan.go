@@ -2,13 +2,14 @@
 package stan
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/pydio/cells/common/service"
 	"strings"
 	"sync"
 	"time"
+	"encoding/gob"
 
 	"github.com/google/uuid"
 	"github.com/micro/go-micro/cmd"
@@ -125,7 +126,7 @@ func (n *stanRegistry) newConn() (stan.Conn, error) {
 	conn.Subscribe(defaultPeerTopic, func(m *stan.Msg) {
 		ev := &PeerEvent{}
 
-		if err := json.Unmarshal(m.Data, ev); err != nil {
+		if err := unmarshal(m.Data, ev); err != nil {
 			return
 		}
 
@@ -198,11 +199,10 @@ func (n *stanRegistry) Register(s *registry.Service, opts ...registry.RegisterOp
 		node.Metadata["expiry"] = string(data)
 	}
 
-	data, err := json.Marshal(&PeerEvent{
+	data, err := marshal(&PeerEvent{
 		Service: s,
 		Type:    PeerEventType_REGISTER,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -224,11 +224,11 @@ func (n *stanRegistry) Deregister(s *registry.Service) error {
 	n.Lock()
 	defer n.Unlock()
 
-	data, err := json.Marshal(&PeerEvent{
+
+	data,err := marshal(&PeerEvent{
 		Service: s,
 		Type:    PeerEventType_DEREGISTER,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -398,4 +398,18 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 	n.getConn()
 
 	return n
+}
+
+func marshal(v interface{}) ([]byte, error) {
+	b := new(bytes.Buffer)
+	err := gob.NewEncoder(b).Encode(v)
+	if err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
+func unmarshal(data []byte, v interface{}) error {
+	b := bytes.NewBuffer(data)
+	return gob.NewDecoder(b).Decode(v)
 }

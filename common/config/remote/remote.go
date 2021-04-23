@@ -5,14 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"time"
+
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/discovery/config/grpc"
 	"github.com/pydio/cells/x/configx"
 	proto "github.com/pydio/config-srv/proto/config"
 	go_micro_os_config "github.com/pydio/go-os/config/proto"
-	"time"
 )
 
 type remote struct {
@@ -48,8 +51,8 @@ func New(id string) configx.Entrypoint {
 			for {
 				rsp, err := stream.Recv()
 				if err != nil {
-					if err == grpc.NotImplemented {
-						fmt.Println(id + " not implemented")
+					if status.Convert(err).Code() == codes.Unimplemented {
+						log.Debug("config watch is not implemented", zap.String("id", id))
 						return
 					}
 					time.Sleep(1 * time.Second)

@@ -107,6 +107,8 @@ func (h *Handler) AuditLog(ctx context.Context, request *proto.AuditLogRequest, 
 }
 
 func (h *Handler) Watch(ctx context.Context, request *proto.WatchRequest, stream proto.Config_WatchStream) error {
+	defer stream.Close()
+
 	if request.Id == "config" {
 		w, err := config.Watch()
 		if err != nil {
@@ -135,7 +137,9 @@ func (h *Handler) Watch(ctx context.Context, request *proto.WatchRequest, stream
 				},
 			})
 		}
+
+		return nil
 	}
 
-	return nil
+	return NotImplemented
 }

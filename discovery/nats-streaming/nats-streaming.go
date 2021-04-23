@@ -22,6 +22,7 @@ func Init() {
 		natsOpts := stand.NewNATSOptions()
 
 		natsOpts.NoSigs = true
+		natsOpts.HTTPPort = viper.GetInt("nats_monitor_port")
 
 		stanOpts.ID = viper.GetString("nats_streaming_cluster_id")
 		stanOpts.StoreType = viper.GetString("nats_streaming_store")
