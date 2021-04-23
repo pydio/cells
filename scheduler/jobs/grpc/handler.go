@@ -43,7 +43,7 @@ import (
 )
 
 var (
-	bgContext = servicecontext.WithServiceColor(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceJobs), servicecontext.ServiceColorGrpc)
+	bgContext = servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceJobs)
 )
 
 // JobsHandler implements the JobService API

@@ -124,7 +124,7 @@ class LogDetail extends React.Component{
     }
 
     render(){
-        const {log, pydio, onRequestClose, onSelectPeriod, style, focus, userDisplay = 'avatar'} = this.props;
+        const {log, pydio, onRequestClose, onSelectPeriod, style, focus, darkTheme, userDisplay = 'avatar'} = this.props;
         const {copySuccess} = this.state;
         const styles = {
             divider: {marginTop: 5, marginBottom:5},
@@ -147,7 +147,8 @@ class LogDetail extends React.Component{
                 padding: 8
             },
             buttonIcon: {
-                fontSize: 20
+                fontSize: 20,
+                color:darkTheme?'white':null
             }
         };
 
@@ -184,7 +185,7 @@ class LogDetail extends React.Component{
                     <div style={styles.buttons}>
                         <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={copySuccess?'mdi mdi-check':'mdi mdi-content-copy'} tooltip={'Copy log to clipboard'} tooltipPosition={"bottom-left"} ref={"copy-button"} />
                         {onSelectPeriod &&
-                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':null}} iconClassName={"mdi mdi-clock"} onClick={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
+                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':styles.buttonIcon.color}} iconClassName={"mdi mdi-clock"} onClick={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
                         }
                         <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onClick={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={"Close log detail"} tooltipPosition={"bottom-left"}/>
                     </div>

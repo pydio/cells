@@ -1,13 +1,39 @@
+/*
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 package log
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/context"
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/service/context"
+)
+
+const (
+	ConsoleColorRest  = 32
+	ConsoleColorGrpc  = 35
+	ConsoleColorOther = 36
 )
 
 func newColorConsoleEncoder(config zapcore.EncoderConfig) zapcore.Encoder {
@@ -35,8 +61,19 @@ var (
 		servicecontext.HttpMetaContentType,
 		servicecontext.HttpMetaProtocol,
 	}
+
+	consoleNamedColors map[string]int
 )
 
+// RegisterConsoleNamedColor allows external registration of colors based on Logger Name.
+func RegisterConsoleNamedColor(serviceName string, color int) {
+	if consoleNamedColors == nil {
+		consoleNamedColors = make(map[string]int)
+	}
+	consoleNamedColors[serviceName] = color
+}
+
+// Custom Encoder to skip some specific fields and colorize logger name
 type colorConsoleEncoder struct {
 	zapcore.Encoder
 }
@@ -55,11 +92,16 @@ func (c *colorConsoleEncoder) Clone() zapcore.Encoder {
 }
 
 func (c *colorConsoleEncoder) EncodeEntry(e zapcore.Entry, ff []zapcore.Field) (*buffer.Buffer, error) {
-	color := servicecontext.ServiceColorOther
+	color := ConsoleColorOther
 	if strings.HasPrefix(e.LoggerName, common.ServiceGrpcNamespace_) {
-		color = servicecontext.ServiceColorGrpc
+		color = ConsoleColorGrpc
 	} else if strings.HasPrefix(e.LoggerName, common.ServiceRestNamespace_) {
-		color = servicecontext.ServiceColorRest
+		color = ConsoleColorRest
+	}
+	if consoleNamedColors != nil {
+		if col, o := consoleNamedColors[e.LoggerName]; o {
+			color = col
+		}
 	}
 	e.LoggerName = fmt.Sprintf("\x1b[%dm%s\x1b[0m", color, e.LoggerName)
 	return c.Encoder.EncodeEntry(e, ff)

@@ -58,7 +58,7 @@ var (
 	}
 	restartChan        chan bool
 	restartRequired    bool
-	gatewayCtx         = servicecontext.WithServiceName(servicecontext.WithServiceColor(context.Background(), servicecontext.ServiceColorOther), common.ServiceGatewayProxy)
+	gatewayCtx         = servicecontext.WithServiceName(context.Background(), common.ServiceGatewayProxy)
 	LastKnownCaddyFile string
 )
 

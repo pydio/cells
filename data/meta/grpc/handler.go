@@ -76,13 +76,10 @@ func (s *MetaServer) CreateNodeChangeSubscriber(parentContext context.Context) *
 func (s *MetaServer) initEventsChannel(parentContext context.Context) {
 
 	// Todo: find a way to close channel on topic UnSubscription ?
-	serviceColor := servicecontext.GetServiceColor(parentContext)
-
 	s.eventsChannel = make(chan *event.EventWithContext)
 	go func() {
 		for eventWCtx := range s.eventsChannel {
 			newCtx := servicecontext.WithServiceName(eventWCtx.Context, common.ServiceGrpcNamespace_+common.ServiceMeta)
-			newCtx = servicecontext.WithServiceColor(newCtx, serviceColor)
 			s.processEvent(newCtx, eventWCtx.Event)
 		}
 	}()

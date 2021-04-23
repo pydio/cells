@@ -242,7 +242,6 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	} else if msg.User != nil && msg.Type == idm.ChangeEventType_DELETE && msg.User.Login != "" {
 		// Clear activity for deleted user
 		ctx = servicecontext.WithServiceName(ctx, Name)
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
 		go e.dao.Delete(activity2.OwnerType_USER, msg.User.Login)
 	}

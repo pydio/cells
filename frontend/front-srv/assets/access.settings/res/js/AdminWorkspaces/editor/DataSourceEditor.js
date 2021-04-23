@@ -507,6 +507,7 @@ class DataSourceEditor extends React.Component{
 
             </Paper>
         );
+
         const AdvancedOptions = (
             <Paper zDepth={0} style={makeStyle(styles.section, 'advanced')}>
                 <div style={styles.title}>{'Advanced storage options'}</div>
@@ -522,6 +523,20 @@ class DataSourceEditor extends React.Component{
                         onCheck={(e,v)=>{model.FlatStorage = !v}}
                         {...ModernStyles.toggleFieldV2}
                     />
+                    {create && model.FlatStorage &&
+                    <ModernTextField
+                        fullWidth={true}
+                        variant={'v2'}
+                        hintText={'If this storage was previously used as a Cells datasource, initialize from existing snapshot file...'}
+                        value={model.StorageConfiguration.initFromSnapshot || ''}
+                        onChange={(e,v)=>{
+                            if (v) {
+                                model.StorageConfiguration.initFromSnapshot = v;
+                            } else {
+                                delete (model.StorageConfiguration.initFromSnapshot)
+                            }
+                        }}/>
+                    }
                 </div>
                 }
 

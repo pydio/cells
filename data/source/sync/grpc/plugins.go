@@ -34,7 +34,6 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
-	"github.com/pborman/uuid"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -179,45 +178,31 @@ func init() {
 						syncHandler.StartConfigsOnly()
 						m.Init(
 							micro.AfterStart(func() error {
-								if _, has := dsObject.StorageConfiguration["initFromBucket"]; !has {
-									return nil
-								}
-								// If initFromBucket is set Sync bucket to index once
-								re := service.Retry(jobCtx, func() error {
-									log.Logger(jobCtx).Info("[initFromBucket] Registering job to sync flat index from bucket")
-									job := &jobs.Job{
-										ID:             uuid.New(),
-										Owner:          common.PydioSystemUsername,
-										Label:          "Sync DataSource " + datasource,
-										Inactive:       false,
-										MaxConcurrency: 1,
-										AutoStart:      true,
-										AutoClean:      true,
-										Actions: []*jobs.Action{
-											{
-												ID: "actions.cmd.resync",
-												Parameters: map[string]string{
-													"service": serviceName,
-												},
-											},
-										},
+								var clearConfigKey string
+								if _, has := dsObject.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
+									if _, e := syncHandler.FlatScanEmpty(m.Options().Context, nil, nil); e != nil {
+										log.Logger(ctx).Warn("Could not scan storage bucket after start", zap.Error(e))
+									} else {
+										clearConfigKey = object.StorageKeyInitFromBucket
 									}
-									_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-										Job: job,
-									}, registry.ShortRequestTimeout())
-									return e
-								}, 5*time.Second, 20*time.Second)
-								if re == nil {
+								} else if snapKey, has := dsObject.StorageConfiguration[object.StorageKeyInitFromSnapshot]; has {
+									if _, e := syncHandler.FlatSyncSnapshot(m.Options().Context, "read", snapKey, nil, nil); e != nil {
+										log.Logger(ctx).Warn("Could not init index from stored snapshot after start", zap.Error(e))
+									} else {
+										clearConfigKey = object.StorageKeyInitFromSnapshot
+									}
+								}
+								if clearConfigKey != "" {
 									// Now save config without "initFromBucket" key
 									newValue := proto.Clone(dsObject).(*object.DataSource)
-									delete(newValue.StorageConfiguration, "initFromBucket")
+									delete(newValue.StorageConfiguration, clearConfigKey)
 									if ce := config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration"); ce != nil {
-										log.Logger(jobCtx).Error("[initFromBucket] Removing initFromBucket key from datasource", zap.Error(ce))
+										log.Logger(jobCtx).Error("[initFromBucket] Removing "+clearConfigKey+" key from datasource", zap.Error(ce))
 									} else {
-										log.Logger(jobCtx).Info("[initFromBucket] Removed initFromBucket key from datasource", zap.Any("ds", newValue.StorageConfiguration))
+										log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue.StorageConfiguration))
 									}
 								}
-								return re
+								return nil
 							}),
 							micro.BeforeStop(func() error {
 								if syncHandler != nil {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -32,15 +32,15 @@ import (
 
 	micro "github.com/micro/go-log"
 	"github.com/micro/go-micro/metadata"
-	context2 "github.com/pydio/cells/common/utils/context"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
 	servicecontext "github.com/pydio/cells/common/service/context"
-	"gopkg.in/natefinch/lumberjack.v2"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -56,7 +56,8 @@ var (
 
 	StdOut *os.File
 
-	customSyncers []zapcore.WriteSyncer
+	skipServerSync bool
+	customSyncers  []zapcore.WriteSyncer
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
@@ -70,22 +71,25 @@ func Init() {
 
 		var logger *zap.Logger
 
-		// Create core for internal indexing service
-		// It forwards logs to the pydio.grpc.logs service to store them
-		// Format is always JSON + ProductionEncoderConfig
-		srvConfig := zap.NewProductionEncoderConfig()
-		srvConfig.EncodeTime = RFC3369TimeEncoder
-		serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
-		serverCore := zapcore.NewCore(
-			zapcore.NewJSONEncoder(srvConfig),
-			serverSync,
-			zapcore.InfoLevel,
-		)
+		serverCore := zapcore.NewNopCore()
+		if !skipServerSync {
+			// Create core for internal indexing service
+			// It forwards logs to the pydio.grpc.logs service to store them
+			// Format is always JSON + ProductionEncoderConfig
+			srvConfig := zap.NewProductionEncoderConfig()
+			srvConfig.EncodeTime = RFC3369TimeEncoder
+			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
+			serverCore = zapcore.NewCore(
+				zapcore.NewJSONEncoder(srvConfig),
+				serverSync,
+				common.LogLevel,
+			)
+		}
 
 		if common.LogConfig == common.LogConfigProduction {
 
 			// Additional logger: stores messages in local file
-			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
+			logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
 			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   filepath.Join(logDir, "pydio.log"),
 				MaxSize:    10, // megabytes
@@ -98,11 +102,11 @@ func Init() {
 			w := zapcore.NewMultiWriteSyncer(syncers...)
 
 			// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
-			config := zap.NewProductionEncoderConfig()
-			config.EncodeTime = RFC3369TimeEncoder
+			cfg := zap.NewProductionEncoderConfig()
+			cfg.EncodeTime = RFC3369TimeEncoder
 
 			core := zapcore.NewCore(
-				zapcore.NewJSONEncoder(config),
+				zapcore.NewJSONEncoder(cfg),
 				w,
 				common.LogLevel,
 			)
@@ -111,8 +115,8 @@ func Init() {
 
 			logger = zap.New(core)
 		} else {
-			config := zap.NewDevelopmentEncoderConfig()
-			config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+			cfg := zap.NewDevelopmentEncoderConfig()
+			cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
 			var syncer zapcore.WriteSyncer
 			syncer = StdOut
@@ -122,7 +126,7 @@ func Init() {
 				syncer = zapcore.NewMultiWriteSyncer(syncers...)
 			}
 			core := zapcore.NewCore(
-				newColorConsoleEncoder(config),
+				newColorConsoleEncoder(cfg),
 				syncer,
 				common.LogLevel,
 			)
@@ -178,6 +182,12 @@ func RegisterWriteSyncer(syncer WriteSyncer) {
 	customSyncers = append(customSyncers, syncer)
 
 	mainLogger.forceReset() // Will force reinit next time
+}
+
+// SetSkipServerSync can disable the core syncing to cells service
+// Must be called before initialization
+func SetSkipServerSync() {
+	skipServerSync = true
 }
 
 // SetLoggerInit defines what function to use to init the logger

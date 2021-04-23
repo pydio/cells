@@ -235,7 +235,6 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 
 	// Add service info
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.RootContext))
-	ctx = servicecontext.WithServiceColor(ctx, servicecontext.GetServiceColor(s.RootContext))
 
 	// Inject evaluated job parameters
 	if len(job.Parameters) > 0 {

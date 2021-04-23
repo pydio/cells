@@ -69,7 +69,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	config.Set(sources, "services", "pydio.grpc.data.sync", "sources")
 	s3buckets := make(map[string]string, len(sources))
 	if conf.StorageType == object.StorageType_LOCAL {
-		storageFolder = filepath.Dir(conf.StorageConfiguration["folder"])
+		storageFolder = filepath.Dir(conf.StorageConfiguration[object.StorageKeyFolder])
 		s3buckets[conf.Name] = conf.Name
 		s3buckets["personal"] = "personal"
 		s3buckets["cellsdata"] = "cellsdata"
@@ -96,11 +96,11 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		sourceConf.Name = source
 		if source == "versions" {
 			sourceConf.FlatStorage = true
-			sourceConf.StorageConfiguration["cellsInternal"] = "true"
+			sourceConf.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
 		}
 		sourceConf.ObjectsBucket = s3buckets[source]
 		if storageFolder != "" {
-			sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
+			sourceConf.StorageConfiguration[object.StorageKeyFolder] = filepath.Join(storageFolder, source)
 		}
 
 		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
@@ -147,9 +147,9 @@ func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
 		}
 	*/
 	if c.GetDsS3Custom() != "" {
-		conf.StorageConfiguration["customEndpoint"] = c.GetDsS3Custom()
+		conf.StorageConfiguration[object.StorageKeyCustomEndpoint] = c.GetDsS3Custom()
 		if c.GetDsS3CustomRegion() != "" {
-			conf.StorageConfiguration["customRegion"] = c.GetDsS3CustomRegion()
+			conf.StorageConfiguration[object.StorageKeyCustomRegion] = c.GetDsS3CustomRegion()
 		}
 	}
 	return conf, nil

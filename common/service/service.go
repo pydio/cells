@@ -67,6 +67,13 @@ var (
 	DefaultRegisterTTL = 10 * time.Second
 )
 
+const (
+	configSrvKeyFork      = "fork"
+	configSrvKeyAutoStart = "autostart"
+	configSrvKeyForkDebug = "debugFork"
+	configSrvKeyUnique    = "unique"
+)
+
 // Service definition
 type Service interface {
 	registry.Service
@@ -76,7 +83,7 @@ type Service interface {
 	Done() chan (struct{})
 }
 
-func buildForkStartParams(name string) []string {
+func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
 		"--fork",
@@ -94,8 +101,11 @@ func buildForkStartParams(name string) []string {
 	if viper.GetBool("enable_pprof") {
 		params = append(params, "--enable_pprof")
 	}
+	if config.Get("services", serviceName, configSrvKeyForkDebug).Bool() {
+		params = append(params, "--log", "debug")
+	}
 	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^"+name+"$")
+	params = append(params, "^"+serviceName+"$")
 	bindFlags := config.DefaultBindOverrideToFlags()
 	if len(bindFlags) > 0 {
 		params = append(params, bindFlags...)
@@ -192,17 +202,9 @@ func NewService(opts ...ServiceOption) Service {
 	// Setting context
 	ctx = servicecontext.WithServiceName(ctx, name)
 
-	if s.IsGRPC() {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
-	} else if s.IsREST() {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
-
-		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
-		if s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
-			s.Init(WithWebAuth())
-		}
-	} else {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
+	// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
+	if s.IsREST() && s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
+		s.Init(WithWebAuth())
 	}
 
 	s.origCtx = ctx
@@ -373,7 +375,7 @@ var mandatoryOptions = []ServiceOption{
 					}
 				}
 
-				log.Logger(ctx).Debug(	"BeforeStart - Check dependency retry", zap.String("service", d.Name))
+				log.Logger(ctx).Debug("BeforeStart - Check dependency retry", zap.String("service", d.Name))
 
 				return fmt.Errorf("dependency %s not found", d.Name)
 			}, 50*time.Millisecond, 20*time.Minute) // This is long for distributed setup
@@ -607,7 +609,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	case <-ctx.Done():
 		return
 	default:
-		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now " +  name)
+		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now " + name)
 		s.ForkStart(ctx, r+1)
 	}
 }
@@ -771,18 +773,18 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) AutoStart() bool {
 	//ctx := s.Options().Context
-	return s.Options().AutoStart || config.Get("services", s.Options().Name, "autostart").Bool()
+	return s.Options().AutoStart || config.Get("services", s.Options().Name, configSrvKeyAutoStart).Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	// ctx := s.Options().Context
-	return s.Options().Fork || config.Get("services", s.Options().Name, "fork").Bool()
+	return s.Options().Fork || config.Get("services", s.Options().Name, configSrvKeyFork).Bool() || config.Get("services", s.Options().Name, configSrvKeyForkDebug).Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) MustBeUnique() bool {
-	return s.Options().Unique || config.Get("services", s.Options().Name, "unique").Bool()
+	return s.Options().Unique || config.Get("services", s.Options().Name, configSrvKeyUnique).Bool()
 }
 
 // func (s *service) Client() (string, client.Client) {

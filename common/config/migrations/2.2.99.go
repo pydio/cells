@@ -39,13 +39,13 @@ func updateVersionsStore(conf configx.Values) error {
 	dsCopy.Name = newDsName
 	dsCopy.ObjectsBucket = bucket
 	dsCopy.FlatStorage = true
-	dsCopy.StorageConfiguration["cellsInternal"] = "true"
-	dsCopy.StorageConfiguration["initFromBucket"] = "true"
-	dsCopy.StorageConfiguration["normalize"] = "false"
+	dsCopy.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
+	dsCopy.StorageConfiguration[object.StorageKeyInitFromBucket] = "true"
+	dsCopy.StorageConfiguration[object.StorageKeyNormalize] = "false"
 	dsCopy.VersioningPolicyName = ""
 	dsCopy.EncryptionKey = ""
-	if f, o := dsObject.StorageConfiguration["folder"]; o {
-		dsCopy.StorageConfiguration["folder"] = path.Join(path.Dir(f), bucket)
+	if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
+		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{

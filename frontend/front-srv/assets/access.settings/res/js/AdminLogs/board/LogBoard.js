@@ -49,6 +49,9 @@ class LogBoard extends React.Component {
         if(newProps.query !== undefined && newProps.query !== this.state.query){
             this.setState({query: newProps.query, page: 0});
         }
+        if(newProps.darkTheme !== undefined){
+            this.setState({darkTheme: newProps.darkTheme})
+        }
     }
 
     handleReload() {
@@ -83,7 +86,7 @@ class LogBoard extends React.Component {
 
     render(){
         const {pydio, noHeader, service, disableExport, currentNode} = this.props;
-        const {page, size, query, tmpQuery, focus, contentType, z, results} = this.state;
+        const {page, size, query, tmpQuery, focus, contentType, z, results, darkTheme} = this.state;
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
         const buttons = (
             <LogTools
@@ -122,6 +125,7 @@ class LogBoard extends React.Component {
                     query={tmpQuery ? tmpQuery:query}
                     focus={focus}
                     contentType={contentType}
+                    darkTheme={darkTheme}
                     z={z}
                     onLoadingStatusChange={this.handleLoadingStatusChange.bind(this)}
                     onTimestampContext={this.handleTimestampContext.bind(this)}
