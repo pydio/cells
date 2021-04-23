@@ -236,7 +236,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 // ValidateLocalDSFolderOnPeer sends a couple of stat/create requests to the target Peer to make sure folder is valid
 func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *object.DataSource) error {
 
-	folder := newSource.StorageConfiguration["folder"]
+	folder := newSource.StorageConfiguration[object.StorageKeyFolder]
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataObjects
 	var opts []client.CallOption
 	if newSource.PeerAddress != "" && newSource.PeerAddress != "0.0.0.0" {
@@ -260,7 +260,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}, opts...)
 
 	if e != nil {
-		if create, ok := newSource.StorageConfiguration["create"]; ok && create == "true" {
+		if create, ok := newSource.StorageConfiguration[object.StorageKeyFolderCreate]; ok && create == "true" {
 			// Create Node Now
 			if _, err := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 				Type: tree.NodeType_COLLECTION,

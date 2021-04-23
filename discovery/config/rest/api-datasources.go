@@ -108,12 +108,12 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 			service.RestError500(req, resp, err)
 			return
 		}
-		osFolder := filesystem.ToFilePath(ds.StorageConfiguration["folder"])
+		osFolder := filesystem.ToFilePath(ds.StorageConfiguration[object.StorageKeyFolder])
 		rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
 			osFolder = filepath.Join(rootPrefix, osFolder)
 		}
-		ds.StorageConfiguration["folder"] = osFolder
+		ds.StorageConfiguration[object.StorageKeyFolder] = osFolder
 	}
 
 	currentSources := config.ListSourcesFromConfig()
@@ -295,7 +295,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	}
 	ds := r.DataSource
 	endpoint := "https://s3.amazonaws.com"
-	if c, o := ds.StorageConfiguration["customEndpoint"]; o && c != "" {
+	if c, o := ds.StorageConfiguration[object.StorageKeyCustomEndpoint]; o && c != "" {
 		endpoint = c
 	}
 	u, _ := url.Parse(endpoint)
@@ -305,7 +305,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 		ds.ApiSecret = sec
 	}
 	mc, er := minio.New(host, ds.ApiKey, ds.ApiSecret, secure)
-	if r, o := ds.StorageConfiguration["customRegion"]; o && r != "" {
+	if r, o := ds.StorageConfiguration[object.StorageKeyCustomRegion]; o && r != "" {
 		creds := credentials.NewStaticV4(ds.ApiKey, ds.ApiSecret, "")
 		mc, er = minio.NewWithCredentials(host, creds, secure, r)
 	}
@@ -368,13 +368,13 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 	}
 
 	if ds.StorageConfiguration != nil {
-		if folder, ok := ds.StorageConfiguration["folder"]; ok {
+		if folder, ok := ds.StorageConfiguration[object.StorageKeyFolder]; ok {
 			rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
 				folder = strings.TrimPrefix(folder, rootPrefix)
 			}
 			// For the API Output, we want to always expose "/" paths, whatever the OS
-			ds.StorageConfiguration["folder"] = filesystem.ToNodePath(folder)
+			ds.StorageConfiguration[object.StorageKeyFolder] = filesystem.ToNodePath(folder)
 		}
 	}
 

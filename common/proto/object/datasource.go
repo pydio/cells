@@ -30,6 +30,25 @@ import (
 	service "github.com/pydio/cells/common/service/proto"
 )
 
+const (
+	StorageKeyFolder       = "folder"
+	StorageKeyFolderCreate = "create"
+	StorageKeyNormalize    = "normalize"
+
+	StorageKeyCustomEndpoint  = "customEndpoint"
+	StorageKeyCustomRegion    = "customRegion"
+	StorageKeyBucketsTags     = "bucketsTags"
+	StorageKeyObjectsTags     = "objectsTags"
+	StorageKeyNativeEtags     = "nativeEtags"
+	StorageKeyBucketsRegexp   = "bucketsRegexp"
+	StorageKeyReadonly        = "readOnly"
+	StorageKeyJsonCredentials = "jsonCredentials"
+
+	StorageKeyCellsInternal    = "cellsInternal"
+	StorageKeyInitFromBucket   = "initFromBucket"
+	StorageKeyInitFromSnapshot = "initFromSnapshot"
+)
+
 // Builds the url used for clients
 func (d *DataSource) BuildUrl() string {
 	return fmt.Sprintf("%s:%d", d.ObjectsHost, d.ObjectsPort)
@@ -49,7 +68,7 @@ func (d *MinioConfig) BuildUrl() string {
 // IsInternal is a short hand to check StorageConfiguration["cellsInternal"] key
 func (d *DataSource) IsInternal() bool {
 	if d.StorageConfiguration != nil {
-		_, i := d.StorageConfiguration["cellsInternal"]
+		_, i := d.StorageConfiguration[StorageKeyCellsInternal]
 		return i
 	}
 	return false

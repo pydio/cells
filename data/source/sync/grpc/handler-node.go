@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/sync/model"
 )
 
 // CreateNode Forwards to Index
 func (s *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
 
-	e := s.s3client.CreateNode(ctx, req.Node, req.UpdateIfExists)
+	e := s.s3client.(model.PathSyncTarget).CreateNode(ctx, req.Node, req.UpdateIfExists)
 	if e != nil {
 		return e
 	}
@@ -20,7 +21,7 @@ func (s *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, r
 // UpdateNode Forwards to S3
 func (s *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) error {
 
-	e := s.s3client.MoveNode(ctx, req.From.Path, req.To.Path)
+	e := s.s3client.(model.PathSyncTarget).MoveNode(ctx, req.From.Path, req.To.Path)
 	if e != nil {
 		resp.Success = false
 		return e
@@ -32,7 +33,7 @@ func (s *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, r
 // DeleteNode Forwards to S3
 func (s *Handler) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) error {
 
-	e := s.s3client.DeleteNode(ctx, req.Node.Path)
+	e := s.s3client.(model.PathSyncTarget).DeleteNode(ctx, req.Node.Path)
 	if e != nil {
 		resp.Success = false
 		return e

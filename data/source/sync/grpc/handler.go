@@ -75,7 +75,7 @@ type Handler struct {
 	indexClientWrite   tree.NodeReceiverClient
 	indexClientClean   protosync.SyncEndpointClient
 	indexClientSession tree.SessionIndexerClient
-	s3client           model.PathSyncTarget
+	s3client           model.Endpoint
 
 	syncTask     *task.Sync
 	SyncConfig   *object.DataSource
@@ -230,7 +230,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	if syncConfig.Watch {
 		return fmt.Errorf("datasource watch is not implemented yet")
 	}
-	normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration["normalize"])
+	normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration[object.StorageKeyNormalize])
 	var computer func(string) (int64, error)
 	if syncConfig.EncryptionMode != object.EncryptionMode_CLEAR {
 		keyClient := encryption.NewNodeKeyManagerClient(registry.GetClient(common.ServiceEncKey))
@@ -248,31 +248,31 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		}
 	}
 	options := model.EndpointOptions{}
-	bucketTags, o1 := syncConfig.StorageConfiguration["bucketsTags"]
+	bucketTags, o1 := syncConfig.StorageConfiguration[object.StorageKeyBucketsTags]
 	o1 = o1 && bucketTags != ""
-	objectsTags, o2 := syncConfig.StorageConfiguration["objectsTags"]
+	objectsTags, o2 := syncConfig.StorageConfiguration[object.StorageKeyObjectsTags]
 	o2 = o2 && objectsTags != ""
 	var syncMetas bool
 	if o1 || o2 {
 		syncMetas = true
 		options.Properties = make(map[string]string)
 		if o1 {
-			options.Properties["bucketsTags"] = bucketTags
+			options.Properties[object.StorageKeyBucketsTags] = bucketTags
 		}
 		if o2 {
-			options.Properties["objectsTags"] = objectsTags
+			options.Properties[object.StorageKeyObjectsTags] = objectsTags
 		}
 	}
-	if readOnly, o := syncConfig.StorageConfiguration["readOnly"]; o && readOnly == "true" {
+	if readOnly, o := syncConfig.StorageConfiguration[object.StorageKeyReadonly]; o && readOnly == "true" {
 		options.BrowseOnly = true
 	}
 	var keepNativeEtags bool
-	if k, o := syncConfig.StorageConfiguration["nativeEtags"]; o && k == "true" {
+	if k, o := syncConfig.StorageConfiguration[object.StorageKeyNativeEtags]; o && k == "true" {
 		keepNativeEtags = true
 	}
 	if syncConfig.ObjectsBucket == "" {
 		var bucketsFilter string
-		if f, o := syncConfig.StorageConfiguration["bucketsRegexp"]; o {
+		if f, o := syncConfig.StorageConfiguration[object.StorageKeyBucketsRegexp]; o {
 			bucketsFilter = f
 		}
 		multiClient, errs3 := s3.NewMultiBucketClient(ctx,
@@ -545,20 +545,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			log.Logger(c).Error("Could not run index Lost+found "+e.Error(), zap.Error(e))
 		}
 	}
-	if s.SyncConfig.FlatStorage {
-		if req.GetPath() != "" && req.GetPath() != "/" {
-			s.FlatLoadFromSnapshot(c, req.GetPath())
-		} else {
-			s.FlatScanEmpty(c)
-		}
-		if doneChan != nil {
-			doneChan <- true
-		}
-		resp.Success = true
-		return nil
-	}
 
-	s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
 	// Copy context
 	bg := context.Background()
 	bg = context2.WithUserNameMetadata(bg, common.PydioSystemUsername)
@@ -566,7 +553,28 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 	if s, o := servicecontext.SpanFromContext(c); o {
 		bg = servicecontext.WithSpan(bg, s)
 	}
-	result, e := s.syncTask.Run(bg, req.DryRun, false)
+
+	var result model.Stater
+	var e error
+	if s.SyncConfig.FlatStorage {
+		pathParts := strings.Split(strings.Trim(req.GetPath(), "/"), "/")
+		if len(pathParts) == 2 {
+			dir := pathParts[0]
+			snapName := pathParts[1]
+			result, e = s.FlatSyncSnapshot(bg, dir, snapName, statusChan, doneChan)
+		} else if len(pathParts) == 1 && pathParts[0] == "init" {
+			result, e = s.FlatScanEmpty(bg, statusChan, doneChan)
+		} else if doneChan != nil {
+			// Nothing to do, just close doneChan
+			doneChan <- true
+			resp.Success = true
+			return nil
+		}
+	} else {
+		s.syncTask.SetupEventsChan(statusChan, doneChan, nil)
+		result, e = s.syncTask.Run(bg, req.DryRun, false)
+	}
+
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task

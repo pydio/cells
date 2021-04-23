@@ -168,7 +168,7 @@ func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[strin
 func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource, update bool) (config *object.MinioConfig, e error) {
 
 	if newSource.StorageType == object.StorageType_S3 {
-		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, newSource.StorageConfiguration["customEndpoint"]); gateway != nil {
+		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, newSource.StorageConfiguration[object.StorageKeyCustomEndpoint]); gateway != nil {
 			config = gateway
 			newSource.ApiKey = config.ApiKey
 
@@ -181,7 +181,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			config = existingConfigs[newSource.ObjectsServiceName]
 			config.ApiKey = newSource.ApiKey
 			config.ApiSecret = newSource.ApiSecret
-			config.EndpointUrl = newSource.StorageConfiguration["customEndpoint"]
+			config.EndpointUrl = newSource.StorageConfiguration[object.StorageKeyCustomEndpoint]
 		} else {
 			config = &object.MinioConfig{
 				Name:        createConfigName(existingConfigs, object.StorageType_S3),
@@ -189,7 +189,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 				ApiKey:      newSource.ApiKey,
 				ApiSecret:   newSource.ApiSecret,
 				RunningPort: createConfigPort(existingConfigs, newSource.ObjectsPort),
-				EndpointUrl: newSource.StorageConfiguration["customEndpoint"],
+				EndpointUrl: newSource.StorageConfiguration[object.StorageKeyCustomEndpoint],
 			}
 		}
 	} else if newSource.StorageType == object.StorageType_AZURE {
@@ -216,8 +216,8 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			}
 		}
 	} else if newSource.StorageType == object.StorageType_GCS {
-		creds := newSource.StorageConfiguration["jsonCredentials"]
-		if gateway := filterGatewaysWithStorageConfigKey(existingConfigs, newSource.StorageType, "jsonCredentials", creds); gateway != nil {
+		creds := newSource.StorageConfiguration[object.StorageKeyJsonCredentials]
+		if gateway := filterGatewaysWithStorageConfigKey(existingConfigs, newSource.StorageType, object.StorageKeyJsonCredentials, creds); gateway != nil {
 			config = gateway
 			newSource.ApiKey = config.ApiKey
 
@@ -243,8 +243,8 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 				}
 				secretId := NewKeyForSecret()
 				SetSecret(secretId, creds)
-				config.GatewayConfiguration = map[string]string{"jsonCredentials": secretId}
-				newSource.StorageConfiguration["jsonCredentials"] = secretId
+				config.GatewayConfiguration = map[string]string{object.StorageKeyJsonCredentials: secretId}
+				newSource.StorageConfiguration[object.StorageKeyJsonCredentials] = secretId
 			}
 
 		} else {
@@ -255,18 +255,18 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			// Replace credentials by a secret Key
 			secretId := NewKeyForSecret()
 			SetSecret(secretId, creds)
-			newSource.StorageConfiguration["jsonCredentials"] = secretId
+			newSource.StorageConfiguration[object.StorageKeyJsonCredentials] = secretId
 			config = &object.MinioConfig{
 				Name:                 createConfigName(existingConfigs, object.StorageType_GCS),
 				StorageType:          object.StorageType_GCS,
 				ApiKey:               newSource.ApiKey,
 				ApiSecret:            newSource.ApiSecret,
 				RunningPort:          createConfigPort(existingConfigs, newSource.ObjectsPort),
-				GatewayConfiguration: map[string]string{"jsonCredentials": secretId},
+				GatewayConfiguration: map[string]string{object.StorageKeyJsonCredentials: secretId},
 			}
 		}
 	} else {
-		dsDir, bucket := filepath.Split(newSource.StorageConfiguration["folder"])
+		dsDir, bucket := filepath.Split(newSource.StorageConfiguration[object.StorageKeyFolder])
 		peerAddress := newSource.PeerAddress
 		dsDir = strings.TrimRight(dsDir, "/")
 		if minioConfig, e := filterMiniosWithBaseFolder(existingConfigs, peerAddress, dsDir); e != nil {
