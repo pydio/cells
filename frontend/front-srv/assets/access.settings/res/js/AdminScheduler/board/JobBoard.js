@@ -67,6 +67,28 @@ class JobBoard extends React.Component {
         this.loader.stop();
     }
 
+    canManualRun(job){
+        if (job.Schedule || !job.EventNames) {
+            return true
+        }
+        let hasManualFilter = false;
+        console.log(job);
+        try{
+            job.Actions.forEach(a => {
+                if (!a.TriggerFilter) {
+                    return
+                }
+                a.TriggerFilter.Query.SubQueries.forEach(sub => {
+                    if (sub.value.IsManual){
+                        hasManualFilter = true;
+                    }
+                });
+            });
+        } catch(e){}
+        return hasManualFilter;
+    }
+
+
     render(){
 
         const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
@@ -81,8 +103,8 @@ class JobBoard extends React.Component {
         const flatProps = {...adminStyles.props.header.flatButton};
         const iconColor = adminStyles.props.header.flatButton.labelStyle.color;
         if(!create){
-            if(!job.EventNames || job.Schedule){
-                if(jobsEditable){
+            if(Loader.canManualRun(job)){
+                if(job.Schedule && jobsEditable){
                     actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
                 }
                 const bProps = {...flatProps};
