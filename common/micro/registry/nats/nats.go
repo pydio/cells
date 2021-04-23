@@ -4,13 +4,12 @@ package nats
 import (
 	"context"
 	"encoding/json"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/registry"
 	"github.com/nats-io/nats"
+	"strings"
+	"sync"
+	"time"
 )
 
 type natsRegistry struct {
@@ -193,7 +192,6 @@ func (n *natsRegistry) query(s string, quorum int) ([]*registry.Service, error) 
 		service = &registry.Service{Name: s}
 	} else {
 		action = "list"
-
 	}
 
 	inbox := nats.NewInbox()

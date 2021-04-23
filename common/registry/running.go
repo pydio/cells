@@ -124,6 +124,11 @@ func (c *pydioregistry) maintainRunningServicesList() {
 
 			switch a {
 			case "create":
+				beforeCnt := 0
+				for _, peer := range c.peers {
+					beforeCnt = beforeCnt + len(peer.GetServices(s.Name))
+				}
+
 				for _, n := range s.Nodes {
 					if n == nil {
 						continue
@@ -139,25 +144,31 @@ func (c *pydioregistry) maintainRunningServicesList() {
 						})
 					}
 					c.registerProcessFromNode(n, s.Name)
+				}
 
-					// We check the overall service has just been started
-					cnt := 0
-					for _, peer := range c.peers {
-						cnt = cnt + len(peer.GetServices(s.Name))
-					}
+				afterCnt := 0
+				for _, peer := range c.peers {
+					afterCnt = afterCnt + len(peer.GetServices(s.Name))
+				}
 
-					if cnt == 1 {
-						ss, ok := c.register[s.Name]
-						if !ok {
-							ss = NewMockFromMicroService(s)
-						}
-						send(&Result{
-							Action: "started",
-							Service: ss,
-						})
+				// We check the overall service has just been started
+				if beforeCnt == 0 && afterCnt > 0 {
+					ss, ok := c.register[s.Name]
+					if !ok {
+						ss = NewMockFromMicroService(s)
 					}
+					send(&Result{
+						Action: "started",
+						Service: ss,
+					})
 				}
 			case "delete":
+				// We check the overall service has just been started
+				beforeCnt := 0
+				for _, peer := range c.peers {
+					beforeCnt = beforeCnt + len(peer.GetServices(s.Name))
+				}
+
 				for _, n := range s.Nodes {
 					if c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port)) {
 						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
@@ -169,23 +180,23 @@ func (c *pydioregistry) maintainRunningServicesList() {
 						})
 					}
 					c.deregisterProcessFromNode(n, s.Name)
+				}
 
-					// We check the overall service has just been stopped
-					cnt := 0
-					for _, peer := range c.peers {
-						cnt = cnt + len(peer.GetServices(s.Name))
-					}
+				afterCnt := 0
+				for _, peer := range c.peers {
+					afterCnt = afterCnt + len(peer.GetServices(s.Name))
+				}
 
-					if cnt == 1 {
-						ss, ok := c.register[s.Name]
-						if !ok {
-							ss = NewMockFromMicroService(s)
-						}
-						send(&Result{
-							Action: "stopped",
-							Service: ss,
-						})
+				// We check the overall service has just been stopped
+				if beforeCnt > 0 && afterCnt == 0 {
+					ss, ok := c.register[s.Name]
+					if !ok {
+						ss = NewMockFromMicroService(s)
 					}
+					send(&Result{
+						Action: "stopped",
+						Service: ss,
+					})
 				}
 			}
 		}

@@ -356,7 +356,6 @@ func init() {
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
 	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
-	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
 
 	// Additional Flags
 	StartCmd.Flags().String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
