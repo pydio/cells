@@ -18,6 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
+import DataModel from 'pydio/model/data-model'
+
 import { connect } from 'react-redux';
 import { ToolbarGroup, IconButton } from 'material-ui';
 
@@ -43,7 +48,7 @@ class EditorToolbar extends React.Component {
     }
 
     render() {
-        const {title, className, style, display} = this.props
+        const {title, className, style, display, node} = this.props
         let mainStyle =  {}, innerStyle = {}, spanStyle;
         if (display === "fixed") {
             mainStyle = {
@@ -63,7 +68,15 @@ class EditorToolbar extends React.Component {
             }
             innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
         }
-
+        let onDL;
+        const a = Pydio.getInstance().getController().getActionByName('download');
+        if(a && !a.deny && !a.contextHidden){
+            onDL = ()=> {
+                const selection = new DataModel(true)
+                selection.setSelectedNodes([node])
+                PydioApi.getClient().downloadSelection(selection);
+            };
+        }
 
         return (
             <ModalAppBar
@@ -74,6 +87,7 @@ class EditorToolbar extends React.Component {
                 iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onClick={() => this.onClose()}/>}
                 iconElementRight={
                     <ToolbarGroup>
+                        {onDL && <IconButton iconClassName={"mdi mdi-download"} iconStyle={innerStyle} touch={true} onClick={onDL} tooltip={Pydio.getMessages()[88]} tooltipPosition={"bottom-left"}/>}
                         <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} touch={true} onClick={() => this.onMinimise()}/>
                     </ToolbarGroup>
                 }
@@ -88,7 +102,8 @@ function mapStateToProps(state, ownProps) {
 
     return  {
         ...ownProps,
-        title: tab.title
+        title: tab.title,
+        node: tab.node
     }
 }
 

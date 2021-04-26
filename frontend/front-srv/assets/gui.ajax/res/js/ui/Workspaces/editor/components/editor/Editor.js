@@ -20,26 +20,23 @@
 
 // IMPORT
 import Pydio from 'pydio'
-//import FullScreen from 'react-fullscreen';
-import Draggable from 'react-draggable';
 import { connect } from 'react-redux';
-import { IconButton, Paper } from 'material-ui';
+import { Paper } from 'material-ui';
 import Tab from './EditorTab';
 import EditorToolbar from './EditorToolbar';
 import Button from './EditorButton';
-import _ from 'lodash';
 
-const MAX_ITEMS = 4;
-
-const { getActiveTab, makeMotion, makeTransitionHOC, withMouseTracker, withSelectionControls, withContainerSize, EditorActions } = Pydio.requireLib('hoc');
+const { getActiveTab, makeMotion, makeTransitionHOC, withMouseTracker, withSelectionControls, EditorActions } = Pydio.requireLib('hoc');
 
 const styles = {
     selectionButtonLeft: {
+        zIndex: 3,
         position: "absolute",
         top: "calc(50% - 18px)",
         left: "40px"
     },
     selectionButtonRight: {
+        zIndex: 3,
         position: "absolute",
         top: "calc(50% - 18px)",
         right: "40px"
@@ -62,15 +59,12 @@ const styles = {
     }
 }
 
-function difference(object, base) {
-	function changes(object, base) {
-		return _.transform(object, function(result, value, key) {
-			if (!_.isEqual(value, base[key])) {
-				result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
-			}
-		});
-	}
-	return changes(object, base);
+function buttonStyleVisible(rootStyle, visible) {
+    if (visible) {
+        return {...rootStyle, opacity: 1}
+    } else {
+        return rootStyle
+    }
 }
 
 // MAIN COMPONENT
@@ -161,7 +155,6 @@ class Editor extends React.Component {
                 {!hideToolbar && (
                     <EditorToolbar style={toolbarStyle} display={fixedToolbar ? "fixed" : "removable"} />
                 )}
-
                 <div className="body" style={parentStyle} onClick={(e) => this.handleFocusOnSelection(e)}>
                     {this.props.transitionEnded && this.renderChild()}
                 </div>
