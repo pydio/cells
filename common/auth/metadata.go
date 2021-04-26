@@ -54,6 +54,10 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 	md := make(map[string]string)
 	if existing, ok := metadata.FromContext(ctx); ok {
 		for k, v := range existing {
+			// Ignore existing version of PydioContextUserKey, it will be replaced after
+			if k == strings.ToLower(common.PydioContextUserKey) {
+				continue
+			}
 			md[k] = v
 		}
 	}

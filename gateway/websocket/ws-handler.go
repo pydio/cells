@@ -22,6 +22,7 @@ package websocket
 
 import (
 	"context"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -380,6 +381,15 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 	}
 	marshaller := jsonpb.Marshaler{}
 	event.JsonType = "activity"
+	if event.Activity.Object != nil {
+		event.Activity.Object.Name = path.Base(event.Activity.Object.Name)
+	}
+	if event.Activity.Origin != nil {
+		event.Activity.Origin.Name = path.Base(event.Activity.Origin.Name)
+	}
+	if event.Activity.Target != nil {
+		event.Activity.Target.Name = path.Base(event.Activity.Target.Name)
+	}
 	message, _ := marshaller.MarshalToString(event)
 	return w.Websocket.BroadcastFilter([]byte(message), func(session *melody.Session) bool {
 		if val, ok := session.Get(SessionUsernameKey); ok && val != nil {
