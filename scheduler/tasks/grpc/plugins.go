@@ -29,11 +29,14 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/scheduler/tasks"
 )
 
 func init() {
+	jobs.RegisterNodesFreeStringEvaluator(bleveimpl.EvalFreeString)
+
 	plugins.Register(func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceTasks),
