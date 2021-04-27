@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strings"
 	"sync"
 
 	"go.uber.org/zap"
@@ -304,16 +305,19 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 					}
 				}
 			case <-done:
+				var totalStrings []string
 				var total int64
-				for _, root := range rootsInfo {
+				for uri, root := range rootsInfo {
 					total += root.PgChildren
+					totalStrings = append(totalStrings, fmt.Sprintf("%d on %s", root.PgChildren, uri))
 				}
-				log.Logger(ctx).Info("Finished analyzing nodes", zap.Any("i", total))
+				tString := strings.Join(totalStrings, ", ")
+				log.Logger(ctx).Info(fmt.Sprintf("Finished analyze : %d nodes (%s)", total, tString), zap.Any("i", total))
 				if s.statuses != nil {
 					for u, _ := range rootsInfo {
 						s.statuses <- model.NewProcessingStatus("").SetEndpoint(u).SetProgress(0)
 					}
-					s.statuses <- model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes", total))
+					s.statuses <- model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes (%s)", total, tString))
 				}
 				close(done)
 				close(indexStatus)
@@ -338,10 +342,10 @@ func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.Endpoint
 	}
 	if !rootInfo.HasSizeInfo && !rootInfo.HasChildrenInfo {
 		// Publish every 100 nodes
-		if rootInfo.PgChildren%100 != 0 {
+		if rootInfo.PgChildren%500 != 0 {
 			return // false
 		} else {
-			return model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes", rootInfo.PgChildren)).SetEndpoint(input.EndpointURI()), true
+			return model.NewProcessingStatus(fmt.Sprintf("[%s] Analyzed %d nodes", input.EndpointURI(), rootInfo.PgChildren)).SetEndpoint(input.EndpointURI()), true
 		}
 	}
 	var pg float64
@@ -355,7 +359,7 @@ func (s *Sync) computeIndexProgress(input model.Status, rootInfo *model.Endpoint
 	if pg-rootInfo.LastPg > 0.05 {
 		emit = true
 		rootInfo.LastPg = pg
-		output := model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes (%d%%)", rootInfo.PgChildren, int(math.Floor(pg*100))))
+		output := model.NewProcessingStatus(fmt.Sprintf("[%s] Analyzed %d nodes (%d%%)", input.EndpointURI(), rootInfo.PgChildren, int(math.Floor(pg*100))))
 		output.SetProgress(float32(pg), true)
 		output.SetEndpoint(input.EndpointURI())
 		return output, true
