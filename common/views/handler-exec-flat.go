@@ -221,11 +221,14 @@ func (f *FlatStorageHandler) resolveUUID(ctx context.Context, node *tree.Node) e
 
 // postCreate updates index after upload by re-read newly added S3 object to get ETag
 func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, node *tree.Node, requestMeta map[string]string) error {
-	updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-	if err != nil {
-		return err
+	var updateNode *tree.Node
+	if updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); err == nil {
+		updateNode = updateResp.GetNode()
+	} else if node.Uuid != "" {
+		updateNode = node
+	} else {
+		return fmt.Errorf("missing uuid info to postCreate node")
 	}
-	updateNode := updateResp.GetNode()
 	stats, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node, ObjectStats: true})
 	if err != nil {
 		return err
