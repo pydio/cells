@@ -58,7 +58,7 @@ func FirstRun(ctx context.Context) error {
 	for _, s := range sources {
 		if s == "personal" {
 			hasPersonal = true
-		} else if s == "cellsdata" || s == "versions" {
+		} else if s == "cellsdata" || s == "versions" || s == "thumbnails" {
 			continue
 		} else {
 			commonDS = s
