@@ -73,6 +73,9 @@ func WithUserNameMetadata(ctx context.Context, userName string) context.Context 
 	md := make(map[string]string)
 	if meta, ok := metadata.FromContext(ctx); ok {
 		for k, v := range meta {
+			if k == strings.ToLower(common.PydioContextUserKey) {
+				continue
+			}
 			md[k] = v
 		}
 	}
