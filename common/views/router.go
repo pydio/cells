@@ -50,7 +50,8 @@ func NewStandardRouter(options RouterOptions) *Router {
 	handlers := []Handler{
 		NewAccessListHandler(options.AdminView),
 		&BinaryStoreHandler{
-			StoreName: common.PydioThumbstoreNamespace, // Direct access to dedicated Bucket for thumbnails
+			StoreName:      common.PydioThumbstoreNamespace, // Direct access to dedicated Bucket for thumbnails
+			TransparentGet: true,
 		},
 		&BinaryStoreHandler{
 			StoreName:     common.PydioDocstoreBinariesNamespace, // Direct access to dedicated Bucket for pydio binaries

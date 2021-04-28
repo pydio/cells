@@ -298,8 +298,8 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 		return nil
 	}
 
-	// Always ignore events on Temporary nodes
-	if event.Target != nil && event.Target.Etag == common.NodeFlagEtagTemporary {
+	// Always ignore events on Temporary nodes and internal nodes
+	if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
 		return nil
 	}
 

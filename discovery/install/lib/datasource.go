@@ -64,7 +64,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 
 	// Store keys
-	sources := []string{conf.Name, "personal", "cellsdata", "versions"}
+	sources := []string{conf.Name, "personal", "cellsdata", "versions", "thumbnails"}
 	config.Set(sources, "services", "pydio.grpc.data.index", "sources")
 	config.Set(sources, "services", "pydio.grpc.data.sync", "sources")
 	s3buckets := make(map[string]string, len(sources))
@@ -74,11 +74,13 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		s3buckets["personal"] = "personal"
 		s3buckets["cellsdata"] = "cellsdata"
 		s3buckets["versions"] = "versions"
+		s3buckets["thumbnails"] = "thumbs"
 	} else {
 		s3buckets[conf.Name] = c.GetDsS3BucketDefault()
 		s3buckets["personal"] = c.GetDsS3BucketPersonal()
 		s3buckets["cellsdata"] = c.GetDsS3BucketCells()
 		s3buckets["versions"] = c.GetDsS3BucketVersions()
+		s3buckets["thumbnails"] = c.GetDsS3BucketThumbs()
 	}
 
 	for _, source := range sources {
@@ -94,7 +96,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
-		if source == "versions" {
+		if source == "versions" || source == "thumbnails" {
 			sourceConf.FlatStorage = true
 			sourceConf.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
 		}
@@ -122,6 +124,12 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		"bucket":     s3buckets["versions"],
 	}
 	config.Set(vStoreConf, "services", "pydio.versions-store")
+
+	tStoreConf := map[string]string{
+		"datasource": "thumbnails",
+		"bucket":     s3buckets["thumbnails"],
+	}
+	config.Set(tStoreConf, "services", "pydio.thumbs_store")
 
 	config.Save("cli", "Install / Setting default DataSources")
 

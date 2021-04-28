@@ -348,13 +348,17 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	if !localTest {
 
 		requestMeta := map[string]string{"X-Amz-Meta-Original-Etag": node.Etag}
-		options := minio.PutObjectOptions{
-			UserMetadata: requestMeta,
-			ContentType:  "image/jpeg",
-		}
-		logger.Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize), zap.Any("options", options))
+		logger.Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize))
 		displayMemStat(ctx, "BEFORE PUT OBJECT WITH CONTEXT")
-		written, err := thumbsClient.PutObjectWithContext(ctx, thumbsBucket, objectName, buf, int64(buf.Len()), options)
+		tCtx, tNode, e := getThumbLocation(ctx, objectName)
+		if e != nil {
+			return false, e
+		}
+		tNode.Size = int64(buf.Len())
+		written, err := getRouter().PutObject(tCtx, tNode, buf, &views.PutRequestData{
+			Size:     tNode.Size,
+			Metadata: requestMeta,
+		})
 		if err != nil {
 			return false, err
 		} else {

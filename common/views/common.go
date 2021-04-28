@@ -83,9 +83,10 @@ type (
 	BranchInfo struct {
 		LoadedSource
 		idm.Workspace
-		Root          *tree.Node
-		Binary        bool
-		AncestorsList map[string][]*tree.Node
+		Root              *tree.Node
+		Binary            bool
+		TransparentBinary bool
+		AncestorsList     map[string][]*tree.Node
 	}
 
 	PutRequestData struct {

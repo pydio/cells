@@ -26,6 +26,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/pydio/cells/common/proto/object"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
@@ -40,9 +42,10 @@ import (
 // BinaryStoreHandler captures put/get calls to an internal storage
 type BinaryStoreHandler struct {
 	AbstractHandler
-	StoreName     string
-	AllowPut      bool
-	AllowAnonRead bool
+	StoreName      string
+	TransparentGet bool
+	AllowPut       bool
+	AllowAnonRead  bool
 }
 
 func (a *BinaryStoreHandler) isStorePath(nodePath string) bool {
@@ -57,7 +60,7 @@ func (a *BinaryStoreHandler) checkContextForAnonRead(ctx context.Context) error 
 	return nil
 }
 
-// Listing of Thumbs Store : do not display content
+// ListNodes does not display content
 func (a *BinaryStoreHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (c tree.NodeProvider_ListNodesClient, e error) {
 	if a.isStorePath(in.Node.Path) {
 		emptyStreamer := NewWrappingStreamer()
@@ -67,7 +70,7 @@ func (a *BinaryStoreHandler) ListNodes(ctx context.Context, in *tree.ListNodesRe
 	return a.next.ListNodes(ctx, in, opts...)
 }
 
-// Node Info & Node Content : send by UUID,
+// ReadNode Node Info & Node Content : send by UUID,
 func (a *BinaryStoreHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 	if a.isStorePath(in.Node.Path) {
 		source, er := a.clientsPool.GetDataSourceInfo(a.StoreName)
@@ -78,13 +81,13 @@ func (a *BinaryStoreHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequ
 			return nil, e
 		}
 		s3client := source.Client
-		opts := minio.StatObjectOptions{}
+		statOpts := minio.StatObjectOptions{}
 		if meta, mOk := context2.MinioMetaFromContext(ctx); mOk {
 			for k, v := range meta {
-				opts.Set(k, v)
+				statOpts.Set(k, v)
 			}
 		}
-		objectInfo, err := s3client.StatObject(source.ObjectsBucket, path.Base(in.Node.Path), opts)
+		objectInfo, err := s3client.StatObject(source.ObjectsBucket, path.Base(in.Node.Path), statOpts)
 		if err != nil {
 			return nil, err
 		}
@@ -97,6 +100,15 @@ func (a *BinaryStoreHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequ
 			Uuid:  objectInfo.Key,
 			Mode:  0777,
 		}
+		// Special case if DS is encrypted - update node with clear size
+		if a.TransparentGet && source.EncryptionMode != object.EncryptionMode_CLEAR {
+			if rn, e := a.clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(source.Name, path.Base(in.Node.Path))}}, opts...); e == nil {
+				node.Size = rn.GetNode().GetSize()
+			} else {
+				log.Logger(ctx).Debug("Could not update clear size for binary store in read node", zap.Error(e))
+			}
+		}
+
 		return &tree.ReadNodeResponse{
 			Node: node,
 		}, nil
@@ -112,10 +124,18 @@ func (a *BinaryStoreHandler) GetObject(ctx context.Context, node *tree.Node, req
 			return nil, e
 		}
 		if er == nil {
-			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
 			filter := node.Clone()
 			filter.SetMeta(common.MetaNamespaceDatasourcePath, path.Base(node.Path))
-			return a.next.GetObject(ctx, filter, requestData)
+			filterBi := BranchInfo{LoadedSource: source}
+			if a.TransparentGet {
+				// Do not set the Binary flag and just replace node info
+				filterBi.TransparentBinary = true
+				filter.Path = path.Join(source.Name, path.Base(node.Path))
+			} else {
+				filterBi.Binary = true
+				filter.SetMeta(common.MetaNamespaceDatasourcePath, path.Base(node.Path))
+			}
+			return a.next.GetObject(WithBranchInfo(ctx, "in", filterBi), filter, requestData)
 		}
 	}
 	return a.next.GetObject(ctx, node, requestData)

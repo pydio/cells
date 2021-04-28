@@ -44,10 +44,10 @@ func (a *AclFilterHandler) skipContext(ctx context.Context, identifier ...string
 		id = identifier[0]
 	}
 	bI, ok := GetBranchInfo(ctx, id)
-	return ok && bI.Binary
+	return ok && (bI.Binary || bI.TransparentBinary)
 }
 
-// Check if node is readable and forward to next middleware
+// ReadNode checks if node is readable and forward to next middleware.
 func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 	if a.skipContext(ctx) {
 		return a.next.ReadNode(ctx, in, opts...)
