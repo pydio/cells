@@ -102,27 +102,16 @@ func (syncer *LogSyncer) logSyncerWatch() {
 	}
 }
 
+// Write implements the io.Writer interface to be used as a Syncer by zap logging.
+// We must copy the []byte as a underlying buffer can mess up things if logs are called very quickly.
 func (l *LogSyncer) Write(p []byte) (n int, err error) {
 
-	/*
-		var d map[string]interface{}
-		err = json.Unmarshal(p, &d)
-
-		m := make(map[string]string)
-		for key, value := range d {
-			switch value := value.(type) {
-			case string:
-				m[key] = value
-			}
-		}
-		// Add nano time for better sorting
-		m["nano"] = strconv.Itoa(time.Now().Nanosecond())
-
-	*/
+	clone := make([]byte, len(p))
+	written := copy(clone, p)
 
 	l.logSyncerMessages <- &log.Log{
 		Nano:    int32(time.Now().Nanosecond()),
 		Message: p,
 	}
-	return len(p), nil
+	return written, nil
 }
