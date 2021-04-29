@@ -111,7 +111,7 @@ func (l *LogSyncer) Write(p []byte) (n int, err error) {
 
 	l.logSyncerMessages <- &log.Log{
 		Nano:    int32(time.Now().Nanosecond()),
-		Message: p,
+		Message: clone,
 	}
 	return written, nil
 }
