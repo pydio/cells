@@ -59,10 +59,10 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	if err != nil {
 		return nil, err
 	}
-
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
+		return nil, errors.Forbidden("node.not.readable", "Node is not readable")
 	}
+	checkDl := in.Node.HasMetaKey("acl-check-download")
 	response, err := a.next.ReadNode(ctx, in, opts...)
 	if err != nil {
 		return nil, err
@@ -71,6 +71,10 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 		n := response.Node.Clone()
 		n.SetMeta(common.MetaFlagReadonly, "true")
 		response.Node = n
+	}
+	updatedParents := append([]*tree.Node{response.GetNode()}, parents[1:]...)
+	if checkDl && accessList.HasExplicitDeny(ctx, permissions.FlagDownload, updatedParents...) {
+		return nil, errors.Forbidden("download.forbidden", "Node cannot be downloaded")
 	}
 	return response, err
 }
@@ -152,14 +156,14 @@ func (a *AclFilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRe
 		return nil, err
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
+		return nil, errors.Forbidden("node.not.readable", "Source Node is not readable")
 	}
 	ctx, toParents, err := AncestorsListFromContext(ctx, in.To, "to", a.clientsPool, true)
 	if err != nil {
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Node is not writeable")
+		return nil, errors.Forbidden("node.not.writeable", "Target Node is not writeable")
 	}
 	return a.next.UpdateNode(ctx, in, opts...)
 }
@@ -174,7 +178,10 @@ func (a *AclFilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRe
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, delParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable, cannot delete!")
+		return nil, errors.Forbidden("node.not.writeable", "Node is not writeable, cannot delete!")
+	}
+	if accessList.HasExplicitDeny(ctx, permissions.FlagDelete, delParents...) {
+		return nil, errors.Forbidden("delete.forbidden", "Node cannot be deleted")
 	}
 	return a.next.DeleteNode(ctx, in, opts...)
 }
@@ -191,6 +198,9 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 	}
 	if !accessList.CanRead(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
+	}
+	if (accessList.HasExplicitDeny(ctx, permissions.FlagDownload, parents...)) {
+		return nil, errors.Forbidden("download.forbidden", "Node is not downloadable")
 	}
 	return a.next.GetObject(ctx, node, requestData)
 }
@@ -209,7 +219,10 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 		return 0, err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
+		return 0, errors.Forbidden("node.not.writeable", "Node is not writeable")
+	}
+	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
+		return 0, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
@@ -225,7 +238,10 @@ func (a *AclFilterHandler) MultipartCreate(ctx context.Context, node *tree.Node,
 		return "", err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return "", errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
+		return "", errors.Forbidden("node.not.writeable", "Node is not writeable")
+	}
+	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, parents...) {
+		return "", errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
 	return a.next.MultipartCreate(ctx, node, requestData)
 }
@@ -249,6 +265,9 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 	if !accessList.CanWrite(ctx, toParents...) {
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable (CopyObject)")
 	}
+	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, toParents...) {
+		return 0, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
+	}
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
 
@@ -256,13 +275,17 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 
 	var rwErr error
 	switch operation.GetType() {
+	case tree.NodeChangeEvent_UPDATE_CONTENT:
+
+		rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "in", true, false, true, permissions.FlagUpload)
+
 	case tree.NodeChangeEvent_CREATE:
 
 		rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "in", true, false, true)
 
 	case tree.NodeChangeEvent_DELETE:
 
-		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, false, true)
+		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, false, true, permissions.FlagDelete)
 
 	case tree.NodeChangeEvent_UPDATE_PATH:
 
@@ -285,7 +308,7 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 	return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
 }
 
-func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identifier string, orParents bool, read bool, write bool) error {
+func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identifier string, orParents bool, read bool, write bool, explicitFlags ...permissions.BitmaskFlag) error {
 
 	val := c.Value(CtxUserAccessListKey{})
 	if val == nil {
@@ -301,6 +324,9 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	}
 	if write && !accessList.CanWrite(ctx, parents...) {
 		return errors.Forbidden("node.not.writeable", "path is not writeable")
+	}
+	if len(explicitFlags) > 0 && accessList.HasExplicitDeny(ctx,explicitFlags[0], parents...) {
+		return errors.Forbidden("explicit.deny", "path has explicit denies for flag " + permissions.FlagsToNames[explicitFlags[0]])
 	}
 	return nil
 

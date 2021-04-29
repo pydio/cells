@@ -38,7 +38,7 @@ import (
 )
 
 // PolicyResolver implements the check of an object against a set of ACL policies
-type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error)
+type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error)
 
 // VirtualPathResolver must be able to load virtual nodes based on their UUID
 type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
@@ -186,6 +186,15 @@ func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 	}
 	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
+}
+
+func (a *AccessList) HasExplicitDeny(ctx context.Context, flag BitmaskFlag, nodes ...*tree.Node) bool {
+	_, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	// Only test first node - do not test parents
+	if len(nodes) > 1 {
+		nodes = nodes[:1]
+	}
+	return mask.HasPolicyExplicitDeny(ctx, flag, nodes...)
 }
 
 // CanRead checks if a node has READ access.

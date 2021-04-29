@@ -108,7 +108,7 @@ var (
 	}
 )
 
-func policyMockResolver(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+func policyMockResolver(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error) {
 	policyId := strings.TrimPrefix(request.Subjects[0], "policy:")
 	allowed := true
 
