@@ -57,6 +57,8 @@ class Rule extends React.Component{
                     onRequestTabClose:this.closeEditor.bind(this)
                 }
             });
+        }).catch(e => {
+            console.error(e)
         });
         return true;
 

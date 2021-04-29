@@ -83,6 +83,8 @@ let RolesDashboard = createReactClass({
                     ...rolesEditorProps
                 }
             });
+        }).catch(e => {
+            console.log(e)
         });
         return true;
 

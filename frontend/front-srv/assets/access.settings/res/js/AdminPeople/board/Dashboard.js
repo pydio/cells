@@ -231,6 +231,8 @@ let Dashboard = createReactClass({
                 COMPONENT: component,
                 PROPS: editorProps
             });
+        }).catch((e) => {
+            console.log(e);
         });
 
     },

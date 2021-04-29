@@ -30,13 +30,27 @@ function loadEditorClass(className = '', defaultComponent) {
     return ResourcesManager.loadClass(ns).then(c => {
         const comp = FuncUtils.getFunctionByName(rest, c);
         if (!comp) {
-            console.error('Cannot find editor component, using default instead', className);
-            return defaultComponent;
+            if(typeof c === 'object' && c[ns]) {
+                const c2 = FuncUtils.getFunctionByName(rest, c[ns])
+                if (c2) {
+                    return c2
+                }
+            }
+            if(defaultComponent) {
+                console.error('Cannot find editor component, using default instead', className, defaultComponent);
+                return defaultComponent;
+            } else {
+                throw new Error("cannot find editor component")
+            }
         }
         return comp;
     }).catch(e => {
-        console.error('Cannot find editor component, using default instead', className);
-        return defaultComponent;
+        if(defaultComponent) {
+            console.error('Cannot find editor component, using default instead', className, defaultComponent);
+            return defaultComponent;
+        } else {
+            throw e
+        }
     })
 }
 
