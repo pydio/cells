@@ -108,18 +108,18 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 				UncompressedSize64: uint64(n.Size),
 			}
 			header.SetMode(0777)
-			header.SetModTime(n.GetModTime())
+			header.Modified = n.GetModTime()
+			r, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
+			if e1 != nil {
+				log.Logger(ctx).Error("Error while getting object, will not be appended to archive", zap.String("path", n.Path), zap.Error(e1))
+				return e1
+			}
+			defer r.Close()
 			zW, e := z.CreateHeader(header)
 			if e != nil {
 				log.Logger(ctx).Error("Error while creating path", zap.String("path", internalPath), zap.Error(e))
 				return e
 			}
-			r, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
-			if e1 != nil {
-				log.Logger(ctx).Error("Error while getting object", zap.String("path", n.Path), zap.Error(e1))
-				return e1
-			}
-			defer r.Close()
 			written, e2 := io.Copy(zW, r)
 			if e2 != nil {
 				log.Logger(ctx).Error("Error while copying streams", zap.Error(e2))
