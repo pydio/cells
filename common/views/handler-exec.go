@@ -95,6 +95,9 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 
 		resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
 		if err != nil {
+			if strings.Contains(err.Error(), "context canceled") {
+				log.Logger(ctx).Debug("Failed to read node (context canceled)", zap.Error(err))
+			}
 			if errors.Parse(err.Error()).Code != 404 {
 				log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
 			}
