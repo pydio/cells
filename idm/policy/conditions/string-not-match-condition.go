@@ -39,6 +39,9 @@ func (c *StringNotMatchCondition) Fulfills(value interface{}, _ *ladon.Request) 
 	if s, ok := value.(string); ok {
 		matches, _ := regexp.MatchString(c.Matches, s)
 		return !matches
+	} else if value == nil {
+		// Consider empty string as a not match!
+		return true
 	} else {
 		return false
 	}
