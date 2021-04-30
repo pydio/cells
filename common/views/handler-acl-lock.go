@@ -108,7 +108,7 @@ func (a *AclLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx contex
 	var ctx context.Context
 
 	switch operation.GetType() {
-	case tree.NodeChangeEvent_READ:
+	case tree.NodeChangeEvent_READ, tree.NodeChangeEvent_UPDATE_CONTENT:
 		return a.next.WrappedCanApply(srcCtx, targetCtx, operation)
 	case tree.NodeChangeEvent_CREATE:
 		node = operation.GetTarget()

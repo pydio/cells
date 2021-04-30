@@ -76,7 +76,7 @@ func (s *UserMetaHandler) Filter() func(string) string {
 
 // Handle special case for "content_lock" meta => store in ACL instead of user metadatas
 func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error {
-	log.Logger(ctx).Info("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
+	log.Logger(ctx).Debug("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
 	nodeUuid := meta.NodeUuid
 	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
@@ -355,7 +355,7 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Response) {
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()
-	log.Logger(ctx).Info("Listing tags for namespace " + ns)
+	log.Logger(ctx).Debug("Listing tags for namespace " + ns)
 	tags, _ := s.listTagsForNamespace(ctx, ns)
 	rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,
@@ -438,7 +438,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	ns := req.PathParameter("Namespace")
 	tag := req.PathParameter("Tags")
 	ctx := req.Request.Context()
-	log.Logger(ctx).Info("Delete tags for namespace "+ns, zap.String("tag", tag))
+	log.Logger(ctx).Debug("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
 		docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 		if _, e := docClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{

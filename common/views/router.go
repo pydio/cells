@@ -271,7 +271,7 @@ func (v *Router) CanApply(ctx context.Context, operation *tree.NodeChangeEvent) 
 		var sourceNode, targetNode *tree.Node
 		var sourceCtx, targetCtx context.Context
 		switch operation.Type {
-		case tree.NodeChangeEvent_CREATE:
+		case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 			targetNode = operation.Target
 		case tree.NodeChangeEvent_READ, tree.NodeChangeEvent_DELETE:
 			sourceNode = operation.Source
