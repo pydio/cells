@@ -162,7 +162,7 @@ export default createReactClass({
     },
 
     getValues(){
-        return this.props.values;//LangUtils.mergeObjectsRecursive(this._hiddenValues, this.props.values);
+        return this.props.values;
     },
 
     onParameterChange(paramName, newValue, oldValue, additionalFormData=null){
@@ -221,11 +221,6 @@ export default createReactClass({
         if(this.props.applyButtonAction){
             this.props.applyButtonAction(parameters, callback);
         }
-        /*
-        // Old way
-        parameters = LangUtils.mergeObjectsRecursive(parameters, this.getValuesForPOST(this.getValues()));
-        PydioApi.getClient().request(parameters, callback);
-        */
     },
 
     getValuesForPOST(values, prefix='DRIVER_OPTION_'){
@@ -240,14 +235,14 @@ export default createReactClass({
                     failedMandatories.push(p);
                 }
             }
-            if( ( p.type === 'valid-password' ) && this.refs['form-element-' + p.name]){
+            if( ( p.type === 'valid-password' || p.type === 'valid-login' ) && this.refs['form-element-' + p.name]){
                 if(!this.refs['form-element-' + p.name].isValid()){
                     failedMandatories.push(p);
                 }
             }
         }.bind(this));
         let previousValue, newValue;
-        previousValue = this._internalValid;//(this._internalValid !== undefined ? this._internalValid : true);
+        previousValue = this._internalValid;
         newValue = !failedMandatories.length;
         if((newValue !== this._internalValid || this.props.forceValidStatusCheck) && this.props.onValidStatusChange) {
             this.props.onValidStatusChange(newValue, failedMandatories);
@@ -288,23 +283,22 @@ export default createReactClass({
 
         parameters.map(function(attributes){
 
-            let type = attributes['type'];
+            const {type, name:paramName, replicationGroup: repGroup} = attributes;
+
             if(skipFieldsTypes && skipFieldsTypes.indexOf(type) > -1){
                 return;
             }
-            var paramName = attributes['name'];
-            var field;
+            let field;
             if(attributes['group_switch_name']) {
                 return;
             }
 
-            var group = attributes['group'] || '__DEFAULT__';
+            const group = attributes['group'] || '__DEFAULT__';
             if(!allGroups[group]){
                 groupsOrdered.push(group);
                 allGroups[group] = {FIELDS:[], LABEL:group};
             }
 
-            const {replicationGroup: repGroup} = attributes;
             if(repGroup) {
 
                 if (!replicationGroups[repGroup]) {
@@ -316,7 +310,7 @@ export default createReactClass({
                     allGroups[group].FIELDS.push('REPLICATION:' + repGroup);
                 }
                 // Copy
-                var repAttr = LangUtils.deepCopy(attributes);
+                const repAttr = LangUtils.deepCopy(attributes);
                 delete repAttr['replicationGroup'];
                 delete repAttr['group'];
                 replicationGroups[repGroup].PARAMS.push(repAttr);
@@ -324,7 +318,6 @@ export default createReactClass({
             }else{
 
                 if(type.indexOf("group_switch:") === 0){
-
                     field = (
                         <GroupSwitchPanel
                             {...this.props}
@@ -339,7 +332,7 @@ export default createReactClass({
                         />
                     );
 
-                }else if(attributes['type'] !== 'hidden'){
+                }else if(type !== 'hidden'){
 
                     let helperMark;
                     const {setHelperData, checkHasHelper, helperTestFor} = this.props;
@@ -356,18 +349,19 @@ export default createReactClass({
                     }
                     let mandatoryMissing = false;
                     let classLegend = "form-legend";
-                    if(attributes['errorText']) {
+                    const {errorText, warningText, mandatory} = attributes;
+                    if(errorText) {
                         classLegend = "form-legend mandatory-missing";
-                    }else if(attributes['warningText']){
+                    }else if(warningText){
                         classLegend = "form-legend warning-message";
-                    }else if( attributes['mandatory'] && (attributes['mandatory'] === "true" || attributes['mandatory'] === true)){
-                        if(['string', 'textarea', 'image', 'integer', 'integer-bytes'].indexOf(attributes['type']) !== -1 && !values[paramName]){
+                    }else if( mandatory && (mandatory === "true" || mandatory === true)){
+                        if(['string', 'textarea', 'image', 'integer', 'integer-bytes'].indexOf(type) !== -1 && !values[paramName]){
                             mandatoryMissing = true;
                             classLegend = "form-legend mandatory-missing";
                         }
                     }
 
-                    const {warningText, description, type, readonly, multiple, errorText} = attributes;
+                    const {description, readonly, multiple} = attributes;
                     const legendLabel = warningText?warningText:description;
                     let {label} = attributes;
                     if(variantShowLegend){
@@ -413,11 +407,8 @@ export default createReactClass({
 
         }.bind(this));
 
-        for(let rGroup in replicationGroups){
-            if (!replicationGroups.hasOwnProperty(rGroup)) {
-                continue;
-            }
-            var rGroupData = replicationGroups[rGroup];
+        Object.keys(replicationGroups).forEach(rGroup => {
+            const rGroupData = replicationGroups[rGroup];
             allGroups[rGroupData.GROUP].FIELDS[rGroupData.POSITION] = (
                 <ReplicationPanel
                     {...this.props}
@@ -431,11 +422,11 @@ export default createReactClass({
                     onScrollCallback={null}
                 />
             );
-        }
+        });
 
-        var groupPanes = [];
-        var accordionize = (this.props.accordionizeIfGroupsMoreThan && groupsOrdered.length > this.props.accordionizeIfGroupsMoreThan);
-        var currentActiveGroup = (this.state && this.state.currentActiveGroup) ? this.state.currentActiveGroup : 0;
+        let groupPanes = [];
+        const accordionize = (this.props.accordionizeIfGroupsMoreThan && groupsOrdered.length > this.props.accordionizeIfGroupsMoreThan);
+        const currentActiveGroup = (this.state && this.state.currentActiveGroup) ? this.state.currentActiveGroup : 0;
         groupsOrdered.map(function(g, gIndex) {
             if(this.props.limitToGroups && this.props.limitToGroups.indexOf(g) === -1){
                 return;
@@ -485,26 +476,22 @@ export default createReactClass({
             let otherPanes = {top:[], bottom:[]};
             const depth = this.props.depth;
             let index = 0;
-            for(let k in otherPanes){
-                if(!otherPanes.hasOwnProperty(k)) {
-                    continue;
-                }
-                if(this.props.additionalPanes[k]){
-                    this.props.additionalPanes[k].map(function(p){
-                        if(depth === 0){
-                            otherPanes[k].push(
-                                <Paper className="pydio-form-group additional" key={'other-pane-'+index}>{p}</Paper>
-                            );
-                        }else{
-                            otherPanes[k].push(
-                                <div className="pydio-form-group additional" key={'other-pane-'+index}>{p}</div>
-                            );
-                        }
-                        index++;
-                    });
-                }
-            }
-            groupPanes = otherPanes['top'].concat(groupPanes).concat(otherPanes['bottom']);
+            ["top", "bottom"].forEach(k => {
+                const additional = this.props.additionalPanes[k] || [];
+                additional.map(function(p){
+                    if(depth === 0){
+                        otherPanes[k].push(
+                            <Paper className="pydio-form-group additional" key={'other-pane-'+index}>{p}</Paper>
+                        );
+                    }else{
+                        otherPanes[k].push(
+                            <div className="pydio-form-group additional" key={'other-pane-'+index}>{p}</div>
+                        );
+                    }
+                    index++;
+                });
+            });
+            groupPanes = [...otherPanes.top, ...groupPanes, ...otherPanes.bottom];
         }
 
         if(this.props.tabs){

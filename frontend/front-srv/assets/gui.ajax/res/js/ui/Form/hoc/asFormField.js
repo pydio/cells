@@ -122,10 +122,19 @@ export default (Field, skipBufferChanges = false) => {
             });
         }
 
+        isValid() {
+            if(this.refs['internal'] && this.refs['internal'].isValid) {
+                return this.refs['internal'].isValid();
+            } else {
+                return true;
+            }
+        }
+
         render() {
             return (
                 <Field
                     {...this.props} {...this.state}
+                    ref={'internal'}
                     onChange={(e,v)=>this.onChange(e,v)}
                     toggleEditMode={()=>this.toggleEditMode()}
                     enterToToggle={(e)=>this.enterToToggle(e)}

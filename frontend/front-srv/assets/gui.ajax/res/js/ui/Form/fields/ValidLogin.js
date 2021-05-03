@@ -32,7 +32,7 @@ class ValidLogin extends React.Component{
 
     textValueChanged(event, value){
         const err = PassUtils.isValidLogin(value);
-        const prevStateValid = this.state.valid;
+        const prevStateValid = this.state && this.state.valid;
         const valid = !err;
         if(prevStateValid !== valid && this.props.onValidStatusChange){
             this.props.onValidStatusChange(valid);
@@ -42,16 +42,20 @@ class ValidLogin extends React.Component{
         this.props.onChange(event, value);
     }
 
+    isValid() {
+        return this.state && this.state.valid;
+    }
+
     render(){
         const {isDisplayGrid, isDisplayForm, editMode, disabled, errorText, enterToToggle, toggleEditMode, attributes} = this.props;
+        let {value} = this.props;
         if(isDisplayGrid() && !editMode){
-            let {value} = this.props;
             if(attributes['type'] === 'password' && value){
                 value = '***********';
             }
             return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
         }else{
-            const {err} = this.state;
+            const err = this.state && this.state.err;
             let field = (
                 <ModernTextField
                     floatingLabelText={isDisplayForm()?attributes.label:null}
