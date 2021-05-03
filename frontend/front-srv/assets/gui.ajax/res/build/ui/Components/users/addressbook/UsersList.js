@@ -101,6 +101,7 @@ var UsersList = (function (_React$Component) {
         var item = _props.item;
         var mode = _props.mode;
         var paginatorType = _props.paginatorType;
+        var paginatorFolder = _props.paginatorFolder;
         var loading = _props.loading;
         var enableSearch = _props.enableSearch;
         var showSubheaders = _props.showSubheaders;
@@ -113,11 +114,25 @@ var UsersList = (function (_React$Component) {
 
         var folders = item.collections || [];
         var leafs = item.leafs || [];
-        var foldersSubHeader = folders.length && (leafs.length || showSubheaders) ? [{ subheader: getMessage('532') }] : [];
+        var foldersSubHeader = [];
         var usersSubHeader = [];
-        if (showSubheaders || paginatorType) {
-            usersSubHeader = [{ subheader: paginatorType ? _react2['default'].createElement(_AlphaPaginator2['default'], _extends({}, this.props, { style: { lineHeight: '20px', padding: '14px 0' } })) : getMessage('249') }];
+
+        if (paginatorFolder) {
+            foldersSubHeader.push({ subheader: _react2['default'].createElement(_AlphaPaginator2['default'], _extends({}, this.props, { style: { lineHeight: '20px', padding: '14px 0' } })) });
+        } else if (folders.length && (leafs.length || showSubheaders)) {
+            foldersSubHeader.push({ subheader: getMessage('532') });
         }
+        if (paginatorType) {
+            usersSubHeader.push({ subheader: _react2['default'].createElement(_AlphaPaginator2['default'], _extends({}, this.props, { style: { lineHeight: '20px', padding: '14px 0' } })) });
+        } else if (showSubheaders) {
+            usersSubHeader.push({ subheader: getMessage('249') });
+        }
+        /*
+        const foldersSubHeader = folders.length && (leafs.length || showSubheaders) ? [{subheader:getMessage('532')}] : [];
+        if(showSubheaders || paginatorType){
+            usersSubHeader = [{subheader: paginatorType ? <AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} /> : getMessage('249')}];
+        }
+         */
         var items = [].concat(foldersSubHeader, folders, usersSubHeader, leafs);
         var total = items.length;
         var elements = [];

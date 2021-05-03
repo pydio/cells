@@ -60,6 +60,9 @@ export default class RestRolesCollection {
             if (data.hasOwnProperty('Roles')) {
                 obj['Roles'] = ApiClient.convertToType(data['Roles'], [IdmRole]);
             }
+            if (data.hasOwnProperty('Total')) {
+                obj['Total'] = ApiClient.convertToType(data['Total'], 'Number');
+            }
         }
         return obj;
     }
@@ -68,6 +71,10 @@ export default class RestRolesCollection {
     * @member {Array.<module:model/IdmRole>} Roles
     */
     Roles = undefined;
+    /**
+    * @member {Number} Total
+    */
+    Total = undefined;
 
 
 

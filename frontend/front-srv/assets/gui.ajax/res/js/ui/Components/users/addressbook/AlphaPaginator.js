@@ -17,15 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-import {Component, PropTypes} from 'react'
-import {muiThemeable, getMuiTheme} from 'material-ui/styles'
-import {MuiThemeProvider} from 'material-ui'
 import Pydio from 'pydio'
-const {PydioContextConsumer} = Pydio.requireLib('boot');
+import React, {Component, PropTypes} from 'react'
+import {MenuItem, MuiThemeProvider} from 'material-ui'
+import {muiThemeable, getMuiTheme} from 'material-ui/styles'
 
-import {SelectField, MenuItem} from 'material-ui';
+const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {ModernSelectField} = Pydio.requireLib('hoc');
 
 /**
@@ -35,21 +32,21 @@ class AlphaPaginator extends Component{
 
     render(){
 
-        let letters = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
-        letters = [-1, ...letters];
-        const {item, paginatorCallback, style, getMessage} = this.props;
+        const {item, paginatorCallback, paginatorType, style, getMessage, paginatorLabel} = this.props;
 
-        let paginator;
+        let numPaginator, alphaPaginator;
         if(item.pagination){
 
-            const {start, end, max, interval} = item.pagination;
+            const {start, max, interval} = item.pagination;
 
             const total_pages = Math.ceil(max / interval);
             const current = Math.ceil(start / interval);
             let pages = [];
-            for(let i=0; i<total_pages;i++) pages.push(i);
+            for(let i=0; i<total_pages;i++) {
+                pages.push(i);
+            }
 
-            paginator = (
+            numPaginator = (
                 <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
                     <ModernSelectField
                         floatingLabelText={getMessage(331)}
@@ -67,13 +64,11 @@ class AlphaPaginator extends Component{
             );
 
         }
-
-        const currentPage = (item.currentParams && item.currentParams.alpha_pages && item.currentParams.value) || -1;
-
-        return (
-            <div style={{...style, display:'flex', paddingRight: 8, alignItems:'center'}}>
-                <div style={{flex:1, height: 10}}>{getMessage(249, '')}</div>
-                {paginator}
+        if (paginatorType === 'alpha') {
+            let letters = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+            letters = [-1, ...letters];
+            const currentPage = (item.currentParams && item.currentParams.alpha_pages && item.currentParams.value) || -1;
+            alphaPaginator = (
                 <MuiThemeProvider muiTheme={getMuiTheme({zIndex:{layer: 3000, popover:3001}})}>
                     <ModernSelectField
                         floatingLabelText={getMessage(625)}
@@ -86,6 +81,14 @@ class AlphaPaginator extends Component{
                         {letters.map((l) =>  <MenuItem value={l} key={l} primaryText={l === -1 ? getMessage(597, '') : l}/> )}
                     </ModernSelectField>
                 </MuiThemeProvider>
+            );
+        }
+
+        return (
+            <div style={{...style, display:'flex', paddingRight: 8, alignItems:'center'}}>
+                <div style={{flex:1, height: 20}}>{paginatorLabel || getMessage(249, '')}</div>
+                {numPaginator}
+                {alphaPaginator}
             </div>
         );
     }

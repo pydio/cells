@@ -30,15 +30,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _react = require('react');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _materialUi = require('material-ui');
-
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var _materialUiStyles = require('material-ui/styles');
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
@@ -62,21 +64,20 @@ var AlphaPaginator = (function (_Component) {
     }
 
     AlphaPaginator.prototype.render = function render() {
-
-        var letters = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
-        letters = [-1].concat(letters);
         var _props = this.props;
         var item = _props.item;
         var paginatorCallback = _props.paginatorCallback;
+        var paginatorType = _props.paginatorType;
         var style = _props.style;
         var getMessage = _props.getMessage;
+        var paginatorLabel = _props.paginatorLabel;
 
-        var paginator = undefined;
+        var numPaginator = undefined,
+            alphaPaginator = undefined;
         if (item.pagination) {
             (function () {
                 var _item$pagination = item.pagination;
                 var start = _item$pagination.start;
-                var end = _item$pagination.end;
                 var max = _item$pagination.max;
                 var interval = _item$pagination.interval;
 
@@ -85,10 +86,12 @@ var AlphaPaginator = (function (_Component) {
                 var pages = [];
                 for (var i = 0; i < total_pages; i++) {
                     pages.push(i);
-                }paginator = React.createElement(
+                }
+
+                numPaginator = _react2['default'].createElement(
                     _materialUi.MuiThemeProvider,
                     { muiTheme: _materialUiStyles.getMuiTheme({ zIndex: { layer: 3000, popover: 3001 } }) },
-                    React.createElement(
+                    _react2['default'].createElement(
                         ModernSelectField,
                         {
                             floatingLabelText: getMessage(331),
@@ -101,28 +104,20 @@ var AlphaPaginator = (function (_Component) {
                             }
                         },
                         pages.map(function (p) {
-                            return React.createElement(_materialUi.MenuItem, { value: p, key: p, primaryText: p + 1 });
+                            return _react2['default'].createElement(_materialUi.MenuItem, { value: p, key: p, primaryText: p + 1 });
                         })
                     )
                 );
             })();
         }
-
-        var currentPage = item.currentParams && item.currentParams.alpha_pages && item.currentParams.value || -1;
-
-        return React.createElement(
-            'div',
-            { style: _extends({}, style, { display: 'flex', paddingRight: 8, alignItems: 'center' }) },
-            React.createElement(
-                'div',
-                { style: { flex: 1, height: 10 } },
-                getMessage(249, '')
-            ),
-            paginator,
-            React.createElement(
+        if (paginatorType === 'alpha') {
+            var letters = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+            letters = [-1].concat(letters);
+            var currentPage = item.currentParams && item.currentParams.alpha_pages && item.currentParams.value || -1;
+            alphaPaginator = _react2['default'].createElement(
                 _materialUi.MuiThemeProvider,
                 { muiTheme: _materialUiStyles.getMuiTheme({ zIndex: { layer: 3000, popover: 3001 } }) },
-                React.createElement(
+                _react2['default'].createElement(
                     ModernSelectField,
                     {
                         floatingLabelText: getMessage(625),
@@ -135,10 +130,22 @@ var AlphaPaginator = (function (_Component) {
                         }
                     },
                     letters.map(function (l) {
-                        return React.createElement(_materialUi.MenuItem, { value: l, key: l, primaryText: l === -1 ? getMessage(597, '') : l });
+                        return _react2['default'].createElement(_materialUi.MenuItem, { value: l, key: l, primaryText: l === -1 ? getMessage(597, '') : l });
                     })
                 )
-            )
+            );
+        }
+
+        return _react2['default'].createElement(
+            'div',
+            { style: _extends({}, style, { display: 'flex', paddingRight: 8, alignItems: 'center' }) },
+            _react2['default'].createElement(
+                'div',
+                { style: { flex: 1, height: 20 } },
+                paginatorLabel || getMessage(249, '')
+            ),
+            numPaginator,
+            alphaPaginator
         );
     };
 

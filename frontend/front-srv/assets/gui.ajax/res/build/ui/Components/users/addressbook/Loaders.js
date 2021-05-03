@@ -101,7 +101,7 @@ var Loaders = (function () {
 
     Loaders.loadTeams = function loadTeams(entry, callback) {
         var offset = 0,
-            limit = -1; // Roles API does not provide pagination info !
+            limit = StdLimit; // Roles API does not provide pagination info !
         if (entry.range) {
             var _entry$range$split = entry.range.split('-');
 

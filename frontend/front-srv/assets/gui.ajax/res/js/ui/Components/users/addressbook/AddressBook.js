@@ -450,6 +450,11 @@ let AddressBook = React.createClass({
             let emptyStateSecondary;
             let otherProps = {};
             if(selectedItem.id === 'teams'){
+                otherProps = {
+                    paginatorFolder: selectedItem.pagination?'numeric':null,
+                    paginatorLabel: selectedItem.label,
+                    paginatorCallback: this.reloadCurrentAtPage.bind(this),
+                };
                 if (teamsEditable){
                     emptyStatePrimary = getMessage(571, '');
                     emptyStateSecondary = getMessage(572, '');
@@ -467,7 +472,7 @@ let AddressBook = React.createClass({
                         paginatorCallback: this.reloadCurrentAtPage.bind(this),
                     };
                 }
-            }else if((selectedItem.IdmUser && selectedItem.IdmUser.IsGroup) || selectedItem.id === 'PYDIO_GRP_/' || (selectedItem.IdmRole && selectedItem.IdmRole.IsTeam)){
+            } else if((selectedItem.IdmUser && selectedItem.IdmUser.IsGroup) || selectedItem.id === 'PYDIO_GRP_/' || (selectedItem.IdmRole && selectedItem.IdmRole.IsTeam)){
                 otherProps = {
                     showSubheaders: true,
                     paginatorType: !(selectedItem.currentParams && selectedItem.currentParams.has_search) && 'alpha',

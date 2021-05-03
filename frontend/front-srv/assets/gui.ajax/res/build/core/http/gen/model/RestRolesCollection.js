@@ -44,6 +44,7 @@ var RestRolesCollection = (function () {
         _classCallCheck(this, RestRolesCollection);
 
         this.Roles = undefined;
+        this.Total = undefined;
     }
 
     /**
@@ -61,6 +62,9 @@ var RestRolesCollection = (function () {
             if (data.hasOwnProperty('Roles')) {
                 obj['Roles'] = _ApiClient2['default'].convertToType(data['Roles'], [_IdmRole2['default']]);
             }
+            if (data.hasOwnProperty('Total')) {
+                obj['Total'] = _ApiClient2['default'].convertToType(data['Total'], 'Number');
+            }
         }
         return obj;
     };
@@ -73,3 +77,7 @@ var RestRolesCollection = (function () {
 
 exports['default'] = RestRolesCollection;
 module.exports = exports['default'];
+
+/**
+* @member {Number} Total
+*/

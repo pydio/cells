@@ -520,6 +520,11 @@ var AddressBook = _react2['default'].createClass({
             var emptyStateSecondary = undefined;
             var otherProps = {};
             if (selectedItem.id === 'teams') {
+                otherProps = {
+                    paginatorFolder: selectedItem.pagination ? 'numeric' : null,
+                    paginatorLabel: selectedItem.label,
+                    paginatorCallback: this.reloadCurrentAtPage.bind(this)
+                };
                 if (teamsEditable) {
                     emptyStatePrimary = getMessage(571, '');
                     emptyStateSecondary = getMessage(572, '');
