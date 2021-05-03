@@ -207,6 +207,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 				},
 			},
 		},
+		/*
 		{
 			Key:         "developer",
 			Label:       "settings.144",
@@ -234,5 +235,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 				},
 			},
 		},
+		 */
 	},
 }
