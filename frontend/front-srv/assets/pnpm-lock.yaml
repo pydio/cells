@@ -722,13 +722,13 @@ packages:
       '@babel/core': ^7.0.0-0
     resolution:
       integrity: sha512-mwaVNcXV+l6qJOuRhpdTEj8sT/Z0owAVWf9QujTZ0d2ye9X/K+MTOTSizcgKOj18PGnTc/7g1I4+cIUjsKhBcw==
-  /@babel/runtime-corejs3/7.13.9:
+  /@babel/runtime-corejs3/7.14.0:
     dependencies:
       core-js-pure: 3.9.1
       regenerator-runtime: 0.13.7
     dev: false
     resolution:
-      integrity: sha512-p6WSr71+5u/VBf1KDS/Y4dK3ZwbV+DD6wQO3X2EbUVluEOiyXUk09DzcwSaUH4WomYXrEPC+i2rqzuthhZhOJw==
+      integrity: sha512-0R0HTZWHLk6G8jIk0FtoX+AatCtKnswS98VhXwGImFc759PJRp4Tru0PQYZofyijTFUr+gT8Mu7sgXVJLQ0ceg==
   /@babel/runtime/7.13.9:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -2535,6 +2535,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==
+  /classnames/2.3.1:
+    dev: false
+    resolution:
+      integrity: sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
   /clean-css/2.0.8:
     dependencies:
       commander: 2.0.0
@@ -3277,10 +3281,10 @@ packages:
       npm: '>=1.2'
     resolution:
       integrity: sha512-jnjyiM6eRyZl2H+W8Q/zLMA481hzi0eszAaBUzIVnmYVDBbnLxVNnfu1HgEBvCbL+71FrxMl3E6lpKH7Ge3OXA==
-  /dompurify/2.2.6:
+  /dompurify/2.2.8:
     dev: false
     resolution:
-      integrity: sha512-7b7ZArhhH0SP6W2R9cqK6RjaU82FZ2UPM7RO8qN1b1wyvC/NY1FNWcX1Pu00fFOAnzEORtwXe4bPaClg6pUybQ==
+      integrity: sha512-9H0UL59EkDLgY3dUFjLV6IEUaHm5qp3mxSqWw7Yyx4Zhk2Jn2cmLe+CNPP3xy13zl8Bqg+0NehQzkdMoVhGRww==
   /dot-parts/1.0.1:
     dev: true
     resolution:
@@ -3881,7 +3885,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.29
+      mime-types: 2.1.30
     engines:
       node: '>= 0.12'
     resolution:
@@ -5905,12 +5909,13 @@ packages:
     resolution:
       integrity: sha512-115fLhvZVqWwHPbClyntxEVfVDfl9DLLTuJvq3g2O/Oxi8AiNouAHvDSzHS0viUJc+V5vm3eq91Xwqn9dp4jRA==
   /mime-db/1.46.0:
+    dev: true
     engines:
       node: '>= 0.6'
+    optional: true
     resolution:
       integrity: sha512-svXaP8UQRZ5K7or+ZmfNhg2xX3yKDMUzqadsSqi4NCH/KomcH75MAMYAGVlvXn4+b/xOPhS3I2uHKRUzvjY7BQ==
   /mime-db/1.47.0:
-    dev: false
     engines:
       node: '>= 0.6'
     resolution:
@@ -5918,14 +5923,15 @@ packages:
   /mime-types/2.1.29:
     dependencies:
       mime-db: 1.46.0
+    dev: true
     engines:
       node: '>= 0.6'
+    optional: true
     resolution:
       integrity: sha512-Y/jMt/S5sR9OaqteJtslsFZKWOIIqMACsJSiHghlCAyhf7jfVYjKBmLiX8OgpWeW+fjJ2b+Az69aPFPkUOY6xQ==
   /mime-types/2.1.30:
     dependencies:
       mime-db: 1.47.0
-    dev: false
     engines:
       node: '>= 0.6'
     resolution:
@@ -8488,7 +8494,7 @@ packages:
       formidable: 1.2.2
       methods: 1.1.2
       mime: 1.6.0
-      qs: 6.9.6
+      qs: 6.10.1
       readable-stream: 2.3.7
     dev: false
     engines:
@@ -8540,9 +8546,9 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==
-  /swagger-client/3.13.1:
+  /swagger-client/3.13.2:
     dependencies:
-      '@babel/runtime-corejs3': 7.13.9
+      '@babel/runtime-corejs3': 7.14.0
       btoa: 1.2.1
       buffer: 6.0.3
       cookie: 0.4.1
@@ -8552,24 +8558,24 @@ packages:
       isomorphic-form-data: 2.0.0
       js-yaml: 3.14.1
       lodash: 4.17.21
-      qs: 6.9.6
+      qs: 6.10.1
       querystring-browser: 1.0.4
       traverse: 0.6.6
       url: 0.11.0
     dev: false
     resolution:
-      integrity: sha512-Hmy4+wVVa3kveWzC7PIeUwiAY5qcYbm4XlC4uZ7e5kAePfB2cprXImiqrZHIzL+ndU0YTN7I+9w/ZayTisn3Jg==
+      integrity: sha512-kamtyXtmbZiA2C5YTVqJYgoPJgzqtM5RbeP23Rt/YPYjMArTKZ2fjx1UTsI0aSbws0GluU5pVHiGp8YMciSUfw==
   /swagger-ui-react/3.44.0:
     dependencies:
-      '@babel/runtime-corejs3': 7.13.9
+      '@babel/runtime-corejs3': 7.14.0
       '@braintree/sanitize-url': 5.0.0
       '@kyleshockey/object-assign-deep': 0.4.2
       '@kyleshockey/xml': 1.0.2
       base64-js: 1.5.1
-      classnames: 2.2.6
+      classnames: 2.3.1
       css.escape: 1.5.1
       deep-extend: 0.6.0
-      dompurify: 2.2.6
+      dompurify: 2.2.8
       ieee754: 1.2.1
       immutable: 3.8.2
       js-file-download: 0.4.12
@@ -8592,7 +8598,7 @@ packages:
       reselect: 4.0.0
       serialize-error: 2.1.0
       sha.js: 2.4.11
-      swagger-client: 3.13.1
+      swagger-client: 3.13.2
       url-parse: 1.5.1
       xml-but-prettier: 1.0.1
       zenscroll: 4.0.2

@@ -28,7 +28,7 @@ import AuthenticationPluginsDashboard from './auth/AuthenticationPluginsDashboar
 import EditorsDashboard from './editors/EditorsDashboard'
 import UpdaterDashboard from './updater/UpdaterDashboard'
 import JSDocsDashboard from './docs/JSDocsDashboard'
-import OpenApiDashboard from './docs/OpenApiDashboard'
+//import OpenApiDashboard from './docs/OpenApiDashboard'
 
 window.AdminPlugins = {
 
@@ -40,7 +40,7 @@ window.AdminPlugins = {
     EditorsDashboard,
     UpdaterDashboard,
     JSDocsDashboard,
-    OpenApiDashboard,
+    /*OpenApiDashboard,*/
     ServiceEditor,
 
 };
