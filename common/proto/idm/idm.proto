@@ -14,6 +14,7 @@ service RoleService {
     rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse) {};
     rpc SearchRole (SearchRoleRequest) returns (stream SearchRoleResponse) {};
     rpc StreamRole (stream SearchRoleRequest) returns (stream SearchRoleResponse) {};
+    rpc CountRole (SearchRoleRequest) returns (CountRoleResponse) {};
 }
 
 // *****************************************************************************
@@ -41,6 +42,10 @@ message SearchRoleRequest{
 
 message SearchRoleResponse{
     Role Role = 1;
+}
+
+message CountRoleResponse {
+    int32 Count = 1;
 }
 
 // Role represents a generic set of permissions that can be applied to any users or groups.

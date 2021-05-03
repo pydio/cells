@@ -14,6 +14,7 @@ It has these top-level messages:
 	DeleteRoleResponse
 	SearchRoleRequest
 	SearchRoleResponse
+	CountRoleResponse
 	Role
 	RoleSingleQuery
 	CreateUserRequest
@@ -107,6 +108,7 @@ type RoleServiceClient interface {
 	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...client.CallOption) (*DeleteRoleResponse, error)
 	SearchRole(ctx context.Context, in *SearchRoleRequest, opts ...client.CallOption) (RoleService_SearchRoleClient, error)
 	StreamRole(ctx context.Context, opts ...client.CallOption) (RoleService_StreamRoleClient, error)
+	CountRole(ctx context.Context, in *SearchRoleRequest, opts ...client.CallOption) (*CountRoleResponse, error)
 }
 
 type roleServiceClient struct {
@@ -237,6 +239,16 @@ func (x *roleServiceStreamRoleClient) Recv() (*SearchRoleResponse, error) {
 	return m, nil
 }
 
+func (c *roleServiceClient) CountRole(ctx context.Context, in *SearchRoleRequest, opts ...client.CallOption) (*CountRoleResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "RoleService.CountRole", in)
+	out := new(CountRoleResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for RoleService service
 
 type RoleServiceHandler interface {
@@ -244,6 +256,7 @@ type RoleServiceHandler interface {
 	DeleteRole(context.Context, *DeleteRoleRequest, *DeleteRoleResponse) error
 	SearchRole(context.Context, *SearchRoleRequest, RoleService_SearchRoleStream) error
 	StreamRole(context.Context, RoleService_StreamRoleStream) error
+	CountRole(context.Context, *SearchRoleRequest, *CountRoleResponse) error
 }
 
 func RegisterRoleServiceHandler(s server.Server, hdlr RoleServiceHandler, opts ...server.HandlerOption) {
@@ -335,6 +348,10 @@ func (x *roleServiceStreamRoleStream) Recv() (*SearchRoleRequest, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+func (h *RoleService) CountRole(ctx context.Context, in *SearchRoleRequest, out *CountRoleResponse) error {
+	return h.RoleServiceHandler.CountRole(ctx, in, out)
 }
 
 // Client API for UserService service

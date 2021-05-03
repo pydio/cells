@@ -133,7 +133,13 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
-	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{Query: query})
+	request := &idm.SearchRoleRequest{Query: query}
+	cr, e := cl.CountRole(ctx, request)
+	if e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
+	streamer, err := cl.SearchRole(ctx, request)
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("While fetching roles", zap.Error(err))
 		service.RestError500(req, rsp, err)
@@ -141,6 +147,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 	}
 	defer streamer.Close()
 	result := new(rest.RolesCollection)
+	result.Total = cr.GetCount()
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {

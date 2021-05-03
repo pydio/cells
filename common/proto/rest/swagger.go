@@ -6365,7 +6365,7 @@ var SwaggerJson = `{
           "title": "Id of the binary"
         }
       },
-      "title": "Donwload binary"
+      "title": "Download binary"
     },
     "restFrontBinaryResponse": {
       "type": "object",
@@ -7008,6 +7008,11 @@ var SwaggerJson = `{
             "$ref": "#/definitions/idmRole"
           },
           "title": "List of Roles"
+        },
+        "Total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Total in DB"
         }
       },
       "title": "Roles Collection"
