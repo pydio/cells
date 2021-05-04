@@ -1,6 +1,6 @@
 import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
-import {sync as uuidGen} from "uuid4";
+import uuid4 from "uuid4";
 import {UserMetaServiceApi, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
 
 function T(id) {
@@ -11,7 +11,7 @@ function T(id) {
 export function startJob(state, onLocalUpdate) {
     const {features, cellAdmin} = state;
     const allActions = [];
-    const sessionUuid = uuidGen();
+    const sessionUuid = uuid4();
     Object.keys(features).forEach(k => {
         const feature = features[k];
         if (feature.value && typeof feature.action === "function") {

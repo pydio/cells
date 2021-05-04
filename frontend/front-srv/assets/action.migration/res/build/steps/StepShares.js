@@ -119,6 +119,11 @@ var StepShares = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         'div',
+                        { style: styles.stepLegend },
+                        this.T('legend.warning')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
                         { style: { marginTop: 10 } },
                         this.T('restrict.type')
                     ),

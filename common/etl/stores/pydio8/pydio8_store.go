@@ -664,16 +664,26 @@ func (s *Pydio8Store) CrossLoadShare(ctx context.Context, syncShare *models.Sync
 
 func (s *Pydio8Store) ListShares(ctx context.Context, params map[string]interface{}) (res []*models.SyncShare, e error) {
 	allShares, e := s.getSharesCache(ctx)
-	var filterOwner, filterType string
+	var filterType string
+	var filterOwners []string
 	if v, o := params["ownerId"]; o {
-		filterOwner = v.(string)
+		filterOwners = strings.Split(v.(string), ",")
 	}
 	if v, o := params["shareType"]; o {
 		filterType = (v).(string)
 	}
 	for _, p8 := range allShares {
-		if filterOwner != "" && p8.OWNERID != filterOwner {
-			continue
+		if len(filterOwners) > 0 {
+			var found bool
+			for _, fo := range filterOwners {
+				if strings.TrimSpace(fo) == p8.OWNERID {
+					found = true
+					break;
+				}
+			}
+			if !found {
+				continue
+			}
 		}
 		if filterType != "" && ((p8.SHARETYPE == "minisite" && filterType != "LINK") || (p8.SHARETYPE != "minisite" && filterType == "LINK")) {
 			continue

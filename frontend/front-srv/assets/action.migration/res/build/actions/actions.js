@@ -29,6 +29,8 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _uuid4 = require("uuid4");
 
+var _uuid42 = _interopRequireDefault(_uuid4);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 function T(id) {
@@ -41,7 +43,7 @@ function startJob(state, onLocalUpdate) {
     var cellAdmin = state.cellAdmin;
 
     var allActions = [];
-    var sessionUuid = (0, _uuid4.sync)();
+    var sessionUuid = (0, _uuid42["default"])();
     Object.keys(features).forEach(function (k) {
         var feature = features[k];
         if (feature.value && typeof feature.action === "function") {
