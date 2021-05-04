@@ -132,20 +132,29 @@ var SingleJobProgress = (function (_React$Component) {
         if (task.Status === 'Error') {
             lStyle = _extends({}, lStyle, { color: '#e53935' });
         }
-
+        var status = undefined;
+        if (task.StatusMessage) {
+            status = task.StatusMessage.split("\n").map(function (s) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: lineStyle },
+                    s
+                );
+            });
+        } else {
+            status = _react2['default'].createElement(
+                'div',
+                { style: lineStyle },
+                task.Status
+            );
+        }
         return _react2['default'].createElement(
             'div',
             { style: style },
             !noLabel && _react2['default'].createElement(
                 'div',
                 { style: lStyle },
-                task.StatusMessage.split("\n").map(function (s) {
-                    return _react2['default'].createElement(
-                        'div',
-                        { style: lineStyle },
-                        s
-                    );
-                })
+                status
             ),
             progress && _react2['default'].createElement(
                 'div',
