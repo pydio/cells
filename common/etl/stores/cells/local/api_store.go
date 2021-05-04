@@ -3,6 +3,7 @@ package local
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/common/auth"
 	"path"
 	"strings"
 
@@ -109,7 +110,7 @@ func (apiStore *ApiStore) CreateUser(ctx context.Context, identity *idm.User) (*
 		// Create role associated
 		associatedRole := idm.Role{
 			Uuid:     resp.User.GetUuid(),
-			Label:    "User " + resp.User.GetUuid(),
+			Label:    "User " + resp.User.GetLogin(),
 			UserRole: true,
 			Policies: builder.Policies(),
 		}
@@ -464,7 +465,8 @@ func (apiStore *ApiStore) GetUserInfo(ctx context.Context, userName string, para
 			user:       user,
 			accessList: access,
 		}
-		usrCtx := context.WithValue(ctx, common.PydioContextUserKey, userName)
+		usrCtx := auth.WithImpersonate(ctx, user)
+		usrCtx = context.WithValue(usrCtx, common.PydioContextUserKey, userName)
 		usrCtx = context.WithValue(usrCtx, views.CtxUserAccessListKey{}, access)
 		usrCtx = context.WithValue(usrCtx, views.CtxKeepAccessListKey{}, true)
 		loaded.ctx = usrCtx
