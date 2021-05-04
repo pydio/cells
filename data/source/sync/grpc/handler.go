@@ -169,6 +169,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			if err != nil {
 				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
 				return err
+			} else if resp.MinioConfig == nil {
+				log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
+				return fmt.Errorf("empty config")
 			}
 			minioConfig = resp.MinioConfig
 			if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
