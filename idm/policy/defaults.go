@@ -73,6 +73,8 @@ var (
 						"rest:/frontend/messages/<.*>",
 						"rest:/frontend/plugins/<.*>",
 						"rest:/frontend/state",
+						"rest:/frontend/auth/state",
+						"rest:/frontend/login/connectors",
 					},
 					Actions:     []string{"GET"},
 					Effect:      ladon.AllowAccess,
@@ -757,6 +759,8 @@ func Upgrade227(ctx context.Context) error {
 						"rest:/frontend/messages/<.*>",
 						"rest:/frontend/plugins/<.*>",
 						"rest:/frontend/state",
+						"rest:/frontend/auth/state",
+						"rest:/frontend/login/connectors",
 					}
 				}
 			}
