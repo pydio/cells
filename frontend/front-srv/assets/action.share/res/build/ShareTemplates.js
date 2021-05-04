@@ -634,6 +634,8 @@ var FileMinisite = (function (_React$Component5) {
                             icon: PydioWorkspaces.FilePreview,
                             Editor: EditorClass.Editor,
                             Controls: EditorClass.Controls,
+                            metadata: node.getMetadata(),
+                            readonly: node.getMetadata().get("node_readonly") === "true",
                             pydio: pydio,
                             node: node,
                             editorData: editorData,
@@ -672,6 +674,8 @@ var FileMinisite = (function (_React$Component5) {
                     pydio: pydio,
                     node: node,
                     editorData: editorData,
+                    metadata: node.getMetadata(),
+                    readonly: node.getMetadata().get("node_readonly") === "true",
                     registry: pydio.Registry
                 }));
             });
@@ -793,6 +797,8 @@ var FilmStripMinisite = (function (_React$Component7) {
                             icon: PydioWorkspaces.FilePreview,
                             Editor: EditorClass.Editor,
                             Controls: EditorClass.Controls,
+                            metadata: node.getMetadata(),
+                            readonly: node.getMetadata().get("node_readonly") === "true",
                             pydio: pydio,
                             node: node,
                             editorData: editorData,
@@ -832,6 +838,8 @@ var FilmStripMinisite = (function (_React$Component7) {
                     pydio: pydio,
                     node: node,
                     editorData: editorData,
+                    metadata: node.getMetadata(),
+                    readonly: node.getMetadata().get("node_readonly") === "true",
                     registry: pydio.Registry
                 }));
             });

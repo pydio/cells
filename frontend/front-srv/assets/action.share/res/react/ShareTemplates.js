@@ -431,6 +431,8 @@ class FileMinisite extends React.Component{
                         icon: PydioWorkspaces.FilePreview,
                         Editor: EditorClass.Editor,
                         Controls: EditorClass.Controls,
+                        metadata: node.getMetadata(),
+                        readonly: node.getMetadata().get("node_readonly") === "true",
                         pydio,
                         node,
                         editorData,
@@ -468,6 +470,8 @@ class FileMinisite extends React.Component{
                     pydio,
                     node,
                     editorData,
+                    metadata: node.getMetadata(),
+                    readonly: node.getMetadata().get("node_readonly") === "true",
                     registry: pydio.Registry
                 }))
             }
@@ -559,6 +563,8 @@ class FilmStripMinisite extends React.Component{
                         icon: PydioWorkspaces.FilePreview,
                         Editor: EditorClass.Editor,
                         Controls: EditorClass.Controls,
+                        metadata: node.getMetadata(),
+                        readonly: node.getMetadata().get("node_readonly") === "true",
                         pydio,
                         node,
                         editorData,
@@ -596,6 +602,8 @@ class FilmStripMinisite extends React.Component{
                     pydio,
                     node,
                     editorData,
+                    metadata: node.getMetadata(),
+                    readonly: node.getMetadata().get("node_readonly") === "true",
                     registry: pydio.Registry
                 }))
             }
