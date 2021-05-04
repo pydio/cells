@@ -26,6 +26,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/matcornic/hermes"
 	"github.com/pydio/cells/broker/mailer/lang"
@@ -72,11 +73,22 @@ func BuildTemplateWithId(user *mailer.User, templateId string, templateData map[
 	// If T function returns the ID, the string is not present.
 	introId := fmt.Sprintf("Mail.%s.Intros", templateId)
 	outroId := fmt.Sprintf("Mail.%s.Outros", templateId)
+	splitTrim := func(s string) (out []string) {
+		ss := strings.Split(s, "\n")
+		for _, st := range ss {
+			if strings.TrimSpace(st) != "" {
+				out = append(out, st)
+			}
+		}
+		return
+	}
 	if T(introId) != introId {
-		intros = append(intros, T(introId, i18nTemplateData))
+		sentences := splitTrim(T(introId, i18nTemplateData))
+		intros = append(intros, sentences...)
 	}
 	if T(outroId) != outroId {
-		outros = append(outros, T(outroId, i18nTemplateData))
+		sentences := splitTrim(T(outroId, i18nTemplateData))
+		outros = append(outros, sentences...)
 	}
 
 	// Init button with link if needed
