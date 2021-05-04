@@ -3,7 +3,6 @@ package local
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/common/auth"
 	"path"
 	"strings"
 
@@ -16,6 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/etl/models"
 	"github.com/pydio/cells/common/etl/stores"
