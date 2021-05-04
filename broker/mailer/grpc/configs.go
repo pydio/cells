@@ -73,13 +73,51 @@ var ExposedConfigs = &forms.Form{
 					},
 				},
 			},
+			&forms.FormField{
+				Name:        "queue",
+				Type:        forms.ParamSelect,
+				Label:       "Mail.Config.Queue.Label",
+				Description: "Mail.Config.Queue.Description",
+				ChoicePresetList: []map[string]string{
+					{"boltdb": "Mail.Config.Queue.ValueBolt"},
+					{"memory": "Mail.Config.Queue.ValueMemory"},
+				},
+				Default: "boltdb",
+			},
 			&forms.SwitchField{
 				Name:        "sender",
 				Label:       "Mail.Config.Mailer.Label",
 				Description: "Mail.Config.Mailer.Description",
 				Mandatory:   true,
-				Default:     "smtp",
+				Default:     "disabled",
 				Values: []*forms.SwitchValue{
+					{
+						Name:  "name",
+						Label: "Mail.Config.Disabled.Label",
+						Value: "disabled",
+						Fields: []forms.Field{},
+					},
+					{
+						Name:  "name",
+						Label: "Mail.Config.NoOp.Label",
+						Value: "noop",
+						Fields: []forms.Field{
+							&forms.FormField{
+								Name: "dump",
+								Type: forms.ParamBool,
+								Default: false,
+								Label: "Mail.Config.NoOp.Dump",
+								Description: "Mail.Config.NoOp.Dump",
+							},
+							&forms.FormField{
+								Name: "dumpFolder",
+								Type: forms.ParamString,
+								Default: "{SERVICE_DIR}/mails",
+								Label: "Mail.Config.NoOp.DumpTarget",
+								Description: "Mail.Config.NoOp.DumpTarget",
+							},
+						},
+					},
 					{
 						Name:  "name",
 						Label: "Mail.Config.Sendmail.Label",
@@ -156,17 +194,6 @@ var ExposedConfigs = &forms.Form{
 						},
 					},
 				},
-			},
-			&forms.FormField{
-				Name:        "queue",
-				Type:        forms.ParamSelect,
-				Label:       "Mail.Config.Queue.Label",
-				Description: "Mail.Config.Queue.Description",
-				ChoicePresetList: []map[string]string{
-					{"boltdb": "Mail.Config.Queue.ValueBolt"},
-					{"memory": "Mail.Config.Queue.ValueMemory"},
-				},
-				Default: "boltdb",
 			},
 		},
 	}},
