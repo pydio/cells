@@ -57,16 +57,30 @@ class UsersList extends React.Component{
 
     render(){
 
-        const {item, mode, paginatorType, loading, enableSearch, showSubheaders,
+        const {item, mode, paginatorType, paginatorFolder, loading, enableSearch, showSubheaders,
             getMessage, actionsPanel, muiTheme, bookColumn, pydio, reloadAction} = this.props;
 
         const folders = item.collections || [];
         const leafs = item.leafs || [];
-        const foldersSubHeader = folders.length && (leafs.length || showSubheaders) ? [{subheader:getMessage('532')}] : [];
+        let foldersSubHeader = [];
         let usersSubHeader = [];
+
+        if(paginatorFolder) {
+            foldersSubHeader.push({subheader:<AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} />});
+        } else if(folders.length && (leafs.length || showSubheaders)) {
+            foldersSubHeader.push({subheader:getMessage('532')})
+        }
+        if(paginatorType) {
+            usersSubHeader.push({subheader: <AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} />})
+        } else if(showSubheaders) {
+            usersSubHeader.push({subheader: getMessage('249')});
+        }
+        /*
+        const foldersSubHeader = folders.length && (leafs.length || showSubheaders) ? [{subheader:getMessage('532')}] : [];
         if(showSubheaders || paginatorType){
             usersSubHeader = [{subheader: paginatorType ? <AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} /> : getMessage('249')}];
         }
+         */
         const items = [...foldersSubHeader, ...folders, ...usersSubHeader, ...leafs];
         const total = items.length;
         let elements = [];

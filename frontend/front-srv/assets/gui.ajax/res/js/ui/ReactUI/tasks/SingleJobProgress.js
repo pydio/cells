@@ -84,10 +84,15 @@ class SingleJobProgress extends React.Component {
         if(task.Status === 'Error'){
             lStyle = {...lStyle, color: '#e53935'}
         }
-
+        let status;
+        if (task.StatusMessage) {
+            status = task.StatusMessage.split("\n").map(s => <div style={lineStyle}>{s}</div>)
+        } else {
+            status = <div style={lineStyle}>{task.Status}</div>;
+        }
         return (
             <div style={style}>
-                {!noLabel && <div style={lStyle}>{task.StatusMessage.split("\n").map(s => <div style={lineStyle}>{s}</div>)}</div>}
+                {!noLabel && <div style={lStyle}>{status}</div>}
                 {progress && <div style={progressStyle}>{progress}</div>}
             </div>
         );

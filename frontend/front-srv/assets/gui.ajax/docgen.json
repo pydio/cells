@@ -1380,6 +1380,13 @@
             "returns": null
           },
           {
+            "name": "toggleDarkTheme",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "handleFilterChange",
             "docblock": null,
             "modifiers": [],
@@ -4145,7 +4152,20 @@
       {
         "description": "",
         "displayName": "JobBoard",
-        "methods": []
+        "methods": [
+          {
+            "name": "canManualRun",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "job",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
       }
     ],
     "AdminScheduler/board/JobSchedule.js": [
@@ -24672,6 +24692,13 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "isValid",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ],
         "require": "const {ValidLogin} = require('pydio').requireLib('form')"
@@ -25476,6 +25503,36 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          },
+          {
+            "name": "componentDidCatch",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "error",
+                "type": null
+              },
+              {
+                "name": "errorInfo",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getDerivedStateFromError",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "error",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ],
