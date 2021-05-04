@@ -59,6 +59,9 @@ func (this *SearchRoleResponse) Validate() error {
 	}
 	return nil
 }
+func (this *CountRoleResponse) Validate() error {
+	return nil
+}
 func (this *Role) Validate() error {
 	for _, item := range this.Policies {
 		if item != nil {

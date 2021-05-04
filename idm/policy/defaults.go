@@ -67,7 +67,15 @@ var (
 					ID:          "frontend-state",
 					Description: "PolicyGroup.PublicAccess.Rule3",
 					Subjects:    []string{"profile:anon"},
-					Resources:   []string{"rest:/frontend/<.*>"},
+					Resources:   []string{
+						"rest:/frontend/binaries/GLOBAL/<.*>",
+						"rest:/frontend/bootconf",
+						"rest:/frontend/messages/<.*>",
+						"rest:/frontend/plugins/<.*>",
+						"rest:/frontend/state",
+						"rest:/frontend/auth/state",
+						"rest:/frontend/login/connectors",
+					},
 					Actions:     []string{"GET"},
 					Effect:      ladon.AllowAccess,
 				}),
@@ -720,6 +728,40 @@ func Upgrade220(ctx context.Context) error {
 			for _, p := range group.Policies {
 				if p.Id == "user-default-policy" {
 					p.Resources = append(p.Resources, "rest:/auth/token/document")
+				}
+			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		}
+	}
+	return nil
+}
+
+func Upgrade227(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "public-access" {
+			for _, p := range group.Policies {
+				if p.Id == "frontend-state" {
+					p.Resources = []string{
+						"rest:/frontend/binaries/GLOBAL/<.*>",
+						"rest:/frontend/bootconf",
+						"rest:/frontend/messages/<.*>",
+						"rest:/frontend/plugins/<.*>",
+						"rest:/frontend/state",
+						"rest:/frontend/auth/state",
+						"rest:/frontend/login/connectors",
+					}
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {

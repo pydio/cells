@@ -43,6 +43,8 @@ message SearchRoleRequest {
 message RolesCollection {
     // List of Roles
     repeated idm.Role Roles = 1;
+    // Total in DB
+    int32 Total = 2;
 }
 
 // Users Search
