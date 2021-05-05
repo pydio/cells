@@ -257,7 +257,6 @@ func (r *registryUpstream) newHost(name string, version string, node *microregis
 
 	baseURL, err := url.Parse(uh.Name)
 	if err != nil {
-		fmt.Println("And the error is ? ", err)
 		return nil, err
 	}
 

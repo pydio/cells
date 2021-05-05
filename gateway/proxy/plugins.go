@@ -77,17 +77,20 @@ var (
 
 	pydioproxy /a  {{$.MicroService}} {
 		without /a
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	pydioproxy /oidc {{$.OAuthService}} {
 		insecure_skip_verify
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	pydioproxy /io   {{$.GatewayService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -95,6 +98,7 @@ var (
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	pydioproxy /data {{$.GatewayService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -110,6 +114,7 @@ var (
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	pydioproxy /dav {{$.WebDAVService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -119,17 +124,20 @@ var (
 	
 {{if $.FrontReady}}
 	pydioproxy /plug/ {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	pydioproxy {{$.PublicBaseUri}}/ {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	pydioproxy {{$.PublicBaseUri}}/plug/ {{$.FrontendService}} {
+		fail_timeout 20s
 		without {{$.PublicBaseUri}}
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
@@ -137,12 +145,14 @@ var (
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	pydioproxy /user/reset-password/ {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 
 	pydioproxy /robots.txt {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -151,6 +161,7 @@ var (
 	pydioproxy /login {{$.FrontendService}} {
 		without /login
 		with /gui
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -161,6 +172,7 @@ var (
 		tls
 		without /grpc
 		insecure_skip_verify
+		fail_timeout 20s
 	}
 	
 	rewrite {
