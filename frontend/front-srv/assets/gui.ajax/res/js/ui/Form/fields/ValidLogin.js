@@ -47,7 +47,7 @@ class ValidLogin extends React.Component{
     }
 
     render(){
-        const {isDisplayGrid, isDisplayForm, editMode, disabled, errorText, enterToToggle, toggleEditMode, attributes} = this.props;
+        const {isDisplayGrid, isDisplayForm, editMode, disabled, errorText, enterToToggle, toggleEditMode, attributes, variant} = this.props;
         let {value} = this.props;
         if(isDisplayGrid() && !editMode){
             if(attributes['type'] === 'password' && value){
@@ -68,6 +68,7 @@ class ValidLogin extends React.Component{
                     errorText={errorText || err}
                     autoComplete="off"
                     fullWidth={true}
+                    variant={variant}
                 />
             );
             if(attributes['type'] === 'password'){

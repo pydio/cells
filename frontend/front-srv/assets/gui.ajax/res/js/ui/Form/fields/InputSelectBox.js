@@ -101,7 +101,7 @@ class InputSelectBox extends React.Component{
                     });
                     props.hintText=attributes.label;
                     props.style={height: 72};
-                    props.dropDownMenuProps={iconStyle:{fill: '#9e9e9e', top: 22}};
+                    props.dropDownMenuProps={iconStyle:{fill: '#9e9e9e', top: 22, right: 0}};
                 }
                 return (
                     <span className={"multiple has-value"}>

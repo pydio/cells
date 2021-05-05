@@ -1,9 +1,3 @@
-import React from 'react';
-import createReactClass from 'create-react-class';
-import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
-import {RaisedButton, FlatButton} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24,8 +18,11 @@ import {muiThemeable} from 'material-ui/styles'
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {RaisedButton, FlatButton, Toggle} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import PropTypes from 'prop-types';
-
 import Pydio from 'pydio'
 const PydioForm = Pydio.requireLib("form");
 import ServiceExposedConfigs from './ServiceExposedConfigs'
@@ -36,8 +33,8 @@ import MailerTest from './MailerTest'
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-let PluginEditor = createReactClass({
-    displayName: 'PluginEditor',
+let ServiceEditor = createReactClass({
+    displayName: 'ServiceEditor',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
@@ -66,7 +63,9 @@ let PluginEditor = createReactClass({
             documentation:'',
             dirty:false,
             label:'',
-            docOpen:false
+            docOpen:false,
+            variant:'v2',
+            variantShowLegend:false
         };
     },
 
@@ -136,8 +135,8 @@ let PluginEditor = createReactClass({
 
     render: function(){
 
-        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs, accessByName, muiTheme} = this.props;
-        const {documentation, pluginId, docOpen, mainPaneScrolled, dirty, parameters, values, helperData} = this.state;
+        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs, accessByName, muiTheme, formToggles} = this.props;
+        const {documentation, pluginId, docOpen, mainPaneScrolled, dirty, helperData, variant, variantShowLegend} = this.state;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         let addPanes = {top:[], bottom:[]};
@@ -175,6 +174,10 @@ let PluginEditor = createReactClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         let actions = [];
+        if(formToggles){
+            actions.push(<Toggle toggled={variant === 'v2'} label={"v2"} onToggle={(e,v)=>this.setState({variant:v?"v2":""})}/>)
+            actions.push(<Toggle toggled={variantShowLegend} label={"Descriptions"} onToggle={(e,v)=>this.setState({variantShowLegend:v})}/>)
+        }
         if(accessByName('Create')){
             let props = adminStyles.props.header.flatButton;
             if(!dirty){
@@ -202,6 +205,8 @@ let PluginEditor = createReactClass({
                     onScrollCallback={this.monitorMainPaneScrolling}
                     className="row-flex"
                     onDirtyChange={(dirty) => {this.setState({dirty:dirty})}}
+                    variant={variant}
+                    variantShowLegend={variantShowLegend}
                 />
                 <PydioForm.PydioHelper
                     helperData={helperData}
@@ -215,6 +220,6 @@ let PluginEditor = createReactClass({
     },
 });
 
-PluginEditor = muiThemeable()(PluginEditor);
+ServiceEditor = muiThemeable()(ServiceEditor);
 
-export {PluginEditor as default}
+export {ServiceEditor as default}

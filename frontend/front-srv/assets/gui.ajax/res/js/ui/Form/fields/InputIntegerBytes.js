@@ -74,7 +74,7 @@ class InputIntegerBytes extends React.Component{
         }
         return (
             <div>
-                <div style={{display:'flex'}}>
+                <div style={{display:'flex', height:variant==='v2'?66:null}}>
                     <ModernTextField
                         value={bytesValue}
                         hintText={isDisplayForm()?attributes.label:null}

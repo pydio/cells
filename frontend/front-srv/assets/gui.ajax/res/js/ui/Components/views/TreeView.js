@@ -1,7 +1,3 @@
-import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
-import React from 'react';
-import createReactClass from 'create-react-class';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22,10 +18,12 @@ import createReactClass from 'create-react-class';
  * The latest code can be found at <https://pydio.com>.
  */
 
+import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
+import React from 'react';
+import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
-
 import Pydio from 'pydio';
-import {Checkbox, IconButton} from 'material-ui'
+import {Checkbox, CircularProgress, IconButton} from 'material-ui'
 const {withContextMenu} = Pydio.requireLib('hoc');
 import {muiThemeable} from 'material-ui/styles'
 
@@ -54,12 +52,13 @@ var SimpleTreeNode = createReactClass({
         forceLabel:PropTypes.string,
         // Optional currently selected detection
         nodeIsSelected: PropTypes.func,
+        showLoader:PropTypes.bool,
         // Optional checkboxes
         checkboxes:PropTypes.array,
         checkboxesValues:PropTypes.object,
         checkboxesComputeStatus:PropTypes.func,
         onCheckboxCheck:PropTypes.func,
-        paddingOffset:PropTypes.number
+        paddingOffset:PropTypes.number,
     },
 
     getDefaultProps:function(){
@@ -74,16 +73,21 @@ var SimpleTreeNode = createReactClass({
 
     listenToNode: function(node){
         this._childrenListener = function(){
-            if(!this.isMounted()) return;
+            if(!this.isMounted()) {
+                return;
+            }
             this.setState({children:this._nodeToChildren(node)});
         }.bind(this);
         this._nodeListener = function(){
-            if(!this.isMounted()) return;
+            if(!this.isMounted()) {
+                return;
+            }
             this.forceUpdate();
         }.bind(this);
         node.observe("child_added", this._childrenListener);
         node.observe("child_removed", this._childrenListener);
         node.observe("loaded", this._childrenListener);
+        node.observe("loading", this._nodeListener);
         node.observe("node_replaced", this._nodeListener);
     },
 
@@ -91,6 +95,7 @@ var SimpleTreeNode = createReactClass({
         node.stopObserving("child_added", this._childrenListener);
         node.stopObserving("child_removed", this._childrenListener);
         node.stopObserving("loaded", this._childrenListener);
+        node.stopObserving("loading", this._nodeListener);
         node.stopObserving("node_replaced", this._nodeListener);
     },
 
@@ -170,14 +175,17 @@ var SimpleTreeNode = createReactClass({
     },
 
     nodeIsSelected: function(n){
-        if(this.props.nodeIsSelected) return this.props.nodeIsSelected(n);
-        else return (this.props.dataModel.getSelectedNodes().indexOf(n) !== -1);
+        if(this.props.nodeIsSelected) {
+            return this.props.nodeIsSelected(n);
+        } else {
+            return (this.props.dataModel.getSelectedNodes().indexOf(n) !== -1);
+        }
     },
 
     render: function () {
         const {node, dataModel, childrenOnly, canDrop, isOverCurrent,
             checkboxes, checkboxesComputeStatus, checkboxesValues, onCheckboxCheck,
-            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, forceLabel, noPaginator} = this.props;
+            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, forceLabel, showLoader, noPaginator} = this.props;
         const hasFolderChildrens = !!this.state.children.length;
         let hasChildren;
         if(hasFolderChildrens){
@@ -254,11 +262,15 @@ var SimpleTreeNode = createReactClass({
             }else if(ajxpMime === 'ajxp_recycle'){
                 icon = 'mdi mdi-delete';
             }
+            let loader;
+            if(showLoader && node.isLoading()) {
+                loader = <CircularProgress size={14} style={{marginLeft:7}} thickness={1}/>
+            }
             selfLabel = (
                 <ContextMenuWrapper node={node} className={'tree-item ' + isSelected + (boxes?' has-checkboxes':'')} style={itemStyle}>
                     <div className="tree-item-label" onClick={this.onNodeSelect} title={node.getLabel()}
                          data-id={node.getPath()}>
-                        {hasChildren}<span className={"tree-icon " + icon}></span>{forceLabel?forceLabel:node.getLabel()}
+                        {hasChildren}<span className={"tree-icon " + icon}></span>{forceLabel?forceLabel:node.getLabel()}{loader}
                     </div>
                     {boxes}
                 </ContextMenuWrapper>
@@ -368,6 +380,7 @@ class DNDTreeView extends React.Component {
         forceExpand:PropTypes.bool,
         // Optional currently selected detection
         nodeIsSelected: PropTypes.func,
+        showLoader:PropTypes.bool,
         // Optional checkboxes
         checkboxes:PropTypes.array,
         checkboxesValues:PropTypes.object,
@@ -408,6 +421,7 @@ class DNDTreeView extends React.Component {
                     getItemStyle={this.props.getItemStyle}
                     paddingOffset={this.props.paddingOffset}
                     noPaginator={this.props.noPaginator}
+                    showLoader={this.props.showLoader}
                 />
             </ul>
         )
@@ -428,6 +442,7 @@ class TreeView extends React.Component {
         forceExpand:PropTypes.bool,
         // Optional currently selected detection
         nodeIsSelected: PropTypes.func,
+        showLoader:PropTypes.bool,
         // Optional checkboxes
         checkboxes:PropTypes.array,
         checkboxesValues:PropTypes.object,
@@ -467,6 +482,7 @@ class TreeView extends React.Component {
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
                     paddingOffset={this.props.paddingOffset}
+                    showLoader={this.props.showLoader}
                 />
             </ul>
         )

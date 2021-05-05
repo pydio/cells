@@ -46,7 +46,7 @@ const styles = {
         underlineStyle:{opacity:1, bottom: 0},
         underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
         floatingLabelFixed: true,
-        floatingLabelStyle:{top:26, left: 8, ...noWrap},
+        floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:26, left: 8},
         errorStyle:{position:'absolute', bottom:8, right:8}
     },
@@ -72,9 +72,9 @@ const styles = {
         underlineStyle: {opacity:1, bottom: 0, left: 0, right: 0},
         underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
         floatingLabelFixed: true,
-        floatingLabelStyle:{top:26, left: 8, ...noWrap},
+        floatingLabelStyle:{top:26, left: 8, width:'127%', ...noWrap},
         floatingLabelShrinkStyle:{top:26, left: 8},
-        dropDownMenuProps:{iconStyle:{fill: '#9e9e9e'}}
+        dropDownMenuProps:{iconStyle:{right: 0, fill: '#9e9e9e'}}
     },
     div:{
         backgroundColor:'rgba(224, 224, 224, 0.33)', color:'rgba(0,0,0,.5)',

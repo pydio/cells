@@ -314,6 +314,8 @@ let PluginEditor = createReactClass({
                     setHelperData={this.showHelper}
                     checkHasHelper={this.parameterHasHelper}
                     onScrollCallback={this.monitorMainPaneScrolling}
+                    variant={"v2"}
+                    variantShowLegend={true}
                 />
                 <PydioForm.PydioHelper
                     helperData={this.state?this.state.helperData:null}
