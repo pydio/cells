@@ -75,6 +75,15 @@ func init() {
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
 
 				mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
+
+				m.Init(
+					micro.BeforeStop(func() error {
+						if handler.queue != nil {
+							return handler.queue.Close()
+						}
+						return nil
+					}),
+				)
 				return nil
 			}),
 		)
