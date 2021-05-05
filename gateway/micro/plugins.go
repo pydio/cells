@@ -29,12 +29,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/micro/go-api"
 	ahandler "github.com/micro/go-api/handler"
-	ahttp "github.com/micro/go-api/handler/http"
+
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro/router"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
+	ahttp "github.com/pydio/cells/common/micro/api/http"
 )
 
 func init() {

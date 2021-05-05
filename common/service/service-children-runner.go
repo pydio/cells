@@ -38,7 +38,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/configx"
@@ -177,7 +176,6 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 		if err := cmd.Wait(); err != nil {
 			if err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" {
 				log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
-				registry.Default.SetServiceStopped(name)
 				c.mutex.Lock()
 				delete(c.services, source)
 				c.mutex.Unlock()

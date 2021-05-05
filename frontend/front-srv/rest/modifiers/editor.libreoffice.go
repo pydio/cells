@@ -19,7 +19,7 @@ import (
 var (
 	editorLibreOfficeTemplate    *template.Template
 	editorLibreOfficeTemplateStr = `
-        proxy /wopi/ {{.WOPI | urls}} {
+        proxy /wopi/ {{.WOPI}} {
             transparent
 			header_upstream Host {{if .Site.ExternalHost}}{{.Site.ExternalHost}}{{else}}{host}{{end}}
 			header_upstream X-Real-IP {remote}

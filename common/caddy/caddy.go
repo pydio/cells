@@ -44,6 +44,8 @@ import (
 	registry2 "github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
+
+	_ "github.com/pydio/cells/common/caddy/proxy"
 )
 
 const (
@@ -69,7 +71,6 @@ func init() {
 	restartChan = make(chan bool, 1)
 
 	go watchRestart()
-
 }
 
 func watchRestart() {
@@ -105,6 +106,7 @@ type TemplateFunc func(site ...SiteConf) (*bytes.Buffer, error)
 
 // Enable the caddy builder
 func Enable(caddyfile string, player TemplateFunc) {
+	httpserver.RegisterDevDirective("pydioproxy", "proxy")
 	caddytemplate, err := template.New("pydiocaddy").Funcs(FuncMap).Parse(caddyfile)
 	if err != nil {
 		log.Fatal("could not load template: ", zap.Error(err))

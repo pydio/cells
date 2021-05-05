@@ -376,7 +376,6 @@ func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (s
 }
 
 func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
-	// TODO - rework this
 	if err == nil {
 		return
 	}
@@ -390,15 +389,14 @@ func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
 	// retry on timeout or internal server error
 	case 408, 500:
 		if strings.Contains(e.Detail, balancer.ErrTransientFailure.Error()) {
-			c.nodesInErrorLock.RLock()
-			cnt, ok := c.nodesInError[node.Id]
-			c.nodesInErrorLock.RUnlock()
-			if !ok {
-				cnt = 0
+			cachedService := c.cp(c.cache[service])
+
+			if len(cachedService) > 0 {
+				cachedService[0].Nodes = []*registry.Node{node}
+
+				// Deregistering service node
+				c.so.Registry.Deregister(cachedService[0])
 			}
-			c.nodesInErrorLock.Lock()
-			c.nodesInError[node.Id] = cnt + 1
-			c.nodesInErrorLock.Unlock()
 		}
 	}
 
