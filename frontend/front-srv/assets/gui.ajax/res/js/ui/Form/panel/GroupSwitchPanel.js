@@ -118,6 +118,8 @@ export default class extends React.Component {
     };
 
     render() {
+        const {variant, variantShowLegend} = this.props;
+
         const attributes = this.props.paramAttributes;
         const values = this.props.values;
 
@@ -139,7 +141,7 @@ export default class extends React.Component {
                 attributes={{
                     name:paramName,
                     choices:selectorValues,
-                    label:attributes['label'],
+                    label:attributes['label'] +  (variantShowLegend ? (' - ' + attributes['description']) : ''),
                     mandatory:attributes['mandatory']
                 }}
                 value={values[paramName]}
@@ -147,6 +149,7 @@ export default class extends React.Component {
                 displayContext='form'
                 disabled={this.props.disabled}
                 ref="subFormSelector"
+                variant={this.props.variant}
             />
         );
 
@@ -179,12 +182,14 @@ export default class extends React.Component {
                     onAltTextSwitch={onAltTextSwitch}
                     altTextSwitchIcon={altTextSwitchIcon}
                     altTextSwitchTip={altTextSwitchTip}
+                    variant={this.props.variant}
+                    variantShowLegend={this.props.variantShowLegend}
                 />
             );
         }
         return (
             <div className="sub-form-group">
-                <div className="form-legend">{attributes['description']} {helperMark}</div>
+                {variant !== 'v2' && <div className="form-legend">{attributes['description']} {helperMark}</div>}
                 {selector}
                 {subForm}
             </div>

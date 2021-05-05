@@ -67,7 +67,7 @@ class ValidPassword extends React.Component{
 
     render(){
         const {disabled, className, attributes, dialogField} = this.props;
-        const {isDisplayGrid, isDisplayForm, editMode, value, toggleEditMode, enterToToggle} = this.props;
+        const {isDisplayGrid, isDisplayForm, editMode, value, toggleEditMode, enterToToggle, variant} = this.props;
 
         if(isDisplayGrid() && !editMode){
             return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? value : 'Empty'}</div>;
@@ -80,7 +80,6 @@ class ValidPassword extends React.Component{
             let confirm;
             const TextComponent = dialogField ? TextField : ModernTextField;
             if(value && !disabled){
-
                 confirm = [
                     <div key="sep" style={{width: 8}}></div>,
                     <TextComponent
@@ -99,12 +98,13 @@ class ValidPassword extends React.Component{
                         style={{flex:1}}
                         errorText={this.state.confirmErrorText}
                         errorStyle={dialogField?{bottom: -5}:null}
+                        variant={variant}
                     />
                 ];
             }
             return(
                 <form autoComplete="off" onSubmit={(e)=>{e.stopPropagation(); e.preventDefault()}}>
-                    <div style={{display:'flex'}}>
+                    <div style={{display:'flex', height:variant === 'v2'?66:null}}>
                         <TextComponent
                             ref="pass"
                             hintText={isDisplayGrid()?null:attributes.label}
@@ -121,6 +121,7 @@ class ValidPassword extends React.Component{
                             fullWidth={true}
                             style={{flex:1}}
                             errorStyle={dialogField?{bottom: -5}:null}
+                            variant={variant}
                         />
                         {confirm}
                     </div>

@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import {AutoComplete, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 const styles = {
     th: {
@@ -176,10 +176,9 @@ class SitesParameters extends React.Component {
                     <div style={{padding: '8px 16px 2px'}}>
 
                         <div style={{paddingBottom:8, fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html: m('sites.externals.details')}}/>
-
-                        <div className={"form-legend"}>{m('sites.mailer.url')}{mailDirty && " " + m('sites.enter-to-save')}</div>
-                        <AutoComplete
+                        <ModernAutoComplete
                             {...ModernStyles.textField}
+                            floatingLabelText={m('sites.mailer.url') + (mailDirty ? (" " + m('sites.enter-to-save')):'')}
                             hintText={defaultSite || m('sites.no-defaults')}
                             dataSource={completeValues}
                             filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
@@ -191,9 +190,9 @@ class SitesParameters extends React.Component {
                         />
                     </div>
                     <div style={{padding: '0 16px 16px'}}>
-                        <div className={"form-legend"}>{m('sites.links.url')}{shareDirty && " " + m('sites.enter-to-save')}</div>
-                        <AutoComplete
+                        <ModernAutoComplete
                             {...ModernStyles.textField}
+                            floatingLabelText={m('sites.links.url') + (shareDirty ? (" " + m('sites.enter-to-save')):'')}
                             hintText={defaultSite || m('sites.no-defaults')}
                             dataSource={completeValues}
                             filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}

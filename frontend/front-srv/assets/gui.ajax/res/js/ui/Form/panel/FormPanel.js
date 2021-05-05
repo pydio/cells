@@ -364,8 +364,8 @@ export default createReactClass({
                     const {description, readonly, multiple} = attributes;
                     const legendLabel = warningText?warningText:description;
                     let {label} = attributes;
-                    if(variantShowLegend){
-                        label = <Fragment>{label} <span style={{color:'#03a9f4'}}>- {legendLabel}</span></Fragment>;
+                    if(variantShowLegend && attributes.type !== 'boolean'){
+                        label = <Fragment>{label} <span>- {legendLabel}</span></Fragment>;
                     }
 
                     const props = {
@@ -382,13 +382,21 @@ export default createReactClass({
                         displayContext:'form',
                         applyButtonAction:this.applyButtonAction,
                         variant:variant,
+                        variantShowLegend:variantShowLegend,
                         errorText:mandatoryMissing? Pydio.getInstance().MessageHash['621']:( errorText?errorText:null ),
                         onAltTextSwitch, altTextSwitchIcon, altTextSwitchTip
                     };
 
+                    const v2Legend = {
+                        padding: '6px 3px',
+                        color: '#616161',
+                        fontSize: 14
+                    }
+
                     field = (
                         <div key={paramName} className={'form-entry-' + type}>
                             {variant !== 'v2' && <div className={classLegend}>{legendLabel} {helperMark}</div>}
+                            {(variant === 'v2' && attributes.type === 'legend') && <div style={v2Legend}>{legendLabel} {helperMark}</div>}
                             {FormManager.createFormElement(props)}
                         </div>
                     );

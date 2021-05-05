@@ -203,8 +203,10 @@ class InputImage extends React.Component {
             overlay = <span className={"mdi mdi-camera"} style={{fontSize: 40, opacity: .5, color:isDefault?null:'white'}}/>
         }
 
+        const {variant} = this.props
+
         return(
-            <div>
+            <div style={variant==='v2'?{backgroundColor:'#f6f6f8'}:null}>
                 <div className="image-label">{this.props.attributes.label}</div>
                 <form ref="uploadForm" encType="multipart/form-data" target="uploader_hidden_iframe" method="post" action={this.getUploadUrl()}>
                     <BinaryDropZone onDrop={this.onDrop.bind(this)} accept="image/*" style={coverImageStyle}>
