@@ -65,11 +65,7 @@ var SampleConfig = `{
 				"@value": "boltdb"
 			},
 			"sender": {
-				"@value": "smtp",
-				"host": "my.smtp.server",
-				"password": "",
-				"port": 465,
-				"user": "name"
+				"@value": "disabled"
 			}
 		},
         "pydio.grpc.role":{
