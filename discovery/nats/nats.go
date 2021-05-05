@@ -63,7 +63,6 @@ func Init() {
 		log.Info("NATS already started, cluster configuration deferred to running NATS")
 
 		c.SetDisconnectErrHandler(nats.ConnErrHandler(func(_ *nats.Conn, err error) {
-			fmt.Println("Disconnected")
 			unavailable <- err
 		}))
 

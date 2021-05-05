@@ -60,9 +60,8 @@ type Registry interface {
 	ListServicesWithFilter(func(Service) bool) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
-	SetServiceStopped(string) error
 	Filter(func(Service) bool) error
-	Watch() (Watcher, error)
+	Watch() (registry.Watcher, error)
 	String() string
 	Options() Options
 
@@ -110,7 +109,7 @@ func ListRunningServices() ([]Service, error) {
 }
 
 // Watch triggers a watch of the default registry
-func Watch() (Watcher, error) {
+func Watch() (registry.Watcher, error) {
 	return Default.Watch()
 }
 
@@ -219,8 +218,8 @@ func (c *pydioregistry) Filter(f func(s Service) bool) error {
 }
 
 // Watch the registry for new entries
-func (c *pydioregistry) Watch() (Watcher, error) {
-	return newWatcher(), nil
+func (c *pydioregistry) Watch() (registry.Watcher, error) {
+	return defaults.Registry().Watch()
 }
 
 // String representation of the registry

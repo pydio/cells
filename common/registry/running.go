@@ -65,20 +65,6 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 	return result, nil
 }
 
-// SetServiceStopped artificially removes a service from the running services list
-// This may be necessary for processes started as forks and crashing unexpectedly
-func (c *pydioregistry) SetServiceStopped(name string) error {
-	// c.runningmutex.Lock()
-	// defer c.runningmutex.Unlock()
-	// for k, v := range c.running {
-	// 	if v.Name == name {
-	// 		c.running = append(c.running[:k], c.running[k+1:]...)
-	// 		break
-	// 	}
-	// }
-	return nil
-}
-
 func (c *pydioregistry) maintainRunningServicesList() {
 
 	c.runninglock.Lock()
@@ -111,24 +97,12 @@ func (c *pydioregistry) maintainRunningServicesList() {
 	}()
 
 	go func() {
-		for {
-			defaults.Registry().ListServices()
-			time.Sleep(5 * time.Second)
-		}
-	}()
-
-	go func() {
 		for res := range results {
 			a := res.Action
 			s := res.Service
 
 			switch a {
 			case "create":
-				beforeCnt := 0
-				for _, peer := range c.peers {
-					beforeCnt = beforeCnt + len(peer.GetServices(s.Name))
-				}
-
 				for _, n := range s.Nodes {
 					if n == nil {
 						continue
@@ -144,23 +118,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 						})
 					}
 					c.registerProcessFromNode(n, s.Name)
-				}
-
-				afterCnt := 0
-				for _, peer := range c.peers {
-					afterCnt = afterCnt + len(peer.GetServices(s.Name))
-				}
-
-				// We check the overall service has just been started
-				if beforeCnt == 0 && afterCnt > 0 {
-					ss, ok := c.register[s.Name]
-					if !ok {
-						ss = NewMockFromMicroService(s)
-					}
-					send(&Result{
-						Action: "started",
-						Service: ss,
-					})
 				}
 			case "delete":
 				// We check the overall service has just been started
@@ -180,23 +137,6 @@ func (c *pydioregistry) maintainRunningServicesList() {
 						})
 					}
 					c.deregisterProcessFromNode(n, s.Name)
-				}
-
-				afterCnt := 0
-				for _, peer := range c.peers {
-					afterCnt = afterCnt + len(peer.GetServices(s.Name))
-				}
-
-				// We check the overall service has just been stopped
-				if beforeCnt > 0 && afterCnt == 0 {
-					ss, ok := c.register[s.Name]
-					if !ok {
-						ss = NewMockFromMicroService(s)
-					}
-					send(&Result{
-						Action: "stopped",
-						Service: ss,
-					})
 				}
 			}
 		}

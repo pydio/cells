@@ -89,7 +89,7 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		result, err := watcher.Next()
 		if result != nil && err == nil {
 			srv := result.Service
-			if strings.Contains(srv.Name(), common.ServiceDataSync_) {
+			if strings.Contains(srv.Name, common.ServiceDataSync_) {
 				updateServicesList(ctx, treeServer)
 			}
 		} else if err != nil {

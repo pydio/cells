@@ -46,8 +46,7 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	errorUtils "github.com/pydio/cells/common/utils/error"
-	// _ "github.com/pydio/cells/common/micro/server/grpc"
-	// _ "github.com/pydio/cells/common/micro/client/grpc"
+	_ "github.com/pydio/cells/common/caddy/proxy"
 )
 
 var (
@@ -76,40 +75,46 @@ var (
 	}
 	{{end}}
 
-	proxy /a  {{$.MicroService | urls}} {
+	pydioproxy /a  {{$.MicroService}} {
 		without /a
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /oidc {{$.OAuthService | urls}} {
+	pydioproxy /oidc {{$.OAuthService}} {
 		insecure_skip_verify
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /io   {{$.GatewayService | urls}} {
-		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-		header_downstream Content-Security-Policy "script-src 'none'"
-		header_downstream X-Content-Security-Policy "sandbox"
-	}
-	proxy /data {{$.GatewayService | urls}} {
+	pydioproxy /io   {{$.GatewayService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Content-Security-Policy "script-src 'none'"
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
-	proxy /ws   {{$.WebSocketService | urls}} {
+	pydioproxy /data {{$.GatewayService}} {
+		fail_timeout 20s
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Content-Security-Policy "script-src 'none'"
+		header_downstream X-Content-Security-Policy "sandbox"
+	}
+	pydioproxy /ws {{$.WebSocketService}} {
 		websocket
 		without /ws
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy /dav {{$.WebDAVService | urls}} {
+	pydioproxy /dav {{$.WebDAVService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -118,47 +123,56 @@ var (
 	}
 	
 {{if $.FrontReady}}
-	proxy /plug/ {{$.FrontendService | urls}} {
+	pydioproxy /plug/ {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy {{$.PublicBaseUri}}/ {{$.FrontendService | urls}} {
+	pydioproxy {{$.PublicBaseUri}}/ {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
-	proxy {{$.PublicBaseUri}}/plug/ {{$.FrontendService | urls}} {
+	pydioproxy {{$.PublicBaseUri}}/plug/ {{$.FrontendService}} {
+		fail_timeout 20s
 		without {{$.PublicBaseUri}}
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 		header_downstream Cache-Control "public, max-age=31536000"
 	}
-	proxy /user/reset-password/ {{$.FrontendService | urls}} {
+	pydioproxy /user/reset-password/ {{$.FrontendService}} {
+		fail_timeout 20s
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+	}
+
+	pydioproxy /robots.txt {{$.FrontendService}} {
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	
-	proxy /robots.txt {{$.FrontendService | urls}} {
-		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
-		header_upstream X-Real-IP {remote}
-		header_upstream X-Forwarded-Proto {scheme}
-	}
-	
-	proxy /login {{urls $.FrontendService "/gui"}} {
+	pydioproxy /login {{$.FrontendService}} {
 		without /login
+		with /gui
+		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 {{end}}
 {{if .HasTLS}}
-	proxy /grpc https://{{$.GrpcService | urls}} {
+	pydioproxy /grpc {{$.GrpcService}} {
+		tls
 		without /grpc
 		insecure_skip_verify
+		fail_timeout 20s
 	}
 	
 	rewrite {
@@ -351,13 +365,7 @@ func (g *gatewayProxyServer) Start() error {
 			log.Logger(ctx).Error("   and your application will be unreachable.")
 			log.Logger(ctx).Error("   $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>")
 			log.Logger(ctx).Error("*******************************************************************")
-		}
-
-		for {
-			if err == nil || !errorUtils.IsErrorPortBusy(err) {
-				break
-			}
-
+		} else if errorUtils.IsErrorPortBusy(err) {
 			//log.Logger(ctx).Error("port is busy - return retry error", zap.Error(err))
 			return errors.New(errorUtils.ErrServiceStartNeedsRetry + " - " + err.Error())
 		}

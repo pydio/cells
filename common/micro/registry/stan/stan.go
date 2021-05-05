@@ -106,11 +106,10 @@ func (n *stanRegistry) watch() error {
 func (n *stanRegistry) newConn() (stan.Conn, error) {
 	opts := n.nopts
 
-	opts = append(opts, stan.SetConnectionLostHandler(func (_ stan.Conn, _ error) {
-		fmt.Println("Lost connection")
-		n.exit <- struct{}{}
-		n.conn = nil
-	}))
+	//opts = append(opts, stan.SetConnectionLostHandler(func (_ stan.Conn, _ error) {
+	//	n.exit <- struct{}{}
+	//	n.conn = nil
+	//}))
 
 	conn, err := stan.Connect("cells", uuid.New().String(), opts...)
 	if err != nil {

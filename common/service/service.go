@@ -83,6 +83,7 @@ type Service interface {
 	Done() chan (struct{})
 }
 
+
 func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
@@ -282,76 +283,6 @@ var mandatoryOptions = []ServiceOption{
 
 		return nil
 	}),
-
-	// Adding a check before starting the service to ensure all dependencies are running
-	// BeforeStart(func(s Service) error {
-	// 	ctx := s.Options().Context
-
-	// 	log.Logger(ctx).Debug("BeforeStart - Check dependencies")
-
-	// 	dependencies := s.Options().Dependencies
-	// 	if len(dependencies) == 0 {
-	// 		return nil
-	// 	}
-
-	// 	results := make(chan registry.Service)
-
-	// 	go func() {
-	// 		defer close(results)
-
-	// 		// Then all the new ones that start
-	// 		w, err := registry.Watch()
-	// 		if err != nil {
-	// 			return
-	// 		}
-
-	// 		defer w.Stop()
-
-	// 		for {
-	// 			res, err := w.Next()
-	// 			if err != nil {
-	// 				break
-	// 			}
-
-	// 			if res.Action == "started" {
-	// 				fmt.Println("Service that are started ? ", res.Service.Name())
-	// 				results <- res.Service
-	// 			}
-
-	// 		}
-	// 	}()
-
-	// 	// First we list the currently running services
-	// 	runningServices, err := registry.ListRunningServices()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	for _, r := range runningServices {
-	// 		results <- r
-	// 	}
-
-	// 	for {
-	// 		select {
-	// 		case r := <-results:
-	// 			fmt.Println("Checking result vs dependencies ", s.Name(), dependencies, r.Name())
-	// 			for i, d := range dependencies {
-	// 				if d.Name == r.Name() {
-	// 					dependencies = append(dependencies[:i], dependencies[i+1:]...)
-	// 				}
-	// 			}
-
-	// 			if len(dependencies) == 0 {
-	// 				log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
-	// 				return nil
-	// 			}
-	// 		case <-time.After(20 * time.Minute):
-	// 			return errors.New("Dependency check timed out")
-	// 		}
-	// 	}
-
-	// 	return errors.New("Missing dependency")
-	// }),
 
 	// Adding a check before starting the service to ensure all dependencies are running
 	BeforeStart(func(s Service) error {

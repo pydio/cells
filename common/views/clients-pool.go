@@ -29,6 +29,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
+	microregistry "github.com/micro/go-micro/registry"
 	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
@@ -66,7 +67,7 @@ type ClientsPool struct {
 	treeClientWrite tree.NodeReceiverClient
 
 	genericClient client.Client
-	watcher       registry.Watcher
+	watcher       microregistry.Watcher
 	confWatcher   configx.Receiver
 }
 
@@ -259,10 +260,10 @@ func (p *ClientsPool) watchRegistry() {
 		result, err := watcher.Next()
 		if result != nil && err == nil {
 			srv := result.Service
-			if strings.Contains(srv.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) {
-				dsName := strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_)
+			if strings.Contains(srv.Name, common.ServiceGrpcNamespace_+common.ServiceDataSync_) {
+				dsName := strings.TrimPrefix(srv.Name, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 
-				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name()))
+				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name))
 				if _, ok := p.sources[dsName]; ok && result.Action == "stopped" {
 					// Reset list
 					p.Lock()

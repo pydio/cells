@@ -3,7 +3,9 @@ package registry
 import (
 	"context"
 	"github.com/google/uuid"
-	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
+	"log"
+	"net"
+	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
@@ -19,6 +21,36 @@ import (
 	"github.com/pydio/cells/common/micro/selector/cache"
 	"github.com/spf13/viper"
 )
+
+type customDialer struct {
+	ctx             context.Context
+	nc              *gonats.Conn
+	connectTimeout  time.Duration
+	connectTimeWait time.Duration
+}
+
+func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
+	ctx, cancel := context.WithTimeout(cd.ctx, cd.connectTimeout)
+	defer cancel()
+
+	for {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		select {
+		case <-cd.ctx.Done():
+			return nil, cd.ctx.Err()
+		default:
+			d := &net.Dialer{}
+			if conn, err := d.DialContext(ctx, network, address); err == nil {
+				return conn, nil
+			} else {
+				time.Sleep(cd.connectTimeWait)
+			}
+		}
+	}
+}
 
 func EnableNats() {
 	addr := viper.GetString("nats_address")
@@ -49,20 +81,49 @@ func EnableNats() {
 
 func EnableStan() {
 	addr := viper.GetString("nats_address")
-	nc, _ := gonats.Connect(addr,
-		gonats.Name(uuid.New().String()),
-	)
-	nc.SetDisconnectErrHandler(func(_ *gonats.Conn, _ error) {
-		// Attempting to start a server if we've been kicked off
-		natsstreaming.Init()
-	})
 
-	if nc == nil {
-		natsstreaming.Init()
+	var err error
+	var nc *gonats.Conn
 
-		nc, _ = gonats.Connect(addr,
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	cd := &customDialer{
+		ctx:             ctx,
+		connectTimeout:  10 * time.Second,
+		connectTimeWait: 1 * time.Second,
+	}
+
+	go func() {
+		nc, err = gonats.Connect(addr,
 			gonats.Name(uuid.New().String()),
+			gonats.SetCustomDialer(cd),
+			gonats.Timeout(10*time.Second),
 		)
+	}()
+
+WaitForEstablishedConnection:
+	for {
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Wait for context to be canceled either by timeout
+		// or because of establishing a connection...
+		select {
+		case <-ctx.Done():
+			break WaitForEstablishedConnection
+		default:
+		}
+
+		if nc == nil || !nc.IsConnected() {
+			time.Sleep(200 * time.Millisecond)
+			continue
+		}
+		break WaitForEstablishedConnection
+	}
+	if ctx.Err() != nil {
+		log.Fatal(ctx.Err())
 	}
 
 	r := stan.NewRegistry(

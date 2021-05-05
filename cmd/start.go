@@ -23,6 +23,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -140,11 +141,14 @@ ENVIRONMENT
 			}
 		}
 
+		var initStartingToolsError error
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
 
 			// nats.Init()
-			// natsstreaming.Init()
+			if initStartingToolsError = natsstreaming.Init(); initStartingToolsError != nil {
+				return
+			}
 
 			metrics.Init()
 
@@ -160,6 +164,10 @@ ENVIRONMENT
 			// Making sure we capture the signals
 			handleSignals()
 		})
+
+		if initStartingToolsError != nil {
+			return initStartingToolsError
+		}
 
 		if config.RuntimeIsRemote() {
 			// For a remote server, we are waiting for the registry to be set to initiate config
@@ -292,13 +300,14 @@ ENVIRONMENT
 			select {
 			case err := <-nats.Monitor():
 				return err
+			case err := <-natsstreaming.Monitor():
+				return err
 			case <-ticker.C:
 				if defaults.RuntimeIsFork() {
 					// Check that the parent is still alive
 					ppid := fmt.Sprintf("%d", os.Getppid())
 					_, ok := registry.GetProcesses()[ppid]
 					if !ok {
-						fmt.Println("HERE WE GO")
 						return errors.New("parent process died")
 					}
 				}
