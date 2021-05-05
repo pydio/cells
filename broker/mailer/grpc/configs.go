@@ -49,28 +49,17 @@ var ExposedConfigs = &forms.Form{
 				Mandatory:   false,
 				Type:        forms.ParamString,
 			},
-			&forms.SwitchField{
+			&forms.FormField{
 				Name:        "fromCtl",
 				Label:       "Mail.Config.FromCtl.Label",
 				Description: "Mail.Config.FromCtl.Description",
 				Mandatory:   false,
 				Default:     "user",
-				Values: []*forms.SwitchValue{
-					{
-						Name:  "name",
-						Label: "Mail.Config.FromCtlUser.Label",
-						Value: "user",
-					},
-					{
-						Name:  "name",
-						Label: "Mail.Config.FromCtlSender.Label",
-						Value: "sender",
-					},
-					{
-						Name:  "name",
-						Label: "Mail.Config.FromCtlDefault.Label",
-						Value: "default",
-					},
+				Type:        forms.ParamSelect,
+				ChoicePresetList: []map[string]string{
+					{"user": "Mail.Config.FromCtlUser.Label"},
+					{"sender": "Mail.Config.FromCtlSender.Label"},
+					{"default": "Mail.Config.FromCtlDefault.Label"},
 				},
 			},
 			&forms.FormField{
