@@ -56,6 +56,7 @@ class StepShares extends React.Component {
                 <StepLabel>{this.T('title')}</StepLabel>
                 <StepContent>
                     <div style={styles.stepLegend}>{this.T('legend')}</div>
+                    <div style={styles.stepLegend}>{this.T('legend.warning')}</div>
 
                     <div style={{marginTop: 10}}>{this.T('restrict.type')}</div>
                     <div style={{padding:'10px 0'}}>

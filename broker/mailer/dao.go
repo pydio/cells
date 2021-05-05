@@ -79,6 +79,12 @@ func GetSender(ctx context.Context, t string, conf configx.Values) (Sender, erro
 	case "sendgrid":
 		sender = &SendGrid{}
 
+	case "noop":
+		sender = &NoOpSender{valid: true}
+
+	case "disabled":
+		sender = &NoOpSender{valid: false}
+
 	case "sendmail":
 		sender = &Sendmail{}
 	}

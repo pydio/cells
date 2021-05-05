@@ -7136,6 +7136,11 @@ var SwaggerJson = `{
             "$ref": "#/definitions/idmRole"
           },
           "title": "List of Roles"
+        },
+        "Total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Total in DB"
         }
       },
       "title": "Roles Collection"

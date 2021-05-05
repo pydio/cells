@@ -454,6 +454,11 @@ class AddressBook extends React.Component {
             let emptyStateSecondary;
             let otherProps = {};
             if(selectedItem.id === 'teams'){
+                otherProps = {
+                    paginatorFolder: selectedItem.pagination?'numeric':null,
+                    paginatorLabel: selectedItem.label,
+                    paginatorCallback: this.reloadCurrentAtPage.bind(this),
+                };
                 if (teamsEditable){
                     emptyStatePrimary = getMessage(571, '');
                     emptyStateSecondary = getMessage(572, '');

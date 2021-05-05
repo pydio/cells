@@ -173,6 +173,19 @@ func (h *Handler) SearchRole(ctx context.Context, request *idm.SearchRoleRequest
 	return nil
 }
 
+// CountRole in database
+func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest, response *idm.CountRoleResponse) error {
+	dao := servicecontext.GetDAO(ctx).(role.DAO)
+
+	count, err := dao.Count(request.Query);
+	if err != nil {
+		return err
+	}
+	response.Count = count
+
+	return nil
+}
+
 // StreamRole from database
 func (h *Handler) StreamRole(ctx context.Context, streamer idm.RoleService_StreamRoleStream) error {
 	dao := servicecontext.GetDAO(ctx).(role.DAO)

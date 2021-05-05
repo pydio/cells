@@ -73,7 +73,7 @@ class Loaders{
     }
 
     static loadTeams(entry, callback){
-        let offset = 0, limit = -1; // Roles API does not provide pagination info !
+        let offset = 0, limit = StdLimit; // Roles API does not provide pagination info !
         if(entry.range){
             let [start, end] = entry.range.split('-');
             offset = parseInt(start);

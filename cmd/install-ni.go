@@ -30,16 +30,21 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/config"
-
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/discovery/install/lib"
+	json "github.com/pydio/cells/x/jsonx"
 )
+
+type NiInstallConfig struct{
+	install.InstallConfig `yaml:",inline"`
+	ProxyConfigs []*install.ProxyConfig `json:"proxyConfigs" yaml:"proxy_configs"`
+	CustomConfigs map[string]interface{} `json:"customConfigs" yaml:"custom_configs"`
+}
 
 func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {
 
@@ -138,39 +143,60 @@ func installFromConf() (*install.InstallConfig, error) {
 		return nil, err
 	}
 
+	updateMultiple := false
 	if installConf.ProxyConfig == nil {
 		fmt.Println(".... No proxy config")
 		if envProxy, e := proxyConfigFromArgs(); e == nil {
 			fmt.Println(".... No error while retrieving proxy from args")
 			fmt.Printf(".... Env Proxy: %v\n", envProxy)
 			installConf.ProxyConfig = envProxy
+			updateMultiple = true
 		}
 	}
 	if installConf.ProxyConfig == nil {
 		installConf.ProxyConfig = config.DefaultBindingSite
+		updateMultiple = true
 	}
 
-	// Preconfiguring proxy:
-	err = applyProxySites([]*install.ProxyConfig{installConf.GetProxyConfig()})
+	// Preconfiguring Sites
+	if updateMultiple {
+		installConf.ProxyConfigs = append(installConf.ProxyConfigs, installConf.ProxyConfig)
+	}
+	err = applyProxySites(installConf.ProxyConfigs)
 	if err != nil {
 		return nil, fmt.Errorf("could not preconfigure proxy: %s", err.Error())
 	}
 
+	// Preconfiguring any custom value passed in Json/Yaml
+	if installConf.CustomConfigs != nil {
+		for k, v := range installConf.CustomConfigs {
+			fmt.Println(".... Setting custom configuration key " + k)
+			cPath := strings.Split(k, "/")
+			if e := config.Set(v, cPath...); e != nil {
+				return nil, fmt.Errorf("could not set value for config key " + k)
+			}
+		}
+		if e := config.Save(common.PydioSystemUsername, "Setting custom configs from installation file"); e != nil {
+			return nil, e
+		}
+	}
+
+	iConf := &installConf.InstallConfig
 	if installConf.FrontendLogin == "" {
 		// only proxy conf => return and launch browser install server
 		fmt.Println("FrontendLogin not specified in conf, starting browser-based installation")
 		// Make a copy (including defaults => including FrontendLogin) and store it as Partial
-		i := *installConf
+		i := *iConf
 		err = lib.MergeWithDefaultConfig(&i)
 		if err != nil {
 			return nil, err
 		}
 		lib.PartialDefaultConfig = &i
-		return installConf, nil
+		return iConf, nil
 	}
 
 	// Merge with GetDefaults()
-	err = lib.MergeWithDefaultConfig(installConf)
+	err = lib.MergeWithDefaultConfig(iConf)
 	if err != nil {
 		log.Fatal("Could not merge conf with defaults", err)
 	}
@@ -178,7 +204,7 @@ func installFromConf() (*install.InstallConfig, error) {
 	// Check if pre-configured DB is up and running
 	nbRetry := 20
 	for i := 0; i < nbRetry; i++ {
-		if res := lib.PerformCheck(context.Background(), "DB", installConf); res.Success {
+		if res := lib.PerformCheck(context.Background(), "DB", iConf); res.Success {
 			break
 		}
 		if i == nbRetry-1 {
@@ -189,19 +215,19 @@ func installFromConf() (*install.InstallConfig, error) {
 		<-time.After(10 * time.Second)
 	}
 
-	err = lib.Install(context.Background(), installConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+	err = lib.Install(context.Background(), iConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
 		fmt.Println(event.Message)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error while performing installation: %s", err.Error())
 	}
 
-	return installConf, nil
+	return iConf, nil
 }
 
-func unmarshallConf() (*install.InstallConfig, error) {
+func unmarshallConf() (*NiInstallConfig, error) {
 
-	var confFromFile *install.InstallConfig
+	confFromFile := &NiInstallConfig{}
 	var path string
 
 	if niYamlFile != "" {
@@ -232,6 +258,25 @@ func unmarshallConf() (*install.InstallConfig, error) {
 		err = json.Unmarshal(file, &confFromFile)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing JSON file at %s: %s", niJsonFile, err.Error())
+		}
+	}
+
+	if confFromFile.ProxyConfig != nil && len(confFromFile.ProxyConfigs) > 0 {
+		return nil, fmt.Errorf("Use one of proxyConfig or proxyConfigs keys, but not both")
+	}
+
+	if confFromFile.ProxyConfig != nil {
+		confFromFile.ProxyConfigs = append(confFromFile.ProxyConfigs, confFromFile.ProxyConfig)
+	} else if len(confFromFile.ProxyConfigs) > 0 {
+		confFromFile.ProxyConfig = confFromFile.ProxyConfigs[0]
+	}
+
+	if confFromFile.CustomConfigs != nil {
+		if title, o := confFromFile.CustomConfigs["frontend/plugin/core.pydio/APPLICATION_TITLE"]; o {
+			confFromFile.FrontendApplicationTitle = title.(string)
+		}
+		if lang, o := confFromFile.CustomConfigs["frontend/plugin/core.pydio/DEFAULT_LANGUAGE"]; o {
+			confFromFile.FrontendDefaultLanguage = lang.(string)
 		}
 	}
 

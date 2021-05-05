@@ -27,7 +27,6 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/x/configx"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -79,24 +78,6 @@ func init() {
 			}),
 		)
 	})
-}
-
-func watchConfigChanges(ctx context.Context, handler *Handler) (configx.Receiver, error) {
-	watcher, err := config.Watch("services", Name)
-	if err != nil {
-		return nil, err
-	}
-	go func() {
-		for {
-			_, err := watcher.Next()
-			if err != nil {
-				return
-			}
-			log.Logger(ctx).Info("Refreshing configs - Checking it's valid")
-			handler.checkConfigChange(ctx, true)
-		}
-	}()
-	return watcher, nil
 }
 
 // RegisterQueueJob adds a job to the scheduler to regularly flush the queue

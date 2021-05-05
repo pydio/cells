@@ -104,7 +104,11 @@ func New(store configx.Entrypoint) Store {
 
 // Save the config in the hard store
 func Save(ctxUser string, ctxMessage string) error {
-	return std.Save(ctxUser, ctxMessage)
+	er := std.Save(ctxUser, ctxMessage)
+	if er != nil {
+		fmt.Println("Cannot save config", er)
+	}
+	return er
 }
 
 // Watch for config changes for a specific path or underneath
