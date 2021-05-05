@@ -1706,21 +1706,15 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 .react-mui-context .mui-menu-item.tree-item.has-checkboxes {
   display: flex;
   flex-direction: row;
-  height: 48px;
+  height: 40px;
   border-bottom: 1px solid #f4f4f4;
 }
 .react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-item-label {
   flex: 1;
+  padding: 11px 0;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-}
-.react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-checkboxes {
-  padding-top: 7px;
-}
-.react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-checkboxes .mui-checkbox {
-  width: 44px;
-  display: inline-block;
 }
 .react-mui-context .mui-menu-item .tree-icon {
   font-size: 16px;
