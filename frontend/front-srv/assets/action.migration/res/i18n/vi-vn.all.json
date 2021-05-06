@@ -167,11 +167,14 @@
   "step.shares.legend": {
     "other": "Import Pydio 8 public links và các thư mục được chia sẻ vào Cells. Public links sẽ được tạo ra với cùng một mã định danh và thuộc tính (mật khẩu, hết hạn, vv...). Cặp chia sẻ như workspaces trong Pydio 8 sẽ được ánh xạ tới các Cells mới."
   },
+  "step.shares.legend.warning": {
+    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
+  },
   "step.shares.restrict.type": {
     "other": "1. Giới hạn loại chia sẻ được import (chọn ít nhất một):"
   },
   "step.shares.restrict.user": {
-    "other": "2. Đối với mục đích thử nghiệm, bạn có thể giới hạn import cho một user cụ thể"
+    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
   },
   "step.shares.restrict.user.login": {
     "other": "Chủ sở hữu đăng nhập"

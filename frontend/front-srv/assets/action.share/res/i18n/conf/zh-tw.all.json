@@ -110,8 +110,8 @@
   "Maximum file expiration limit": {
     "other": "Maximum file expiration limit"
   },
-  "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file, 0 = unlimited"
+  "Maximum share expiration limit for file in days, 0 = unlimited": {
+    "other": "Maximum share expiration limit for file in days, 0 = unlimited"
   },
   "Minimum length of the generated hash": {
     "other": "Minimum length of the generated hash"
