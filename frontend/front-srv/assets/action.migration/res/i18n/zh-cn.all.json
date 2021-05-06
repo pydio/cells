@@ -167,11 +167,14 @@
   "step.shares.legend": {
     "other": "将 Pydio 8 公开连接和共享文件夹导入到Cells中。公开链接将用相同的标识符和属性创建(密码、到期等)。在 Pydio 8 中作为工作区共享的文件夹将被映射到新的资料库。"
   },
+  "step.shares.legend.warning": {
+    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
+  },
   "step.shares.restrict.type": {
     "other": "1. Restrict the type of shares to be imported (select at least one):"
   },
   "step.shares.restrict.user": {
-    "other": "2. For testing purpose, you can limit import to a specific user"
+    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
   },
   "step.shares.restrict.user.login": {
     "other": "Owner login"

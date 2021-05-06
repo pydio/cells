@@ -110,7 +110,7 @@
   "Maximum file expiration limit": {
     "other": "Максимальный срок доступности файла"
   },
-  "Maximum share expiration limit for file, 0 = unlimited": {
+  "Maximum share expiration limit for file in days, 0 = unlimited": {
     "other": "Максимальный срок доступности ссылки, 0 = без ограничений"
   },
   "Minimum length of the generated hash": {
