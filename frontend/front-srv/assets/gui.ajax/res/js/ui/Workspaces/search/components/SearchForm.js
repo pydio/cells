@@ -293,7 +293,7 @@ class SearchForm extends Component {
                             onClick={() => {onCloseAdvanced()}}
                         />
                     </div>
-                    <div style={{flex:1, display:'flex',  flexDirection:xtraSmallScreen?'column':'row'}}>
+                    <div style={{flex:1, display:'flex',  flexDirection:xtraSmallScreen?'column':'row', overflow:'hidden'}}>
                         <AdvancedSearch
                             {...this.props}
                             values={values}

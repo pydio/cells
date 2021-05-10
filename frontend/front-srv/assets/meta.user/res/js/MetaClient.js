@@ -142,13 +142,13 @@ class MetaClient{
                 });
                 arrConfigs.map((value) => {
                     const type = value.type;
-                    if(type === 'choice' && value.data){
-                        let values = new Map();
-                        value.data.split(",").map(function(keyLabel){
-                            const parts = keyLabel.split("|");
-                            values.set(parts[0], parts[1]);
+                    if(type === 'choice' && value.data && value.data.split){
+                        // Convert old format to new format
+                        const items = value.data.split(',').map(i => {
+                            const [key, value] = i.split('|')
+                            return {key, value};
                         });
-                        value.data = values;
+                        value.data = {items};
                     }
                     configMap.set(value.ns, value);
                 });

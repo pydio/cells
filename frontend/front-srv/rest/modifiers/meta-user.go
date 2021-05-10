@@ -105,6 +105,15 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			if ns.Indexable {
 				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelTags"
 			}
+		case "integer":
+			column.AttrreactModifier = "ReactMeta.Renderer.renderInteger"
+			if data, ok := nsDef["data"]; ok {
+				remarshed, _ := json.Marshal(data)
+				column.AttrmetaAdditional = string(remarshed)
+			}
+			if ns.Indexable {
+				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelInteger"
+			}
 		case "boolean":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderBoolean"
 			if ns.Indexable {

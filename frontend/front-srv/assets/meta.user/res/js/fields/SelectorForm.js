@@ -19,7 +19,7 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {MenuItem} from 'material-ui'
+import {MenuItem, IconButton} from 'material-ui'
 import asMetaForm from "../hoc/asMetaForm";
 const {ModernSelectField} = Pydio.requireLib('hoc')
 
@@ -37,14 +37,19 @@ class SelectorForm extends React.Component{
     componentDidMount(){
         const {itemsLoader} = this.props;
         if(itemsLoader){
-            itemsLoader((items) => {
-                this.setState({menuItems: items});
+            itemsLoader((items, keys, stepper) => {
+                this.setState({menuItems: items, keys, stepper});
             })
         }
     }
 
-    render(){
+    next() {
 
+    }
+
+    render(){
+        const {stepper, keys = []} = this.state;
+        const {value, label, updateValue, search} = this.props;
         let menuItems;
         if(this.state.menuItems === undefined){
             menuItems = [...this.props.menuItems]
@@ -53,12 +58,36 @@ class SelectorForm extends React.Component{
         }
         menuItems.unshift(<MenuItem value={''} primaryText=""/>);
         return (
-            <div>
-                <ModernSelectField
-                    style={{width:'100%'}}
-                    value={this.props.value}
-                    hintText={this.props.label}
-                    onChange={this.changeSelector.bind(this)}>{menuItems}</ModernSelectField>
+            <div style={{display:'flex'}}>
+                {stepper && !search &&
+                <div>
+                    <IconButton
+                        iconClassName={"mdi mdi-chevron-left"}
+                        tooltip={"Previous Step"}
+                        onClick={()=>updateValue(keys[keys.indexOf(value)-1], true)}
+                        disabled={keys.indexOf(value) <= 0}
+                        style={{width: 28, padding:'12px 0'}}
+                    />
+                </div>
+                }
+                <div style={{flex:1}}>
+                    <ModernSelectField
+                        fullWidth={true}
+                        value={value}
+                        hintText={label}
+                        onChange={this.changeSelector.bind(this)}>{menuItems}</ModernSelectField>
+                </div>
+                {stepper && !search &&
+                <div>
+                    <IconButton
+                        iconClassName={"mdi mdi-chevron-right"}
+                        tooltip={"Next Step"}
+                        onClick={()=>updateValue(keys[keys.indexOf(value)+1], true)}
+                        disabled={keys.indexOf(value) >= keys.length-1}
+                        style={{width: 28, padding:'12px 0'}}
+                    />
+                </div>
+                }
             </div>
         );
     }

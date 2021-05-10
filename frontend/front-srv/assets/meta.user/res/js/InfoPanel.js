@@ -82,8 +82,10 @@ export default class InfoPanel extends React.Component{
 
     render(){
         let actions = [];
+        const {node} = this.props;
         const {MessageHash} = this.props.pydio;
         const values = this.state.updateData || new Map();
+        const readOnly = node.getMetadata().get('node_readonly') === 'true';
 
         if(this.state.editMode){
             actions.push(
@@ -93,7 +95,7 @@ export default class InfoPanel extends React.Component{
                     onClick={()=>{this.reset()}}
                 />
             );
-            if(!this.props.node.getMetadata().has('node_readonly') && values.size > 0){
+            if(!readOnly && values.size > 0){
                 actions.push(
                     <FlatButton
                         key="edit"
@@ -102,7 +104,7 @@ export default class InfoPanel extends React.Component{
                     />
                 );
             }
-        } else {
+        } else if (!readOnly) {
             actions.push(
                 <FlatButton
                     key="edit"

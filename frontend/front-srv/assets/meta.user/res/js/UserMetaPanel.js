@@ -30,6 +30,7 @@ import Renderer from "./Renderer";
 import {Toggle, Checkbox} from 'material-ui'
 import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
+import {IntegerField, IntegerForm} from "./fields/Integer";
 const {ModernTextField, ModernStyles} = Pydio.requireLib("hoc")
 
 export default class UserMetaPanel extends React.Component{
@@ -151,10 +152,11 @@ export default class UserMetaPanel extends React.Component{
                         field = Renderer.formPanelTags(baseProps, configs);
                         break
                     case 'date':
-                    case 'date-time':
-                    case 'time':
                         field = <DateTimeForm type={type} {...baseProps} supportTemplates={supportTemplates}/>
                         break;
+                    case 'integer':
+                        field = <IntegerForm {...baseProps} supportTemplates={supportTemplates}/>
+                        break
                     case 'boolean':
                         field = <BooleanForm {...baseProps}/>
                         break
@@ -212,9 +214,10 @@ export default class UserMetaPanel extends React.Component{
                         value = <TagsCloud node={node} column={column}/>
                         break
                     case 'date':
-                    case 'date-time':
-                    case 'time':
                         value = <DateTimeField node={node} column={column} type={type}/>
+                        break;
+                    case 'integer':
+                        value= <IntegerField node={node} column={column}/>
                         break;
                     case 'boolean':
                         value = value ? 'Yes' : 'No'

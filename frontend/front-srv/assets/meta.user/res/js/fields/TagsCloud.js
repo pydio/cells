@@ -139,7 +139,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode} = this.props;
+        const {editMode, search} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList, autoCompleter;
@@ -174,7 +174,7 @@ class TagsCloud extends React.Component {
         }
 
         return (
-            <div>
+            <div style={{marginBottom:search?8:null}}>
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
                     {tagsList}
                 </div>

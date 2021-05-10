@@ -26,10 +26,17 @@ class SelectorField extends React.Component{
         const value = getRealValue();
         let displayValue = getRealValue();
         let fieldConfig = configs.get(column.name);
-        if(fieldConfig && fieldConfig.data){
-            displayValue = fieldConfig.data.get(value);
+        let color;
+        if(fieldConfig && fieldConfig.data && fieldConfig.data.items){
+            const found = fieldConfig.data.items.filter(i => i.key === value);
+            if(found.length){
+                displayValue = found[0].value;
+                if(found[0].color){
+                    color = <span className={'mdi mdi-label'} style={{color:found[0].color, marginRight: 5}}/>
+                }
+            }
         }
-        return <span>{displayValue}</span>;
+        return <span>{color}{displayValue}</span>;
     }
 }
 export default asMetaField(SelectorField);

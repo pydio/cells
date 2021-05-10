@@ -29,6 +29,7 @@ import MetaClient from "./MetaClient";
 import TagsCloud from "./fields/TagsCloud";
 import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
+import {IntegerField, IntegerForm} from "./fields/Integer";
 
 export default class Renderer{
 
@@ -67,14 +68,15 @@ export default class Renderer{
         const tagStyle = {
             display:'inline-block',
             backgroundColor: '#E1BEE7',
-            borderRadius: '3px 10px 10px 3px',
+            borderRadius: '1px 10px 10px 1px',
             height: 16,
             lineHeight: '17px',
-            padding: '0 10px 0 5px',
+            padding: '0 7px 0 5px',
             color: '#9C27B0',
             fontWeight: 500,
             fontSize: 12,
-            marginRight: 6
+            marginLeft: 2,
+            marginRight: 2
         };
         const value = node.getMetadata().get(column.name);
         if(!value || !value.split) {
@@ -90,22 +92,15 @@ export default class Renderer{
         return <DateTimeField node={node} column={column} type={"date"}/>;
     }
 
-    static renderDateTime(node, column) {
+    static renderInteger(node, column) {
         if(!node.getMetadata().get(column.name)){
             return null;
         }
-        return <DateTimeField node={node} column={column} type={"date-time"}/>;
-    }
-
-    static renderTime(node, column) {
-        if(!node.getMetadata().get(column.name)){
-            return null;
-        }
-        return <DateTimeField node={node} column={column} type={"time"}/>;
+        return <IntegerField node={node} column={column} inline={true}/>;
     }
 
     static formPanelStars(props){
-        return <StarsForm {...props}/>;
+        return <StarsForm {...props} search={true}/>;
     }
 
     static formPanelCssLabels(props){
@@ -116,7 +111,7 @@ export default class Renderer{
             return <MenuItem value={id} primaryText={lSpan}/>
         }.bind(this));
 
-        return <SelectorForm {...props} menuItems={menuItems}/>;
+        return <SelectorForm {...props} menuItems={menuItems} search={true}/>;
     }
 
     static formPanelSelectorFilter(props){
@@ -124,29 +119,41 @@ export default class Renderer{
         const itemsLoader = (callback) => {
             MetaClient.getInstance().loadConfigs().then(metaConfigs => {
                 let configs = metaConfigs.get(props.fieldname);
-                let menuItems = [];
-                if(configs && configs.data){
-                    configs.data.forEach(function(value, key){
-                        menuItems.push(<MenuItem value={key} primaryText={value}/>);
+                let menuItems = [], keys = [], stepper;
+                if(configs && configs.data && configs.data.items){
+                    menuItems = configs.data.items.map((i) => {
+                        keys.push(i.key);
+                        let pSpan = i.value;
+                        if(i.color) {
+                            pSpan = <span><span className={"mdi mdi-label"} style={{color: i.color, marginRight:5}}/>{i.value}</span>
+                        }
+                        return <MenuItem value={i.key} primaryText={pSpan}/>;
                     });
                 }
-                callback(menuItems);
+                if(configs && configs.data && configs.data.steps){
+                    stepper = true
+                }
+                callback(menuItems, keys, stepper);
             })
         };
 
-        return <SelectorForm {...props} menuItems={[]} itemsLoader={itemsLoader}/>;
+        return <SelectorForm {...props} menuItems={[]} itemsLoader={itemsLoader} search={true}/>;
     }
 
     static formPanelTags(props){
-        return <TagsCloud {...props} editMode={true}/>;
+        return <TagsCloud {...props} editMode={true} search={true}/>;
     }
 
     static formPanelDate(props){
-        return <DateTimeForm type={"date"} {...props} editMode={true}/>;
+        return <DateTimeForm type={"date"} {...props} editMode={true} search={true}/>;
     }
 
     static formPanelBoolean(props){
-        return <BooleanForm {...props}/>
+        return <BooleanForm {...props} search={true}/>
+    }
+
+    static formPanelInteger(props) {
+        return <IntegerForm {...props} search={true}/>
     }
 
 }

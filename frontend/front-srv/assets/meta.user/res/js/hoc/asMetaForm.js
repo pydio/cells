@@ -27,7 +27,7 @@ export default function asMetaForm(Component){
         constructor(props) {
             super(props);
             this.state = {
-                value: this.props.value || 0,
+                value: this.props.value || '',
                 configs: new Map(),
                 getRealValue: () => {
                     const {node, column} = this.props;
