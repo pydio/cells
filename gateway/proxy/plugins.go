@@ -90,7 +90,6 @@ var (
 		header_upstream X-Forwarded-Proto {scheme}
 	}
 	pydioproxy /io   {{$.GatewayService}} {
-		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -98,7 +97,6 @@ var (
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	pydioproxy /data {{$.GatewayService}} {
-		fail_timeout 20s
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
