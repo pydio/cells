@@ -234,6 +234,10 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 	input = input.WithAcls(acls...)
 	input = input.WithUsers(users...)
 	input = input.WithDataSources(dss...)
+	if len(nodes) == 0 && len(roles) == 0 && len(workspaces) == 0 && len(acls) == 0 && len(users) == 0 && len(dss) == 0 {
+		done <- true
+		return
+	}
 	output <- input
 	done <- true
 }

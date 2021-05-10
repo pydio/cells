@@ -124,13 +124,14 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		if eR != nil {
 			return eR
 		}
+		count := 0
 		defer sStream.Close()
 		for {
 			resp, rE := sStream.Recv()
 			if rE != nil {
 				break
 			}
-			if resp == nil {
+			if resp == nil || resp.Node == nil {
 				continue
 			}
 			if q.PathDepth > 0 {
@@ -141,8 +142,9 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			}
 			log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
 			objects <- resp.Node
+			count ++
 		}
-		log.Logger(ctx).Info("Finished Search Request with query", zap.Any("q", q))
+		log.Logger(ctx).Info("Finished Search Request with query", zap.Any("q", q), zap.Int("count", count))
 	}
 	return nil
 }
