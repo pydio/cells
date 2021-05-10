@@ -105,7 +105,20 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			if ns.Indexable {
 				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelTags"
 			}
-
+		case "boolean":
+			column.AttrreactModifier = "ReactMeta.Renderer.renderBoolean"
+			if ns.Indexable {
+				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelBoolean"
+			}
+		case "date":
+			column.AttrreactModifier = "ReactMeta.Renderer.renderDate"
+			if data, ok := nsDef["data"]; ok {
+				remarshed, _ := json.Marshal(data)
+				column.AttrmetaAdditional = string(remarshed)
+			}
+			if ns.Indexable {
+				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelDate"
+			}
 		}
 		columns.Cadditional_column = append(columns.Cadditional_column, column)
 	}

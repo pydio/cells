@@ -17,10 +17,37 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Callbacks from './Callbacks'
-import Renderer from './Renderer'
-import UserMetaPanel from './UserMetaPanel'
-import InfoPanel from './InfoPanel'
-import UserMetaDialog from './UserMetaDialog'
+import React from 'react'
+import MetaClient from "../MetaClient";
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}
+export default function asMetaField(Component){
+
+    return class MetaField extends React.Component {
+
+        constructor(props) {
+            super(props);
+            this.state = {
+                value: this.props.value || 0,
+                configs: new Map(),
+                getRealValue: () => {
+                    const {node, column} = this.props;
+                    return node.getMetadata().get(column.name)
+                }
+            }
+        }
+
+        componentDidMount() {
+            MetaClient.getInstance().loadConfigs().then(configs =>{
+                this.setState({configs})
+            })
+        }
+
+        render() {
+
+            return <Component {...this.props} {...this.state}/>
+
+        }
+
+    }
+
+}

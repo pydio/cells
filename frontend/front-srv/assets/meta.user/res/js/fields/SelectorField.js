@@ -17,10 +17,19 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Callbacks from './Callbacks'
-import Renderer from './Renderer'
-import UserMetaPanel from './UserMetaPanel'
-import InfoPanel from './InfoPanel'
-import UserMetaDialog from './UserMetaDialog'
+import React from 'react'
+import asMetaField from "../hoc/asMetaField";
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}
+class SelectorField extends React.Component{
+    render(){
+        const {configs, getRealValue, column} = this.props;
+        const value = getRealValue();
+        let displayValue = getRealValue();
+        let fieldConfig = configs.get(column.name);
+        if(fieldConfig && fieldConfig.data){
+            displayValue = fieldConfig.data.get(value);
+        }
+        return <span>{displayValue}</span>;
+    }
+}
+export default asMetaField(SelectorField);

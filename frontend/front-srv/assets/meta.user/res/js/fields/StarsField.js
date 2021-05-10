@@ -17,10 +17,27 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Callbacks from './Callbacks'
-import Renderer from './Renderer'
-import UserMetaPanel from './UserMetaPanel'
-import InfoPanel from './InfoPanel'
-import UserMetaDialog from './UserMetaDialog'
+import React from 'react'
+import asMetaField from "../hoc/asMetaField";
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}
+const starsStyle = {
+    fontSize: 20,
+    color: '#FBC02D',
+    marginTop:6,
+    marginBottom: 6
+};
+
+class StarsField extends React.Component{
+    render(){
+        const {getRealValue, size} = this.props;
+        let value = getRealValue() || 0;
+        let stars = [0,1,2,3,4].map(function(v){
+            return <span key={"star-" + v} className={"mdi mdi-star" + (value > v ? '' : '-outline')}></span>;
+        });
+        const style = size === 'small' ? {color: starsStyle.color} : starsStyle;
+        return <span style={style}>{stars}</span>;
+    }
+}
+
+export {starsStyle}
+export default asMetaField(StarsField);

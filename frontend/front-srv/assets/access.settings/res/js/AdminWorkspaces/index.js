@@ -18,9 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import MetaSourceForm from './meta/MetaSourceForm'
 import WsDashboard from './board/WsDashboard'
-import MetaList from './meta/MetaList'
 import VirtualNodes from './board/VirtualNodes'
 import DataSourcesBoard from './board/DataSourcesBoard'
 import MetadataBoard from './board/MetadataBoard'
@@ -32,8 +30,6 @@ import NodeCard from './virtual/NodeCard'
 import VirtualNode from './model/VirtualNode'
 
 window.AdminWorkspaces = {
-    MetaSourceForm,
-    MetaList,
     VirtualNodes,
     WsDashboard,
     DataSourcesBoard,

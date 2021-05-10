@@ -54,6 +54,9 @@ class Metadata {
 Metadata.MetaTypes = {
     "string":       "Text",
     "textarea":     "Long Text",
+    "integer":      "Number",
+    "boolean":      "Boolean",
+    "date":         "Date",
     "stars_rate":   "Stars Rating",
     "css_label":    "Color Labels",
     "tags":         "Extensible Tags",

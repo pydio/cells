@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ class SearchApi {
         if(prefix){
             query.PathPrefix = [prefix];
         }
-
+        console.log(values);
         const keys = Object.keys(values);
         if (keys.length === 1 && keys[0] === 'basename') {
             query.FileName = this.autoQuote(values['basename']);
@@ -84,7 +84,11 @@ class SearchApi {
             });
             if(Object.keys(freeQueries).length){
                 query.FreeString = Object.keys(freeQueries).map(k =>{
-                    return "+" + k + ":" + freeQueries[k];
+                    let val = freeQueries[k]
+                    if(freeQueries[k] === true) {
+                        val = 'T*';
+                    }
+                    return "+" + k + ":" + val;
                 }).join(" ");
             }
         }

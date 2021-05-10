@@ -17,10 +17,29 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Callbacks from './Callbacks'
-import Renderer from './Renderer'
-import UserMetaPanel from './UserMetaPanel'
-import InfoPanel from './InfoPanel'
-import UserMetaDialog from './UserMetaDialog'
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}
+import React from 'react'
+import {Toggle} from 'material-ui'
+const {ModernStyles} = Pydio.requireLib("hoc")
+import asMetaForm from "../hoc/asMetaForm";
+
+class BooleanForm extends React.Component {
+
+    render() {
+        const {updateValue, value} = this.props;
+        return (
+            <Toggle
+                toggled={value}
+                onToggle={(e,v) => {
+                    updateValue(v);
+                }}
+                label={value ? 'Yes': 'No'}
+                labelPosition={"right"}
+                {...ModernStyles.toggleField}
+            />
+        );
+    }
+
+}
+
+export default asMetaForm(BooleanForm);

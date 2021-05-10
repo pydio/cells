@@ -17,10 +17,16 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Callbacks from './Callbacks'
-import Renderer from './Renderer'
-import UserMetaPanel from './UserMetaPanel'
-import InfoPanel from './InfoPanel'
-import UserMetaDialog from './UserMetaDialog'
+import Pydio from 'pydio'
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}
+export default class Callbacks{
+
+    static editMeta(){
+        const pydio = Pydio.getInstance();
+        pydio.UI.openComponentInModal('ReactMeta', 'UserMetaDialog', {
+            dialogTitleId: 489,
+            selection: pydio.getUserSelection(),
+        });
+    }
+
+}

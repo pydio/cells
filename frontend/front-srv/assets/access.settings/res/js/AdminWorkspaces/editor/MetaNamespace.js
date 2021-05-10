@@ -1,5 +1,3 @@
-import React from 'react';
-
 /*
  * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -19,6 +17,9 @@ import React from 'react';
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+import React, {Fragment} from 'react';
+
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
@@ -35,7 +36,7 @@ class MetaNamespace extends React.Component{
         super(props);
         this.state = {
             namespace: this.cloneNs(props.namespace),
-            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id],
+            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id,
             selectorNewKey:'',
             selectorNewValue:''
         };
@@ -51,7 +52,11 @@ class MetaNamespace extends React.Component{
 
     updateType(value){
         const {namespace} = this.state;
-        namespace.JsonDefinition = JSON.stringify({type: value});
+        const newType = {type:value};
+        if(newType === 'date') {
+            newType.data = {format: 'date', display:'normal'};
+        }
+        namespace.JsonDefinition = JSON.stringify(newType);
         this.setState({namespace});
     }
 
@@ -71,6 +76,31 @@ class MetaNamespace extends React.Component{
             this.props.onRequestClose();
             this.props.reloadList();
         })
+    }
+
+    getDateData(){
+        const {namespace} = this.state;
+        let data = {format:'date', display:'normal'};
+        try {
+            return JSON.parse(namespace.JsonDefinition).data || data;
+        }catch(e){}
+        return data;
+    }
+
+    setDateFormat(format = 'date'){
+        const {namespace} = this.state;
+        let def = JSON.parse(namespace.JsonDefinition);
+        def.data = {...def.data, format};
+        namespace.JsonDefinition = JSON.stringify(def);
+        this.setState({namespace});
+    }
+
+    setDateDisplay(display = 'normal'){
+        const {namespace} = this.state;
+        let def = JSON.parse(namespace.JsonDefinition);
+        def.data = {...def.data, display};
+        namespace.JsonDefinition = JSON.stringify(def);
+        this.setState({namespace});
     }
 
     getSelectionData(){
@@ -254,6 +284,29 @@ class MetaNamespace extends React.Component{
                     })}
                 </ModernSelectField>
                 {type === 'choice' && this.renderSelectionBoard()}
+                {type === 'date' &&
+                    <Fragment>
+                        <ModernSelectField
+                            hintText={m('type.date.format')}
+                            value={this.getDateData().format}
+                            onChange={(e,i,v) => this.setDateFormat(v)}
+                            disabled={readonly}
+                            fullWidth={true}>
+                            <MenuItem value={'date'} primaryText={m('type.date.format.date')}/>
+                            <MenuItem value={'date-time'} primaryText={m('type.date.format.date-time')}/>
+                            <MenuItem value={'time'} primaryText={m('type.date.format.time')}/>
+                        </ModernSelectField>
+                        <ModernSelectField
+                            hintText={m('type.date.display')}
+                            value={this.getDateData().display}
+                            onChange={(e,i,v) => this.setDateDisplay(v)}
+                            disabled={readonly}
+                            fullWidth={true}>
+                            <MenuItem value={'normal'} primaryText={m('type.date.display.normal')}/>
+                            <MenuItem value={'relative'} primaryText={m('type.date.display.relative')}/>
+                        </ModernSelectField>
+                    </Fragment>
+                }
 
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
                 <div style={{padding:'6px 0'}}>
