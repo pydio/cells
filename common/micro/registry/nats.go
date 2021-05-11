@@ -2,8 +2,6 @@ package registry
 
 import (
 	"context"
-	"github.com/google/uuid"
-	"log"
 	"net"
 	"time"
 
@@ -82,56 +80,12 @@ func EnableNats() {
 func EnableStan() {
 	addr := viper.GetString("nats_address")
 
-	var err error
-	var nc *gonats.Conn
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	cd := &customDialer{
-		ctx:             ctx,
-		connectTimeout:  10 * time.Second,
-		connectTimeWait: 1 * time.Second,
-	}
-
-	go func() {
-		nc, err = gonats.Connect(addr,
-			gonats.Name(uuid.New().String()),
-			gonats.SetCustomDialer(cd),
-			gonats.Timeout(10*time.Second),
-		)
-	}()
-
-WaitForEstablishedConnection:
-	for {
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Wait for context to be canceled either by timeout
-		// or because of establishing a connection...
-		select {
-		case <-ctx.Done():
-			break WaitForEstablishedConnection
-		default:
-		}
-
-		if nc == nil || !nc.IsConnected() {
-			time.Sleep(200 * time.Millisecond)
-			continue
-		}
-		break WaitForEstablishedConnection
-	}
-	if ctx.Err() != nil {
-		log.Fatal(ctx.Err())
-	}
-
 	r := stan.NewRegistry(
+		stan.ClusterID(viper.GetString("nats_streaming_cluster_id")),
 		registry.Addrs(addr),
 		stan.Options(
-			gostan.NatsURL(viper.GetString("nats_address")),
-			gostan.NatsConn(nc),
-			),
+			gostan.NatsURL(addr),
+		),
 	)
 
 	s := cache.NewSelector(selector.Registry(r))

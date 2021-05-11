@@ -88,7 +88,7 @@ func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
 		"--fork",
-		"--config", "remote",
+		// "--config", "remote",
 		"--registry", viper.GetString("registry"),
 		"--broker", viper.GetString("broker"),
 		"--nats_streaming_store", viper.GetString("nats_streaming_store"),

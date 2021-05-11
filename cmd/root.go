@@ -260,8 +260,6 @@ func initConfig() (new bool) {
 		localConfig = defaultConfig
 
 		config.RegisterLocal(localConfig)
-
-
 	}
 
 	if defaultConfig.Val("version").String() == "" {

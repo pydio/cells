@@ -1,19 +1,15 @@
 package natsstreaming
 
 import (
-	"github.com/google/uuid"
+	"fmt"
+	"net"
+	"strconv"
+
 	"github.com/nats-io/nats-server/v2/server"
-	stand "github.com/nats-io/nats-streaming-server/server"
-	"github.com/nats-io/nats-streaming-server/stores"
-	"github.com/nats-io/stan.go"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/spf13/viper"
-	"log"
-	"net"
-	"path/filepath"
-	"strconv"
-	"strings"
+	"go.uber.org/zap"
 )
 
 var (
@@ -25,35 +21,13 @@ func Init() error {
 	if defaults.RuntimeIsFork() {
 		return nil
 	}
-	stanOpts := stand.GetDefaultOptions()
-	natsOpts := stand.NewNATSOptions()
 
+	natsOpts := &server.Options{}
+
+	natsOpts.ServerName = viper.GetString("nats_streaming_cluster_node_id")
+	natsOpts.NoLog = false
 	natsOpts.NoSigs = true
 	natsOpts.HTTPPort = viper.GetInt("nats_monitor_port")
-
-	stanOpts.ID = viper.GetString("nats_streaming_cluster_id")
-	stanOpts.StoreType = viper.GetString("nats_streaming_store")
-
-	if stanOpts.StoreType == stores.TypeFile {
-		stanOpts.FilestoreDir = filepath.Join(config.ApplicationWorkingDir(), "nats")
-	} else if stanOpts.StoreType == stores.TypeSQL {
-		driver, dsn := config.GetDatabase("default")
-		stanOpts.SQLStoreOpts = stores.SQLStoreOptions{
-			Driver: driver,
-			Source: dsn,
-		}
-	}
-
-	// TODO - do the sql opts
-	// stanOpts.FTGroupName = "test"
-	stanOpts.HandleSignals = false
-	stanOpts.Clustering.Clustered = viper.GetBool("nats_streaming_clustered")
-	stanOpts.Clustering.NodeID = viper.GetString("nats_streaming_cluster_node_id")
-	stanOpts.Clustering.Bootstrap = viper.GetBool("nats_streaming_cluster_bootstrap")
-	stanOpts.Clustering.Peers = strings.Split(viper.GetString("nats_streaming_cluster_peers"), ",")
-	stanOpts.Clustering.RaftLogPath = config.ApplicationWorkingDir(config.ApplicationDirLogs) + "/raft"
-	stanOpts.Clustering.LogSnapshots = 1
-	stanOpts.Clustering.LogCacheSize = 100
 
 	host, p, err := net.SplitHostPort(viper.GetString("nats_address"))
 	if err != nil {
@@ -74,6 +48,7 @@ func Init() error {
 
 		clusterPort, _ := strconv.Atoi(p)
 
+		clusterOpts.Name = viper.GetString("nats_streaming_cluster_id")
 		clusterOpts.Host = clusterHost
 		clusterOpts.Port = clusterPort
 
@@ -81,28 +56,75 @@ func Init() error {
 	}
 
 	natsOpts.RoutesStr = viper.GetString("nats_cluster_routes")
-	natsOpts.Routes = server.RoutesFromStr(natsOpts.RoutesStr)
+	if natsOpts.RoutesStr != "" {
+		natsOpts.Routes = server.RoutesFromStr(natsOpts.RoutesStr)
+	}
 
 	natsOpts.Debug = true
-	stanOpts.Debug = true
+	natsOpts.Trace = true
 
-	if _, err = stand.RunServerWithOpts(stanOpts, natsOpts); err != nil {
+	natsOpts.JetStream = true
+
+	s, err := server.NewServer(natsOpts)
+	if err != nil {
 		return err
 	}
+
+	fmt.Println("Running nats ? ")
+	if err := server.Run(s); err != nil {
+		fmt.Println("Not possible")
+		return err
+	}
+
+	fmt.Println("End of running nats ?")
+
+	//if _, err := stand.RunServerWithOpts(stanOpts, natsOpts); err != nil {
+	//	return err
+	//}
 
 	return nil
 }
 
 func Monitor() <-chan error {
-	stanOpts := stand.GetDefaultOptions()
-	stanOpts.ID = viper.GetString("nats_streaming_cluster_id")
-
-	_, err := stan.Connect(stanOpts.ID, "monitor" + uuid.New().String(), stan.SetConnectionLostHandler(func (_ stan.Conn, err error) {
-		unavailable <- err
-	}))
-	if err != nil {
-		unavailable <- err
-	}
+	//stanOpts := stand.GetDefaultOptions()
+	//stanOpts.ID = viper.GetString("nats_streaming_cluster_id")
+	//
+	//_, err := stan.Connect(stanOpts.ID, "monitor" + uuid.New().String(), stan.SetConnectionLostHandler(func (_ stan.Conn, err error) {
+	//	fmt.Println("And the error is here ", err)
+	//	unavailable <- err
+	//}))
+	//if err != nil {
+	//	fmt.Println("And the error is there", err)
+	//	unavailable <- err
+	//}
 
 	return unavailable
+}
+
+type logger struct {
+	*zap.Logger
+}
+
+func (l logger) Noticef(s string, args ...interface{}) {
+	l.Logger.Info(fmt.Sprintf(s, args...))
+}
+
+func (l logger) Warnf(s string, args ...interface{}) {
+	l.Logger.Warn(fmt.Sprintf(s, args...))
+}
+
+func (l logger) Errorf(s string, args ...interface{}) {
+	l.Logger.Error(fmt.Sprintf(s, args...))
+}
+
+func (l logger) Fatalf(s string, args ...interface{}) {
+	l.Logger.Fatal(fmt.Sprintf(s, args...))
+}
+
+func (l logger) Debugf(s string, args ...interface{}) {
+	l.Logger.Debug(fmt.Sprintf(s, args...))
+}
+
+func (l logger) Tracef(s string, args ...interface{}) {
+	l.Logger.Debug(fmt.Sprintf(s, args...))
 }

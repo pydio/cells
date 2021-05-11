@@ -16,7 +16,7 @@ func addNatsStreamingFlags(flags *pflag.FlagSet) {
 	flags.String("nats_streaming_cluster_id", "cells", "NATS streaming cluster ID")
 	flags.String("nats_streaming_store", "MEMORY", "NATS streaming store type")
 	flags.Bool("nats_streaming_clustered", false, "NATS streaming clustered")
-	flags.Bool("nats_streaming_cluster_node_id", false, "NATS streaming cluster node id")
+	flags.String("nats_streaming_cluster_node_id", "", "NATS streaming cluster node id")
 	flags.Bool("nats_streaming_cluster_bootstrap", false, "NATS streaming bootstrap cluster")
 	flags.String("nats_streaming_cluster_peers", "", "NATS streaming list of cluster peers")
 }
