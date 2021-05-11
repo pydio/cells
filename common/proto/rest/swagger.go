@@ -4400,6 +4400,11 @@ var SwaggerJson = `{
             "$ref": "#/definitions/serviceResourcePolicy"
           },
           "title": "Policies securing this namespace"
+        },
+        "PoliciesContextEditable": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Context-resolved to quickly check if this meta is editable or not"
         }
       },
       "title": "Globally declared Namespace with associated policies"

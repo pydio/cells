@@ -299,16 +299,6 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		return
 	}
 	ctx := req.Request.Context()
-	/*
-		// Not necessary : checked at Policy level
-		if value := ctx.Value(claim.ContextKey); value != nil {
-			claims := value.(claim.Claims)
-			if claims.Profile != "admin" {
-				service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not allowed to edit namespaces"))
-				return
-			}
-		}
-	*/
 	// Validate input
 	type jsonCheck struct {
 		Type string
@@ -481,6 +471,7 @@ func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request 
 		if resp == nil {
 			continue
 		}
+		resp.UserMeta.PoliciesContextEditable = s.IsContextEditable(ctx, resp.UserMeta.GetUuid(), resp.UserMeta.GetPolicies())
 		output.Metadatas = append(output.Metadatas, resp.UserMeta)
 	}
 
@@ -503,6 +494,11 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 		if resp == nil {
 			continue
 		}
+		ns := resp.GetUserMetaNamespace()
+		if !s.MatchPolicies(ctx, ns.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_READ) {
+			continue
+		}
+		ns.PoliciesContextEditable = s.IsContextEditable(ctx, ns.Namespace, ns.Policies)
 		result[resp.UserMetaNamespace.Namespace] = resp.UserMetaNamespace
 	}
 	return result, nil
