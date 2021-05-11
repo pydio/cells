@@ -73,9 +73,15 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 
 	r := getRouter()
 	grouped := make(map[string]*activity.Object)
+	for _, ac := range items {
+		if ac.Type == activity.ObjectType_Event {
+			ac.Markdown = "\n - " + ac.Markdown
+			c.Items = append(c.Items, ac)
+		}
+	}
 	for _, workspace := range accessList.Workspaces {
 		for _, ac := range items {
-			if ac.Object != nil && ac.Object.Type == activity.ObjectType_Folder || ac.Object.Type == activity.ObjectType_Document {
+			if ac.Object != nil && (ac.Object.Type == activity.ObjectType_Folder || ac.Object.Type == activity.ObjectType_Document) {
 				node := &tree.Node{Uuid: ac.Object.Id, Path: ac.Object.Name}
 				if filtered, ok := r.WorkspaceCanSeeNode(ctx, accessList, workspace, node); ok {
 					wsColl := getOrCreateWorkspaceCollection(workspace, grouped)
@@ -101,7 +107,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 					}
 					wsColl.Items = append(wsColl.Items, filteredActivity)
 				}
-			} else if ac.Type == activity.ObjectType_Share && ac.Object.Id == workspace.UUID {
+			} else if ac.Type == activity.ObjectType_Share && ac.Object != nil && ac.Object.Id == workspace.UUID {
 				wsColl := getOrCreateWorkspaceCollection(workspace, grouped)
 				wsColl.Items = append(wsColl.Items, ac)
 			}
