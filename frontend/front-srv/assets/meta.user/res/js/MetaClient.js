@@ -112,22 +112,14 @@ class MetaClient{
                         label: ns.Label,
                         indexable: ns.Indexable,
                         order: ns.Order,
-                        visible: true
+                        visible: true,
+                        readonly: !ns.PoliciesContextEditable,
                     };
                     if (ns.JsonDefinition){
                         const jDef = JSON.parse(ns.JsonDefinition);
                         Object.keys(jDef).map(k => {
                             base[k] = jDef[k];
                         })
-                    }
-                    if(ns.Policies){
-                        ns.Policies.map(p => {
-                            if(p.Action === 'READ'){
-                                base['readSubject'] = p.Subject;
-                            } else if(p.Action === 'WRITE'){
-                                base['writeSubject'] = p.Subject;
-                            }
-                        });
                     }
                     defs[name] = base;
                 });

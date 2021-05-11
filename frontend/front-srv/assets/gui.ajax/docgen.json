@@ -3521,7 +3521,7 @@
     "AdminPlugins/core/ServiceEditor.js": [
       {
         "description": "Editor for a given plugin. By default, displays documentation in a left column panel,\nand plugin parameters as form cards on the right.\nMay take additionalPanes to be appended to the form cards.",
-        "displayName": "PluginEditor",
+        "displayName": "ServiceEditor",
         "methods": [
           {
             "name": "externalSetDirty",
@@ -5665,6 +5665,47 @@
     "AdminWorkspaces/editor/MetaNamespace.js": [
       {
         "description": "",
+        "displayName": "SelectionBoard",
+        "methods": [
+          {
+            "name": "addSelectionValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "removeSelectionValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "k",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "renderColor",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "color",
+                "type": null
+              },
+              {
+                "name": "disabled",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
         "displayName": "MetaNamespace",
         "methods": [
           {
@@ -5711,48 +5752,31 @@
             "returns": null
           },
           {
-            "name": "getSelectionData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "setSelectionData",
+            "name": "getAdditionalData",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
-                "name": "newData",
+                "name": "defaultValue",
                 "type": null
               }
             ],
             "returns": null
           },
           {
-            "name": "addSelectionValue",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "removeSelectionValue",
+            "name": "setAdditionalDataKey",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
                 "name": "key",
                 "type": null
+              },
+              {
+                "name": "value",
+                "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "renderSelectionBoard",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
             "returns": null
           },
           {
@@ -5979,120 +6003,6 @@
             "returns": null
           }
         ]
-      }
-    ],
-    "AdminWorkspaces/meta/MetaList.js": [
-      {
-        "description": "",
-        "displayName": "MetaList",
-        "methods": [],
-        "props": {
-          "currentMetas": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "edit": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "metaSourceProvider": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "closeCurrent": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "setEditState": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "featuresEditable": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminWorkspaces/meta/MetaSourceForm.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "setModal",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "pydioModal",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "model": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "editor": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "modalData": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dialogTitleId": {
-            "defaultValue": {
-              "value": "'ajxp_admin.ws.46'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogSize": {
-            "defaultValue": {
-              "value": "'sm'",
-              "computed": false
-            },
-            "required": false
-          }
-        }
       }
     ],
     "AdminWorkspaces/virtual/NodeCard.js": [
@@ -23700,6 +23610,13 @@
             "required": false,
             "description": ""
           },
+          "showLoader": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
           "checkboxes": {
             "type": {
               "name": "array"
@@ -23864,6 +23781,13 @@
             "required": false,
             "description": ""
           },
+          "showLoader": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
           "checkboxes": {
             "type": {
               "name": "array"
@@ -24002,6 +23926,13 @@
           "nodeIsSelected": {
             "type": {
               "name": "func"
+            },
+            "required": false,
+            "description": ""
+          },
+          "showLoader": {
+            "type": {
+              "name": "bool"
             },
             "required": false,
             "description": ""
@@ -28470,30 +28401,227 @@
     ]
   },
   "meta.user": {
-    "components.js": [
+    "InfoPanel.js": [
       {
         "description": "",
-        "displayName": "StarsFormPanel",
+        "displayName": "InfoPanel",
+        "methods": [
+          {
+            "name": "openEditMode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "reset",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "saveMeta",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "saveAndClose",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onChangeUpdateData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "updateData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "UserMetaDialog.js": [
+      {
+        "description": "",
+        "displayName": "UserMetaDialog",
+        "methods": [
+          {
+            "name": "saveMeta",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "UserMetaPanel.js": [
+      {
+        "description": "",
+        "displayName": "UserMetaPanel",
+        "methods": [
+          {
+            "name": "updateValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "name",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              },
+              {
+                "name": "submit",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "deleteValue",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "name",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getUpdateData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "resetUpdateData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onCheck",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "key",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "fields/BooleanForm.js": [
+      {
+        "description": "",
+        "displayName": "BooleanForm",
+        "methods": []
+      }
+    ],
+    "fields/CssLabelsField.js": [
+      {
+        "description": "",
+        "displayName": "CSSLabelsField",
+        "methods": []
+      }
+    ],
+    "fields/DateTime.js": [
+      {
+        "description": "",
+        "displayName": "DateTimeField",
         "methods": []
       },
       {
         "description": "",
-        "displayName": "MetaStarsRenderer",
+        "displayName": "DateTimeForm",
+        "methods": [
+          {
+            "name": "getDate",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "updateDate",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "d",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "updateTime",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "d",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "fields/Integer.js": [
+      {
+        "description": "",
+        "displayName": "IntegerField",
         "methods": []
       },
       {
         "description": "",
-        "displayName": "SelectorFilter",
+        "displayName": "IntegerForm",
         "methods": []
-      },
+      }
+    ],
+    "fields/SelectorField.js": [
       {
         "description": "",
-        "displayName": "CSSLabelsFilter",
+        "displayName": "SelectorField",
         "methods": []
-      },
+      }
+    ],
+    "fields/SelectorForm.js": [
       {
         "description": "",
-        "displayName": "MetaSelectorFormPanel",
+        "displayName": "SelectorForm",
         "methods": [
           {
             "name": "changeSelector",
@@ -28514,9 +28642,32 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "next",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
-      },
+      }
+    ],
+    "fields/StarsField.js": [
+      {
+        "description": "",
+        "displayName": "StarsField",
+        "methods": []
+      }
+    ],
+    "fields/StarsForm.js": [
+      {
+        "description": "",
+        "displayName": "StarsFormPanel",
+        "methods": []
+      }
+    ],
+    "fields/TagsCloud.js": [
       {
         "description": "",
         "displayName": "TagsCloud",
@@ -28585,161 +28736,6 @@
             "params": [
               {
                 "name": "tag",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "node": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": false,
-            "description": ""
-          },
-          "column": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      },
-      {
-        "description": "",
-        "displayName": "UserMetaDialog",
-        "methods": [
-          {
-            "name": "saveMeta",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      },
-      {
-        "description": "",
-        "displayName": "UserMetaPanel",
-        "methods": [
-          {
-            "name": "updateValue",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "name",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              },
-              {
-                "name": "submit",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "deleteValue",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "name",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "getUpdateData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "resetUpdateData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onCheck",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "e",
-                "type": null
-              },
-              {
-                "name": "isInputChecked",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      },
-      {
-        "description": "",
-        "displayName": "InfoPanel",
-        "methods": [
-          {
-            "name": "openEditMode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "reset",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "saveMeta",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "saveAndClose",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "onChangeUpdateData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "updateData",
                 "type": null
               }
             ],

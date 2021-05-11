@@ -109,7 +109,6 @@ class DateTimeForm extends Component {
 
     render() {
         const {supportTemplates, updateValue, value, label} = this.props;
-
         if(supportTemplates) {
             return (
                 <ModernTextField value={value} fullWidth={true} hintText={label} onChange={(event, value)=>{ updateValue(value);}}/>

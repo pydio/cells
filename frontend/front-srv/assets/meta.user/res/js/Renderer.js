@@ -103,7 +103,7 @@ export default class Renderer{
         return <StarsForm {...props} search={true}/>;
     }
 
-    static formPanelCssLabels(props){
+    static formPanelCssLabels(props, configs){
 
         const menuItems = Object.keys(getCssLabels()).map(function(id){
             let label = getCssLabels()[id];
@@ -111,37 +111,42 @@ export default class Renderer{
             return <MenuItem value={id} primaryText={lSpan}/>
         }.bind(this));
 
-        return <SelectorForm {...props} menuItems={menuItems} search={true}/>;
+        return <SelectorForm {...props} menuItems={menuItems} search={!configs}/>;
     }
 
-    static formPanelSelectorFilter(props){
+    static formPanelSelectorFilter(props, configs){
+
+        const configsToItems = (metaConfigs, callback) => {
+            let configs = metaConfigs.get(props.fieldname);
+            let menuItems = [], keys = [], stepper;
+            if(configs && configs.data && configs.data.items){
+                menuItems = configs.data.items.map((i) => {
+                    keys.push(i.key);
+                    let pSpan = i.value;
+                    if(i.color) {
+                        pSpan = <span><span className={"mdi mdi-label"} style={{color: i.color, marginRight:5}}/>{i.value}</span>
+                    }
+                    return <MenuItem value={i.key} primaryText={pSpan}/>;
+                });
+            }
+            if(configs && configs.data && configs.data.steps){
+                stepper = true
+            }
+            callback(menuItems, keys, stepper);
+        }
 
         const itemsLoader = (callback) => {
-            MetaClient.getInstance().loadConfigs().then(metaConfigs => {
-                let configs = metaConfigs.get(props.fieldname);
-                let menuItems = [], keys = [], stepper;
-                if(configs && configs.data && configs.data.items){
-                    menuItems = configs.data.items.map((i) => {
-                        keys.push(i.key);
-                        let pSpan = i.value;
-                        if(i.color) {
-                            pSpan = <span><span className={"mdi mdi-label"} style={{color: i.color, marginRight:5}}/>{i.value}</span>
-                        }
-                        return <MenuItem value={i.key} primaryText={pSpan}/>;
-                    });
-                }
-                if(configs && configs.data && configs.data.steps){
-                    stepper = true
-                }
-                callback(menuItems, keys, stepper);
-            })
+            if(configs) {
+                configsToItems(configs, callback);
+            } else {
+                MetaClient.getInstance().loadConfigs().then(metaConfigs => configsToItems(metaConfigs, callback))
+            }
         };
-
-        return <SelectorForm {...props} menuItems={[]} itemsLoader={itemsLoader} search={true}/>;
+        return <SelectorForm {...props} menuItems={[]} itemsLoader={itemsLoader} search={!configs}/>;
     }
 
-    static formPanelTags(props){
-        return <TagsCloud {...props} editMode={true} search={true}/>;
+    static formPanelTags(props, configs){
+        return <TagsCloud {...props} editMode={true} search={!configs}/>;
     }
 
     static formPanelDate(props){

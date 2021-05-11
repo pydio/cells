@@ -77,9 +77,8 @@ class MetadataBoard extends React.Component{
     }
 
     render(){
-        const {muiTheme} = this.props;
+        const {muiTheme, currentNode, pydio, accessByName, policiesBuilder} = this.props;
         const adminStyle = AdminComponents.AdminStyles(muiTheme.palette);
-
         let {namespaces, loading, dialogOpen, selectedNamespace, create, m} = this.state;
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
@@ -90,7 +89,6 @@ class MetadataBoard extends React.Component{
             if (a0 === b0) return 0;
             return a0 > b0 ? 1 : -1;
         });
-        const {currentNode, pydio, accessByName} = this.props;
         const columns = [
             {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, hideSmall:true, renderCell:row => {
                 return row.Order || '0';
@@ -136,6 +134,7 @@ class MetadataBoard extends React.Component{
                     reloadList={() => this.load()}
                     namespaces={namespaces}
                     readonly={!accessByName('Create')}
+                    policiesBuilder={policiesBuilder}
                 />
                 <div className="vertical-layout" style={{width:'100%'}}>
                     <AdminComponents.Header

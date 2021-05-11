@@ -27,11 +27,11 @@ import CssLabelsField from "./fields/CssLabelsField";
 import SelectorField from "./fields/SelectorField";
 import TagsCloud from "./fields/TagsCloud";
 import Renderer from "./Renderer";
-import {Toggle, Checkbox} from 'material-ui'
+import {Checkbox} from 'material-ui'
 import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 import {IntegerField, IntegerForm} from "./fields/Integer";
-const {ModernTextField, ModernStyles} = Pydio.requireLib("hoc")
+const {ModernTextField} = Pydio.requireLib("hoc")
 
 export default class UserMetaPanel extends React.Component{
 
@@ -110,17 +110,10 @@ export default class UserMetaPanel extends React.Component{
         let data = [];
         const metadata = node.getMetadata();
         let nonEmptyDataCount = 0;
-        const isAdmin = pydio.user.isAdmin;
 
         configs.forEach((meta, key) => {
-            let readonly = false, value;
-            const {label, type, writeSubject, readSubject} = meta;
-            if(readSubject === 'profile:admin' && !isAdmin) {
-                return;
-            }
-            if(writeSubject === 'profile:admin' && !isAdmin) {
-                readonly = true;
-            }
+            let value;
+            const {label, type, readonly} = meta;
             if(type === 'json' && !supportTemplates){
                 return;
             }
@@ -129,7 +122,6 @@ export default class UserMetaPanel extends React.Component{
                 value = updateMeta.get(key);
             }
             let realValue = value;
-
             if(editMode && !readonly){
                 let field;
                 let baseProps = {

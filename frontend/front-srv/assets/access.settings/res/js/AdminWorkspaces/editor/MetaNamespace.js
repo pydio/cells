@@ -23,12 +23,50 @@ import React, {Fragment} from 'react';
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
-import {Dialog, FlatButton, TextField, SelectField, MenuItem, IconButton, Toggle} from 'material-ui'
+import {Dialog, FlatButton, MenuItem, IconButton, Toggle} from 'material-ui'
 import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'cells-sdk'
 import LangUtils from 'pydio/util/lang'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
 const {ModernSelectField, ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+
+import FuncUtils from 'pydio/util/func'
+import ResourcesManager from 'pydio/http/resources-manager'
+
+function loadEditorClass(className = '', defaultComponent) {
+    if (!className) {
+        return Promise.resolve(defaultComponent);
+    }
+    const parts = className.split(".");
+    const ns = parts.shift();
+    const rest = parts.join('.');
+    return ResourcesManager.loadClass(ns).then(c => {
+        const comp = FuncUtils.getFunctionByName(rest, c);
+        if (!comp) {
+            if(typeof c === 'object' && c[ns]) {
+                const c2 = FuncUtils.getFunctionByName(rest, c[ns])
+                if (c2) {
+                    return c2
+                }
+            }
+            if(defaultComponent) {
+                console.error('Cannot find editor component, using default instead', className, defaultComponent);
+                return defaultComponent;
+            } else {
+                throw new Error("cannot find editor component")
+            }
+        }
+        return comp;
+    }).catch(e => {
+        if(defaultComponent) {
+            console.error('Cannot find editor component, using default instead', className, defaultComponent);
+            return defaultComponent;
+        } else {
+            throw e
+        }
+    })
+}
+
 
 class SelectionBoard extends React.Component{
 
@@ -118,6 +156,56 @@ class SelectionBoard extends React.Component{
     }
 }
 
+class MetaPoliciesBuilder extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    togglePolicies(right, value){
+        const {policies = [], onChangePolicies} = this.props;
+        let newPols = policies.filter(p => p.Action !== right);
+        newPols.push(ServiceResourcePolicy.constructFromObject({Action:right, Effect:'allow',Subject:value?'profile:admin':'*'}));
+        if(right === 'READ' && value){
+            // if read - set write as well
+            newPols = newPols.filter(p => p.Action !== 'WRITE')
+            newPols.push(ServiceResourcePolicy.constructFromObject({Action:'WRITE', Effect:'allow',Subject:'profile:admin'}));
+        }
+        onChangePolicies(newPols);
+    }
+
+    render() {
+        const {readonly, policies, pydio} = this.props;
+        const m  = (id) => pydio.MessageHash['ajxp_admin.metadata.' + id] || id;
+
+        let adminRead, adminWrite;
+        if(policies){
+            policies.map(p => {
+                if(p.Subject === 'profile:admin' && p.Action === 'READ') {
+                    adminRead = true;
+                }
+                if(p.Subject === 'profile:admin' && p.Action === 'WRITE') {
+                    adminWrite = true;
+                }
+            });
+        }
+
+        return (
+            <Fragment>
+                <div style={{padding:'6px 0'}}>
+                    <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
+                </div>
+                <div style={{padding:'6px 0'}}>
+                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
+                </div>
+            </Fragment>
+        )
+
+    }
+
+
+}
+
 class MetaNamespace extends React.Component{
 
     constructor(props) {
@@ -126,8 +214,13 @@ class MetaNamespace extends React.Component{
             namespace: this.cloneNs(props.namespace),
             m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id] || id,
             selectorNewKey:'',
-            selectorNewValue:''
+            selectorNewValue:'',
+            PoliciesBuilder: MetaPoliciesBuilder
         };
+        const {policiesBuilder} = this.props;
+        if(policiesBuilder) {
+            loadEditorClass(policiesBuilder, MetaPoliciesBuilder).then(c => this.setState({PoliciesBuilder: c}));
+        }
     }
 
     cloneNs(ns){
@@ -211,7 +304,7 @@ class MetaNamespace extends React.Component{
 
     render(){
         const {create, namespaces, pydio, readonly} = this.props;
-        const {namespace, m} = this.state;
+        const {namespace, m, PoliciesBuilder} = this.state;
         let title;
         if(namespace.Label){
             title = namespace.Label;
@@ -360,13 +453,14 @@ class MetaNamespace extends React.Component{
                 <div style={{padding:'6px 0'}}>
                     <Toggle label={m('toggle.index')} disabled={readonly} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}} {...ModernStyles.toggleField}/>
                 </div>
-                <div style={{padding:'6px 0'}}>
-                    <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
-                </div>
-                <div style={{padding:'6px 0'}}>
-                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
-                </div>
-
+                {PoliciesBuilder &&
+                    <PoliciesBuilder
+                        policies={namespace.Policies}
+                        readonly={readonly}
+                        onChangePolicies={(pols => this.setState({namespace:{...namespace, Policies:pols}}) )}
+                        pydio={pydio}
+                    />
+                }
                 <div style={styles.section}>{m('order')}</div>
                 <ModernTextField
                     floatingLabelText={m('order')}
