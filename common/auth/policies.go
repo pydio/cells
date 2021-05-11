@@ -111,7 +111,7 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 					}
 				}
 				for _, r := range u.Roles {
-					subjects = append(subjects, r.Uuid)
+					subjects = append(subjects, "role:"+r.Uuid)
 				}
 			} else {
 				log.Logger(ctx).Warn("[policies] Cannot find user "+uName+", although in context (maybe deleted?)", zap.Error(e))
