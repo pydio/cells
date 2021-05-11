@@ -30,7 +30,7 @@ const {FilePreview} = Pydio.requireLib('workspaces');
 function nodesFromObject(object, pydio){
     let nodes = [];
     const currentRepository = pydio.user.getActiveRepository();
-    if (!object.partOf || !object.partOf.items || !object.partOf.items.length){
+    if (!object || !object.partOf || !object.partOf.items || !object.partOf.items.length){
         return nodes;
     }
     for(let i = 0; i < object.partOf.items.length; i++ ){

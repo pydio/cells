@@ -155,7 +155,7 @@ class Activity extends React.Component{
     render() {
 
         let {pydio, activity, listContext, displayContext, oneLiner, muiTheme} = this.props;
-        let secondary = activity.type + " - " + activity.actor.name;
+        let secondary = activity.type + (activity.actor ? ' - ' + activity.actor.name : '');
         if (activity.summary) {
             secondary = <ReactMarkdown source={activity.summary} renderers={{'paragraph':Paragraph, 'link': LinkWrapper(pydio, activity, {color:'inherit'})}}/>;
         }
@@ -224,7 +224,11 @@ class Activity extends React.Component{
                             <FontIcon className={className} style={{lineHeight:'36px', color:muiTheme.palette.accent2Color}}/>
                         </div>
                     );
-                    primaryText = activity.object.name;
+                    if(activity.object) {
+                        primaryText = activity.object.name;
+                    } else {
+                        primaryText = activity.name;
+                    }
                 }
                 summary = (
                     <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
@@ -247,19 +251,21 @@ class Activity extends React.Component{
             <div style={blockStyle}>
                 {!oneLiner &&
                     <div style={{display:'flex', alignItems:'center'}}>
-                        <UserAvatar
-                            useDefaultAvatar={true}
-                            userId={activity.actor.id}
-                            userLabel={activity.actor.name}
-                            displayLocalLabel={true}
-                            userType={'user'}
-                            pydio={pydio}
-                            style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
-                            labelStyle={{fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
-                            avatarStyle={{flexShrink: 0}}
-                            avatarSize={28}
-                            richOnHover={true}
-                        />
+                        {activity.actor &&
+                            <UserAvatar
+                                useDefaultAvatar={true}
+                                userId={activity.actor.id}
+                                userLabel={activity.actor.name}
+                                displayLocalLabel={true}
+                                userType={'user'}
+                                pydio={pydio}
+                                style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
+                                labelStyle={{fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
+                                avatarStyle={{flexShrink: 0}}
+                                avatarSize={28}
+                                richOnHover={true}
+                            />
+                        }
                         <span style={{fontSize:13, display:'inline-block', flex:1, height:18, color: 'rgba(0,0,0,0.23)', fontWeight:500, paddingLeft:8, whiteSpace:'nowrap'}}>{moment(activity.updated).fromNow()}</span>
                         {actionIcon}
                     </div>
