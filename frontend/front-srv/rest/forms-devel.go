@@ -21,6 +21,20 @@ var formDevelConfigs = &forms.Form{
 				Type:        forms.ParamString,
 			},
 			&forms.FormField{
+				Name:        "f21",
+				Label:       "Textarea",
+				Description: "Textarea Description",
+				Mandatory:   true,
+				Type:        forms.ParamTextarea,
+			},
+			&forms.FormField{
+				Name:        "f22",
+				Label:       "Textarea 2",
+				Description: "Field 22 Description (area)",
+				Mandatory:   true,
+				Type:        forms.ParamTextarea,
+			},
+			&forms.FormField{
 				Name:        "f3",
 				Label:       "Label (bool)",
 				Description: "Field 3 Description (bool)",

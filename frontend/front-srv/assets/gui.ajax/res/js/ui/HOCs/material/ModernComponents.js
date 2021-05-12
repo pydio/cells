@@ -58,6 +58,21 @@ const styles = {
         hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
+        errorStyle:{bottom: -3}
+    },
+    textareaFieldV2:{
+        rows: 4,
+        rowsMax: 4,
+        style:{height: 128},
+        inputStyle:{backgroundColor:v2Block.backgroundColor, height: 120, borderRadius: v2Block.borderRadius, marginTop: 8, paddingLeft: 8},
+        textareaStyle:{marginTop: 24, marginBottom: 0},
+        floatingLabelFixed: true,
+        floatingLabelStyle:{top:35, left:6, width:'127%', ...noWrap},
+        floatingLabelShrinkStyle:{top:35, left: 6},
+        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
+        underlineStyle:{opacity:1, bottom: 0},
+        underlineFocusStyle:{opacity:1, bottom: 0, borderRadius: '0px 0px 3px 3px'},
+        errorStyle:{position:'absolute', bottom:8, right:8}
     },
     selectField:{
         style:{backgroundColor:'rgba(224, 224, 224, 0.33)',height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0, overflow:'hidden'},
@@ -173,12 +188,18 @@ function withModernTheme(formComponent) {
 
             if (formComponent === TextField) {
                 let styleProps;
-                if (this.props.multiLine) {
-                    styleProps = this.mergedProps({...styles.textareaField});
-                } else if(variant === 'v2') {
-                    styleProps = this.mergedProps(getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock));
+                if(this.props.multiLine){
+                    if(variant === 'v2') {
+                        styleProps = this.mergedProps({...styles.textareaFieldV2});
+                    } else {
+                        styleProps = this.mergedProps({...styles.textareaField});
+                    }
                 } else {
-                    styleProps = this.mergedProps({...styles.textField});
+                    if(variant === 'v2') {
+                        styleProps = this.mergedProps(getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock));
+                    } else {
+                        styleProps = this.mergedProps({...styles.textField});
+                    }
                 }
                 return <TextField {...otherProps} {...styleProps} ref={"component"} />
             } else if (formComponent === SelectField) {
