@@ -3231,6 +3231,9 @@ var SwaggerJson = `{
         "summary": {
           "type": "string"
         },
+        "markdown": {
+          "type": "string"
+        },
         "context": {
           "$ref": "#/definitions/activityObject"
         },
@@ -5387,6 +5390,13 @@ var SwaggerJson = `{
             "$ref": "#/definitions/jobsJobParameter"
           },
           "title": "Job-level parameters that can be passed to underlying actions"
+        },
+        "ResourcesDependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "title": "Additional dependencies that may be required when running the job"
         }
       }
     },

@@ -253,6 +253,9 @@ message Job {
 
     // Job-level parameters that can be passed to underlying actions
     repeated JobParameter Parameters = 19;
+
+    // Additional dependencies that may be required when running the job
+    repeated google.protobuf.Any ResourcesDependencies = 22;
 }
 
 message JobParameter {
