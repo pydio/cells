@@ -5706,6 +5706,28 @@
       },
       {
         "description": "",
+        "displayName": "MetaPoliciesBuilder",
+        "methods": [
+          {
+            "name": "togglePolicies",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "right",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
         "displayName": "MetaNamespace",
         "methods": [
           {
