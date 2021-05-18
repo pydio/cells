@@ -312,6 +312,37 @@ func (s *BleveServer) makeContentField(term string) query.Query {
 	return cQuery
 }
 
+func (s *BleveServer) makeDateTimeFacet(field string) *bleve.FacetRequest {
+	dateFacet := bleve.NewFacetRequest(field, 5)
+	now := time.Now()
+	last5 := now.Add(-5 * time.Minute)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	dateFacet.AddDateTimeRange("date.moments", last5, now)
+	dateFacet.AddDateTimeRange("date.today", today, last5)
+	dateFacet.AddDateTimeRange("date.last.7", now.Add(-7*24*time.Hour), today)
+	dateFacet.AddDateTimeRange("date.last.30", now.Add(-30*24*time.Hour), now.Add(-7*24*time.Hour))
+	dateFacet.AddDateTimeRange("date.older.30", time.Time{}, now.Add(-30*24*time.Hour))
+	return dateFacet
+}
+
+func (s *BleveServer) makeDateTimeFacetAsNum(field string) *bleve.FacetRequest {
+	dateFacet := bleve.NewFacetRequest(field, 5)
+	now := time.Now()
+	last5 := now.Add(-5 * time.Minute)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	d1 := float64(now.Unix())
+	d2 := float64(last5.Unix())
+	dateFacet.AddNumericRange("date.moments", &d2, &d1)
+	d3 := float64(today.Unix())
+	dateFacet.AddNumericRange("date.today", &d3, &d2)
+	d4 := float64(now.Add(-7 * 24 * time.Hour).Unix())
+	dateFacet.AddNumericRange("date.last.7", &d4, &d3)
+	d5 := float64(now.Add(-30 * 24 * time.Hour).Unix())
+	dateFacet.AddNumericRange("date.last.30", &d5, &d4)
+	dateFacet.AddNumericRange("date.older.30", nil, &d5)
+	return dateFacet
+}
+
 func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	boolean := bleve.NewBooleanQuery()
@@ -431,24 +462,29 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	sizeFacet.AddNumericRange("size.10MB.to.100MB", &s3, &s4)
 	sizeFacet.AddNumericRange("size.gt.100MB", &s4, nil)
 	searchRequest.AddFacet("Size", sizeFacet)
-	// Facets by date
-	dateFacet := bleve.NewFacetRequest("ModifTime", 5)
-	now := time.Now()
-	last5 := now.Add(-5 * time.Minute)
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	dateFacet.AddDateTimeRange("date.moments", last5, now)
-	dateFacet.AddDateTimeRange("date.today", today, last5)
-	dateFacet.AddDateTimeRange("date.last.7", now.Add(-7*24*time.Hour), today)
-	dateFacet.AddDateTimeRange("date.last.30", now.Add(-30*24*time.Hour), now.Add(-7*24*time.Hour))
-	dateFacet.AddDateTimeRange("date.older.30", time.Time{}, now.Add(-30*24*time.Hour))
+
+	dateFacet := s.makeDateTimeFacet("ModifTime")
 	searchRequest.AddFacet("Date", dateFacet)
 
 	if s.nsProvider == nil {
 		s.nsProvider = meta.NewNamespacesProvider()
 	}
+	nss := s.nsProvider.Namespaces()
 	for metaName, _ := range s.nsProvider.IncludedIndexes() {
+		def, _ := nss[metaName].UnmarshallDefinition()
+		if def != nil && (def.GetType() == "number" || def.GetType() == "boolean" || def.GetType() == "date") {
+			continue
+		}
 		metaFacet := bleve.NewFacetRequest("Meta."+metaName, 4)
+		/*
+			if def != nil && def.GetType() == "date" {
+				// Replace with a date facet - Working, but client-side the facet is not handled properly yet
+				fmt.Println("Replacing date facet")
+				metaFacet = s.makeDateTimeFacetAsNum("Meta." + metaName)
+			}
+		*/
 		searchRequest.AddFacet(metaName, metaFacet)
+
 	}
 
 	searchResult, err := s.Engine.SearchInContext(c, searchRequest)

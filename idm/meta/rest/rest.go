@@ -179,19 +179,13 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 		if ns.JsonDefinition != "" {
 			// Special case for tags: automatically update stored list
-			var nsDef map[string]interface{}
-			if jE := json.Unmarshal([]byte(ns.JsonDefinition), &nsDef); jE == nil {
-				if _, ok := nsDef["type"]; ok {
-					nsType := nsDef["type"].(string)
-					if nsType == "tags" {
-						var currentValue string
-						json.Unmarshal([]byte(meta.JsonValue), &currentValue)
-						log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
-						e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
-						if e != nil {
-							log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
-						}
-					}
+			if nsDef, jE := ns.UnmarshallDefinition(); jE == nil && nsDef.GetType() == "tags" {
+				var currentValue string
+				json.Unmarshal([]byte(meta.JsonValue), &currentValue)
+				log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
+				e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
+				if e != nil {
+					log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
 				}
 			} else {
 				log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace+": "+ns.JsonDefinition, zap.Error(jE))
@@ -300,17 +294,12 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 	}
 	ctx := req.Request.Context()
 	// Validate input
-	type jsonCheck struct {
-		Type string
-		Data interface{} `json:"data,omitempty"`
-	}
 	for _, ns := range input.Namespaces {
 		if !strings.HasPrefix(ns.Namespace, "usermeta-") {
 			service.RestError500(req, rsp, fmt.Errorf("user defined meta must start with usermeta- prefix"))
 			return
 		}
-		var check jsonCheck
-		if e := json.Unmarshal([]byte(ns.JsonDefinition), &check); e != nil {
+		if _, e := ns.UnmarshallDefinition(); e != nil {
 			service.RestError500(req, rsp, fmt.Errorf("invalid json definition for namespace: "+e.Error()))
 			return
 		}
