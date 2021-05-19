@@ -53,8 +53,7 @@ func init() {
 func TestNewBleveEngine(t *testing.T) {
 
 	Convey("Test all property indexation:\n", t, func() {
-		logAsMap := json2map(sampleSyslog)
-		err := server.PutLog(logAsMap)
+		err := server.PutLog(&log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
 		So(err, ShouldBeNil)
 		// Wait for batch to be processed
 		<-time.After(4 * time.Second)
@@ -142,7 +141,8 @@ func TestSizeRotation(t *testing.T) {
 				"MsgId":  "1",
 				"msg":    fmt.Sprintf("Message number %d", i),
 			}
-			s.PutLog(line)
+			data, _ := json.Marshal(line)
+			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
@@ -154,7 +154,8 @@ func TestSizeRotation(t *testing.T) {
 				"MsgId":  "1",
 				"msg":    fmt.Sprintf("Message number %d", k),
 			}
-			s.PutLog(line)
+			data, _ := json.Marshal(line)
+			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 		fmt.Println("Inserted 10020 other logs")
 
@@ -181,7 +182,8 @@ func TestSizeRotation(t *testing.T) {
 				"MsgId":  "1",
 				"msg":    fmt.Sprintf("Message number %d", i),
 			}
-			s.PutLog(line)
+			data, _ := json.Marshal(line)
+			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
@@ -194,7 +196,8 @@ func TestSizeRotation(t *testing.T) {
 				"MsgId":  "1",
 				"msg":    fmt.Sprintf("Message number %d", k),
 			}
-			s.PutLog(line)
+			data, _ := json.Marshal(line)
+			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 
 		<-time.After(5 * time.Second)
@@ -229,12 +232,13 @@ func log2json(level string, msg string) string {
 	return str
 }
 
-func log2map(level string, msg string) map[string]string {
+func log2map(level string, msg string) *log.Log {
 
-	var data map[string]string
 	str := fmt.Sprintf(`{"ts": "%s", "level": "%s", "msg": "%s"}`, time.Now().Format(time.RFC3339), level, msg)
-	json.Unmarshal([]byte(str), &data)
-	return data
+	return &log.Log{
+		Message: []byte(str),
+		Nano:    int32(time.Now().UnixNano()),
+	}
 }
 
 func json2map(line string) map[string]string {
