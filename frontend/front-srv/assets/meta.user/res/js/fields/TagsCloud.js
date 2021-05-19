@@ -50,7 +50,7 @@ class TagsCloud extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         let {node, value, column} = nextProps;
-        if(node && node !== this.props.node){
+        if(node){
             this.setState({tags: node.getMetadata().get(column.name)});
         }else if(value){
             this.setState({tags: value});

@@ -55,6 +55,10 @@ export default function asMetaForm(Component){
             })
         }
 
+        componentWillReceiveProps(nextProps, nextContext) {
+            this.setState({value: nextProps.value || ''})
+        }
+
         render() {
 
             return <Component

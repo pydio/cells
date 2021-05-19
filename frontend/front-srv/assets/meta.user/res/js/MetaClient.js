@@ -69,11 +69,8 @@ class MetaClient{
                             }),
                         ];
                         request.MetaDatas.push(meta);
-                        node.getMetadata().set(cName, values.get(cName));
                     });
-                    proms.push(api.updateUserMeta(request).then(resp => {
-                        node.notify('node_replaced');
-                    }));
+                    proms.push(api.updateUserMeta(request));
                 });
                 Promise.all(proms).then(() => {
                     resolve();

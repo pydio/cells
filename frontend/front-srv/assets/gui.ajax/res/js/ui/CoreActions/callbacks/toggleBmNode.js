@@ -17,12 +17,13 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import {pydio} from "../globals";
+import Pydio from "pydio";
 import PydioApi from 'pydio/http/api'
 import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta, ServiceResourcePolicy, IdmSearchUserMetaRequest, UpdateUserMetaRequestUserMetaOp} from 'cells-sdk'
 
 export default function toggleBookmarkNode(node, selection){
 
+    const pydio = Pydio.getInstance();
     const isBookmarked = node.getMetadata().get('bookmark') === 'true';
     const nodeUuid = node.getMetadata().get('uuid');
     const userId = pydio.user.id;
@@ -38,9 +39,6 @@ export default function toggleBookmarkNode(node, selection){
                 request.Operation = UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(() => {
-                    if(selection){
-                        selection.requireNodeReload(node);
-                    }
                     pydio.notify("reload-bookmarks");
                 });
             }
@@ -58,9 +56,6 @@ export default function toggleBookmarkNode(node, selection){
         ];
         request.MetaDatas = [userMeta];
         return api.updateUserMeta(request).then(() => {
-            if(selection){
-                selection.requireNodeReload(node);
-            }
             pydio.notify("reload-bookmarks");
         });
     }

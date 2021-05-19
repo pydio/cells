@@ -32,8 +32,6 @@ export default class InfoPanel extends React.Component{
                 this.refs.panel.resetUpdateData();
             }
             this.forceUpdate();
-            //this.setState({editMode: false}, ()=>{this.forceUpdate()});
-
         };
         if(props.node){
             props.node.observe('node_replaced', this._nodeObserver)
@@ -45,7 +43,6 @@ export default class InfoPanel extends React.Component{
     }
 
     reset(){
-        this.refs.panel.resetUpdateData();
         this.setState({editMode: false});
     }
 
@@ -130,9 +127,7 @@ export default class InfoPanel extends React.Component{
                     pydio={this.props.pydio}
                     onChangeUpdateData={(d) => {this.onChangeUpdateData(d)}}
                     autoSave={()=>{
-                        this.saveMeta().then(()=>{
-                            this.refs.panel.resetUpdateData();
-                        })
+                        this.saveMeta();
                     }}
                 />
             </PydioWorkspaces.InfoPanelCard>
