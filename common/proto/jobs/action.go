@@ -83,24 +83,45 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output 
 	output = input
 	if a.NodesFilter != nil {
 		output, excluded, passThrough = a.NodesFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.IdmFilter != nil {
 		output, excluded, passThrough = a.IdmFilter.Filter(ctx, output)
-	}
-	if a.UsersFilter != nil {
-		output, passThrough = a.UsersFilter.Filter(ctx, output)
-	}
-	if a.ActionOutputFilter != nil {
-		output, passThrough = a.ActionOutputFilter.Filter(ctx, output)
-	}
-	if a.ContextMetaFilter != nil {
-		output, passThrough = a.ContextMetaFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.DataSourceFilter != nil {
 		output, excluded, passThrough = a.DataSourceFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.TriggerFilter != nil {
 		output, excluded, passThrough = a.TriggerFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
+	}
+	if a.UsersFilter != nil {
+		output, passThrough = a.UsersFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
+	}
+	if a.ActionOutputFilter != nil {
+		output, passThrough = a.ActionOutputFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
+	}
+	if a.ContextMetaFilter != nil {
+		output, passThrough = a.ContextMetaFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	return
 }
