@@ -187,7 +187,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 				if e != nil {
 					log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
 				}
-			} else {
+			} else if jE != nil {
 				log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace+": "+ns.JsonDefinition, zap.Error(jE))
 			}
 		}

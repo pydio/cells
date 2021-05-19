@@ -41,10 +41,11 @@ import (
 
 var (
 	queries = map[string]string{
-		"AddMeta":    `insert into idm_usr_meta (uuid, node_uuid, namespace, owner, timestamp, format, data) values (?, ?,?,?,?,?,?)`,
-		"UpdateMeta": `update idm_usr_meta set node_uuid=?, namespace=?, owner=?, timestamp=?, format=?, data=? WHERE uuid=?`,
-		"Exists":     `select uuid from idm_usr_meta where node_uuid=? and namespace=? and owner=?`,
-		"DeleteMeta": `delete from idm_usr_meta where uuid=?`,
+		"AddMeta":      `insert into idm_usr_meta (uuid, node_uuid, namespace, owner, timestamp, format, data) values (?, ?,?,?,?,?,?)`,
+		"UpdateMeta":   `update idm_usr_meta set node_uuid=?, namespace=?, owner=?, timestamp=?, format=?, data=? WHERE uuid=?`,
+		"Exists":       `select uuid, data from idm_usr_meta where node_uuid=? and namespace=? and owner=?`,
+		"ExistsByUuid": `select data from idm_usr_meta where uuid=?`,
+		"DeleteMeta":   `delete from idm_usr_meta where uuid=?`,
 	}
 )
 
@@ -62,26 +63,26 @@ func (dao *sqlimpl) GetNamespaceDao() namespace.DAO {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options configx.Values) error {
+func (dao *sqlimpl) Init(options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	dao.DAO.Init(options)
 
 	// Preparing the resources
 
-	s.ResourcesSQL = resources.NewDAO(s.Handler, "idm_usr_meta.uuid").(*resources.ResourcesSQL)
-	if err := s.ResourcesSQL.Init(options); err != nil {
+	dao.ResourcesSQL = resources.NewDAO(dao.Handler, "idm_usr_meta.uuid").(*resources.ResourcesSQL)
+	if err := dao.ResourcesSQL.Init(options); err != nil {
 		return err
 	}
 
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../idm/meta/migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
+		Dir:         dao.Driver(),
+		TablePrefix: dao.Prefix(),
 	}
 
-	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_usr_meta_")
+	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, "idm_usr_meta_")
 	if err != nil {
 		return err
 	}
@@ -89,40 +90,45 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	// Preparing the db statements
 	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
+			if err := dao.Prepare(key, query); err != nil {
 				return err
 			}
 		}
 	}
 
 	// Initing namespace
-	nsDAO := namespace.NewDAO(s.Handler)
+	nsDAO := namespace.NewDAO(dao.Handler)
 	if err := nsDAO.Init(options); err != nil {
 		return err
 	}
 
-	s.nsDAO = nsDAO.(namespace.DAO)
+	dao.nsDAO = nsDAO.(namespace.DAO)
 
 	return nil
 }
 
-// Add or Update a UserMeta to the DB
-func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
+// Set adds or updates a UserMeta to the DB
+func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
 	var (
-		update bool
-		metaId string
+		previousValue string
+		metaId        string
+		update        bool
 	)
 
 	owner := dao.extractOwner(meta.Policies)
 
 	stmt, er := dao.GetStmt("Exists")
 	if er != nil {
-		return nil, false, er
+		return nil, previousValue, er
 	}
 
 	exists := stmt.QueryRow(meta.NodeUuid, meta.Namespace, owner)
-	if err := exists.Scan(&metaId); err == nil && metaId != "" {
+	if err := exists.Scan(&metaId, &previousValue); err == nil && metaId != "" {
 		update = true
+		// Replace empty string by empty json meta
+		if previousValue == "\"\"" {
+			previousValue = ""
+		}
 	} else {
 		metaId = uuid.NewUUID().String()
 	}
@@ -130,7 +136,7 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 	if update {
 		stmt, er := dao.GetStmt("UpdateMeta")
 		if er != nil {
-			return nil, false, er
+			return nil, previousValue, er
 		}
 
 		if _, err := stmt.Exec(
@@ -142,12 +148,12 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 			meta.JsonValue,
 			&metaId,
 		); err != nil {
-			return meta, update, err
+			return meta, previousValue, err
 		}
 	} else {
 		stmt, er := dao.GetStmt("AddMeta")
 		if er != nil {
-			return nil, false, er
+			return nil, previousValue, er
 		}
 
 		if _, err := stmt.Exec(
@@ -159,7 +165,7 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 			"json",
 			meta.JsonValue,
 		); err != nil {
-			return meta, update, err
+			return meta, previousValue, err
 		}
 
 	}
@@ -173,22 +179,34 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 		err = dao.AddPolicies(update, meta.Uuid, meta.Policies)
 	}
 
-	return meta, update, err
+	return meta, previousValue, err
 }
 
-// Delete meta by their Id
-func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
-	stmt, er := dao.GetStmt("DeleteMeta")
+// Del deletes meta by their Id.
+func (dao *sqlimpl) Del(meta *idm.UserMeta) (previousValue string, e error) {
+
+	stmt, er := dao.GetStmt("ExistsByUuid")
 	if er != nil {
-		return er
+		return previousValue, er
+	}
+	exists := stmt.QueryRow(meta.Uuid)
+	exists.Scan(&previousValue)
+	// Replace empty string by empty json meta
+	if previousValue == "\"\"" {
+		previousValue = ""
+	}
+
+	stmt, er = dao.GetStmt("DeleteMeta")
+	if er != nil {
+		return "", er
 	}
 
 	if _, e := stmt.Exec(meta.Uuid); e != nil {
-		return e
+		return "", e
 	} else if e := dao.DeletePoliciesForResource(meta.Uuid); e != nil {
-		return e
+		return "", e
 	}
-	return nil
+	return previousValue, nil
 }
 
 // Search meta on their conditions

@@ -25,11 +25,13 @@ import json "github.com/pydio/cells/x/jsonx"
 type MetaNamespaceDefinition interface {
 	GetType() string
 	GetData() interface{}
+	GetSteps() bool
 }
 
 type metaNsDef struct {
-	Type string
-	Data interface{} `json:"data,omitempty"`
+	Type  string
+	Data  interface{} `json:"data,omitempty"`
+	Steps bool        `json:"steps,omitempty"`
 }
 
 func (d *metaNsDef) GetType() string {
@@ -38,6 +40,10 @@ func (d *metaNsDef) GetType() string {
 
 func (d *metaNsDef) GetData() interface{} {
 	return d.Data
+}
+
+func (d *metaNsDef) GetSteps() bool {
+	return d.Steps
 }
 
 func (m *UserMetaNamespace) UnmarshallDefinition() (MetaNamespaceDefinition, error) {
