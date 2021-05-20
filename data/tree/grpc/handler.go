@@ -80,10 +80,10 @@ type DataSource struct {
 }
 
 type TreeServer struct {
-	DataSources  map[string]DataSource
-	ConfigsMutex *sync.Mutex
-	meta         tree.NodeProviderClient
-	listeners    []*changesListener
+	sync.Mutex
+	DataSources map[string]DataSource
+	meta        tree.NodeProviderClient
+	listeners   []*changesListener
 }
 
 // ReadNodeStream Implement stream for readNode method

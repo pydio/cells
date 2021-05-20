@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -33,7 +34,11 @@ import (
 	"github.com/pydio/cells/common/registry"
 )
 
-func updateServicesList(ctx context.Context, treeServer *TreeServer) {
+func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) {
+
+	treeServer.Lock()
+	initialLength := len(treeServer.DataSources)
+	treeServer.Unlock()
 
 	otherServices, err := registry.ListRunningServices()
 	if err != nil {
@@ -64,9 +69,15 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer) {
 		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)
 	}
 
-	treeServer.ConfigsMutex.Lock()
+	treeServer.Lock()
 	treeServer.DataSources = dataSources
-	treeServer.ConfigsMutex.Unlock()
+	treeServer.Unlock()
+
+	// If registry event comes too soon, running services may not be loaded yet
+	if retry < 2 && initialLength == len(dataSources) {
+		<-time.After(2 * time.Second)
+		updateServicesList(ctx, treeServer, retry+1)
+	}
 }
 
 func filterServices(vs []registry.Service, f func(string) bool) []string {
@@ -90,7 +101,7 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		if result != nil && err == nil {
 			srv := result.Service
 			if strings.Contains(srv.Name, common.ServiceDataSync_) {
-				updateServicesList(ctx, treeServer)
+				updateServicesList(ctx, treeServer, 0)
 			}
 		} else if err != nil {
 			log.Logger(ctx).Error("Registry Watcher Error", zap.Error(err))
