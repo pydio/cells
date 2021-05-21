@@ -34,7 +34,7 @@ import (
 	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"

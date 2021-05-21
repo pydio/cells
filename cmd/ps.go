@@ -21,7 +21,7 @@
 package cmd
 
 import (
-	"fmt"
+
 	//"net"
 	"os"
 	"regexp"
@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 )
 
 var (
@@ -106,9 +105,6 @@ EXAMPLE
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		natsstreaming.Init()
-		// nats.Init
-
 		// Initialise the default registry
 		handleRegistry()
 
@@ -118,19 +114,8 @@ EXAMPLE
 		services, _ := defaults.Registry().ListServices()
 
 		for _, srv := range services {
-			// Initially, we retrieve each service to ensure we have the correct list
-			fmt.Println("In ps ", srv.Nodes)
-			// for _, n := range srv.Nodes {
-				//_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
-				//if err != nil {
-				//
-				//	continue
-				//}
-				runningServices = append(runningServices, srv.Name)
-			// }
+			runningServices = append(runningServices, srv.Name)
 		}
-
-		fmt.Println("We have in ps ", runningServices)
 
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {

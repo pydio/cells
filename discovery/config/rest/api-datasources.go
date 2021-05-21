@@ -32,12 +32,12 @@ import (
 
 	"github.com/pydio/cells/common/proto/jobs"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/pborman/uuid"
-	"github.com/pydio/minio-go"
+	minio "github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -160,7 +160,6 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
-	fmt.Println(config.Get("services", "pydio.grpc.data.sync."+dsName))
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
 	config.SourceNamesToConfig(currentSources)
@@ -200,7 +199,6 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		}
 
 	} else {
-		fmt.Println("Error is ", err)
 		service.RestError500(req, resp, err)
 	}
 

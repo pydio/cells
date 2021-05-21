@@ -43,10 +43,10 @@ import (
 	"time"
 
 	"github.com/gyuho/goraph"
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
-	"github.com/micro/go-web"
+	web "github.com/micro/go-web"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -83,18 +83,13 @@ type Service interface {
 	Done() chan (struct{})
 }
 
-
 func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
 		"--fork",
-		"--config", "remote",
-		"--registry", viper.GetString("registry"),
-		"--broker", viper.GetString("broker"),
-		"--nats_streaming_store", viper.GetString("nats_streaming_store"),
-		"--nats_address", viper.GetString("nats_address"),
-		"--nats_cluster_address", viper.GetString("nats_cluster_address"),
-		"--nats_cluster_routes", viper.GetString("nats_cluster_routes"),
+		// "--config", "remote",
+		"--registry", "service",
+		"--broker", "service",
 	}
 	if viper.GetBool("enable_metrics") {
 		params = append(params, "--enable_metrics")

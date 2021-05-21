@@ -1,6 +1,7 @@
 package remote
 
 import (
+	"fmt"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -44,6 +45,7 @@ func New(id string) configx.Entrypoint {
 			})
 
 			if err != nil {
+				fmt.Println("And the error for the config is ? ", err)
 				time.Sleep(1 * time.Second)
 				continue
 			}

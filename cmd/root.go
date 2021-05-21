@@ -260,8 +260,6 @@ func initConfig() (new bool) {
 		localConfig = defaultConfig
 
 		config.RegisterLocal(localConfig)
-
-
 	}
 
 	if defaultConfig.Val("version").String() == "" {
@@ -329,6 +327,9 @@ func initLogLevel() {
 	}
 
 	log.Init()
+
+	// Using it once
+	log.Logger(context.Background())
 }
 
 func initAdvertiseIP() {

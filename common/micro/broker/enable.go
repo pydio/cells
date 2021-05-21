@@ -2,17 +2,23 @@ package broker
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/broker/http"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/broker/nats"
+	"github.com/spf13/viper"
+
 	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/micro/broker/memory"
+	"github.com/pydio/cells/common/micro/broker/service"
 	"github.com/pydio/cells/common/micro/broker/stan"
+	"github.com/pydio/cells/common/micro/client/grpc"
+	bs "github.com/pydio/cells/common/micro/selector/broker"
 	"github.com/pydio/cells/common/micro/transport/codec/proto"
 	"github.com/pydio/cells/common/registry"
-	"github.com/spf13/viper"
 )
 
 // EnableNATS enables the nats broker
@@ -91,6 +97,47 @@ func EnableHTTP() {
 
 	addr := viper.GetString("broker_address")
 	b := http.NewBroker(broker.Addrs(addr))
+
+	defaults.InitServer(func() server.Option {
+		return server.Broker(b)
+	})
+
+	defaults.InitClient(func() client.Option {
+		return client.Broker(b)
+	})
+
+	broker.DefaultBroker = b
+
+	// Establishing connectin
+	broker.Connect()
+}
+
+func EnableMemory() {
+	b := memory.NewBroker()
+
+	defaults.InitServer(func() server.Option {
+		return server.Broker(b)
+	})
+
+	defaults.InitClient(func() client.Option {
+		return client.Broker(b)
+	})
+
+	broker.DefaultBroker = b
+
+	// Establishing connectin
+	broker.Connect()
+}
+
+func EnableService() {
+	b := service.NewBroker(
+		service.WithClient(
+			grpc.NewClient(
+				client.RequestTimeout(10*time.Minute),
+				client.Selector(bs.NewSelector()),
+			),
+		),
+	)
 
 	defaults.InitServer(func() server.Option {
 		return server.Broker(b)

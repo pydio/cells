@@ -13,8 +13,8 @@ import (
 
 // addRegistryFlags registers necessary flags to connect to the registry
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	flags.String("registry", "stan", "Registry used to manage services (currently nats only)")
-	flags.String("broker", "stan", "Pub/sub service for events between services (currently nats only)")
+	flags.String("registry", "memory", "Registry used to manage services (currently nats only)")
+	flags.String("broker", "memory", "Pub/sub service for events between services (currently nats only)")
 	flags.String("transport", "grpc", "Transport protocol for RPC")
 
 	if len(hideAll) > 0 && hideAll[0] {
@@ -39,10 +39,10 @@ func bindViperFlags(flags *pflag.FlagSet, replaceKeys map[string]string) {
 func handleRegistry() {
 
 	switch viper.Get("registry") {
-	case "nats":
-		registry.EnableNats()
-	case "stan":
-		registry.EnableStan()
+	case "service":
+		registry.EnableService()
+	case "memory":
+		registry.EnableMemory()
 	// case "etcd":
 	// 	registry.EnableEtcd()
 	default:
@@ -59,6 +59,10 @@ func handleBroker() {
 		broker.EnableSTAN()
 	case "http":
 		broker.EnableHTTP()
+	case "memory":
+		broker.EnableMemory()
+	case "service":
+		broker.EnableService()
 	default:
 		log.Fatal("broker not supported")
 	}

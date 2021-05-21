@@ -280,7 +280,7 @@ func (c *cacheSelector) run() {
 			if c.quit() {
 				return
 			}
-			log.Log(err)
+			// log.Log(err)
 			continue
 		}
 	}

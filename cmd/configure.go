@@ -24,7 +24,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 	"net/url"
 	"os"
 	"os/exec"
@@ -352,9 +351,6 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	initStartingToolsOnce.Do(func() {
 		initLogLevel()
-
-		// Initialising services
-		natsstreaming.Init()
 
 		metrics.Init()
 

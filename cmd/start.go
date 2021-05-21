@@ -23,7 +23,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	natsstreaming "github.com/pydio/cells/discovery/nats-streaming"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -40,7 +39,6 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
-	"github.com/pydio/cells/discovery/nats"
 	"github.com/pydio/cells/x/filex"
 )
 
@@ -141,14 +139,8 @@ ENVIRONMENT
 			}
 		}
 
-		var initStartingToolsError error
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
-
-			// nats.Init()
-			if initStartingToolsError = natsstreaming.Init(); initStartingToolsError != nil {
-				return
-			}
 
 			metrics.Init()
 
@@ -164,10 +156,6 @@ ENVIRONMENT
 			// Making sure we capture the signals
 			handleSignals()
 		})
-
-		if initStartingToolsError != nil {
-			return initStartingToolsError
-		}
 
 		if config.RuntimeIsRemote() {
 			// For a remote server, we are waiting for the registry to be set to initiate config
@@ -298,10 +286,6 @@ ENVIRONMENT
 
 		for {
 			select {
-			case err := <-nats.Monitor():
-				return err
-			case err := <-natsstreaming.Monitor():
-				return err
 			case <-ticker.C:
 				if defaults.RuntimeIsFork() {
 					// Check that the parent is still alive

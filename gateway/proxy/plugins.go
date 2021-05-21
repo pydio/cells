@@ -270,6 +270,10 @@ func init() {
 
 				return service.NewGenericServer(srv, opts...)
 			}),
+			service.BeforeInit(func(s service.Service) error {
+				caddy.Enable(caddyfile, play)
+				return nil
+			}),
 			service.AfterStart(func(s service.Service) error {
 
 				logFunc := log.Logger(s.Options().Context).Debug
@@ -348,7 +352,7 @@ func (g *gatewayProxyServer) Start() error {
 		}
 	}
 
-	caddy.Enable(caddyfile, play)
+
 
 	caddyconf.PluginTemplates = caddy.GetTemplates()
 	caddyconf.PluginPathes = caddy.GetPathes()

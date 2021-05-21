@@ -277,7 +277,6 @@ func (g *grpcClient) Call(ctx context.Context, req client.Request, rsp interface
 	ch := make(chan error, callOpts.Retries)
 	var gerr error
 
-
 	for i := 0; i < callOpts.Retries; i++ {
 		go func() {
 			ch <- call(i)
@@ -329,18 +328,6 @@ func (g *grpcClient) Stream(ctx context.Context, req client.Request, opts ...cli
 		return nil, errors.NotFound("go.micro.client", err.Error())
 	} else if err != nil {
 		return nil, errors.InternalServerError("go.micro.client", err.Error())
-	}
-
-	// check if we already have a deadline
-	d, ok := ctx.Deadline()
-	if !ok {
-		// no deadline so we create a new one
-		ctx, _ = context.WithTimeout(ctx, callOpts.RequestTimeout)
-	} else {
-		// got a deadline so no need to setup context
-		// but we need to set the timeout we pass along
-		opt := client.WithRequestTimeout(d.Sub(time.Now()))
-		opt(&callOpts)
 	}
 
 	// should we noop right here?

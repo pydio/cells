@@ -22,15 +22,16 @@ package service
 
 import (
 	"github.com/micro/cli"
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/selector/cache"
-	"github.com/micro/go-micro/server"
+	server "github.com/micro/go-micro/server"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	cserver "github.com/pydio/cells/common/micro/server"
 	"github.com/pydio/cells/common/micro/server/grpc"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -97,12 +98,13 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			)
 
 			srv := defaults.NewServer(srvOpts...)
+			srv = cserver.NewServerWithStopOnRegisterError(srv)
 			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)
