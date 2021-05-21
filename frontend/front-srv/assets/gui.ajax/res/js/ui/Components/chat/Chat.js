@@ -165,7 +165,7 @@ class Chat extends React.Component{
     }
 
     render(){
-        const {style, msgContainerStyle, fieldHint, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
+        const {style, msgContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
         const {messages, room} = this.state;
         let data = [];
         let previousMDate;
@@ -221,6 +221,7 @@ class Chat extends React.Component{
                         onKeyDown={this.keyDown.bind(this)}
                         fullWidth={true}
                         underlineShow={false}
+                        {...textFieldProps}
                     />
                 </div>
             </div>

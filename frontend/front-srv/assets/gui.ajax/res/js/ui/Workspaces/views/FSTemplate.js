@@ -32,6 +32,7 @@ import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
+import Color from "color";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
 class FSTemplate extends React.Component {
@@ -168,6 +169,7 @@ class FSTemplate extends React.Component {
 
         const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
         const superLightBack = new Color({h:colorHue,s:35,l:98});
+        const infoPanelBg = new Color({h:colorHue,s:30,l:96});
 
         // Load from user prefs
         const {themeLight, smallScreen, xtraSmallScreen} = this.state;
@@ -231,7 +233,7 @@ class FSTemplate extends React.Component {
                 color: appBarTextColor.fade(0.03).toString()
             },
             infoPanelStyle : {
-                backgroundColor: 'transparent',
+                backgroundColor: infoPanelBg.toString(),
                 top: headerHeight
             },
             otherPanelsStyle: {

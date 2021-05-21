@@ -19,18 +19,75 @@
  */
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
+import Color from 'color';
 import {IconButton, Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
-const styles = {
-    card: {
-        backgroundColor: 'white'
+const getStyles = (palette) => {
+    const colorHue = Color(palette.primary1Color).hsl().array()[0];
+    const headerTitle = new Color({h:colorHue,s:30,l:43});
+
+    return {
+        card: {
+            panel:{
+                backgroundColor: 'white',
+                borderRadius: 6,
+                boxShadow: 'rgba(0, 0, 0, .15) 0px 0px 12px',
+                margin: 10,
+                marginBottom: 0,
+                overflow:'hidden'
+            },
+            header:{
+                backgroundColor:'transparent',
+                position:'relative',
+                color:headerTitle.toString(),
+                fontSize: 14,
+                fontWeight: 500,
+                padding: '12px 16px',
+                cursor:'pointer'
+            },
+            content:{
+                backgroundColor:'transparent',
+                paddingBottom: 0
+            },
+            headerIcon:{
+                position:'absolute',
+                top: -1,
+                right: 0,
+                color:'#ccc'
+            },
+            actions:{
+                padding: 2,
+                textAlign: 'right',
+                borderTop: '1px solid #e0e0e0'
+            }
+        },
+        toolbar:{
+            container: {
+                backgroundColor: palette.accent2Color,
+                justifyContent: 'flex-end',
+                position:'relative'
+            },
+            button: {
+                color:'white',
+                paddingRight: 8,
+                paddingLeft: 8
+            },
+            flatButton:{
+                minWidth: 0
+            }
+        }
     }
 };
 
+const storageKey = 'pydio.layout.infoPanel.cardStatuses'
 let CardsStates  = {};
+if(localStorage.getItem(storageKey)) {
+    try {
+        CardsStates = JSON.parse(localStorage.getItem(storageKey));
+    }catch (e){}
+}
 
 /**
  * Default InfoPanel Card
@@ -41,6 +98,8 @@ class InfoPanelCard extends React.Component{
         super(props);
         if (props.identifier && CardsStates[props.identifier] !== undefined){
             this.state = {open: CardsStates[props.identifier]};
+        } else if (props.identifier) {
+            this.state = {open: props.defaultOpen || false};
         } else {
             this.state = {open: true};
         }
@@ -51,23 +110,25 @@ class InfoPanelCard extends React.Component{
         this.setState({open: newState});
         if(this.props.identifier){
             CardsStates[this.props.identifier] = newState;
+            localStorage.setItem(storageKey, JSON.stringify(CardsStates));
         }
     }
 
     render(){
         const {open, hoverRow} = this.state;
-        const {primaryToolbars} = this.props;
-        const icon = <div className="panelIcon" style={{position: 'absolute', right: 2, top: open?8:2}}><IconButton onClick={()=>{this.toggle()}} iconClassName={"mdi mdi-chevron-" + (open?'up':'down')}/></div>;
+        const {primaryToolbars, muiTheme, pydio, standardData} = this.props;
+        const styles = getStyles(muiTheme.palette);
+        const icon = (
+            <div
+                style={styles.card.headerIcon}>
+                <IconButton onClick={()=>{this.toggle()}} iconStyle={{color:styles.card.headerIcon.color}} iconClassName={"mdi mdi-chevron-" + (open?'up':'down')}/>
+            </div>);
 
-        let openStyle;
-        if(!open){
-            openStyle = {paddingTop: 16};
-        }
-        let title = this.props.title ? <Paper zDepth={0} className="panelHeader" style={{position:'relative', ...openStyle}}>{icon}{this.props.title}</Paper> : null;
-        let actions = this.props.actions ? <div className="panelActions">{this.props.actions}</div> : null;
+        let title = this.props.title ? <Paper zDepth={0} style={styles.card.header} onClick={()=>{this.toggle()}}>{icon}{this.props.title}</Paper> : null;
+        let actions = this.props.actions ? <div style={styles.card.actions}>{this.props.actions}</div> : null;
         let rows, toolBar;
-        if(this.props.standardData){
-            rows = this.props.standardData.map((object)=>{
+        if(standardData){
+            rows = standardData.map((object)=>{
                 const {key, label, value, hoverValue} = object;
                 return (
                     <div className="infoPanelRow" key={key}>
@@ -80,21 +141,15 @@ class InfoPanelCard extends React.Component{
             });
         }
         if(primaryToolbars){
-            const themePalette = this.props.muiTheme.palette;
-            const tBarStyle = {
-                backgroundColor: themePalette.accent2Color,
-                justifyContent: 'flex-end',
-                position:'relative'
-            };
             toolBar = (
                 <PydioComponents.Toolbar
-                    toolbarStyle={tBarStyle}
-                    flatButtonStyle={{minWidth: 0}}
-                    buttonStyle={{color:'white', paddingRight: 8, paddingLeft: 8}}
+                    toolbarStyle={styles.toolbar.container}
+                    flatButtonStyle={styles.toolbar.flatButton}
+                    buttonStyle={styles.toolbar.button}
                     className="primaryToolbar"
                     renderingType="button"
                     toolbars={primaryToolbars}
-                    controller={this.props.pydio.getController()}
+                    controller={pydio.getController()}
                     fabAction={"share"}
                     buttonMenuNoLabel={true}
                     buttonMenuPopoverDirection={"right"}
@@ -103,10 +158,10 @@ class InfoPanelCard extends React.Component{
         }
 
         return (
-            <Paper zDepth={1} className="panelCard" style={{...this.props.style, ...styles.card}}>
+            <Paper zDepth={1} className="panelCard" style={{...this.props.style, ...styles.card.panel}}>
                 {title}
                 {open &&
-                    <div className="panelContent" style={this.props.contentStyle}>
+                    <div className="panelContent" style={{...this.props.contentStyle, ...styles.card.content}}>
                         {this.props.children}
                         {rows}
                         {toolBar}
@@ -116,8 +171,8 @@ class InfoPanelCard extends React.Component{
             </Paper>
         );
     }
-
 }
+
 
 InfoPanelCard.PropTypes = {
     identifier: PropTypes.string,

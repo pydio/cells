@@ -13,7 +13,7 @@
     <registry_contributions>
         <client_configs>
             <component_config component="InfoPanel">
-                <infoPanel mime="ajxp_root_node,generic_dir,generic_file" reactComponent="PydioActivityStreams.InfoPanel"/>
+                <infoPanel mime="ajxp_root_node,generic_dir,generic_file" reactComponent="PydioActivityStreams.InfoPanel" weight="20"/>
             </component_config>
         </client_configs>
         <actions>

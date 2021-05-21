@@ -446,7 +446,7 @@ class MainFilesList extends React.Component {
                 label =  dirName?dirName:"/" ;
                 standard = true;
             }else if(s === "bytesize") {
-                if(metaData.get(s) === "-"){
+                if(!metaData.has(s) || metaData.get(s) === "-"){
                     continue;
                 } else {
                     let test = PathUtils.roundFileSize(parseInt(metaData.get(s)));
