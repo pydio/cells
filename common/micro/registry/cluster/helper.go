@@ -1,8 +1,35 @@
-package nats
+package cluster
 
 import (
 	"github.com/micro/go-micro/registry"
 )
+
+func mergeServices(old, neu []*registry.Service) []*registry.Service {
+	if len(old) == 0 {
+		return neu
+	}
+
+	if len(neu) == 0 {
+		return old
+	}
+
+	m := make(map[string][]*registry.Service)
+
+	for _, s := range old {
+		m[s.Name] = addServices(m[s.Name], []*registry.Service{s})
+	}
+
+	for _, s := range neu {
+		m[s.Name] = addServices(m[s.Name], []*registry.Service{s})
+	}
+
+	var services []*registry.Service
+	for _, mm := range m {
+		services = append(services, mm...)
+	}
+
+	return services
+}
 
 func addNodes(old, neu []*registry.Node) []*registry.Node {
 	for _, n := range neu {

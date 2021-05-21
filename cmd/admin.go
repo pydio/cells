@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/pydio/cells/discovery/nats"
 	"github.com/spf13/cobra"
 )
 
@@ -21,8 +20,6 @@ DESCRIPTION
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
-
-		nats.Init()
 
 		// Initialise the default registry
 		handleRegistry()

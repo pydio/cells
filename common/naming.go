@@ -42,6 +42,8 @@ const (
 	ServiceInstall     = "install"
 	ServiceUpdate      = "update"
 	ServiceHealthCheck = "healthcheck"
+	ServiceBroker      = "broker"
+	ServiceRegistry    = "registry"
 
 	ServiceTagBroker     = "broker"
 	ServiceTagData       = "data"

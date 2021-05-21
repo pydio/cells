@@ -327,6 +327,9 @@ func initLogLevel() {
 	}
 
 	log.Init()
+
+	// Using it once
+	log.Logger(context.Background())
 }
 
 func initAdvertiseIP() {

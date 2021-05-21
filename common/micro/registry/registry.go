@@ -2,59 +2,40 @@ package registry
 
 import (
 	"context"
-	"net"
 	"time"
+
+	"github.com/pydio/cells/common/micro/registry/cluster"
+	"github.com/pydio/cells/common/micro/registry/service"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/server"
-	gonats "github.com/nats-io/nats.go"
-	gostan "github.com/nats-io/stan.go"
+	"github.com/micro/go-plugins/registry/memory"
+	"github.com/pydio/cells/common/micro/client/grpc"
 
 	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/micro/registry/nats"
-	"github.com/pydio/cells/common/micro/registry/stan"
 	"github.com/pydio/cells/common/micro/selector/cache"
+	rs "github.com/pydio/cells/common/micro/selector/registry"
 	"github.com/spf13/viper"
 )
 
-type customDialer struct {
-	ctx             context.Context
-	nc              *gonats.Conn
-	connectTimeout  time.Duration
-	connectTimeWait time.Duration
-}
+func EnableService() {
+	// addr := "127.0.0.1:8000"
 
-func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
-	ctx, cancel := context.WithTimeout(cd.ctx, cd.connectTimeout)
-	defer cancel()
-
-	for {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-
-		select {
-		case <-cd.ctx.Done():
-			return nil, cd.ctx.Err()
-		default:
-			d := &net.Dialer{}
-			if conn, err := d.DialContext(ctx, network, address); err == nil {
-				return conn, nil
-			} else {
-				time.Sleep(cd.connectTimeWait)
-			}
-		}
-	}
-}
-
-func EnableNats() {
-	addr := viper.GetString("nats_address")
-	r := nats.NewRegistry(
-		registry.Addrs(addr),
+	r := service.NewRegistry(
+		service.WithClient(
+			grpc.NewClient(
+				client.RequestTimeout(10*time.Minute),
+				client.Selector(rs.NewSelector()),
+				client.Retries(20),
+			),
+		),
 	)
+
+	r = NewRegistryWithExpiry(r, 20*time.Minute)
+	r = NewRegistryWithUnique(r)
 
 	s := cache.NewSelector(selector.Registry(r))
 
@@ -65,7 +46,8 @@ func EnableNats() {
 	defaults.InitClient(
 		func() client.Option {
 			return client.Selector(s)
-		}, func() client.Option {
+		},
+		func() client.Option {
 			return client.Registry(r)
 		}, func() client.Option {
 			return client.Retries(5)
@@ -77,18 +59,17 @@ func EnableNats() {
 	registry.DefaultRegistry = r
 }
 
-func EnableStan() {
-	addr := viper.GetString("nats_address")
+func EnableMemory() {
+	// addr := "127.0.0.1:8000"
 
-	r := stan.NewRegistry(
-		stan.ClusterID(viper.GetString("nats_streaming_cluster_id")),
-		registry.Addrs(addr),
-		stan.Options(
-			gostan.NatsURL(addr),
-		),
+	r := memory.NewRegistry()
+
+	r = NewRegistryWithExpiry(r, 20*time.Minute)
+	r = NewRegistryWithUnique(r)
+	r = cluster.NewRegistry(r,
+		registry.Addrs(viper.GetString("nats_address")),
+		cluster.ClusterID(viper.GetString("nats_streaming_cluster_id")),
 	)
-
-	s := cache.NewSelector(selector.Registry(r))
 
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)
@@ -96,8 +77,6 @@ func EnableStan() {
 
 	defaults.InitClient(
 		func() client.Option {
-			return client.Selector(s)
-		}, func() client.Option {
 			return client.Registry(r)
 		}, func() client.Option {
 			return client.Retries(5)

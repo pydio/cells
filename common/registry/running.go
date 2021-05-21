@@ -102,7 +102,7 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			s := res.Service
 
 			switch a {
-			case "create":
+			case "create", "update":
 				for _, n := range s.Nodes {
 					if n == nil {
 						continue
