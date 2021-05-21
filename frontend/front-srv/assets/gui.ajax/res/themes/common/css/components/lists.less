@@ -53,11 +53,13 @@
             }
           }
           .metadata_chunk_other {
-            background-color: rgba(204, 204, 204, .15);
+            &:not(.metadata_chunk_block){
+              background-color: rgba(204, 204, 204, .15);
+              border-radius: 6px;
+              margin-left: 6px;
+            }
             display: inline-block;
             padding: 0 6px;
-            margin-left: 6px;
-            border-radius: 6px;
             span.icon-angle-right {
               display:none;
             }

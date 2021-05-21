@@ -162,7 +162,6 @@ class FSTemplate extends React.Component {
 
         const {muiTheme} = this.props;
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-        const Color = MaterialUI.Color;
 
         let appBarTextColor = Color(muiTheme.appBar.textColor);
         let appBarBackColor = Color(muiTheme.appBar.color);

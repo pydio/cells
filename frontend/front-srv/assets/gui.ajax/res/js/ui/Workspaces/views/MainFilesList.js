@@ -96,7 +96,12 @@ class ComponentConfigsParser {
             if(colNode.getAttribute('reactModifier')){
                 let reactModifier = colNode.getAttribute('reactModifier');
                 ResourcesManager.detectModuleToLoadAndApply(reactModifier, function(){
-                    columns[name].renderComponent = columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
+                    columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
+                    columns[name].renderComponent = columns[name].renderCell
+                    // Special indicator for tags
+                    if(reactModifier.indexOf('renderTagsCloud') > -1) {
+                        columns[name].renderBlock = true
+                    }
                 }, true);
             }
         });
@@ -394,11 +399,11 @@ class MainFilesList extends React.Component {
                 dm.setSelectedNodes([node]);
             }
         }else if(mobile || clickType === SimpleList.CLICK_TYPE_DOUBLE){
-            if(!node.isBrowsable()){
+            if (node.isBrowsable()) {
+                dm.requireContextChange(node);
+            } else {
                 dm.setSelectedNodes([node]);
                 this.props.pydio.Controller.fireAction("open_with_unique");
-            }else{
-                dm.requireContextChange(node);
             }
         }
     };
@@ -423,45 +428,32 @@ class MainFilesList extends React.Component {
             if(dateString.indexOf('/') > -1) {
                 dateString = mDate.fromNow();
             }
-            pieces.push(<span key="time_description" className="metadata_chunk metadata_chunk_description">{dateString}</span>);
+            const title = PathUtils.formatModifDate(mDate.toDate());
+            pieces.push(<span key="time_description" title={title} className="metadata_chunk metadata_chunk_description">{dateString}</span>);
         }
 
         let first = false;
-        let attKeys = Object.keys(this.state.columns);
-
-        for(let i = 0; i<attKeys.length;i++ ){
-            let s = attKeys[i];
+        Object.keys(this.state.columns).forEach((s) => {
             let columnDef = this.state.columns[s];
             let label;
             let standard = false;
-            if(s === 'ajxp_label' || s === 'text'){
-                continue;
-            }else if(s==="ajxp_modiftime"){
-                let date = new Date();
-                date.setTime(parseInt(metaData.get(s))*1000);
-                label = PathUtils.formatModifDate(date);
-                standard = true;
-            }else if(s === "ajxp_dirname" && metaData.get("filename")){
+            if(s === 'ajxp_label' || s === 'text' || s === 'ajxp_modiftime'){
+                return
+            } else if(s === "ajxp_dirname" && metaData.get("filename")){
                 let dirName = PathUtils.getDirname(metaData.get("filename"));
                 label =  dirName?dirName:"/" ;
                 standard = true;
-            }else if(s === "bytesize") {
+            } else if (s === "bytesize") {
                 if(!metaData.has(s) || metaData.get(s) === "-"){
-                    continue;
-                } else {
-                    let test = PathUtils.roundFileSize(parseInt(metaData.get(s)));
-                    if(test !== NaN){
-                        label = test;
-                    } else {
-                        continue;
-                    }
+                    return;
                 }
+                label = PathUtils.roundFileSize(parseInt(metaData.get(s)));
                 standard = true;
             }else if(columnDef.renderComponent){
                 columnDef['name'] = s;
                 label = columnDef.renderComponent(node, columnDef);
                 if(label === null){
-                    continue;
+                    return;
                 }
             }else{
                 if(s === 'mimestring' || s === 'readable_dimension'){
@@ -469,7 +461,7 @@ class MainFilesList extends React.Component {
                 }
                 const metaValue = metaData.get(s) || "";
                 if(!metaValue) {
-                    continue;
+                    return;
                 }
                 label = metaValue;
             }
@@ -478,9 +470,12 @@ class MainFilesList extends React.Component {
                 sep = <span className="icon-angle-right"></span>;
             }
             let cellClass = 'metadata_chunk metadata_chunk_'+(standard ?'standard':'other')+' metadata_chunk_' + s;
+            if(columnDef.renderComponent && columnDef.renderBlock){
+                cellClass += ' metadata_chunk_block'
+            }
             const cell = <span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>;
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
-        }
+        });
         pieces.push(...otherPieces, ...standardPieces);
         return pieces;
 
@@ -616,9 +611,13 @@ class MainFilesList extends React.Component {
                 className += ' horizontal-ribbon';
             }
             // Todo: compute a more real number of elements visible per page.
-            if(near === 320) infiniteSliceCount = 25;
-            else if(near === 160) infiniteSliceCount = 80;
-            else if(near === 80) infiniteSliceCount = 200;
+            if(near === 320) {
+                infiniteSliceCount = 25;
+            } else if(near === 160) {
+                infiniteSliceCount = 80;
+            } else if(near === 80) {
+                infiniteSliceCount = 200;
+            }
 
         } else if(dMode === 'list'){
 

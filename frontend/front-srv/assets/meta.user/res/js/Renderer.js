@@ -68,15 +68,15 @@ export default class Renderer{
         const tagStyle = {
             display:'inline-block',
             backgroundColor: '#E1BEE7',
-            borderRadius: '1px 10px 10px 1px',
-            height: 16,
-            lineHeight: '17px',
-            padding: '0 7px 0 5px',
+            borderRadius: 6,
+            height: 22,
+            lineHeight: '22px',
+            padding: '0 6px',
             color: '#9C27B0',
             fontWeight: 500,
             fontSize: 12,
             marginLeft: 2,
-            marginRight: 2
+            marginRight: 6
         };
         const value = node.getMetadata().get(column.name);
         if(!value || !value.split) {

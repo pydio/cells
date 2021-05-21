@@ -25,11 +25,11 @@ const {muiThemeable} = require('material-ui/styles')
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
+import Color from 'color'
 
 let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio, onClick, onMouseOver}) => {
 
         const palette = muiTheme.palette;
-        const Color = require('color');
         const colorHue = Color(palette.primary1Color).hsl().array()[0];
         const lightBg = new Color({h:colorHue,s:35,l:98});
         const taskBg = new Color({h:colorHue,s:30,l:96});

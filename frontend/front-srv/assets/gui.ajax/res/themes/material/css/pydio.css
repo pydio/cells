@@ -477,11 +477,13 @@ div.dialogBox div#element_overlay {
   color: rgba(0, 0, 0, 0.33);
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other {
-  background-color: rgba(204, 204, 204, 0.15);
   display: inline-block;
   padding: 0 6px;
-  margin-left: 6px;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other:not(.metadata_chunk_block) {
+  background-color: rgba(204, 204, 204, 0.15);
   border-radius: 6px;
+  margin-left: 6px;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other span.icon-angle-right {
   display: none;

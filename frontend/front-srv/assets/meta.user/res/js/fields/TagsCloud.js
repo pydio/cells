@@ -175,7 +175,7 @@ class TagsCloud extends React.Component {
 
         return (
             <div style={{marginBottom:search?8:null}}>
-                <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8}}>
                     {tagsList}
                 </div>
                 {autoCompleter}
