@@ -156,9 +156,9 @@ class ActivityList extends React.Component {
             if(displayContext === 'popover'){
                 style = {...style, minHeight: 250}
             } else if(displayContext === 'infoPanel'){
-                style = {...style, paddingBottom: 20};
+                style = {...style, paddingBottom: 20, paddingTop: 10};
                 iconStyle = {fontSize: 40};
-                legendStyle = {fontSize: 13, fontWeight: 400};
+                legendStyle = {fontSize: 13};
             }
             return (
                 <EmptyStateView

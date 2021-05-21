@@ -38,8 +38,9 @@ class InfoPanel extends React.Component {
                     emptyStateProps={{
                         iconClassName:'mdi mdi-comment-outline',
                         primaryTextId:pydio.MessageHash['meta.comments.empty-state'],
-                        style:{padding:20, backgroundColor: 'transparent'},
-                        iconStyle:{fontSize: 40}
+                        style:{padding:'10px 20px 20px', backgroundColor: 'transparent'},
+                        iconStyle:{fontSize: 40},
+                        legendStyle:{fontSize: 13}
                     }}
                     textFieldProps={{
                         style:{height: 40, lineHeight:'16px'}

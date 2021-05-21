@@ -32,6 +32,7 @@ import {DateTimeField, DateTimeForm} from "./fields/DateTime";
 import BooleanForm from "./fields/BooleanForm";
 import {IntegerField, IntegerForm} from "./fields/Integer";
 const {ModernTextField} = Pydio.requireLib("hoc")
+const {EmptyStateView} = Pydio.requireLib('components');
 
 export default class UserMetaPanel extends React.Component{
 
@@ -231,8 +232,19 @@ export default class UserMetaPanel extends React.Component{
         });
         const mess = this.props.pydio.MessageHash;
         if(!this.props.editMode && !nonEmptyDataCount){
-            return <div><div style={{color: 'rgba(0,0,0,0.23)', paddingBottom:10}} onClick={this.props.onRequestEditMode}>{mess['meta.user.11']}</div>{data}</div>
-        }else{
+            return (
+                <div onClick={this.props.onRequestEditMode} style={{cursor:'pointer'}}>
+                    <EmptyStateView
+                        pydio={this.props.pydio}
+                        iconClassName={"mdi mdi-tag-outline"}
+                        primaryTextId={mess['meta.user.11']}
+                        style={{padding: '10px 40px 20px', backgroundColor:'transparent'}}
+                        iconStyle={{fontSize: 40}}
+                        legendStyle={{fontSize: 13}}
+                    />
+                </div>
+            );
+        } else {
             let legend;
             if(this.props.multiple){
                 legend = <div style={{paddingBottom: 16}}><em>{mess['meta.user.12']}</em> {mess['meta.user.13']}</div>

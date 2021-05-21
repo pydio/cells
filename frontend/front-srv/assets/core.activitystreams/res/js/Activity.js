@@ -179,9 +179,7 @@ class Activity extends React.Component{
                 borderRadius: 2,
                 borderLeft: '2px solid #e0e0e0',
                 marginLeft: 13,
-                color: 'rgba(0,0,0,0.33)',
-                /*fontWeight: 500,
-                fontStyle: 'italic',*/
+                color: 'rgba(0,0,0,0.53)',
                 overflow: 'hidden'
             };
         }
