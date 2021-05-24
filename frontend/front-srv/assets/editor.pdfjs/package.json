@@ -13,6 +13,8 @@
     "grunt-babel": "~5.0.3",
     "grunt-browserify": "~4.0.1",
     "grunt-contrib-compress": "^1.4.3",
-    "grunt-contrib-watch": "^1.0.0"
+    "grunt-contrib-watch": "^1.0.0",
+    "pdfjs-dist": "2.6.347",
+    "react-pdf": "^5.3.0"
   }
 }

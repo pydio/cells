@@ -20,10 +20,12 @@
 
 import PropTypes from 'prop-types';
 
+import Pydio from 'pydio'
 import { PureComponent } from 'react';
 import {muiThemeable} from 'material-ui/styles';
 import {CircularProgress} from 'material-ui';
 import Color from 'color'
+import FuncUtils from 'pydio/util/func'
 
 class FilePreview extends PureComponent {
     static get propTypes() {
@@ -117,12 +119,12 @@ class FilePreview extends PureComponent {
         if(!this.props.loadThumbnail && !force){
             return;
         }
-        let pydio = window.pydio, node = this.props.node;
-        let editors = window.pydio.Registry.findEditorsForMime((node.isLeaf()?node.getAjxpMime():"mime_folder"), true);
+        const {node} = this.props;
+        const pydio = Pydio.getInstance();
+        let editors = pydio.Registry.findEditorsForMime((node.isLeaf()?node.getAjxpMime():"mime_folder"), true);
         if(!editors || !editors.length) {
             return;
         }
-        let editor = editors[0];
         let editorClassName = editors[0].editorClass;
 
         pydio.Registry.loadEditorResources(editors[0].resourcesManager, function(){
@@ -146,12 +148,13 @@ class FilePreview extends PureComponent {
         const {node, mimeClassName, processing} = this.props;
         const {EditorClass} = this.state;
 
-        let element;
+        let element, additionalClass = '';
 
         if (processing) {
             element = <CircularProgress size={40} thickness={2} />
         } else if (EditorClass) {
-            element = <EditorClass pydio={pydio} {...this.props} preview={true} mimeFontStyle={mimeFontStyle} />
+            element = <EditorClass pydio={Pydio.getInstance()} {...this.props} preview={true} mimeFontStyle={mimeFontStyle} />
+            additionalClass = ' editor_mime_' + node.getAjxpMime();
         } else {
             let icClass = node.getSvgSource() || (node.isLeaf() ? 'file': 'folder');
             if(icClass && !icClass.startsWith('icomoon')){
@@ -160,8 +163,9 @@ class FilePreview extends PureComponent {
             element = <div key="icon" className={mimeClassName || 'mimefont ' + icClass} style={mimeFontStyle}/>
         }
 
+
         return (
-            <div ref="container" style={rootStyle} className={'mimefont-container' + (EditorClass?' with-editor-badge':'')} onClick={this.props.onClick}>
+            <div ref="container" style={rootStyle} className={'mimefont-container' + (EditorClass?' with-editor-badge':'') + additionalClass} onClick={this.props.onClick}>
                 {element}
             </div>
         );

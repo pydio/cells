@@ -19,12 +19,57 @@
  */
 
 
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs/build/min/pdf.worker.min.js';
+
 import PydioApi from 'pydio/http/api'
 import DOMUtils from 'pydio/util/dom'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
+import { Document, Page } from 'react-pdf';
 
 const { EditorActions } = PydioHOCs;
+
+class InlineViewer extends React.Component {
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return nextProps.pdfUrl !== this.props.pdfUrl || nextProps.pageNumber !== this.props.pageNumber;
+    }
+
+    render() {
+        const {pdfUrl, pageNumber, onNumPages, onKnownHeight} = this.props;
+
+        const infoBlock = (msg) => {
+            return <div className={'inline-pdf-info-block'} style={{
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                fontSize: 13,
+                fontWeight:500,
+                color:'rgba(19, 78, 108, 0.4)'
+            }}>{msg}</div>
+        }
+
+        return(
+            <Document
+                file={{url:pdfUrl}}
+                onLoadError={(e)=>console.error(e)}
+                onLoadSuccess={({numPages}) => onNumPages(numPages)}
+                loading={infoBlock('Loading document...')}
+                noData={infoBlock('No data loaded!')}
+                error={infoBlock('Failed loading page')}
+            >
+                <Page
+                    pageNumber={pageNumber}
+                    width={250}
+                    loading={infoBlock('Loading page...')}
+                    onLoadSuccess={(page)=>onKnownHeight(Math.floor(page.height))}
+                />
+            </Document>
+        );
+
+    }
+}
 
 class Viewer extends Component {
     componentDidMount() {
@@ -67,18 +112,51 @@ class Viewer extends Component {
         } else if(pydio.Parameters.has('MINISITE')){
             viewerFile = 'viewer-minisite.html';
         }
-        PydioApi.getClient().buildPresignedGetUrl(node).then(pdfurl => {
+        PydioApi.getClient().buildPresignedGetUrl(node).then(pdfUrl => {
             this.setState({
-                url: 'plug/editor.pdfjs/pdfjs/web/' + viewerFile + '?file=' + encodeURIComponent(pdfurl)
+                pdfUrl: pdfUrl,
+                crtPage: 1,
+                lastKnownHeight:150,
+                url: 'plug/editor.pdfjs/pdfjs/web/' + viewerFile + '?file=' + encodeURIComponent(pdfUrl)
             })
         })
 
     }
 
     render() {
-        const {url} = this.state || {}
+        const {loadThumbnail} = this.props;
+        const {url, pdfUrl, crtPage = 1, numPages, showPaginator, lastKnownHeight} = this.state || {}
 
-        if (!url) return null
+        if (!url) {
+            return null
+        }
+        if(loadThumbnail) {
+            let paginator;
+            if(numPages > 1 && showPaginator) {
+                paginator = (
+                    <div style={{position:'absolute', bottom: 10, right: 10, backgroundColor:'white',display:'flex', cursor:'pointer', fontSize: 24, boxShadow: 'rgba(0, 0, 0, .2) 0px 0px 12px',borderRadius: 40}}>
+                        <div className={"mdi mdi-chevron-left"} style={{opacity:crtPage === 1 ? .5:1}} onClick={()=>{this.setState({crtPage: Math.max(crtPage-1, 1)})}}/>
+                        <div className={"mdi mdi-chevron-right"} style={{opacity:crtPage === numPages ? .5:1}} onClick={()=>{this.setState({crtPage: Math.min(crtPage+1, numPages)})}}/>
+                    </div>
+                );
+            }
+            return (
+                <div
+                    style={{flex: 1, width: "100%", height: "100%", border: 0, position: 'relative'}}
+                    onMouseEnter={()=>{this.setState({showPaginator:true})}}
+                    onMouseLeave={()=>{this.setState({showPaginator:false})}}
+                >
+                    <InlineViewer
+                        pdfUrl={pdfUrl}
+                        pageNumber={crtPage}
+                        onNumPages={(n) => this.setState({numPages: n})}
+                        onKnownHeight={(h) => this.setState({lastKnownHeight:h})}
+                    />
+                    {paginator}
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:'.mimefont-container.with-editor-badge.editor_mime_pdf{min-height: '+lastKnownHeight+'px; height:auto !important;}.inline-pdf-info-block{min-height:'+lastKnownHeight+'px;}'}}/>
+                </div>
+            );
+        }
 
         return (
             <iframe {...this.props} style={{flex: 1, width: "100%", height: "100%", border: 0}} src={url} />
