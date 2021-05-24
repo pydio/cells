@@ -3,12 +3,13 @@ package permissions
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/common"
 
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"go.uber.org/zap"
 )
 
 type BitmaskFlag uint32
@@ -24,33 +25,36 @@ const (
 	FlagLock
 	FlagDownload
 	FlagUpload
+	FlagSync
 )
 
 var (
 	NamesToFlags = map[string]BitmaskFlag{
-		"read":   FlagRead,
-		"write":  FlagWrite,
-		"deny":   FlagDeny,
-		"list":   FlagList,
-		"remove": FlagDelete,
-		"policy": FlagPolicy,
-		"quota":  FlagQuota,
-		"lock":   FlagLock,
-		"download":   FlagDownload,
+		"read":     FlagRead,
+		"write":    FlagWrite,
+		"deny":     FlagDeny,
+		"list":     FlagList,
+		"remove":   FlagDelete,
+		"policy":   FlagPolicy,
+		"quota":    FlagQuota,
+		"lock":     FlagLock,
+		"download": FlagDownload,
 		"upload":   FlagUpload,
+		"sync":     FlagSync,
 	}
 
 	FlagsToNames = map[BitmaskFlag]string{
-		FlagRead:   "read",
-		FlagWrite:  "write",
-		FlagDeny:   "deny",
-		FlagList:   "list",
-		FlagDelete: "remove",
-		FlagPolicy: "policy",
-		FlagQuota:  "quota",
-		FlagLock:   "lock",
+		FlagRead:     "read",
+		FlagWrite:    "write",
+		FlagDeny:     "deny",
+		FlagList:     "list",
+		FlagDelete:   "remove",
+		FlagPolicy:   "policy",
+		FlagQuota:    "quota",
+		FlagLock:     "lock",
 		FlagDownload: "download",
-		FlagUpload: "upload",
+		FlagUpload:   "upload",
+		FlagSync:     "sync",
 	}
 )
 
@@ -116,8 +120,9 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 	return f.BitmaskFlag&flag != 0
 }
 
-// HasFlag checks if current bitmask matches a given flag. If bitmask has a Policy Flag, it will
-// extract metadata from context and from nodes and use the PolicyResolver to dynamically test these properties.
+// HasPolicyExplicitDeny checks if current bitmask matches a specific flag with Deny.
+// If bitmask has a Policy Flag, it will extract metadata from context and from nodes and
+// use the PolicyResolver to dynamically test these properties.
 func (f Bitmask) HasPolicyExplicitDeny(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tree.Node) bool {
 
 	if flag != FlagPolicy && flag != FlagDeny && f.BitmaskFlag&FlagPolicy != 0 && ResolvePolicyRequest != nil {

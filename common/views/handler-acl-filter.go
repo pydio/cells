@@ -63,6 +63,7 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 		return nil, errors.Forbidden("node.not.readable", "Node is not readable")
 	}
 	checkDl := in.Node.HasMetaKey("acl-check-download")
+	checkSync := in.Node.HasMetaKey("acl-check-syncable")
 	response, err := a.next.ReadNode(ctx, in, opts...)
 	if err != nil {
 		return nil, err
@@ -75,6 +76,11 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	updatedParents := append([]*tree.Node{response.GetNode()}, parents[1:]...)
 	if checkDl && accessList.HasExplicitDeny(ctx, permissions.FlagDownload, updatedParents...) {
 		return nil, errors.Forbidden("download.forbidden", "Node cannot be downloaded")
+	}
+	if checkSync && accessList.HasExplicitDeny(ctx, permissions.FlagSync, updatedParents...) {
+		n := response.Node.Clone()
+		n.SetMeta(common.MetaFlagWorkspaceSyncable, false)
+		response.Node = n
 	}
 	return response, err
 }
