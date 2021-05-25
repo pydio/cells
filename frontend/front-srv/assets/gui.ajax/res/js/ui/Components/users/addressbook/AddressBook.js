@@ -372,7 +372,7 @@ class AddressBook extends React.Component {
 
     render() {
 
-        const {mode, getMessage, bookColumn} = this.props;
+        const {mode, getMessage, bookColumn, listStyles} = this.props;
 
         if(mode === 'popover'){
 
@@ -532,6 +532,7 @@ class AddressBook extends React.Component {
                     actionsPanel={topActionsPanel}
                     actionsForCell={this.props.actionsForCell}
                     usersOnly={this.props.usersOnly}
+                    listStyles={listStyles}
                     {...otherProps}
                 />);
 

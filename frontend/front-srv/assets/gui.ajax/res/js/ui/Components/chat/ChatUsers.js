@@ -7,7 +7,7 @@ class ChatUsers extends React.Component{
         const {ACLs, roomUsers, pydio, style} = this.props;
         const styles = {
             user:{
-                marginRight: 10,
+                margin: 5,
                 whiteSpace: 'nowrap',
                 padding: '5px 10px',
                 backgroundColor: 'rgb(255 255 255 / 53%)',

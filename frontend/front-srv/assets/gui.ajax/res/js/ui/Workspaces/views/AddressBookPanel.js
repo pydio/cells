@@ -1,9 +1,30 @@
+/*
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import React from 'react'
 import Pydio from 'pydio'
-const {AddressBook, UserAvatar, CellActionsRenderer} = Pydio.requireLib('components');
-import {List, ListItem, Subheader, Divider, IconMenu, IconButton, Paper} from 'material-ui'
+const {AddressBook, UserAvatar, CellActionsRenderer, ListStylesCompact} = Pydio.requireLib('components');
+import {List, ListItem, Divider, IconMenu, IconButton, Paper} from 'material-ui'
 import IdmObjectHelper from 'pydio/model/idm-object-helper';
 import DOMUtils from 'pydio/util/dom'
+import InfoPanelCard from '../detailpanes/InfoPanelCard'
 
 class AddressBookPanel extends React.Component{
 
@@ -66,7 +87,6 @@ class AddressBookPanel extends React.Component{
 
         const avatar = (
             <UserAvatar
-                avatarSize={36}
                 pydio={pydio}
                 userType={userType}
                 userId={userId}
@@ -74,6 +94,7 @@ class AddressBookPanel extends React.Component{
                 avatar={userAvatar}
                 avatarOnly={true}
                 useDefaultAvatar={true}
+                {...ListStylesCompact.avatar}
         />);
 
         let rightMenu;
@@ -81,14 +102,16 @@ class AddressBookPanel extends React.Component{
         if(menuItems.length){
             rightMenu = (
                 <IconMenu
-                    iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical" iconStyle={{color: 'rgba(0,0,0,.33)'}}/>}
+                    {...ListStylesCompact.iconMenu}
+                    iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical" {...ListStylesCompact.iconButton}/>}
                     targetOrigin={{horizontal:'right', vertical:'top'}}
                     anchorOrigin={{horizontal:'right', vertical:'top'}}
+                    desktop={true}
                 >{menuItems}</IconMenu>
             );
         }
 
-        return <ListItem primaryText={label} leftAvatar={avatar} rightIconButton={rightMenu}/>
+        return <ListItem primaryText={label} leftAvatar={avatar} rightIconButton={rightMenu} {...ListStylesCompact.listItem}/>
 
     }
 
@@ -102,16 +125,16 @@ class AddressBookPanel extends React.Component{
             let items = [];
             Object.keys(acls).map((roleId) => {
                 items.push(this.renderListItem(acls[roleId]));
-                items.push(<Divider inset={true}/>);
+                items.push(<Divider inset={true} style={ListStylesCompact.divider.style}/>);
             });
             items.pop();
             cellInfo = (
-                <div style={{borderBottom: '1px solid #e0e0e0'}}>
-                    <List>
-                        <Subheader>{pydio.MessageHash['639']}</Subheader>
-                        {items}
-                    </List>
-                </div>
+                <InfoPanelCard
+                    title={pydio.MessageHash['639']}
+                    style={{margin: '10px 10px 0'}}
+                >
+                    <List>{items}</List>
+                </InfoPanelCard>
             )
         }
         const columnStyle = {
@@ -120,21 +143,25 @@ class AddressBookPanel extends React.Component{
             top: 100,
             bottom: 0,
             transition: DOMUtils.getBeziersTransition(),
+            overflowY: 'auto',
             ...style
         };
 
         return (
-            <Paper id={"info_panel"} zDepth={zDepth} rounded={false} style={{...columnStyle, display:'flex', flexDirection:'column'}}>
+            <Paper id={"info_panel"} zDepth={zDepth} rounded={false} style={{...columnStyle}}>
                 {cellInfo}
                 {pydio.Controller.getActionByName("open_address_book") &&
-                    <AddressBook
-                        mode="selector"
-                        bookColumn={true}
-                        pydio={pydio}
-                        disableSearch={false}
-                        style={{height: null,flex: 1}}
-                        actionsForCell={!noCell && cellModel ? cellModel : true}
-                    />
+                    <InfoPanelCard>
+                        <AddressBook
+                            mode="selector"
+                            bookColumn={true}
+                            pydio={pydio}
+                            disableSearch={false}
+                            style={{height: null,flex: 1, padding: 0}}
+                            actionsForCell={!noCell && cellModel ? cellModel : true}
+                            listStyles={ListStylesCompact}
+                        />
+                    </InfoPanelCard>
                 }
             </Paper>
         );

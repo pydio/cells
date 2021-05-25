@@ -85,6 +85,7 @@ class UserCard extends React.Component{
                     pydio={this.props.pydio}
                     cardSize={this.props.style.width}
                     {...editableProps}
+                    cardStyle={{textAlign:'left', paddingLeft: 80, paddingTop: 11}}
                 />
                 {editForm}
             </div>

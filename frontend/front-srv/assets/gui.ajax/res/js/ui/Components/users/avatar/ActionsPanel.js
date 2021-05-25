@@ -88,17 +88,15 @@ class ActionsPanel extends React.Component{
 
         const styles = {
             button: {
-                //backgroundColor: muiTheme.palette.accent2Color,
                 border: '1px solid ' + muiTheme.palette.accent2Color,
                 borderRadius: '50%',
                 margin: '0 4px',
-                width: 36,
-                height: 36,
-                padding: 6
+                width: 30,
+                height: 30,
+                padding: 4
             },
             icon : {
-                fontSize: 22,
-                //color: 'white'
+                fontSize: 20,
                 color: muiTheme.palette.accent2Color
             }
         };
@@ -136,7 +134,7 @@ class ActionsPanel extends React.Component{
         }
 
         return (
-            <div style={{textAlign:'center', paddingTop: 10, paddingBottom: 10, borderTop:'1px solid #e0e0e0', borderBottom:'1px solid #e0e0e0', ...style}}>
+            <div style={{textAlign:'center', paddingTop: 6, paddingBottom: 6, borderTop:'1px solid #e0e0e0', borderBottom:'1px solid #e0e0e0', ...style}}>
                 {actions.map(function(a){
                     return <IconButton
                         key={a.key}

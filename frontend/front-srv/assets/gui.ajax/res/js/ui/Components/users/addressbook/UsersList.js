@@ -1,13 +1,5 @@
-import React from 'react';
-import UserAvatar from '../avatar/UserAvatar'
-import {IconButton, Checkbox, IconMenu, RaisedButton, ListItem, FontIcon, Avatar, Divider, Subheader, List, TextField} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
-import EmptyStateView from '../../views/EmptyStateView'
-import AlphaPaginator from './AlphaPaginator'
-import SearchForm from './SearchForm'
-
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -26,10 +18,18 @@ import SearchForm from './SearchForm'
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
 import PropTypes from 'prop-types';
-
+import UserAvatar from '../avatar/UserAvatar'
+import {IconButton, Checkbox, IconMenu, RaisedButton, ListItem, FontIcon, Avatar, Divider, Subheader, List, TextField} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+import EmptyStateView from '../../views/EmptyStateView'
+import AlphaPaginator from './AlphaPaginator'
+import SearchForm from './SearchForm'
+import Color from 'color'
 import DOMUtils from 'pydio/util/dom'
 import CellActionsRenderer from '../avatar/CellActionsRenderer'
+import ListStylesCompact from "./ListStylesCompact";
 const {Loader, PydioContextConsumer} = require('pydio').requireLib('boot');
 
 class UsersList extends React.Component{
@@ -59,6 +59,13 @@ class UsersList extends React.Component{
 
         const {item, mode, paginatorType, paginatorFolder, loading, enableSearch, showSubheaders,
             getMessage, actionsPanel, muiTheme, bookColumn, pydio, reloadAction} = this.props;
+        let {listStyles = {}} = this.props;
+
+        if (mode === 'selector' || mode === 'inner'){
+            listStyles = ListStylesCompact;
+        }
+
+        const avatarSize = listStyles.avatar ? listStyles.avatar.avatarSize : 36;
 
         const folders = item.collections || [];
         const leafs = item.leafs || [];
@@ -75,12 +82,6 @@ class UsersList extends React.Component{
         } else if(showSubheaders) {
             usersSubHeader.push({subheader: getMessage('249')});
         }
-        /*
-        const foldersSubHeader = folders.length && (leafs.length || showSubheaders) ? [{subheader:getMessage('532')}] : [];
-        if(showSubheaders || paginatorType){
-            usersSubHeader = [{subheader: paginatorType ? <AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} /> : getMessage('249')}];
-        }
-         */
         const items = [...foldersSubHeader, ...folders, ...usersSubHeader, ...leafs];
         const total = items.length;
         let elements = [];
@@ -111,14 +112,16 @@ class UsersList extends React.Component{
             }
         };
         if(bookColumn){
+            const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
+            const headerTitle = new Color({h:colorHue,s:30,l:43});
             stylesProps.toolbarBgColor = 'transparent';
-            stylesProps.titleColor = 'rgba(0,0,0,0.54)';
+            stylesProps.titleColor = headerTitle.toString();
             stylesProps.titleFontsize = 14;
             stylesProps.titleFontWeight = 500;
             stylesProps.titlePadding = '10px 6px 10px 16px';
+            stylesProps.button.margin = '0';
             stylesProps.button.border = '0';
-            stylesProps.icon.color = muiTheme.palette.primary1Color;
-            stylesProps.icon.opacity = 0.73
+            stylesProps.icon.color = '#ccc';
         }
         let searchProps = {
             style:{flex:1, minWidth: 110},
@@ -177,7 +180,8 @@ class UsersList extends React.Component{
                     key={'__parent__'}
                     primaryText={".."}
                     onClick={(e) => {e.stopPropagation(); this.props.onFolderClicked(item._parent)}}
-                    leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-arrow-up'}/>} size={36} />}
+                    leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-arrow-up'}/>} size={avatarSize} />}
+                    {...listStyles.listItem}
                 />
             );
             if(total){
@@ -191,7 +195,9 @@ class UsersList extends React.Component{
                 return;
             }
             const fontIcon = (
-                <UserAvatar avatarSize={36} pydio={this.props.pydio || pydio}
+                <UserAvatar
+                    avatarSize={avatarSize}
+                    pydio={this.props.pydio || pydio}
                     userId={item.id}
                     userLabel={item.label}
                     avatar={item.avatar}
@@ -200,6 +206,7 @@ class UsersList extends React.Component{
                     userType={item.type || 'group'}
                     avatarOnly={true}
                     useDefaultAvatar={true}
+                    style={listStyles.avatar?listStyles.avatar.style:{}}
                 />
             );
             let rightIconButton;
@@ -214,6 +221,7 @@ class UsersList extends React.Component{
                             tooltipPosition="top-left"
                             iconStyle={{color: 'rgba(0,0,0,0.33)'}}
                             onClick={()=>{this.props.onItemClicked(item)}}
+                            {...listStyles.iconButton}
                         />
                     );
                 }
@@ -225,6 +233,7 @@ class UsersList extends React.Component{
                         tooltipPosition="top-left"
                         iconStyle={{color: 'rgba(0,0,0,0.13)', hoverColor:'rgba(0,0,0,0.53)'}}
                         onClick={()=>{this.props.onDeleteAction(this.props.item, [item])}}
+                        {...listStyles.iconButton}
                     />
                 );
             }
@@ -233,9 +242,11 @@ class UsersList extends React.Component{
                 if(menuItems.length){
                     rightIconButton = (
                         <IconMenu
-                            iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical" iconStyle={{color: 'rgba(0,0,0,.33)'}}/>}
+                            {...listStyles.iconMenu}
+                            iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical" iconStyle={{color: 'rgba(0,0,0,.33)'}} {...listStyles.iconButton}/>}
                             targetOrigin={{horizontal:'right', vertical:'top'}}
                             anchorOrigin={{horizontal:'right', vertical:'top'}}
+                            desktop={true}
                         >{menuItems}</IconMenu>
                     );
                 } else {
@@ -259,9 +270,10 @@ class UsersList extends React.Component{
                 leftAvatar={!this.state.select && fontIcon}
                 rightIconButton={rightIconButton}
                 leftCheckbox={this.state.select && <Checkbox checked={this.state.selection.indexOf(item) > -1} onCheck={select}/>}
+                {...listStyles.listItem}
             />);
             if(mode !== 'inner' && index < total - 1){
-                elements.push(<Divider inset={true} key={item.id + '-divider'}/>);
+                elements.push(<Divider inset={true} key={item.id + '-divider'} {...listStyles.divider}/>);
             }
         }.bind(this));
 

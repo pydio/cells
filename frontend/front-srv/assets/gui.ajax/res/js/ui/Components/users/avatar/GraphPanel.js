@@ -23,6 +23,7 @@ import UsersList from '../addressbook/UsersList'
 const {Divider, Subheader, List, ListItem, FontIcon, Avatar} = require('material-ui');
 const PydioApi = require('pydio/http/api');
 const {PydioContextConsumer} = require('pydio').requireLib('boot');
+import ListStylesCompact from '../addressbook/ListStylesCompact'
 
 
 /**
@@ -32,7 +33,7 @@ class GraphPanel extends Component{
 
     render(){
 
-        const {graph, userLabel, pydio, getMessage} = this.props;
+        const {graph, pydio, getMessage} = this.props;
         const teamsEditable = pydio.getController().actions.has("user_team_create");
 
         let elements = [];
@@ -63,13 +64,15 @@ class GraphPanel extends Component{
                     <div>
                         {elements.length ? <Divider/> : null}
                         <Subheader>{cells.length === 1 ? getMessage('601') : getMessage('602').replace('%1', cells.length)}</Subheader>
-                        <List>{cells.map((cell) => {
+                        <List style={{paddingTop: 0}}>{cells.map((cell) => {
                             return <ListItem
-                                leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'}/>} backgroundColor={"#009688"} size={36} />}
+                                leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'}/>} backgroundColor={"#009688"} size={ListStylesCompact.avatar.avatarSize} style={ListStylesCompact.avatar.style} />}
                                 primaryText={cell.Label}
                                 onClick={() => {
                                     pydio.triggerRepositoryChange(cell.UUID);
-                                }}/>
+                                }}
+                                {...ListStylesCompact.listItem}
+                            />
                         })}</List>
                     </div>
                 );

@@ -56,6 +56,7 @@ import MenuItemsConsumer from './menu/MenuItemsConsumer'
 import MenuUtils from './menu/Utils'
 
 import AddressBook from './users/addressbook/AddressBook'
+import ListStylesCompact from './users/addressbook/ListStylesCompact'
 import ChatClient from './chat/ChatClient'
 import Chat from './chat/Chat'
 import ChatIcon from './chat/ChatIcon'
@@ -105,6 +106,7 @@ const PydioComponents = {
     UsersCompleter          : UsersCompleter,
     TeamCreationForm        : TeamCreationForm,
     AddressBook             : AddressBook,
+    ListStylesCompact,
 
     ContextMenu             : ContextMenu,
     Toolbar                 : Toolbar,

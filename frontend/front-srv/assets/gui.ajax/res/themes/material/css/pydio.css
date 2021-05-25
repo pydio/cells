@@ -1906,10 +1906,6 @@ div.menu.desktop a span.ajxp_icon_span {
   overflow-y: auto;
   font-weight: 400;
 }
-#info_panel .panelCard {
-  margin: 10px !important;
-  margin-bottom: 0;
-}
 #info_panel .panelCard .panelHeader {
   padding: 24px 16px 16px;
   font-size: 19px;
