@@ -21,7 +21,8 @@
 package cmd
 
 import (
-
+	"fmt"
+	"github.com/spf13/viper"
 	//"net"
 	"os"
 	"regexp"
@@ -55,7 +56,7 @@ var (
 				{{- ""}} {{"#"}} {{$subcategory.Name}}	{{""}}	{{"\n"}}
 				{{- end}}
 				{{- range .Services}}
-					{{- ""}} {{.Name}}	[{{if .IsRunning}}X{{else}} {{end}}]	{{"\n"}}
+					{{- ""}} {{.Name}}	[{{if .IsRunning}}X{{else}} {{end}}]  {{.RunningNodes}}	{{"\n"}}
 				{{- end}}
 			{{- end}}
 			{{- ""}} {{""}}	{{""}}	{{"\n"}}
@@ -102,6 +103,8 @@ EXAMPLE
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
+
+		viper.SetDefault("registry", "service")
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
@@ -178,6 +181,7 @@ EXAMPLE
 					}
 				}
 			}
+
 			return false
 		})
 
@@ -226,7 +230,9 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
 
-				tags[tag].Services[name] = &runningService{name}
+				fmt.Println(s.RunningNodes())
+
+				tags[tag].Services[name] = &runningService{name: name}
 			}
 		}
 	}
@@ -236,6 +242,7 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 
 type runningService struct {
 	name string
+	nodes string
 }
 
 func (s *runningService) Name() string {
@@ -250,4 +257,8 @@ func (s *runningService) IsRunning() bool {
 	}
 
 	return false
+}
+
+func (s *runningService) RunningNodes() string {
+	return s.nodes
 }

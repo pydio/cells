@@ -68,6 +68,7 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 		local:    local,
 		options:  options,
 		services: make(map[string][]*registry.Service),
+		watchers: make(map[string]*clusterWatcher),
 	}
 
 	clusterID, ok := options.Context.Value(clusterIDKey{}).(string)
@@ -118,6 +119,7 @@ func (r *clusterRegistry) watch(res *registry.Result) {
 func (r *clusterRegistry) register(s *registry.Service) error {
 	go r.watch(&registry.Result{Action: "update", Service: s})
 
+	fmt.Println("Adding service ", s.Name)
 	r.Lock()
 	services := addServices(r.services[s.Name], []*registry.Service{s})
 	r.services[s.Name] = services
@@ -309,7 +311,38 @@ func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
 }
 
 func (r *clusterRegistry) Watch(opts ...registry.WatchOption) (registry.Watcher, error) {
-	return r.local.Watch(opts...)
+	var wo registry.WatchOptions
+	for _, o := range opts {
+		o(&wo)
+	}
+
+	w := &clusterWatcher{
+		exit: make(chan bool),
+		res:  make(chan *registry.Result),
+		id:   uuid.New().String(),
+		wo:   wo,
+	}
+
+	localWatcher, err := r.local.Watch(opts...)
+	if err != nil {
+		return nil, err
+	}
+	go func() {
+		for {
+			res, err := localWatcher.Next()
+			if err != nil {
+				return
+			}
+
+			w.res <- res
+		}
+	}()
+
+	r.Lock()
+	r.watchers[w.id] = w
+	r.Unlock()
+
+	return w, nil
 }
 
 func (r *clusterRegistry) String() string {

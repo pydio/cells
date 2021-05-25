@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"fmt"
 	"github.com/micro/go-micro/registry"
 )
 
@@ -20,8 +21,13 @@ func mergeServices(old, neu []*registry.Service) []*registry.Service {
 	}
 
 	for _, s := range neu {
+		if s.Name == "pydio.grpc.acl" {
+			fmt.Println("Got one here ")
+		}
 		m[s.Name] = addServices(m[s.Name], []*registry.Service{s})
 	}
+
+	fmt.Println(m["pydio.grpc.acl"])
 
 	var services []*registry.Service
 	for _, mm := range m {
