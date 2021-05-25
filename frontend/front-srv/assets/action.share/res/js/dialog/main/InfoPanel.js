@@ -19,7 +19,6 @@
  */
 
 import React from 'react'
-import {FlatButton, Popover} from 'material-ui'
 import CompositeCard from '../composite/CompositeCard'
 import CellCard from '../cells/CellCard'
 

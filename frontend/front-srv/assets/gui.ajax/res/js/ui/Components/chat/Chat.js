@@ -165,7 +165,7 @@ class Chat extends React.Component{
     }
 
     render(){
-        const {style, msgContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
+        const {style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
         const {messages, room} = this.state;
         let data = [];
         let previousMDate;
@@ -203,14 +203,14 @@ class Chat extends React.Component{
         return (
             <div style={{padding: 0, ...style}}>
                 {computePresenceFromACLs !== undefined  &&
-                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]}/>
+                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]} style={chatUsersStyle}/>
                 }
                 <div ref="comments" className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
                     {pusher}
                     {data}
                     {emptyState}
                 </div>
-                <div style={{backgroundColor: 'white', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0'}}>
+                <div style={{backgroundColor: 'white', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0', ...fieldContainerStyle}}>
                     <TextField
                         hintText={fieldHint}
                         hintStyle={{whiteSpace:'nowrap'}}

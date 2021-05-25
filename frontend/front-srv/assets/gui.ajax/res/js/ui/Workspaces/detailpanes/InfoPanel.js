@@ -22,12 +22,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 const {Animations, withVerticalScroll} = require('pydio').requireLib('hoc')
 import XMLUtils from 'pydio/util/xml'
+import {Paper} from "material-ui";
 
 const originStyles = {translateX: 600}
 const targetStyles = {translateX: 0}
 
 let Template = ({id, style, children}) => {
-    return <div id={id} style={style}>{children}</div>
+    return <Paper zDepth={0} rounded={false} id={id} style={{backgroundColor:'transparent', ...style}}>{children}</Paper>
 }
 
 /*

@@ -42,7 +42,7 @@
             </action>
             <action name="share-edit-shared">
                 <gui iconClass="mdi mdi-share-variant" text="share_center.125" title="share_center.126">
-                    <context dir="true" recycle="hidden" selection="true" actionBar="true" contextMenu="true" actionBarGroup="0_get" behaviour="hidden"/>
+                    <context dir="true" recycle="hidden" selection="true" actionBar="true" contextMenu="true" actionBarGroup="0_get,info_panel_edit_share" behaviour="hidden"/>
                     <selectionContext dir="true" file="true" enableRoot="true" evalMetadata="metadata.get('pydio_is_shared')" recycle="false" unique="true" behaviour="hidden"/>
                 </gui>
                 <processing>

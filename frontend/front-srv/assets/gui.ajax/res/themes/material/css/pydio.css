@@ -1955,7 +1955,7 @@ div.menu.desktop a span.ajxp_icon_span {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 #info_panel .panelCard .primaryToolbar {
-  padding: 10px !important;
+  padding: 5px 10px !important;
   -ms-flex-align: start;
       align-items: flex-start;
   -ms-flex-pack: end;

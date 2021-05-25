@@ -119,13 +119,12 @@ class AddressBookPanel extends React.Component{
             width: 270,
             top: 100,
             bottom: 0,
-            backgroundColor: '#fafafa',
             transition: DOMUtils.getBeziersTransition(),
             ...style
         };
 
         return (
-            <Paper id={"info_panel"} zDepth={zDepth} style={{...columnStyle, display:'flex', flexDirection:'column'}}>
+            <Paper id={"info_panel"} zDepth={zDepth} rounded={false} style={{...columnStyle, display:'flex', flexDirection:'column'}}>
                 {cellInfo}
                 {pydio.Controller.getActionByName("open_address_book") &&
                     <AddressBook

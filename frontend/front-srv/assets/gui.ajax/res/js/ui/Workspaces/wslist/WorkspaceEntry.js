@@ -262,7 +262,7 @@ class WorkspaceEntry extends React.Component {
                         cellId={workspace.getId()}
                         onDismiss={()=>{this.setState({popoverOpen: false})}}
                         onHeightChange={()=>{this.setState({popoverHeight: 500})}}
-                        editorOneColumn={viewportW < 700}
+                        editorOneColumn={true}
                         rootNode={n}
                     />);
                     this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})

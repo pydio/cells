@@ -236,10 +236,10 @@ class FSTemplate extends React.Component {
                 top: headerHeight
             },
             otherPanelsStyle: {
+                backgroundColor: infoPanelBg.toString(),
                 top: headerHeight,
                 borderLeft: 0,
-                margin: 10,
-                width: 290
+                width: 270
             },
             searchFormPanelStyle:{
                 top: headerHeight,
@@ -267,6 +267,7 @@ class FSTemplate extends React.Component {
             "change_main",
             "info_panel",
             "info_panel_share",
+            "info_panel_edit_share",
         ];
         let mainToolbarsOthers = ["change", "other"];
 
@@ -295,7 +296,7 @@ class FSTemplate extends React.Component {
         if((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){
-                classes.push('info-panel-open-lg');
+                //classes.push('info-panel-open-lg');
             }
         }
 
@@ -466,16 +467,6 @@ class FSTemplate extends React.Component {
                                     tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
                                 />
                                 }
-                                {showAddressBook &&
-                                    <IconButton
-                                        iconClassName={"mdi mdi-account-card-details"}
-                                        style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
-                                        iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onClick={()=>{this.openRightPanel('address-book')}}
-                                        tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
-                                        tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
-                                    />
-                                }
                                 {showChatTab &&
                                 <IconButton
                                     iconClassName={"mdi mdi-message-text"}
@@ -485,6 +476,16 @@ class FSTemplate extends React.Component {
                                     tooltip={pydio.MessageHash[rightColumnState === 'chat' ? '86':'635']}
                                     tooltipPosition={"bottom-left"}
                                 />
+                                }
+                                {showAddressBook &&
+                                    <IconButton
+                                        iconClassName={"mdi mdi-account-card-details"}
+                                        style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
+                                        iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
+                                        onClick={()=>{this.openRightPanel('address-book')}}
+                                        tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
+                                        tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
+                                    />
                                 }
                             </div>
                         </div>
@@ -502,11 +503,11 @@ class FSTemplate extends React.Component {
                     />
                 }
                 {rightColumnState === 'chat' &&
-                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
+                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
                 }
 
                 {rightColumnState === 'address-book' &&
-                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
+                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
                 }
                 {rightColumnState === "advanced-search" &&
                     searchForm

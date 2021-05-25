@@ -146,6 +146,21 @@ class CompositeCard extends React.Component {
         }
     }
 
+    deleteAllShares() {
+        const {pydio} = this.props;
+        const {model} = this.state;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            dialogTitleId: 'share_center.composite.deleteAll',
+            message: pydio.MessageHash['share_center.' + 255],
+            validCallback: () => {
+                model.stopObserving('update');
+                model.deleteAll().then(res => {
+                    model.updateUnderlyingNode();
+                });
+            }
+        });
+    }
+
     render(){
 
         const {node, mode, pydio, editorOneColumn} = this.props;
@@ -286,21 +301,15 @@ class CompositeCard extends React.Component {
                     )
                 }
             }
-            const deleteAction = () => {
-                if(confirm(m(255))){
-                    model.stopObserving('update');
-                    model.deleteAll().then(res => {
-                        model.updateUnderlyingNode();
-                    });
-                }
-            };
             return (
                 <GenericCard
                     pydio={pydio}
                     title={pydio.MessageHash['share_center.50']}
                     onDismissAction={this.props.onDismiss}
-                    onDeleteAction={deleteAction}
+                    onDeleteAction={()=>this.deleteAllShares()}
                     onEditAction={()=>{pydio.Controller.fireAction('share-edit-shared')}}
+                    editTooltip={pydio.MessageHash['share_center.125']}
+                    deleteTooltip={pydio.MessageHash['share_center.composite.deleteAll']}
                     headerSmall={mode === 'infoPanel'}
                 >
                     {lines}
