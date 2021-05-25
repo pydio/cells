@@ -147,9 +147,11 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
-		if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: resp.Node}); er != nil {
-			service.RestError403(req, rsp, er)
-			return
+		if meta.Namespace != namespace.ReservedNamespaceBookmark {
+			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: resp.Node}); er != nil {
+				service.RestError403(req, rsp, er)
+				return
+			}
 		}
 		meta.ResolvedNode = resp.Node.Clone()
 		if meta.Namespace == permissions.AclContentLock.Name {
@@ -163,10 +165,6 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 		if ns, exists = nsList[meta.Namespace]; !exists {
 			service.RestError404(req, rsp, errors.NotFound(common.ServiceUserMeta, "Namespace "+meta.Namespace+" is not defined!"))
-			return
-		}
-		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this node"))
 			return
 		}
 
