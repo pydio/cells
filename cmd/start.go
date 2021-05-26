@@ -289,7 +289,9 @@ ENVIRONMENT
 				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
 					return nil
 				}
-				log.Info("Services are still running ", zap.Any("services", process.Services))
+				if process != nil {
+					log.Debug("Services are still running ", zap.Any("services", process.Services))
+				}
 				continue
 			case <-timeout:
 				return nil
