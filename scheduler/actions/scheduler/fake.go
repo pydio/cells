@@ -135,7 +135,7 @@ func (f *FakeAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		tick = timer
 	}
 
-	log.TasksLogger(ctx).Info("Starting fake long task")
+	log.TasksLogger(ctx).Info("Starting Timer")
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Hello World"})
 	ticker := time.NewTicker(time.Second * time.Duration(tick))
 	finished := make(chan struct{}, 1)
@@ -156,15 +156,15 @@ loop:
 			log.TasksLogger(ctx).Info(message)
 			channels.StatusMsg <- message
 		case <-channels.Pause:
-			log.TasksLogger(ctx).Info("fake task received pause from channels, should pause here")
+			log.TasksLogger(ctx).Info("Task received pause from channels, should pause here")
 			<-channels.BlockUntilResume()
-			log.TasksLogger(ctx).Info("block-until-resume passed, received resume, continue")
+			log.TasksLogger(ctx).Info("Block-until-resume passed, received resume, continue")
 		case <-channels.Stop:
-			log.TasksLogger(ctx).Info("received stop from channels: interrupting")
+			log.TasksLogger(ctx).Info("Received stop from channels: interrupting")
 			ticker.Stop()
 			break loop
 		case <-finished:
-			log.TasksLogger(ctx).Info("ticking is now finished")
+			log.TasksLogger(ctx).Info("Sleep time finished")
 			ticker.Stop()
 			break loop
 		}
