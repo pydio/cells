@@ -361,20 +361,30 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 
 		var checkRoleId string
 		var checkUserId string
+		var checkUserLogin string
 		var checkWorkspaceId string
 		if event.Acl != nil && event.Acl.RoleID != "" && !strings.HasPrefix(event.Acl.Action.Name, "parameter:") && !strings.HasPrefix(event.Acl.Action.Name, "action:") {
 			checkRoleId = event.Acl.RoleID
 		} else if event.Role != nil {
 			checkRoleId = event.Role.Uuid
+		} else if event.User != nil && event.User.Login != "" {
+			checkUserLogin = event.User.Login
 		} else if event.User != nil {
 			checkUserId = event.User.Uuid
 		} else if event.Workspace != nil {
 			checkWorkspaceId = event.Workspace.UUID
 		}
 
-		if checkUserId != "" {
+		if checkUserLogin != "" {
 			if val, ok := session.Get(SessionUsernameKey); ok && val != nil {
-				return checkUserId == val.(string)
+				return checkUserLogin == val.(string)
+			}
+		}
+
+		if checkUserId != "" {
+			if val, ok := session.Get(SessionClaimsKey); ok && val != nil {
+				c := val.(claim.Claims)
+				return checkUserId == c.Subject
 			}
 		}
 
