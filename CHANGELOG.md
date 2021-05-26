@@ -1,16 +1,23 @@
-# Changes between v2.2.5 and v2.2.6
+# Changes between v2.2.6 and v2.2.7
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.5...v2.2.6)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.6...v2.2.7)
 
-- [#ac60f68](https://github.com/pydio/cells/commit/ac60f682d2c8b3eeecf7f37d819e491904df5af4): Sendmail : revert string filtering and pass optional parameters instead
-- [#969516f](https://github.com/pydio/cells/commit/969516f06f6ecab06dcb707ed7fe06abedc713e5): Fix pagination issues in AddressBook (shared users and teams)
-- [#60423dd](https://github.com/pydio/cells/commit/60423dd30e8af3c08bf0070bc197683f2ddb1b1f): Fix welcome email language
-- [#ca5f0b7](https://github.com/pydio/cells/commit/ca5f0b7b27c1b84eb24a147d9e75be0e64c594f7): Merge remote-tracking branch 'origin/master'
-- [#af9d03f](https://github.com/pydio/cells/commit/af9d03fd341a528a3149090492609c00812a4f2f): Find single dot lines in emails to avoid truncating sendmail input
-- [#4e33ead](https://github.com/pydio/cells/commit/4e33ead62c1319f90d47d3a552edb2996d44e1f5): Fix issues in FR and ES, more ZH translations
-- [#aa99874](https://github.com/pydio/cells/commit/aa99874a55482380619f0113e938464f42e6aee5): Fix various issues in FR and ES + more translation.
-- [#feddb65](https://github.com/pydio/cells/commit/feddb65121e683aaf68644ccee9d5625bd15be92): Fix to the healthcheck port
-- [#6d8aa7d](https://github.com/pydio/cells/commit/6d8aa7da9fa797c8115ec26c868a8b56e679e8a2): Factorize setting keys/meta in context based on Claims
-- [#b105db3](https://github.com/pydio/cells/commit/b105db37a849d88cade273ca3ac33bec2d056181): VirtualNode : set MTime on dynamically created personal folder
-- [#bd57d90](https://github.com/pydio/cells/commit/bd57d907e84860dd9c135bab122bd183d07d692e): Service fork start : when starting a forked service, use regexp to make sure it starts only this service
-- [#2238a72](https://github.com/pydio/cells/commit/2238a724499d74dab4359e29b6d3a2dc56beb994): Next development cycle
+- [#a6cc9db](https://github.com/pydio/cells/commit/a6cc9db2ffa4198b8e56b0df607161d5635c0316): 3 more strings + translations
+- [#920074d](https://github.com/pydio/cells/commit/920074d8e34867e60a1f5c8e91703d8b520fd5bb): 3 more strings + translations
+- [#1f33a85](https://github.com/pydio/cells/commit/1f33a859959470ee8e62c756ac9daa6989b5d252): Fix a few typos
+- [#990a898](https://github.com/pydio/cells/commit/990a8985451aeddf6722b37b3551fb30e2507578): Fix a few typos
+- [#6e4fe6a](https://github.com/pydio/cells/commit/6e4fe6a8961dd42a5d5434ddff86429761d75959): Fix to the mailer restart
+- [#55770c0](https://github.com/pydio/cells/commit/55770c0400ec7dc60eec225b3a8848b45907eb67): Fix Editor tabCreate() call to apply correct readonly value.
+- [#dc55695](https://github.com/pydio/cells/commit/dc5569539f570ec8318e8aead6ae5ccb897ee5cb): Fix migration message for Shares
+- [#01e5add](https://github.com/pydio/cells/commit/01e5add02ac9d09068e3b9240a9ba6aad44ddc26): Shares migration : support multiple ownerIds and display warning about duplicates.
+- [#08402eb](https://github.com/pydio/cells/commit/08402ebc9b6714b56c5e6829d96533f2b969521c): Order imports
+- [#4a010c9](https://github.com/pydio/cells/commit/4a010c98541e5501ee634f7aecb92a32579a228b): Update parameter description for share max expiration (in days)
+- [#550e585](https://github.com/pydio/cells/commit/550e5857c7ed06c0482f871b98156ab95044de1a): Mails: split intros/outros by line
+- [#d6ac67a](https://github.com/pydio/cells/commit/d6ac67a3aff2852c5d50a4e492ceb03e9fe350c3): Imports: use WithImpersonate for GetUserInfo
+- [#3eb71e0](https://github.com/pydio/cells/commit/3eb71e0e6312ef4ad6e18b386352acc9e4b0015d): Missing default policies
+- [#6f37fe9](https://github.com/pydio/cells/commit/6f37fe9f6dcc303bb29034a3485bf57717c36049): Sync handler : check for empty response and retry
+- [#6377a56](https://github.com/pydio/cells/commit/6377a5689dd29672a982178b8853bfbd44b06623): SingleJobProgress : prevent hidden js error
+- [#1156127](https://github.com/pydio/cells/commit/1156127bdc076e135463a06375093f5c0ab2bd25): Re-adapt address book to use pagination on roles
+- [#352e3d8](https://github.com/pydio/cells/commit/352e3d8af52fe274c1854278c19a6dbc855d08f9): Add pagination support in Rest roles API
+- [#c29150b](https://github.com/pydio/cells/commit/c29150bf17b6d28088b1a01b53303aca12fd9b86): Bump makefile version to 2.2.7-dev and add policies migrations.
+- [#5486aaf](https://github.com/pydio/cells/commit/5486aaf2544098e85461b1c0ca3bf266ebd5fc60): Avoid case duplicate in headers - Activities basename in websockets.

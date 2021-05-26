@@ -110,8 +110,8 @@
   "Maximum file expiration limit": {
     "other": "最大文件过期限制"
   },
-  "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "文件的最大共享过期限制, 0 = 无限制"
+  "Maximum share expiration limit for file in days, 0 = unlimited": {
+    "other": "文件的最大共享过期限制 (天数）, 0 = 无限制"
   },
   "Minimum length of the generated hash": {
     "other": "生成的哈希最小长度"

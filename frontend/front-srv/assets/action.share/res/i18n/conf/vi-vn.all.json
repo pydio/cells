@@ -110,7 +110,7 @@
   "Maximum file expiration limit": {
     "other": "Giới hạn hết hạn tối đa của tệp"
   },
-  "Maximum share expiration limit for file, 0 = unlimited": {
+  "Maximum share expiration limit for file in days, 0 = unlimited": {
     "other": "Giới hạn hết hạn chia sẻ tối đa cho tệp, 0 = không giới hạn"
   },
   "Minimum length of the generated hash": {

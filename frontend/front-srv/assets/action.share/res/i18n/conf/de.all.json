@@ -110,8 +110,8 @@
   "Maximum file expiration limit": {
     "other": "Maximal erlaubtes Ablaufdatum"
   },
-  "Maximum share expiration limit for file, 0 = unlimited": {
-    "other": "Maximal erlaubtes Ablaufdatum der Freigabe oder 0 für keine Begrenzung."
+  "Maximum share expiration limit for file in days, 0 = unlimited": {
+    "other": "Maximales Limit für das Ablaufen der Freigabe für Dateien in Tagen, 0 = unbegrenzt"
   },
   "Minimum length of the generated hash": {
     "other": "Minimale Länge des generierten Hashes"

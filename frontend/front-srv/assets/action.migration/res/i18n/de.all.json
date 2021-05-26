@@ -167,11 +167,14 @@
   "step.shares.legend": {
     "other": "Importieren Sie öffentliche Pydio 8-Links und freigegebene Ordner in Cells. Öffentliche Links werden mit derselben Kennung und denselben Eigenschaften (Kennwort, Ablaufdatum usw.) erstellt. Ordner, die in Pydio 8 als Arbeitsumgebung freigegeben wurden, werden neuen Zellen zugeordnet."
   },
+  "step.shares.legend.warning": {
+    "other": "Bitte beachten Sie, dass der Freigabeimport eine unidirektionale Synchronisation ist: Wenn Sie diesen Schritt mehrmals ausführen, werden Duplikate erstellt. Wenn Sie die Migration mehrmals durchführen möchten, sollten Sie zunächst Freigaben für eine begrenzte Anzahl von Testbenutzern importieren."
+  },
   "step.shares.restrict.type": {
     "other": "1. Schränken Sie den Typ der zu importierenden Freigaben ein (wählen Sie mindestens eine aus):"
   },
   "step.shares.restrict.user": {
-    "other": "2. Zu Testzwecken können Sie den Import auf einen bestimmten Benutzer beschränken"
+    "other": "2. Zu Testzwecken können Sie den Import auf einen oder mehrere bestimmte Benutzer beschränken (durch Kommas getrennte Liste)"
   },
   "step.shares.restrict.user.login": {
     "other": "Besitzer Login"
