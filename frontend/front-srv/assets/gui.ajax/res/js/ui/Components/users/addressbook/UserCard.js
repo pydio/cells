@@ -44,9 +44,10 @@ class UserCard extends React.Component{
     render(){
 
         const {item} = this.props;
-        let editableProps = {}, editForm;
+        let editableProps = {avatarStyle: {zIndex: 1}}, editForm;
         if(item._parent && item._parent.id === 'ext'){
             editableProps = {
+                ...editableProps,
                 userEditable: item.IdmUser.PoliciesContextEditable,
                 onDeleteAction: () => {this.props.onDeleteAction(item._parent, [item])},
                 onEditAction: () => {this.setState({editForm: true})},
@@ -84,8 +85,8 @@ class UserCard extends React.Component{
                     richCard={!editForm}
                     pydio={this.props.pydio}
                     cardSize={this.props.style.width}
+                    cardStyle={{textAlign:'left', padding:'12px 16px 4px', backgroundColor:'#f8fafc'}}
                     {...editableProps}
-                    cardStyle={{textAlign:'left', paddingLeft: 80, paddingTop: 11}}
                 />
                 {editForm}
             </div>

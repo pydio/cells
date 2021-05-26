@@ -44,6 +44,7 @@ export default {
             width:26,
             height:26,
             padding: 5,
+            right:8
         },
         iconStyle:{
             color: 'rgba(0,0,0,.33)',

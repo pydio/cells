@@ -111,7 +111,7 @@ class AddressBookPanel extends React.Component{
             );
         }
 
-        return <ListItem primaryText={label} leftAvatar={avatar} rightIconButton={rightMenu} {...ListStylesCompact.listItem}/>
+        return <ListItem className={"compact"} primaryText={label} leftAvatar={avatar} rightIconButton={rightMenu} {...ListStylesCompact.listItem}/>
 
     }
 

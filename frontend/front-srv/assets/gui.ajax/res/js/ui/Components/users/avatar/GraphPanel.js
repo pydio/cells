@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import {IconButton} from "material-ui";
+
 const {Component} = require('react');
 import UsersList from '../addressbook/UsersList'
 const {Divider, Subheader, List, ListItem, FontIcon, Avatar} = require('material-ui');
@@ -66,11 +68,10 @@ class GraphPanel extends Component{
                         <Subheader>{cells.length === 1 ? getMessage('601') : getMessage('602').replace('%1', cells.length)}</Subheader>
                         <List style={{paddingTop: 0}}>{cells.map((cell) => {
                             return <ListItem
+                                disabled={true}
                                 leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'}/>} backgroundColor={"#009688"} size={ListStylesCompact.avatar.avatarSize} style={ListStylesCompact.avatar.style} />}
                                 primaryText={cell.Label}
-                                onClick={() => {
-                                    pydio.triggerRepositoryChange(cell.UUID);
-                                }}
+                                rightIconButton={<IconButton iconClassName={"mdi mdi-open-in-new"} tooltip={"Go to Cell"} tooltipPosition={"top-left"} onClick={()=>{pydio.triggerRepositoryChange(cell.UUID);}} {...ListStylesCompact.iconButton} />}
                                 {...ListStylesCompact.listItem}
                             />
                         })}</List>

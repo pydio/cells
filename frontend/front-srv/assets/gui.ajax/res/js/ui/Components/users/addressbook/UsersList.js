@@ -60,9 +60,10 @@ class UsersList extends React.Component{
         const {item, mode, paginatorType, paginatorFolder, loading, enableSearch, showSubheaders,
             getMessage, actionsPanel, muiTheme, bookColumn, pydio, reloadAction} = this.props;
         let {listStyles = {}} = this.props;
-
+        let className;
         if (mode === 'selector' || mode === 'inner'){
             listStyles = ListStylesCompact;
+            className = 'compact';
         }
 
         const avatarSize = listStyles.avatar ? listStyles.avatar.avatarSize : 36;
@@ -292,11 +293,19 @@ class UsersList extends React.Component{
                     actionCallback: createAction
                 };
             }
+            if(className === 'compact') {
+                emptyStateProps = {
+                    ...emptyStateProps,
+                    style: {backgroundColor: 'transparent', minHeight: 150},
+                    iconStyle:{fontSize: 40},
+                    legendStyle: {fontSize: 13}
+                }
+            }
             emptyState = <EmptyStateView {...emptyStateProps}/>;
         }
 
         return (
-            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden'}} onClick={this.props.onClick}>
+            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden'}} onClick={this.props.onClick} className={className}>
                 {mode !== 'inner' && !this.props.noToolbar && toolbar}
                 {!emptyState && !loading &&
                     <List style={{flex: 1, overflowY: mode !== 'inner' ? 'auto' : 'initial'}}>
