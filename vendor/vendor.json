@@ -2545,10 +2545,10 @@
 			"revisionTime": "2016-01-12T19:33:35Z"
 		},
 		{
-			"checksumSHA1": "kA5l1UkVADcRkK+wdW72woLqAyU=",
+			"checksumSHA1": "fcElpCl9VdrRP0OQkjipAIaQUDk=",
 			"path": "github.com/jaytaylor/go-hostsfile",
-			"revision": "f581673a59cf19f7ac16c2321791849aaa3b0998",
-			"revisionTime": "2020-10-26T23:01:51Z"
+			"revision": "8a26595405fb4058a2966e4a16dea1b0ddd5e012",
+			"revisionTime": "2020-03-27T01:57:46Z"
 		},
 		{
 			"checksumSHA1": "jTmR+fQieLQi9P4D7XGMPL4uQ8g=",

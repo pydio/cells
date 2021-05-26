@@ -1,4 +1,4 @@
-// +build !plan9 !windows
+// +build linux darwin
 
 package hostsfile
 
