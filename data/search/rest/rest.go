@@ -24,6 +24,8 @@ package rest
 import (
 	"strings"
 
+	"github.com/pydio/cells/common/utils/meta"
+
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
@@ -98,6 +100,9 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			passedPrefix = ""
 		}
 	}
+
+	metaLoader := meta.NewStreamLoader(ctx)
+	defer metaLoader.Close()
 
 	err := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
@@ -178,6 +183,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 							}
 						}
 					}
+					metaLoader.LoadMetas(ctx, filtered)
 					nodes = append(nodes, filtered.WithoutReservedMetas())
 				}
 			}
