@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -24,15 +24,15 @@ import {debounce} from 'lodash';
 import SearchApi from 'pydio/http/search-api'
 
 
-export default function withSearch(Component, historyIdentifier){
+export default function withSearch(Component, historyIdentifier, scope){
 
-    class WithSearch extends React.Component {
+    return class WithSearch extends React.Component {
 
         constructor(props) {
             super(props);
             this.performSearch = debounce(this.performSearch.bind(this), 500)
             let {values = {}} = props;
-            values = {scope: props.scope || 'folder', ...values};
+            values = {scope: scope || props.scope || 'folder', ...values};
             this.state = {
                 dataModel: props.dataModel || emptyDataModel(),
                 values,
@@ -40,7 +40,7 @@ export default function withSearch(Component, historyIdentifier){
                 empty: true,
                 loading: false,
                 facets:[],
-                facetFilter:{},
+                activeFacets:[],
                 history: []
             }
             if(historyIdentifier){
@@ -48,8 +48,17 @@ export default function withSearch(Component, historyIdentifier){
             }
         }
 
+        componentDidUpdate(prevProps, prevState, snapshot) {
+            if(prevState !== this.state) {
+                const {onSearchStateChange} = this.props;
+                if(onSearchStateChange) {
+                    onSearchStateChange(this.state);
+                }
+            }
+        }
+
         performSearch() {
-            const {values, dataModel, limit, selectedFacets} = this.state;
+            const {values, dataModel, limit, activeFacets} = this.state;
             const rootNode = dataModel.getRootNode();
             rootNode.setChildren([]);
             rootNode.setLoaded(false);
@@ -57,7 +66,7 @@ export default function withSearch(Component, historyIdentifier){
 
             const keys = Object.keys(searchValues);
             if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basenameOrContent' && !values['basenameOrContent'])) {
-                this.setState({loading: false,empty: true, facets:[], selectedFacets:[]});
+                this.setState({loading: false,empty: true, facets:[], activeFacets:[]});
                 return;
             }
 
@@ -65,7 +74,7 @@ export default function withSearch(Component, historyIdentifier){
             rootNode.setLoading(true);
             rootNode.notify("loading");
             const api = new SearchApi(Pydio.getInstance());
-            api.search(this.mergeFacets(values, selectedFacets), scope, limit).then(response => {
+            api.search(this.mergeFacets(values, activeFacets), scope, limit).then(response => {
                 rootNode.setChildren(response.Results);
                 rootNode.setLoading(false);
                 rootNode.setLoaded(true);
@@ -87,7 +96,17 @@ export default function withSearch(Component, historyIdentifier){
         
         setValues(newValues){
             const {onUpdateSearch} = this.props;
-            this.setState({values: newValues}, this.performSearch);
+            Object.keys(newValues).forEach(k => {
+                if(!newValues[k]){
+                    delete(newValues[k])
+                }
+            });
+            let {scope, ...other} = newValues;
+            if(!scope) {
+                const {values} = this.state;
+                scope = values.scope;
+            }
+            this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, this.performSearch);
             if(onUpdateSearch){
                 onUpdateSearch({values: newValues});
             }
@@ -98,14 +117,14 @@ export default function withSearch(Component, historyIdentifier){
         }
 
         toggleFacet(facet, toggle){
-            const {selectedFacets = []} = this.state;
+            const {activeFacets = []} = this.state;
             let newFacets = []
             if(toggle){
-                newFacets = [...selectedFacets, facet];
+                newFacets = [...activeFacets, facet];
             } else {
-                newFacets = selectedFacets.filter(s => !(s.FieldName===facet.FieldName && s.Label === facet.Label))
+                newFacets = activeFacets.filter(s => !(s.FieldName===facet.FieldName && s.Label === facet.Label))
             }
-            this.setState({selectedFacets:newFacets}, () => {this.submit()})
+            this.setState({activeFacets:newFacets}, this.performSearch)
         }
 
         mergeFacets(values = {}, facets = []){
@@ -182,7 +201,6 @@ export default function withSearch(Component, historyIdentifier){
             })
         }
 
-
         render() {
             return (
                 <Component 
@@ -194,11 +212,8 @@ export default function withSearch(Component, historyIdentifier){
                     toggleFacet={this.toggleFacet.bind(this)}
                 />
             );
-
         }
 
     }
-
-    return <WithSearch {...this.props}/>
 
 }

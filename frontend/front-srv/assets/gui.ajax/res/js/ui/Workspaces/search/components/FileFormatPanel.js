@@ -48,22 +48,22 @@ class SearchFileFormatPanel extends Component {
         })
     }
 
+    onToggle(e,v){
+        if(v){
+            this.setState({folder: v, ext: ''})
+        } else {
+            this.setState({folder: v})
+        }
+    }
+
     render() {
 
-        const {inputStyle, getMessage} = this.props;
+        const {inputStyle, getMessage, compact = false} = this.props;
+        const {folder} = this.state;
 
         return (
-            <div>
-                {!this.state.folder &&
-                <ModernTextField
-                    style={inputStyle}
-                    className="mui-text-field"
-                    hintText={getMessage(500)}
-                    value={this.state.ext}
-                    onChange={(e) => this.setState({ext: e.target.value})}
-                />
-                }
-                <div style={{...ModernStyles.div, margin:'6px 16px', padding:6, paddingRight:6}}>
+            <div style={compact?{display: 'flex'}:{}}>
+                <div style={{...ModernStyles.div, margin:'6px 16px', padding:6, paddingRight:6, flex: 1, marginRight:compact?4:16}}>
                     <Toggle
                         fullWidth={true}
                         name="toggleFolder"
@@ -71,7 +71,17 @@ class SearchFileFormatPanel extends Component {
                         label={getMessage(502)}
                         labelStyle={{fontSize:16, color:'rgba(0,0,0,.4)'}}
                         toggled={this.state.folder}
-                        onToggle={(e, toggled) => this.setState({folder: toggled})}
+                        onToggle={this.onToggle.bind(this)}
+                    />
+                </div>
+                <div style={{flex: 1, marginLeft:compact?4:0}}>
+                    <ModernTextField
+                        disabled={folder}
+                        style={{...inputStyle, opacity:folder?.5:1, marginLeft: compact?0:null, width:compact?'auto':null}}
+                        className="mui-text-field"
+                        hintText={getMessage(500)}
+                        value={this.state.ext}
+                        onChange={(e, v) => this.setState({ext: v})}
                     />
                 </div>
             </div>

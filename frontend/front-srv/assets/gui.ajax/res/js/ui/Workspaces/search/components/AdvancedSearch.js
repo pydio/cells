@@ -27,12 +27,13 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-const {ModernTextField} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 import DatePanel from './DatePanel';
 import FileFormatPanel from './FileFormatPanel';
 import FileSizePanel from './FileSizePanel';
 import {debounce} from 'lodash';
+import SearchScopeSelector from "./SearchScopeSelector";
 
 class AdvancedSearch extends Component {
 
@@ -111,7 +112,7 @@ class AdvancedSearch extends Component {
 
         const {text} = AdvancedSearch.styles;
 
-        const {pydio, getMessage, values, rootStyle} = this.props;
+        const {pydio, getMessage, values, rootStyle, showScope} = this.props;
         const {options} = this.state;
         const headerStyle = {fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10};
 
@@ -119,7 +120,12 @@ class AdvancedSearch extends Component {
             <div className="search-advanced" style={{...rootStyle}}>
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(341)}</Subheader>
                 {this.renderField('basenameOrContent',getMessage(1))}
-                <FileFormatPanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
+                {showScope &&
+                    <div style={{margin:'0 16px'}}>
+                        <SearchScopeSelector value={values.scope} onChange={(scope)=>{this.onChange({...values, scope})}} onClick={()=>{}} asField={true}/>
+                    </div>
+                }
+                <FileFormatPanel compact={showScope} values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
 
                 <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(489)}</Subheader>
                 <AdvancedMetaFields {...this.props} options={options}>

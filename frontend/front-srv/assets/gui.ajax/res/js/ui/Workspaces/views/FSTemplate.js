@@ -38,6 +38,7 @@ const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 import DataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import EmptyNodeProvider from 'pydio/model/empty-node-provider'
+import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
 
 
 class FSTemplate extends React.Component {
@@ -424,7 +425,8 @@ class FSTemplate extends React.Component {
                                 <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer}/>
                             </span>
                             <div style={{flex: 1, overflow:'hidden'}}>
-                                <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>
+                                {searchView && <div style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>Search Results</div>}
+                                {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}
                                 <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex', overflow:'hidden'}}>
                                     <ButtonMenu
                                         {...props}
@@ -452,15 +454,12 @@ class FSTemplate extends React.Component {
                                             toolbars={mainToolbars}
                                             groupOtherList={mainToolbarsOthers}
                                             renderingType="button"
-                                            toolbarStyle={{flex: 1, overflow:'hidden'}}
+                                            toolbarStyle={{overflow:'hidden'}}
                                             flatButtonStyle={styles.flatButtonStyle}
                                             buttonStyle={styles.flatButtonLabelStyle}
                                         />
                                     }
                                     {mobile && <span style={{flex:1}}/>}
-                                    {searchView &&
-                                        <IconButton iconClassName={"mdi mdi-close"} onClick={()=>this.setState({searchView:false})}/>
-                                    }
                                 </div>
                             </div>
                         </div>
@@ -476,18 +475,16 @@ class FSTemplate extends React.Component {
                                 buttonStyle={styles.buttonsIconStyle}
                                 flatButtonStyle={styles.buttonsStyle}
                             />
-                            <div style={{position:'relative', width: (rightColumnState === "advanced-search" || smallScreen) ? 40 : 150, transition:DOMUtils.getBeziersTransition()}}>
-                                {!smallScreen && rightColumnState !== "advanced-search" && searchForm}
-                                {(rightColumnState === "advanced-search" || smallScreen) &&
-                                    <IconButton
-                                        iconClassName={"mdi mdi-magnify"}
-                                        style={rightColumnState === "advanced-search" ? styles.activeButtonStyle : styles.buttonsStyle}
-                                        iconStyle={rightColumnState === "advanced-search" ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onClick={()=>{this.openRightPanel('advanced-search')}}
-                                        tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'87']}
-                                    />
-                                }
-                            </div>
+                            {!smallScreen &&
+                            <UnifiedSearchForm
+                                style={{flex: 1}}
+                                active={searchView}
+                                formStyles={styles.searchForm}
+                                dataModel={searchDataModel}
+                                onRequestOpen={()=>{this.setState({searchView:true})}}
+                                onRequestClose={()=>{this.setState({searchView:false})}}
+                            />
+                            }
                             <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: headerHeight, display:'none'}}/>
                             <div style={{display:'flex', paddingRight: 10}}>
                                 {showInfoPanel &&
@@ -540,9 +537,6 @@ class FSTemplate extends React.Component {
 
                 {rightColumnState === 'address-book' &&
                     <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
-                }
-                {rightColumnState === "advanced-search" &&
-                    searchForm
                 }
 
                 <EditionPanel {...props}/>
