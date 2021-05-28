@@ -21,15 +21,12 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
-
-	defaults "github.com/pydio/cells/common/micro"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -286,16 +283,16 @@ ENVIRONMENT
 
 		for {
 			select {
-			case <-ticker.C:
-				if defaults.RuntimeIsFork() {
-					// Check that the parent is still alive
-					ppid := fmt.Sprintf("%d", os.Getppid())
-					_, ok := registry.GetProcesses()[ppid]
-					if !ok {
-						return errors.New("parent process died")
-					}
-				}
-				continue
+			//case <-ticker.C:
+			//	if defaults.RuntimeIsFork() {
+			//		// Check that the parent is still alive
+			//		ppid := fmt.Sprintf("%d", os.Getppid())
+			//		_, ok := registry.GetProcesses()[ppid]
+			//		if !ok {
+			//			return errors.New("parent process died")
+			//		}
+			//	}
+			//	continue
 			case <-cmd.Context().Done():
 				return nil
 			}

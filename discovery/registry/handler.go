@@ -22,9 +22,13 @@ func (h *Handler) GetService(ctx context.Context, req *pb.GetRequest, resp *pb.G
 		return err
 	}
 
+	var services []*pb.Service
+
 	for _, s := range ss {
-		resp.Services = append(resp.Services, service.ToProto(s))
+		services = append(services, service.ToProto(s))
 	}
+
+	resp.Services = services
 
 	return nil
 }
@@ -42,9 +46,12 @@ func (h *Handler) ListServices(ctx context.Context, req *pb.ListRequest, resp *p
 		return err
 	}
 
+	var services []*pb.Service
 	for _, s := range ss {
-		resp.Services = append(resp.Services, service.ToProto(s))
+		services = append(services, service.ToProto(s))
 	}
+
+	resp.Services = services
 
 	return nil
 }

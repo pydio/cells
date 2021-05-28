@@ -27,7 +27,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/sync"
 
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/broker/log"

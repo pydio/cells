@@ -100,18 +100,13 @@ func (s *serviceRegistry) Deregister(srv *registry.Service) error {
 }
 
 func (s *serviceRegistry) GetService(name string) ([]*registry.Service, error) {
+
 	rsp, err := s.client.GetService(context.TODO(), &pb.GetRequest{
 		Service: name,
 	}, s.callOpts()...)
 	if err != nil {
 		return nil, err
 	}
-
-	//if verr, ok := err.(*errors.Error); ok && verr.Code == 404 {
-	//	return nil, registry.ErrNotFound
-	//} else if err != nil {
-	//	return nil, err
-	//}
 
 	services := make([]*registry.Service, 0, len(rsp.Services))
 	for _, service := range rsp.Services {

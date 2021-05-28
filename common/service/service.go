@@ -111,6 +111,7 @@ func buildForkStartParams(serviceName string) []string {
 
 // Service for the pydio app
 type service struct {
+
 	// Computed by external functions during listing operations
 	nodes    []*microregistry.Node
 	excluded bool
@@ -262,6 +263,9 @@ var mandatoryOptions = []ServiceOption{
 
 	// Checking port if set is available
 	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Check port availability")
 		port := s.Options().Port
 		if port == "" {
 			return nil
@@ -275,6 +279,8 @@ var mandatoryOptions = []ServiceOption{
 
 			<-time.After(1 * time.Second)
 		}
+
+		log.Logger(ctx).Debug("BeforeStart - Checked port availability")
 
 		return nil
 	}),
@@ -290,15 +296,14 @@ var mandatoryOptions = []ServiceOption{
 			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
 
 			err := Retry(ctx, func() error {
-				runningServices, err := registry.ListRunningServices()
+
+				running, err := registry.GetRunningService(d.Name)
 				if err != nil {
 					return err
 				}
 
-				for _, r := range runningServices {
-					if d.Name == r.Name() {
-						return nil
-					}
+				if len(running) > 0 {
+					return nil
 				}
 
 				log.Logger(ctx).Debug("BeforeStart - Check dependency retry", zap.String("service", d.Name))
@@ -322,6 +327,10 @@ var mandatoryOptions = []ServiceOption{
 			return nil
 		}
 
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Unique check")
+
 		ticker := time.Tick(1 * time.Second)
 
 	loop:
@@ -334,6 +343,8 @@ var mandatoryOptions = []ServiceOption{
 			}
 		}
 
+		log.Logger(ctx).Debug("BeforeStart - Unique checked")
+
 		return nil
 	}),
 
@@ -341,6 +352,8 @@ var mandatoryOptions = []ServiceOption{
 	BeforeStart(func(s Service) error {
 
 		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Database connection")
 
 		// Only if we have a DAO
 		if s.Options().DAO == nil {
@@ -384,6 +397,8 @@ var mandatoryOptions = []ServiceOption{
 		ctx = servicecontext.WithDAO(ctx, d)
 
 		s.Init(Context(ctx))
+
+		log.Logger(ctx).Debug("BeforeStart - Connected to a database")
 
 		return nil
 
@@ -571,21 +586,20 @@ func (s *service) IsRunning() bool {
 	if err := s.Check(ctx); err != nil {
 		return false
 	}
+
 	return true
 }
 
 // Check the status of the service (globally - not specific to an endpoint)
 func (s *service) Check(ctx context.Context) error {
 
-	running, err := registry.ListRunningServices()
+	running, err := registry.GetRunningService(s.Name())
 	if err != nil {
 		return err
 	}
 
-	for _, r := range running {
-		if s.Name() == r.Name() {
-			return nil
-		}
+	if len(running) > 0 {
+		return nil
 	}
 
 	return fmt.Errorf("Not found")
@@ -659,21 +673,17 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-
-	nMap := make(map[string]*microregistry.Node)
-	for _, p := range registry.GetPeers() {
-		for _, ms := range p.GetServices(s.Name()) {
-			for _, n := range ms.Nodes {
-				if _, ok := nMap[n.Id]; !ok {
-					nMap[n.Id] = n
-				}
-			}
-		}
-	}
 	var nodes []*microregistry.Node
-	for _, n := range nMap {
-		nodes = append(nodes, n)
+
+	ss, err := microregistry.DefaultRegistry.GetService(s.Name())
+	if err != nil {
+		return nodes
 	}
+
+	for _, s := range ss {
+		nodes = append(nodes, s.Nodes...)
+	}
+
 	return nodes
 }
 

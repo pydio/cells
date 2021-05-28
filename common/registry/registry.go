@@ -53,11 +53,14 @@ type Registry interface {
 	GetServiceByName(string) Service
 	GetServicesByName(string) []Service
 	GetPeers() map[string]*Peer
+	GetPeer(*registry.Node) *Peer
 	GetCurrentProcess() *Process
 	GetCurrentChildrenProcesses() []*Process
 	GetProcesses() map[string]*Process
+	GetProcess(*registry.Node) *Process
 	ListServices(withExcluded ...bool) ([]Service, error)
 	ListServicesWithFilter(func(Service) bool) ([]Service, error)
+	GetRunningService(string) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
 	Filter(func(Service) bool) error
@@ -103,6 +106,11 @@ func ListServicesWithFilter(fn func(Service) bool) ([]Service, error) {
 	return Default.ListServicesWithFilter(fn)
 }
 
+// GetRunningService returns the list of services that are started in the system
+func GetRunningService(name string) ([]Service, error) {
+	return Default.GetRunningService(name)
+}
+
 // ListRunningServices returns the list of services that are started in the system
 func ListRunningServices() ([]Service, error) {
 	return Default.ListRunningServices()
@@ -137,7 +145,7 @@ func (c *pydioregistry) Init(opts ...Option) {
 		o(&c.opts)
 	}
 
-	c.maintainRunningServicesList()
+	// c.maintainRunningServicesList()
 }
 
 // Deregister sets a service as excluded in the registry
@@ -272,14 +280,8 @@ func (c *pydioregistry) GetPeers() map[string]*Peer {
 	return c.peers
 }
 
-// GetInitialPeer retrieves or creates a fake peer for attaching services to a fake node.
-func (c *pydioregistry) GetInitialPeer() *Peer {
-	if p, ok := c.peers["INITIAL"]; ok {
-		return p
-	}
-	p := NewPeer("INITIAL")
-	c.peers["INITIAL"] = p
-	return p
+func GetPeer(node *registry.Node) *Peer {
+	return Default.GetPeer(node)
 }
 
 // GetPeer retrieves or creates a Peer from the Node info
