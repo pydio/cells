@@ -35,6 +35,11 @@ import DOMUtils from 'pydio/util/dom'
 import Color from "color";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
+import DataModel from 'pydio/model/data-model'
+import Node from 'pydio/model/node'
+import EmptyNodeProvider from 'pydio/model/empty-node-provider'
+
+
 class FSTemplate extends React.Component {
 
     constructor(props){
@@ -54,6 +59,27 @@ class FSTemplate extends React.Component {
             themeLight = true;
         }
         const w = DOMUtils.getViewportWidth();
+
+        const clearDataModel = () => {
+            const basicDataModel = new DataModel(true);
+            let rNodeProvider = new EmptyNodeProvider();
+            basicDataModel.setAjxpNodeProvider(rNodeProvider);
+            const rootNode = new Node("/", false, '', '', rNodeProvider);
+            basicDataModel.setRootNode(rootNode);
+            return basicDataModel;
+        };
+        const searchDataModel = clearDataModel()
+        searchDataModel.getRootNode().observe('loaded', ()=>{
+            console.log("searchView")
+            this.setState({searchView: true});
+        })
+        /*
+        pydio.getContextHolder().observe('context_changed', ()=>{
+            console.log("otherView")
+            this.setState({searchView: false})
+        })
+         */
+
         this.state = {
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
@@ -63,6 +89,8 @@ class FSTemplate extends React.Component {
             themeLight: themeLight,
             smallScreen: w <= 758,
             xtraSmallScreen: w <= 420,
+            searchDataModel,
+            searchView: false
         };
     }
 
@@ -361,11 +389,12 @@ class FSTemplate extends React.Component {
 
         }
 
-
+        const {searchDataModel, searchView} = this.state;
         const searchForm = (
             <SearchForm
                 {...props}
                 {...this.state.searchFormState}
+                dataModel={searchDataModel}
                 formStyles={styles.searchForm}
                 style={rightColumnState === "advanced-search" ? styles.searchFormPanelStyle : {}}
                 id={rightColumnState === "advanced-search" ? "info_panel": null}
@@ -429,6 +458,9 @@ class FSTemplate extends React.Component {
                                         />
                                     }
                                     {mobile && <span style={{flex:1}}/>}
+                                    {searchView &&
+                                        <IconButton iconClassName={"mdi mdi-close"} onClick={()=>this.setState({searchView:false})}/>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -490,7 +522,7 @@ class FSTemplate extends React.Component {
                             </div>
                         </div>
                     </Paper>
-                    <MainFilesList ref="list" pydio={pydio} onDisplayModeChange={(dMode) => {
+                    <MainFilesList ref="list" key={searchView?"search-results":"files-list"} pydio={pydio} dataModel={searchView?searchDataModel:pydio.getContextHolder()} onDisplayModeChange={(dMode) => {
                         this.setState({filesListDisplayMode: dMode});
                     }}/>
                 {rightColumnState === 'info-panel' &&
