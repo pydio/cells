@@ -35,7 +35,6 @@ const getStyles = (palette) => {
                 borderRadius: 6,
                 boxShadow: 'rgba(0, 0, 0, .15) 0px 0px 12px',
                 margin: 10,
-                marginBottom: 0,
                 overflow:'hidden'
             },
             header:{
@@ -158,10 +157,10 @@ class InfoPanelCard extends React.Component{
         }
 
         return (
-            <Paper zDepth={1} className="panelCard" style={{...this.props.style, ...styles.card.panel}}>
+            <Paper zDepth={1} className="panelCard" style={{...styles.card.panel, ...this.props.style}}>
                 {title}
                 {open &&
-                    <div className="panelContent" style={{...this.props.contentStyle, ...styles.card.content}}>
+                    <div className="panelContent" style={{...styles.card.content, ...this.props.contentStyle}}>
                         {this.props.children}
                         {rows}
                         {toolBar}

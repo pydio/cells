@@ -37,7 +37,7 @@ const defaultActions = {
 }
 
 // Helper functions
-const getActions = ({editorData}) => editorData.editorActions && FuncUtils.getFunctionByName(editorData.editorActions, window) || {}
+const getActions = ({editorData}) => editorData.editorActions && FuncUtils.getFunctionByName(editorData.editorActions, window) || {}
 
 export const handler = (func, {dispatch, tab}) => {
     const fn = getActions(tab)[func]

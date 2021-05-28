@@ -123,7 +123,7 @@ export default class InfoPanel extends React.Component{
                     ref="panel"
                     node={this.props.node}
                     editMode={this.state.editMode}
-                    onRequestEditMode={this.openEditMode.bind(this)}
+                    onRequestEditMode={!readOnly && this.openEditMode.bind(this)}
                     pydio={this.props.pydio}
                     onChangeUpdateData={(d) => {this.onChangeUpdateData(d)}}
                     autoSave={()=>{

@@ -87,13 +87,17 @@ class GenericCard extends React.Component{
 
     render(){
 
-        const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall} = this.props;
+        const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
 
         const {primary1Color} = muiTheme.palette;
 
         let styles = {
             headerHeight: 100,
             buttonBarHeight: 60,
+            buttonBar:{
+                display:'flex',
+                height: 60
+            },
             fabTop: 80,
             button: {
                 style:{},
@@ -102,8 +106,13 @@ class GenericCard extends React.Component{
         };
         if (headerSmall) {
             styles = {
-                headerHeight: 80,
-                buttonBarHeight: 40,
+                headerHeight: 'auto',
+                buttonBar: {
+                    display: 'flex',
+                    alignItems:'center',
+                    height: 46,
+                    padding: '0 7px 0 16px'
+                },
                 fabTop: 60,
                 button: {
                     style:{width:38, height: 38, padding: 9},
@@ -114,17 +123,22 @@ class GenericCard extends React.Component{
 
         return (
             <Paper zDepth={0} style={{width: '100%', position:'relative', ...style}}>
-                {onEditAction &&
+                {onEditAction && !headerSmall &&
                     <FloatingActionButton onClick={onEditAction} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
                         <FontIcon className={"mdi mdi-pencil"} />
                     </FloatingActionButton>
                 }
                 <Paper zDepth={0} style={{backgroundColor:primary1Color, color: 'white', height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
-                    <div style={{display:'flex', height: styles.buttonBarHeight}}>
-                        <span style={{flex: 1}}/>
-                        {onDeleteAction &&
-                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction}/>
+                    <div style={styles.buttonBar}>
+                        {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
+                        {!headerSmall && <span style={{flex: 1}}/>}
+                        {onEditAction && headerSmall &&
+                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction} tooltip={editTooltip} tooltipPosition={"bottom-left"}/>
                         }
+                        {onDeleteAction &&
+                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}/>
+                        }
+                        {otherActions}
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu
                                 anchorOrigin={{vertical:'top', horizontal:headerSmall?'right':'left'}}
@@ -132,14 +146,15 @@ class GenericCard extends React.Component{
                                 iconButtonElement={<IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-dots-vertical"}/>}
                             >{moreMenuItems}</IconMenu>
                         }
-                        {otherActions}
                         {onDismissAction &&
                             <IconButton  style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onClick={onDismissAction}/>
                         }
                     </div>
-                    <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20}}>
-                        {title}
-                    </div>
+                    {!headerSmall &&
+                        <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20}}>
+                            {title}
+                        </div>
+                    }
                 </Paper>
                 <div style={{paddingTop: 12, paddingBottom: 8}}>
                     {children}

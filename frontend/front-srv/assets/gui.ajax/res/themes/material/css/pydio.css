@@ -1906,10 +1906,6 @@ div.menu.desktop a span.ajxp_icon_span {
   overflow-y: auto;
   font-weight: 400;
 }
-#info_panel .panelCard {
-  margin: 10px !important;
-  margin-bottom: 0;
-}
 #info_panel .panelCard .panelHeader {
   padding: 24px 16px 16px;
   font-size: 19px;
@@ -1955,7 +1951,7 @@ div.menu.desktop a span.ajxp_icon_span {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 #info_panel .panelCard .primaryToolbar {
-  padding: 10px !important;
+  padding: 5px 10px !important;
   -ms-flex-align: start;
       align-items: flex-start;
   -ms-flex-pack: end;

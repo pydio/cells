@@ -18,10 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import _ from 'lodash';
-import { Motion, spring, presets } from 'react-motion';
+import { Motion, spring} from 'react-motion';
 
-import {getDisplayName} from '../../../../HOCs/utils';
+const {Utils} = Pydio.requireLib('hoc')
+const {getDisplayName} = Utils;
 
 const ANIMATION={stiffness: 400, damping: 30}
 const TARGET=100

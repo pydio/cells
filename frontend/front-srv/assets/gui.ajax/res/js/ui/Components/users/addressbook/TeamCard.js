@@ -83,20 +83,21 @@ class TeamCard extends React.Component{
         let title;
         if(this.state.editMode){
             title = (
-                <div style={{display:'flex', alignItems:'center', margin: 16}}>
+                <div style={{display:'flex', alignItems:'center', padding: 12}}>
                     <TextField style={{flex: 1, fontSize: 24}} fullWidth={true} disabled={false} underlineShow={false} value={this.state.label} onChange={this.onLabelChange.bind(this)}/>
                     <FlatButton secondary={true} label={getMessage(48)} onClick={() => {this.updateLabel()}}/>
                 </div>
             );
         }else{
-            title = <CardTitle title={this.state.label} subtitle={(item.leafs && item.leafs.length ? getMessage(576).replace('%s', item.leafs.length) : getMessage(577))}/>;
+            title = <CardTitle style={{padding:'12px 16px 4px'}} title={this.state.label} subtitle={(item.leafs && item.leafs.length ? getMessage(576).replace('%s', item.leafs.length) : getMessage(577))}/>;
         }
         const {style, ...otherProps} = this.props;
         return (
             <div>
-                {title}
-                <ActionsPanel {...otherProps} {...editProps} />
-                <Divider/>
+                <div style={{backgroundColor:'#f8fafc', paddingBottom:4}}>
+                    {title}
+                    <ActionsPanel {...otherProps} {...editProps} style={{paddingLeft: 8}} />
+                </div>
                 <UsersList subHeader={getMessage(575)} onItemClicked={()=>{}} item={item} mode="inner" onDeleteAction={onDeleteAction}/>
             </div>
         )

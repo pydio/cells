@@ -121,8 +121,8 @@ class UserAvatar extends React.Component{
     render(){
 
         const {user, avatar, graph, local, loadError} = this.state;
-        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, className,
-            labelMaxChars, labelClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
+        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, cardStyle, className,
+            labelMaxChars, labelClassName, avatarClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
             displayAvatar, useDefaultAvatar, richCard, muiTheme, noActionsPanel} = this.props;
 
         let {label} = this.state;
@@ -155,7 +155,7 @@ class UserAvatar extends React.Component{
             }
         }
 
-        let avatarContent, avatarColor, avatarIcon;
+        let avatarContent, avatarColor, avatarIcon, avatarClass;
         if(richCard){
             displayAvatar = true;
             useDefaultAvatar = true;
@@ -171,14 +171,17 @@ class UserAvatar extends React.Component{
                 case 'group':
                     iconClassName = 'mdi mdi-account-multiple';
                     userTypeLabel = '289';
+                    avatarClass = 'folder-avatar'
                     break;
                 case 'team':
                     iconClassName = 'mdi mdi-account-multiple-outline';
                     userTypeLabel = '603';
+                    avatarClass = 'folder-avatar'
                     break;
                 case 'remote':
                     iconClassName = 'mdi mdi-account-network';
                     userTypeLabel = '604';
+                    avatarClass = 'folder-avatar'
                     break;
                 default:
                     iconClassName = 'mdi mdi-account';
@@ -224,10 +227,8 @@ class UserAvatar extends React.Component{
 
             displayAvatar = true;
             style = {...style, flexDirection:'column'};
-            //avatarSize = cardSize ? cardSize : '100%';
-            //avatarStyle = {borderRadius: 0};
-            avatarSize = 100;
-            avatarStyle = {marginTop: 20};
+            avatarSize = 50;
+            avatarStyle = {position: 'absolute', right: 16, top: 12, ...avatarStyle};
             const localReload = () => {
                 MetaCacheService.getInstance().deleteKey('user_public_data-graph', this.props.userId);
                 this.loadPublicData(this.props.userId, this.props.idmUser);
@@ -346,6 +347,7 @@ class UserAvatar extends React.Component{
                 size={avatarSize}
                 style={this.props.avatarOnly ? this.props.style : avatarStyle}
                 backgroundColor={avatarColor}
+                className={avatarClass || avatarClassName}
             >{avatarContent}</Avatar>
         );
 
@@ -372,8 +374,8 @@ class UserAvatar extends React.Component{
                     className={labelClassName}
                     style={labelStyle}>{label}</div>}
                 {labelChevron}
-                {displayLabel && richCard && <CardTitle style={{textAlign:'center'}} title={label} subtitle={userTypeLabel}/>}
-                {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction}/>}
+                {displayLabel && richCard && <CardTitle style={{textAlign:'center', ...cardStyle}} title={label} subtitle={userTypeLabel}/>}
+                {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction} style={{paddingLeft: 8, paddingBottom: 4, backgroundColor:'#f8fafc'}}/>}
                 {richCard && graph && !noActionsPanel && <GraphPanel graph={graph} {...this.props} userLabel={label} reloadAction={reloadAction} onEditAction={onEditAction}/>}
                 {this.props.children}
                 {popover}
@@ -501,7 +503,6 @@ UserAvatar.defaultProps = {
     avatarSize: 40,
     userType:'user',
     className: 'user-avatar-widget',
-    avatarClassName:'user-avatar',
     labelClassName:'user-label'
 };
 

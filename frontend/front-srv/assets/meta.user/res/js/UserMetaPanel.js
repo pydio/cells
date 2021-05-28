@@ -107,7 +107,7 @@ export default class UserMetaPanel extends React.Component{
     }
     render(){
         const {configs, updateMeta} = this.state;
-        const {node, editMode, supportTemplates} = this.props;
+        const {node, editMode, onRequestEditMode, supportTemplates} = this.props;
         let data = [];
         const metadata = node.getMetadata();
         let nonEmptyDataCount = 0;
@@ -231,13 +231,17 @@ export default class UserMetaPanel extends React.Component{
             }
         });
         const mess = this.props.pydio.MessageHash;
-        if(!this.props.editMode && !nonEmptyDataCount){
+        if(!editMode && !nonEmptyDataCount){
+            let divProps = {}
+            if(onRequestEditMode) {
+                divProps = {onClick:onRequestEditMode, style:{cursor:'pointer'}}
+            }
             return (
-                <div onClick={this.props.onRequestEditMode} style={{cursor:'pointer'}}>
+                <div {...divProps}>
                     <EmptyStateView
                         pydio={this.props.pydio}
                         iconClassName={"mdi mdi-tag-outline"}
-                        primaryTextId={mess['meta.user.11']}
+                        primaryTextId={mess['meta.user.' + (onRequestEditMode?'11':'16')]}
                         style={{padding: '10px 40px 20px', backgroundColor:'transparent'}}
                         iconStyle={{fontSize: 40}}
                         legendStyle={{fontSize: 13}}
