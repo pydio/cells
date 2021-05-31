@@ -282,7 +282,7 @@ func (r *clusterRegistry) Deregister(s *registry.Service) error {
 
 func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 	localServices, err := r.local.GetService(name)
-	if err != nil {
+	if err != nil && err != registry.ErrNotFound {
 		return []*registry.Service{}, err
 	}
 
