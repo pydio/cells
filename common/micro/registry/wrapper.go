@@ -2,10 +2,13 @@ package registry
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/micro/go-micro/registry"
+
 	"github.com/pydio/cells/common/config"
+	pydioregistry "github.com/pydio/cells/common/registry"
 )
 
 type registryWithExpiry struct {
@@ -47,4 +50,52 @@ func (r *registryWithUnique) Register(s *registry.Service, opts ...registry.Regi
 		}
 	}
 	return r.Registry.Register(s, opts...)
+}
+
+type registryWithPeers struct {
+	registry.Registry
+}
+
+func NewRegistryWithPeers(r registry.Registry) registry.Registry {
+	return &registryWithPeers{
+		Registry: r,
+	}
+}
+
+func (r *registryWithPeers) Register(s *registry.Service, opts ...registry.RegisterOption) error {
+	for _, node := range s.Nodes {
+		pydioregistry.GetPeer(node).Add(s, fmt.Sprintf("%d", node.Port))
+	}
+	return r.Registry.Register(s, opts...)
+}
+
+func (r *registryWithPeers) Deregister(s *registry.Service) error {
+	for _, node := range s.Nodes {
+		pydioregistry.GetPeer(node).Delete(s, fmt.Sprintf("%d", node.Port))
+	}
+	return r.Registry.Deregister(s)
+}
+
+type registryWithProcesses struct {
+	registry.Registry
+}
+
+func NewRegistryWithProcesses(r registry.Registry) registry.Registry {
+	return &registryWithProcesses{
+		Registry: r,
+	}
+}
+
+func (r *registryWithProcesses) Register(s *registry.Service, opts ...registry.RegisterOption) error {
+	for _, node := range s.Nodes {
+		pydioregistry.GetProcess(node).Add(s.Name)
+	}
+	return r.Registry.Register(s, opts...)
+}
+
+func (r *registryWithProcesses) Deregister(s *registry.Service) error {
+	for _, node := range s.Nodes {
+		pydioregistry.GetProcess(node).Delete(s.Name)
+	}
+	return r.Registry.Deregister(s)
 }

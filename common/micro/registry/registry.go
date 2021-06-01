@@ -30,12 +30,21 @@ func EnableService() {
 				client.RequestTimeout(10*time.Minute),
 				client.Selector(rs.NewSelector()),
 				client.Retries(20),
+				client.Retry(func(ctx context.Context, req client.Request, retryCount int, err error) (bool, error) {
+					if errors.Parse(err.Error()).Detail == "not found" {
+						return false, err
+					}
+
+					return true, nil
+				}),
 			),
 		),
 	)
 
 	r = NewRegistryWithExpiry(r, 20*time.Minute)
 	r = NewRegistryWithUnique(r)
+	r = NewRegistryWithPeers(r)
+	r = NewRegistryWithProcesses(r)
 
 	s := cache.NewSelector(selector.Registry(r))
 
@@ -64,12 +73,14 @@ func EnableMemory() {
 
 	r := memory.NewRegistry()
 
-	r = NewRegistryWithExpiry(r, 20*time.Minute)
-	r = NewRegistryWithUnique(r)
 	r = cluster.NewRegistry(r,
 		registry.Addrs(viper.GetString("nats_address")),
 		cluster.ClusterID(viper.GetString("nats_streaming_cluster_id")),
 	)
+	r = NewRegistryWithExpiry(r, 20*time.Minute)
+	r = NewRegistryWithUnique(r)
+	r = NewRegistryWithPeers(r)
+	r = NewRegistryWithProcesses(r)
 
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)

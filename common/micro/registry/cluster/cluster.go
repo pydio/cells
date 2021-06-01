@@ -47,6 +47,8 @@ type clusterRegistry struct {
 
 	options registry.Options
 
+	clientID string
+
 	connectTimeout time.Duration
 	conn           *nats.Conn
 
@@ -60,20 +62,9 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 	options := registry.Options{
 		Context: context.Background(),
 	}
+
 	for _, o := range opts {
 		o(&options)
-	}
-
-	r := &clusterRegistry{
-		local:    local,
-		options:  options,
-		services: make(map[string][]*registry.Service),
-		watchers: make(map[string]*clusterWatcher),
-	}
-
-	clusterID, ok := options.Context.Value(clusterIDKey{}).(string)
-	if !ok || len(clusterID) == 0 {
-		clusterID = "cells"
 	}
 
 	clientID, ok := options.Context.Value(clientIDKey{}).(string)
@@ -81,9 +72,17 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 		clientID = uuid.New().String()
 	}
 
+	r := &clusterRegistry{
+		local:    local,
+		clientID: clientID,
+		options:  options,
+		services: make(map[string][]*registry.Service),
+		watchers: make(map[string]*clusterWatcher),
+	}
+
 	// Trying to get the initial connection
 	go func() {
-		_, err := r.getConn(clientID)
+		_, err := r.getConn()
 		if err != nil {
 			fmt.Println("Error ", err)
 		}
@@ -119,7 +118,6 @@ func (r *clusterRegistry) watch(res *registry.Result) {
 func (r *clusterRegistry) register(s *registry.Service) error {
 	go r.watch(&registry.Result{Action: "update", Service: s})
 
-	fmt.Println("Adding service ", s.Name)
 	r.Lock()
 	services := addServices(r.services[s.Name], []*registry.Service{s})
 	r.services[s.Name] = services
@@ -137,7 +135,7 @@ func (r *clusterRegistry) deregister(s *registry.Service) error {
 	return nil
 }
 
-func (r *clusterRegistry) getConn(clientID string) (*nats.Conn, error) {
+func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 	if r.conn != nil {
 		return r.conn, nil
 	}
@@ -284,8 +282,8 @@ func (r *clusterRegistry) Deregister(s *registry.Service) error {
 
 func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 	localServices, err := r.local.GetService(name)
-	if err != nil {
-		return nil, err
+	if err != nil && err != registry.ErrNotFound {
+		return []*registry.Service{}, err
 	}
 
 	clusterServices, ok := r.services[name]
@@ -293,7 +291,9 @@ func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 		return localServices, nil
 	}
 
-	return mergeServices(localServices, clusterServices), nil
+	ret := mergeServices(localServices, clusterServices)
+
+	return ret, nil
 }
 
 func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {

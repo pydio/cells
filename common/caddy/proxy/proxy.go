@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"fmt"
-	"github.com/pydio/cells/common/registry"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,6 +9,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/pydio/cells/common/registry"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyfile"
@@ -109,23 +110,21 @@ func NewRegistryUpstreams(c caddyfile.Dispenser, host string) ([]proxy.Upstream,
 			return upstreams, c.ArgErr()
 		}
 
-		services, _ := registry.ListRunningServices()
+		services, _ := registry.GetRunningService(upstream.name)
 		for _, service := range services {
-			if service.Name() == upstream.name {
-				for _, node := range service.RunningNodes() {
-					host, err := upstream.newHost(service.Name(), service.Version(), node)
-					if err != nil {
-						continue
-					}
-					upstream.lock.Lock()
-					upstream.hosts[node.Id] = host
-					upstream.lock.Unlock()
+			for _, node := range service.RunningNodes() {
+				host, err := upstream.newHost(service.Name(), service.Version(), node)
+				if err != nil {
+					continue
 				}
+				upstream.lock.Lock()
+				upstream.hosts[node.Id] = host
+				upstream.lock.Unlock()
 			}
 		}
 
 		go func() {
-			w, err := microregistry.Watch()
+			w, err := registry.Watch()
 			if err != nil {
 				return
 			}
@@ -394,4 +393,3 @@ func parseBlock(c *caddyfile.Dispenser, r *registryUpstream, hasSrv bool) error 
 	}
 	return nil
 }
-

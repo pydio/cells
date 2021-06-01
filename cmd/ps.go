@@ -22,7 +22,10 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/spf13/viper"
+
 	//"net"
 	"os"
 	"regexp"
@@ -131,6 +134,17 @@ EXAMPLE
 			return false
 		})
 
+		// Removing healthcheck services
+		registry.Default.Filter(func(s registry.Service) bool {
+			re := regexp.MustCompile(common.ServiceHealthCheck)
+
+			if re.MatchString(s.Name()) {
+				return true
+			}
+
+			return false
+		})
+
 		// Filtering services by tags
 		registry.Default.Filter(func(s registry.Service) bool {
 			for _, t := range filterListTags {
@@ -230,9 +244,12 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
 
-				fmt.Println(s.RunningNodes())
+				var nodes []string
+				for _, node := range s.RunningNodes() {
+					nodes = append(nodes, fmt.Sprintf("%s:%d", node.Address, node.Port))
+				}
 
-				tags[tag].Services[name] = &runningService{name: name}
+				tags[tag].Services[name] = &runningService{name: name, nodes: strings.Join(nodes, ",")}
 			}
 		}
 	}
@@ -241,7 +258,7 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 }
 
 type runningService struct {
-	name string
+	name  string
 	nodes string
 }
 

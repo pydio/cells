@@ -30,7 +30,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
-	"github.com/patrickmn/go-cache"
+	cache "github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -191,42 +191,25 @@ func (p *ClientsPool) GetDataSources() map[string]LoadedSource {
 
 // LoadDataSources queries the registry to reload available datasources
 func (p *ClientsPool) LoadDataSources() {
-
 	if IsUnitTestEnv {
 		// Workaround the fact that no registry is present when doing unit tests
 		return
 	}
 
-	otherServices, err := registry.ListRunningServices()
-	if err != nil {
-		return
-	}
-
-	indexServices := filterServices(otherServices, func(v string) bool {
-		return strings.Contains(v, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-	})
+	sources := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources").StringArray()
+	sources = config.SourceNamesFiltered(sources)
 
 	cli := defaults.NewClient()
-	clientWithRetriesOnce.Do(func() {
-		cli = defaults.NewClient(
-			client.Retries(3),
-			// client.RequestTimeout(1*time.Second),
-		)
-	})
 
 	ctx := context.Background()
-	for _, indexService := range indexServices {
-		dataSourceName := strings.TrimPrefix(indexService, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-		if dataSourceName == "" {
-			continue
-		}
-		endpointClient := object.NewDataSourceEndpointClient(common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, cli)
+	for _, source := range sources {
+		endpointClient := object.NewDataSourceEndpointClient(common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, cli)
 		response, err := endpointClient.GetDataSourceConfig(ctx, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
-			log.Logger(ctx).Debug("Creating client for datasource " + dataSourceName)
-			p.createClientsForDataSource(dataSourceName, response.DataSource)
+			log.Logger(ctx).Debug("Creating client for datasource " + source)
+			p.createClientsForDataSource(source, response.DataSource)
 		} else {
-			log.Logger(context.Background()).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+dataSourceName, zap.Any("r", response), zap.Error(err))
+			log.Logger(context.Background()).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
 		}
 	}
 
@@ -264,7 +247,7 @@ func (p *ClientsPool) watchRegistry() {
 				dsName := strings.TrimPrefix(srv.Name, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 
 				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name))
-				if _, ok := p.sources[dsName]; ok && result.Action == "stopped" {
+				if _, ok := p.sources[dsName]; ok && result.Action == "delete" {
 					// Reset list
 					p.Lock()
 					delete(p.sources, dsName)
@@ -298,7 +281,6 @@ func (p *ClientsPool) watchConfigChanges() {
 		}
 
 		watcher.Stop()
-
 
 		// Cool-off period
 		time.Sleep(1 * time.Second)

@@ -28,7 +28,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/micro/go-micro/registry"
@@ -50,72 +49,63 @@ type Process struct {
 	Services map[string]string
 }
 
-func NewProcess(pid string) *Process {
+func NewProcess(node *registry.Node) *Process {
+	pid, ok := node.Metadata[serviceMetaPID]
+	if !ok {
+		return nil
+	}
+
 	process := &Process{
 		Id:       pid,
 		Services: make(map[string]string),
 		sLock:    &sync.RWMutex{},
 	}
-	return process
-}
-
-func (p *pydioregistry) registerProcessFromNode(n *registry.Node, serviceName string) {
-	pid, ok := n.Metadata[serviceMetaPID]
-	if !ok {
-		return
-	}
-	p.processeslock.Lock()
-	defer p.processeslock.Unlock()
-	if proc, e := p.processes[pid]; e {
-		proc.sLock.Lock()
-		defer proc.sLock.Unlock()
-		proc.Services[serviceName] = serviceName
-		return
-	}
-	process := NewProcess(pid)
-	process.PeerId = n.Id
-	process.PeerAddress = n.Address
-	process.Services[serviceName] = serviceName
-	if parent, ok := n.Metadata[serviceMetaParentPID]; ok {
+	process.PeerId = node.Id
+	process.PeerAddress = node.Address
+	if parent, ok := node.Metadata[serviceMetaParentPID]; ok {
 		process.ParentId = parent
 	}
-	if port, ok := n.Metadata[serviceMetaMetrics]; ok {
+	if port, ok := node.Metadata[serviceMetaMetrics]; ok {
 		if met, e := strconv.ParseInt(port, 10, 32); e == nil {
 			process.MetricsPort = int(met)
 		}
 	}
-	if start, ok := n.Metadata[serviceMetaStartTag]; ok {
+	if start, ok := node.Metadata[serviceMetaStartTag]; ok {
 		process.StartTag = start
 	}
-	p.processes[pid] = process
+
+	return process
 }
 
-func (p *pydioregistry) deregisterProcessFromNode(n *registry.Node, serviceName string) {
+func (p *pydioregistry) GetProcess(node *registry.Node) *Process {
+	pid, ok := node.Metadata[serviceMetaPID]
+	if !ok {
+		return nil
+	}
 
 	p.processeslock.Lock()
 	defer p.processeslock.Unlock()
+	if proc, ok := p.processes[pid]; ok {
+		return proc
+	}
 
-	pid, hasP := n.Metadata[serviceMetaPID]
-	if !hasP {
-		// A full peer was deleted
-		for pid, proc := range p.processes {
-			if proc.PeerAddress == n.Address && strings.HasSuffix(proc.PeerId, n.Id) {
-				delete(p.processes, pid)
-				return
-			}
-		}
-		return
-	}
-	process, ok := p.processes[pid]
-	if !ok {
-		return
-	}
-	process.sLock.Lock()
-	defer process.sLock.Unlock()
-	delete(process.Services, serviceName)
-	if len(process.Services) == 0 {
-		delete(p.processes, pid)
-	}
+	proc := NewProcess(node)
+
+	p.processes[pid] = proc
+
+	return proc
+}
+
+func (p *Process) Add(serviceName string) {
+	p.sLock.Lock()
+	defer p.sLock.Unlock()
+	p.Services[serviceName] = serviceName
+}
+
+func (p *Process) Delete(serviceName string) {
+	p.sLock.Lock()
+	defer p.sLock.Unlock()
+	delete(p.Services, serviceName)
 }
 
 // GetProcesses implements registry GetProcesses method, by creating a copy of the
@@ -132,6 +122,10 @@ func (p *pydioregistry) GetProcesses() map[string]*Process {
 
 func GetProcesses() map[string]*Process {
 	return Default.GetProcesses()
+}
+
+func GetProcess(node *registry.Node) *Process {
+	return Default.GetProcess(node)
 }
 
 func GetCurrentProcess() *Process {
