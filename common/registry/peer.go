@@ -100,7 +100,3 @@ func (p *Peer) GetAddress() string {
 func (p *Peer) GetHostname() string {
 	return p.hostname
 }
-
-func (p *Peer) IsInitial() bool {
-	return p.address == "INITIAL"
-}

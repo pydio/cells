@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/micro/go-plugins/registry/memory"
+
 	"go.uber.org/zap"
 
 	jsm "github.com/nats-io/jsm.go"
@@ -34,26 +36,19 @@ type node struct {
 	LastSeen time.Time
 }
 
-type record struct {
-	Name      string
-	Version   string
-	Metadata  map[string]string
-	Nodes     map[string]*node
-	Endpoints []*registry.Endpoint
-}
-
 type clusterRegistry struct {
-	local registry.Registry
+	local        registry.Registry
+	clusterNodes map[string]registry.Registry
 
 	options registry.Options
 
-	clientID string
+	consumerID string
+	clientID   string
 
 	connectTimeout time.Duration
 	conn           *nats.Conn
 
 	sync.RWMutex
-	services map[string][]*registry.Service
 	watchers map[string]*clusterWatcher
 }
 
@@ -73,11 +68,11 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 	}
 
 	r := &clusterRegistry{
-		local:    local,
-		clientID: clientID,
-		options:  options,
-		services: make(map[string][]*registry.Service),
-		watchers: make(map[string]*clusterWatcher),
+		local:        local,
+		clusterNodes: make(map[string]registry.Registry),
+		clientID:     clientID,
+		options:      options,
+		watchers:     make(map[string]*clusterWatcher),
 	}
 
 	// Trying to get the initial connection
@@ -115,26 +110,6 @@ func (r *clusterRegistry) watch(res *registry.Result) {
 	}
 }
 
-func (r *clusterRegistry) register(s *registry.Service) error {
-	go r.watch(&registry.Result{Action: "update", Service: s})
-
-	r.Lock()
-	services := addServices(r.services[s.Name], []*registry.Service{s})
-	r.services[s.Name] = services
-	r.Unlock()
-	return nil
-}
-
-func (r *clusterRegistry) deregister(s *registry.Service) error {
-	go r.watch(&registry.Result{Action: "delete", Service: s})
-
-	r.Lock()
-	services := delServices(r.services[s.Name], []*registry.Service{s})
-	r.services[s.Name] = services
-	r.Unlock()
-	return nil
-}
-
 func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 	if r.conn != nil {
 		return r.conn, nil
@@ -158,6 +133,36 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 		return nil, err
 	}
 
+	go func() {
+		ticker := time.NewTicker(10 * time.Second)
+		for {
+			select {
+			case <-ticker.C:
+				var consumerIDs []string
+				if err := stream.EachConsumer(func(con *jsm.Consumer) {
+					consumerIDs = append(consumerIDs, con.Name())
+				}); err != nil {
+					continue
+				}
+
+				for k := range r.clusterNodes {
+					found := false
+					for _, consumerID := range consumerIDs {
+						if consumerID == k {
+							found = true
+							break
+						}
+					}
+
+					if !found {
+						delete(r.clusterNodes, k)
+					}
+				}
+			}
+		}
+	}()
+	//
+
 	inbox := nats.NewInbox()
 
 	r.conn.Subscribe(inbox, func(m *nats.Msg) {
@@ -166,24 +171,37 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 			return
 		}
 
+		consumerID, ok := service.Metadata["consumerID"]
+		if !ok {
+			return
+		}
+
+		clusterNode, ok := r.clusterNodes[consumerID]
+		if !ok {
+			clusterNode = memory.NewRegistry()
+			r.clusterNodes[consumerID] = clusterNode
+		}
+
 		switch m.Subject {
 		case "registry.register":
-			r.register(service)
+			clusterNode.Register(service)
 		case "registry.deregister":
-			r.deregister(service)
+			clusterNode.Deregister(service)
 		}
 
 		m.Ack()
 	})
 
-	if _, err := stream.LoadOrNewConsumer(
+	con, err := stream.LoadOrNewConsumer(
 		"registry-"+uuid.New().String(),
 		jsm.DeliverySubject(inbox),
 		jsm.DeliverAllAvailable(),
-	); err != nil {
+	)
+	if err != nil {
 		return nil, err
 	}
 
+	r.consumerID = con.Name()
 	return r.conn, nil
 }
 
@@ -199,10 +217,31 @@ func (r *clusterRegistry) connect() error {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
+	replay := func() error {
+		ss, err := r.local.ListServices()
+		if err != nil {
+			return err
+		}
+
+		for _, s := range ss {
+			if err := r.register(s); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
 	fn := func() error {
 		conn, err := nats.Connect(r.options.Addrs[0],
 			nats.UseOldRequestStyle(),
-			//nats.DisconnectErrHandler()
+			nats.ReconnectHandler(func(_ *nats.Conn) {
+				replay()
+				fmt.Println("Reconnected to nats")
+			}),
+			nats.DisconnectErrHandler(func(_ *nats.Conn, _ error) {
+				fmt.Println("Disconnected from nats")
+			}),
 		)
 		if err != nil {
 			return err
@@ -231,6 +270,7 @@ func (r *clusterRegistry) connect() error {
 			err := fn()
 			if err == nil {
 				log.Info("Now connected to the cluster", zap.String("addr", r.options.Addrs[0]))
+				replay()
 				return nil
 			}
 		}
@@ -251,8 +291,16 @@ func (r *clusterRegistry) Options() registry.Options {
 	return r.options
 }
 
-func (r *clusterRegistry) Register(s *registry.Service, opts ...registry.RegisterOption) error {
+func (r *clusterRegistry) register(s *registry.Service, opts ...registry.RegisterOption) error {
 	if r.conn != nil {
+		meta := make(map[string]string)
+		for k, v := range s.Metadata {
+			meta[k] = v
+		}
+		meta["consumerID"] = r.consumerID
+
+		s.Metadata = meta
+
 		data, err := marshal(s)
 		if err != nil {
 			return err
@@ -263,11 +311,27 @@ func (r *clusterRegistry) Register(s *registry.Service, opts ...registry.Registe
 		}
 	}
 
+	return nil
+}
+
+func (r *clusterRegistry) Register(s *registry.Service, opts ...registry.RegisterOption) error {
+	if err := r.register(s, opts...); err != nil {
+		return err
+	}
+
 	return r.local.Register(s, opts...)
 }
 
-func (r *clusterRegistry) Deregister(s *registry.Service) error {
+func (r *clusterRegistry) deregister(s *registry.Service) error {
 	if r.conn != nil {
+		meta := make(map[string]string)
+		for k, v := range s.Metadata {
+			meta[k] = v
+		}
+		meta["consumerID"] = r.consumerID
+
+		s.Metadata = meta
+
 		data, err := marshal(s)
 		if err != nil {
 			return err
@@ -277,34 +341,50 @@ func (r *clusterRegistry) Deregister(s *registry.Service) error {
 		}
 	}
 
+	return nil
+}
+
+func (r *clusterRegistry) Deregister(s *registry.Service) error {
+	if err := r.deregister(s); err != nil {
+		return err
+	}
+
 	return r.local.Deregister(s)
 }
 
 func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
-	localServices, err := r.local.GetService(name)
-	if err != nil && err != registry.ErrNotFound {
-		return []*registry.Service{}, err
-	}
-
-	clusterServices, ok := r.services[name]
-	if !ok {
-		return localServices, nil
-	}
-
-	ret := mergeServices(localServices, clusterServices)
-
-	return ret, nil
-}
-
-func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
-	localServices, err := r.local.ListServices()
-	if err != nil {
-		return nil, err
+	localServices, errLocal := r.local.GetService(name)
+	if errLocal != nil && errLocal != registry.ErrNotFound {
+		return []*registry.Service{}, errLocal
 	}
 
 	var clusterServices []*registry.Service
-	for _, ss := range r.services {
-		clusterServices = append(clusterServices, ss...)
+	for _, clusterNode := range r.clusterNodes {
+		services, err := clusterNode.GetService(name)
+		if err != nil {
+			return localServices, errLocal
+		}
+
+		clusterServices = mergeServices(clusterServices, services)
+	}
+
+	return mergeServices(localServices, clusterServices), nil
+}
+
+func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
+	localServices, errLocal := r.local.ListServices()
+	if errLocal != nil && errLocal != registry.ErrNotFound {
+		return nil, errLocal
+	}
+
+	var clusterServices []*registry.Service
+	for _, clusterNode := range r.clusterNodes {
+		services, err := clusterNode.ListServices()
+		if err != nil {
+			return localServices, errLocal
+		}
+
+		clusterServices = mergeServices(clusterServices, services)
 	}
 
 	return mergeServices(localServices, clusterServices), nil

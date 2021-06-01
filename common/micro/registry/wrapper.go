@@ -31,6 +31,57 @@ func (r *registryWithExpiry) Register(s *registry.Service, opts ...registry.Regi
 	return r.Registry.Register(s, opts...)
 }
 
+func (r *registryWithExpiry) ListServices() ([]*registry.Service, error) {
+	services, err := r.Registry.ListServices()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, service := range services {
+		var nodes []*registry.Node
+
+		for _, node := range service.Nodes {
+			exp, ok := node.Metadata["expiry"]
+			if !ok {
+				continue
+			}
+
+			var expiry time.Time
+			if err := expiry.UnmarshalText([]byte(exp)); err != nil {
+				continue
+			}
+
+			if expiry.Before(time.Now()) {
+				ss := cp([]*registry.Service{service})
+				ss[0].Nodes = []*registry.Node{node}
+
+				if err := r.Registry.Deregister(ss[0]); err != nil {
+					return nil, err
+				}
+				continue
+			}
+
+			nodes = append(nodes, node)
+		}
+
+		service.Nodes = nodes
+	}
+
+	return services, nil
+}
+
+func (r *registryWithExpiry) prune() {
+	ticker := time.NewTicker(1 * time.Minute)
+	for {
+		select {
+		case <-r.Registry.Options().Context.Done():
+			return
+		case <-ticker.C:
+			r.ListServices()
+		}
+	}
+}
+
 type registryWithUnique struct {
 	registry.Registry
 }
@@ -98,4 +149,40 @@ func (r *registryWithProcesses) Deregister(s *registry.Service) error {
 		pydioregistry.GetProcess(node).Delete(s.Name)
 	}
 	return r.Registry.Deregister(s)
+}
+
+// cp copies a service. Because we're caching handing back pointers would
+// create a race condition, so we do this instead
+// its fast enough
+func cp(current []*registry.Service) []*registry.Service {
+	var services []*registry.Service
+
+	for _, service := range current {
+		// copy service
+		s := new(registry.Service)
+		*s = *service
+
+		// copy nodes
+		var nodes []*registry.Node
+		for _, node := range service.Nodes {
+			n := new(registry.Node)
+			*n = *node
+			nodes = append(nodes, n)
+		}
+		s.Nodes = nodes
+
+		// copy endpoints
+		var eps []*registry.Endpoint
+		for _, ep := range service.Endpoints {
+			e := new(registry.Endpoint)
+			*e = *ep
+			eps = append(eps, e)
+		}
+		s.Endpoints = eps
+
+		// append service
+		services = append(services, s)
+	}
+
+	return services
 }

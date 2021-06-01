@@ -246,7 +246,7 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 
 				var nodes []string
 				for _, node := range s.RunningNodes() {
-					nodes = append(nodes, fmt.Sprintf("%s:%d", node.Address, node.Port))
+					nodes = append(nodes, fmt.Sprintf("%s:%d (exp: %s)", node.Address, node.Port, node.Metadata["expiry"]))
 				}
 
 				tags[tag].Services[name] = &runningService{name: name, nodes: strings.Join(nodes, ",")}

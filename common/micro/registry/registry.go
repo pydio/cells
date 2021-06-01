@@ -16,7 +16,8 @@ import (
 	"github.com/pydio/cells/common/micro/client/grpc"
 
 	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/micro/selector/cache"
+	ss "github.com/pydio/cells/common/micro/selector"
+	cs "github.com/pydio/cells/common/micro/selector/cache"
 	rs "github.com/pydio/cells/common/micro/selector/registry"
 	"github.com/spf13/viper"
 )
@@ -46,7 +47,8 @@ func EnableService() {
 	r = NewRegistryWithPeers(r)
 	r = NewRegistryWithProcesses(r)
 
-	s := cache.NewSelector(selector.Registry(r))
+	s := cs.NewSelector(selector.Registry(r))
+	s = ss.NewSelectorWithMaxRetries(s, 1)
 
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)
@@ -82,11 +84,16 @@ func EnableMemory() {
 	r = NewRegistryWithPeers(r)
 	r = NewRegistryWithProcesses(r)
 
+	s := ss.NewSelectorWithMaxRetries(selector.DefaultSelector, 1)
+
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)
 	})
 
 	defaults.InitClient(
+		func() client.Option {
+			return client.Selector(s)
+		},
 		func() client.Option {
 			return client.Registry(r)
 		}, func() client.Option {

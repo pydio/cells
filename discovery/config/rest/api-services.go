@@ -26,7 +26,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
@@ -106,9 +106,6 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	accu := make(map[string]string)
 
 	for _, p := range registry.GetPeers() {
-		if p.IsInitial() {
-			continue
-		}
 		accu[p.GetAddress()] = p.GetAddress()
 		if h := p.GetHostname(); h != "" {
 			// Replace value with "HostName|IP"

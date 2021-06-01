@@ -3,15 +3,12 @@ package cache
 
 import (
 	"math/rand"
-	"strings"
 	"sync"
 	"time"
 
 	log "github.com/micro/go-log"
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
-	"google.golang.org/grpc/balancer"
 )
 
 type cacheSelector struct {
@@ -376,30 +373,6 @@ func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (s
 }
 
 func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
-	if err == nil {
-		return
-	}
-
-	e := errors.Parse(err.Error())
-	if e == nil {
-		return
-	}
-
-	switch e.Code {
-	// retry on timeout or internal server error
-	case 408, 500:
-		if strings.Contains(e.Detail, balancer.ErrTransientFailure.Error()) {
-			cachedService := c.cp(c.cache[service])
-
-			if len(cachedService) > 0 {
-				cachedService[0].Nodes = []*registry.Node{node}
-
-				// Deregistering service node
-				c.so.Registry.Deregister(cachedService[0])
-			}
-		}
-	}
-
 	return
 }
 
