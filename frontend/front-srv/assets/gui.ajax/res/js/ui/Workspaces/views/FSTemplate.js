@@ -21,7 +21,7 @@
 import React from 'react';
 import Pydio from 'pydio';
 import Breadcrumb from './Breadcrumb'
-import {SearchForm} from '../search'
+const {withSearch} = Pydio.requireLib('hoc')
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import InfoPanel from '../detailpanes/InfoPanel'
@@ -35,10 +35,8 @@ import DOMUtils from 'pydio/util/dom'
 import Color from "color";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
-import DataModel from 'pydio/model/data-model'
-import Node from 'pydio/model/node'
-import EmptyNodeProvider from 'pydio/model/empty-node-provider'
 import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
+import Facets from "../search/components/Facets";
 
 
 class FSTemplate extends React.Component {
@@ -61,26 +59,6 @@ class FSTemplate extends React.Component {
         }
         const w = DOMUtils.getViewportWidth();
 
-        const clearDataModel = () => {
-            const basicDataModel = new DataModel(true);
-            let rNodeProvider = new EmptyNodeProvider();
-            basicDataModel.setAjxpNodeProvider(rNodeProvider);
-            const rootNode = new Node("/", false, '', '', rNodeProvider);
-            basicDataModel.setRootNode(rootNode);
-            return basicDataModel;
-        };
-        const searchDataModel = clearDataModel()
-        searchDataModel.getRootNode().observe('loaded', ()=>{
-            console.log("searchView")
-            this.setState({searchView: true});
-        })
-        /*
-        pydio.getContextHolder().observe('context_changed', ()=>{
-            console.log("otherView")
-            this.setState({searchView: false})
-        })
-         */
-
         this.state = {
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
@@ -90,9 +68,27 @@ class FSTemplate extends React.Component {
             themeLight: themeLight,
             smallScreen: w <= 758,
             xtraSmallScreen: w <= 420,
-            searchDataModel,
             searchView: false
         };
+    }
+
+    setSearchView() {
+        const {pydio} = this.props
+        const dm = pydio.getContextHolder();
+        dm.setSelectedNodes([]);
+        if(dm.getContextNode() !== dm.getSearchNode()){
+            this.setState({previousContext: dm.getContextNode()})
+        }
+    }
+
+    unsetSearchView(){
+        const {pydio} = this.props;
+        const dm = pydio.getContextHolder();
+        const {previousContext} = this.state;
+        if(previousContext){
+            dm.setSelectedNodes([]);
+            dm.setContextNode(previousContext, true);
+        }
     }
 
     componentDidMount(){
@@ -390,24 +386,30 @@ class FSTemplate extends React.Component {
 
         }
 
-        const {searchDataModel, searchView} = this.state;
-        const searchForm = (
-            <SearchForm
-                {...props}
-                {...this.state.searchFormState}
-                dataModel={searchDataModel}
-                formStyles={styles.searchForm}
-                style={rightColumnState === "advanced-search" ? styles.searchFormPanelStyle : {}}
-                id={rightColumnState === "advanced-search" ? "info_panel": null}
-                headerHeight={headerHeight}
-                advancedPanel={rightColumnState === "advanced-search"}
-                onOpenAdvanced={()=>{this.openRightPanel('advanced-search')}}
-                onCloseAdvanced={()=>{this.closeRightPanel()}}
-                onUpdateState={(s)=>{this.setState({searchFormState: s})}}
-                smallScreen={smallScreen}
-                xtraSmallScreen={xtraSmallScreen}
-            />
-        );
+
+        const {values, setValues, facets, activeFacets, toggleFacet} = this.props;
+        //const {searchView} = this.state;
+        const dm = pydio.getContextHolder();
+        const searchView = dm.getContextNode() === dm.getSearchNode();
+
+        if(searchView) {
+            leftPanelProps.leftComponent = (
+                <Facets
+                    pydio={pydio}
+                    facets={facets}
+                    activeFacets={activeFacets}
+                    onToggleFacet={toggleFacet}
+                    zDepth={1}
+                    styles={{
+                        container:{
+                            flex: 1,
+                            backgroundColor:'transparent',
+                            padding: '0 16px',
+                            borderRight: '1px solid #e0e0e0'
+                        }
+                    }}
+                />);
+        }
 
         return (
             <MasterLayout
@@ -422,7 +424,7 @@ class FSTemplate extends React.Component {
                     <Paper zDepth={themeLight?0:1} style={styles.appBarStyle} rounded={false}>
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)', display:'flex'}}>
                             <span className="drawer-button" style={{marginLeft: 12, marginRight: -6}}>
-                                <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer}/>
+                                <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer.bind(this)}/>
                             </span>
                             <div style={{flex: 1, overflow:'hidden'}}>
                                 {searchView && <div style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>Search Results</div>}
@@ -479,10 +481,12 @@ class FSTemplate extends React.Component {
                             <UnifiedSearchForm
                                 style={{flex: 1}}
                                 active={searchView}
+                                pydio={pydio}
                                 formStyles={styles.searchForm}
-                                dataModel={searchDataModel}
-                                onRequestOpen={()=>{this.setState({searchView:true})}}
-                                onRequestClose={()=>{this.setState({searchView:false})}}
+                                values={values}
+                                setValues={setValues}
+                                onRequestOpen={()=>this.setSearchView()}
+                                onRequestClose={()=>this.unsetSearchView()}
                             />
                             }
                             <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: headerHeight, display:'none'}}/>
@@ -519,13 +523,24 @@ class FSTemplate extends React.Component {
                             </div>
                         </div>
                     </Paper>
-                    <MainFilesList ref="list" key={searchView?"search-results":"files-list"} pydio={pydio} dataModel={searchView?searchDataModel:pydio.getContextHolder()} onDisplayModeChange={(dMode) => {
-                        this.setState({filesListDisplayMode: dMode});
-                    }}/>
+                    <MainFilesList
+                        ref="list"
+                        key={"files-list"}
+                        pydio={pydio}
+                        dataModel={pydio.getContextHolder()}
+                        listProps={searchView?{
+                            defaultGroupBy:"repository_id",
+                            groupByLabel:'repository_display',
+                            skipParentNavigation: true
+                        }:{}}
+                        onDisplayModeChange={(dMode) => {
+                            this.setState({filesListDisplayMode: dMode});
+                        }}
+                    />
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
                         {...props}
-                        dataModel={props.pydio.getContextHolder()}
+                        dataModel={pydio.getContextHolder()}
                         onRequestClose={()=>{this.closeRightPanel()}}
                         onContentChange={this.infoPanelContentChange.bind(this)}
                         style={styles.infoPanelStyle}
@@ -548,6 +563,7 @@ class FSTemplate extends React.Component {
     }
 }
 
+FSTemplate = withSearch(FSTemplate, 'main', 'all');
 FSTemplate = muiThemeable()(FSTemplate);
 FSTemplate.INFO_PANEL_WIDTH = 270
 

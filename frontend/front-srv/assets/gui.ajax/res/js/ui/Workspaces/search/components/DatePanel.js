@@ -143,7 +143,7 @@ class SearchDatePanel extends React.Component {
 
         return (
             <div>
-                <div style={{margin:'0 16px'}}>
+                <div>
                     <DatePickerFeed pydio={this.props.pydio}>
                     {items =>
                         <ModernSelectField

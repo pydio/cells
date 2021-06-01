@@ -33,12 +33,19 @@ const WorkspaceRouterWrapper = (pydio) => {
                 localStorage.setItem("loginOrigin", origin.replace(new RegExp('starting.html$|maintenance.html$'), ''));
             }
 
+            let switchRepo = false;
             repositories.forEach((repository) => {
                 if(repository.slug === slug && active !== repository.getId()) {
                     pydio._initLoadRep = "/" + splat;
                     pydio.triggerRepositoryChange(repository.getId());
+                    switchRepo = true;
                 }
             })
+
+            if(!switchRepo && location.search && location.search.indexOf('?search=') === 0) {
+                pydio.getContextHolder().setContextNode(pydio.getContextHolder().getSearchNode());
+            }
+
         }
 
         componentWillMount() {

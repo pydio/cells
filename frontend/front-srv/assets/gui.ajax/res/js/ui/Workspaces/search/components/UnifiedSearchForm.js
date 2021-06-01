@@ -19,10 +19,11 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-const {withSearch, ModernTextField} = Pydio.requireLib('hoc')
-import {TextField, IconButton, Popover, FontIcon} from 'material-ui'
+import DOMUtils from 'pydio/util/dom'
+const {withSearch} = Pydio.requireLib('hoc')
+import {TextField, Popover} from 'material-ui'
 import AdvancedSearch from "./AdvancedSearch";
-import MainSearch from "./MainSearch";
+import Facets from "./Facets";
 
 const styles = {
     container:{
@@ -75,14 +76,24 @@ class UnifiedSearchForm extends React.Component {
 
     togglePopover(e){
         const {popoverOpen} = this.state || {};
+        const {onRequestOpen} = this.props;
         if(popoverOpen) {
             this.setState({popoverOpen: false})
         } else {
+            onRequestOpen();
             this.setState({
                 popoverOpen: true,
                 anchorElement:this.containerRef.current
             })
         }
+    }
+
+    focus() {
+        const {active, onRequestOpen, values, setValues} = this.props;
+        if(!active) {
+            setValues(values);
+        }
+        onRequestOpen();
     }
 
     render() {
@@ -95,9 +106,13 @@ class UnifiedSearchForm extends React.Component {
             .filter(key => values[key])
             .filter(key => !(key === 'scope' && values[key] === 'all'))
             .length;
+        let wStyle = {};
+        if(active) {
+            wStyle = {width: 420}
+        }
 
         return (
-            <div style={{...styles.container, ...formStyles.mainStyle, ...style}} ref={this.containerRef}>
+            <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={this.containerRef}>
                 <Popover
                     open={popoverOpen}
                     anchorEl={anchorElement}
@@ -126,6 +141,7 @@ class UnifiedSearchForm extends React.Component {
                     onChange={(e,v) => this.updateText(v)}
                     inputStyle={formStyles.inputStyle}
                     hintStyle={formStyles.hintStyle}
+                    onFocus={() => this.focus()}
                 />
                 <div onClick={this.togglePopover.bind(this)} style={styles.filterButton}>
                     <span className={"mdi mdi-filter"}/>
@@ -137,4 +153,4 @@ class UnifiedSearchForm extends React.Component {
 
 }
 
-export default withSearch(UnifiedSearchForm, 'home', 'folder')
+export default UnifiedSearchForm

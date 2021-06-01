@@ -34,7 +34,7 @@ export default function withSearch(Component, historyIdentifier, scope){
             let {values = {}} = props;
             values = {scope: scope || props.scope || 'folder', ...values};
             this.state = {
-                dataModel: props.dataModel || emptyDataModel(),
+                dataModel: props.dataModel || props.pydio.getContextHolder() || emptyDataModel(),
                 values,
                 limit: 10,
                 empty: true,
@@ -58,27 +58,39 @@ export default function withSearch(Component, historyIdentifier, scope){
         }
 
         performSearch() {
-            const {values, dataModel, limit, activeFacets} = this.state;
-            const rootNode = dataModel.getRootNode();
-            rootNode.setChildren([]);
-            rootNode.setLoaded(false);
+            const {values, limit, dataModel, activeFacets} = this.state;
+            const searchRootNode = dataModel.getSearchNode();
+            searchRootNode.getMetadata().set('search_values', values);
+            searchRootNode.getMetadata().set('active_facets', activeFacets);
+            searchRootNode.observeOnce("loaded", ()=> {
+                dataModel.setContextNode(searchRootNode, true);
+            })
+            searchRootNode.setChildren([]);
+            searchRootNode.setLoaded(false);
             const {scope, ...searchValues} = values;
 
             const keys = Object.keys(searchValues);
             if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basenameOrContent' && !values['basenameOrContent'])) {
+                searchRootNode.clear();
+                searchRootNode.setLoaded(true);
+                searchRootNode.notify("loaded");
                 this.setState({loading: false,empty: true, facets:[], activeFacets:[]});
                 return;
             }
 
             this.setState({loading: true, empty: false});
-            rootNode.setLoading(true);
-            rootNode.notify("loading");
+            searchRootNode.setLoading(true);
+            searchRootNode.notify("loading");
             const api = new SearchApi(Pydio.getInstance());
             api.search(this.mergeFacets(values, activeFacets), scope, limit).then(response => {
-                rootNode.setChildren(response.Results);
-                rootNode.setLoading(false);
-                rootNode.setLoaded(true);
-                rootNode.notify("loaded");
+                searchRootNode.clear();
+                const res = response.Results || []
+                res.forEach(node => {
+                    searchRootNode.addChild(node)
+                })
+                searchRootNode.setLoading(false);
+                searchRootNode.setLoaded(true);
+                searchRootNode.notify("loaded");
                 if(historyIdentifier && values.basenameOrContent) {
                     this.pushHistory(values.basenameOrContent)
                 }
@@ -87,8 +99,9 @@ export default function withSearch(Component, historyIdentifier, scope){
                     facets: response.Facets ||[]
                 });
             }).catch(()=>{
-                rootNode.setLoading(false);
-                rootNode.notify("loaded");
+                searchRootNode.clear();
+                searchRootNode.setLoading(false);
+                searchRootNode.notify("loaded");
                 this.setState({loading: false});
             });
 

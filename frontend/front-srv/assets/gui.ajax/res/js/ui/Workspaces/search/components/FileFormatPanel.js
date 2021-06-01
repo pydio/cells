@@ -29,10 +29,20 @@ class SearchFileFormatPanel extends Component {
 
     constructor(props) {
         super(props);
-
+        const {values} = this.props;
         this.state = {
-            folder: this.props.values['ajxp_mime'] && this.props.values['ajxp_mime'] === 'ajxp_folder' ? true: undefined,
-            ext: (this.props.values['ajxp_mime'] && this.props.values['ajxp_mime'] !== 'ajxp_folder' ? this.props.values['ajxp_mime'] : undefined),
+            folder: values['ajxp_mime'] && values['ajxp_mime'] === 'ajxp_folder' ? true: undefined,
+            ext: (values['ajxp_mime'] && values['ajxp_mime'] !== 'ajxp_folder' ? values['ajxp_mime'] : undefined),
+        }
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        if(nextProps.values['ajxp_mime'] !== this.props.values['ajxp_mime']){
+            const {values} = nextProps;
+            this.setState({
+                folder: values['ajxp_mime'] && values['ajxp_mime'] === 'ajxp_folder' ? true: undefined,
+                ext: (values['ajxp_mime'] && values['ajxp_mime'] !== 'ajxp_folder' ? values['ajxp_mime'] : undefined),
+            });
         }
     }
 
@@ -59,28 +69,28 @@ class SearchFileFormatPanel extends Component {
     render() {
 
         const {inputStyle, getMessage, compact = false} = this.props;
-        const {folder} = this.state;
+        const {folder, ext} = this.state;
 
         return (
             <div style={compact?{display: 'flex'}:{}}>
-                <div style={{...ModernStyles.div, margin:'6px 16px', padding:6, paddingRight:6, flex: 1, marginRight:compact?4:16}}>
+                <div style={{...ModernStyles.div, padding:6, paddingRight:6, flex: 3, marginRight:4}}>
                     <Toggle
                         fullWidth={true}
                         name="toggleFolder"
                         value="ajxp_folder"
                         label={getMessage(502)}
                         labelStyle={{fontSize:16, color:'rgba(0,0,0,.4)'}}
-                        toggled={this.state.folder}
+                        toggled={folder}
                         onToggle={this.onToggle.bind(this)}
                     />
                 </div>
-                <div style={{flex: 1, marginLeft:compact?4:0}}>
+                <div style={{flex: 2, marginLeft:4}}>
                     <ModernTextField
                         disabled={folder}
                         style={{...inputStyle, opacity:folder?.5:1, marginLeft: compact?0:null, width:compact?'auto':null}}
                         className="mui-text-field"
                         hintText={getMessage(500)}
-                        value={this.state.ext}
+                        value={ext || ""}
                         onChange={(e, v) => this.setState({ext: v})}
                     />
                 </div>

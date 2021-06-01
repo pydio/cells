@@ -47,9 +47,9 @@ class SearchScopeSelector extends Component {
                     onChange={(e,i,v) => {this.props.onChange(v)}}
                     fullWidth={true}
                 >
-                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
-                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
                     <MenuItem value={'all'} primaryText={getMessage(610)}/>
+                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
+                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
                 </ModernSelectField>
             )
         } else {
@@ -63,9 +63,9 @@ class SearchScopeSelector extends Component {
                     underlineStyle={{display:'none'}}
                     labelStyle={this.props.labelStyle}
                 >
-                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
-                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
                     <MenuItem value={'all'} primaryText={getMessage(610)}/>
+                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
+                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
                 </DropDownMenu>
 
             );

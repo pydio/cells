@@ -39,11 +39,16 @@ const MainRouterWrapper = (pydio) => {
             const list =  pydio.user ? pydio.user.getRepositoriesList() : new Map()
             const active = pydio.user ? pydio.user.getActiveRepository() : ""
             const path = pydio.user ? pydio.getContextNode().getPath() : ""
+            const searchNode = pydio.getContextHolder().getSearchNode();
             const repo = list.get(active);
             const slug = repo ? repo.getSlug() : "";
             const reserved = ['homepage', 'settings'];
             const prefix = repo && reserved.indexOf(repo.getAccessType()) === -1 ? "ws-" : "";
-            const uri = `/${prefix}${slug}${path.replace('%', '%25').replace('#','%23')}`;
+            let uri = `/${prefix}${slug}${path.replace('%', '%25').replace('#','%23')}`;
+            if(pydio.user && pydio.getContextNode() === searchNode) {
+                const values = encodeURIComponent(JSON.stringify(searchNode.getMetadata().get('search_values')));
+                uri += `?search=${values}`
+            }
 
             if (this.props.location.action === 'POP') {
                 browserHistory.replace(uri)
