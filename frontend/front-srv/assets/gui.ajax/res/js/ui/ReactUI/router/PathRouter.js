@@ -25,7 +25,6 @@ const PathRouterWrapper = (pydio) => {
             const {splat = "", workspaceId} = params;
             const path = pydio.getContextNode().getPath();
 
-            console.log(params);
             if ("/" + splat !== path) {
                 pydio.goTo("/" + splat)
             } else if (!location.search && !splat && pydio.getContextNode() === pydio.getContextHolder().getSearchNode()) {

@@ -49,7 +49,6 @@ const WorkspaceRouterWrapper = (pydio) => {
                     const values = JSON.parse(decodeURIComponent(s.replace('?search=', '')));
                     searchNode.getMetadata().set('popped_values', values);
                 } catch(e) {}
-                console.log('HERE ?')
                 pydio.getContextHolder().setContextNode(pydio.getContextHolder().getSearchNode());
             }
 

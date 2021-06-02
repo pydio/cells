@@ -421,7 +421,7 @@ class MainFilesList extends React.Component {
     };
 
     entryRenderSecondLine(node){
-        const {searchResults, pydio, dataModel} = this.props;
+        const {searchResults, searchScope, pydio, dataModel} = this.props;
         let metaData = node.getMetadata();
         let pieces = [];
         const standardPieces = [];
@@ -436,6 +436,23 @@ class MainFilesList extends React.Component {
         }
 
         if(searchResults) {
+            let linkString, repoLabel;
+            if(node.getMetadata().get("repository_display")) {
+                repoLabel = '[' + node.getMetadata().get("repository_display") + ']'
+            }
+            if(node.isLeaf()) {
+                linkString = PathUtils.getDirname(node.getPath())
+            } else {
+                linkString = node.getPath()
+            }
+            if(linkString && linkString.charAt(0) === '/') {
+                linkString = linkString.substr(1);
+            }
+            if(searchScope === 'all' && linkString) {
+                linkString = repoLabel + ' ' + linkString;
+            } else if (!linkString) {
+                linkString = repoLabel;
+            }
             pieces.push(
                 <span
                     className="metadata_chunk metadata_chunk_description metadata_chunk_clickable"
@@ -445,7 +462,7 @@ class MainFilesList extends React.Component {
                         e.stopPropagation();
                         pydio.goTo(node)
                     }}
-                >{node.getPath()}</span>
+                >{linkString}</span>
             )
         }
 

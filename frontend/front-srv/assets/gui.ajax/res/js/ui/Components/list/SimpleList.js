@@ -660,6 +660,17 @@ let SimpleList = createReactClass({
                 }
             });
         }.bind(this));
+        // Selection on Mount
+        const selection = new Map();
+        const selectedNodes = this.props.dataModel.getSelectedNodes();
+        if(selectedNodes.length) {
+            selectedNodes.map(function(n){
+                selection.set(n, true);
+            });
+            this.setState({selection}, () => {
+                setTimeout(()=>{this.scrollToView(selectedNodes[0]);}, 500)
+            });
+        }
     },
 
     componentWillUnmount: function(){
