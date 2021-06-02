@@ -160,8 +160,10 @@ class MainFilesList extends React.Component {
             tSize = 80;
         }
 
+        const {dataModel} = this.props;
+
         this.state = {
-            contextNode : props.pydio.getContextHolder().getContextNode(),
+            contextNode : dataModel.getContextNode(),
             displayMode : dMode,
             showExtensions: this.getPrefValue('FilesListShowExtensions', false),
             thumbNearest: tSize,
@@ -207,18 +209,20 @@ class MainFilesList extends React.Component {
     }
 
     componentDidMount() {
+        const {dataModel} = this.props;
         // Hook to the central datamodel
         this._contextObserver = function(){
-            this.setState({contextNode: this.props.pydio.getContextHolder().getContextNode()});
+            this.setState({contextNode: dataModel.getContextNode()});
         }.bind(this);
-        this.props.pydio.getContextHolder().observe("context_changed", this._contextObserver);
+        dataModel.observe("context_changed", this._contextObserver);
         this.props.pydio.getController().updateGuiActions(this.getPydioActions());
 
-        this.recomputeThumbnailsDimension();
+        this._thumbOserver = this.recomputeThumbnailsDimension.bind(this)
+        this._thumbOserver();
         if(window.addEventListener){
-            window.addEventListener('resize', this.recomputeThumbnailsDimension);
+            window.addEventListener('resize', this._thumbOserver);
         }else{
-            window.attachEvent('onresize', this.recomputeThumbnailsDimension);
+            window.attachEvent('onresize', this._thumbOserver);
         }
         if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
             this.props.onDisplayModeChange(this.state.displayMode);
@@ -226,22 +230,29 @@ class MainFilesList extends React.Component {
     }
 
     componentWillUnmount() {
-        this.props.pydio.getContextHolder().stopObserving("context_changed", this._contextObserver);
+        const {dataModel} = this.props;
+        dataModel.stopObserving("context_changed", this._contextObserver);
         this.getPydioActions(true).map(function(key){
             this.props.pydio.getController().deleteFromGuiActions(key);
         }.bind(this));
         if(window.addEventListener){
-            window.removeEventListener('resize', this.recomputeThumbnailsDimension);
+            window.removeEventListener('resize', this._thumbOserver);
         }else{
-            window.detachEvent('onresize', this.recomputeThumbnailsDimension);
+            window.detachEvent('onresize', this._thumbOserver);
         }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return (!this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextState !== this.state );
+        return (!this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextProps.dataModel !== this.props.dataModel || nextState !== this.state );
     }
 
-    componentWillReceiveProps() {
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.dataModel !== this.props.dataModel){
+            console.log("Changing DM - Update Context Node ?")
+            this.props.dataModel.stopObserving("context_changed", this._contextObserver);
+            nextProps.dataModel.observe("context_changed", this._contextObserver);
+            this._contextObserver();
+        }
         if(this.state && this.state.repositoryId !== this.props.pydio.repositoryId ){
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
             let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
@@ -271,11 +282,11 @@ class MainFilesList extends React.Component {
         }
     }
 
-    resize = () => {
+    resize(){
         this.recomputeThumbnailsDimension();
-    };
+    }
 
-    recomputeThumbnailsDimension = (nearest) => {
+    recomputeThumbnailsDimension(nearest){
 
         const MAIN_CONTAINER_FULL_PADDING = 2;
         const THUMBNAIL_MARGIN = 1;
@@ -326,9 +337,9 @@ class MainFilesList extends React.Component {
 
         }
 
-    };
+    }
 
-    entryRenderIcon = (node, entryProps = {}) => {
+    entryRenderIcon(node, entryProps = {}){
         if(entryProps && entryProps.parent){
             return (
                 <FilePreview
@@ -350,13 +361,13 @@ class MainFilesList extends React.Component {
                 />
             );
         }
-    };
+    }
 
-    entryRenderActions = (node) => {
+    entryRenderActions(node){
         let content = null;
         const {pydio} = this.props;
         const mobile = pydio.UI.MOBILE_EXTENSIONS;
-        const dm = pydio.getContextHolder();
+        const {dataModel} = this.props;
         if(mobile){
             const ContextMenuModel = require('pydio/model/context-menu');
             return <IconButton iconClassName="mdi mdi-dots-vertical" style={{zIndex:0, padding: 10}} tooltip="Info" onClick={(event) => {
@@ -364,7 +375,7 @@ class MainFilesList extends React.Component {
                     ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
                 });
                 event.stopPropagation();
-                dm.setSelectedNodes([node]);
+                dataModel.setSelectedNodes([node]);
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
             }}/>;
         }else if(node.getMetadata().get('overlay_class')){
@@ -377,9 +388,9 @@ class MainFilesList extends React.Component {
 
     };
 
-    entryHandleClicks = (node, clickType, event) => {
-        let dm = this.props.pydio.getContextHolder();
-        const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS || this.props.horizontalRibbon;
+    entryHandleClicks(node, clickType, event){
+        const {dataModel: dm, pydio} = this.props;
+        const mobile = pydio.UI.MOBILE_EXTENSIONS || this.props.horizontalRibbon;
         if(dm.getContextNode().getParent() === node && clickType === SimpleList.CLICK_TYPE_SIMPLE){
             return;
         }
@@ -400,15 +411,17 @@ class MainFilesList extends React.Component {
             }
         }else if(mobile || clickType === SimpleList.CLICK_TYPE_DOUBLE){
             if (node.isBrowsable()) {
-                dm.requireContextChange(node);
+                //dm.requireContextChange(node);
+                pydio.goTo(node);
             } else {
                 dm.setSelectedNodes([node]);
-                this.props.pydio.Controller.fireAction("open_with_unique");
+                pydio.Controller.fireAction("open_with_unique");
             }
         }
     };
 
-    entryRenderSecondLine = (node) => {
+    entryRenderSecondLine(node){
+        const {searchResults, pydio, dataModel} = this.props;
         let metaData = node.getMetadata();
         let pieces = [];
         const standardPieces = [];
@@ -420,6 +433,20 @@ class MainFilesList extends React.Component {
             } else {
                 return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
             }
+        }
+
+        if(searchResults) {
+            pieces.push(
+                <span
+                    className="metadata_chunk metadata_chunk_description metadata_chunk_clickable"
+                    key={"result_path"}
+                    style={{marginRight: 5, textDecoration:'underline', cursor:'pointer'}}
+                    onClick={(e)=>{
+                        e.stopPropagation();
+                        pydio.goTo(node)
+                    }}
+                >{node.getPath()}</span>
+            )
         }
 
         if(metaData.get('ajxp_modiftime')) {
@@ -481,7 +508,7 @@ class MainFilesList extends React.Component {
 
     };
 
-    switchDisplayMode = (displayMode) => {
+    switchDisplayMode(displayMode){
         this.setState({displayMode: displayMode}, ()=>{
             let near = null;
             if(displayMode.indexOf('grid-') === 0) {
@@ -494,9 +521,9 @@ class MainFilesList extends React.Component {
             }
             this.props.pydio.notify('actions_refreshed');
         });
-    };
+    }
 
-    buildDisplayModeItems = () => {
+    buildDisplayModeItems(){
         const {displayMode} = this.state;
         const list = [
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.list'],title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
@@ -514,9 +541,9 @@ class MainFilesList extends React.Component {
             }
             return i;
         });
-    };
+    }
 
-    buildShowExtensionsItems = () =>{
+    buildShowExtensionsItems(){
         const {showExtensions} = this.state;
         return [
             {name:Pydio.getMessages()['ajax_gui.list.extensions.show'], icon_class:showExtensions?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
@@ -526,9 +553,9 @@ class MainFilesList extends React.Component {
                     });
                 }}
         ]
-    };
+    }
 
-    getPydioActions = (keysOnly = false) => {
+    getPydioActions(keysOnly = false){
         if(keysOnly){
             return ['switch_display_mode', 'toggle_show_extensions'];
         }
@@ -576,7 +603,7 @@ class MainFilesList extends React.Component {
         );
         buttons.set('toggle_show_extensions', extAction);
         return buttons;
-    };
+    }
 
     render() {
 
@@ -623,11 +650,11 @@ class MainFilesList extends React.Component {
 
             sortKeys = this.state.columns;
             elementHeight = SimpleList.HEIGHT_TWO_LINES;
-            entryRenderSecondLine = this.entryRenderSecondLine;
+            entryRenderSecondLine = this.entryRenderSecondLine.bind(this);
 
         }
 
-        const {pydio} = this.props;
+        const {pydio, dataModel} = this.props;
         const {contextNode} = this.state;
         const messages = pydio.MessageHash;
         const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
@@ -660,7 +687,7 @@ class MainFilesList extends React.Component {
                 };
             }
         }else{
-            const recycle = pydio.getContextHolder().getRootNode().getMetadata().get('repo_has_recycle');
+            const recycle = dataModel.getRootNode().getMetadata().get('repo_has_recycle');
             if(contextNode.getPath() === recycle){
                 emptyStateProps = {
                     ...emptyStateProps,
@@ -671,13 +698,35 @@ class MainFilesList extends React.Component {
             }
         }
 
+        const {searchResults, searchScope} = this.props;
+        let groupProps = {};
+        if(searchResults) {
+            groupProps = {
+                skipParentNavigation: true,
+            };
+            if(dMode !== 'grid' && searchScope === 'all') {
+                groupProps = {
+                    ...groupProps,
+                    defaultGroupBy:"repository_id",
+                    groupByLabel:'repository_display',
+                }
+            }
+            emptyStateProps = {
+                primaryTextId:478,
+                    style:{
+                    backgroundColor:'transparent'
+                }
+            }
+        }
+
         return (
             <SimpleList
                 ref="list"
                 tableKeys={tableKeys}
                 sortKeys={sortKeys}
                 node={this.state.contextNode}
-                dataModel={pydio.getContextHolder()}
+                dataModel={dataModel}
+                observeNodeReload={true}
                 className={className}
                 actionBarGroups={["change_main"]}
                 infiniteSliceCount={infiniteSliceCount}
@@ -689,17 +738,18 @@ class MainFilesList extends React.Component {
                 elementHeight={elementHeight}
                 elementStyle={elementStyle}
                 passScrollingStateToChildren={true}
-                entryRenderIcon={this.entryRenderIcon}
-                entryRenderParentIcon={this.entryRenderIcon}
+                entryRenderIcon={this.entryRenderIcon.bind(this)}
+                entryRenderParentIcon={this.entryRenderIcon.bind(this)}
                 entryRenderFirstLine={(node)=>this.computeLabel(node)}
                 entryRenderSecondLine={entryRenderSecondLine}
-                entryRenderActions={this.entryRenderActions}
-                entryHandleClicks={this.entryHandleClicks}
+                entryRenderActions={this.entryRenderActions.bind(this)}
+                entryHandleClicks={this.entryHandleClicks.bind(this)}
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}
+                {...groupProps}
             />
         );
     }

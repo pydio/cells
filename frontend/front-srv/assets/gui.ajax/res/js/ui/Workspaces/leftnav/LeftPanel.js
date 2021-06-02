@@ -27,7 +27,7 @@ import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
 import Color from 'color'
 
-let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio, onClick, onMouseOver}) => {
+let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio, onClick, onMouseOver, leftComponent}) => {
 
         const palette = muiTheme.palette;
         const colorHue = Color(palette.primary1Color).hsl().array()[0];
@@ -64,14 +64,16 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
                     toolbars={["aUser", "user", "zlogin"]}
                     {...uWidgetProps}
                 />
-                <WorkspacesList
-                    className={"vertical_fit"}
-                    style={wsListStyle}
-                    sectionTitleStyle={wsSectionTitleStyle}
-                    pydio={pydio}
-                    showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
-                    {...wsListProps}
-                />
+                {leftComponent ||
+                    <WorkspacesList
+                        className={"vertical_fit"}
+                        style={wsListStyle}
+                        sectionTitleStyle={wsSectionTitleStyle}
+                        pydio={pydio}
+                        showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
+                        {...wsListProps}
+                    />
+                }
                 <TasksPanel pydio={pydio} mode={"flex"} panelStyle={{...wsListStyle, backgroundColor: taskBg.toString()}}/>
             </div>
         );

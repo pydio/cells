@@ -166,7 +166,7 @@ class AltDashboard extends React.Component {
                         />
                     </div>
                 </Paper>
-                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onSearchStateChange={(empty)=>{this.setState({fullScreen:!empty})}}>
+                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onSearchStateChange={(state)=>{this.setState({fullScreen:!state.empty})}}>
                     <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
