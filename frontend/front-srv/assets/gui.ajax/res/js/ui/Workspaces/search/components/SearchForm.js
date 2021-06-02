@@ -57,10 +57,12 @@ class SearchForm extends Component {
             return basicDataModel;
         };
 
+        const {dataModel} = this.props;
+
         this.state = {
             values: (props.advancedPanel && props.values ? props.values : {}),
             display: props.advancedPanel ? 'advanced' : 'closed',
-            dataModel: clearDataModel(),
+            dataModel: dataModel || clearDataModel(),
             empty: true,
             loading: false,
             searchScope: props.uniqueSearchScope || props.searchScope || 'folder'
@@ -75,7 +77,7 @@ class SearchForm extends Component {
                 this.setState({
                     values: {},
                     display:'closed',
-                    dataModel: clearDataModel(),
+                    dataModel: dataModel || clearDataModel(),
                     empty: true,
                     loading: false
                 });
@@ -159,14 +161,17 @@ class SearchForm extends Component {
 
         this.setState({loading: true, empty: false});
         rootNode.setLoading(true);
+        rootNode.notify("loading");
         const api = new SearchApi(this.props.pydio);
         api.search(values, crossWorkspace? 'all' : searchScope, limit).then(response => {
             rootNode.setChildren(response.Results);
             rootNode.setLoading(false);
             rootNode.setLoaded(true);
+            rootNode.notify("loaded");
             this.setState({loading: false});
         }).catch(()=>{
             rootNode.setLoading(false);
+            rootNode.notify("loaded");
             this.setState({loading: false});
         });
 

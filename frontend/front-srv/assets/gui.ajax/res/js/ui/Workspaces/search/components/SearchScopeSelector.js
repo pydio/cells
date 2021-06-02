@@ -21,8 +21,10 @@
 import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
+import Pydio from 'pydio'
 import {MenuItem, DropDownMenu} from 'material-ui';
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+const {ModernSelectField} = Pydio.requireLib('hoc');
+const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 class SearchScopeSelector extends Component {
 
@@ -37,23 +39,37 @@ class SearchScopeSelector extends Component {
     }
 
     render(){
-        const {getMessage} = this.props;
-        return (
-            <DropDownMenu
-                value={this.props.value}
-                onChange={(e,i,v) => {this.props.onChange(v)}}
-                onClick={this.props.onClick}
-                autoWidth={true}
-                style={this.props.style}
-                underlineStyle={{display:'none'}}
-                labelStyle={this.props.labelStyle}
-            >
-                <MenuItem value={'folder'} primaryText={getMessage(608)}/>
-                <MenuItem value={'ws'} primaryText={getMessage(609)}/>
-                <MenuItem value={'all'} primaryText={getMessage(610)}/>
-            </DropDownMenu>
+        const {getMessage, asField} = this.props;
+        if(asField) {
+            return (
+                <ModernSelectField
+                    value={this.props.value}
+                    onChange={(e,i,v) => {this.props.onChange(v)}}
+                    fullWidth={true}
+                >
+                    <MenuItem value={'all'} primaryText={getMessage(610)}/>
+                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
+                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
+                </ModernSelectField>
+            )
+        } else {
+            return (
+                <DropDownMenu
+                    value={this.props.value}
+                    onChange={(e,i,v) => {this.props.onChange(v)}}
+                    onClick={this.props.onClick}
+                    autoWidth={true}
+                    style={this.props.style}
+                    underlineStyle={{display:'none'}}
+                    labelStyle={this.props.labelStyle}
+                >
+                    <MenuItem value={'all'} primaryText={getMessage(610)}/>
+                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
+                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
+                </DropDownMenu>
 
-        );
+            );
+        }
     }
 
 }

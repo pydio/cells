@@ -192,7 +192,9 @@ export default class AjxpNode extends Observable{
      */
     addChild(ajxpNode){
         ajxpNode.setParent(this);
-        if(this._iNodeProvider) ajxpNode._iNodeProvider = this._iNodeProvider;
+        if(this._iNodeProvider) {
+            ajxpNode._iNodeProvider = this._iNodeProvider;
+        }
         const existingNode = this.findChildByPath(ajxpNode.getPath());
         if(existingNode && !(existingNode instanceof String)){
             if(!existingNode.isMoreRecentThan(ajxpNode)){

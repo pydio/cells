@@ -29,6 +29,7 @@ export default class NodeListCustomProvider extends React.Component{
     // propTypes:{
     //     nodeProviderProperties:React.PropTypes.object,
     //     presetDataModel:React.PropTypes.instanceOf(PydioDataModel),
+    //     presetRootNode:React.PropTypes.instanceOf(AjxpNode)
     //     autoRefresh:React.PropTypes.number,
     //     actionBarGroups:React.PropTypes.array,
     //     heightAutoWithMax:React.PropTypes.number,
@@ -49,6 +50,10 @@ export default class NodeListCustomProvider extends React.Component{
             this.props.pydio.stopObserving("server_message", this._smObs);
             this.props.pydio.stopObserving("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
+        if(this._selObserver){
+            const {dataModel} = this.state;
+            dataModel.stopObserving("selection_changed", this._selObserver);
+        }
     }
 
     componentWillReceiveProps(nextProps){
@@ -61,7 +66,7 @@ export default class NodeListCustomProvider extends React.Component{
         }else if(this.props.presetDataModel !== nextProps.presetDataModel){
             this.setState({
                 dataModel: nextProps.presetDataModel,
-                node: nextProps.presetDataModel.getRootNode()
+                node: nextProps.presetRootNode || nextProps.presetDataModel.getRootNode()
             });
         }
     }
@@ -74,7 +79,7 @@ export default class NodeListCustomProvider extends React.Component{
         }else{
             dataModel = PydioDataModel.RemoteDataModelFactory(this.props.nodeProviderProperties);
         }
-        const rootNode = dataModel.getRootNode();
+        const rootNode = this.props.presetRootNode || dataModel.getRootNode();
         if(this.props.nodeClicked){
             // leaf
             this.openEditor = function(node){
@@ -82,13 +87,14 @@ export default class NodeListCustomProvider extends React.Component{
                 return false;
             }.bind(this);
             // dir
-            dataModel.observe("selection_changed", function(event){
-                var selectedNodes = event.memo.getSelectedNodes();
+            this._selObserver = (event)=>{
+                const selectedNodes = event.memo.getSelectedNodes();
                 if(selectedNodes.length) {
                     this.props.nodeClicked(selectedNodes[0]);
                     event.memo.setSelectedNodes([]);
                 }
-            }.bind(this));
+            }
+            dataModel.observe("selection_changed", this._selObserver);
         }
         if(this.props.reloadOnServerMessage && this.props.pydio){
             this._smObs = function(event){ if(XMLUtils.XPathSelectSingleNode(event, this.props.reloadOnServerMessage)) this.reload(); }.bind(this);
