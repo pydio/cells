@@ -85,10 +85,13 @@ class FSTemplate extends React.Component {
         const {pydio} = this.props;
         const dm = pydio.getContextHolder();
         const {previousContext} = this.state;
+        dm.setSelectedNodes([]);
         if(previousContext){
-            dm.setSelectedNodes([]);
             dm.setContextNode(previousContext, true);
+        } else {
+            dm.setContextNode(dm.getRootNode(), true);
         }
+        this.setState({previousContext: null});
     }
 
     componentDidMount(){
@@ -212,8 +215,7 @@ class FSTemplate extends React.Component {
                 zIndex: 1,
                 backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
-                display:'flex',
-                //borderBottom: themeLight?'1px solid #e0e0e0':null
+                display:'flex'
             },
             buttonsStyle : {
                 width: 40,
@@ -525,14 +527,11 @@ class FSTemplate extends React.Component {
                     </Paper>
                     <MainFilesList
                         ref="list"
-                        key={"files-list"}
+                        key={searchView?"search-results":"files-list"}
                         pydio={pydio}
                         dataModel={pydio.getContextHolder()}
-                        listProps={searchView?{
-                            defaultGroupBy:"repository_id",
-                            groupByLabel:'repository_display',
-                            skipParentNavigation: true
-                        }:{}}
+                        searchResults={searchView}
+                        searchScope={values ? values.scope : null}
                         onDisplayModeChange={(dMode) => {
                             this.setState({filesListDisplayMode: dMode});
                         }}

@@ -421,6 +421,7 @@ class MainFilesList extends React.Component {
     };
 
     entryRenderSecondLine(node){
+        const {searchResults, pydio, dataModel} = this.props;
         let metaData = node.getMetadata();
         let pieces = [];
         const standardPieces = [];
@@ -432,6 +433,20 @@ class MainFilesList extends React.Component {
             } else {
                 return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
             }
+        }
+
+        if(searchResults) {
+            pieces.push(
+                <span
+                    className="metadata_chunk metadata_chunk_description metadata_chunk_clickable"
+                    key={"result_path"}
+                    style={{marginRight: 5, textDecoration:'underline', cursor:'pointer'}}
+                    onClick={(e)=>{
+                        e.stopPropagation();
+                        pydio.goTo(node)
+                    }}
+                >{node.getPath()}</span>
+            )
         }
 
         if(metaData.get('ajxp_modiftime')) {
@@ -683,6 +698,27 @@ class MainFilesList extends React.Component {
             }
         }
 
+        const {searchResults, searchScope} = this.props;
+        let groupProps = {};
+        if(searchResults) {
+            groupProps = {
+                skipParentNavigation: true,
+            };
+            if(dMode !== 'grid' && searchScope === 'all') {
+                groupProps = {
+                    ...groupProps,
+                    defaultGroupBy:"repository_id",
+                    groupByLabel:'repository_display',
+                }
+            }
+            emptyStateProps = {
+                primaryTextId:478,
+                    style:{
+                    backgroundColor:'transparent'
+                }
+            }
+        }
+
         return (
             <SimpleList
                 ref="list"
@@ -713,7 +749,7 @@ class MainFilesList extends React.Component {
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}
-                {...this.props.listProps}
+                {...groupProps}
             />
         );
     }

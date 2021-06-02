@@ -36,7 +36,7 @@ export default function withSearch(Component, historyIdentifier, scope){
             this.state = {
                 dataModel: props.dataModel || props.pydio.getContextHolder() || emptyDataModel(),
                 values,
-                limit: 10,
+                limit: 30,
                 empty: true,
                 loading: false,
                 facets:[],

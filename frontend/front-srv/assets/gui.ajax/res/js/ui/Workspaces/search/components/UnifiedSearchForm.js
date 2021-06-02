@@ -70,7 +70,7 @@ class UnifiedSearchForm extends React.Component {
         if(value) {
             onRequestOpen();
         } else {
-            onRequestClose();
+         //   onRequestClose();
         }
     }
 

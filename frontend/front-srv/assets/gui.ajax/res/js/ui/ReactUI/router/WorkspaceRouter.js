@@ -43,6 +43,13 @@ const WorkspaceRouterWrapper = (pydio) => {
             })
 
             if(!switchRepo && location.search && location.search.indexOf('?search=') === 0) {
+                const searchNode = pydio.getContextHolder().getSearchNode();
+                try {
+                    const s = location.search;
+                    const values = JSON.parse(decodeURIComponent(s.replace('?search=', '')));
+                    searchNode.getMetadata().set('popped_values', values);
+                } catch(e) {}
+                console.log('HERE ?')
                 pydio.getContextHolder().setContextNode(pydio.getContextHolder().getSearchNode());
             }
 

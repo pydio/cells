@@ -114,7 +114,7 @@ class HomeSearchForm extends Component{
                         fullWidth={true}
                         underlineShow={false}
                         hintText={hintText}
-                        searchText={queryString}
+                        searchText={queryString || ''}
                         menuStyle={{maxHeight: 300}}
                         onUpdateInput={(v) => this.update(v)}
                         onKeyPress={(e) => (e.key === 'Enter' ? this.update(e.target.value) : null)}
@@ -145,6 +145,7 @@ class HomeSearchForm extends Component{
                         entryRenderSecondLine={renderSecondLine}
                         entryRenderGroupHeader={renderGroupHeader}
                         presetDataModel={dataModel}
+                        presetRootNode={dataModel.getSearchNode()}
                         openCollection={(node) => {pydio.goTo(node)}}
                         nodeClicked={(node) => {pydio.goTo(node)}}
                         defaultGroupBy="repository_id"
