@@ -243,10 +243,9 @@ class PydioApi{
         } else {
             const selection = new RestCreateSelectionRequest();
             selection.Nodes = [];
-            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
             selection.Nodes = userSelection.getSelectedNodes().map(node => {
                 const tNode = new TreeNode();
-                tNode.Path = slug + node.getPath();
+                tNode.Path = this.getSlugForNode(node) + node.getPath();
                 return tNode;
             });
             const api = new TreeServiceApi(PydioApi.getRestClient());
@@ -380,15 +379,8 @@ class PydioApi{
     buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null, attachmentName = '') {
         const frontU = this.getPydioObject().getFrontendUrl();
         const url = `${frontU.protocol}//${frontU.host}`;
+        let slug = this.getSlugForNode(node)
 
-        const user = this.getPydioObject().user;
-        let slug = user.getActiveRepositoryObject().getSlug();
-        if(node.getMetadata().has("repository_id")){
-            const nodeRepo = node.getMetadata().get("repository_id");
-            if (nodeRepo !== user.getActiveRepository() && user.getRepositoriesList().has(nodeRepo)){
-                slug = user.getRepositoriesList().get(nodeRepo).getSlug();
-            }
-        }
         let cType = '', cDisposition;
         let longExpire = false;
 
@@ -497,7 +489,7 @@ class PydioApi{
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const frontU = this.getPydioObject().getFrontendUrl();
             const url = `${frontU.protocol}//${frontU.host}`;
-            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+            const slug = this.getSlugForNode(node)
 
             AWS.config.update({
                 accessKeyId: jwt,
@@ -522,12 +514,11 @@ class PydioApi{
 
     }
 
-    postPlainTextContent(nodePath, content, finishedCallback){
+    postPlainTextContent(node, content, finishedCallback){
 
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const frontU = this.getPydioObject().getFrontendUrl();
             const url = `${frontU.protocol}//${frontU.host}`;
-            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             AWS.config.update({
                 accessKeyId: jwt,
@@ -536,20 +527,32 @@ class PydioApi{
             });
             const params = {
                 Bucket: "io",
-                Key: slug + nodePath,
+                Key: this.getSlugForNode(node) + node.getPath(),
                 Body: content,
             };
             const s3 = new AWS.S3({endpoint:url});
             s3.putObject(params, (err) => {
-                if (!err) {
-                    finishedCallback('Ok');
-                }  else {
+                if (err) {
                     this.getPydioObject().UI.displayMessage('ERROR', err.message);
                     finishedCallback(false);
+                } else {
+                    finishedCallback('Ok');
                 }
             })
         });
 
+    }
+
+    getSlugForNode(node) {
+        const user = this.getPydioObject().user;
+        let slug = user.getActiveRepositoryObject().getSlug();
+        if(node.getMetadata().has("repository_id")){
+            const nodeRepo = node.getMetadata().get("repository_id");
+            if (nodeRepo !== user.getActiveRepository() && user.getRepositoriesList().has(nodeRepo)){
+                slug = user.getRepositoriesList().get(nodeRepo).getSlug();
+            }
+        }
+        return slug;
     }
 
     openVersion(node, versionId){

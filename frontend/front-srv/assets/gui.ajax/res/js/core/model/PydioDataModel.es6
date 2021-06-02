@@ -214,6 +214,7 @@ export default class PydioDataModel extends Observable{
 	    if(!this._searchNode) {
             this._searchNode = new AjxpNode("/", false, "Search Results", 'mdi mdi-magnify', new EmptyNodeProvider());
             this._searchNode.setRoot();
+            this._searchNode.getMetadata().set('search_root', true);
         }
 	    return this._searchNode;
     }
@@ -440,6 +441,20 @@ export default class PydioDataModel extends Observable{
                 n.replaceBy(node, "override");
                 if(setSelectedAfterUpdate && this.getContextNode() === n.getParent()) {
                     this.setSelectedNodes([n], {});
+                }
+            }
+            if(this._searchNode) {
+                const resNode = this._searchNode.findChildByPath(node.getPath())
+                if(resNode) {
+                    const initMeta = resNode.getMetadata()
+                    const newMeta = new Map()
+                    newMeta.set('search_result', true);
+                    newMeta.set('repository_id', initMeta.get('repository_id'))
+                    newMeta.set('repository_display', initMeta.get('repository_display'))
+                    node.getMetadata().forEach((v,k) => {
+                        newMeta.set(k, v)
+                    })
+                    resNode.replaceMetadata(newMeta, true);
                 }
             }
         }

@@ -83,7 +83,15 @@ export default class Editor extends React.Component {
         const {id} = tab;
 
         pydio.ApiClient.getPlainContent(node, (content) => {
-            tabModify({id: id || node.getLabel(), editable: true, editortools: true, searchable: true, lineNumbers: true, content: content});
+            tabModify({
+                id: id || node.getLabel(),
+                editable: true,
+                editortools: true,
+                searchable: true,
+                lineNumbers: true,
+                content: content,
+                node
+            });
         });
     }
 

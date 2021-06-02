@@ -25,7 +25,7 @@ const { EditorActions } = Pydio.requireLib('hoc');
 
 // Actions definitions
 export const onSave = ({dispatch, tab}) => () => {
-    return pydio.ApiClient.postPlainTextContent(tab.url, tab.content, (success) => {
+    return pydio.ApiClient.postPlainTextContent(tab.node, tab.content, (success) => {
         if (!success) {
             dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[210]}))
         } else {

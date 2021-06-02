@@ -18,16 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
-const { EditorActions } = Pydio.requireLib('hoc');
-
-// Actions definitions
-export const onSave = ({tab, dispatch}) => () => {
-    return Pydio.getInstance().ApiClient.postPlainTextContent(tab.node, tab.content, (success) => {
-        if (success) {
-            dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[115]}))
-        } else {
-            dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[210]}))
-        }
-    })
-};
+export default function (pydio) {
+    return function(){
+        const node = pydio.getContextHolder().getUniqueNode();
+        pydio.goTo(node);
+    }
+}

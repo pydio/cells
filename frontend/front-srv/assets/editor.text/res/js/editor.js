@@ -77,7 +77,7 @@ class Editor extends Component {
         const {id} = tab
 
         pydio.ApiClient.getPlainContent(node, (content) => {
-            dispatch(EditorActions.tabModify({id, content: content}))
+            dispatch(EditorActions.tabModify({id, content: content, node}))
         });
 
     }

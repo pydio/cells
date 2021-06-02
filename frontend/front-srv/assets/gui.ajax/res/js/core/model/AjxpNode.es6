@@ -195,6 +195,9 @@ export default class AjxpNode extends Observable{
         if(this._iNodeProvider) {
             ajxpNode._iNodeProvider = this._iNodeProvider;
         }
+        if(this.getMetadata().get('search_root')){
+            ajxpNode.getMetadata().set('search_result', true);
+        }
         const existingNode = this.findChildByPath(ajxpNode.getPath());
         if(existingNode && !(existingNode instanceof String)){
             if(!existingNode.isMoreRecentThan(ajxpNode)){
@@ -221,8 +224,11 @@ export default class AjxpNode extends Observable{
         this.notify("child_removed", removePath);
     }
 
-    replaceMetadata(newMeta){
+    replaceMetadata(newMeta, eventNodeReplaced = false){
         this._metadata = newMeta;
+        if(eventNodeReplaced) {
+            this.notify("node_replaced", this);
+        }
         this.notify("meta_replaced", this);
     }
 
@@ -415,17 +421,23 @@ export default class AjxpNode extends Observable{
      * @returns AjxpNode|undefined
      */
     findInArbo(rootNode, fakeNodes){
-        if(!this.getPath()) return;
+        if(!this.getPath()) {
+            return;
+        }
         const pathParts = this.getPath().split("/");
         let crtPath = "", crtNode, crtParentNode = rootNode;
         for(let i=0;i<pathParts.length;i++){
-            if(pathParts[i] == "") continue;
+            if(pathParts[i] === "") {
+                continue;
+            }
             crtPath = crtPath + "/" + pathParts[i];
             const node = crtParentNode.findChildByPath(crtPath);
             if(node && !(node instanceof String)){
                 crtNode = node;
             }else{
-                if(fakeNodes === undefined) return undefined;
+                if(fakeNodes === undefined) {
+                    return undefined;
+                }
                 crtNode = new AjxpNode(crtPath, false, PathUtils.getBasename(crtPath));
                 crtNode.fake = true;
                 crtNode.getMetadata().set("text", PathUtils.getBasename(crtPath));

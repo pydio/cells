@@ -296,7 +296,10 @@ class FSTemplate extends React.Component {
             "info_panel_share",
             "info_panel_edit_share",
         ];
-        let mainToolbarsOthers = ["change", "other"];
+        let mainToolbarsOthers = [
+            "change",
+            "other"
+        ];
 
         const {pydio} = this.props;
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
@@ -432,17 +435,19 @@ class FSTemplate extends React.Component {
                                 {searchView && <div style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>Search Results</div>}
                                 {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}
                                 <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex', overflow:'hidden'}}>
-                                    <ButtonMenu
-                                        {...props}
-                                        {...newButtonProps}
-                                        id="create-button-menu"
-                                        toolbars={["upload", "create"]}
-                                        buttonTitle={this.props.pydio.MessageHash['198']}
-                                        raised={false}
-                                        secondary={true}
-                                        controller={props.pydio.Controller}
-                                        openOnEvent={'tutorial-open-create-menu'}
-                                    />
+                                    {!searchView &&
+                                        <ButtonMenu
+                                            {...props}
+                                            {...newButtonProps}
+                                            id="create-button-menu"
+                                            toolbars={["upload", "create"]}
+                                            buttonTitle={this.props.pydio.MessageHash['198']}
+                                            raised={false}
+                                            secondary={true}
+                                            controller={props.pydio.Controller}
+                                            openOnEvent={'tutorial-open-create-menu'}
+                                        />
+                                    }
                                     <ListPaginator
                                         id="paginator-toolbar"
                                         style={{height: 23, borderRadius: 2, background: newButtonProps.buttonBackgroundColor, marginRight: 5}}
