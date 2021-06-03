@@ -57,6 +57,38 @@ export default function withSearch(Component, historyIdentifier, scope){
             }
         }
 
+        humanize(values) {
+            let s;
+            let typeScope;
+            const {basenameOrContent, scope, ajxp_mime, ...others} = values
+            console.log(basenameOrContent, scope, ajxp_mime, others);
+            typeScope = '';
+            if(ajxp_mime === 'ajxp_folder'){
+                typeScope = 'folders'
+            } else if (ajxp_mime) {
+                typeScope = '%s files'.replace('%s', ajxp_mime)
+            }
+            if(basenameOrContent === '*'){
+                s = 'all %1'.replace('%1', typeScope || 'files and folders')
+            } else if(basenameOrContent) {
+                s = '%1%2'.replace('%1', basenameOrContent).replace('%2', typeScope ? ' in ' + typeScope : '')
+            } else {
+                s = '%1'.replace('%1', typeScope || 'files and folders')
+            }
+            const f = Object.keys(others).length
+            if(f === 1){
+                s += ' with one additional filter'
+            } else if(f > 1) {
+                s += ' with %1 additional filters'.replace('%1', f)
+            }
+            if(scope === 'ws') {
+                s += ' in current workspace'
+            } else if (scope === 'folder') {
+                s += ' in current folder'
+            }
+            return s;
+        }
+
         performSearch() {
             const {values, limit, dataModel, activeFacets} = this.state;
             const searchRootNode = dataModel.getSearchNode();
@@ -223,6 +255,7 @@ export default function withSearch(Component, historyIdentifier, scope){
                     setValues={this.setValues.bind(this)}
                     setLimit={this.setLimit.bind(this)}
                     toggleFacet={this.toggleFacet.bind(this)}
+                    humanizeValues={this.humanize.bind(this)}
                 />
             );
         }

@@ -20,16 +20,14 @@
 import React from 'react'
 import Pydio from 'pydio'
 import DOMUtils from 'pydio/util/dom'
-const {withSearch} = Pydio.requireLib('hoc')
 import {TextField, Popover} from 'material-ui'
 import AdvancedSearch from "./AdvancedSearch";
-import Facets from "./Facets";
 
 const styles = {
     container:{
         display:'flex',
         position:'relative',
-        width: 200,
+        width: 120,
         height: 36,
         alignItems: 'center',
         borderRadius: 2,
@@ -43,13 +41,15 @@ const styles = {
         underlineShow:false,
     },
     filterButton:{
+        transition:DOMUtils.getBeziersTransition(),
         position: 'absolute',
         top: 7,
         right: 8,
-        backgroundColor: 'white',
-        borderRadius: 6,
-        padding: '1px 6px 0px 5px',
-        cursor: 'pointer'
+        borderRadius: 15,
+        padding: '1px 6px 0px 6px',
+        cursor: 'pointer',
+        fontSize: 15,
+        fontWeight: 500
     },
     closeButton:{
         cursor: 'pointer',
@@ -108,8 +108,10 @@ class UnifiedSearchForm extends React.Component {
             .length;
         let wStyle = {};
         if(active) {
-            wStyle = {width: 420}
+            wStyle = {width: 200}
         }
+        const {filterButton={}} = formStyles;
+        const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13} : {}
 
         return (
             <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={this.containerRef}>
@@ -143,10 +145,12 @@ class UnifiedSearchForm extends React.Component {
                     hintStyle={formStyles.hintStyle}
                     onFocus={() => this.focus()}
                 />
-                <div onClick={this.togglePopover.bind(this)} style={styles.filterButton}>
-                    <span className={"mdi mdi-filter"}/>
-                    {filtersCount > 0 && <span>{filtersCount}</span>}
-                </div>
+                {active &&
+                    <div onClick={this.togglePopover.bind(this)} style={{...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}}>
+                        <span className={"mdi mdi-filter"}/>
+                        {filtersCount > 0 && <span>{filtersCount}</span>}
+                    </div>
+                }
             </div>
         );
     }

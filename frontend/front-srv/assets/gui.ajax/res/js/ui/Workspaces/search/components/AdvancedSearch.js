@@ -102,7 +102,6 @@ class AdvancedSearch extends Component {
     }
 
     textFieldChange(fieldName, value){
-        this.setState({[fieldName]:value});
         this.props.onChange({[fieldName]:value});
     }
 
@@ -121,27 +120,41 @@ class AdvancedSearch extends Component {
 
             // The field might have been assigned a method already
             if (renderComponent) {
-                const component = renderComponent({
+                return renderComponent({
                     ...this.props,
                     label,
                     value,
                     fieldname:key,
                     onChange: (object)=>{this.onChange(object)}
                 });
-                return component;
             }
         }
 
         return (
             <ModernTextField
                 key={fieldname}
-                value={this.state[fieldname] || this.props.values[fieldname] || ''}
+                value={this.props.values[fieldname] || ''}
                 style={text}
                 hintText={val}
                 fullWidth={true}
                 onChange={(e,v) => {this.textFieldChange(fieldname, v)}}
             />
         );
+    }
+
+    clearAll() {
+        const {values, onChange} = this.props;
+        let clearVals = {}
+        Object.keys(values).forEach(k => {
+            if(k === 'basenameOrContent') {
+                clearVals[k] = values[k]
+            } else if (k === 'scope') {
+                clearVals[k] = 'all'
+            } else {
+                clearVals[k] = undefined;
+            }
+        })
+        onChange(clearVals);
     }
 
     render() {
@@ -158,6 +171,12 @@ class AdvancedSearch extends Component {
             marginBottom: -10,
             marginTop: 10
         };
+        const linkStyle = {
+            padding: '12px 20px 0',
+            color: '#9e9e9e',
+            textDecoration: 'underline',
+            cursor: 'pointer'
+        }
 
         const onRemove = (key) => {
             const newValues = {...values}
@@ -169,10 +188,19 @@ class AdvancedSearch extends Component {
             onRemove
         }
 
+        const {basenameOrContent, scope, ...others} = values;
+        let showClear = scope !== 'all' || (others && Object.keys(others).length > 0)
 
         return (
             <div className="search-advanced" style={{...rootStyle}}>
-                <Subheader style={{...headerStyle, marginTop: 0}}>{getMessage(341)}</Subheader>
+                <div style={{display:'flex'}}>
+                    <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
+                    {showClear &&
+                        <div style={linkStyle}>
+                            <a onClick={()=>this.clearAll()}>Clear</a>
+                        </div>
+                    }
+                </div>
                 <FieldRow {...rowProps} name={"basenameOrContent"} label={getMessage(1)}>{this.renderField('basenameOrContent',getMessage(1))}</FieldRow>
                 {showScope &&
                     <FieldRow {...rowProps} name={"scope"} label={"Search in..."} style={{marginRight:16}}>

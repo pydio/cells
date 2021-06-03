@@ -58,7 +58,7 @@ class Facet extends React.Component {
         };
         return (
             <Chip
-                style={{margin:4}}
+                style={{margin:'4px 0'}}
                 onRequestDelete={requestDelete}
                 onClick={requestSelect}
                 {...cc.chip}
@@ -138,7 +138,7 @@ class Facets extends React.Component {
 
         return (
             <Paper zDepth={zDepth} style={styles.container}>
-                <div style={styles.header}>{m('search.facets.title')}</div>
+                {hasFacets && <div style={styles.header}>{m('search.facets.title')}</div>}
                 {hasFacets && Object.keys(groupKeys)
                     .filter(k => groups[k])
                     .filter(k => {

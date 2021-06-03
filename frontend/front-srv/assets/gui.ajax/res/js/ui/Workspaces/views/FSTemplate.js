@@ -21,13 +21,14 @@
 import React from 'react';
 import Pydio from 'pydio';
 import Breadcrumb from './Breadcrumb'
+import Textfit from 'react-textfit'
 const {withSearch} = Pydio.requireLib('hoc')
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import InfoPanel from '../detailpanes/InfoPanel'
 import WelcomeTour from './WelcomeTour'
 import CellChat from './CellChat'
-import {IconButton, Paper} from 'material-ui'
+import {FlatButton, IconButton, Paper} from 'material-ui'
 import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
@@ -383,7 +384,8 @@ class FSTemplate extends React.Component {
                 mainStyle:{border:'1px solid ' + appBarTextColor.fade(0.8).toString()},
                 inputStyle:{color: appBarTextColor.toString()},
                 hintStyle:{color: appBarTextColor.fade(0.5).toString()},
-                magnifierStyle:{color: appBarTextColor.fade(0.1).toString()}
+                magnifierStyle:{color: appBarTextColor.fade(0.1).toString()},
+                filterButton:{color:appBarTextColor.toString()}
             };
             newButtonProps.buttonLabelStyle.color = muiTheme.palette.accent1Color;
             newButtonProps.buttonBackgroundColor = 'rgba(0,0,0,0.05)';
@@ -392,10 +394,11 @@ class FSTemplate extends React.Component {
         }
 
 
-        const {values, setValues, facets, activeFacets, toggleFacet} = this.props;
+        const {values, setValues, facets, activeFacets, toggleFacet, humanizeValues, limit, setLimit} = this.props;
         //const {searchView} = this.state;
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
+        let searchToolbar;
 
         if(searchView) {
             leftPanelProps.leftComponent = (
@@ -404,16 +407,56 @@ class FSTemplate extends React.Component {
                     facets={facets}
                     activeFacets={activeFacets}
                     onToggleFacet={toggleFacet}
+                    values={values}
+                    limit={limit}
+                    setLimit={setLimit}
+                    humanizeValues={humanizeValues}
+                    dataModel={pydio.getContextHolder()}
                     zDepth={1}
                     styles={{
                         container:{
                             flex: 1,
                             backgroundColor:'transparent',
                             padding: '0 16px',
-                            borderRight: '1px solid #e0e0e0'
+                            borderRight: '1px solid #e0e0e0',
+                            overflowY: 'auto'
+                        },
+                        header:{
+                            color: Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.50).toString(),
+                            fontWeight: 500,
+                            textTransform:'uppercase',
+                            padding: '12px 0'
+                        },
+                        subHeader:{
+                            color: Color(muiTheme.palette.primary1Color).darken(0.1).toString(),
+                            fontWeight: 500,
+                            padding: '6px 0'
                         }
                     }}
                 />);
+            const count = pydio.getContextHolder().getSearchNode().getChildren().size;
+            let stLabel, stDisable = true;
+            let labelStyle = {...styles.flatButtonLabelStyle}
+            if(count === 0) {
+                stLabel = 'No Results Found'
+            } else if(count < limit) {
+                stLabel = '%1 results found'.replace('%1', count)
+            } else if(count === limit) {
+                stDisable = false
+                stLabel = 'Showing %1, Load More...'.replace('%1', limit)
+            }
+            if(stDisable){
+                labelStyle = {...labelStyle, color: themeLight?'#616161':'white'}
+            }
+            searchToolbar = (
+                <FlatButton
+                    style={styles.flatButtonStyle}
+                    labelStyle={labelStyle}
+                    label={stLabel}
+                    disabled={stDisable}
+                    onClick={()=>{setLimit(limit+20)}}
+                />
+            )
         }
 
         return (
@@ -432,9 +475,16 @@ class FSTemplate extends React.Component {
                                 <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer.bind(this)}/>
                             </span>
                             <div style={{flex: 1, overflow:'hidden'}}>
-                                {searchView && <div style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>Search Results</div>}
+                                {searchView &&
+                                    <Textfit
+                                        mode="single" min={12} max={22}
+                                        style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>
+                                        <span className={"mdi mdi-magnify"}/> Results for {humanizeValues(values)}
+                                    </Textfit>
+                                }
                                 {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}
                                 <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex', overflow:'hidden'}}>
+                                    {searchToolbar}
                                     {!searchView &&
                                         <ButtonMenu
                                             {...props}
