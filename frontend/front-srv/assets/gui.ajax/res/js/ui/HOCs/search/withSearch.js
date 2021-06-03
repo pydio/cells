@@ -38,7 +38,7 @@ export default function withSearch(Component, historyIdentifier, scope){
                 values,
                 limit: 30,
                 empty: true,
-                loading: false,
+                searchLoading: false,
                 facets:[],
                 activeFacets:[],
                 history: []
@@ -106,11 +106,11 @@ export default function withSearch(Component, historyIdentifier, scope){
                 searchRootNode.clear();
                 searchRootNode.setLoaded(true);
                 searchRootNode.notify("loaded");
-                this.setState({loading: false,empty: true, facets:[], activeFacets:[]});
+                this.setState({searchLoading: false,empty: true, facets:[], activeFacets:[]});
                 return;
             }
 
-            this.setState({loading: true, empty: false});
+            this.setState({searchLoading: true, empty: false});
             searchRootNode.setLoading(true);
             searchRootNode.notify("loading");
             const api = new SearchApi(Pydio.getInstance());
@@ -127,14 +127,14 @@ export default function withSearch(Component, historyIdentifier, scope){
                     this.pushHistory(values.basenameOrContent)
                 }
                 this.setState({
-                    loading: false,
+                    searchLoading: false,
                     facets: response.Facets ||[]
                 });
             }).catch(()=>{
                 searchRootNode.clear();
                 searchRootNode.setLoading(false);
                 searchRootNode.notify("loaded");
-                this.setState({loading: false});
+                this.setState({searchLoading: false});
             });
 
         }

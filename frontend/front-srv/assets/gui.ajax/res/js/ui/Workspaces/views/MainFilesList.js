@@ -715,7 +715,7 @@ class MainFilesList extends React.Component {
             }
         }
 
-        const {searchResults, searchScope} = this.props;
+        const {searchResults, searchScope, searchLoading} = this.props;
         let groupProps = {};
         if(searchResults) {
             groupProps = {
@@ -729,7 +729,7 @@ class MainFilesList extends React.Component {
                 }
             }
             emptyStateProps = {
-                primaryTextId:478,
+                primaryTextId:searchLoading?'searchengine.searching':478,
                     style:{
                     backgroundColor:'transparent'
                 }

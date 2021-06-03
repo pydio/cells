@@ -394,7 +394,7 @@ class FSTemplate extends React.Component {
         }
 
 
-        const {values, setValues, facets, activeFacets, toggleFacet, humanizeValues, limit, setLimit} = this.props;
+        const {values, setValues, facets, activeFacets, toggleFacet, humanizeValues, limit, setLimit, searchLoading} = this.props;
         //const {searchView} = this.state;
         const dm = pydio.getContextHolder();
         const searchView = dm.getContextNode() === dm.getSearchNode();
@@ -437,8 +437,10 @@ class FSTemplate extends React.Component {
             const count = pydio.getContextHolder().getSearchNode().getChildren().size;
             let stLabel, stDisable = true;
             let labelStyle = {...styles.flatButtonLabelStyle}
-            if(count === 0) {
-                stLabel = 'No Results Found'
+            if(searchLoading) {
+                stLabel = pydio.MessageHash['searchengine.searching'];
+            } else if(count === 0) {
+                stLabel = pydio.MessageHash['478'] // No results found
             } else if(count < limit) {
                 stLabel = '%1 results found'.replace('%1', count)
             } else if(count === limit) {
@@ -587,6 +589,7 @@ class FSTemplate extends React.Component {
                         dataModel={pydio.getContextHolder()}
                         searchResults={searchView}
                         searchScope={values ? values.scope : null}
+                        searchLoading={searchLoading}
                         onDisplayModeChange={(dMode) => {
                             this.setState({filesListDisplayMode: dMode});
                         }}
