@@ -20,7 +20,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import DOMUtils from 'pydio/util/dom'
-import {TextField, Popover} from 'material-ui'
+import {AutoComplete, Divider, Subheader, MenuItem, Popover} from 'material-ui'
 import AdvancedSearch from "./AdvancedSearch";
 
 const styles = {
@@ -65,7 +65,13 @@ class UnifiedSearchForm extends React.Component {
     }
 
     updateText(value) {
-        const {onRequestOpen, onRequestClose, values, setValues} = this.props;
+        const {onRequestOpen, onRequestClose, values, setValues, savedSearches} = this.props;
+        if(value.indexOf('#saved#') === 0) {
+            const savedId = value.replace('#saved#', '')
+            const newValues = savedSearches.filter(s => s.searchID === savedId)[0]
+            setValues(newValues);
+            return;
+        }
         setValues({...values, basenameOrContent:value});
         if(value) {
             onRequestOpen();
@@ -98,11 +104,11 @@ class UnifiedSearchForm extends React.Component {
 
     render() {
 
-        const {onRequestClose, values, setValues, style, active, formStyles} = this.props;
+        const {onRequestClose, values, setValues, style, active, formStyles, history = [], savedSearches = [], clearSavedSearch, saveSearch, humanizeValues} = this.props;
         const {basenameOrContent=''} = values;
-        const {popoverOpen, anchorElement} = this.state || {}
+        const {popoverOpen, anchorElement, searchFocus} = this.state || {}
         const filtersCount = Object.keys(values)
-            .filter(key => key !== 'basenameOrContent')
+            .filter(key => key !== 'basenameOrContent' && key !== 'searchLABEL' && key !== 'searchID')
             .filter(key => values[key])
             .filter(key => !(key === 'scope' && values[key] === 'all'))
             .length;
@@ -112,6 +118,21 @@ class UnifiedSearchForm extends React.Component {
         }
         const {filterButton={}} = formStyles;
         const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13} : {}
+
+        const completeDataSource = [
+            ...savedSearches.map(k=>{
+                return{
+                    text:'#saved#' + k.searchID,
+                    value:(
+                        <MenuItem
+                            primaryText={
+                                <span><span style={{opacity:.6, marginRight: 5}} className={"mdi mdi-content-save"}/> {k.searchLABEL}</span>
+                            }
+                        />
+                    )}
+            }),
+            ...history.map(k=>{return{text:k,value:k}}),
+        ]
 
         return (
             <div style={{...styles.container, ...formStyles.mainStyle, ...style, ...wStyle, transition:DOMUtils.getBeziersTransition()}} ref={this.containerRef}>
@@ -129,21 +150,31 @@ class UnifiedSearchForm extends React.Component {
                         onChange={(newValues) => setValues({...values, ...newValues})}
                         rootStyle={{paddingBottom: 8, maxHeight: '80vh', overflowY: 'auto'}}
                         showScope={true}
+                        savedSearches={savedSearches}
+                        saveSearch={saveSearch}
+                        clearSavedSearch={clearSavedSearch}
                     />
                 </Popover>
                 <div onClick={onRequestClose} style={{...styles.closeButton,...formStyles.magnifierStyle}}>
                     <span className={"mdi mdi-" + (active?'close':'magnify')}/>
                 </div>
-                <TextField
+                <AutoComplete
+                    dataSource={completeDataSource}
+                    filter={(searchText, key) => (searchText === '' || key.indexOf(searchText) === 0) && searchText !== key }
+                    open={searchFocus}
                     style={{marginLeft: 5, flex: 1}}
-                    underlineShow={false}
-                    fullWidth={true}
-                    hintText={"Search..."}
-                    value={basenameOrContent}
-                    onChange={(e,v) => this.updateText(v)}
                     inputStyle={formStyles.inputStyle}
                     hintStyle={formStyles.hintStyle}
-                    onFocus={() => this.focus()}
+                    fullWidth={true}
+                    underlineShow={false}
+                    hintText={"Search..."}
+                    searchText={basenameOrContent || ''}
+                    menuProps={{desktop:true}}
+                    menuStyle={{maxHeight: 300, width: 400}}
+                    onUpdateInput={(v) => this.updateText(v)}
+                    onKeyPress={(e) => (e.key === 'Enter' ? this.updateText(e.target.value) : null)}
+                    onFocus={()=>{this.focus(); setTimeout(() => {this.setState({searchFocus: true})}, 1000)}}
+                    onBlur={()=>{this.setState({searchFocus: false})}}
                 />
                 {active &&
                     <div onClick={this.togglePopover.bind(this)} style={{...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}}>

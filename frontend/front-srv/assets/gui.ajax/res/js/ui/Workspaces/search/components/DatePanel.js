@@ -168,6 +168,7 @@ class SearchDatePanel extends React.Component {
                                 autoOk={true}
                                 maxDate={endDate || today}
                                 defaultDate={startDate}
+                                container={"inline"}
                             />
                             <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({startDate: null})} />
                         </div>
@@ -182,6 +183,7 @@ class SearchDatePanel extends React.Component {
                                 minDate={startDate}
                                 maxDate={today}
                                 defaultDate={endDate}
+                                container={"inline"}
                             />
                             <span className="mdi mdi-close" style={dateClose} onClick={() => this.setState({endDate: null})} />
                         </div>

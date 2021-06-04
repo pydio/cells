@@ -302,7 +302,7 @@ class WorkspacesList extends React.Component{
         if(searchView) {
             const fakeAllEntry = new Repository('ALL');
             fakeAllEntry.setSlug('ALL')
-            fakeAllEntry.setLabel('All Files')
+            fakeAllEntry.setLabel(pydio.MessageHash[610]) // All workspaces
             return (
                 <div className={classNames.join(' ')}>
                     <Entries

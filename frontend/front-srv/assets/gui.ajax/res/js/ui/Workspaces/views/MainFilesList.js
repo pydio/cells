@@ -463,7 +463,7 @@ class MainFilesList extends React.Component {
                         pydio.goTo(node)
                     }}
                 >{linkString}</span>,
-                <span> &bull; </span>
+                <span>&bull; </span>
             )
         }
 

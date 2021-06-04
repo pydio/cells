@@ -117,11 +117,17 @@ class FSTemplate extends React.Component {
             });
         };
         DOMUtils.observeWindowResize(this._resizer);
+        this._ctxObserver = ()=>{
+            const searchView = pydio.getContextHolder().getContextNode() === pydio.getContextHolder().getSearchNode()
+            this.setState({searchView})
+        }
+        pydio.observe('context_changed', this._ctxObserver)
     }
 
     componentWillUnmount(){
         const {pydio} = this.props;
         pydio.stopObserving('user_logged', this._themeObserver);
+        pydio.stopObserving('context_changed', this._ctxObserver)
         DOMUtils.stopObservingWindowResize(this._resizer);
     }
 
@@ -400,7 +406,10 @@ class FSTemplate extends React.Component {
         }
 
 
-        const {values, setValues, facets, activeFacets, toggleFacet, humanizeValues, limit, setLimit, searchLoading} = this.props;
+        const {values, setValues, history, facets, activeFacets, toggleFacet,
+            humanizeValues, limit, setLimit, searchLoading,
+            savedSearches, saveSearch, clearSavedSearch
+        } = this.props;
         let searchToolbar;
 
         if(searchView) {
@@ -475,7 +484,7 @@ class FSTemplate extends React.Component {
                                     <Textfit
                                         mode="single" min={12} max={22}
                                         style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>
-                                        Search : {humanizeValues(values)}
+                                        Search: {humanizeValues(values)}
                                     </Textfit>
                                 }
                                 {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}
@@ -538,6 +547,11 @@ class FSTemplate extends React.Component {
                                 formStyles={styles.searchForm}
                                 values={values}
                                 setValues={setValues}
+                                humanizeValues={humanizeValues}
+                                history={history}
+                                savedSearches={savedSearches}
+                                clearSavedSearch={clearSavedSearch}
+                                saveSearch={saveSearch}
                                 onRequestOpen={()=>this.setSearchView()}
                                 onRequestClose={()=>this.unsetSearchView()}
                             />
@@ -553,7 +567,7 @@ class FSTemplate extends React.Component {
                                     tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
                                 />
                                 }
-                                {showChatTab &&
+                                {!searchView && showChatTab &&
                                 <IconButton
                                     iconClassName={"mdi mdi-message-text"}
                                     style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
@@ -563,7 +577,7 @@ class FSTemplate extends React.Component {
                                     tooltipPosition={"bottom-left"}
                                 />
                                 }
-                                {showAddressBook &&
+                                {!searchView && showAddressBook &&
                                     <IconButton
                                         iconClassName={"mdi mdi-account-card-details"}
                                         style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}

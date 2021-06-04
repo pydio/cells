@@ -27,8 +27,8 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
-const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
-
+const {ModernTextField} = Pydio.requireLib('hoc');
+import {FlatButton} from 'material-ui'
 import DatePanel from './DatePanel';
 import FileFormatPanel from './FileFormatPanel';
 import FileSizePanel from './FileSizePanel';
@@ -161,8 +161,8 @@ class AdvancedSearch extends Component {
 
         const {text} = AdvancedSearch.styles;
 
-        const {pydio, getMessage, values, rootStyle, showScope} = this.props;
-        const {options} = this.state;
+        const {pydio, getMessage, values, rootStyle, showScope, saveSearch, clearSavedSearch} = this.props;
+        const {options, promptSearchLabel, currentSearchLabel} = this.state;
         const headerStyle = {
             fontSize: 13,
             color: 'rgb(144 165 178)',
@@ -188,23 +188,41 @@ class AdvancedSearch extends Component {
             onRemove
         }
 
-        const {basenameOrContent, scope, ...others} = values;
+        const {basenameOrContent, scope, searchID, searchLABEL, ...others} = values;
         let showClear = scope !== 'all' || (others && Object.keys(others).length > 0)
+        let showSave = scope !== 'all' || basenameOrContent || (others && Object.keys(others).length > 0)
+        let showRemove = !!searchID
 
         return (
             <div className="search-advanced" style={{...rootStyle}}>
-                <div style={{display:'flex'}}>
+                {promptSearchLabel &&
+                    <div style={{display: 'flex',alignItems: 'center', padding: '4px 12px 2px', backgroundColor: '#f8fafc'}}>
+                        <ModernTextField focusOnMount={true} hintText={"Enter search label"} value={currentSearchLabel||""} onChange={(e,v)=>this.setState({currentSearchLabel: v})}/>
+                        <FlatButton label={"Save"} onClick={()=>{
+                            saveSearch(currentSearchLabel);
+                            this.setState({promptSearchLabel:false, currentSearchLabel: ''})}
+                        } disabled={!currentSearchLabel}/>
+                        <FlatButton label={"Cancel"} onClick={()=>{this.setState({currentSearchLabel:'', promptSearchLabel:false})}}/>
+                    </div>
+                }
+                {!promptSearchLabel &&
+                    <div style={{display:'flex'}}>
                     <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
-                    {showClear &&
-                        <div style={linkStyle}>
-                            <a onClick={()=>this.clearAll()}>Clear</a>
-                        </div>
-                    }
-                </div>
+                        {(showSave || showClear) &&
+                            <div style={linkStyle}>
+                                {showRemove && <a onClick={()=>clearSavedSearch(searchID)}>Delete</a>}
+                                {showRemove && showSave && " | "}
+                                {showSave && <a onClick={()=>searchID?saveSearch():this.setState({promptSearchLabel:true})}>Save</a>}
+                                {showSave && showClear && " | "}
+                                {showClear && <a onClick={()=>this.clearAll()}>Clear</a>}
+                            </div>
+                        }
+                    </div>
+                }
                 <FieldRow {...rowProps} name={"basenameOrContent"} label={getMessage(1)}>{this.renderField('basenameOrContent',getMessage(1))}</FieldRow>
                 {showScope &&
                     <FieldRow {...rowProps} name={"scope"} label={"Search in..."} style={{marginRight:16}}>
-                        <SearchScopeSelector value={values.scope} onChange={(scope)=>{this.onChange({...values, scope})}} onClick={()=>{}} asField={true}/>
+                        <SearchScopeSelector pydio={pydio} value={values.scope} onChange={(scope)=>{this.onChange({...values, scope})}}/>
                     </FieldRow>
                 }
                 <FieldRow {...rowProps} name={"ajxp_mime"} label={"Format"}>
