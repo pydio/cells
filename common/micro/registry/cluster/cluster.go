@@ -176,10 +176,7 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 
 		known, err := mgr.IsKnownConsumer(stream.Name(), consumerID)
 		if err != nil || !known {
-			fmt.Println("Consumer ID is not known ", consumerID)
 			return
-		} else {
-			fmt.Println("Consumer is known !!! ", consumerID)
 		}
 
 		clusterNode, ok := r.clusterNodes[consumerID]
@@ -243,11 +240,12 @@ func (r *clusterRegistry) connect() error {
 		conn, err := nats.Connect(r.options.Addrs[0],
 			nats.UseOldRequestStyle(),
 			nats.ReconnectHandler(func(_ *nats.Conn) {
-				replay()
 				fmt.Println("Reconnected to nats")
+				replay()
 			}),
 			nats.DisconnectErrHandler(func(_ *nats.Conn, _ error) {
 				fmt.Println("Disconnected from nats")
+				r.clusterNodes = make(map[string]registry.Registry)
 			}),
 		)
 		if err != nil {
