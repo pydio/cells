@@ -22,6 +22,10 @@ import {pydio} from '../globals'
 
 export default function(){
 
-    pydio.fireContextRefresh();
+    if(pydio.getContextHolder().getContextNode() === pydio.getContextHolder().getSearchNode()) {
+        pydio.getContextHolder().getSearchNode().notify('reload_search');
+    } else {
+        pydio.fireContextRefresh();
+    }
 
 }

@@ -50,6 +50,19 @@ export default function withSearch(Component, historyIdentifier, scope){
             }
         }
 
+        componentDidMount() {
+            this._searchNodeObserver = ()=>{
+                this.performSearch()
+            }
+            const {dataModel} = this.state;
+            dataModel.getSearchNode().observe('reload_search', this._searchNodeObserver)
+        }
+
+        componentWillUnmount() {
+            const {dataModel} = this.state;
+            dataModel.getSearchNode().stopObserving('reload_search', this._searchNodeObserver)
+        }
+
         componentDidUpdate(prevProps, prevState, snapshot) {
             if(prevState !== this.state) {
                 const {onSearchStateChange} = this.props;
