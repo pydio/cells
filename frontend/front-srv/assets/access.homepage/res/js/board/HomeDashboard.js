@@ -20,13 +20,12 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Paper, IconButton, Badge, Color} from 'material-ui'
+import {Paper, IconButton, Color} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import ConfigLogo from './ConfigLogo'
 import WelcomeTour from './WelcomeTour'
 import HomeSearchForm from './HomeSearchForm'
 import SmartRecents from '../recent/SmartRecents'
-import NewSearchForm from "./NewSearchForm";
 const {MasterLayout} = Pydio.requireLib('workspaces');
 
 class AltDashboard extends React.Component {
