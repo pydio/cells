@@ -24,7 +24,8 @@ import Breadcrumb from './views/Breadcrumb'
 import FilePreview from './views/FilePreview'
 import FSTemplate from './views/FSTemplate'
 import EditionPanel from './views/EditionPanel'
-import { SearchForm } from './search'
+import SearchForm from './search/components/SearchForm'
+import UnifiedSearchForm from "./search/components/UnifiedSearchForm";
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
@@ -50,6 +51,7 @@ const classes = {
     EditionPanel,
     Breadcrumb,
     SearchForm,
+    UnifiedSearchForm,
     FilePreview,
     FSTemplate,
     WorkspacesList,

@@ -26,6 +26,7 @@ import ConfigLogo from './ConfigLogo'
 import WelcomeTour from './WelcomeTour'
 import HomeSearchForm from './HomeSearchForm'
 import SmartRecents from '../recent/SmartRecents'
+import NewSearchForm from "./NewSearchForm";
 const {MasterLayout} = Pydio.requireLib('workspaces');
 
 class AltDashboard extends React.Component {
@@ -166,7 +167,7 @@ class AltDashboard extends React.Component {
                         />
                     </div>
                 </Paper>
-                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onSearchStateChange={(state)=>{this.setState({fullScreen:!state.empty})}}>
+                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onFocusChange={(f)=>{this.setState({fullScreen: f})}}>
                     <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                 </HomeSearchForm>
             </MasterLayout>

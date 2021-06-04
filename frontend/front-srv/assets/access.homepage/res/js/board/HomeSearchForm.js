@@ -18,16 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {Component} from 'react'
+import React, {Component} from 'react'
 import Pydio from 'pydio'
-import {Paper, FontIcon, IconButton, AutoComplete, CircularProgress} from 'material-ui'
+import {Paper, IconButton, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
 import Facets from "./Facets";
 
 const {SimpleList} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
-const {FilePreview} = Pydio.requireLib('workspaces');
+const {UnifiedSearchForm, FilePreview} = Pydio.requireLib('workspaces');
 const {withSearch} = Pydio.requireLib('hoc')
 
 class HomeSearchForm extends Component{
@@ -44,11 +44,9 @@ class HomeSearchForm extends Component{
     render(){
 
         // From HOC
-        const {values, facets, activeFacets, toggleFacet, loading, dataModel, empty, history} = this.props;
-        const {basenameOrContent:queryString} = values;
-        const {searchFocus} = this.state || {};
+        const {values, setValues, facets, activeFacets, toggleFacet, loading, dataModel, empty, history, savedSearches, saveSearch, clearSavedSearch} = this.props;
+        const {style, zDepth, pydio, fullScreen, onFocusChange} = this.props;
 
-        const {style, zDepth, pydio, fullScreen} = this.props;
         const hintText = pydio.MessageHash[607];
         const whiteTransp = 'rgba(0,0,0,.53)';
 
@@ -68,7 +66,23 @@ class HomeSearchForm extends Component{
             textInput: {color: 'inherit'},
             textHint : {color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%'},
             magnifier: {color: whiteTransp, fontSize: 20, padding:'14px 8px'},
-            close: {position:'absolute', right:0}
+            close: {position:'absolute', right:0},
+            searchForm:{
+                mainStyle:{
+                    backgroundColor:'transparent',
+                    height: 48,
+                    border: 0
+                },
+                completeMenuStyle:{width: '100%'},
+                inputStyle:{},//{color: appBarTextColor.toString()},
+                hintStyle:{}, //{color: appBarTextColor.fade(0.5).toString()},
+                magnifierStyle:{}, //{color: appBarTextColor.fade(0.1).toString()},
+                filterButton:{
+                    paddingTop: 7,
+                    color:'#03a9f4',
+                    fontSize: 22
+                },
+            }
         };
 
 
@@ -81,13 +95,16 @@ class HomeSearchForm extends Component{
             let date = new Date();
             date.setTime(parseInt(metaData.get('ajxp_modiftime'))*1000);
             const mDate = moment(date).fromNow();
-            const bSize = PathUtils.roundFileSize(parseInt(node.getMetadata().get('bytesize')))
+            let bSize;
+            if(parseInt(node.getMetadata().get('bytesize'))) {
+                bSize = PathUtils.roundFileSize(parseInt(node.getMetadata().get('bytesize')))
+            }
             const dir = PathUtils.getDirname(path)
             let location
             if(dir){
                 location = pydio.MessageHash['user_home.search.result.location'] + ': ' + PathUtils.getDirname(path) || '/';
             }
-            return <div>{mDate} &bull; {bSize} {location ? <span>&bull;</span> : null} {location}</div>
+            return <div>{mDate} {bSize?(<span>&bull; {bSize}</span>):''} {location ? <span>&bull; {location}</span> : null}</div>
         };
         const renderGroupHeader = (repoId, repoLabel) =>{
             return (
@@ -99,66 +116,58 @@ class HomeSearchForm extends Component{
 
         return (
             <Paper style={style} zDepth={zDepth} className="vertical-layout home-center-paper" rounded={false}>
-                <Paper zDepth={searchFocus || queryString ? 1 : 0} style={styles.textFieldContainer} ref={"container"} className="home-search-form">
-                    <FontIcon className="mdi mdi-magnify" style={styles.magnifier}/>
-                    <AutoComplete
-                        ref={(r) => {this.input = r}}
-                        dataSource={history.map(k=>{return{text:k,value:k}})}
-                        filter={(searchText, key) => (searchText === '' || key.indexOf(searchText) === 0) && searchText !== key }
-                        openOnFocus={!queryString}
-                        open={searchFocus}
-                        menuProps={{desktop:true}}
-                        style={styles.textField}
-                        inputStyle={styles.textInput}
-                        hintStyle={styles.textHint}
-                        fullWidth={true}
-                        underlineShow={false}
-                        hintText={hintText}
-                        searchText={queryString || ''}
-                        menuStyle={{maxHeight: 300}}
-                        onUpdateInput={(v) => this.update(v)}
-                        onKeyPress={(e) => (e.key === 'Enter' ? this.update(e.target.value) : null)}
-                        onFocus={()=>{this.setState({searchFocus: true})}}
-                        onBlur={()=>{this.setState({searchFocus: false})}}
+                <Paper zDepth={fullScreen ? 1 : 0} style={styles.textFieldContainer} ref={"container"} className="home-search-form">
+                    <UnifiedSearchForm
+                        style={{flex: 1}}
+                        active={fullScreen}
+                        pydio={pydio}
+                        formStyles={styles.searchForm}
+                        values={values}
+                        setValues={setValues}
+                        history={history}
+                        savedSearches={savedSearches}
+                        clearSavedSearch={clearSavedSearch}
+                        saveSearch={saveSearch}
+                        onRequestOpen={()=>onFocusChange(true)}
+                        onRequestClose={()=>onFocusChange(false)}
                     />
-                    {!loading && <div style={{width: 36}}/>}
                     {loading && <div style={{marginTop:14, marginRight: 8}} ><CircularProgress size={20} thickness={2}/></div>}
                 </Paper>
                 {fullScreen &&
-                    <IconButton
-                        iconClassName="mdi mdi-close"
-                        style={styles.close}
-                        onClick={()=>this.update('')}
-                        tooltipPosition={"bottom-left"}
-                        tooltip={pydio.MessageHash['86']}
-                    />
+                <IconButton
+                    iconClassName="mdi mdi-close"
+                    style={styles.close}
+                    onClick={()=>onFocusChange(false)}
+                    tooltipPosition={"bottom-left"}
+                    tooltip={pydio.MessageHash['86']}
+                />
                 }
-                {!empty && facets && <Facets facets={facets} selected={activeFacets} pydio={pydio} onSelectFacet={toggleFacet}/>}
-                {!empty &&
-                    <PydioComponents.NodeListCustomProvider
-                        ref="results"
-                        containerStyle={{width:'86%', maxWidth:650, marginTop: fullScreen ? 75 : 20}}
-                        className={'files-list vertical_fit'}
-                        elementHeight={SimpleList.HEIGHT_TWO_LINES}
-                        entryRenderIcon={renderIcon}
-                        entryRenderActions={function() {return null}}
-                        entryRenderSecondLine={renderSecondLine}
-                        entryRenderGroupHeader={renderGroupHeader}
-                        presetDataModel={dataModel}
-                        presetRootNode={dataModel.getSearchNode()}
-                        openCollection={(node) => {pydio.goTo(node)}}
-                        nodeClicked={(node) => {pydio.goTo(node)}}
-                        defaultGroupBy="repository_id"
-                        groupByLabel="repository_display"
-                        emptyStateProps={{
-                            iconClassName:"",
-                            primaryTextId:loading?'searchengine.searching':478,
-                            style:{backgroundColor: 'transparent'}
-                        }}
-                    />
+                {!empty && fullScreen && facets && <Facets facets={facets} selected={activeFacets} pydio={pydio} onSelectFacet={toggleFacet}/>}
+                {fullScreen &&
+                <PydioComponents.NodeListCustomProvider
+                    ref="results"
+                    containerStyle={{width:'86%', maxWidth:650, marginTop: fullScreen ? 75 : 20}}
+                    className={'files-list vertical_fit'}
+                    elementHeight={SimpleList.HEIGHT_TWO_LINES}
+                    entryRenderIcon={renderIcon}
+                    entryRenderActions={function() {return null}}
+                    entryRenderSecondLine={renderSecondLine}
+                    entryRenderGroupHeader={renderGroupHeader}
+                    presetDataModel={dataModel}
+                    presetRootNode={dataModel.getSearchNode()}
+                    openCollection={(node) => {pydio.goTo(node)}}
+                    nodeClicked={(node) => {pydio.goTo(node)}}
+                    defaultGroupBy="repository_id"
+                    groupByLabel="repository_display"
+                    emptyStateProps={{
+                        iconClassName:"",
+                        primaryTextId:loading?'searchengine.searching':478,
+                        style:{backgroundColor: 'transparent'}
+                    }}
+                />
                 }
-                {this.props.children &&
-                    <div style={{display:empty?'block':'none', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
+                {!fullScreen && this.props.children &&
+                <div style={{display:empty?'block':'none', flex:1, overflowY:'auto', marginTop: 40}} id="history-block">{this.props.children}</div>
                 }
 
             </Paper>

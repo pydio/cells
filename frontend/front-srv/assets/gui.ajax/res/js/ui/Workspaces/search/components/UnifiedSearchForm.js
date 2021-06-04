@@ -20,7 +20,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import DOMUtils from 'pydio/util/dom'
-import {AutoComplete, Divider, Subheader, MenuItem, Popover} from 'material-ui'
+import {AutoComplete, MenuItem, Popover} from 'material-ui'
 import AdvancedSearch from "./AdvancedSearch";
 
 const styles = {
@@ -170,7 +170,7 @@ class UnifiedSearchForm extends React.Component {
                     hintText={"Search..."}
                     searchText={basenameOrContent || ''}
                     menuProps={{desktop:true}}
-                    menuStyle={{maxHeight: 300, width: 400}}
+                    menuStyle={{maxHeight: 300, width: 400, ...formStyles.completeMenuStyle}}
                     onUpdateInput={(v) => this.updateText(v)}
                     onKeyPress={(e) => (e.key === 'Enter' ? this.updateText(e.target.value) : null)}
                     onFocus={()=>{this.focus(); setTimeout(() => {this.setState({searchFocus: true})}, 1000)}}
