@@ -148,7 +148,7 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 				for k := range r.clusterNodes {
 					found := false
 					for _, consumerID := range consumerIDs {
-						if consumerID == k {
+						if k == consumerID {
 							found = true
 							break
 						}
@@ -158,21 +158,24 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 						delete(r.clusterNodes, k)
 					}
 				}
+
 			}
 		}
 	}()
-	//
 
 	inbox := nats.NewInbox()
 
 	r.conn.Subscribe(inbox, func(m *nats.Msg) {
+
 		var service *registry.Service
 		if err := unmarshal(m.Data, &service); err != nil {
 			return
 		}
 
-		consumerID, ok := service.Metadata["consumerID"]
-		if !ok {
+		consumerID := service.Metadata["consumerID"]
+
+		known, err := mgr.IsKnownConsumer(stream.Name(), consumerID)
+		if err != nil || !known {
 			return
 		}
 
@@ -196,6 +199,7 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 		"registry-"+uuid.New().String(),
 		jsm.DeliverySubject(inbox),
 		jsm.DeliverAllAvailable(),
+		jsm.AcknowledgeAll(),
 	)
 	if err != nil {
 		return nil, err
@@ -236,11 +240,12 @@ func (r *clusterRegistry) connect() error {
 		conn, err := nats.Connect(r.options.Addrs[0],
 			nats.UseOldRequestStyle(),
 			nats.ReconnectHandler(func(_ *nats.Conn) {
-				replay()
 				fmt.Println("Reconnected to nats")
+				replay()
 			}),
 			nats.DisconnectErrHandler(func(_ *nats.Conn, _ error) {
 				fmt.Println("Disconnected from nats")
+				r.clusterNodes = make(map[string]registry.Registry)
 			}),
 		)
 		if err != nil {
@@ -360,8 +365,8 @@ func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 
 	var clusterServices []*registry.Service
 	for _, clusterNode := range r.clusterNodes {
-		services, err := clusterNode.GetService(name)
-		if err != nil {
+		services, errCluster := clusterNode.GetService(name)
+		if errCluster != nil {
 			return localServices, errLocal
 		}
 
@@ -379,8 +384,8 @@ func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
 
 	var clusterServices []*registry.Service
 	for _, clusterNode := range r.clusterNodes {
-		services, err := clusterNode.ListServices()
-		if err != nil {
+		services, errCluster := clusterNode.ListServices()
+		if errCluster != nil {
 			return localServices, errLocal
 		}
 
