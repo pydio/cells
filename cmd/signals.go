@@ -31,7 +31,6 @@ func handleSignals() {
 
 	go func() {
 		for sig := range c {
-			fmt.Println("Signal received is ? ", sig)
 			switch sig {
 			case syscall.SIGTERM:
 				fallthrough

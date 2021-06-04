@@ -133,23 +133,35 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 		return nil, err
 	}
 
-	//go func() {
-	//	ticker := time.NewTicker(10 * time.Second)
-	//	for {
-	//		select {
-	//		case <-ticker.C:
-	//			var consumerIDs []string
-	//			if err := stream.EachConsumer(func(con *jsm.Consumer) {
-	//				consumerIDs = append(consumerIDs, con.Name())
-	//			}); err != nil {
-	//				continue
-	//			}
-	//
-	//			r.consumerIDs = consumerIDs
-	//		}
-	//	}
-	//}()
-	//
+	go func() {
+		ticker := time.NewTicker(10 * time.Second)
+		for {
+			select {
+			case <-ticker.C:
+				var consumerIDs []string
+				if err := stream.EachConsumer(func(con *jsm.Consumer) {
+					consumerIDs = append(consumerIDs, con.Name())
+				}); err != nil {
+					continue
+				}
+
+				for k := range r.clusterNodes {
+					found := false
+					for _, consumerID := range consumerIDs {
+						if k == consumerID {
+							found = true
+							break
+						}
+					}
+
+					if !found {
+						delete(r.clusterNodes, k)
+					}
+				}
+
+			}
+		}
+	}()
 
 	inbox := nats.NewInbox()
 
