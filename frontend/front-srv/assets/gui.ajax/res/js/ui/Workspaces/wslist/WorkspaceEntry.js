@@ -404,8 +404,25 @@ class WorkspaceEntry extends React.Component {
         }
 
         let title = workspace.getLabel();
+        let label = workspace.getLabel();
         if(workspace.getDescription()){
             title += ' - ' + workspace.getDescription();
+        }
+        if(searchView){
+            let count = 0;
+            const results = pydio.getContextHolder().getSearchNode().getChildren();
+            if(workspace.getSlug() === 'ALL') {
+                count = results.size;
+            } else {
+                results.forEach(node => {
+                    if(node.getMetadata().get('repository_id') === workspace.getId()){
+                        count ++;
+                    }
+                })
+            }
+            if(count) {
+                label += ' (' + count + ')'
+            }
         }
         const entryIcon = <span className={icon} style={iconStyle}/>;
         let wsBlock = (
@@ -418,7 +435,7 @@ class WorkspaceEntry extends React.Component {
                 style={style}
             >
                 {entryIcon}
-                <span className="workspace-label" title={title}>{workspace.getLabel()}</span>
+                <span className="workspace-label" title={title}>{label}</span>
                 {chatIcon}
                 {treeToggle}
                 <span style={{flex: 1}}></span>
