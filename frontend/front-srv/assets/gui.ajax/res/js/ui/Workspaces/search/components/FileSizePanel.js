@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import React, {Fragment} from 'react';
 import Pydio from 'pydio';
 const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
@@ -70,52 +70,60 @@ class SearchFileSizePanel extends React.Component {
     render() {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
         const {getMessage} = this.props;
-        const blockStyle={display:'flex', margin:'0 16px'};
+        const blockStyle={display:'flex'};
         return (
-            <div>
+            <Fragment>
                 <div style={blockStyle}>
-                    <ModernTextField
-                        style={{flex: 2, marginRight: 4}}
-                        type={"number"}
-                        hintText={getMessage(613)}
-                        onChange={(e,v) => {
-                            this.setState({from:v || 0})
-                        }}
-                    />
-                    <ModernSelectField
-                        value={this.state.fromUnit}
-                        onChange={(e,i,v) => {this.setState({fromUnit: v})}}
-                        style={{marginLeft: 4, flex: 1}}
-                    >
-                        <MenuItem value={''} primaryText={sizeUnit}/>
-                        <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
-                        <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
-                        <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
-                        <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
-                    </ModernSelectField>
+                    <div style={{flex: 2, marginRight: 4}}>
+                        <ModernTextField
+                            type={"number"}
+                            hintText={getMessage(613)}
+                            fullWidth={true}
+                            onChange={(e,v) => {
+                                this.setState({from:v || 0})
+                            }}
+                        />
+                    </div>
+                    <div style={{marginLeft: 4, flex: 1}}>
+                        <ModernSelectField
+                            value={this.state.fromUnit}
+                            onChange={(e,i,v) => {this.setState({fromUnit: v})}}
+                            fullWidth={true}
+                        >
+                            <MenuItem value={''} primaryText={sizeUnit}/>
+                            <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
+                            <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
+                            <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
+                            <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
+                        </ModernSelectField>
+                    </div>
                 </div>
                 <div style={blockStyle}>
-                    <ModernTextField
-                        style={{flex: 2, marginRight: 4}}
-                        type={"number"}
-                        hintText={getMessage(614)}
-                        onChange={(e,v) => {
-                            this.setState({to:v || 109951162})
-                        }}
-                    />
-                    <ModernSelectField
-                        style={{marginLeft: 4, flex: 1}}
-                        value={this.state.toUnit}
-                        onChange={(e,i,v) => {this.setState({toUnit: v})}}
-                    >
-                        <MenuItem value={''} primaryText={sizeUnit}/>
-                        <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
-                        <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
-                        <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
-                        <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
-                    </ModernSelectField>
+                    <div style={{flex: 2, marginRight: 4}}>
+                        <ModernTextField
+                            fullWidth={true}
+                            type={"number"}
+                            hintText={getMessage(614)}
+                            onChange={(e,v) => {
+                                this.setState({to:v || 109951162})
+                            }}
+                        />
+                    </div>
+                    <div style={{marginLeft: 4, flex: 1}}>
+                        <ModernSelectField
+                            fullWidth={true}
+                            value={this.state.toUnit}
+                            onChange={(e,i,v) => {this.setState({toUnit: v})}}
+                        >
+                            <MenuItem value={''} primaryText={sizeUnit}/>
+                            <MenuItem value={'k'} primaryText={'K' + sizeUnit}/>
+                            <MenuItem value={'M'} primaryText={'M' + sizeUnit}/>
+                            <MenuItem value={'G'} primaryText={'G' + sizeUnit}/>
+                            <MenuItem value={'T'} primaryText={'T' + sizeUnit}/>
+                        </ModernSelectField>
+                    </div>
                 </div>
-            </div>
+            </Fragment>
         );
     }
 }

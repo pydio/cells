@@ -39,7 +39,6 @@ import EmptyStateView from '../views/EmptyStateView'
 import PlaceHolders from "./PlaceHolders";
 
 const DOMUtils = require('pydio/util/dom')
-const LangUtils = require('pydio/util/lang')
 const PydioDataModel = require('pydio/model/data-model')
 const PeriodicalExecuter = require('pydio/util/periodical-executer')
 
@@ -661,6 +660,17 @@ let SimpleList = createReactClass({
                 }
             });
         }.bind(this));
+        // Selection on Mount
+        const selection = new Map();
+        const selectedNodes = this.props.dataModel.getSelectedNodes();
+        if(selectedNodes.length) {
+            selectedNodes.map(function(n){
+                selection.set(n, true);
+            });
+            this.setState({selection}, () => {
+                setTimeout(()=>{this.scrollToView(selectedNodes[0]);}, 500)
+            });
+        }
     },
 
     componentWillUnmount: function(){
@@ -855,7 +865,7 @@ let SimpleList = createReactClass({
                 }else if(this.props.tableKeys){
 
                     if(this.props.defaultGroupBy){
-                        data['tableKeys'] = LangUtils.deepCopy(this.props.tableKeys);
+                        data['tableKeys'] = {...this.props.tableKeys};
                         delete data['tableKeys'][this.props.defaultGroupBy];
                     }else{
                         data['tableKeys'] = this.props.tableKeys;
@@ -874,8 +884,79 @@ let SimpleList = createReactClass({
 
     },
 
+    /**
+     *
+     * @return {null|Function}
+     */
+    prepareSortFunction() {
+        const {sortingInfo} = this.state || {};
+        if(!sortingInfo || this.remoteSortingInfo()) {
+            return null;
+        }
+        let sortFunction;
+        const {sortingInfo:{attribute, direction, sortType}} = this.state || {};
+        if(sortType === 'file-natural'){
+            sortFunction = (a, b) => {
+                if (a.parent){
+                    return -1;
+                }
+                if (b.parent){
+                    return 1;
+                }
+                const nodeA = a.node;
+                const nodeB = b.node;
+                // Recycle always last
+                if(nodeA.isRecycle()) {
+                    return 1;
+                }
+                if(nodeB.isRecycle()) {
+                    return -1;
+                }
+                // Folders first
+                const aLeaf = nodeA.isLeaf();
+                const bLeaf = nodeB.isLeaf();
+                let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
+                if (res === 0) {
+                    return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
+                } else {
+                    return res;
+                }
+            };
+        }else{
+            sortFunction = (a, b) => {
+                if (a.parent){
+                    return -1;
+                }
+                if (b.parent){
+                    return 1;
+                }
+                let res;
+                if(sortType === 'number'){
+                    let aMeta = a.node.getMetadata().get(attribute) || 0;
+                    let bMeta = b.node.getMetadata().get(attribute) || 0;
+                    aMeta = parseFloat(aMeta);
+                    bMeta = parseFloat(bMeta);
+                    res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
+                }else if(sortType === 'string'){
+                    let aMeta = a.node.getMetadata().get(attribute) || "";
+                    let bMeta = b.node.getMetadata().get(attribute) || "";
+                    res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
+                }
+                if(res === 0){
+                    // Resort by label to make it stable
+                    let labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, {numeric: true});
+                    res = (direction === 'asc' ? labComp : -labComp);
+                }
+                return res;
+            };
+        }
+        return sortFunction;
+    },
+
     buildElements: function(start, end, node){
         const theNode = node || this.props.node;
+
+        const sortFunction = this.prepareSortFunction();
 
         if(!this.indexedElements || this.indexedElements.length !== theNode.getChildren().size) {
             this.indexedElements = [];
@@ -931,66 +1012,16 @@ let SimpleList = createReactClass({
                         parent: false,
                         actions: null
                     });
+                    if(sortFunction) {
+                        groups[k].sort(sortFunction);
+                    }
                     this.indexedElements = this.indexedElements.concat(groups[k]);
                 }.bind(this));
             }
 
         }
 
-        if(this.state && this.state.sortingInfo && !this.remoteSortingInfo()){
-            const {sortingInfo:{attribute, direction, sortType}} = this.state;
-            let sortFunction;
-            if(sortType === 'file-natural'){
-                sortFunction = (a, b) => {
-                    if (a.parent){
-                        return -1;
-                    }
-                    if (b.parent){
-                        return 1;
-                    }
-                    const nodeA = a.node;
-                    const nodeB = b.node;
-                    // Recycle always last
-                    if(nodeA.isRecycle()) return 1;
-                    if(nodeB.isRecycle()) return -1;
-                    // Folders first
-                    const aLeaf = nodeA.isLeaf();
-                    const bLeaf = nodeB.isLeaf();
-                    let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
-                    if(res !== 0) {
-                        return res;
-                    } else {
-                        return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
-                    }
-                };
-            }else{
-                sortFunction = (a, b) => {
-                    if (a.parent){
-                        return -1;
-                    }
-                    if (b.parent){
-                        return 1;
-                    }
-                    let res;
-                    if(sortType === 'number'){
-                        let aMeta = a.node.getMetadata().get(attribute) || 0;
-                        let bMeta = b.node.getMetadata().get(attribute) || 0;
-                        aMeta = parseFloat(aMeta);
-                        bMeta = parseFloat(bMeta);
-                        res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
-                    }else if(sortType === 'string'){
-                        let aMeta = a.node.getMetadata().get(attribute) || "";
-                        let bMeta = b.node.getMetadata().get(attribute) || "";
-                        res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
-                    }
-                    if(res === 0){
-                        // Resort by label to make it stable
-                        let labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, {numeric: true});
-                        res = (direction === 'asc' ? labComp : -labComp);
-                    }
-                    return res;
-                };
-            }
+        if(!this.props.defaultGroupBy && sortFunction) {
             this.indexedElements.sort(sortFunction);
         }
 
@@ -1177,7 +1208,7 @@ let SimpleList = createReactClass({
         if(this.props.tableKeys){
             let tableKeys;
             if(this.props.defaultGroupBy){
-                tableKeys = LangUtils.deepCopy(this.props.tableKeys);
+                tableKeys = {...this.props.tableKeys};
                 delete tableKeys[this.props.defaultGroupBy];
             }else{
                 tableKeys = this.props.tableKeys;

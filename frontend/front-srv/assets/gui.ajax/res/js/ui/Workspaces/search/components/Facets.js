@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import {Chip, Avatar, Paper} from 'material-ui'
+
 
 class Facet extends React.Component {
 
@@ -56,7 +58,7 @@ class Facet extends React.Component {
         };
         return (
             <Chip
-                style={{margin:4}}
+                style={{margin:'4px 0'}}
                 onRequestDelete={requestDelete}
                 onClick={requestSelect}
                 {...cc.chip}
@@ -72,7 +74,7 @@ class Facets extends React.Component {
     }
 
     render() {
-        const {pydio, facets, onSelectFacet, selected=[]} = this.props;
+        const {pydio, facets, onToggleFacet, activeFacets=[], zDepth=1, styles = {}} = this.props;
         const m = (id) => pydio.MessageHash['user_home.' + id] || id
         const groups = {}
         const groupKeys = {
@@ -83,7 +85,7 @@ class Facets extends React.Component {
             'Basename':'found',
             'Meta':'metadata',
         }
-        const hasContentSelected = selected.filter(f => f.FieldName === 'TextContent').length > 0
+        const hasContentSelected = activeFacets.filter(f => f.FieldName === 'TextContent').length > 0
         facets.forEach(f => {
             let fName = f.FieldName;
             if(fName.indexOf('Meta.') === 0) {
@@ -100,12 +102,15 @@ class Facets extends React.Component {
             }
             groups[fName].push(f);
         })
+
+        let hasFacets = true;
         if (!Object.keys(groupKeys).filter(k => groups[k]).filter(k => {
-            const hasSelected = groups[k].filter(f => this.isSelected(selected, f)).length > 0
+            const hasSelected = groups[k].filter(f => this.isSelected(activeFacets, f)).length > 0
             return hasSelected || groups[k].length > 1
         }).length){
-            return null;
+            hasFacets = false;
         }
+        /*
         const styles = {
             container: {
                 position: 'absolute',
@@ -129,23 +134,24 @@ class Facets extends React.Component {
                 color: 'rgba(92, 119, 132, 0.7)'
             }
         }
+         */
 
         return (
-            <Paper style={styles.container}>
-                <div style={styles.header}>{m('search.facets.title')}</div>
-                {Object.keys(groupKeys)
+            <Paper zDepth={zDepth} style={styles.container}>
+                {hasFacets && <div style={styles.header}>{m('search.facets.title')}</div>}
+                {hasFacets && Object.keys(groupKeys)
                     .filter(k => groups[k])
                     .filter(k => {
-                        const hasSelected = groups[k].filter(f => this.isSelected(selected, f)).length > 0
+                        const hasSelected = groups[k].filter(f => this.isSelected(activeFacets, f)).length > 0
                         return hasSelected || groups[k].length > 1
                     })
                     .map(k => {
                     return(
                         <div style={{marginBottom:10}}>
                             <div style={styles.subHeader}>{m('search.facet.' + groupKeys[k])}</div>
-                            <div style={{zoom: .8, marginLeft:10}}>
+                            <div style={{zoom: .8}}>
                                 {groups[k].sort((a,b) => a.Label.localeCompare(b.Label)).map((f)=> {
-                                    return (<Facet m={m} facet={f} selected={this.isSelected(selected, f)} onSelect={onSelectFacet}/>);
+                                    return (<Facet m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
                                 })}
                             </div>
                         </div>

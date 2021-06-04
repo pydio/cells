@@ -22,175 +22,32 @@ import {Component} from 'react'
 import Pydio from 'pydio'
 import {Paper, FontIcon, IconButton, AutoComplete, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
-import PydioDataModel from 'pydio/model/data-model'
-import SearchApi from 'pydio/http/search-api'
 import PathUtils from 'pydio/util/path'
-import EmptyNodeProvider from 'pydio/model/empty-node-provider'
-import debounce from 'lodash.debounce';
 import Facets from "./Facets";
 
 const {SimpleList} = Pydio.requireLib('components');
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
+const {withSearch} = Pydio.requireLib('hoc')
 
 class HomeSearchForm extends Component{
 
     constructor(props) {
         super(props)
-
-        // Create Fake DM
-        this.basicDataModel = new PydioDataModel(true);
-        let rNodeProvider = new EmptyNodeProvider();
-        this.basicDataModel.setAjxpNodeProvider(rNodeProvider);
-        const rootNode = new AjxpNode("/", false, '', '', rNodeProvider);
-        this.basicDataModel.setRootNode(rootNode);
-
-        this.state = {
-            queryString: '',
-            dataModel: this.basicDataModel,
-            empty: true,
-            loading: false,
-            facets:[],
-            facetFilter:{},
-            history: []
-        };
-        this.loadHistory().then(hh => this.setState({history: hh}))
-        this.submitD = debounce(this.submit, 500)
     }
 
     update(queryString) {
-        this.setState({queryString}, ()=>{this.submitD(true)});
-    }
-
-    filterByFacet(facet, toggle){
-        const {selectedFacets = []} = this.state;
-        let newFacets = []
-        if(toggle){
-            newFacets = [...selectedFacets, facet];
-        } else {
-            newFacets = selectedFacets.filter(s => !(s.FieldName===facet.FieldName && s.Label === facet.Label))
-        }
-        this.setState({selectedFacets:newFacets}, () => {this.submit()})
-    }
-
-    computeFacets(queryString){
-        let data = {};
-        const {selectedFacets=[]} = this.state
-        selectedFacets.forEach(facet => {
-            switch (facet.FieldName){
-                case "Size":
-                    data['ajxp_bytesize'] = {from:facet.Min, to:facet.Max}
-                    break;
-                case "ModifTime":
-                    data['ajxp_modiftime'] = {from:facet.Start*1000, to:facet.End*1000}
-                    break;
-                case "Extension":
-                    data['ajxp_mime'] = facet.Label
-                    break;
-                case "NodeType":
-                    data['ajxp_mime'] = 'ajxp_' + facet.Label
-                    break;
-                case "TextContent":
-                    data['basenameOrContent'] = ''
-                    data['Content'] = queryString
-                    break;
-                case "Basename":
-                    data['basenameOrContent'] = ''
-                    data['basename'] = queryString
-                    break;
-                default:
-                    if(facet.FieldName.indexOf('Meta.') === 0) {
-                        data['ajxp_meta_' + facet.FieldName.replace('Meta.', '')] = facet.Label;
-                    }
-                    break;
-            }
-        })
-        return data;
-    }
-
-    submit(refreshFacets = false) {
-        const {queryString} = this.state;
-        if(refreshFacets) {
-            this.setState({selectedFacets:[]});
-        }
-        if (!queryString) {
-            this.toggleEmpty(true);
-            this.setState({loading: false, facets:[], selectedFacets:[]});
-            return;
-        }
-        const {dataModel} = this.state;
-        const rootNode = dataModel.getRootNode();
-        rootNode.setChildren([]);
-        rootNode.setLoaded(true);
-        this.toggleEmpty(false);
-        this.setState({loading: true});
-
-        const api = new SearchApi(this.props.pydio);
-        const facetFilter = this.computeFacets(queryString);
-        api.search({basenameOrContent: queryString, ...facetFilter}, 'all', this.props.limit || 10).then(response => {
-            rootNode.setChildren(response.Results);
-            rootNode.setLoaded(true);
-            this.pushHistory(queryString);
-            this.setState({
-                loading: false,
-                facets: response.Facets||[]
-            });
-        }).catch(e => {
-            this.setState({loading: false})
-        });
-
-    }
-
-    getUserHistoryKey(){
-        return Pydio.getInstance().user.getIdmUser().then(u => "cells.search-engine.history." + u.Uuid)
-    }
-
-    loadHistory(){
-        return this.getUserHistoryKey().then(key => {
-            const i = localStorage.getItem(key)
-            if(!i) {
-                return []
-            }
-            try {
-                const data = JSON.parse(i)
-                if(data.map){
-                    return data;
-                }
-                return [];
-            }catch (e){
-                return []
-            }
-        })
-    }
-
-    pushHistory(term){
-        if(!term){
-            return
-        }
-        const {history = []} = this.state;
-        const newHistory = history.filter(f => f !== term).slice(0, 19); // store only 20 terms
-        newHistory.unshift(term);
-        this.getUserHistoryKey().then(key => {
-            this.setState({history: newHistory}, () => {
-                localStorage.setItem(key, JSON.stringify(newHistory));
-            })
-        })
-    }
-
-    toggleEmpty(e){
-        this.setState({empty: e});
-        if(e){
-            this.input.blur();
-        }
-        const {onSearchStateChange} = this.props;
-        if(onSearchStateChange){
-            onSearchStateChange(e);
-        }
+        const {setValues} = this.props;
+        setValues({basenameOrContent:queryString});
     }
 
     render(){
 
-        const {loading, dataModel, empty, queryString, searchFocus, facets, selectedFacets=[], history} = this.state;
+        // From HOC
+        const {values, facets, activeFacets, toggleFacet, loading, dataModel, empty, history} = this.props;
+        const {basenameOrContent:queryString} = values;
+        const {searchFocus} = this.state || {};
+
         const {style, zDepth, pydio, fullScreen} = this.props;
         const hintText = pydio.MessageHash[607];
         const whiteTransp = 'rgba(0,0,0,.53)';
@@ -257,7 +114,7 @@ class HomeSearchForm extends Component{
                         fullWidth={true}
                         underlineShow={false}
                         hintText={hintText}
-                        searchText={queryString}
+                        searchText={queryString || ''}
                         menuStyle={{maxHeight: 300}}
                         onUpdateInput={(v) => this.update(v)}
                         onKeyPress={(e) => (e.key === 'Enter' ? this.update(e.target.value) : null)}
@@ -276,7 +133,7 @@ class HomeSearchForm extends Component{
                         tooltip={pydio.MessageHash['86']}
                     />
                 }
-                {!empty && facets && <Facets facets={facets} selected={selectedFacets} pydio={pydio} onSelectFacet={this.filterByFacet.bind(this)}/>}
+                {!empty && facets && <Facets facets={facets} selected={activeFacets} pydio={pydio} onSelectFacet={toggleFacet}/>}
                 {!empty &&
                     <PydioComponents.NodeListCustomProvider
                         ref="results"
@@ -288,6 +145,7 @@ class HomeSearchForm extends Component{
                         entryRenderSecondLine={renderSecondLine}
                         entryRenderGroupHeader={renderGroupHeader}
                         presetDataModel={dataModel}
+                        presetRootNode={dataModel.getSearchNode()}
                         openCollection={(node) => {pydio.goTo(node)}}
                         nodeClicked={(node) => {pydio.goTo(node)}}
                         defaultGroupBy="repository_id"
@@ -311,6 +169,7 @@ class HomeSearchForm extends Component{
 
 }
 
+HomeSearchForm = withSearch(HomeSearchForm, 'home', 'all');
 HomeSearchForm = PydioContextConsumer(HomeSearchForm);
 HomeSearchForm = muiThemeable()(HomeSearchForm);
 export {HomeSearchForm as default}

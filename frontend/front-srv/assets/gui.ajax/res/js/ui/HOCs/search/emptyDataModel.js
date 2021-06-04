@@ -18,16 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
-const { EditorActions } = Pydio.requireLib('hoc');
+import Node from 'pydio/model/node'
+import DataModel from 'pydio/model/data-model'
+import EmptyNodeProvider from 'pydio/model/empty-node-provider'
 
-// Actions definitions
-export const onSave = ({tab, dispatch}) => () => {
-    return Pydio.getInstance().ApiClient.postPlainTextContent(tab.node, tab.content, (success) => {
-        if (success) {
-            dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[115]}))
-        } else {
-            dispatch(EditorActions.tabModify({id: tab.id, message: Pydio.getMessages()[210]}))
-        }
-    })
-};
+
+export default function emptyDataModel(){
+    const basicDataModel = new DataModel(true);
+    let rNodeProvider = new EmptyNodeProvider();
+    basicDataModel.setAjxpNodeProvider(rNodeProvider);
+    const rootNode = new Node("/", false, '', '', rNodeProvider);
+    basicDataModel.setRootNode(rootNode);
+    return basicDataModel;
+}

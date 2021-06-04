@@ -21,12 +21,14 @@
 const PathRouterWrapper = (pydio) => {
     class PathRouter extends React.PureComponent {
 
-        static _handle({params}) {
-            const splat = params.splat || "";
+        static _handle({params, location}) {
+            const {splat = "", workspaceId} = params;
             const path = pydio.getContextNode().getPath();
 
             if ("/" + splat !== path) {
                 pydio.goTo("/" + splat)
+            } else if (!location.search && !splat && pydio.getContextNode() === pydio.getContextHolder().getSearchNode()) {
+                pydio.getContextHolder().setContextNode(pydio.getContextHolder().getRootNode());
             }
         }
 

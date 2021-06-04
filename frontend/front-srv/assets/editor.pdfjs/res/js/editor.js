@@ -142,7 +142,7 @@ class Viewer extends Component {
             }
             return (
                 <div
-                    style={{flex: 1, width: "100%", height: "100%", border: 0, position: 'relative'}}
+                    style={{flex: 1, width: "100%", height: "100%", border: 0}}
                     onMouseEnter={()=>{this.setState({showPaginator:true})}}
                     onMouseLeave={()=>{this.setState({showPaginator:false})}}
                 >
@@ -153,7 +153,7 @@ class Viewer extends Component {
                         onKnownHeight={(h) => this.setState({lastKnownHeight:h})}
                     />
                     {paginator}
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:'.mimefont-container.with-editor-badge.editor_mime_pdf{min-height: '+lastKnownHeight+'px; height:auto !important;}.inline-pdf-info-block{min-height:'+lastKnownHeight+'px;}'}}/>
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:'.mimefont-container.with-editor-badge.editor_mime_pdf{position:relative;min-height: '+lastKnownHeight+'px; height:auto !important;max-height:320px}.inline-pdf-info-block{min-height:'+lastKnownHeight+'px;}'}}/>
                 </div>
             );
         }
