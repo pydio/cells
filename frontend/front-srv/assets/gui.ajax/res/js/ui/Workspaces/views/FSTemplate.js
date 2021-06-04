@@ -213,7 +213,7 @@ class FSTemplate extends React.Component {
 
         let styles = {
             appBarStyle : {
-                zIndex: 1,
+                zIndex: 901,
                 backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
                 display:'flex'
@@ -305,6 +305,8 @@ class FSTemplate extends React.Component {
         const {pydio} = this.props;
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+        const dm = pydio.getContextHolder();
+        const searchView = dm.getContextNode() === dm.getSearchNode();
 
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS"));
         let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
@@ -381,7 +383,11 @@ class FSTemplate extends React.Component {
                 color: appBarTextColor.toString()// '#616161',
             };
             styles.searchForm = {
-                mainStyle:{border:'1px solid ' + appBarTextColor.fade(0.8).toString()},
+                mainStyle:{
+                    backgroundColor:'white',
+                    border:'1px solid ' + appBarTextColor.fade(searchView?0.6:0.8).toString(),
+                    borderRadius: 50
+                },
                 inputStyle:{color: appBarTextColor.toString()},
                 hintStyle:{color: appBarTextColor.fade(0.5).toString()},
                 magnifierStyle:{color: appBarTextColor.fade(0.1).toString()},
@@ -395,45 +401,22 @@ class FSTemplate extends React.Component {
 
 
         const {values, setValues, facets, activeFacets, toggleFacet, humanizeValues, limit, setLimit, searchLoading} = this.props;
-        //const {searchView} = this.state;
-        const dm = pydio.getContextHolder();
-        const searchView = dm.getContextNode() === dm.getSearchNode();
         let searchToolbar;
 
         if(searchView) {
-            leftPanelProps.leftComponent = (
-                <Facets
-                    pydio={pydio}
-                    facets={facets}
-                    activeFacets={activeFacets}
-                    onToggleFacet={toggleFacet}
-                    values={values}
-                    limit={limit}
-                    setLimit={setLimit}
-                    humanizeValues={humanizeValues}
-                    dataModel={pydio.getContextHolder()}
-                    zDepth={1}
-                    styles={{
-                        container:{
-                            flex: 1,
-                            backgroundColor:'transparent',
-                            padding: '0 16px',
-                            borderRight: '1px solid #e0e0e0',
-                            overflowY: 'auto'
-                        },
-                        header:{
-                            color: Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.50).toString(),
-                            fontWeight: 500,
-                            textTransform:'uppercase',
-                            padding: '12px 0'
-                        },
-                        subHeader:{
-                            color: Color(muiTheme.palette.primary1Color).darken(0.1).toString(),
-                            fontWeight: 500,
-                            padding: '6px 0'
-                        }
-                    }}
-                />);
+            leftPanelProps.userWidgetProps.style = {
+                ...leftPanelProps.userWidgetProps.style,
+                opacity: 0
+            }
+            leftPanelProps.workspacesListProps = {
+                searchView: true,
+                values, setValues, searchLoading, facets, activeFacets, toggleFacet,
+            };
+            styles.appBarStyle = {
+                ...styles.appBarStyle,
+                backgroundColor: 'white',
+                marginLeft: 0
+            }
             const count = pydio.getContextHolder().getSearchNode().getChildren().size;
             let stLabel, stDisable = true;
             let labelStyle = {...styles.flatButtonLabelStyle}
@@ -465,13 +448,24 @@ class FSTemplate extends React.Component {
             <MasterLayout
                 pydio={pydio}
                 style={{...style, overflow:'hidden'}}
+                desktopStyle={searchView?{marginLeft: 0}:{}}
                 classes={classes}
                 tutorialComponent={tutorialComponent}
                 drawerOpen={drawerOpen}
                 leftPanelProps={leftPanelProps}
                 onCloseDrawerRequested={()=>{this.setState({drawerOpen:false})}}
             >
-                    <Paper zDepth={themeLight?0:1} style={styles.appBarStyle} rounded={false}>
+                    <Paper zDepth={(themeLight&&!searchView)?0:1} style={styles.appBarStyle} rounded={false}>
+                        {searchView &&
+                        <div>
+                            <IconButton
+                                style={{width:56,height:56,padding:14, margin:'6px -6px 6px 6px'}}
+                                iconClassName={"mdi mdi-arrow-left"}
+                                iconStyle={{fontSize: 30, color: appBarTextColor.fade(0.03).toString()}}
+                                onClick={()=>this.unsetSearchView()}
+                            />
+                        </div>
+                        }
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)', display:'flex'}}>
                             <span className="drawer-button" style={{marginLeft: 12, marginRight: -6}}>
                                 <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer.bind(this)}/>
@@ -481,7 +475,7 @@ class FSTemplate extends React.Component {
                                     <Textfit
                                         mode="single" min={12} max={22}
                                         style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>
-                                        <span className={"mdi mdi-magnify"}/> Results for {humanizeValues(values)}
+                                        Search : {humanizeValues(values)}
                                     </Textfit>
                                 }
                                 {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}
@@ -593,6 +587,7 @@ class FSTemplate extends React.Component {
                         onDisplayModeChange={(dMode) => {
                             this.setState({filesListDisplayMode: dMode});
                         }}
+                        style={searchView?{marginLeft: 250}:{}}
                     />
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel

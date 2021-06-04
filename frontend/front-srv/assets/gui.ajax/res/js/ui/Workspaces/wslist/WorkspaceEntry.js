@@ -180,15 +180,20 @@ class WorkspaceEntry extends React.Component {
         this.wrapper.remove();
     };
 
-    onClick = () => {
-        if(this.props.workspace.getId() === this.props.pydio.user.activeRepository && this.props.showFoldersTree){
-            this.props.pydio.goTo('/');
+    onClick(){
+        const {workspace, pydio, showFoldersTree, searchView, values, setValues, searchLoading} = this.props;
+        if(searchView) {
+            const slug = workspace.getSlug()
+            const scope = slug === 'ALL' ? 'all' : slug + '/'
+            setValues({...values, scope});
+        } else if(workspace.getId() === pydio.user.activeRepository && showFoldersTree){
+            pydio.goTo('/');
         }else{
-            this.props.pydio.observeOnce('repository_list_refreshed', () => {this.setState({loading: false})});
+            pydio.observeOnce('repository_list_refreshed', () => {this.setState({loading: false})});
             this.setState({loading: true});
-            this.props.pydio.triggerRepositoryChange(this.props.workspace.getId());
+            pydio.triggerRepositoryChange(workspace.getId());
         }
-    };
+    }
 
     toggleFoldersPanelOpen = (ev) => {
         ev.stopPropagation();
@@ -283,11 +288,22 @@ class WorkspaceEntry extends React.Component {
 
     render() {
 
-        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree} = this.props;
+        const {workspace, pydio, onHoverLink, onOutLink, showFoldersTree, searchView, values, setValues, searchLoading} = this.props;
 
-        let current = (pydio.user.getActiveRepository() === workspace.getId()),
-            currentClass="workspace-entry",
-            onHover, onOut, onClick,
+        let current, isSearchAll;
+        if(searchView) {
+            if(workspace.getSlug() === 'ALL') {
+                current = values.scope && values.scope === 'all'
+                isSearchAll = true
+            } else {
+                current = values.scope && values.scope.indexOf(workspace.getSlug() + '/') === 0
+            }
+        } else {
+            current = (pydio.user.getActiveRepository() === workspace.getId())
+        }
+
+        let currentClass="workspace-entry",
+            onHover, onOut,
             additionalAction,
             treeToggle;
 
@@ -313,7 +329,6 @@ class WorkspaceEntry extends React.Component {
             }.bind(this);
         }
 
-        onClick = this.onClick;
         let chatIcon;
 
         const accent2 = this.props.muiTheme.palette.accent2Color;
@@ -323,7 +338,12 @@ class WorkspaceEntry extends React.Component {
             marginRight: 10,
             opacity: 0.3
         };
-        if(workspace.getRepositoryType() === "workspace-personal"){
+        if(searchView) {
+            icon = isSearchAll ? 'mdi mdi-folder-multiple' : 'mdi mdi-folder'
+            if(!current) {
+                icon += '-outline'
+            }
+        } else if(workspace.getRepositoryType() === "workspace-personal"){
             icon = "mdi mdi-folder-account"
         } else if(workspace.getRepositoryType() === "cell"){
             icon = "icomoon-cells";
@@ -332,7 +352,7 @@ class WorkspaceEntry extends React.Component {
 
         let menuNode;
         let popoverNode;
-        if(current) {
+        if(current && !searchView) {
             menuNode = pydio.getContextHolder().getRootNode();
             if (showFoldersTree) {
                 if(menuNode.isLoading()){
@@ -365,7 +385,7 @@ class WorkspaceEntry extends React.Component {
 
         if(loading){
             additionalAction = <CircularProgress size={20} thickness={2} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
-        } else {
+        } else if (!searchView) {
             const addStyle = popoverOpen ? {opacity:1} : {};
             if(popoverOpen){
                 style = {...style, backgroundColor:'rgba(133, 133, 133, 0.1)'}
@@ -379,10 +399,8 @@ class WorkspaceEntry extends React.Component {
             );
         }
 
-        if(workspace.getOwner()){
-            if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")){
-                chatIcon = <ChatIcon pydio={pydio} roomType={'WORKSPACE'} objectId={workspace.getId()}/>
-            }
+        if (!searchView && workspace.getOwner() && !pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")){
+            chatIcon = <ChatIcon pydio={pydio} roomType={'WORKSPACE'} objectId={workspace.getId()}/>
         }
 
         let title = workspace.getLabel();
@@ -394,7 +412,7 @@ class WorkspaceEntry extends React.Component {
             <ContextMenuWrapper
                 node={menuNode}
                 className={currentClass}
-                onClick={onClick}
+                onClick={this.onClick.bind(this)}
                 onMouseOver={onHover}
                 onMouseOut={onOut}
                 style={style}

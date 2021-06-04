@@ -30,6 +30,7 @@ import ResourcesManager from 'pydio/http/resources-manager'
 import {IconButton, Popover, FlatButton} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Color from 'color'
+import Facets from "../search/components/Facets";
 
 class Entries extends React.Component{
 
@@ -94,7 +95,7 @@ class Entries extends React.Component{
 
 
     render(){
-        const {title, entries, filterHint, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState, nonActiveRoots} = this.props;
+        const {title, entries, filterHint, titleStyle, pydio, createAction, activeWorkspace, palette, buttonStyles, emptyState, searchView, values, setValues, searchLoading} = this.props;
         const {toggleFilter, filterValue} = this.state;
 
         const filterFunc = (t, f, ws)=> (!t || !f || ws.getLabel().toLowerCase().indexOf(f.toLowerCase()) >= 0);
@@ -134,7 +135,13 @@ class Entries extends React.Component{
                             onBlur={()=>{setTimeout(()=>{if(!filterValue) this.setState({toggleFilter:false})}, 150)}}
                             onKeyPress={(ev) =>  {
                                 if(ev.key === 'Enter' && uniqueResult){
-                                    pydio.triggerRepositoryChange(uniqueResult.getId());
+                                    if(searchView) {
+                                        const slug = uniqueResult.getSlug()
+                                        const scope = slug === 'ALL' ? 'all' : slug + '/'
+                                        setValues({...values, scope});
+                                    } else {
+                                        pydio.triggerRepositoryChange(uniqueResult.getId());
+                                    }
                                     this.setState({filterValue:'', toggleFilter: false});
                                 }
                             }}
@@ -160,6 +167,10 @@ class Entries extends React.Component{
                             key={ws.getId()}
                             workspace={ws}
                             showFoldersTree={activeWorkspace && activeWorkspace===ws.getId()}
+                            searchView={searchView}
+                            values={values}
+                            setValues={setValues}
+                            searchLoading={searchLoading}
                         />
                     ))}
                     {!entries.length && emptyState}
@@ -183,7 +194,12 @@ class WorkspacesList extends React.Component{
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        return nextState.random !== this.state.random || nextState.popoverOpen !== this.state.popoverOpen;
+        return nextState.random !== this.state.random
+            || nextState.popoverOpen !== this.state.popoverOpen
+            || nextProps.searchView !== this.props.searchView
+            || nextProps.values !== this.props.values
+            || nextProps.facets !== this.props.facets
+            || nextProps.activeFacets !== this.props.activeFacets;
     }
 
     stateFromPydio(pydio){
@@ -213,7 +229,7 @@ class WorkspacesList extends React.Component{
     render(){
         let createAction;
         const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent} = this.state;
-        const {pydio, className, muiTheme, sectionTitleStyle} = this.props;
+        const {pydio, className, muiTheme, sectionTitleStyle, searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
 
         // Split Workspaces from Cells
         let wsList = [];
@@ -281,6 +297,55 @@ class WorkspacesList extends React.Component{
         let classNames = ['user-workspaces-list'];
         if(className) {
             classNames.push(className);
+        }
+
+        if(searchView) {
+            const fakeAllEntry = new Repository('ALL');
+            fakeAllEntry.setSlug('ALL')
+            fakeAllEntry.setLabel('All Files')
+            return (
+                <div className={classNames.join(' ')}>
+                    <Entries
+                        title={'Search in...'}
+                        entries={[fakeAllEntry, ...entries, ...sharedEntries]}
+                        filterHint={messages['ws.quick-filter']}
+                        titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}
+                        pydio={pydio}
+                        activeWorkspace={activeWorkspace}
+                        palette={muiTheme.palette}
+                        buttonStyles={buttonStyles}
+                        searchView={searchView}
+                        values={values}
+                        setValues={setValues}
+                        searchLoading={searchLoading}
+                    />
+                    <Facets
+                        pydio={pydio}
+                        facets={facets}
+                        activeFacets={activeFacets}
+                        onToggleFacet={toggleFacet}
+                        values={values}
+                        dataModel={pydio.getContextHolder()}
+                        zDepth={0}
+                        styles={{
+                            container:{
+                                color:'inherit',
+                                backgroundColor:'transparent',
+                                padding: '0 16px 16px'
+                            },
+                            header:{
+                                display:'none'
+                            },
+                            subHeader:{
+                                color: Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.50).toString(),
+                                fontWeight: 500,
+                                textTransform:'uppercase',
+                                padding: '12px 0'
+                            }
+                        }}
+                    />
+                </div>
+            );
         }
 
         return (

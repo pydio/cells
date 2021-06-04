@@ -40,7 +40,7 @@ class MasterLayout extends React.Component{
 
     render(){
 
-        const {pydio, tutorialComponent, onContextMenu, classes, style, leftPanelProps, children, drawerOpen} = this.props;
+        const {pydio, tutorialComponent, onContextMenu, classes, style, leftPanelProps, children, drawerOpen, desktopStyle = {}} = this.props;
         let connectDropTarget = this.props.connectDropTarget || function(c){return c;};
 
         let allClasses = [...classes];
@@ -52,7 +52,7 @@ class MasterLayout extends React.Component{
             <div style={{...style, overflow:'hidden'}} className={allClasses.join(' ')} onClick={this.closeDrawer.bind(this)} onContextMenu={onContextMenu}>
                 {tutorialComponent}
                 <LeftPanel className="left-panel" pydio={pydio} {...leftPanelProps}/>
-                <div className="desktop-container vertical_layout vertical_fit">
+                <div className="desktop-container vertical_layout vertical_fit" style={desktopStyle}>
                     {children}
                 </div>
                 <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>

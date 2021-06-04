@@ -108,7 +108,7 @@ class UnifiedSearchForm extends React.Component {
             .length;
         let wStyle = {};
         if(active) {
-            wStyle = {width: 200}
+            wStyle = {width: 420}
         }
         const {filterButton={}} = formStyles;
         const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13} : {}

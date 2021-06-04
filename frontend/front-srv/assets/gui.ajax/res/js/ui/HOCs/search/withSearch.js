@@ -141,6 +141,7 @@ export default function withSearch(Component, historyIdentifier, scope){
         
         setValues(newValues){
             const {onUpdateSearch} = this.props;
+            console.log('new values', newValues);
             Object.keys(newValues).forEach(k => {
                 if(!newValues[k]){
                     delete(newValues[k])
