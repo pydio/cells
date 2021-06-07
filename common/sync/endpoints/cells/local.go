@@ -27,7 +27,6 @@ import (
 
 	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	microbroker "github.com/pydio/cells/common/micro/broker"
@@ -58,10 +57,8 @@ type Local struct {
 func NewLocal(root string, options Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			viper.Set("nats_address", ":4222")
-			viper.Set("nats_streaming_cluster_id", "cells")
-			microregistry.EnableStan()
-			microbroker.EnableSTAN()
+			microregistry.EnableService()
+			microbroker.EnableService()
 			grpctransport.Enable()
 			registry.Init()
 		})
@@ -88,7 +85,7 @@ func NewLocal(root string, options Options) *Local {
 // GetEndpointInfo returns info about this endpoint
 func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "router:///" + l.root,
+		URI:                   "router:///" + l.root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,
