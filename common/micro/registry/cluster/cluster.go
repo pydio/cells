@@ -4,16 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/micro/go-plugins/registry/memory"
 
-	"go.uber.org/zap"
-
 	jsm "github.com/nats-io/jsm.go"
-	"github.com/pydio/cells/common/log"
 
 	"github.com/micro/go-micro/registry"
 
@@ -42,11 +40,18 @@ type clusterRegistry struct {
 
 	options registry.Options
 
-	consumerID string
-	clientID   string
+	clientID string
 
 	connectTimeout time.Duration
 	conn           *nats.Conn
+
+	consumerInbox string
+
+	jsmAvailable bool
+	mgr          *jsm.Manager
+	stream       *jsm.Stream
+	sub          *nats.Subscription
+	consumer     *jsm.Consumer
 
 	sync.RWMutex
 	watchers map[string]*clusterWatcher
@@ -68,18 +73,62 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 	}
 
 	r := &clusterRegistry{
-		local:        local,
-		clusterNodes: make(map[string]registry.Registry),
-		clientID:     clientID,
-		options:      options,
-		watchers:     make(map[string]*clusterWatcher),
+		local:         local,
+		clusterNodes:  make(map[string]registry.Registry),
+		clientID:      clientID,
+		options:       options,
+		watchers:      make(map[string]*clusterWatcher),
+		consumerInbox: nats.NewInbox(),
 	}
 
 	// Trying to get the initial connection
 	go func() {
-		_, err := r.getConn()
+		conn, err := r.getConn()
 		if err != nil {
 			fmt.Println("Error ", err)
+			return
+		}
+		r.conn = conn
+
+		mgr, err := jsm.New(conn)
+		if err != nil {
+			return
+		}
+		r.mgr = mgr
+
+		ticker := time.NewTicker(10 * time.Second)
+		for {
+			select {
+			case <-ticker.C:
+				err := r.initJetStream(conn)
+				if err != nil {
+					continue
+				}
+
+				// In all cases, we check that the connection to all consumers is correct
+				var consumerIDs []string
+				if err := r.stream.EachConsumer(func(con *jsm.Consumer) {
+					consumerIDs = append(consumerIDs, con.Name())
+				}); err != nil {
+					r.reset()
+					continue
+				}
+
+				for k := range r.clusterNodes {
+					found := false
+					for _, consumerID := range consumerIDs {
+						if k == consumerID {
+							found = true
+							break
+						}
+					}
+
+					if !found {
+						delete(r.clusterNodes, k)
+					}
+				}
+
+			}
 		}
 	}()
 
@@ -115,57 +164,16 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 		return r.conn, nil
 	}
 
-	if err := r.connect(); err != nil {
-		return nil, err
-	}
-
-	mgr, err := jsm.New(r.conn)
+	conn, err := r.connect()
 	if err != nil {
 		return nil, err
 	}
 
-	stream, err := mgr.LoadOrNewStream("REGISTRY",
-		jsm.Subjects("registry.*"),
-		jsm.MemoryStorage(),
-		jsm.MaxAge(10*time.Minute),
-	)
-	if err != nil {
-		return nil, err
-	}
+	return conn, nil
+}
 
-	go func() {
-		ticker := time.NewTicker(10 * time.Second)
-		for {
-			select {
-			case <-ticker.C:
-				var consumerIDs []string
-				if err := stream.EachConsumer(func(con *jsm.Consumer) {
-					consumerIDs = append(consumerIDs, con.Name())
-				}); err != nil {
-					continue
-				}
-
-				for k := range r.clusterNodes {
-					found := false
-					for _, consumerID := range consumerIDs {
-						if k == consumerID {
-							found = true
-							break
-						}
-					}
-
-					if !found {
-						delete(r.clusterNodes, k)
-					}
-				}
-
-			}
-		}
-	}()
-
-	inbox := nats.NewInbox()
-
-	r.conn.Subscribe(inbox, func(m *nats.Msg) {
+func (r *clusterRegistry) initSubscription(conn *nats.Conn, mgr *jsm.Manager, stream *jsm.Stream) (*nats.Subscription, error) {
+	sub, err := conn.Subscribe(r.consumerInbox, func(m *nats.Msg) {
 
 		var service *registry.Service
 		if err := unmarshal(m.Data, &service); err != nil {
@@ -194,94 +202,108 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 
 		m.Ack()
 	})
+	if err != nil {
+		return nil, err
+	}
 
+	return sub, nil
+}
+
+func (r *clusterRegistry) initJetStream(conn *nats.Conn) error {
+	available := r.mgr.IsJetStreamEnabled()
+
+	// If the jetstream isn't available, then reset and carry on
+	if !available {
+		r.reset()
+		r.jsmAvailable = false
+		return errors.New("jetstream is not available")
+	}
+
+	if r.jsmAvailable {
+		return nil
+	}
+
+	if r.stream == nil {
+		stream, err := r.initJetStreamStream(r.mgr)
+		if err != nil {
+			return err
+		}
+		r.stream = stream
+	}
+
+	if r.sub == nil || !r.sub.IsValid() {
+		sub, err := r.initSubscription(conn, r.mgr, r.stream)
+		if err != nil {
+			return err
+		}
+		r.sub = sub
+	}
+
+	if r.consumer == nil {
+		consumer, err := r.initJetStreamConsumer(r.mgr, r.stream)
+		if err != nil {
+			fmt.Println("We have an error here ", err)
+			return err
+		}
+		r.consumer = consumer
+	}
+
+	// If the jetstream wasn't available before
+	if !r.jsmAvailable {
+		r.jsmAvailable = true
+		r.replay()
+	}
+
+	return nil
+}
+
+func (r *clusterRegistry) initJetStreamStream(mgr *jsm.Manager) (*jsm.Stream, error) {
+	stream, err := mgr.LoadOrNewStream("REGISTRY",
+		jsm.Subjects("registry.*"),
+		jsm.MemoryStorage(),
+		jsm.MaxAge(10*time.Minute),
+	)
+	if err != nil {
+		fmt.Println("We have a problem loading stream ", err)
+		return nil, err
+	}
+
+	return stream, err
+}
+
+func (r *clusterRegistry) initJetStreamConsumer(mgr *jsm.Manager, stream *jsm.Stream) (*jsm.Consumer, error) {
 	con, err := stream.LoadOrNewConsumer(
 		"registry-"+uuid.New().String(),
-		jsm.DeliverySubject(inbox),
+		jsm.DeliverySubject(r.consumerInbox),
 		jsm.DeliverAllAvailable(),
 		jsm.AcknowledgeAll(),
+	)
+	if err != nil {
+		fmt.Println("We have a problem loading consumer ", err)
+		return nil, err
+	}
+
+	return con, nil
+}
+
+func (r *clusterRegistry) connect() (*nats.Conn, error) {
+	conn, err := nats.Connect(r.options.Addrs[0],
+		nats.UseOldRequestStyle(),
+		nats.ReconnectHandler(func(conn *nats.Conn) {
+			if r.conn != nil {
+				r.initJetStream(conn)
+			}
+		}),
+		nats.DisconnectErrHandler(func(_ *nats.Conn, _ error) {
+			r.reset()
+		}),
+		nats.RetryOnFailedConnect(true),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	r.consumerID = con.Name()
-	return r.conn, nil
-}
-
-func (r *clusterRegistry) connect() error {
-	timeout := make(<-chan time.Time)
-
-	r.RLock()
-	if r.connectTimeout > 0 {
-		timeout = time.After(r.connectTimeout)
-	}
-	r.RUnlock()
-
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
-
-	replay := func() error {
-		ss, err := r.local.ListServices()
-		if err != nil {
-			return err
-		}
-
-		for _, s := range ss {
-			if err := r.register(s); err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	fn := func() error {
-		conn, err := nats.Connect(r.options.Addrs[0],
-			nats.UseOldRequestStyle(),
-			nats.ReconnectHandler(func(_ *nats.Conn) {
-				fmt.Println("Reconnected to nats")
-				replay()
-			}),
-			nats.DisconnectErrHandler(func(_ *nats.Conn, _ error) {
-				fmt.Println("Disconnected from nats")
-				r.clusterNodes = make(map[string]registry.Registry)
-			}),
-		)
-		if err != nil {
-			return err
-		}
-
-		r.conn = conn
-		return nil
-	}
-
-	// don't wait for first try
-	if err := fn(); err == nil {
-		return nil
-	}
-
-	// wait loop
-	for {
-		select {
-		// context closed
-		case <-r.options.Context.Done():
-			return nil
-		//  in case of timeout fail with a timeout error
-		case <-timeout:
-			return fmt.Errorf("[stan]: timeout connect to %v", r.options.Addrs[0])
-		// got a tick, try to connect
-		case <-ticker.C:
-			err := fn()
-			if err == nil {
-				log.Info("Now connected to the cluster", zap.String("addr", r.options.Addrs[0]))
-				replay()
-				return nil
-			}
-		}
-	}
-
-	return nil
+	return conn, nil
 }
 
 func (r *clusterRegistry) Init(opts ...registry.Option) error {
@@ -296,13 +318,36 @@ func (r *clusterRegistry) Options() registry.Options {
 	return r.options
 }
 
-func (r *clusterRegistry) register(s *registry.Service, opts ...registry.RegisterOption) error {
+func (r *clusterRegistry) replay() error {
 	if r.conn != nil {
+		services, err := r.local.ListServices()
+		if err != nil {
+			return err
+		}
+
+		for _, service := range services {
+			if err := r.register(service); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *clusterRegistry) reset() error {
+	r.clusterNodes = make(map[string]registry.Registry)
+
+	return nil
+}
+
+func (r *clusterRegistry) register(s *registry.Service, opts ...registry.RegisterOption) error {
+	if r.conn != nil && r.consumer != nil {
 		meta := make(map[string]string)
 		for k, v := range s.Metadata {
 			meta[k] = v
 		}
-		meta["consumerID"] = r.consumerID
+		meta["consumerID"] = r.consumer.Name()
 
 		s.Metadata = meta
 
@@ -328,12 +373,12 @@ func (r *clusterRegistry) Register(s *registry.Service, opts ...registry.Registe
 }
 
 func (r *clusterRegistry) deregister(s *registry.Service) error {
-	if r.conn != nil {
+	if r.conn != nil && r.consumer != nil {
 		meta := make(map[string]string)
 		for k, v := range s.Metadata {
 			meta[k] = v
 		}
-		meta["consumerID"] = r.consumerID
+		meta["consumerID"] = r.consumer.Name()
 
 		s.Metadata = meta
 
