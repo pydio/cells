@@ -77,6 +77,11 @@ message DataSource {
     // Not implemented, whether to watch for underlying changes on the FS
     bool Watch = 6;
 
+    // Store data in flat format (object-storage like)
+    bool FlatStorage = 20;
+    // Do not trigger resync at start
+    bool SkipSyncOnRestart = 21;
+
     // Type of encryption applied before sending data to storage
     EncryptionMode EncryptionMode = 7;
     // Encryption key used for encrypting data
@@ -129,6 +134,30 @@ message DataSourceEvent {
     DSEventType Type = 1;
     string Name = 2;
     DataSource Config = 3;
+}
+
+enum StorageTypeFilter {
+    ANY = 0;
+    LOCALFS = 1;
+    REMOTE = 2;
+}
+
+message DataSourceSingleQuery {
+    string Name = 1;
+    bool IsDisabled = 2;
+    StorageTypeFilter StorageType = 3;
+    string PeerAddress = 4;
+    bool FlatStorage = 5;
+    bool SkipSyncOnRestart = 6;
+    bool IsVersioned = 9;
+    bool IsEncrypted = 17;
+    EncryptionMode EncryptionMode = 7;
+    string EncryptionKey = 8;
+    string VersioningPolicyName = 10;
+    string StorageConfigurationName = 13;
+    string StorageConfigurationValue = 14;
+    string ObjectServiceName = 15;
+    bool Not = 16;
 }
 
 message GetMinioConfigRequest {}

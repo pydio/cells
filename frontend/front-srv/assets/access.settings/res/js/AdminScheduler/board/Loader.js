@@ -29,6 +29,26 @@ class Loader extends Observable {
         this.jobId = jobId
     }
 
+    static canManualRun(job){
+        if (job.Schedule || !job.EventNames) {
+            return true
+        }
+        let hasManualFilter = false;
+        try{
+            job.Actions.forEach(a => {
+                if (!a.TriggerFilter) {
+                    return
+                }
+                a.TriggerFilter.Query.SubQueries.forEach(sub => {
+                    if (sub.value.IsManual){
+                        hasManualFilter = true;
+                    }
+                });
+            });
+        } catch(e){}
+        return hasManualFilter;
+    }
+
     start(){
         this.load(true);
         this._loadDebounced = debounce(()=>{

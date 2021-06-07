@@ -106,7 +106,7 @@ class AdminLeftNav extends React.Component {
                         style={{padding: 14}}
                         iconStyle={{color: 'white',fontSize: 20}}
                         tooltip={pydio.MessageHash['settings.topbar.button.advanced']}
-                        onTouchTap={() => this.props.toggleAdvanced()}
+                        onClick={() => this.props.toggleAdvanced()}
                     />
                     <UserWidget
                         pydio={pydio}

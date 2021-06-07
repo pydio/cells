@@ -18,10 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {ConfigServiceApi, RestConfiguration} from 'pydio/http/rest-api'
-import {RaisedButton, FlatButton} from 'material-ui'
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {RaisedButton, FlatButton, Toggle} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 const PydioForm = Pydio.requireLib("form");
 import ServiceExposedConfigs from './ServiceExposedConfigs'
@@ -32,27 +33,27 @@ import MailerTest from './MailerTest'
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-let PluginEditor = React.createClass({
-
+let ServiceEditor = createReactClass({
+    displayName: 'ServiceEditor',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        serviceName: React.PropTypes.string,
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        close:React.PropTypes.func,
-        style:React.PropTypes.string,
-        className:React.PropTypes.string,
-        additionalPanes:React.PropTypes.shape({
-            top:React.PropTypes.array,
-            bottom:React.PropTypes.array
+        serviceName: PropTypes.string,
+        rootNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        close:PropTypes.func,
+        style:PropTypes.string,
+        className:PropTypes.string,
+        additionalPanes:PropTypes.shape({
+            top:PropTypes.array,
+            bottom:PropTypes.array
         }),
-        docAsAdditionalPane:React.PropTypes.bool,
-        additionalDescription:React.PropTypes.string,
-        registerCloseCallback:React.PropTypes.func,
-        onBeforeSave:React.PropTypes.func,
-        onAfterSave:React.PropTypes.func,
-        onRevert:React.PropTypes.func,
-        onDirtyChange:React.PropTypes.func
+        docAsAdditionalPane:PropTypes.bool,
+        additionalDescription:PropTypes.string,
+        registerCloseCallback:PropTypes.func,
+        onBeforeSave:PropTypes.func,
+        onAfterSave:PropTypes.func,
+        onRevert:PropTypes.func,
+        onDirtyChange:PropTypes.func
     },
 
     getInitialState:function(){
@@ -62,7 +63,9 @@ let PluginEditor = React.createClass({
             documentation:'',
             dirty:false,
             label:'',
-            docOpen:false
+            docOpen:false,
+            variant:'v2',
+            variantShowLegend:false
         };
     },
 
@@ -132,8 +135,8 @@ let PluginEditor = React.createClass({
 
     render: function(){
 
-        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs, accessByName, muiTheme} = this.props;
-        const {documentation, pluginId, docOpen, mainPaneScrolled, dirty, parameters, values, helperData} = this.state;
+        const {additionalPanes, closeEditor, docAsAdditionalPane, className, style, rootNode, tabs, accessByName, muiTheme, formToggles} = this.props;
+        const {documentation, pluginId, docOpen, mainPaneScrolled, dirty, helperData, variant, variantShowLegend} = this.state;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
 
         let addPanes = {top:[], bottom:[]};
@@ -148,7 +151,7 @@ let PluginEditor = React.createClass({
 
         let closeButton;
         if(closeEditor){
-            closeButton = <RaisedButton label={this.context.getMessage('86','')} onTouchTap={closeEditor}/>
+            closeButton = <RaisedButton label={this.context.getMessage('86','')} onClick={closeEditor}/>
         }
 
         let doc = documentation;
@@ -171,13 +174,17 @@ let PluginEditor = React.createClass({
             scrollingClassName = ' main-pane-scrolled';
         }
         let actions = [];
+        if(formToggles){
+            actions.push(<Toggle toggled={variant === 'v2'} label={"v2"} onToggle={(e,v)=>this.setState({variant:v?"v2":""})}/>)
+            actions.push(<Toggle toggled={variantShowLegend} label={"Descriptions"} onToggle={(e,v)=>this.setState({variantShowLegend:v})}/>)
+        }
         if(accessByName('Create')){
             let props = adminStyles.props.header.flatButton;
             if(!dirty){
                 props = adminStyles.props.header.flatButtonDisabled;
             }
-            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert} {...props}/>);
-            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save} {...props}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onClick={this.revert} {...props}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onClick={this.save} {...props}/>);
         }
         actions.push(closeButton);
 
@@ -198,6 +205,8 @@ let PluginEditor = React.createClass({
                     onScrollCallback={this.monitorMainPaneScrolling}
                     className="row-flex"
                     onDirtyChange={(dirty) => {this.setState({dirty:dirty})}}
+                    variant={variant}
+                    variantShowLegend={variantShowLegend}
                 />
                 <PydioForm.PydioHelper
                     helperData={helperData}
@@ -208,9 +217,9 @@ let PluginEditor = React.createClass({
         );
 
 
-    }
+    },
 });
 
-PluginEditor = muiThemeable()(PluginEditor);
+ServiceEditor = muiThemeable()(ServiceEditor);
 
-export {PluginEditor as default}
+export {ServiceEditor as default}

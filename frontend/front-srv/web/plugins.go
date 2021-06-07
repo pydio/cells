@@ -23,6 +23,7 @@ package web
 
 import (
 	"context"
+	"github.com/pydio/cells/common/caddy"
 	"net/http"
 	"os"
 	"path"
@@ -113,6 +114,9 @@ func init() {
 				}
 
 				return routerWithTimeout
+			}),
+			service.AfterStart(func(_ service.Service) error {
+				return caddy.Restart()
 			}),
 		)
 	})

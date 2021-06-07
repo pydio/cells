@@ -21,8 +21,6 @@
 package dao
 
 import (
-	"time"
-
 	bolt "github.com/etcd-io/bbolt"
 )
 
@@ -31,7 +29,7 @@ type boltdb struct {
 }
 
 func (b *boltdb) Open(dsn string) (Conn, error) {
-	db, err := bolt.Open(dsn, 0600, &bolt.Options{Timeout: 5 * time.Second})
+	db, err := bolt.Open(dsn, 0600, nil)
 	if err != nil {
 		return nil, err
 	}

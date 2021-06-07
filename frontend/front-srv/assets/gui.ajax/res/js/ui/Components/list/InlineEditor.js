@@ -20,22 +20,21 @@
 
 import Pydio from "pydio";
 import DOMUtils from 'pydio/util/dom'
-import AjxpNode from 'pydio/model/node'
 import React from "react";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 const {Paper, FlatButton} = require('material-ui')
 const {ModernTextField} = Pydio.requireLib("hoc");
 
-let InlineEditor = React.createClass({
+class InlineEditor extends React.Component {
 
-    propTypes:{
-        node        : React.PropTypes.instanceOf(AjxpNode),
-        callback    : React.PropTypes.func,
-        onClose     : React.PropTypes.func,
-        detached    : React.PropTypes.bool
-    },
+    // static propTypes = {
+    //     node        : React.PropTypes.instanceOf(AjxpNode),
+    //     callback    : React.PropTypes.func,
+    //     onClose     : React.PropTypes.func,
+    //     detached    : React.PropTypes.bool
+    // };
 
-    submit: function(){
+    submit(){
         let value;
         if(this.state && this.state.value){
             value = this.state.value;
@@ -53,29 +52,29 @@ let InlineEditor = React.createClass({
             this.props.callback(value);
             this.props.onClose();
         }
-    },
+    }
 
-    componentDidMount:function(){
+    componentDidMount() {
         if(this.refs.text){
             DOMUtils.selectBaseFileName(this.refs.text.getInput());
             this.refs.text.focus();
         }
-    },
+    }
 
-    catchClicks: function(e){
+    catchClicks(e){
         e.stopPropagation();
-    },
+    }
 
-    onKeyDown: function(e){
+    onKeyDown(e){
         e.stopPropagation();
         if(e.key === 'Enter') {
             this.submit();
         } else {
             this.setState({errorString: ''});
         }
-    },
+    }
 
-    render: function(){
+    render() {
         const messages = Pydio.getMessages();
         return (
             <Paper className={"inline-editor" + (this.props.detached ? " detached" : "")} style={{padding: 8}} zDepth={2}>
@@ -83,19 +82,18 @@ let InlineEditor = React.createClass({
                     ref="text"
                     defaultValue={this.props.node.getLabel()}
                     onChange={(e, value)=>{this.setState({value:value})}}
-                    onClick={this.catch} onDoubleClick={this.catchClicks}
-                    tabIndex="0" onKeyDown={this.onKeyDown}
+                    onClick={this.catch} onDoubleClick={(e) => this.catchClicks(e)}
+                    tabIndex="0" onKeyDown={(e) => this.onKeyDown(e)}
                     errorText={this.state ? this.state.errorString : null}
                 />
                 <div style={{textAlign:'right', paddingTop: 8}}>
                     <FlatButton label={messages['54']} onClick={this.props.onClose}/>
-                    <FlatButton label={messages['48']} onClick={this.submit}/>
+                    <FlatButton label={messages['48']} onClick={() => this.submit()}/>
                 </div>
             </Paper>
         );
     }
-
-});
+}
 
 InlineEditor = PydioContextConsumer(InlineEditor);
 

@@ -17,10 +17,13 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import React from "react";
+import createReactClass from 'create-react-class';
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi} from 'pydio/http/rest-api'
+import {ConfigServiceApi} from 'cells-sdk'
 import {Paper, List, ListItem, Checkbox, FontIcon, Divider} from 'material-ui'
 import ServiceCard from './ServiceCard'
 const {MaterialTable} = Pydio.requireLib('components');
@@ -88,18 +91,18 @@ function groupAndSortServices(services) {
 
 }
 
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'ServicesList',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        filter:React.PropTypes.string,
-        peerFilter:React.PropTypes.string,
-        details: React.PropTypes.bool,
-        onUpdatePeers: React.PropTypes.func,
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        currentNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        filter:PropTypes.string,
+        peerFilter:PropTypes.string,
+        details: PropTypes.bool,
+        onUpdatePeers: PropTypes.func,
     },
 
     getInitialState(){
@@ -131,6 +134,7 @@ export default React.createClass({
             this.setState({loading:false});
         });
     },
+
     /**
      * @param service RestService
      * @returns {XML}
@@ -330,6 +334,5 @@ export default React.createClass({
                 <div className={this.props.className} style={this.props.style}>{blocks}</div>
             );
         }
-    }
-
+    },
 });

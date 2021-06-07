@@ -36,7 +36,6 @@ import (
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
-	"github.com/pydio/cells/discovery/nats"
 	"github.com/pydio/cells/x/filex"
 )
 
@@ -122,26 +121,23 @@ ENVIRONMENT
 			"fork": "is_fork",
 		})
 
-		if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
-			return triggerInstall(
-				"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
-				"Do you want to create one now",
-				cmd, args)
-		}
+		if !config.RuntimeIsRemote() {
+			if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
+				return triggerInstall(
+					"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
+					"Do you want to create one now",
+					cmd, args)
+			}
 
-		initConfig()
-
-		// Pre-check that pydio.json is properly configured
-		if a, _ := config.GetDatabase("default"); a == "" {
-			return triggerInstall(
-				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
-				"Do you want to reset the initial configuration", cmd, args)
+			if initConfig() {
+				return triggerInstall(
+					"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
+					"Do you want to reset the initial configuration", cmd, args)
+			}
 		}
 
 		initStartingToolsOnce.Do(func() {
 			initLogLevel()
-
-			nats.Init()
 
 			metrics.Init()
 
@@ -157,6 +153,18 @@ ENVIRONMENT
 			// Making sure we capture the signals
 			handleSignals()
 		})
+
+		if config.RuntimeIsRemote() {
+			// For a remote server, we are waiting for the registry to be set to initiate config
+			initConfig()
+		}
+
+		// Pre-check that pydio.json is properly configured
+		if v := config.Get("version").String(); v == "" {
+			return triggerInstall(
+				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
+				"Do you want to reset the initial configuration", cmd, args)
+		}
 
 		plugins.Init(cmd.Context())
 
@@ -270,9 +278,25 @@ ENVIRONMENT
 		}
 
 		// When the process is stopped the context is stopped
-		<-cmd.Context().Done()
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
 
-		return nil
+		for {
+			select {
+			//case <-ticker.C:
+			//	if defaults.RuntimeIsFork() {
+			//		// Check that the parent is still alive
+			//		ppid := fmt.Sprintf("%d", os.Getppid())
+			//		_, ok := registry.GetProcesses()[ppid]
+			//		if !ok {
+			//			return errors.New("parent process died")
+			//		}
+			//	}
+			//	continue
+			case <-cmd.Context().Done():
+				return nil
+			}
+		}
 	},
 
 	PostRunE: func(cmd *cobra.Command, args []string) error {
@@ -308,6 +332,8 @@ func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
 	// Registry / Broker Flags
+	addNatsFlags(StartCmd.Flags())
+	addNatsStreamingFlags(StartCmd.Flags())
 	addRegistryFlags(StartCmd.Flags())
 
 	// Grpc Gateway Flags
@@ -316,12 +342,12 @@ func init() {
 	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")
 
 	// Other internal flags
-	StartCmd.Flags().String("log", "info", "Sets the log level mode")
+	StartCmd.Flags().String("log", "info", "Sets the log level : 'info', 'debug', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
+	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text. Necessary for production.")
 	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
 	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
-	StartCmd.Flags().Int("nats_monitor_port", 0, "Expose nats monitoring endpoints on a given port")
 
 	// Additional Flags
 	StartCmd.Flags().String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")

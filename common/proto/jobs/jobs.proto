@@ -6,6 +6,7 @@ import "github.com/pydio/cells/common/service/proto/common.proto";
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
 import "github.com/pydio/cells/common/proto/idm/idm.proto";
 import "github.com/pydio/cells/common/proto/activity/activitystream.proto";
+import "github.com/pydio/cells/common/proto/object/object.proto";
 
 package jobs;
 
@@ -67,6 +68,43 @@ message UsersSelector {
     string Label = 6;
     // Selector additional description
     string Description = 7;
+}
+
+enum DataSourceSelectorType {
+    DataSource = 0;
+    Object = 1;
+}
+
+// Selector/Filter for DataSource objects
+message DataSourceSelector {
+    // Selector custom label
+    string Label = 1;
+    // Selector additional description
+    string Description = 2;
+    // Selector type, either DataSource or Object service
+    DataSourceSelectorType Type = 3;
+    // Select all
+    bool All = 4;
+    // Collect results
+    bool Collect = 5;
+    // Composition of DataSourceSingleQueries
+    service.Query Query = 6;
+}
+
+message TriggerFilterQuery {
+    bool IsSchedule = 1;
+    bool IsManual = 2;
+    repeated string EventNames = 3;
+}
+
+// Filter for events, can be applied on action branches
+message TriggerFilter {
+    // Filter custom label
+    string Label = 1;
+    // Filter additional description
+    string Description = 2;
+    // Filter type
+    service.Query Query = 3;
 }
 
 // ActionOutputFilter can be used to filter last message output
@@ -140,10 +178,17 @@ message Action {
     // Idm objects filter
     IdmSelector IdmFilter = 10;
 
+    // DataSource objects collector
+    DataSourceSelector DataSourceSelector = 17;
+    // DataSource objects filter
+    DataSourceSelector DataSourceFilter = 18;
+
     // Previous action output filter
     ActionOutputFilter ActionOutputFilter = 6;
     // Metadata policy-based filter
     ContextMetaFilter ContextMetaFilter = 11;
+    // Filter on specific triggers
+    TriggerFilter TriggerFilter = 19;
 
     // Defined parameters for this action
     map<string, string> Parameters = 7;
@@ -203,9 +248,14 @@ message Job {
     IdmSelector IdmFilter = 17;
     // Event Context Filter
     ContextMetaFilter ContextMetaFilter = 18;
+    // DataSource objects filter
+    DataSourceSelector DataSourceFilter = 21;
 
     // Job-level parameters that can be passed to underlying actions
     repeated JobParameter Parameters = 19;
+
+    // Additional dependencies that may be required when running the job
+    repeated google.protobuf.Any ResourcesDependencies = 22;
 }
 
 message JobParameter {
@@ -506,6 +556,8 @@ message ActionMessage {
     repeated idm.ACL Acls = 8;
     // One or more Activity
     repeated activity.Object Activities = 4;
+    // One or more DataSource
+    repeated object.DataSource DataSources = 9;
     // Stack of ActionOutput messages appended by all previous actions
     repeated ActionOutput OutputChain = 5;
 }

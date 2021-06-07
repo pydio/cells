@@ -10,6 +10,7 @@ import math "math"
 import _ "github.com/golang/protobuf/ptypes/any"
 import _ "github.com/pydio/cells/common/proto/activity"
 import _ "github.com/pydio/cells/common/proto/idm"
+import _ "github.com/pydio/cells/common/proto/object"
 import _ "github.com/pydio/cells/common/proto/tree"
 import _ "github.com/pydio/cells/common/service/proto"
 
@@ -42,6 +43,25 @@ func (this *UsersSelector) Validate() error {
 			}
 		}
 	}
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *DataSourceSelector) Validate() error {
+	if this.Query != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
+		}
+	}
+	return nil
+}
+func (this *TriggerFilterQuery) Validate() error {
+	return nil
+}
+func (this *TriggerFilter) Validate() error {
 	if this.Query != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Query); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
@@ -107,6 +127,16 @@ func (this *Action) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("IdmFilter", err)
 		}
 	}
+	if this.DataSourceSelector != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSourceSelector); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataSourceSelector", err)
+		}
+	}
+	if this.DataSourceFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSourceFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataSourceFilter", err)
+		}
+	}
 	if this.ActionOutputFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ActionOutputFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ActionOutputFilter", err)
@@ -115,6 +145,11 @@ func (this *Action) Validate() error {
 	if this.ContextMetaFilter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ContextMetaFilter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ContextMetaFilter", err)
+		}
+	}
+	if this.TriggerFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TriggerFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TriggerFilter", err)
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
@@ -174,10 +209,22 @@ func (this *Job) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ContextMetaFilter", err)
 		}
 	}
+	if this.DataSourceFilter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataSourceFilter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataSourceFilter", err)
+		}
+	}
 	for _, item := range this.Parameters {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Parameters", err)
+			}
+		}
+	}
+	for _, item := range this.ResourcesDependencies {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ResourcesDependencies", err)
 			}
 		}
 	}
@@ -385,6 +432,13 @@ func (this *ActionMessage) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Activities", err)
+			}
+		}
+	}
+	for _, item := range this.DataSources {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DataSources", err)
 			}
 		}
 	}

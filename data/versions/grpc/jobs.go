@@ -22,7 +22,7 @@ package grpc
 
 import (
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/protobuf/ptypes"
+	"github.com/pydio/cells/common/proto/object"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -33,48 +33,83 @@ import (
 	"github.com/pydio/cells/data/versions/lang"
 )
 
-func getDefaultJobs() []*jobs.Job {
+func getVersioningJob() *jobs.Job {
 
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
-	searchQuery, _ := ptypes.MarshalAny(&tree.Query{
-		Type: tree.NodeType_LEAF,
-	})
 
-	return []*jobs.Job{
-		{
-			ID:                "versioning-job",
-			Owner:             common.PydioSystemUsername,
-			Label:             T("Job.Version.Title"),
-			Inactive:          false,
-			MaxConcurrency:    5,
-			TasksSilentUpdate: true,
-			EventNames: []string{
-				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
-				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
-			},
-			Actions: []*jobs.Action{
-				{
-					ID: "actions.versioning.create",
-					NodesFilter: &jobs.NodesSelector{
-						Query: &service.Query{
-							SubQueries: []*any.Any{searchQuery},
-						},
-					},
+	triggerCreate := &jobs.TriggerFilter{
+		Label:       "Create/Update",
+		Description: "Trigger on file creation or modification",
+		Query: &service.Query{
+			SubQueries: jobs.MustMarshalAnyMultiple(&jobs.TriggerFilterQuery{
+				EventNames: []string{
+					jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
+					jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
 				},
+			}),
+		},
+	}
+
+	triggerDelete := &jobs.TriggerFilter{
+		Label:       "Delete",
+		Description: "Trigger on file deletion",
+		Query: &service.Query{
+			SubQueries: jobs.MustMarshalAnyMultiple(&jobs.TriggerFilterQuery{
+				EventNames: []string{
+					jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
+				},
+			}),
+		},
+	}
+
+	return &jobs.Job{
+		ID:                "versioning-job",
+		Owner:             common.PydioSystemUsername,
+		Label:             T("Job.Version.Title"),
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
+		EventNames: []string{
+			jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
+			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
+			jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
+		},
+		DataSourceFilter: &jobs.DataSourceSelector{
+			Label:       "Is Versioned?",
+			Description: "Excluded non versioned DataSources",
+			Type:        jobs.DataSourceSelectorType_DataSource,
+			Query: &service.Query{
+				SubQueries: []*any.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
+					IsVersioned: true,
+				})},
 			},
 		},
-		{
-			ID:             "prune-versions-job",
-			Owner:          common.PydioSystemUsername,
-			Label:          T("Job.Pruning.Title"),
-			Inactive:       false,
-			MaxConcurrency: 1,
-			Schedule: &jobs.Schedule{
-				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M",
+		NodeEventFilter: &jobs.NodesSelector{
+			Query: &service.Query{
+				SubQueries: jobs.MustMarshalAnyMultiple(
+					&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
+						Type: tree.NodeType_LEAF,
+					})},
+					&service.Query{SubQueries: jobs.MustMarshalAnyMultiple(&tree.Query{
+						FileName: common.PydioSyncHiddenFile,
+						Not:      true,
+					})},
+				),
+				Operation: service.OperationType_AND,
 			},
-			Actions: []*jobs.Action{{
-				ID: "actions.versioning.prune",
-			}},
+		},
+		Actions: []*jobs.Action{
+			{
+				ID:            "actions.versioning.create",
+				TriggerFilter: triggerCreate,
+			},
+			{
+				ID:            "actions.versioning.ondelete",
+				TriggerFilter: triggerDelete,
+				Parameters: map[string]string{
+					"rootFolder": "$DELETED$",
+				},
+			},
 		},
 	}
 

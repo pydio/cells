@@ -84,7 +84,9 @@ class LogTable extends React.Component {
                 l.IsOpen = root.open;
                 if(!l.RemoteAddress) {
                     const cRemote = root.children.filter(c => c.RemoteAddress);
-                    if(cRemote.length) l.RemoteAddress = cRemote[0].RemoteAddress;
+                    if(cRemote.length) {
+                        l.RemoteAddress = cRemote[0].RemoteAddress;
+                    }
                 }
             }
             result.push(l);
@@ -138,12 +140,23 @@ class LogTable extends React.Component {
 
     render(){
         const {loading, rootSpans, selectedRows} = this.state;
-        const {pydio, onTimestampContext, query, focus} = this.props;
+        const {pydio, onTimestampContext, query, focus, darkTheme} = this.props;
         const {onPageNext, onPagePrev, nextDisabled, prevDisabled, onPageSizeChange, page, size, pageSizes} = this.props;
         let logs = this.openSpans();
         if(selectedRows.length){
-            const expStyle = {paddingBottom: 20, paddingLeft: 53, backgroundColor: '#fafafa', marginTop: -10, paddingTop: 10};
-            const first = JSON.stringify(selectedRows[0]);
+            const expStyle = {
+                paddingBottom: 20,
+                paddingLeft: 10,
+                backgroundColor: darkTheme?'rgba(255,255,255,.17)':'#fafafa',
+                color: darkTheme?'white':null,
+                marginTop: -10,
+                paddingTop: 10
+            };
+            const firstRow = selectedRows[0];
+            if (firstRow.expandedRow){
+                delete(firstRow.expandedRow);
+            }
+            const first = JSON.stringify(firstRow);
             logs = logs.map(log => {
                 if(JSON.stringify(log) === first){
                     return {
@@ -155,6 +168,7 @@ class LogTable extends React.Component {
                                 pydio={pydio}
                                 log={log}
                                 focus={focus}
+                                darkTheme={darkTheme}
                                 onSelectPeriod={onTimestampContext}
                                 onRequestClose={()=> this.setState({selectedRows:[]})}
                             />
@@ -166,11 +180,43 @@ class LogTable extends React.Component {
         }
         const {MessageHash} = pydio;
 
+        const {body} = AdminComponents.AdminStyles();
+        let {tableMaster} = body;
+        tableMaster.row.transition = 'all 750ms cubic-bezier(0.23, 1, 0.32, 1) 0ms';
+        let cellStyle = {};
+        let childrenButtonProps = {};
+        if (darkTheme) {
+            cellStyle = {
+                fontFamily:'monospace',
+                fontWeight: 'bold',
+                height: 24,
+                paddingTop: 4,
+                paddingBottom: 4
+            }
+            tableMaster = {
+                ...tableMaster,
+                row: {
+                    transition: tableMaster.row.transition,
+                    backgroundColor: 'rgba(0,0,0,.87)',
+                    color: 'rgba(255,255,255,.87)',
+                    height: 24,
+                    borderBottomColor: 'rgba(0,0,0,.87)',
+                    cursor: 'pointer'
+                }
+            };
+            tableMaster.expandedRow = tableMaster.row;
+            tableMaster.expanderRow = {backgroundColor: 'rgba(0,0,0,.5)'};
+            childrenButtonProps = {
+                style:{width: 24, height: 24, padding: 0},
+                iconStyle:{color:tableMaster.row.color}
+            }
+        }
+
         const columns = [
             {
                 name:'Root',
                 label:'',
-                style:{width: 20, paddingLeft:0,paddingRight:0, overflow:'visible'},
+                style:{...cellStyle, width: 20, paddingLeft:0,paddingRight:0, overflow:'visible'},
                 headerStyle:{width:20, paddingLeft:0,paddingRight:0},
                 renderCell:(row) => {
                     if(row.HasChildren){
@@ -180,8 +226,8 @@ class LogTable extends React.Component {
                         };
                         return <IconButton
                             iconClassName={row.IsOpen?"mdi mdi-menu-down":"mdi mdi-menu-right"}
-                            onTouchTap={toggle}
-                            onClick={e =>e.stopPropagation()}
+                            onClick={toggle}
+                            {...childrenButtonProps}
                         />
                     }
                     return null;
@@ -196,12 +242,23 @@ class LogTable extends React.Component {
                     dateString = m.toLocaleString();
                 }
                 if(row.HasRoot){
-                    return <span style={{display:'flex', alignItems:'center'}}><FontIcon className={"mdi mdi-play-circle-outline"} style={{fontSize: 12, marginRight: 5}}/> {dateString}</span>
+                    return <span style={{display:'flex', alignItems:'center', color: tableMaster.row.color, fontFamily:tableMaster.row.fontFamily}}><FontIcon className={"mdi mdi-play-circle-outline"} style={{fontSize: 12, marginRight: 5, color: tableMaster.row.color}}/> {dateString}</span>
                 }
                 return dateString;
-            }, style:{width: 130, padding: 12}, headerStyle:{width: 130, padding: 12}},
-            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 130, padding: '12px 0'}, headerStyle:{width: 130, padding: '12px 0'}},
-            {name:'Msg', label:MessageHash['ajxp_admin.logs.message'], renderCell:(row)=>{
+            }, style:{...cellStyle, width: 130, padding: '4px 12px'}, headerStyle:{width: 130, padding: 12}},
+            {name:'Level', label:MessageHash['ajxp_admin.logs.level'] || 'logs.level', hideSmall:true, renderCell:(row) => {
+                let color = null;
+                if(row.Level==='info') {
+                    color = '#1976D0';
+                } else if (row.Level === 'error') {
+                    color = '#E53935';
+                } else if (row.Level === 'debug') {
+                    color = '#673AB7';
+                }
+                return <span style={{color: color, fontFamily:cellStyle.fontFamily}}>{row['Level']}</span>
+            }, style:{...cellStyle, width: 55, padding: '4px 0', textTransform:'uppercase', fontWeight: 500}, headerStyle:{width: 55, padding: '12px 0'}},
+            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], hideSmall:true, renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : 'n/a'}, style:{...cellStyle, width: 130, padding: '4px 0'}, headerStyle:{width: 130, padding: '12px 0'}},
+            {name:'Msg', label:MessageHash['ajxp_admin.logs.message'], style:cellStyle, renderCell:(row)=>{
                 let msg = row.Msg;
                 if(row.NodePath){
                     msg += ` [${row.NodePath}]`;
@@ -212,8 +269,6 @@ class LogTable extends React.Component {
             }},
         ];
 
-        const {body} = AdminComponents.AdminStyles();
-        const {tableMaster} = body;
         let pagination;
         if(onPageNext){
             pagination = {
@@ -243,11 +298,8 @@ class LogTable extends React.Component {
                 emptyStateString={loading ? MessageHash['settings.33']: (query) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}
                 computeRowStyle={(row) => {
                     let style = {};
-                    if (row.HasRoot){
+                    if (!darkTheme && row.HasRoot){
                         style.backgroundColor = '#F5F5F5';
-                    }
-                    if (row.Level === 'error') {
-                        style.color = '#E53935';
                     }
                     return style;
                 }}

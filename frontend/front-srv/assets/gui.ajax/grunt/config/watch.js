@@ -1,7 +1,5 @@
 module.exports = function(grunt){
 
-    const {PydioCoreRequires} = require('../../res/js/dist/libdefs.js');
-
     let config = {
         core : {
             files:[

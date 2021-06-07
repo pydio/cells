@@ -33,6 +33,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"math/rand"
 	"net"
 	"os"
 	"os/exec"
@@ -42,10 +43,10 @@ import (
 	"time"
 
 	"github.com/gyuho/goraph"
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
-	"github.com/micro/go-web"
+	web "github.com/micro/go-web"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -54,13 +55,23 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
 	errorUtils "github.com/pydio/cells/common/utils/error"
 	unet "github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/configx"
+)
+
+var (
+	DefaultRegisterTTL = 10 * time.Minute
+)
+
+const (
+	configSrvKeyFork      = "fork"
+	configSrvKeyAutoStart = "autostart"
+	configSrvKeyForkDebug = "debugFork"
+	configSrvKeyUnique    = "unique"
 )
 
 // Service definition
@@ -72,16 +83,13 @@ type Service interface {
 	Done() chan (struct{})
 }
 
-func buildForkStartParams(name string) []string {
+func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
 		"--fork",
-		"--registry", viper.GetString("registry"),
-		"--registry_address", viper.GetString("registry_address"),
-		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
-		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
-		"--broker", viper.GetString("broker"),
-		"--broker_address", viper.GetString("broker_address"),
+		// "--config", "remote",
+		"--registry", "service",
+		"--broker", "service",
 	}
 	if viper.GetBool("enable_metrics") {
 		params = append(params, "--enable_metrics")
@@ -89,8 +97,11 @@ func buildForkStartParams(name string) []string {
 	if viper.GetBool("enable_pprof") {
 		params = append(params, "--enable_pprof")
 	}
+	if config.Get("services", serviceName, configSrvKeyForkDebug).Bool() {
+		params = append(params, "--log", "debug")
+	}
 	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^"+name+"$")
+	params = append(params, "^"+serviceName+"$")
 	bindFlags := config.DefaultBindOverrideToFlags()
 	if len(bindFlags) > 0 {
 		params = append(params, bindFlags...)
@@ -100,6 +111,7 @@ func buildForkStartParams(name string) []string {
 
 // Service for the pydio app
 type service struct {
+
 	// Computed by external functions during listing operations
 	nodes    []*microregistry.Node
 	excluded bool
@@ -168,7 +180,6 @@ func NewService(opts ...ServiceOption) Service {
 		opts: newOptions(append(mandatoryOptions, opts...)...),
 		done: make(chan struct{}),
 	}
-	//opts: newOptions(append(mandatoryOptions(), opts...)...),
 
 	name := s.Options().Name
 
@@ -188,17 +199,9 @@ func NewService(opts ...ServiceOption) Service {
 	// Setting context
 	ctx = servicecontext.WithServiceName(ctx, name)
 
-	if s.IsGRPC() {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
-	} else if s.IsREST() {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorRest)
-
-		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
-		if s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
-			s.Init(WithWebAuth())
-		}
-	} else {
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorOther)
+	// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
+	if s.IsREST() && s.Options().Name != common.ServiceRestNamespace_+common.ServiceInstall {
+		s.Init(WithWebAuth())
 	}
 
 	s.origCtx = ctx
@@ -258,34 +261,11 @@ var mandatoryOptions = []ServiceOption{
 		return nil
 	}),
 
-	// Adding a check before starting the service to ensure only one is started if unique
-	BeforeStart(func(s Service) error {
-
-		// TODO - REDO THAT
-		// if s.MustBeUnique() && defaults.RuntimeIsCluster() {
-		// 	ctx := s.Options().Context
-		// 	serviceName := s.Name()
-		// 	cluster := registry.GetCluster(ctx, serviceName, &registry.NullFSM{})
-		// 	nodeId := s.Options().Micro.Server().Options().Id
-		// 	if err := cluster.Join(nodeId); err != nil {
-		// 		return err
-		// 	}
-		// 	s.Init(Cluster(cluster))
-		// 	<-cluster.LeadershipAcquired()
-		// }
-
-		return nil
-	}),
-
-	BeforeStop(func(s Service) error {
-		if s.MustBeUnique() && defaults.RuntimeIsCluster() && s.Options().Cluster != nil {
-			return s.Options().Cluster.Leave()
-		}
-		return nil
-	}),
-
 	// Checking port if set is available
 	BeforeStart(func(s Service) error {
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Check port availability")
 		port := s.Options().Port
 		if port == "" {
 			return nil
@@ -300,78 +280,10 @@ var mandatoryOptions = []ServiceOption{
 			<-time.After(1 * time.Second)
 		}
 
+		log.Logger(ctx).Debug("BeforeStart - Checked port availability")
+
 		return nil
 	}),
-
-	// Adding a check before starting the service to ensure all dependencies are running
-	// BeforeStart(func(s Service) error {
-	// 	ctx := s.Options().Context
-
-	// 	log.Logger(ctx).Debug("BeforeStart - Check dependencies")
-
-	// 	dependencies := s.Options().Dependencies
-	// 	if len(dependencies) == 0 {
-	// 		return nil
-	// 	}
-
-	// 	results := make(chan registry.Service)
-
-	// 	go func() {
-	// 		defer close(results)
-
-	// 		// Then all the new ones that start
-	// 		w, err := registry.Watch()
-	// 		if err != nil {
-	// 			return
-	// 		}
-
-	// 		defer w.Stop()
-
-	// 		for {
-	// 			res, err := w.Next()
-	// 			if err != nil {
-	// 				break
-	// 			}
-
-	// 			if res.Action == "started" {
-	// 				fmt.Println("Service that are started ? ", res.Service.Name())
-	// 				results <- res.Service
-	// 			}
-
-	// 		}
-	// 	}()
-
-	// 	// First we list the currently running services
-	// 	runningServices, err := registry.ListRunningServices()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	for _, r := range runningServices {
-	// 		results <- r
-	// 	}
-
-	// 	for {
-	// 		select {
-	// 		case r := <-results:
-	// 			fmt.Println("Checking result vs dependencies ", s.Name(), dependencies, r.Name())
-	// 			for i, d := range dependencies {
-	// 				if d.Name == r.Name() {
-	// 					dependencies = append(dependencies[:i], dependencies[i+1:]...)
-	// 				}
-	// 			}
-
-	// 			if len(dependencies) == 0 {
-	// 				log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
-	// 				return nil
-	// 			}
-	// 		case <-time.After(20 * time.Minute):
-	// 			return errors.New("Dependency check timed out")
-	// 		}
-	// 	}
-
-	// 	return errors.New("Missing dependency")
-	// }),
 
 	// Adding a check before starting the service to ensure all dependencies are running
 	BeforeStart(func(s Service) error {
@@ -384,19 +296,20 @@ var mandatoryOptions = []ServiceOption{
 			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
 
 			err := Retry(ctx, func() error {
-				runningServices, err := registry.ListRunningServices()
+
+				running, err := registry.GetRunningService(d.Name)
 				if err != nil {
 					return err
 				}
 
-				for _, r := range runningServices {
-					if d.Name == r.Name() {
-						return nil
-					}
+				if len(running) > 0 {
+					return nil
 				}
 
+				log.Logger(ctx).Debug("BeforeStart - Check dependency retry", zap.String("service", d.Name))
+
 				return fmt.Errorf("dependency %s not found", d.Name)
-			}, 2*time.Second, 20*time.Minute) // This is long for distributed setup
+			}, 50*time.Millisecond, 20*time.Minute) // This is long for distributed setup
 
 			if err != nil {
 				return err
@@ -408,10 +321,39 @@ var mandatoryOptions = []ServiceOption{
 		return nil
 	}),
 
+	// Adding a check before starting the service to ensure only one is started if unique
+	BeforeStart(func(s Service) error {
+		if !s.MustBeUnique() {
+			return nil
+		}
+
+		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Unique check")
+
+		ticker := time.Tick(1 * time.Second)
+
+	loop:
+		for {
+			select {
+			case <-ticker:
+				if !s.IsRunning() {
+					break loop
+				}
+			}
+		}
+
+		log.Logger(ctx).Debug("BeforeStart - Unique checked")
+
+		return nil
+	}),
+
 	// Adding the dao to the context
 	BeforeStart(func(s Service) error {
 
 		ctx := s.Options().Context
+
+		log.Logger(ctx).Debug("BeforeStart - Database connection")
 
 		// Only if we have a DAO
 		if s.Options().DAO == nil {
@@ -455,6 +397,8 @@ var mandatoryOptions = []ServiceOption{
 		ctx = servicecontext.WithDAO(ctx, d)
 
 		s.Init(Context(ctx))
+
+		log.Logger(ctx).Debug("BeforeStart - Connected to a database")
 
 		return nil
 
@@ -606,7 +550,7 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 	case <-ctx.Done():
 		return
 	default:
-		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now")
+		log.Logger(ctx).Error("SubProcess finished with error: trying to restart now " + name)
 		s.ForkStart(ctx, r+1)
 	}
 }
@@ -642,21 +586,20 @@ func (s *service) IsRunning() bool {
 	if err := s.Check(ctx); err != nil {
 		return false
 	}
+
 	return true
 }
 
 // Check the status of the service (globally - not specific to an endpoint)
 func (s *service) Check(ctx context.Context) error {
 
-	running, err := registry.ListRunningServices()
+	running, err := registry.GetRunningService(s.Name())
 	if err != nil {
 		return err
 	}
 
-	for _, r := range running {
-		if s.Name() == r.Name() {
-			return nil
-		}
+	if len(running) > 0 {
+		return nil
 	}
 
 	return fmt.Errorf("Not found")
@@ -684,6 +627,10 @@ func (s *service) GetDependencies() []registry.Service {
 
 func (s *service) Name() string {
 	return s.Options().Name
+}
+
+func (s *service) ID() string {
+	return s.Options().ID
 }
 
 func (s *service) Tags() []string {
@@ -726,21 +673,17 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-
-	nMap := make(map[string]*microregistry.Node)
-	for _, p := range registry.GetPeers() {
-		for _, ms := range p.GetServices(s.Name()) {
-			for _, n := range ms.Nodes {
-				if _, ok := nMap[n.Id]; !ok {
-					nMap[n.Id] = n
-				}
-			}
-		}
-	}
 	var nodes []*microregistry.Node
-	for _, n := range nMap {
-		nodes = append(nodes, n)
+
+	ss, err := microregistry.DefaultRegistry.GetService(s.Name())
+	if err != nil {
+		return nodes
 	}
+
+	for _, s := range ss {
+		nodes = append(nodes, s.Nodes...)
+	}
+
 	return nodes
 }
 
@@ -766,19 +709,18 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) AutoStart() bool {
 	//ctx := s.Options().Context
-	return s.Options().AutoStart || config.Get("services", s.Options().Name, "autostart").Bool()
+	return s.Options().AutoStart || config.Get("services", s.Options().Name, configSrvKeyAutoStart).Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	// ctx := s.Options().Context
-	return s.Options().Fork || config.Get("services", s.Options().Name, "fork").Bool()
+	return s.Options().Fork || config.Get("services", s.Options().Name, configSrvKeyFork).Bool() || config.Get("services", s.Options().Name, configSrvKeyForkDebug).Bool()
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) MustBeUnique() bool {
-	ctx := s.Options().Context
-	return s.Options().Unique || servicecontext.GetConfig(ctx).Val("unique").Bool()
+	return s.Options().Unique || config.Get("services", s.Options().Name, configSrvKeyUnique).Bool()
 }
 
 // func (s *service) Client() (string, client.Client) {
@@ -816,3 +758,13 @@ func (s *service) getContext() context.Context {
 
 // RestHandlerBuilder builds a RestHandler
 type RestHandlerBuilder func(service web.Service, defaultClient client.Client) interface{}
+
+// randomTimeout returns a value that is between the minVal and 2x minVal.
+func randomTimeout(minVal time.Duration) time.Duration {
+	//return minVal
+	if minVal == 0 {
+		return minVal
+	}
+	extra := time.Duration(rand.Int63()) % minVal
+	return minVal + extra
+}

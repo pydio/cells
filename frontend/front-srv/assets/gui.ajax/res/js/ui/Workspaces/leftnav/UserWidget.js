@@ -1,3 +1,5 @@
+const React = require('react');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react');
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {AsyncComponent} = Pydio.requireLib('boot');
 const {UserAvatar, MenuItemsConsumer, MenuUtils, Toolbar} = Pydio.requireLib('components');
@@ -34,12 +37,12 @@ class UserWidget extends React.Component {
 
     static getPropTypes() {
         return {
-            pydio: React.PropTypes.instanceOf(Pydio),
-            style: React.PropTypes.object,
-            avatarStyle: React.PropTypes.object,
-            actionBarStyle: React.PropTypes.object,
-            avatarOnly: React.PropTypes.bool,
-        }
+            pydio: PropTypes.instanceOf(Pydio),
+            style: PropTypes.object,
+            avatarStyle: PropTypes.object,
+            actionBarStyle: PropTypes.object,
+            avatarOnly: PropTypes.bool,
+        };
     }
 
     showMenu(event){
@@ -114,6 +117,7 @@ class UserWidget extends React.Component {
                 </div>
             );
 
+            // Temporary disable activities loading
             if(!this.props.hideNotifications){
                 notificationsButton = (
                     <AsyncComponent

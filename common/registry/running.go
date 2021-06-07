@@ -21,30 +21,49 @@
 package registry
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
 )
+
+// GetRunningServices returns a list of services that are registered with the main registry
+// They may or may not belong to the app registry so we create a mock service in case they don't
+func (c *pydioregistry) GetRunningService(name string) ([]Service, error) {
+	var services []Service
+
+	rss, err := registry.DefaultRegistry.GetService(name)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, rs := range rss {
+		if s, ok := c.register[rs.Name]; ok {
+			services = append(services, s)
+		} else {
+			services = append(services, NewMockFromMicroService(rs))
+		}
+	}
+
+	return services, nil
+}
 
 // ListRunningServices returns a list of services that are registered with the main registry
 // They may or may not belong to the app registry so we create a mock service in case they don't
 func (c *pydioregistry) ListRunningServices() ([]Service, error) {
+
 	c.runninglock.RLock()
 	defer c.runninglock.RUnlock()
 
 	var services []Service
 
-	for _, p := range GetPeers() {
-		for _, rs := range p.GetServices() {
-			if s, ok := c.register[rs.Name]; ok {
-				services = append(services, s)
-			} else {
-				services = append(services, NewMockFromMicroService(rs))
-			}
+	rss, err := registry.DefaultRegistry.ListServices()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, rs := range rss {
+		if s, ok := c.register[rs.Name]; ok {
+			services = append(services, s)
+		} else {
+			services = append(services, NewMockFromMicroService(rs))
 		}
 	}
 
@@ -64,107 +83,92 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 	return result, nil
 }
 
-// SetServiceStopped artificially removes a service from the running services list
-// This may be necessary for processes started as forks and crashing unexpectedly
-func (c *pydioregistry) SetServiceStopped(name string) error {
-	// c.runningmutex.Lock()
-	// defer c.runningmutex.Unlock()
-	// for k, v := range c.running {
-	// 	if v.Name == name {
-	// 		c.running = append(c.running[:k], c.running[k+1:]...)
-	// 		break
-	// 	}
-	// }
-	return nil
-}
-
-func (c *pydioregistry) maintainRunningServicesList() {
-	c.runninglock.Lock()
-	defer c.runninglock.Unlock()
-
-	results := make(chan *registry.Result)
-
-	go func() {
-		// Once we've retrieved the list once, we watch the services
-		w, err := defaults.Registry().Watch()
-		if err != nil {
-			return
-		}
-
-		defer w.Stop()
-
-		for {
-			res, err := w.Next()
-			if err != nil {
-				<-time.After(5 * time.Second)
-				continue
-			}
-
-			if res == nil {
-				continue
-			}
-
-			results <- res
-		}
-
-	}()
-
-	go func() {
-		ticker := time.Tick(5 * time.Minute)
-
-		for {
-			services, err := defaults.Registry().ListServices()
-			if err != nil {
-				return
-			}
-			for _, srv := range services {
-				results <- &registry.Result{
-					Action:  "create",
-					Service: srv,
-				}
-			}
-
-			select {
-			case <-ticker:
-				continue
-
-			}
-		}
-	}()
-
-	go func() {
-		for res := range results {
-			a := res.Action
-			s := res.Service
-
-			switch a {
-			case "create":
-				for _, n := range s.Nodes {
-					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
-						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
-							Body: []byte(common.EventTypeServiceRegistered),
-							Header: map[string]string{
-								common.EventHeaderServiceRegisterService: s.Name,
-								common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
-							},
-						})
-					}
-					c.registerProcessFromNode(n, s.Name)
-				}
-			case "delete":
-				for _, n := range s.Nodes {
-					if c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port)) {
-						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
-							Body: []byte(common.EventTypeServiceUnregistered),
-							Header: map[string]string{
-								common.EventHeaderServiceRegisterService: s.Name,
-								common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
-							},
-						})
-					}
-					c.deregisterProcessFromNode(n, s.Name)
-				}
-			}
-		}
-	}()
-}
+//func (c *pydioregistry) maintainRunningServicesList() {
+//
+//	c.runninglock.Lock()
+//	defer c.runninglock.Unlock()
+//
+//	results := make(chan *registry.Result)
+//
+//	go func() {
+//		// Once we've retrieved the list once, we watch the services
+//		w, err := defaults.Registry().Watch()
+//		if err != nil {
+//			return
+//		}
+//
+//		defer w.Stop()
+//
+//		for {
+//			res, err := w.Next()
+//			if err != nil {
+//				<-time.After(5 * time.Second)
+//				continue
+//			}
+//
+//			if res == nil {
+//				continue
+//			}
+//
+//			results <- res
+//		}
+//	}()
+//
+//	go func() {
+//		for res := range results {
+//			a := res.Action
+//			s := res.Service
+//
+//			switch a {
+//			case "create", "update":
+//				for _, n := range s.Nodes {
+//					if n == nil {
+//						continue
+//					}
+//
+//					if c.GetPeer(n).Add(s, fmt.Sprintf("%d", n.Port)) {
+//						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
+//							Body: []byte(common.EventTypeServiceRegistered),
+//							Header: map[string]string{
+//								common.EventHeaderServiceRegisterService: s.Name,
+//								common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
+//							},
+//						})
+//					}
+//					c.registerProcessFromNode(n, s.Name)
+//				}
+//			case "delete":
+//				// We check the overall service has just been started
+//				beforeCnt := 0
+//				for _, peer := range c.peers {
+//					beforeCnt = beforeCnt + len(peer.GetServices(s.Name))
+//				}
+//
+//				for _, n := range s.Nodes {
+//					if c.GetPeer(n).Delete(s, fmt.Sprintf("%d", n.Port)) {
+//						defaults.Broker().Publish(common.TopicServiceRegistration, &broker.Message{
+//							Body: []byte(common.EventTypeServiceUnregistered),
+//							Header: map[string]string{
+//								common.EventHeaderServiceRegisterService: s.Name,
+//								common.EventHeaderServiceRegisterPeer:    fmt.Sprintf("%s:%d", n.Address, n.Port),
+//							},
+//						})
+//					}
+//					c.deregisterProcessFromNode(n, s.Name)
+//				}
+//			}
+//		}
+//	}()
+//
+//	// Get the list of services once to kickstart things
+//	services, err := defaults.Registry().ListServices()
+//	if err != nil {
+//		return
+//	}
+//	for _, srv := range services {
+//		results <- &registry.Result{
+//			Action:  "create",
+//			Service: srv,
+//		}
+//	}
+//}

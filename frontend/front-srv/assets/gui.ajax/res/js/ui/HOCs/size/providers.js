@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import {CircularProgress} from 'material-ui';
 import ContainerDimensions from 'react-container-dimensions';
@@ -136,10 +138,10 @@ export const withImageSize = (Component) => {
     return class extends React.PureComponent {
         static get propTypes() {
             return {
-                src: React.PropTypes.string.isRequired,
-                node: React.PropTypes.instanceOf(AjxpNode).isRequired,
-                children: React.PropTypes.func.isRequired
-            }
+                src: PropTypes.string.isRequired,
+                node: PropTypes.instanceOf(AjxpNode).isRequired,
+                children: PropTypes.func.isRequired
+            };
         }
 
         constructor(props) {
@@ -196,5 +198,5 @@ export const withImageSize = (Component) => {
                 <Component width={imgWidth} height={imgHeight} {...this.props} />
             )
         }
-    }
+    };
 }

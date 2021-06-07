@@ -230,9 +230,9 @@ func (this *Object) Validate() error {
 	return nil
 }
 func (this *PostActivityRequest) Validate() error {
-	if this.Object != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Object); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Object", err)
+	if this.Activity != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Activity); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Activity", err)
 		}
 	}
 	return nil

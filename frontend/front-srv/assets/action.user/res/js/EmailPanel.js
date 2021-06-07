@@ -18,7 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component, PropTypes} = require('react')
+const {
+    Component
+} = require('react')
+import PropTypes from 'prop-types'
 const {Toggle, Subheader, MenuItem, SelectField, TextField, TimePicker} = require('material-ui')
 
 class EmailPanel extends Component{

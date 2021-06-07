@@ -1,3 +1,9 @@
+import React from 'react';
+import {Divider, IconButton, Checkbox, FlatButton, RaisedButton} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+import Policies from 'pydio/http/policies'
+import {ServiceResourcePolicy} from 'cells-sdk'
+
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,12 +24,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {Divider, IconButton, Checkbox, FlatButton, RaisedButton} from 'material-ui'
-import {muiThemeable} from 'material-ui/styles'
-import Policies from 'pydio/http/policies'
-import {UsersApi} from 'pydio/http/users-api'
-import {ServiceResourcePolicy} from 'pydio/http/rest-api'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import PydioApi from 'pydio/http/api'
 import UsersCompleter from '../users/UsersCompleter'
@@ -370,7 +372,7 @@ class ResourcePoliciesPanel extends React.Component{
                         {description}
                         </div>
                         <div style={{textAlign:'center'}}>
-                            <RaisedButton label={mess['visibility.panel.edit']} primary={true} onTouchTap={()=>{this.setState({edit: true})}}/>
+                            <RaisedButton label={mess['visibility.panel.edit']} primary={true} onClick={()=>{this.setState({edit: true})}}/>
                         </div>
                     </div>
                 </div>
@@ -394,7 +396,7 @@ class ResourcePoliciesPanel extends React.Component{
             if(pickedUser) {
                 blocks.push(<div style={styles.subheader}>{mess['visibility.panel.setvisible']}</div>);
                 blocks.push(this.renderLine(pickedUser, pickedLabel, policies, false, true));
-                blocks.push(<div style={{textAlign:'right'}}><FlatButton label={mess[54]} onTouchTap={()=>{this.setState({pickedUser:null, pickedLabel: null});}}/></div>);
+                blocks.push(<div style={{textAlign:'right'}}><FlatButton label={mess[54]} onClick={()=>{this.setState({pickedUser:null, pickedLabel: null});}}/></div>);
                 blocks.push(<Divider/>);
             } else if(!readonly) {
                 const crtUserSubject = 'user:' + idmUser.Login;
@@ -432,13 +434,13 @@ class ResourcePoliciesPanel extends React.Component{
                 <div style={styles.title}>
                     <span style={{flex:1}}>{skipTitle? '' : mess['visibility.panel.title']}</span>
                     {dirtyPolicies &&
-                        <IconButton iconClassName={"mdi mdi-undo-variant"} tooltip={mess['visibility.panel.revert']} onTouchTap={this.revert.bind(this)} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-undo-variant"} tooltip={mess['visibility.panel.revert']} onClick={this.revert.bind(this)} iconStyle={{color:appBar.textColor}} />
                     }
                     {dirtyPolicies &&
-                        <IconButton iconClassName={"mdi mdi-content-save"} tooltip={mess['visibility.panel.save']} onTouchTap={this.save.bind(this)} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-content-save"} tooltip={mess['visibility.panel.save']} onClick={this.save.bind(this)} iconStyle={{color:appBar.textColor}} />
                     }
                     {!dirtyPolicies && onDismiss &&
-                        <IconButton iconClassName={"mdi mdi-close"} onTouchTap={onDismiss} iconStyle={{color:appBar.textColor}} />
+                        <IconButton iconClassName={"mdi mdi-close"} onClick={onDismiss} iconStyle={{color:appBar.textColor}} />
                     }
                 </div>
                 {error &&
@@ -452,20 +454,20 @@ class ResourcePoliciesPanel extends React.Component{
 }
 
 ResourcePoliciesPanel.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    resourceType: React.PropTypes.string.isRequired,
-    resourceId: React.PropTypes.string.isRequired,
-    description: React.PropTypes.string.isRequired,
-    onSavePolicies: React.PropTypes.func,
-    userListExcludes:React.PropTypes.array,
-    subjectsDisabled:React.PropTypes.array,
-    subjectsHidden:React.PropTypes.object,
-    readonly:React.PropTypes.bool,
-    cellAcls:React.PropTypes.object,
+    pydio: PropTypes.instanceOf(Pydio),
+    resourceType: PropTypes.string.isRequired,
+    resourceId: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    onSavePolicies: PropTypes.func,
+    userListExcludes:PropTypes.array,
+    subjectsDisabled:PropTypes.array,
+    subjectsHidden:PropTypes.object,
+    readonly:PropTypes.bool,
+    cellAcls:PropTypes.object,
 
-    onDismiss:React.PropTypes.func,
-    style: React.PropTypes.object,
-    skipTitle: React.PropTypes.bool,
+    onDismiss:PropTypes.func,
+    style: PropTypes.object,
+    skipTitle: PropTypes.bool,
 
 };
 

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/pydio/cells/discovery/nats"
 	"github.com/spf13/cobra"
 )
 
@@ -22,8 +21,6 @@ DESCRIPTION
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		nats.Init()
-
 		// Initialise the default registry
 		handleRegistry()
 
@@ -41,6 +38,9 @@ DESCRIPTION
 }
 
 func init() {
+	// Registry / Broker Flags
+	addNatsFlags(AdminCmd.PersistentFlags())
+	addNatsStreamingFlags(AdminCmd.PersistentFlags())
 	addRegistryFlags(AdminCmd.PersistentFlags())
 	RootCmd.AddCommand(AdminCmd)
 }

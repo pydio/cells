@@ -19,7 +19,7 @@
  */
 
 import PydioApi from "pydio/http/api";
-import {RestDeleteNodesRequest, TreeServiceApi, TreeNode} from 'pydio/http/rest-api'
+import {RestDeleteNodesRequest, TreeServiceApi, TreeNode} from 'cells-sdk'
 
 export default function (pydio) {
 

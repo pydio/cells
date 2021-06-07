@@ -26,7 +26,8 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/micro/go-web"
+	"github.com/google/uuid"
+	micro "github.com/micro/go-micro"
 	"github.com/spf13/pflag"
 
 	"github.com/pydio/cells/common"
@@ -44,6 +45,7 @@ type dependency struct {
 // ServiceOptions stores all options for a pydio service
 type ServiceOptions struct {
 	Name string
+	ID   string
 	Tags []string
 
 	Version     string
@@ -60,8 +62,7 @@ type ServiceOptions struct {
 	Port      string
 	TLSConfig *tls.Config
 
-	Micro Runnable
-	Web   web.Service
+	Micro micro.Service
 
 	Dependencies []*dependency
 
@@ -70,7 +71,6 @@ type ServiceOptions struct {
 	AutoRestart bool
 	Fork        bool
 	Unique      bool
-	Cluster     registry.Cluster
 
 	Registry registry.Registry
 
@@ -107,6 +107,7 @@ type ServiceOption func(*ServiceOptions)
 func newOptions(opts ...ServiceOption) ServiceOptions {
 	opt := ServiceOptions{}
 
+	opt.ID = uuid.New().String()
 	opt.Registry = registry.Default
 	opt.AutoStart = true
 	opt.Watchers = make(map[string][]func(Service, configx.Values))
@@ -122,6 +123,13 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 func Name(n string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Name = n
+	}
+}
+
+// ID option for a service
+func ID(i string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.ID = i
 	}
 }
 
@@ -214,13 +222,6 @@ func Fork(b bool) ServiceOption {
 func Unique(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Unique = b
-	}
-}
-
-// Cluster option for a service
-func Cluster(c registry.Cluster) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.Cluster = c
 	}
 }
 

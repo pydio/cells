@@ -44,10 +44,46 @@ func GetSessionID(ctx context.Context) (string, bool) {
 	return res, ok
 }
 
+func extractDSFlat(ctx context.Context, handler Handler, sourceNode, targetNode *tree.Node) (innerFlat, srcFlat, targetFlat bool) {
+	if router, ok := handler.(*Router); ok {
+		// We passed a router, call is external, use WrapCallback
+		router.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
+			srcCtx, _, _ := inputFilter(ctx, sourceNode, "from")
+			tgtCtx, _, _ := inputFilter(ctx, targetNode, "to")
+			srcDS, _ := GetBranchInfo(srcCtx, "from")
+			tgtDS, _ := GetBranchInfo(tgtCtx, "to")
+			if srcDS.Name == tgtDS.Name && srcDS.FlatStorage {
+				innerFlat = true
+			}
+			targetFlat = tgtDS.FlatStorage
+			srcFlat = srcDS.FlatStorage
+			return nil
+		})
+	} else {
+		// We passed a Handler, we are already in the routing stack, contexts should be loaded
+		srcDS, _ := GetBranchInfo(ctx, "from")
+		tgtDS, _ := GetBranchInfo(ctx, "to")
+		if srcDS.Name == tgtDS.Name && srcDS.FlatStorage {
+			innerFlat = true
+		}
+		targetFlat = tgtDS.FlatStorage
+		srcFlat = srcDS.FlatStorage
+	}
+	return
+}
+
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.
 // It will eventually pass contextual metadata like X-Pydio-Session (to batch event inside the SYNC) or X-Pydio-Move (to
 // reconciliate creates and deletes when move is done between two differing datasources).
-func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, recursive bool, isTask bool, statusChan chan string, progressChan chan float32, tFunc ...i18n.TranslateFunc) (oErr error) {
+func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, isTask bool, statusChan chan string, progressChan chan float32, tFunc ...i18n.TranslateFunc) (oErr error) {
+
+	innerFlat, sourceFlat, targetFlat := extractDSFlat(ctx, router, sourceNode, targetNode)
+
+	if innerFlat && move {
+		log.Logger(ctx).Info("Move on Flat storage : switching to direct index update")
+		_, e := router.UpdateNode(ctx, &tree.UpdateNodeRequest{From: sourceNode, To: targetNode})
+		return e
+	}
 
 	sessionPrefix := common.SyncSessionPrefixCopy
 	if move {
@@ -76,6 +112,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					locker.Unlock(ctx)
 				}
 			}()
+		} else if targetFlat && locker != nil {
+			locker.Unlock(ctx)
 		}
 	}()
 
@@ -132,13 +170,33 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			log.Logger(ctx).Info("Setting ChildLock on TargetNode Parent")
 			locker.AddChildTarget(childLockDir, childLockBase)
 		}
-		// Will be unlocked by sync process
+		// Will be unlocked by sync process, or if targetFlat, manually unlock
 		if err := locker.Lock(ctx); err != nil {
 			log.Logger(ctx).Warn("Could not init lockSession", zap.Error(err))
 		}
 	}
 
-	if recursive && !sourceNode.IsLeaf() {
+	if !sourceNode.IsLeaf() {
+
+		if targetFlat || sourceFlat {
+			log.Logger(ctx).Info("[Flat Target] Creating target folder before copy")
+			// Manually create target folder
+			tgtUuid := uuid.New()
+			tgt := ctx
+			if move {
+				tgtUuid = sourceNode.Uuid
+				tgt = context2.WithAdditionalMetadata(tgt, map[string]string{common.XPydioMoveUuid: tgtUuid})
+			}
+			if _, e := router.CreateNode(tgt, &tree.CreateNodeRequest{Node: &tree.Node{
+				Uuid:  tgtUuid,
+				Path:  targetNode.Path,
+				Type:  tree.NodeType_COLLECTION,
+				MTime: time.Now().Unix(),
+			}, IndexationSession: session}); e != nil {
+				return e
+			}
+
+		}
 
 		prefixPathSrc := strings.TrimRight(sourceNode.Path, "/")
 		prefixPathTarget := strings.TrimRight(targetNode.Path, "/")
@@ -156,6 +214,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		var children []*tree.Node
 		defer streamer.Close()
 		var statErrors int
+		var foldersCount, fileCounts int
 
 		for {
 			child, cE := streamer.Recv()
@@ -170,6 +229,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					statErrors++
 				}
 				totalSize += child.Node.Size
+				fileCounts++
+			} else {
+				foldersCount++
 			}
 			children = append(children, child.Node)
 		}
@@ -186,9 +248,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		//total := len(children)
 
-		if !move {
-			// For Copy case, first create new folders with fresh UUID
-			for _, childNode := range children {
+		if !move || targetFlat || sourceFlat {
+			// For Copy case, first create new folders with fresh UUID - For FlatTarget, create with previous node Uuid
+			for fI, childNode := range children {
 				if childNode.IsLeaf() {
 					continue
 				}
@@ -202,10 +264,23 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				folderNode := childNode.Clone()
 				folderNode.Path = targetPath
 				folderNode.Uuid = uuid.New()
+				createContext := ctx
+				sess := session
+				if (targetFlat || sourceFlat) && move {
+					if sourceFlat && fileCounts == 0 && fI == len(children)-1 {
+						log.Logger(ctx).Info("Sending session close on last folder")
+						sess = common.SyncSessionClose_ + session
+					}
+					createContext = context2.WithAdditionalMetadata(createContext, map[string]string{
+						common.XPydioMoveUuid: childNode.Uuid,
+					})
+					folderNode.Uuid = childNode.Uuid
+				}
 				if targetDsPath != "" {
 					folderNode.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(targetDsPath, relativePath))
 				}
-				_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session, UpdateIfExists: true})
+				log.Logger(ctx).Info("Creating folder", folderNode.ZapPath(), folderNode.ZapUuid())
+				_, e := router.CreateNode(createContext, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: sess, UpdateIfExists: true})
 				if e != nil {
 					logger.Error("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
 					publishError(targetDs, folderNode.Path)
@@ -214,7 +289,8 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				logger.Debug("-- Copy Folder Success ", zap.String("to", targetPath), childNode.Zap())
 				taskLogger.Info("-- Copied Folder To " + targetPath)
 			}
-		} else {
+		}
+		if move {
 			// For move, update lock expiration based on total size
 			updateLockerForByteSize(ctx, locker, totalSize, len(children))
 		}
@@ -245,7 +321,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					<-queue
 					defer wg.Done()
 				}()
-				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
+				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 				if e != nil {
 					errors = append(errors, e)
 				} else {
@@ -261,7 +337,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		if lastNode != nil {
 			// Now process very last node
-			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
+			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
 			if e != nil {
 				panic(e)
 			}
@@ -323,33 +399,32 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 				panic(moveErr)
 			}
 		}
+	} else {
+		if move && sourceFlat {
 
-	} else if !move {
-		session = common.SyncSessionClose_ + session
-		logger.Debug("-- Copying sourceNode with empty Uuid - Close Session")
-		targetNode.Type = tree.NodeType_COLLECTION
-		_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session, UpdateIfExists: true})
-		if e != nil {
-			panic(e)
+			// Flat source : remove original folder
+			log.Logger(ctx).Info("Removing source folder after move")
+			// Manually create target folder
+			tgt := context2.WithAdditionalMetadata(ctx, map[string]string{common.XPydioMoveUuid: sourceNode.Uuid})
+			if _, e := router.DeleteNode(tgt, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
+				return e
+			}
+
 		}
-		taskLogger.Info("-- Copied sourceNode with empty Uuid - Close Session")
+		if !move && !targetFlat {
+
+			// Now create root target in index, except in Flat mode
+			session = common.SyncSessionClose_ + session
+			logger.Debug("-- Copying sourceNode with empty Uuid - Close Session")
+			targetNode.Type = tree.NodeType_COLLECTION
+			_, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session, UpdateIfExists: true})
+			if e != nil {
+				panic(e)
+			}
+			taskLogger.Info("-- Copied sourceNode with empty Uuid - Close Session")
+
+		}
 	}
-
-	/*
-		if move {
-			// Send an optimistic event => s3 operations are done, let's update UX before indexation is finished
-			optimisticTarget := sourceNode.Clone()
-			optimisticTarget.Path = targetNode.Path
-			optimisticTarget.SetMeta("name", path.Base(targetNode.Path))
-			log.Logger(ctx).Debug("Finished move - Sending Optimistic Event", sourceNode.Zap("from"), optimisticTarget.Zap("to"))
-			client.Publish(ctx, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
-				Optimistic: true,
-				Type:       tree.NodeChangeEvent_UPDATE_PATH,
-				Source:     sourceNode,
-				Target:     optimisticTarget,
-			}))
-		}
-	*/
 
 	return
 }
@@ -384,7 +459,7 @@ func copyMoveStatusKey(keyPath string, move bool, tFunc ...i18n.TranslateFunc) s
 	return status
 }
 
-func processCopyMove(ctx context.Context, handler Handler, session string, move, crossDs bool, sourceDs, targetDs string, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, progress io.Reader, tFunc ...i18n.TranslateFunc) error {
+func processCopyMove(ctx context.Context, handler Handler, session string, move, crossDs bool, sourceDs, targetDs string, sourceFlat, targetFlat, closeSession bool, childNode *tree.Node, prefixPathSrc, prefixPathTarget, targetDsPath string, logger *zap.Logger, publishError func(string, string), statusChan chan string, progress io.Reader, tFunc ...i18n.TranslateFunc) error {
 
 	childPath := childNode.Path
 	relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
@@ -395,10 +470,11 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 	}
 	var justCopied *tree.Node
 	justCopied = nil
-	// Copy files - For "Copy" operation, do NOT copy .pydio files
-	if childNode.IsLeaf() && (move || path.Base(childPath) != common.PydioSyncHiddenFile) {
+	isHidden := path.Base(childPath) == common.PydioSyncHiddenFile
+	// Copy files - For "Copy" operation or targetFlat, do NOT copy .pydio files
+	if childNode.IsLeaf() && !(isHidden && (!move || targetFlat)) {
 
-		logger.Debug("Copy " + childNode.Path + " to " + targetPath)
+		logger.Info("Copy "+childNode.Path+" to "+targetPath, zap.Bool("isHidden", isHidden), zap.Bool("targetFlat", targetFlat))
 
 		statusChan <- copyMoveStatusKey(relativePath, move, tFunc...)
 
@@ -437,8 +513,8 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 
 	}
 
-	// Remove original for move case
-	if move {
+	// Remove original for move case - Skip folders for flat targets, as they are removed recursively
+	if move && !(!childNode.IsLeaf() && sourceFlat) {
 		// If we're sending the last Delete here - then we close the session at the same time
 		if closeSession {
 			session = common.SyncSessionClose_ + session

@@ -397,18 +397,16 @@ func TestConfigUpgrade(t *testing.T) {
 
 	memorySource := memory.NewSource(memory.WithJSON(data))
 
-	conf := config.NewVault(
-		config.New(
-			config.NewVersionStore(versionsStore, micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(
-						memorySource,
-					),
-				),
+	conf := config.New(micro.New(
+		microconfig.NewConfig(
+			microconfig.WithSource(
+				memorySource,
 			),
-			)),
-		vaultConfig,
-	)
+		),
+	))
+
+	conf = config.NewVersionStore(versionsStore, conf)
+	conf = config.NewVault(vaultConfig, conf)
 
 	val := conf.Val()
 

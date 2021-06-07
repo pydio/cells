@@ -236,8 +236,8 @@ class TasksPanel extends React.Component{
                     <div style={{padding: '12px 8px 12px 16px'}}>{title}</div>
                     {badge}
                     <span style={{flex: 1}}/>
-                    {!folded && <IconButton iconClassName={"mdi mdi-chevron-down"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: true, innerScroll:300})} />}
-                    {folded && <IconButton iconClassName={"mdi mdi-chevron-right"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: false, innerScroll: 300})} />}
+                    {!folded && <IconButton iconClassName={"mdi mdi-chevron-down"} {...styles.iconButtonStyles} onClick={()=>this.setState({folded: true, innerScroll:300})} />}
+                    {folded && <IconButton iconClassName={"mdi mdi-chevron-right"} {...styles.iconButtonStyles} onClick={()=>this.setState({folded: false, innerScroll: 300})} />}
                 </Paper>
                 }
                 <div style={styles.innerPane} ref="innerPane">

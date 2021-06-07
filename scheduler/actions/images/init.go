@@ -22,6 +22,13 @@
 package images
 
 import (
+	"context"
+	"path"
+	"time"
+
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/proto/tree"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -49,9 +56,27 @@ var (
 	router *views.Router
 )
 
+// getRouter provides a singleton-initialized StandardRouter in AdminView.
 func getRouter() *views.Router {
 	if router == nil {
 		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
 	}
 	return router
+}
+
+// getThumbLocation returns a node with the correct ds name for pydio thumbs store.
+func getThumbLocation(ctx context.Context, keyName string) (c context.Context, n *tree.Node, e error) {
+	source, er := router.GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+	if er != nil {
+		e = er
+		return
+	}
+	n = &tree.Node{
+		Uuid:  keyName,
+		Type:  tree.NodeType_LEAF,
+		Path:  path.Join(source.Name, keyName),
+		MTime: time.Now().Unix(),
+	}
+	c = context2.WithUserNameMetadata(ctx, common.PydioSystemUsername)
+	return
 }

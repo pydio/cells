@@ -22,15 +22,13 @@ package log
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/document"
-	"github.com/blevesearch/bleve/search/query"
-	"github.com/rs/xid"
+	json "github.com/pydio/cells/x/jsonx"
 
+	"github.com/blevesearch/bleve"
+	"github.com/blevesearch/bleve/search/query"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/log"
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -44,6 +42,7 @@ type IndexableLog struct {
 
 // BlevePutLog stores a new log msg in a bleve index. It expects a map[string]string
 // retrieved from a deserialized proto log message.
+/*
 func BlevePutLog(idx bleve.Index, line map[string]string) error {
 
 	msg, err := MarshallLogMsg(line)
@@ -57,6 +56,7 @@ func BlevePutLog(idx bleve.Index, line map[string]string) error {
 	}
 	return nil
 }
+*/
 
 func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}, logger func(string)) error {
 
@@ -104,7 +104,7 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 		q = bleve.NewQueryStringQuery(str)
 	}
 	req := bleve.NewSearchRequest(q)
-	req.SortBy([]string{"-" + common.KEY_TS, "-" + common.KEY_NANO})
+	req.SortBy([]string{"-" + common.KeyTs, "-" + common.KeyNano})
 	req.Size = int(size)
 	req.Fields = []string{"*"}
 	req.From = int(page * size)
@@ -167,11 +167,18 @@ func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
 }
 
 // MarshallLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.
-func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
+func MarshallLogMsg(line *log.Log) (*IndexableLog, error) {
 
 	msg := &IndexableLog{}
+	zaps := make(map[string]interface{})
+	var data map[string]interface{}
+	e := json.Unmarshal(line.Message, &data)
+	if e != nil {
+		return nil, e
+	}
 
-	for k, val := range line {
+	for k, v := range data {
+		val, _ := v.(string)
 		switch k {
 		case "ts":
 			t, err := time.Parse(time.RFC3339, val)
@@ -179,33 +186,31 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 				return nil, err
 			}
 			msg.Ts = convertTimeToTs(t)
-		case "nano":
-			msg.Nano, _ = strconv.Atoi(val)
 		case "level":
 			msg.Level = val
-		case common.KEY_MSG_ID:
+		case common.KeyMsgId:
 			msg.MsgId = val
 		case "logger": // name of the service that is currently logging.
 			msg.Logger = val
 		// Node specific info
-		case common.KEY_NODE_UUID:
+		case common.KeyNodeUuid:
 			msg.NodeUuid = val
-		case common.KEY_NODE_PATH:
+		case common.KeyNodePath:
 			msg.NodePath = val
-		case common.KEY_WORKSPACE_UUID:
+		case common.KeyWorkspaceUuid:
 			msg.WsUuid = val
-		case common.KEY_WORKSPACE_SCOPE:
+		case common.KeyWorkspaceScope:
 			msg.WsScope = val
 		// User specific info
-		case common.KEY_USERNAME:
+		case common.KeyUsername:
 			msg.UserName = val
-		case common.KEY_USER_UUID:
+		case common.KeyUserUuid:
 			msg.UserUuid = val
-		case common.KEY_GROUP_PATH:
+		case common.KeyGroupPath:
 			msg.GroupPath = val
-		case common.KEY_ROLES:
+		case common.KeyRoles:
 			msg.RoleUuids = strings.Split(val, ",")
-		case common.KEY_PROFILE:
+		case common.KeyProfile:
 			msg.Profile = val
 		// Session and remote client info
 		case servicecontext.HttpMetaRemoteAddress:
@@ -215,47 +220,48 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 		case servicecontext.HttpMetaProtocol:
 			msg.HttpProtocol = val
 		// Span enable following a given request between the various services
-		case common.KEY_SPAN_UUID:
+		case common.KeySpanUuid:
 			msg.SpanUuid = val
-		case common.KEY_SPAN_PARENT_UUID:
+		case common.KeySpanParentUuid:
 			msg.SpanParentUuid = val
-		case common.KEY_SPAN_ROOT_UUID:
+		case common.KeySpanRootUuid:
 			msg.SpanRootUuid = val
 		// Group messages for a given high level operation
-		case common.KEY_OPERATION_UUID:
+		case common.KeyOperationUuid:
 			msg.OperationUuid = val
-		case common.KEY_OPERATION_LABEL:
+		case common.KeyOperationLabel:
 			msg.OperationLabel = val
-		case common.KEY_SCHEDULER_JOB_ID:
+		case common.KeySchedulerJobId:
 			msg.SchedulerJobUuid = val
-		case common.KEY_SCHEDULER_TASK_ID:
+		case common.KeySchedulerTaskId:
 			msg.SchedulerTaskUuid = val
-		case common.KEY_SCHEDULER_ACTION_PATH:
+		case common.KeySchedulerActionPath:
 			msg.SchedulerTaskActionPath = val
+		case "msg", "error":
+			break
 		default:
+			zaps[k] = v
 			break
 		}
 	}
 
 	// Concatenate msg and error in the full text msg field.
 	text := ""
-	if m, ok := line["msg"]; ok {
-		text = m
+	if m, ok := data["msg"]; ok {
+		text = m.(string)
 	}
-	if m, ok := line["error"]; ok {
-		text += " - " + m
+	if m, ok := data["error"]; ok {
+		text += " - " + m.(string)
 	}
 	msg.Msg = text
+	msg.Nano = int(line.Nano)
+
+	if len(zaps) > 0 {
+		data, _ := json.Marshal(zaps)
+		msg.JsonZaps = string(data)
+	}
 
 	return msg, nil
-}
-
-// UnmarshallLogMsgFromDoc populates the LogMessage from the passed bleve document.
-func UnmarshallLogMsgFromDoc(doc *document.Document, msg *log.LogMessage) {
-	// fmt.Printf("## [DEBUG] ## unmarshalling index document \n")
-	m := make(map[string]interface{})
-	fromBleveDocToMap(doc, m)
-	UnmarshallLogMsgFromFields(m, msg)
 }
 
 func UnmarshallLogMsgFromFields(m map[string]interface{}, msg *log.LogMessage) {
@@ -317,50 +323,32 @@ func UnmarshallLogMsgFromFields(m map[string]interface{}, msg *log.LogMessage) {
 		msg.WsUuid = val.(string)
 	}
 
-	if val, ok := m[common.KEY_SPAN_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySpanUuid]; ok && val.(string) != "" {
 		msg.SpanUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SPAN_ROOT_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySpanRootUuid]; ok && val.(string) != "" {
 		msg.SpanRootUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SPAN_PARENT_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySpanParentUuid]; ok && val.(string) != "" {
 		msg.SpanParentUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_OPERATION_UUID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeyOperationUuid]; ok && val.(string) != "" {
 		msg.OperationUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_OPERATION_LABEL]; ok && val.(string) != "" {
+	if val, ok := m[common.KeyOperationLabel]; ok && val.(string) != "" {
 		msg.OperationLabel = val.(string)
 	}
-	if val, ok := m[common.KEY_SCHEDULER_JOB_ID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySchedulerJobId]; ok && val.(string) != "" {
 		msg.SchedulerJobUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SCHEDULER_TASK_ID]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySchedulerTaskId]; ok && val.(string) != "" {
 		msg.SchedulerTaskUuid = val.(string)
 	}
-	if val, ok := m[common.KEY_SCHEDULER_ACTION_PATH]; ok && val.(string) != "" {
+	if val, ok := m[common.KeySchedulerActionPath]; ok && val.(string) != "" {
 		msg.SchedulerTaskActionPath = val.(string)
 	}
-
-}
-
-func fromBleveDocToMap(doc *document.Document, m map[string]interface{}) {
-	for _, field := range doc.Fields {
-		// fmt.Printf("Mapping %s of type %s\n", field.Name(), reflect.TypeOf(field))
-		switch field := field.(type) {
-		case *document.TextField:
-			m[field.Name()] = string(field.Value())
-		case *document.NumericField:
-			fNb, err := field.Number()
-			iNb := int32(fNb)
-			if err == nil {
-				m[field.Name()] = iNb // fmt.Sprintf("%f", n)
-			}
-		case *document.DateTimeField:
-			d, err := field.DateTime()
-			if err == nil {
-				m[field.Name()] = d.Format(time.RFC3339)
-			}
-		}
+	if val, ok := m["JsonZaps"]; ok && val.(string) != "" {
+		msg.JsonZaps = val.(string)
 	}
+
 }

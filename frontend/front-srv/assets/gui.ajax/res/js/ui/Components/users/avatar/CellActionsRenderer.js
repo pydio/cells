@@ -91,7 +91,7 @@ class CellActionsRenderer {
         // Special case cellModel is "TRUE", not a real cell model
         if(cellModel === true){
             if(pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")){
-                return [<MenuItem primaryText={m['640'].replace('%s', label)} onTouchTap={this.createCell.bind(this)}/>];
+                return [<MenuItem primaryText={m['640'].replace('%s', label)} onClick={this.createCell.bind(this)}/>];
             } else {
                 return [];
             }
@@ -122,14 +122,14 @@ class CellActionsRenderer {
         });
 
         if(isInCurrent){
-            items.push(<MenuItem primaryText={m['641']} disabled={!canWrite} onTouchTap={this.removeFromCell.bind(this)}/>);
+            items.push(<MenuItem primaryText={m['641']} disabled={!canWrite} onClick={this.removeFromCell.bind(this)}/>);
         } else {
-            items.push(<MenuItem primaryText={m['642']} disabled={!canWrite} onTouchTap={this.addToCell.bind(this)}/>);
+            items.push(<MenuItem primaryText={m['642']} disabled={!canWrite} onClick={this.addToCell.bind(this)}/>);
         }
         if (pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")){
             items.push(
                 <Divider/>,
-                <MenuItem primaryText={m['640'].replace('%s', label)} onTouchTap={this.createCell.bind(this)}/>,
+                <MenuItem primaryText={m['640'].replace('%s', label)} onClick={this.createCell.bind(this)}/>,
             );
         }
 

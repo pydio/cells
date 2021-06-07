@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi} from 'pydio/http/rest-api'
+import {ConfigServiceApi} from 'cells-sdk'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui'
 import TasksList from './TasksList'
@@ -67,6 +67,28 @@ class JobBoard extends React.Component {
         this.loader.stop();
     }
 
+    canManualRun(job){
+        if (job.Schedule || !job.EventNames) {
+            return true
+        }
+        let hasManualFilter = false;
+        console.log(job);
+        try{
+            job.Actions.forEach(a => {
+                if (!a.TriggerFilter) {
+                    return
+                }
+                a.TriggerFilter.Query.SubQueries.forEach(sub => {
+                    if (sub.value.IsManual){
+                        hasManualFilter = true;
+                    }
+                });
+            });
+        } catch(e){}
+        return hasManualFilter;
+    }
+
+
     render(){
 
         const {pydio, jobsEditable, onRequestClose, adminStyles} = this.props;
@@ -81,27 +103,27 @@ class JobBoard extends React.Component {
         const flatProps = {...adminStyles.props.header.flatButton};
         const iconColor = adminStyles.props.header.flatButton.labelStyle.color;
         if(!create){
-            if(!job.EventNames){
-                if(jobsEditable){
+            if(Loader.canManualRun(job)){
+                if(job.Schedule && jobsEditable){
                     actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
                 }
                 const bProps = {...flatProps};
                 if(job.Inactive){
                     bProps.backgroundColor = '#e0e0e0';
                 }
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"} color={iconColor}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} {...bProps}/>);
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-play"} color={iconColor}/>} label={m('task.action.run')} disabled={job.Inactive} primary={true} onClick={()=>{JobsStore.getInstance().controlJob(job, 'RunOnce')}} {...bProps}/>);
             }
             if(job.Inactive) {
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"} color={iconColor}/>} label={m('task.action.enable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} {...flatProps}/>);
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-marked-circle-outline"} color={iconColor}/>} label={m('task.action.enable')} primary={true} onClick={()=>{JobsStore.getInstance().controlJob(job, 'Active')}} {...flatProps}/>);
             } else {
-                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"} color={iconColor}/>} label={m('task.action.disable')} primary={true} onTouchTap={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} {...flatProps}/>);
+                actions.push(<FlatButton icon={<FontIcon className={"mdi mdi-checkbox-blank-circle-outline"} color={iconColor}/>} label={m('task.action.disable')} primary={true} onClick={()=>{JobsStore.getInstance().controlJob(job, 'Inactive')}} {...flatProps}/>);
             }
         }
 
         return (
             <div style={{height: '100%', display:'flex', flexDirection:'column', position:'relative'}}>
                 <AdminComponents.Header
-                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onTouchTap={() => onRequestClose(true)}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
+                    title={<span><a style={{cursor:'pointer', borderBottom:'1px solid rgba(0,0,0,.87)'}} onClick={() => onRequestClose(true)}>{pydio.MessageHash['ajxp_admin.scheduler.title']}</a> / {job.Label} {job.Inactive ? ' [disabled]' : ''}</span>}
                     backButtonAction={() => onRequestClose(true)}
                     actions={actions}
                     loading={loading}

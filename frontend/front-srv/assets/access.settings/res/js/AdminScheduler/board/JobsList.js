@@ -27,7 +27,7 @@ import {Paper} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
-
+import Loader from './Loader'
 
 class JobsList extends React.Component {
 
@@ -88,15 +88,31 @@ class JobsList extends React.Component {
             if(job.Inactive){
                 tagOpacity = {opacity: .43}
             }
-            if(job.Schedule) {
-                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#03A9F4'}}><span className={"mdi mdi-timer"}/><ScheduleForm schedule={job.Schedule}/></div>;
+            if(job.Schedule && job.EventNames) {
+                const jNames = job.EventNames.map(e => Events.eventData(e).title).join(', ')
+                data.Trigger = (
+                    <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#03A9F4', backgroundImage:'-webkit-linear-gradient(-80deg, #03a9f4 50%, #43a047 50%)'}}>
+                        <span className={"mdi mdi-timer"}/> <ScheduleForm schedule={job.Schedule}/>,
+                        <span title={jNames}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {jNames}</span>
+                    </div>);
+                data.SortValue = '1-' + job.Label;
+            } else if(job.EventNames && Loader.canManualRun(job)) {
+                const jNames = [...job.EventNames.map(e => Events.eventData(e).title), m('trigger.manual')].join(', ')
+                data.Trigger = (
+                    <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#03A9F4', backgroundImage:'-webkit-linear-gradient(-80deg, #03a9f4 50%, #607d8b 50%)'}}>
+                        <span title={jNames}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {jNames}</span>
+                    </div>);
+                data.SortValue = '1-' + job.Label;
+            }  else if(job.Schedule) {
+                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#03A9F4'}}><span className={"mdi mdi-timer"}/> <ScheduleForm schedule={job.Schedule}/></div>;
                 data.SortValue = '0-' + job.Label;
             } else if(job.EventNames) {
-                data.SortValue = '1-' + job.Label;
-                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#43a047'}}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {job.EventNames.map(e => Events.eventData(e).title).join(', ')}</div>;
+                const jNames = job.EventNames.map(e => Events.eventData(e).title).join(', ')
+                data.SortValue = '2-' + job.Label;
+                data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#43a047'}} title={jNames}><span className={"mdi mdi-pulse"} title={m('trigger.events')}/> {jNames}</div>;
             } else {
                 data.Trigger = <div style={{...tagStyle, ...tagOpacity, backgroundColor:'#607d8b'}}><span className={"mdi mdi-gesture-tap"}/> {m('trigger.manual')}</div>;
-                data.SortValue = '2-' + job.Label;
+                data.SortValue = '3-' + job.Label;
             }
             if (job.Inactive) {
                 data.Label = <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
@@ -180,7 +196,7 @@ class JobsList extends React.Component {
         let {system, other} = this.extractRowsInfo(jobs, m);
         const actions = [{
             iconClassName:'mdi mdi-chevron-right',
-            onTouchTap:(row)=>selectRows([row])
+            onClick:(row)=>selectRows([row])
         }];
 
         return (

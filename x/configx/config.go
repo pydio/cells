@@ -246,7 +246,12 @@ func (v *config) Val(s ...string) Values {
 	keys := StringToKeys(s...)
 
 	// Need to do something for reference
-	if len(keys) > 0 && keys[0] == "#" {
+	if len(keys) == 1 && keys[0] == "#" {
+		if v.r != nil {
+			return v.r
+		}
+		return v
+	} else if len(keys) > 0 && keys[0] == "#" {
 		keys = keys[1:]
 	} else {
 		keys = append(v.k, keys...)
@@ -325,6 +330,20 @@ func (c *config) Bytes() []byte {
 	v := c.get()
 	if v == nil {
 		return []byte{}
+	}
+	switch v := c.v.(type) {
+	case []interface{}, map[string]interface{}:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return []byte{}
+		}
+
+		return data
+	case string:
+		// Need to handle it differently
+		if v == "default" {
+			c.v = nil
+		}
 	}
 	return []byte(cast.ToString(v))
 }

@@ -17,41 +17,46 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
 import SimpleList from './SimpleList'
 
 /**
  * Simple to use list component encapsulated with its own query mechanism
  * using a set of properties for the remote node provider.
  */
-export default React.createClass({
+export default class NodeListCustomProvider extends React.Component{
 
-    propTypes:{
-        nodeProviderProperties:React.PropTypes.object,
-        presetDataModel:React.PropTypes.instanceOf(PydioDataModel),
-        autoRefresh:React.PropTypes.number,
-        actionBarGroups:React.PropTypes.array,
-        heightAutoWithMax:React.PropTypes.number,
-        elementHeight:React.PropTypes.number.isRequired,
-        nodeClicked:React.PropTypes.func,
-        reloadOnServerMessage:React.PropTypes.string,
-        entryRenderAsCard:React.PropTypes.func
-    },
+    // propTypes:{
+    //     nodeProviderProperties:React.PropTypes.object,
+    //     presetDataModel:React.PropTypes.instanceOf(PydioDataModel),
+    //     presetRootNode:React.PropTypes.instanceOf(AjxpNode)
+    //     autoRefresh:React.PropTypes.number,
+    //     actionBarGroups:React.PropTypes.array,
+    //     heightAutoWithMax:React.PropTypes.number,
+    //     elementHeight:React.PropTypes.number.isRequired,
+    //     nodeClicked:React.PropTypes.func,
+    //     reloadOnServerMessage:React.PropTypes.string,
+    //     entryRenderAsCard:React.PropTypes.func
+    // },
 
-    reload: function(){
+    reload(){
         if(this.refs.list && this.isMounted()){
             this.refs.list.reload();
         }
-    },
+    }
 
-    componentWillUnmount:function(){
+    componentWillUnmount(){
         if(this._smObs){
             this.props.pydio.stopObserving("server_message", this._smObs);
             this.props.pydio.stopObserving("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
-    },
+        if(this._selObserver){
+            const {dataModel} = this.state;
+            dataModel.stopObserving("selection_changed", this._selObserver);
+        }
+    }
 
-    componentWillReceiveProps: function(nextProps){
+    componentWillReceiveProps(nextProps){
         if(this.props.nodeProviderProperties && this.props.nodeProviderProperties !== nextProps.nodeProviderProperties){
             let {dataModel, node} = this.state;
             const provider = new RemoteNodeProvider(nextProps.nodeProviderProperties);
@@ -61,20 +66,20 @@ export default React.createClass({
         }else if(this.props.presetDataModel !== nextProps.presetDataModel){
             this.setState({
                 dataModel: nextProps.presetDataModel,
-                node: nextProps.presetDataModel.getRootNode()
+                node: nextProps.presetRootNode || nextProps.presetDataModel.getRootNode()
             });
         }
-    },
+    }
 
-    getInitialState:function(){
-
+    constructor(props){
+        super(props);
         let dataModel;
         if(this.props.presetDataModel){
             dataModel = this.props.presetDataModel;
         }else{
             dataModel = PydioDataModel.RemoteDataModelFactory(this.props.nodeProviderProperties);
         }
-        const rootNode = dataModel.getRootNode();
+        const rootNode = this.props.presetRootNode || dataModel.getRootNode();
         if(this.props.nodeClicked){
             // leaf
             this.openEditor = function(node){
@@ -82,23 +87,24 @@ export default React.createClass({
                 return false;
             }.bind(this);
             // dir
-            dataModel.observe("selection_changed", function(event){
-                var selectedNodes = event.memo.getSelectedNodes();
+            this._selObserver = (event)=>{
+                const selectedNodes = event.memo.getSelectedNodes();
                 if(selectedNodes.length) {
                     this.props.nodeClicked(selectedNodes[0]);
                     event.memo.setSelectedNodes([]);
                 }
-            }.bind(this));
+            }
+            dataModel.observe("selection_changed", this._selObserver);
         }
         if(this.props.reloadOnServerMessage && this.props.pydio){
             this._smObs = function(event){ if(XMLUtils.XPathSelectSingleNode(event, this.props.reloadOnServerMessage)) this.reload(); }.bind(this);
             this.props.pydio.observe("server_message", this._smObs);
             this.props.pydio.observe("server_message:" + this.props.reloadOnServerMessage, this.reload);
         }
-        return {node:rootNode, dataModel:dataModel};
-    },
+        this.state = {node:rootNode, dataModel:dataModel};
+    }
 
-    render:function(){
+    render(){
         return (
             <div className={this.props.heightAutoWithMax?"":"layout-fill vertical-layout"} style={this.props.containerStyle}>
                 <SimpleList
@@ -117,4 +123,4 @@ export default React.createClass({
         );
     }
 
-});
+}

@@ -2,19 +2,20 @@ package config
 
 import (
 	"fmt"
+	"strconv"
+	"time"
 
-	"github.com/pkg/errors"
 	"github.com/pydio/cells/x/configx"
 	"github.com/pydio/cells/x/filex"
 )
 
 type versionStore struct {
 	filex.VersionsStore
-	store configx.Entrypoint
+	store Store
 }
 
 // NewVersionStore based on a file Version Store and a store
-func NewVersionStore(vs filex.VersionsStore, store configx.Entrypoint) configx.Entrypoint {
+func NewVersionStore(vs filex.VersionsStore, store Store) Store {
 	return &versionStore{
 		vs,
 		store,
@@ -38,21 +39,7 @@ func (v *versionStore) Get() configx.Value {
 
 // Set new value
 func (v *versionStore) Set(data interface{}) error {
-
-	version, ok := data.(*filex.Version)
-	if !ok {
-		return errors.New("Could not save version")
-	}
-
-	if err := v.store.Set(version.Data); err != nil {
-		return err
-	}
-
-	if err := VersionsStore.Put(version); err != nil {
-		return err
-	}
-
-	return nil
+	return v.store.Set(data)
 }
 
 // Del version store
@@ -68,4 +55,67 @@ func (v *versionStore) Watch(path ...string) (configx.Receiver, error) {
 	}
 
 	return watcher.Watch(path...)
+}
+
+// Save the config in the underlying storage
+func (v *versionStore) Save(ctxUser string, ctxMessage string) error {
+	data := v.store.Val().Map()
+
+	if err := VersionsStore.Put(&filex.Version{
+		Date: time.Now(),
+		User: ctxUser,
+		Log:  ctxMessage,
+		Data: data,
+	}); err != nil {
+		return err
+	}
+
+	return v.store.Save(ctxUser, ctxMessage)
+}
+
+type configStore struct {
+	store Store
+}
+
+func NewConfigStore(values Store) (filex.VersionsStore, error) {
+	return &configStore{
+		values,
+	}, nil
+}
+
+// Put stores version in Bolt
+func (s *configStore) Put(version *filex.Version) error {
+	var versions []*filex.Version
+	v := s.store.Val()
+	if err := v.Scan(&versions); err != nil {
+		return err
+	}
+
+	version.Id = uint64(len(versions))
+
+	versions = append(versions, version)
+
+	return s.store.Set(versions)
+}
+
+// List all version starting at a given id
+func (s *configStore) List(offset uint64, limit uint64) (result []*filex.Version, err error) {
+	var versions []*filex.Version
+
+	if err := s.store.Val().Scan(&versions); err != nil {
+		return nil, err
+	}
+
+	return versions, nil
+}
+
+// Retrieve loads data from db by version ID
+func (s *configStore) Retrieve(id uint64) (*filex.Version, error) {
+	var version *filex.Version
+
+	if err := s.store.Val(strconv.Itoa(int(id))).Scan(&version); err != nil {
+		return nil, err
+	}
+
+	return version, nil
 }

@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import {AutoComplete, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 const styles = {
     th: {
@@ -65,13 +65,17 @@ class SitesParameters extends React.Component {
         })
     }
 
-    onNewRequest(type, v) {
+    onNewRequest(type, v, save) {
         const {mailerConfig, shareConfig} = this.state;
         const value = (typeof v === 'string') ? v : v.value
+        let cb;
+        if(save){
+            cb = () => this.save(type);
+        }
         if(type === 'share'){
-            this.setState({shareConfig: {...shareConfig, url: value}}, () => this.save(type))
+            this.setState({shareConfig: {...shareConfig, url: value}}, cb)
         } else if(type === 'mailer'){
-            this.setState({mailerConfig: {...mailerConfig, url: value}}, () => this.save(type))
+            this.setState({mailerConfig: {...mailerConfig, url: value}}, cb)
         }
     }
 
@@ -172,32 +176,31 @@ class SitesParameters extends React.Component {
                     <div style={{padding: '8px 16px 2px'}}>
 
                         <div style={{paddingBottom:8, fontSize: 12, color: 'inherit', fontWeight: 'normal'}} className={"form-legend"} dangerouslySetInnerHTML={{__html: m('sites.externals.details')}}/>
-
-                        <div className={"form-legend"}>{m('sites.mailer.url')}{mailDirty && " " + m('sites.enter-to-save')}</div>
-                        <AutoComplete
+                        <ModernAutoComplete
                             {...ModernStyles.textField}
+                            floatingLabelText={m('sites.mailer.url') + (mailDirty ? (" " + m('sites.enter-to-save')):'')}
                             hintText={defaultSite || m('sites.no-defaults')}
                             dataSource={completeValues}
                             filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
                             fullWidth={true}
                             openOnFocus={true}
-                            onUpdateInput={() => {this.setState({mailDirty:true})}}
+                            onUpdateInput={(searchText) => {this.onNewRequest('mailer', searchText, false); this.setState({mailDirty:true})}}
                             searchText={mailerConfig.url || ''}
-                            onNewRequest={(v) => {this.onNewRequest('mailer',v)}}
+                            onNewRequest={(v) => {this.onNewRequest('mailer',v, true)}}
                         />
                     </div>
                     <div style={{padding: '0 16px 16px'}}>
-                        <div className={"form-legend"}>{m('sites.links.url')}{shareDirty && " " + m('sites.enter-to-save')}</div>
-                        <AutoComplete
+                        <ModernAutoComplete
                             {...ModernStyles.textField}
+                            floatingLabelText={m('sites.links.url') + (shareDirty ? (" " + m('sites.enter-to-save')):'')}
                             hintText={defaultSite || m('sites.no-defaults')}
                             dataSource={completeValues}
                             filter={(searchText, key) => searchText === '' || key.indexOf(searchText) === 0}
                             fullWidth={true}
                             openOnFocus={true}
-                            onUpdateInput={() => {this.setState({shareDirty:true})}}
+                            onUpdateInput={(searchText) => {this.onNewRequest('share', searchText, false); this.setState({shareDirty:true})}}
                             searchText={shareConfig.url || ''}
-                            onNewRequest={(v) => {this.onNewRequest('share', v)}}
+                            onNewRequest={(v) => {this.onNewRequest('share', v, true)}}
                         />
                     </div>
 

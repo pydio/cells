@@ -106,7 +106,7 @@ class UserPanel extends React.Component {
                     badgeStyle={this.state.unreadStatus ? null : {display: 'none'}}
                 >
                     <IconButton
-                        onTouchTap={this.handleTouchTap.bind(this)}
+                        onClick={this.handleTouchTap.bind(this)}
                         iconClassName={this.props.iconClassName || "mdi mdi-bell"}
                         tooltip={(unreadStatus ? unreadStatus + ' ' : '') + this.props.pydio.MessageHash['notification_center.4']}
                         className="userActionButton alertsButton"

@@ -28,7 +28,7 @@ const { withContainerSize, EditorActions } = Pydio.requireLib('hoc');
 
 @withContainerSize
 @connect(mapStateToProps, EditorActions)
-export default class App extends React.Component {
+class App extends React.Component {
 
     constructor(props) {
         super(props)
@@ -108,3 +108,5 @@ function mapStateToProps(state, ownProps) {
         displayToolbar: displayToolbar,
     }
 }
+
+export default App

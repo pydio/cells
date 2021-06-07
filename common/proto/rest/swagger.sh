@@ -1,6 +1,7 @@
 #!/bin/bash
 
 [ -z "$BRANCH_PATH" ] && BRANCH_PATH=$GOPATH
+[ -z "$MODULE_SRC_PATH" ] && MODULE_SRC_PATH=~/Sources/cells-sdk-js/src
 
 protoc -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
        -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway \
@@ -25,13 +26,15 @@ go run cmd/main.go
 echo "Generating Javascript client"
 
 swagger-codegen generate -i $BRANCH_PATH/src/github.com/pydio/cells/common/proto/rest/rest.swagger.json -l javascript -c swagger-jsclient.json -o /tmp/js-client
-rm -rf $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen
-mv /tmp/js-client/src $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen
+rm -rf $MODULE_SRC_PATH
+mv /tmp/js-client/src $MODULE_SRC_PATH
 
 echo "GIT: Revert cyclic models and add new ones"
 
-git checkout -- $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/ActivityObject.js
-git checkout -- $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/JobsAction.js
-git checkout -- $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/RestTemplateNode.js
-git checkout -- $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/ProtobufAny.js
-git add $BRANCH_PATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen
+cd $MODULE_SRC_PATH
+git checkout -- model/ActivityObject.js
+git checkout -- model/JobsAction.js
+git checkout -- model/RestTemplateNode.js
+git checkout -- model/ProtobufAny.js
+git add .
+cd -

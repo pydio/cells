@@ -1,3 +1,5 @@
+import React, { Component } from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+
 import ResourcesManager from 'pydio/http/resources-manager';
 import FuncUtils from 'pydio/util/func'
 
@@ -84,9 +87,21 @@ class AsyncComponent extends Component {
         this._handleLoad();
     }
 
+    componentDidCatch(error, errorInfo) {
+        console.error(error, errorInfo);
+    }
+
+    static getDerivedStateFromError(error) {
+        // Mettez à jour l'état, de façon à montrer l'UI de repli au prochain rendu.
+        return { hasError: true };
+    }
+
     render() {
         if (!this.state.loaded) {
             return null;
+        }
+        if(this.state.hasError) {
+            return <div>Oops, something went wrong, please reload the window!</div>
         }
 
         let props = this.props;
@@ -110,8 +125,8 @@ class AsyncComponent extends Component {
 }
 
 AsyncComponent.propTypes = {
-    namespace: React.PropTypes.string.isRequired,
-    componentName: React.PropTypes.string.isRequired
+    namespace: PropTypes.string.isRequired,
+    componentName: PropTypes.string.isRequired
 };
 
 // AsyncComponent = PydioHOCs.withLoader(AsyncComponent)

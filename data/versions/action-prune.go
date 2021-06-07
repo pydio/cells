@@ -30,10 +30,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
@@ -101,21 +103,15 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	} else {
 		log.TasksLogger(ctx).Info("Starting action: one or more datasources found with versioning enabled.")
 	}
-
-	source, e := c.Pool.GetDataSourceInfo(common.PydioVersionsNamespace)
-	if e != nil {
-		return input.WithError(e), e
-	}
-	// Prepare ctx with info about the target branch
-	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
 	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
-		for _, versionFileId := range response.DeletedVersions {
-			err := source.Client.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
+		for _, version := range response.DeletedVersions {
+			deleteNode := version.GetLocation()
+			_, err := c.Handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode}) // source.Client.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
 			if err != nil {
-				log.TasksLogger(ctx).Error("Error while trying to remove file "+versionFileId, zap.String("fileId", versionFileId), zap.Error(err))
+				log.TasksLogger(ctx).Error("Error while trying to remove file "+deleteNode.Uuid, zap.String("fileId", deleteNode.Uuid), zap.Error(err))
 			} else {
-				log.TasksLogger(ctx).Info("[Prune Versions Task] Removed file from versions bucket "+versionFileId, zap.String("fileId", versionFileId))
+				log.TasksLogger(ctx).Info("[Prune Versions Task] Removed file from versions bucket "+deleteNode.Uuid, zap.String("fileId", deleteNode.Uuid))
 			}
 		}
 	} else {

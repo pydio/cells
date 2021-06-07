@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+const createReactClass = require('create-react-class');
 import ActionDialogMixin from './ActionDialogMixin'
 import moment from '../Moment'
 
@@ -25,7 +26,7 @@ import moment from '../Moment'
  * Sample Dialog class used for reference only, ready to be
  * copy/pasted :-)
  */
-export default React.createClass({
+export default createReactClass({
 
     mixins:[
         ActionDialogMixin
@@ -60,7 +61,7 @@ export default React.createClass({
         const warn = moment.duration(timerSeconds, 'seconds');
         const sentence = MessageHash['375'].replace('__IDLE__', since.humanize()).replace('__LOGOUT__', warn.humanize());
         return (
-            <div onTouchTap={() => {this.props.pydio.notify('user_activity');}}>
+            <div onClick={() => {this.props.pydio.notify('user_activity');}}>
                 <div style={{display:'flex', alignItems:'center'}}>
                     <div className="mdi mdi-security" style={{fontSize:70,paddingRight:10}}/>
                     <p>{sentence}</p>

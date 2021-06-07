@@ -24,6 +24,9 @@ package rest
 import (
 	"context"
 	"encoding/gob"
+	"os"
+
+	"github.com/pydio/cells/common/config"
 
 	"github.com/pydio/packr"
 
@@ -110,5 +113,9 @@ func init() {
 		// Exclude POST binaries for using Cookies as it's the only one subject to possible CSRF
 		s.Init(service.WithWebSession("POST:/frontend/binaries"))
 	})
+
+	if os.Getenv("CELLS_ENABLE_FORMS_DEVEL") == "1" {
+		config.RegisterExposedConfigs("pydio.rest.forms-devel", formDevelConfigs)
+	}
 
 }

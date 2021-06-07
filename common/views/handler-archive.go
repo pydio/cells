@@ -107,6 +107,13 @@ func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, request
 				return r, nil
 			}
 		} else if testFolder := a.archiveFolderName(originalPath); len(testFolder) > 0 {
+			// Send a ReadNodeRequest.ObjectStats on folder to check for specific download permission
+			if _, e := a.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
+				Path: testFolder,
+				MetaStore: map[string]string{"acl-check-download":"true"},
+			}}); e != nil {
+				return nil, e
+			}
 			r, w := io.Pipe()
 			go func() {
 				defer w.Close()

@@ -38,13 +38,17 @@ class CellChat extends React.Component{
                     roomType={chatRoomType}
                     roomObjectId={cellId}
                     style={{flex: 1, display:'flex', flexDirection:'column', overflow: 'hidden'}}
-                    msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important', backgroundColor:'#FAFAFA'}}
+                    chatUsersStyle={{borderBottom: 0, padding: 5, backgroundColor:'rgba(0,0,0,.05)', display:'flex', flexWrap:'wrap'}}
+                    msgContainerStyle={{maxHeight:null, flex:1, paddingTop: '10px !important'}}
                     fieldHint={pydio.MessageHash['636']}
+                    fieldContainerStyle={{backgroundColor:'transparent'}}
                     pushMessagesToBottom={true}
                     emptyStateProps={{
                         iconClassName:'mdi mdi-comment-account-outline',
                         primaryTextId:pydio.MessageHash['637'],
-                        style:{padding:'0 10px', backgroundColor: 'transparent'}
+                        style:{padding:'0 10px', backgroundColor: 'transparent'},
+                        iconStyle:{fontSize: 60},
+                        legendStyle:{fontSize: 14, padding: 20}
                     }}
                     computePresenceFromACLs={cellModel?cellModel.getAcls():{}}
                     onRequestClose={onRequestClose}

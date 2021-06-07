@@ -5,7 +5,7 @@
         <resources>
             <i18n namespace="openother" remote="plug/access.gateway/i18n/editor.picker"/>
             <i18n namespace="access_fs" remote="plug/access.gateway/i18n/access.fs"/>
-            <js className="FSActions" file="plug/access.gateway/res/build/FSActions.js" depends="PydioComponents"/>
+            <js className="FSActions" file="plug/access.gateway/res/dist/FSActions.min.js" depends="PydioComponents"/>
         </resources>
         <node_provider ajxpClass="MetaNodeProvider" ajxpOptions="{}"/>
     </client_settings>
@@ -34,6 +34,19 @@
                 </rightsContext>
                 <processing>
                     <clientCallback module="FSActions.Callbacks.ls"/>
+                </processing>
+            </action>
+            <action name="goto">
+                <gui text="action.goto.label" title="action.goto.label" iconClass="mdi mdi-open-in-new" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="0_get,change_main,inline,inline-search">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="true" unique="true" enableRoot="true" evalMetadata="metadata.get('search_result')"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.goTo"/>
                 </processing>
             </action>
             <action name="download" fileDefault="false">
@@ -147,7 +160,7 @@
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change" inZip="false">
                     </context>
-                    <selectionContext dir="true" file="true" recycle="false" unique="true" image="false" editable="false"/></gui>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" image="false" editable="false"  evalMetadata="!metadata.get('search_result')"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="FSActions.Callbacks.rename"/>
@@ -160,7 +173,8 @@
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change">
                     </context>
-                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false" evalMetadata="!metadata.get('search_result')"/>
+                </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
                 <processing>
                     <clientCallback module="FSActions.Callbacks.copy"/>
@@ -173,7 +187,8 @@
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change" inZip="false">
                     </context>
-                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false" evalMetadata="!metadata.get('search_result')"/>
+                </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="FSActions.Callbacks.move"/>
@@ -185,7 +200,7 @@
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change,minisite,info_panel_recycle" inZip="false">
                     </context>
-                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false" evalMetadata="!metadata.get('search_result')"/>
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>

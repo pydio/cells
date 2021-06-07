@@ -19,11 +19,11 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {FlatButton, RaisedButton, Paper, Divider, Toggle, MenuItem, AutoComplete, RefreshIndicator, FontIcon, IconButton, Subheader} from 'material-ui'
+import {Paper, MenuItem, AutoComplete, RefreshIndicator, FontIcon, IconButton} from 'material-ui'
 import debounce from 'lodash.debounce'
 import PathUtils from 'pydio/util/path'
-import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from "pydio/http/rest-api";
-const {ModernStyles} = Pydio.requireLib('hoc');
+import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from 'cells-sdk';
+const {ModernAutoComplete, ModernStyles} = Pydio.requireLib('hoc');
 
 export default class WsAutoComplete extends React.Component{
 
@@ -200,7 +200,7 @@ export default class WsAutoComplete extends React.Component{
 
         return (
             <Paper zDepth={zDepth} style={{display:'flex', alignItems: 'center', margin:'2px 0', ...this.props.style}}>
-                <div style={{position:'relative', flex: 1}}>
+                <div style={{position:'relative', flex: 1, height: 60}}>
                     <div style={{position:'absolute', right: 0, top: 30, width: 30}}>
                         <RefreshIndicator
                             size={30}
@@ -209,21 +209,23 @@ export default class WsAutoComplete extends React.Component{
                             status={loading ? "loading" : "hide"}
                         />
                     </div>
-                    <AutoComplete
+                    <ModernAutoComplete
                         fullWidth={true}
                         searchText={value}
                         onUpdateInput={(value) => this.handleUpdateInput(value)}
                         onNewRequest={(value) => this.handleNewRequest(value)}
                         onClose={() => this.handleNewRequest(value)}
                         dataSource={dataSource}
-                        hintText={label || m('ws.complete.label')}
                         filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                        floatingLabelText={label || m('ws.complete.label')}
                         openOnFocus={true}
                         menuProps={{maxHeight: 200}}
-                        {...ModernStyles.textField}
+                        hasRightBlock={true}
                     />
                 </div>
-                <IconButton iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onTouchTap={onDelete} disabled={!onDelete}/>
+                <div style={ModernStyles.fillBlockV2Right}>
+                    <IconButton style={{marginTop: 2}} iconStyle={{color:onDelete?'#9e9e9e':'#eee'}} iconClassName={"mdi mdi-delete"} onClick={onDelete} disabled={!onDelete}/>
+                </div>
             </Paper>
         );
     }

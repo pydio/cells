@@ -168,8 +168,7 @@ class PanelBigButtons extends React.Component {
                                                 <IconButton
                                                     iconClassName={"mdi mdi-close"}
                                                     tooltip={"Remove"}
-                                                    onTouchTap={(e) => {a.onDelete();}}
-                                                    onClick={(e) => {e.stopPropagation(); e.preventDefault()}}
+                                                    onClick={(e) => {e.stopPropagation();a.onDelete();}}
                                                     {...styles.deleteIconProps}
                                                 />
                                             </div>

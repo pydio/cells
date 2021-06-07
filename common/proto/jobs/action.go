@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -71,6 +72,9 @@ func (a *Action) getSelectors() []InputSelector {
 	if a.UsersSelector != nil {
 		selectors = append(selectors, a.UsersSelector)
 	}
+	if a.DataSourceSelector != nil {
+		selectors = append(selectors, a.DataSourceSelector)
+	}
 	return selectors
 }
 
@@ -79,18 +83,45 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output 
 	output = input
 	if a.NodesFilter != nil {
 		output, excluded, passThrough = a.NodesFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.IdmFilter != nil {
 		output, excluded, passThrough = a.IdmFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
+	}
+	if a.DataSourceFilter != nil {
+		output, excluded, passThrough = a.DataSourceFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
+	}
+	if a.TriggerFilter != nil {
+		output, excluded, passThrough = a.TriggerFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.UsersFilter != nil {
 		output, passThrough = a.UsersFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.ActionOutputFilter != nil {
 		output, passThrough = a.ActionOutputFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	if a.ContextMetaFilter != nil {
 		output, passThrough = a.ContextMetaFilter.Filter(ctx, output)
+		if !passThrough {
+			return
+		}
 	}
 	return
 }
@@ -143,22 +174,25 @@ func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector 
 	go func() {
 		for {
 			select {
-			case object := <-wire:
-				if nodeP, o := object.(*tree.Node); o {
+			case obj := <-wire:
+				if nodeP, o := obj.(*tree.Node); o {
 					node := *nodeP // copy
 					input = input.WithNode(&node)
-				} else if userP, oU := object.(*idm.User); oU {
+				} else if userP, oU := obj.(*idm.User); oU {
 					user := *userP
 					input = input.WithUser(&user)
-				} else if roleP, oR := object.(*idm.Role); oR {
+				} else if roleP, oR := obj.(*idm.Role); oR {
 					role := *roleP
 					input = input.WithRole(&role)
-				} else if wsP, oW := object.(*idm.Workspace); oW {
+				} else if wsP, oW := obj.(*idm.Workspace); oW {
 					ws := *wsP
 					input = input.WithWorkspace(&ws)
-				} else if aclP, oA := object.(*idm.ACL); oA {
+				} else if aclP, oA := obj.(*idm.ACL); oA {
 					acl := *aclP
 					input = input.WithAcl(&acl)
+				} else if dsP, oD := obj.(*object.DataSource); oD {
+					ds := *dsP
+					input = input.WithDataSource(&ds)
 				}
 				output <- input
 			case <-selectDone:
@@ -181,6 +215,7 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 	var roles []*idm.Role
 	var workspaces []*idm.Workspace
 	var acls []*idm.ACL
+	var dss []*object.DataSource
 
 	wire := make(chan interface{})
 	selectDone := make(chan bool, 1)
@@ -190,17 +225,19 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 		defer wg.Done()
 		for {
 			select {
-			case object := <-wire:
-				if node, o := object.(*tree.Node); o {
+			case obj := <-wire:
+				if node, o := obj.(*tree.Node); o {
 					nodes = append(nodes, node)
-				} else if user, oU := object.(*idm.User); oU {
+				} else if user, oU := obj.(*idm.User); oU {
 					users = append(users, user)
-				} else if role, oR := object.(*idm.Role); oR {
+				} else if role, oR := obj.(*idm.Role); oR {
 					roles = append(roles, role)
-				} else if ws, oW := object.(*idm.Workspace); oW {
+				} else if ws, oW := obj.(*idm.Workspace); oW {
 					workspaces = append(workspaces, ws)
-				} else if acl, oA := object.(*idm.ACL); oA {
+				} else if acl, oA := obj.(*idm.ACL); oA {
 					acls = append(acls, acl)
+				} else if ds, oD := obj.(*object.DataSource); oD {
+					dss = append(dss, ds)
 				}
 			case <-selectDone:
 				close(wire)
@@ -217,6 +254,11 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 	input = input.WithWorkspaces(workspaces...)
 	input = input.WithAcls(acls...)
 	input = input.WithUsers(users...)
+	input = input.WithDataSources(dss...)
+	if len(nodes) == 0 && len(roles) == 0 && len(workspaces) == 0 && len(acls) == 0 && len(users) == 0 && len(dss) == 0 {
+		done <- true
+		return
+	}
 	output <- input
 	done <- true
 }
@@ -231,10 +273,10 @@ func (a *Action) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // Zap simply returns a zapcore.Field object populated with this Action under a standard key
 func (a *Action) Zap() zapcore.Field {
-	return zap.Object(common.KEY_ACTION, a)
+	return zap.Object(common.KeyAction, a)
 }
 
 // ZapId simply calls zap.String() with ActionId standard key and this Action id
 func (a *Action) ZapId() zapcore.Field {
-	return zap.String(common.KEY_ACTION_ID, a.GetID())
+	return zap.String(common.KeyActionId, a.GetID())
 }

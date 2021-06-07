@@ -19,6 +19,7 @@
  */
 import Pydio from 'pydio'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {IconButton, DropDownMenu} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
@@ -70,7 +71,7 @@ class PaperEditorLayout extends React.Component{
             closeButton = <IconButton
                 tooltip={Pydio.getMessages()[86]}
                 iconClassName={'mdi mdi-close'}
-                onTouchTap={closeAction}
+                onClick={closeAction}
                 iconStyle={{color:'white'}}
             />
         }
@@ -97,12 +98,12 @@ class PaperEditorLayout extends React.Component{
 }
 
 PaperEditorLayout.propTypes = {
-    title:React.PropTypes.any,
-    titleActionBar:React.PropTypes.any,
-    closeAction: React.PropTypes.func,
-    leftNav:React.PropTypes.any,
-    contentFill:React.PropTypes.bool,
-    className:React.PropTypes.string
+    title:PropTypes.any,
+    titleActionBar:PropTypes.any,
+    closeAction: PropTypes.func,
+    leftNav:PropTypes.any,
+    contentFill:PropTypes.bool,
+    className:PropTypes.string
 };
 PaperEditorLayout = muiThemeable()(PaperEditorLayout);
 PaperEditorLayout.actionButton = (label, icon, action, disabled=false)=> {
@@ -111,7 +112,7 @@ PaperEditorLayout.actionButton = (label, icon, action, disabled=false)=> {
             tooltip={label}
             iconClassName={icon}
             disabled={disabled}
-            onTouchTap={action}
+            onClick={action}
             iconStyle={{color:disabled?'rgba(255,255,255,0.5)':'white'}}
         />
     );
@@ -122,9 +123,9 @@ PaperEditorLayout.actionButton = (label, icon, action, disabled=false)=> {
  */
 class PaperEditorNavHeader extends React.Component{
 
-    static propTypes:{
-        label:React.PropTypes.string
-    }
+    // static propTypes:{
+    //     label:PropTypes.string
+    // }
 
     render(){
 
@@ -143,18 +144,18 @@ class PaperEditorNavHeader extends React.Component{
  */
 class PaperEditorNavEntry extends React.Component{
 
-    static propTypes:{
-        keyName:React.PropTypes.string.isRequired,
-        onClick:React.PropTypes.func.isRequired,
-        label:React.PropTypes.string,
-        selectedKey:React.PropTypes.string,
-        isLast:React.PropTypes.bool,
-        // Drop Down Data
-        dropDown:React.PropTypes.bool,
-        dropDownData:React.PropTypes.object,
-        dropDownChange:React.PropTypes.func,
-        dropDownDefaultItems:React.PropTypes.array
-    }
+    // static propTypes:{
+    //     keyName:PropTypes.string.isRequired,
+    //     onClick:PropTypes.func.isRequired,
+    //     label:PropTypes.string,
+    //     selectedKey:PropTypes.string,
+    //     isLast:PropTypes.bool,
+    //     // Drop Down Data
+    //     dropDown:PropTypes.bool,
+    //     dropDownData:PropTypes.object,
+    //     dropDownChange:PropTypes.func,
+    //     dropDownDefaultItems:PropTypes.array
+    // }
 
     onClick(){
         this.props.onClick(this.props.keyName);

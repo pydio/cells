@@ -22,19 +22,16 @@ package websocket
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"strings"
 	"sync"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	context2 "github.com/pydio/cells/common/utils/context"
-
-	servicecontext "github.com/pydio/cells/common/service/context"
-
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/protobuf/jsonpb"
+	"github.com/ory/ladon"
+	"github.com/ory/ladon/manager/memory"
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
@@ -47,8 +44,12 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type WebsocketHandler struct {
@@ -171,14 +172,14 @@ func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tre
 			batcher.in <- event
 			return nil
 		} else {
-			e := &NodeChangeEventWithInfo{}
-			e.NodeChangeEvent = *event
+			e := &NodeChangeEventWithInfo{NodeChangeEvent: *event}
 			return w.BroadcastNodeChangeEvent(ctx, e)
 		}
+	case tree.NodeChangeEvent_UPDATE_USER_META:
+		e := &NodeChangeEventWithInfo{NodeChangeEvent: *event, refreshTarget: true}
+		return w.BroadcastNodeChangeEvent(ctx, e)
 	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
-		e := &NodeChangeEventWithInfo{}
-		e.NodeChangeEvent = *event
-		e.refreshTarget = true
+		e := &NodeChangeEventWithInfo{NodeChangeEvent: *event, refreshTarget: true}
 		return w.BroadcastNodeChangeEvent(ctx, e)
 	case tree.NodeChangeEvent_READ:
 		// Ignore READ events
@@ -226,6 +227,28 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			}
 		}
 
+		if event.Type == tree.NodeChangeEvent_UPDATE_USER_META {
+			if event.Source == nil || event.Source.MetaStore == nil {
+				log.Logger(ctx).Debug("UserMetaEvent: no Source or Source.MetaStore on event")
+				return false
+			}
+			var pols []*service.ResourcePolicy
+			e := json.Unmarshal([]byte(event.Source.MetaStore["pydio:meta-policies"]), &pols)
+			if e != nil {
+				log.Logger(ctx).Debug("UserMetaEvent: cannot unmarshall resource policies")
+				return false
+			}
+			subs, o := session.Get(SessionSubjectsKey)
+			if !o {
+				log.Logger(ctx).Debug("UserMetaEvent: No subjects in session")
+				return false
+			}
+			subjects := subs.([]string)
+			if !w.MatchPolicies(pols, subjects, service.ResourcePolicyAction_READ) {
+				return false
+			}
+		}
+
 		var (
 			hasData bool
 		)
@@ -241,15 +264,22 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
 		}
 
-		if event.refreshTarget && event.Target != nil {
+		eTarget := event.Target
+		eSource := event.Source
+
+		if event.refreshTarget && eTarget != nil {
 			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(metaCtx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
-				event.Target = respNode.Node
+				eTarget = respNode.Node
 			}
+		}
+		// Nil source for user-meta type
+		if event.Type == tree.NodeChangeEvent_UPDATE_USER_META {
+			eSource = nil
 		}
 
 		for wsId, workspace := range workspaces {
-			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, accessList, workspace, event.Target)
-			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, nil, workspace, event.Source) // Do not deep-check acl on source nodes (deleted!)
+			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, accessList, workspace, eTarget)
+			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(metaCtx, nil, workspace, eSource) // Do not deep-check acl on source nodes (deleted!)
 			// log.Logger(ctx).Info("Ws can see", zap.String("eType", event.Type.String()), zap.Bool("source", t2), event.Source.ZapPath(), zap.Bool("target", t1), event.Target.ZapPath())
 			// Depending on node, broadcast now
 			if t1 || t2 {
@@ -408,4 +438,42 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 		return false
 	})
 
+}
+
+// MatchPolicies creates an memory-based policy stack checker to check if action is allowed or denied.
+// It uses a DenyByDefault strategy
+func (w *WebsocketHandler) MatchPolicies(policies []*service.ResourcePolicy, subjects []string, action service.ResourcePolicyAction) bool {
+
+	warden := &ladon.Ladon{Manager: memory.NewMemoryManager()}
+	for i, pol := range policies {
+		id := fmt.Sprintf("%v", pol.Id)
+		if pol.Id == 0 {
+			id = fmt.Sprintf("%d", i)
+		}
+		// We could add also conditions here
+		ladonPol := &ladon.DefaultPolicy{
+			ID:        id,
+			Resources: []string{"resource"},
+			Actions:   []string{pol.Action.String()},
+			Effect:    pol.Effect.String(),
+			Subjects:  []string{pol.Subject},
+		}
+		warden.Manager.Create(ladonPol)
+	}
+	// check that at least one of the subject is allowed
+	var allow bool
+	for _, subject := range subjects {
+		request := &ladon.Request{
+			Resource: "resource",
+			Subject:  subject,
+			Action:   action.String(),
+		}
+		if err := warden.IsAllowed(request); err != nil && err == ladon.ErrRequestForcefullyDenied {
+			return false
+		} else if err == nil {
+			allow = true
+		} // Else "default deny" => continue checking
+	}
+
+	return allow
 }

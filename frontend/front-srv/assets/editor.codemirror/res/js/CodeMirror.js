@@ -17,7 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
+import PropTypes from 'prop-types';
 import className from 'classnames';
 import debounce from 'lodash.debounce';
 
@@ -141,20 +142,20 @@ class CodeMirror extends React.Component {
 }
 
 CodeMirror.propTypes = {
-    mode: React.PropTypes.string,
-	lineWrapping: React.PropTypes.bool,
-	lineNumbers: React.PropTypes.bool,
-	readOnly: React.PropTypes.bool,
-    className: React.PropTypes.any,
-    codeMirrorInstance: React.PropTypes.func,
-    defaultValue: React.PropTypes.string,
-    onChange: React.PropTypes.func,
-    onFocusChange: React.PropTypes.func,
-    onScroll: React.PropTypes.func,
-    options: React.PropTypes.object,
-    path: React.PropTypes.string,
-    value: React.PropTypes.string,
-    preserveScrollPosition: React.PropTypes.bool,
+    mode: PropTypes.string,
+	lineWrapping: PropTypes.bool,
+	lineNumbers: PropTypes.bool,
+	readOnly: PropTypes.bool,
+    className: PropTypes.any,
+    codeMirrorInstance: PropTypes.func,
+    defaultValue: PropTypes.string,
+    onChange: PropTypes.func,
+    onFocusChange: PropTypes.func,
+    onScroll: PropTypes.func,
+    options: PropTypes.object,
+    path: PropTypes.string,
+    value: PropTypes.string,
+    preserveScrollPosition: PropTypes.bool,
 }
 
 CodeMirror.defaultProps = {

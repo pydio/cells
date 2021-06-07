@@ -137,7 +137,7 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 
 	var localFolder string
 	var ok bool
-	if localFolder, ok = dsConf.StorageConfiguration["folder"]; !ok {
+	if localFolder, ok = dsConf.StorageConfiguration[object.StorageKeyFolder]; !ok {
 		result.Log("[SKIPPED] This datasource does not have localFolder", dsConf)
 	} else {
 		// Create a random file inside local folder

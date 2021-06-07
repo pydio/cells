@@ -5,7 +5,7 @@ import Connect from './Connect'
 import LangUtils from 'pydio/util/lang'
 import Pydio from 'pydio'
 const {ModernTextField} = Pydio.requireLib('hoc');
-import {UserMetaServiceApi, IdmUserMetaNamespace, ServiceResourcePolicy, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUserMetaNamespace, ServiceResourcePolicy, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
 
 class MetadataMapper extends React.Component {
 
@@ -149,14 +149,14 @@ class MetadataMapper extends React.Component {
                                         primaryText={m.label}
                                         secondaryText={m.namespace + (m.additional? this.T('step.meta.map.values').replace('%s', m.additional): '')}
                                         leftIcon={this.renderFontIcon(m)}
-                                        onTouchTap={()=>{this.toggle(i)}}
+                                        onClick={()=>{this.toggle(i)}}
                                     />);
                             } else {
                                 return (
                                     <ListItem
                                         style={{backgroundColor:'rgba(255, 215, 0, 0.2)'}}
                                         primaryText={<ModernTextField style={{height: 40}} value={m.label} onChange={(e,v) => {this.updateLabel(i, v)}}/>}
-                                        leftIcon={<FontIcon style={{margin:'24px 12px', cursor:'pointer'}} className={"mdi mdi-check"} onTouchTap={()=>{this.toggle(i)}}/>}
+                                        leftIcon={<FontIcon style={{margin:'24px 12px', cursor:'pointer'}} className={"mdi mdi-check"} onClick={()=>{this.toggle(i)}}/>}
                                         disabled={true}
                                     />);
                             }

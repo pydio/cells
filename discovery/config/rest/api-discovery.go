@@ -26,8 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/discovery/config/lang"
-
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/spec"
 	"github.com/micro/go-micro/errors"
@@ -44,12 +42,14 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/discovery/config/lang"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -276,6 +276,56 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 			form = protos.GenerateProtoToForm("treeQuery", &tree.Query{}, asSwitch)
 		case "jobs.ActionOutputSingleQuery":
 			form = protos.GenerateProtoToForm("actionOutputSingleQuery", &jobs.ActionOutputSingleQuery{}, asSwitch)
+		case "jobs.TriggerFilterQuery":
+			form = protos.GenerateProtoToForm("triggerFilterQuery", &jobs.TriggerFilterQuery{}, asSwitch)
+			eventsField := &forms.FormField{
+				Name: "EventNames",
+				Type: forms.ParamSelect,
+				ChoicePresetList: []map[string]string{
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE): "Create Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_READ): "Read Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE): "Delete Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_PATH): "Move Node"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT): "Content Updated"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_META): "Meta Updated"},
+					{jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_USER_META): "User Meta Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_CREATE): "User Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_DELETE): "User Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_LOGIN): "User Logs In"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_LOGOUT): "User Logs Out"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_UPDATE): "User Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_User, idm.ChangeEventType_READ): "User Accessed"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Role, idm.ChangeEventType_CREATE): "Role Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Role, idm.ChangeEventType_DELETE): "Role Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Role, idm.ChangeEventType_UPDATE): "Role Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Workspace, idm.ChangeEventType_CREATE): "Workspace Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Workspace, idm.ChangeEventType_DELETE): "Workspace Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Workspace, idm.ChangeEventType_UPDATE): "Workspace Updated"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Acl, idm.ChangeEventType_CREATE): "Acl Created"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Acl, idm.ChangeEventType_DELETE): "Acl Deleted"},
+					{jobs.IdmChangeEventName(jobs.IdmSelectorType_Acl, idm.ChangeEventType_UPDATE): "Acl Updated"},
+				},
+			}
+			if asSwitch {
+				sw := form.Groups[0].Fields[0].(*forms.SwitchField)
+				for _, f := range sw.Values {
+					if f.Name == "EventNames" {
+						eventsField.Label = f.Label
+						replicable := f.Fields[0].(*forms.ReplicableFields)
+						replicable.Fields = []forms.Field{eventsField}
+					}
+				}
+			} else {
+				for _, f := range form.Groups[0].Fields {
+					if field, ok := f.(*forms.ReplicableFields); ok && field.Id == "EventNames" {
+						eventsField.Label = field.Fields[0].(*forms.FormField).Label
+						eventsField.Description = field.Fields[0].(*forms.FormField).Description
+						field.Fields = []forms.Field{eventsField}
+					}
+				}
+			}
+		case "object.DataSourceSingleQuery":
+			form = protos.GenerateProtoToForm("dataSourceSingleQuery", &object.DataSourceSingleQuery{}, asSwitch)
 		case "jobs.ContextMetaSingleQuery", "policy.Conditions":
 			// Add SwitchField for PolicyCondition
 			condField := &forms.SwitchField{

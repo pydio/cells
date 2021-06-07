@@ -21,7 +21,6 @@
 import React from 'react';
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api';
-import FormMixin from '../mixins/FormMixin'
 import FileDropzone from './FileDropzone'
 import LangUtils from 'pydio/util/lang'
 import {CircularProgress} from 'material-ui'
@@ -34,14 +33,28 @@ const BinaryDropZone = NativeFileDropProvider(FileDropzone, (items, files, props
  * UI for displaying and uploading an image,
  * using the binaryContext string.
  */
-export default React.createClass({
+class InputImage extends React.Component {
 
-    mixins:[FormMixin],
+    // propTypes: {
+    //     attributes: React.PropTypes.object,
+    //     binary_context: React.PropTypes.string
+    // },
 
-    propTypes: {
-        attributes: React.PropTypes.object,
-        binary_context: React.PropTypes.string
-    },
+    constructor(props) {
+        super(props);
+        let imageSrc, originalBinary;
+        if(this.props.value){
+            imageSrc = this.getBinaryUrl(this.props);
+            originalBinary = this.props.value;
+        }else if(this.props.attributes['defaultImage']){
+            imageSrc = this.props.attributes['defaultImage'];
+        }
+        this.state = {
+            imageSrc,
+            originalBinary,
+            value: this.props.value
+        };
+    }
 
     componentWillReceiveProps(newProps){
         let imgSrc;
@@ -51,20 +64,9 @@ export default React.createClass({
             imgSrc = newProps.attributes['defaultImage'];
         }
         if(imgSrc){
-            this.setState({imageSrc:imgSrc, reset:false});
+            this.setState({imageSrc:imgSrc, reset:false, value: newProps.value});
         }
-    },
-
-    getInitialState(){
-        let imgSrc, originalBinary;
-        if(this.props.value){
-            imgSrc = this.getBinaryUrl(this.props);
-            originalBinary = this.props.value;
-        }else if(this.props.attributes['defaultImage']){
-            imgSrc = this.props.attributes['defaultImage'];
-        }
-        return {imageSrc:imgSrc, originalBinary:originalBinary};
-    },
+    }
 
     getBinaryUrl(props){
         const pydio = PydioApi.getClient().getPydioObject();
@@ -75,7 +77,7 @@ export default React.createClass({
         }
         url = url.replace('{BINARY}', bId);
         return url;
-    },
+    }
 
     getUploadUrl(){
         const pydio = PydioApi.getClient().getPydioObject();
@@ -90,7 +92,7 @@ export default React.createClass({
         }
         url = url.replace('{BINARY}', bId);
         return url;
-    },
+    }
 
     uploadComplete(newBinaryName){
         const prevValue = this.state.value;
@@ -104,8 +106,12 @@ export default React.createClass({
                 additionalFormData['original_binary'] = this.state.originalBinary;
             }
             this.props.onChange(newBinaryName, prevValue, additionalFormData);
+            this.setState({
+                dirty:true,
+                value:newBinaryName
+            });
         }
-    },
+    }
 
     htmlUpload(){
         window.formManagerHiddenIFrameSubmission = function(result){
@@ -113,7 +119,7 @@ export default React.createClass({
             window.formManagerHiddenIFrameSubmission = null;
         }.bind(this);
         this.refs.uploadForm.submit();
-    },
+    }
 
     onDrop(files, event, dropzone){
         if (files.length === 0) {
@@ -155,10 +161,10 @@ export default React.createClass({
         }else{
             this.htmlUpload();
         }
-    },
+    }
 
     clearImage(){
-        if(global.confirm(Pydio.getMessages()['form.input-image.clearConfirm'])){
+        if(confirm(Pydio.getMessages()['form.input-image.clearConfirm'])){
             const prevValue = this.state.value;
             this.setState({
                 value:null,
@@ -169,7 +175,7 @@ export default React.createClass({
             }.bind(this));
 
         }
-    },
+    }
 
     render(){
         const {loading, error} = this.state;
@@ -181,6 +187,8 @@ export default React.createClass({
             position:'relative'
         };
         let overlay, overlayBg = {};
+        const isDefault = (this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc);
+
         if(error){
             overlayBg = {backgroundColor: 'rgba(255, 255, 255, 0.77)', borderRadius: '50%'};
             overlay = (
@@ -192,22 +200,29 @@ export default React.createClass({
         } else if(loading){
             overlay = <CircularProgress mode={"indeterminate"}/>;
         }else{
-            const isDefault = (this.props.attributes['defaultImage'] && this.props.attributes['defaultImage'] === this.state.imageSrc);
             overlay = <span className={"mdi mdi-camera"} style={{fontSize: 40, opacity: .5, color:isDefault?null:'white'}}/>
         }
 
+        const {variant} = this.props
+
         return(
-            <div>
+            <div style={variant==='v2'?{backgroundColor:'#f6f6f8'}:null}>
                 <div className="image-label">{this.props.attributes.label}</div>
                 <form ref="uploadForm" encType="multipart/form-data" target="uploader_hidden_iframe" method="post" action={this.getUploadUrl()}>
-                    <BinaryDropZone onDrop={this.onDrop} accept="image/*" style={coverImageStyle}>
+                    <BinaryDropZone onDrop={this.onDrop.bind(this)} accept="image/*" style={coverImageStyle}>
                         <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', ...overlayBg}}>{overlay}</div>
                     </BinaryDropZone>
                 </form>
-                <div className="binary-remove-button" onClick={this.clearImage}><span key="remove" className="mdi mdi-close"></span> {Pydio.getMessages()['form.input-image.clearButton']}</div>
+                {!isDefault &&
+                <div className="binary-remove-button" onClick={this.clearImage.bind(this)}>
+                    <span key="remove" className="mdi mdi-close"></span> {Pydio.getMessages()['form.input-image.clearButton']}
+                </div>
+                }
                 <iframe style={{display:"none"}} id="uploader_hidden_iframe" name="uploader_hidden_iframe"></iframe>
             </div>
         );
     }
 
-});
+}
+
+export default InputImage

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import Role from '../model/Role'
 const {FormPanel} = Pydio.requireLib('form');
@@ -85,6 +86,7 @@ class RoleInfo extends React.Component {
                 onParameterChange={this.onParameterChange.bind(this)}
                 values={values}
                 depth={-2}
+                variant={'v2'}
             />
         );
 
@@ -93,9 +95,9 @@ class RoleInfo extends React.Component {
 }
 
 RoleInfo.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio).isRequired,
-    pluginsRegistry: React.PropTypes.instanceOf(XMLDocument),
-    role: React.PropTypes.instanceOf(Role),
+    pydio: PropTypes.instanceOf(Pydio).isRequired,
+    pluginsRegistry: PropTypes.instanceOf(XMLDocument),
+    role: PropTypes.instanceOf(Role),
 };
 
 export {RoleInfo as default}

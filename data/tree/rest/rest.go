@@ -137,8 +137,14 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 	}
 	for i, n := range input.Nodes {
 		if !n.IsLeaf() {
-			folderPaths = append(folderPaths, n.Path)
-			folderChecks[n.Path] = n.Path
+			// Additional folders checks for non-flat storages
+			if info, err := router.BranchInfoForNode(ctx, n); err != nil {
+				service.RestError500(req, resp, err)
+			} else if !info.FlatStorage {
+				folderPaths = append(folderPaths, n.Path)
+				folderChecks[n.Path] = n.Path
+			}
+
 			if session != "" && i == len(input.Nodes)-1 {
 				session = common.SyncSessionClose_ + session
 			}
@@ -278,7 +284,8 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 					return fmt.Errorf("please do not modify directly the root of a workspace")
 				}
 			}
-			if sourceInRecycle(ctx, filtered, ancestors) {
+			attributes := bi.LoadAttributes()
+			if input.RemovePermanently || attributes.SkipRecycle || sourceInRecycle(ctx, filtered, ancestors) {
 				// This is a real delete!
 				if er := router.WrappedCanApply(ctx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_DELETE, Source: filtered}); er != nil {
 					return er
@@ -291,7 +298,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
 				log.Auditer(ctx).Info(
 					fmt.Sprintf("Definitively deleted [%s]", node.GetPath()),
-					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
+					log.GetAuditId(common.AuditNodeMovedToBin),
 					node.ZapUuid(),
 					node.ZapPath(),
 				)
@@ -321,7 +328,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 				log.Auditer(ctx).Info(
 					fmt.Sprintf("Moved [%s] to recycle bin", node.GetPath()),
-					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
+					log.GetAuditId(common.AuditNodeMovedToBin),
 					node.ZapUuid(),
 					node.ZapPath(),
 				)

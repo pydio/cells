@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {Paper, IconButton, TextField, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import Editor from '../editor/Editor'
@@ -28,8 +29,8 @@ const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-let RolesDashboard = React.createClass({
-
+let RolesDashboard = createReactClass({
+    displayName: 'RolesDashboard',
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     getInitialState(){
@@ -82,6 +83,8 @@ let RolesDashboard = React.createClass({
                     ...rolesEditorProps
                 }
             });
+        }).catch(e => {
+            console.log(e)
         });
         return true;
 
@@ -96,7 +99,6 @@ let RolesDashboard = React.createClass({
         this.props.closeRightPane();
         return true;
     },
-
 
     deleteAction(roleId, roleLabel = undefined){
         const {pydio} = this.props;
@@ -189,13 +191,13 @@ let RolesDashboard = React.createClass({
             tableActions.push({
                 iconClassName:"mdi mdi-pencil" ,
                 tooltip:'Edit',
-                onTouchTap:(row)=>{this.openRoleEditor(row.role)},
+                onClick:(row)=>{this.openRoleEditor(row.role)},
                 disable:(row)=>{return !row.role.PoliciesContextEditable}
             });
             tableActions.push({
                 iconClassName:"mdi mdi-delete" ,
                 tooltip:'Delete',
-                onTouchTap:(row)=>{this.deleteAction(row.role.Uuid, row.role.Label)},
+                onClick:(row)=>{this.deleteAction(row.role.Uuid, row.role.Label)},
                 disable:(row)=>{return !row.role.PoliciesContextEditable}
             });
         }
@@ -238,8 +240,7 @@ let RolesDashboard = React.createClass({
         );
 
 
-    }
-
+    },
 });
 
 RolesDashboard = muiThemeable()(RolesDashboard)

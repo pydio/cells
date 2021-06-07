@@ -5,8 +5,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro/broker/http"
-	"github.com/pydio/cells/common/micro/broker/nats"
+	"github.com/pydio/cells/common/micro/broker"
 	"github.com/pydio/cells/common/micro/registry"
 	"github.com/pydio/cells/common/micro/transport/grpc"
 	cells_registry "github.com/pydio/cells/common/registry"
@@ -14,25 +13,14 @@ import (
 
 // addRegistryFlags registers necessary flags to connect to the registry
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	flags.String("registry", "nats", "Registry used to manage services (currently nats only)")
-	flags.String("registry_address", ":4222", "Registry connection address")
-	flags.String("registry_cluster_address", "", "Registry cluster address")
-	flags.String("registry_cluster_routes", "", "Registry cluster routes")
-	flags.String("broker", "nats", "Pub/sub service for events between services (currently nats only)")
-	flags.String("broker_address", ":4222", "Nats broker port")
+	flags.String("registry", "memory", "Registry used to manage services (currently nats only)")
+	flags.String("broker", "memory", "Pub/sub service for events between services (currently nats only)")
 	flags.String("transport", "grpc", "Transport protocol for RPC")
-	flags.String("transport_address", ":4222", "Transport protocol port")
-
-	flags.MarkHidden("registry")
 
 	if len(hideAll) > 0 && hideAll[0] {
-		flags.MarkHidden("registry_address")
-		flags.MarkHidden("registry_cluster_address")
-		flags.MarkHidden("registry_cluster_routes")
+		flags.MarkHidden("registry")
 		flags.MarkHidden("broker")
-		flags.MarkHidden("broker_address")
 		flags.MarkHidden("transport")
-		flags.MarkHidden("transport_address")
 	}
 }
 
@@ -51,8 +39,10 @@ func bindViperFlags(flags *pflag.FlagSet, replaceKeys map[string]string) {
 func handleRegistry() {
 
 	switch viper.Get("registry") {
-	case "nats":
-		registry.EnableNats()
+	case "service":
+		registry.EnableService()
+	case "memory":
+		registry.EnableMemory()
 	// case "etcd":
 	// 	registry.EnableEtcd()
 	default:
@@ -64,9 +54,15 @@ func handleRegistry() {
 func handleBroker() {
 	switch viper.Get("broker") {
 	case "nats":
-		nats.Enable()
+		broker.EnableNATS()
+	case "stan":
+		broker.EnableSTAN()
 	case "http":
-		http.Enable()
+		broker.EnableHTTP()
+	case "memory":
+		broker.EnableMemory()
+	case "service":
+		broker.EnableService()
 	default:
 		log.Fatal("broker not supported")
 	}

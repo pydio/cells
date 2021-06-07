@@ -23,6 +23,9 @@ package jobs
 import (
 	"time"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -59,12 +62,12 @@ func (job *Job) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // Zap simply returns a zapcore.Field object populated with this Job under a standard key
 func (job *Job) Zap() zapcore.Field {
-	return zap.Object(common.KEY_JOB, job)
+	return zap.Object(common.KeyJob, job)
 }
 
 // ZapId simply calls zap.String() with JobId standard key and this Job Id
 func (job *Job) ZapId() zapcore.Field {
-	return zap.String(common.KEY_JOB_ID, job.GetID())
+	return zap.String(common.KeyJobId, job.GetID())
 }
 
 func (task *Task) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
@@ -94,12 +97,12 @@ func (task *Task) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 // Zap simply returns a zapcore.Field object populated with this Task under a standard key
 func (task *Task) Zap() zapcore.Field {
-	return zap.Object(common.KEY_TASK, task)
+	return zap.Object(common.KeyTask, task)
 }
 
 // ZapId simply calls zap.String() with TaskId standard key and this Task Id
 func (task *Task) ZapId() zapcore.Field {
-	return zap.String(common.KEY_TASK_ID, task.GetID())
+	return zap.String(common.KeyTaskId, task.GetID())
 }
 
 func (task *Task) GetCtxOperationID() string {
@@ -121,4 +124,18 @@ func (task *Task) WithoutLogs() *Task {
 		CanStop:       task.CanStop,
 		ActionsLogs:   []*ActionLog{},
 	}
+}
+
+// MustMarshalAny is an util function to avoid error check
+func MustMarshalAny(pb proto.Message) *any.Any {
+	mm, _ := ptypes.MarshalAny(pb)
+	return mm
+}
+
+// MustMarshalAnyMultiple is an util function to avoid error check
+func MustMarshalAnyMultiple(pbs ...proto.Message) (out []*any.Any) {
+	for _, pb := range pbs {
+		out = append(out, MustMarshalAny(pb))
+	}
+	return
 }

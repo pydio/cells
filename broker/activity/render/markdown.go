@@ -235,6 +235,22 @@ func Markdown(object *activity.Object, pointOfView activity.SummaryPointOfView, 
 		}
 		return userIdentifier
 
+	case activity.ObjectType_Event:
+
+		if md := object.GetMarkdown(); md != "" {
+			if actor, ok := templateData["Actor"]; ok && strings.Contains(md, "[Actor]") {
+				md = strings.ReplaceAll(md, "[Actor]", actor.(string))
+			}
+			if ob, ok := templateData["Object"]; ok && strings.Contains(md, "[Object]") {
+				md = strings.ReplaceAll(md, "[Object]", ob.(string))
+			}
+			return md
+		} else if sum := object.GetSummary(); sum != "" {
+			return sum
+		} else {
+			return object.GetName()
+		}
+
 	default:
 
 		return ""

@@ -47,13 +47,13 @@ class TaskAction extends React.Component {
 
         let actions = [];
         if(task.Status === 'Running' && task.CanPause && onTaskAction){
-            actions.push(<IconButton {...style.iconButtonStyles} key="pause" iconClassName="mdi mdi-pause" onTouchTap={() => onTaskAction(task, 'Pause')}/>);
+            actions.push(<IconButton {...style.iconButtonStyles} key="pause" iconClassName="mdi mdi-pause" onClick={() => onTaskAction(task, 'Pause')}/>);
         }
         if(task.Status === 'Paused' && task.CanPause && onTaskAction){
-            actions.push(<IconButton {...style.iconButtonStyles} key="play" iconClassName="mdi mdi-play" onTouchTap={() => onTaskAction(task, 'Resume')}/>);
+            actions.push(<IconButton {...style.iconButtonStyles} key="play" iconClassName="mdi mdi-play" onClick={() => onTaskAction(task, 'Resume')}/>);
         }
         if((task.Status === 'Running' || task.Status === 'Paused') && task.CanStop && onTaskAction){
-            actions.push(<IconButton {...style.iconButtonStyles} key="stop" iconClassName="mdi mdi-stop" onTouchTap={() => onTaskAction(task, 'Stop')}/>);
+            actions.push(<IconButton {...style.iconButtonStyles} key="stop" iconClassName="mdi mdi-stop" onClick={() => onTaskAction(task, 'Stop')}/>);
         }
         return <div>{actions}</div>;
     }

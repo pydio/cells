@@ -20,32 +20,80 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-import MessagesProviderMixin from '../MessagesProviderMixin'
 import Breadcrumb from './Breadcrumb'
-import {SearchForm} from '../search'
+import Textfit from 'react-textfit'
+const {withSearch} = Pydio.requireLib('hoc')
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import InfoPanel from '../detailpanes/InfoPanel'
 import WelcomeTour from './WelcomeTour'
 import CellChat from './CellChat'
-import {IconButton, Paper} from 'material-ui'
+import {FlatButton, IconButton, Paper} from 'material-ui'
 import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
 import DOMUtils from 'pydio/util/dom'
+import Color from "color";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
-let FSTemplate = React.createClass({
+import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
+import Facets from "../search/components/Facets";
 
-    mixins: [MessagesProviderMixin],
 
-    propTypes: {
-        pydio:React.PropTypes.instanceOf(Pydio)
-    },
+class FSTemplate extends React.Component {
 
-    statics: {
-        INFO_PANEL_WIDTH: 270
-    },
+    constructor(props){
+        super(props);
+
+        let rState = 'info-panel';
+        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
+            rState = localStorage.getItem('pydio.layout.rightColumnState');
+        }
+        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
+        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
+        const {pydio} = this.props;
+        let themeLight = false;
+        if(pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default' ){
+            themeLight = pydio.user.getPreference('theme') === 'light';
+        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light'){
+            themeLight = true;
+        }
+        const w = DOMUtils.getViewportWidth();
+
+        this.state = {
+            infoPanelOpen: !closedInfo,
+            infoPanelToggle: !closedToggle,
+            drawerOpen: false,
+            rightColumnState: rState,
+            searchFormState: {},
+            themeLight: themeLight,
+            smallScreen: w <= 758,
+            xtraSmallScreen: w <= 420,
+            searchView: false
+        };
+    }
+
+    setSearchView() {
+        const {pydio} = this.props
+        const dm = pydio.getContextHolder();
+        dm.setSelectedNodes([]);
+        if(dm.getContextNode() !== dm.getSearchNode()){
+            this.setState({previousContext: dm.getContextNode()})
+        }
+    }
+
+    unsetSearchView(){
+        const {pydio} = this.props;
+        const dm = pydio.getContextHolder();
+        const {previousContext} = this.state;
+        dm.setSelectedNodes([]);
+        if(previousContext){
+            dm.setContextNode(previousContext, true);
+        } else {
+            dm.setContextNode(dm.getRootNode(), true);
+        }
+        this.setState({previousContext: null});
+    }
 
     componentDidMount(){
         const {pydio} = this.props;
@@ -69,13 +117,19 @@ let FSTemplate = React.createClass({
             });
         };
         DOMUtils.observeWindowResize(this._resizer);
-    },
+        this._ctxObserver = ()=>{
+            const searchView = pydio.getContextHolder().getContextNode() === pydio.getContextHolder().getSearchNode()
+            this.setState({searchView})
+        }
+        pydio.observe('context_changed', this._ctxObserver)
+    }
 
     componentWillUnmount(){
         const {pydio} = this.props;
         pydio.stopObserving('user_logged', this._themeObserver);
+        pydio.stopObserving('context_changed', this._ctxObserver)
         DOMUtils.stopObservingWindowResize(this._resizer);
-    },
+    }
 
     openRightPanel(name){
         const {rightColumnState} = this.state;
@@ -95,7 +149,7 @@ let FSTemplate = React.createClass({
             }
             this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
         });
-    },
+    }
 
     closeRightPanel() {
         const {rightColumnState} = this.state;
@@ -116,34 +170,8 @@ let FSTemplate = React.createClass({
             localStorage.setItem('pydio.layout.rightColumnState', '');
             localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
         }
-    },
+    }
 
-    getInitialState(){
-        let rState = 'info-panel';
-        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
-            rState = localStorage.getItem('pydio.layout.rightColumnState');
-        }
-        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
-        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
-        const {pydio} = this.props;
-        let themeLight = false;
-        if(pydio.user && pydio.user.getPreference('theme') && pydio.user.getPreference('theme') !== 'default' ){
-            themeLight = pydio.user.getPreference('theme') === 'light';
-        } else if (pydio.getPluginConfigs('gui.ajax').get('GUI_THEME') === 'light'){
-            themeLight = true;
-        }
-        const w = DOMUtils.getViewportWidth();
-        return {
-            infoPanelOpen: !closedInfo,
-            infoPanelToggle: !closedToggle,
-            drawerOpen: false,
-            rightColumnState: rState,
-            searchFormState: {},
-            themeLight: themeLight,
-            smallScreen: w <= 758,
-            xtraSmallScreen: w <= 420,
-        };
-    },
 
     resizeAfterTransition(){
         setTimeout(() => {
@@ -154,28 +182,28 @@ let FSTemplate = React.createClass({
                 this.setState({rightColumnState: null});
             }
         }, 300);
-    },
+    }
 
     infoPanelContentChange(numberOfCards){
         this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
-    },
+    }
 
     openDrawer(event){
         event.stopPropagation();
         this.setState({drawerOpen: true});
-    },
+    }
 
     render () {
 
         const {muiTheme} = this.props;
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-        const Color = MaterialUI.Color;
 
         let appBarTextColor = Color(muiTheme.appBar.textColor);
         let appBarBackColor = Color(muiTheme.appBar.color);
 
         const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
         const superLightBack = new Color({h:colorHue,s:35,l:98});
+        const infoPanelBg = new Color({h:colorHue,s:30,l:96});
 
         // Load from user prefs
         const {themeLight, smallScreen, xtraSmallScreen} = this.state;
@@ -191,11 +219,10 @@ let FSTemplate = React.createClass({
 
         let styles = {
             appBarStyle : {
-                zIndex: 1,
+                zIndex: 901,
                 backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
-                display:'flex',
-                //borderBottom: themeLight?'1px solid #e0e0e0':null
+                display:'flex'
             },
             buttonsStyle : {
                 width: 40,
@@ -239,14 +266,14 @@ let FSTemplate = React.createClass({
                 color: appBarTextColor.fade(0.03).toString()
             },
             infoPanelStyle : {
-                backgroundColor: 'transparent',
+                backgroundColor: infoPanelBg.toString(),
                 top: headerHeight
             },
             otherPanelsStyle: {
+                backgroundColor: infoPanelBg.toString(),
                 top: headerHeight,
                 borderLeft: 0,
-                margin: 10,
-                width: 290
+                width: 270
             },
             searchFormPanelStyle:{
                 top: headerHeight,
@@ -274,12 +301,18 @@ let FSTemplate = React.createClass({
             "change_main",
             "info_panel",
             "info_panel_share",
+            "info_panel_edit_share",
         ];
-        let mainToolbarsOthers = ["change", "other"];
+        let mainToolbarsOthers = [
+            "change",
+            "other"
+        ];
 
         const {pydio} = this.props;
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+        const dm = pydio.getContextHolder();
+        const searchView = dm.getContextNode() === dm.getSearchNode();
 
         let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS"));
         let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) && !smallScreen;
@@ -302,7 +335,7 @@ let FSTemplate = React.createClass({
         if((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){
-                classes.push('info-panel-open-lg');
+                //classes.push('info-panel-open-lg');
             }
         }
 
@@ -356,10 +389,15 @@ let FSTemplate = React.createClass({
                 color: appBarTextColor.toString()// '#616161',
             };
             styles.searchForm = {
-                mainStyle:{border:'1px solid ' + appBarTextColor.fade(0.8).toString()},
+                mainStyle:{
+                    backgroundColor:'white',
+                    border:'1px solid ' + appBarTextColor.fade(searchView?0.6:0.8).toString(),
+                    borderRadius: 50
+                },
                 inputStyle:{color: appBarTextColor.toString()},
                 hintStyle:{color: appBarTextColor.fade(0.5).toString()},
-                magnifierStyle:{color: appBarTextColor.fade(0.1).toString()}
+                magnifierStyle:{color: appBarTextColor.fade(0.1).toString()},
+                filterButton:{color:appBarTextColor.toString()}
             };
             newButtonProps.buttonLabelStyle.color = muiTheme.palette.accent1Color;
             newButtonProps.buttonBackgroundColor = 'rgba(0,0,0,0.05)';
@@ -368,52 +406,103 @@ let FSTemplate = React.createClass({
         }
 
 
-        const searchForm = (
-            <SearchForm
-                {...props}
-                {...this.state.searchFormState}
-                formStyles={styles.searchForm}
-                style={rightColumnState === "advanced-search" ? styles.searchFormPanelStyle : {}}
-                id={rightColumnState === "advanced-search" ? "info_panel": null}
-                headerHeight={headerHeight}
-                advancedPanel={rightColumnState === "advanced-search"}
-                onOpenAdvanced={()=>{this.openRightPanel('advanced-search')}}
-                onCloseAdvanced={()=>{this.closeRightPanel()}}
-                onUpdateState={(s)=>{this.setState({searchFormState: s})}}
-                smallScreen={smallScreen}
-                xtraSmallScreen={xtraSmallScreen}
-            />
-        );
+        const {values, setValues, history, facets, activeFacets, toggleFacet,
+            humanizeValues, limit, setLimit, searchLoading,
+            savedSearches, saveSearch, clearSavedSearch
+        } = this.props;
+        let searchToolbar;
+
+        if(searchView) {
+            leftPanelProps.userWidgetProps.style = {
+                ...leftPanelProps.userWidgetProps.style,
+                opacity: 0
+            }
+            leftPanelProps.workspacesListProps = {
+                searchView: true,
+                values, setValues, searchLoading, facets, activeFacets, toggleFacet,
+            };
+            styles.appBarStyle = {
+                ...styles.appBarStyle,
+                backgroundColor: 'white',
+                marginLeft: 0
+            }
+            const count = pydio.getContextHolder().getSearchNode().getChildren().size;
+            let stLabel, stDisable = true;
+            let labelStyle = {...styles.flatButtonLabelStyle}
+            if(searchLoading) {
+                stLabel = pydio.MessageHash['searchengine.searching'];
+            } else if(count === 0) {
+                stLabel = pydio.MessageHash['478'] // No results found
+            } else if(count < limit) {
+                stLabel = '%1 results found'.replace('%1', count)
+            } else if(count === limit) {
+                stDisable = false
+                stLabel = 'Showing %1, Load More...'.replace('%1', limit)
+            }
+            if(stDisable){
+                labelStyle = {...labelStyle, color: themeLight?'#616161':'white'}
+            }
+            searchToolbar = (
+                <FlatButton
+                    style={styles.flatButtonStyle}
+                    labelStyle={labelStyle}
+                    label={stLabel}
+                    disabled={stDisable}
+                    onClick={()=>{setLimit(limit+20)}}
+                />
+            )
+        }
 
         return (
             <MasterLayout
                 pydio={pydio}
                 style={{...style, overflow:'hidden'}}
+                desktopStyle={searchView?{marginLeft: 0}:{}}
                 classes={classes}
                 tutorialComponent={tutorialComponent}
                 drawerOpen={drawerOpen}
                 leftPanelProps={leftPanelProps}
                 onCloseDrawerRequested={()=>{this.setState({drawerOpen:false})}}
             >
-                    <Paper zDepth={themeLight?0:1} style={styles.appBarStyle} rounded={false}>
+                    <Paper zDepth={(themeLight&&!searchView)?0:1} style={styles.appBarStyle} rounded={false}>
+                        {searchView &&
+                        <div>
+                            <IconButton
+                                style={{width:56,height:56,padding:14, margin:'6px -6px 6px 6px'}}
+                                iconClassName={"mdi mdi-arrow-left"}
+                                iconStyle={{fontSize: 30, color: appBarTextColor.fade(0.03).toString()}}
+                                onClick={()=>this.unsetSearchView()}
+                            />
+                        </div>
+                        }
                         <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)', display:'flex'}}>
                             <span className="drawer-button" style={{marginLeft: 12, marginRight: -6}}>
-                                <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/>
+                                <IconButton iconStyle={{color: appBarTextColor.fade(0.03).toString()}} iconClassName="mdi mdi-menu" onClick={this.openDrawer.bind(this)}/>
                             </span>
                             <div style={{flex: 1, overflow:'hidden'}}>
-                                <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>
+                                {searchView &&
+                                    <Textfit
+                                        mode="single" min={12} max={22}
+                                        style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>
+                                        Search: {humanizeValues(values)}
+                                    </Textfit>
+                                }
+                                {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}
                                 <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex', overflow:'hidden'}}>
-                                    <ButtonMenu
-                                        {...props}
-                                        {...newButtonProps}
-                                        id="create-button-menu"
-                                        toolbars={["upload", "create"]}
-                                        buttonTitle={this.props.pydio.MessageHash['198']}
-                                        raised={false}
-                                        secondary={true}
-                                        controller={props.pydio.Controller}
-                                        openOnEvent={'tutorial-open-create-menu'}
-                                    />
+                                    {searchToolbar}
+                                    {!searchView &&
+                                        <ButtonMenu
+                                            {...props}
+                                            {...newButtonProps}
+                                            id="create-button-menu"
+                                            toolbars={["upload", "create"]}
+                                            buttonTitle={this.props.pydio.MessageHash['198']}
+                                            raised={false}
+                                            secondary={true}
+                                            controller={props.pydio.Controller}
+                                            openOnEvent={'tutorial-open-create-menu'}
+                                        />
+                                    }
                                     <ListPaginator
                                         id="paginator-toolbar"
                                         style={{height: 23, borderRadius: 2, background: newButtonProps.buttonBackgroundColor, marginRight: 5}}
@@ -429,7 +518,7 @@ let FSTemplate = React.createClass({
                                             toolbars={mainToolbars}
                                             groupOtherList={mainToolbarsOthers}
                                             renderingType="button"
-                                            toolbarStyle={{flex: 1, overflow:'hidden'}}
+                                            toolbarStyle={{overflow:'hidden'}}
                                             flatButtonStyle={styles.flatButtonStyle}
                                             buttonStyle={styles.flatButtonLabelStyle}
                                         />
@@ -450,18 +539,23 @@ let FSTemplate = React.createClass({
                                 buttonStyle={styles.buttonsIconStyle}
                                 flatButtonStyle={styles.buttonsStyle}
                             />
-                            <div style={{position:'relative', width: (rightColumnState === "advanced-search" || smallScreen) ? 40 : 150, transition:DOMUtils.getBeziersTransition()}}>
-                                {!smallScreen && rightColumnState !== "advanced-search" && searchForm}
-                                {(rightColumnState === "advanced-search" || smallScreen) &&
-                                    <IconButton
-                                        iconClassName={"mdi mdi-magnify"}
-                                        style={rightColumnState === "advanced-search" ? styles.activeButtonStyle : styles.buttonsStyle}
-                                        iconStyle={rightColumnState === "advanced-search" ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onTouchTap={()=>{this.openRightPanel('advanced-search')}}
-                                        tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'87']}
-                                    />
-                                }
-                            </div>
+                            {!smallScreen &&
+                            <UnifiedSearchForm
+                                style={{flex: 1}}
+                                active={searchView}
+                                pydio={pydio}
+                                formStyles={styles.searchForm}
+                                values={values}
+                                setValues={setValues}
+                                humanizeValues={humanizeValues}
+                                history={history}
+                                savedSearches={savedSearches}
+                                clearSavedSearch={clearSavedSearch}
+                                saveSearch={saveSearch}
+                                onRequestOpen={()=>this.setSearchView()}
+                                onRequestClose={()=>this.unsetSearchView()}
+                            />
+                            }
                             <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: headerHeight, display:'none'}}/>
                             <div style={{display:'flex', paddingRight: 10}}>
                                 {showInfoPanel &&
@@ -469,54 +563,61 @@ let FSTemplate = React.createClass({
                                     iconClassName={"mdi mdi-information"}
                                     style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
                                     iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                    onTouchTap={()=>{this.openRightPanel('info-panel')}}
+                                    onClick={()=>{this.openRightPanel('info-panel')}}
                                     tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
                                 />
                                 }
-                                {showAddressBook &&
-                                    <IconButton
-                                        iconClassName={"mdi mdi-account-card-details"}
-                                        style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
-                                        iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onTouchTap={()=>{this.openRightPanel('address-book')}}
-                                        tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
-                                        tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
-                                    />
-                                }
-                                {showChatTab &&
+                                {!searchView && showChatTab &&
                                 <IconButton
                                     iconClassName={"mdi mdi-message-text"}
                                     style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
                                     iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                    onTouchTap={()=>{this.openRightPanel('chat')}}
+                                    onClick={()=>{this.openRightPanel('chat')}}
                                     tooltip={pydio.MessageHash[rightColumnState === 'chat' ? '86':'635']}
                                     tooltipPosition={"bottom-left"}
                                 />
                                 }
+                                {!searchView && showAddressBook &&
+                                    <IconButton
+                                        iconClassName={"mdi mdi-account-card-details"}
+                                        style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
+                                        iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
+                                        onClick={()=>{this.openRightPanel('address-book')}}
+                                        tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
+                                        tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
+                                    />
+                                }
                             </div>
                         </div>
                     </Paper>
-                    <MainFilesList ref="list" pydio={pydio} onDisplayModeChange={(dMode) => {
-                        this.setState({filesListDisplayMode: dMode});
-                    }}/>
+                    <MainFilesList
+                        ref="list"
+                        key={searchView?"search-results":"files-list"}
+                        pydio={pydio}
+                        dataModel={pydio.getContextHolder()}
+                        searchResults={searchView}
+                        searchScope={values ? values.scope : null}
+                        searchLoading={searchLoading}
+                        onDisplayModeChange={(dMode) => {
+                            this.setState({filesListDisplayMode: dMode});
+                        }}
+                        style={searchView?{marginLeft: 250}:{}}
+                    />
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
                         {...props}
-                        dataModel={props.pydio.getContextHolder()}
+                        dataModel={pydio.getContextHolder()}
                         onRequestClose={()=>{this.closeRightPanel()}}
-                        onContentChange={this.infoPanelContentChange}
+                        onContentChange={this.infoPanelContentChange.bind(this)}
                         style={styles.infoPanelStyle}
                     />
                 }
                 {rightColumnState === 'chat' &&
-                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
+                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
                 }
 
                 {rightColumnState === 'address-book' &&
-                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
-                }
-                {rightColumnState === "advanced-search" &&
-                    searchForm
+                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={0} onRequestClose={()=>{this.closeRightPanel()}}/>
                 }
 
                 <EditionPanel {...props}/>
@@ -526,10 +627,10 @@ let FSTemplate = React.createClass({
 
 
     }
-});
+}
 
-//FSTemplate = dropProvider(FSTemplate);
-//FSTemplate = withContextMenu(FSTemplate);
+FSTemplate = withSearch(FSTemplate, 'main', 'all');
 FSTemplate = muiThemeable()(FSTemplate);
+FSTemplate.INFO_PANEL_WIDTH = 270
 
 export {FSTemplate as default}

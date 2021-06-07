@@ -7,7 +7,7 @@
     <client_settings>
         <resources>
             <i18n namespace="meta.versions" remote="plug/meta.versions/i18n"/>
-            <js className="PydioVersioning" file="plug/meta.versions/res/build/PydioVersioning.js"/>
+            <js className="PydioVersioning" file="plug/meta.versions/res/dist/PydioVersioning.min.js"/>
         </resources>
     </client_settings>
     <registry_contributions>
@@ -16,7 +16,7 @@
                 <gui text="meta.versions.1" title="meta.versions.2" iconClass="mdi mdi-backup-restore" hasAccessKey="false" weight="20">
                     <context selection="true" dir="false" recycle="false" behaviour="hidden"
                         actionBar="true" contextMenu="true" infoPanel="false"
-                        actionBarGroup="0_get">
+                        actionBarGroup="0_get,change">
                     </context>
                     <selectionContext dir="false" file="true" recycle="true" unique="true" behaviour="hidden" evalMetadata="metadata.get('datasource_versioning')"/>
                 </gui>

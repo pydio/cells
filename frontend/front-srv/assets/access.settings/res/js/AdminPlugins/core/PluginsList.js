@@ -24,8 +24,9 @@ import {Toggle, IconButton} from 'material-ui'
 import Loader from './Loader'
 const {MaterialTable} = Pydio.requireLib('components');
 import PluginEditor from './PluginEditor'
+import createReactClass from 'create-react-class'
 
-const PluginsList = React.createClass({
+const PluginsList = createReactClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
@@ -135,7 +136,7 @@ const PluginsList = React.createClass({
                         iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:20}}
                         iconClassName="mdi mdi-pencil"
                         tooltip={m('action.edit')}
-                        onTouchTap={()=>this.openTableRows([row])}
+                        onClick={()=>this.openTableRows([row])}
                     />);
             } else {
                 return <span/>;

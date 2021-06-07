@@ -18,6 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
+import DataModel from 'pydio/model/data-model'
+
 import { connect } from 'react-redux';
 import { ToolbarGroup, IconButton } from 'material-ui';
 
@@ -28,7 +33,7 @@ const { getActiveTab, makeTransitionHOC, EditorActions } = Pydio.requireLib('hoc
 // TODO - should be two motions for appearing and disappearing, based on a condition in the props
 @makeTransitionHOC({translateY: -60, opacity: 0}, {translateY: 0, opacity: 1})
 @connect(mapStateToProps, EditorActions)
-export default class EditorToolbar extends React.Component {
+class EditorToolbar extends React.Component {
 
     onClose() {
         const {tabDeleteAll} = this.props
@@ -43,7 +48,7 @@ export default class EditorToolbar extends React.Component {
     }
 
     render() {
-        const {title, className, style, display} = this.props
+        const {title, className, style, display, node} = this.props
         let mainStyle =  {}, innerStyle = {}, spanStyle;
         if (display === "fixed") {
             mainStyle = {
@@ -63,7 +68,15 @@ export default class EditorToolbar extends React.Component {
             }
             innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
         }
-
+        let onDL;
+        const a = Pydio.getInstance().getController().getActionByName('download');
+        if(a && !a.deny && !a.contextHidden){
+            onDL = ()=> {
+                const selection = new DataModel(true)
+                selection.setSelectedNodes([node])
+                PydioApi.getClient().downloadSelection(selection);
+            };
+        }
 
         return (
             <ModalAppBar
@@ -71,10 +84,11 @@ export default class EditorToolbar extends React.Component {
                 style={mainStyle}
                 title={<span style={spanStyle}>{title}</span>}
                 titleStyle={{innerStyle, fontSize:16}}
-                iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onClose()}/>}
+                iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onClick={() => this.onClose()}/>}
                 iconElementRight={
                     <ToolbarGroup>
-                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onMinimise()}/>
+                        {onDL && <IconButton iconClassName={"mdi mdi-download"} iconStyle={innerStyle} touch={true} onClick={onDL} tooltip={Pydio.getMessages()[88]} tooltipPosition={"bottom-left"}/>}
+                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} touch={true} onClick={() => this.onMinimise()}/>
                     </ToolbarGroup>
                 }
             />
@@ -88,6 +102,9 @@ function mapStateToProps(state, ownProps) {
 
     return  {
         ...ownProps,
-        title: tab.title
+        title: tab.title,
+        node: tab.node
     }
 }
+
+export default EditorToolbar

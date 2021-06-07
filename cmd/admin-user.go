@@ -124,7 +124,7 @@ func deleteUser(ctx context.Context, login string) error {
 		}
 		// if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
 		// 	msg := fmt.Sprintf("forbidden action: you are not allowed to delete user %s", login)
-		// 	log.Auditer(ctx).Error( msg, log.GetAuditId(common.AUDIT_USER_DELETE))
+		// 	log.Auditer(ctx).Error( msg, log.GetAuditId(common.AuditUserDelete))
 		// 	return  errors.Forbidden(common.ServiceUser, msg)
 		// }
 		break
@@ -137,7 +137,7 @@ func deleteUser(ctx context.Context, login string) error {
 	}
 	// log.Auditer(ctx).Info(
 	// 	fmt.Sprintf("%d users have been deleted", n.RowsDeleted),
-	// 	log.GetAuditId(common.AUDIT_USER_DELETE),
+	// 	log.GetAuditId(common.AuditUserDelete),
 	// )
 	return nil
 }

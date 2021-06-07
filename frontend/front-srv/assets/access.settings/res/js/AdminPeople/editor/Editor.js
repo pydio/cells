@@ -19,8 +19,11 @@
  */
 
 
-import Pydio from 'pydio'
-const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.requireLib('components');
+import PropTypes from 'prop-types';
+
+
+import Pydio from 'pydio';
+const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader, PluginsLoader, AdminStyles} = AdminComponents;
 
 import Role from './model/Role'
 import User from './model/User'
@@ -29,8 +32,8 @@ import WorkspacesAcls from './acl/WorkspacesAcls'
 import PagesAcls from './acl/PagesAcls'
 import React from "react";
 import PathUtils from "pydio/util/path";
-import {requireLib} from "pydio";
-import {FlatButton, IconButton, IconMenu, MenuItem, RaisedButton, Snackbar} from "material-ui";
+import {Snackbar} from "material-ui";
+import {muiThemeable} from 'material-ui/styles';
 
 import RoleInfo from './info/RoleInfo'
 import UserInfo from './info/UserInfo'
@@ -52,7 +55,7 @@ class Editor extends React.Component{
             };
             this.loadRoleData(true);
         }
-        const loader = AdminComponents.PluginsLoader.getInstance(this.props.pydio);
+        const loader = PluginsLoader.getInstance(this.props.pydio);
         loader.loadPlugins().then(plugins => {
             this.setState({pluginsRegistry: plugins});
         })
@@ -166,7 +169,7 @@ class Editor extends React.Component{
 
 
     render(){
-        const {advancedAcl, pydio} = this.props;
+        const {advancedAcl, pydio, muiTheme} = this.props;
 
         const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
 
@@ -219,15 +222,12 @@ class Editor extends React.Component{
             PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)
         ];
 
-        const leftNav = [
-            <PaperEditorNavHeader key="1" label={this.getMessage('ws.28', 'ajxp_admin')}/>,
-            <PaperEditorNavEntry key="info" keyName="info" onClick={this.setSelectedPane.bind(this)} label={infoMenuTitle} selectedKey={currentPane}/>,
-            <PaperEditorNavHeader key="2" label={this.getMessage('34')}/>,
-            <PaperEditorNavEntry key="workspaces" keyName="workspaces" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('35')} selectedKey={currentPane}/>,
-            <PaperEditorNavEntry key="pages" keyName="pages" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('36')} selectedKey={currentPane}/>,
-            <PaperEditorNavHeader key="3" label={this.getMessage('37')}/>,
-            <PaperEditorNavEntry key="params" keyName="params" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('38')} selectedKey={currentPane}/>,
-        ];
+        const leftNavItems=[
+            {value: "info", label:infoMenuTitle},
+            {value: "workspaces", label:this.getMessage('35')},
+            {value: "pages", label:this.getMessage('36')},
+            {value: "params", label:this.getMessage('38')},
+        ]
 
         let panes = [];
         const classFor = key => currentPane === key ? 'layout-fill' : '';
@@ -311,10 +311,13 @@ class Editor extends React.Component{
         return (
             <PaperEditorLayout
                 title={title}
+                titleLeftIcon={"mdi mdi-account"}
                 titleActionBar={rightButtons}
                 closeAction={() => {this.props.onRequestTabClose();}}
                 contentFill={true}
-                leftNav={leftNav}
+                leftNavItems={leftNavItems}
+                leftNavSelected={currentPane}
+                leftNavChange={(key)=> {this.setSelectedPane(key)}}
                 className={"edit-object-" + this.state.roleType }
             >
                 <Snackbar
@@ -328,6 +331,7 @@ class Editor extends React.Component{
                 {modal}
                 {loadingMessage}
                 {panes}
+                {AdminStyles(muiTheme.palette).formSimpleCss()}
             </PaperEditorLayout>
         );
 
@@ -336,21 +340,23 @@ class Editor extends React.Component{
 }
 
 Editor.contextTypes = {
-    pydio:React.PropTypes.instanceOf(Pydio)
+    pydio:PropTypes.instanceOf(Pydio)
 };
 
 Editor.childContextTypes = {
-    messages:React.PropTypes.object,
-    getMessage:React.PropTypes.func,
-    getPydioRoleMessage:React.PropTypes.func,
-    getRootMessage:React.PropTypes.func
+    messages:PropTypes.object,
+    getMessage:PropTypes.func,
+    getPydioRoleMessage:PropTypes.func,
+    getRootMessage:PropTypes.func
 };
 
 
 Editor.propTypes ={
-    node: React.PropTypes.instanceOf(AjxpNode),
-    closeEditor:React.PropTypes.func,
-    registerCloseCallback:React.PropTypes.func
+    node: PropTypes.instanceOf(AjxpNode),
+    closeEditor:PropTypes.func,
+    registerCloseCallback:PropTypes.func
 };
+
+Editor = muiThemeable()(Editor);
 
 export {Editor as default}

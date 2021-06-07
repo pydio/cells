@@ -38,7 +38,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/configx"
@@ -177,7 +176,6 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 		if err := cmd.Wait(); err != nil {
 			if err.Error() != "signal: terminated" && err.Error() != "signal: interrupt" {
 				log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
-				registry.Default.SetServiceStopped(name)
 				c.mutex.Lock()
 				delete(c.services, source)
 				c.mutex.Unlock()
@@ -217,73 +215,79 @@ func (c *ChildrenRunner) StopAll(ctx context.Context) {
 // Watch watches the configuration changes for new sources
 func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
-	watcher, err := config.Watch("services", c.parentName, "sources")
-	if err != nil {
-		return err
-	}
-
+	// TODO - should be linked to context to stop
 	go func() {
-		defer watcher.Stop()
 		for {
-			res, err := watcher.Next()
+			watcher, err := config.Watch("services", c.parentName, "sources")
 			if err != nil {
-				return
+				time.Sleep(1 * time.Second)
+				continue
 			}
 
-			arr := res.StringArray()
+			for {
+				res, err := watcher.Next()
+				if err != nil {
+					break
+				}
 
-			sources := config.SourceNamesFiltered(arr)
-			log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
-			log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Any("new sources", sources))
+				arr := res.StringArray()
 
-			// First stopping what's been removed
-			for name, cmd := range c.services {
-				found := false
+				sources := config.SourceNamesFiltered(arr)
+				log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
+				log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Any("new sources", sources))
+
+				// First stopping what's been removed
+				for name, cmd := range c.services {
+					found := false
+					for _, source := range sources {
+						if source == name && !c.FilterOutSource(ctx, source) {
+							found = true
+							break
+						}
+					}
+
+					if found {
+						continue
+					}
+
+					// Verify if it was fully deleted (not just filtered out)
+					all := config.Get("services")
+					var conf map[string]interface{}
+					all.Scan(&conf)
+					_, exists := conf[c.childPrefix+name]
+					if !exists && c.beforeDeleteClean {
+						caller := object.NewResourceCleanerEndpointClient(c.childPrefix+name, defaults.NewClient())
+						if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
+							log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
+						} else {
+							log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+						}
+					}
+
+					if cmd.Process != nil {
+						if e := cmd.Process.Signal(syscall.SIGINT); e != nil {
+							cmd.Process.Kill()
+						}
+					}
+					c.mutex.Lock()
+					delete(c.services, name)
+					c.mutex.Unlock()
+
+					if !exists && c.afterDeleteChan != nil {
+						c.afterDeleteChan <- name
+					}
+				}
+
+				// Then start what's been added
 				for _, source := range sources {
-					if source == name && !c.FilterOutSource(ctx, source) {
-						found = true
-						break
+					if _, ok := c.services[source]; !ok && !c.FilterOutSource(ctx, source) {
+						go c.Start(ctx, source)
 					}
-				}
-
-				if found {
-					continue
-				}
-
-				// Verify if it was fully deleted (not just filtered out)
-				all := config.Get("services")
-				var conf map[string]interface{}
-				all.Scan(&conf)
-				_, exists := conf[c.childPrefix+name]
-				if !exists && c.beforeDeleteClean {
-					caller := object.NewResourceCleanerEndpointClient(c.childPrefix+name, defaults.NewClient())
-					if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
-						log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
-					} else {
-						log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
-					}
-				}
-
-				if cmd.Process != nil {
-					if e := cmd.Process.Signal(syscall.SIGINT); e != nil {
-						cmd.Process.Kill()
-					}
-				}
-				c.mutex.Lock()
-				delete(c.services, name)
-				c.mutex.Unlock()
-
-				if !exists && c.afterDeleteChan != nil {
-					c.afterDeleteChan <- name
 				}
 			}
 
-			// Then start what's been added
-			for _, source := range sources {
-				if _, ok := c.services[source]; !ok && !c.FilterOutSource(ctx, source) {
-					go c.Start(ctx, source)
-				}
-			}
+			watcher.Stop()
+			time.Sleep(1 * time.Second)
 		}
 	}()
 

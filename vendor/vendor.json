@@ -1209,10 +1209,10 @@
 			"versionExact": "v1.3.4"
 		},
 		{
-			"checksumSHA1": "XEBl9iQQvfXNlwCSzyAOCqAlYEA=",
+			"checksumSHA1": "TQW9E4NflWzBAJltFg9MI8Bv+jw=",
 			"path": "github.com/fatih/color",
-			"revision": "2d111d6f532d6f3521539e229bc93ec1863cb5f0",
-			"revisionTime": "2018-03-13T15:00:56Z"
+			"revision": "4d2835ff85a014514ee435d49f76dc8b25c9cee3",
+			"revisionTime": "2021-01-31T22:15:18Z"
 		},
 		{
 			"checksumSHA1": "/rTYnixxZiY35IM5tGJzyhf4al8=",
@@ -2306,6 +2306,14 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
+			"checksumSHA1": "daFoVTCGe8Mr968z1Hiof7EIfKI=",
+			"path": "github.com/hashicorp/go-hclog",
+			"revision": "4a9e55fb9e7db75382c419e20dd1eb26821ec85e",
+			"revisionTime": "2020-06-01T16:38:14Z",
+			"version": "v0.14.1",
+			"versionExact": "v0.14.1"
+		},
+		{
 			"checksumSHA1": "Cas2nprG6pWzf05A2F/OlnjUu2Y=",
 			"path": "github.com/hashicorp/go-immutable-radix",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
@@ -2474,10 +2482,12 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "LnMh6ZxLFqLXfyVJxVswjjjhszQ=",
+			"checksumSHA1": "7uxdrYDA+5NMGSr8zBEh7fWZTbI=",
 			"path": "github.com/hashicorp/raft",
-			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
-			"revisionTime": "2018-04-06T17:35:14Z"
+			"revision": "ecd4720b4481723c8141daea7015b53d9d79c9f8",
+			"revisionTime": "2020-10-05T19:26:26Z",
+			"version": "v1.2.0",
+			"versionExact": "v1.2.0"
 		},
 		{
 			"checksumSHA1": "vXgcIihk16l/7ddKIlZoXsR79Qo=",
@@ -2638,6 +2648,12 @@
 			"path": "github.com/karrick/godirwalk",
 			"revision": "5e617d9cfec6f870e63b168e9a2fb7c490a1c108",
 			"revisionTime": "2019-05-10T20:35:04Z"
+		},
+		{
+			"checksumSHA1": "9igSnG+tvh/tWb04uZIqYcVEti0=",
+			"path": "github.com/klauspost/compress/s2",
+			"revision": "a3b7545c88eea469c2246bee0e6c130525d56190",
+			"revisionTime": "2021-03-26T09:59:41Z"
 		},
 		{
 			"checksumSHA1": "ZAwOhj3rRI9u1+XelsFJmYMSGpY=",
@@ -3572,6 +3588,12 @@
 			"revisionTime": "2018-04-06T15:09:55Z"
 		},
 		{
+			"checksumSHA1": "tZN/JWQ0R3j2GGv31wzegOeptn0=",
+			"path": "github.com/minio/highwayhash",
+			"revision": "08ce0b4fa7932a018438133f1b632e1c674d4107",
+			"revisionTime": "2021-03-25T15:26:29Z"
+		},
+		{
 			"checksumSHA1": "GzfpPGtV2UJH9hFsKwzGjKrhp/A=",
 			"path": "github.com/mitchellh/cli",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
@@ -3695,6 +3717,74 @@
 			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
+			"checksumSHA1": "E69Q+THfKjwMYkQpPEFts8eoOG0=",
+			"path": "github.com/nats-io/jsm.go",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "g71bGH5vTzzXbw87InHCJd20nnk=",
+			"path": "github.com/nats-io/jsm.go/api",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "5XTPVM1gOZyc4u4Oxf2XvXa3pSE=",
+			"path": "github.com/nats-io/jsm.go/api/event",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "Jy+HrK7WP/d0phauDVoErNa4hak=",
+			"path": "github.com/nats-io/jsm.go/api/jetstream/advisory",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "QBt7/ZwHzJ/A80nBchOow9r/FQA=",
+			"path": "github.com/nats-io/jsm.go/api/jetstream/metric",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "UWCHjtQXSG/Z3qVdwVGjZ2s3Wmw=",
+			"path": "github.com/nats-io/jsm.go/api/server/advisory",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "Uxph2/C40UTMTn+2USbb8k0DuQg=",
+			"path": "github.com/nats-io/jsm.go/api/server/metric",
+			"revision": "6c7cd231ce8636cb14876203af5bc2d1412b6bd5",
+			"revisionTime": "2021-03-12T10:38:50Z",
+			"version": "v0.0.22",
+			"versionExact": "v0.0.22"
+		},
+		{
+			"checksumSHA1": "O5wmj7oYvST/K2a5E3KYZJYrmLg=",
+			"path": "github.com/nats-io/jwt",
+			"revision": "22bf1cf3386b569ad632f92d4e944c27ddecd875",
+			"revisionTime": "2021-03-14T23:05:23Z"
+		},
+		{
+			"checksumSHA1": "Yb4+CduSzpJEtsHZaedzXLDvjUo=",
+			"path": "github.com/nats-io/jwt/v2",
+			"revision": "22bf1cf3386b569ad632f92d4e944c27ddecd875",
+			"revisionTime": "2021-03-14T23:05:23Z"
+		},
+		{
 			"checksumSHA1": "JfriV4PsYnnLZwl10HxoJKCCVaY=",
 			"path": "github.com/nats-io/nats",
 			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
@@ -3703,16 +3793,120 @@
 			"versionExact": "v1.8.0"
 		},
 		{
+			"checksumSHA1": "lZ02rQ/OeznRaRMb9wwBwqZKn6U=",
+			"origin": "github.com/nats-io/nats-server/conf",
+			"path": "github.com/nats-io/nats-server/v2/conf",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "VGaiEp3HkTcx4QSENgQc7baJwlk=",
+			"origin": "github.com/nats-io/nats-server/internal/ldap",
+			"path": "github.com/nats-io/nats-server/v2/internal/ldap",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "eaQuwTGoVpsFluK5Zdw+rDuKFkg=",
+			"origin": "github.com/nats-io/nats-server/logger",
+			"path": "github.com/nats-io/nats-server/v2/logger",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "kCbrK25eJocZjv4pJZ5c+BkhWZw=",
+			"origin": "github.com/nats-io/nats-server/server",
+			"path": "github.com/nats-io/nats-server/v2/server",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "mayVj3XD7PGUxKn8riMiSCa/7KM=",
+			"origin": "github.com/nats-io/nats-server/server/pse",
+			"path": "github.com/nats-io/nats-server/v2/server/pse",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "vqHCbVnlEPPiW8UCZgWJEj6od58=",
+			"origin": "github.com/nats-io/nats-server/server/sysmem",
+			"path": "github.com/nats-io/nats-server/v2/server/sysmem",
+			"revision": "c8d812d805cc16ab0e0691b35bb2e670d4bd9a78",
+			"revisionTime": "2021-03-28T00:38:57Z"
+		},
+		{
+			"checksumSHA1": "v3/y/6NKoXjFYa6fAT0kemmLabc=",
+			"path": "github.com/nats-io/nats-streaming-server",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "Rf/i4ehkGZwbvjhEcpePaghE8uU=",
+			"path": "github.com/nats-io/nats-streaming-server/logger",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "G+bTG4BkXtWbUWJphiy3pDhHPLY=",
+			"path": "github.com/nats-io/nats-streaming-server/server",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "vIewFCUUAiW20dnzsXNR/HQCZe0=",
+			"path": "github.com/nats-io/nats-streaming-server/spb",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "I4EbFXo+vndIJLm6L85oItw+b0g=",
+			"path": "github.com/nats-io/nats-streaming-server/stores",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "pmQcPBnMjn3F8UsfmkPFMITlHkk=",
+			"path": "github.com/nats-io/nats-streaming-server/stores/pqdeadlines",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "bM75v1JFAMMztMajx1cltGlILac=",
+			"path": "github.com/nats-io/nats-streaming-server/util",
+			"revision": "814b51a89ccac0107d4e323c6b8270bbe1d23ccd",
+			"revisionTime": "2021-01-09T02:40:12Z",
+			"version": "v0.20.0",
+			"versionExact": "v0.20.0"
+		},
+		{
+			"checksumSHA1": "9yIygYgptWZG3CkvdH/QzK7+BH0=",
+			"path": "github.com/nats-io/nats.go",
+			"revision": "ed743748acac4c95e5789f62f2248868cb4c2566",
+			"revisionTime": "2021-02-28T00:40:50Z"
+		},
+		{
 			"checksumSHA1": "wTJ0MPVAQnb2a+vdzNWSSqxfiyM=",
 			"path": "github.com/nats-io/nats.go/encoders/builtin",
-			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
-			"revisionTime": "2019-06-03T23:44:50Z"
+			"revision": "c48e770e0b417d0f0600aae6889d6877e542ed10",
+			"revisionTime": "2020-04-30T14:38:48Z"
 		},
 		{
 			"checksumSHA1": "3m3PAW0haWNC6A3A30LKTdkg02s=",
 			"path": "github.com/nats-io/nats.go/util",
-			"revision": "b7c46b03aab0b24e13b87f5081230f3da7dcc2ca",
-			"revisionTime": "2019-06-03T23:44:50Z"
+			"revision": "c48e770e0b417d0f0600aae6889d6877e542ed10",
+			"revisionTime": "2020-04-30T14:38:48Z"
 		},
 		{
 			"checksumSHA1": "qAIuHdtQrDi2fFmpaP1dZLbgpGc=",
@@ -3721,16 +3915,32 @@
 			"revisionTime": "2018-03-13T15:00:56Z"
 		},
 		{
-			"checksumSHA1": "6xwMpun2lAxptGPocW+HKJg1Xoc=",
+			"checksumSHA1": "upEFkQPYdNlCA69BHK3OqTqMOmg=",
 			"path": "github.com/nats-io/nkeys",
-			"revision": "1546a3320a8f195a5b5c84aef8309377c2e411d5",
-			"revisionTime": "2018-12-05T15:18:57Z"
+			"revision": "3653aeb9baf610b5d160bbafc89e3470a47e08c8",
+			"revisionTime": "2020-06-01T16:19:11Z",
+			"version": "v0.2.0",
+			"versionExact": "v0.2.0"
 		},
 		{
 			"checksumSHA1": "xPMK9Y2UbdQclakznIrDWV1c64o=",
 			"path": "github.com/nats-io/nuid",
 			"revision": "3e58d42c9cfe5cd9429f1a21ad8f35cd859ba829",
 			"revisionTime": "2018-03-17T19:19:20Z"
+		},
+		{
+			"checksumSHA1": "Umz2jfDHX4zDoycZwiuuFiyLOQ0=",
+			"path": "github.com/nats-io/stan.go",
+			"revision": "910e9bca44c8caf96e3e479874a589bf6c36e817",
+			"revisionTime": "2021-02-26T01:03:51Z"
+		},
+		{
+			"checksumSHA1": "3eBEkZpfAuyhQAoSuXvPden9n8I=",
+			"path": "github.com/nats-io/stan.go/pb",
+			"revision": "9c3dd6c7ee314255e46b17dac74244fe2ba6c9f9",
+			"revisionTime": "2021-01-09T00:13:52Z",
+			"version": "v0.8.1",
+			"versionExact": "v0.8.1"
 		},
 		{
 			"checksumSHA1": "uEc9/1HbYGeK7wPStF6FmUlfzGE=",
@@ -4325,10 +4535,10 @@
 			"revisionTime": "2018-11-14T16:22:46Z"
 		},
 		{
-			"checksumSHA1": "mWYJVxuoCyM2QmmO4/k91KF8bso=",
+			"checksumSHA1": "JVPl+rEjVkeujgCn9fFzj00Ybj8=",
 			"path": "github.com/pydio/minio-srv",
-			"revision": "028441bbdd6aeae7e0d401185fe48506cd04eee5",
-			"revisionTime": "2021-01-11T10:25:16Z",
+			"revision": "b4a3d4bc4bd1745fbed2fc60b0e2a79fab1b5d85",
+			"revisionTime": "2021-04-21T11:39:43Z",
 			"tree": true
 		},
 		{
@@ -5027,6 +5237,12 @@
 			"revisionTime": "2018-02-21T09:33:47Z"
 		},
 		{
+			"checksumSHA1": "C97JA4dedgx1csaW3/Rk/seZs+8=",
+			"path": "go.etcd.io/bbolt",
+			"revision": "5082d3bbc22e385ea0f7ffa915cb8b2a4efceb59",
+			"revisionTime": "2021-03-24T17:22:49Z"
+		},
+		{
 			"checksumSHA1": "HedK9m8E8iyib4bIBtIX7xprOgo=",
 			"path": "go.uber.org/atomic",
 			"revision": "8474b86a5a6f79c443ce4b2992817ff32cf208b8",
@@ -5123,6 +5339,18 @@
 			"revisionTime": "2018-04-03T08:00:15Z"
 		},
 		{
+			"checksumSHA1": "iEhSrgDaUwe8T6wxMMwLX0zx2DU=",
+			"path": "golang.org/x/crypto/chacha20",
+			"revision": "4b2356b1ed79e6be3deca3737a3db3d132d2847a",
+			"revisionTime": "2020-04-23T13:34:55Z"
+		},
+		{
+			"checksumSHA1": "Ok3qA+4QimzFsCKF9q4GhjxACEU=",
+			"path": "golang.org/x/crypto/chacha20poly1305",
+			"revision": "4b2356b1ed79e6be3deca3737a3db3d132d2847a",
+			"revisionTime": "2020-04-23T13:34:55Z"
+		},
+		{
 			"checksumSHA1": "IQkUIOnvlf0tYloFx9mLaXSvXWQ=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/lucas-clemente/quic-go/vendor/golang.org/x/crypto/curve25519",
 			"path": "golang.org/x/crypto/curve25519",
@@ -5149,6 +5377,12 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
+			"checksumSHA1": "/U7f2gaH6DnEmLguVLDbipU6kXU=",
+			"path": "golang.org/x/crypto/internal/subtle",
+			"revision": "4b2356b1ed79e6be3deca3737a3db3d132d2847a",
+			"revisionTime": "2020-04-23T13:34:55Z"
+		},
+		{
 			"checksumSHA1": "Y6BnkY5EoAxAtT13cbEj5vn6Qvc=",
 			"origin": "github.com/mholt/caddy/vendor/golang.org/x/crypto/ocsp",
 			"path": "golang.org/x/crypto/ocsp",
@@ -5161,6 +5395,12 @@
 			"path": "golang.org/x/crypto/pbkdf2",
 			"revision": "b2aa35443fbc700ab74c586ae79b81c171851023",
 			"revisionTime": "2018-04-03T08:00:15Z"
+		},
+		{
+			"checksumSHA1": "xvpXGb60O4YWckDukHp6rokfNjA=",
+			"path": "golang.org/x/crypto/poly1305",
+			"revision": "4b2356b1ed79e6be3deca3737a3db3d132d2847a",
+			"revisionTime": "2020-04-23T13:34:55Z"
 		},
 		{
 			"checksumSHA1": "edxT+Mb+lwGCasYeIZ46a2B+4k8=",

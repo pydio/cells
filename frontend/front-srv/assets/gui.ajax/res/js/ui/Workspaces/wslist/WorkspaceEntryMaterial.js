@@ -23,6 +23,8 @@ const {ListItem, Avatar, FontIcon} = require('material-ui')
 const {muiThemeable} = require('material-ui/styles')
 const Color = require('color')
 
+const PropTypes = require('prop-types');
+
 const Pydio = require('pydio')
 const Repository = require('pydio/model/repository')
 
@@ -61,7 +63,7 @@ class WorkspaceEntryMaterial extends React.Component{
                 leftIcon={leftIcon}
                 primaryText={workspace.getLabel()}
                 secondaryText={workspace.getDescription()}
-                onTouchTap={this.onClick.bind(this)}
+                onClick={this.onClick.bind(this)}
             />
         );
 
@@ -70,9 +72,9 @@ class WorkspaceEntryMaterial extends React.Component{
 }
 
 WorkspaceEntryMaterial.propTypes = {
-    pydio    : React.PropTypes.instanceOf(Pydio).isRequired,
-    workspace: React.PropTypes.instanceOf(Repository).isRequired,
-    muiTheme : React.PropTypes.object
+    pydio    : PropTypes.instanceOf(Pydio).isRequired,
+    workspace: PropTypes.instanceOf(Repository).isRequired,
+    muiTheme : PropTypes.object
 };
 
 WorkspaceEntryMaterial = muiThemeable()(WorkspaceEntryMaterial);

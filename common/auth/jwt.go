@@ -63,7 +63,7 @@ type Exchanger interface {
 	Exchange(context.Context, string) (*oauth2.Token, error)
 }
 
-// An AuthCodeOption is passed to Config.AuthCodeURL.
+// TokenOption is an AuthCodeOption is passed to Config.AuthCodeURL.
 type TokenOption interface {
 	setValue(url.Values)
 }
@@ -78,12 +78,12 @@ func SetChallenge(value string) TokenOption {
 	return setParam{"challenge", value}
 }
 
-// SetAccesToken builds a TokenOption for passing the access tokens
+// SetAccessToken builds a TokenOption for passing the access token.
 func SetAccessToken(value string) TokenOption {
 	return setParam{"access_token", value}
 }
 
-// SetAccesToken builds a TokenOption for passing the refresh tokens
+// SetRefreshToken builds a TokenOption for passing the refresh_token.
 func SetRefreshToken(value string) TokenOption {
 	return setParam{"refresh_token", value}
 }
@@ -119,6 +119,7 @@ func AddContextVerifier(v ContextVerifier) {
 	contextVerifiers = append(contextVerifiers, v)
 }
 
+// VerifyContext ranges over registered ContextVerifiers and check if one of them returns an error.
 func VerifyContext(ctx context.Context, user *idm.User) error {
 	for _, v := range contextVerifiers {
 		if err := v.Verify(ctx, user); err != nil {
@@ -262,7 +263,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 	return idToken, nil
 }
 
-// Exchange retrives a oauth2 Token from a code
+// Exchange retrieves an oauth2 Token from a code.
 func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 	var oauth2Token *oauth2.Token
 	var err error
@@ -374,7 +375,7 @@ func (j *JWTVerifier) PasswordCredentialsCode(ctx context.Context, username, pas
 	return code, err
 }
 
-// Logout
+// Logout calls logout on underlying provider
 func (j *JWTVerifier) Logout(ctx context.Context, url, subject, sessionID string, opts ...TokenOption) error {
 	for _, provider := range j.getProviders() {
 		p, ok := provider.(LogoutProvider)
@@ -390,7 +391,7 @@ func (j *JWTVerifier) Logout(ctx context.Context, url, subject, sessionID string
 	return nil
 }
 
-// Add a fake Claims in context to impersonate user
+// WithImpersonate Add a fake Claims in context to impersonate a user.
 func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 	roles := make([]string, len(user.Roles))
 	for _, r := range user.Roles {
@@ -417,7 +418,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 			c.DisplayName = dn
 		}
 	}
-	ctx = context2.WithMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
+	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
 	return context.WithValue(ctx, claim.ContextKey, c)
 }
 

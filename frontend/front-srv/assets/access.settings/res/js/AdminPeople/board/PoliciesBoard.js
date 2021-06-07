@@ -17,13 +17,16 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import React from 'react'
+import createReactClass from 'create-react-class';
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
 import ResourcesManager from 'pydio/http/resources-manager'
 import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconMenu, MenuItem, Popover, SelectField, TextField} from 'material-ui'
-import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
+import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
 import {v4 as uuid} from 'uuid'
@@ -33,18 +36,18 @@ import Policy from '../policies/Policy'
 
 const ResourceGroups = ["acl", "rest", "oidc"];
 
-let PoliciesBoard = React.createClass({
-
+let PoliciesBoard = createReactClass({
+    displayName: 'PoliciesBoard',
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode: React.PropTypes.instanceOf(Node).isRequired,
-        currentNode: React.PropTypes.instanceOf(Node).isRequired,
-        openEditor: React.PropTypes.func.isRequired,
-        openRightPane: React.PropTypes.func.isRequired,
-        closeRightPane: React.PropTypes.func.isRequired,
-        readonly: React.PropTypes.bool
+        dataModel: PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode: PropTypes.instanceOf(Node).isRequired,
+        currentNode: PropTypes.instanceOf(Node).isRequired,
+        openEditor: PropTypes.func.isRequired,
+        openRightPane: PropTypes.func.isRequired,
+        closeRightPane: PropTypes.func.isRequired,
+        readonly: PropTypes.bool
     },
 
     componentWillMount(){
@@ -206,18 +209,18 @@ let PoliciesBoard = React.createClass({
             actions.push({
                 iconClassName:'mdi mdi-eye',
                 tooltip:m('policy.display'),
-                onTouchTap:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
+                onClick:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
             })
         } else {
             actions.push({
                 iconClassName:'mdi mdi-pencil',
                 tooltip:m('policy.edit'),
-                onTouchTap:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
+                onClick:(policy) => this.setState({selectedPolicy:(selectedPolicy=== policy.Uuid?null : policy.Uuid)})
             });
             actions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:m('policy.delete'),
-                onTouchTap:(policy) => {this.deletePolicy(policy)}
+                onClick:(policy) => {this.deletePolicy(policy)}
             });
         }
 
@@ -270,7 +273,7 @@ let PoliciesBoard = React.createClass({
                 <FlatButton
                     {...adminStyles.props.header.flatButton}
                     primary={true}
-                    onTouchTap={this.openPopover.bind(this)}
+                    onClick={this.openPopover.bind(this)}
                     label={m('policy.new')}
                 />
                 <Popover
@@ -297,8 +300,8 @@ let PoliciesBoard = React.createClass({
                             </div>
                         <Divider/>
                         <div style={{textAlign: 'right', padding: '6px 12px'}}>
-                            <FlatButton label={pydio.MessageHash['54']} onTouchTap={this.handleRequestClose.bind(this)}/>
-                            <FlatButton label={m('policy.create')} onTouchTap={this.createPolicy.bind(this)}/>
+                            <FlatButton label={pydio.MessageHash['54']} onClick={this.handleRequestClose.bind(this)}/>
+                            <FlatButton label={m('policy.create')} onClick={this.createPolicy.bind(this)}/>
                         </div>
                     </div>
                 </Popover>
@@ -321,8 +324,7 @@ let PoliciesBoard = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 

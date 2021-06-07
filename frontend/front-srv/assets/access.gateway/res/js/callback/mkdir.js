@@ -21,7 +21,7 @@
 
 import PydioApi from "pydio/http/api";
 import LangUtils from 'pydio/util/lang';
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 
 export default function(pydio){
 

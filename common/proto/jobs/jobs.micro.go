@@ -11,6 +11,9 @@ It has these top-level messages:
 	NodesSelector
 	IdmSelector
 	UsersSelector
+	DataSourceSelector
+	TriggerFilterQuery
+	TriggerFilter
 	ActionOutputFilter
 	ContextMetaFilter
 	ContextMetaSingleQuery
@@ -55,6 +58,7 @@ import _ "github.com/pydio/cells/common/service/proto"
 import _ "github.com/pydio/cells/common/proto/tree"
 import _ "github.com/pydio/cells/common/proto/idm"
 import _ "github.com/pydio/cells/common/proto/activity"
+import _ "github.com/pydio/cells/common/proto/object"
 
 import (
 	client "github.com/micro/go-micro/client"

@@ -1,5 +1,5 @@
 import Observable from 'pydio/lang/observable'
-import {IdmUser, IdmRole} from 'pydio/http/rest-api';
+import {IdmUser, IdmRole} from 'cells-sdk';
 import {v4 as uuidv4} from 'uuid'
 import Role from './Role'
 

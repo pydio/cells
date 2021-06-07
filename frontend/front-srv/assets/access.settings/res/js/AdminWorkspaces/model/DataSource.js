@@ -22,7 +22,7 @@ const Observable = require('pydio/lang/observable');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang'
 import {ConfigServiceApi, ObjectDataSource, ObjectEncryptionMode, ObjectStorageType,
-    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest} from 'pydio/http/rest-api';
+    JobsServiceApi, RestUserJobRequest,EncryptionAdminListKeysRequest, RestListStorageBucketsRequest} from 'cells-sdk';
 
 class DataSource extends Observable {
 
@@ -83,7 +83,7 @@ class DataSource extends Observable {
         });
     }
 
-    constructor(model, existingNames = []){
+    constructor(model, existingNames = [], createStructure = 'flat'){
         super();
         this.internalInvalid = false;
         this.nameInvalid = false;
@@ -98,7 +98,20 @@ class DataSource extends Observable {
             this.model = new ObjectDataSource();
             this.model.EncryptionMode = ObjectEncryptionMode.constructFromObject('CLEAR');
             this.model.StorageType = ObjectStorageType.constructFromObject('LOCAL');
-            this.model.StorageConfiguration = {"folder":"", "normalize":"false"};
+            switch (createStructure) {
+                case "flat":
+                    this.model.StorageConfiguration = {"folder":"", "normalize":"false"};
+                    this.model.FlatStorage = true;
+                    break;
+                case "structured":
+                    this.model.StorageConfiguration = {"folder":"", "normalize":"false"};
+                    this.model.FlatStorage = false;
+                    break;
+                case "internal":
+                    this.model.StorageConfiguration = {"folder":"", "normalize":"false", "cellsInternal":"true"};
+                    this.model.FlatStorage = true;
+                    break;
+            }
         }
         this.observableModel = this.buildProxy(this.model);
 

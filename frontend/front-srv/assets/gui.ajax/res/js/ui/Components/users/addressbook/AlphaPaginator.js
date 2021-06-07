@@ -1,3 +1,7 @@
+import { Component } from 'react';
+import {muiThemeable, getMuiTheme} from 'material-ui/styles'
+import {MuiThemeProvider} from 'material-ui'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,6 +21,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
+
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import React, {Component, PropTypes} from 'react'
 import {MenuItem, MuiThemeProvider} from 'material-ui'

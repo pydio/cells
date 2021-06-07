@@ -59,7 +59,6 @@ type CopyMoveAction struct {
 	Client            views.Handler
 	Move              bool
 	Copy              bool
-	Recursive         bool
 	TargetPlaceholder string
 	CreateFolder      bool
 	TargetIsParent    bool
@@ -103,15 +102,6 @@ func (c *CopyMoveAction) GetParametersForm() *forms.Form {
 						{"copy": "Copy"},
 						{"move": "Move"},
 					},
-				},
-				&forms.FormField{
-					Name:        "recursive",
-					Type:        forms.ParamBool,
-					Label:       "Recursive",
-					Description: "Apply recursively on folders",
-					Default:     true,
-					Mandatory:   true,
-					Editable:    true,
 				},
 				&forms.FormField{
 					Name:        "targetParent",
@@ -174,10 +164,6 @@ func (c *CopyMoveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 		c.TargetIsParent = true
 	}
 
-	if recurseParam, ok := action.Parameters["recursive"]; ok {
-		c.Recursive, _ = strconv.ParseBool(recurseParam)
-	}
-
 	return nil
 }
 
@@ -215,22 +201,21 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	sourceNode = readR.Node
 	output := input
 
-	e := views.CopyMoveNodes(ctx, c.Client, sourceNode, targetNode, c.Move, c.Recursive, true, channels.StatusMsg, channels.Progress, T)
-	if e != nil {
+	if e := views.CopyMoveNodes(ctx, c.Client, sourceNode, targetNode, c.Move, true, channels.StatusMsg, channels.Progress, T); e != nil {
 		output = output.WithError(e)
 		return output, e
-	} else {
-		if c.Move {
-			log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully moved %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
-		} else {
-			log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully copied %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
-		}
-		output = output.WithNode(targetNode)
-		output.AppendOutput(&jobs.ActionOutput{
-			Success: true,
-		})
-		return output, nil
 	}
+
+	if c.Move {
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully moved %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+	} else {
+		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully copied %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
+	}
+	output = output.WithNode(targetNode)
+	output.AppendOutput(&jobs.ActionOutput{
+		Success: true,
+	})
+	return output, nil
 
 }
 

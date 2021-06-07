@@ -57,10 +57,12 @@ class SearchForm extends Component {
             return basicDataModel;
         };
 
+        const {dataModel} = this.props;
+
         this.state = {
             values: (props.advancedPanel && props.values ? props.values : {}),
             display: props.advancedPanel ? 'advanced' : 'closed',
-            dataModel: clearDataModel(),
+            dataModel: dataModel || clearDataModel(),
             empty: true,
             loading: false,
             searchScope: props.uniqueSearchScope || props.searchScope || 'folder'
@@ -75,7 +77,7 @@ class SearchForm extends Component {
                 this.setState({
                     values: {},
                     display:'closed',
-                    dataModel: clearDataModel(),
+                    dataModel: dataModel || clearDataModel(),
                     empty: true,
                     loading: false
                 });
@@ -159,14 +161,17 @@ class SearchForm extends Component {
 
         this.setState({loading: true, empty: false});
         rootNode.setLoading(true);
+        rootNode.notify("loading");
         const api = new SearchApi(this.props.pydio);
         api.search(values, crossWorkspace? 'all' : searchScope, limit).then(response => {
             rootNode.setChildren(response.Results);
             rootNode.setLoading(false);
             rootNode.setLoaded(true);
+            rootNode.notify("loaded");
             this.setState({loading: false});
         }).catch(()=>{
             rootNode.setLoading(false);
+            rootNode.notify("loaded");
             this.setState({loading: false});
         });
 
@@ -274,8 +279,8 @@ class SearchForm extends Component {
 
                 {display === 'small' &&
                 <div style={{display:'flex', alignItems:'center', padding:4, paddingTop: 0, backgroundColor:'#eeeeee', width:'100%'}}>
-                    {!crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={(scope)=>{this.changeSearchScope(scope)}} onTouchTap={() => this.setMode('small')}/>}
-                    <FlatButton style={{marginTop: 4, minWidth:0}} labelStyle={{padding:'0 8px'}} primary={true} label={getMessage(456)} onTouchTap={() => {onOpenAdvanced()}}/>
+                    {!crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={(scope)=>{this.changeSearchScope(scope)}} onClick={() => this.setMode('small')}/>}
+                    <FlatButton style={{marginTop: 4, minWidth:0}} labelStyle={{padding:'0 8px'}} primary={true} label={getMessage(456)} onClick={() => {onOpenAdvanced()}}/>
                 </div>
                 }
             </Paper>
@@ -290,10 +295,10 @@ class SearchForm extends Component {
                             iconClassName={"mdi mdi-close"}
                             style={{minWidth:0, marginTop: 4}}
                             tooltip={getMessage(86)}
-                            onTouchTap={() => {onCloseAdvanced()}}
+                            onClick={() => {onCloseAdvanced()}}
                         />
                     </div>
-                    <div style={{flex:1, display:'flex',  flexDirection:xtraSmallScreen?'column':'row'}}>
+                    <div style={{flex:1, display:'flex',  flexDirection:xtraSmallScreen?'column':'row', overflow:'hidden'}}>
                         <AdvancedSearch
                             {...this.props}
                             values={values}

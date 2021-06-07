@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,8 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {FlatButton, IconButton, Paper, Subheader, TextField, RaisedButton} from 'material-ui'
+import React, {Fragment} from 'react';
+import PropTypes from 'prop-types';
+
+import {FlatButton, Paper} from 'material-ui'
 import DataSourceEditor from '../editor/DataSourceEditor'
 import VersionPolicyEditor from '../editor/VersionPolicyEditor'
 import PydioDataModel from 'pydio/model/data-model'
@@ -31,13 +33,13 @@ import ResourcesManager from 'pydio/http/resources-manager'
 const {MaterialTable} = Pydio.requireLib('components');
 import DataSource from '../model/DataSource'
 import Workspace from '../model/Ws'
-import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'pydio/http/rest-api'
+import {TreeVersioningPolicy,TreeVersioningKeepPeriod, ConfigServiceApi} from 'cells-sdk'
 import {v4 as uuid} from 'uuid'
 import VersionPolicyPeriods from '../editor/VersionPolicyPeriods'
 import EncryptionKeys from './EncryptionKeys'
 import {muiThemeable} from 'material-ui/styles'
 const {JobsStore, moment} = Pydio.requireLib("boot");
-import {debounce} from 'lodash'
+import CreateDSDialog from "../editor/CreateDSDialog";
 
 class DataSourcesBoard extends React.Component {
 
@@ -237,7 +239,7 @@ class DataSourcesBoard extends React.Component {
         return this.makeStatusLabel('ok', task.StatusMessage);
     }
 
-    openVersionPolicy(versionPolicies = undefined){
+    openVersionPolicy(versionPolicies = undefined, clone = false){
         if(versionPolicies !== undefined && !versionPolicies.length){
             return;
         }
@@ -247,16 +249,23 @@ class DataSourcesBoard extends React.Component {
             create = true;
             versionPolicy = new TreeVersioningPolicy();
             versionPolicy.Uuid = uuid();
-            versionPolicy.VersionsDataSourceName = "default";
-            versionPolicy.VersionsDataSourceBucket = "versions";
+            versionPolicy.VersionsDataSourceName = "versions";
+            versionPolicy.NodeDeletedStrategy = "KeepAll";
             const period = new TreeVersioningKeepPeriod();
             period.IntervalStart = "0";
             period.MaxNumber = -1;
             versionPolicy.KeepPeriods = [period];
         }else{
             versionPolicy = versionPolicies[0];
+            if (clone) {
+                create = true;
+                versionPolicy = TreeVersioningPolicy.constructFromObject(JSON.parse(JSON.stringify(versionPolicy)));
+                versionPolicy.Uuid = uuid();
+                versionPolicy.Name += ' (Copy)';
+            }
         }
         const {openRightPane, pydio, versioningReadonly, accessByName} = this.props;
+        const {dataSources} = this.state;
         openRightPane({
             COMPONENT:VersionPolicyEditor,
             PROPS:{
@@ -264,6 +273,7 @@ class DataSourcesBoard extends React.Component {
                 versionPolicy:versionPolicy,
                 create: create,
                 pydio: pydio,
+                internalSources:dataSources.filter((ds) => ds.StorageConfiguration.cellsInternal).map((ds) => ds.Name),
                 readonly: versioningReadonly || !accessByName('CreateVersioning'),
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
@@ -287,7 +297,7 @@ class DataSourcesBoard extends React.Component {
         });
     }
 
-    createDataSource(){
+    createDataSource(storageStructure){
         const {pydio, storageTypes} = this.props;
         const {dataSources} = this.state;
         this.props.openRightPane({
@@ -295,6 +305,7 @@ class DataSourcesBoard extends React.Component {
             PROPS:{
                 ref:"editor",
                 create:true,
+                createStructure: storageStructure,
                 existingNames:dataSources.map(ds => ds.Name),
                 pydio:pydio,
                 storageTypes:storageTypes,
@@ -354,8 +365,12 @@ class DataSourcesBoard extends React.Component {
     }
 
     render(){
-        const {dataSources, resyncJobs, versioningPolicies, m} = this.state;
+        const {dataSources, resyncJobs, versioningPolicies, m, createDialog} = this.state;
         dataSources.sort(LangUtils.arraySorter('Name'));
+
+        const splitSources = dataSources.filter(ds => !ds.StorageConfiguration.cellsInternal);
+        const internalSources = dataSources.filter(ds => ds.StorageConfiguration.cellsInternal);
+
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
         const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
@@ -365,36 +380,36 @@ class DataSourcesBoard extends React.Component {
         const blockStyle = body.block.container;
 
         const {currentNode, pydio, versioningReadonly, accessByName} = this.props;
-        const dsColumns = [
+        let dsColumns = [
             {name:'Name', label:m('name'), style:{fontSize: 15, width: '15%'}, headerStyle:{width: '15%'}, sorter:{type:'string', default:true}},
-            {name:'Status', label:m('status'),
+            {name:'StorageType', label:m('storage'), style:{width:'15%'}, headerStyle:{width:'15%'}, renderCell:(row)=>{
+                    let s = 'storage.fs';
+                    switch (row.StorageType) {
+                        case "S3":
+                            s = 'storage.s3';
+                            break;
+                        case "AZURE":
+                            s = 'storage.azure';
+                            break;
+                        case "GCS":
+                            s = 'storage.gcs';
+                            break;
+                        default:
+                            break;
+                    }
+                    return m(s);
+                }, sorter:{type:'string'}},
+            {name:'Status', label:m('status'), hideSmall: true,
                 renderCell:(row)=>{
                     return row.Disabled ? <span style={{color:'#757575'}}><span className={"mdi mdi-checkbox-blank-circle-outline"}/> {m('status.disabled')}</span> : this.computeStatus(row);
                 },
                 sorter:{type:'number', value:row=>this.computeStatus(row, true)}
             },
-            {name: 'SyncStatus', label:m('syncStatus'),
+            {name: 'SyncStatus', label:m('syncStatus'),  hideSmall: true,
                 renderCell:(row)=> (resyncJobs && resyncJobs[row.Name]) ? this.computeJobStatus(resyncJobs[row.Name]) : 'n/a',
                 sorter:{type:'number', value:(row) => resyncJobs && resyncJobs[row.Name]?resyncJobs[row.Name].Tasks[0].EndTime:0}
             },
-            {name:'StorageType', label:m('storage'), hideSmall:true, style:{width:'15%'}, headerStyle:{width:'15%'}, renderCell:(row)=>{
-                let s = 'storage.fs';
-                switch (row.StorageType) {
-                    case "S3":
-                        s = 'storage.s3';
-                        break;
-                    case "AZURE":
-                        s = 'storage.azure';
-                        break;
-                    case "GCS":
-                        s = 'storage.gcs';
-                        break;
-                    default:
-                        break;
-                }
-                return m(s);
-            }, sorter:{type:'string'}},
-            {name:'VersioningPolicyName', label:m('versioning'), style:{width:'10%'}, headerStyle:{width:'10%'}, hideSmall:true, renderCell:(row) => {
+            {name:'VersioningPolicyName', label:m('versioning'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall:true, renderCell:(row) => {
                 const pol = versioningPolicies.find((obj)=>obj.Uuid === row['VersioningPolicyName']);
                 if (pol) {
                     return pol.Name;
@@ -413,22 +428,29 @@ class DataSourcesBoard extends React.Component {
                 },
                 sorter:{type:'number', value:(row)=> row['EncryptionMode'] === 'MASTER' ? 1 : 0 }},
         ];
+        if(!splitSources.filter(ds => !ds.FlatStorage).length){
+            dsColumns = dsColumns.filter(col => col.name !== 'SyncStatus')
+        }
+        const internalColumns = dsColumns.filter(col => col.name !== 'VersioningPolicyName' && col.name !== 'SyncStatus')
+
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
         let buttons = [];
         if(accessByName('CreateDatasource')){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onTouchTap={this.createDataSource.bind(this)} {...adminStyles.props.header.flatButton}/>)
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onClick={() => this.setState({createDialog:true})} {...adminStyles.props.header.flatButton}/>)
         }
-        const versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
+        // TMP TODO
+        const versioningEditable = true; !versioningReadonly && accessByName('CreateVersioning');
         if(versioningEditable){
-            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
+            buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onClick={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
         const policiesColumns = [
             {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}, sorter:{type:'string', default:true}},
             {name:'Description', label: m('versioning.description'), sorter:{type:'string'}},
             {name:'KeepPeriods', hideSmall:true, label: m('versioning.periods'), renderCell:(row) => {
-                return <VersionPolicyPeriods rendering="short" periods={row.KeepPeriods} pydio={pydio}/>
-            }}
+                return <VersionPolicyPeriods rendering="short" policy={row} pydio={pydio}/>
+            }},
+            {name:'VersionsDataSourceName', style:{width:180}, headerStyle:{width:180}, label: m('versioning.storage'), sorter:{type:'string'}, hideSmall:true}
         ];
 
         const dsActions = [];
@@ -436,24 +458,28 @@ class DataSourcesBoard extends React.Component {
             dsActions.push({
                 iconClassName:'mdi mdi-pencil',
                 tooltip:'Edit datasource',
-                onTouchTap:row=>{this.openDataSource([row])}
+                onClick:row=>{this.openDataSource([row])}
             });
         }
         dsActions.push({
-            iconClassName:'mdi mdi-sync',
-            tooltip:m('editor.legend.resync.button'),
-            onTouchTap:row => this.resyncDataSource(pydio, m, row)
-        });
-        dsActions.push({
             iconClassName:'mdi mdi-folder-plus',
             tooltip:'Create workspace here',
-            onTouchTap:row => this.createWorkspaceFromDatasource(pydio, m, row)
+            onClick:row => this.createWorkspaceFromDatasource(pydio, m, row)
         });
         if(accessByName('CreateDatasource')){
             dsActions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:m('editor.legend.delete.button'),
-                onTouchTap:row => this.deleteDataSource(pydio, m, row)
+                onClick:row => this.deleteDataSource(pydio, m, row)
+            });
+        }
+        const internalActions = [...dsActions];
+        if(splitSources.filter(ds => !ds.FlatStorage).length > 0) {
+            dsActions.push({
+                iconClassName:'mdi mdi-sync',
+                tooltip:m('editor.legend.resync.button'),
+                onClick:row => this.resyncDataSource(pydio, m, row),
+                disable:(row=>row.FlatStorage)
             });
         }
 
@@ -461,14 +487,19 @@ class DataSourcesBoard extends React.Component {
         vsActions.push({
             iconClassName:versioningEditable?'mdi mdi-pencil':'mdi mdi-eye',
             tooltip: versioningEditable?'Edit policy':'Display policy',
-            onTouchTap:row => {this.openVersionPolicy([row])}
+            onClick:row => {this.openVersionPolicy([row])}
         });
         if(versioningEditable){
+            vsActions.push({
+                iconClassName:'mdi mdi-content-copy',
+                tooltip:'Duplicate policy',
+                onClick:row => this.openVersionPolicy([row], true)
+            })
             vsActions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:'Delete policy',
                 destructive:true,
-                onTouchTap:row => this.deleteVersionPolicy(row)
+                onClick:row => this.deleteVersionPolicy(row)
             })
         }
 
@@ -483,11 +514,16 @@ class DataSourcesBoard extends React.Component {
                         reloadAction={this.load.bind(this)}
                         loading={!(this.state.dsLoaded && this.state.versionsLoaded)}
                     />
+                    <CreateDSDialog
+                        open={createDialog}
+                        onRequestClose={() => {this.setState({createDialog: false})}}
+                        onSubmit={(value) => {this.createDataSource(value)}}
+                    />
                     <div className="layout-fill">
                         <AdminComponents.SubHeader title={m('board.ds.title')} legend={m('board.ds.legend')}/>
                         <Paper {...blockProps} style={{...blockStyle}}>
                             <MaterialTable
-                                data={dataSources}
+                                data={splitSources}
                                 columns={dsColumns}
                                 actions={dsActions}
                                 onSelectRows={this.openDataSource.bind(this)}
@@ -498,6 +534,24 @@ class DataSourcesBoard extends React.Component {
                                 storageKey={'console.datasources.list'}
                             />
                         </Paper>
+                        {internalSources.length > 0 &&
+                            <Fragment>
+                                <div style={{padding: '0px 20px'}}>Internal DataSources are used to store binaries like files versions</div>
+                                <Paper {...blockProps} style={{...blockStyle}}>
+                                    <MaterialTable
+                                        data={internalSources}
+                                        columns={internalColumns}
+                                        actions={internalActions}
+                                        onSelectRows={this.openDataSource.bind(this)}
+                                        deselectOnClickAway={true}
+                                        showCheckboxes={false}
+                                        emptyStateString={m('emptyState')}
+                                        masterStyles={tableMaster}
+                                        storageKey={'console.internalsources.list'}
+                                    />
+                                </Paper>
+                            </Fragment>
+                        }
 
                         <AdminComponents.SubHeader title={m('board.versioning.title')} legend={m('board.versioning.legend')}/>
                         <Paper {...blockProps} style={{...blockStyle}}>
@@ -528,14 +582,14 @@ class DataSourcesBoard extends React.Component {
 }
 
 DataSourcesBoard.propTypes = {
-    dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-    rootNode:React.PropTypes.instanceOf(Node).isRequired,
-    currentNode:React.PropTypes.instanceOf(Node).isRequired,
-    openEditor:React.PropTypes.func.isRequired,
-    openRightPane:React.PropTypes.func.isRequired,
-    closeRightPane:React.PropTypes.func.isRequired,
-    filter:React.PropTypes.string,
-    versioningReadonly: React.PropTypes.bool,
+    dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+    rootNode:PropTypes.instanceOf(Node).isRequired,
+    currentNode:PropTypes.instanceOf(Node).isRequired,
+    openEditor:PropTypes.func.isRequired,
+    openRightPane:PropTypes.func.isRequired,
+    closeRightPane:PropTypes.func.isRequired,
+    filter:PropTypes.string,
+    versioningReadonly: PropTypes.bool,
 };
 
 DataSourcesBoard = muiThemeable()(DataSourcesBoard);

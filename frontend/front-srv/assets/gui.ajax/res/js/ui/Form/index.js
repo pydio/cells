@@ -18,14 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import HelperMixin from './mixins/HelperMixin'
 import Manager from './manager/Manager'
 import InputText from './fields/TextField'
 import ValidPassword from './fields/ValidPassword'
 import InputInteger from './fields/InputInteger'
+import InputIntegerBytes from './fields/InputIntegerBytes'
 import InputBoolean from './fields/InputBoolean'
-import InputButton from './fields/InputButton'
-import MonitoringLabel from './fields/MonitoringLabel'
 import InputSelectBox from './fields/InputSelectBox'
 import AutocompleteBox from './fields/AutocompleteBox'
 import InputImage from './fields/InputImage'
@@ -35,14 +33,13 @@ import FileDropZone from './fields/FileDropzone'
 import AutocompleteTree from './fields/AutocompleteTree'
 
 let PydioForm = {
-    HelperMixin,
+
     Manager,
     InputText,
     ValidPassword,
     InputBoolean,
     InputInteger,
-    InputButton,
-    MonitoringLabel,
+    InputIntegerBytes,
     InputSelectBox,
     AutocompleteBox,
     AutocompleteTree,

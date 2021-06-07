@@ -54,7 +54,7 @@ class PasswordPopover extends React.Component{
         return (
             <div style={{marginLeft: 8}}>
                 <RaisedButton
-                    onTouchTap={this.passOpenPopover.bind(this)}
+                    onClick={this.passOpenPopover.bind(this)}
                     label={pydio.MessageHash[194]}
                     primary={true}
                 />
@@ -75,8 +75,8 @@ class PasswordPopover extends React.Component{
                         />
                         <Divider/>
                         <div style={{textAlign:'right', padding: '8px 0'}}>
-                            <FlatButton label={this.props.pydio.MessageHash[49]} onTouchTap={this.passClosePopover.bind(this)}/>
-                            <FlatButton disabled={!passValid} label="Ok" onTouchTap={this.passSubmit.bind(this)}/>
+                            <FlatButton label={this.props.pydio.MessageHash[49]} onClick={this.passClosePopover.bind(this)}/>
+                            <FlatButton disabled={!passValid} label="Ok" onClick={this.passSubmit.bind(this)}/>
                         </div>
                     </div>
                 </Popover>

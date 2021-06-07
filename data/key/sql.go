@@ -23,17 +23,18 @@ package key
 import (
 	"context"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
-
 	sqldb "database/sql"
 
+	"github.com/go-sql-driver/mysql"
+	"github.com/micro/go-micro/errors"
+	"github.com/pydio/packr"
+	migrate "github.com/rubenv/sql-migrate"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/packr"
-	migrate "github.com/rubenv/sql-migrate"
 )
 
 var (
@@ -234,6 +235,13 @@ func (h *sqlimpl) SaveNode(node *encryption.Node) error {
 		intLegacy = 1
 	}
 	_, err := stmt.Exec(node.NodeId, intLegacy)
+	// Ignore duplicate key error
+	if me, o := err.(*mysql.MySQLError); o {
+		if me.Number == 1062 {
+			// fmt.Println("Ignoring 1062 - duplicate error")
+			return nil
+		}
+	}
 	return err
 }
 
@@ -296,7 +304,6 @@ func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey,
 
 	rows, err := stmt.Query(nodeUuid, user)
 	if err != nil {
-		log.Logger(context.Background()).Error("failed to query node key", zap.Error(err))
 		return nil, err
 	}
 
@@ -304,9 +311,7 @@ func (h *sqlimpl) GetNodeKey(nodeUuid string, user string) (*encryption.NodeKey,
 	defer c.Close()
 
 	if !c.HasNext() {
-		err = errors.NotFound("node.key.dao", "no key found for node %s", nodeUuid)
-		log.Logger(context.Background()).Error("failed to query node key", zap.Error(err))
-		return nil, err
+		return nil, errors.NotFound("node.key.dao", "no key found for node %s", nodeUuid)
 	}
 
 	k, err := c.Next()

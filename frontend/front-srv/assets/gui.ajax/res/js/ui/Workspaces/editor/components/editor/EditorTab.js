@@ -54,8 +54,7 @@ const styles = {
 
 
 
-@connect(mapStateToProps, EditorActions)
-export default class Tab extends React.PureComponent {
+export default @connect(mapStateToProps, EditorActions) class Tab extends React.PureComponent {
     static get styles() {
         return {
             container: {

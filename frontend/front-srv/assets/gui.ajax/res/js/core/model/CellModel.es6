@@ -22,7 +22,7 @@ import PydioApi from '../http/PydioApi'
 import Observable from '../lang/Observable'
 import PathUtils from '../util/PathUtils'
 import IdmObjectHelper from './IdmObjectHelper'
-import {ShareServiceApi, RestPutCellRequest, RestCell, RestCellAcl, IdmACLAction, TreeNode} from '../http/gen/index'
+import {ShareServiceApi, RestPutCellRequest, RestCell, RestCellAcl, IdmACLAction, TreeNode} from 'cells-sdk'
 
 class CellModel extends Observable{
 

@@ -22,12 +22,14 @@ package versions
 
 import (
 	"context"
+	"fmt"
+	"path"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/micro/go-micro/client"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/forms"
@@ -95,23 +97,16 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithIgnore(), nil // Ignore
 	}
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
-	var hasPolicy bool
-	if nodeSource, e := getRouter().GetClientsPool().GetDataSourceInfo(node.GetStringMeta(common.MetaNamespaceDatasourceName)); e == nil {
-		if nodeSource.VersioningPolicyName != "" {
-			hasPolicy = true
-		}
-	}
-	if !hasPolicy {
+	policy := PolicyForNode(ctx, node)
+	if policy == nil {
 		return input.WithIgnore(), nil
 	}
 
 	// TODO: find clients from pool so that they are considered the same by the CopyObject request
-	source, e := getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
+	source, e := DataSourceForPolicy(ctx, policy) //getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
 	if e != nil {
 		return input.WithError(e), e
 	}
-	// Prepare ctx with info about the target branch
-	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
 
 	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 	request := &tree.CreateVersionRequest{Node: node}
@@ -130,29 +125,44 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		return input.WithIgnore(), nil
 	}
 
+	// Prepare ctx with info about the target branch
+	branchInfo := views.BranchInfo{LoadedSource: source}
+	ctx = views.WithBranchInfo(ctx, "to", branchInfo)
+
+	sourceNode := node.Clone()
+
+	vPath := node.Uuid + "__" + resp.Version.Uuid
 	targetNode := &tree.Node{
-		Path: node.Uuid + "__" + resp.Version.Uuid,
+		Uuid: vPath,
+		Path: path.Join(source.Name, vPath),
+		MetaStore: map[string]string{
+			common.MetaNamespaceDatasourceName: `"` + source.Name + `"`,
+			common.MetaNamespaceDatasourcePath: `"` + vPath + `"`,
+		},
 	}
-	targetNode.SetMeta(common.MetaNamespaceDatasourcePath, targetNode.Path)
-	sourceNode := proto.Clone(node).(*tree.Node)
+
 	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
+	if err != nil {
+		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
+		return input.WithError(err), err
+	}
 
 	output := input
 	log.TasksLogger(ctx).Info(T("Job.Version.StatusFile", resp.Version))
 	output.AppendOutput(&jobs.ActionOutput{Success: true})
 
-	if err == nil && written > 0 {
-		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: resp.Version})
+	if written > 0 {
+		storedVersion := resp.Version
+		storedVersion.Location = targetNode
+		response, err2 := versionClient.StoreVersion(ctx, &tree.StoreVersionRequest{Node: node, Version: storedVersion})
 		if err2 != nil {
 			return input.WithError(err2), err2
 		}
 		log.TasksLogger(ctx).Info(T("Job.Version.StatusMeta", resp.Version))
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
+		ctx = views.WithBranchInfo(ctx, "in", branchInfo)
 		for _, version := range response.PruneVersions {
-			ctx = views.WithBranchInfo(ctx, "in", views.BranchInfo{LoadedSource: source})
-			deleteNode := &tree.Node{Path: node.Uuid + "__" + version.Uuid}
-			deleteNode.SetMeta(common.MetaNamespaceDatasourcePath, deleteNode.Path)
-			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode})
+			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
 			if errDel != nil {
 				return input.WithError(errDel), errDel
 			}

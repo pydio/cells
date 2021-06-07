@@ -7,9 +7,9 @@ module.exports = {
             level:gzipLevel,
         },
         expand: true,
-        cwd: 'res/build/',
+        cwd: 'res/dist/',
         src: ['*.min.js'],
-        dest: 'res/build/',
+        dest: 'res/dist/',
         ext: '.min.js.gz'
     },
     boot: {
@@ -18,9 +18,9 @@ module.exports = {
             level:gzipLevel,
         },
         expand: true,
-        cwd: 'res/build/',
+        cwd: 'res/dist/',
         src: ['*.boot.min.js'],
-        dest: 'res/build/',
+        dest: 'res/dist/',
         ext: '.boot.min.js.gz'
     },
     bundle: {
@@ -29,9 +29,9 @@ module.exports = {
             level:gzipLevel,
         },
         expand: true,
-        cwd: 'res/build/',
+        cwd: 'res/dist/',
         src: ['*.prod.min.js'],
-        dest: 'res/build/',
+        dest: 'res/dist/',
         ext: '.prod.min.js.gz'
     },
     css:{
@@ -40,9 +40,9 @@ module.exports = {
             level:gzipLevel,
         },
         expand: true,
-        cwd: 'res/build/',
+        cwd: 'res/dist/',
         src: ['*.material.min.css'],
-        dest: 'res/build/',
+        dest: 'res/dist/',
         ext: '.material.min.css.gz'
 
     },

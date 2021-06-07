@@ -19,16 +19,17 @@
  */
 
 const React = require('react')
+const PropTypes = require('prop-types');
 const Pydio = require('pydio')
 const {muiThemeable} = require('material-ui/styles')
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
+import Color from 'color'
 
-let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio, onClick, onMouseOver}) => {
+let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver}) => {
 
         const palette = muiTheme.palette;
-        const Color = require('color');
         const colorHue = Color(palette.primary1Color).hsl().array()[0];
         const lightBg = new Color({h:colorHue,s:35,l:98});
         const taskBg = new Color({h:colorHue,s:30,l:96});
@@ -53,7 +54,6 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
         const wsSectionTitleStyle = {
             color    : Color(palette.primary1Color).darken(0.1).alpha(0.50).toString()
         };
-        const wsListProps = workspacesListProps || {};
 
         return (
             <div className="left-panel vertical_fit vertical_layout" style={style} onClick={onClick} onMouseOver={onMouseOver}>
@@ -69,7 +69,7 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
                     sectionTitleStyle={wsSectionTitleStyle}
                     pydio={pydio}
                     showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
-                    {...wsListProps}
+                    {...workspacesListProps}
                 />
                 <TasksPanel pydio={pydio} mode={"flex"} panelStyle={{...wsListStyle, backgroundColor: taskBg.toString()}}/>
             </div>
@@ -77,10 +77,10 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
 };
 
 LeftPanel.propTypes = {
-    pydio               : React.PropTypes.instanceOf(Pydio).isRequired,
-    userWidgetProps     : React.PropTypes.object,
-    workspacesListProps : React.PropTypes.object,
-    style               : React.PropTypes.object
+    pydio               : PropTypes.instanceOf(Pydio).isRequired,
+    userWidgetProps     : PropTypes.object,
+    workspacesListProps : PropTypes.object,
+    style               : PropTypes.object
 };
 
 LeftPanel = muiThemeable()(LeftPanel);

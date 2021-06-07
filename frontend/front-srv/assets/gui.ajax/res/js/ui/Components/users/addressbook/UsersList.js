@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,15 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 import UserAvatar from '../avatar/UserAvatar'
 import {IconButton, Checkbox, IconMenu, RaisedButton, ListItem, FontIcon, Avatar, Divider, Subheader, List, TextField} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import EmptyStateView from '../../views/EmptyStateView'
 import AlphaPaginator from './AlphaPaginator'
 import SearchForm from './SearchForm'
+import Color from 'color'
 import DOMUtils from 'pydio/util/dom'
 import CellActionsRenderer from '../avatar/CellActionsRenderer'
+import ListStylesCompact from "./ListStylesCompact";
 const {Loader, PydioContextConsumer} = require('pydio').requireLib('boot');
 
 class UsersList extends React.Component{
@@ -56,6 +59,14 @@ class UsersList extends React.Component{
 
         const {item, mode, paginatorType, paginatorFolder, loading, enableSearch, showSubheaders,
             getMessage, actionsPanel, muiTheme, bookColumn, pydio, reloadAction} = this.props;
+        let {listStyles = {}} = this.props;
+        let className;
+        if (mode === 'selector' || mode === 'inner'){
+            listStyles = ListStylesCompact;
+            className = 'compact';
+        }
+
+        const avatarSize = listStyles.avatar ? listStyles.avatar.avatarSize : 36;
 
         const folders = item.collections || [];
         const leafs = item.leafs || [];
@@ -72,12 +83,6 @@ class UsersList extends React.Component{
         } else if(showSubheaders) {
             usersSubHeader.push({subheader: getMessage('249')});
         }
-        /*
-        const foldersSubHeader = folders.length && (leafs.length || showSubheaders) ? [{subheader:getMessage('532')}] : [];
-        if(showSubheaders || paginatorType){
-            usersSubHeader = [{subheader: paginatorType ? <AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} /> : getMessage('249')}];
-        }
-         */
         const items = [...foldersSubHeader, ...folders, ...usersSubHeader, ...leafs];
         const total = items.length;
         let elements = [];
@@ -108,14 +113,16 @@ class UsersList extends React.Component{
             }
         };
         if(bookColumn){
+            const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
+            const headerTitle = new Color({h:colorHue,s:30,l:43});
             stylesProps.toolbarBgColor = 'transparent';
-            stylesProps.titleColor = 'rgba(0,0,0,0.54)';
+            stylesProps.titleColor = headerTitle.toString();
             stylesProps.titleFontsize = 14;
             stylesProps.titleFontWeight = 500;
             stylesProps.titlePadding = '10px 6px 10px 16px';
+            stylesProps.button.margin = '0';
             stylesProps.button.border = '0';
-            stylesProps.icon.color = muiTheme.palette.primary1Color;
-            stylesProps.icon.opacity = 0.73
+            stylesProps.icon.color = '#ccc';
         }
         let searchProps = {
             style:{flex:1, minWidth: 110},
@@ -133,14 +140,14 @@ class UsersList extends React.Component{
                 label = (
                     <div style={{display:'flex', alignItems:'center', flex: 1}}>
                         <TextField style={{fontSize: 20}} value={this.state.label} onChange={this.onLabelChange.bind(this)} onKeyDown={this.onLabelKeyEnter.bind(this)}/>
-                        <IconButton iconStyle={{color: '#e0e0e0'}} secondary={true} iconClassName={"mdi mdi-content-save"} tooltip={getMessage(48)} onTouchTap={() => {this.updateLabel()}}/>
+                        <IconButton iconStyle={{color: '#e0e0e0'}} secondary={true} iconClassName={"mdi mdi-content-save"} tooltip={getMessage(48)} onClick={() => {this.updateLabel()}}/>
                     </div>
                 );
             } else {
                 label = (
                     <div style={{display:'flex', alignItems:'center', flex: 1}}>
                         {label}
-                        <IconButton iconStyle={{color: '#e0e0e0'}} iconClassName={"mdi mdi-pencil"} tooltip={getMessage(48)} onTouchTap={() => {this.setState({editLabel:true, label:item.label})}}/>
+                        <IconButton iconStyle={{color: '#e0e0e0'}} iconClassName={"mdi mdi-pencil"} tooltip={getMessage(48)} onClick={() => {this.setState({editLabel:true, label:item.label})}}/>
                     </div>
                 );
             }
@@ -156,15 +163,15 @@ class UsersList extends React.Component{
         };
         const toolbar = (
             <div style={{padding: stylesProps.titlePadding, height:stylesProps.toolbarHeight, minHeight:stylesProps.toolbarHeight, backgroundColor:stylesProps.toolbarBgColor, borderRadius: '2px 2px 0 0', display:'flex', alignItems:'center', transition:DOMUtils.getBeziersTransition()}}>
-                {mode === "selector" && item._parent && <IconButton style={{marginLeft: -10}} iconStyle={{color:stylesProps.titleColor}} iconClassName="mdi mdi-chevron-left" onTouchTap={() => {this.props.onFolderClicked(item._parent)}}/>}
+                {mode === "selector" && item._parent && <IconButton style={{marginLeft: -10}} iconStyle={{color:stylesProps.titleColor}} iconClassName="mdi mdi-chevron-left" onClick={() => {this.props.onFolderClicked(item._parent)}}/>}
                 {mode === 'book' && total > 0 && item.actions && item.actions.multiple && <Checkbox style={{width:'initial', marginLeft: this.state.select?7:14}} checked={this.state.select} onCheck={toggleSelect}/>}
                 <div style={{flex:2, fontSize:stylesProps.titleFontsize, color:stylesProps.titleColor, fontWeight:stylesProps.titleFontWeight, ...ellipsis}}>{label}</div>
-                {(mode === 'book' || (mode === 'selector' && bookColumn)) && item.actions && item.actions.create && !this.state.select && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={createIcon} tooltipPosition={"bottom-left"} tooltip={getMessage(item.actions.create)} onTouchTap={createAction}/>}
-                {bookColumn && !item._parent && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-window-restore"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onTouchTap={()=>{pydio.Controller.fireAction('open_address_book')}}/>}
-                {mode === 'book' && item.actions && item.actions.remove && this.state.select && <RaisedButton secondary={true} label={getMessage(item.actions.remove)} disabled={!this.state.selection.length} onTouchTap={deleteAction}/>}
+                {(mode === 'book' || (mode === 'selector' && bookColumn)) && item.actions && item.actions.create && !this.state.select && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={createIcon} tooltipPosition={"bottom-left"} tooltip={getMessage(item.actions.create)} onClick={createAction}/>}
+                {bookColumn && !item._parent && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-window-restore"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onClick={()=>{pydio.Controller.fireAction('open_address_book')}}/>}
+                {mode === 'book' && item.actions && item.actions.remove && this.state.select && <RaisedButton secondary={true} label={getMessage(item.actions.remove)} disabled={!this.state.selection.length} onClick={deleteAction}/>}
                 {!this.state.select && actionsPanel}
                 {enableSearch && !bookColumn && <SearchForm searchLabel={this.props.searchLabel} onSearch={this.props.onSearch} {...searchProps}/>}
-                {reloadAction && (mode === 'book' || (mode === 'selector' && bookColumn)) && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-refresh"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['149']} onTouchTap={reloadAction} disabled={loading}/>}
+                {reloadAction && (mode === 'book' || (mode === 'selector' && bookColumn)) && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-refresh"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['149']} onClick={reloadAction} disabled={loading}/>}
             </div>
         );
         // PARENT NODE
@@ -173,8 +180,9 @@ class UsersList extends React.Component{
                 <ListItem
                     key={'__parent__'}
                     primaryText={".."}
-                    onTouchTap={(e) => {e.stopPropagation(); this.props.onFolderClicked(item._parent)}}
-                    leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-arrow-up'}/>} size={36} />}
+                    onClick={(e) => {e.stopPropagation(); this.props.onFolderClicked(item._parent)}}
+                    leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-arrow-up'}/>} size={avatarSize} />}
+                    {...listStyles.listItem}
                 />
             );
             if(total){
@@ -188,7 +196,9 @@ class UsersList extends React.Component{
                 return;
             }
             const fontIcon = (
-                <UserAvatar avatarSize={36} pydio={this.props.pydio || pydio}
+                <UserAvatar
+                    avatarSize={avatarSize}
+                    pydio={this.props.pydio || pydio}
                     userId={item.id}
                     userLabel={item.label}
                     avatar={item.avatar}
@@ -197,6 +207,7 @@ class UsersList extends React.Component{
                     userType={item.type || 'group'}
                     avatarOnly={true}
                     useDefaultAvatar={true}
+                    style={listStyles.avatar?listStyles.avatar.style:{}}
                 />
             );
             let rightIconButton;
@@ -210,7 +221,8 @@ class UsersList extends React.Component{
                             tooltip={getMessage('addressbook.pick.group')}
                             tooltipPosition="top-left"
                             iconStyle={{color: 'rgba(0,0,0,0.33)'}}
-                            onTouchTap={()=>{this.props.onItemClicked(item)}}
+                            onClick={()=>{this.props.onItemClicked(item)}}
+                            {...listStyles.iconButton}
                         />
                     );
                 }
@@ -221,7 +233,8 @@ class UsersList extends React.Component{
                         tooltip={getMessage(257)}
                         tooltipPosition="top-left"
                         iconStyle={{color: 'rgba(0,0,0,0.13)', hoverColor:'rgba(0,0,0,0.53)'}}
-                        onTouchTap={()=>{this.props.onDeleteAction(this.props.item, [item])}}
+                        onClick={()=>{this.props.onDeleteAction(this.props.item, [item])}}
+                        {...listStyles.iconButton}
                     />
                 );
             }
@@ -230,9 +243,11 @@ class UsersList extends React.Component{
                 if(menuItems.length){
                     rightIconButton = (
                         <IconMenu
-                            iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical" iconStyle={{color: 'rgba(0,0,0,.33)'}}/>}
+                            {...listStyles.iconMenu}
+                            iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical" iconStyle={{color: 'rgba(0,0,0,.33)'}} {...listStyles.iconButton}/>}
                             targetOrigin={{horizontal:'right', vertical:'top'}}
                             anchorOrigin={{horizontal:'right', vertical:'top'}}
+                            desktop={true}
                         >{menuItems}</IconMenu>
                     );
                 } else {
@@ -251,14 +266,15 @@ class UsersList extends React.Component{
             elements.push(<ListItem
                 key={item.id}
                 primaryText={<div style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{item.label}</div>}
-                onTouchTap={touchTap}
+                onClick={touchTap}
                 disabled={mode === 'inner'}
                 leftAvatar={!this.state.select && fontIcon}
                 rightIconButton={rightIconButton}
                 leftCheckbox={this.state.select && <Checkbox checked={this.state.selection.indexOf(item) > -1} onCheck={select}/>}
+                {...listStyles.listItem}
             />);
             if(mode !== 'inner' && index < total - 1){
-                elements.push(<Divider inset={true} key={item.id + '-divider'}/>);
+                elements.push(<Divider inset={true} key={item.id + '-divider'} {...listStyles.divider}/>);
             }
         }.bind(this));
 
@@ -277,11 +293,19 @@ class UsersList extends React.Component{
                     actionCallback: createAction
                 };
             }
+            if(className === 'compact') {
+                emptyStateProps = {
+                    ...emptyStateProps,
+                    style: {backgroundColor: 'transparent', minHeight: 150},
+                    iconStyle:{fontSize: 40},
+                    legendStyle: {fontSize: 13}
+                }
+            }
             emptyState = <EmptyStateView {...emptyStateProps}/>;
         }
 
         return (
-            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden'}} onTouchTap={this.props.onTouchTap}>
+            <div style={{flex:1, flexDirection:'column', display:'flex', width:'100%', overflowX: 'hidden'}} onClick={this.props.onClick} className={className}>
                 {mode !== 'inner' && !this.props.noToolbar && toolbar}
                 {!emptyState && !loading &&
                     <List style={{flex: 1, overflowY: mode !== 'inner' ? 'auto' : 'initial'}}>
@@ -306,14 +330,14 @@ class UsersList extends React.Component{
 }
 
 UsersList.propTypes ={
-    item: React.PropTypes.object,
-    onCreateAction:React.PropTypes.func,
-    onDeleteAction:React.PropTypes.func,
-    onItemClicked:React.PropTypes.func,
-    onFolderClicked:React.PropTypes.func,
-    onEditLabel:React.PropTypes.func,
-    mode:React.PropTypes.oneOf(['book', 'selector', 'inner']),
-    bookColumn:React.PropTypes.bool
+    item: PropTypes.object,
+    onCreateAction:PropTypes.func,
+    onDeleteAction:PropTypes.func,
+    onItemClicked:PropTypes.func,
+    onFolderClicked:PropTypes.func,
+    onEditLabel:PropTypes.func,
+    mode:PropTypes.oneOf(['book', 'selector', 'inner']),
+    bookColumn:PropTypes.bool
 };
 
 UsersList = PydioContextConsumer(UsersList);

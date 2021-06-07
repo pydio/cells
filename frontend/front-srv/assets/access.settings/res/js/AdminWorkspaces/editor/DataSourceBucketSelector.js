@@ -176,7 +176,7 @@ export default class DataSourceBucketSelector extends React.Component {
                             iconClassName={"mdi mdi-filter"}
                             tooltip={mode==='picker'?m('buckets.regexp'):''}
                             tooltipPosition={"top-left"}
-                            onTouchTap={() => {this.toggleMode()}}
+                            onClick={() => {this.toggleMode()}}
                             disabled={disabled}
                             {...iconStyles}
                         />
@@ -185,7 +185,7 @@ export default class DataSourceBucketSelector extends React.Component {
                         iconClassName={"mdi mdi-reload"}
                         tooltip={m('buckets.reload')}
                         tooltipPosition={"top-left"}
-                        onTouchTap={() => {this.load()}}
+                        onClick={() => {this.load()}}
                         disabled={disabled}
                         {...iconStyles}
                     />
@@ -195,9 +195,9 @@ export default class DataSourceBucketSelector extends React.Component {
                         const selected = selection.indexOf(b) !== -1;
                         let chipToucher = {};
                         if(mode === 'picker'){
-                            chipToucher.onTouchTap = () => {this.togglePicker(b)}
+                            chipToucher.onClick = () => {this.togglePicker(b)}
                         } else if(!dataSource.StorageConfiguration.bucketsRegexp) {
-                            chipToucher.onTouchTap = () => {this.toggleMode();this.togglePicker(b);}
+                            chipToucher.onClick = () => {this.toggleMode();this.togglePicker(b);}
                         }
                         return <div style={{margin:5}}><Chip {...chipToucher} backgroundColor={selected?'#03a9f4':null}>{b}</Chip></div>
                     })}

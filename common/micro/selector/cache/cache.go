@@ -3,15 +3,12 @@ package cache
 
 import (
 	"math/rand"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/micro/go-log"
-	"github.com/micro/go-micro/errors"
+	log "github.com/micro/go-log"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
-	"google.golang.org/grpc/balancer"
 )
 
 type cacheSelector struct {
@@ -25,7 +22,7 @@ type cacheSelector struct {
 
 	watched map[string]bool
 
-	nodesInErrorLock *sync.Mutex
+	nodesInErrorLock *sync.RWMutex
 	nodesInError     map[string]int
 
 	// used to close or reload watcher
@@ -280,7 +277,7 @@ func (c *cacheSelector) run() {
 			if c.quit() {
 				return
 			}
-			log.Log(err)
+			// log.Log(err)
 			continue
 		}
 	}
@@ -308,6 +305,7 @@ func (c *cacheSelector) watch(w registry.Watcher) error {
 		if err != nil {
 			return err
 		}
+
 		c.update(res)
 	}
 }
@@ -346,49 +344,35 @@ func (c *cacheSelector) Select(service string, opts ...selector.SelectOption) (s
 	// get the service
 	// try the cache first
 	// if that fails go directly to the registry
-	services, err := c.get(service)
-	if err != nil {
-		return nil, err
+	i := 0
+	for {
+		if i == 5 {
+			break
+		}
+
+		services, err := c.get(service)
+		if err != nil {
+			return nil, err
+		}
+
+		// apply the filters
+		for _, filter := range sopts.Filters {
+			services = filter(services)
+		}
+
+		// if there's nothing left, return
+		if len(services) > 0 {
+			return sopts.Strategy(services), nil
+		}
+
+		time.Sleep(1 * time.Second)
+		i++
 	}
 
-	// apply the filters
-	for _, filter := range sopts.Filters {
-		services = filter(services)
-	}
-
-	// if there's nothing left, return
-	if len(services) == 0 {
-		return nil, selector.ErrNoneAvailable
-	}
-
-	return sopts.Strategy(services), nil
+	return nil, selector.ErrNoneAvailable
 }
 
 func (c *cacheSelector) Mark(service string, node *registry.Node, err error) {
-	// TODO - rework this
-	if err == nil {
-		return
-	}
-
-	e := errors.Parse(err.Error())
-	if e == nil {
-		return
-	}
-
-	switch e.Code {
-	// retry on timeout or internal server error
-	case 408, 500:
-		if strings.Contains(e.Detail, balancer.ErrTransientFailure.Error()) {
-			cnt, ok := c.nodesInError[node.Id]
-			if !ok {
-				cnt = 0
-			}
-			c.nodesInErrorLock.Lock()
-			c.nodesInError[node.Id] = cnt + 1
-			c.nodesInErrorLock.Unlock()
-		}
-	}
-
 	return
 }
 
@@ -421,7 +405,7 @@ func NewSelector(opts ...selector.Option) selector.Selector {
 		watched:          make(map[string]bool),
 		cache:            make(map[string][]*registry.Service),
 		ttls:             make(map[string]time.Time),
-		nodesInErrorLock: &sync.Mutex{},
+		nodesInErrorLock: &sync.RWMutex{},
 		nodesInError:     make(map[string]int),
 		reload:           make(chan bool, 1),
 		exit:             make(chan bool),

@@ -27,7 +27,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/sync"
 
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/broker/log"
@@ -44,6 +44,7 @@ import (
 var (
 	Migration140 = false
 	Migration150 = false
+	Migration230 = false
 )
 
 func init() {
@@ -69,6 +70,14 @@ func init() {
 					Up: func(ctx context.Context) error {
 						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
 						Migration150 = true
+						return nil
+					},
+				},
+				{
+					TargetVersion: service.ValidVersion("2.2.99"),
+					Up: func(ctx context.Context) error {
+						// Set flag for migration script to be run AfterStart (see below, handler cannot be shared)
+						Migration230 = true
 						return nil
 					},
 				},
@@ -103,6 +112,10 @@ func init() {
 							if e := handler.GetJob(m.Options().Context, &proto.GetJobRequest{JobID: j.ID}, &proto.GetJobResponse{}); e != nil {
 								handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
 							}
+							// Force re-adding thumbs job
+							if Migration230 && j.ID == "thumbs-job" {
+								handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
+							}
 						}
 						// Clean tasks stuck in "Running" status
 						handler.CleanStuckTasks(m.Options().Context)
@@ -134,11 +147,19 @@ func init() {
 							} else {
 								log3.Logger(m.Options().Context).Info("[Migration] Removed archive-changes-job")
 							}
-							// Remove archive-changes-job
+							// Remove resync-changes-job
 							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "resync-changes-job"}, &proto.DeleteJobResponse{}); e != nil {
 								log3.Logger(m.Options().Context).Error("Could not remove resync-changes-job", zap.Error(e))
 							} else {
 								log3.Logger(m.Options().Context).Info("[Migration] Removed resync-changes-job")
+							}
+						}
+						if Migration230 {
+							// Remove clean thumbs job and re-insert thumbs job
+							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}, &proto.DeleteJobResponse{}); e != nil {
+								log3.Logger(m.Options().Context).Error("Could not remove clean-thumbs-job", zap.Error(e))
+							} else {
+								log3.Logger(m.Options().Context).Info("[Migration] Removed clean-thumbs-job")
 							}
 						}
 						return nil

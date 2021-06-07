@@ -39,8 +39,8 @@ type DAO interface {
 
 	GetNamespaceDao() namespace.DAO
 
-	Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error)
-	Del(meta *idm.UserMeta) (e error)
+	Set(meta *idm.UserMeta) (*idm.UserMeta, string, error)
+	Del(meta *idm.UserMeta) (prevValue string, e error)
 	Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, q *service.ResourcePolicyQuery) ([]*idm.UserMeta, error)
 }
 

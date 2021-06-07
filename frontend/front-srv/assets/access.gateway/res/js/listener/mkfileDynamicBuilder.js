@@ -20,7 +20,7 @@
 
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
-const {TreeServiceApi, TemplatesServiceApi, RestTemplate, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
+import {TreeServiceApi, TemplatesServiceApi, RestTemplate, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
 let QuickCache, QuickCacheTimer;
 

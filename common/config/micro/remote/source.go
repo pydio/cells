@@ -57,7 +57,6 @@ func (s *remotesource) Read() (*config.ChangeSet, error) {
 		})
 
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 

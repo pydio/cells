@@ -25,18 +25,16 @@ import (
 	"fmt"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	servicecontext "github.com/pydio/cells/common/service/context"
-	context2 "github.com/pydio/cells/common/utils/context"
-
-	"github.com/pydio/cells/common"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	servicecontext "github.com/pydio/cells/common/service/context"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
@@ -159,22 +157,26 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 					node.SetMeta(common.MetaFlagWorkspaceDescription, ws.Description)
 					node.SetMeta(common.MetaFlagWorkspaceSlug, ws.Slug)
 					node.SetMeta(common.MetaFlagWorkspaceUuid, ws.UUID)
+					attributes := ws.LoadAttributes()
 					if common.PackageType == "PydioHome" && ws.Scope == idm.WorkspaceScope_ADMIN {
 						node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
-					} else {
-						if ws.Attributes != "" && ws.Attributes != "{}" {
-							var aa map[string]interface{}
-							if e := json.Unmarshal([]byte(ws.Attributes), &aa); e == nil {
-								if canSync, ok := aa["ALLOW_SYNC"]; ok {
-									if b, o := canSync.(bool); o && b {
-										node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
-									} else if s, o := canSync.(string); o {
-										if s == "true" {
-											node.SetMeta(common.MetaFlagWorkspaceSyncable, true)
-										}
-									}
+					} else if attributes.AllowSync {
+						// Trigger a read to make sure that sync is not disabled by policy
+						if readCtx, readNode, er := a.updateBranchInfo(ctx, node.Clone(), "in"); er == nil {
+							readNode.SetMeta("acl-check-syncable", true)
+							if r, e := a.next.ReadNode(readCtx, &tree.ReadNodeRequest{Node: readNode}); e == nil {
+								var v bool
+								if r.GetNode().HasMetaKey(common.MetaFlagWorkspaceSyncable) {
+									r.GetNode().GetMeta(common.MetaFlagWorkspaceSyncable, &v)
+								} else {
+									v = true
 								}
+								node.SetMeta(common.MetaFlagWorkspaceSyncable, v)
+							} else {
+								log.Logger(ctx).Error("Cannot read workspace node during list nodes for workspaces", zap.Error(e))
 							}
+						} else {
+							log.Logger(ctx).Error("Cannot update branch info on workspace node", zap.Error(er))
 						}
 					}
 					streamer.Send(&tree.ListNodesResponse{Node: node})

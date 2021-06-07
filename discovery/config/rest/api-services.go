@@ -26,7 +26,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
@@ -67,6 +67,16 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 		output.Services = append(output.Services, h.serviceToRest(s, true))
 	}
 
+	disabledDss := map[string]struct{}{}
+	if dss, e := h.getDataSources(req.Request.Context()); e == nil {
+		for _, ds := range dss {
+			if ds.Disabled {
+				disabledDss[common.ServiceGrpcNamespace_+common.ServiceDataIndex_+ds.Name] = struct{}{}
+				disabledDss[common.ServiceGrpcNamespace_+common.ServiceDataSync_+ds.Name] = struct{}{}
+				disabledDss[common.ServiceGrpcNamespace_+common.ServiceDataObjects_+ds.Name] = struct{}{}
+			}
+		}
+	}
 	for _, s := range all {
 		runningFound := false
 		for _, k := range running {
@@ -76,6 +86,10 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 			}
 		}
 		if !runningFound {
+			// Ignore disabled services
+			if _, has := disabledDss[s.Name()]; has {
+				continue
+			}
 			output.Services = append(output.Services, h.serviceToRest(s, false))
 		}
 	}
@@ -92,9 +106,6 @@ func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Respons
 	accu := make(map[string]string)
 
 	for _, p := range registry.GetPeers() {
-		if p.IsInitial() {
-			continue
-		}
 		accu[p.GetAddress()] = p.GetAddress()
 		if h := p.GetHostname(); h != "" {
 			// Replace value with "HostName|IP"
@@ -222,7 +233,7 @@ func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
 // ValidateLocalDSFolderOnPeer sends a couple of stat/create requests to the target Peer to make sure folder is valid
 func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *object.DataSource) error {
 
-	folder := newSource.StorageConfiguration["folder"]
+	folder := newSource.StorageConfiguration[object.StorageKeyFolder]
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataObjects
 	var opts []client.CallOption
 	if newSource.PeerAddress != "" && newSource.PeerAddress != "0.0.0.0" {
@@ -246,7 +257,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	}, opts...)
 
 	if e != nil {
-		if create, ok := newSource.StorageConfiguration["create"]; ok && create == "true" {
+		if create, ok := newSource.StorageConfiguration[object.StorageKeyFolderCreate]; ok && create == "true" {
 			// Create Node Now
 			if _, err := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 				Type: tree.NodeType_COLLECTION,
@@ -277,39 +288,19 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	return nil
 }
 
-// ControlService is a leagcy method that does not do anything. Should be removed.
+// ControlService is sends a command to a specific service - Not used for the moment.
 func (h *Handler) ControlService(req *restful.Request, resp *restful.Response) {
 
-	// var ctrlRequest rest.ControlServiceRequest
-	// if err := req.ReadEntity(&ctrlRequest); err != nil {
-	// 	service.RestError500(req, resp, err)
-	// 	return
-	// }
-	// serviceName := ctrlRequest.ServiceName
-	// cmd := ctrlRequest.Command
-	// node := ctrlRequest.NodeName
-	//
-	// log.Logger(req.Request.Context()).Debug("Received command " + cmd.String() + " for service " + serviceName + " on node " + node)
-	//
-	// services, err := registry.ListServicesWithDetails()
-	// if err != nil {
-	// 	service.RestError500(req, resp, err)
-	// 	return
-	// }
-	// for _, srv := range services {
-	// 	if srv.Name == serviceName {
-	// 		/*
-	// 			if srv.Cancel != nil {
-	// 				srv.Cancel()
-	// 			}
-	// 		*/
-	// 		respMsg := s.serviceToRest(srv)
-	// 		respMsg.Status = rest.ServiceStatus_STOPPING
-	// 		resp.WriteEntity(respMsg)
-	// 		return
-	// 	}
-	// }
-	// service.RestError404(req, resp, errors.NotFound(Name, "Service "+serviceName+" Not Found"))
+	var ctrlRequest rest.ControlServiceRequest
+	if err := req.ReadEntity(&ctrlRequest); err != nil {
+		service.RestError500(req, resp, err)
+		return
+	}
+	serviceName := ctrlRequest.ServiceName
+	cmd := ctrlRequest.Command
+	node := ctrlRequest.NodeName
+
+	log.Logger(req.Request.Context()).Debug("Received command " + cmd.String() + " for service " + serviceName + " on node " + node)
 
 }
 

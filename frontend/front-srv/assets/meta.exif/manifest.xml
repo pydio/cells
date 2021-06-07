@@ -3,7 +3,7 @@
 	<client_settings>
 		<resources>
 			<i18n namespace="meta.exif" remote="plug/meta.exif/res/i18n" />
-            <js file="plug/meta.exif/res/build/PydioExif.js" className="PydioExif"/>
+            <js file="plug/meta.exif/res/dist/PydioExif.min.js" className="PydioExif"/>
 		</resources>
 	</client_settings>
 	<server_settings>

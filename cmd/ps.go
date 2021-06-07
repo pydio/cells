@@ -22,13 +22,15 @@ package cmd
 
 import (
 	"fmt"
-	"net"
+	"strings"
+
+	"github.com/spf13/viper"
+
+	//"net"
 	"os"
 	"regexp"
 	"text/tabwriter"
 	"text/template"
-
-	"github.com/pydio/cells/discovery/nats"
 
 	micro "github.com/micro/go-micro"
 	"github.com/spf13/cobra"
@@ -57,7 +59,7 @@ var (
 				{{- ""}} {{"#"}} {{$subcategory.Name}}	{{""}}	{{"\n"}}
 				{{- end}}
 				{{- range .Services}}
-					{{- ""}} {{.Name}}	[{{if .IsRunning}}X{{else}} {{end}}]	{{"\n"}}
+					{{- ""}} {{.Name}}	[{{if .IsRunning}}X{{else}} {{end}}]  {{.RunningNodes}}	{{"\n"}}
 				{{- end}}
 			{{- end}}
 			{{- ""}} {{""}}	{{""}}	{{"\n"}}
@@ -105,9 +107,10 @@ EXAMPLE
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 
+		viper.SetDefault("registry", "service")
+
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		nats.Init()
 		// Initialise the default registry
 		handleRegistry()
 
@@ -115,20 +118,25 @@ EXAMPLE
 
 		// If we have an error (registry not running) the running list simply is empty
 		services, _ := defaults.Registry().ListServices()
+
 		for _, srv := range services {
-			// Initially, we retrieve each service to ensure we have the correct list
-			for _, n := range srv.Nodes {
-				_, err := net.Dial("tcp", fmt.Sprintf("%s:%d", n.Address, n.Port))
-				if err != nil {
-					continue
-				}
-				runningServices = append(runningServices, srv.Name)
-			}
+			runningServices = append(runningServices, srv.Name)
 		}
 
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
 			re := regexp.MustCompile(common.ServiceInstall)
+
+			if re.MatchString(s.Name()) {
+				return true
+			}
+
+			return false
+		})
+
+		// Removing healthcheck services
+		registry.Default.Filter(func(s registry.Service) bool {
+			re := regexp.MustCompile(common.ServiceHealthCheck)
 
 			if re.MatchString(s.Name()) {
 				return true
@@ -187,6 +195,7 @@ EXAMPLE
 					}
 				}
 			}
+
 			return false
 		})
 
@@ -217,6 +226,8 @@ func init() {
 	psCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
 	psCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
 
+	addNatsFlags(psCmd.Flags())
+	addNatsStreamingFlags(psCmd.Flags())
 	addRegistryFlags(psCmd.Flags())
 
 	RootCmd.AddCommand(psCmd)
@@ -233,7 +244,12 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 					tags[tag] = &Tags{Name: tag, Services: make(map[string]Service)}
 				}
 
-				tags[tag].Services[name] = &runningService{name}
+				var nodes []string
+				for _, node := range s.RunningNodes() {
+					nodes = append(nodes, fmt.Sprintf("%s:%d (exp: %s)", node.Address, node.Port, node.Metadata["expiry"]))
+				}
+
+				tags[tag].Services[name] = &runningService{name: name, nodes: strings.Join(nodes, ",")}
 			}
 		}
 	}
@@ -242,7 +258,8 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 }
 
 type runningService struct {
-	name string
+	name  string
+	nodes string
 }
 
 func (s *runningService) Name() string {
@@ -257,4 +274,8 @@ func (s *runningService) IsRunning() bool {
 	}
 
 	return false
+}
+
+func (s *runningService) RunningNodes() string {
+	return s.nodes
 }

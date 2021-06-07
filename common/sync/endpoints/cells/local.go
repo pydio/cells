@@ -29,7 +29,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common"
-	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
+	microbroker "github.com/pydio/cells/common/micro/broker"
 	microregistry "github.com/pydio/cells/common/micro/registry"
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/proto/tree"
@@ -57,8 +57,8 @@ type Local struct {
 func NewLocal(root string, options Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			microregistry.EnableNats()
-			natsbroker.Enable()
+			microregistry.EnableService()
+			microbroker.EnableService()
 			grpctransport.Enable()
 			registry.Init()
 		})
@@ -78,10 +78,7 @@ func NewLocal(root string, options Options) *Local {
 		}),
 	}
 	l.source = l
-	logCtx := context.Background()
-	logCtx = servicecontext.WithServiceName(logCtx, "endpoint.cells.remote")
-	logCtx = servicecontext.WithServiceColor(logCtx, servicecontext.ServiceColorGrpc)
-	l.globalCtx = logCtx
+	l.globalCtx = servicecontext.WithServiceName(context.Background(), "endpoint.cells.local")
 	return l
 }
 

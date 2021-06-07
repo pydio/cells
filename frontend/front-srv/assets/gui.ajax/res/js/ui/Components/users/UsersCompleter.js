@@ -1,3 +1,6 @@
+import React from 'react';
+import PydioApi from 'pydio/http/api'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import PydioApi from 'pydio/http/api'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import AddressBook from './addressbook/AddressBook'
 import {TextField, AutoComplete, MenuItem, RefreshIndicator, Popover, FontIcon} from 'material-ui'
@@ -32,64 +35,61 @@ import UserCreationForm from './UserCreationForm'
  *
  * Can also open a "selector-style" adress book.
  */
-const UsersLoader = React.createClass({
-
-    propTypes:{
+class UsersLoader extends React.Component {
+    static propTypes = {
 
         /**
          * Method called to render a commponent, taking a UserObject as input
          */
-        renderSuggestion: React.PropTypes.func.isRequired,
+        renderSuggestion: PropTypes.func.isRequired,
         /**
          * Callback when a value is finally selected
          */
-        onValueSelected : React.PropTypes.func.isRequired,
+        onValueSelected : PropTypes.func.isRequired,
         /**
          * Floating Label Text displayed on the field
          */
-        fieldLabel      : React.PropTypes.string.isRequired,
+        fieldLabel      : PropTypes.string.isRequired,
         /**
          * Array of values to ignore
          */
-        excludes        : React.PropTypes.array.isRequired,
+        excludes        : PropTypes.array.isRequired,
         /**
          * Display only users, no groups nor roles
          */
-        usersOnly       : React.PropTypes.bool,
+        usersOnly       : PropTypes.bool,
         /**
          * Display users from local directory and/or from remote.
          */
-        usersFrom       : React.PropTypes.oneOf(['local', 'remote', 'any']),
+        usersFrom       : PropTypes.oneOf(['local', 'remote', 'any']),
         /**
          * Do not propose a "Create user" option
          */
-        existingOnly    : React.PropTypes.bool,
+        existingOnly    : PropTypes.bool,
         /**
          * Allow free typing
          */
-        freeValueAllowed: React.PropTypes.bool,
+        freeValueAllowed: PropTypes.bool,
         /**
          * Will be passed to the root component
          */
-        className       : React.PropTypes.string
-    },
+        className       : PropTypes.string
+    };
 
-    getInitialState(){
-        return {
-            dataSource  : [],
-            loading     : false,
-            searchText  : '',
-            minChars    : parseInt(Pydio.getInstance().getPluginConfigs("core.auth").get("USERS_LIST_COMPLETE_MIN_CHARS")),
-            hideGroups  : Pydio.getInstance().getPluginConfigs("action.advanced_settings").get("DISABLE_SHARE_GROUPS") === true
-        };
-    },
+    state = {
+        dataSource  : [],
+        loading     : false,
+        searchText  : '',
+        minChars    : parseInt(Pydio.getInstance().getPluginConfigs("core.auth").get("USERS_LIST_COMPLETE_MIN_CHARS")),
+        hideGroups  : Pydio.getInstance().getPluginConfigs("action.advanced_settings").get("DISABLE_SHARE_GROUPS") === true
+    };
 
     /**
      * Loads values from server
      * @param {string} input Currently searched text
      * @param {Function} callback Called with the values
      */
-    suggestionLoader(input, callback){
+    suggestionLoader = (input, callback) => {
         const {excludes, usersOnly} = this.props;
         const {hideGroups} = this.state;
         //const disallowTemporary = this.props.existingOnly && !this.props.freeValueAllowed;
@@ -120,13 +120,13 @@ const UsersLoader = React.createClass({
             }
             callback([...groups.map(u => {return {IdmUser:u}}), ...teams.map(u => {return {IdmRole:u}}), ...users.map(u => {return {IdmUser:u}})]);
         });
-    },
+    };
 
     /**
      * Called when the field is updated
      * @param value
      */
-    textFieldUpdate(value){
+    textFieldUpdate = (value) => {
 
         this.setState({searchText: value});
         if(this.state.minChars && value && value.length < this.state.minChars ){
@@ -134,22 +134,22 @@ const UsersLoader = React.createClass({
         }
         this.loadBuffered(value, 350);
 
-    },
+    };
 
-    getPendingSearchText(){
+    getPendingSearchText = () => {
         return this.state.searchText || false;
-    },
+    };
 
-    componentWillReceiveProps(){
+    componentWillReceiveProps() {
         this._emptyValueList = null;
-    },
+    }
 
     /**
      * Debounced call for rendering search
      * @param value {string}
      * @param timeout {int}
      */
-    loadBuffered(value, timeout){
+    loadBuffered = (value, timeout) => {
 
         if(!value && this._emptyValueList){
             this.setState({dataSource: this._emptyValueList});
@@ -225,14 +225,14 @@ const UsersLoader = React.createClass({
             }.bind(this));
         }.bind(this));
 
-    },
+    };
 
     /**
      * Called when user selects a value from the list
      * @param value
      * @param index
      */
-    onCompleterRequest(value, index){
+    onCompleterRequest = (value, index) => {
 
         const {freeValueAllowed} = this.props;
         if(index === -1){
@@ -258,51 +258,51 @@ const UsersLoader = React.createClass({
             this.setState({searchText: '', dataSource:[]});
         }
 
-    },
+    };
 
     /**
      * Triggers onValueSelected props callback
      * @param {Pydio.User} newUser
      */
-    onUserCreated(newUser){
+    onUserCreated = (newUser) => {
         this.props.onValueSelected(newUser);
         this.setState({createUser:null});
-    },
+    };
 
     /**
      * Close user creation form
      */
-    onCreationCancelled(){
+    onCreationCancelled = () => {
         this.setState({createUser:null});
-    },
+    };
 
     /**
      * Open address book inside a Popover
      * @param event
      */
-    openAddressBook(event){
+    openAddressBook = (event) => {
         this.setState({
             addressBookOpen: true,
             addressBookAnchor: event.currentTarget
         });
-    },
+    };
 
     /**
      * Close address book popover
      */
-    closeAddressBook(){
+    closeAddressBook = () => {
         this.setState({addressBookOpen: false});
-    },
+    };
 
     /**
      * Triggered when user clicks on an entry from adress book.
      * @param item
      */
-    onAddressBookItemSelected(item){
+    onAddressBookItemSelected = (item) => {
         this.props.onValueSelected(item);
-    },
+    };
 
-    render(){
+    render() {
 
         const {dataSource, createUser} = this.state;
         const containerStyle = {position:'relative', overflow: 'visible'};
@@ -376,7 +376,6 @@ const UsersLoader = React.createClass({
         );
 
     }
-
-});
+}
 
 export {UsersLoader as default}

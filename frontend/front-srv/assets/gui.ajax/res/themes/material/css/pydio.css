@@ -165,6 +165,25 @@ kbd {
   opacity: 0.5;
   cursor: nwse-resize;
 }
+.show-loading-animation.rect-shape,
+.show-loading-animation.round-shape,
+.show-loading-animation.text-row,
+.show-loading-animation .rect-shape,
+.show-loading-animation .round-shape,
+.show-loading-animation .text-row {
+  animation: react-placeholder-pulse 1.5s infinite;
+}
+@keyframes react-placeholder-pulse {
+  0% {
+    opacity: .4;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .4;
+  }
+}
 .flexbox body {
   position: absolute;
   top: 0;
@@ -456,6 +475,18 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk_standard.metadata_chunk_description {
   opacity: 1;
   color: rgba(0, 0, 0, 0.33);
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other {
+  display: inline-block;
+  padding: 0 6px;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other:not(.metadata_chunk_block) {
+  background-color: rgba(204, 204, 204, 0.15);
+  border-radius: 6px;
+  margin-left: 6px;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 .metadata_chunk_other span.icon-angle-right {
+  display: none;
 }
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.icon-angle-right {
   display: inline-block;
@@ -783,11 +814,11 @@ div.dialogBox div#element_overlay {
 .react-mui-context input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px white inset;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur > div {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur > div {
   background-color: rgba(0, 0, 0, 0.3) !important;
   position: relative;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur:before {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur:before {
   content: '';
   position: absolute;
   top: 0;
@@ -798,28 +829,28 @@ div.dialogBox div#element_overlay {
   background-position: center center;
   filter: blur(7px);
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField label {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField label {
   color: rgba(255, 255, 255, 0.73) !important;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input {
+.react-mui-context .dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input {
   color: white !important;
   height: 26px !important;
   margin-top: 37px !important;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .red-background {
+.react-mui-context .dialogRootBlur .red-background {
   background-color: rgba(244, 67, 54, 0.45);
   margin-left: -24px;
   margin-right: -24px;
   padding: 12px 24px;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .captcha_container {
+.react-mui-context .dialogRootBlur .captcha_container {
   text-align: center;
   background-color: rgba(244, 67, 54, 0.45);
   margin-left: -24px;
   margin-right: -24px;
   padding: 12px 24px;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .ajxp_login_error {
+.react-mui-context .dialogRootBlur .ajxp_login_error {
   font-size: 14px;
   margin-top: 12px;
   background-color: rgba(244, 67, 54, 0.45);
@@ -827,11 +858,11 @@ div.dialogBox div#element_overlay {
   margin-right: -24px;
   padding: 12px 24px;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link {
+.react-mui-context .dialogRootBlur .forgot-password-link {
   text-align: right;
 }
-.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link a,
-.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link a:hover {
+.react-mui-context .dialogRootBlur .forgot-password-link a,
+.react-mui-context .dialogRootBlur .forgot-password-link a:hover {
   color: rgba(255, 255, 255, 0.67);
   font-size: 13px;
 }
@@ -1875,10 +1906,6 @@ div.menu.desktop a span.ajxp_icon_span {
   overflow-y: auto;
   font-weight: 400;
 }
-#info_panel .panelCard {
-  margin: 10px !important;
-  margin-bottom: 0;
-}
 #info_panel .panelCard .panelHeader {
   padding: 24px 16px 16px;
   font-size: 19px;
@@ -1924,7 +1951,7 @@ div.menu.desktop a span.ajxp_icon_span {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 #info_panel .panelCard .primaryToolbar {
-  padding: 10px !important;
+  padding: 5px 10px !important;
   -ms-flex-align: start;
       align-items: flex-start;
   -ms-flex-pack: end;

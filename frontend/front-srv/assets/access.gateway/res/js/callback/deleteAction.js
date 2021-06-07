@@ -18,8 +18,32 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
 import PydioApi from 'pydio/http/api'
-import {RestDeleteNodesRequest, TreeServiceApi,TreeNode} from 'pydio/http/rest-api';
+import {Checkbox} from 'material-ui'
+import {RestDeleteNodesRequest, TreeServiceApi,TreeNode} from 'cells-sdk';
+
+class PermanentRemoveCheckbox extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {}
+    }
+    render() {
+        const {onChange, messages} = this.props;
+        const {checked} = this.state;
+        const warning = ': ' + messages['action.delete.permanently.warning']
+        return (
+            <div style={{marginTop: 16}}>
+                <Checkbox
+                    onCheck={(e,v) => {this.setState({checked: v}); onChange('removePermanently', v)}}
+                    label={messages['action.delete.permanently'] + (checked?warning:'')}
+                    labelPosition={"right"}
+                    labelStyle={checked?{color: '#f44336'}:{color: 'inherit'}}
+                />
+            </div>
+        );
+    }
+}
 
 export default function (pydio) {
 
@@ -27,8 +51,14 @@ export default function (pydio) {
 
     return function(){
         let message = MessageHash[176];
-        if (pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
+        let moreComponents
+        if (pydio.getContextHolder().getRootNode().getMetadata().get("ws_skip_recycle") === "true"
+            || pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
             message = MessageHash[177];
+        } else {
+            moreComponents = {
+                removePermanently: (onChange) => <PermanentRemoveCheckbox onChange={onChange} messages={MessageHash}/>
+            };
         }
         // Detect shared node - Disabled for now as this is NOT disabled by the delete action
         /*
@@ -53,7 +83,8 @@ export default function (pydio) {
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message:message,
             dialogTitleId: 7,
-            validCallback: () => {
+            moreComponents,
+            validCallback: (moreValues) => {
                 const nodes = pydio.getContextHolder().getSelectedNodes();
                 const slug = pydio.user.getActiveRepositoryObject().getSlug();
                 const deleteRequest = new RestDeleteNodesRequest();
@@ -63,6 +94,9 @@ export default function (pydio) {
                     t.Path = slug + n.getPath();
                     return t;
                 });
+                if(moreValues && moreValues.removePermanently) {
+                    deleteRequest.RemovePermanently = true;
+                }
                 api.deleteNodes(deleteRequest).then(r => {
                     if (r.DeleteJobs && r.DeleteJobs.length){
                         nodes.forEach(n => {

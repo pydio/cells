@@ -116,7 +116,7 @@ function itemsToMenu(items, closeMenuCallback, subItemsOnly = false, menuProps =
                 insetChildren={inset}
                 leftIcon={leftIcon}
                 rightIcon={rightIcon}
-                onTouchTap={payload}
+                onClick={payload}
                 menuItems={subItems}
             />
 

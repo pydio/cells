@@ -23,7 +23,7 @@ import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
 import {Paper, RaisedButton, FlatButton, IconButton, Dialog} from 'material-ui'
 import {ConfigServiceApi, EncryptionAdminExportKeyRequest, EncryptionAdminImportKeyRequest,
-    EncryptionAdminListKeysRequest, EncryptionAdminCreateKeyRequest, EncryptionAdminDeleteKeyRequest, EncryptionKey} from 'pydio/http/rest-api'
+    EncryptionAdminListKeysRequest, EncryptionAdminCreateKeyRequest, EncryptionAdminDeleteKeyRequest, EncryptionKey} from 'cells-sdk'
 import Workspace from "../model/Ws";
 const {MaterialTable} = Pydio.requireLib('components');
 const {ModernTextField} = Pydio.requireLib('hoc');
@@ -160,9 +160,9 @@ class EncryptionKeys extends React.Component{
         const actions = [];
         if(accessByName('CreateEncryption')){
             actions.push(
-                {iconClassName:'mdi mdi-import', tooltip:m('key.import'), onTouchTap:(row)=>{this.setState({showDialog: true, showImportKey:row})}},
-                {iconClassName:'mdi mdi-export', tooltip:m('key.export'), onTouchTap:(row)=>{this.setState({showDialog: true, showExportKey:row.ID})}},
-                {iconClassName:'mdi mdi-delete', tooltip:m('key.delete'), onTouchTap:(row)=>{this.deleteKey(row.ID)}},
+                {iconClassName:'mdi mdi-import', tooltip:m('key.import'), onClick:(row)=>{this.setState({showDialog: true, showImportKey:row})}},
+                {iconClassName:'mdi mdi-export', tooltip:m('key.export'), onClick:(row)=>{this.setState({showDialog: true, showExportKey:row.ID})}},
+                {iconClassName:'mdi mdi-delete', tooltip:m('key.delete'), onClick:(row)=>{this.deleteKey(row.ID)}},
             )
         }
 
@@ -180,7 +180,7 @@ class EncryptionKeys extends React.Component{
                     />
                 );
                 dialogActions = [
-                    <FlatButton label={"Close"} onTouchTap={()=>{
+                    <FlatButton label={"Close"} onClick={()=>{
                         clearTimeout(this.timeout);
                         this.setState({showExportKey:null, exportedKey:'', showDialog: false})}
                     }/>
@@ -193,8 +193,8 @@ class EncryptionKeys extends React.Component{
                     </div>
                 );
                 dialogActions = [
-                    <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.setState({showExportKey:null, showDialog: false})}}/>,
-                    <FlatButton label={m('key.export')} primary={true} onTouchTap={()=>{this.exportKey()}}/>
+                    <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showExportKey:null, showDialog: false})}}/>,
+                    <FlatButton label={m('key.export')} primary={true} onClick={()=>{this.exportKey()}}/>
                 ];
             }
         } else if(showImportKey) {
@@ -212,8 +212,8 @@ class EncryptionKeys extends React.Component{
                 </div>
             );
             dialogActions =[
-                <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.setState({showImportKey:null, showDialog: false})}}/>,
-                <FlatButton label={m('key.import')} primary={true} onTouchTap={()=>{this.importKey()}}/>
+                <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showImportKey:null, showDialog: false})}}/>,
+                <FlatButton label={m('key.import')} primary={true} onClick={()=>{this.importKey()}}/>
             ];
         } else if(showCreateKey) {
             dialogTitle = "Create a Key";
@@ -224,8 +224,8 @@ class EncryptionKeys extends React.Component{
                 </div>
             );
             dialogActions = [
-                <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.setState({showCreateKey:null, showDialog: false})}}/>,
-                <FlatButton label={m('key.create')} primary={true} onTouchTap={()=>{this.createKey()}}/>
+                <FlatButton label={pydio.MessageHash['54']} onClick={()=>{this.setState({showCreateKey:null, showDialog: false})}}/>,
+                <FlatButton label={m('key.create')} primary={true} onClick={()=>{this.createKey()}}/>
             ];
         }
         const {body} = AdminComponents.AdminStyles();
@@ -259,8 +259,8 @@ class EncryptionKeys extends React.Component{
                 </Paper>
                 {accessByName('CreateEncryption') &&
                 <div style={{textAlign:'right', paddingRight: 24, paddingBottom: 24}}>
-                    <FlatButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} {...adminStyles.props.header.flatButton}/>
-                    <span style={{marginLeft: 8}}><FlatButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} {...adminStyles.props.header.flatButton}/></span>
+                    <FlatButton primary={true} label={m('key.import')} onClick={()=>{this.setState({showImportKey:{}, showDialog:true})}} {...adminStyles.props.header.flatButton}/>
+                    <span style={{marginLeft: 8}}><FlatButton primary={true} label={m('key.create')} onClick={()=>{this.setState({showCreateKey:true, showDialog:true})}} {...adminStyles.props.header.flatButton}/></span>
                 </div>
                 }
             </div>

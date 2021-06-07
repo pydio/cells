@@ -1,3 +1,7 @@
+import React from 'react';
+
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,18 +22,20 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import PassUtils from 'pydio/util/pass'
 import Node from 'pydio/model/node'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-const CreateUserForm = React.createClass({
+const CreateUserForm = createReactClass({
+    displayName: 'CreateUserForm',
 
     propTypes:{
-        dataModel: React.PropTypes.instanceOf(PydioDataModel),
-        openRoleEditor: React.PropTypes.func
+        dataModel: PropTypes.instanceOf(PydioDataModel),
+        openRoleEditor: PropTypes.func
     },
 
     mixins:[
@@ -139,7 +145,7 @@ const CreateUserForm = React.createClass({
                 </form>
             </div>
         );
-    }
+    },
 });
 
 export {CreateUserForm as default}

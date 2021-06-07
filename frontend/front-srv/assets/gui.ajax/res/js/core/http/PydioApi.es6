@@ -21,12 +21,11 @@ import Pydio from '../Pydio'
 import Connexion from './Connexion'
 import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
-import AWS from 'aws-sdk'
-import RestCreateSelectionRequest from './gen/model/RestCreateSelectionRequest'
-import TreeNode from "./gen/model/TreeNode";
-import TreeServiceApi from "./gen/api/TreeServiceApi";
 import AjxpNode from "../model/AjxpNode";
+
+import AWS from 'aws-sdk'
 import lscache from 'lscache'
+import {RestCreateSelectionRequest, TreeNode, TreeServiceApi} from 'cells-sdk';
 
 // Extend S3 ManagedUpload to get progress info about each part
 class ManagedMultipart extends AWS.S3.ManagedUpload{
@@ -244,10 +243,9 @@ class PydioApi{
         } else {
             const selection = new RestCreateSelectionRequest();
             selection.Nodes = [];
-            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
             selection.Nodes = userSelection.getSelectedNodes().map(node => {
                 const tNode = new TreeNode();
-                tNode.Path = slug + node.getPath();
+                tNode.Path = this.getSlugForNode(node) + node.getPath();
                 return tNode;
             });
             const api = new TreeServiceApi(PydioApi.getRestClient());
@@ -381,15 +379,8 @@ class PydioApi{
     buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null, attachmentName = '') {
         const frontU = this.getPydioObject().getFrontendUrl();
         const url = `${frontU.protocol}//${frontU.host}`;
+        let slug = this.getSlugForNode(node)
 
-        const user = this.getPydioObject().user;
-        let slug = user.getActiveRepositoryObject().getSlug();
-        if(node.getMetadata().has("repository_id")){
-            const nodeRepo = node.getMetadata().get("repository_id");
-            if (nodeRepo !== user.getActiveRepository() && user.getRepositoriesList().has(nodeRepo)){
-                slug = user.getRepositoriesList().get(nodeRepo).getSlug();
-            }
-        }
         let cType = '', cDisposition;
         let longExpire = false;
 
@@ -444,8 +435,16 @@ class PydioApi{
 
         const resolver = (jwt, cb) => {
 
-            
-            let cacheKey = node.getMetadata().get('uuid') + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
+            let seed = node.getMetadata().get('etag');
+            if(!seed) {
+                seed = node.getMetadata().get('ajxp_modiftime');
+            }
+            if(seed) {
+                seed = '-' + seed;
+            } else {
+                seed = '';
+            }
+            let cacheKey = node.getMetadata().get('uuid') + seed + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
             if(cType){
                cacheKey += "#" + cType;
             }
@@ -490,7 +489,7 @@ class PydioApi{
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const frontU = this.getPydioObject().getFrontendUrl();
             const url = `${frontU.protocol}//${frontU.host}`;
-            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+            const slug = this.getSlugForNode(node)
 
             AWS.config.update({
                 accessKeyId: jwt,
@@ -515,12 +514,11 @@ class PydioApi{
 
     }
 
-    postPlainTextContent(nodePath, content, finishedCallback){
+    postPlainTextContent(node, content, finishedCallback){
 
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             const frontU = this.getPydioObject().getFrontendUrl();
             const url = `${frontU.protocol}//${frontU.host}`;
-            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             AWS.config.update({
                 accessKeyId: jwt,
@@ -529,20 +527,32 @@ class PydioApi{
             });
             const params = {
                 Bucket: "io",
-                Key: slug + nodePath,
+                Key: this.getSlugForNode(node) + node.getPath(),
                 Body: content,
             };
             const s3 = new AWS.S3({endpoint:url});
             s3.putObject(params, (err) => {
-                if (!err) {
-                    finishedCallback('Ok');
-                }  else {
+                if (err) {
                     this.getPydioObject().UI.displayMessage('ERROR', err.message);
                     finishedCallback(false);
+                } else {
+                    finishedCallback('Ok');
                 }
             })
         });
 
+    }
+
+    getSlugForNode(node) {
+        const user = this.getPydioObject().user;
+        let slug = user.getActiveRepositoryObject().getSlug();
+        if(node.getMetadata().has("repository_id")){
+            const nodeRepo = node.getMetadata().get("repository_id");
+            if (nodeRepo !== user.getActiveRepository() && user.getRepositoriesList().has(nodeRepo)){
+                slug = user.getRepositoriesList().get(nodeRepo).getSlug();
+            }
+        }
+        return slug;
     }
 
     openVersion(node, versionId){

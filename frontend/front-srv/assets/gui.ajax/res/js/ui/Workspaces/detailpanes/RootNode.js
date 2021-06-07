@@ -19,9 +19,11 @@
  */
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import InfoPanelCard from './InfoPanelCard'
 
-export default React.createClass({
+export default createReactClass({
+    displayName: 'RootNode',
 
     getInitialState() {
         return {
@@ -79,6 +81,5 @@ export default React.createClass({
         return (
             <InfoPanelCard identifier={"file-info"} title={messages[249]} style={this.props.style} standardData={panelData} icon="account-multiple-outline" iconColor="00838f">{content}</InfoPanelCard>
         );
-    }
-
+    },
 });

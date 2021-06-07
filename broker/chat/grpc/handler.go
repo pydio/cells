@@ -77,7 +77,7 @@ func (c *ChatHandler) DeleteRoom(ctx context.Context, req *chat.DeleteRoomReques
 
 func (c *ChatHandler) ListRooms(ctx context.Context, req *chat.ListRoomsRequest, streamer chat.ChatService_ListRoomsStream) error {
 
-	log.Logger(ctx).Debug("List Rooms", zap.Any(common.KEY_CHAT_LIST_ROOM_REQ, req))
+	log.Logger(ctx).Debug("List Rooms", zap.Any(common.KeyChatListRoomReq, req))
 	db := servicecontext.GetDAO(ctx).(chat2.DAO)
 	rooms, err := db.ListRooms(req)
 	if err != nil {
@@ -93,7 +93,7 @@ func (c *ChatHandler) ListRooms(ctx context.Context, req *chat.ListRoomsRequest,
 
 func (c *ChatHandler) ListMessages(ctx context.Context, req *chat.ListMessagesRequest, streamer chat.ChatService_ListMessagesStream) error {
 
-	log.Logger(ctx).Debug("List Messages", zap.Any(common.KEY_CHAT_LIST_MSG_REQ, req))
+	log.Logger(ctx).Debug("List Messages", zap.Any(common.KeyChatListMsgReq, req))
 	db := servicecontext.GetDAO(ctx).(chat2.DAO)
 	messages, err := db.ListMessages(req)
 	if err != nil {
@@ -109,7 +109,7 @@ func (c *ChatHandler) ListMessages(ctx context.Context, req *chat.ListMessagesRe
 
 func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequest, resp *chat.PostMessageResponse) error {
 
-	log.Logger(ctx).Debug("Post Messages", zap.Any(common.KEY_CHAT_POST_MSG_REQ, req))
+	log.Logger(ctx).Debug("Post Messages", zap.Any(common.KeyChatPostMsgReq, req))
 	db := servicecontext.GetDAO(ctx).(chat2.DAO)
 
 	for _, m := range req.Messages {
@@ -144,7 +144,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 
 func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessageRequest, resp *chat.DeleteMessageResponse) error {
 
-	log.Logger(ctx).Debug("Delete Messages", zap.Any(common.KEY_CHAT_POST_MSG_REQ, req))
+	log.Logger(ctx).Debug("Delete Messages", zap.Any(common.KeyChatPostMsgReq, req))
 	db := servicecontext.GetDAO(ctx).(chat2.DAO)
 
 	for _, m := range req.Messages {

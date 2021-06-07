@@ -1496,26 +1496,26 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     top: 60px;
   }
 }
-.react-mui-context .edit-object-user .paper-editor-left .mui-subheader:first-child {
-  margin-top: 152px !important;
-  opacity: 0;
+.react-mui-context .edit-object-user .paper-editor-left div[role="menu"] {
+  top: 256px !important;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image {
   position: absolute;
-  top: 56px;
+  top: 64px;
   left: 0;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image > div:last-child {
   padding: 0;
   margin: 0;
   border-radius: 0;
+  background-color: transparent;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone {
-  width: 256px !important;
-  height: 200px !important;
-  border-radius: 0;
-  background-color: #e0e0e0;
-  border-right: 1px solid #e0e0e0;
+  width: 180px !important;
+  height: 180px !important;
+  margin: 10px;
+  border-radius: 50%;
+  background-color: rgba(224, 224, 224, 0.33);
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone .icon-camera {
   position: absolute;
@@ -1527,10 +1527,10 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .binary-remove-button {
   position: absolute;
-  bottom: 8px;
-  color: rgba(0, 0, 0, 0.51);
+  bottom: 0px;
+  right: 10px;
+  color: rgba(255, 255, 255, 0.5);
   text-align: right;
-  right: 20px;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .image-label {
   display: none;
@@ -1706,21 +1706,15 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 .react-mui-context .mui-menu-item.tree-item.has-checkboxes {
   display: flex;
   flex-direction: row;
-  height: 48px;
+  height: 40px;
   border-bottom: 1px solid #f4f4f4;
 }
 .react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-item-label {
   flex: 1;
+  padding: 11px 0;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-}
-.react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-checkboxes {
-  padding-top: 7px;
-}
-.react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-checkboxes .mui-checkbox {
-  width: 44px;
-  display: inline-block;
 }
 .react-mui-context .mui-menu-item .tree-icon {
   font-size: 16px;

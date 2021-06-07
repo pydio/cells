@@ -20,7 +20,7 @@
 
 import React from 'react'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestConfiguration} from 'pydio/http/rest-api'
+import {ConfigServiceApi, RestConfiguration} from 'cells-sdk'
 
 class ServiceExposedConfigs extends React.Component{
 
@@ -142,7 +142,7 @@ class ServiceExposedConfigs extends React.Component{
     render() {
 
         const {parameters, values} = this.state;
-        const {accessByName} = this.props;
+        const {accessByName, variant = 'v2', variantShowLegend = true} = this.props;
         if(!parameters) {
             return null;
         }
@@ -155,6 +155,8 @@ class ServiceExposedConfigs extends React.Component{
                 values={values}
                 disabled={!accessByName('Create')}
                 onChange={this.onChange.bind(this)}
+                variant={variant}
+                variantShowLegend={variantShowLegend}
             />
         );
 

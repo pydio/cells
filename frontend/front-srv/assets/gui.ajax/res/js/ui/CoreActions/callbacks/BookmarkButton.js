@@ -105,7 +105,7 @@ class BookmarkButton extends React.Component{
             disabled = true;
         }
 
-        return <IconButton disabled={disabled} iconClassName={'mdi mdi-' + icon} tooltip={tt} onTouchTap={() => this.updateValue(touchValue)} {...styles}/>
+        return <IconButton disabled={disabled} iconClassName={'mdi mdi-' + icon} tooltip={tt} onClick={() => this.updateValue(touchValue)} {...styles}/>
 
 
     }

@@ -27,11 +27,12 @@ import MenuItemListener from './util/MenuItemListener'
 import DNDActionsManager from './util/DNDActionsManager'
 import CodeMirrorField from './util/CodeMirrorField'
 import PluginsLoader from './util/PluginsLoader'
-import QuotaField from './util/QuotaField'
 
 import AdminStyles from './styles/AdminStyles'
 import Header from './styles/Header'
 import SubHeader from './styles/SubHeader'
+
+import {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} from './styles/PaperEditor'
 
 window.AdminComponents = {
     AdminDashboard,
@@ -44,9 +45,12 @@ window.AdminComponents = {
     DNDActionsManager,
     PluginsLoader,
     CodeMirrorField,
-    QuotaField,
 
     AdminStyles,
     Header,
     SubHeader,
+
+    PaperEditorLayout,
+    PaperEditorNavEntry,
+    PaperEditorNavHeader
 };

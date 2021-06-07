@@ -12,8 +12,8 @@
     </server_settings>
     <client_settings>
         <resources>
-            <js file="plug/editor.browser/res/build/PydioBrowserEditor.js" className="PydioBrowserEditor"/>
-            <js file="plug/editor.browser/res/build/PydioBrowserActions.js" className="PydioBrowserActions"/>
+            <js file="plug/editor.browser/res/dist/PydioBrowserEditor.min.js" className="PydioBrowserEditor"/>
+            <js file="plug/editor.browser/res/dist/PydioBrowserActions.min.js" className="PydioBrowserActions"/>
             <i18n namespace="openbrowser" remote="plug/editor.browser/res/i18n" />
         </resources>
     </client_settings>

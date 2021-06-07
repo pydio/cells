@@ -1,18 +1,8 @@
 import Pydio from '../Pydio';
-import UserServiceApi from "./gen/api/UserServiceApi";
-import RestSearchUserRequest from "./gen/model/RestSearchUserRequest";
-import IdmUserSingleQuery from "./gen/model/IdmUserSingleQuery";
-import ServiceOperationType from "./gen/model/ServiceOperationType";
-import IdmNodeType from "./gen/model/IdmNodeType";
-import IdmUser from "./gen/model/IdmUser";
 import LangUtils from "../util/LangUtils"
-import RoleServiceApi from "./gen/api/RoleServiceApi";
-import IdmRole from "./gen/model/IdmRole";
-import RestSearchRoleRequest from "./gen/model/RestSearchRoleRequest";
-import IdmRoleSingleQuery from "./gen/model/IdmRoleSingleQuery";
+import {UserServiceApi, RestSearchUserRequest, IdmUserSingleQuery, ServiceOperationType, IdmNodeType, IdmUser, RoleServiceApi, IdmRole, RestSearchRoleRequest, IdmRoleSingleQuery, ServiceResourcePolicy, GraphServiceApi} from 'cells-sdk';
+
 import uuid4 from 'uuid4'
-import ServiceResourcePolicy from "./gen/model/ServiceResourcePolicy";
-import GraphServiceApi from "./gen/api/GraphServiceApi";
 
 class IdmApi {
 

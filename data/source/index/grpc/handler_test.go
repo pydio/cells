@@ -27,6 +27,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/pydio/cells/common/proto/object"
+
 	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/micro/go-micro/server"
@@ -164,7 +166,7 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 
 func TestIndex(t *testing.T) {
 
-	s := NewTreeServer("")
+	s := NewTreeServer(&object.DataSource{Name: ""})
 
 	wg.Add(1)
 	defer wg.Done()

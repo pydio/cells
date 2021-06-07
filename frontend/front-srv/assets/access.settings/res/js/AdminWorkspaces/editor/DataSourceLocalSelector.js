@@ -21,12 +21,12 @@
 import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest, TreeNode} from 'pydio/http/rest-api'
+import {ConfigServiceApi, RestListPeerFoldersRequest, RestCreatePeerFolderRequest, TreeNode} from 'cells-sdk'
 import {SelectField, TextField, MenuItem, FontIcon, IconButton, AutoComplete, RefreshIndicator} from 'material-ui'
 import debounce from 'lodash.debounce'
 import LangUtils from 'pydio/util/lang'
 import PathUtils from 'pydio/util/path'
-const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 class AutocompleteTree extends React.Component{
 
@@ -124,7 +124,8 @@ class AutocompleteTree extends React.Component{
             this.lastSearch = null; // Force reload
             this.loadValues(value).then(()=>{
                 // Select path after reload
-                this.handleNewRequest(createRequest.Path);
+                this.handleNewRequest({key:createRequest.Path});
+                this.setState({searchText: createRequest.Path});
             });
         }).catch(e => {
             pydio.UI.displayMessage('ERROR', e.message);
@@ -180,29 +181,30 @@ class AutocompleteTree extends React.Component{
             });
         }
 
-        let displayText = this.state.value;
+        let displayText = searchText || value;
 
         return (
             <div style={{position:'relative', marginTop: -5}}>
-                <div style={{position:'absolute', right: 0, top: 30, width: 30}}>
+                <div style={{position:'absolute', right: 6, top: 29, width: 30, zIndex: 1}}>
                     <RefreshIndicator
-                        size={30}
+                        size={25}
                         left={0}
                         top={0}
                         status={loading ? "loading" : "hide"}
                     />
                 </div>
                 {value && exist && !loading && (!searchText || searchText === value) &&
-                    <div style={{position:'absolute', right: 0}}>
+                    <div style={{position:'absolute', right: 0, zIndex: 1, top: 18}}>
                         <IconButton
                             iconClassName={"mdi mdi-folder-plus"}
                             iconStyle={{color:'#9e9e9e'}}
-                            onTouchTap={()=>this.showCreateDialog()}
+                            onClick={()=>this.showCreateDialog()}
                             tooltip={pydio.MessageHash['ajxp_admin.ds.editor.selector.mkdir']}
+                            tooltipPosition={"top-center"}
                         />
                     </div>
                 }
-                <AutoComplete
+                <ModernAutoComplete
                     fullWidth={true}
                     searchText={displayText}
                     onUpdateInput={this.handleUpdateInput.bind(this)}
@@ -212,7 +214,6 @@ class AutocompleteTree extends React.Component{
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
                     openOnFocus={true}
                     menuProps={{maxHeight: 200}}
-                    {...ModernStyles.textField}
                 />
             </div>
 
@@ -315,6 +316,7 @@ class DataSourceLocalSelector extends React.Component{
                     <div style={styles.subLegend}>{m('storage.legend.fs.peer')}</div>
                     <ModernSelectField
                         value={model.PeerAddress || ''}
+                        variant={'v2'}
                         hintText={m('selector.peer') + ' *'}
                         onChange={(e,i,v) => this.onPeerChange(v)}
                         fullWidth={true}
@@ -344,6 +346,7 @@ class DataSourceLocalSelector extends React.Component{
                     <ModernTextField
                         style={{marginTop: -3}}
                         fullWidth={true}
+                        variant={'v2'}
                         disabled={true}
                         value={model.StorageConfiguration.folder}
                         floatingLabelText={m('selector.folder') + ' *'}

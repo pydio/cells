@@ -1,4 +1,4 @@
-DEV_VERSION=2.2.8-dev
+DEV_VERSION=2.3.0-dev
 ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
@@ -44,6 +44,7 @@ xgo:
 dev:
 	go build\
 	 -tags dev\
+         -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/common.version=${DEV_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=2018-01-01T00:00:00\
 	 -X github.com/pydio/cells/common.BuildRevision=dev"\

@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/micro/go-micro/client"
@@ -49,7 +50,8 @@ func NewStandardRouter(options RouterOptions) *Router {
 	handlers := []Handler{
 		NewAccessListHandler(options.AdminView),
 		&BinaryStoreHandler{
-			StoreName: common.PydioThumbstoreNamespace, // Direct access to dedicated Bucket for thumbnails
+			StoreName:      common.PydioThumbstoreNamespace, // Direct access to dedicated Bucket for thumbnails
+			TransparentGet: true,
 		},
 		&BinaryStoreHandler{
 			StoreName:     common.PydioDocstoreBinariesNamespace, // Direct access to dedicated Bucket for pydio binaries
@@ -93,8 +95,9 @@ func NewStandardRouter(options RouterOptions) *Router {
 	if options.SynchronousTasks {
 		handlers = append(handlers, &SyncFolderTasksHandler{})
 	}
-	handlers = append(handlers, &EncryptionHandler{})
 	handlers = append(handlers, &VersionHandler{})
+	handlers = append(handlers, &EncryptionHandler{})
+	handlers = append(handlers, &FlatStorageHandler{})
 	handlers = append(handlers, &Executor{})
 
 	pool := NewClientsPool(options.WatchRegistry)
@@ -125,8 +128,9 @@ func NewUuidRouter(options RouterOptions) *Router {
 		handlers = append(handlers, &AclContentLockFilter{})
 		handlers = append(handlers, &AclQuotaFilter{})
 	}
-	handlers = append(handlers, &EncryptionHandler{}) // retrieves encryption materials from encryption service
 	handlers = append(handlers, &VersionHandler{})
+	handlers = append(handlers, &EncryptionHandler{}) // retrieves encryption materials from encryption service
+	handlers = append(handlers, &FlatStorageHandler{})
 	handlers = append(handlers, &Executor{})
 
 	pool := NewClientsPool(options.WatchRegistry)
@@ -160,6 +164,22 @@ func (v *Router) initHandlers() {
 
 func (v *Router) WrapCallback(provider NodesCallback) error {
 	return v.ExecuteWrapped(nil, nil, provider)
+}
+
+func (v *Router) BranchInfoForNode(ctx context.Context, node *tree.Node) (branch BranchInfo, err error) {
+	err = v.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
+		updatedCtx, _, er := inputFilter(ctx, node, "in")
+		if er != nil {
+			return er
+		}
+		if dsInfo, o := GetBranchInfo(updatedCtx, "in"); o {
+			branch = dsInfo
+		} else {
+			return fmt.Errorf("cannot find branch info for node " + node.GetPath())
+		}
+		return nil
+	})
+	return
 }
 
 func (v *Router) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
@@ -251,7 +271,7 @@ func (v *Router) CanApply(ctx context.Context, operation *tree.NodeChangeEvent) 
 		var sourceNode, targetNode *tree.Node
 		var sourceCtx, targetCtx context.Context
 		switch operation.Type {
-		case tree.NodeChangeEvent_CREATE:
+		case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 			targetNode = operation.Target
 		case tree.NodeChangeEvent_READ, tree.NodeChangeEvent_DELETE:
 			sourceNode = operation.Source

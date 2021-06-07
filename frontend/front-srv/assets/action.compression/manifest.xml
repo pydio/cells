@@ -5,7 +5,7 @@
     <client_settings>
         <resources>
             <i18n namespace="compression" remote="plug/action.compression/res/i18n"/>
-            <js className="CompressionActions" file="plug/action.compression/res/build/CompressionActions.js"/>
+            <js className="CompressionActions" file="plug/action.compression/res/dist/CompressionActions.min.js"/>
         </resources>
     </client_settings>
 

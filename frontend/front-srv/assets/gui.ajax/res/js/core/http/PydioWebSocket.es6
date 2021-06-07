@@ -178,8 +178,9 @@ class PydioWebSocket extends Observable {
                 dm.addNode(target, false);
                 break;
             case "UPDATE_PATH":
-            case "UPDATE_META":
             case "UPDATE_CONTENT":
+            case "UPDATE_META":
+            case "UPDATE_USER_META":
                 target = PydioWebSocket.parseEventNode(event.Target, currentRepoId, currentRepoSlug);
                 if (target === null) {
                     return;

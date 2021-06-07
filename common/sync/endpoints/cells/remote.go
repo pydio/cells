@@ -32,16 +32,16 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	
+
 	"github.com/pborman/uuid"
 
 	sdk "github.com/pydio/cells-sdk-go"
 	"github.com/pydio/cells-sdk-go/transport/mc"
 	"github.com/pydio/cells-sdk-go/transport/oidc"
 	"github.com/pydio/cells/common"
+	microgrpc "github.com/pydio/cells/common/micro/client/grpc"
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
-	microgrpc "github.com/pydio/cells/common/micro/client/grpc"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -109,7 +109,6 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	c.source = c
 	logCtx := context.Background()
 	logCtx = servicecontext.WithServiceName(logCtx, "endpoint.cells.remote")
-	logCtx = servicecontext.WithServiceColor(logCtx, servicecontext.ServiceColorGrpc)
 	c.globalCtx = logCtx
 	return c
 }

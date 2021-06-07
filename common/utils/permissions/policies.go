@@ -172,7 +172,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, e
 	return w, nil
 }
 
-func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error) {
 	checker, e := CachedPoliciesChecker(ctx, "acl")
 	if e != nil {
 		return nil, e
@@ -181,7 +181,8 @@ func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequ
 	for k, v := range request.Context {
 		cx[k] = v
 	}
-	allow := false
+
+	allow := explicitOnly
 	for _, subject := range request.Subjects {
 		request := &ladon.Request{
 			Resource: request.Resource,
@@ -189,7 +190,10 @@ func LocalACLPoliciesResolver(ctx context.Context, request *idm.PolicyEngineRequ
 			Action:   request.Action,
 			Context:  cx,
 		}
-		if err := checker.IsAllowed(request); err != nil && err == ladon.ErrRequestForcefullyDenied {
+		if err := checker.IsAllowed(request); err != nil && err.Error() == ladon.ErrRequestForcefullyDenied.Error() {
+			if explicitOnly {
+				allow = false
+			}
 			break
 		} else if err == nil {
 			allow = true

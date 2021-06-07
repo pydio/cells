@@ -17,10 +17,13 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+
+import React, {Fragment} from 'react';
 import ReactDOM from 'react-dom'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
-import {LogLogMessage} from 'pydio/http/rest-api'
+import {LogLogMessage} from 'cells-sdk'
 import {Divider, FontIcon, Paper, IconButton} from 'material-ui'
 import Clipboard from 'clipboard'
 
@@ -121,7 +124,7 @@ class LogDetail extends React.Component{
     }
 
     render(){
-        const {log, pydio, onRequestClose, onSelectPeriod, style, focus, userDisplay = 'avatar'} = this.props;
+        const {log, pydio, onRequestClose, onSelectPeriod, style, focus, darkTheme, userDisplay = 'avatar'} = this.props;
         const {copySuccess} = this.state;
         const styles = {
             divider: {marginTop: 5, marginBottom:5},
@@ -144,22 +147,36 @@ class LogDetail extends React.Component{
                 padding: 8
             },
             buttonIcon: {
-                fontSize: 20
+                fontSize: 20,
+                color:darkTheme?'white':null
             }
         };
 
         let userLegend;
         if(log.Profile || log.RoleUuids || log.GroupPath){
             let leg = [];
-            if(log.Profile) leg.push('Profile: ' + log.Profile);
-            if(log.GroupPath) leg.push('Group: ' + log.GroupPath);
-            if(log.RoleUuids) leg.push('Roles: ' + log.RoleUuids.join(','));
+            if(log.Profile) {
+                leg.push('Profile: ' + log.Profile);
+            }
+            if(log.GroupPath) {
+                leg.push('Group: ' + log.GroupPath);
+            }
+            if(log.RoleUuids) {
+                leg.push('Roles: ' + log.RoleUuids.join(','));
+            }
             userLegend = leg.join(' - ');
         }
 
         let msg = log.Msg;
         if (log.Level === 'error') {
             msg = <span style={{color: '#e53935'}}>{log.Msg}</span>
+        }
+        let zaps = {};
+        if (log.JsonZaps) {
+            const data = JSON.parse(log.JsonZaps)
+            Object.keys(data).map(k => {
+                zaps[k] = JSON.stringify(data[k])
+            });
         }
 
         return (
@@ -168,9 +185,9 @@ class LogDetail extends React.Component{
                     <div style={styles.buttons}>
                         <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={copySuccess?'mdi mdi-check':'mdi mdi-content-copy'} tooltip={'Copy log to clipboard'} tooltipPosition={"bottom-left"} ref={"copy-button"} />
                         {onSelectPeriod &&
-                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':null}} iconClassName={"mdi mdi-clock"} onTouchTap={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
+                            <IconButton style={styles.button} iconStyle={{...styles.buttonIcon,color:focus?'#ff5722':styles.buttonIcon.color}} iconClassName={"mdi mdi-clock"} onClick={focus ? this.unfocusPeriod.bind(this) : this.focusPeriod.bind(this)} tooltip={"Show +/- 5 minutes"} tooltipPosition={"bottom-left"}/>
                         }
-                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onTouchTap={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={"Close log detail"} tooltipPosition={"bottom-left"}/>
+                        <IconButton style={styles.button} iconStyle={styles.buttonIcon} iconClassName={"mdi mdi-close"} onClick={() => {this.unfocusPeriod(); onRequestClose()}} tooltip={"Close log detail"} tooltipPosition={"bottom-left"}/>
                     </div>
                     {userDisplay === 'avatar' && log.UserName &&
                         <UserAvatar
@@ -185,13 +202,13 @@ class LogDetail extends React.Component{
                     {userDisplay === "avatar" && userLegend && <div style={styles.userLegend}>{userLegend}</div>}
                 </Paper>
                 {log.UserName && userDisplay === 'inline' &&
-                    <div>
-                        <GenericLine iconClassName={"mdi mdi-account"} legend={"User"} data={log.UserName} />
-                        {userLegend &&
-                            <GenericLine iconClassName={"mdi mdi-account-multiple"} legend={"User Attributes"} data={userLegend}/>
-                        }
-                        <Divider style={styles.divider}/>
-                    </div>
+                <Fragment>
+                    <GenericLine iconClassName={"mdi mdi-account"} legend={"User"} data={log.UserName} />
+                    {userLegend &&
+                        <GenericLine iconClassName={"mdi mdi-account-multiple"} legend={"User Attributes"} data={userLegend}/>
+                    }
+                    <Divider style={styles.divider}/>
+                </Fragment>
                 }
                 <GenericLine iconClassName={"mdi mdi-calendar"} legend={"Event Date"} data={new Date(log.Ts * 1000).toLocaleString()}/>
                 <GenericLine iconClassName={"mdi mdi-comment-text"} legend={"Event Message"} data={msg} />
@@ -204,11 +221,17 @@ class LogDetail extends React.Component{
                 {log.UserAgent && <GenericLine iconClassName={"mdi mdi-cellphone-link"} legend={"User Agent"} data={log.UserAgent} />}
                 {log.HttpProtocol && <GenericLine iconClassName={"mdi mdi-open-in-app"} legend={"Protocol"} data={log.HttpProtocol} />}
                 {log.NodePath &&
-                <div>
+                <Fragment>
                     <Divider style={styles.divider}/>
                     <GenericLine iconClassName={"mdi mdi-file-tree"} legend={"File/Folder"} data={log.NodePath} />
                     <GenericLine iconClassName={"mdi mdi-folder-open"} legend={"In Workspace"} data={log.WsUuid} />
-                </div>
+                </Fragment>
+                }
+                {Object.keys(zaps).length > 0 &&
+                <Fragment>
+                    <Divider style={styles.divider}/>
+                    {Object.keys(zaps).map(k => <GenericLine iconClassName={"mdi mdi-tag"} legend={k} data={zaps[k]}/>)}
+                </Fragment>
                 }
             </div>
         );
@@ -217,8 +240,8 @@ class LogDetail extends React.Component{
 }
 
 LogDetail.PropTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    log: React.PropTypes.instanceOf(LogLogMessage)
+    pydio: PropTypes.instanceOf(Pydio),
+    log: PropTypes.instanceOf(LogLogMessage)
 };
 
 export {LogDetail as default}

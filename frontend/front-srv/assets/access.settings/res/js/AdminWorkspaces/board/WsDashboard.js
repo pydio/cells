@@ -1,3 +1,7 @@
+import React from 'react';
+
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +22,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import {FlatButton, IconButton, Paper} from 'material-ui'
 import XMLUtils from 'pydio/util/xml'
@@ -29,19 +34,19 @@ import AjxpNode from 'pydio/model/node'
 import {muiThemeable} from 'material-ui/styles'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-let WsDashboard = React.createClass({
-
+let WsDashboard = createReactClass({
+    displayName: 'WsDashboard',
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
-        openEditor:React.PropTypes.func.isRequired,
-        openRightPane:React.PropTypes.func.isRequired,
-        closeRightPane:React.PropTypes.func.isRequired,
-        accessByName:React.PropTypes.func.isRequired,
-        advanced:React.PropTypes.boolean,
+        dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
+        rootNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        currentNode:PropTypes.instanceOf(AjxpNode).isRequired,
+        openEditor:PropTypes.func.isRequired,
+        openRightPane:PropTypes.func.isRequired,
+        closeRightPane:PropTypes.func.isRequired,
+        accessByName:PropTypes.func.isRequired,
+        advanced:PropTypes.boolean,
     },
 
     getInitialState(){
@@ -121,7 +126,7 @@ let WsDashboard = React.createClass({
                 <FlatButton
                     primary={true}
                     label={this.context.getMessage('ws.3')}
-                    onTouchTap={this.showWorkspaceCreator}
+                    onClick={this.showWorkspaceCreator}
                     {...adminStyles.props.header.flatButton}
                 />
             );
@@ -165,8 +170,7 @@ let WsDashboard = React.createClass({
                 </div>
             </div>
         );
-    }
-
+    },
 });
 
 export default muiThemeable()(WsDashboard);

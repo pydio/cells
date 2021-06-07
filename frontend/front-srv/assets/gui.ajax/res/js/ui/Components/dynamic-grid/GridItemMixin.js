@@ -17,14 +17,16 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
 import {FlatButton} from 'material-ui'
 
 export default {
 
     propTypes:{
-        showCloseAction:React.PropTypes.bool,
-        onCloseAction:React.PropTypes.func
+        showCloseAction:PropTypes.bool,
+        onCloseAction:PropTypes.func
     },
 
     focusItem:function(){
@@ -71,7 +73,7 @@ export default {
                     <FlatButton
                         label={Pydio.getInstance().MessageHash['ajxp_admin.home.48']}
                         className="card-close-button"
-                        onTouchTap={closeAction}
+                        onClick={closeAction}
                         style={{color:'white'}}
                     >
                     </FlatButton>

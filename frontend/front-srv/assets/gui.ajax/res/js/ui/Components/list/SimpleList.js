@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -18,13 +18,15 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
 
-const React = require('react')
-const Infinite = require('react-infinite')
+import Pydio from 'pydio'
+import Infinite from 'react-infinite'
 import ScrollArea from 'react-scrollbar'
 import {Toolbar, ToolbarGroup, FontIcon, Checkbox, RaisedButton, FlatButton} from 'material-ui'
 
-import MessagesConsumerMixin from '../util/MessagesConsumerMixin'
 import {ListEntry} from './ListEntry'
 import TableListEntry from './TableListEntry'
 import TableListHeader from './TableListHeader'
@@ -34,58 +36,58 @@ import ListPaginator from './ListPaginator'
 import SimpleReactActionBar from '../views/SimpleReactActionBar'
 import InlineEditor from './InlineEditor'
 import EmptyStateView from '../views/EmptyStateView'
+import PlaceHolders from "./PlaceHolders";
 
 const DOMUtils = require('pydio/util/dom')
-const LangUtils = require('pydio/util/lang')
 const PydioDataModel = require('pydio/model/data-model')
 const PeriodicalExecuter = require('pydio/util/periodical-executer')
 
 /**
  * Generic List component, using Infinite for cell virtualization, pagination, various
  * displays, etc... It provides many hooks for rendering cells on-demand.
+ * It uses createReactClass old syntax
  */
-let SimpleList = React.createClass({
-
-    mixins:[MessagesConsumerMixin],
+let SimpleList = createReactClass({
+    displayName: 'SimpleList',
 
     propTypes:{
-        infiniteSliceCount  : React.PropTypes.number,
-        filterNodes         : React.PropTypes.func,
-        customToolbar       : React.PropTypes.object,
-        tableKeys           : React.PropTypes.object,
-        autoRefresh         : React.PropTypes.number,
-        reloadAtCursor      : React.PropTypes.bool,
-        clearSelectionOnReload: React.PropTypes.bool,
-        heightAutoWithMax   : React.PropTypes.number,
-        containerHeight     : React.PropTypes.number,
-        observeNodeReload   : React.PropTypes.bool,
-        defaultGroupBy      : React.PropTypes.string,
-        defaultGroupByLabel : React.PropTypes.string,
+        infiniteSliceCount  : PropTypes.number,
+        filterNodes         : PropTypes.func,
+        customToolbar       : PropTypes.object,
+        tableKeys           : PropTypes.object,
+        autoRefresh         : PropTypes.number,
+        reloadAtCursor      : PropTypes.bool,
+        clearSelectionOnReload: PropTypes.bool,
+        heightAutoWithMax   : PropTypes.number,
+        containerHeight     : PropTypes.number,
+        observeNodeReload   : PropTypes.bool,
+        defaultGroupBy      : PropTypes.string,
+        defaultGroupByLabel : PropTypes.string,
 
-        skipParentNavigation: React.PropTypes.bool,
-        skipInternalDataModel:React.PropTypes.bool,
-        delayInitialLoad    : React.PropTypes.number,
+        skipParentNavigation: PropTypes.bool,
+        skipInternalDataModel:PropTypes.bool,
+        delayInitialLoad    : PropTypes.number,
 
-        entryEnableSelector : React.PropTypes.func,
-        renderCustomEntry   : React.PropTypes.func,
-        entryRenderIcon     : React.PropTypes.func,
-        entryRenderActions  : React.PropTypes.func,
-        entryRenderFirstLine: React.PropTypes.func,
-        entryRenderSecondLine:React.PropTypes.func,
-        entryRenderThirdLine: React.PropTypes.func,
-        entryHandleClicks   : React.PropTypes.func,
-        hideToolbar         : React.PropTypes.bool,
-        computeActionsForNode: React.PropTypes.bool,
-        multipleActions     : React.PropTypes.array,
+        entryEnableSelector : PropTypes.func,
+        renderCustomEntry   : PropTypes.func,
+        entryRenderIcon     : PropTypes.func,
+        entryRenderActions  : PropTypes.func,
+        entryRenderFirstLine: PropTypes.func,
+        entryRenderSecondLine:PropTypes.func,
+        entryRenderThirdLine: PropTypes.func,
+        entryHandleClicks   : PropTypes.func,
+        hideToolbar         : PropTypes.bool,
+        computeActionsForNode: PropTypes.bool,
+        multipleActions     : PropTypes.array,
 
-        openEditor          : React.PropTypes.func,
-        openCollection      : React.PropTypes.func,
+        openEditor          : PropTypes.func,
+        openCollection      : PropTypes.func,
 
-        elementStyle        : React.PropTypes.object,
-        passScrollingStateToChildren:React.PropTypes.bool,
-        elementHeight       : React.PropTypes.oneOfType([
-            React.PropTypes.number,
-            React.PropTypes.object
+        elementStyle        : PropTypes.object,
+        passScrollingStateToChildren:PropTypes.bool,
+        elementHeight       : PropTypes.oneOfType([
+            PropTypes.number,
+            PropTypes.object
         ]).isRequired
 
     },
@@ -100,6 +102,10 @@ let SimpleList = React.createClass({
 
     getDefaultProps:function(){
         return {infiniteSliceCount:30, clearSelectionOnReload: true}
+    },
+
+    getMessage(id){
+        return Pydio.getMessages()[id] || id;
     },
 
     clickRow: function(gridRow, event){
@@ -394,6 +400,7 @@ let SimpleList = React.createClass({
         this.setState({loaded:false, loading:true});
         this.indexedElements = null;
     },
+
     _loadedListener: function(){
         const currentLength = Math.max(this.state.elements.length, this.props.infiniteSliceCount);
         this.setState({
@@ -444,6 +451,7 @@ let SimpleList = React.createClass({
         this.props.node.observe("loading", this.wrappedLoading);
         this.props.node.observe("loaded", this.wrappedLoaded);
     },
+
     stopReloadListeners:function(){
         this.props.node.stopObserving("loading", this.wrappedLoading);
         this.props.node.stopObserving("loaded", this.wrappedLoaded);
@@ -555,6 +563,9 @@ let SimpleList = React.createClass({
     },
 
     computeElementHeightResponsive:function(){
+        if(!this.props.tableKeys){
+            return 50;
+        }
         let breaks = this.props.elementHeight;
         if(! (breaks instanceof Object) ){
             breaks = {
@@ -570,8 +581,11 @@ let SimpleList = React.createClass({
             }
         }else{
             const width = DOMUtils.getViewportWidth();
-            if(width < 480) return breaks["max-width:480px"];
-            else return breaks["max-width:480px"];
+            if(width < 480) {
+                return breaks["max-width:480px"];
+            } else {
+                return breaks["min-width:480px"];
+            }
         }
         return 50;
     },
@@ -646,6 +660,17 @@ let SimpleList = React.createClass({
                 }
             });
         }.bind(this));
+        // Selection on Mount
+        const selection = new Map();
+        const selectedNodes = this.props.dataModel.getSelectedNodes();
+        if(selectedNodes.length) {
+            selectedNodes.map(function(n){
+                selection.set(n, true);
+            });
+            this.setState({selection}, () => {
+                setTimeout(()=>{this.scrollToView(selectedNodes[0]);}, 500)
+            });
+        }
     },
 
     componentWillUnmount: function(){
@@ -766,9 +791,9 @@ let SimpleList = React.createClass({
                     mainIcon            : SimpleList.PARENT_FOLDER_ICON,
                     firstLine           : "..",
                     className           : "list-parent-node",
-                    secondLine          : this.context.getMessage('react.1'),
-                    onClick             : this.clickRow,
-                    onDoubleClick       : this.doubleClickRow,
+                    secondLine          : this.getMessage('react.1'),
+                    onClick             : this.clickRow.bind(this),
+                    onDoubleClick       : this.doubleClickRow.bind(this),
                     showSelector        : false,
                     selectorDisabled    : true,
                     noHover             : false
@@ -809,9 +834,9 @@ let SimpleList = React.createClass({
             }else{
                 data = {
                     node                : entry.node,
-                    onClick             : this.clickRow,
-                    onDoubleClick       : this.doubleClickRow,
-                    onSelect            : this.toggleSelection,
+                    onClick             : this.clickRow.bind(this),
+                    onDoubleClick       : this.doubleClickRow.bind(this),
+                    onSelect            : this.toggleSelection.bind(this),
                     key                 : entry.node.getPath(),
                     id                  : entry.node.getPath(),
                     renderIcon          : this.props.entryRenderIcon,
@@ -840,7 +865,7 @@ let SimpleList = React.createClass({
                 }else if(this.props.tableKeys){
 
                     if(this.props.defaultGroupBy){
-                        data['tableKeys'] = LangUtils.deepCopy(this.props.tableKeys);
+                        data['tableKeys'] = {...this.props.tableKeys};
                         delete data['tableKeys'][this.props.defaultGroupBy];
                     }else{
                         data['tableKeys'] = this.props.tableKeys;
@@ -859,11 +884,79 @@ let SimpleList = React.createClass({
 
     },
 
-    buildElements: function(start, end, node, showSelector){
-        let theNode = this.props.node;
-        if (node) theNode = node;
-        let theShowSelector = this.state && this.state.showSelector;
-        if(showSelector !== undefined) theShowSelector = showSelector;
+    /**
+     *
+     * @return {null|Function}
+     */
+    prepareSortFunction() {
+        const {sortingInfo} = this.state || {};
+        if(!sortingInfo || this.remoteSortingInfo()) {
+            return null;
+        }
+        let sortFunction;
+        const {sortingInfo:{attribute, direction, sortType}} = this.state || {};
+        if(sortType === 'file-natural'){
+            sortFunction = (a, b) => {
+                if (a.parent){
+                    return -1;
+                }
+                if (b.parent){
+                    return 1;
+                }
+                const nodeA = a.node;
+                const nodeB = b.node;
+                // Recycle always last
+                if(nodeA.isRecycle()) {
+                    return 1;
+                }
+                if(nodeB.isRecycle()) {
+                    return -1;
+                }
+                // Folders first
+                const aLeaf = nodeA.isLeaf();
+                const bLeaf = nodeB.isLeaf();
+                let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
+                if (res === 0) {
+                    return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
+                } else {
+                    return res;
+                }
+            };
+        }else{
+            sortFunction = (a, b) => {
+                if (a.parent){
+                    return -1;
+                }
+                if (b.parent){
+                    return 1;
+                }
+                let res;
+                if(sortType === 'number'){
+                    let aMeta = a.node.getMetadata().get(attribute) || 0;
+                    let bMeta = b.node.getMetadata().get(attribute) || 0;
+                    aMeta = parseFloat(aMeta);
+                    bMeta = parseFloat(bMeta);
+                    res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
+                }else if(sortType === 'string'){
+                    let aMeta = a.node.getMetadata().get(attribute) || "";
+                    let bMeta = b.node.getMetadata().get(attribute) || "";
+                    res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
+                }
+                if(res === 0){
+                    // Resort by label to make it stable
+                    let labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, {numeric: true});
+                    res = (direction === 'asc' ? labComp : -labComp);
+                }
+                return res;
+            };
+        }
+        return sortFunction;
+    },
+
+    buildElements: function(start, end, node){
+        const theNode = node || this.props.node;
+
+        const sortFunction = this.prepareSortFunction();
 
         if(!this.indexedElements || this.indexedElements.length !== theNode.getChildren().size) {
             this.indexedElements = [];
@@ -871,7 +964,7 @@ let SimpleList = React.createClass({
             if(this.props.defaultGroupBy){
                 groupBy = this.props.defaultGroupBy;
                 groupByLabel = this.props.groupByLabel || false;
-                groups = {}, groupKeys = [], groupLabels = {};
+                groups = {}; groupKeys = []; groupLabels = {};
             }
 
             if (!this.props.skipParentNavigation && theNode.getParent()
@@ -919,72 +1012,22 @@ let SimpleList = React.createClass({
                         parent: false,
                         actions: null
                     });
+                    if(sortFunction) {
+                        groups[k].sort(sortFunction);
+                    }
                     this.indexedElements = this.indexedElements.concat(groups[k]);
                 }.bind(this));
             }
 
         }
 
-        if(this.state && this.state.sortingInfo && !this.remoteSortingInfo()){
-            const {sortingInfo:{attribute, direction, sortType}} = this.state;
-            let sortFunction;
-            if(sortType === 'file-natural'){
-                sortFunction = (a, b) => {
-                    if (a.parent){
-                        return -1;
-                    }
-                    if (b.parent){
-                        return 1;
-                    }
-                    const nodeA = a.node;
-                    const nodeB = b.node;
-                    // Recycle always last
-                    if(nodeA.isRecycle()) return 1;
-                    if(nodeB.isRecycle()) return -1;
-                    // Folders first
-                    const aLeaf = nodeA.isLeaf();
-                    const bLeaf = nodeB.isLeaf();
-                    let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
-                    if(res !== 0) {
-                        return res;
-                    } else {
-                        return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
-                    }
-                };
-            }else{
-                sortFunction = (a, b) => {
-                    if (a.parent){
-                        return -1;
-                    }
-                    if (b.parent){
-                        return 1;
-                    }
-                    let res;
-                    if(sortType === 'number'){
-                        let aMeta = a.node.getMetadata().get(attribute) || 0;
-                        let bMeta = b.node.getMetadata().get(attribute) || 0;
-                        aMeta = parseFloat(aMeta);
-                        bMeta = parseFloat(bMeta);
-                        res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
-                    }else if(sortType === 'string'){
-                        let aMeta = a.node.getMetadata().get(attribute) || "";
-                        let bMeta = b.node.getMetadata().get(attribute) || "";
-                        res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
-                    }
-                    if(res === 0){
-                        // Resort by label to make it stable
-                        let labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, {numeric: true});
-                        res = (direction === 'asc' ? labComp : -labComp);
-                    }
-                    return res;
-                };
-            }
+        if(!this.props.defaultGroupBy && sortFunction) {
             this.indexedElements.sort(sortFunction);
         }
 
         if(this.props.elementPerLine > 1){
-            end = end * this.props.elementPerLine;
-            start = start * this.props.elementPerLine;
+            end *= this.props.elementPerLine;
+            start *= this.props.elementPerLine;
         }
         return this.indexedElements.slice(start, end);
     },
@@ -1091,13 +1134,13 @@ let SimpleList = React.createClass({
 
             leftToolbar =(
                 <ToolbarGroup key={0} float="left">
-                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.context.getMessage('react.3').replace('%s', this.props.searchResultData.term)}</div>
+                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('react.3').replace('%s', this.props.searchResultData.term)}</div>
                 </ToolbarGroup>
             );
-            rightButtons = <RaisedButton key={1} label={this.context.getMessage('react.4')} primary={true} onTouchTap={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
+            rightButtons = <RaisedButton key={1} label={this.getMessage('react.4')} primary={true} onClick={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
 
         }else if(this.actionsCache.multiple.size || this.props.multipleActions){
-            let bulkLabel = this.context.getMessage('react.2');
+            let bulkLabel = this.getMessage('react.2');
             let hiddenStyle = {
                 transform: 'translateX(-80px)'
             };
@@ -1165,7 +1208,7 @@ let SimpleList = React.createClass({
         if(this.props.tableKeys){
             let tableKeys;
             if(this.props.defaultGroupBy){
-                tableKeys = LangUtils.deepCopy(this.props.tableKeys);
+                tableKeys = {...this.props.tableKeys};
                 delete tableKeys[this.props.defaultGroupBy];
             }else{
                 tableKeys = this.props.tableKeys;
@@ -1232,40 +1275,50 @@ let SimpleList = React.createClass({
 
         const elements = this.buildElementsFromNodeEntries(this.state.elements, this.state.showSelector);
 
+        const {verticalScroller, heightAutoWithMax, usePlaceHolder} = this.props;
+        let content = elements;
+        if(!elements.length && usePlaceHolder) {
+            content = <PlaceHolders {...this.props}/>
+        }
+        if(emptyState) {
+
+            content = emptyState;
+
+        } else if (verticalScroller) {
+
+            content = (
+                <ScrollArea
+                    speed={0.8}
+                    horizontalScroll={false}
+                    style={{height:this.state.containerHeight}}
+                    verticalScrollbarStyle={{borderRadius: 10, width: 6}}
+                    verticalContainerStyle={{width: 8}}
+                >
+                    <div>{content}</div>
+                </ScrollArea>
+            )
+        } else {
+
+            content = (
+                <Infinite
+                    elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
+                    containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
+                    infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
+                    onInfiniteLoad={this.handleInfiniteLoad}
+                    handleScroll={this.onScroll}
+                    ref="infinite"
+                >{content}</Infinite>
+            )
+        }
+
         return (
-            <div className={containerClasses} onContextMenu={this.contextMenuResponder} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
+            <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
                 {toolbar}{hiddenToolbar}
                 {inlineEditor}
-                <div className={this.props.heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">
-                    {!emptyState && !this.props.verticalScroller &&
-                    <Infinite
-                        elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
-                        containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
-                        infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
-                        onInfiniteLoad={this.handleInfiniteLoad}
-                        handleScroll={this.onScroll}
-                        ref="infinite"
-                    >
-                        {elements}
-                    </Infinite>
-                    }
-                    {!emptyState && this.props.verticalScroller &&
-                        <ScrollArea
-                            speed={0.8}
-                            horizontalScroll={false}
-                            style={{height:this.state.containerHeight}}
-                            verticalScrollbarStyle={{borderRadius: 10, width: 6}}
-                            verticalContainerStyle={{width: 8}}
-                        >
-                            <div>{elements}</div>
-                        </ScrollArea>
-                    }
-                    {emptyState}
-                </div>
+                <div className={heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">{content}</div>
             </div>
         );
-    }
-
+    },
 });
 
 export {SimpleList as default}

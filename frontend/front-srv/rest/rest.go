@@ -27,8 +27,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/emicklei/go-restful"
 	"github.com/micro/go-micro/broker"
@@ -54,6 +56,10 @@ import (
 
 const (
 	avatarDefaultMaxSize = 5 * 1024 * 1024
+)
+
+var (
+	formDevOnce sync.Once
 )
 
 type FrontendHandler struct {
@@ -503,6 +509,30 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 
 // SettingsMenu builds the list of available page for the Cells Console left menu
 func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Response) {
+
+	formDevOnce.Do(func() {
+		if os.Getenv("CELLS_ENABLE_FORMS_DEVEL") == "1" {
+			settingsNode.Sections = append(settingsNode.Sections,
+				&rest.SettingsSection{
+					Key:         "developer",
+					Label:       "settings.144",
+					Description: "settings.144",
+					Children: []*rest.SettingsEntry{
+						{
+							Key:         "forms-devel",
+							Label:       "Forms",
+							Description: "Forms",
+							Metadata: &rest.SettingsEntryMeta{
+								IconClass: "mdi mdi-email",
+								Component: "AdminPlugins.ServiceEditor",
+								Props:     `{"serviceName":"pydio.rest.forms-devel","pluginId":"forms-devel","formToggles":true}`,
+							},
+						},
+					},
+				},
+			)
+		}
+	})
 
 	rsp.WriteEntity(settingsNode)
 

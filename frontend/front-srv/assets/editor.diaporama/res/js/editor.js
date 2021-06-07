@@ -21,6 +21,7 @@
 
 
 import React, {PureComponent} from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { ImageContainer } from './components'
@@ -40,7 +41,7 @@ class Editor extends PureComponent {
 
     static get propTypes() {
         return {
-            node: React.PropTypes.instanceOf(AjxpNode).isRequired
+            node: PropTypes.instanceOf(AjxpNode).isRequired
         }
     }
 

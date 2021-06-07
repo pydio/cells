@@ -1,8 +1,26 @@
+/*
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import PydioApi from './PydioApi'
 import MetaNodeProvider from '../model/MetaNodeProvider'
-import SearchServiceApi from './gen/api/SearchServiceApi'
-import TreeSearchRequest from './gen/model/TreeSearchRequest'
-import TreeQuery from './gen/model/TreeQuery'
+import {SearchServiceApi, TreeSearchRequest, TreeQuery} from 'cells-sdk'
 
 class SearchApi {
 
@@ -15,11 +33,11 @@ class SearchApi {
 
 
         let query = new TreeQuery();
-        const prefix = this.computePathPrefix(scope);
-        if(prefix){
-            query.PathPrefix = [prefix];
+        //const prefix = this.computePathPrefix(scope);
+        if(scope !== 'all'){
+            query.PathPrefix = [scope];
         }
-
+        console.log(values);
         const keys = Object.keys(values);
         if (keys.length === 1 && keys[0] === 'basename') {
             query.FileName = this.autoQuote(values['basename']);
@@ -66,7 +84,11 @@ class SearchApi {
             });
             if(Object.keys(freeQueries).length){
                 query.FreeString = Object.keys(freeQueries).map(k =>{
-                    return "+" + k + ":" + freeQueries[k];
+                    let val = freeQueries[k]
+                    if(freeQueries[k] === true) {
+                        val = 'T*';
+                    }
+                    return "+" + k + ":" + val;
                 }).join(" ");
             }
         }

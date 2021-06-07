@@ -132,16 +132,16 @@ class Header extends Component{
 
         let icon;
         if(listener.isActive()){
-            icon = <IconButton iconClassName={listener.isOpen()?"mdi mdi-backburger":"mdi mdi-menu"} iconStyle={styles.icon} onTouchTap={() => listener.toggle()}/>
+            icon = <IconButton iconClassName={listener.isOpen()?"mdi mdi-backburger":"mdi mdi-menu"} iconStyle={styles.icon} onClick={() => listener.toggle()}/>
         } else if(this.props.icon) {
             icon = <FontIcon className={this.props.icon} style={styles.icon} />
         } else if(backButtonAction) {
-            icon = <IconButton style={{marginLeft: -18}} iconClassName={"mdi mdi-chevron-left"} onTouchTap={backButtonAction}/>
+            icon = <IconButton style={{marginLeft: -18}} iconClassName={"mdi mdi-chevron-left"} onClick={backButtonAction}/>
         }
 
         let reloadButton;
         if(reloadAction){
-            reloadButton = <IconButton iconClassName={"mdi mdi-reload"} onTouchTap={reloadAction} {...adminStyles.props.header.iconButton} />;
+            reloadButton = <IconButton iconClassName={"mdi mdi-reload"} onClick={reloadAction} {...adminStyles.props.header.iconButton} />;
         }
 
         let headTitle = <h3 style={styles.title}>{title}</h3>;

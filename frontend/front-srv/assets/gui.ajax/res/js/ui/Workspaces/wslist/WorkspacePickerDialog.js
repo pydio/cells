@@ -19,10 +19,12 @@
  */
 
 const React = require('react');
+const createReactClass = require('create-react-class');
 const {ActionDialogMixin, CancelButtonProviderMixin} = require('pydio').requireLib('boot');
 import WorkspacesListMaterial from './WorkspacesListMaterial'
 
-const WorkspacePickerDialog = React.createClass({
+const WorkspacePickerDialog = createReactClass({
+    displayName: 'WorkspacePickerDialog',
 
     mixins: [
         ActionDialogMixin,
@@ -70,8 +72,7 @@ const WorkspacePickerDialog = React.createClass({
             </div>
         );
 
-    }
-
+    },
 });
 
 export {WorkspacePickerDialog as default}

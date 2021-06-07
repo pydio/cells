@@ -17,17 +17,20 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+
+import Pydio from 'pydio';
+const createReactClass = require('create-react-class');
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
 import {Checkbox} from 'material-ui'
 
-export default React.createClass({
+export default createReactClass({
 
     propTypes: {
-        message: React.PropTypes.string.isRequired,
-        validCallback: React.PropTypes.func.isRequired
+        message: PropTypes.string.isRequired,
+        validCallback: PropTypes.func.isRequired
     },
 
     mixins:[
@@ -46,16 +49,21 @@ export default React.createClass({
         return {};
     },
     submit(){
-        const {validCallback, skipNext} = this.props;
+        const {validCallback, skipNext, moreComponents} = this.props;
         const {skipChecked} = this.state;
         if(skipNext && skipChecked){
             localStorage.setItem('confirm.skip.' + skipNext, 'true');
         }
-        validCallback();
+        if(moreComponents) {
+            const {componentsValues} = this.state;
+            validCallback(componentsValues);
+        } else {
+            validCallback();
+        }
         this.dismiss();
     },
     render: function(){
-        const {destructive, message, skipNext, pydio} = this.props;
+        const {destructive, message, skipNext, pydio, moreComponents} = this.props;
         const {skipChecked} = this.state;
         const m = (id) => pydio.MessageHash['confirm.dialog.' + id] || id;
         let dMess, sMess;
@@ -84,6 +92,19 @@ export default React.createClass({
                 )
             }
         }
+        let comps;
+        if(moreComponents) {
+            const onChange = (name, value) => {
+                const newValues = {...this.state.componentsValues}
+                newValues[name] = value;
+                this.setState({componentsValues:newValues});
+            }
+            // Generate a component with an onChange hook
+            comps = Object.keys(moreComponents).map(k => {
+                const generator = moreComponents[k]
+                return generator(onChange);
+            })
+        }
         return (
             <div>
                 {message}
@@ -91,6 +112,7 @@ export default React.createClass({
                 {dMess}
                 {sMess && <br/>}
                 {sMess}
+                {comps}
             </div>
         );
     }

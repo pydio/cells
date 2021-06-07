@@ -26,32 +26,26 @@ const {Chat} = require('pydio').requireLib('components');
 
 class InfoPanel extends React.Component {
 
-    constructor(props){
-        super(props);
-        this.state = {chatOpen: true};
-    }
-
-    toggleChatOpen(){
-        this.setState({chatOpen: !this.state.chatOpen});
-    }
-
     render(){
 
         const {node, pydio} = this.props;
-        const {chatOpen} = this.state;
-        let icon = "comment-processing";
-        let iconClick = this.toggleChatOpen.bind(this);
-        if (chatOpen) {
-            icon = "close";
-        }
         return (
-            <InfoPanelCard identifier={"meta-comments"} style={this.props.style} title={pydio.MessageHash['meta.comments.1']} iconClick={iconClick} icon={icon} iconColor="#7cb342">
-                {!chatOpen &&
-                    <div style={{textAlign: 'center', paddingBottom:20}}>
-                        <RaisedButton onClick={this.toggleChatOpen.bind(this)} primary={true} label={"OPEN DISCUSSION"}/>
-                    </div>
-                }
-                {chatOpen && <Chat roomType="NODE" roomObjectId={node.getMetadata().get("uuid")} fieldHint={pydio.MessageHash['meta.comments.2']}/>}
+            <InfoPanelCard identifier={"meta-comments"} style={this.props.style} title={pydio.MessageHash['meta.comments.1']}>
+                <Chat
+                    roomType="NODE"
+                    roomObjectId={node.getMetadata().get("uuid")}
+                    fieldHint={pydio.MessageHash['meta.comments.2']}
+                    emptyStateProps={{
+                        iconClassName:'mdi mdi-comment-outline',
+                        primaryTextId:pydio.MessageHash['meta.comments.empty-state'],
+                        style:{padding:'10px 20px 20px', backgroundColor: 'transparent'},
+                        iconStyle:{fontSize: 40},
+                        legendStyle:{fontSize: 13}
+                    }}
+                    textFieldProps={{
+                        style:{height: 40, lineHeight:'16px'}
+                    }}
+                />
             </InfoPanelCard>
         );
     }

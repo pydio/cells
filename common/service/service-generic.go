@@ -28,10 +28,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/google/uuid"
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/codec"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/misc/lib/addr"
@@ -61,7 +59,9 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 			srv := f(
 				server.Name(name),
+				server.Id(o.ID),
 				server.Address(s.Address()),
+				server.RegisterTTL(DefaultRegisterTTL),
 			)
 
 			svc.Init(
@@ -69,10 +69,8 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				// micro.RegisterTTL(time.Second*30),
-				// micro.RegisterInterval(time.Second*10),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(DefaultRegisterTTL),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
@@ -121,11 +119,11 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 
 			opts := []server.Option{
 				server.Name(name),
-				server.Id(uuid.New().String()),
+				server.Id(o.ID),
+				server.RegisterTTL(DefaultRegisterTTL),
 			}
-
 			if port := s.Options().Port; port != "0" {
-				opts = append(opts, server.Address(":" + port))
+				opts = append(opts, server.Address(":"+port))
 			}
 
 			srv := defaults.NewHTTPServer(
@@ -144,10 +142,8 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
-				// micro.RegisterTTL(time.Second*30),
-				// micro.RegisterInterval(time.Second*10),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(DefaultRegisterTTL),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 
@@ -199,7 +195,7 @@ type genericServer struct {
 // NewGenericServer wraps a micro server out of a simple interface
 func NewGenericServer(srv interface{}, opt ...server.Option) server.Server {
 	opts := server.Options{
-		Address: server.DefaultAddress,
+		Address:  server.DefaultAddress,
 		Codecs:   make(map[string]codec.NewCodec),
 		Metadata: map[string]string{},
 	}
@@ -238,88 +234,10 @@ func (g *genericServer) Subscribe(server.Subscriber) error {
 func (g *genericServer) Register() error {
 	// parse address for host, port
 	config := g.opts
-	var advt, host string
-	var port int
 
-	var nodes []*microregistry.Node
-	if a, ok := g.srv.(Addressable); ok {
-
-		for _, address := range a.Addresses() {
-			tcp, ok := address.(*net.TCPAddr)
-			if !ok {
-				continue
-			}
-			ip := tcp.IP.String()
-			if ip == "::" {
-				ip = "[::]"
-			}
-			ad, err := addr.Extract(ip)
-			if err != nil {
-				ad = config.Address
-			}
-			md := make(map[string]string, len(config.Metadata))
-			for k, v := range config.Metadata {
-				md[k] = v
-			}
-			// register service
-			node := &microregistry.Node{
-				Id:       fmt.Sprintf("%s-%s-%d", config.Name, ip, tcp.Port),
-				Address:  ad,
-				Port:     tcp.Port,
-				Metadata: md,
-			}
-
-			node.Metadata["broker"] = config.Broker.String()
-			node.Metadata["registry"] = config.Registry.String()
-			node.Metadata["server"] = g.String()
-			node.Metadata["transport"] = g.String()
-
-			nodes = append(nodes, node)
-		}
-	} else {
-		// check the advertise address first
-		// if it exists then use it, otherwise
-		// use the address
-		if len(config.Advertise) > 0 {
-			advt = config.Advertise
-		} else {
-			advt = config.Address
-		}
-
-		parts := strings.Split(advt, ":")
-		if len(parts) > 1 {
-			host = strings.Join(parts[:len(parts)-1], ":")
-			port, _ = strconv.Atoi(parts[len(parts)-1])
-		} else {
-			host = parts[0]
-		}
-
-		ad, err := addr.Extract(host)
-		if err != nil {
-			return err
-		}
-		md := make(map[string]string, len(config.Metadata))
-		for k, v := range config.Metadata {
-			md[k] = v
-		}
-		// register service
-		node := &microregistry.Node{
-			Id:       config.Name + "-" + config.Id,
-			Address:  ad,
-			Port:     port,
-			Metadata: md,
-		}
-
-		node.Metadata["broker"] = config.Broker.String()
-		node.Metadata["registry"] = config.Registry.String()
-		node.Metadata["server"] = g.String()
-		node.Metadata["transport"] = g.String()
-
-		if na, ok := g.srv.(NonAddressable); ok {
-			node.Metadata["non-addressable"] = na.NoAddress()
-		}
-
-		nodes = append(nodes, node)
+	nodes, err := g.getNodes()
+	if err != nil {
+		return err
 	}
 
 	service := &microregistry.Service{
@@ -353,49 +271,19 @@ func (g *genericServer) Register() error {
 
 	return nil
 }
+
 func (g *genericServer) Deregister() error {
 	config := g.opts
-	var advt, host string
-	var port int
 
-	// check the advertise address first
-	// if it exists then use it, otherwise
-	// use the address
-	if len(config.Advertise) > 0 {
-		advt = config.Advertise
-	} else {
-		advt = config.Address
-	}
-
-	parts := strings.Split(advt, ":")
-	if len(parts) > 1 {
-		host = strings.Join(parts[:len(parts)-1], ":")
-		port, _ = strconv.Atoi(parts[len(parts)-1])
-	} else {
-		host = parts[0]
-	}
-
-	addr, err := addr.Extract(host)
+	nodes, err := g.getNodes()
 	if err != nil {
 		return err
-	}
-
-	md := make(map[string]string, len(config.Metadata))
-	for k, v := range config.Metadata {
-		md[k] = v
-	}
-
-	node := &microregistry.Node{
-		Id:       config.Name + "-" + config.Id,
-		Address:  addr,
-		Port:     port,
-		Metadata: md,
 	}
 
 	service := &microregistry.Service{
 		Name:    config.Name,
 		Version: config.Version,
-		Nodes:   []*microregistry.Node{node},
+		Nodes:   nodes,
 	}
 
 	if err := config.Registry.Deregister(service); err != nil {
@@ -428,4 +316,98 @@ func (g *genericServer) Stop() error {
 }
 func (g *genericServer) String() string {
 	return "generic"
+}
+
+func (g *genericServer) getNodes() ([]*microregistry.Node, error) {
+	config := g.opts
+
+	var advt, host string
+	var port int
+
+	var nodes []*microregistry.Node
+	if a, ok := g.srv.(Addressable); ok {
+		for k, address := range a.Addresses() {
+			tcp, ok := address.(*net.TCPAddr)
+			if !ok {
+				continue
+			}
+			ip := tcp.IP.String()
+			if ip == "::" {
+				ip = "[::]"
+			}
+			ad, err := addr.Extract(ip)
+			if err != nil {
+				ad = config.Address
+			}
+			md := make(map[string]string, len(config.Metadata))
+			for k, v := range config.Metadata {
+				md[k] = v
+			}
+
+			id := config.Name + "-" + config.Id
+			if k > 0 {
+				id = fmt.Sprintf("%s-%d", id, k)
+			}
+			// register service
+			node := &microregistry.Node{
+				Id:       id,
+				Address:  ad,
+				Port:     tcp.Port,
+				Metadata: md,
+			}
+
+			node.Metadata["broker"] = config.Broker.String()
+			node.Metadata["registry"] = config.Registry.String()
+			node.Metadata["server"] = g.String()
+			node.Metadata["transport"] = g.String()
+
+			nodes = append(nodes, node)
+		}
+	} else {
+		// check the advertise address first
+		// if it exists then use it, otherwise
+		// use the address
+		if len(config.Advertise) > 0 {
+			advt = config.Advertise
+		} else {
+			advt = config.Address
+		}
+
+		parts := strings.Split(advt, ":")
+		if len(parts) > 1 {
+			host = strings.Join(parts[:len(parts)-1], ":")
+			port, _ = strconv.Atoi(parts[len(parts)-1])
+		} else {
+			host = parts[0]
+		}
+
+		ad, err := addr.Extract(host)
+		if err != nil {
+			return nil, err
+		}
+		md := make(map[string]string, len(config.Metadata))
+		for k, v := range config.Metadata {
+			md[k] = v
+		}
+		// register service
+		node := &microregistry.Node{
+			Id:       config.Name + "-" + config.Id,
+			Address:  ad,
+			Port:     port,
+			Metadata: md,
+		}
+
+		node.Metadata["broker"] = config.Broker.String()
+		node.Metadata["registry"] = config.Registry.String()
+		node.Metadata["server"] = g.String()
+		node.Metadata["transport"] = g.String()
+
+		if na, ok := g.srv.(NonAddressable); ok {
+			node.Metadata["non-addressable"] = na.NoAddress()
+		}
+
+		nodes = append(nodes, node)
+	}
+
+	return nodes, nil
 }

@@ -19,30 +19,28 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import {FontIcon} from 'material-ui'
-import MessagesConsumerMixin from '../util/MessagesConsumerMixin'
 import SortColumns from './SortColumns'
 import ListPaginator from './ListPaginator'
 
 /**
  * Specific header for Table layout, reading metadata from node and using keys
  */
-export default React.createClass({
+export default class TableListHeader extends React.Component{
 
-    mixins:[MessagesConsumerMixin],
+    // propTypes:{
+    //     tableKeys:React.PropTypes.object.isRequired,
+    //     loading:React.PropTypes.bool,
+    //     reload:React.PropTypes.func,
+    //     dm:React.PropTypes.instanceOf(PydioDataModel),
+    //     node:React.PropTypes.instanceOf(AjxpNode),
+    //     onHeaderClick:React.PropTypes.func,
+    //     sortingInfo:React.PropTypes.object
+    // },
 
-    propTypes:{
-        tableKeys:React.PropTypes.object.isRequired,
-        loading:React.PropTypes.bool,
-        reload:React.PropTypes.func,
-        dm:React.PropTypes.instanceOf(PydioDataModel),
-        node:React.PropTypes.instanceOf(AjxpNode),
-        onHeaderClick:React.PropTypes.func,
-        sortingInfo:React.PropTypes.object
-    },
-
-    render: function(){
-        let headers, paginator;
+    render(){
+        let paginator;
         if(this.props.node.getMetadata().get("paginationData") && this.props.node.getMetadata().get("paginationData").get('total') > 1){
             paginator = <ListPaginator dataModel={this.props.dm} node={this.props.node}/>;
         }
@@ -53,7 +51,7 @@ export default React.createClass({
                     {paginator}
                     <FontIcon
                         key={1}
-                        title={this.context.getMessage('149', '')}
+                        title={Pydio.getMessages['149']}
                         className={"mdi mdi-refresh" + (this.props.loading?" rotating":"")}
                         onClick={this.props.reload}
                         style={{padding: 16, display: 'block', cursor:'pointer', fontSize: 24, color: '#9E9E9E'}}
@@ -64,5 +62,5 @@ export default React.createClass({
         );
 
     }
-});
+};
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import LangUtils from 'pydio/util/lang'
-import {IdmWorkspace, TreeNode} from 'pydio/http/rest-api';
+import {IdmWorkspace, TreeNode} from 'cells-sdk';
 import WorkspaceAcl from './WorkspaceAcl'
 
 class PagesAcls extends React.Component{
@@ -37,7 +37,7 @@ class PagesAcls extends React.Component{
             return <div></div>
         }
         return (
-            <div className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
+            <div style={{backgroundColor:'white'}} className={"material-list"}>{workspaces.map( ws => <WorkspaceAcl workspace={ws} role={role} /> )}</div>
         );
 
     }

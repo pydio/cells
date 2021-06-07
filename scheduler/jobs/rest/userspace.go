@@ -282,7 +282,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: r.Node}); rErr != nil {
 					return rErr
 				}
-				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: checkNode}); er != nil {
+				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_CONTENT, Target: checkNode}); er != nil {
 					return er
 				}
 			}

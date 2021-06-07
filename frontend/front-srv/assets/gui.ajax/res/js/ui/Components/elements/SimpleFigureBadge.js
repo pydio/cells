@@ -26,11 +26,11 @@ import {Paper} from 'material-ui'
  */
 export default class SimpleFigureBadge extends React.Component{
 
-    static propTypes:{
-        colorIndicator:React.PropTypes.string,
-        figure:React.PropTypes.number.isRequired,
-        legend:React.PropTypes.string
-    };
+    // static propTypes:{
+    //     colorIndicator:PropTypes.string,
+    //     figure:PropTypes.number.isRequired,
+    //     legend:PropTypes.string
+    // };
 
     constructor(props){
         super({colorIndicator: '', ...props});

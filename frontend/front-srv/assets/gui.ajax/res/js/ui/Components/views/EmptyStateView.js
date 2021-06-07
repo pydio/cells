@@ -18,10 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component, PropTypes} = require('react')
+const {
+    Component
+} = require('react')
 const {FlatButton, FontIcon} = require('material-ui')
 const {muiThemeable} = require('material-ui/styles')
 const Color = require('color')
+const PropTypes = require('prop-types');
 const Pydio = require('pydio')
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
@@ -85,7 +88,7 @@ class EmptyStateView extends Component{
                     }
                     {actionLabelId && actionCallback &&
                         <div style={{...styles.buttonContainer, ...actionStyle}}>
-                            <FlatButton style={styles.buttonStyle} label={getMessage(actionLabelId)} onTouchTap={actionCallback} icon={buttonIcon}/>
+                            <FlatButton style={styles.buttonStyle} label={getMessage(actionLabelId)} onClick={actionCallback} icon={buttonIcon}/>
                         </div>
                     }
                 </div>

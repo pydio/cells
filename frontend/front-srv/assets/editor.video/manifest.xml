@@ -6,8 +6,8 @@
         description="CONF_MESSAGE[Inserts a video player in the info panel, either HTML5 or Flash depending on the format.]">
     <client_settings>
         <resources>
-            <js file="plug/editor.video/res/build/PydioVideo.js" className="PydioVideo"/>
-            <css file="plug/editor.video/res/build/video-js.min.css"/>
+            <js file="plug/editor.video/res/dist/PydioVideo.min.js" className="PydioVideo"/>
+            <css file="plug/editor.video/res/dist/video-js.min.css"/>
             <i18n remote="plug/editor.video/i18n" namespace="video_editor"/>
         </resources>
     </client_settings>

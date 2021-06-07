@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react';
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import ChatClient from './ChatClient'
 import Message from './Message'
@@ -162,7 +165,7 @@ class Chat extends React.Component{
     }
 
     render(){
-        const {style, msgContainerStyle, fieldHint, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
+        const {style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
         const {messages, room} = this.state;
         let data = [];
         let previousMDate;
@@ -200,14 +203,14 @@ class Chat extends React.Component{
         return (
             <div style={{padding: 0, ...style}}>
                 {computePresenceFromACLs !== undefined  &&
-                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]}/>
+                    <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]} style={chatUsersStyle}/>
                 }
                 <div ref="comments" className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
                     {pusher}
                     {data}
                     {emptyState}
                 </div>
-                <div style={{backgroundColor: 'white', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0'}}>
+                <div style={{backgroundColor: 'white', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0', ...fieldContainerStyle}}>
                     <TextField
                         hintText={fieldHint}
                         hintStyle={{whiteSpace:'nowrap'}}
@@ -218,6 +221,7 @@ class Chat extends React.Component{
                         onKeyDown={this.keyDown.bind(this)}
                         fullWidth={true}
                         underlineShow={false}
+                        {...textFieldProps}
                     />
                 </div>
             </div>
@@ -227,8 +231,8 @@ class Chat extends React.Component{
 }
 
 Chat.PropTypes = {
-    roomType : React.PropTypes.string,
-    roomObjectId: React.PropTypes.string,
+    roomType : PropTypes.string,
+    roomObjectId: PropTypes.string,
 };
 
 Chat = PydioContextConsumer(Chat);

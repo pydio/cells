@@ -27,17 +27,22 @@ import (
 	"github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/memory"
 	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/cells/x/filex"
 	"github.com/pydio/go-os/config"
 )
 
 var (
 	std Store = New(micro.New(config.NewConfig(config.WithSource(memory.NewSource(memory.WithJSON([]byte{}))))))
+	local Store = std
 )
 
 // Register the default config store
 func Register(store Store) {
 	std = store
+}
+
+// Register local
+func RegisterLocal(store Store) {
+	local = store
 }
 
 // Store defines the functionality a config must provide
@@ -52,18 +57,20 @@ type Store interface {
 
 // New creates a configuration provider with in-memory access
 func New(store configx.Entrypoint) Store {
-	im := configx.New(configx.WithJSON())
+	ret := &cacheconfig{
+		store: store,
+	}
 
 	v := store.Get()
 
 	// we initialise the store and save it in memory for easy access
 	if v != nil {
-		v.Scan(&im)
-	}
-
-	ret := &cacheconfig{
-		im:    im,
-		store: store,
+		im := configx.New(configx.WithJSON())
+		im.Set(v)
+		ret.im = im
+	} else {
+		im := configx.New(configx.WithJSON())
+		ret.im = im
 	}
 
 	go func() {
@@ -80,11 +87,12 @@ func New(store configx.Entrypoint) Store {
 		for {
 			resp, err := w.Next()
 			if err != nil {
+				<-time.After(10 * time.Second)
 				continue
 			}
 
-			resp.Scan(&im)
-
+			im := configx.New(configx.WithJSON())
+			im.Set(resp)
 			ret.im = im
 		}
 	}()
@@ -96,7 +104,11 @@ func New(store configx.Entrypoint) Store {
 
 // Save the config in the hard store
 func Save(ctxUser string, ctxMessage string) error {
-	return std.Save(ctxUser, ctxMessage)
+	er := std.Save(ctxUser, ctxMessage)
+	if er != nil {
+		fmt.Println("Cannot save config", er)
+	}
+	return er
 }
 
 // Watch for config changes for a specific path or underneath
@@ -127,19 +139,6 @@ type cacheconfig struct {
 
 // Save the config in the underlying storage
 func (c *cacheconfig) Save(ctxUser string, ctxMessage string) error {
-	// Retrieving the value in the map
-	data := c.im.Map()
-
-	// And saving it to the store
-	if err := c.store.Set(&filex.Version{
-		Date: time.Now(),
-		User: ctxUser,
-		Log:  ctxMessage,
-		Data: data,
-	}); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -155,6 +154,9 @@ func (c *cacheconfig) Watch(path ...string) (configx.Receiver, error) {
 
 // Get access to the underlying structure at a certain path
 func (c *cacheconfig) Get() configx.Value {
+	if c.im == nil {
+		return nil
+	}
 	return c.im.Get()
 }
 
@@ -165,7 +167,7 @@ func (c *cacheconfig) Set(v interface{}) error {
 
 // Del value at a certain path
 func (c *cacheconfig) Del() error {
-	return c.im.Del()
+	return c.store.Del()
 }
 
 func (c *cacheconfig) Val(k ...string) configx.Values {
@@ -194,6 +196,15 @@ func (c *cacheValues) Set(v interface{}) error {
 	}
 
 	return c.store.Val(c.path...).Set(v)
+}
+
+func (c *cacheValues) Del() error {
+	err := c.Values.Del()
+	if err != nil {
+		return err
+	}
+
+	return c.store.Val(c.path...).Del()
 }
 
 func (c *cacheValues) MarshalJSON() ([]byte, error) {

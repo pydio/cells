@@ -66,9 +66,11 @@ const (
 	ParamString        ParamType = "string"
 	ParamTextarea      ParamType = "textarea"
 	ParamPassword      ParamType = "password"
+	ParamValidLogin    ParamType = "valid-login"
 	ParamValidPassword ParamType = "valid-password"
 	ParamBool          ParamType = "boolean"
 	ParamInteger       ParamType = "integer"
+	ParamIntegerBytes  ParamType = "integer-bytes"
 	ParamLegend        ParamType = "legend"
 	ParamHidden        ParamType = "hidden"
 

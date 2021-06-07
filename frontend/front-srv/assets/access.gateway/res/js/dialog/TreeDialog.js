@@ -20,19 +20,21 @@
 
 import React from "react";
 import Pydio from 'pydio';
+import PropTypes from 'prop-types'
+import createReactClass from 'create-react-class'
 import LangUtils from 'pydio/util/lang';
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 import PydioDataModel from "pydio/model/data-model";
 import {IconButton, MenuItem, Paper} from "material-ui";
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 
 const {FoldersTree} = Pydio.requireLib('components');
 
-const TreeDialog = React.createClass({
+const TreeDialog = createReactClass({
 
     propTypes:{
-        isMove:React.PropTypes.bool.isRequired,
-        submitValue:React.PropTypes.func.isRequired
+        isMove:PropTypes.bool.isRequired,
+        submitValue:PropTypes.func.isRequired
     },
 
     mixins:[
@@ -191,8 +193,8 @@ const TreeDialog = React.createClass({
                     }}
                 >
                     <ModernTextField fullWidth={true} floatingLabelText={this.props.pydio.MessageHash[173]} ref="newfolder_input" style={{flex:1}}/>
-                    <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onTouchTap={() => {this.createNewFolder() }}/>
-                    <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onTouchTap={openNewFolderForm}/>
+                    <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onClick={() => {this.createNewFolder() }}/>
+                    <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onClick={openNewFolderForm}/>
                 </Paper>
                 <div style={{display:'flex',alignItems:'center'}}>
                     <ModernTextField
@@ -210,7 +212,7 @@ const TreeDialog = React.createClass({
                             iconStyle={{color: '#546E7A', fontSize: 24}}
                             tooltip={this.props.pydio.MessageHash[154]}
                             tooltipPosition={"top-left"}
-                            onTouchTap={openNewFolderForm}
+                            onClick={openNewFolderForm}
                         />
                     }
                 </div>

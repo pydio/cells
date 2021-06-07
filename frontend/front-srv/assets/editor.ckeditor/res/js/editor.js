@@ -23,6 +23,7 @@
 import Pydio from 'pydio'
 const { EditorActions } = Pydio.requireLib('hoc')
 import React from 'react';
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import CKEditor from './CKEditor';
@@ -43,7 +44,7 @@ const mapStateToProps = (state, props) => {
 class Editor extends React.Component {
     static get propTypes() {
         return {
-            showControls: React.PropTypes.bool.isRequired
+            showControls: PropTypes.bool.isRequired
         }
     }
 
@@ -71,7 +72,7 @@ class Editor extends React.Component {
 
     static get config() {
         return {
-            basePath: `${DOMUtils.getUrlFromBase()}plug/editor.ckeditor/res/build/ckeditor/`,
+            basePath: `${DOMUtils.getUrlFromBase()}plug/editor.ckeditor/res/dist/ckeditor/`,
             desktop : {
                 ...Editor.base,
     			toolbar_Ajxp : [
@@ -112,7 +113,7 @@ class Editor extends React.Component {
         }
 
         pydio.ApiClient.getPlainContent(node, responseText => {
-            dispatch(EditorActions.tabModify({id, editable: true, content: responseText}))
+            dispatch(EditorActions.tabModify({id, editable: true, content: responseText, node}))
         })
     }
 

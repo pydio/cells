@@ -79,12 +79,12 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 		}))
 		log.Logger(ctx).Info(
 			fmt.Sprintf("Role [%s] has been updated", r.Label),
-			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
+			log.GetAuditId(common.AuditRoleUpdate),
 			r.ZapUuid(),
 		)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated role [%s]", r.Label),
-			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
+			log.GetAuditId(common.AuditRoleUpdate),
 			r.ZapUuid(),
 		)
 	} else {
@@ -94,12 +94,12 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 		}))
 		log.Logger(ctx).Info(
 			fmt.Sprintf("Role [%s] has been created", r.Label),
-			log.GetAuditId(common.AUDIT_ROLE_CREATE),
+			log.GetAuditId(common.AuditRoleCreate),
 			r.ZapUuid(),
 		)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Created role [%s]", r.Label),
-			log.GetAuditId(common.AUDIT_ROLE_CREATE),
+			log.GetAuditId(common.AuditRoleCreate),
 			r.ZapUuid(),
 		)
 	}
@@ -147,7 +147,7 @@ func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest, re
 		}))
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Deleted role [%s]", r.Label),
-			log.GetAuditId(common.AUDIT_ROLE_DELETE),
+			log.GetAuditId(common.AuditRoleDelete),
 			r.ZapUuid(),
 		)
 	}

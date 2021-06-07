@@ -50,7 +50,6 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		Favicon:          "plug/gui.ajax/res/themes/common/images/favicon.png",
 		Theme:            "material",
 		Version:          common.Version().String(),
-		Debug:            config.Get("frontend", "debug").Bool(),
 	}
 	if customHeader := config.Get("frontend", "plugin", "gui.ajax", "HTML_CUSTOM_HEADER").String(); customHeader != "" {
 		tplConf.CustomHTMLHeader = template.HTML(customHeader)
@@ -147,9 +146,9 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		ctx = servicecontext.WithServiceName(ctx, common.ServiceWebNamespace_+common.ServiceFrontend)
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Public Link %s accessed", linkId),
-			log.GetAuditId(common.AUDIT_LOGIN_SUCCEED),
-			zap.String(common.KEY_WORKSPACE_UUID, linkData.RepositoryId),
-			zap.String(common.KEY_USER_UUID, uField),
+			log.GetAuditId(common.AuditLoginSucceed),
+			zap.String(common.KeyWorkspaceUuid, linkData.RepositoryId),
+			zap.String(common.KeyUserUuid, uField),
 		)
 	}
 

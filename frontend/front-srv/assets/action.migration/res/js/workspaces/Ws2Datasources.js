@@ -141,7 +141,7 @@ class Datasource extends React.Component {
                     secondaryText={Ws2Datasources.toString(datasource)}
                     style={style}
                     disabled={!selectable}
-                    onTouchTap={() => this.handleSelect()}
+                    onClick={() => this.handleSelect()}
                 />
             </div>
         );

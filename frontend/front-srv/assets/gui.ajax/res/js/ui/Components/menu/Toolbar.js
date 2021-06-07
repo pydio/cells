@@ -18,7 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import createReactClass from 'create-react-class';
 import Utils from './Utils'
 import IconButtonMenu from './IconButtonMenu'
 import ButtonMenu from './ButtonMenu'
@@ -27,17 +30,18 @@ import IconButtonPopover from './IconButtonPopover'
 import {FlatButton, IconButton, FloatingActionButton} from 'material-ui'
 import {debounce} from 'lodash';
 
-export default React.createClass({
+export default createReactClass({
+    displayName: 'Toolbar',
 
     propTypes:{
-        toolbars:React.PropTypes.array,
-        groupOtherList:React.PropTypes.array,
-        renderingType:React.PropTypes.string,
-        controller:React.PropTypes.instanceOf(Controller),
-        toolbarStyle: React.PropTypes.object,
-        buttonStyle: React.PropTypes.object,
-        fabAction:React.PropTypes.string,
-        buttonMenuNoLabel: React.PropTypes.bool
+        toolbars:PropTypes.array,
+        groupOtherList:PropTypes.array,
+        renderingType:PropTypes.string,
+        controller:PropTypes.instanceOf(Controller),
+        toolbarStyle: PropTypes.object,
+        buttonStyle: PropTypes.object,
+        fabAction:PropTypes.string,
+        buttonMenuNoLabel: PropTypes.bool
     },
 
     componentDidMount(){
@@ -196,7 +200,7 @@ export default React.createClass({
                     if(fabAction && fabAction === actionName) {
                         actions.push(<FloatingActionButton
                             key={actionName}
-                            onTouchTap={click}
+                            onClick={click}
                             iconClassName={menuIcon}
                             mini={true}
                             backgroundColor={toolbarStyle.backgroundColor}
@@ -206,7 +210,7 @@ export default React.createClass({
                         actions.push(<FlatButton
                             key={actionName}
                             className={id}
-                            onTouchTap={click}
+                            onClick={click}
                             label={menuTitle}
                             labelStyle={buttonStyle}
                             style={flatButtonStyle}
@@ -215,7 +219,7 @@ export default React.createClass({
                         actions.push(<FlatButton
                             key={actionName}
                             className={id}
-                            onTouchTap={click}
+                            onClick={click}
                             label={menuTitle}
                             labelStyle={buttonStyle}
                             style={flatButtonStyle}
@@ -226,7 +230,7 @@ export default React.createClass({
                             iconClassName={menuIcon + ' ' + id}
                             iconStyle={buttonStyle}
                             style={flatButtonStyle}
-                            onTouchTap={click}
+                            onClick={click}
                             tooltip={menuTitle}
                             tooltipPosition={tooltipPosition}
                         />);
@@ -260,7 +264,6 @@ export default React.createClass({
         }
         let style = {...toolbarStyle};
         return <div className={cName} style={style} id={this.props.id}>{actions}</div>
-    }
-
+    },
 });
 

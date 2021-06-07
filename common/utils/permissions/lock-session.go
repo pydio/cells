@@ -171,6 +171,6 @@ func HasChildLocks(ctx context.Context, node *tree.Node) bool {
 			return true
 		}
 	}
-	log.Logger(ctx).Info("No childLock on ", node.Zap())
+	log.Logger(ctx).Debug("No childLock on ", node.Zap())
 	return false
 }

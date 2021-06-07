@@ -28,9 +28,14 @@ import (
 	"github.com/micro/protobuf/ptypes"
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/common/proto/jobs/bleveimpl"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
 )
+
+func init() {
+	RegisterNodesFreeStringEvaluator(bleveimpl.EvalFreeString)
+}
 
 func TestNodesSelector_Filter(t *testing.T) {
 

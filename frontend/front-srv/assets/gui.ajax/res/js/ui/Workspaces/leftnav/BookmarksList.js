@@ -17,17 +17,18 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {Fragment} from 'react'
 import Pydio from 'pydio'
 import Color from 'color'
 import PydioApi from 'pydio/http/api'
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import FilePreview from '../views/FilePreview'
 import {muiThemeable} from 'material-ui/styles'
-import {RefreshIndicator, IconButton, Popover} from 'material-ui'
-import {UserMetaServiceApi, RestUserBookmarksRequest, UpdateUserMetaRequestUserMetaOp, IdmUpdateUserMetaRequest, IdmSearchUserMetaRequest} from 'pydio/http/rest-api'
+import {IconButton, Popover} from 'material-ui'
+import {UserMetaServiceApi, RestUserBookmarksRequest, UpdateUserMetaRequestUserMetaOp, IdmUpdateUserMetaRequest, IdmSearchUserMetaRequest} from 'cells-sdk'
 
 const {EmptyStateView} = Pydio.requireLib("components");
+const {PlaceHolder, PhTextRow, PhRoundShape} = Pydio.requireLib("hoc");
 
 const listCss = `
 .bmListEntry{
@@ -43,6 +44,94 @@ const listCss = `
 }
 `;
 
+class BookmarkLine extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    render() {
+        const {pydio, placeHolder, nodes, onClick, onRemove} = this.props;
+        const {removing} = this.state;
+        const previewStyles = {
+            style: {
+                height: 40,
+                width: 40,
+                borderRadius: '50%',
+            },
+            mimeFontStyle: {
+                fontSize: 24,
+                lineHeight: '40px',
+                textAlign:'center'
+            }
+        };
+        let firstClick, preview, primaryText, secondaryTexts, iconButton;
+        if(placeHolder) {
+
+            firstClick = () => {}
+            preview = <PhRoundShape style={{width: previewStyles.style.width, height: previewStyles.style.height}}/>
+            primaryText = <PhTextRow style={{width: '90%'}}/>
+            secondaryTexts = [<PhTextRow style={{width: '60%'}}/>]
+            iconButton = <div></div>
+
+        } else {
+
+            firstClick = () => onClick(nodes[0])
+            preview = <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>;
+            primaryText = nodes[0].getLabel()||nodes[0].getMetadata().get('WsLabel')
+            secondaryTexts = [<span>{pydio.MessageHash['bookmark.secondary.inside']} </span>];
+            const nodeLinks = nodes.map((n,i) => {
+                const link = <a className={"bmListEntryWs"} onClick={(e) => { e.stopPropagation(); onClick(n);}} style={{fontWeight:500}}>{n.getMetadata().get('WsLabel')}</a>;
+                if(i === nodes.length - 1) {
+                    return link;
+                } else {
+                    return <span>{link}, </span>
+                }
+            });
+            secondaryTexts.push(...nodeLinks)
+            iconButton = (
+                <IconButton
+                    disabled={removing}
+                    iconClassName={"mdi mdi-delete"}
+                    iconStyle={{opacity:.33, fontSize:18}}
+                    onClick={() => {this.setState({removing: true}); onRemove(nodes[0])}}
+                    tooltip={pydio.MessageHash['bookmark.button.tip.remove']}
+                    tooltipPosition={"bottom-left"}
+                />
+            );
+
+        }
+
+        const block = (
+            <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%'}}>
+                <div style={{padding: '12px 16px', cursor:'pointer'}} onClick={firstClick}>
+                    {preview}
+                </div>
+                <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={firstClick}>
+                    <div style={{fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                        {primaryText}
+                    </div>
+                    <div style={{opacity:.33}}>
+                        {secondaryTexts}
+                    </div>
+                </div>
+                <div>
+                    {iconButton}
+                </div>
+            </div>
+
+        )
+        if (placeHolder) {
+            return <PlaceHolder customPlaceholder={block} showLoadingAnimation/>
+        } else {
+            return block;
+        }
+    }
+
+}
+
+
 class BookmarksList extends React.Component {
 
     constructor(props) {
@@ -54,8 +143,10 @@ class BookmarksList extends React.Component {
         };
     }
 
-    load(){
-        this.setState({loading: true});
+    load(silent = false){
+        if(!silent){
+            this.setState({loading: true});
+        }
         const api = new UserMetaServiceApi(PydioApi.getRestClient());
         return api.userBookmarks(new RestUserBookmarksRequest()).then(collection => {
             this.setState({bookmarks: collection.Nodes, loading: false})
@@ -98,7 +189,7 @@ class BookmarksList extends React.Component {
                 request.Operation = UpdateUserMetaRequestUserMetaOp.constructFromObject('DELETE');
                 request.MetaDatas = res.Metadatas;
                 api.updateUserMeta(request).then(() => {
-                    this.load();
+                    this.load(true);
                 });
             }
         });
@@ -119,18 +210,6 @@ class BookmarksList extends React.Component {
     render() {
         const {pydio, muiTheme, iconStyle} = this.props;
         const {loading, open, anchorEl, bookmarks} = this.state;
-        const previewStyles = {
-                style: {
-                    height: 40,
-                    width: 40,
-                    borderRadius: '50%',
-                },
-                mimeFontStyle: {
-                    fontSize: 24,
-                    lineHeight: '40px',
-                    textAlign:'center'
-                }
-            };
 
         if(!pydio.user.activeRepository){
             return null;
@@ -139,38 +218,7 @@ class BookmarksList extends React.Component {
         if (bookmarks) {
             items = bookmarks.map(n=>{
                 const nodes = this.bmToNodes(n);
-                return (
-                    <div className={"bmListEntry"} style={{display:'flex', alignItems:'center', width: '100%'}}>
-                        <div style={{padding: '12px 16px', cursor:'pointer'}} onClick={()=>{this.entryClicked(nodes[0])}}>
-                            <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
-                        </div>
-                        <div style={{flex: 1, overflow:'hidden', cursor:'pointer'}} onClick={()=>{this.entryClicked(nodes[0])}}>
-                            <div style={{fontSize:15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{nodes[0].getLabel()||nodes[0].getMetadata().get('WsLabel')}</div>
-                            <div style={{opacity:.33}}>{pydio.MessageHash['bookmark.secondary.inside']} {nodes.map((n,i) => {
-                                const click = (e) => {
-                                    e.stopPropagation();
-                                    this.entryClicked(n);
-                                };
-                                const link = <a className={"bmListEntryWs"} onClick={click} style={{fontWeight:500}}>{n.getMetadata().get('WsLabel')}</a>;
-                                if(i === nodes.length - 1) {
-                                    return link;
-                                } else {
-                                    return <span>{link}, </span>
-                                }
-                            })}</div>
-                        </div>
-                        <div>
-                            <IconButton
-                                iconClassName={"mdi mdi-delete"}
-                                iconStyle={{opacity:.33, fontSize:18}}
-                                onTouchTap={() => {this.removeBookmark(nodes[0])}}
-                                tooltip={pydio.MessageHash['bookmark.button.tip.remove']}
-                                tooltipPosition={"bottom-left"}
-                            />
-                        </div>
-                    </div>
-                );
-
+                return <BookmarkLine key={nodes[0].getPath()} pydio={pydio} nodes={nodes} onClick={this.entryClicked.bind(this)} onRemove={this.removeBookmark.bind(this)} />
             });
         }
 
@@ -183,7 +231,7 @@ class BookmarksList extends React.Component {
         return (
             <span>
                 <IconButton
-                    onTouchTap={this.handleTouchTap.bind(this)}
+                    onClick={this.handleTouchTap.bind(this)}
                     iconClassName={"userActionIcon mdi mdi-star"}
                     tooltip={pydio.MessageHash['147']}
                     tooltipPosition={"bottom-left"}
@@ -203,22 +251,19 @@ class BookmarksList extends React.Component {
                 >
                     <div style={{display: 'flex', alignItems: 'center', borderRadius:'2px 2px 0 0', width: '100%',
                         backgroundColor:'#f8fafc', borderBottom: '1px solid #ECEFF1', color:muiTheme.palette.primary1Color}}>
+
                         <span className={"mdi mdi-star"} style={{fontSize: 18, margin:'12px 8px 14px 16px'}}/>
                         <span style={{fontSize:15, fontWeight: 500}}>{pydio.MessageHash[147]}</span>
                     </div>
                     {loading &&
-                        <div style={{height: 260, backgroundColor:'white'}}>
-                            <RefreshIndicator
-                                size={40}
-                                left={140}
-                                top={120}
-                                status="loading"
-                                style={{}}
-                            />
-                        </div>
+                        <Fragment>
+                            <BookmarkLine placeHolder/>
+                            <BookmarkLine placeHolder/>
+                            <BookmarkLine placeHolder/>
+                        </Fragment>
                     }
                     {!loading && items && items.length &&
-                        <div style={{maxHeight:330, overflowY:'auto', overflowX:'hidden', padding: 0}}>{items}</div>
+                        <div style={{maxHeight:330, minHeight: 195, overflowY:'auto', overflowX:'hidden', padding: 0}}>{items}</div>
                     }
                     {!loading && (!items || !items.length) &&
                         <EmptyStateView
@@ -226,7 +271,7 @@ class BookmarksList extends React.Component {
                             iconClassName="mdi mdi-star-outline"
                             primaryTextId="145"
                             secondaryTextId={"482"}
-                            style={{minHeight: 260, backgroundColor:'white'}}
+                            style={{minHeight: 200, backgroundColor:'white'}}
                         />
                     }
                     <style type={"text/css"} dangerouslySetInnerHTML={{__html:listCss}}/>

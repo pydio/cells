@@ -18,8 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import {Paper, IconButton, FontIcon, IconMenu, FloatingActionButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles';
+const {PlaceHolder, PhRoundShape, PhTextRow} = Pydio.requireLib('hoc')
 
 const globalStyles = {
     globalLeftMargin : 64,
@@ -27,7 +29,7 @@ const globalStyles = {
 
 class GenericLine extends React.Component{
     render(){
-        const {iconClassName, legend, data, dataStyle, legendStyle, iconStyle} = this.props;
+        const {iconClassName, legend, data, dataStyle, legendStyle, iconStyle, placeHolder, placeHolderReady} = this.props;
         const style = {
             icon: {
                 margin:'16px 20px 0',
@@ -48,7 +50,7 @@ class GenericLine extends React.Component{
                 ...dataStyle,
             }
         };
-        return (
+        const contents = (
             <div style={{display:'flex', marginBottom: 8, overflow:'hidden', ...this.props.style}}>
                 <div style={{width: globalStyles.globalLeftMargin}}>
                     <FontIcon color={'#aaaaaa'} className={iconClassName} style={style.icon}/>
@@ -59,6 +61,25 @@ class GenericLine extends React.Component{
                 </div>
             </div>
         );
+        if (placeHolder) {
+            const linePH = (
+                <div style={{display:'flex', marginBottom: 16, overflow:'hidden', ...this.props.style}}>
+                    <div style={{width: globalStyles.globalLeftMargin}}>
+                        <PhRoundShape style={{width:35,height:35,margin:'10px 15px 0'}}/>
+                    </div>
+                    <div style={{flex: 1}}>
+                        <div style={{...style.legend,maxWidth:100}}><PhTextRow/></div>
+                        <div style={{...style.data, marginRight:24}}><PhTextRow style={{height:'1.3em', marginTop:'0.4em'}}/></div>
+                    </div>
+                </div>
+            );
+            return (
+                <PlaceHolder ready={placeHolderReady} showLoadingAnimation customPlaceholder={linePH}>
+                    {contents}
+                </PlaceHolder>
+            );
+        }
+        return contents;
     }
 }
 
@@ -66,13 +87,17 @@ class GenericCard extends React.Component{
 
     render(){
 
-        const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall} = this.props;
+        const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
 
         const {primary1Color} = muiTheme.palette;
 
         let styles = {
             headerHeight: 100,
             buttonBarHeight: 60,
+            buttonBar:{
+                display:'flex',
+                height: 60
+            },
             fabTop: 80,
             button: {
                 style:{},
@@ -81,8 +106,13 @@ class GenericCard extends React.Component{
         };
         if (headerSmall) {
             styles = {
-                headerHeight: 80,
-                buttonBarHeight: 40,
+                headerHeight: 'auto',
+                buttonBar: {
+                    display: 'flex',
+                    alignItems:'center',
+                    height: 46,
+                    padding: '0 7px 0 16px'
+                },
                 fabTop: 60,
                 button: {
                     style:{width:38, height: 38, padding: 9},
@@ -93,17 +123,22 @@ class GenericCard extends React.Component{
 
         return (
             <Paper zDepth={0} style={{width: '100%', position:'relative', ...style}}>
-                {onEditAction &&
-                    <FloatingActionButton onTouchTap={onEditAction} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
+                {onEditAction && !headerSmall &&
+                    <FloatingActionButton onClick={onEditAction} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
                         <FontIcon className={"mdi mdi-pencil"} />
                     </FloatingActionButton>
                 }
                 <Paper zDepth={0} style={{backgroundColor:primary1Color, color: 'white', height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
-                    <div style={{display:'flex', height: styles.buttonBarHeight}}>
-                        <span style={{flex: 1}}/>
-                        {onDeleteAction &&
-                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onTouchTap={onDeleteAction}/>
+                    <div style={styles.buttonBar}>
+                        {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
+                        {!headerSmall && <span style={{flex: 1}}/>}
+                        {onEditAction && headerSmall &&
+                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-pencil"} onClick={onEditAction} tooltip={editTooltip} tooltipPosition={"bottom-left"}/>
                         }
+                        {onDeleteAction &&
+                            <IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-delete"} onClick={onDeleteAction} tooltip={deleteTooltip} tooltipPosition={"bottom-left"}/>
+                        }
+                        {otherActions}
                         {moreMenuItems && moreMenuItems.length > 0 &&
                             <IconMenu
                                 anchorOrigin={{vertical:'top', horizontal:headerSmall?'right':'left'}}
@@ -111,14 +146,15 @@ class GenericCard extends React.Component{
                                 iconButtonElement={<IconButton style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-dots-vertical"}/>}
                             >{moreMenuItems}</IconMenu>
                         }
-                        {otherActions}
                         {onDismissAction &&
-                            <IconButton  style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onTouchTap={onDismissAction}/>
+                            <IconButton  style={styles.button.style} iconStyle={styles.button.iconStyle} iconClassName={"mdi mdi-close"} onClick={onDismissAction}/>
                         }
                     </div>
-                    <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20}}>
-                        {title}
-                    </div>
+                    {!headerSmall &&
+                        <div style={{paddingLeft: onEditAction?globalStyles.globalLeftMargin:20, fontSize: 20}}>
+                            {title}
+                        </div>
+                    }
                 </Paper>
                 <div style={{paddingTop: 12, paddingBottom: 8}}>
                     {children}

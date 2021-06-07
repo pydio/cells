@@ -58,12 +58,8 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			continue
 		}
 
-		var nsDef map[string]interface{}
-		if e := json.Unmarshal([]byte(ns.JsonDefinition), &nsDef); e != nil {
-			continue
-		}
-		nsType := nsDef["type"].(string)
-		if nsType == "json" {
+		def, dE := ns.UnmarshallDefinition()
+		if dE != nil || def.GetType() == "json" {
 			continue
 		}
 
@@ -77,7 +73,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			searchables[ns.Namespace] = ns.Label
 		}
 
-		switch nsType {
+		switch def.GetType() {
 		case "stars_rate":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderStars"
 			column.AttrsortType = "CellSorterValue"
@@ -93,8 +89,8 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		case "choice":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderSelector"
 			column.AttrsortType = "CellSorterValue"
-			if data, ok := nsDef["data"]; ok {
-				remarshed, _ := json.Marshal(data)
+			if def.GetData() != nil {
+				remarshed, _ := json.Marshal(def.GetData())
 				column.AttrmetaAdditional = string(remarshed)
 			}
 			if ns.Indexable {
@@ -105,7 +101,29 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			if ns.Indexable {
 				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelTags"
 			}
-
+		case "integer":
+			column.AttrreactModifier = "ReactMeta.Renderer.renderInteger"
+			if def.GetData() != nil {
+				remarshed, _ := json.Marshal(def.GetData())
+				column.AttrmetaAdditional = string(remarshed)
+			}
+			if ns.Indexable {
+				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelInteger"
+			}
+		case "boolean":
+			column.AttrreactModifier = "ReactMeta.Renderer.renderBoolean"
+			if ns.Indexable {
+				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelBoolean"
+			}
+		case "date":
+			column.AttrreactModifier = "ReactMeta.Renderer.renderDate"
+			if def.GetData() != nil {
+				remarshed, _ := json.Marshal(def.GetData())
+				column.AttrmetaAdditional = string(remarshed)
+			}
+			if ns.Indexable {
+				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelDate"
+			}
 		}
 		columns.Cadditional_column = append(columns.Cadditional_column, column)
 	}

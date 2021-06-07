@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {JobsJob} from 'pydio/http/rest-api'
+import {JobsJob} from 'cells-sdk'
 import {Dialog, FlatButton, FontIcon, MenuItem, SelectField, TextField, TimePicker} from 'material-ui'
 
 const {moment} = Pydio.requireLib('boot');

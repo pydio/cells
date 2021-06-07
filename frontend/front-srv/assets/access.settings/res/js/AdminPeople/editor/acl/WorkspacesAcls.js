@@ -20,7 +20,7 @@
 import React from 'react'
 import PydioApi from 'pydio/http/api'
 import LangUtils from 'pydio/util/lang'
-import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery} from 'pydio/http/rest-api';
+import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery} from 'cells-sdk';
 import WorkspaceAcl from './WorkspaceAcl'
 import Pydio from 'pydio'
 const PydioComponents = Pydio.requireLib('components');

@@ -18,42 +18,44 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
-import {RaisedButton, FlatButton, IconButton, FontIcon} from 'material-ui'
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {FlatButton, IconButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import Loader from './Loader'
 import XMLUtils from 'pydio/util/xml'
+import PropTypes from 'prop-types';
 import LangUtils from 'pydio/util/lang'
 import SitesParameters from "./SitesParameters";
+const {Header, PaperEditorLayout, MessagesConsumerMixin, AdminStyles} = AdminComponents;
 
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
  * and plugin parameters as form cards on the right.
  * May take additionalPanes to be appended to the form cards.
  */
-let PluginEditor = React.createClass({
-
-    mixins:[AdminComponents.MessagesConsumerMixin],
+let PluginEditor = createReactClass({
+    displayName: 'PluginEditor',
+    mixins:[MessagesConsumerMixin],
 
     propTypes:{
-        pluginId:React.PropTypes.string.isRequired,
-        close:React.PropTypes.func,
-        style:React.PropTypes.string,
-        className:React.PropTypes.string,
-        additionalPanes:React.PropTypes.shape({
-            top:React.PropTypes.array,
-            bottom:React.PropTypes.array
+        pluginId:PropTypes.string.isRequired,
+        close:PropTypes.func,
+        style:PropTypes.string,
+        className:PropTypes.string,
+        additionalPanes:PropTypes.shape({
+            top:PropTypes.array,
+            bottom:PropTypes.array
         }),
-        docAsAdditionalPane:React.PropTypes.bool,
-        additionalDescription:React.PropTypes.string,
-        registerCloseCallback:React.PropTypes.func,
-        onBeforeSave:React.PropTypes.func,
-        onAfterSave:React.PropTypes.func,
-        onRevert:React.PropTypes.func,
-        onDirtyChange:React.PropTypes.func,
-        accessByName:React.PropTypes.func
+        docAsAdditionalPane:PropTypes.bool,
+        additionalDescription:PropTypes.string,
+        registerCloseCallback:PropTypes.func,
+        onBeforeSave:PropTypes.func,
+        onAfterSave:PropTypes.func,
+        onRevert:PropTypes.func,
+        onDirtyChange:PropTypes.func,
+        accessByName:PropTypes.func
     },
-
 
     loadPluginData(plugId){
 
@@ -110,13 +112,13 @@ let PluginEditor = React.createClass({
     computeButtons(){
         const {dirty} = this.state;
         const actions = [];
-        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        const adminStyles = AdminStyles(this.props.muiTheme.palette);
         let props = adminStyles.props.header.flatButton;
         if(!dirty){
             props = adminStyles.props.header.flatButtonDisabled;
         }
-        actions.push(<FlatButton primary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert} {...props}/>);
-        actions.push(<FlatButton primary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save} {...props}/>);
+        actions.push(<FlatButton primary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onClick={this.revert} {...props}/>);
+        actions.push(<FlatButton primary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onClick={this.save} {...props}/>);
         return actions;
     },
 
@@ -270,7 +272,7 @@ let PluginEditor = React.createClass({
         if(mainPaneScrolled){
             scrollingClassName = ' main-pane-scrolled';
         }
-        const adminStyles = AdminComponents.AdminStyles(this.props.muiTheme.palette);
+        const adminStyles = AdminStyles(this.props.muiTheme.palette);
         let bProps = adminStyles.props.header.flatButton;
         if(!dirty){
             bProps = adminStyles.props.header.flatButtonDisabled;
@@ -279,23 +281,14 @@ let PluginEditor = React.createClass({
         let actions = [];
         if(accessByName('Create')){
             if (closeEditor) {
-                actions.push(<IconButton iconClassName={"mdi mdi-undo"}
-                                         iconStyle={{color: dirty ? 'white' : 'rgba(255,255,255,.5)'}} disabled={!dirty}
-                                         tooltip={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-                actions.push(<IconButton iconClassName={"mdi mdi-content-save"}
-                                         iconStyle={{color: dirty ? 'white' : 'rgba(255,255,255,.5)'}} disabled={!dirty}
-                                         tooltip={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
-                actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color: 'white'}}
-                                         tooltip={this.context.getMessage('86', '')} onTouchTap={closeEditor}/>);
+                actions.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), "mdi mdi-undo", () => this.revert(), !dirty))
+                actions.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.5'), "mdi mdi-content-save", () => this.save(), !dirty))
             } else {
                 actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')}
-                                         onTouchTap={this.revert} {...bProps}/>);
+                                         onClick={this.revert.bind(this)} {...bProps}/>);
                 actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')}
-                                         onTouchTap={this.save} {...bProps}/>);
+                                         onClick={this.save.bind(this)} {...bProps}/>);
             }
-        } else if(closeEditor){
-            actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color: 'white'}}
-                                     tooltip={this.context.getMessage('86', '')} onTouchTap={closeEditor}/>);
         }
 
         let titleLabel, titleIcon;
@@ -307,9 +300,8 @@ let PluginEditor = React.createClass({
         }
 
         // Building  a form
-        return (
-            <div className={(this.props.className?this.props.className+" ":"") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName} style={this.props.style}>
-                {!onHeaderChange && <AdminComponents.Header title={titleLabel} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={titleIcon} editorMode={!!closeEditor}/>}
+        const contents = (
+            <React.Fragment>
                 <PydioForm.FormPanel
                     ref="formPanel"
                     className="row-flex"
@@ -322,17 +314,47 @@ let PluginEditor = React.createClass({
                     setHelperData={this.showHelper}
                     checkHasHelper={this.parameterHasHelper}
                     onScrollCallback={this.monitorMainPaneScrolling}
+                    variant={"v2"}
+                    variantShowLegend={true}
                 />
                 <PydioForm.PydioHelper
                     helperData={this.state?this.state.helperData:null}
                     close={this.closeHelper}
                 />
                 {adminStyles.formCss()}
-            </div>
-        );
+            </React.Fragment>
+        )
 
+        if (closeEditor) {
+            return (
+                <PaperEditorLayout
+                    title={titleLabel}
+                    titleLeftIcon={"mdi mdi-google-circles-group"}
+                    titleActionBar={<div>{actions}</div>}
+                    closeAction={closeEditor}
+                >
+                    {contents}
+                </PaperEditorLayout>
+            )
+        } else {
+            return (
+                <div
+                    className={(this.props.className ? this.props.className + " " : "") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName}
+                    style={this.props.style}>
+                    {!onHeaderChange &&
+                        <Header
+                            title={titleLabel}
+                            actions={actions}
+                            scrolling={this.state && this.state.mainPaneScrolled}
+                            icon={titleIcon}
+                        />
+                    }
+                    {contents}
+                </div>
+            );
+        }
 
-    }
+    },
 });
 
 PluginEditor = muiThemeable()(PluginEditor)

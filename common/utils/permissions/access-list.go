@@ -38,7 +38,7 @@ import (
 )
 
 // PolicyResolver implements the check of an object against a set of ACL policies
-type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error)
+type PolicyResolver func(ctx context.Context, request *idm.PolicyEngineRequest, explicitOnly bool) (*idm.PolicyEngineResponse, error)
 
 // VirtualPathResolver must be able to load virtual nodes based on their UUID
 type VirtualPathResolver func(context.Context, *tree.Node) (*tree.Node, bool)
@@ -49,19 +49,16 @@ const (
 )
 
 var (
-	AclRead        = &idm.ACLAction{Name: "read", Value: "1"}
-	AclWrite       = &idm.ACLAction{Name: "write", Value: "1"}
-	AclDeny        = &idm.ACLAction{Name: "deny", Value: "1"}
-	AclPolicy      = &idm.ACLAction{Name: "policy"}
-	AclQuota       = &idm.ACLAction{Name: "quota"}
-	AclLock        = &idm.ACLAction{Name: "lock"}
-	AclChildLock   = &idm.ACLAction{Name: "child_lock"}
-	AclContentLock = &idm.ACLAction{Name: "content_lock"}
-	// Not used yet
+	AclRead              = &idm.ACLAction{Name: "read", Value: "1"}
+	AclWrite             = &idm.ACLAction{Name: "write", Value: "1"}
+	AclDeny              = &idm.ACLAction{Name: "deny", Value: "1"}
+	AclPolicy            = &idm.ACLAction{Name: "policy"}
+	AclQuota             = &idm.ACLAction{Name: "quota"}
+	AclLock              = &idm.ACLAction{Name: "lock"}
+	AclChildLock         = &idm.ACLAction{Name: "child_lock"}
+	AclContentLock       = &idm.ACLAction{Name: "content_lock"}
 	AclFrontAction_      = &idm.ACLAction{Name: "action:*"}
 	AclFrontParam_       = &idm.ACLAction{Name: "parameter:*"}
-	AclDelete            = &idm.ACLAction{Name: "delete", Value: "1"}
-	AclList              = &idm.ACLAction{Name: "list", Value: "1"}
 	AclWsrootActionName  = "workspace-path"
 	AclRecycleRoot       = &idm.ACLAction{Name: "recycle_root", Value: "1"}
 	ResolvePolicyRequest PolicyResolver
@@ -208,7 +205,36 @@ func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualP
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
 }
 
-// CanRead checks if a node has READ access.
+func (a *AccessList) HasExplicitDeny(ctx context.Context, flag BitmaskFlag, nodes ...*tree.Node) bool {
+	_, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	// Only test first node - do not test parents
+	if len(nodes) > 1 {
+		nodes = nodes[:1]
+	}
+	return mask.HasPolicyExplicitDeny(ctx, flag, nodes...)
+}
+
+// CanReadWithResolver checks if a node has READ access, using VirtualPathResolver if necessary
+func (a *AccessList) CanReadWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	a.replicateMasksResolved(ctx, resolver)
+	if a.claimsScopesDeny(ctx, nodes[0], FlagRead) {
+		return false
+	}
+	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
+}
+
+// CanWriteWithResolver checks if a node has WRITE access, using VirtualPathResolver if necessary.
+func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
+	a.replicateMasksResolved(ctx, resolver)
+	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
+		return false
+	}
+	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
+	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
+}
+
+// CanReadPath checks if a node has READ access based on its Path
 func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
 	if a.nodesPathsAcls == nil {
 		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
@@ -220,7 +246,7 @@ func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolv
 	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
 }
 
-// CanWrite checks if a node has WRITE access.
+// CanWritePath checks if a node has WRITE access based on its path.
 func (a *AccessList) CanWritePath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
 	if a.nodesPathsAcls == nil {
 		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
@@ -232,7 +258,7 @@ func (a *AccessList) CanWritePath(ctx context.Context, resolver VirtualPathResol
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
 }
 
-// CanWrite checks if a node has WRITE access.
+// IsLocked checks if a node bitmask has a FlagLock value.
 func (a *AccessList) IsLocked(ctx context.Context, nodes ...*tree.Node) bool {
 	// First we check for parents
 	mask, _ := a.firstMaskForParents(ctx, nodes...)
@@ -345,7 +371,7 @@ func (a *AccessList) FlattenedFrontValues() configx.Values {
 
 // Zap simply returns a zapcore.Field object populated with this aggregated AccessList under a standard key
 func (a *AccessList) Zap() zapcore.Field {
-	return zap.Any(common.KEY_ACCESS_LIST, a)
+	return zap.Any(common.KeyAccessList, a)
 }
 
 /***************

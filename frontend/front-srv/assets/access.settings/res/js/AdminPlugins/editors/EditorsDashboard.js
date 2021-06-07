@@ -20,8 +20,9 @@
 
 import PluginsList from '../core/PluginsList'
 import {Paper} from 'material-ui'
+import createReactClass from 'create-react-class'
 
-const EditorsDashboard = React.createClass({
+const EditorsDashboard = createReactClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 

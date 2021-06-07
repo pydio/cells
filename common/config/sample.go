@@ -29,7 +29,8 @@ var SampleConfig = `{
 		"update": {
 			"publicKey": "` + common.UpdateDefaultPublicKey + `",
 			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
-		}
+		},
+		"dataSourcesDefaultFlat": true
 	},
     "ports":{
         "nats": 4222
@@ -64,11 +65,7 @@ var SampleConfig = `{
 				"@value": "boltdb"
 			},
 			"sender": {
-				"@value": "smtp",
-				"host": "my.smtp.server",
-				"password": "",
-				"port": 465,
-				"user": "name"
+				"@value": "disabled"
 			}
 		},
         "pydio.grpc.role":{
@@ -110,9 +107,6 @@ var SampleConfig = `{
             "dsn": "default"
         },
         "pydio.grpc.user-key": {
-            "dsn": "default"
-        },
-        "pydio.grpc.changes": {
             "dsn": "default"
         },
 		"pydio.grpc.update" : {

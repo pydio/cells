@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	log2 "log"
 	"os"
@@ -32,7 +33,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-web"
+	web "github.com/micro/go-web"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -43,6 +44,7 @@ import (
 	"github.com/pydio/cells/common/config/micro/file"
 	"github.com/pydio/cells/common/config/micro/vault"
 	"github.com/pydio/cells/common/config/migrations"
+	"github.com/pydio/cells/common/config/remote"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
@@ -139,21 +141,6 @@ SERVICES DISCOVERY
 	},
 }
 
-func skipInstallInit() bool {
-	if len(os.Args) <= 1 {
-		return true
-	}
-	arg := os.Args[1]
-
-	for _, skip := range installCommands {
-		if arg == skip {
-			return false
-		}
-	}
-
-	return true
-}
-
 func skipCoreInit() bool {
 	if len(os.Args) == 1 {
 		return true
@@ -170,7 +157,7 @@ func skipCoreInit() bool {
 	return false
 }
 
-func initConfig() {
+func initConfig() (new bool) {
 
 	if skipCoreInit() {
 		return
@@ -178,16 +165,67 @@ func initConfig() {
 
 	versionsStore := filex.NewStore(config.PydioConfigDir)
 
+	var localConfig config.Store
 	var vaultConfig config.Store
 	var defaultConfig config.Store
+	var versionsConfig config.Store
 
 	switch viper.GetString("config") {
 	case "mysql":
-		vaultConfig = config.New(sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "vault"))
-		defaultConfig = config.NewVault(
-			config.New(config.NewVersionStore(versionsStore, sql.New("mysql", "root@tcp(localhost:3306)/cells?parseTime=true", "default"))),
-			vaultConfig,
+		localSource := file.NewSource(
+			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
 		)
+
+		localConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(localSource),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		config.Register(localConfig)
+		config.RegisterLocal(localConfig)
+
+		// Pre-check that pydio.json is properly configured
+		if a, _ := config.GetDatabase("default"); a == "" {
+			return
+		}
+
+		driver, dsn := config.GetDatabase("default")
+		vaultConfig = config.New(sql.New(driver, dsn, "vault"))
+		defaultConfig = config.New(sql.New(driver, dsn, "default"))
+		versionsConfig = config.New(sql.New(driver, dsn, "versions"))
+
+		versionsStore, _ = config.NewConfigStore(versionsConfig)
+
+		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
+
+	case "remote":
+		localSource := file.NewSource(
+			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+		)
+
+		localConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(localSource),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		config.RegisterLocal(localConfig)
+
+		vaultConfig = config.New(
+			remote.New("vault"),
+		)
+		defaultConfig = config.New(
+			remote.New("config"),
+		)
+
 	default:
 		source := file.NewSource(
 			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
@@ -207,18 +245,37 @@ func initConfig() {
 				),
 			))
 
-		defaultConfig =
-			config.NewVault(
-				config.New(
-					config.NewVersionStore(versionsStore, micro.New(
-						microconfig.NewConfig(
-							microconfig.WithSource(source),
-							microconfig.PollInterval(10*time.Second),
-						),
-					),
-					)),
-				vaultConfig,
-			)
+		defaultConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(source),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
+		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+
+		localConfig = defaultConfig
+
+		config.RegisterLocal(localConfig)
+	}
+
+	if defaultConfig.Val("version").String() == "" {
+		new = true
+
+		var data interface{}
+		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
+			if err := defaultConfig.Val().Set(data); err == nil {
+				versionsStore.Put(&filex.Version{
+					User: "cli",
+					Date: time.Now(),
+					Log:  "Initialize with sample config",
+					Data: data,
+				})
+			}
+		}
 	}
 
 	config.Register(defaultConfig)
@@ -231,6 +288,8 @@ func initConfig() {
 			log.Fatal("Could not save config migrations", zap.Error(err))
 		}
 	}
+
+	return
 }
 
 func initLogLevel() {
@@ -241,25 +300,36 @@ func initLogLevel() {
 
 	// Init log level
 	logLevel := viper.GetString("logs_level")
+	logJson := viper.GetBool("log_json")
+
+	// Backward compatibility
+	if logLevel == "production" {
+		logLevel = "info"
+		logJson = true
+	}
 
 	// Making sure the log level is passed everywhere (fork processes for example)
 	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
 
-	if logLevel == "production" {
+	if logJson {
+		os.Setenv("CELLS_LOG_JSON", "true")
 		common.LogConfig = common.LogConfigProduction
 	} else {
 		common.LogConfig = common.LogConfigConsole
-		switch logLevel {
-		case "info":
-			common.LogLevel = zap.InfoLevel
-		case "debug":
-			common.LogLevel = zap.DebugLevel
-		case "error":
-			common.LogLevel = zap.ErrorLevel
-		}
+	}
+	switch logLevel {
+	case "info":
+		common.LogLevel = zap.InfoLevel
+	case "debug":
+		common.LogLevel = zap.DebugLevel
+	case "error":
+		common.LogLevel = zap.ErrorLevel
 	}
 
 	log.Init()
+
+	// Using it once
+	log.Logger(context.Background())
 }
 
 func initAdvertiseIP() {
@@ -268,6 +338,7 @@ func initAdvertiseIP() {
 		log2.Fatal(err.Error())
 	}
 	if !ok {
+
 		net.DefaultAdvertiseAddress = advertise
 		web.DefaultAddress = advertise + ":0"
 		server.DefaultAddress = advertise + ":0"

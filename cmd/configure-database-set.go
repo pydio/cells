@@ -23,6 +23,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/x/configx"
 	"log"
 	"os"
 
@@ -79,10 +80,10 @@ DESCRIPTION
 			os.Exit(1)
 		}
 
-		config.Set(ids[i], "databases", id)
+		config.Set(configx.Reference("#/databases/"+ids[i]), "databases", id)
 
 		if id == "default" {
-			config.Set(ids[i], "defaults", "database")
+			config.Set(configx.Reference("#/databases/"+ids[i]), "defaults", "database")
 		}
 
 		if err := config.Save("cli", fmt.Sprintf("Set database for service %s : %s", id, ids[i])); err == nil {

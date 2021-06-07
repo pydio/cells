@@ -19,6 +19,7 @@
  */
 
 const React = require('react')
+const PropTypes = require('prop-types');
 const Pydio = require('pydio')
 
 export default function(PydioComponent){
@@ -33,10 +34,10 @@ export default function(PydioComponent){
 
     Wrapped.displayName = PydioComponent.name;
     Wrapped.contextTypes = {
-        pydio:React.PropTypes.instanceOf(Pydio),
-        getPydio:React.PropTypes.func,
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func
+        pydio:PropTypes.instanceOf(Pydio),
+        getPydio:PropTypes.func,
+        messages:PropTypes.object,
+        getMessage:PropTypes.func
     }
 
     return Wrapped;

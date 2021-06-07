@@ -23,7 +23,6 @@ package cmd
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -49,9 +48,6 @@ import (
 	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/discovery/install/assets"
-	"github.com/pydio/cells/discovery/nats"
-	"github.com/pydio/cells/x/filex"
-	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (
@@ -165,26 +161,6 @@ ENVIRONMENT
 
 		if err := checkFdlimit(); err != nil {
 			return err
-		}
-
-		// Init the config file
-		versionsStore := filex.NewStore(config.PydioConfigDir)
-
-		written, err := filex.WriteIfNotExists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), config.SampleConfig)
-		if err != nil {
-			return errors.New("Error while trying to create default config file")
-		}
-
-		if written {
-			var data interface{}
-			if e := json.Unmarshal([]byte(config.SampleConfig), &data); e == nil {
-				versionsStore.Put(&filex.Version{
-					User: "cli",
-					Date: time.Now(),
-					Log:  "Initialize with sample config",
-					Data: data,
-				})
-			}
 		}
 
 		initConfig()
@@ -375,9 +351,6 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	initStartingToolsOnce.Do(func() {
 		initLogLevel()
-
-		// Initialising services
-		nats.Init()
 
 		metrics.Init()
 

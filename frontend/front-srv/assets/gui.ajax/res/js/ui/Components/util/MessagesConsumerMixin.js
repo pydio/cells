@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types'
+
 export default {
     contextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func
     }
 };

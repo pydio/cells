@@ -60,6 +60,31 @@ function cssFormGroupFullStyle() {
     return <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssGroup}}/>;
 }
 
+const cssFormSimple = `
+.react-mui-context .pydio-form-panel.form-panel-odd > .pydio-form-group {
+    background-color:white;
+    padding: 16px;  
+    border:1px solid rgba(30, 58, 74, 0.14);
+    border-radius:6px;                      
+}
+.react-mui-context .pydio-form-panel.form-panel-odd >.pydio-form-group > h1 {
+    background-color:#fbfbfc;
+    color:#607D8B;
+    border-bottom: 1px solid #eceff1;
+    font-size: 13px;
+    font-weight: 500;
+    margin: -16px -16px 8px;
+    letter-spacing: initial;
+    padding: 12px 20px;}
+
+`;
+
+function cssFormSimpleStyle() {
+    return <style type={"text/css"} dangerouslySetInnerHTML={{__html:cssFormSimple}}/>;
+}
+
+
+
 export default function(palette = {}) {
     return {
         props: {
@@ -241,6 +266,7 @@ export default function(palette = {}) {
             }
         },
         formCss:cssFormStyle,
-        formCssForceGroup:cssFormGroupFullStyle
+        formCssForceGroup:cssFormGroupFullStyle,
+        formSimpleCss:cssFormSimpleStyle,
     }
 }

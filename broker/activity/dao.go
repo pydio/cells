@@ -48,26 +48,26 @@ const (
 type DAO interface {
 	dao.DAO
 
-	// Post an activity to target inbox
+	// PostActivity posts an activity to target inbox.
 	PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error
 
-	// Update Subscription status
+	// UpdateSubscription updates Subscriptions status.
 	UpdateSubscription(subscription *activity.Subscription) error
 
-	// List subscriptions on a given object
-	// Returns a map of userId => status (true/false, required to disable default subscriptions like workspaces)
+	// ListSubscriptions lists subs on a given object.
+	// Returns a map of userId => status (true/false, required to disable default subscriptions like workspaces).
 	ListSubscriptions(objectType activity.OwnerType, objectIds []string) ([]*activity.Subscription, error)
 
-	// Count the number of unread activities in user "Inbox" box
+	// CountUnreadForUser counts the number of unread activities in user "Inbox" box.
 	CountUnreadForUser(userId string) int
 
-	// Load activities for a given owner. Targets "outbox" by default
+	// ActivitiesFor loads activities for a given owner. Targets "outbox" by default.
 	ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error
 
-	// Store the last read uint ID for a given box
+	// StoreLastUserInbox stores the last read uint ID for a given box.
 	StoreLastUserInbox(userId string, boxName BoxName, last []byte, activityId string) error
 
-	// Should be wired to "USER_DELETE" and "NODE_DELETE" events
+	// Delete should be wired to "USER_DELETE" and "NODE_DELETE" events
 	// to remove (or archive?) deprecated queues
 	Delete(ownerType activity.OwnerType, ownerId string) error
 

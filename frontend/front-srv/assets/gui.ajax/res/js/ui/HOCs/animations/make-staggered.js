@@ -18,11 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
-import ReactDOM from 'react-dom';
-import shallowCompare from 'react/lib/shallowCompare';
 import { StaggeredMotion } from 'react-motion';
-import stripStyle from 'react-motion/lib/stripStyle';
 import {springify, buildTransform} from './utils';
 
 let counter=0
@@ -107,7 +106,7 @@ const makeStaggered = (originStyles, targetStyles, animation) => {
         }
 
         StaggeredGroup.propTypes = {
-            ready: React.PropTypes.bool.isRequired
+            ready: PropTypes.bool.isRequired
         }
 
         StaggeredGroup.defaultProps = {
@@ -115,7 +114,7 @@ const makeStaggered = (originStyles, targetStyles, animation) => {
         }
 
         return StaggeredGroup
-    }
+    };
 }
 
 export default makeStaggered;

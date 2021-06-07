@@ -1,3 +1,7 @@
+import React from "react";
+
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,14 +22,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from "react";
+import PropTypes from 'prop-types';
+
 import Pydio from "pydio";
 import User from '../model/User'
 import PassUtils from "pydio/util/pass";
 const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-export default React.createClass({
+export default createReactClass({
+    displayName: 'UserPasswordDialog',
 
     mixins: [
         AdminComponents.MessagesConsumerMixin,
@@ -35,8 +41,8 @@ export default React.createClass({
     ],
 
     propTypes: {
-        pydio : React.PropTypes.instanceOf(Pydio),
-        user:   React.PropTypes.instanceOf(User)
+        pydio : PropTypes.instanceOf(Pydio),
+        user:   PropTypes.instanceOf(User)
     },
 
     getDefaultProps(){
@@ -100,6 +106,5 @@ export default React.createClass({
             </div>
         );
 
-    }
-
+    },
 });

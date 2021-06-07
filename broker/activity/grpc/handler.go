@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 	"time"
@@ -45,7 +46,29 @@ type Handler struct {
 }
 
 func (h *Handler) PostActivity(ctx context.Context, stream proto.ActivityService_PostActivityStream) error {
-	return nil
+	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+	defer stream.Close()
+	for {
+		request, e := stream.Recv()
+		if e == io.EOF {
+			return nil
+		}
+		if e != nil && e != io.EOF {
+			return e
+		}
+		var boxName activity.BoxName
+		switch request.BoxName {
+		case "inbox":
+			boxName = activity.BoxInbox
+		case "outbox":
+			boxName = activity.BoxOutbox
+		default:
+			return fmt.Errorf("unrecongnized box name")
+		}
+		if e := dao.PostActivity(request.OwnerType, request.OwnerId, boxName, request.Activity, ctx); e != nil {
+			return e
+		}
+	}
 }
 
 func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamActivitiesRequest, stream proto.ActivityService_StreamActivitiesStream) error {

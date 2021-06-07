@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-    const {Externals} = require('../libdefs.js');
+    const {Externals} = require('../gui.ajax/res/js/dist/libdefs');
 
     grunt.initConfig({
         babel: {
@@ -13,9 +13,9 @@ module.exports = function(grunt) {
                 files: [
                     {
                         expand: true,
-                        cwd: 'js/react/',
+                        cwd: 'res/js/',
                         src: ['**/*.js'],
-                        dest: 'js/build/',
+                        dest: 'res/build/',
                         ext: '.js'
                     }
                 ]
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    'js/build/UploaderView.js':'js/build/view/index.js'
+                    'res/build/UploaderView.js':'res/build/view/index.js'
                 }
             },
             model : {
@@ -43,10 +43,19 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    'js/build/UploaderModel.js':'js/build/model/index.js'
+                    'res/build/UploaderModel.js':'res/build/model/index.js'
                 }
             }
         },
+        uglify: {
+            view: {
+                files: {
+                    'res/dist/UploaderView.min.js': 'res/build/UploaderView.js',
+                    'res/dist/UploaderModel.min.js': 'res/build/UploaderModel.js'
+                }
+            }
+        },
+
         compress: {
             options: {
                 mode: 'gzip',
@@ -54,18 +63,18 @@ module.exports = function(grunt) {
             },
             js: {
                 expand: true,
-                cwd: 'js/build/',
-                src: ['*.js'],
-                dest: 'js/build/',
-                ext: '.js.gz'
+                cwd: 'res/dist/',
+                src: ['*.min.js'],
+                dest: 'res/dist/',
+                ext: '.min.js.gz'
             },
         },
         watch: {
             js: {
                 files: [
-                    "js/react/**/*"
+                    "res/js/**/*"
                 ],
-                tasks: ['babel', 'browserify', 'compress'],
+                tasks: ['babel', 'browserify', 'uglify', 'compress'],
                 options: {
                     spawn: false
                 }
@@ -76,6 +85,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('default', ['babel', 'browserify', 'uglify', 'compress']);
 
 };

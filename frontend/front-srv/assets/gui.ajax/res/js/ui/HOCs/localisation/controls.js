@@ -24,8 +24,10 @@ import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 
 @connect(mapStateToProps)
-export class Locate extends React.Component {
+class Locate extends React.Component {
     render() {
         return <IconButton onClick={() => handler("onLocate", props)} iconClassName="mdi mdi-crosshairs" {...props} />
     }
 }
+
+export {Locate}

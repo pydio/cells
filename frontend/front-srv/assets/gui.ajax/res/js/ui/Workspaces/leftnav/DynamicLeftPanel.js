@@ -18,18 +18,23 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import WorkspaceList from '../wslist/WorkspacesList'
+import PropTypes from 'prop-types';
 
-export default React.createClass({
+import React from 'react';
+
+import createReactClass from 'create-react-class';
+
+export default createReactClass({
+    displayName: 'DynamicLeftPanel',
 
     propTypes:{
-        pydio:React.PropTypes.instanceOf(Pydio).isRequired,
-        pydioId:React.PropTypes.string.isRequired
+        pydio:PropTypes.instanceOf(Pydio).isRequired,
+        pydioId:PropTypes.string.isRequired
     },
 
     childContextTypes: {
-        messages:React.PropTypes.object,
-        getMessage:React.PropTypes.func
+        messages:PropTypes.object,
+        getMessage:PropTypes.func
     },
 
     getChildContext: function() {
@@ -165,7 +170,7 @@ export default React.createClass({
 
     render:function(){
         const additional = this.state.additionalContents.map(function(paneData){
-            if(paneData.type == 'ListProvider'){
+            if(paneData.type === 'ListProvider'){
                 return (
                     <PydioComponents.CollapsableListProvider
                         pydio={this.props.pydio}
@@ -198,5 +203,5 @@ export default React.createClass({
                     </div>
                 </span>
         );
-    }
+    },
 });

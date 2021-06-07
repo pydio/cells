@@ -45,23 +45,22 @@ class TasksList extends React.Component {
         const store = JobsStore.getInstance();
         let actions = [];
         const icProps = {
-            iconStyle:{color:'rgba(0,0,0,.3)'},
-            onClick:e => e.stopPropagation()
+            iconStyle:{color:'rgba(0,0,0,.3)'}
         };
         if (row.Status === 'Running' && row.CanPause){
-            actions.push(<IconButton iconClassName={"mdi mdi-pause"} tooltip={m('pause')} onTouchTap={()=>{store.controlTask(row, 'Pause')}} {...icProps}/>)
+            actions.push(<IconButton iconClassName={"mdi mdi-pause"} tooltip={m('pause')} onClick={()=>{store.controlTask(row, 'Pause')}} {...icProps}/>)
         }
         if(row.Status === 'Paused') {
-            actions.push(<IconButton iconClassName={"mdi mdi-play"} tooltip={m('resume')} onTouchTap={()=>{store.controlTask(row, 'Resume')}} {...icProps}/>)
+            actions.push(<IconButton iconClassName={"mdi mdi-play"} tooltip={m('resume')} onClick={()=>{store.controlTask(row, 'Resume')}} {...icProps}/>)
         }
         if(row.Status === 'Running' || row.Status === 'Paused'){
             if(row.CanStop){
-                actions.push(<IconButton iconClassName={"mdi mdi-stop"} tooltip={m('stop')} onTouchTap={()=>{store.controlTask(row, 'Stop')}} {...icProps}/>)
+                actions.push(<IconButton iconClassName={"mdi mdi-stop"} tooltip={m('stop')} onClick={()=>{store.controlTask(row, 'Stop')}} {...icProps}/>)
             } else if(row.StatusMessage === 'Pending'){
-                actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
+                actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onClick={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
             }
         } else {
-            actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
+            actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onClick={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
         }
         return actions
     }
@@ -149,11 +148,11 @@ class TasksList extends React.Component {
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const actionsHeader = (
-            <div style={{lineHeight:'initial', marginLeft: 5}}><IconButton iconClassName={"mdi mdi-delete-sweep"} iconStyle={{color:'rgba(0,0,0,.3)'}} tooltip={m('tasks.bulk.clear')} primary={true} onTouchTap={this.deleteAll.bind(this)} disabled={working}/></div>
+            <div style={{lineHeight:'initial', marginLeft: 5}}><IconButton iconClassName={"mdi mdi-delete-sweep"} iconStyle={{color:'rgba(0,0,0,.3)'}} tooltip={m('tasks.bulk.clear')} primary={true} onClick={this.deleteAll.bind(this)} disabled={working}/></div>
         );
         const idHeader = (
             <div style={{display:'flex', alignItems:'center', marginLeft: -20}}>
-                <div style={{lineHeight:'initial', marginLeft: 5}}><IconButton iconClassName={"mdi mdi-checkbox-multiple-"+(mode === 'selection'?'marked':'blank')+"-outline"}  iconStyle={{color:'rgba(0,0,0,.3)'}} tooltip={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onTouchTap={()=>{this.setState({mode:mode==='selection'?'log':'selection', taskLogs: null})}} disabled={working}/></div>
+                <div style={{lineHeight:'initial', marginLeft: 5}}><IconButton iconClassName={"mdi mdi-checkbox-multiple-"+(mode === 'selection'?'marked':'blank')+"-outline"}  iconStyle={{color:'rgba(0,0,0,.3)'}} tooltip={mode === 'selection'?m('tasks.bulk.disable'):m('tasks.bulk.enable')} primary={true} onClick={()=>{this.setState({mode:mode==='selection'?'log':'selection', taskLogs: null})}} disabled={working}/></div>
                 <span>{m('task.id')}</span>
             </div>
         );
@@ -235,7 +234,7 @@ class TasksList extends React.Component {
                     title={
                         <div style={{display:'flex', width:'100%', alignItems:'baseline'}}>
                             <div style={{flex: 1}}>{m('tasks.history')}</div>
-                            {mode=== 'selection' && selectedRows.length > 1 && <div style={{lineHeight:'initial'}}><RaisedButton label={m('tasks.bulk.delete')} secondary={true} onTouchTap={this.deleteSelection.bind(this)} disabled={working}/></div>}
+                            {mode=== 'selection' && selectedRows.length > 1 && <div style={{lineHeight:'initial'}}><RaisedButton label={m('tasks.bulk.delete')} secondary={true} onClick={this.deleteSelection.bind(this)} disabled={working}/></div>}
                         </div>
                     }
                 />

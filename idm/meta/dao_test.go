@@ -106,7 +106,7 @@ func TestCrud(t *testing.T) {
 		So(er, ShouldBeNil)
 		So(result, ShouldHaveLength, 1)
 
-		e := mockDAO.Del(&idm.UserMeta{Uuid: metaWithId.Uuid})
+		_, e := mockDAO.Del(&idm.UserMeta{Uuid: metaWithId.Uuid})
 		So(e, ShouldBeNil)
 
 		// List meta for the node

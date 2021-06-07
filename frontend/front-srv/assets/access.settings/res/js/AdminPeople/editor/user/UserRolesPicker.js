@@ -1,3 +1,9 @@
+import React from 'react';
+import createReactClass from 'create-react-class';
+import {DropDownMenu, MenuItem} from 'material-ui'
+
+import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,22 +23,20 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import {DropDownMenu, MenuItem} from 'material-ui'
+import PropTypes from 'prop-types';
 
-import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
 import PydioApi from 'pydio/http/api';
 
-export default React.createClass({
-
+export default createReactClass({
+    displayName: 'UserRolesPicker',
     mixins:[RoleMessagesConsumerMixin],
 
     propTypes: {
-        profile:React.PropTypes.string,
-        roles:React.PropTypes.array,
-        addRole:React.PropTypes.func,
-        removeRole:React.PropTypes.func,
-        switchRoles:React.PropTypes.func,
+        profile:PropTypes.string,
+        roles:PropTypes.array,
+        addRole:PropTypes.func,
+        removeRole:PropTypes.func,
+        switchRoles:PropTypes.func,
     },
 
     getInitialState(){
@@ -97,20 +101,20 @@ export default React.createClass({
         const fixedRoleStyle = {
             padding: 10,
             fontSize: 14,
-            backgroundColor: '#ffffff',
+            backgroundColor: 'rgb(246 246 248)',
             borderRadius: 2,
             margin: '8px 0'
         };
 
         return (
-            <div className="user-roles-picker" style={{padding:0, margin: '-30px 20px 40px', backgroundColor:'#f5f5f5', borderRadius: 3}}>
-                <div style={{paddingLeft: 10, marginBottom: -6, display: 'flex', alignItems: 'center'}}>
-                    <div style={{flex: 1, color: '#a1a1a1', fontSize: 16}}>{ctx.getMessage('roles.picker.title')} {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
+            <div className="user-roles-picker" style={{padding:0, paddingBottom:12, margin: '-30px 20px 40px', backgroundColor:'white', borderRadius: 6, border: '1px solid #dfe3e5'}}>
+                <div style={{paddingLeft: 16, display: 'flex', alignItems: 'center'}}>
+                    <div style={{flex: 1, fontSize: 16}}>{ctx.getMessage('roles.picker.title')} {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
                     <div className="roles-picker-menu" style={{marginBottom: -12}}>
                         <DropDownMenu underlineStyle={{display:'none'}} onChange={this.onChange} value={-1}>{addableRoles}</DropDownMenu>
                     </div>
                 </div>
-                <div className="roles-list" style={{margin: '0 8px', paddingBottom:1}}>
+                <div className="roles-list" style={{margin: '0 16px', paddingBottom:1}}>
                     {groups.map(function(g){
                         return <div key={"group-"+g} style={fixedRoleStyle}>{g}</div>;
                     })}
@@ -129,6 +133,5 @@ export default React.createClass({
             </div>
         );
 
-    }
-
+    },
 });

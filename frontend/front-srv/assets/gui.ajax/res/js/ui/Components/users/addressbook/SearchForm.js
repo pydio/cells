@@ -19,7 +19,10 @@
  */
 
 
-import {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types';
+
+
+import { Component } from 'react';
 import {TextField} from 'material-ui'
 import debounce from 'lodash.debounce'
 

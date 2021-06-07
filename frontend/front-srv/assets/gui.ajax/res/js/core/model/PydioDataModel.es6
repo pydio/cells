@@ -23,8 +23,8 @@ import Logger from '../lang/Logger'
 import AjxpNode from './AjxpNode'
 import LangUtils from '../util/LangUtils'
 import PathUtils from '../util/PathUtils'
-import PydioApi from '../http/PydioApi'
-import MetaNodeProvider from '../model/MetaNodeProvider'
+import MetaNodeProvider from './MetaNodeProvider'
+import EmptyNodeProvider from './EmptyNodeProvider'
 
 /**
  * Full container of the data tree. Contains the SelectionModel as well.
@@ -50,6 +50,7 @@ export default class PydioDataModel extends Observable{
         this._selectionSource = {};
 
         this._rootNode = null;
+        this._searchNode = null;
 
 	}
 
@@ -209,23 +210,36 @@ export default class PydioDataModel extends Observable{
 		return this._rootNode;
 	}
 
+	getSearchNode() {
+	    if(!this._searchNode) {
+            this._searchNode = new AjxpNode("/", false, "Search Results", 'mdi mdi-magnify', new EmptyNodeProvider());
+            this._searchNode.setRoot();
+            this._searchNode.getMetadata().set('search_root', true);
+        }
+	    return this._searchNode;
+    }
+
 	/**
 	 * Sets the current context node
 	 * @param ajxpDataNode AjxpNode
 	 * @param forceEvent Boolean If set to true, event will be triggered even if the current node is already the same.
 	 */
 	setContextNode (ajxpDataNode, forceEvent){
-		if(this._contextNode && this._contextNode == ajxpDataNode && this._currentRep  == ajxpDataNode.getPath() && !forceEvent){
+		if(this._contextNode && this._contextNode === ajxpDataNode && this._currentRep  === ajxpDataNode.getPath() && !forceEvent){
 			return; // No changes
 		}
-        if(!ajxpDataNode) return;
+        if(!ajxpDataNode) {
+            return;
+        }
         if(this._contextNodeReplacedObserver && this._contextNode){
             this._contextNode.stopObserving("node_replaced", this._contextNodeReplacedObserver);
         }
         this._contextNode = ajxpDataNode;
 		this._currentRep = ajxpDataNode.getPath();
         this.publish("context_changed", ajxpDataNode);
-        if(!this._contextNodeReplacedObserver) this._contextNodeReplacedObserver = this.contextNodeReplaced.bind(this);
+        if(!this._contextNodeReplacedObserver) {
+            this._contextNodeReplacedObserver = this.contextNodeReplaced.bind(this);
+        }
         ajxpDataNode.observe("node_replaced", this._contextNodeReplacedObserver);
 	}
 
@@ -427,6 +441,20 @@ export default class PydioDataModel extends Observable{
                 n.replaceBy(node, "override");
                 if(setSelectedAfterUpdate && this.getContextNode() === n.getParent()) {
                     this.setSelectedNodes([n], {});
+                }
+            }
+            if(this._searchNode) {
+                const resNode = this._searchNode.findChildByPath(node.getPath())
+                if(resNode) {
+                    const initMeta = resNode.getMetadata()
+                    const newMeta = new Map()
+                    newMeta.set('search_result', true);
+                    newMeta.set('repository_id', initMeta.get('repository_id'))
+                    newMeta.set('repository_display', initMeta.get('repository_display'))
+                    node.getMetadata().forEach((v,k) => {
+                        newMeta.set(k, v)
+                    })
+                    resNode.replaceMetadata(newMeta, true);
                 }
             }
         }

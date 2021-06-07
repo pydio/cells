@@ -207,32 +207,34 @@ var settingsNode = &rest.SettingsMenuResponse{
 				},
 			},
 		},
-		{
-			Key:         "developer",
-			Label:       "settings.144",
-			Description: "settings.144",
-			Children: []*rest.SettingsEntry{
-				{
-					Key:         "apis",
-					Label:       "Rest APIs",
-					Description: "Rest APIs",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-routes",
-						Component: "AdminPlugins.OpenApiDashboard",
-						Advanced:  true,
+		/*
+			{
+				Key:         "developer",
+				Label:       "settings.144",
+				Description: "settings.144",
+				Children: []*rest.SettingsEntry{
+					{
+						Key:         "apis",
+						Label:       "Rest APIs",
+						Description: "Rest APIs",
+						Metadata: &rest.SettingsEntryMeta{
+							IconClass: "mdi mdi-routes",
+							Component: "AdminPlugins.OpenApiDashboard",
+							Advanced:  true,
+						},
 					},
-				},
-				{
-					Key:         "jsdocs",
-					Label:       "Javascript Docs",
-					Description: "Javascript Classes Documentation",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-nodejs",
-						Component: "AdminPlugins.JSDocsDashboard",
-						Advanced:  true,
+					{
+						Key:         "jsdocs",
+						Label:       "Javascript Docs",
+						Description: "Javascript Classes Documentation",
+						Metadata: &rest.SettingsEntryMeta{
+							IconClass: "mdi mdi-nodejs",
+							Component: "AdminPlugins.JSDocsDashboard",
+							Advanced:  true,
+						},
 					},
 				},
 			},
-		},
+		*/
 	},
 }

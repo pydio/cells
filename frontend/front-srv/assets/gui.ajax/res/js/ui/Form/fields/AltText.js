@@ -27,7 +27,7 @@ export default class AltText extends React.Component {
                     <IconButton
                         iconClassName={alternativeText?altIcon:altIconText}
                         title={altTip}
-                        onTouchTap={() => onAltTextSwitch(attributes["name"], !alternativeText)}
+                        onClick={() => onAltTextSwitch(attributes["name"], !alternativeText)}
                         iconStyle={{opacity: .3, fontSize: 20}}
                         style={{padding:'14px 8px', width:42, height: 42}}
                     /></div>
@@ -64,7 +64,7 @@ const test = (Component) => {
                         <IconButton
                             iconClassName={alternativeText?altIcon:altIconText}
                             tooltip={altTip}
-                            onTouchTap={() => onAltTextSwitch(attributes["name"], !alternativeText)}
+                            onClick={() => onAltTextSwitch(attributes["name"], !alternativeText)}
                         /></div>
                 </div>
             );

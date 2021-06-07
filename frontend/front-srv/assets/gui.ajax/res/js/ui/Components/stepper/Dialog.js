@@ -48,7 +48,7 @@ class StepperDialog extends React.Component {
                         </div>
                     }
                     {onDismiss &&
-                        <div style={{position:'absolute', top: 11, right: 20}}><IconButton iconClassName={"mdi mdi-close"} onTouchTap={onDismiss}/></div>
+                        <div style={{position:'absolute', top: 11, right: 20}}><IconButton iconClassName={"mdi mdi-close"} onClick={onDismiss}/></div>
                     }
                 </div>
             );

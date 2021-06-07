@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -40,8 +41,8 @@ class RightPanelCard extends React.Component{
         }
 
         return (
-            <Paper zDepth={2} style={{position:'relative', ...this.props.style}}>
-                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 0, right: 0}} iconStyle={{color: '#e0e0e0'}} onTouchTap={this.props.onRequestClose}/>
+            <Paper zDepth={2} style={{position:'relative', borderRadius: 6, ...this.props.style}}>
+                <IconButton iconClassName={"mdi mdi-close"} style={{position:'absolute', top: 0, right: 0, zIndex: 2}} iconStyle={{color: '#e0e0e0'}} onClick={this.props.onRequestClose}/>
                 {content}
             </Paper>
         );
@@ -53,27 +54,27 @@ RightPanelCard.propTypes = {
     /**
      * Pydio instance
      */
-    pydio: React.PropTypes.instanceOf(Pydio),
+    pydio: PropTypes.instanceOf(Pydio),
     /**
      * Selected item
      */
-    item: React.PropTypes.object,
+    item: PropTypes.object,
     /**
      * Applies to root container
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     /**
      * Forwarded to child
      */
-    onRequestClose: React.PropTypes.func,
+    onRequestClose: PropTypes.func,
     /**
      * Forwarded to child
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: PropTypes.func,
     /**
      * Forwarded to child
      */
-    onUpdateAction: React.PropTypes.func
+    onUpdateAction: PropTypes.func
 };
 
 export {RightPanelCard as default}

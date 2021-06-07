@@ -287,7 +287,13 @@ message PruneVersionsRequest{
 }
 
 message PruneVersionsResponse{
-    repeated string DeletedVersions = 1;
+    repeated ChangeLog DeletedVersions = 1;
+}
+
+enum VersioningNodeDeletedStrategy {
+    KeepAll = 0;
+    KeepLast = 1;
+    KeepNone = 2;
 }
 
 message VersioningPolicy {
@@ -302,6 +308,7 @@ message VersioningPolicy {
     int64 IgnoreFilesGreaterThan = 8;
 
     repeated VersioningKeepPeriod KeepPeriods = 9;
+    VersioningNodeDeletedStrategy NodeDeletedStrategy = 10;
 }
 
 message VersioningKeepPeriod {
@@ -378,6 +385,8 @@ message ChangeLog{
     string OwnerUuid = 6;
     // Event that triggered this change
     NodeChangeEvent Event = 7;
+    // Actual location of the stored version
+    Node Location = 8;
 }
 
 // Search Queries

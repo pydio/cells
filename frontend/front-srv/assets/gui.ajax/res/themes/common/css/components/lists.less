@@ -52,6 +52,18 @@
               color: rgba(0,0,0,0.33);
             }
           }
+          .metadata_chunk_other {
+            &:not(.metadata_chunk_block){
+              background-color: rgba(204, 204, 204, .15);
+              border-radius: 6px;
+              margin-left: 6px;
+            }
+            display: inline-block;
+            padding: 0 6px;
+            span.icon-angle-right {
+              display:none;
+            }
+          }
           span.icon-angle-right{
             display:inline-block;
             margin: 0 1px;

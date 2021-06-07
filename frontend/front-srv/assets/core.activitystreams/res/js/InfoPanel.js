@@ -34,8 +34,12 @@ class InfoPanel extends React.Component {
             return null;
         }
 
+        const identifier = node.isLeaf() ? 'activity.leaf' : 'activity.folder'
+        const defaultOpen = !node.isLeaf();
+        const title = node.isLeaf()?pydio.MessageHash['notification_center.11']:pydio.MessageHash['notification_center.10'];
+
         return (
-            <InfoPanelCard identifier={"activity"} title={node.isLeaf()?pydio.MessageHash['notification_center.11']:pydio.MessageHash['notification_center.10']}>
+            <InfoPanelCard key={identifier} identifier={identifier} defaultOpen={defaultOpen} title={title}>
                 <ActivityList
                     context="NODE_ID"
                     contextData={node.getMetadata().get('uuid')}

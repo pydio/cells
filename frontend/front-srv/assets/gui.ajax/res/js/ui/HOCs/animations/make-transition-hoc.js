@@ -18,11 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
-import ReactDOM from 'react-dom';
-import shallowCompare from 'react/lib/shallowCompare';
-import { spring, TransitionMotion } from 'react-motion';
-import stripStyle from 'react-motion/lib/stripStyle';
+import { TransitionMotion } from 'react-motion';
 import {springify, buildTransform} from './utils';
 
 let counter=0
@@ -93,7 +92,7 @@ const makeTransition = (originStyles, targetStyles, enter, leave) => {
         }
 
         TransitionGroup.propTypes = {
-            ready: React.PropTypes.bool.isRequired
+            ready: PropTypes.bool.isRequired
         }
 
         TransitionGroup.defaultProps = {
@@ -101,7 +100,7 @@ const makeTransition = (originStyles, targetStyles, enter, leave) => {
         }
 
         return TransitionGroup
-    }
+    };
 };
 
 export default makeTransition;

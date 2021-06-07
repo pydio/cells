@@ -1,3 +1,7 @@
+import React from 'react';
+
+import createReactClass from 'create-react-class';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,14 +21,16 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
 import LangUtils from 'pydio/util/lang'
 const {ModernTextField} = Pydio.requireLib('hoc');
 
-const CreateRoleOrGroupForm = React.createClass({
+const CreateRoleOrGroupForm = createReactClass({
+    displayName: 'CreateRoleOrGroupForm',
 
     mixins:[
         AdminComponents.MessagesConsumerMixin,
@@ -33,9 +39,9 @@ const CreateRoleOrGroupForm = React.createClass({
     ],
 
     propTypes:{
-        type: React.PropTypes.oneOf(['group', 'user', 'role']),
-        roleNode: React.PropTypes.instanceOf(Node),
-        openRoleEditor: React.PropTypes.func
+        type: PropTypes.oneOf(['group', 'user', 'role']),
+        roleNode: PropTypes.instanceOf(Node),
+        openRoleEditor: PropTypes.func
     },
 
     getTitle(){
@@ -185,8 +191,7 @@ const CreateRoleOrGroupForm = React.createClass({
                 </div>
             );
         }
-    }
-
+    },
 });
 
 export {CreateRoleOrGroupForm as default}

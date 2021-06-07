@@ -1,3 +1,5 @@
+import React from 'react';
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +20,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 import XMLUtils from 'pydio/util/xml'
@@ -93,7 +96,12 @@ class ComponentConfigsParser {
             if(colNode.getAttribute('reactModifier')){
                 let reactModifier = colNode.getAttribute('reactModifier');
                 ResourcesManager.detectModuleToLoadAndApply(reactModifier, function(){
-                    columns[name].renderComponent = columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
+                    columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
+                    columns[name].renderComponent = columns[name].renderCell
+                    // Special indicator for tags
+                    if(reactModifier.indexOf('renderTagsCloud') > -1) {
+                        columns[name].renderBlock = true
+                    }
                 }, true);
             }
         });
@@ -103,12 +111,11 @@ class ComponentConfigsParser {
 
 }
 
-let MainFilesList = React.createClass({
-
-    propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        horizontalRibbon: React.PropTypes.bool
-    },
+class MainFilesList extends React.Component {
+    static propTypes = {
+        pydio: PropTypes.instanceOf(Pydio),
+        horizontalRibbon: PropTypes.bool
+    };
 
     tableEntryRenderCell(node){
         const {showExtensions} = this.state;
@@ -126,7 +133,7 @@ let MainFilesList = React.createClass({
                 <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{label}</span>
             </span>
         );
-    },
+    }
 
     computeLabel(node){
         const {showExtensions} = this.state;
@@ -139,9 +146,10 @@ let MainFilesList = React.createClass({
             }
         }
         return label;
-    },
+    }
 
-    getInitialState(){
+    constructor(props, context) {
+        super(props, context);
         let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
         let columns = configParser.loadConfigs('FilesList').get('columns');
         const dMode = this.getPrefValue('FilesListDisplayMode', this.props.displayMode || 'list');
@@ -151,18 +159,21 @@ let MainFilesList = React.createClass({
         } else if(dMode === 'grid-80') {
             tSize = 80;
         }
-        return {
-            contextNode : this.props.pydio.getContextHolder().getContextNode(),
+
+        const {dataModel} = this.props;
+
+        this.state = {
+            contextNode : dataModel.getContextNode(),
             displayMode : dMode,
             showExtensions: this.getPrefValue('FilesListShowExtensions', false),
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
             columns     : columns ? columns : configParser.getDefaultListColumns(),
-            parentIsScrolling: this.props.parentIsScrolling,
-            repositoryId: this.props.pydio.repositoryId
-        }
-    },
+            parentIsScrolling: props.parentIsScrolling,
+            repositoryId: props.pydio.repositoryId
+        };
+    }
 
     getPrefValue(prefName, defaultValue){
         const {pydio} = this.props;
@@ -175,7 +186,7 @@ let MainFilesList = React.createClass({
             return guiPrefs[prefName][slug];
         }
         return defaultValue;
-    },
+    }
 
     /**
      * Save displayMode to user prefs
@@ -186,7 +197,7 @@ let MainFilesList = React.createClass({
     setPrefValue(prefName, value){
         const {pydio} = this.props;
         if(!pydio.user){
-            return 'list';
+            return;
         }
         const slug = pydio.user.getActiveRepositoryObject().getSlug();
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : {};
@@ -195,44 +206,53 @@ let MainFilesList = React.createClass({
         guiPrefs[prefName] = dPrefs;
         pydio.user.setPreference('gui_preferences', guiPrefs, true);
         pydio.user.savePreference('gui_preferences');
-    },
+    }
 
-    componentDidMount(){
+    componentDidMount() {
+        const {dataModel} = this.props;
         // Hook to the central datamodel
         this._contextObserver = function(){
-            this.setState({contextNode: this.props.pydio.getContextHolder().getContextNode()});
+            this.setState({contextNode: dataModel.getContextNode()});
         }.bind(this);
-        this.props.pydio.getContextHolder().observe("context_changed", this._contextObserver);
+        dataModel.observe("context_changed", this._contextObserver);
         this.props.pydio.getController().updateGuiActions(this.getPydioActions());
 
-        this.recomputeThumbnailsDimension();
+        this._thumbOserver = this.recomputeThumbnailsDimension.bind(this)
+        this._thumbOserver();
         if(window.addEventListener){
-            window.addEventListener('resize', this.recomputeThumbnailsDimension);
+            window.addEventListener('resize', this._thumbOserver);
         }else{
-            window.attachEvent('onresize', this.recomputeThumbnailsDimension);
+            window.attachEvent('onresize', this._thumbOserver);
         }
         if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
             this.props.onDisplayModeChange(this.state.displayMode);
         }
-    },
+    }
 
-    componentWillUnmount: function(){
-        this.props.pydio.getContextHolder().stopObserving("context_changed", this._contextObserver);
+    componentWillUnmount() {
+        const {dataModel} = this.props;
+        dataModel.stopObserving("context_changed", this._contextObserver);
         this.getPydioActions(true).map(function(key){
             this.props.pydio.getController().deleteFromGuiActions(key);
         }.bind(this));
         if(window.addEventListener){
-            window.removeEventListener('resize', this.recomputeThumbnailsDimension);
+            window.removeEventListener('resize', this._thumbOserver);
         }else{
-            window.detachEvent('onresize', this.recomputeThumbnailsDimension);
+            window.detachEvent('onresize', this._thumbOserver);
         }
-    },
+    }
 
-    shouldComponentUpdate: function(nextProps, nextState){
-        return (!this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextState !== this.state );
-    },
+    shouldComponentUpdate(nextProps, nextState) {
+        return (!this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextProps.dataModel !== this.props.dataModel || nextState !== this.state );
+    }
 
-    componentWillReceiveProps: function(){
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.dataModel !== this.props.dataModel){
+            console.log("Changing DM - Update Context Node ?")
+            this.props.dataModel.stopObserving("context_changed", this._contextObserver);
+            nextProps.dataModel.observe("context_changed", this._contextObserver);
+            this._contextObserver();
+        }
         if(this.state && this.state.repositoryId !== this.props.pydio.repositoryId ){
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
             let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
@@ -260,13 +280,13 @@ let MainFilesList = React.createClass({
                 }
             })
         }
-    },
+    }
 
-    resize: function(){
+    resize(){
         this.recomputeThumbnailsDimension();
-    },
+    }
 
-    recomputeThumbnailsDimension: function(nearest){
+    recomputeThumbnailsDimension(nearest){
 
         const MAIN_CONTAINER_FULL_PADDING = 2;
         const THUMBNAIL_MARGIN = 1;
@@ -317,16 +337,16 @@ let MainFilesList = React.createClass({
 
         }
 
-    },
+    }
 
-    entryRenderIcon: function(node, entryProps = {}){
+    entryRenderIcon(node, entryProps = {}){
         if(entryProps && entryProps.parent){
             return (
                 <FilePreview
                     loadThumbnail={false}
                     node={node}
                     mimeClassName="mimefont mdi mdi-chevron-left"
-                    onTouchTap={()=>{this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE)}}
+                    onClick={()=>{this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE)}}
                     style={{cursor:'pointer'}}
                 />
             );
@@ -341,13 +361,13 @@ let MainFilesList = React.createClass({
                 />
             );
         }
-    },
+    }
 
     entryRenderActions(node){
         let content = null;
         const {pydio} = this.props;
         const mobile = pydio.UI.MOBILE_EXTENSIONS;
-        const dm = pydio.getContextHolder();
+        const {dataModel} = this.props;
         if(mobile){
             const ContextMenuModel = require('pydio/model/context-menu');
             return <IconButton iconClassName="mdi mdi-dots-vertical" style={{zIndex:0, padding: 10}} tooltip="Info" onClick={(event) => {
@@ -355,7 +375,7 @@ let MainFilesList = React.createClass({
                     ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
                 });
                 event.stopPropagation();
-                dm.setSelectedNodes([node]);
+                dataModel.setSelectedNodes([node]);
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
             }}/>;
         }else if(node.getMetadata().get('overlay_class')){
@@ -366,11 +386,11 @@ let MainFilesList = React.createClass({
         }
         return content;
 
-    },
+    };
 
-    entryHandleClicks: function(node, clickType, event){
-        let dm = this.props.pydio.getContextHolder();
-        const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS || this.props.horizontalRibbon;
+    entryHandleClicks(node, clickType, event){
+        const {dataModel: dm, pydio} = this.props;
+        const mobile = pydio.UI.MOBILE_EXTENSIONS || this.props.horizontalRibbon;
         if(dm.getContextNode().getParent() === node && clickType === SimpleList.CLICK_TYPE_SIMPLE){
             return;
         }
@@ -390,16 +410,18 @@ let MainFilesList = React.createClass({
                 dm.setSelectedNodes([node]);
             }
         }else if(mobile || clickType === SimpleList.CLICK_TYPE_DOUBLE){
-            if(!node.isBrowsable()){
+            if (node.isBrowsable()) {
+                //dm.requireContextChange(node);
+                pydio.goTo(node);
+            } else {
                 dm.setSelectedNodes([node]);
-                this.props.pydio.Controller.fireAction("open_with_unique");
-            }else{
-                dm.requireContextChange(node);
+                pydio.Controller.fireAction("open_with_unique");
             }
         }
-    },
+    };
 
-    entryRenderSecondLine: function(node){
+    entryRenderSecondLine(node){
+        const {searchResults, searchScope, pydio, dataModel} = this.props;
         let metaData = node.getMetadata();
         let pieces = [];
         const standardPieces = [];
@@ -413,51 +435,70 @@ let MainFilesList = React.createClass({
             }
         }
 
+        if(searchResults) {
+            let linkString, repoLabel;
+            if(node.getMetadata().get("repository_display")) {
+                repoLabel = '[' + node.getMetadata().get("repository_display") + ']'
+            }
+            if(node.isLeaf()) {
+                linkString = PathUtils.getDirname(node.getPath())
+            } else {
+                linkString = node.getPath()
+            }
+            if(linkString && linkString.charAt(0) === '/') {
+                linkString = linkString.substr(1);
+            }
+            if(searchScope === 'all' && linkString) {
+                linkString = repoLabel + ' ' + linkString;
+            } else if (!linkString) {
+                linkString = repoLabel;
+            }
+            pieces.push(
+                <span
+                    className="metadata_chunk metadata_chunk_description metadata_chunk_clickable"
+                    key={"result_path"}
+                    style={{marginRight: 5, cursor:'pointer'}}
+                    onClick={(e)=>{
+                        e.stopPropagation();
+                        pydio.goTo(node)
+                    }}
+                >{linkString}</span>,
+                <span>&bull; </span>
+            )
+        }
+
         if(metaData.get('ajxp_modiftime')) {
             let mDate = moment(parseFloat(metaData.get('ajxp_modiftime'))*1000);
             let dateString = mDate.calendar();
             if(dateString.indexOf('/') > -1) {
                 dateString = mDate.fromNow();
             }
-            pieces.push(<span key="time_description" className="metadata_chunk metadata_chunk_description">{dateString}</span>);
+            const title = PathUtils.formatModifDate(mDate.toDate());
+            pieces.push(<span key="time_description" title={title} className="metadata_chunk metadata_chunk_description">{dateString}</span>);
         }
 
         let first = false;
-        let attKeys = Object.keys(this.state.columns);
-
-        for(let i = 0; i<attKeys.length;i++ ){
-            let s = attKeys[i];
+        Object.keys(this.state.columns).forEach((s) => {
             let columnDef = this.state.columns[s];
             let label;
             let standard = false;
-            if(s === 'ajxp_label' || s === 'text'){
-                continue;
-            }else if(s==="ajxp_modiftime"){
-                let date = new Date();
-                date.setTime(parseInt(metaData.get(s))*1000);
-                label = PathUtils.formatModifDate(date);
-                standard = true;
-            }else if(s === "ajxp_dirname" && metaData.get("filename")){
+            if(s === 'ajxp_label' || s === 'text' || s === 'ajxp_modiftime'){
+                return
+            } else if(s === "ajxp_dirname" && metaData.get("filename")){
                 let dirName = PathUtils.getDirname(metaData.get("filename"));
                 label =  dirName?dirName:"/" ;
                 standard = true;
-            }else if(s === "bytesize") {
-                if(metaData.get(s) === "-"){
-                    continue;
-                } else {
-                    let test = PathUtils.roundFileSize(parseInt(metaData.get(s)));
-                    if(test !== NaN){
-                        label = test;
-                    } else {
-                        continue;
-                    }
+            } else if (s === "bytesize") {
+                if(!metaData.has(s) || metaData.get(s) === "-"){
+                    return;
                 }
+                label = PathUtils.roundFileSize(parseInt(metaData.get(s)));
                 standard = true;
             }else if(columnDef.renderComponent){
                 columnDef['name'] = s;
                 label = columnDef.renderComponent(node, columnDef);
                 if(label === null){
-                    continue;
+                    return;
                 }
             }else{
                 if(s === 'mimestring' || s === 'readable_dimension'){
@@ -465,7 +506,7 @@ let MainFilesList = React.createClass({
                 }
                 const metaValue = metaData.get(s) || "";
                 if(!metaValue) {
-                    continue;
+                    return;
                 }
                 label = metaValue;
             }
@@ -474,15 +515,18 @@ let MainFilesList = React.createClass({
                 sep = <span className="icon-angle-right"></span>;
             }
             let cellClass = 'metadata_chunk metadata_chunk_'+(standard ?'standard':'other')+' metadata_chunk_' + s;
+            if(columnDef.renderComponent && columnDef.renderBlock){
+                cellClass += ' metadata_chunk_block'
+            }
             const cell = <span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>;
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
-        }
+        });
         pieces.push(...otherPieces, ...standardPieces);
         return pieces;
 
-    },
+    };
 
-    switchDisplayMode: function(displayMode){
+    switchDisplayMode(displayMode){
         this.setState({displayMode: displayMode}, ()=>{
             let near = null;
             if(displayMode.indexOf('grid-') === 0) {
@@ -495,7 +539,7 @@ let MainFilesList = React.createClass({
             }
             this.props.pydio.notify('actions_refreshed');
         });
-    },
+    }
 
     buildDisplayModeItems(){
         const {displayMode} = this.state;
@@ -515,21 +559,21 @@ let MainFilesList = React.createClass({
             }
             return i;
         });
-    },
+    }
 
     buildShowExtensionsItems(){
         const {showExtensions} = this.state;
         return [
             {name:Pydio.getMessages()['ajax_gui.list.extensions.show'], icon_class:showExtensions?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
-                this.setState({showExtensions:!showExtensions}, () => {
-                    this.props.pydio.notify('actions_refreshed');
-                    this.setPrefValue('FilesListShowExtensions', !showExtensions);
-                });
-            }}
+                    this.setState({showExtensions:!showExtensions}, () => {
+                        this.props.pydio.notify('actions_refreshed');
+                        this.setPrefValue('FilesListShowExtensions', !showExtensions);
+                    });
+                }}
         ]
-    },
+    }
 
-    getPydioActions: function(keysOnly = false){
+    getPydioActions(keysOnly = false){
         if(keysOnly){
             return ['switch_display_mode', 'toggle_show_extensions'];
         }
@@ -577,9 +621,9 @@ let MainFilesList = React.createClass({
         );
         buttons.set('toggle_show_extensions', extAction);
         return buttons;
-    },
+    }
 
-    render: function(){
+    render() {
 
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, elementsPerLine = 1, near;
@@ -612,19 +656,23 @@ let MainFilesList = React.createClass({
                 className += ' horizontal-ribbon';
             }
             // Todo: compute a more real number of elements visible per page.
-            if(near === 320) infiniteSliceCount = 25;
-            else if(near === 160) infiniteSliceCount = 80;
-            else if(near === 80) infiniteSliceCount = 200;
+            if(near === 320) {
+                infiniteSliceCount = 25;
+            } else if(near === 160) {
+                infiniteSliceCount = 80;
+            } else if(near === 80) {
+                infiniteSliceCount = 200;
+            }
 
         } else if(dMode === 'list'){
 
             sortKeys = this.state.columns;
             elementHeight = SimpleList.HEIGHT_TWO_LINES;
-            entryRenderSecondLine = this.entryRenderSecondLine;
+            entryRenderSecondLine = this.entryRenderSecondLine.bind(this);
 
         }
 
-        const {pydio} = this.props;
+        const {pydio, dataModel} = this.props;
         const {contextNode} = this.state;
         const messages = pydio.MessageHash;
         const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
@@ -657,7 +705,7 @@ let MainFilesList = React.createClass({
                 };
             }
         }else{
-            const recycle = pydio.getContextHolder().getRootNode().getMetadata().get('repo_has_recycle');
+            const recycle = dataModel.getRootNode().getMetadata().get('repo_has_recycle');
             if(contextNode.getPath() === recycle){
                 emptyStateProps = {
                     ...emptyStateProps,
@@ -668,37 +716,61 @@ let MainFilesList = React.createClass({
             }
         }
 
+        const {searchResults, searchScope, searchLoading} = this.props;
+        let groupProps = {};
+        if(searchResults) {
+            groupProps = {
+                skipParentNavigation: true,
+            };
+            if(dMode !== 'grid' && searchScope === 'all') {
+                groupProps = {
+                    ...groupProps,
+                    defaultGroupBy:"repository_id",
+                    groupByLabel:'repository_display',
+                }
+            }
+            emptyStateProps = {
+                primaryTextId:searchLoading?'searchengine.searching':478,
+                    style:{
+                    backgroundColor:'transparent'
+                }
+            }
+        }
+
         return (
             <SimpleList
                 ref="list"
                 tableKeys={tableKeys}
                 sortKeys={sortKeys}
                 node={this.state.contextNode}
-                dataModel={pydio.getContextHolder()}
+                dataModel={dataModel}
+                observeNodeReload={true}
                 className={className}
                 actionBarGroups={["change_main"]}
                 infiniteSliceCount={infiniteSliceCount}
                 skipInternalDataModel={true}
                 style={this.props.style}
+                displayMode={dMode}
+                usePlaceHolder={true}
                 elementsPerLine={elementsPerLine}
                 elementHeight={elementHeight}
                 elementStyle={elementStyle}
                 passScrollingStateToChildren={true}
-                entryRenderIcon={this.entryRenderIcon}
-                entryRenderParentIcon={this.entryRenderIcon}
+                entryRenderIcon={this.entryRenderIcon.bind(this)}
+                entryRenderParentIcon={this.entryRenderIcon.bind(this)}
                 entryRenderFirstLine={(node)=>this.computeLabel(node)}
                 entryRenderSecondLine={entryRenderSecondLine}
-                entryRenderActions={this.entryRenderActions}
-                entryHandleClicks={this.entryHandleClicks}
+                entryRenderActions={this.entryRenderActions.bind(this)}
+                entryHandleClicks={this.entryHandleClicks.bind(this)}
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}
                 hideToolbar={true}
                 customToolbar={<CellsMessageToolbar pydio={pydio}/>}
+                {...groupProps}
             />
         );
     }
-
-});
+}
 
 export {MainFilesList as default}

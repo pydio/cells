@@ -2356,5 +2356,14 @@
   },
   "workspace.quota-usage": {
     "other": "Quota Usage"
+  },
+  "action.delete.permanently": {
+    "other": "Delete permanently"
+  },
+  "action.delete.permanently.warning": {
+    "other": "warning, you cannot undo this operation!"
+  },
+  "action.goto.label": {
+    "other": "Go To Folder"
   }
 }

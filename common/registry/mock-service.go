@@ -49,6 +49,7 @@ func NewMockFromMicroService(rs *registry.Service) *mockService {
 	}
 	m := &mockService{
 		name:          rs.Name,
+		nodes:         rs.Nodes,
 		description:   description,
 		version:       rs.Version,
 		running:       true,
@@ -82,6 +83,9 @@ func (m *mockService) Check(context.Context) error {
 func (m *mockService) Name() string {
 	return m.name
 }
+func (m *mockService) ID() string {
+	return m.name
+}
 func (m *mockService) Address() string {
 	return ""
 }
@@ -107,14 +111,7 @@ func (m *mockService) SetRunningNodes(nodes []*registry.Node) {
 	m.nodes = nodes
 }
 func (m *mockService) RunningNodes() []*registry.Node {
-	var nodes []*registry.Node
-	for _, p := range Default.GetPeers() {
-		for _, ms := range p.GetServices(m.Name()) {
-			nodes = append(nodes, ms.Nodes...)
-		}
-	}
-	return nodes
-
+	return m.nodes
 }
 func (m *mockService) ExposedConfigs() common.XMLSerializableForm {
 	return nil

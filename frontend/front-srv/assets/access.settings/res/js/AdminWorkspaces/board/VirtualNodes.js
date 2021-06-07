@@ -104,7 +104,7 @@ class VirtualNodes extends React.Component{
 
         let headerActions = [];
         if(!readonly && accessByName('Create')){
-            headerActions.push(<FlatButton primary={true} label={m('create')} onTouchTap={this.handleTouchTap.bind(this)} {...adminStyles.props.header.flatButton}/>);
+            headerActions.push(<FlatButton primary={true} label={m('create')} onClick={this.handleTouchTap.bind(this)} {...adminStyles.props.header.flatButton}/>);
         }
 
         const  columns = [
@@ -116,18 +116,18 @@ class VirtualNodes extends React.Component{
             actions.push({
                 iconClassName:'mdi mdi-eye',
                 tooltip:m('code.display'),
-                onTouchTap:(row) => this.setState({selectedNode:(selectedNode=== row.node.getName()?null : row.node.getName())})
+                onClick:(row) => this.setState({selectedNode:(selectedNode=== row.node.getName()?null : row.node.getName())})
             })
         } else {
             actions.push({
                 iconClassName:'mdi mdi-pencil',
                 tooltip:m('code.edit'),
-                onTouchTap:(row) => this.setState({selectedNode:(selectedNode=== row.node.getName()?null : row.node.getName())})
+                onClick:(row) => this.setState({selectedNode:(selectedNode=== row.node.getName()?null : row.node.getName())})
             });
             actions.push({
                 iconClassName:'mdi mdi-delete',
                 tooltip:m('delete'),
-                onTouchTap:(row) => {
+                onClick:(row) => {
                     pydio.UI.openConfirmDialog({
                         message:m('delete.confirm'),
                         destructive:[row.node.getName()],

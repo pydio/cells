@@ -18,18 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import PropTypes from 'prop-types'
 import {TextField} from 'material-ui'
 
 export default class ClipboardTextField extends React.Component{
 
-    static propTypes: {
-        floatingLabelText: React.PropTypes.string,
-
-        inputValue: React.PropTypes.string,
-        inputClassName: React.PropTypes.string,
-        getMessage: React.PropTypes.func,
-        inputCopyMessage: React.PropTypes.string
-    };
+    // static propTypes: {
+    //     floatingLabelText: PropTypes.string,
+    //
+    //     inputValue: PropTypes.string,
+    //     inputClassName: PropTypes.string,
+    //     getMessage: PropTypes.func,
+    //     inputCopyMessage: PropTypes.string
+    // };
 
     constructor(props){
         super(props);

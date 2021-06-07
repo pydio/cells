@@ -330,18 +330,6 @@ func (g *grpcClient) Stream(ctx context.Context, req client.Request, opts ...cli
 		return nil, errors.InternalServerError("go.micro.client", err.Error())
 	}
 
-	// check if we already have a deadline
-	d, ok := ctx.Deadline()
-	if !ok {
-		// no deadline so we create a new one
-		ctx, _ = context.WithTimeout(ctx, callOpts.RequestTimeout)
-	} else {
-		// got a deadline so no need to setup context
-		// but we need to set the timeout we pass along
-		opt := client.WithRequestTimeout(d.Sub(time.Now()))
-		opt(&callOpts)
-	}
-
 	// should we noop right here?
 	select {
 	case <-ctx.Done():

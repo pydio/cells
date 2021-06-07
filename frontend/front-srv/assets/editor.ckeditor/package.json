@@ -6,12 +6,15 @@
   "author": "Abstrium SAS",
   "license": "agpl",
   "dependencies": {
-    "ckeditor": "^4.6.2",
+    "ckeditor": "^4.6.2"
+  },
+  "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-babel": "~5.0.3",
     "grunt-browserify": "~4.0.1",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-compress": "^1.4.3",
-    "grunt-contrib-watch": "^1.0.0"
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-uglify": "^5.0.0"
   }
 }

@@ -72,7 +72,7 @@ class TemplatePath extends React.Component {
                 primaryText={templatePath.Path}
                 secondaryText={removeComments(templatePath.MetaStore.resolution)}
                 disabled={!selectable}
-                onTouchTap={() => this.handleSelect()}
+                onClick={() => this.handleSelect()}
             />
         );
     }

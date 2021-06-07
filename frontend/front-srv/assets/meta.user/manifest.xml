@@ -3,7 +3,7 @@
 	<client_settings icon="plug/access.mysql/resources/images/mysql_icon.png">
 		<resources>
 			<i18n namespace="meta.user" remote="plug/meta.user/i18n" />
-			<js file="plug/meta.user/js/build/ReactMeta.js" className="ReactMeta"/>
+			<js file="plug/meta.user/res/dist/ReactMeta.min.js" className="ReactMeta"/>
 		</resources>
 	</client_settings>
 	<registry_contributions>

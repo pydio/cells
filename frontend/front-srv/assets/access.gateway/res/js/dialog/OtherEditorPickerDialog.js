@@ -25,12 +25,14 @@ const PydioDataModel = require('pydio/model/data-model')
 const LangUtils=  require('pydio/util/lang')
 const {ActionDialogMixin} = Pydio.requireLib('boot')
 import openInEditor from '../callback/openInEditor'
+import createReactClass from 'create-react-class'
+import PropTypes from 'prop-types'
 
-let OtherEditorPickerDialog = React.createClass({
+let OtherEditorPickerDialog = createReactClass({
 
     propTypes:{
-        pydio: React.PropTypes.instanceOf(Pydio),
-        selection: React.PropTypes.instanceOf(PydioDataModel)
+        pydio: PropTypes.instanceOf(Pydio),
+        selection: PropTypes.instanceOf(PydioDataModel)
     },
 
     mixins:[
@@ -44,13 +46,13 @@ let OtherEditorPickerDialog = React.createClass({
             key="clear"
             label={MessageHash['openother.5']}
             primary={false}
-            onTouchTap={this.clearAssociations}
+            onClick={this.clearAssociations}
         />);
         actions.push(<FlatButton
             label={mess['49']}
             primary={true}
             keyboardFocused={true}
-            onTouchTap={this.props.onDismiss}
+            onClick={this.props.onDismiss}
         />);
         return actions;
     },
@@ -124,7 +126,7 @@ let OtherEditorPickerDialog = React.createClass({
         //let items = [];
         const items = this.findActiveEditors('*').map((e) => {
             const icon = <FontIcon className={e.icon_class}/>;
-            return <ListItem onTouchTap={this.selectEditor.bind(this, e)} primaryText={e.text} secondaryText={e.title} leftIcon={icon}/>;
+            return <ListItem onClick={this.selectEditor.bind(this, e)} primaryText={e.text} secondaryText={e.title} leftIcon={icon}/>;
         });
         return (
             <List style={{maxHeight: 320, overflowY: 'scroll', width: '100%', borderTop:'1px solid #e0e0e0'}}>

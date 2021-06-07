@@ -53,7 +53,6 @@ var (
 func publicationContext(publication broker.Publication) context.Context {
 	c := metadata.NewContext(context.Background(), publication.Message().Header)
 	c = servicecontext.WithServiceName(c, name)
-	c = servicecontext.WithServiceColor(c, servicecontext.ServiceColorOther)
 	return c
 }
 

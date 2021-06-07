@@ -1,3 +1,6 @@
+import React from 'react';
+import {Table, TableHeader, TableFooter, TableRow, TableBody, TableRowColumn, TableHeaderColumn, SelectField, MenuItem, IconButton} from 'material-ui'
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import {Table, TableHeader, TableFooter, TableRow, TableBody, TableRowColumn, TableHeaderColumn, SelectField, MenuItem, IconButton} from 'material-ui'
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio'
 const {moment} = Pydio.requireLib("boot");
 const {ModernStyles} = Pydio.requireLib("hoc");
@@ -249,17 +252,17 @@ class MaterialTable extends React.Component{
                     </div>
                 }
                 {onPagePrev &&
-                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={prevDisabled} onTouchTap={() => onPagePrev()}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={prevDisabled} onClick={() => onPagePrev()}/>
                 }
                 {!onPagePrev &&
-                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onTouchTap={() => this.setState({page:page-1})}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-left"} disabled={page === 1} onClick={() => this.setState({page:page-1})}/>
                 }
                 {(sliceStart || sliceEnd) && <div>{sliceStart+1}-{sliceEnd} {Pydio.getMessages()['material.paginator.of']} {data.length}</div>}
                 {onPageNext &&
-                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={nextDisabled} onTouchTap={() => onPageNext()}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={nextDisabled} onClick={() => onPageNext()}/>
                 }
                 {!onPageNext &&
-                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onTouchTap={() => this.setState({page:page+1})}/>
+                    <IconButton iconClassName={"mdi mdi-chevron-right"} disabled={page === pages.length} onClick={() => this.setState({page:page+1})}/>
                 }
             </div>
         );
@@ -269,7 +272,7 @@ class MaterialTable extends React.Component{
     render(){
 
         const {columns, deselectOnClickAway, emptyStateString, masterStyles={}, emptyStateStyle, onSelectRows, computeRowStyle} = this.props;
-        const {actions} = this.props;
+        const {actions, hideHeaders} = this.props;
         let {data, showCheckboxes} = this.props;
 
         const actionsColor = masterStyles.actionsColor || 'rgba(0,0,0,.33)';
@@ -347,16 +350,20 @@ class MaterialTable extends React.Component{
                     })}
                     {actionsColumn &&
                         <TableRowColumn style={{overflow:'visible', textOverflow:'none', width:actions.length*48+32}}>
-                            {actions.map(a =>
-                                <IconButton
-                                    style={{padding: 14}}
-                                    iconStyle={{fontSize:20, color:actionsColor}}
-                                    onTouchTap={()=>{a.onTouchTap(model)}}
-                                    iconClassName={a.iconClassName}
-                                    tooltip={a.tooltip}
-                                    disabled={a.disable?a.disable(model):null}
-                                    onClick={(e) => e.stopPropagation()}
-                                />
+                            {actions.map(a => {
+                                    const disabled = a.disable ? a.disable(model) : false
+                                    return (<IconButton
+                                        style={{padding: 14,opacity:(disabled?.5:null)}}
+                                        iconStyle={{fontSize: 20, color: actionsColor}}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            a.onClick(model)
+                                        }}
+                                        iconClassName={a.iconClassName}
+                                        tooltip={a.tooltip}
+                                        disabled={disabled}
+                                    />)
+                                }
                             )}
                         </TableRowColumn>
                     }
@@ -403,8 +410,6 @@ class MaterialTable extends React.Component{
             );
         }
 
-        const {hideHeaders} = this.props;
-
         return (
             <Table onRowSelection={this.onRowSelection.bind(this)} multiSelectable={showCheckboxes}>
                 {!hideHeaders &&
@@ -431,10 +436,10 @@ class MaterialTable extends React.Component{
 }
 
 MaterialTable.PropTypes = {
-    data: React.PropTypes.array,
-    columns: React.PropTypes.array,
-    onSelectRows: React.PropTypes.func,
-    emptyStateString: React.PropTypes.string,
+    data: PropTypes.array,
+    columns: PropTypes.array,
+    onSelectRows: PropTypes.func,
+    emptyStateString: PropTypes.string,
 };
 
 export {MaterialTable as default}

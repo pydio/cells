@@ -536,6 +536,22 @@ var SwaggerJson = `{
             "format": "boolean"
           },
           {
+            "name": "FlatStorage",
+            "description": "Store data in flat format (object-storage like).",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          },
+          {
+            "name": "SkipSyncOnRestart",
+            "description": "Do not trigger resync at start.",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          },
+          {
             "name": "EncryptionMode",
             "description": "Type of encryption applied before sending data to storage.",
             "in": "query",
@@ -1106,6 +1122,18 @@ var SwaggerJson = `{
             "required": false,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "NodeDeletedStrategy",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "KeepAll",
+              "KeepLast",
+              "KeepNone"
+            ],
+            "default": "KeepAll"
           }
         ],
         "tags": [
@@ -3203,6 +3231,9 @@ var SwaggerJson = `{
         "summary": {
           "type": "string"
         },
+        "markdown": {
+          "type": "string"
+        },
         "context": {
           "$ref": "#/definitions/activityObject"
         },
@@ -4372,6 +4403,11 @@ var SwaggerJson = `{
             "$ref": "#/definitions/serviceResourcePolicy"
           },
           "title": "Policies securing this namespace"
+        },
+        "PoliciesContextEditable": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Context-resolved to quickly check if this meta is editable or not"
         }
       },
       "title": "Globally declared Namespace with associated policies"
@@ -4867,6 +4903,14 @@ var SwaggerJson = `{
           "$ref": "#/definitions/jobsIdmSelector",
           "title": "Idm objects filter"
         },
+        "DataSourceSelector": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects collector"
+        },
+        "DataSourceFilter": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects filter"
+        },
         "ActionOutputFilter": {
           "$ref": "#/definitions/jobsActionOutputFilter",
           "title": "Previous action output filter"
@@ -4874,6 +4918,10 @@ var SwaggerJson = `{
         "ContextMetaFilter": {
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Metadata policy-based filter"
+        },
+        "TriggerFilter": {
+          "$ref": "#/definitions/jobsTriggerFilter",
+          "title": "Filter on specific triggers"
         },
         "Parameters": {
           "type": "object",
@@ -4960,6 +5008,13 @@ var SwaggerJson = `{
             "$ref": "#/definitions/activityObject"
           },
           "title": "One or more Activity"
+        },
+        "DataSources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/objectDataSource"
+          },
+          "title": "One or more DataSource"
         },
         "OutputChain": {
           "type": "array",
@@ -5109,6 +5164,46 @@ var SwaggerJson = `{
         }
       },
       "title": "Response to the CtrlCommand"
+    },
+    "jobsDataSourceSelector": {
+      "type": "object",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Selector custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Selector additional description"
+        },
+        "Type": {
+          "$ref": "#/definitions/jobsDataSourceSelectorType",
+          "title": "Selector type, either DataSource or Object service"
+        },
+        "All": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Select all"
+        },
+        "Collect": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Collect results"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Composition of DataSourceSingleQueries"
+        }
+      },
+      "title": "Selector/Filter for DataSource objects"
+    },
+    "jobsDataSourceSelectorType": {
+      "type": "string",
+      "enum": [
+        "DataSource",
+        "Object"
+      ],
+      "default": "DataSource"
     },
     "jobsDeleteTasksRequest": {
       "type": "object",
@@ -5285,12 +5380,23 @@ var SwaggerJson = `{
           "$ref": "#/definitions/jobsContextMetaFilter",
           "title": "Event Context Filter"
         },
+        "DataSourceFilter": {
+          "$ref": "#/definitions/jobsDataSourceSelector",
+          "title": "DataSource objects filter"
+        },
         "Parameters": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/jobsJobParameter"
           },
           "title": "Job-level parameters that can be passed to underlying actions"
+        },
+        "ResourcesDependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "title": "Additional dependencies that may be required when running the job"
         }
       }
     },
@@ -5483,6 +5589,24 @@ var SwaggerJson = `{
       "default": "Unknown",
       "title": "/////////////////\nTASK SERVICE  //\n/////////////////"
     },
+    "jobsTriggerFilter": {
+      "type": "object",
+      "properties": {
+        "Label": {
+          "type": "string",
+          "title": "Filter custom label"
+        },
+        "Description": {
+          "type": "string",
+          "title": "Filter additional description"
+        },
+        "Query": {
+          "$ref": "#/definitions/serviceQuery",
+          "title": "Filter type"
+        }
+      },
+      "title": "Filter for events, can be applied on action branches"
+    },
     "jobsUsersSelector": {
       "type": "object",
       "properties": {
@@ -5629,6 +5753,10 @@ var SwaggerJson = `{
         },
         "SchedulerTaskActionPath": {
           "type": "string"
+        },
+        "JsonZaps": {
+          "type": "string",
+          "title": "Other Unkown Fields"
         }
       },
       "description": "LogMessage is the format used to transmit log messages to clients via the REST API."
@@ -5810,6 +5938,16 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Not implemented, whether to watch for underlying changes on the FS"
+        },
+        "FlatStorage": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Store data in flat format (object-storage like)"
+        },
+        "SkipSyncOnRestart": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Do not trigger resync at start"
         },
         "EncryptionMode": {
           "$ref": "#/definitions/objectEncryptionMode",
@@ -6222,6 +6360,11 @@ var SwaggerJson = `{
           "type": "boolean",
           "format": "boolean",
           "title": "Whether to delete all the children if node is a folder"
+        },
+        "RemovePermanently": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Force permanent deletion even if a recycle bin is defined"
         }
       }
     },
@@ -7830,6 +7973,10 @@ var SwaggerJson = `{
         "Event": {
           "$ref": "#/definitions/treeNodeChangeEvent",
           "title": "Event that triggered this change"
+        },
+        "Location": {
+          "$ref": "#/definitions/treeNode",
+          "title": "Actual location of the stored version"
         }
       }
     },
@@ -8202,6 +8349,15 @@ var SwaggerJson = `{
         }
       }
     },
+    "treeVersioningNodeDeletedStrategy": {
+      "type": "string",
+      "enum": [
+        "KeepAll",
+        "KeepLast",
+        "KeepNone"
+      ],
+      "default": "KeepAll"
+    },
     "treeVersioningPolicy": {
       "type": "object",
       "properties": {
@@ -8237,6 +8393,9 @@ var SwaggerJson = `{
           "items": {
             "$ref": "#/definitions/treeVersioningKeepPeriod"
           }
+        },
+        "NodeDeletedStrategy": {
+          "$ref": "#/definitions/treeVersioningNodeDeletedStrategy"
         }
       }
     },

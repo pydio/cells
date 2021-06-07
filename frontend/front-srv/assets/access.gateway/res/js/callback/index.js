@@ -36,7 +36,8 @@ const Callbacks = {
     openInEditor            : require('./openInEditor')(pydio),
     ajxpLink                : require('./ajxpLink')(pydio),
     openOtherEditorPicker   : require('./openOtherEditorPicker')(pydio),
-    lock                    : require('./lock')(pydio)
+    lock                    : require('./lock')(pydio),
+    goTo                    : require('./goto')(pydio)
 };
 
 export {Callbacks as default}

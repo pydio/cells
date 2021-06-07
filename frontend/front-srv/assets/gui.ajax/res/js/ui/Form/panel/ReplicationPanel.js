@@ -21,23 +21,23 @@
 const React = require('react')
 const {IconButton} = require('material-ui')
 import ReplicatedGroup from './ReplicatedGroup'
+const PropTypes = require('prop-types');
 const LangUtils = require('pydio/util/lang')
 
 /**
  * Sub form replicating itself (+/-)
  */
-export default React.createClass({
+export default class extends React.Component {
+    static propTypes = {
+        parameters:PropTypes.array.isRequired,
+        values:PropTypes.object,
+        onChange:PropTypes.func,
+        disabled:PropTypes.bool,
+        binary_context:PropTypes.string,
+        depth:PropTypes.number
+    };
 
-    propTypes:{
-        parameters:React.PropTypes.array.isRequired,
-        values:React.PropTypes.object,
-        onChange:React.PropTypes.func,
-        disabled:React.PropTypes.bool,
-        binary_context:React.PropTypes.string,
-        depth:React.PropTypes.number
-    },
-
-    buildSubValue:function(values, index=0){
+    buildSubValue = (values, index=0) => {
         let subVal;
         const suffix = index==0?'':'_'+index;
         this.props.parameters.map(function(p){
@@ -48,9 +48,9 @@ export default React.createClass({
             }
         });
         return subVal || false;
-    },
+    };
 
-    indexedValues:function(rowsArray){
+    indexedValues = (rowsArray) => {
         let index = 0, values = {};
         rowsArray.map(function(row){
             const suffix = index==0?'':'_'+index;
@@ -61,9 +61,9 @@ export default React.createClass({
             index ++;
         });
         return values;
-    },
+    };
 
-    indexValues:function(rowsArray, removeLastRow){
+    indexValues = (rowsArray, removeLastRow) => {
         const indexed = this.indexedValues(rowsArray);
         if(this.props.onChange){
             if(removeLastRow){
@@ -76,9 +76,9 @@ export default React.createClass({
                 this.props.onChange(indexed, true);
             }
         }
-    },
+    };
 
-    instances:function(){
+    instances = () => {
         // Analyze current value to grab number of rows.
         let rows = [], subVal, index = 0;
         while(subVal = this.buildSubValue(this.props.values, index)){
@@ -94,55 +94,53 @@ export default React.createClass({
             rows.push(emptyValue);
         }
         return rows;
-    },
+    };
 
-    addRow:function(){
+    addRow = () => {
         let newValue={}, currentValues = this.instances();
         this.props.parameters.map(function(p) {
             newValue[p['name']] = p['default'] || '';
         });
         currentValues.push(newValue);
         this.indexValues(currentValues);
-    },
+    };
 
-    removeRow:function(index){
+    removeRow = (index) => {
         let instances = this.instances();
         const removeInst = instances[index];
         instances = LangUtils.arrayWithout(this.instances(), index);
         instances.push(removeInst);
         this.indexValues(instances, true);
-    },
+    };
 
-    swapRows:function(i,j){
+    swapRows = (i, j) => {
         let instances = this.instances();
         let tmp = instances[j];
         instances[j] = instances[i];
         instances[i] = tmp;
         this.indexValues(instances);
-    },
+    };
 
-    onChange:function(index, newValues, dirty){
+    onChange = (index, newValues, dirty) => {
         let instances = this.instances();
         instances[index] = newValues;
         this.indexValues(instances);
-    },
+    };
 
-    onParameterChange:function(index, paramName, newValue, oldValue){
+    onParameterChange = (index, paramName, newValue, oldValue) => {
         let instances = this.instances();
         instances[index][paramName] = newValue;
         this.indexValues(instances);
-    },
+    };
 
-    render:function(){
-        const {parameters, disabled} = this.props;
+    render() {
+        const {parameters, disabled, variant} = this.props;
         let firstParam = parameters[0];
         const replicationTitle = firstParam['replicationTitle'] || firstParam['label'];
-        const replicationDescription = firstParam['replicationDescription'] || firstParam['description'];
         const replicationMandatory = firstParam['replicationMandatory'] === 'true';
 
         const instances = this.instances();
         const multipleRows = instances.length > 1;
-        const multipleParams = parameters.length > 1;
         const rows = instances.map((subValues, index) => {
             let onSwapUp, onSwapDown, onRemove;
             const onParameterChange = (paramName, newValue, oldValue) => {
@@ -168,17 +166,24 @@ export default React.createClass({
             return <div className="replicable-field" style={{marginBottom: 14}}>{rows}</div>
         }
 
-        const tStyle = rows.length?{}:{backgroundColor:'whitesmoke', borderRadius:4};
+        let tStyle = rows.length?{}:{backgroundColor:'whitesmoke', borderRadius:4};
+        let contStyle = {marginBottom: 14}
+        if(variant==='v2'){
+            tStyle = {...tStyle, height: 52, backgroundColor: '#f6f6f8', marginTop: 8, borderRadius: '4px 4px 0 0'}
+            if (!rows.length) {
+                tStyle = {...tStyle, borderBottom:'1px solid rgba(158,158,158,.3)'};
+                contStyle = {height: 58};
+            }
+        }
         return (
-            <div className="replicable-field" style={{marginBottom: 14}}>
+            <div className="replicable-field" style={contStyle}>
                 <div style={{display:'flex', alignItems:'center', ...tStyle}}>
-                    <IconButton key="add" iconClassName="mdi mdi-plus-box-outline" tooltipPosition={"top-right"} style={{height:36,width:36,padding:6}} iconStyle={{fontSize:24}} tooltip="Add value" onClick={()=>this.addRow()} disabled={disabled}/>
-                    <div className="title" style={{fontSize: 16, flex: 1}}>{replicationTitle}</div>
+                    <div className="title" style={{fontSize: 16, flex: 1, paddingLeft: 8}}>{replicationTitle}</div>
+                    <IconButton key="add" iconClassName="mdi mdi-plus-box" tooltipPosition={"bottom-left"} style={{padding: 14}} iconStyle={{fontSize:20, color:'#9e9e9e'}} tooltip="Add value" onClick={()=>this.addRow()} disabled={disabled}/>
                 </div>
                 {rows}
             </div>
 
         );
     }
-
-});
+}

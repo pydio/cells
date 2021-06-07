@@ -87,18 +87,7 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 		subjects = append(subjects, "*")
 		if value := ctx.Value(claim.ContextKey); value != nil {
 			claims := value.(claim.Claims)
-			subjects = append(subjects, "user:"+claims.Name)
-			// Add all profiles up to the current one (e.g admin will check for anon, shared, standard, admin)
-			for _, p := range common.PydioUserProfiles {
-				subjects = append(subjects, "profile:"+p)
-				if p == claims.Profile {
-					break
-				}
-			}
-			//subjects = append(subjects, "profile:"+claims.Profile)
-			for _, r := range strings.Split(claims.Roles, ",") {
-				subjects = append(subjects, "role:"+r)
-			}
+			subjects = append(subjects, SubjectsFromClaim(claims)...)
 		} else if uName, _ := permissions.FindUserNameInContext(ctx); uName != "" {
 			if uName == common.PydioSystemUsername {
 				subjects = append(subjects, "profile:"+common.PydioProfileAdmin)
@@ -144,6 +133,23 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 			subjects = append(subjects, "user:"+user.Login)
 			subjects = append(subjects, "profile:"+user.Attributes[idm.UserAttrProfile])
 		}
+	}
+	return
+}
+
+// SubjectsFromClaim builds a list of subjects based on Claim attributes.
+func SubjectsFromClaim(claim claim.Claims) (subjects []string) {
+	subjects = append(subjects, "user:"+claim.Name)
+	// Add all profiles up to the current one (e.g admin will check for anon, shared, standard, admin)
+	for _, p := range common.PydioUserProfiles {
+		subjects = append(subjects, "profile:"+p)
+		if p == claim.Profile {
+			break
+		}
+	}
+	//subjects = append(subjects, "profile:"+claims.Profile)
+	for _, r := range strings.Split(claim.Roles, ",") {
+		subjects = append(subjects, "role:"+r)
 	}
 	return
 }

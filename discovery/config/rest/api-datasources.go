@@ -28,12 +28,16 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/emicklei/go-restful"
+	"github.com/pydio/cells/common/registry"
+
+	"github.com/pydio/cells/common/proto/jobs"
+
+	restful "github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/pborman/uuid"
-	"github.com/pydio/minio-go"
+	minio "github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -104,17 +108,21 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 			service.RestError500(req, resp, err)
 			return
 		}
-		osFolder := filesystem.ToFilePath(ds.StorageConfiguration["folder"])
+		osFolder := filesystem.ToFilePath(ds.StorageConfiguration[object.StorageKeyFolder])
 		rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 		if rootPrefix != "" && !strings.HasPrefix(osFolder, rootPrefix) {
 			osFolder = filepath.Join(rootPrefix, osFolder)
 		}
-		ds.StorageConfiguration["folder"] = osFolder
+		ds.StorageConfiguration[object.StorageKeyFolder] = osFolder
 	}
 
 	currentSources := config.ListSourcesFromConfig()
 	currentMinios := config.ListMinioConfigsFromConfig()
-	_, update := currentSources[ds.Name]
+	initialDs, update := currentSources[ds.Name]
+	var initialVersioningEmpty bool
+	if update {
+		initialVersioningEmpty = initialDs.VersioningPolicyName == ""
+	}
 
 	minioConfig, e := config.FactorizeMinioServers(currentMinios, &ds, update)
 	if e != nil {
@@ -139,18 +147,19 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	} else {
 		config.Del("services", "pydio.grpc.data.index."+dsName, "Disabled")
 	}
+	config.Get().Map()
 	if ds.PeerAddress != "" {
 		config.Set(ds.PeerAddress, "services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	} else {
 		config.Del("services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	}
+	config.Get().Map()
 	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
 	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
 	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
-	fmt.Println(config.Get("services", "pydio.grpc.data.sync."+dsName))
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
 	config.SourceNamesToConfig(currentSources)
@@ -165,6 +174,15 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		eventType := object.DataSourceEvent_CREATE
 		if update {
 			eventType = object.DataSourceEvent_UPDATE
+			if initialVersioningEmpty && ds.VersioningPolicyName != "" {
+				if e := createFullVersioningJob(ctx, dsName); e != nil {
+					log.Logger(ctx).Warn("Could not insert full versioning job for datasource " + dsName)
+				}
+			} else if ds.VersioningPolicyName == "" && !initialVersioningEmpty {
+				if e := removeFullVersioningJob(ctx, dsName); e != nil {
+					log.Logger(ctx).Warn("Could not insert full versioning job for datasource " + dsName)
+				}
+			}
 		}
 
 		if err = client.Publish(ctx, client.NewPublication(common.TopicDatasourceEvent, &object.DataSourceEvent{
@@ -181,7 +199,6 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		}
 
 	} else {
-		fmt.Println("Error is ", err)
 		service.RestError500(req, resp, err)
 	}
 
@@ -189,6 +206,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 
 func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response) {
 
+	ctx := req.Request.Context()
 	dsName := req.PathParameter("Name")
 	if dsName == "" {
 		service.RestError500(req, resp, fmt.Errorf("Please provide a data source name"))
@@ -208,9 +226,13 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	}
 	currentSources := config.ListSourcesFromConfig()
 
-	if _, ok := currentSources[dsName]; !ok {
+	if existingDS, ok := currentSources[dsName]; !ok {
 		service.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
 		return
+	} else if existingDS.VersioningPolicyName != "" {
+		if e := removeFullVersioningJob(ctx, dsName); e != nil {
+			log.Logger(ctx).Warn("Error while removing full versioning job on ds deletion", zap.Error(e))
+		}
 	}
 	delete(currentSources, dsName)
 	config.SourceNamesToConfig(currentSources)
@@ -271,7 +293,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	}
 	ds := r.DataSource
 	endpoint := "https://s3.amazonaws.com"
-	if c, o := ds.StorageConfiguration["customEndpoint"]; o && c != "" {
+	if c, o := ds.StorageConfiguration[object.StorageKeyCustomEndpoint]; o && c != "" {
 		endpoint = c
 	}
 	u, _ := url.Parse(endpoint)
@@ -281,7 +303,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 		ds.ApiSecret = sec
 	}
 	mc, er := minio.New(host, ds.ApiKey, ds.ApiSecret, secure)
-	if r, o := ds.StorageConfiguration["customRegion"]; o && r != "" {
+	if r, o := ds.StorageConfiguration[object.StorageKeyCustomRegion]; o && r != "" {
 		creds := credentials.NewStaticV4(ds.ApiKey, ds.ApiSecret, "")
 		mc, er = minio.NewWithCredentials(host, creds, secure, r)
 	}
@@ -344,13 +366,13 @@ func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.Da
 	}
 
 	if ds.StorageConfiguration != nil {
-		if folder, ok := ds.StorageConfiguration["folder"]; ok {
+		if folder, ok := ds.StorageConfiguration[object.StorageKeyFolder]; ok {
 			rootPrefix := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "allowedLocalDsFolder").String()
 			if rootPrefix != "" && strings.HasPrefix(folder, rootPrefix) {
 				folder = strings.TrimPrefix(folder, rootPrefix)
 			}
 			// For the API Output, we want to always expose "/" paths, whatever the OS
-			ds.StorageConfiguration["folder"] = filesystem.ToNodePath(folder)
+			ds.StorageConfiguration[object.StorageKeyFolder] = filesystem.ToNodePath(folder)
 		}
 	}
 
@@ -409,4 +431,56 @@ func (s *Handler) findWorkspacesForDatasource(ctx context.Context, dsName string
 	}
 
 	return false, nil
+}
+
+func removeFullVersioningJob(ctx context.Context, dsName string) error {
+	jId := "full-versioning-job-" + dsName
+	jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	to := registry.ShortRequestTimeout()
+	_, e := jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: jId}, to)
+	return e
+}
+
+func createFullVersioningJob(ctx context.Context, dsName string) error {
+
+	//T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
+
+	j := &jobs.Job{
+		ID:                "full-versioning-job-" + dsName,
+		Owner:             common.PydioSystemUsername,
+		Label:             "[Versioning] Create new version for all files inside " + dsName,
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.versioning.create",
+				NodesSelector: &jobs.NodesSelector{
+					Query: &service2.Query{
+						SubQueries: jobs.MustMarshalAnyMultiple(
+							&tree.Query{
+								Type:       tree.NodeType_LEAF,
+								PathPrefix: []string{dsName + "/"},
+							},
+							&tree.Query{
+								FileName: common.PydioSyncHiddenFile,
+								Not:      true,
+							},
+						),
+						Operation: service2.OperationType_AND,
+					},
+				},
+			},
+		},
+	}
+
+	jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	to := registry.ShortRequestTimeout()
+	if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: j.ID}, to); err != nil {
+		log.Logger(ctx).Info("Inserting full versioning job")
+		_, e := jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j}, to)
+		return e
+	}
+
+	return nil
 }

@@ -9,12 +9,14 @@
   },
   "author": "Abstrium SAS",
   "license": "eula",
-  "devDependencies": {},
-  "dependencies": {
+  "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-babel": "~5.0.3",
     "grunt-browserify": "~4.0.1",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-uglify": "^5.0.0"
+  },
+  "dependencies": {
     "pydio-sdk-js": "github:pydio/pydio-sdk-js",
     "uuid4": "^1.0.0"
   }

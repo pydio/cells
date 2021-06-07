@@ -2,7 +2,7 @@ import React from "react"
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
 import {Paper, Divider, SelectField, MenuItem, LinearProgress, Stepper} from 'material-ui'
-import {JobsJob, JobsTask} from 'pydio/http/rest-api'
+import {JobsJob, JobsTask} from 'cells-sdk'
 const {JobsStore, moment} = Pydio.requireLib("boot");
 const {ModernSelectField} = Pydio.requireLib('hoc');
 

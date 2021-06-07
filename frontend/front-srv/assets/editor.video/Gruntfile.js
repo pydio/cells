@@ -1,77 +1,20 @@
 module.exports = function(grunt) {
 
-    const {Externals} = require('../libdefs.js');
-    
-    grunt.initConfig({
-        babel: {
-            options: {
-                optional: ['es7.decorators'],
-            },
-
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        cwd: 'res/js/',
-                        src: ['**/*.js'],
-                        dest: 'res/build/PydioVideo/',
-                        ext: '.js'
-                    }
-                ]
-            }
-        },
-        browserify: {
-            ui : {
-                options: {
-                    external: Externals,
-                    browserifyOptions:{
-                        standalone: 'PydioVideo',
-                        debug:true
-                    }
-                },
-                files: {
-                    'res/build/PydioVideo.js':'res/build/PydioVideo/index.js'
-                }
-            }
-        },
-        copy: {
-            swf: {
-                expand: true,
-                src: ['node_modules/video.js/dist/video-js.swf', 'node_modules/video.js/dist/video-js.min.css'],
-                dest: './res/build/',
-                flatten:true
-            }
-        },
-        compress: {
-            options: {
-                mode: 'gzip',
-                level:9,
-            },
-            js: {
-                expand: true,
-                cwd: 'res/build/',
-                src: ['PydioVideo.js'],
-                dest: 'res/build/',
-                ext: '.js.gz'
-            },
-        },
-        watch: {
-            js: {
-                files: [
-                    "res/**/*"
-                ],
-                tasks: ['babel', 'browserify:ui', 'compress'],
-                options: {
-                    spawn: false
-                }
-            }
+    const {initConfig, loadNpmTasks} = require('../gruntConfigCommon.js')
+    const config = initConfig('PydioVideo')
+    config.copy = {
+        swf: {
+            expand: true,
+            src: ['node_modules/video.js/dist/video-js.min.css'],
+            dest: './res/dist/',
+            flatten:true
         }
-    });
-    grunt.loadNpmTasks('grunt-browserify');
-    grunt.loadNpmTasks('grunt-babel');
+    };
+    grunt.initConfig(config);
+
+    loadNpmTasks(grunt);
+
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'browserify:ui', 'compress', 'copy']);
+    grunt.registerTask('default', ['babel', 'browserify', 'uglify', 'copy', 'compress']);
 
 };

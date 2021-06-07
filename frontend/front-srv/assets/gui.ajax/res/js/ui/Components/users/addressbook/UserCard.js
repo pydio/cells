@@ -18,7 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import React from 'react'
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import UserAvatar from '../avatar/UserAvatar'
 import UserCreationForm from '../UserCreationForm'
 
@@ -42,9 +44,10 @@ class UserCard extends React.Component{
     render(){
 
         const {item} = this.props;
-        let editableProps = {}, editForm;
+        let editableProps = {avatarStyle: {zIndex: 1}}, editForm;
         if(item._parent && item._parent.id === 'ext'){
             editableProps = {
+                ...editableProps,
                 userEditable: item.IdmUser.PoliciesContextEditable,
                 onDeleteAction: () => {this.props.onDeleteAction(item._parent, [item])},
                 onEditAction: () => {this.setState({editForm: true})},
@@ -82,6 +85,7 @@ class UserCard extends React.Component{
                     richCard={!editForm}
                     pydio={this.props.pydio}
                     cardSize={this.props.style.width}
+                    cardStyle={{textAlign:'left', padding:'12px 16px 4px', backgroundColor:'#f8fafc'}}
                     {...editableProps}
                 />
                 {editForm}
@@ -95,27 +99,27 @@ UserCard.propTypes = {
     /**
      * Pydio instance
      */
-    pydio: React.PropTypes.instanceOf(Pydio),
+    pydio: PropTypes.instanceOf(Pydio),
     /**
      * Team data object
      */
-    item: React.PropTypes.object,
+    item: PropTypes.object,
     /**
      * Applied to root container
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     /**
      * Called to dismiss the popover
      */
-    onRequestClose: React.PropTypes.func,
+    onRequestClose: PropTypes.func,
     /**
      * Delete current team
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: PropTypes.func,
     /**
      * Update current team
      */
-    onUpdateAction: React.PropTypes.func
+    onUpdateAction: PropTypes.func
 };
 
 

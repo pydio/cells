@@ -21,7 +21,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 import {Divider, FontIcon, IconButton, FlatButton, List, ListItem, MenuItem, Paper, Subheader} from 'material-ui'
-import {JobsSchedule} from 'pydio/http/rest-api'
+import {JobsSchedule} from 'cells-sdk'
 const {Stepper} = Pydio.requireLib("components");
 const {Dialog, PanelBigButtons} = Stepper;
 
@@ -277,7 +277,7 @@ class Events extends React.Component{
                 key={e}
                 disabled={true}
                 primaryText={Events.eventData(e).title}
-                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onTouchTap={()=>{this.remove(e)}}/>}
+                rightIconButton={<IconButton iconClassName={"mdi mdi-delete"} iconStyle={{color:LightGrey}} onClick={()=>{this.remove(e)}}/>}
             />);
             list.push(<Divider/>)
         });
@@ -299,7 +299,7 @@ class Events extends React.Component{
                         onPick={(eventId) => {this.add(eventId); this.dismiss()}}
                     />
                 </Dialog>
-                <FlatButton style={{width:'100%'}} label={"Trigger job on..."} primary={true} onTouchTap={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
+                <FlatButton style={{width:'100%'}} label={"Trigger job on..."} primary={true} onClick={() => this.setState({open: true})} icon={<FontIcon className={"mdi mdi-pulse"}/>}/>
                 <List>{list}</List>
             </div>
         )

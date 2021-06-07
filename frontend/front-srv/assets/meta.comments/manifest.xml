@@ -3,7 +3,7 @@
 	<client_settings>
 		<resources>
 			<i18n namespace="meta.comments" remote="plug/meta.comments/res/i18n"/>
-			<js file="plug/meta.comments/res/build/MetaComments.js" className="MetaComments"/>
+			<js file="plug/meta.comments/res/dist/MetaComments.min.js" className="MetaComments"/>
 		</resources>
 	</client_settings>
     <server_settings>

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PydioDataModel from "../../../core/model/PydioDataModel";
+import PydioDataModel from 'pydio/model/data-model';
 
 const FuncUtils = require("pydio/util/func")
 const ResourcesManager = require("pydio/http/resources-manager")

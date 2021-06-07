@@ -102,6 +102,10 @@ func (e *MicroEventsSubscriber) getWorkspaceClient() idm.WorkspaceServiceClient 
 	return e.wsClient
 }
 
+func (e *MicroEventsSubscriber) ignoreForInternal(node *tree.Node) bool {
+	return node.HasMetaKey(common.MetaNamespaceDatasourceInternal)
+}
+
 // Handle processes the received events and sends them to the subscriber
 func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.NodeChangeEvent) error {
 
@@ -122,105 +126,100 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		// Ignore events triggered by initial sync
 		return nil
 	}
-	log.Logger(ctx).Debug("Fan out event to activities", zap.String(common.KEY_USER, author), msg.Zap())
+	log.Logger(ctx).Debug("Fan out event to activities", zap.String(common.KeyUser, author), msg.Zap())
 
 	// Create Activities and post them to associated inboxes
-	ac, Node := activity.DocumentActivity(author, msg)
-	if Node != nil && Node.Uuid != "" {
+	ac, node := activity.DocumentActivity(author, msg)
+	if node == nil || node.Uuid == "" || tree.IgnoreNodeForOutput(ctx, node) || e.ignoreForInternal(node) {
+		return nil
+	}
 
-		loadedNode, parentUuids := e.parentsFromCache(ctx, Node, msg.Type == tree.NodeChangeEvent_DELETE)
-		// Use reloaded node
-		if msg.Type == tree.NodeChangeEvent_UPDATE_USER_META {
-			if Node.MetaStore != nil {
-				if loadedNode.MetaStore == nil {
-					loadedNode.MetaStore = make(map[string]string, len(Node.MetaStore))
-				}
-				for k, v := range Node.MetaStore {
-					loadedNode.MetaStore[k] = v
-				}
+	loadedNode, parentUuids := e.parentsFromCache(ctx, node, msg.Type == tree.NodeChangeEvent_DELETE)
+	// Use reloaded node
+	if msg.Type == tree.NodeChangeEvent_UPDATE_USER_META {
+		if node.MetaStore != nil {
+			if loadedNode.MetaStore == nil {
+				loadedNode.MetaStore = make(map[string]string, len(node.MetaStore))
 			}
-			msg.Target = loadedNode
-			// Rebuild activity
-			ac, Node = activity.DocumentActivity(author, msg)
-		}
-
-		// Ignore hidden files
-		if tree.IgnoreNodeForOutput(ctx, Node) {
-			return nil
-		}
-
-		//
-		// Post to the initial node Outbox
-		//
-		log.Logger(ctx).Debug("Posting Activity to node outbox")
-		if msg.Type == tree.NodeChangeEvent_DELETE {
-			dao.Delete(activity2.OwnerType_NODE, Node.Uuid)
-		} else {
-			dao.PostActivity(activity2.OwnerType_NODE, Node.Uuid, activity.BoxOutbox, ac, nil)
-		}
-
-		//
-		// Post to the author Outbox
-		//
-		log.Logger(ctx).Debug("Posting Activity to author outbox")
-		dao.PostActivity(activity2.OwnerType_USER, author, activity.BoxOutbox, ac, ctx)
-
-		//
-		// Post to parents Outbox'es as well
-		//
-		for _, uuid := range parentUuids {
-			dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac, nil)
-		}
-
-		//
-		// Find followers and post activity to their Inbox
-		//
-		subUuids := parentUuids
-		if msg.Type != tree.NodeChangeEvent_CREATE {
-			subUuids = append(subUuids, Node.Uuid)
-		}
-		subscriptions, err := dao.ListSubscriptions(activity2.OwnerType_NODE, subUuids)
-		log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Any("subs", subscriptions))
-		if err != nil {
-			return err
-		}
-		for _, subscription := range subscriptions {
-
-			if len(subscription.Events) == 0 {
-				continue
-			}
-			// Ignore if author is user
-			if subscription.UserId == author {
-				continue
-			}
-			evread := false
-			evchange := false
-			for _, ev := range subscription.Events {
-				if strings.Compare(ev, "read") == 0 {
-					evread = true
-				} else if strings.Compare(ev, "change") == 0 {
-					evchange = true
-				}
-			}
-			if !((evread && ac.Type == activity2.ObjectType_Read) || (evchange && ac.Type != activity2.ObjectType_Read)) {
-				continue
-			}
-			accessList, user, er := permissions.AccessListFromUser(ctx, subscription.UserId, false)
-			if er != nil {
-				log.Logger(ctx).Error("Could not load access list", zap.Error(er))
-				continue
-			}
-			userCtx := auth.WithImpersonate(ctx, user)
-			ancestors, ez := views.BuildAncestorsListOrParent(userCtx, e.getTreeClient(), loadedNode)
-			if ez != nil {
-				log.Logger(ctx).Error("Could not load ancestors list", zap.Error(er))
-				continue
-			}
-			if accessList.CanReadWithResolver(userCtx, e.vNodeResolver, ancestors...) {
-				dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, ctx)
+			for k, v := range node.MetaStore {
+				loadedNode.MetaStore[k] = v
 			}
 		}
+		msg.Target = loadedNode
+		// Rebuild activity
+		ac, node = activity.DocumentActivity(author, msg)
+	}
 
+	//
+	// Post to the initial node Outbox
+	//
+	log.Logger(ctx).Debug("Posting Activity to node outbox")
+	if msg.Type == tree.NodeChangeEvent_DELETE {
+		dao.Delete(activity2.OwnerType_NODE, node.Uuid)
+	} else {
+		dao.PostActivity(activity2.OwnerType_NODE, node.Uuid, activity.BoxOutbox, ac, nil)
+	}
+
+	//
+	// Post to the author Outbox
+	//
+	log.Logger(ctx).Debug("Posting Activity to author outbox")
+	dao.PostActivity(activity2.OwnerType_USER, author, activity.BoxOutbox, ac, ctx)
+
+	//
+	// Post to parents Outbox'es as well
+	//
+	for _, uuid := range parentUuids {
+		dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac, nil)
+	}
+
+	//
+	// Find followers and post activity to their Inbox
+	//
+	subUuids := parentUuids
+	if msg.Type != tree.NodeChangeEvent_CREATE {
+		subUuids = append(subUuids, node.Uuid)
+	}
+	subscriptions, err := dao.ListSubscriptions(activity2.OwnerType_NODE, subUuids)
+	log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Any("subs", subscriptions))
+	if err != nil {
+		return err
+	}
+	for _, subscription := range subscriptions {
+
+		if len(subscription.Events) == 0 {
+			continue
+		}
+		// Ignore if author is user
+		if subscription.UserId == author {
+			continue
+		}
+		evread := false
+		evchange := false
+		for _, ev := range subscription.Events {
+			if strings.Compare(ev, "read") == 0 {
+				evread = true
+			} else if strings.Compare(ev, "change") == 0 {
+				evchange = true
+			}
+		}
+		if !((evread && ac.Type == activity2.ObjectType_Read) || (evchange && ac.Type != activity2.ObjectType_Read)) {
+			continue
+		}
+		accessList, user, er := permissions.AccessListFromUser(ctx, subscription.UserId, false)
+		if er != nil {
+			log.Logger(ctx).Error("Could not load access list", zap.Error(er))
+			continue
+		}
+		userCtx := auth.WithImpersonate(ctx, user)
+		ancestors, ez := views.BuildAncestorsListOrParent(userCtx, e.getTreeClient(), loadedNode)
+		if ez != nil {
+			log.Logger(ctx).Error("Could not load ancestors list", zap.Error(er))
+			continue
+		}
+		if accessList.CanReadWithResolver(userCtx, e.vNodeResolver, ancestors...) {
+			dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, ctx)
+		}
 	}
 
 	return nil
@@ -243,7 +242,6 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	} else if msg.User != nil && msg.Type == idm.ChangeEventType_DELETE && msg.User.Login != "" {
 		// Clear activity for deleted user
 		ctx = servicecontext.WithServiceName(ctx, Name)
-		ctx = servicecontext.WithServiceColor(ctx, servicecontext.ServiceColorGrpc)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
 		go e.dao.Delete(activity2.OwnerType_USER, msg.User.Login)
 	}

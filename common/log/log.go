@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -32,15 +32,15 @@ import (
 
 	micro "github.com/micro/go-log"
 	"github.com/micro/go-micro/metadata"
-	context2 "github.com/pydio/cells/common/utils/context"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
 	servicecontext "github.com/pydio/cells/common/service/context"
-	"gopkg.in/natefinch/lumberjack.v2"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -56,7 +56,8 @@ var (
 
 	StdOut *os.File
 
-	customSyncers []zapcore.WriteSyncer
+	skipServerSync bool
+	customSyncers  []zapcore.WriteSyncer
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
@@ -70,13 +71,25 @@ func Init() {
 
 		var logger *zap.Logger
 
+		serverCore := zapcore.NewNopCore()
+		if !skipServerSync {
+			// Create core for internal indexing service
+			// It forwards logs to the pydio.grpc.logs service to store them
+			// Format is always JSON + ProductionEncoderConfig
+			srvConfig := zap.NewProductionEncoderConfig()
+			srvConfig.EncodeTime = RFC3369TimeEncoder
+			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
+			serverCore = zapcore.NewCore(
+				zapcore.NewJSONEncoder(srvConfig),
+				serverSync,
+				common.LogLevel,
+			)
+		}
+
 		if common.LogConfig == common.LogConfigProduction {
 
-			// Forwards logs to the pydio.grpc.logs service to store them
-			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
-
 			// Additional logger: stores messages in local file
-			logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
+			logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
 			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   filepath.Join(logDir, "pydio.log"),
 				MaxSize:    10, // megabytes
@@ -84,24 +97,26 @@ func Init() {
 				MaxAge:     28, // days
 			})
 
-			syncers := []zapcore.WriteSyncer{StdOut, serverSync, rotaterSync}
+			syncers := []zapcore.WriteSyncer{StdOut, rotaterSync}
 			syncers = append(syncers, customSyncers...)
 			w := zapcore.NewMultiWriteSyncer(syncers...)
 
 			// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
-			config := zap.NewProductionEncoderConfig()
-			config.EncodeTime = RFC3369TimeEncoder
+			cfg := zap.NewProductionEncoderConfig()
+			cfg.EncodeTime = RFC3369TimeEncoder
 
 			core := zapcore.NewCore(
-				zapcore.NewJSONEncoder(config),
+				zapcore.NewJSONEncoder(cfg),
 				w,
-				zapcore.InfoLevel,
+				common.LogLevel,
 			)
+
+			core = zapcore.NewTee(core, serverCore)
 
 			logger = zap.New(core)
 		} else {
-			config := zap.NewDevelopmentEncoderConfig()
-			config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+			cfg := zap.NewDevelopmentEncoderConfig()
+			cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
 			var syncer zapcore.WriteSyncer
 			syncer = StdOut
@@ -111,10 +126,12 @@ func Init() {
 				syncer = zapcore.NewMultiWriteSyncer(syncers...)
 			}
 			core := zapcore.NewCore(
-				zapcore.NewConsoleEncoder(config),
+				newColorConsoleEncoder(cfg),
 				syncer,
 				common.LogLevel,
 			)
+
+			core = zapcore.NewTee(core, serverCore)
 
 			if common.LogLevel == zap.DebugLevel {
 				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
@@ -122,6 +139,7 @@ func Init() {
 				logger = zap.New(core)
 			}
 		}
+
 		nop := zap.NewNop()
 		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
 		micro.SetLogger(micrologger{nop})
@@ -166,6 +184,12 @@ func RegisterWriteSyncer(syncer WriteSyncer) {
 	mainLogger.forceReset() // Will force reinit next time
 }
 
+// SetSkipServerSync can disable the core syncing to cells service
+// Must be called before initialization
+func SetSkipServerSync() {
+	skipServerSync = true
+}
+
 // SetLoggerInit defines what function to use to init the logger
 func SetLoggerInit(f func() *zap.Logger) {
 	mainLogger.set(f)
@@ -173,29 +197,7 @@ func SetLoggerInit(f func() *zap.Logger) {
 
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) *zap.Logger {
-	newLogger := mainLogger.get()
-
-	if ctx != nil {
-		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			if serviceColor := servicecontext.GetServiceColor(ctx); serviceColor > 0 && common.LogConfig != common.LogConfigProduction {
-				newLogger = newLogger.Named(fmt.Sprintf("\x1b[%dm%s\x1b[0m", serviceColor, serviceName))
-			} else {
-				newLogger = newLogger.Named(serviceName)
-			}
-		}
-		if opID, opLabel := servicecontext.GetOperationID(ctx); opID != "" {
-			if opLabel != "" {
-				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID), zap.String(common.KEY_OPERATION_LABEL, opLabel))
-			} else {
-				newLogger = newLogger.With(zap.String(common.KEY_OPERATION_UUID, opID))
-			}
-		}
-		if common.LogConfig == common.LogConfigProduction {
-			newLogger = fillLogContext(ctx, newLogger)
-		}
-	}
-
-	return newLogger
+	return fillLogContext(ctx, mainLogger.get())
 }
 
 // SetAuditerInit defines what function to use to init the auditer
@@ -205,18 +207,7 @@ func SetAuditerInit(f func() *zap.Logger) {
 
 // Auditer returns a zap logger with as much context as possible
 func Auditer(ctx context.Context) *zap.Logger {
-	newLogger := auditLogger.get()
-
-	if ctx != nil {
-		newLogger = newLogger.With(zap.String("LogType", "audit"))
-		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			newLogger = newLogger.Named(serviceName)
-		}
-		// Add context info to the logger
-		newLogger = fillLogContext(ctx, newLogger)
-	}
-
-	return newLogger
+	return fillLogContext(ctx, auditLogger.get(), zap.String("LogType", "audit"))
 }
 
 // SetTasksLoggerInit defines what function to use to init the tasks logger
@@ -226,22 +217,12 @@ func SetTasksLoggerInit(f func() *zap.Logger) {
 
 // TasksLogger returns a zap logger with as much context as possible.
 func TasksLogger(ctx context.Context) *zap.Logger {
-	newLogger := tasksLogger.get()
-	if ctx != nil {
-		newLogger = newLogger.With(zap.String("LogType", "tasks"))
-		if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-			newLogger = newLogger.Named(serviceName)
-		}
-		// Add context info to the logger
-		newLogger = fillLogContext(ctx, newLogger)
-	}
-
-	return newLogger
+	return fillLogContext(ctx, tasksLogger.get(), zap.String("LogType", "tasks"))
 }
 
 // GetAuditId simply returns a zap field that contains this message id to ease audit log analysis.
 func GetAuditId(msgId string) zapcore.Field {
-	return zap.String(common.KEY_MSG_ID, msgId)
+	return zap.String(common.KeyMsgId, msgId)
 }
 
 type micrologger struct {
@@ -282,31 +263,41 @@ func Info(msg string, fields ...zapcore.Field) {
 }
 
 // Enrich the passed logger with generic context info, used by both syslog and audit loggers
-func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
+func fillLogContext(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger {
 
+	if ctx == nil {
+		return logger
+	}
+
+	// Name Logger
+	if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
+		logger = logger.Named(serviceName)
+	}
+
+	// Compute all fields
 	if span, ok := servicecontext.SpanFromContext(ctx); ok {
 		if len(span.RootParentId) > 0 {
-			logger = logger.With(zap.String(common.KEY_SPAN_ROOT_UUID, span.RootParentId))
+			fields = append(fields, zap.String(common.KeySpanRootUuid, span.RootParentId))
 		}
 		if len(span.ParentId) > 0 {
-			logger = logger.With(zap.String(common.KEY_SPAN_PARENT_UUID, span.RootParentId))
+			fields = append(fields, zap.String(common.KeySpanParentUuid, span.RootParentId))
 		}
-		logger = logger.With(zap.String(common.KEY_SPAN_UUID, span.SpanId))
+		fields = append(fields, zap.String(common.KeySpanUuid, span.SpanId))
 	}
 	if opId, opLabel := servicecontext.GetOperationID(ctx); opId != "" {
-		logger = logger.With(zap.String(common.KEY_OPERATION_UUID, opId))
+		fields = append(fields, zap.String(common.KeyOperationUuid, opId))
 		if opLabel != "" {
-			logger = logger.With(zap.String(common.KEY_OPERATION_LABEL, opLabel))
+			fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
 		}
 	}
 	if jobId, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
-		logger = logger.With(zap.String(common.KEY_SCHEDULER_JOB_ID, jobId))
+		fields = append(fields, zap.String(common.KeySchedulerJobId, jobId))
 	}
 	if taskUuid, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
-		logger = logger.With(zap.String(common.KEY_SCHEDULER_TASK_ID, taskUuid))
+		fields = append(fields, zap.String(common.KeySchedulerTaskId, taskUuid))
 	}
 	if taskPath, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
-		logger = logger.With(zap.String(common.KEY_SCHEDULER_ACTION_PATH, taskPath))
+		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
 	}
 	if ctxMeta, has := metadata.FromContext(ctx); has {
 		for _, key := range []string{
@@ -316,19 +307,22 @@ func fillLogContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 			servicecontext.HttpMetaProtocol,
 		} {
 			if val, hasKey := ctxMeta[key]; hasKey {
-				logger = logger.With(zap.String(key, val))
+				fields = append(fields, zap.String(key, val))
 			}
 		}
 	}
 	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
 		uuid := claims.Subject
-		logger = logger.With(
-			zap.String(common.KEY_USERNAME, claims.Name),
-			zap.String(common.KEY_USER_UUID, uuid),
-			zap.String(common.KEY_GROUP_PATH, claims.GroupPath),
-			zap.String(common.KEY_PROFILE, claims.Profile),
-			zap.String(common.KEY_ROLES, claims.Roles),
+		fields = append(fields,
+			zap.String(common.KeyUsername, claims.Name),
+			zap.String(common.KeyUserUuid, uuid),
+			zap.String(common.KeyGroupPath, claims.GroupPath),
+			zap.String(common.KeyProfile, claims.Profile),
+			zap.String(common.KeyRoles, claims.Roles),
 		)
 	}
-	return logger
+	if len(fields) == 0 {
+		return logger
+	}
+	return logger.With(fields...)
 }

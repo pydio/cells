@@ -1,13 +1,34 @@
+/*
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import React from "react";
 import ResourcesManager from 'pydio/http/resources-manager'
-import {FlatButton, RaisedButton, Paper} from 'material-ui'
-import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'pydio/http/rest-api'
+import {Paper} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'cells-sdk'
 import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
 import Pydio from 'pydio'
 import VersionPolicyPeriods from './VersionPolicyPeriods'
 const PydioForm = Pydio.requireLib('form');
-const {PaperEditorLayout} = Pydio.requireLib('components');
+const {PaperEditorLayout, AdminStyles} = AdminComponents;
 
 class VersionPolicyEditor extends React.Component{
 
@@ -85,6 +106,10 @@ class VersionPolicyEditor extends React.Component{
                 i++;
             });
         }
+        // Default Enum Value
+        if(!values.NodeDeletedStrategy) {
+            values.NodeDeletedStrategy = 'KeepAll';
+        }
         return values;
     }
 
@@ -145,10 +170,22 @@ class VersionPolicyEditor extends React.Component{
     }
 
     render(){
-        const {create, readonly, pydio} = this.props;
-        const {loaded, parameters, policy, saveValue, m} = this.state;
+        const {create, readonly, pydio, muiTheme, internalSources} = this.props;
+        const {loaded, policy, saveValue, m} = this.state;
+        let {parameters} =  this.state;
+        const palette = muiTheme.palette;
+        const adminStyles = AdminStyles(palette);
         let form;
         if(parameters && loaded){
+            if(internalSources) {
+                parameters = parameters.map(p => {
+                    if(p.name === 'VersionsDataSourceName') {
+                        // Update choices list with detected internal datasources
+                        p.choices += ',' + internalSources.map(s => s+'|DataSource '+s).join(',');
+                    }
+                    return p;
+                })
+            }
             let values = VersionPolicyEditor.TreeVersioningPolicyToValues(policy);
             if (saveValue){
                 values = VersionPolicyEditor.TreeVersioningPolicyToValues(saveValue);
@@ -162,6 +199,7 @@ class VersionPolicyEditor extends React.Component{
                     onValidStatusChange={this.updateValidStatus.bind(this)}
                     disabled={readonly}
                     depth={-2}
+                    variant={'v2'}
                 />
             );
         }
@@ -170,9 +208,9 @@ class VersionPolicyEditor extends React.Component{
         if(!readonly){
             if(!create){
                 titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', ()=>{this.deleteSource()}));
-                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(pydio.MessageHash['ajxp_admin.plugins.6'], 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
             }
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.valid || !this.state.dirty));
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.valid || !this.state.dirty));
         }
 
         let policyName = saveValue ? saveValue.Name : policy.Name;
@@ -183,25 +221,24 @@ class VersionPolicyEditor extends React.Component{
         return (
             <PaperEditorLayout
                 title={loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.loading']}
+                titleLeftIcon={"mdi mdi-clock-start"}
                 titleActionBar={titleActionBarButtons}
                 closeAction={this.props.closeEditor}
                 className="workspace-editor"
                 contentFill={true}
             >
-                <Paper zDepth={1} style={{padding:'0 16px', backgroundColor:'#ECEFF1'}}>
-                    <div style={{overflowX: 'auto'}}>
-                        <VersionPolicyPeriods pydio={pydio} periods={saveValue?saveValue.KeepPeriods:policy.KeepPeriods}/>
+                <Paper zDepth={0} style={{backgroundColor:adminStyles.body.block.header.backgroundColor, padding: '0px 20px', height: 64, display: 'flex', alignItems: 'center'}}>
+                    <div style={{overflowX: 'auto', width: '100%'}}>
+                        <VersionPolicyPeriods pydio={pydio} policy={saveValue?saveValue:policy}/>
                     </div>
                 </Paper>
                 {form}
+                {adminStyles.formSimpleCss()}
             </PaperEditorLayout>
         );
     }
 }
 
-VersionPolicyEditor.contextTypes = {
-    messages    : React.PropTypes.object,
-    getMessage  : React.PropTypes.func
-};
+VersionPolicyEditor = muiThemeable()(VersionPolicyEditor)
 
 export {VersionPolicyEditor as default};

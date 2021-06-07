@@ -95,7 +95,9 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 
 		resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
 		if err != nil {
-			if errors.Parse(err.Error()).Code != 404 {
+			if strings.Contains(err.Error(), "context canceled") {
+				log.Logger(ctx).Debug("Failed to read node (context canceled)", zap.Error(err))
+			} else if errors.Parse(err.Error()).Code != 404 {
 				log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
 			}
 		}
@@ -471,7 +473,7 @@ func (e *Executor) MultipartComplete(ctx context.Context, target *tree.Node, upl
 			opts.Set(k, v)
 		}
 	}
-	return info.Client.StatObject(info.ObjectsBucket, target.GetStringMeta(common.MetaNamespaceDatasourcePath), opts)
+	return info.Client.StatObject(info.ObjectsBucket, s3Path, opts)
 }
 
 func (e *Executor) MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (lpi minio.ListObjectPartsResult, err error) {
@@ -495,6 +497,10 @@ func (e *Executor) WrappedCanApply(_ context.Context, _ context.Context, _ *tree
 }
 
 func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {
+
+	if branchInfo.FlatStorage && !branchInfo.Binary {
+		return node.GetUuid()
+	}
 
 	path := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 	if branchInfo.ObjectsBaseFolder != "" {

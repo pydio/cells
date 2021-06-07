@@ -86,13 +86,13 @@ class ReplicatedGroup extends Component{
         return (
             <Paper zDepth={0} style={{border:'2px solid whitesmoke', marginBottom: 8}}>
                 <div style={{display:'flex', alignItems: 'center'}}>
-                    <div>{<IconButton iconClassName={'mdi mdi-menu-' + (this.state.toggled ? 'down' : 'right')} iconStyle={{color:'rgba(0,0,0,.15)'}} onTouchTap={()=>{this.setState({toggled:!this.state.toggled})}}/>}</div>
+                    <div>{<IconButton iconClassName={'mdi mdi-menu-' + (this.state.toggled ? 'down' : 'right')} iconStyle={{color:'rgba(0,0,0,.15)'}} onClick={()=>{this.setState({toggled:!this.state.toggled})}}/>}</div>
                     <div style={{flex: 1, fontSize:16}}>{instanceValue}</div>
                     <div>
-                        {onAddValue && <IconButton style={ibStyles} iconClassName={ADD_VALUE} onTouchTap={onAddValue}/>}
-                        <IconButton style={ibStyles} iconClassName={REMOVE} onTouchTap={onRemove} disabled={!!!onRemove || disabled}/>
-                        <IconButton style={ibStyles} iconClassName={UP_ARROW} onTouchTap={onSwapUp} disabled={!!!onSwapUp || disabled}/>
-                        <IconButton style={ibStyles} iconClassName={DOWN_ARROW} onTouchTap={onSwapDown} disabled={!!!onSwapDown || disabled}/>
+                        {onAddValue && <IconButton style={ibStyles} iconClassName={ADD_VALUE} onClick={onAddValue}/>}
+                        <IconButton style={ibStyles} iconClassName={REMOVE} onClick={onRemove} disabled={!!!onRemove || disabled}/>
+                        <IconButton style={ibStyles} iconClassName={UP_ARROW} onClick={onSwapUp} disabled={!!!onSwapUp || disabled}/>
+                        <IconButton style={ibStyles} iconClassName={DOWN_ARROW} onClick={onSwapDown} disabled={!!!onSwapDown || disabled}/>
                     </div>
                 </div>
                 {toggled &&

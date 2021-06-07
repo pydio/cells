@@ -1,7 +1,7 @@
 
 import PydioApi from 'pydio/http/api'
 import ResourcesManager from 'pydio/http/resources-manager'
-import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'cells-sdk'
 
 class Metadata {
 
@@ -54,6 +54,9 @@ class Metadata {
 Metadata.MetaTypes = {
     "string":       "Text",
     "textarea":     "Long Text",
+    "integer":      "Number",
+    "boolean":      "Boolean",
+    "date":         "Date",
     "stars_rate":   "Stars Rating",
     "css_label":    "Color Labels",
     "tags":         "Extensible Tags",

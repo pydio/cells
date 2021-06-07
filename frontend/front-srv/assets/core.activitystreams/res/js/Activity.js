@@ -20,8 +20,9 @@
 
 import Pydio from 'pydio'
 import React from 'react';
+import PropTypes from 'prop-types'
 import ReactMarkdown from 'react-markdown'
-import {ListItem, FontIcon} from 'material-ui'
+import {FontIcon} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PathUtils from 'pydio/util/path'
 
@@ -59,9 +60,9 @@ function workspacesLocations(pydio, object){
 
 function LinkWrapper(pydio, activity, style = undefined) {
 
-    return React.createClass({
+    return class Wrapped extends React.Component{
 
-        render: function(){
+        render(){
 
             const {href, children} = this.props;
             const linkStyle = {
@@ -90,7 +91,7 @@ function LinkWrapper(pydio, activity, style = undefined) {
             return <a title={title} style={linkStyle} onClick={onClick}>{children}</a>
 
         }
-    })
+    }
 
 }
 
@@ -154,7 +155,7 @@ class Activity extends React.Component{
     render() {
 
         let {pydio, activity, listContext, displayContext, oneLiner, muiTheme} = this.props;
-        let secondary = activity.type + " - " + activity.actor.name;
+        let secondary = activity.type + (activity.actor ? ' - ' + activity.actor.name : '');
         if (activity.summary) {
             secondary = <ReactMarkdown source={activity.summary} renderers={{'paragraph':Paragraph, 'link': LinkWrapper(pydio, activity, {color:'inherit'})}}/>;
         }
@@ -178,9 +179,7 @@ class Activity extends React.Component{
                 borderRadius: 2,
                 borderLeft: '2px solid #e0e0e0',
                 marginLeft: 13,
-                color: 'rgba(0,0,0,0.33)',
-                /*fontWeight: 500,
-                fontStyle: 'italic',*/
+                color: 'rgba(0,0,0,0.53)',
                 overflow: 'hidden'
             };
         }
@@ -223,7 +222,11 @@ class Activity extends React.Component{
                             <FontIcon className={className} style={{lineHeight:'36px', color:muiTheme.palette.accent2Color}}/>
                         </div>
                     );
-                    primaryText = activity.object.name;
+                    if(activity.object) {
+                        primaryText = activity.object.name;
+                    } else {
+                        primaryText = activity.name;
+                    }
                 }
                 summary = (
                     <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
@@ -246,19 +249,21 @@ class Activity extends React.Component{
             <div style={blockStyle}>
                 {!oneLiner &&
                     <div style={{display:'flex', alignItems:'center'}}>
-                        <UserAvatar
-                            useDefaultAvatar={true}
-                            userId={activity.actor.id}
-                            userLabel={activity.actor.name}
-                            displayLocalLabel={true}
-                            userType={'user'}
-                            pydio={pydio}
-                            style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
-                            labelStyle={{fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
-                            avatarStyle={{flexShrink: 0}}
-                            avatarSize={28}
-                            richOnHover={true}
-                        />
+                        {activity.actor &&
+                            <UserAvatar
+                                useDefaultAvatar={true}
+                                userId={activity.actor.id}
+                                userLabel={activity.actor.name}
+                                displayLocalLabel={true}
+                                userType={'user'}
+                                pydio={pydio}
+                                style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
+                                labelStyle={{fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
+                                avatarStyle={{flexShrink: 0}}
+                                avatarSize={28}
+                                richOnHover={true}
+                            />
+                        }
                         <span style={{fontSize:13, display:'inline-block', flex:1, height:18, color: 'rgba(0,0,0,0.23)', fontWeight:500, paddingLeft:8, whiteSpace:'nowrap'}}>{moment(activity.updated).fromNow()}</span>
                         {actionIcon}
                     </div>
@@ -272,9 +277,9 @@ class Activity extends React.Component{
 }
 
 Activity.PropTypes = {
-    activity: React.PropTypes.object,
-    listContext: React.PropTypes.string,
-    displayContext: React.PropTypes.oneOf(['infoPanel', 'popover'])
+    activity: PropTypes.object,
+    listContext: PropTypes.string,
+    displayContext: PropTypes.oneOf(['infoPanel', 'popover'])
 };
 
 Activity = muiThemeable()(Activity);

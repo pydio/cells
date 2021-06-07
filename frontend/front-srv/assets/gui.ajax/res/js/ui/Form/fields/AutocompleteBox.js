@@ -18,33 +18,30 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import FormMixin from '../mixins/FormMixin'
 const React = require('react');
-const {AutoComplete, MenuItem, RefreshIndicator} = require('material-ui');
-import FieldWithChoices from '../mixins/FieldWithChoices'
 import Pydio from 'pydio'
-const {ModernStyles} = Pydio.requireLib('hoc');
+import asFormField from "../hoc/asFormField";
+import withChoices from '../hoc/withChoices'
+const {AutoComplete, MenuItem, RefreshIndicator} = require('material-ui');
+const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
+class AutocompleteBox extends React.Component{
 
-let AutocompleteBox = React.createClass({
-
-    mixins:[FormMixin],
-
-    handleUpdateInput: function(searchText) {
+    handleUpdateInput(searchText) {
         //this.setState({searchText: searchText});
-    },
+    }
 
-    handleNewRequest: function(chosenValue) {
+    handleNewRequest(chosenValue) {
         if (chosenValue.key === undefined){
-            this.onChange(null, chosenValue);
+            this.props.onChange(null, chosenValue);
         } else {
-            this.onChange(null, chosenValue.key);
+            this.props.onChange(null, chosenValue.key);
         }
-    },
+    }
 
-    render: function(){
+    render(){
 
-        const {choices} = this.props;
+        const {choices, isDisplayGrid, editMode, disabled,toggleEditMode, variant} = this.props;
         let dataSource = [];
         let labels = {};
         choices.forEach((choice, key) => {
@@ -56,21 +53,20 @@ let AutocompleteBox = React.createClass({
             labels[key] = choice;
         });
 
-        let displayText = this.state.value;
-        if(labels && labels[displayText]){
-            displayText = labels[displayText];
+        let {value} = this.props;
+        if(labels && labels[value]){
+            value = labels[value];
         }
 
-        if((this.isDisplayGrid() && !this.state.editMode) || this.props.disabled){
-            let value = this.state.value;
+        if((isDisplayGrid() && !editMode) || disabled){
             if(choices.get(value)) {
                 value = choices.get(value);
             }
             return (
                 <div
-                    onClick={this.props.disabled?function(){}:this.toggleEditMode}
+                    onClick={disabled?function(){}:toggleEditMode}
                     className={value?'':'paramValue-empty'}>
-                    {!value?'Empty':value} &nbsp;&nbsp;<span className="icon-caret-down"></span>
+                    {value ? value : 'Empty'} &nbsp;&nbsp;<span className="icon-caret-down"></span>
                 </div>
             );
         }
@@ -85,12 +81,12 @@ let AutocompleteBox = React.createClass({
                         status="loading"
                     />
                 }
-                {dataSource.length &&
+                {variant !== 'v2' && dataSource.length &&
                     <AutoComplete
                         fullWidth={true}
-                        searchText={displayText}
-                        onUpdateInput={this.handleUpdateInput}
-                        onNewRequest={this.handleNewRequest}
+                        searchText={value}
+                        onUpdateInput={(s) => this.handleUpdateInput(s)}
+                        onNewRequest={(v) => this.handleNewRequest(v)}
                         dataSource={dataSource}
                         hintText={this.props.attributes['label']}
                         filter={(searchText, key) => {
@@ -104,12 +100,31 @@ let AutocompleteBox = React.createClass({
                         {...ModernStyles.textField}
                     />
                 }
+                {variant === 'v2' && dataSource.length &&
+                    <ModernAutoComplete
+                        fullWidth={true}
+                        searchText={value}
+                        onUpdateInput={(s) => this.handleUpdateInput(s)}
+                        onNewRequest={(v) => this.handleNewRequest(v)}
+                        dataSource={dataSource}
+                        hintText={this.props.attributes['label']}
+                        filter={(searchText, key) => {
+                            if(!key || !searchText) {
+                                return false;
+                            }
+                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0
+                        }}
+                        openOnFocus={true}
+                        menuProps={{maxHeight: 200}}
+                        autoComplete={'no-completion'}
+                        {...ModernStyles.textField}
+                    />
+                }
             </div>
-
         );
     }
+}
 
-});
-
-AutocompleteBox = FieldWithChoices(AutocompleteBox);
+AutocompleteBox = asFormField(AutocompleteBox);
+AutocompleteBox = withChoices(AutocompleteBox);
 export {AutocompleteBox as default}

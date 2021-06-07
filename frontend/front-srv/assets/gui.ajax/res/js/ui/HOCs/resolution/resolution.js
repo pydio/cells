@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { EditorActions, getDisplayName } from '../utils';
@@ -33,8 +35,8 @@ const withResolution = (sizes, highResolution, lowResolution) => {
 
             static get propTypes() {
                 return {
-                    node: React.PropTypes.instanceOf(AjxpNode).isRequired
-                }
+                    node: PropTypes.instanceOf(AjxpNode).isRequired
+                };
             }
 
             onHi() {
@@ -79,7 +81,7 @@ const withResolution = (sizes, highResolution, lowResolution) => {
         }
 
         return connect(mapStateToProps)(WithResolution)
-    }
+    };
 }
 
 export {withResolution as default}

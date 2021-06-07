@@ -19,20 +19,20 @@
  */
 
 import React from 'react'
+import createReactClass from 'create-react-class';
 import {Paper, List, ListItem, RaisedButton, FlatButton, IconButton, Checkbox, Divider, Subheader} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioApi from 'pydio/http/api'
-import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'pydio/http/rest-api'
+import {UpdateServiceApi, UpdateUpdateRequest, UpdateApplyUpdateRequest} from 'cells-sdk'
 import Pydio from 'pydio'
 import UpgraderWizard from './UpgraderWizard'
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import ServiceExposedConfigs from '../core/ServiceExposedConfigs'
 const {MaterialTable} = Pydio.requireLib('components');
 
-let UpdaterDashboard = React.createClass({
-
+let UpdaterDashboard = createReactClass({
+    displayName: 'UpdaterDashboard',
     mixins:[AdminComponents.MessagesConsumerMixin],
-
 
     getInitialState: function(){
         const {pydio} = this.props;
@@ -153,7 +153,7 @@ let UpdaterDashboard = React.createClass({
                     disabled={disabled}
                     secondary={true}
                     label={this.context.getMessage('start.update', 'updater')}
-                    onTouchTap={this.performUpgrade}
+                    onClick={this.performUpgrade}
                     {...bProps}
                 />);
             const tableData = [];
@@ -167,8 +167,7 @@ let UpdaterDashboard = React.createClass({
                         iconClassName={"mdi mdi-link"}
                         tooltip={this.context.getMessage('package.changelog', 'updater')}
                         tooltipPosition={"bottom-left"}
-                        onTouchTap={()=>{window.open(p.ChangeLog, '_blank')}}
-                        onClick={(e)=>e.stopPropagation()}
+                        onClick={()=>{window.open(p.ChangeLog, '_blank')}}
                         iconStyle={{color:primary1Color}}
                     />
                 });
@@ -216,7 +215,7 @@ let UpdaterDashboard = React.createClass({
                     <div style={subHeaderStyle}>{this.context.getMessage('check.button', 'updater')}</div>
                     <div style={{padding: '16px 16px 32px'}}>
                         <span style={{float:'right'}}>
-                            <RaisedButton secondary={true} label={this.context.getMessage('check.button', 'updater')} onTouchTap={this.checkForUpgrade}/>
+                            <RaisedButton secondary={true} label={this.context.getMessage('check.button', 'updater')} onClick={this.checkForUpgrade}/>
                         </span>
                         { (this.state && this.state.no_upgrade) ? this.context.getMessage('noupdates', 'updater') : this.context.getMessage('check.legend', 'updater') }
                     </div>
@@ -225,7 +224,7 @@ let UpdaterDashboard = React.createClass({
         }
 
         if (dirty){
-            buttons.push(<RaisedButton style={{marginLeft: 10}} secondary={true} label={this.context.getMessage('configs.save', 'updater')} onTouchTap={()=>{
+            buttons.push(<RaisedButton style={{marginLeft: 10}} secondary={true} label={this.context.getMessage('configs.save', 'updater')} onClick={()=>{
                 this.refs.serviceConfigs.save().then((res) => {
                     this.setState({dirty: false});
                 });
@@ -290,8 +289,7 @@ let UpdaterDashboard = React.createClass({
             </div>
 
         );
-    }
-
+    },
 });
 
 UpdaterDashboard = muiThemeable()(UpdaterDashboard);

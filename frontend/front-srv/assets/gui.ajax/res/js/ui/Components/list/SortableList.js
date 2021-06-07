@@ -50,24 +50,24 @@ var sortableItemTarget = {
 
 };
 
-var sortableItem = React.createClass({
+class sortableItem extends React.Component {
 
-    propTypes:{
-        connectDragSource: React.PropTypes.func.isRequired,
-        connectDropTarget: React.PropTypes.func.isRequired,
-        isDragging: React.PropTypes.bool.isRequired,
-        id: React.PropTypes.any.isRequired,
-        label: React.PropTypes.string.isRequired,
-        switchItems: React.PropTypes.func.isRequired,
-        removable: React.PropTypes.bool,
-        onRemove:React.PropTypes.func
-    },
+    // static propTypes = {
+    //     connectDragSource: React.PropTypes.func.isRequired,
+    //     connectDropTarget: React.PropTypes.func.isRequired,
+    //     isDragging: React.PropTypes.bool.isRequired,
+    //     id: React.PropTypes.any.isRequired,
+    //     label: React.PropTypes.string.isRequired,
+    //     switchItems: React.PropTypes.func.isRequired,
+    //     removable: React.PropTypes.bool,
+    //     onRemove:React.PropTypes.func
+    // };
 
-    removeClicked:function(){
+    removeClicked(){
         this.props.onRemove(this.props.id);
-    },
+    }
 
-    render: function () {
+    render() {
         // Your component receives its own props as usual
         var id = this.props.id;
 
@@ -79,7 +79,7 @@ var sortableItem = React.createClass({
 
         var remove;
         if(this.props.removable){
-            remove = <span className="button mdi mdi-close" onClick={this.removeClicked}></span>
+            remove = <span className="button mdi mdi-close" onClick={(e) => this.removeClicked(e)}></span>
         }
         return (
             <Paper
@@ -97,13 +97,17 @@ var sortableItem = React.createClass({
             </Paper>
         );
     }
-});
+}
 
-var NonDraggableListItem = React.createClass({
-    render: function(){
+class NonDraggableListItem extends React.Component {
+    removeClicked(){
+        this.props.onRemove(this.props.id);
+    }
+
+    render() {
         var remove;
         if(this.props.removable){
-            remove = <span className="button mdi mdi-close" onClick={this.removeClicked}></span>
+            remove = <span className="button mdi mdi-close" onClick={(e) => this.removeClicked(e)}></span>
         }
         return (
             <Paper zDepth={1} style={{margin: '8px 0'}}>
@@ -114,7 +118,7 @@ var NonDraggableListItem = React.createClass({
             </Paper>
         );
     }
-});
+}
 
 var DraggableListItem;
 if(window.ReactDND){
@@ -127,33 +131,34 @@ if(window.ReactDND){
 }
 
 
-var SortableList = React.createClass({
+class SortableList extends React.Component {
+    // static propTypes = {
+    //     values: React.PropTypes.array.isRequired,
+    //     onOrderUpdated: React.PropTypes.func,
+    //     removable: React.PropTypes.bool,
+    //     onRemove:React.PropTypes.func,
+    //     className:React.PropTypes.string,
+    //     itemClassName:React.PropTypes.string
+    // };
 
-    propTypes: {
-        values: React.PropTypes.array.isRequired,
-        onOrderUpdated: React.PropTypes.func,
-        removable: React.PropTypes.bool,
-        onRemove:React.PropTypes.func,
-        className:React.PropTypes.string,
-        itemClassName:React.PropTypes.string
-    },
+    constructor(props) {
+        super(props);
+        this.state = {values: this.props.values};
+    }
 
-    getInitialState: function(){
-        return {values: this.props.values};
-    },
-    componentWillReceiveProps: function(props){
+    componentWillReceiveProps(props) {
         this.setState({values: props.values, switchData:null});
-    },
+    }
 
-    findItemIndex: function(itemId, data){
+    findItemIndex(itemId, data){
         for(var i=0; i<data.length; i++){
-            if(data[i]['payload'] == itemId){
+            if(data[i]['payload'] === itemId){
                 return i;
             }
         }
-    },
+    }
 
-    switchItems:function(oldId, newId){
+    switchItems(oldId, newId){
         var oldIndex = this.findItemIndex(oldId, this.state.values);
         var oldItem = this.state.values[oldIndex];
         var newIndex = this.findItemIndex(newId, this.state.values);
@@ -166,17 +171,15 @@ var SortableList = React.createClass({
         // Check that it did not come back to original state
         var oldPrevious = this.findItemIndex(oldId, this.props.values);
         var newPrevious = this.findItemIndex(newId, this.props.values);
-        if(oldPrevious == newIndex && newPrevious == oldIndex){
+        if(oldPrevious === newIndex && newPrevious === oldIndex){
             this.setState({values:currentValues, switchData:null})
-            //console.log("no more moves");
         }else{
             this.setState({values:currentValues, switchData:{oldId:oldId, newId:newId}});
-            //console.log({oldId:oldIndex, newId:newIndex});
         }
 
-    },
+    }
 
-    endSwitching:function(){
+    endSwitching(){
         if(this.state.switchData){
             // Check that it did not come back to original state
             if(this.props.onOrderUpdated){
@@ -184,10 +187,9 @@ var SortableList = React.createClass({
             }
         }
         this.setState({switchData:null});
-    },
+    }
 
-    render: function(){
-        var switchItems = this.switchItems;
+    render() {
         return (
             <div className={this.props.className}>
                 {this.state.values.map(function(item){
@@ -195,8 +197,8 @@ var SortableList = React.createClass({
                         id={item.payload}
                         key={item.payload}
                         label={item.text}
-                        switchItems={switchItems}
-                        endSwitching={this.endSwitching}
+                        switchItems={this.switchItems.bind(this)}
+                        endSwitching={this.endSwitching.bind(this)}
                         removable={this.props.removable}
                         onRemove={this.props.onRemove}
                         className={this.props.itemClassName}
@@ -205,6 +207,6 @@ var SortableList = React.createClass({
             </div>
         )
     }
-});
+}
 
 export {SortableList as default}

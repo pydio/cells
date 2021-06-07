@@ -24,14 +24,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/common/forms"
-
+	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -91,9 +91,13 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithError(err), err
 	}
 	for _, oi := range listRes.Contents {
-		err := thumbsClient.RemoveObjectWithContext(ctx, thumbsBucket, oi.Key)
-		if err != nil {
-			log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(err))
+		tCtx, tNode, e := getThumbLocation(ctx, oi.Key)
+		if e != nil {
+			log.Logger(ctx).Debug("Cannot get thumbnail location", zap.Error(e))
+			return input.WithError(e), e
+		}
+		if _, err := getRouter().DeleteNode(tCtx, &tree.DeleteNodeRequest{Node: tNode}); err != nil {
+			log.Logger(ctx).Debug("Cannot delete thumbnail", zap.Error(err))
 			return input.WithError(err), err
 		}
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully removed object %s", oi.Key))

@@ -19,6 +19,7 @@
  */
 
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 
 class Editor extends Component {
 
@@ -63,7 +64,7 @@ class Editor extends Component {
 }
 
 Editor.propTypes = {
-    url: React.PropTypes.string.isRequired
+    url: PropTypes.string.isRequired
 }
 
 export default Editor

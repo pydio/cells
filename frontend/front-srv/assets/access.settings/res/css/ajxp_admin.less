@@ -1710,26 +1710,26 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   }
 
   .edit-object-user {
-    .paper-editor-left .mui-subheader:first-child {
-      margin-top: 152px !important;
-      opacity: 0;
+    .paper-editor-left div[role="menu"] {
+      top: 256px !important;
     }
     .avatar-provider {
       .form-entry-image {
         position: absolute;
-        top: 56px;
+        top: 64px;
         left: 0;
         > div:last-child{
           padding: 0;
           margin: 0;
           border-radius: 0;
+          background-color: transparent;
         }
         .file-dropzone {
-          width: 256px !important;
-          height: 200px !important;
-          border-radius: 0;
-          background-color: #e0e0e0;
-          border-right: 1px solid #e0e0e0;
+          width: 180px !important;
+          height: 180px !important;
+          margin: 10px;
+          border-radius: 50%;
+          background-color: rgba(224,224,224,.33);
           .icon-camera {
             position: absolute;
             bottom: 7px;
@@ -1741,10 +1741,10 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
         }
         .binary-remove-button {
           position: absolute;
-          bottom: 8px;
-          color: rgba(0, 0, 0, 0.51);
+          bottom: 0px;
+          right: 10px;
+          color: rgba(255, 255, 255, 0.5);
           text-align: right;
-          right: 20px;
         }
         .image-label {
           display: none;
@@ -1959,18 +1959,12 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
       &.has-checkboxes {
         display: flex;
         flex-direction: row;
-        height: 48px;
+        height: 40px;
         border-bottom: 1px solid #f4f4f4;
         .tree-item-label {
           flex: 1;
+          padding: 11px 0;
           .text-overflow-ellipsis();
-        }
-        .tree-checkboxes {
-          padding-top: 7px;
-          .mui-checkbox {
-            width: 44px;
-            display: inline-block;
-          }
         }
       }
     }

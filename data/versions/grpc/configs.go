@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/data/versions/lang"
 )
 
@@ -53,17 +54,12 @@ var ExposedConfigs = &forms.Form{
 					Name:        "VersionsDataSourceName",
 					Label:       "Config.GroupPolicy.VersionsDataSourceName.Label",
 					Description: "Config.GroupPolicy.VersionsDataSourceName.Description",
-					Type:        forms.ParamString,
+					Type:        forms.ParamSelect,
 					Mandatory:   true,
 					Default:     "default",
-				},
-				&forms.FormField{
-					Name:        "VersionsDataSourceBucket",
-					Label:       "Config.GroupPolicy.VersionsDataSourceBucket.Label",
-					Description: "Config.GroupPolicy.VersionsDataSourceBucket.Description",
-					Type:        forms.ParamString,
-					Mandatory:   true,
-					Default:     "versions",
+					ChoicePresetList: []map[string]string{
+						{"default": "Default (see pydio.json pydio.versions-store configuration)"},
+					},
 				},
 			},
 		},
@@ -74,7 +70,7 @@ var ExposedConfigs = &forms.Form{
 					Name:        "MaxTotalSize",
 					Label:       "Config.GroupSizes.MaxTotalSize.Label",
 					Description: "Config.GroupSizes.MaxTotalSize.Description",
-					Type:        forms.ParamInteger,
+					Type:        forms.ParamIntegerBytes,
 					Mandatory:   false,
 					Default:     -1,
 				},
@@ -82,7 +78,7 @@ var ExposedConfigs = &forms.Form{
 					Name:        "MaxSizePerFile",
 					Label:       "Config.GroupSizes.MaxSizePerFile.Label",
 					Description: "Config.GroupSizes.MaxSizePerFile.Description",
-					Type:        forms.ParamInteger,
+					Type:        forms.ParamIntegerBytes,
 					Mandatory:   false,
 					Default:     -1,
 				},
@@ -90,7 +86,7 @@ var ExposedConfigs = &forms.Form{
 					Name:        "IgnoreFilesGreaterThan",
 					Label:       "Config.GroupSizes.IgnoreFilesGreaterThan.Label",
 					Description: "Config.GroupSizes.IgnoreFilesGreaterThan.Description",
-					Type:        forms.ParamInteger,
+					Type:        forms.ParamIntegerBytes,
 					Mandatory:   false,
 					Default:     -1,
 				},
@@ -119,6 +115,20 @@ var ExposedConfigs = &forms.Form{
 							Type:        forms.ParamInteger,
 							Mandatory:   true,
 						},
+					},
+				},
+				&forms.FormField{
+					Name:        "NodeDeletedStrategy",
+					Type:        forms.ParamSelect,
+					Label:       "Config.GroupRetention.NodeDeletedStrategy.Name",
+					Description: "Config.GroupRetention.NodeDeletedStrategy.Description",
+					Default:     "KeepAll",
+					Mandatory:   true,
+					Editable:    true,
+					ChoicePresetList: []map[string]string{
+						{tree.VersioningNodeDeletedStrategy_KeepAll.String(): "Config.GroupRetention.NodeDeletedStrategy.KeepAll"},
+						{tree.VersioningNodeDeletedStrategy_KeepLast.String(): "Config.GroupRetention.NodeDeletedStrategy.KeepLast"},
+						{tree.VersioningNodeDeletedStrategy_KeepNone.String(): "Config.GroupRetention.NodeDeletedStrategy.KeepNone"},
 					},
 				},
 			},

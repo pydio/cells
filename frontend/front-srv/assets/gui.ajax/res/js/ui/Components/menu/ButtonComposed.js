@@ -1,3 +1,6 @@
+import Utils from './Utils';
+import MenuItemsConsumer from './MenuItemsConsumer'
+
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio Cells.
@@ -17,35 +20,31 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import Utils from './Utils'
-import MenuItemsConsumer from './MenuItemsConsumer'
+import PropTypes from 'prop-types';
+
 import React from "react";
 import ReactDOM from "react-dom";
 import {Popover, RaisedButton, FlatButton} from "material-ui";
 
-const ButtonComposed = React.createClass({
+class ButtonComposed extends React.Component {
+    static propTypes = {
+        buttonTitle : PropTypes.oneOfType([PropTypes.string,PropTypes.object]).isRequired,
+        masterAction: PropTypes.func.isRequired,
+        menuItems   : PropTypes.array.isRequired,
+        className   : PropTypes.string,
+        raised      : PropTypes.bool,
+        direction   : PropTypes.oneOf(['left', 'right'])
+    };
 
-    propTypes:{
-        buttonTitle : React.PropTypes.oneOfType([React.PropTypes.string,React.PropTypes.object]).isRequired,
-        masterAction: React.PropTypes.func.isRequired,
-        menuItems   : React.PropTypes.array.isRequired,
-        className   : React.PropTypes.string,
-        raised      : React.PropTypes.bool,
-        direction   : React.PropTypes.oneOf(['left', 'right'])
-    },
+    state = {showMenu: false};
 
-    componentDidMount(){
+    componentDidMount() {
         if(this.props.openOnEvent){
             this.props.pydio.observe(this.props.openOnEvent, () => { this.showMenu();});
         }
-    },
+    }
 
-    getInitialState(){
-        return {showMenu: false};
-    },
-
-
-    showMenu(event){
+    showMenu = (event) => {
         let anchor;
         if(event){
             anchor = event.currentTarget;
@@ -56,13 +55,13 @@ const ButtonComposed = React.createClass({
             showMenu: true,
             anchor: anchor
         })
-    },
+    };
 
-    menuClicked(event, index, object){
+    menuClicked = (event, index, object) => {
         this.setState({showMenu: false});
-    },
+    };
 
-    render(){
+    render() {
         let masterButton, arrowButton;
         const {id, masterAction, buttonTitle, primary, secondary, disabled, raised, menuItems, buttonStyle, buttonLabelStyle, className, direction} = this.props;
         let masterLabelStyle = {...buttonLabelStyle};
@@ -86,18 +85,16 @@ const ButtonComposed = React.createClass({
             label: buttonTitle,
             style: {...buttonStyle, minWidth: 60},
             labelStyle:masterLabelStyle,
-            onTouchTap: masterAction,
-            onClick:(e=>e.stopPropagation())
+            onClick: masterAction,
         };
         const arrowProps = {
             primary: primary,
             secondary: secondary,
             disabled: disabled,
             label: <span className={"mdi mdi-menu-down"}/>,
-            onTouchTap: this.showMenu,
             style:{...buttonStyle, minWidth: 16},
             labelStyle:arrowLabelStyle,
-            onClick:(e=>e.stopPropagation())
+            onClick: this.showMenu,
         };
         const {showMenu, anchor, over} = this.state;
         if(menuItems.length){
@@ -131,8 +128,7 @@ const ButtonComposed = React.createClass({
             </span>
         );
     }
-
-});
+}
 
 
 export default MenuItemsConsumer(ButtonComposed)

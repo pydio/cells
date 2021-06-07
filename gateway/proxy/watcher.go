@@ -47,18 +47,18 @@ func (w *watcher) subscribeToBroker() error {
 	_, err := broker.Subscribe(common.TopicServiceRegistration, func(p broker.Publication) error {
 		sType := string(p.Message().Body)
 		sName := p.Message().Header[common.EventHeaderServiceRegisterService]
-		sPeer := p.Message().Header[common.EventHeaderServiceRegisterPeer]
+		// sPeer := p.Message().Header[common.EventHeaderServiceRegisterPeer]
 		switch sType {
-		case common.EventTypeServiceRegistered:
-			if w.restartOnStarted(sName, sPeer) {
-				w.loggerFunc("Register Message triggers Caddy restart", zap.Any("srvName", sName), zap.Any("headers", p.Message().Header))
-				w.restartFunc()
-			}
-		case common.EventTypeServiceUnregistered:
-			if w.restartOnStopped(sName, sPeer) {
-				w.loggerFunc("Unregister Message triggers Caddy restart", zap.Any("srvName", sName), zap.Any("headers", p.Message().Header))
-				w.restartFunc()
-			}
+		//case common.EventTypeServiceRegistered:
+		//	if w.restartOnStarted(sName, sPeer) {
+		//		w.loggerFunc("Register Message triggers Caddy restart", zap.Any("srvName", sName), zap.Any("headers", p.Message().Header))
+		//		w.restartFunc()
+		//	}
+		//case common.EventTypeServiceUnregistered:
+		//	if w.restartOnStopped(sName, sPeer) {
+		//		w.loggerFunc("Unregister Message triggers Caddy restart", zap.Any("srvName", sName), zap.Any("headers", p.Message().Header))
+		//		w.restartFunc()
+		//	}
 		case common.EventTypeDebugPrintInternals:
 			if sName == common.ServiceGatewayProxy && caddy.LastKnownCaddyFile != "" {
 				fmt.Println("***********************************************************************************")

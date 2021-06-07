@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import PydioApi from 'pydio/http/api'
-import {RestRestoreNodesRequest, TreeServiceApi,TreeNode} from 'pydio/http/rest-api';
+import {RestRestoreNodesRequest, TreeServiceApi,TreeNode} from 'cells-sdk';
 
 export default function (pydio) {
 

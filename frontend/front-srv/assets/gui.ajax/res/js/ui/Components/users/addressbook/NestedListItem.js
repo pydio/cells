@@ -19,7 +19,10 @@
  */
 
 
-import {Component, PropTypes} from 'react'
+import PropTypes from 'prop-types';
+
+
+import { Component } from 'react';
 import {ListItem, FontIcon} from 'material-ui'
 
 /**
@@ -29,10 +32,10 @@ import {ListItem, FontIcon} from 'material-ui'
 class NestedListItem extends Component{
 
     /**
-     * Triggers this.props.onTouchTap
+     * Triggers this.props.onClick
      */
-    onTouchTap(){
-        this.props.onTouchTap(this.props.entry);
+    onClick(){
+        this.props.onClick(this.props.entry);
     }
 
     /**
@@ -45,7 +48,7 @@ class NestedListItem extends Component{
                 <NestedListItem
                     nestedLevel={this.props.nestedLevel+1}
                     entry={entry}
-                    onTouchTap={this.props.onTouchTap}
+                    onClick={this.props.onClick}
                     selected={this.props.selected}
                     showIcons={true}
                 />);
@@ -66,7 +69,7 @@ class NestedListItem extends Component{
                 nestedLevel={this.props.nestedLevel}
                 key={id}
                 primaryText={label}
-                onTouchTap={this.onTouchTap.bind(this)}
+                onClick={this.onClick.bind(this)}
                 nestedItems={nested}
                 initiallyOpen={true}
                 leftIcon={fontIcon}
@@ -90,7 +93,7 @@ NestedListItem.propTypes = {
     /**
      * Callback triggered when an entry is selected
      */
-    onTouchTap:PropTypes.func
+    onClick:PropTypes.func
 }
 
 export {NestedListItem as default}

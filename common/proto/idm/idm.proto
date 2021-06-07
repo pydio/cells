@@ -411,6 +411,8 @@ message UserMetaNamespace{
     string JsonDefinition = 5;
     // Policies securing this namespace
     repeated service.ResourcePolicy Policies = 6;
+    // Context-resolved to quickly check if this meta is editable or not
+    bool PoliciesContextEditable = 7;
 }
 // Request for modifying UserMeta
 message UpdateUserMetaRequest{

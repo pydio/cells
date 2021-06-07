@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import PropTypes from 'prop-types';
+
 import Pydio from 'pydio';
 import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
@@ -86,17 +88,15 @@ class ActionsPanel extends React.Component{
 
         const styles = {
             button: {
-                //backgroundColor: muiTheme.palette.accent2Color,
-                border: '1px solid ' + muiTheme.palette.accent2Color,
+                border: '0px solid ' + muiTheme.palette.accent2Color,
                 borderRadius: '50%',
                 margin: '0 4px',
-                width: 36,
-                height: 36,
-                padding: 6
+                width: 30,
+                height: 30,
+                padding: 4
             },
             icon : {
-                fontSize: 22,
-                //color: 'white'
+                fontSize: 20,
                 color: muiTheme.palette.accent2Color
             }
         };
@@ -134,7 +134,7 @@ class ActionsPanel extends React.Component{
         }
 
         return (
-            <div style={{textAlign:'center', paddingTop: 10, paddingBottom: 10, borderTop:'1px solid #e0e0e0', borderBottom:'1px solid #e0e0e0', ...style}}>
+            <div style={{...style}}>
                 {actions.map(function(a){
                     return <IconButton
                         key={a.key}
@@ -142,7 +142,7 @@ class ActionsPanel extends React.Component{
                         iconStyle={styles.icon}
                         tooltip={a.label}
                         iconClassName={"mdi mdi-" + a.icon}
-                        onTouchTap={a.callback}
+                        onClick={a.callback}
                     />
                 })}
                 <Popover
@@ -220,15 +220,15 @@ ActionsPanel.propTypes = {
     /**
      * User data, props must pass at least one of 'user' or 'team'
      */
-    user: React.PropTypes.object,
+    user: PropTypes.object,
     /**
      * Team data, props must pass at least one of 'user' or 'team'
      */
-    team: React.PropTypes.object,
+    team: PropTypes.object,
     /**
      * For users, whether it is editable or not
      */
-    userEditable: React.PropTypes.object
+    userEditable: PropTypes.object
 
 };
 

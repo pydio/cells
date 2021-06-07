@@ -1,4 +1,7 @@
-const {Component, PropTypes} = require('react')
+const PropTypes = require('prop-types');
+const {
+    Component
+} = require('react')
 
 export default function(PydioComponent){
 
@@ -34,4 +37,4 @@ export default function(PydioComponent){
 
     return ReloadWrapper;
 
-};
+}

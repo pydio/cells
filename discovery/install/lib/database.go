@@ -85,16 +85,11 @@ func actionDatabaseAdd(c *install.InstallConfig) error {
 		return e
 	}
 
-	connection := map[string]string{
-		"driver": "mysql",
-		"dsn":    dsn,
-	}
-
 	h := sha1.New()
 	io.WriteString(h, dsn)
 	id := fmt.Sprintf("%x", h.Sum(nil))
 
-	config.Set(connection, "databases", id)
+	config.SetDatabase(id, "mysql", dsn)
 
 	// Only set the default if the default is not set
 	if config.Get("defaults", "database").String() == "" {

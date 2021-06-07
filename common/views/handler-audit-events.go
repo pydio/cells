@@ -53,7 +53,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 	if e == nil && requestData.StartOffset == 0 {
 		auditer.Info(
 			fmt.Sprintf("Retrieved object at %s", node.Path),
-			log.GetAuditId(common.AUDIT_OBJECT_GET),
+			log.GetAuditId(common.AuditObjectGet),
 			node.ZapUuid(),
 			node.ZapPath(),
 			wsInfo,
@@ -76,7 +76,7 @@ func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, read
 
 	auditer.Info(
 		fmt.Sprintf("Modified %s, put %d bytes", node.Path, written),
-		log.GetAuditId(common.AUDIT_OBJECT_PUT),
+		log.GetAuditId(common.AuditObjectPut),
 		node.ZapUuid(),
 		node.ZapPath(),
 		wsInfo,
@@ -100,7 +100,7 @@ func (h *HandlerAuditEvent) ReadNode(ctx context.Context, in *tree.ReadNodeReque
 
 	// log.Auditer(ctx).Info(
 	// 	"[handler-audit-event] ReadNode",
-	// 	log.GetAuditId(common.AUDIT_NODE_READ),
+	// 	log.GetAuditId(common.AuditNodeRead),
 	// 	in.Node.ZapUuid(),
 	// 	in.Node.ZapPath(),
 	// 	wsInfo,
@@ -116,7 +116,7 @@ func (h *HandlerAuditEvent) ListNodes(ctx context.Context, in *tree.ListNodesReq
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Listed folder %s", in.Node.Path),
-		log.GetAuditId(common.AUDIT_NODE_LIST),
+		log.GetAuditId(common.AuditNodeList),
 		in.Node.ZapUuid(),
 		in.Node.ZapPath(),
 		wsInfo,
@@ -134,7 +134,7 @@ func (h *HandlerAuditEvent) CreateNode(ctx context.Context, in *tree.CreateNodeR
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Created node at %s", in.Node.Path),
-		log.GetAuditId(common.AUDIT_NODE_CREATE),
+		log.GetAuditId(common.AuditNodeCreate),
 		in.Node.ZapUuid(),
 		in.Node.ZapPath(),
 		wsInfo,
@@ -155,7 +155,7 @@ func (h *HandlerAuditEvent) UpdateNode(ctx context.Context, in *tree.UpdateNodeR
 
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Update node at %s", in.From.Path),
-		log.GetAuditId(common.AUDIT_NODE_UPDATE),
+		log.GetAuditId(common.AuditNodeUpdate),
 		in.From.ZapUuid(),
 		in.From.ZapPath(),
 		zap.Any("UpdateNodeRequest", in),
@@ -171,7 +171,7 @@ func (h *HandlerAuditEvent) DeleteNode(ctx context.Context, in *tree.DeleteNodeR
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Deleted node at %s", in.Node.Path),
-		log.GetAuditId(common.AUDIT_NODE_DELETE),
+		log.GetAuditId(common.AuditNodeDelete),
 		in.Node.ZapUuid(),
 		in.Node.ZapPath(),
 		wsInfo,
@@ -223,11 +223,11 @@ func (h *HandlerAuditEvent) MultipartListObjectParts(ctx context.Context, target
 // checkBranchInfoForAudit simply gather relevant information from the branch info before calling the Audit log.
 func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary bool, wsInfo zapcore.Field, wsScope zapcore.Field) {
 	// Retrieve Datasource and Workspace info
-	wsInfo = zap.String(common.KEY_WORKSPACE_UUID, "")
-	wsScope = zap.String(common.KEY_WORKSPACE_SCOPE, "")
+	wsInfo = zap.String(common.KeyWorkspaceUuid, "")
+	wsScope = zap.String(common.KeyWorkspaceScope, "")
 
 	branchInfo, ok := GetBranchInfo(ctx, identifier)
-	if ok && branchInfo.Binary {
+	if ok && branchInfo.IsInternal() {
 		return true, wsInfo, wsScope
 	}
 
@@ -235,8 +235,8 @@ func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary b
 	if ok {
 		wsId := branchInfo.UUID
 		if wsId != "" {
-			wsInfo = zap.String(common.KEY_WORKSPACE_UUID, wsId)
-			wsScope = zap.String(common.KEY_WORKSPACE_SCOPE, branchInfo.Scope.String())
+			wsInfo = zap.String(common.KeyWorkspaceUuid, wsId)
+			wsScope = zap.String(common.KeyWorkspaceScope, branchInfo.Scope.String())
 		}
 	}
 	return false, wsInfo, wsScope

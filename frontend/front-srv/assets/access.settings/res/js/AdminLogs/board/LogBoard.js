@@ -1,3 +1,6 @@
+import React from 'react';
+import {Paper, FontIcon} from 'material-ui'
+
 /*
  * Copyright 2007-2020 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17,8 +20,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
-import {Paper, FontIcon} from 'material-ui'
+import PropTypes from 'prop-types';
+
 import PydioDataModel from 'pydio/model/data-model'
 import LogTable from './LogTable';
 import LogTools from './LogTools'
@@ -45,6 +48,9 @@ class LogBoard extends React.Component {
     componentWillReceiveProps(newProps){
         if(newProps.query !== undefined && newProps.query !== this.state.query){
             this.setState({query: newProps.query, page: 0});
+        }
+        if(newProps.darkTheme !== undefined){
+            this.setState({darkTheme: newProps.darkTheme})
         }
     }
 
@@ -80,7 +86,7 @@ class LogBoard extends React.Component {
 
     render(){
         const {pydio, noHeader, service, disableExport, currentNode} = this.props;
-        const {page, size, query, tmpQuery, focus, contentType, z, results} = this.state;
+        const {page, size, query, tmpQuery, focus, contentType, z, results, darkTheme} = this.state;
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
         const buttons = (
             <LogTools
@@ -119,6 +125,7 @@ class LogBoard extends React.Component {
                     query={tmpQuery ? tmpQuery:query}
                     focus={focus}
                     contentType={contentType}
+                    darkTheme={darkTheme}
                     z={z}
                     onLoadingStatusChange={this.handleLoadingStatusChange.bind(this)}
                     onTimestampContext={this.handleTimestampContext.bind(this)}
@@ -157,7 +164,7 @@ class LogBoard extends React.Component {
 }
 
 LogBoard.propTypes = {
-    dataModel:React.PropTypes.instanceOf(PydioDataModel).isRequired,
+    dataModel:PropTypes.instanceOf(PydioDataModel).isRequired,
 };
 
 export {LogBoard as default}

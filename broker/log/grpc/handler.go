@@ -61,7 +61,7 @@ func (h *Handler) PutLog(ctx context.Context, stream proto.LogRecorder_PutLogStr
 		}
 		logCount++
 
-		h.Repo.PutLog(line.GetMessage())
+		h.Repo.PutLog(line)
 	}
 }
 

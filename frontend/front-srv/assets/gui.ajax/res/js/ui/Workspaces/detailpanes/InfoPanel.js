@@ -18,15 +18,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
-import {compose} from 'redux';
 const {Animations, withVerticalScroll} = require('pydio').requireLib('hoc')
+import XMLUtils from 'pydio/util/xml'
+import {Paper} from "material-ui";
 
 const originStyles = {translateX: 600}
 const targetStyles = {translateX: 0}
 
 let Template = ({id, style, children}) => {
-    return <div id={id} style={style}>{children}</div>
+    return <Paper zDepth={0} rounded={false} id={id} style={{backgroundColor:'transparent', ...style}}>{children}</Paper>
 }
 
 /*
@@ -62,14 +64,18 @@ class InfoPanel extends React.Component {
             this._updateExpected = true;
             this.setState({displayData: this.selectionToTemplates()}, ()=> {
                 this._updateExpected = false;
-                if(this.context.scrollArea) setTimeout(scrollerRefresh, 750);
+                if(this.context.scrollArea) {
+                    setTimeout(scrollerRefresh, 750);
+                }
             });
         };
         this._componentConfigHandler = () => {
             this._updateExpected = true;
             this.setState({templates:ConfigsParser.parseConfigs()}, () => {
                 this._updateExpected = false;
-                if(this.context.scrollArea) setTimeout(scrollerRefresh, 750);
+                if(this.context.scrollArea) {
+                    setTimeout(scrollerRefresh, 750);
+                }
             })
         };
 
@@ -121,7 +127,9 @@ class InfoPanel extends React.Component {
         }
         if(uniqueNode){
             refTemplates.forEach(function(list, mimeName){
-                if(mimeName === primaryMime) return;
+                if(mimeName === primaryMime) {
+                    return;
+                }
                 if(mimeName.indexOf('meta:') === 0 && uniqueNode.getMetadata().has(mimeName.substr(5))){
                     templates = templates.concat(list);
                 }else if(uniqueNode.getAjxpMime() === mimeName){
@@ -162,13 +170,13 @@ class InfoPanel extends React.Component {
 }
 
 InfoPanel.propTypes = {
-    dataModel: React.PropTypes.instanceOf(PydioDataModel).isRequired,
-    pydio:React.PropTypes.instanceOf(Pydio).isRequired,
-    style: React.PropTypes.object
+    dataModel: PropTypes.instanceOf(PydioDataModel).isRequired,
+    pydio:PropTypes.instanceOf(Pydio).isRequired,
+    style: PropTypes.object
 }
 
 InfoPanel.contextTypes = {
-    scrollArea: React.PropTypes.object
+    scrollArea: PropTypes.object
 };
 
 InfoPanel = withVerticalScroll(InfoPanel, {id: "info_panel"})
@@ -177,7 +185,6 @@ class ConfigsParser {
 
     static parseConfigs(){
 
-        let configs = new Map();
         let panelsNodes = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), 'client_configs/component_config[@component="InfoPanel"]/infoPanel');
         let panels = new Map();
         panelsNodes.forEach(function(node){
@@ -187,7 +194,9 @@ class ConfigsParser {
             let mimes = node.getAttribute('mime').split(',');
             let component = node.getAttribute('reactComponent');
             mimes.map(function(mime){
-                if(!panels.has(mime)) panels.set(mime, []);
+                if(!panels.has(mime)) {
+                    panels.set(mime, []);
+                }
                 panels.get(mime).push({
                     COMPONENT:component,
                     THEME:node.getAttribute('theme'),

@@ -19,11 +19,12 @@
  */
 import Pydio from 'pydio'
 import React from "react";
+import createReactClass from 'create-react-class'
 const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
 const {ModernTextField} = Pydio.requireLib('hoc');
 const PydioApi = require('pydio/http/api');
 import LangUtils from 'pydio/util/lang';
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 
 
 class Callbacks{
@@ -32,7 +33,7 @@ class Callbacks{
     }
 }
 
-const CreateLinkDialog = React.createClass({
+const CreateLinkDialog = createReactClass({
 
     mixins:[
         ActionDialogMixin,

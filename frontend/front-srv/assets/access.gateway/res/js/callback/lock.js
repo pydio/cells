@@ -19,7 +19,7 @@
  */
 
 import PydioApi from 'pydio/http/api'
-import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta} from 'cells-sdk'
 
 export default function (pydio) {
     return function(){

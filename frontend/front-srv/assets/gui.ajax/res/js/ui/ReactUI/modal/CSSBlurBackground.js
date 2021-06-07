@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +19,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component, PropTypes} = require('react')
+const {
+    Component
+} = require('react')
 
 export function bgCoverFromScreenRatio(width, height){
     const screenWidth = DOMUtils.getViewportWidth();
@@ -72,7 +75,7 @@ class CSSBlurBackground extends Component{
     computeBackgroundData(){
 
         const pydioMainElement = document.getElementById(window.pydio.Parameters.get('MAIN_ELEMENT'));
-        const reference = pydioMainElement.querySelector('div[data-reactroot]');
+        const reference = pydioMainElement.querySelector('div[style]');
         if(!reference){
             return;
         }
@@ -119,7 +122,7 @@ class CSSBlurBackground extends Component{
         return(
             <style dangerouslySetInnerHTML={{
                 __html: [
-                    '.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur:before {',
+                    '.react-mui-context div.dialogRootBlur > div > div.dialogRootBlur:before {',
                     '  background-image: '+backgroundImage+';',
                     '  background-size: '+backgroundSize+';',
                     '}'

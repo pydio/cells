@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/protobuf/ptypes"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
@@ -33,14 +32,26 @@ import (
 
 func getDefaultJobs() []*jobs.Job {
 
-	imagesQuery, _ := ptypes.MarshalAny(&tree.Query{
-		Extension: "jpg,png,jpeg,gif,bmp,tiff",
-		MinSize:   1,
-	})
+	triggerCreate := &jobs.TriggerFilter{
+		Label:       "Create/Update",
+		Description: "Trigger on image creation or modification",
+		Query: &service.Query{SubQueries: []*any.Any{jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
+			EventNames: []string{
+				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
+				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
+			},
+		})}},
+	}
 
-	exifQuery, _ := ptypes.MarshalAny(&tree.Query{
-		Extension: "jpg,jpeg",
-	})
+	triggerDelete := &jobs.TriggerFilter{
+		Label:       "Delete",
+		Description: "Trigger on image deletion",
+		Query: &service.Query{SubQueries: []*any.Any{jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
+			EventNames: []string{
+				jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
+			},
+		})}},
+	}
 
 	thumbnailsJob := &jobs.Job{
 		ID:                "thumbs-job",
@@ -52,49 +63,38 @@ func getDefaultJobs() []*jobs.Job {
 		EventNames: []string{
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
-		},
-		NodeEventFilter: &jobs.NodesSelector{
-			Label: "Images Only",
-			Query: &service.Query{
-				SubQueries: []*any.Any{imagesQuery},
-			},
-		},
-		Actions: []*jobs.Action{
-			{
-				ID:         "actions.images.thumbnails",
-				Parameters: map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
-			},
-			{
-				ID: "actions.images.exif",
-				NodesFilter: &jobs.NodesSelector{
-					Label: "Jpg only",
-					Query: &service.Query{
-						SubQueries: []*any.Any{exifQuery},
-					},
-				},
-			},
-		},
-	}
-
-	cleanThumbsJob := &jobs.Job{
-		ID:                "clean-thumbs-job",
-		Owner:             common.PydioSystemUsername,
-		Label:             "Jobs.Default.ThumbsCache",
-		Inactive:          false,
-		MaxConcurrency:    5,
-		TasksSilentUpdate: true,
-		EventNames: []string{
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
 		},
 		NodeEventFilter: &jobs.NodesSelector{
 			Label: "Images Only",
 			Query: &service.Query{
-				SubQueries: []*any.Any{imagesQuery},
+				SubQueries: []*any.Any{jobs.MustMarshalAny(&tree.Query{
+					Extension: "jpg,png,jpeg,gif,bmp,tiff",
+					MinSize:   1,
+				})},
 			},
 		},
 		Actions: []*jobs.Action{
 			{
-				ID: "actions.images.clean",
+				ID:            "actions.images.thumbnails",
+				Parameters:    map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
+				TriggerFilter: triggerCreate,
+			},
+			{
+				ID:            "actions.images.exif",
+				TriggerFilter: triggerCreate,
+				NodesFilter: &jobs.NodesSelector{
+					Label: "Jpg only",
+					Query: &service.Query{
+						SubQueries: []*any.Any{jobs.MustMarshalAny(&tree.Query{
+							Extension: "jpg,jpeg",
+						})},
+					},
+				},
+			},
+			{
+				ID:            "actions.images.clean",
+				TriggerFilter: triggerDelete,
 			},
 		},
 	}
@@ -115,9 +115,6 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
-	usersOnlyQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
-		NodeType: idm.NodeType_USER,
-	})
 	cleanUserDataJob := &jobs.Job{
 		ID:                "clean-user-data",
 		Owner:             common.PydioSystemUsername,
@@ -131,7 +128,9 @@ func getDefaultJobs() []*jobs.Job {
 		IdmFilter: &jobs.IdmSelector{
 			Type: jobs.IdmSelectorType_User,
 			Query: &service.Query{
-				SubQueries: []*any.Any{usersOnlyQ},
+				SubQueries: []*any.Any{jobs.MustMarshalAny(&idm.UserSingleQuery{
+					NodeType: idm.NodeType_USER,
+				})},
 			},
 		},
 		Actions: []*jobs.Action{
@@ -143,7 +142,6 @@ func getDefaultJobs() []*jobs.Job {
 
 	defJobs := []*jobs.Job{
 		thumbnailsJob,
-		cleanThumbsJob,
 		stuckTasksJob,
 		cleanUserDataJob,
 	}

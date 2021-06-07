@@ -143,7 +143,7 @@ class Policy extends React.Component{
         const rulesTitle = (
             <div style={{display:'flex', alignItems:'center'}}>
                 <div style={{fontSize: 14, fontWeight: 500}}>Rules</div>
-                {!readonly && <IconButton iconClassName={"mdi mdi-plus"} tooltip={m('rule.create')} onTouchTap={this.onAddRule.bind(this)} {...icButtonsProps} tooltipPosition={"bottom-right"}/>}
+                {!readonly && <IconButton iconClassName={"mdi mdi-plus"} tooltip={m('rule.create')} onClick={this.onAddRule.bind(this)} {...icButtonsProps} tooltipPosition={"bottom-right"}/>}
             </div>
         );
 
@@ -155,7 +155,7 @@ class Policy extends React.Component{
                 <div style={{marginTop: 10, paddingTop: 10}}>
                     <div style={{display:'flex', alignItems:'center'}}>
                         <div  style={{fontSize: 14, fontWeight: 500}}>Edit Labels</div>
-                        <IconButton iconClassName={"mdi mdi-chevron-" + (showLabels?'down':'right')} tooltip={m('policy.editLabels')} onTouchTap={()=>this.setState({showLabels:!showLabels})} {...icButtonsProps}/>
+                        <IconButton iconClassName={"mdi mdi-chevron-" + (showLabels?'down':'right')} tooltip={m('policy.editLabels')} onClick={()=>this.setState({showLabels:!showLabels})} {...icButtonsProps}/>
                     </div>
                     <div style={{display: showLabels?'flex':'none'}}>
                         <div style={{marginRight:6, flex: 1}}>
@@ -170,7 +170,7 @@ class Policy extends React.Component{
                                 iconClassName={"mdi mdi-content-save"}
                                 tooltip={m('policy.saveLabels')}
                                 tooltipPosition={"top-center"}
-                                onTouchTap={()=>{
+                                onClick={()=>{
                                     this.saveLabels();
                                 }}
                                 iconStyle={{fontSize:20, color:'rgba(0,0,0,'+(labelsModified?'.43':'.10')+')'}}

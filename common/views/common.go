@@ -83,9 +83,10 @@ type (
 	BranchInfo struct {
 		LoadedSource
 		idm.Workspace
-		Root          *tree.Node
-		Binary        bool
-		AncestorsList map[string][]*tree.Node
+		Root              *tree.Node
+		Binary            bool
+		TransparentBinary bool
+		AncestorsList     map[string][]*tree.Node
 	}
 
 	PutRequestData struct {
@@ -231,6 +232,11 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 	}
 	return ctx, parents, nil
 
+}
+
+// IsInternal check if either datasource is internal or branch has Binary flag
+func (b BranchInfo) IsInternal() bool {
+	return b.Binary || b.LoadedSource.IsInternal()
 }
 
 // WithBucketName creates a copy of a LoadedSource with a bucket name

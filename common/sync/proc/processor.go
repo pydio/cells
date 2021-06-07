@@ -132,12 +132,14 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// if necessary. Flush is triggered between each operation type by checking if next type has
 	// some Pending operations.
 	flusher := func(tt ...merger.OperationType) {}
+	finalFlusher := func() {}
 	if session, err := patch.StartSession(&tree.Node{Path: "/"}); err == nil {
-		defer func() {
+		finalFlusher = func() {
+			log.Logger(pr.GlobalContext).Info("Finishing patch session")
 			if e := patch.FinishSession(session.Uuid); e != nil {
 				patch.SetPatchError(e)
 			}
-		}()
+		}
 		flusher = func(tt ...merger.OperationType) {
 			for _, t := range tt {
 				if val, ok := pending[t.String()]; ok && val > 0 {
@@ -154,6 +156,7 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 
 	// Listen to cmd Chan
 	ctx, cancel := context.WithCancel(pr.GlobalContext)
+	defer cancel()
 	var cmdChan chan model.SyncCmd
 	if cmd != nil {
 		var unsub chan bool
@@ -258,6 +261,8 @@ func (pr *Processor) Process(patch merger.Patch, cmd *model.Command) {
 	// Now that all files are created, we can process metadata operations
 	patch.WalkOperations([]merger.OperationType{merger.OpCreateMeta, merger.OpUpdateMeta, merger.OpDeleteMeta}, serialWalker)
 
+	finalFlusher()
+
 	if pE, h := patch.HasErrors(); !h && !pr.SkipTargetChecks {
 		if err := patch.Validate(ctx); err != nil {
 			log.Logger(pr.GlobalContext).Error("Could not validate patch", zap.Error(err))
@@ -344,7 +349,7 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		progress = "Creating folder"
 		complete = "Created folder"
 		error = "Error while creating folder"
-		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
+		fields = append(fields, zap.String(common.KeyNodePath, op.GetRefPath()))
 	case merger.OpCreateFile, merger.OpUpdateFile:
 		cb = pr.processCreateFile
 		if p.HasTransfers() {
@@ -356,20 +361,20 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 			complete = "Indexed file"
 			error = "Error while indexing file"
 		}
-		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
+		fields = append(fields, zap.String(common.KeyNodePath, op.GetRefPath()))
 	case merger.OpMoveFolder:
 		cb = pr.processMove
 		progress = "Moving folder"
 		complete = "Moved folder"
 		error = "Error while moving folder"
-		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetMoveOriginPath()))
+		fields = append(fields, zap.String(common.KeyNodePath, op.GetMoveOriginPath()))
 		fields = append(fields, zap.String("NodeTo", op.GetRefPath()))
 	case merger.OpMoveFile:
 		cb = pr.processMove
 		progress = "Moving file"
 		complete = "Moved file"
 		error = "Error while moving file"
-		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetMoveOriginPath()))
+		fields = append(fields, zap.String(common.KeyNodePath, op.GetMoveOriginPath()))
 		fields = append(fields, zap.String("NodeTo", op.GetRefPath()))
 	case merger.OpDelete:
 		cb = pr.processDelete
@@ -380,7 +385,7 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 		progress = "Deleting " + nS
 		complete = "Deleted " + nS
 		error = "Error while deleting " + nS
-		fields = append(fields, zap.String(common.KEY_NODE_PATH, op.GetRefPath()))
+		fields = append(fields, zap.String(common.KeyNodePath, op.GetRefPath()))
 	case merger.OpCreateMeta:
 		cb = pr.processMetadata
 		progress = "Creating metadata"

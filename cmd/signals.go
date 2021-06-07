@@ -26,6 +26,7 @@ func handleSignals() {
 
 	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
 	// signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGSTOP)
+	signal.Ignore()
 	signal.Notify(c)
 
 	go func() {
@@ -34,6 +35,11 @@ func handleSignals() {
 			case syscall.SIGTERM:
 				fallthrough
 			case syscall.SIGINT:
+				// Start services that have not been deregistered via flags and filtering.
+				for _, service := range allServices {
+					service.Stop()
+				}
+
 				// Stopping the main context will trigger the stop of all services
 				log.Info("Cancelling main context")
 				cancel()

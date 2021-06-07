@@ -76,7 +76,7 @@ func (s *UserMetaHandler) Filter() func(string) string {
 
 // Handle special case for "content_lock" meta => store in ACL instead of user metadatas
 func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error {
-	log.Logger(ctx).Info("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
+	log.Logger(ctx).Debug("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
 	nodeUuid := meta.NodeUuid
 	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
@@ -147,9 +147,11 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, e)
 			return
 		}
-		if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: resp.Node}); er != nil {
-			service.RestError403(req, rsp, er)
-			return
+		if meta.Namespace != namespace.ReservedNamespaceBookmark {
+			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: resp.Node}); er != nil {
+				service.RestError403(req, rsp, er)
+				return
+			}
 		}
 		meta.ResolvedNode = resp.Node.Clone()
 		if meta.Namespace == permissions.AclContentLock.Name {
@@ -165,10 +167,6 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError404(req, rsp, errors.NotFound(common.ServiceUserMeta, "Namespace "+meta.Namespace+" is not defined!"))
 			return
 		}
-		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.MetaFlagReadonly) != "" {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this node"))
-			return
-		}
 
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
 			service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not authorized to write on namespace "+meta.Namespace))
@@ -179,21 +177,15 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 		if ns.JsonDefinition != "" {
 			// Special case for tags: automatically update stored list
-			var nsDef map[string]interface{}
-			if jE := json.Unmarshal([]byte(ns.JsonDefinition), &nsDef); jE == nil {
-				if _, ok := nsDef["type"]; ok {
-					nsType := nsDef["type"].(string)
-					if nsType == "tags" {
-						var currentValue string
-						json.Unmarshal([]byte(meta.JsonValue), &currentValue)
-						log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
-						e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
-						if e != nil {
-							log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
-						}
-					}
+			if nsDef, jE := ns.UnmarshallDefinition(); jE == nil && nsDef.GetType() == "tags" {
+				var currentValue string
+				json.Unmarshal([]byte(meta.JsonValue), &currentValue)
+				log.Logger(ctx).Debug("jsonDef for namespace "+ns.Namespace, zap.Any("d", nsDef), zap.Any("v", currentValue))
+				e := s.putTagsIfNecessary(ctx, ns.Namespace, strings.Split(currentValue, ","))
+				if e != nil {
+					log.Logger(ctx).Error("Could not store meta tags for namespace "+ns.Namespace, zap.Error(e))
 				}
-			} else {
+			} else if jE != nil {
 				log.Logger(ctx).Error("Cannot decode jsonDef "+ns.Namespace+": "+ns.JsonDefinition, zap.Error(jE))
 			}
 		}
@@ -299,28 +291,13 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		return
 	}
 	ctx := req.Request.Context()
-	/*
-		// Not necessary : checked at Policy level
-		if value := ctx.Value(claim.ContextKey); value != nil {
-			claims := value.(claim.Claims)
-			if claims.Profile != "admin" {
-				service.RestError403(req, rsp, errors.Forbidden(common.ServiceUserMeta, "You are not allowed to edit namespaces"))
-				return
-			}
-		}
-	*/
 	// Validate input
-	type jsonCheck struct {
-		Type string
-		Data interface{} `json:"data,omitempty"`
-	}
 	for _, ns := range input.Namespaces {
 		if !strings.HasPrefix(ns.Namespace, "usermeta-") {
 			service.RestError500(req, rsp, fmt.Errorf("user defined meta must start with usermeta- prefix"))
 			return
 		}
-		var check jsonCheck
-		if e := json.Unmarshal([]byte(ns.JsonDefinition), &check); e != nil {
+		if _, e := ns.UnmarshallDefinition(); e != nil {
 			service.RestError500(req, rsp, fmt.Errorf("invalid json definition for namespace: "+e.Error()))
 			return
 		}
@@ -355,7 +332,7 @@ func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restf
 func (s *UserMetaHandler) ListUserMetaTags(req *restful.Request, rsp *restful.Response) {
 	ns := req.PathParameter("Namespace")
 	ctx := req.Request.Context()
-	log.Logger(ctx).Info("Listing tags for namespace " + ns)
+	log.Logger(ctx).Debug("Listing tags for namespace " + ns)
 	tags, _ := s.listTagsForNamespace(ctx, ns)
 	rsp.WriteEntity(&rest.ListUserMetaTagsResponse{
 		Tags: tags,
@@ -438,7 +415,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	ns := req.PathParameter("Namespace")
 	tag := req.PathParameter("Tags")
 	ctx := req.Request.Context()
-	log.Logger(ctx).Info("Delete tags for namespace "+ns, zap.String("tag", tag))
+	log.Logger(ctx).Debug("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
 		docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
 		if _, e := docClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
@@ -481,6 +458,7 @@ func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request 
 		if resp == nil {
 			continue
 		}
+		resp.UserMeta.PoliciesContextEditable = s.IsContextEditable(ctx, resp.UserMeta.GetUuid(), resp.UserMeta.GetPolicies())
 		output.Metadatas = append(output.Metadatas, resp.UserMeta)
 	}
 
@@ -503,6 +481,11 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 		if resp == nil {
 			continue
 		}
+		ns := resp.GetUserMetaNamespace()
+		if !s.MatchPolicies(ctx, ns.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_READ) {
+			continue
+		}
+		ns.PoliciesContextEditable = s.IsContextEditable(ctx, ns.Namespace, ns.Policies)
 		result[resp.UserMetaNamespace.Namespace] = resp.UserMetaNamespace
 	}
 	return result, nil

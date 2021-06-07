@@ -21,22 +21,19 @@ import React from "react";
 import Pydio from "pydio";
 
 import PydioApi from 'pydio/http/api'
-import {UserServiceApi, IdmUser} from 'pydio/http/rest-api'
+import {UserServiceApi, IdmUser} from 'cells-sdk'
 const {ValidPassword} = Pydio.requireLib('form');
 const {ModernTextField} = Pydio.requireLib("hoc");
 
 
-let PasswordForm = React.createClass({
+class PasswordForm extends React.Component {
+    state = {error: null, old: '', newPass: ''};
 
-    getInitialState(){
-        return {error: null, old: '', newPass: ''};
-    },
-
-    getMessage(id){
+    getMessage = (id) => {
         return this.props.pydio.MessageHash[id];
-    },
+    };
 
-    update(value, field){
+    update = (value, field) => {
         let newStatus = {}
         newStatus[field] = value;
         this.setState(newStatus, () => {
@@ -45,10 +42,10 @@ let PasswordForm = React.createClass({
                 this.props.onValidStatusChange(status);
             }
         });
-    },
+    };
 
-    validate(){
-        if(!this.refs.newpass.isValid()){
+    validate = () => {
+        if(!this.state.validStatus){
             return false;
         }
         const {oldPass, newPass} = this.state;
@@ -62,9 +59,9 @@ let PasswordForm = React.createClass({
         }
         this.setState({error: null});
         return true;
-    },
+    };
 
-    post(callback){
+    post = (callback) => {
         const {oldPass, newPass} = this.state;
         const {pydio} = this.props;
         let logoutString = '';
@@ -84,9 +81,9 @@ let PasswordForm = React.createClass({
                 }
             })
         });
-    },
+    };
 
-    render(){
+    render() {
 
         if (!this.props.pydio.user){
             return null;
@@ -109,7 +106,6 @@ let PasswordForm = React.createClass({
                             onChange={oldChange}
                             type="password"
                             value={this.state.oldPass}
-                            ref="old"
                             floatingLabelText={messages[237]}
                             autoComplete="off"
                         />
@@ -121,14 +117,13 @@ let PasswordForm = React.createClass({
                         attributes={{name:'pass',label:messages[198]}}
                         value={this.state.newPass}
                         name="newpassword"
-                        ref="newpass"
+                        onValidStatusChange={(s) => this.setState({validStatus: s})}
                     />
                 </div>
             </div>
         );
 
     }
-
-});
+}
 
 export {PasswordForm as default}

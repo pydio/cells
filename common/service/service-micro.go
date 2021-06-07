@@ -21,18 +21,17 @@
 package service
 
 import (
-	"time"
-
 	"github.com/micro/cli"
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/selector/cache"
-	"github.com/micro/go-micro/server"
+	server "github.com/micro/go-micro/server"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
+	cserver "github.com/pydio/cells/common/micro/server"
 	"github.com/pydio/cells/common/micro/server/grpc"
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -92,17 +91,20 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
 			}
 
-			srvOpts = append(srvOpts, server.Version(o.Version))
+			srvOpts = append(srvOpts,
+				server.Id(o.ID),
+				server.Version(o.Version),
+				server.RegisterTTL(DefaultRegisterTTL),
+			)
 
 			srv := defaults.NewServer(srvOpts...)
+			srv = cserver.NewServerWithStopOnRegisterError(srv)
 			svc.Init(
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
-				// micro.RegisterTTL(time.Second*30),
-				// micro.RegisterInterval(time.Second*10),
-				micro.RegisterTTL(10*time.Minute),
-				micro.RegisterInterval(5*time.Minute),
+				micro.RegisterTTL(DefaultRegisterTTL),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 			)

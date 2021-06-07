@@ -85,7 +85,7 @@ func init() {
 			} else {
 				p = fmt.Sprintf("%d", net.GetAvailablePort())
 			}
-			logCtx := servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear), servicecontext.ServiceColorGrpc)
+			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
 			clearOpts = append(clearOpts,
 				service.Port(p),
 				service.Context(ctx),
@@ -94,7 +94,7 @@ func init() {
 			service.NewService(clearOpts...)
 		}
 		if hasTls {
-			logCtx := servicecontext.WithServiceColor(servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc), servicecontext.ServiceColorGrpc)
+			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpc)
 			tlsOpts = append(tlsOpts,
 				service.Context(ctx),
 				service.WithMicro(microServiceWithLog(logCtx, "Activating self-signed configuration for gRPC gateway to allow full TLS chain.")),
@@ -154,7 +154,7 @@ func jwtWrapper(serviceCtx context.Context) func(handlerFunc server.HandlerFunc)
 					if err != nil {
 						log.Auditer(serviceCtx).Error(
 							"Blocked invalid JWT",
-							log.GetAuditId(common.AUDIT_INVALID_JWT),
+							log.GetAuditId(common.AuditInvalidJwt),
 						)
 						return err
 					} else {

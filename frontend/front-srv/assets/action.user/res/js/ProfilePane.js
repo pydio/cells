@@ -25,7 +25,7 @@ import LangUtils from "pydio/util/lang";
 import {Divider, FlatButton} from "material-ui";
 import Pydio from "pydio";
 import PydioApi from 'pydio/http/api';
-import {UserServiceApi} from 'pydio/http/rest-api';
+import {UserServiceApi} from 'cells-sdk';
 
 const {Manager, FormPanel} = Pydio.requireLib('form');
 
@@ -68,11 +68,11 @@ const FORM_CSS = `
 
 `;
 
-let ProfilePane = React.createClass({
-
-    getInitialState(){
+class ProfilePane extends React.Component {
+    constructor(props) {
+        super(props);
         let objValues = {}, mailValues = {};
-        let pydio = this.props.pydio;
+        let pydio = props.pydio;
         if(pydio.user){
             pydio.user.preferences.forEach(function(v, k){
                 if(k === 'gui_preferences') {
@@ -81,16 +81,17 @@ let ProfilePane = React.createClass({
                 objValues[k] = v;
             });
         }
-        return {
+
+        this.state = {
             definitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
             mailDefinitions:Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
             values:objValues,
             originalValues:LangUtils.deepCopy(objValues),
             dirty: false
         };
-    },
+    }
 
-    onFormChange(newValues, dirty, removeValues){
+    onFormChange = (newValues, dirty, removeValues) => {
         const {values} = this.state;
         this.setState({dirty: dirty, values: newValues}, () => {
             if(this._updater) {
@@ -100,18 +101,18 @@ let ProfilePane = React.createClass({
                 this.saveForm();
             }
         });
-    },
+    };
 
-    getButtons(updater = null){
+    getButtons = (updater = null) => {
         if(updater) {
             this._updater = updater;
         }
         let button, revert;
         if(this.state.dirty){
-            revert = <FlatButton label={this.props.pydio.MessageHash[628]} onTouchTap={this.revert}/>;
-            button = <FlatButton label={this.props.pydio.MessageHash[53]} secondary={true} onTouchTap={this.saveForm}/>;
+            revert = <FlatButton label={this.props.pydio.MessageHash[628]} onClick={this.revert}/>;
+            button = <FlatButton label={this.props.pydio.MessageHash[53]} secondary={true} onClick={this.saveForm}/>;
         }else{
-            button = <FlatButton label={this.props.pydio.MessageHash[86]} onTouchTap={this.props.onDismiss}/>;
+            button = <FlatButton label={this.props.pydio.MessageHash[86]} onClick={this.props.onDismiss}/>;
         }
         if(this.props.pydio.Controller.getActionByName('pass_change')){
             return [
@@ -125,9 +126,9 @@ let ProfilePane = React.createClass({
         }else{
             return [button];
         }
-    },
+    };
 
-    revert(){
+    revert = () => {
         this.setState({
             values: {...this.state.originalValues},
             dirty: false
@@ -136,9 +137,9 @@ let ProfilePane = React.createClass({
                 this._updater(this.getButtons());
             }
         });
-    },
+    };
 
-    saveForm(){
+    saveForm = () => {
         if(!this.state.dirty){
             this.setState({dirty: false});
             return;
@@ -185,9 +186,9 @@ let ProfilePane = React.createClass({
             });
 
         });
-    },
+    };
 
-    render(){
+    render() {
         const {pydio, miniDisplay} = this.props;
         if(!pydio.user) {
             return null;
@@ -210,7 +211,6 @@ let ProfilePane = React.createClass({
             </div>
         );
     }
-
-});
+}
 
 export {ProfilePane as default}

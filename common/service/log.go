@@ -34,23 +34,18 @@ func newLogProvider(service micro.Service) error {
 
 	var options []micro.Option
 	ctx := service.Options().Context
-
 	name := servicecontext.GetServiceName(ctx)
-	color := servicecontext.GetServiceColor(ctx)
-
-	options = append(options, micro.WrapHandler(NewLogHandlerWrapper(name, color)))
-
+	options = append(options, micro.WrapHandler(NewLogHandlerWrapper(name)))
 	service.Init(options...)
 
 	return nil
 }
 
 // NewLogHandlerWrapper wraps a db connection within the handler so it can be accessed by the handler itself.
-func NewLogHandlerWrapper(name string, color uint64) server.HandlerWrapper {
+func NewLogHandlerWrapper(name string) server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
 			ctx = servicecontext.WithServiceName(ctx, name)
-			ctx = servicecontext.WithServiceColor(ctx, color)
 
 			err := h(ctx, req, rsp)
 
@@ -60,14 +55,9 @@ func NewLogHandlerWrapper(name string, color uint64) server.HandlerWrapper {
 }
 
 // NewLogHTTPHandlerWrapper wraps a db connection to the HTTP Handler
-func NewLogHTTPHandlerWrapper(h http.Handler, serviceName string, serviceColor uint64) http.Handler {
+func NewLogHTTPHandlerWrapper(h http.Handler, serviceName string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		ctx := r.Context()
-		ctx = servicecontext.WithServiceName(ctx, serviceName)
-		ctx = servicecontext.WithServiceColor(ctx, serviceColor)
-
-		r = r.WithContext(ctx)
+		r = r.WithContext(servicecontext.WithServiceName(r.Context(), serviceName))
 		h.ServeHTTP(w, r)
 
 	})

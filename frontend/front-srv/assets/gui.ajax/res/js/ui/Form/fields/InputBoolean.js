@@ -19,53 +19,73 @@
  */
 import Pydio from 'pydio'
 import React from "react";
-import FormMixin from '../mixins/FormMixin'
-import {Toggle} from "material-ui";
+import {Toggle, Checkbox} from "material-ui";
+import asFormField from "../hoc/asFormField";
 const {ModernStyles} = Pydio.requireLib('hoc');
+
+const legendStyle = {
+    position: 'absolute',
+    fontSize: 16,
+    lineHeight: '22px',
+    top: 25,
+    transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
+    zIndex: 1,
+    transform: 'scale(0.75) translate(0px, -28px)',
+    transformOrigin: 'left top',
+    pointerEvents: 'none',
+    userSelect: 'none',
+    color: 'rgba(0, 0, 0, 0.3)',
+    left: 8,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: '127%'
+}
 
 /**
  * Boolean input
  */
-export default React.createClass({
+class InputBoolean extends React.Component {
 
-    mixins:[FormMixin],
-
-    getDefaultProps:function(){
-        return {
-            skipBufferChanges:true
-        };
-    },
-
-    onCheck:function(event, newValue){
-        this.props.onChange(newValue, this.state.value);
-        this.setState({
-            dirty:true,
-            value:newValue
-        });
-    },
-
-    getBooleanState:function(){
-        let boolVal = this.state.value;
+    render(){
+        let boolVal = this.props.value;
+        const {variant, variantShowLegend, disabled, onChange, attributes, isDisplayForm} = this.props;
         if(typeof boolVal  === 'string'){
             boolVal = (boolVal === "true");
         }
-        return boolVal;
-    },
 
-    render:function(){
-        const boolVal = this.getBooleanState();
-        return(
-            <span>
+        if (variant === 'v2') {
+            let toggleStyle = {...ModernStyles.toggleFieldV2}
+            if(variantShowLegend){
+                toggleStyle.style = {...toggleStyle.style, padding:'23px 6px 4px'};
+            }
+            return (
+                <div style={{position:'relative', height: 58}}>
+                    <div style={{...legendStyle, display:variantShowLegend?'block':'none'}}>{attributes.description}</div>
+                    <Checkbox
+                        checked={boolVal}
+                        onCheck={(e,v) => onChange(e,v)}
+                        disabled={disabled}
+                        label={isDisplayForm()?attributes.label:null}
+                        labelPosition={'right'}
+                        {...toggleStyle}
+                    />
+                </div>
+            )
+        } else {
+            return (
                 <Toggle
                     toggled={boolVal}
-                    onToggle={this.onCheck}
-                    disabled={this.props.disabled}
-                    label={this.isDisplayForm()?this.props.attributes.label:null}
-                    labelPosition={this.isDisplayForm()?'left':'right'}
+                    onToggle={(e,v)=>onChange(e,v)}
+                    disabled={disabled}
+                    label={isDisplayForm()?attributes.label:null}
+                    labelPosition={isDisplayForm()?'left':'right'}
                     {...ModernStyles.toggleField}
                 />
-            </span>
-        );
+            )
+        }
     }
 
-});
+}
+
+export default asFormField(InputBoolean, true);

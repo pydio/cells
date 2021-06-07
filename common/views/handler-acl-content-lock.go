@@ -35,7 +35,7 @@ type AclContentLockFilter struct {
 
 // PutObject check locks before allowing Put operation.
 func (a *AclContentLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
 	if err := permissions.CheckContentLock(ctx, node); err != nil {
@@ -45,7 +45,7 @@ func (a *AclContentLockFilter) PutObject(ctx context.Context, node *tree.Node, r
 }
 
 func (a *AclContentLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
 		return a.next.MultipartCreate(ctx, target, requestData)
 	}
 	if err := permissions.CheckContentLock(ctx, target); err != nil {
@@ -62,7 +62,7 @@ func (a *AclContentLockFilter) CopyObject(ctx context.Context, from *tree.Node, 
 func (a *AclContentLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 	var lockErr error
 	switch operation.GetType() {
-	case tree.NodeChangeEvent_CREATE:
+	case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 		lockErr = permissions.CheckContentLock(targetCtx, operation.GetTarget())
 	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
 		lockErr = permissions.CheckContentLock(srcCtx, operation.GetSource())

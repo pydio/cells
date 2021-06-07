@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,7 +19,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component, PropTypes} = require('react')
+const {
+    Component
+} = require('react')
 const {FlatButton} = require('material-ui')
 const {muiThemeable} = require('material-ui/styles')
 
@@ -55,7 +58,10 @@ export default function(PydioComponent, displayName, gridDimension = {gridWidth:
         }
 
         getCloseButton(){
-            const closeAction = this.props.onCloseAction || ()=>{};
+            let closeAction = ()=>{}
+            if(this.props.onCloseAction){
+                closeAction = this.props.onCloseAction;
+            }
             const overlayStyle = {
                 position:'absolute',
                 backgroundColor:'rgba(0,0,0,0.53)',
@@ -73,7 +79,7 @@ export default function(PydioComponent, displayName, gridDimension = {gridWidth:
                     <FlatButton
                         label={this.props.pydio.MessageHash['ajxp_admin.home.48']}
                         className="card-close-button"
-                        onTouchTap={closeAction}
+                        onClick={closeAction}
                         style={{color:'white'}}
                     />
                 </div>

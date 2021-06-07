@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-	"sync"
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
@@ -49,14 +48,13 @@ func init() {
 
 				dataSources := map[string]DataSource{}
 				treeServer := &TreeServer{
-					ConfigsMutex: &sync.Mutex{},
-					DataSources:  dataSources,
-					meta:         tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient()),
+					DataSources: dataSources,
+					meta:        tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient()),
 				}
 
 				eventSubscriber := NewEventSubscriber(treeServer, defaults.NewClient())
 
-				updateServicesList(ctx, treeServer)
+				updateServicesList(ctx, treeServer, 0)
 
 				srv := m.Options().Server
 				tree.RegisterNodeProviderHandler(srv, treeServer)

@@ -1,3 +1,13 @@
+import GraphPanel from './GraphPanel';
+import ActionsPanel from './ActionsPanel'
+const debounce = require('lodash.debounce');
+const React = require('react');
+const Color = require('color');
+const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material-ui');
+const {muiThemeable} = require('material-ui/styles');
+const MetaCacheService = require('pydio/http/meta-cache-service');
+const {UsersApi} = require('pydio/http/users-api');
+
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18,15 +28,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import GraphPanel from './GraphPanel'
-import ActionsPanel from './ActionsPanel'
-const debounce = require('lodash.debounce');
-const React = require('react');
-const Color = require('color');
-const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material-ui');
-const {muiThemeable} = require('material-ui/styles');
-const MetaCacheService = require('pydio/http/meta-cache-service');
-const {UsersApi} = require('pydio/http/users-api');
+import PropTypes from 'prop-types';
+
 import PydioApi from "pydio/http/api";
 
 /**
@@ -118,8 +121,8 @@ class UserAvatar extends React.Component{
     render(){
 
         const {user, avatar, graph, local, loadError} = this.state;
-        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, className,
-            labelMaxChars, labelClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
+        let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, cardStyle, className,
+            labelMaxChars, labelClassName, avatarClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
             displayAvatar, useDefaultAvatar, richCard, muiTheme, noActionsPanel} = this.props;
 
         let {label} = this.state;
@@ -152,7 +155,7 @@ class UserAvatar extends React.Component{
             }
         }
 
-        let avatarContent, avatarColor, avatarIcon;
+        let avatarContent, avatarColor, avatarIcon, avatarClass;
         if(richCard){
             displayAvatar = true;
             useDefaultAvatar = true;
@@ -168,14 +171,17 @@ class UserAvatar extends React.Component{
                 case 'group':
                     iconClassName = 'mdi mdi-account-multiple';
                     userTypeLabel = '289';
+                    avatarClass = 'folder-avatar'
                     break;
                 case 'team':
                     iconClassName = 'mdi mdi-account-multiple-outline';
                     userTypeLabel = '603';
+                    avatarClass = 'folder-avatar'
                     break;
                 case 'remote':
                     iconClassName = 'mdi mdi-account-network';
                     userTypeLabel = '604';
+                    avatarClass = 'folder-avatar'
                     break;
                 default:
                     iconClassName = 'mdi mdi-account';
@@ -221,10 +227,8 @@ class UserAvatar extends React.Component{
 
             displayAvatar = true;
             style = {...style, flexDirection:'column'};
-            //avatarSize = cardSize ? cardSize : '100%';
-            //avatarStyle = {borderRadius: 0};
-            avatarSize = 100;
-            avatarStyle = {marginTop: 20};
+            avatarSize = 50;
+            avatarStyle = {position: 'absolute', right: 16, top: 12, ...avatarStyle};
             const localReload = () => {
                 MetaCacheService.getInstance().deleteKey('user_public_data-graph', this.props.userId);
                 this.loadPublicData(this.props.userId, this.props.idmUser);
@@ -343,6 +347,7 @@ class UserAvatar extends React.Component{
                 size={avatarSize}
                 style={this.props.avatarOnly ? this.props.style : avatarStyle}
                 backgroundColor={avatarColor}
+                className={avatarClass || avatarClassName}
             >{avatarContent}</Avatar>
         );
 
@@ -369,8 +374,8 @@ class UserAvatar extends React.Component{
                     className={labelClassName}
                     style={labelStyle}>{label}</div>}
                 {labelChevron}
-                {displayLabel && richCard && <CardTitle style={{textAlign:'center'}} title={label} subtitle={userTypeLabel}/>}
-                {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction}/>}
+                {displayLabel && richCard && <CardTitle style={{textAlign:'center', ...cardStyle}} title={label} subtitle={userTypeLabel}/>}
+                {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction} style={{paddingLeft: 8, paddingBottom: 4, backgroundColor:'#f8fafc'}}/>}
                 {richCard && graph && !noActionsPanel && <GraphPanel graph={graph} {...this.props} userLabel={label} reloadAction={reloadAction} onEditAction={onEditAction}/>}
                 {this.props.children}
                 {popover}
@@ -385,111 +390,111 @@ UserAvatar.propTypes = {
     /**
      * Id of the user to be loaded
      */
-    userId: React.PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
     /**
      * Pydio instance
      */
-    pydio : React.PropTypes.instanceOf(Pydio),
+    pydio : PropTypes.instanceOf(Pydio),
     /**
      * Label of the user, if we already have it (otherwise will be loaded)
      */
-    userLabel:React.PropTypes.string,
+    userLabel:PropTypes.string,
     /**
      * Type of user
      */
-    userType: React.PropTypes.oneOf(['user', 'group', 'remote', 'team']),
+    userType: PropTypes.oneOf(['user', 'group', 'remote', 'team']),
     /**
      * Icon to be displayed in avatar
      */
-    icon:React.PropTypes.string,
+    icon:PropTypes.string,
     /**
      * Display a rich card or a simple avatar+label chip
      */
-    richCard: React.PropTypes.bool,
+    richCard: PropTypes.bool,
     /**
      * If not rich, display a rich card as popover on mouseover
      */
-    richOnHover: React.PropTypes.bool,
+    richOnHover: PropTypes.bool,
     /**
      * If not rich, display a rich card as popover on click
      */
-    richOnClick: React.PropTypes.bool,
+    richOnClick: PropTypes.bool,
 
     /**
      * Add edit action to the card
      */
-    userEditable: React.PropTypes.bool,
+    userEditable: PropTypes.bool,
     /**
      * Triggered after successful edition
      */
-    onEditAction: React.PropTypes.func,
+    onEditAction: PropTypes.func,
     /**
      * Triggered after deletion
      */
-    onDeleteAction: React.PropTypes.func,
+    onDeleteAction: PropTypes.func,
     /**
      * Triggered if a reload is required
      */
-    reloadAction: React.PropTypes.func,
+    reloadAction: PropTypes.func,
 
     /**
      * Display label element or not
      */
-    displayLabel: React.PropTypes.bool,
+    displayLabel: PropTypes.bool,
     /**
      * Display label element or not
      */
-    displayLocalLabel: React.PropTypes.bool,
+    displayLocalLabel: PropTypes.bool,
     /**
      * Display avatar element or not
      */
-    displayAvatar: React.PropTypes.bool,
+    displayAvatar: PropTypes.bool,
     /**
      * Display only avatar
      */
-    avatarOnly: React.PropTypes.bool,
+    avatarOnly: PropTypes.bool,
     /**
      * Use default avatar
      */
-    useDefaultAvatar: React.PropTypes.bool,
+    useDefaultAvatar: PropTypes.bool,
     /**
      * Avatar size, 40px by default
      */
-    avatarSize:React.PropTypes.number,
+    avatarSize:PropTypes.number,
     /**
      * If only the default icon is available, will display
      * the first letters of the name instead
      */
-    avatarLetters: React.PropTypes.bool,
+    avatarLetters: PropTypes.bool,
     /**
      * Do not display ActionsPanel in RichCard mode
      */
-    noActionsPanel: React.PropTypes.bool,
+    noActionsPanel: PropTypes.bool,
 
     /**
      * Add class name to root element
      */
-    className: React.PropTypes.string,
+    className: PropTypes.string,
     /**
      * Add class name to label element
      */
-    labelClassName: React.PropTypes.string,
+    labelClassName: PropTypes.string,
     /**
      * Add class name to avatar element
      */
-    avatarClassName: React.PropTypes.string,
+    avatarClassName: PropTypes.string,
     /**
      * Add style to root element
      */
-    style: React.PropTypes.object,
+    style: PropTypes.object,
     /**
      * Add style to label element
      */
-    labelStyle: React.PropTypes.object,
+    labelStyle: PropTypes.object,
     /**
      * Add style to avatar element
      */
-    avatarStyle: React.PropTypes.object
+    avatarStyle: PropTypes.object
 };
 
 UserAvatar.defaultProps = {
@@ -498,7 +503,6 @@ UserAvatar.defaultProps = {
     avatarSize: 40,
     userType:'user',
     className: 'user-avatar-widget',
-    avatarClassName:'user-avatar',
     labelClassName:'user-label'
 };
 

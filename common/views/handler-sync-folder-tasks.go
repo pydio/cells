@@ -22,6 +22,8 @@ type SyncFolderTasksHandler struct {
 // DeleteNode synchronously and recursively delete a node
 func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
 
+	bi, _ := GetBranchInfo(ctx, "in")
+	isFlat := bi.FlatStorage
 	node := in.Node
 	var err error
 	if node.IsLeaf() {
@@ -46,8 +48,6 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 				continue
 			}
 			if !resp.Node.IsLeaf() {
-				//				resp.Node.Path = path.Join(resp.Node.Path, common.PydioSyncHiddenFile)
-				//				resp.Node.Type = tree.NodeType_LEAF
 				continue
 			}
 			if _, err := h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node}); err != nil {
@@ -55,11 +55,15 @@ func (h *SyncFolderTasksHandler) DeleteNode(ctx context.Context, in *tree.Delete
 				return nil, err
 			}
 		}
-		fakeChild := node.Clone()
-		fakeChild.Path = pFile
-		initMetaPath := fakeChild.GetStringMeta(common.MetaNamespaceDatasourcePath)
-		fakeChild.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(initMetaPath, common.PydioSyncHiddenFile))
-		_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: fakeChild})
+		if !isFlat {
+			fakeChild := node.Clone()
+			fakeChild.Path = pFile
+			initMetaPath := fakeChild.GetStringMeta(common.MetaNamespaceDatasourcePath)
+			fakeChild.SetMeta(common.MetaNamespaceDatasourcePath, path.Join(initMetaPath, common.PydioSyncHiddenFile))
+			_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: fakeChild})
+		} else {
+			_, err = h.next.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node.Clone()})
+		}
 	}
 	if err != nil {
 		return nil, err
@@ -106,7 +110,7 @@ func (h *SyncFolderTasksHandler) UpdateNode(ctx context.Context, in *tree.Update
 	// TODO CHECK ACLs TO MAKE SURE THE WHOLE TREE IS MOVABLE
 	log.Logger(ctx).Info("Should Copy/Move", source.Zap("from"), target.Zap("target"))
 
-	err := CopyMoveNodes(ctx, h.next, source, target, true, true, false, status, progress)
+	err := CopyMoveNodes(ctx, h.next, source, target, true, false, status, progress)
 	close(done)
 	close(status)
 	close(progress)

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import PydioApi from 'pydio/http/api'
-import {ActivityServiceApi, ActivitySubscription, ActivityOwnerType} from 'pydio/http/rest-api'
+import {ActivityServiceApi, ActivitySubscription, ActivityOwnerType} from 'cells-sdk'
 
 class Callbacks{
 
