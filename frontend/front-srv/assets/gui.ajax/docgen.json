@@ -558,84 +558,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "filterByFacet",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "facet",
-                "type": null
-              },
-              {
-                "name": "toggle",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "computeFacets",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "queryString",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "refreshFacets",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "getUserHistoryKey",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "loadHistory",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "pushHistory",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "term",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "toggleEmpty",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "e",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ]
       }
@@ -7826,6 +7748,13 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "deleteAllShares",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       }
@@ -10280,6 +10209,11 @@
     "editor.js": [
       {
         "description": "",
+        "displayName": "InlineViewer",
+        "methods": []
+      },
+      {
+        "description": "",
         "displayName": "Viewer",
         "methods": [
           {
@@ -12380,7 +12314,7 @@
             "modifiers": [],
             "params": [
               {
-                "name": "nodePath",
+                "name": "node",
                 "type": null
               },
               {
@@ -12389,6 +12323,18 @@
               },
               {
                 "name": "finishedCallback",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getSlugForNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
                 "type": null
               }
             ],
@@ -14606,6 +14552,10 @@
               {
                 "name": "newMeta",
                 "type": null
+              },
+              {
+                "name": "eventNodeReplaced",
+                "type": null
               }
             ],
             "returns": null
@@ -16181,6 +16131,13 @@
               "type": null
             },
             "description": "Gets the current root node"
+          },
+          {
+            "name": "getSearchNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           },
           {
             "name": "setContextNode",
@@ -20277,6 +20234,18 @@
         "require": "const {ListPaginator} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/list/Masonry.js": [
+      {
+        "description": "",
+        "displayName": "FakeCard",
+        "methods": [],
+        "require": "const {Masonry} = require('pydio').requireLib('components')"
+      },
+      {
+        "description": "",
+        "methods": []
+      }
+    ],
     "Components/list/MaterialTable.js": [
       {
         "description": "Simple material table\ncolumns are objects of shape {name, label, style, headerStyle}",
@@ -20651,6 +20620,23 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "prepareSortFunction",
+            "docblock": "@return {null|Function}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "union",
+                "value": [
+                  null,
+                  "Function"
+                ]
+              }
+            },
+            "description": null
           },
           {
             "name": "buildElements",
@@ -23298,11 +23284,7 @@
               "name": "string"
             },
             "required": false,
-            "description": "Add class name to avatar element",
-            "defaultValue": {
-              "value": "'user-avatar'",
-              "computed": false
-            }
+            "description": "Add class name to avatar element"
           },
           "style": {
             "type": {
@@ -26762,7 +26744,11 @@
               "name": "object"
             },
             "required": false,
-            "description": ""
+            "description": "",
+            "defaultValue": {
+              "value": "{}",
+              "computed": false
+            }
           },
           "style": {
             "type": {
@@ -26844,6 +26830,21 @@
     "Workspaces/search/components/AdvancedSearch.js": [
       {
         "description": "",
+        "displayName": "FieldRow",
+        "methods": [],
+        "props": {
+          "onRemove": {
+            "defaultValue": {
+              "value": "()=>{}",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "require": "const {AdvancedSearch} = require('pydio').requireLib('workspaces')"
+      },
+      {
+        "description": "",
         "displayName": "AdvancedSearch",
         "methods": [
           {
@@ -26898,9 +26899,15 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "clearAll",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
-        ],
-        "require": "const {AdvancedSearch} = require('pydio').requireLib('workspaces')"
+        ]
       },
       {
         "description": "",
@@ -26943,11 +26950,93 @@
         "require": "const {DatePanel} = require('pydio').requireLib('workspaces')"
       }
     ],
+    "Workspaces/search/components/Facets.js": [
+      {
+        "description": "",
+        "displayName": "Facet",
+        "methods": [
+          {
+            "name": "select",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "clear",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {Facets} = require('pydio').requireLib('workspaces')"
+      },
+      {
+        "description": "",
+        "displayName": "BoxFacet",
+        "methods": [
+          {
+            "name": "select",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "clear",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "Facets",
+        "methods": [
+          {
+            "name": "isSelected",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "selected",
+                "type": null
+              },
+              {
+                "name": "facet",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "Workspaces/search/components/FileFormatPanel.js": [
       {
         "description": "",
         "displayName": "SearchFileFormatPanel",
-        "methods": [],
+        "methods": [
+          {
+            "name": "onToggle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "v",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
         "require": "const {FileFormatPanel} = require('pydio').requireLib('workspaces')"
       }
     ],
@@ -27194,6 +27283,46 @@
         "require": "const {SearchScopeSelector} = require('pydio').requireLib('workspaces')"
       }
     ],
+    "Workspaces/search/components/UnifiedSearchForm.js": [
+      {
+        "description": "",
+        "displayName": "UnifiedSearchForm",
+        "methods": [
+          {
+            "name": "updateText",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "togglePopover",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "focus",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {UnifiedSearchForm} = require('pydio').requireLib('workspaces')"
+      }
+    ],
     "Workspaces/views/AddressBookPanel.js": [
       {
         "description": "",
@@ -27333,6 +27462,20 @@
         "description": "",
         "displayName": "FSTemplate",
         "methods": [
+          {
+            "name": "setSearchView",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "unsetSearchView",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
           {
             "name": "openRightPanel",
             "docblock": null,
@@ -28329,15 +28472,7 @@
       {
         "description": "",
         "displayName": "InfoPanel",
-        "methods": [
-          {
-            "name": "toggleChatOpen",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
+        "methods": []
       }
     ]
   },
