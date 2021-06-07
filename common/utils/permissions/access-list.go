@@ -185,26 +185,6 @@ func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
 }
 
-// CanRead checks if a node has READ access.
-func (a *AccessList) CanReadWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
-	a.replicateMasksResolved(ctx, resolver)
-	if a.claimsScopesDeny(ctx, nodes[0], FlagRead) {
-		return false
-	}
-	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
-	return !deny && mask.HasFlag(ctx, FlagRead, nodes...)
-}
-
-// CanWrite checks if a node has WRITE access.
-func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
-	a.replicateMasksResolved(ctx, resolver)
-	if a.claimsScopesDeny(ctx, nodes[0], FlagWrite) {
-		return false
-	}
-	deny, mask := a.parentMaskOrDeny(ctx, false, nodes...)
-	return !deny && mask.HasFlag(ctx, FlagWrite, nodes...)
-}
-
 func (a *AccessList) HasExplicitDeny(ctx context.Context, flag BitmaskFlag, nodes ...*tree.Node) bool {
 	_, mask := a.parentMaskOrDeny(ctx, false, nodes...)
 	// Only test first node - do not test parents

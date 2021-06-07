@@ -23,9 +23,6 @@ package versions
 import (
 	"context"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/object"
-
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
