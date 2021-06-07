@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -19,7 +19,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types';
 import {MenuItem, MuiThemeProvider} from 'material-ui'
 import {muiThemeable, getMuiTheme} from 'material-ui/styles'
 
