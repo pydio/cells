@@ -173,14 +173,22 @@ class TagsCloud extends React.Component {
             autoCompleter = <div></div>
         }
 
-        return (
-            <div style={{marginBottom:search?8:null}}>
-                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8}}>
-                    {tagsList}
+        if(search){
+            return (
+                <div style={{marginBottom: 8}}>
+                    {autoCompleter}
+                    <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: 8}}>{tagsList}</div>
                 </div>
-                {autoCompleter}
-            </div>
-        );
+            )
+        } else {
+            return (
+                <div>
+                    <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8}}>{tagsList}</div>
+                    {autoCompleter}
+                </div>
+            );
+
+        }
     }
 }
 

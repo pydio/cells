@@ -39,37 +39,26 @@ class SearchScopeSelector extends Component {
     }
 
     render(){
-        const {getMessage, asField} = this.props;
-        if(asField) {
-            return (
-                <ModernSelectField
-                    value={this.props.value}
-                    onChange={(e,i,v) => {this.props.onChange(v)}}
-                    fullWidth={true}
-                >
-                    <MenuItem value={'all'} primaryText={getMessage(610)}/>
-                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
-                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
-                </ModernSelectField>
-            )
-        } else {
-            return (
-                <DropDownMenu
-                    value={this.props.value}
-                    onChange={(e,i,v) => {this.props.onChange(v)}}
-                    onClick={this.props.onClick}
-                    autoWidth={true}
-                    style={this.props.style}
-                    underlineStyle={{display:'none'}}
-                    labelStyle={this.props.labelStyle}
-                >
-                    <MenuItem value={'all'} primaryText={getMessage(610)}/>
-                    <MenuItem value={'ws'} primaryText={getMessage(609)}/>
-                    <MenuItem value={'folder'} primaryText={getMessage(608)}/>
-                </DropDownMenu>
-
-            );
+        const {getMessage, pydio:{user}} = this.props;
+        const items = [
+            <MenuItem value={'all'} primaryText={getMessage(610)}/>
+        ];
+        if(user) {
+            user.getRepositoriesList().forEach(ws => {
+                if(ws.getId() === 'home' || ws.getId() === 'settings'){
+                    return;
+                }
+                items.push(<MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
+            })
         }
+
+        return (
+            <ModernSelectField
+                value={this.props.value}
+                onChange={(e,i,v) => {this.props.onChange(v)}}
+                fullWidth={true}
+            >{items}</ModernSelectField>
+        )
     }
 
 }

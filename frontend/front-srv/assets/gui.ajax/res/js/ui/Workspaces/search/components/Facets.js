@@ -19,7 +19,7 @@
  */
 import React from 'react'
 import Pydio from 'pydio'
-import {Chip, Avatar, Paper} from 'material-ui'
+import {Chip, Avatar, Paper, Checkbox} from 'material-ui'
 
 
 class Facet extends React.Component {
@@ -58,7 +58,7 @@ class Facet extends React.Component {
         };
         return (
             <Chip
-                style={{margin:'4px 0'}}
+                style={{margin:'4px 8px 4px 0'}}
                 onRequestDelete={requestDelete}
                 onClick={requestSelect}
                 {...cc.chip}
@@ -66,6 +66,51 @@ class Facet extends React.Component {
         );
     }
 }
+
+class BoxFacet extends React.Component {
+
+    select(){
+        const {onSelect, facet} = this.props;
+        onSelect(facet, true)
+    }
+
+    clear(){
+        const {onSelect, facet} = this.props;
+        onSelect(facet, false)
+    }
+
+    render() {
+        const {facet, selected, m} = this.props;
+        let requestSelect, requestDelete;
+        const mFacet = (id) => {
+            const key = 'facet.label.' + id;
+            return m(key) === key ? id : m(key);
+        }
+        if(selected){
+            requestDelete = () => this.clear()
+        } else {
+            requestSelect = () => this.select()
+        }
+        return (
+            <Checkbox
+                label={mFacet(facet.Label) + ' (' + facet.Count + ') '}
+                labelPosition={"right"}
+                style={{padding: '5px 0', marginLeft: -2}}
+                iconStyle={{opacity: .5, marginRight: 10}}
+                labelStyle={{fontSize: 14, fontWeight: 500, color:'inherit'}}
+                checked={selected}
+                onCheck={(e,v) => {
+                    if(v){
+                        requestSelect()
+                    } else {
+                        requestDelete()
+                    }
+                }}
+            />
+        )
+    }
+}
+
 
 class Facets extends React.Component {
 
@@ -110,31 +155,6 @@ class Facets extends React.Component {
         }).length){
             hasFacets = false;
         }
-        /*
-        const styles = {
-            container: {
-                position: 'absolute',
-                top: 90,
-                right: 'calc(50% + 350px)',
-                maxHeight:'calc(100% - 100px)',
-                overflowY: 'auto',
-                width: 200,
-                borderRadius: 6,
-                paddingBottom: 10
-            },
-            header : {
-                fontWeight: 500,
-                color: '#5c7784',
-                padding: 10,
-                fontSize: 15
-            },
-            subHeader:  {
-                fontWeight: 500,
-                padding: '5px 10px',
-                color: 'rgba(92, 119, 132, 0.7)'
-            }
-        }
-         */
 
         return (
             <Paper zDepth={zDepth} style={styles.container}>
@@ -147,11 +167,11 @@ class Facets extends React.Component {
                     })
                     .map(k => {
                     return(
-                        <div style={{marginBottom:10}}>
+                        <div>
                             <div style={styles.subHeader}>{m('search.facet.' + groupKeys[k])}</div>
-                            <div style={{zoom: .8}}>
+                            <div style={{zoom: 1}}>
                                 {groups[k].sort((a,b) => a.Label.localeCompare(b.Label)).map((f)=> {
-                                    return (<Facet m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
+                                    return (<BoxFacet m={m} facet={f} selected={this.isSelected(activeFacets, f)} onSelect={onToggleFacet}/>);
                                 })}
                             </div>
                         </div>

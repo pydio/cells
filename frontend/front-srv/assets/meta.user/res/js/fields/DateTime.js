@@ -121,7 +121,7 @@ class DateTimeForm extends Component {
         if(format === 'date' || format === 'date-time') {
             parts.push(
                 <div style={{flex: 3}}>
-                    <DatePicker hintText={"Date"} {...ModernStyles.textField} fullWidth={true} value={vDate} onChange={(e,d) => this.updateDate(d)}/>
+                    <DatePicker hintText={"Date"} {...ModernStyles.textField} container={"inline"} fullWidth={true} value={vDate} onChange={(e,d) => this.updateDate(d)}/>
                 </div>
             )
         }
@@ -131,7 +131,7 @@ class DateTimeForm extends Component {
         if(format === 'time' || format === 'date-time') {
             parts.push(
                 <div style={{flex: 2}}>
-                    <TimePicker hintText={"Time"} {...ModernStyles.textField} fullWidth={true} value={vDate} onChange={(e,d) => this.updateTime(d)}/>
+                    <TimePicker hintText={"Time"} {...ModernStyles.textField} container={"inline"} fullWidth={true} value={vDate} onChange={(e,d) => this.updateTime(d)}/>
                 </div>
             )
         }

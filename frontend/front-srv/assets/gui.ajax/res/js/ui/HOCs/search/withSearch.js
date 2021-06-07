@@ -22,6 +22,7 @@ import Pydio from 'pydio'
 import emptyDataModel from "./emptyDataModel";
 import {debounce} from 'lodash';
 import SearchApi from 'pydio/http/search-api'
+import uuid from 'uuid4'
 
 
 export default function withSearch(Component, historyIdentifier, scope){
@@ -30,7 +31,7 @@ export default function withSearch(Component, historyIdentifier, scope){
 
         constructor(props) {
             super(props);
-            this.performSearch = debounce(this.performSearch.bind(this), 500)
+            this.performSearchD = debounce(this.performSearch.bind(this), 500)
             let {values = {}} = props;
             values = {scope: scope || props.scope || 'folder', ...values};
             this.state = {
@@ -45,6 +46,7 @@ export default function withSearch(Component, historyIdentifier, scope){
             }
             if(historyIdentifier){
                 this.loadHistory().then(hh => this.setState({history: hh}))
+                this.loadSavedSearches().then(ss => this.setState({savedSearches: ss}))
             }
         }
 
@@ -60,8 +62,10 @@ export default function withSearch(Component, historyIdentifier, scope){
         humanize(values) {
             let s;
             let typeScope;
-            const {basenameOrContent, scope, ajxp_mime, ...others} = values
-            console.log(basenameOrContent, scope, ajxp_mime, others);
+            const {basenameOrContent, scope, ajxp_mime, searchLABEL, ...others} = values
+            if(searchLABEL) {
+                return searchLABEL;
+            }
             typeScope = '';
             if(ajxp_mime === 'ajxp_folder'){
                 typeScope = 'folders'
@@ -151,14 +155,14 @@ export default function withSearch(Component, historyIdentifier, scope){
                 const {values} = this.state;
                 scope = values.scope;
             }
-            this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, this.performSearch);
+            this.setState({values: {scope, ...other}, facets:[], activeFacets:[]}, this.performSearchD);
             if(onUpdateSearch){
                 onUpdateSearch({values: newValues});
             }
         }
 
         setLimit(limit){
-            this.setState({limit}, this.performSearch);
+            this.setState({limit}, this.performSearch.bind(this));
         }
 
         toggleFacet(facet, toggle){
@@ -169,7 +173,7 @@ export default function withSearch(Component, historyIdentifier, scope){
             } else {
                 newFacets = activeFacets.filter(s => !(s.FieldName===facet.FieldName && s.Label === facet.Label))
             }
-            this.setState({activeFacets:newFacets}, this.performSearch)
+            this.setState({activeFacets:newFacets}, this.performSearch.bind(this))
         }
 
         mergeFacets(values = {}, facets = []){
@@ -246,16 +250,68 @@ export default function withSearch(Component, historyIdentifier, scope){
             })
         }
 
+        getSaveKey(){
+            return Pydio.getInstance().user.getIdmUser().then(
+                u => "cells.search-engine.saved." + historyIdentifier + "." + u.Uuid
+            );
+        }
+
+        loadSavedSearches(){
+            return this.getSaveKey().then(key => {
+                const i = localStorage.getItem(key)
+                if(!i) {
+                    return []
+                }
+                try {
+                    const data = JSON.parse(i)
+                    if(data.map){
+                        return data;
+                    }
+                    return [];
+                }catch (e){
+                    return []
+                }
+            })
+        }
+
+        pushSavedSearches(label){
+            const {values, savedSearches = []} = this.state;
+            const newValues = {...values, searchLABEL:label, searchID: values.searchID || uuid()};
+            const newSaved = [...savedSearches.filter(vv => vv.searchID !== newValues.searchID), newValues]
+            this.getSaveKey().then(key => {
+                this.setState({savedSearches: newSaved}, () => {
+                    localStorage.setItem(key, JSON.stringify(newSaved));
+                    this.setState({values: newValues});
+                })
+            })
+        }
+
+        removeSavedSearch(uuid) {
+            const {values, savedSearches = []} = this.state;
+            const newSaved = savedSearches.filter(v => v.searchID !== uuid)
+            this.getSaveKey().then(key => {
+                this.setState({savedSearches: newSaved}, () => {
+                    localStorage.setItem(key, JSON.stringify(newSaved));
+                    if(values.searchID === uuid) {
+                        const {searchID, ...others} = values;
+                        this.setState({values: others})
+                    }
+                })
+            })
+        }
+
         render() {
             return (
                 <Component 
                     {...this.props} 
                     {...this.state}
-                    submitSearch={this.performSearch}
+                    submitSearch={this.performSearch.bind(this)}
                     setValues={this.setValues.bind(this)}
                     setLimit={this.setLimit.bind(this)}
                     toggleFacet={this.toggleFacet.bind(this)}
                     humanizeValues={this.humanize.bind(this)}
+                    saveSearch={this.pushSavedSearches.bind(this)}
+                    clearSavedSearch={this.removeSavedSearch.bind(this)}
                 />
             );
         }

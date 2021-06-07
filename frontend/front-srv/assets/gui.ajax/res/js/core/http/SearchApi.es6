@@ -33,9 +33,9 @@ class SearchApi {
 
 
         let query = new TreeQuery();
-        const prefix = this.computePathPrefix(scope);
-        if(prefix){
-            query.PathPrefix = [prefix];
+        //const prefix = this.computePathPrefix(scope);
+        if(scope !== 'all'){
+            query.PathPrefix = [scope];
         }
         console.log(values);
         const keys = Object.keys(values);

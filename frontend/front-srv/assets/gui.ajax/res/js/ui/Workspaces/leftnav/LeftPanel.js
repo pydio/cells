@@ -27,7 +27,7 @@ import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
 import Color from 'color'
 
-let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio, onClick, onMouseOver, leftComponent}) => {
+let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps = {}, pydio, onClick, onMouseOver}) => {
 
         const palette = muiTheme.palette;
         const colorHue = Color(palette.primary1Color).hsl().array()[0];
@@ -54,7 +54,6 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
         const wsSectionTitleStyle = {
             color    : Color(palette.primary1Color).darken(0.1).alpha(0.50).toString()
         };
-        const wsListProps = workspacesListProps || {};
 
         return (
             <div className="left-panel vertical_fit vertical_layout" style={style} onClick={onClick} onMouseOver={onMouseOver}>
@@ -64,16 +63,14 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
                     toolbars={["aUser", "user", "zlogin"]}
                     {...uWidgetProps}
                 />
-                {leftComponent ||
-                    <WorkspacesList
-                        className={"vertical_fit"}
-                        style={wsListStyle}
-                        sectionTitleStyle={wsSectionTitleStyle}
-                        pydio={pydio}
-                        showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
-                        {...wsListProps}
-                    />
-                }
+                <WorkspacesList
+                    className={"vertical_fit"}
+                    style={wsListStyle}
+                    sectionTitleStyle={wsSectionTitleStyle}
+                    pydio={pydio}
+                    showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
+                    {...workspacesListProps}
+                />
                 <TasksPanel pydio={pydio} mode={"flex"} panelStyle={{...wsListStyle, backgroundColor: taskBg.toString()}}/>
             </div>
         );

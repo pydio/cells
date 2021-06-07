@@ -457,12 +457,13 @@ class MainFilesList extends React.Component {
                 <span
                     className="metadata_chunk metadata_chunk_description metadata_chunk_clickable"
                     key={"result_path"}
-                    style={{marginRight: 5, textDecoration:'underline', cursor:'pointer'}}
+                    style={{marginRight: 5, cursor:'pointer'}}
                     onClick={(e)=>{
                         e.stopPropagation();
                         pydio.goTo(node)
                     }}
-                >{linkString}</span>
+                >{linkString}</span>,
+                <span>&bull; </span>
             )
         }
 
