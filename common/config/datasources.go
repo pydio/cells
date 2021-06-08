@@ -74,7 +74,12 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 
 func GetSourceInfoByName(dsName string) (*object.DataSource, error) {
 	var conf *object.DataSource
-	if e := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName)).Scan(&conf); e == nil {
+	c := Get(configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+dsName))
+	if e := c.Scan(&conf); e == nil {
+		if conf == nil {
+			fmt.Println("GetSourceInfoByName | NOT NORMAL, looking for dsName ["+dsName+"]: Scan has no error but conf is nil! Conf as String is :", c.String())
+			return nil, fmt.Errorf("cannot load source by name " + dsName)
+		}
 		return conf, nil
 	} else {
 		return nil, e

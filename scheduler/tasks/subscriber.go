@@ -435,6 +435,9 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 			_, _, pass := filter.Filter(ctx, jobs.ActionMessage{DataSources: []*object.DataSource{ds}})
 			log.Logger(ctx).Debug("Filtering on node datasource (from node meta)", zap.Bool("pass", pass))
 			return pass
+		} else {
+			log.Logger(ctx).Error("jobLevelDataSourceFilter : cannot load source by name " + dsName + " - Job will NOT RUN!")
+			return false
 		}
 	} else {
 		log.Logger(ctx).Warn("There is a datasource filter but datasource name is not provided")
