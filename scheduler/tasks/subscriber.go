@@ -431,14 +431,19 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 		return true // Ignore
 	}
 	if dsName := refNode.GetStringMeta(common.MetaNamespaceDatasourceName); dsName != "" {
-		if ds, e := config.GetSourceInfoByName(dsName); e == nil {
-			_, _, pass := filter.Filter(ctx, jobs.ActionMessage{DataSources: []*object.DataSource{ds}})
-			log.Logger(ctx).Debug("Filtering on node datasource (from node meta)", zap.Bool("pass", pass))
-			return pass
-		} else {
-			log.Logger(ctx).Error("jobLevelDataSourceFilter : cannot load source by name " + dsName + " - Job will NOT RUN!")
+		var ds *object.DataSource
+		e := service.Retry(ctx, func() error {
+			var er error
+			ds, er = config.GetSourceInfoByName(dsName)
+			return er
+		}, 3, 20)
+		if e != nil {
+			log.Logger(ctx).Error("jobLevelDataSourceFilter : cannot load source by name " + dsName + " - Job will not run!")
 			return false
 		}
+		_, _, pass := filter.Filter(ctx, jobs.ActionMessage{DataSources: []*object.DataSource{ds}})
+		log.Logger(ctx).Debug("Filtering on node datasource (from node meta)", zap.Bool("pass", pass))
+		return pass
 	} else {
 		log.Logger(ctx).Warn("There is a datasource filter but datasource name is not provided")
 	}
