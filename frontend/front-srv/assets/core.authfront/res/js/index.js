@@ -30,11 +30,11 @@ const LanguagePicker = (props) => {
     const items = [];
     const pydio = Pydio.getInstance();
     
-    pydio.listLanguagesWithCallback((key, label, current) => items.push(
+    pydio.listLanguagesWithCallback((key, label, current = 'en') => items.push(
         <MenuItem
             primaryText={label}
             value={key}
-            rightIcon={current ? <FontIcon className="mdi mdi-check"/> : null}
+            rightIcon={current ? <FontIcon className="mdi mdi-check" style={{top:-1}}/> : null}
         />
     ));
     const {anchorOrigin, targetOrigin} = props;
@@ -58,7 +58,7 @@ const LanguagePicker = (props) => {
     return (
         <IconMenu
             iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline" {...iconStyles}/>}
-            onItemTouchTap={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
+            onItemClick={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
             desktop={true}
             anchorOrigin={anchorOrigin} targetOrigin={targetOrigin}
         >
