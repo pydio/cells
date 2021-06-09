@@ -589,7 +589,9 @@ div.dialogBox div#element_overlay {
   font-weight: 500;
 }
 .react-mui-context .material-list.files-list.material-list-grid {
-  padding-left: 2px;
+  padding-left: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry {
   width: 230px;
@@ -597,13 +599,16 @@ div.dialogBox div#element_overlay {
   height: 200px;
   position: relative;
   display: block;
-  margin: 1px;
-  border-bottom-width: 0 !important;
-  transition: width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  margin: 8px;
+  transition: width 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 10px;
+  border-bottom: inherit;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 36px);
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.covering-bg-preview {
   border-radius: 0;
@@ -640,11 +645,12 @@ div.dialogBox div#element_overlay {
   left: 0px;
   right: 0px;
   padding: 8px 10px;
-  background-color: rgba(0, 0, 0, 0.43);
+  background-color: white;
+  border-top: 1px solid rgba(224, 224, 224, 0.4);
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-text .material-list-line-1 {
-  font-size: 14px;
-  color: white;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.73);
   font-weight: 500;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions {
@@ -657,30 +663,13 @@ div.dialogBox div#element_overlay {
   color: rgba(0, 0, 0, 0.63);
   padding: 0 2px;
 }
-.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container {
-  background-color: transparent !important;
-  /*
-            &.with-editor-badge::before{
-              content: ' ';
-              position: absolute;
-              top: 6px;
-              right: 6px;
-              background-color: #03a9f4;
-              width: 14px;
-              height: 14px;
-              border-radius: 50%;
-              border: 2px solid white;
-            }
-            */
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry {
+  margin: 4px;
 }
-.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container .mimefont {
-  color: white !important;
-}
-.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .material-list-text {
-  background-color: rgba(1, 141, 204, 0.67);
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-icon {
+  height: calc(100% - 16px);
 }
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
-  display: none;
   padding: 5px;
 }
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text .material-list-line-1 {
@@ -783,12 +772,15 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
   line-height: 20px;
-  color: white;
-  font-size: 14px;
+  color: rgba(0, 0, 0, 0.73);
+  font-size: 13px;
   font-weight: 500;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-text {
   overflow: visible;
+}
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
+  line-height: 12px;
 }
 .react-mui-context .material-list.card-list {
   background-color: #fafafa;
@@ -1951,7 +1943,8 @@ div.menu.desktop a span.ajxp_icon_span {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 #info_panel .panelCard .primaryToolbar {
-  padding: 5px 10px !important;
+  background-color: white;
+  padding: 2px !important;
   -ms-flex-align: start;
       align-items: flex-start;
   -ms-flex-pack: end;

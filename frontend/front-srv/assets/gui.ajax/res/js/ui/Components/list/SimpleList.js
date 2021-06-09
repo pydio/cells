@@ -781,6 +781,7 @@ let SimpleList = createReactClass({
 
         let components = [], index = 0;
         const nodeEntriesLength = nodeEntries.length;
+        const {entriesProps} = this.props;
         nodeEntries.forEach(function(entry){
             let data;
             if(entry.parent) {
@@ -796,7 +797,8 @@ let SimpleList = createReactClass({
                     onDoubleClick       : this.doubleClickRow.bind(this),
                     showSelector        : false,
                     selectorDisabled    : true,
-                    noHover             : false
+                    noHover             : false,
+                    ...entriesProps
                 };
                 if(this.props.entryRenderParentIcon && ! this.props.tableKeys){
                     data['iconCell'] = this.props.entryRenderParentIcon(entry.node, entry);
@@ -825,7 +827,8 @@ let SimpleList = createReactClass({
                     onClick             : null,
                     showSelector        : false,
                     selectorDisabled    : true,
-                    noHover             : true
+                    noHover             : true,
+                    ...entriesProps
                 };
                 if(this.props.passScrollingStateToChildren){
                     data['parentIsScrolling'] = this.state.isScrolling;
@@ -847,7 +850,8 @@ let SimpleList = createReactClass({
                     showSelector        : showSelector,
                     selected            : (this.state && this.state.selection)?this.state.selection.get(entry.node):false,
                     actions             : <SimpleReactActionBar node={entry.node} actions={entry.actions} dataModel={this.dm}/>,
-                    selectorDisabled    : !(this.props.entryEnableSelector?this.props.entryEnableSelector(entry.node):entry.node.isLeaf())
+                    selectorDisabled    : !(this.props.entryEnableSelector?this.props.entryEnableSelector(entry.node):entry.node.isLeaf()),
+                    ...entriesProps
                 };
                 data['isFirst'] = (index === 0);
                 data['isLast'] = (index === nodeEntriesLength - 1);

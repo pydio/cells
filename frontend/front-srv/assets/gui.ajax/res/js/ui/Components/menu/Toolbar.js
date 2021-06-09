@@ -93,7 +93,7 @@ export default createReactClass({
         let {groups} = this.state;
         let actions = [];
         const {toolbars, renderingType, groupOtherList, buttonStyle,mergeItemsAsOneMenu,
-            tooltipPosition, controller, fabAction, toolbarStyle, buttonMenuNoLabel, buttonMenuPopoverDirection, flatButtonStyle} = this.props;
+            tooltipPosition, controller, fabAction, fabButtonStyle = {}, toolbarStyle, buttonMenuNoLabel, buttonMenuPopoverDirection, flatButtonStyle} = this.props;
         let allToolbars = [...toolbars];
         if(groupOtherList.length){
             allToolbars = allToolbars.concat(['MORE_ACTION']);
@@ -203,7 +203,7 @@ export default createReactClass({
                             onClick={click}
                             iconClassName={menuIcon}
                             mini={true}
-                            backgroundColor={toolbarStyle.backgroundColor}
+                            backgroundColor={fabButtonStyle.backgroundColor}
                             style={{position:'absolute', top: -20, left: 10}}
                         />);
                     } else if(renderingType === 'button-icon'){

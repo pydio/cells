@@ -194,7 +194,9 @@
 
     &.material-list-grid{
 
-      padding-left: 2px;
+      padding-left: 5px;
+      padding-top: 5px;
+      padding-bottom: 5px;
 
       .material-list-entry{
         width: 230px;
@@ -202,12 +204,15 @@
         height: 200px;
         position: relative;
         display: block;
-        margin: 1px;
-        border-bottom-width: 0 !important;
-        transition: width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+        margin: 8px;
+        transition: width 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: @reactBoxShadowLight;
+        border-bottom: inherit;
         .material-list-icon{
           width: 100%;
-          height: 100%;
+          height: ~"calc(100% - 36px)";
           div.covering-bg-preview{
             border-radius: 0;
             width: 100%;
@@ -229,10 +234,11 @@
           left: 0px;
           right: 0px;
           padding: 8px 10px;
-          background-color: rgba(0,0,0,0.43);
+          background-color: white;
+          border-top: 1px solid rgba(224, 224, 224, 0.4);
           .material-list-line-1{
-            font-size: 14px;
-            color: white;
+            font-size: 13px;
+            color: rgba(0,0,0,0.73);
             font-weight: 500;
           }
         }
@@ -249,28 +255,6 @@
         }
 
         &.selected-dark{
-          .mimefont-container{
-            background-color: transparent !important;
-            .mimefont{
-              color: white !important;
-            }
-            /*
-            &.with-editor-badge::before{
-              content: ' ';
-              position: absolute;
-              top: 6px;
-              right: 6px;
-              background-color: #03a9f4;
-              width: 14px;
-              height: 14px;
-              border-radius: 50%;
-              border: 2px solid white;
-            }
-            */
-          }
-          .material-list-text{
-            background-color: rgba(1, 141, 204, 0.67);
-          }
         }
 
       }
@@ -278,8 +262,11 @@
       &.grid-size-80{
 
         .material-list-entry{
+          margin: 4px;
+          .material-list-icon {
+            height: ~"calc(100% - 16px)";
+          }
           .material-list-text{
-            display:none;
             padding: 5px;
             .material-list-line-1{
               font-size: 12px;
@@ -408,14 +395,19 @@
           }
           .material-list-line-2 {
             line-height: 20px;
-            color: white;
-            font-size: 14px;
+            color: rgba(0,0,0,.73);
+            font-size: 13px;
             font-weight: 500;
           }
         }
       }
       .material-list-text{
         overflow: visible;
+      }
+      &.grid-size-80 {
+        .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
+          line-height: 12px;
+        }
       }
     }
   }

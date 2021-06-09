@@ -288,29 +288,31 @@ class MainFilesList extends React.Component {
 
     recomputeThumbnailsDimension(nearest){
 
-        const MAIN_CONTAINER_FULL_PADDING = 2;
-        const THUMBNAIL_MARGIN = 1;
+        const {contextNode, displayMode, columns, thumbNearest} = this.state;
+
+        const MAIN_CONTAINER_FULL_PADDING = 5;
+        const THUMBNAIL_MARGIN = displayMode === 'grid-80' ? 4 : 8;
         let containerWidth;
         try{
             containerWidth = ReactDOM.findDOMNode(this.refs['list'].refs['infinite']).clientWidth - MAIN_CONTAINER_FULL_PADDING;
         }catch(e){
             containerWidth = 200;
         }
-        if(this.state.displayMode.indexOf('grid') === 0) {
+        if(displayMode.indexOf('grid') === 0) {
             if(!nearest || nearest instanceof Event){
-                nearest = this.state.thumbNearest;
+                nearest = thumbNearest;
             }
             // Find nearest dim
             let blockNumber = Math.floor(containerWidth / nearest);
             let width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
             if(this.props.horizontalRibbon){
-                blockNumber = this.state.contextNode.getChildren().size;
-                if(this.state.displayMode === 'grid-160') {
+                blockNumber = contextNode.getChildren().size;
+                if(displayMode === 'grid-160') {
                     width = 160;
-                } else if(this.state.displayMode === 'grid-320') {
-                    width = 320;
-                } else if(this.state.displayMode === 'grid-80') {
-                    width = 80;
+                } else if(displayMode === 'grid-320') {
+                    width = 280;
+                } else if(displayMode === 'grid-80') {
+                    width = 100;
                 } else {
                     width = 200;
                 }
@@ -323,11 +325,10 @@ class MainFilesList extends React.Component {
 
         } else {
             // Recompute columns widths
-            let columns = this.state.columns;
             let columnKeys = Object.keys(columns);
             let defaultFirstWidthPercent = 10;
             let firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
-            let otherColWidth = (containerWidth - firstColWidth) / (Object.keys(this.state.columns).length - 1);
+            let otherColWidth = (containerWidth - firstColWidth) / (Object.keys(columns).length - 1);
             columnKeys.map(function(columnKey){
                 columns[columnKey]['width'] = otherColWidth;
             });
@@ -340,6 +341,8 @@ class MainFilesList extends React.Component {
     }
 
     entryRenderIcon(node, entryProps = {}){
+        const {displayMode} = this.state;
+        const lightBackground = displayMode.indexOf('grid') === 0
         if(entryProps && entryProps.parent){
             return (
                 <FilePreview
@@ -348,6 +351,7 @@ class MainFilesList extends React.Component {
                     mimeClassName="mimefont mdi mdi-chevron-left"
                     onClick={()=>{this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE)}}
                     style={{cursor:'pointer'}}
+                    lightBackground={lightBackground}
                 />
             );
         }else{
@@ -358,6 +362,7 @@ class MainFilesList extends React.Component {
                     loadThumbnail={!entryProps['parentIsScrolling'] && hasThumbnail && !processing}
                     node={node}
                     processing={processing}
+                    lightBackground={lightBackground}
                 />
             );
         }
@@ -625,9 +630,10 @@ class MainFilesList extends React.Component {
 
     render() {
 
+        const {contextNode, displayMode, columns, thumbSize} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
-        let elementHeight, entryRenderSecondLine, elementsPerLine = 1, near;
-        let dMode = this.state.displayMode;
+        let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
+        let dMode = displayMode;
         if(dMode.indexOf('grid-') === 0){
             near = parseInt(dMode.split('-')[1]);
             dMode = 'grid';
@@ -637,20 +643,21 @@ class MainFilesList extends React.Component {
         if(dMode === 'detail'){
 
             elementHeight = SimpleList.HEIGHT_ONE_LINE;
-            tableKeys = this.state.columns;
+            tableKeys = columns;
 
         } else if(dMode === 'grid'){
 
-            sortKeys = this.state.columns;
+            sortKeys = columns;
             className += ' material-list-grid grid-size-' + near;
-            elementHeight =  Math.ceil(this.state.thumbSize / this.state.elementsPerLine);
+            const labelHeight = near === 80 ? 16 : 36
+            elementsPerLine = this.state.elementsPerLine
+            elementHeight =  Math.ceil((thumbSize + labelHeight) / elementsPerLine);
             if(!elementHeight || this.props.horizontalRibbon){
                 elementHeight = 1;
             }
-            elementsPerLine = this.state.elementsPerLine;
             elementStyle={
-                width: this.state.thumbSize,
-                height: this.state.thumbSize
+                width: thumbSize,
+                height: thumbSize + labelHeight
             };
             if(this.props.horizontalRibbon){
                 className += ' horizontal-ribbon';
@@ -666,14 +673,13 @@ class MainFilesList extends React.Component {
 
         } else if(dMode === 'list'){
 
-            sortKeys = this.state.columns;
+            sortKeys = columns;
             elementHeight = SimpleList.HEIGHT_TWO_LINES;
             entryRenderSecondLine = this.entryRenderSecondLine.bind(this);
 
         }
 
         const {pydio, dataModel} = this.props;
-        const {contextNode} = this.state;
         const messages = pydio.MessageHash;
         const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
         const secondary = messages[canUpload ? '565' : '566'];
@@ -742,7 +748,7 @@ class MainFilesList extends React.Component {
                 ref="list"
                 tableKeys={tableKeys}
                 sortKeys={sortKeys}
-                node={this.state.contextNode}
+                node={contextNode}
                 dataModel={dataModel}
                 observeNodeReload={true}
                 className={className}
@@ -762,6 +768,7 @@ class MainFilesList extends React.Component {
                 entryRenderSecondLine={entryRenderSecondLine}
                 entryRenderActions={this.entryRenderActions.bind(this)}
                 entryHandleClicks={this.entryHandleClicks.bind(this)}
+                entriesProps={dMode === 'grid' ? {selectedAsBorder: true, noHover: true}:{}}
                 horizontalRibbon={this.props.horizontalRibbon}
                 emptyStateProps={emptyStateProps}
                 defaultSortingInfo={{sortType:'file-natural',attribute:'',direction:'asc'}}

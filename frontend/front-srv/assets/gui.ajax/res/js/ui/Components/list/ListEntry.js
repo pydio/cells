@@ -1,6 +1,3 @@
-import ReactDOM from 'react-dom';
-import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -21,12 +18,16 @@ import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react'
+import Pydio from 'pydio'
 import PropTypes from 'prop-types';
-
+import ReactDOM from 'react-dom';
+import { Types, collect, collectDrop, nodeDragSource, nodeDropTarget } from '../util/DND';
 import { DragSource, DropTarget, flow } from 'react-dnd';
 import { Checkbox, FontIcon } from 'material-ui';
 import { muiThemeable } from 'material-ui/styles';
 import Color from 'color';
+const {withContextMenu} = Pydio.requireLib('hoc');
 
 /**
  * Material List Entry
@@ -52,14 +53,16 @@ class ListEntry extends React.Component {
 
     render() {
 
-        let selector, icon, additionalClassName;
+        let selector, icon;
 
         const {node, showSelector, selected, selectorDisabled, firstLine,
             secondLine, thirdLine, style, actions, iconCell, mainIcon, className,
-            canDrop, isOver, connectDragSource, connectDropTarget} = this.props
+            canDrop, isOver, connectDragSource, connectDropTarget, selectedAsBorder} = this.props
 
         let mainClasses = ['material-list-entry', 'material-list-entry-' + (thirdLine?3:secondLine?2:1) + '-lines'];
-        if(className) mainClasses.push(className);
+        if(className) {
+            mainClasses.push(className);
+        }
 
         if(showSelector){
             selector = (
@@ -103,11 +106,18 @@ class ListEntry extends React.Component {
         if(selected){
             const selectionColor = this.props.muiTheme.palette.accent2Color;
             const selectionColorDark = Color(selectionColor).dark();
-            additionalStyle = {
-                ...additionalStyle,
-                backgroundColor: selectionColor,
-                color: selectionColorDark ? 'white' : 'rgba(0,0,0,.87)'
-            };
+            if(selectedAsBorder){
+                additionalStyle = {
+                    ...additionalStyle,
+                    boxShadow: '0 0 0 2px ' + selectionColor + ',rgba(0, 0, 0, .4) 0px 0px 10px'
+                };
+            } else {
+                additionalStyle = {
+                    ...additionalStyle,
+                    backgroundColor: selectionColor,
+                    color: selectionColorDark ? 'white' : 'rgba(0,0,0,.87)'
+                };
+            }
             mainClasses.push('selected');
             mainClasses.push('selected-' + (selectionColorDark?'dark':'light'));
         }
@@ -145,11 +155,12 @@ class ListEntry extends React.Component {
 }
 
 let ContextMenuWrapper = (props) => {
+    const {muiTheme, node, iconCell, firstLine, secondLine, ...others} = props;
     return (
-        <div {...props} />
+        <div {...others}/>
     )
 }
-ContextMenuWrapper = PydioHOCs.withContextMenu(ContextMenuWrapper)
+ContextMenuWrapper = withContextMenu(ContextMenuWrapper)
 
 ListEntry.propTypes = {
     showSelector:PropTypes.bool,

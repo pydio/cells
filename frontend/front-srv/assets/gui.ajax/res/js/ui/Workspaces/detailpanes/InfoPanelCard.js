@@ -64,14 +64,17 @@ const getStyles = (palette) => {
         },
         toolbar:{
             container: {
-                backgroundColor: palette.accent2Color,
                 justifyContent: 'flex-end',
-                position:'relative'
+                position:'relative',
+                borderTop: '1px solid rgba(0,0,0,.15)'
             },
             button: {
-                color:'white',
+                color:palette.accent2Color,
                 paddingRight: 8,
                 paddingLeft: 8
+            },
+            fabButton: {
+                backgroundColor: palette.accent2Color
             },
             flatButton:{
                 minWidth: 0
@@ -144,6 +147,7 @@ class InfoPanelCard extends React.Component{
                 <PydioComponents.Toolbar
                     toolbarStyle={styles.toolbar.container}
                     flatButtonStyle={styles.toolbar.flatButton}
+                    fabButtonStyle={styles.toolbar.fabButton}
                     buttonStyle={styles.toolbar.button}
                     className="primaryToolbar"
                     renderingType="button"

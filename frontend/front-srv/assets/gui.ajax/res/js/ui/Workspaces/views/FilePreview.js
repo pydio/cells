@@ -54,10 +54,10 @@ class FilePreview extends PureComponent {
     }
 
     getStyles() {
-        const {style, mimeFontStyle} = this.props
+        const {style, mimeFontStyle, lightBackground, muiTheme} = this.props
 
-        const color = new Color(this.props.muiTheme.palette.primary1Color).saturationl(18).lightness(44).toString();
-        const light = new Color(this.props.muiTheme.palette.primary1Color).saturationl(15).lightness(94).toString();
+        const color = new Color(muiTheme.palette.primary1Color).saturationl(18).lightness(44).toString();
+        const light = new Color(muiTheme.palette.primary1Color).saturationl(15).lightness(lightBackground?98:94).toString();
 
         const rootStyle = {
             backgroundColor: light,

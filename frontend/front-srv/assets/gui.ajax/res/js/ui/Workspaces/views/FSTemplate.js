@@ -224,6 +224,7 @@ class FSTemplate extends React.Component {
                 height: headerHeight,
                 display:'flex'
             },
+            listStyle: {},
             buttonsStyle : {
                 width: 40,
                 height: 40,
@@ -405,6 +406,11 @@ class FSTemplate extends React.Component {
 
         }
 
+        if(thumbDisplay) {
+            styles.listStyle = {
+                backgroundColor:superLightBack.toString()
+            }
+        }
 
         const {values, setValues, history, facets, activeFacets, toggleFacet,
             humanizeValues, limit, setLimit, searchLoading,
@@ -425,6 +431,10 @@ class FSTemplate extends React.Component {
                 ...styles.appBarStyle,
                 backgroundColor: 'white',
                 marginLeft: 0
+            }
+            styles.listStyle = {
+                ...styles.listStyle,
+                marginLeft: 250
             }
             const count = pydio.getContextHolder().getSearchNode().getChildren().size;
             let stLabel, stDisable = true;
@@ -601,7 +611,7 @@ class FSTemplate extends React.Component {
                         onDisplayModeChange={(dMode) => {
                             this.setState({filesListDisplayMode: dMode});
                         }}
-                        style={searchView?{marginLeft: 250}:{}}
+                        style={styles.listStyle}
                     />
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
