@@ -131,6 +131,19 @@ class Viewer extends Component {
 
     }
 
+    makeCss(lastKnownHeight){
+        return `
+        #info_panel .mimefont-container.with-editor-badge.editor_mime_pdf{
+            position:relative;
+            min-height: ${lastKnownHeight}px; 
+            height:auto !important;
+            max-height:320px
+        }
+        #info_panel .inline-pdf-info-block{
+            min-height:${lastKnownHeight}px;
+        }`
+    }
+
     render() {
         const {loadThumbnail} = this.props;
         const {url, pdfUrl, crtPage = 1, numPages, showPaginator, lastKnownHeight} = this.state || {}
@@ -161,7 +174,7 @@ class Viewer extends Component {
                         onKnownHeight={(h) => this.setState({lastKnownHeight:h})}
                     />
                     {paginator}
-                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:'.mimefont-container.with-editor-badge.editor_mime_pdf{position:relative;min-height: '+lastKnownHeight+'px; height:auto !important;max-height:320px}.inline-pdf-info-block{min-height:'+lastKnownHeight+'px;}'}}/>
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:this.makeCss(lastKnownHeight)}}/>
                 </div>
             );
         }
