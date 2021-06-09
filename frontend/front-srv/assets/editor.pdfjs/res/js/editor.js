@@ -21,14 +21,14 @@
 
 import { pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = 'plug/editor.pdfjs/pdfjs/build/min/pdf.worker.min.js';
-
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import DOMUtils from 'pydio/util/dom'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { Document, Page } from 'react-pdf';
 
-const { EditorActions } = PydioHOCs;
+const { EditorActions } = Pydio.requireLib('hoc');
 
 class InlineViewer extends React.Component {
 
@@ -112,7 +112,15 @@ class Viewer extends Component {
         } else if(pydio.Parameters.has('MINISITE')){
             viewerFile = 'viewer-minisite.html';
         }
-        PydioApi.getClient().buildPresignedGetUrl(node).then(pdfUrl => {
+
+        let bucketParams = null;
+        if (node.getMetadata().get('PDFPreview')) {
+            bucketParams = {
+                Bucket: 'io',
+                Key:'pydio-thumbstore/' + node.getMetadata().get('PDFPreview')
+            }
+        }
+        PydioApi.getClient().buildPresignedGetUrl(node, null, "", bucketParams).then(pdfUrl => {
             this.setState({
                 pdfUrl: pdfUrl,
                 crtPage: 1,

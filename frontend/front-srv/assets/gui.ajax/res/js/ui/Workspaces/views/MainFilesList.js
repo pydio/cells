@@ -351,7 +351,7 @@ class MainFilesList extends React.Component {
                 />
             );
         }else{
-            const hasThumbnail = !!node.getMetadata().get("thumbnails");
+            const hasThumbnail = !!node.getMetadata().get("thumbnails") || !!node.getMetadata().get('ImagePreview');
             const processing = !!node.getMetadata().get('Processing');
             return (
                 <FilePreview

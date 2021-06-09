@@ -1,8 +1,12 @@
 import PydioApi from 'pydio/http/api'
+import PathUtils from 'pydio/util/path'
 
 function urlForSize(node, viewType) {
     if(!node){
         return Promise.resolve("")
+    }
+    if(!node.getMetadata().get("thumbnails") && node.getMetadata().get('ImagePreview')) {
+        return imagePreviewUrl(node);
     }
     const meta = node.getMetadata().get("thumbnails") || [];
     const thumbs = {};
@@ -48,6 +52,12 @@ function urlForSize(node, viewType) {
             return hqUrl(node);
     }
 
+}
+
+function imagePreviewUrl(node) {
+    const prevName = node.getMetadata().get('ImagePreview');
+    const ext = PathUtils.getFileExtension(prevName)
+    return PydioApi.getClient().buildPresignedGetUrl(node, null, 'image/' + ext, {Bucket: 'io', Key:'pydio-thumbstore/' + prevName});
 }
 
 function thumbUrl(node, size) {

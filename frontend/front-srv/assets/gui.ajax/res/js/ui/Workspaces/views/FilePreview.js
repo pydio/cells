@@ -116,20 +116,26 @@ class FilePreview extends PureComponent {
     }
 
     loadCoveringImage(force = false) {
-        if(!this.props.loadThumbnail && !force){
+        const {node, loadThumbnail, richPreview} = this.props;
+        if(!loadThumbnail && !force){
             return;
         }
-        const {node} = this.props;
         const pydio = Pydio.getInstance();
         let editors = pydio.Registry.findEditorsForMime((node.isLeaf()?node.getAjxpMime():"mime_folder"), true);
         if(!editors || !editors.length) {
-            return;
+            console.log(editors, node)
+            if(richPreview && node.getMetadata().get('PDFPreview')) {
+                editors = pydio.Registry.findEditorsForMime('pdf', true);
+            } else if (node.getMetadata().get('ImagePreview')) {
+                editors = pydio.Registry.findEditorsForMime('jpg', true);
+            }
+            if(!editors || !editors.length){
+                return;
+            }
         }
-        let editorClassName = editors[0].editorClass;
-
+        const editorClassName = editors[0].editorClass;
         pydio.Registry.loadEditorResources(editors[0].resourcesManager, function(){
-            let component = FuncUtils.getFunctionByName(editorClassName, window);
-
+            const component = FuncUtils.getFunctionByName(editorClassName, window);
             if(component){
                 this.loadPreviewFromEditor(component, node);
             }
