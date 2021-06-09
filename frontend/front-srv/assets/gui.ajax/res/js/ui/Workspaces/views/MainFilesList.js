@@ -607,6 +607,7 @@ class MainFilesList extends React.Component {
         const extAction = new Action(
             {
                 name:'toggle_show_extensions',
+                icon_class:'mdi mdi-format-size',
                 text_id:'ajax_gui.list.extensions.action',
                 text:Pydio.getMessages()['ajax_gui.list.extensions.action'],
                 subMenu:true,

@@ -110,7 +110,7 @@ class GenericCard extends React.Component{
                 buttonBar: {
                     display: 'flex',
                     alignItems:'center',
-                    height: 46,
+                    height: 42,
                     padding: '0 7px 0 16px'
                 },
                 fabTop: 60,

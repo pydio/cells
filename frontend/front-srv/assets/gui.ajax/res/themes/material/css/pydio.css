@@ -663,6 +663,9 @@ div.dialogBox div#element_overlay {
   color: rgba(0, 0, 0, 0.63);
   padding: 0 2px;
 }
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .overlay_icon_div span.overlay-icon-span {
+  color: #b0bec4 !important;
+}
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry {
   margin: 4px;
 }

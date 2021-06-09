@@ -74,7 +74,7 @@ const getStyles = (palette) => {
                 paddingLeft: 8
             },
             fabButton: {
-                backgroundColor: palette.accent2Color
+                backgroundColor: '#009688'
             },
             flatButton:{
                 minWidth: 0

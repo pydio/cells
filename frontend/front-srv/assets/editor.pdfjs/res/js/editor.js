@@ -133,7 +133,7 @@ class Viewer extends Component {
 
     makeCss(lastKnownHeight){
         return `
-        #info_panel .mimefont-container.with-editor-badge.editor_mime_pdf{
+        #info_panel .mimefont-container.with-editor-badge{
             position:relative;
             min-height: ${lastKnownHeight}px; 
             height:auto !important;

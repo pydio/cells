@@ -385,7 +385,7 @@ class FolderMinisite extends React.Component{
         return (
             <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
                 <div style={{backgroundColor:'white'}} className="layout-fill vertical-layout">
-                    <MainFilesList ref="list" {...this.props}/>
+                    <MainFilesList ref="list" {...this.props} dataModel={this.props.pydio.getContextHolder()}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
@@ -508,7 +508,7 @@ class DropZoneMinisite extends React.Component{
             <StandardLayout {...this.props}>
                 <div className="vertical_fit vertical_layout" style={{backgroundColor:'white'}}>
                     <div className="vertical_fit vertical_layout" style={{margin: 16, marginBottom: 2,border: '2px dashed #CFD8DC',borderRadius: 4}}>
-                        <MainFilesList ref="list" {...this.props}/>
+                        <MainFilesList ref="list"  dataModel={this.props.pydio.getContextHolder()} {...this.props}/>
                     </div>
                     <Copyright mode={"insert"} style={{backgroundColor:'white'}} {...this.props}/>
                 </div>
@@ -631,8 +631,8 @@ class FilmStripMinisite extends React.Component{
                     {editor}
                 </div>
                 <div style={{height: 10, background: '#424242', zIndex: 1}}/>
-                <div className="vertical_layout" style={{height: 176, backgroundColor:'#424242', zIndex:1}}>
-                    <MainFilesList ref="list" {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
+                <div className="vertical_layout" style={{height: 250, backgroundColor:'#424242', zIndex:1}}>
+                    <MainFilesList ref="list"  dataModel={this.props.pydio.getContextHolder()} {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
             </StandardLayout>
