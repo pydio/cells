@@ -151,5 +151,8 @@
   },
   "list.extensions.show": {
     "other": "Show extensions"
+  },
+  "infopanel.empty.select.file": {
+    "other": "Select a file to display informations"
   }
 }

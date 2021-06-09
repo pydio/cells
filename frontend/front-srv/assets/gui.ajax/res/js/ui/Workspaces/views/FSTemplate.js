@@ -620,6 +620,11 @@ class FSTemplate extends React.Component {
                         onRequestClose={()=>{this.closeRightPanel()}}
                         onContentChange={this.infoPanelContentChange.bind(this)}
                         style={styles.infoPanelStyle}
+                        mainEmptyStateProps={thumbDisplay? {
+                            iconClassName:'',
+                            primaryTextId:'ajax_gui.infopanel.empty.select.file',
+                            style:{minHeight: 180, backgroundColor: 'transparent', padding:'0 20px'}
+                        }:null}
                     />
                 }
                 {rightColumnState === 'chat' &&

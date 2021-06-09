@@ -20,9 +20,12 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-const {Animations, withVerticalScroll} = require('pydio').requireLib('hoc')
+import Pydio from 'pydio'
 import XMLUtils from 'pydio/util/xml'
 import {Paper} from "material-ui";
+
+const {Animations, withVerticalScroll} = Pydio.requireLib('hoc')
+const {EmptyStateView} = Pydio.requireLib('components')
 
 const originStyles = {translateX: 600}
 const targetStyles = {translateX: 0}
@@ -149,13 +152,16 @@ class InfoPanel extends React.Component {
 
     render() {
 
-        let templates = this.state.displayData.TEMPLATES.map((tpl, i) => {
+        const {mainEmptyStateProps} = this.props;
+        const {displayData} = this.state;
+
+        let templates = displayData.TEMPLATES.map((tpl, i) => {
             const component = tpl.COMPONENT;
             const [namespace, name] = component.split('.', 2);
 
             return (
                 <PydioReactUI.AsyncComponent
-                    {...this.state.displayData.DATA}
+                    {...displayData.DATA}
                     {...this.props}
                     key={"ip_" + component}
                     namespace={namespace}
@@ -163,6 +169,9 @@ class InfoPanel extends React.Component {
                 />
             );
         });
+        if(!templates.length && mainEmptyStateProps) {
+            templates.push(<EmptyStateView {...mainEmptyStateProps}/>)
+        }
         return (
             <Template style={this.props.style}>{templates}</Template>
         );
