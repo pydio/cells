@@ -66,7 +66,7 @@ func getRouter() *views.Router {
 
 // getThumbLocation returns a node with the correct ds name for pydio thumbs store.
 func getThumbLocation(ctx context.Context, keyName string) (c context.Context, n *tree.Node, e error) {
-	source, er := router.GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+	source, er := getRouter().GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
 	if er != nil {
 		e = er
 		return
