@@ -54,14 +54,16 @@ export default class Editor extends React.Component {
         const webSocketUrl = `${protocol}//${frontUrl.host}`; //host.replace(/^http/gi, 'ws');
 
         // Check current action state for permission
-        const readonly = Pydio.getInstance().getController().getActionByName("move").deny;
+        const {node} = this.props;
+        const pydio = Pydio.getInstance();
+        const readonly = node.hasMetadataInBranch("node_readonly", "true") || (node.getMetadata().get("content_lock") && node.getMetadata().get("content_lock") !== pydio.user.id);
         const permission = readonly ? "readonly" : "edit"
-        const uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
+        const uri = "/wopi/files/" + node.getMetadata().get("uuid");
         const fileSrcUrl = encodeURIComponent(`${frontUrl.protocol}//${frontUrl.host}${uri}`);
 
         const api = new TokenServiceApi(PydioApi.getRestClient())
         const req = new RestDocumentAccessTokenRequest();
-        req.Path = Pydio.getInstance().user.getActiveRepositoryObject().getSlug() + this.props.node.getPath();
+        req.Path = pydio.user.getActiveRepositoryObject().getSlug() + node.getPath();
         api.generateDocumentAccessToken(req).then(response => {
             this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${response.AccessToken}&permission=${permission}`});
         })
