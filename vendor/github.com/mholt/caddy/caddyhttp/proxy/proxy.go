@@ -16,7 +16,6 @@
 package proxy
 
 import (
-	"fmt"
 	"context"
 	"errors"
 	"net"
