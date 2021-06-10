@@ -252,7 +252,6 @@ func (p Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 		// request failure counting is enabled
 		timeout := host.FailTimeout
 		if timeout > 0 {
-			fmt.Println("And we have an error HERE ", backendErr)
 			atomic.AddInt32(&host.Fails, 1)
 			go func(host *UpstreamHost, timeout time.Duration) {
 				time.Sleep(timeout)

@@ -1,11 +1,10 @@
 package cluster
 
 import (
-	"bytes"
 	"context"
-	"encoding/gob"
-	"errors"
 	"fmt"
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 
@@ -28,15 +27,10 @@ var (
 	defaultPeerTopic = "micro.registry.stan.peer"
 )
 
-type node struct {
-	*registry.Node
-	TTL      time.Duration
-	LastSeen time.Time
-}
-
 type clusterRegistry struct {
 	local        registry.Registry
-	clusterNodes map[string]registry.Registry
+	nats         registry.Registry
+	nodes        map[string]registry.Registry
 
 	options registry.Options
 
@@ -47,11 +41,12 @@ type clusterRegistry struct {
 
 	consumerInbox string
 
-	jsmAvailable bool
 	mgr          *jsm.Manager
 	stream       *jsm.Stream
 	sub          *nats.Subscription
 	consumer     *jsm.Consumer
+
+	cancelNats context.CancelFunc
 
 	sync.RWMutex
 	watchers map[string]*clusterWatcher
@@ -74,7 +69,7 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 
 	r := &clusterRegistry{
 		local:         local,
-		clusterNodes:  make(map[string]registry.Registry),
+		nodes:         make(map[string]registry.Registry),
 		clientID:      clientID,
 		options:       options,
 		watchers:      make(map[string]*clusterWatcher),
@@ -85,7 +80,6 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 	go func() {
 		conn, err := r.getConn()
 		if err != nil {
-			fmt.Println("Error ", err)
 			return
 		}
 		r.conn = conn
@@ -98,36 +92,74 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 
 		ticker := time.NewTicker(10 * time.Second)
 		for {
+			if !r.conn.IsConnected() {
+				if err := r.reset(); err != nil {
+					log.Warn("[nats cluster] error during reset ", zap.Error(err))
+				}
+				time.Sleep(10 * time.Second)
+				continue
+			}
+
+			if !r.mgr.IsJetStreamEnabled() {
+				log.Info("[nats cluster] jetstream is not available")
+
+				if err := r.reset(); err != nil {
+					log.Warn("[nats cluster] error during reset ", zap.Error(err))
+				}
+
+				// We're connected but the jetstream is not yet available - start using a simple nats if we don't already
+				r.enableSimpleNATS(opts...)
+
+				// We should wait for a reconnection to nats
+				time.Sleep(10 * time.Second)
+				continue
+			}
+
+			log.Info("[nats cluster] jetstream is enabled")
+
+			// Making sure the consumer, stream and subscription are loaded
+			err := r.initJetStream(conn)
+			if err != nil {
+				log.Warn("[nats cluster] waiting for the jetstream connection to open", zap.Error(err))
+				time.Sleep(5 * time.Second)
+				continue
+			}
+
+			r.disableSimpleNATS()
+
+			log.Info("[nats cluster] jetstream init complete")
+
+			// In all cases, we check that the connection to all consumers is correct
+			var consumerIDs []string
+			if err := r.stream.EachConsumer(func(con *jsm.Consumer) {
+				consumerIDs = append(consumerIDs, con.Name())
+			}); err != nil {
+				if err := r.reset(); err != nil {
+					log.Warn("[nats cluster] error retrieving consumers ", zap.Error(err))
+				}
+
+				time.Sleep(1* time.Second)
+				continue
+			}
+
+			// Making sure old nodes are deleted
+			for k := range r.nodes {
+				found := false
+				for _, consumerID := range consumerIDs {
+					if k == consumerID {
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					delete(r.nodes, k)
+				}
+			}
+
 			select {
 			case <-ticker.C:
-				err := r.initJetStream(conn)
-				if err != nil {
-					continue
-				}
-
-				// In all cases, we check that the connection to all consumers is correct
-				var consumerIDs []string
-				if err := r.stream.EachConsumer(func(con *jsm.Consumer) {
-					consumerIDs = append(consumerIDs, con.Name())
-				}); err != nil {
-					r.reset()
-					continue
-				}
-
-				for k := range r.clusterNodes {
-					found := false
-					for _, consumerID := range consumerIDs {
-						if k == consumerID {
-							found = true
-							break
-						}
-					}
-
-					if !found {
-						delete(r.clusterNodes, k)
-					}
-				}
-
+				continue
 			}
 		}
 	}()
@@ -174,7 +206,6 @@ func (r *clusterRegistry) getConn() (*nats.Conn, error) {
 
 func (r *clusterRegistry) initSubscription(conn *nats.Conn, mgr *jsm.Manager, stream *jsm.Stream) (*nats.Subscription, error) {
 	sub, err := conn.Subscribe(r.consumerInbox, func(m *nats.Msg) {
-
 		var service *registry.Service
 		if err := unmarshal(m.Data, &service); err != nil {
 			return
@@ -187,17 +218,23 @@ func (r *clusterRegistry) initSubscription(conn *nats.Conn, mgr *jsm.Manager, st
 			return
 		}
 
-		clusterNode, ok := r.clusterNodes[consumerID]
+		clusterNode, ok := r.nodes[consumerID]
 		if !ok {
 			clusterNode = memory.NewRegistry()
-			r.clusterNodes[consumerID] = clusterNode
+			r.Lock()
+			r.nodes[consumerID] = clusterNode
+			r.Unlock()
 		}
 
 		switch m.Subject {
 		case "registry.register":
-			clusterNode.Register(service)
+			if err := clusterNode.Register(service); err != nil {
+				log.Warn("[nats cluster] could not register service", zap.String("name", service.Name))
+			}
 		case "registry.deregister":
-			clusterNode.Deregister(service)
+			if err := clusterNode.Deregister(service); err != nil {
+				log.Warn("[nats cluster] could not deregister service", zap.String("name", service.Name))
+			}
 		}
 
 		m.Ack()
@@ -210,19 +247,6 @@ func (r *clusterRegistry) initSubscription(conn *nats.Conn, mgr *jsm.Manager, st
 }
 
 func (r *clusterRegistry) initJetStream(conn *nats.Conn) error {
-	available := r.mgr.IsJetStreamEnabled()
-
-	// If the jetstream isn't available, then reset and carry on
-	if !available {
-		r.reset()
-		r.jsmAvailable = false
-		return errors.New("jetstream is not available")
-	}
-
-	if r.jsmAvailable {
-		return nil
-	}
-
 	if r.stream == nil {
 		stream, err := r.initJetStreamStream(r.mgr)
 		if err != nil {
@@ -242,15 +266,10 @@ func (r *clusterRegistry) initJetStream(conn *nats.Conn) error {
 	if r.consumer == nil {
 		consumer, err := r.initJetStreamConsumer(r.mgr, r.stream)
 		if err != nil {
-			fmt.Println("We have an error here ", err)
 			return err
 		}
 		r.consumer = consumer
-	}
 
-	// If the jetstream wasn't available before
-	if !r.jsmAvailable {
-		r.jsmAvailable = true
 		r.replay()
 	}
 
@@ -264,7 +283,6 @@ func (r *clusterRegistry) initJetStreamStream(mgr *jsm.Manager) (*jsm.Stream, er
 		jsm.MaxAge(10*time.Minute),
 	)
 	if err != nil {
-		fmt.Println("We have a problem loading stream ", err)
 		return nil, err
 	}
 
@@ -279,7 +297,6 @@ func (r *clusterRegistry) initJetStreamConsumer(mgr *jsm.Manager, stream *jsm.St
 		jsm.AcknowledgeAll(),
 	)
 	if err != nil {
-		fmt.Println("We have a problem loading consumer ", err)
 		return nil, err
 	}
 
@@ -289,11 +306,6 @@ func (r *clusterRegistry) initJetStreamConsumer(mgr *jsm.Manager, stream *jsm.St
 func (r *clusterRegistry) connect() (*nats.Conn, error) {
 	conn, err := nats.Connect(r.options.Addrs[0],
 		nats.UseOldRequestStyle(),
-		nats.ReconnectHandler(func(conn *nats.Conn) {
-			if r.conn != nil {
-				r.initJetStream(conn)
-			}
-		}),
 		nats.DisconnectErrHandler(func(_ *nats.Conn, _ error) {
 			r.reset()
 		}),
@@ -304,6 +316,28 @@ func (r *clusterRegistry) connect() (*nats.Conn, error) {
 	}
 
 	return conn, nil
+}
+
+func (r *clusterRegistry) enableSimpleNATS(opts ...registry.Option) {
+	if r.nats != nil {
+		return
+	}
+	// Adding a context to be able to stop the nats in case we need to
+	// opts = append(opts, registry.)
+	_, cancel := context.WithCancel(r.options.Context)
+	r.cancelNats = cancel
+	r.nats = NewNATSRegistry(r.local, opts...)
+}
+
+func (r *clusterRegistry) disableSimpleNATS() {
+	if r.nats == nil {
+		return
+	}
+	if r.cancelNats != nil {
+		r.cancelNats()
+	}
+	r.cancelNats = nil
+	r.nats = nil
 }
 
 func (r *clusterRegistry) Init(opts ...registry.Option) error {
@@ -320,13 +354,14 @@ func (r *clusterRegistry) Options() registry.Options {
 
 func (r *clusterRegistry) replay() error {
 	if r.conn != nil {
+		fmt.Println("[nats cluster] Replaying")
 		services, err := r.local.ListServices()
 		if err != nil {
 			return err
 		}
 
 		for _, service := range services {
-			if err := r.register(service); err != nil {
+			if err := r.Register(service); err != nil {
 				return err
 			}
 		}
@@ -336,12 +371,27 @@ func (r *clusterRegistry) replay() error {
 }
 
 func (r *clusterRegistry) reset() error {
-	r.clusterNodes = make(map[string]registry.Registry)
+	r.Lock()
+	defer r.Unlock()
+	r.nodes = make(map[string]registry.Registry)
+	r.stream = nil
+	r.consumer = nil
+	if r.sub != nil {
+		if err :=  r.sub.Unsubscribe(); err != nil {
+			return err
+		}
+
+		r.sub = nil
+	}
 
 	return nil
 }
 
-func (r *clusterRegistry) register(s *registry.Service, opts ...registry.RegisterOption) error {
+func (r *clusterRegistry) Register(s *registry.Service, opts ...registry.RegisterOption) error {
+	if r.nats != nil {
+		return r.nats.Register(s, opts...)
+	}
+
 	if r.conn != nil && r.consumer != nil {
 		meta := make(map[string]string)
 		for k, v := range s.Metadata {
@@ -355,24 +405,19 @@ func (r *clusterRegistry) register(s *registry.Service, opts ...registry.Registe
 		if err != nil {
 			return err
 		}
-
 		if err := r.conn.Publish("registry.register", data); err != nil {
 			return err
 		}
 	}
 
-	return nil
-}
-
-func (r *clusterRegistry) Register(s *registry.Service, opts ...registry.RegisterOption) error {
-	if err := r.register(s, opts...); err != nil {
-		return err
-	}
-
 	return r.local.Register(s, opts...)
 }
 
-func (r *clusterRegistry) deregister(s *registry.Service) error {
+func (r *clusterRegistry) Deregister(s *registry.Service) error {
+	if r.nats != nil {
+		return r.nats.Deregister(s)
+	}
+
 	if r.conn != nil && r.consumer != nil {
 		meta := make(map[string]string)
 		for k, v := range s.Metadata {
@@ -391,25 +436,22 @@ func (r *clusterRegistry) deregister(s *registry.Service) error {
 		}
 	}
 
-	return nil
-}
-
-func (r *clusterRegistry) Deregister(s *registry.Service) error {
-	if err := r.deregister(s); err != nil {
-		return err
-	}
-
 	return r.local.Deregister(s)
 }
 
 func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
+	// If we have a nats, jetstream is not available and we need to leave it to the nats registry
+	if r.nats != nil {
+		return r.nats.GetService(name)
+	}
+
 	localServices, errLocal := r.local.GetService(name)
 	if errLocal != nil && errLocal != registry.ErrNotFound {
 		return []*registry.Service{}, errLocal
 	}
 
 	var clusterServices []*registry.Service
-	for _, clusterNode := range r.clusterNodes {
+	for _, clusterNode := range r.nodes {
 		services, errCluster := clusterNode.GetService(name)
 		if errCluster != nil {
 			return localServices, errLocal
@@ -422,13 +464,18 @@ func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 }
 
 func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
+	// If we have a nats, jetstream is not available and we need to leave it to the nats registry
+	if r.nats != nil {
+		return r.nats.ListServices()
+	}
+
 	localServices, errLocal := r.local.ListServices()
 	if errLocal != nil && errLocal != registry.ErrNotFound {
 		return nil, errLocal
 	}
 
 	var clusterServices []*registry.Service
-	for _, clusterNode := range r.clusterNodes {
+	for _, clusterNode := range r.nodes {
 		services, errCluster := clusterNode.ListServices()
 		if errCluster != nil {
 			return localServices, errLocal
@@ -477,18 +524,4 @@ func (r *clusterRegistry) Watch(opts ...registry.WatchOption) (registry.Watcher,
 
 func (r *clusterRegistry) String() string {
 	return "cluster"
-}
-
-func marshal(v interface{}) ([]byte, error) {
-	b := new(bytes.Buffer)
-	err := gob.NewEncoder(b).Encode(v)
-	if err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
-}
-
-func unmarshal(data []byte, v interface{}) error {
-	b := bytes.NewBuffer(data)
-	return gob.NewDecoder(b).Decode(v)
 }

@@ -75,13 +75,12 @@ type registryUpstream struct {
 func NewRegistryUpstreams(c caddyfile.Dispenser, host string) ([]proxy.Upstream, error) {
 	var upstreams []proxy.Upstream
 	for c.Next() {
-
 		upstream := &registryUpstream{
 			from:              "",
 			stop:              make(chan struct{}),
 			upstreamHeaders:   make(http.Header),
 			downstreamHeaders: make(http.Header),
-			MaxFails:          1,
+			MaxFails:          3,
 			TryInterval:       250 * time.Millisecond,
 			KeepAlive:         http.DefaultMaxIdleConnsPerHost,
 			Scheme:            "http",
@@ -203,7 +202,7 @@ func (r *registryUpstream) GetTryInterval() time.Duration {
 
 // Gets the number of upstream hosts.
 func (r *registryUpstream) GetHostCount() int {
-	return 0
+	return len(r.hosts)
 }
 
 // Stops the upstream from proxying requests to shutdown goroutines cleanly.
@@ -225,7 +224,12 @@ func (r *registryUpstream) newHost(name string, version string, node *microregis
 		DownstreamHeaders: r.downstreamHeaders,
 		CheckDown: func(r *registryUpstream, nodeId string) proxy.UpstreamHostDownFunc {
 			return func(uh *proxy.UpstreamHost) bool {
+				// Don't try to kill it if we have only one left
+				if r.GetHostCount() == 1 {
+					return false
+				}
 				if atomic.LoadInt32(&uh.Unhealthy) != 0 {
+					fmt.Println("Considering service unhealthy ", name)
 					microregistry.Deregister(&microregistry.Service{
 						Name:    name,
 						Version: version,
@@ -236,6 +240,7 @@ func (r *registryUpstream) newHost(name string, version string, node *microregis
 					return true
 				}
 				if atomic.LoadInt32(&uh.Fails) >= r.MaxFails {
+					fmt.Println("Considering service max fails ", name)
 					microregistry.Deregister(&microregistry.Service{
 						Name:    name,
 						Version: version,
