@@ -207,7 +207,18 @@
                     <clientCallback module="FSActions.Callbacks.deleteAction"/>
                 </processing>
             </action>
-
+            <action name="download_pdf">
+                <gui text="openother.download.as.pdf" title="openother.download.as.pdf" iconClass="mdi mdi-file-pdf">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" enableRoot="false" evalMetadata="metadata.get('PDFPreview')"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.downloadPDF"/>
+                </processing>
+            </action>
         </actions>
         <client_configs>
             <component_config component="FilesList">
