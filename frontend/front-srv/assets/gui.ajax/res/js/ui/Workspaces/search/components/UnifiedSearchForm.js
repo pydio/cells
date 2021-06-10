@@ -116,8 +116,8 @@ class UnifiedSearchForm extends React.Component {
         if(active) {
             wStyle = {width: 420}
         }
-        const {filterButton={}} = formStyles;
-        const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13} : {}
+        const {filterButton={}, filterButtonActive={}} = formStyles;
+        const filterActiveStyles = filtersCount > 0 ? {backgroundColor:filterButton.color, color:'white', fontSize: 13, ...filterButtonActive} : {}
 
         const completeDataSource = [
             ...savedSearches.map(k=>{

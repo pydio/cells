@@ -531,6 +531,9 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
   color: rgba(0, 0, 0, 0.63);
 }
+.react-mui-context .material-list.files-list .material-list-entry:not(.selected) > div > div.mimefont-container.with-editor-badge {
+  box-shadow: 0px 0px 0px 1px #edf0f2;
+}
 .react-mui-context .material-list.files-list .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
   color: white !important;
   margin: 15px;
@@ -627,6 +630,7 @@ div.dialogBox div#element_overlay {
   display: flex;
   -ms-flex-align: center;
       align-items: center;
+  box-shadow: none !important;
   border-radius: 0;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container div.mimefont {

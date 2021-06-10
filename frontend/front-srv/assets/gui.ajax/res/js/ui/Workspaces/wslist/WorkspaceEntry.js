@@ -420,7 +420,8 @@ class WorkspaceEntry extends React.Component {
                     }
                 })
             }
-            if(count) {
+            const crtScopeAll = values.scope && values.scope === 'all'
+            if(count && (crtScopeAll || current)) {
                 label += ' (' + count + ')'
             }
         }

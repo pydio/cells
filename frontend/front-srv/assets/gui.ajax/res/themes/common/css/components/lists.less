@@ -125,6 +125,12 @@
         }
       }
 
+      &:not(.selected){
+        > div > div.mimefont-container.with-editor-badge {
+          box-shadow: 0px 0px 0px 1px rgb(237,240,242);
+        }
+      }
+
       &.list-parent-node{
         .material-list-icon .mui-font-icon{
           color: white !important;
@@ -221,6 +227,7 @@
           }
           div.mimefont-container{
             .mimefont-mixin(100%, 40px, 0, 0);
+            box-shadow: none !important;
             border-radius: 0;
             .mimefont{
               margin: auto;

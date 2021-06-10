@@ -74,13 +74,18 @@ class HomeSearchForm extends Component{
                     border: 0
                 },
                 completeMenuStyle:{width: '100%'},
-                inputStyle:{},//{color: appBarTextColor.toString()},
-                hintStyle:{}, //{color: appBarTextColor.fade(0.5).toString()},
-                magnifierStyle:{}, //{color: appBarTextColor.fade(0.1).toString()},
+                inputStyle:{fontSize: 18},
+                hintStyle:{fontSize: 18},
+                magnifierStyle:{fontSize: 20, color:'rgba(0,0,0,0.73)', marginRight: 10}, //{color: appBarTextColor.fade(0.1).toString()},
                 filterButton:{
-                    paddingTop: 7,
+                    padding: '7px 6px 0px',
                     color:'#03a9f4',
                     fontSize: 22
+                },
+                filterButtonActive:{
+                    top: 10,
+                    padding: '3px 8px',
+                    fontSize: 16
                 },
             }
         };
