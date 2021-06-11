@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -59,7 +58,7 @@ func NewNATSRegistry(local registry.Registry, opts ...registry.Option) registry.
 			log.Warn("Could not init subscriptions")
 		}
 
-		ticker := time.NewTicker(10 * time.Minute)
+		ticker := time.NewTicker(10 * time.Second)
 		for {
 			select {
 			case <-ticker.C:
@@ -198,8 +197,6 @@ func (r *natsRegistry) ListServices() ([]*registry.Service, error) {
 	r.RLock()
 	defer r.RUnlock()
 
-	log.Info("[nats registry] ListServices")
-
 	clusterServices, err := r.cluster.ListServices()
 	if err != nil && err != registry.ErrNotFound {
 		return nil, err
@@ -283,11 +280,14 @@ func (r *natsRegistry) initSubscription(conn *nats.Conn) error {
 			return
 		}
 
+
 		r.Lock()
 		defer r.Unlock()
 		if err := r.cluster.Register(service); err != nil {
 			log.Warn("[nats registry] could not register service", zap.String("name", service.Name))
 		}
+
+		log.Debug("[nats registry] registered", zap.String("name", service.Name))
 	})
 	if err != nil {
 		return err
@@ -305,6 +305,8 @@ func (r *natsRegistry) initSubscription(conn *nats.Conn) error {
 		if err := r.cluster.Deregister(service); err != nil {
 			log.Warn("[nats registry] could not deregister service", zap.String("name", service.Name))
 		}
+
+		log.Debug("[nats registry] deregistered", zap.String("name", service.Name))
 	})
 	if err != nil {
 		return err
@@ -334,30 +336,10 @@ func (r *natsRegistry) connect() (*nats.Conn, error) {
 	conn, err := nats.Connect(r.options.Addrs[0],
 		nats.UseOldRequestStyle(),
 		nats.RetryOnFailedConnect(true),
-		nats.ReconnectHandler(func(_ *nats.Conn) {
-			r.replay()
-		}),
 	)
 	if err != nil {
 		return nil, err
 	}
-	if conn.IsConnected() {
-		r.replay()
-	}
-	return conn, nil
-}
 
-func (r *natsRegistry) replay() {
-	fmt.Println("[nats registry] Replaying")
-	services, err := r.local.ListServices()
-	if err != nil {
-		log.Warn("[nats registry] could not list services during replay")
-		return
-	}
-	for _, service := range services {
-		if err := r.Register(service); err != nil {
-			log.Warn("[nats registry] could not replay registration of service", zap.String("name", service.Name))
-			return
-		}
-	}
+	return conn, nil
 }

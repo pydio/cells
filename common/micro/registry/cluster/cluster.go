@@ -46,6 +46,9 @@ type clusterRegistry struct {
 	sub          *nats.Subscription
 	consumer     *jsm.Consumer
 
+	natsAvailable bool
+	jsmAvailable bool
+
 	cancelNats context.CancelFunc
 
 	sync.RWMutex
@@ -96,13 +99,15 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 				if err := r.reset(); err != nil {
 					log.Warn("[nats cluster] error during reset ", zap.Error(err))
 				}
+				r.natsAvailable = false
+				r.jsmAvailable = false
 				time.Sleep(10 * time.Second)
 				continue
+			} else if !r.natsAvailable {
+				r.natsAvailable = true
 			}
 
 			if !r.mgr.IsJetStreamEnabled() {
-				log.Info("[nats cluster] jetstream is not available")
-
 				if err := r.reset(); err != nil {
 					log.Warn("[nats cluster] error during reset ", zap.Error(err))
 				}
@@ -110,12 +115,12 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 				// We're connected but the jetstream is not yet available - start using a simple nats if we don't already
 				r.enableSimpleNATS(opts...)
 
+				r.jsmAvailable = false
+
 				// We should wait for a reconnection to nats
 				time.Sleep(10 * time.Second)
 				continue
 			}
-
-			log.Info("[nats cluster] jetstream is enabled")
 
 			// Making sure the consumer, stream and subscription are loaded
 			err := r.initJetStream(conn)
@@ -123,11 +128,11 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 				log.Warn("[nats cluster] waiting for the jetstream connection to open", zap.Error(err))
 				time.Sleep(5 * time.Second)
 				continue
+			} else if !r.jsmAvailable {
+				r.jsmAvailable = true
+				r.disableSimpleNATS()
+				r.replay()
 			}
-
-			r.disableSimpleNATS()
-
-			log.Info("[nats cluster] jetstream init complete")
 
 			// In all cases, we check that the connection to all consumers is correct
 			var consumerIDs []string
@@ -269,8 +274,6 @@ func (r *clusterRegistry) initJetStream(conn *nats.Conn) error {
 			return err
 		}
 		r.consumer = consumer
-
-		r.replay()
 	}
 
 	return nil
