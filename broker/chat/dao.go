@@ -36,6 +36,7 @@ type DAO interface {
 	ListMessages(request *chat.ListMessagesRequest) ([]*chat.ChatMessage, error)
 	PostMessage(request *chat.ChatMessage) (*chat.ChatMessage, error)
 	DeleteMessage(message *chat.ChatMessage) error
+	CountMessages(room *chat.ChatRoom) (count int, e error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {

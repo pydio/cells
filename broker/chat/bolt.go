@@ -257,6 +257,18 @@ func (h *boltdbimpl) RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.Ch
 	return &foundRoom, nil
 }
 
+func (h *boltdbimpl) CountMessages(room *chat.ChatRoom) (count int, e error) {
+	e = h.DB().View(func(tx *bolt.Tx) error {
+		if bucket, e := h.getMessagesBucket(tx, false, room.Uuid); e != nil {
+			return e
+		} else {
+			count = bucket.Stats().KeyN
+			return nil
+		}
+	})
+	return
+}
+
 func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
 
 	bounds := request.Limit > 0 || request.Offset > 0
