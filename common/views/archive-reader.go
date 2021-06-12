@@ -248,7 +248,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 			}
 			defer fileReader.Close()
 
-			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &PutRequestData{Size: -1})
+			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &PutRequestData{Size: int64(file.UncompressedSize64)})
 			if err != nil {
 				return err
 			}
@@ -469,7 +469,7 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 				logChannels[0] <- "Creating directory " + strings.TrimSuffix(file.Name, "/")
 			}
 		} else {
-			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &PutRequestData{Size: -1})
+			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &PutRequestData{Size: file.Size})
 			if err != nil {
 				return err
 			}
