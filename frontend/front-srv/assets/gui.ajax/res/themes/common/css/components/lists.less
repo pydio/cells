@@ -72,6 +72,21 @@
         }
       }
       .overlay_icon_div{
+        button[data-icon-count]:before{
+          position: absolute;
+          display: block;
+          top: 4px;
+          left: 0;
+          right: -1px;
+          content: attr(data-icon-count);
+          font-size: 9px;
+          height: 16px;
+          border-radius: 50%;
+          z-index: 10;
+          color: white;
+          font-weight: 500;
+          text-align: center;
+        }
         button > div > div {
           /*Fix tooltip positioning creating weirdo stuff with dnd*/
           top: 30px !important;
@@ -102,6 +117,9 @@
             &.metadata_chunk_description{
               color: rgba(255,255,255,0.87);
             }
+          }
+          .overlay_icon_div button[data-icon-count]:before {
+            color: rgba(0,0,0,.5);
           }
           .overlay_icon_div span.overlay-icon-span{
             color: rgba(255,255,255,0.87) !important;

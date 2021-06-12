@@ -394,6 +394,11 @@ export default class MetaNodeProvider{
             }
         }
 
+        // COMMENTS
+        if(meta.has('has_comments')) {
+            overlays.push('mdi mdi-message')
+        }
+
         if(overlays.length) {
             meta.set('overlay_class', overlays.join(','));
         }

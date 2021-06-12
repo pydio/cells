@@ -385,7 +385,15 @@ class MainFilesList extends React.Component {
             }}/>;
         }else if(node.getMetadata().get('overlay_class')){
             let elements = node.getMetadata().get('overlay_class').split(',').filter(c=>!!c).map(function(c){
-                return <OverlayIcon node={node} key={c} overlay={c} pydio={pydio}/>;
+                return (
+                    <OverlayIcon
+                        node={node}
+                        key={c}
+                        overlay={c}
+                        pydio={pydio}
+                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
+                    />
+                );
             });
             let style;
             if(displayMode === 'detail') {

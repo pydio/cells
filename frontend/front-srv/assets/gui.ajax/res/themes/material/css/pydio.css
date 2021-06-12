@@ -493,6 +493,21 @@ div.dialogBox div#element_overlay {
   margin: 0 1px;
   visibility: hidden;
 }
+.react-mui-context .material-list.files-list .material-list-entry .overlay_icon_div button[data-icon-count]:before {
+  position: absolute;
+  display: block;
+  top: 4px;
+  left: 0;
+  right: -1px;
+  content: attr(data-icon-count);
+  font-size: 9px;
+  height: 16px;
+  border-radius: 50%;
+  z-index: 10;
+  color: white;
+  font-weight: 500;
+  text-align: center;
+}
 .react-mui-context .material-list.files-list .material-list-entry .overlay_icon_div button > div > div {
   /*Fix tooltip positioning creating weirdo stuff with dnd*/
   top: 30px !important;
@@ -518,6 +533,9 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk.metadata_chunk_description {
   color: rgba(255, 255, 255, 0.87);
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark .overlay_icon_div button[data-icon-count]:before {
+  color: rgba(0, 0, 0, 0.5);
 }
 .react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark .overlay_icon_div span.overlay-icon-span {
   color: rgba(255, 255, 255, 0.87) !important;
