@@ -541,39 +541,74 @@ div.dialogBox div#element_overlay {
   height: 40px;
   padding: 10px;
 }
-.react-mui-context .material-list.files-list.table-mode .material-list-text {
-  padding: 18px 0 13px;
+.react-mui-context .material-list.files-list.table-mode .material-list-entry {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  height: 48px;
+  padding-top: 1px;
 }
-.react-mui-context .material-list.files-list.table-mode .material-list-text span.cell-usermeta-tags.cell[data-label='Tags'] {
-  width: 7% !important;
+.react-mui-context .material-list.files-list.table-mode .material-list-entry .material-list-text {
+  padding: 0;
+  overflow: initial;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 14px;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header {
+  margin-top: 0;
+  background-color: #fafafa;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header:hover {
+  background-color: #fafafa !important;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-group-header .material-list-text {
+  padding: 16px;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
+  line-height: 16px;
+}
+@media only screen and (max-width: 480px) {
+  .react-mui-context .material-list.files-list.table-mode .material-list-entry span.cell {
+    display: none;
+  }
 }
 .react-mui-context .material-list.files-list.table-mode span.cell {
-  color: rgba(0, 0, 0, 0.53);
+  color: rgba(0, 0, 0, 0.63);
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
   color: rgba(0, 0, 0, 0.87);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
-  min-width: 250px;
+  min-width: 320px;
+}
+@media only screen and (max-width: 480px) {
+  .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
+    display: initial;
+  }
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label.header_cell {
   font-size: inherit;
   font-weight: inherit;
   color: inherit;
-  padding-left: 42px;
+  padding-left: 52px;
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span {
   display: -ms-flexbox;
   display: flex;
   margin-left: 16px;
+  -ms-flex-align: center;
+      align-items: center;
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span div.mimefont-container {
-  font-size: 17px;
-  margin-top: -2px;
-  margin-right: 10px;
+  font-size: 20px;
+  margin-right: 16px;
 }
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span span:last-child {
-  display: inline;
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -585,11 +620,14 @@ div.dialogBox div#element_overlay {
   padding-top: 4px;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell {
-  color: rgba(255, 255, 255, 0.63);
+  color: rgba(255, 255, 255, 0.73);
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell.cell-ajxp_label {
   color: #ffffff;
   font-weight: 500;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark .mimefont {
+  color: white !important;
 }
 .react-mui-context .material-list.files-list.material-list-grid {
   padding-left: 5px;
@@ -641,7 +679,6 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container .mimefont {
   margin: auto;
-  padding-bottom: 10%;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
   position: absolute;
@@ -737,16 +774,29 @@ div.dialogBox div#element_overlay {
 }
 .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
   display: block;
-  height: 56px;
-  position: absolute;
+  height: 48px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f9fafb;
+  z-index: 10;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
 }
-.react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+@media only screen and (max-width: 480px) {
+  .react-mui-context .material-list.files-list.table-mode .mui-toolbar {
+    display: none;
+  }
+}
+.react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left {
   display: block;
   width: 100%;
-  padding: 20px 0;
+  padding: 0;
 }
-.react-mui-context .material-list.files-list.table-mode > div.layout-fill {
-  margin-top: 56px;
+.react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell {
+  padding-top: 14px;
+  padding-bottom: 13px;
+  color: #607d8b;
+}
+.react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left .header_cell:hover {
+  background-color: #edf2f7;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-text {
   padding: 14px 0;
@@ -757,7 +807,6 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
   font-size: 14px;
   text-transform: capitalize;
-  font-style: italic;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-icon {
   padding: 0;
@@ -766,8 +815,8 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
   background-color: transparent !important;
   color: rgba(0, 0, 0, 0.73) !important;
-  margin: 13px 3px 0px 7px !important;
-  font-size: 20px!important;
+  margin: 4px 12px 0 7px!important;
+  font-size: 24px!important;
   line-height: 13px!important;
   padding: 3px!important;
 }
