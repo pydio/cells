@@ -3445,37 +3445,24 @@
   color: white;
   text-overflow: ellipsis;
 }
-.react-mui-context .material-list.table-mode .material-list-entry {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-.react-mui-context .material-list.table-mode .material-list-entry .material-list-line-1 {
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 14px;
-}
-.react-mui-context .material-list.table-mode .material-list-entry.list-group-header {
-  margin-top: 0;
-  background-color: #fafafa;
-}
-.react-mui-context .material-list.table-mode .material-list-entry.list-group-header:hover {
-  background-color: #fafafa !important;
-}
-.react-mui-context .material-list.table-mode .material-list-entry.list-group-header .material-list-text {
-  padding: 16px;
-}
 .react-mui-context .material-list.table-mode .cell {
   display: inline-block;
   width: 10%;
+  min-width: 140px;
+  padding-left: 20px;
   padding-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.react-mui-context .material-list.table-mode .cell.cell-ajxp_label {
+  padding-left: 0;
 }
 .react-mui-context .material-list.table-mode .cell.header_cell.sortable {
   cursor: pointer;
 }
 .react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-asc,
 .react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc {
-  color: rgba(0, 0, 0, 0.73);
+  background-color: #edf2f7;
 }
 .react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-asc::before,
 .react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc::before {
@@ -3487,24 +3474,6 @@
 }
 .react-mui-context .material-list.table-mode .cell.header_cell.sortable.active-sort-desc::before {
   content: "\F045";
-}
-@media only screen and (max-width: 480px) {
-  .react-mui-context .material-list.table-mode .cell {
-    display: block;
-    width: 100% !important;
-    padding: 5px 0;
-  }
-  .react-mui-context .material-list.table-mode .cell::before {
-    content: attr(data-label);
-    display: block;
-    float: left;
-    font-weight: 500;
-    color: #999;
-    width: 38%;
-  }
-  .react-mui-context .material-list.table-mode .cell.header_cell {
-    display: none;
-  }
 }
 .react-mui-context .material-list.table-mode .material-list-actions {
   padding-top: 1px;

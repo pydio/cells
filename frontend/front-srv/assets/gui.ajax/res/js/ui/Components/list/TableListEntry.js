@@ -33,36 +33,26 @@ import withNodeListenerEntry from './withNodeListenerEntry'
  */
 class TableListEntry extends React.Component {
 
-// /*
-//     propTypes:{
-//         node:React.PropTypes.instanceOf(AjxpNode),
-//         tableKeys:React.PropTypes.object.isRequired,
-//         renderActions:React.PropTypes.func
-//         // See also ListEntry nodes
-//     },
-// */
 
     render(){
 
+        const {node, renderActions, tableKeys, inlineEdition, inlineEditionDismiss, inlineEditionCallback} = this.props;
+
         let actions = this.props.actions;
-        if(this.props.renderActions) {
-            actions = this.props.renderActions(this.props.node);
+        if(renderActions) {
+            actions = renderActions(node);
         }
 
         let cells = [];
         let firstKey = true;
-        const meta = this.props.node.getMetadata();
-        for(let key in this.props.tableKeys){
-            if(!this.props.tableKeys.hasOwnProperty(key)) {
-                continue;
-            }
-
-            let data = this.props.tableKeys[key];
+        const meta = node.getMetadata();
+        Object.keys(tableKeys).forEach((key) => {
+            let data = tableKeys[key];
             let style = data['width']?{width:data['width']}:null;
             let value, rawValue;
             if(data.renderCell) {
                 data['name'] = key;
-                value = data.renderCell(this.props.node, data);
+                value = data.renderCell(node, data);
             }else if(key === 'ajxp_modiftime') {
                 let mDate = moment(parseFloat(meta.get('ajxp_modiftime')) * 1000);
                 let dateString = mDate.calendar();
@@ -77,11 +67,11 @@ class TableListEntry extends React.Component {
             }
             rawValue = meta.get(key);
             let inlineEditor;
-            if(this.props.inlineEdition && firstKey){
+            if(inlineEdition && firstKey){
                 inlineEditor = (<InlineEditor
-                    node={this.props.node}
-                    onClose={this.props.inlineEditionDismiss}
-                    callback={this.props.inlineEditionCallback}
+                    node={node}
+                    onClose={inlineEditionDismiss}
+                    callback={inlineEditionCallback}
                 />);
                 let style = this.props.style || {};
                 style.position = 'relative';
@@ -89,7 +79,7 @@ class TableListEntry extends React.Component {
             }
             cells.push(<span key={key} className={'cell cell-' + key} title={rawValue} style={style} data-label={data['label']}>{inlineEditor}{value}</span>);
             firstKey = false;
-        }
+        });
 
         return (
             <DragDropListEntry

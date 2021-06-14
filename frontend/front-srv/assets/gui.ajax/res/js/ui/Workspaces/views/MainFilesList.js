@@ -325,6 +325,7 @@ class MainFilesList extends React.Component {
 
         } else {
             // Recompute columns widths
+            /*
             let columnKeys = Object.keys(columns);
             let defaultFirstWidthPercent = 10;
             let firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
@@ -335,7 +336,7 @@ class MainFilesList extends React.Component {
             this.setState({
                 columns: columns,
             });
-
+*/
         }
 
     }
@@ -370,10 +371,9 @@ class MainFilesList extends React.Component {
 
     entryRenderActions(node){
         let content = null;
-        const {pydio} = this.props;
-        const mobile = pydio.UI.MOBILE_EXTENSIONS;
-        const {dataModel} = this.props;
-        if(mobile){
+        const {pydio, dataModel} = this.props;
+        const {displayMode} = this.state;
+        if(pydio.UI.MOBILE_EXTENSIONS){
             const ContextMenuModel = require('pydio/model/context-menu');
             return <IconButton iconClassName="mdi mdi-dots-vertical" style={{zIndex:0, padding: 10}} tooltip="Info" onClick={(event) => {
                 pydio.observeOnce('actions_refreshed', ()=>{
@@ -385,9 +385,21 @@ class MainFilesList extends React.Component {
             }}/>;
         }else if(node.getMetadata().get('overlay_class')){
             let elements = node.getMetadata().get('overlay_class').split(',').filter(c=>!!c).map(function(c){
-                return <OverlayIcon node={node} key={c} overlay={c} pydio={pydio}/>;
+                return (
+                    <OverlayIcon
+                        node={node}
+                        key={c}
+                        overlay={c}
+                        pydio={pydio}
+                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
+                    />
+                );
             });
-            content = <div className="overlay_icon_div">{elements}</div>;
+            let style;
+            if(displayMode === 'detail') {
+                style = {width:34 * elements.length}
+            }
+            content = <div className="overlay_icon_div" style={style}>{elements}</div>;
         }
         return content;
 

@@ -72,6 +72,21 @@
         }
       }
       .overlay_icon_div{
+        button[data-icon-count]:before{
+          position: absolute;
+          display: block;
+          top: 4px;
+          left: 0;
+          right: -1px;
+          content: attr(data-icon-count);
+          font-size: 9px;
+          height: 16px;
+          border-radius: 50%;
+          z-index: 10;
+          color: white;
+          font-weight: 500;
+          text-align: center;
+        }
         button > div > div {
           /*Fix tooltip positioning creating weirdo stuff with dnd*/
           top: 30px !important;
@@ -102,6 +117,9 @@
             &.metadata_chunk_description{
               color: rgba(255,255,255,0.87);
             }
+          }
+          .overlay_icon_div button[data-icon-count]:before {
+            color: rgba(0,0,0,.5);
           }
           .overlay_icon_div span.overlay-icon-span{
             color: rgba(255,255,255,0.87) !important;
@@ -144,36 +162,64 @@
     }
 
     &.table-mode{
+      .material-list-entry{
+        display: flex;
+        align-items: center;
+        height: 48px;
+        padding-top: 1px;
         .material-list-text{
-          padding:18px 0 13px;
-          span.cell-usermeta-tags.cell[data-label='Tags']{
-            width: 7% !important;
+          padding:0;
+          overflow: initial;
+          .material-list-line-1 {
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 14px;
           }
         }
+        &.list-group-header{
+          margin-top: 0;
+          background-color: #fafafa;
+          &:hover {
+            background-color: #fafafa !important;
+          }
+          .material-list-text{
+            padding: 16px;
+          }
+        }
+        span.cell {
+          line-height: 16px;
+          @media only screen and (max-width: 480px){
+            display: none;
+          }
+        }
+      }
         span.cell{
-          color: rgba(0,0,0,0.53);
+          color: rgba(0,0,0,0.63);
         }
         span.cell.cell-ajxp_label{
+          @media only screen and (max-width: 480px){
+            display: initial;
+          }
           color: rgba(0,0,0,0.87);
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 400;
-          min-width: 250px;
+          min-width: 320px;
           &.header_cell{
             font-size: inherit;
             font-weight:inherit;
             color: inherit;
-            padding-left: 42px;
+            padding-left: 52px;
           }
           > span{
             display: flex;
             margin-left: 16px;
+            align-items: center;
             div.mimefont-container{
-              font-size: 17px;
-              margin-top: -2px;
-              margin-right: 10px;
+              font-size: 20px;
+              margin-right: 16px;
             }
             span:last-child{
-              display: inline;
+              display: block;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
@@ -188,11 +234,14 @@
         }
         .material-list-entry.selected-dark{
           span.cell{
-            color: rgba(255,255,255,.63);
+            color: rgba(255,255,255,.73);
           }
           span.cell.cell-ajxp_label{
             color: rgba(255,255,255,1);
             font-weight:500;
+          }
+          .mimefont{
+            color:white !important;
           }
         }
 
@@ -231,7 +280,6 @@
             border-radius: 0;
             .mimefont{
               margin: auto;
-              padding-bottom: 10%;
             }
           }
         }
@@ -358,16 +406,27 @@
     &.table-mode{
       .mui-toolbar {
         display: block;
-        height: 56px;
-        position: absolute;
-        .mui-toolbar-group.mui-left:first-child {
+        @media only screen and (max-width: 480px){
+          display: none;
+        }
+        height: 48px;
+        border-top: 1px solid #e0e0e0;
+        background-color: rgb(249, 250, 251);
+        z-index: 10;
+        box-shadow: 0px 1px 6px rgba(0,0,0,.15);
+        .mui-toolbar-group.mui-left {
           display:block;
           width: 100%;
-          padding: 20px 0;
+          padding:0;
+          .header_cell {
+            padding-top: 14px;
+            padding-bottom: 13px;
+            color: rgb(96, 125, 139);
+            &:hover {
+              background-color: rgb(237, 242, 247);
+            }
+          }
         }
-      }
-      > div.layout-fill{
-        margin-top: 56px;
       }
       .material-list-entry.list-parent-node{
         .material-list-text{
@@ -378,7 +437,6 @@
           .material-list-line-2{
             font-size: 14px;
             text-transform: capitalize;
-            font-style: italic;
           }
         }
         .material-list-icon{
@@ -387,8 +445,8 @@
           .mui-font-icon{
             background-color: transparent !important;
             color: rgba(0,0,0,.73)!important;
-            margin: 13px 3px 0px 7px !important;
-            font-size: 20px!important;
+            margin: 4px 12px 0 7px!important;
+            font-size: 24px!important;
             line-height: 13px!important;
             padding: 3px!important;
           }

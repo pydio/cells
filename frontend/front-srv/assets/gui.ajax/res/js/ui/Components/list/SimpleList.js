@@ -562,45 +562,6 @@ let SimpleList = createReactClass({
         this.setState({containerHeight:containerHeight});
     },
 
-    computeElementHeightResponsive:function(){
-        if(!this.props.tableKeys){
-            return 50;
-        }
-        let breaks = this.props.elementHeight;
-        if(! (breaks instanceof Object) ){
-            breaks = {
-                "min-width:480px":this.props.elementHeight,
-                "max-width:480px":(Object.keys(this.props.tableKeys).length * 24) + 33
-            };
-        }
-        if(window.matchMedia){
-            for(let k in breaks){
-                if(breaks.hasOwnProperty(k) && window.matchMedia('('+k+')').matches){
-                    return breaks[k];
-                }
-            }
-        }else{
-            const width = DOMUtils.getViewportWidth();
-            if(width < 480) {
-                return breaks["max-width:480px"];
-            } else {
-                return breaks["min-width:480px"];
-            }
-        }
-        return 50;
-    },
-
-    updateElementHeightResponsive: function(){
-        const newH = this.computeElementHeightResponsive();
-        if(!this.state || !this.state.elementHeight || this.state.elementHeight != newH){
-            this.setState({elementHeight:newH}, function(){
-                if(this.props.heightAutoWithMax){
-                    this.updateInfiniteContainerHeight();
-                }
-            }.bind(this));
-        }
-    },
-
     patchInfiniteGrid: function(els){
         if(this.refs.infinite && els > 1){
             this.refs.infinite.state.infiniteComputer.__proto__.getDisplayIndexStart = function (windowTop){
@@ -634,14 +595,6 @@ let SimpleList = createReactClass({
         }
         if(this.props.observeNodeReload){
             this.wireReloadListeners();
-        }
-        if(this.props.elementHeight instanceof Object || this.props.tableKeys){
-            if(window.addEventListener){
-                window.addEventListener('resize', this.updateElementHeightResponsive);
-            }else{
-                window.attachEvent('onresize', this.updateElementHeightResponsive);
-            }
-            this.updateElementHeightResponsive();
         }
         this.props.dataModel.observe('root_node_changed', (rootNode) => {
             this.rootNodeChangedFlag = true;
@@ -679,13 +632,6 @@ let SimpleList = createReactClass({
                 window.removeEventListener('resize', this.updateInfiniteContainerHeight);
             }else{
                 window.detachEvent('onresize', this.updateInfiniteContainerHeight);
-            }
-        }
-        if(this.props.elementHeight instanceof Object || this.props.tableKeys){
-            if(window.removeEventListener){
-                window.removeEventListener('resize', this.updateElementHeightResponsive);
-            }else{
-                window.detachEvent('resize', this.updateElementHeightResponsive);
             }
         }
         if(this.refreshInterval){
@@ -801,15 +747,18 @@ let SimpleList = createReactClass({
                     ...entriesProps
                 };
                 if(this.props.entryRenderParentIcon && ! this.props.tableKeys){
-                    data['iconCell'] = this.props.entryRenderParentIcon(entry.node, entry);
+                    data.iconCell = this.props.entryRenderParentIcon(entry.node, entry);
                 }else{
-                    data['mainIcon'] = SimpleList.PARENT_FOLDER_ICON;
+                    data.mainIcon = SimpleList.PARENT_FOLDER_ICON;
+                }
+                if(this.props.tableKeys) {
+                    data.onClick = data.onDoubleClick;
                 }
                 if(this.props.elementStyle){
-                    data['style'] = this.props.elementStyle;
+                    data.style = this.props.elementStyle;
                 }
                 if(this.props.passScrollingStateToChildren){
-                    data['parentIsScrolling'] = this.state.isScrolling;
+                    data.parentIsScrolling = this.state.isScrolling;
                 }
                 components.push(React.createElement(ListEntry, data));
             }else if(entry.groupHeader){
@@ -1198,24 +1147,25 @@ let SimpleList = createReactClass({
     render: function(){
 
         let containerClasses = "material-list vertical-layout layout-fill";
-        if(this.props.className){
-            containerClasses += " " + this.props.className;
+        const {className, showSelector, tableKeys, defaultGroupBy, dataModel, node, additionalActions, customToolbar, hideToolbar, emptyStateProps, entryHandleClicks} = this.props;
+        if(className){
+            containerClasses += " " + className;
         }
-        if(this.state.showSelector) {
+        if(showSelector) {
             containerClasses += " list-show-selectors";
         }
-        if(this.props.tableKeys){
+        if(tableKeys){
             containerClasses += " table-mode";
         }
         let toolbar;
         let hiddenToolbar;
-        if(this.props.tableKeys){
-            let tableKeys;
-            if(this.props.defaultGroupBy){
-                tableKeys = {...this.props.tableKeys};
-                delete tableKeys[this.props.defaultGroupBy];
+        if(tableKeys){
+            let finalKeys;
+            if(defaultGroupBy){
+                finalKeys = {...tableKeys};
+                delete finalKeys[defaultGroupBy];
             }else{
-                tableKeys = this.props.tableKeys;
+                finalKeys = this.props.tableKeys;
             }
             let sortingInfo, remoteSortingInfo = this.remoteSortingInfo();
             if(remoteSortingInfo){
@@ -1224,19 +1174,19 @@ let SimpleList = createReactClass({
                 sortingInfo = this.state?this.state.sortingInfo:null;
             }
             toolbar = <TableListHeader
-                tableKeys={tableKeys}
+                tableKeys={finalKeys}
                 loading={this.state.loading}
                 reload={this.reload}
                 ref="loading_indicator"
-                dm={this.props.dataModel}
-                node={this.props.node}
-                additionalActions={this.props.additionalActions}
+                dm={dataModel}
+                node={node}
+                additionalActions={additionalActions}
                 onHeaderClick={this.onColumnSort}
                 sortingInfo={sortingInfo}
             />
         }else{
-            toolbar = this.props.customToolbar ? this.props.customToolbar : ( !this.props.hideToolbar ? this.renderToolbar() : null );
-            if(this.props.hideToolbar || this.props.customToolbar){
+            toolbar = customToolbar ? customToolbar : ( !hideToolbar ? this.renderToolbar() : null );
+            if(hideToolbar || customToolbar){
                 hiddenToolbar = this.renderToolbar(true);
             }
         }
@@ -1252,8 +1202,7 @@ let SimpleList = createReactClass({
         }
 
         let emptyState;
-        const {emptyStateProps, node} = this.props;
-        if(emptyStateProps && this.props.node.isLoaded() && !this.props.node.isLoading() &&
+        if(emptyStateProps && node.isLoaded() && !node.isLoading() &&
             ( !this.state.elements.length || (this.state.elements.length === 1 && this.state.elements[0].parent)) ){
 
             let actionProps = {};
@@ -1263,15 +1212,15 @@ let SimpleList = createReactClass({
                     actionLabelId: 'react.1',
                     actionIconClassName: SimpleList.PARENT_FOLDER_ICON,
                     actionCallback: (e) => {
-                        if(this.props.entryHandleClicks) {
-                            this.props.entryHandleClicks(parentNode, SimpleList.CLICK_TYPE_DOUBLE, e);
+                        if(entryHandleClicks) {
+                            entryHandleClicks(parentNode, SimpleList.CLICK_TYPE_DOUBLE, e);
                         }
                     }
                 }
             }
             emptyState = <EmptyStateView {...emptyStateProps} {...actionProps}/> ;
 
-        }else if(emptyStateProps && emptyStateProps.checkEmptyState && emptyStateProps.checkEmptyState(this.props.node)){
+        }else if(emptyStateProps && emptyStateProps.checkEmptyState && emptyStateProps.checkEmptyState(node)){
 
             emptyState = <EmptyStateView {...emptyStateProps}/> ;
 
@@ -1301,6 +1250,27 @@ let SimpleList = createReactClass({
                     <div>{content}</div>
                 </ScrollArea>
             )
+        } else if (tableKeys) {
+
+            return (
+                <div className={containerClasses} tabIndex="0" onKeyDown={this.onKeyDown} style={{...this.props.style, overflowX: 'auto'}}>
+                    {hiddenToolbar}{inlineEditor}
+                    <div style={{display:'flex', flexDirection:'column', flex: 1, height: '100%', width:'100%', minWidth:'fit-content'}}>
+                        {toolbar}
+                        <div className={heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">
+                            <Infinite
+                                elementHeight={this.state.elementHeight ? this.state.elementHeight : this.props.elementHeight}
+                                containerHeight={this.state.containerHeight ? this.state.containerHeight : 1}
+                                infiniteLoadBeginEdgeOffset={this.state.infiniteLoadBeginBottomOffset}
+                                onInfiniteLoad={this.handleInfiniteLoad}
+                                handleScroll={this.onScroll}
+                                ref="infinite"
+                            >{content}</Infinite>
+                        </div>
+                    </div>
+                </div>
+            );
+
         } else {
 
             content = (
@@ -1313,6 +1283,7 @@ let SimpleList = createReactClass({
                     ref="infinite"
                 >{content}</Infinite>
             )
+
         }
 
         return (

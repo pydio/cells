@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
@@ -33,8 +34,20 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/chat"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 )
+
+var (
+	metaClient tree.NodeReceiverClient
+)
+
+func getMetaClient() tree.NodeReceiverClient {
+	if metaClient == nil {
+		metaClient = tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
+	}
+	return metaClient
+}
 
 type ChatHandler struct{}
 
@@ -136,6 +149,14 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 						"comments": `"` + m.Message + `"`,
 					}},
 				}))
+				if count, e := db.CountMessages(room); e == nil {
+					getMetaClient().UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+						Uuid: room.RoomTypeObject,
+						MetaStore: map[string]string{
+							"has_comments": fmt.Sprintf("%d", count),
+						},
+					}})
+				}
 			}
 		}
 	}()
@@ -157,6 +178,27 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 			Details: "DELETE",
 		}))
 	}
+	go func() {
+		for _, m := range req.Messages {
+			bgCtx := metadata.NewContext(context.Background(), map[string]string{
+				common.PydioContextUserKey: m.Author,
+			})
+			if room, err := db.RoomByUuid(chat.RoomType_NODE, m.RoomUuid); err == nil {
+				if count, e := db.CountMessages(room); e == nil {
+					var meta = ""
+					if count > 0 {
+						meta = fmt.Sprintf("%d", count)
+					}
+					getMetaClient().UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
+						Uuid: room.RoomTypeObject,
+						MetaStore: map[string]string{
+							"has_comments": meta,
+						},
+					}})
+				}
+			}
+		}
+	}()
 	resp.Success = true
 	return nil
 }

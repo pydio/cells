@@ -26,7 +26,7 @@ class OverlayIcon extends React.Component{
 
     findAction(){
         const {overlay, pydio, node} = this.props;
-        let tooltip, action;
+        let tooltip, action, count;
         const m = (id) => pydio.MessageHash[id] || id;
         const isLeaf = node.isLeaf();
         switch(overlay){
@@ -43,28 +43,34 @@ class OverlayIcon extends React.Component{
             case "mdi mdi-bell":
                 tooltip = isLeaf ? m('overlay.watch.file'):m('overlay.watch.folder');
                 break;
+            case "mdi mdi-message-outline":
+            case "mdi mdi-message":
+                count = node.getMetadata().get('has_comments');
+                tooltip = count + ' comment' + (count > 1 ? 's' : '');
+                break;
             default:
                 break;
         }
-        return {tooltip, action};
+        return {tooltip, action, count};
     }
 
     render(){
-        const {muiTheme, overlay, selected} = this.props;
+        const {muiTheme, overlay, selected, tooltipPosition='bottom-left'} = this.props;
         const light = new Color(muiTheme.palette.primary1Color).saturationl(15).lightness(73).toString();
         let onClick;
-        const {tooltip, action} = this.findAction();
+        const {tooltip, action, count} = this.findAction();
         if(action){
             onClick = () => {action.apply();};
         }
         return (
             <IconButton
                 tooltip={tooltip}
-                tooltipPosition={"bottom-left"}
+                tooltipPosition={tooltipPosition}
                 iconClassName={overlay + ' overlay-icon-span'}
                 style={{width: 30, height: 30, padding:6, margin: '6px 2px', zIndex:0, cursor:onClick?'pointer':'default'}}
                 iconStyle={{color: selected? 'white' : light, fontSize:15, transition:'none'}}
                 onClick={onClick}
+                data-icon-count={count}
             />);
     }
 
