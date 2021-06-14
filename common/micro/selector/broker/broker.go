@@ -41,7 +41,7 @@ func (r *brokerSelector) Options() selector.Options {
 // Select returns a function which should return the next node
 func (r *brokerSelector) Select(service string, opts ...selector.SelectOption) (selector.Next, error) {
 	hostname := r.hostname
-	port, err := strconv.Atoi(hostname)
+	port, err := strconv.Atoi(r.port)
 	if err != nil {
 		return nil, err
 	}
