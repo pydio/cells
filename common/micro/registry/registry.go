@@ -22,14 +22,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-func EnableService() {
-	// addr := "127.0.0.1:8000"
+func EnableService(hostname string, port string) {
 
 	r := service.NewRegistry(
 		service.WithClient(
 			grpc.NewClient(
 				client.RequestTimeout(10*time.Minute),
-				client.Selector(rs.NewSelector()),
+				client.Selector(rs.NewSelector(hostname, port)),
 				client.Retries(20),
 				client.Retry(func(ctx context.Context, req client.Request, retryCount int, err error) (bool, error) {
 					if errors.Parse(err.Error()).Detail == "not found" {

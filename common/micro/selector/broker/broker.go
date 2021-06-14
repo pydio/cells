@@ -3,13 +3,16 @@ package broker
 import (
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
+	"strconv"
 )
 
 type brokerSelector struct {
 	so selector.Options
+	hostname string
+	port string
 }
 
-func NewSelector(opts ...selector.Option) selector.Selector {
+func NewSelector(hostname, port string, opts ...selector.Option) selector.Selector {
 	r := &brokerSelector{}
 
 	sopts := selector.Options{}
@@ -18,6 +21,8 @@ func NewSelector(opts ...selector.Option) selector.Selector {
 	}
 
 	r.so = sopts
+	r.hostname = hostname
+	r.port = port
 
 	return r
 }
@@ -35,11 +40,16 @@ func (r *brokerSelector) Options() selector.Options {
 
 // Select returns a function which should return the next node
 func (r *brokerSelector) Select(service string, opts ...selector.SelectOption) (selector.Next, error) {
+	hostname := r.hostname
+	port, err := strconv.Atoi(hostname)
+	if err != nil {
+		return nil, err
+	}
 	return func() (*registry.Node, error) {
 		return &registry.Node{
 			Id:      "pydio.grpc.broker",
-			Address: "127.0.0.1",
-			Port:    8003,
+			Address: hostname,
+			Port:    port,
 		}, nil
 	}, nil
 }
