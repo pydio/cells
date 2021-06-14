@@ -51,6 +51,8 @@ func handleRegistry() {
 	switch u.Scheme {
 	case "grpc":
 		registry.EnableService(u.Hostname(), u.Port())
+	case "memory":
+		fallthrough
 	default:
 		registry.EnableMemory()
 	}
@@ -61,7 +63,7 @@ func handleBroker() {
 	addr := viper.GetString("broker")
 	u, err := url.Parse(addr)
 	if err != nil {
-		log.Fatal("Registry address is not right")
+		log.Fatal("broker address is not right")
 		return
 	}
 
@@ -72,12 +74,12 @@ func handleBroker() {
 		broker.EnableSTAN()
 	case "http":
 		broker.EnableHTTP()
-	case "memory":
-		broker.EnableMemory()
 	case "grpc":
 		broker.EnableService(u.Hostname(), u.Port())
+	case "memory":
+		fallthrough
 	default:
-		log.Fatal("broker not supported")
+		broker.EnableMemory()
 	}
 }
 
