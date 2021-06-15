@@ -23,7 +23,6 @@ import (
 )
 
 func EnableService(hostname string, port string) {
-
 	r := service.NewRegistry(
 		service.WithClient(
 			grpc.NewClient(

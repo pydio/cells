@@ -168,14 +168,22 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 		o(&options)
 	}
 
+	var ctx context.Context
+	var cancel context.CancelFunc
+
+	ctx = options.Context
+	if ctx == nil {
+		ctx = context.TODO()
+	}
+
+	ctx, cancel = context.WithCancel(ctx)
+
+	options.Context = ctx
+
 	// the registry address
 	addrs := options.Addrs
 	if len(addrs) == 0 {
 		addrs = []string{"127.0.0.1:8000"}
-	}
-
-	if options.Context == nil {
-		options.Context = context.TODO()
 	}
 
 	// extract the client from the context, fallback to grpc
@@ -189,10 +197,29 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 	// service name. TODO: accept option
 	name := DefaultService
 
-	return &serviceRegistry{
+	r :=  &serviceRegistry{
 		opts:    options,
 		name:    name,
 		address: addrs,
 		client:  pb.NewRegistryClient(name, cli),
 	}
+
+	go func () {
+		// Check the stream has a connection to the registry
+		watcher, err := r.Watch()
+		if err != nil {
+			cancel()
+			return
+		}
+
+		for {
+			_, err := watcher.Next()
+			if err != nil {
+				cancel()
+				return
+			}
+		}
+	}()
+
+	return r
 }

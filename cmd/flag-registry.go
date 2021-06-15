@@ -40,7 +40,7 @@ func bindViperFlags(flags *pflag.FlagSet, replaceKeys map[string]string) {
 }
 
 // handleRegistry looks up for "registry" key in viper and starts the registry
-func handleRegistry() {
+func handleRegistry(){
 	addr := viper.GetString("registry")
 	u, err := url.Parse(addr)
 	if err != nil {
