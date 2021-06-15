@@ -57,8 +57,8 @@ type Local struct {
 func NewLocal(root string, options Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			microregistry.EnableService()
-			microbroker.EnableService()
+			microregistry.EnableService("127.0.0.1", "8000")
+			microbroker.EnableService("127.0.0.1", "8003")
 			grpctransport.Enable()
 			registry.Init()
 		})
