@@ -82,7 +82,13 @@ export default class Renderer{
         if(!value || !value.split) {
             return null;
         }
-        return <span>{value.split(',').map(tag => <span style={{...tagStyle, ...colorsFromString(tag)}}>{tag}</span>)}</span>
+        return (<span>{value.split(',').map((tag, index) => {
+            let sStyle = {...tagStyle, ...colorsFromString(tag)};
+            if(index === value.split(',').length -1){
+                sStyle = {...sStyle, marginRight: -4}
+            }
+            return <span style={sStyle}>{tag}</span>
+        })}</span>)
     }
 
     static renderDate(node, column) {

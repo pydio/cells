@@ -371,7 +371,7 @@ class MainFilesList extends React.Component {
 
     entryRenderActions(node){
         let content = null;
-        const {pydio, dataModel} = this.props;
+        const {pydio, dataModel, searchResults} = this.props;
         const {displayMode} = this.state;
         if(pydio.UI.MOBILE_EXTENSIONS){
             const ContextMenuModel = require('pydio/model/context-menu');
@@ -391,6 +391,7 @@ class MainFilesList extends React.Component {
                         key={c}
                         overlay={c}
                         pydio={pydio}
+                        disableActions={!!searchResults}
                         tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
                     />
                 );

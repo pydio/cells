@@ -158,7 +158,7 @@ export default class UserMetaPanel extends React.Component{
                         const isInteger = (type === 'integer' && !supportTemplates);
                         field = (
                             <ModernTextField
-                                value={value}
+                                value={value || ""}
                                 fullWidth={true}
                                 disabled={readonly}
                                 hintText={label}

@@ -25,7 +25,7 @@ import {IconButton} from 'material-ui'
 class OverlayIcon extends React.Component{
 
     findAction(){
-        const {overlay, pydio, node} = this.props;
+        const {overlay, pydio, node, disableActions} = this.props;
         let tooltip, action, count;
         const m = (id) => pydio.MessageHash[id] || id;
         const isLeaf = node.isLeaf();
@@ -34,7 +34,7 @@ class OverlayIcon extends React.Component{
                 tooltip = isLeaf ? m('overlay.bookmark.file'):m('overlay.bookmark.folder');
                 break;
             case "mdi mdi-share-variant":
-                action = pydio.Controller.getActionByName("share-edit-shared");
+                action = !disableActions && pydio.Controller.getActionByName("share-edit-shared");
                 tooltip = isLeaf ? m('overlay.shared.file'):m('overlay.shared.folder');
                 break;
             case "mdi mdi-lock-outline":
@@ -54,13 +54,29 @@ class OverlayIcon extends React.Component{
         return {tooltip, action, count};
     }
 
+    selectAndApply(action) {
+        const {pydio, node} = this.props;
+        const dm = pydio.getContextHolder();
+        if(dm.getUniqueNode() === node) {
+            action.apply();
+        } else {
+            pydio.observeOnce('actions_refreshed', () => {
+                action.apply();
+            })
+            dm.setSelectedNodes([node]);
+        }
+    }
+
     render(){
         const {muiTheme, overlay, selected, tooltipPosition='bottom-left'} = this.props;
         const light = new Color(muiTheme.palette.primary1Color).saturationl(15).lightness(73).toString();
         let onClick;
         const {tooltip, action, count} = this.findAction();
         if(action){
-            onClick = () => {action.apply();};
+            onClick = (e) => {
+                e.stopPropagation();
+                this.selectAndApply(action);
+            };
         }
         return (
             <IconButton
