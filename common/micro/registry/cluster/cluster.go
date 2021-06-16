@@ -79,6 +79,10 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 		consumerInbox: nats.NewInbox(),
 	}
 
+	if err := r.watch(); err != nil {
+		log.Warn("[nats cluster] error setting up main watcher", zap.Error(err))
+	}
+
 	// Trying to get the initial connection
 	go func() {
 		conn, err := r.getConn()
@@ -172,7 +176,7 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 	return r
 }
 
-func (r *clusterRegistry) watch(res *registry.Result) {
+func (r *clusterRegistry) send(res *registry.Result) {
 	var watchers []*clusterWatcher
 
 	r.RLock()
@@ -194,6 +198,26 @@ func (r *clusterRegistry) watch(res *registry.Result) {
 			}
 		}
 	}
+}
+
+func (r *clusterRegistry) watch() error {
+	localWatcher, err := r.local.Watch()
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for {
+			res, err := localWatcher.Next()
+			if err != nil {
+				continue
+			}
+
+			r.send(res)
+		}
+	}()
+
+	return nil
 }
 
 func (r *clusterRegistry) getConn() (*nats.Conn, error) {
@@ -490,6 +514,8 @@ func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
 	return mergeServices(localServices, clusterServices), nil
 }
 
+
+
 func (r *clusterRegistry) Watch(opts ...registry.WatchOption) (registry.Watcher, error) {
 	var wo registry.WatchOptions
 	for _, o := range opts {
@@ -502,21 +528,6 @@ func (r *clusterRegistry) Watch(opts ...registry.WatchOption) (registry.Watcher,
 		id:   uuid.New().String(),
 		wo:   wo,
 	}
-
-	localWatcher, err := r.local.Watch(opts...)
-	if err != nil {
-		return nil, err
-	}
-	go func() {
-		for {
-			res, err := localWatcher.Next()
-			if err != nil {
-				return
-			}
-
-			w.res <- res
-		}
-	}()
 
 	r.Lock()
 	r.watchers[w.id] = w
