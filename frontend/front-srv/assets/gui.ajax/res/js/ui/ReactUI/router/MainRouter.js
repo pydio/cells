@@ -28,6 +28,12 @@ const MainRouterWrapper = (pydio) => {
 
             pydio.getContextHolder().observe("context_changed", this.ctxObs);
             pydio.getContextHolder().observe("repository_list_refreshed", this.ctxObs);
+            pydio.observeOnce('user_logged', () => {
+                if(localStorage.getItem('loginOrigin')) {
+                    browserHistory.replace(localStorage.getItem('loginOrigin'));
+                    localStorage.removeItem('loginOrigin');
+                }
+            })
         }
 
         componentWillUnmount() {

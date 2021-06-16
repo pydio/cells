@@ -393,6 +393,7 @@ class MainFilesList extends React.Component {
                         pydio={pydio}
                         disableActions={!!searchResults}
                         tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
+                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
                     />
                 );
             });
@@ -539,7 +540,17 @@ class MainFilesList extends React.Component {
             const cell = <span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>;
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
         });
-        pieces.push(...otherPieces, ...standardPieces);
+        const metaIc = (<OverlayIcon
+            pydio={pydio}
+            node={node}
+            overlay={'mdi mdi-tag-outline'}
+            style={{height:22, width: 22, margin:'0 2px', padding: '0 2px'}}
+            disableActions={!!searchResults}
+            className={"metadata_chunk metadata_chunk_standard"}
+            tooltipPosition={'bottom-right'}
+            popoverDirection={'left'}
+        />);
+        pieces.push(...otherPieces, metaIc, ...standardPieces);
         return pieces;
 
     };
