@@ -68,8 +68,10 @@ export default class InfoPanel extends React.Component{
         const {MessageHash} = pydio;
         const values = this.state.updateData || new Map();
         const readOnly = node.getMetadata().get('node_readonly') === 'true';
+        let hasAction = false;
 
         if(!readOnly && values.size > 0) {
+            hasAction = true
             actions.push(
                 <FlatButton
                     key="edit"
@@ -77,6 +79,10 @@ export default class InfoPanel extends React.Component{
                     onClick={()=>{this.saveMeta()}}
                 />
             );
+        }
+        let style = {}
+        if(!hasAction) {
+            style = {paddingBottom: 16}
         }
 
         return (
@@ -97,6 +103,7 @@ export default class InfoPanel extends React.Component{
                     autoSave={()=>{
                         this.saveMeta();
                     }}
+                    style={style}
                 />
             </PydioWorkspaces.InfoPanelCard>
         );

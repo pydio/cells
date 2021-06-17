@@ -23,12 +23,13 @@ import {muiThemeable}from 'material-ui/styles'
 import Color from 'color'
 import {IconButton, Popover} from 'material-ui'
 const {AsyncComponent} = Pydio.requireLib('boot');
+const {IconButtonMenu} = Pydio.requireLib('components');
 
 class OverlayIcon extends Component{
 
     findAction(){
-        const {overlay, pydio, node, disableActions} = this.props;
-        let tooltip, action, count, popoverNS, popoverComponent;
+        const {overlay, pydio, node} = this.props;
+        let tooltip, count, popoverNS, popoverComponent;
         const m = (id) => pydio.MessageHash[id] || id;
         const isLeaf = node.isLeaf();
         switch(overlay){
@@ -36,7 +37,6 @@ class OverlayIcon extends Component{
                 tooltip = isLeaf ? m('overlay.bookmark.file'):m('overlay.bookmark.folder');
                 break;
             case "mdi mdi-share-variant":
-                //action = !disableActions && pydio.Controller.getActionByName("share-edit-shared");
                 popoverNS = 'ShareDialog'
                 popoverComponent = 'InfoPanel'
                 tooltip = isLeaf ? m('overlay.shared.file'):m('overlay.shared.folder');
@@ -63,7 +63,7 @@ class OverlayIcon extends Component{
             default:
                 break;
         }
-        return {tooltip, action, count, popoverNS, popoverComponent};
+        return {tooltip, count, popoverNS, popoverComponent};
     }
 
     selectAndApply(action) {
@@ -82,14 +82,9 @@ class OverlayIcon extends Component{
     render(){
         const {pydio, node, muiTheme, overlay, selected, tooltipPosition='bottom-left', popoverDirection, style, className} = this.props;
         const light = new Color(muiTheme.palette.primary1Color).saturationl(15).lightness(73).toString();
-        const {tooltip, action, count, popoverNS, popoverComponent} = this.findAction();
+        const {tooltip, count, popoverNS, popoverComponent} = this.findAction();
         let onClick;
-        if(action){
-            onClick = (e) => {
-                e.stopPropagation();
-                this.selectAndApply(action);
-            };
-        } else if(popoverComponent) {
+        if(popoverComponent) {
             onClick = (e) => {
                 e.stopPropagation();
                 pydio.getContextHolder().setSelectedNodes([node]);
@@ -117,7 +112,7 @@ class OverlayIcon extends Component{
                         targetOrigin={{horizontal: popoverDirection, vertical: 'top'}}
                         canAutoPosition={true}
                         onRequestClose={() => {this.setState({popoverOpen: false})}}
-                        style={{backgroundColor:'transparent', width: 270}}
+                        style={{backgroundColor:'transparent', width: 310}}
                         zDepth={0}
                     >
                         <AsyncComponent
@@ -126,6 +121,7 @@ class OverlayIcon extends Component{
                             pydio={pydio}
                             node={node}
                             popoverPanel={true}
+                            onLoad={()=>{window.dispatchEvent(new Event('resize'))}}
                         />
                     </Popover>
                     {ic}

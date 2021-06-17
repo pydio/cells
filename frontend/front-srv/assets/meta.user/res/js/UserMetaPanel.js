@@ -107,7 +107,7 @@ export default class UserMetaPanel extends React.Component{
     }
     render(){
         const {configs, updateMeta} = this.state;
-        const {node, editMode, onRequestEditMode, supportTemplates} = this.props;
+        const {pydio, node, editMode, onRequestEditMode, supportTemplates, multiple, style} = this.props;
         let data = [];
         const metadata = node.getMetadata();
         let nonEmptyDataCount = 0;
@@ -174,7 +174,7 @@ export default class UserMetaPanel extends React.Component{
                         );
                         break
                 }
-                if(this.props.multiple){
+                if(multiple){
                     const checked = this.state.fields[key] || false;
                     data.push(
                         <div className={"infoPanelRow"} key={key} style={{ marginBottom: 20}}>
@@ -230,7 +230,7 @@ export default class UserMetaPanel extends React.Component{
                 );
             }
         });
-        const mess = this.props.pydio.MessageHash;
+        const mess = pydio.MessageHash;
         if(!editMode && !nonEmptyDataCount){
             let divProps = {}
             if(onRequestEditMode) {
@@ -250,10 +250,10 @@ export default class UserMetaPanel extends React.Component{
             );
         } else {
             let legend;
-            if(this.props.multiple){
+            if(multiple){
                 legend = <div style={{paddingBottom: 16}}><em>{mess['meta.user.12']}</em> {mess['meta.user.13']}</div>
             }
-            return (<div style={{width: '100%', overflowY: 'scroll'}}>{legend}{data}</div>);
+            return (<div style={{width: '100%', overflowY: 'scroll', ...style}}>{legend}{data}</div>);
         }
     }
 

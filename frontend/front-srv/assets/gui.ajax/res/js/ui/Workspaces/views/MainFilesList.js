@@ -80,7 +80,7 @@ class ComponentConfigsParser {
         columnsNodes.forEach((colNode) => {
             let name = colNode.getAttribute('attributeName');
             let sortType = colNode.getAttribute('sortType');
-            const sorts = {'String':'string', 'StringDirFile':'string', 'MyDate':'number', 'CellSorterValue': 'number'};
+            const sorts = {'String':'string', 'StringDirFile':'string', 'MyDate':'number', 'CellSorterValue': 'number', 'Number': 'number'};
             sortType = sorts[sortType] || 'string';
             if(name === 'bytesize') {
                 sortType = 'number';

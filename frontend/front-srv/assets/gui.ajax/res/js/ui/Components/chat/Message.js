@@ -57,25 +57,29 @@ class Message extends React.Component {
                 textAlign: 'center',
             },
             comment: {
-                padding: '6px 8px',
+                padding: '6px 16px',
                 display: 'flex',
                 alignItems: 'flex-start'
             },
             commentContent: {
                 flex: '1',
-                marginLeft: 8,
+                backgroundColor:'transparent',
                 position: 'relative',
-                padding: '8px 10px',
-                backgroundColor: '#eee',
+                padding: '5px 10px',
                 userSelect:'text',
                 webkitUserSelect:'text'
             },
+            commentTitle: {
+                fontSize: 15,
+                fontWeight: 500,
+                padding: '2px 0px 6px',
+            },
             commentDeleteBox: {
                 position: 'absolute',
-                top: 9,
-                right: 5,
+                top: 5,
+                right: 0,
                 cursor: 'pointer',
-                fontSize: 20,
+                fontSize: 16,
                 color: '#424242',
                 opacity:0,
                 transition: DOMUtils.getBeziersTransition(),
@@ -93,18 +97,12 @@ class Message extends React.Component {
                     pydio={pydio}
                     userId={message.Author}
                     displayLabel={false}
-                    richOnHover={true}
+                    richOnHover={false}
                     avatarLetters={true}
                 />
             </div>
         );
         let textStyle = {...styles.commentContent};
-        if(authorIsLogged){
-            textStyle = {...textStyle, marginLeft: 0, marginRight: 8}
-        }
-        if(sameAuthor){
-            textStyle = {...textStyle, borderRadius: 0}
-        }
         let deleteBox;
         if(authorIsLogged){
             const {hover} = this.state;
@@ -119,14 +117,31 @@ class Message extends React.Component {
                 title={pydio.MessageHash['7']}
             />
         }
-        const text = (
+        let text = (
             <Paper zDepth={0} style={textStyle}>
                 {deleteBox}{message.Message}
             </Paper>
         );
+        if(!sameAuthor){
+            text = (
+                <div style={textStyle}>
+                    <div>
+                        <UserAvatar labelStyle={styles.commentTitle} pydio={pydio} displayLabel={true} displayAvatar={false} userId={message.Author}/>
+                    </div>
+                    <div>{deleteBox}{message.Message}</div>
+                </div>
+            )
+        }
+        let containerStyle = {}, commentStyle = {...styles.comment}
+        if(sameAuthor){
+            containerStyle = {...containerStyle, marginTop: -16}
+        }
+        if(this.state.hover){
+            commentStyle = {...commentStyle, backgroundColor:'rgba(0,0,0,.01)'}
+        }
 
         return (
-            <div style={sameAuthor ? {marginTop: -16} : {}}
+            <div style={containerStyle}
                  onMouseOver={()=>{this.setState({hover:true})}}
                  onMouseOut={()=>{this.setState({hover:false})}}
                  onContextMenu={(e) => {e.stopPropagation()}}
@@ -143,12 +158,7 @@ class Message extends React.Component {
                         <span style={styles.dateLine}/>
                     </div>
                 }
-                {authorIsLogged &&
-                    <div style={styles.comment}>{text} {avatar}</div>
-                }
-                {!authorIsLogged &&
-                    <div style={styles.comment}>{avatar} {text}</div>
-                }
+                <div style={commentStyle}>{avatar} {text}</div>
             </div>
         );
     }

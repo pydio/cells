@@ -87,7 +87,7 @@ class Chat extends React.Component{
                 return m.Uuid !== msg.Uuid;
             })})
         } else {
-            const messages = [...this.state.messages, msg].filter(m => !!m.Message);
+            const messages = [...this.state.messages.filter(m => m.Uuid !== msg.Uuid), msg].filter(m => !!m.Message);
             messages.sort((mA,mB) => {
                 if (mA.Timestamp === mB.Timestamp) {
                     return 0
