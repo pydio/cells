@@ -617,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Value"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Show as steps"
+  },
   "metadata.editor.tags.cleared": {
     "other": "Cleared tags for namespaces %s"
   },
@@ -661,6 +664,78 @@
   },
   "metadata.type": {
     "other": "Type"
+  },
+  "metadata.type.string": {
+    "other": "Short Text"
+  },
+  "metadata.type.textarea": {
+    "other": "Paragraph"
+  },
+  "metadata.type.integer": {
+    "other": "Number"
+  },
+  "metadata.type.boolean": {
+    "other": "True/False value"
+  },
+  "metadata.type.date": {
+    "other": "Date or Time"
+  },
+  "metadata.type.stars_rate": {
+    "other": "Stars Rating"
+  },
+  "metadata.type.css_label": {
+    "other": "Color Labels"
+  },
+  "metadata.type.tags": {
+    "other": "Extensible Tags"
+  },
+  "metadata.type.choice": {
+    "other": "Select from values"
+  },
+  "metadata.type.json": {
+    "other": "JSON (internal format)"
+  },
+  "metadata.type.date.format": {
+    "other": "Format"
+  },
+  "metadata.type.date.format.date": {
+    "other": "Date"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Date & Time"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Time"
+  },
+  "metadata.type.date.display": {
+    "other": "Display"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relative (xx days ago...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Reaction"
+  },
+  "metadata.type.integer.format": {
+    "other": "Format"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "General"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Byte Size"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Percentage"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Progress"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Show value in files list"
   },
   "perfs.booster.description": {
     "other": "Checks that Pydio Booster is started and enables WebSocket communication"

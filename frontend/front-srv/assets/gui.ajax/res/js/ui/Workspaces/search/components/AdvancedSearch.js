@@ -234,7 +234,7 @@ class AdvancedSearch extends Component {
                     {fields =>
                         <div>
                             {Object.keys(fields).map((key) =>
-                                <FieldRow {...rowProps} name={key} label={fields[key].label}>{this.renderField(key, fields[key])}</FieldRow>
+                                <FieldRow {...rowProps} name={key} label={typeof fields[key] === 'object' ?fields[key].label: fields[key]}>{this.renderField(key, fields[key])}</FieldRow>
                             )}
                         </div>
                     }

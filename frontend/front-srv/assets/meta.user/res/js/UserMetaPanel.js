@@ -170,6 +170,11 @@ export default class UserMetaPanel extends React.Component{
                                     }
                                     this.updateValue(key, value);
                                 }}
+                                onKeyPress={(event) => {
+                                    if(event.key === 'Enter'){
+                                        this.updateValue(key, value, true);
+                                    }
+                                }}
                             />
                         );
                         break

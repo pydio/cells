@@ -44,7 +44,7 @@ export default class Renderer{
         if(!node.getMetadata().get(column.name)){
             return null;
         }
-        return <span>Yes</span>
+        return <span><span className={"mdi mdi-check"} style={{color:'#4caf50'}}/> {column.label}</span>
     }
 
     static renderSelector(node, column){

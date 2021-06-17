@@ -72,6 +72,9 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		if ns.Indexable {
 			searchables[ns.Namespace] = ns.Label
 		}
+		if def.DefaultHide() {
+			column.AttrdefaultVisibilty = "false"
+		}
 
 		switch def.GetType() {
 		case "stars_rate":
