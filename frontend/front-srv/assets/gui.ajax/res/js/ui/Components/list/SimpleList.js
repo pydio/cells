@@ -311,21 +311,19 @@ let SimpleList = createReactClass({
             containerHeight     : this.props.containerHeight ? this.props.containerHeight  : (this.props.heightAutoWithMax ? 0 : 500),
             sortingInfo         : this.props.defaultSortingInfo || null
         };
-        if(this.props.elementHeight instanceof Object){
-            state.elementHeight = this.computeElementHeightResponsive();
-        }
         state.infiniteLoadBeginBottomOffset = 200;
         return state;
     },
 
     componentWillReceiveProps: function(nextProps) {
+        console.log(nextProps);
         this.indexedElements = null;
         const currentLength = Math.max(this.state.elements.length, nextProps.infiniteSliceCount);
         this.setState({
             loaded: nextProps.node.isLoaded(),
             loading:!nextProps.node.isLoaded(),
             showSelector:false,
-            elements:nextProps.node.isLoaded()?this.buildElements(0, currentLength, nextProps.node):[],
+            elements:nextProps.node.isLoaded()?this.buildElements(0, currentLength, nextProps.node, nextProps):[],
             infiniteLoadBeginBottomOffset:200,
             sortingInfo: this.state.sortingInfo || nextProps.defaultSortingInfo || null
         }, () => {if (nextProps.node.isLoaded()) this.updateInfiniteContainerHeight()});
@@ -405,7 +403,7 @@ let SimpleList = createReactClass({
         const currentLength = Math.max(this.state.elements.length, this.props.infiniteSliceCount);
         this.setState({
             loading:false,
-            elements:this.buildElements(0, currentLength, this.props.node)
+            elements:this.buildElements(0, currentLength)
         });
         if(this.props.heightAutoWithMax){
             this.updateInfiniteContainerHeight();
@@ -906,22 +904,23 @@ let SimpleList = createReactClass({
         return sortFunction;
     },
 
-    buildElements: function(start, end, node){
+    buildElements: function(start, end, node, nextProps = undefined){
         const theNode = node || this.props.node;
+        const props = nextProps || this.props;
 
         const sortFunction = this.prepareSortFunction();
 
         if(!this.indexedElements || this.indexedElements.length !== theNode.getChildren().size) {
             this.indexedElements = [];
             let groupBy, groupByLabel, groups, groupKeys, groupLabels;
-            if(this.props.defaultGroupBy){
-                groupBy = this.props.defaultGroupBy;
-                groupByLabel = this.props.groupByLabel || false;
+            if(props.defaultGroupBy){
+                groupBy = props.defaultGroupBy;
+                groupByLabel = props.groupByLabel || false;
                 groups = {}; groupKeys = []; groupLabels = {};
             }
 
-            if (!this.props.skipParentNavigation && theNode.getParent()
-                && (this.props.dataModel.getContextNode() !== theNode || this.props.skipInternalDataModel)) {
+            if (!props.skipParentNavigation && theNode.getParent()
+                && (props.dataModel.getContextNode() !== theNode || props.skipInternalDataModel)) {
                 this.indexedElements.push({node: theNode.getParent(), parent: true, actions: null});
             }
 
@@ -930,7 +929,7 @@ let SimpleList = createReactClass({
                     const childCursor = parseInt(child.getMetadata().get('cursor'));
                     this._currentCursor = Math.max((this._currentCursor ? this._currentCursor : 0), childCursor);
                 }
-                if(this.props.filterNodes && !this.props.filterNodes(child)){
+                if(props.filterNodes && !props.filterNodes(child)){
                     return;
                 }
                 const nodeActions = this.getActionsForNode(this.dm, child);
@@ -955,8 +954,8 @@ let SimpleList = createReactClass({
                     let label = k;
                     if(groupLabels[k]){
                         label = groupLabels[k];
-                    }else if(this.props.renderGroupLabels){
-                        label = this.props.renderGroupLabels(groupBy, k);
+                    }else if(props.renderGroupLabels){
+                        label = props.renderGroupLabels(groupBy, k);
                     }
                     this.indexedElements.push({
                         node: null,
@@ -974,13 +973,13 @@ let SimpleList = createReactClass({
 
         }
 
-        if(!this.props.defaultGroupBy && sortFunction) {
+        if(!props.defaultGroupBy && sortFunction) {
             this.indexedElements.sort(sortFunction);
         }
 
-        if(this.props.elementPerLine > 1){
-            end *= this.props.elementPerLine;
-            start *= this.props.elementPerLine;
+        if(props.elementPerLine > 1){
+            end *= props.elementPerLine;
+            start *= props.elementPerLine;
         }
         return this.indexedElements.slice(start, end);
     },

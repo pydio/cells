@@ -35,6 +35,7 @@ import CellsMessageToolbar from './CellsMessageToolbar'
 const {SimpleList} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
+import {debounce} from 'lodash'
 
 class ComponentConfigsParser {
 
@@ -233,12 +234,12 @@ class MainFilesList extends React.Component {
         dataModel.observe("context_changed", this._contextObserver);
         this.props.pydio.getController().updateGuiActions(this.getPydioActions());
 
-        this._thumbOserver = this.recomputeThumbnailsDimension.bind(this)
-        this._thumbOserver();
+        this.recomputeThumbnailsDimension();
+        this._thumbObserver = debounce(this.recomputeThumbnailsDimension.bind(this), 500);
         if(window.addEventListener){
-            window.addEventListener('resize', this._thumbOserver);
+            window.addEventListener('resize', this._thumbObserver);
         }else{
-            window.attachEvent('onresize', this._thumbOserver);
+            window.attachEvent('onresize', this._thumbObserver);
         }
         if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
             this.props.onDisplayModeChange(this.state.displayMode);
@@ -252,9 +253,9 @@ class MainFilesList extends React.Component {
             this.props.pydio.getController().deleteFromGuiActions(key);
         }.bind(this));
         if(window.addEventListener){
-            window.removeEventListener('resize', this._thumbOserver);
+            window.removeEventListener('resize', this._thumbObserver);
         }else{
-            window.detachEvent('onresize', this._thumbOserver);
+            window.detachEvent('onresize', this._thumbObserver);
         }
     }
 
