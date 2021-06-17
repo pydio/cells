@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"github.com/pydio/cells/common/utils/net"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"net/url"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro/broker"
@@ -16,6 +18,8 @@ func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
 	flags.String("registry", "memory", "Registry used to manage services (currently nats only)")
 	flags.String("broker", "memory", "Pub/sub service for events between services (currently nats only)")
 	flags.String("transport", "grpc", "Transport protocol for RPC")
+	flags.Int("port_registry", net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
+	flags.Int("port_broker", net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
 
 	if len(hideAll) > 0 && hideAll[0] {
 		flags.MarkHidden("registry")
@@ -36,35 +40,46 @@ func bindViperFlags(flags *pflag.FlagSet, replaceKeys map[string]string) {
 }
 
 // handleRegistry looks up for "registry" key in viper and starts the registry
-func handleRegistry() {
+func handleRegistry(){
+	addr := viper.GetString("registry")
+	u, err := url.Parse(addr)
+	if err != nil {
+		log.Fatal("Registry address is not right")
+		return
+	}
 
-	switch viper.Get("registry") {
-	case "service":
-		registry.EnableService()
+	switch u.Scheme {
+	case "grpc":
+		registry.EnableService(u.Hostname(), u.Port())
 	case "memory":
-		registry.EnableMemory()
-	// case "etcd":
-	// 	registry.EnableEtcd()
+		fallthrough
 	default:
-		log.Fatal("registry not supported - currently only nats is supported")
+		registry.EnableMemory()
 	}
 }
 
 // handleBroker looks up for "broker" key in viper and starts the registry
 func handleBroker() {
-	switch viper.Get("broker") {
+	addr := viper.GetString("broker")
+	u, err := url.Parse(addr)
+	if err != nil {
+		log.Fatal("broker address is not right")
+		return
+	}
+
+	switch u.Scheme {
 	case "nats":
 		broker.EnableNATS()
 	case "stan":
 		broker.EnableSTAN()
 	case "http":
 		broker.EnableHTTP()
+	case "grpc":
+		broker.EnableService(u.Hostname(), u.Port())
 	case "memory":
-		broker.EnableMemory()
-	case "service":
-		broker.EnableService()
+		fallthrough
 	default:
-		log.Fatal("broker not supported")
+		broker.EnableMemory()
 	}
 }
 

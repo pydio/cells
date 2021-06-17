@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/micro/go-micro"
 
@@ -85,7 +86,7 @@ func init() {
 func defaultMetas(ctx context.Context) error {
 	log.Logger(ctx).Info("Inserting default namespace for metadata")
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-	return dao.GetNamespaceDao().Add(&idm.UserMetaNamespace{
+	err := dao.GetNamespaceDao().Add(&idm.UserMetaNamespace{
 		Namespace:      "usermeta-tags",
 		Label:          "Tags",
 		Indexable:      true,
@@ -95,4 +96,14 @@ func defaultMetas(ctx context.Context) error {
 			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
 		},
 	})
+
+	me, ok := err.(*mysql.MySQLError)
+	if !ok {
+		return err
+	}
+	if me.Number == 1062 {
+		// This is a duplicate error, we ignore it
+		return nil
+	}
+	return err
 }

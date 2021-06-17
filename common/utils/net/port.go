@@ -55,6 +55,28 @@ func GetAvailableHttpAltPort() int {
 	return GetAvailablePort()
 }
 
+func GetAvailableRegistryAltPort() int {
+	alts := []int{8000, 8100, 8200, 8300, 8400}
+	for _, port := range alts {
+		if e := CheckPortAvailability(fmt.Sprintf("%d", port)); e == nil {
+			return port
+		}
+	}
+	// Return random now
+	return GetAvailablePort()
+}
+
+func GetAvailableBrokerAltPort() int {
+	alts := []int{8003, 8103, 8203, 8303, 8403}
+	for _, port := range alts {
+		if e := CheckPortAvailability(fmt.Sprintf("%d", port)); e == nil {
+			return port
+		}
+	}
+	// Return random now
+	return GetAvailablePort()
+}
+
 // GetAvailablePort finds an available TCP port on which to listen to.
 func GetAvailablePort() int {
 	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")

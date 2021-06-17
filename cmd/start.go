@@ -22,21 +22,17 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
-	"time"
-
-	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-
+	microregistry "github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/metrics"
 	"github.com/pydio/cells/x/filex"
+	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 var (
@@ -257,7 +253,6 @@ ENVIRONMENT
 	},
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		// Start services that have not been deregistered via flags and filtering.
 		for _, service := range allServices {
 			if !IsFork && service.RequiresFork() {
@@ -270,6 +265,8 @@ ENVIRONMENT
 			}
 
 			select {
+			case <-microregistry.DefaultRegistry.Options().Context.Done():
+				return nil
 			case <-cmd.Context().Done():
 				return nil
 			default:
@@ -277,22 +274,10 @@ ENVIRONMENT
 			}
 		}
 
-		// When the process is stopped the context is stopped
-		ticker := time.NewTicker(1 * time.Minute)
-		defer ticker.Stop()
-
 		for {
 			select {
-			//case <-ticker.C:
-			//	if defaults.RuntimeIsFork() {
-			//		// Check that the parent is still alive
-			//		ppid := fmt.Sprintf("%d", os.Getppid())
-			//		_, ok := registry.GetProcesses()[ppid]
-			//		if !ok {
-			//			return errors.New("parent process died")
-			//		}
-			//	}
-			//	continue
+			case <-microregistry.DefaultRegistry.Options().Context.Done():
+				return nil
 			case <-cmd.Context().Done():
 				return nil
 			}
@@ -300,28 +285,6 @@ ENVIRONMENT
 	},
 
 	PostRunE: func(cmd *cobra.Command, args []string) error {
-		// Checking that the processes are done
-		ticker := time.Tick(1 * time.Second)
-		// In any case, we stop after 10 seconds even if a service is still registered somehow
-		timeout := time.After(10 * time.Second)
-
-		for {
-			select {
-			case <-ticker:
-				process := registry.Default.GetCurrentProcess()
-				childrenProcesses := registry.Default.GetCurrentChildrenProcesses()
-				if (process == nil || len(process.Services) == 0) && len(childrenProcesses) == 0 {
-					return nil
-				}
-				if process != nil {
-					log.Debug("Services are still running ", zap.Any("services", process.Services))
-				}
-				continue
-			case <-timeout:
-				return nil
-			}
-		}
-
 		return nil
 	},
 }

@@ -88,8 +88,8 @@ func buildForkStartParams(serviceName string) []string {
 		"start",
 		"--fork",
 		// "--config", "remote",
-		"--registry", "service",
-		"--broker", "service",
+		"--registry", fmt.Sprintf("grpc://:%d", viper.GetInt("port_registry")),
+		"--broker", fmt.Sprintf("grpc://:%d", viper.GetInt("port_broker")),
 	}
 	if viper.GetBool("enable_metrics") {
 		params = append(params, "--enable_metrics")

@@ -129,12 +129,12 @@ func EnableMemory() {
 	broker.Connect()
 }
 
-func EnableService() {
+func EnableService(hostname, port string) {
 	b := service.NewBroker(
 		service.WithClient(
 			grpc.NewClient(
 				client.RequestTimeout(10*time.Minute),
-				client.Selector(bs.NewSelector()),
+				client.Selector(bs.NewSelector(hostname, port)),
 			),
 		),
 	)

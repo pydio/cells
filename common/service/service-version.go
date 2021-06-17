@@ -23,9 +23,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/hashicorp/go-version"
@@ -63,33 +60,14 @@ func Latest() *version.Version {
 // LastKnownVersion looks on this server if there was a previous version of this service
 func LastKnownVersion(serviceName string) (v *version.Version, e error) {
 
-	serviceDir, e := config.ServiceDataDir(serviceName)
-	if e != nil {
-		return nil, e
-	}
-	versionFile := filepath.Join(serviceDir, "version")
+	versionFile := config.Get("versions", serviceName).Default("0.0.0").String()
 
-	data, err := ioutil.ReadFile(versionFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			fake, _ := version.NewVersion("0.0.0")
-			return fake, nil
-		}
-		return nil, err
-	}
-	return version.NewVersion(strings.TrimSpace(string(data)))
-
+	return version.NewVersion(versionFile)
 }
 
 // UpdateVersion writes the version string to file
 func UpdateVersion(serviceName string, v *version.Version) error {
-
-	dir, err := config.ServiceDataDir(serviceName)
-	if err != nil {
-		return err
-	}
-	versionFile := filepath.Join(dir, "version")
-	return ioutil.WriteFile(versionFile, []byte(v.String()), 0755)
+	return config.Get("versions", serviceName).Set(v.String())
 }
 
 // UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.

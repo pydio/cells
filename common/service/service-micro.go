@@ -27,6 +27,7 @@ import (
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/selector/cache"
 	server "github.com/micro/go-micro/server"
+	"github.com/pydio/cells/common/utils/net"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -85,7 +86,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			var srvOpts []server.Option
 			if o.Port != "" {
-				srvOpts = append(srvOpts, server.Address(":"+o.Port))
+				srvOpts = append(srvOpts, server.Address(net.DefaultAdvertiseAddress + ":"+o.Port))
 			}
 			if o.TLSConfig != nil {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
