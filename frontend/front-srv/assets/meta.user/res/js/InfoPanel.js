@@ -18,9 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import MetaClient from "./MetaClient";
 import UserMetaPanel from './UserMetaPanel'
 import {FlatButton} from 'material-ui';
+const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
 export default class InfoPanel extends React.Component{
 
@@ -86,7 +88,7 @@ export default class InfoPanel extends React.Component{
         }
 
         return (
-            <PydioWorkspaces.InfoPanelCard
+            <InfoPanelCard
                 identifier={"meta-user"}
                 style={this.props.style}
                 title={this.props.pydio.MessageHash['meta.user.1']}
@@ -105,7 +107,7 @@ export default class InfoPanel extends React.Component{
                     }}
                     style={style}
                 />
-            </PydioWorkspaces.InfoPanelCard>
+            </InfoPanelCard>
         );
     }
 

@@ -45,6 +45,8 @@ class OverlayIcon extends Component{
                 tooltip = isLeaf ? m('overlay.lock.file'):m('overlay.lock.folder');
                 break;
             case "mdi mdi-bell":
+                popoverNS = 'PydioActivityStreams';
+                popoverComponent = 'OverlayPanel';
                 tooltip = isLeaf ? m('overlay.watch.file'):m('overlay.watch.folder');
                 break;
             case "mdi mdi-tag":
