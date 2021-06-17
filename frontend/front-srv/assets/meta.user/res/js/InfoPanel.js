@@ -64,7 +64,7 @@ export default class InfoPanel extends React.Component{
 
     render(){
         let actions = [];
-        const {pydio, node} = this.props;
+        const {pydio, node, popoverPanel} = this.props;
         const {MessageHash} = pydio;
         const values = this.state.updateData || new Map();
         const readOnly = node.getMetadata().get('node_readonly') === 'true';
@@ -86,6 +86,7 @@ export default class InfoPanel extends React.Component{
                 title={this.props.pydio.MessageHash['meta.user.1']}
                 actions={actions.length ? actions : null}
                 icon="tag-multiple" iconColor="#00ACC1"
+                popoverPanel={popoverPanel}
             >
                 <UserMetaPanel
                     ref="panel"

@@ -120,7 +120,13 @@ class OverlayIcon extends Component{
                         style={{backgroundColor:'transparent', width: 270}}
                         zDepth={0}
                     >
-                        <AsyncComponent namespace={popoverNS} componentName={popoverComponent} pydio={pydio} node={node}/>
+                        <AsyncComponent
+                            namespace={popoverNS}
+                            componentName={popoverComponent}
+                            pydio={pydio}
+                            node={node}
+                            popoverPanel={true}
+                        />
                     </Popover>
                     {ic}
                 </Fragment>

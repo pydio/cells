@@ -35,11 +35,11 @@ class InfoPanel extends React.Component {
 
     render(){
 
-        const {pydio, node} = this.props;
+        const {pydio, node, popoverPanel} = this.props;
 
         if(node.isRoot()){
             return (
-                <PydioWorkspaces.InfoPanelCard>
+                <PydioWorkspaces.InfoPanelCard popoverPanel={popoverPanel}>
                     <div style={{padding:0}}>
                         <CellCard cellId={pydio.user.activeRepository} pydio={pydio} mode="infoPanel"/>
                     </div>
@@ -47,7 +47,7 @@ class InfoPanel extends React.Component {
             );
         } else {
             return (
-                <PydioWorkspaces.InfoPanelCard>
+                <PydioWorkspaces.InfoPanelCard popoverPanel={popoverPanel}>
                     <div style={{padding:0}}>
                         <CompositeCard node={node} pydio={pydio} mode="infoPanel"/>
                     </div>
