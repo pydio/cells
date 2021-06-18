@@ -17,16 +17,19 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import React from 'react'
+import React, {Fragment, Component} from 'react'
+import Pydio from 'pydio'
 import {muiThemeable}from 'material-ui/styles'
 import Color from 'color'
-import {IconButton} from 'material-ui'
+import {IconButton, Popover} from 'material-ui'
+const {AsyncComponent} = Pydio.requireLib('boot');
+const {IconButtonMenu} = Pydio.requireLib('components');
 
-class OverlayIcon extends React.Component{
+class OverlayIcon extends Component{
 
     findAction(){
         const {overlay, pydio, node} = this.props;
-        let tooltip, action, count;
+        let tooltip, count, popoverNS, popoverComponent;
         const m = (id) => pydio.MessageHash[id] || id;
         const isLeaf = node.isLeaf();
         switch(overlay){
@@ -34,44 +37,102 @@ class OverlayIcon extends React.Component{
                 tooltip = isLeaf ? m('overlay.bookmark.file'):m('overlay.bookmark.folder');
                 break;
             case "mdi mdi-share-variant":
-                action = pydio.Controller.getActionByName("share-edit-shared");
+                popoverNS = 'ShareDialog'
+                popoverComponent = 'InfoPanel'
                 tooltip = isLeaf ? m('overlay.shared.file'):m('overlay.shared.folder');
                 break;
             case "mdi mdi-lock-outline":
                 tooltip = isLeaf ? m('overlay.lock.file'):m('overlay.lock.folder');
                 break;
             case "mdi mdi-bell":
+                popoverNS = 'PydioActivityStreams';
+                popoverComponent = 'OverlayPanel';
                 tooltip = isLeaf ? m('overlay.watch.file'):m('overlay.watch.folder');
+                break;
+            case "mdi mdi-tag":
+            case "mdi mdi-tag-outline":
+                tooltip = ''
+                popoverNS = 'ReactMeta'
+                popoverComponent = 'InfoPanel'
                 break;
             case "mdi mdi-message-outline":
             case "mdi mdi-message":
                 count = node.getMetadata().get('has_comments');
                 tooltip = count + ' comment' + (count > 1 ? 's' : '');
+                popoverNS = 'MetaComments'
+                popoverComponent = 'InfoPanel'
                 break;
             default:
                 break;
         }
-        return {tooltip, action, count};
+        return {tooltip, count, popoverNS, popoverComponent};
+    }
+
+    selectAndApply(action) {
+        const {pydio, node} = this.props;
+        const dm = pydio.getContextHolder();
+        if(dm.getUniqueNode() === node) {
+            action.apply();
+        } else {
+            pydio.observeOnce('actions_refreshed', () => {
+                action.apply();
+            })
+            dm.setSelectedNodes([node]);
+        }
     }
 
     render(){
-        const {muiTheme, overlay, selected, tooltipPosition='bottom-left'} = this.props;
+        const {pydio, node, muiTheme, overlay, selected, tooltipPosition='bottom-left', popoverDirection, style, className} = this.props;
         const light = new Color(muiTheme.palette.primary1Color).saturationl(15).lightness(73).toString();
+        const {tooltip, count, popoverNS, popoverComponent} = this.findAction();
         let onClick;
-        const {tooltip, action, count} = this.findAction();
-        if(action){
-            onClick = () => {action.apply();};
+        if(popoverComponent) {
+            onClick = (e) => {
+                e.stopPropagation();
+                pydio.getContextHolder().setSelectedNodes([node]);
+                this.setState({popoverAnchor: e.currentTarget, popoverOpen: true})
+            }
         }
-        return (
+        const ic = (
             <IconButton
                 tooltip={tooltip}
                 tooltipPosition={tooltipPosition}
-                iconClassName={overlay + ' overlay-icon-span'}
-                style={{width: 30, height: 30, padding:6, margin: '6px 2px', zIndex:0, cursor:onClick?'pointer':'default'}}
+                iconClassName={overlay + ' overlay-icon-span' + (className?' '+className:'')}
+                style={{width: 30, height: 30, padding:6, margin: '6px 2px', zIndex:0, cursor:onClick?'pointer':'default', ...style}}
                 iconStyle={{color: selected? 'white' : light, fontSize:15, transition:'none'}}
                 onClick={onClick}
                 data-icon-count={count}
             />);
+        if(popoverComponent) {
+            const {popoverAnchor, popoverOpen} = this.state || {}
+            return (
+                <Fragment>
+                    <Popover
+                        open={popoverOpen}
+                        anchorEl={popoverAnchor}
+                        anchorOrigin={{horizontal: popoverDirection, vertical: 'top'}}
+                        targetOrigin={{horizontal: popoverDirection, vertical: 'top'}}
+                        canAutoPosition={true}
+                        onRequestClose={() => {this.setState({popoverOpen: false})}}
+                        style={{backgroundColor:'transparent', width: 310}}
+                        zDepth={0}
+                    >
+                        <AsyncComponent
+                            namespace={popoverNS}
+                            componentName={popoverComponent}
+                            pydio={pydio}
+                            node={node}
+                            popoverPanel={true}
+                            onLoad={()=>{window.dispatchEvent(new Event('resize'))}}
+                        />
+                    </Popover>
+                    {ic}
+                </Fragment>
+            );
+        } else {
+            return ic
+        }
+
     }
 
 }

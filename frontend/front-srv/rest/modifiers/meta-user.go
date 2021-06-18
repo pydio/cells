@@ -72,6 +72,9 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		if ns.Indexable {
 			searchables[ns.Namespace] = ns.Label
 		}
+		if def.DefaultHide() {
+			column.AttrdefaultVisibilty = "false"
+		}
 
 		switch def.GetType() {
 		case "stars_rate":
@@ -103,6 +106,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			}
 		case "integer":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderInteger"
+			column.AttrsortType = "Number"
 			if def.GetData() != nil {
 				remarshed, _ := json.Marshal(def.GetData())
 				column.AttrmetaAdditional = string(remarshed)
@@ -112,11 +116,13 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 			}
 		case "boolean":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderBoolean"
+			column.AttrsortType = "Number"
 			if ns.Indexable {
 				searchableRenderers[ns.Namespace] = "ReactMeta.Renderer.formPanelBoolean"
 			}
 		case "date":
 			column.AttrreactModifier = "ReactMeta.Renderer.renderDate"
+			column.AttrsortType = "Number"
 			if def.GetData() != nil {
 				remarshed, _ := json.Marshal(def.GetData())
 				column.AttrmetaAdditional = string(remarshed)

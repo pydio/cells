@@ -98,7 +98,10 @@ class InfoPanelCard extends React.Component{
 
     constructor(props){
         super(props);
-        if (props.identifier && CardsStates[props.identifier] !== undefined){
+        if (props.popoverPanel) {
+            // Force open
+            this.state = {open: true};
+        } else if (props.identifier && CardsStates[props.identifier] !== undefined){
             this.state = {open: CardsStates[props.identifier]};
         } else if (props.identifier) {
             this.state = {open: props.defaultOpen || false};
@@ -118,15 +121,22 @@ class InfoPanelCard extends React.Component{
 
     render(){
         const {open, hoverRow} = this.state;
-        const {primaryToolbars, muiTheme, pydio, standardData} = this.props;
+        const {primaryToolbars, muiTheme, pydio, standardData, popoverPanel} = this.props;
         const styles = getStyles(muiTheme.palette);
-        const icon = (
-            <div
-                style={styles.card.headerIcon}>
-                <IconButton onClick={()=>{this.toggle()}} iconStyle={{color:styles.card.headerIcon.color}} iconClassName={"mdi mdi-chevron-" + (open?'up':'down')}/>
-            </div>);
-
-        let title = this.props.title ? <Paper zDepth={0} style={styles.card.header} onClick={()=>{this.toggle()}}>{icon}{this.props.title}</Paper> : null;
+        let title;
+        if(popoverPanel) {
+            // No toggle icon
+            title = this.props.title ? <Paper zDepth={0} style={{...styles.card.header, cursor: 'default'}}>{this.props.title}</Paper> : null;
+        } else {
+            // Add toggle icon
+            const icon = (
+                <div
+                    style={styles.card.headerIcon}>
+                    <IconButton onClick={()=>{this.toggle()}} iconStyle={{color:styles.card.headerIcon.color}} iconClassName={"mdi mdi-chevron-" + (open?'up':'down')}/>
+                </div>
+            );
+            title = this.props.title ? <Paper zDepth={0} style={styles.card.header} onClick={()=>{this.toggle()}}>{icon}{this.props.title}</Paper> : null;
+        }
         let actions = this.props.actions ? <div style={styles.card.actions}>{this.props.actions}</div> : null;
         let rows, toolBar;
         if(standardData){

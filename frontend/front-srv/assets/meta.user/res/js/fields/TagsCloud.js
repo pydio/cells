@@ -54,6 +54,8 @@ class TagsCloud extends React.Component {
             this.setState({tags: node.getMetadata().get(column.name)});
         }else if(value){
             this.setState({tags: value});
+        } else {
+            this.setState({tags: ''})
         }
         if(nextProps.editMode && !this.state.loaded) {
             this.load();
@@ -173,22 +175,12 @@ class TagsCloud extends React.Component {
             autoCompleter = <div></div>
         }
 
-        if(search){
-            return (
-                <div style={{marginBottom: 8}}>
-                    {autoCompleter}
-                    <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: 8}}>{tagsList}</div>
-                </div>
-            )
-        } else {
-            return (
-                <div>
-                    <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8}}>{tagsList}</div>
-                    {autoCompleter}
-                </div>
-            );
-
-        }
+        return (
+            <div style={search?{marginBottom: 8}:{}}>
+                {autoCompleter}
+                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: 8}}>{tagsList}</div>
+            </div>
+        )
     }
 }
 

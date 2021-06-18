@@ -122,11 +122,12 @@ class SelectionBoard extends React.Component{
     render() {
         const {data, m, setAdditionalDataKey} = this.props;
         const {selectorNewKey, selectorNewValue, selectorNewColor} = this.state;
+        const {items = []} = data;
         return(
             <Fragment>
             <div style={{padding: 10, paddingRight: 0, backgroundColor: '#f5f5f5', borderRadius: 3}}>
                 <div style={{fontSize: 13}}>{m('editor.selection')}</div>
-                <div>{data.items.map(i => {
+                <div>{items.map(i => {
                     const {key, value, color} = i;
                     return (
                         <div key={key} style={{display:'flex', alignItems:'center'}}>
@@ -147,8 +148,8 @@ class SelectionBoard extends React.Component{
                     <span><IconButton iconClassName={"mdi mdi-plus"} onClick={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue}/></span>
                 </div>
             </div>
-            <div style={{padding:'6px 0'}}>
-                <Toggle label={m('editor.selection.steps')} labelPosition={"left"} toggled={data.steps} onToggle={(e,v) => setAdditionalDataKey('steps', v)} {...ModernStyles.toggleField}/>
+            <div>
+                <Toggle label={m('editor.selection.steps')} labelPosition={"left"} toggled={data.steps} onToggle={(e,v) => setAdditionalDataKey('steps', v)} {...ModernStyles.toggleFieldV2}/>
             </div>
             </Fragment>
         );
@@ -192,11 +193,11 @@ class MetaPoliciesBuilder extends React.Component {
 
         return (
             <Fragment>
-                <div style={{padding:'6px 0'}}>
-                    <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleField}/>
+                <div>
+                    <Toggle label={m('toggle.read')} disabled={readonly} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}} {...ModernStyles.toggleFieldV2}/>
                 </div>
-                <div style={{padding:'6px 0'}}>
-                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleField}/>
+                <div>
+                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead || readonly} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}} {...ModernStyles.toggleFieldV2}/>
                 </div>
             </Fragment>
         )
@@ -228,7 +229,15 @@ class MetaNamespace extends React.Component{
     }
 
     componentWillReceiveProps(props){
-        this.setState({namespace: this.cloneNs(props.namespace)});
+        if(props.open === this.props.open) {
+            return;
+        }
+        const {create, namespaces} = props;
+        const newNS = this.cloneNs(props.namespace);
+        if(create && namespaces.length){
+            newNS.Order = namespaces.map(ns => ns.Order || 0).reduce((a,c) => Math.max(a,c), 0) + 1;
+        }
+        this.setState({namespace: newNS});
     }
 
     updateType(value){
@@ -238,6 +247,16 @@ class MetaNamespace extends React.Component{
             newType.data = {format: 'date', display:'normal'};
         }
         namespace.JsonDefinition = JSON.stringify(newType);
+        this.setState({namespace});
+    }
+
+    updateLabel(value) {
+        const {create} = this.props;
+        const {namespace} = this.state;
+        if(create && (!namespace.Namespace || namespace.Namespace === 'usermeta-' + LangUtils.computeStringSlug(namespace.Label))){
+            this.updateName(value);
+        }
+        namespace.Label = value;
         this.setState({namespace});
     }
 
@@ -257,6 +276,22 @@ class MetaNamespace extends React.Component{
             this.props.onRequestClose();
             this.props.reloadList();
         })
+    }
+
+    getHideValue(){
+        const {namespace} = this.state;
+        try {
+            return JSON.parse(namespace.JsonDefinition).hide
+        } catch(e) {
+            return false
+        }
+    }
+
+    setHideValue(v) {
+        const {namespace} = this.state;
+        const def = JSON.parse(namespace.JsonDefinition);
+        namespace.JsonDefinition = JSON.stringify({...def, hide: v})
+        this.setState({namespace});
     }
 
     getAdditionalData(defaultValue = {}){
@@ -331,8 +366,11 @@ class MetaNamespace extends React.Component{
                 nameError = m('editor.ns.exists');
             }
         }
-        if (type === 'choice' && this.getAdditionalData({items:[]}).items.length === 0) {
-            invalid = true;
+        if (type === 'choice') {
+            const choiceItems = this.getAdditionalData({items:[]}).items;
+            if(!choiceItems || !choiceItems.length) {
+                invalid = true;
+            }
         }
 
         let adminRead, adminWrite;
@@ -370,12 +408,21 @@ class MetaNamespace extends React.Component{
                 title={title}
                 actions={actions}
                 modal={false}
-                contentStyle={{width: 360}}
+                contentStyle={{width: 520}}
                 open={this.props.open}
                 onRequestClose={this.props.onRequestClose}
                 autoScrollBodyContent={true}
                 bodyStyle={{padding: 20}}
             >
+                <ModernTextField
+                    floatingLabelText={m('label')}
+                    value={namespace.Label}
+                    onChange={(e,v) => {this.updateLabel(v)}}
+                    fullWidth={true}
+                    errorText={labelError}
+                    disabled={readonly}
+                    variant={"v2"}
+                />
                 <ModernTextField
                     floatingLabelText={m('namespace')}
                     disabled={!create}
@@ -383,14 +430,7 @@ class MetaNamespace extends React.Component{
                     onChange={(e,v) => {this.updateName(v)}}
                     fullWidth={true}
                     errorText={nameError}
-                />
-                <ModernTextField
-                    floatingLabelText={m('label')}
-                    value={namespace.Label}
-                    onChange={(e,v) => {namespace.Label = v; this.setState({namespace})}}
-                    fullWidth={true}
-                    errorText={labelError}
-                    disabled={readonly}
+                    variant={"v2"}
                 />
                 <div style={styles.section}>{m('type')}</div>
                 <ModernSelectField
@@ -398,9 +438,11 @@ class MetaNamespace extends React.Component{
                     value={type}
                     onChange={(e,i,v) => this.updateType(v)}
                     disabled={readonly}
-                    fullWidth={true}>
+                    fullWidth={true}
+                    variant={"v2"}
+                >
                     {Object.keys(Metadata.MetaTypes).map(k => {
-                        return <MenuItem value={k} primaryText={Metadata.MetaTypes[k]}/>
+                        return <MenuItem value={k} primaryText={m('type.'+k) || Metadata.MetaTypes[k]}/>
                     })}
                 </ModernSelectField>
                 {type === 'choice' &&
@@ -417,7 +459,9 @@ class MetaNamespace extends React.Component{
                             value={this.getAdditionalData({format:'date', display:'normal'}).format}
                             onChange={(e,i,v) => this.setAdditionalDataKey('format', v)}
                             disabled={readonly}
-                            fullWidth={true}>
+                            fullWidth={true}
+                            variant={"v2"}
+                        >
                             <MenuItem value={'date'} primaryText={m('type.date.format.date')}/>
                             <MenuItem value={'date-time'} primaryText={m('type.date.format.date-time')}/>
                             <MenuItem value={'time'} primaryText={m('type.date.format.time')}/>
@@ -427,7 +471,9 @@ class MetaNamespace extends React.Component{
                             value={this.getAdditionalData({format:'date', display:'normal'}).display}
                             onChange={(e,i,v) => this.setAdditionalDataKey('display', v)}
                             disabled={readonly}
-                            fullWidth={true}>
+                            fullWidth={true}
+                            variant={"v2"}
+                        >
                             <MenuItem value={'normal'} primaryText={m('type.date.display.normal')}/>
                             <MenuItem value={'relative'} primaryText={m('type.date.display.relative')}/>
                         </ModernSelectField>
@@ -440,7 +486,9 @@ class MetaNamespace extends React.Component{
                             value={this.getAdditionalData({format:'general'}).format || 'general'}
                             onChange={(e,i,v) => this.setAdditionalDataKey('format', v)}
                             disabled={readonly}
-                            fullWidth={true}>
+                            fullWidth={true}
+                            variant={"v2"}
+                        >
                             <MenuItem value={'general'} primaryText={m('type.integer.format.general')}/>
                             <MenuItem value={'bytesize'} primaryText={m('type.integer.format.bytesize')}/>
                             <MenuItem value={'percentage'} primaryText={m('type.integer.format.percentage')}/>
@@ -450,9 +498,22 @@ class MetaNamespace extends React.Component{
                 }
 
                 <div style={styles.section}>{Pydio.getInstance().MessageHash[310]}</div>
-                <div style={{padding:'6px 0'}}>
-                    <Toggle label={m('toggle.index')} disabled={readonly} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}} {...ModernStyles.toggleField}/>
-                </div>
+                <Toggle
+                    label={m('toggle.list-visibility')}
+                    disabled={readonly}
+                    labelPosition={"left"}
+                    toggled={!this.getHideValue()}
+                    onToggle={(e,v) => {this.setHideValue(!v)}}
+                    {...ModernStyles.toggleFieldV2}
+                />
+                <Toggle
+                    label={m('toggle.index')}
+                    disabled={readonly}
+                    labelPosition={"left"}
+                    toggled={namespace.Indexable}
+                    onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}}
+                    {...ModernStyles.toggleFieldV2}
+                />
                 {PoliciesBuilder &&
                     <PoliciesBuilder
                         policies={namespace.Policies}
@@ -469,6 +530,7 @@ class MetaNamespace extends React.Component{
                     fullWidth={true}
                     type={"number"}
                     readOnly={readonly}
+                    variant={"v2"}
                 />
             </Dialog>
 
@@ -479,7 +541,8 @@ class MetaNamespace extends React.Component{
 
 MetaNamespace.PropTypes = {
     namespace: PropTypes.instanceOf(IdmUserMetaNamespace).isRequired,
-    create:PropTypes.boolean,
+    namespaces: PropTypes.arrayOf(IdmUserMetaNamespace),
+    create:PropTypes.bool,
     reloadList: PropTypes.func,
     onRequestClose: PropTypes.func,
 };

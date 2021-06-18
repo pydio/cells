@@ -725,6 +725,22 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .overlay_icon_div span.overlay-icon-span {
   color: #b0bec4 !important;
 }
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-icon {
+  display: none;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-text {
+  border-top-width: 0;
+  top: 0;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: center;
+      justify-content: center;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
+  font-size: 15px;
+}
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry {
   margin: 4px;
 }
@@ -1972,51 +1988,51 @@ div.menu.desktop a span.ajxp_icon_span {
   overflow-y: auto;
   font-weight: 400;
 }
-#info_panel .panelCard .panelHeader {
+.panelCard .panelHeader {
   padding: 24px 16px 16px;
   font-size: 19px;
   font-weight: 400;
 }
-#info_panel .panelCard .panelContent {
+.panelCard .panelContent {
   background-color: transparent;
   padding-bottom: 0;
   border-radius: 2px 2px 0 0 ;
 }
-#info_panel .panelCard .panelContent > div {
+.panelCard .panelContent > div {
   padding: 0 16px;
 }
-#info_panel .panelCard .panelContent > div.richPreviewContainer {
+.panelCard .panelContent > div.richPreviewContainer {
   padding: 0;
   overflow: hidden;
 }
-#info_panel .panelCard .panelContent div.mimefont-container {
+.panelCard .panelContent div.mimefont-container {
   display: -ms-flexbox;
   display: flex;
   text-align: center;
   font-size: 60px;
 }
-#info_panel .panelCard .panelContent div.mimefont-container div.mimefont {
+.panelCard .panelContent div.mimefont-container div.mimefont {
   margin: auto;
 }
-#info_panel .panelCard .panelContent div.covering-bg-preview {
+.panelCard .panelContent div.covering-bg-preview {
   border-radius: 2px 2px 0 0 ;
 }
-#info_panel .panelCard .panelContent .infoPanelRow {
-  padding-bottom: 12px;
+.panelCard .panelContent .infoPanelRow {
+  padding-bottom: 6px;
 }
-#info_panel .panelCard .panelContent .infoPanelRow.no-value {
+.panelCard .panelContent .infoPanelRow.no-value {
   display: none;
 }
-#info_panel .panelCard .panelContent .infoPanelRow .infoPanelLabel {
-  color: rgba(0, 0, 0, 0.33);
+.panelCard .panelContent .infoPanelRow .infoPanelLabel {
+  color: rgba(0, 0, 0, 0.73);
   font-weight: 500;
 }
-#info_panel .panelCard .panelActions {
+.panelCard .panelActions {
   padding: 8px;
   text-align: right;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
-#info_panel .panelCard .primaryToolbar {
+.panelCard .primaryToolbar {
   background-color: white;
   padding: 2px !important;
   -ms-flex-align: start;
@@ -2025,51 +2041,21 @@ div.menu.desktop a span.ajxp_icon_span {
       justify-content: flex-end;
   border-radius: 0 0 2px 2px;
 }
-#info_panel .panelCard .primaryToolbar.empty-toolbar {
+.panelCard .primaryToolbar.empty-toolbar {
   display: none;
 }
-#info_panel .panelCard .primaryToolbar .mui-flat-button {
-  min-width: 0;
-  margin: 0 1px;
-}
-#info_panel .panelCard .primaryToolbar .mui-flat-button .mui-flat-button-label {
-  color: white;
-  display: block;
-  padding: 0 5px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  line-height: 19px;
-}
-#info_panel .panelCard .primaryToolbar .mui-flat-button .mui-flat-button-label span.button-icon span.button-icon-icon {
-  display: block;
-  font-size: 17px;
-  height: 24px;
-  line-height: 20px;
-}
-#info_panel .panelCard .primaryToolbar .mui-flat-button .mui-flat-button-label span.button-icon span.button-icon-label {
-  font-size: 13px;
-}
-#info_panel .panelCard .primaryToolbar .action-open_with button {
+.panelCard .primaryToolbar .action-open_with button {
   min-width: 0 !important;
 }
-#info_panel .panelCard .primaryToolbar .action-open_with button > div > span {
+.panelCard .primaryToolbar .action-open_with button > div > span {
   padding-right: 4px !important;
   padding-left: 4px !important;
 }
-#info_panel .panelCard .primaryToolbar .action-open_with button > div > span > span .button-icon {
+.panelCard .primaryToolbar .action-open_with button > div > span > span .button-icon {
   display: none;
 }
-#info_panel .panelCard .primaryToolbar .action-open_with button > div > span > span .icon-caret-down {
+.panelCard .primaryToolbar .action-open_with button > div > span > span .icon-caret-down {
   color: white;
-}
-#info_panel .panelCard .primaryToolbar .mui-menu {
-  position: absolute;
-  width: 230px;
-  right: 10px;
-  z-index: 2;
-}
-#info_panel .panelCard .primaryToolbar .mui-menu .mui-subheader {
-  height: 0;
 }
 div.pydio-tasks-panel {
   position: absolute;

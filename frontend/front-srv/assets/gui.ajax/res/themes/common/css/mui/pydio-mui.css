@@ -3447,12 +3447,17 @@
 }
 .react-mui-context .material-list.table-mode .cell {
   display: inline-block;
-  width: 10%;
-  min-width: 140px;
+  width: 120px;
   padding-left: 20px;
   padding-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.react-mui-context .material-list.table-mode .cell.cell-ajxp_modiftime {
+  width: 170px;
+}
+.react-mui-context .material-list.table-mode .cell.cell-bytesize {
+  width: 100px;
 }
 .react-mui-context .material-list.table-mode .cell.cell-ajxp_label {
   padding-left: 0;

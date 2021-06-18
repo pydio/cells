@@ -30,11 +30,12 @@ import Action from 'pydio/model/action'
 import ReactDOM from 'react-dom'
 
 import FilePreview from './FilePreview'
-import {IconButton} from 'material-ui'
+import {IconButton, Divider} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {SimpleList} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
+import {debounce} from 'lodash'
 
 class ComponentConfigsParser {
 
@@ -72,15 +73,16 @@ class ComponentConfigsParser {
         };
     }
 
-    loadConfigs(componentName) {
-        let configs = new Map();
+    loadConfigs() {
+
         let columnsNodes = XMLUtils.XPathSelectNodes(Pydio.getInstance().getXmlRegistry(), 'client_configs/component_config[@component="FilesList"]/columns/column|client_configs/component_config[@component="FilesList"]/columns/additional_column');
         let columns = {};
         let messages = Pydio.getMessages();
+        const proms = [];
         columnsNodes.forEach((colNode) => {
             let name = colNode.getAttribute('attributeName');
             let sortType = colNode.getAttribute('sortType');
-            const sorts = {'String':'string', 'StringDirFile':'string', 'MyDate':'number', 'CellSorterValue': 'number'};
+            const sorts = {'String':'string', 'StringDirFile':'string', 'MyDate':'number', 'CellSorterValue': 'number', 'Number': 'number'};
             sortType = sorts[sortType] || 'string';
             if(name === 'bytesize') {
                 sortType = 'number';
@@ -88,13 +90,24 @@ class ComponentConfigsParser {
             columns[name] = {
                 message : colNode.getAttribute('messageId'),
                 label   : colNode.getAttribute('messageString') ? colNode.getAttribute('messageString') : messages[colNode.getAttribute('messageId')],
-                sortType: sortType
+                sortType: sortType,
+                inlineHide: colNode.getAttribute('defaultVisibilty') === "false"
             };
             if(name === 'ajxp_label') {
                 columns[name].renderCell = this.renderLabel;
             }
             if(colNode.getAttribute('reactModifier')){
                 let reactModifier = colNode.getAttribute('reactModifier');
+                const className = reactModifier.split('.',1).shift();
+                proms.push(ResourcesManager.loadClass(className).then(()=> {
+                    columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
+                    columns[name].renderComponent = columns[name].renderCell
+                    // Special indicator for tags
+                    if(reactModifier.indexOf('renderTagsCloud') > -1) {
+                        columns[name].renderBlock = true
+                    }
+                }))
+                /*
                 ResourcesManager.detectModuleToLoadAndApply(reactModifier, function(){
                     columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
                     columns[name].renderComponent = columns[name].renderCell
@@ -103,10 +116,12 @@ class ComponentConfigsParser {
                         columns[name].renderBlock = true
                     }
                 }, true);
+                 */
             }
         });
-        configs.set('columns', columns);
-        return configs;
+        return Promise.all(proms).then(()=> {
+            return columns || this.getDefaultListColumns();
+        })
     }
 
 }
@@ -151,7 +166,9 @@ class MainFilesList extends React.Component {
     constructor(props, context) {
         super(props, context);
         let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
-        let columns = configParser.loadConfigs('FilesList').get('columns');
+        configParser.loadConfigs('FilesList').then((columns) => {
+            this.setState({columns});
+        })
         const dMode = this.getPrefValue('FilesListDisplayMode', this.props.displayMode || 'list');
         let tSize = 200;
         if(dMode === 'grid-320') {
@@ -166,10 +183,11 @@ class MainFilesList extends React.Component {
             contextNode : dataModel.getContextNode(),
             displayMode : dMode,
             showExtensions: this.getPrefValue('FilesListShowExtensions', false),
+            pinBookmarks: this.getPrefValue('FilesListPinBookmarks', false),
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
-            columns     : columns ? columns : configParser.getDefaultListColumns(),
+            columns     : configParser.getDefaultListColumns(),
             parentIsScrolling: props.parentIsScrolling,
             repositoryId: props.pydio.repositoryId
         };
@@ -217,12 +235,12 @@ class MainFilesList extends React.Component {
         dataModel.observe("context_changed", this._contextObserver);
         this.props.pydio.getController().updateGuiActions(this.getPydioActions());
 
-        this._thumbOserver = this.recomputeThumbnailsDimension.bind(this)
-        this._thumbOserver();
+        this.recomputeThumbnailsDimension();
+        this._thumbObserver = debounce(this.recomputeThumbnailsDimension.bind(this), 500);
         if(window.addEventListener){
-            window.addEventListener('resize', this._thumbOserver);
+            window.addEventListener('resize', this._thumbObserver);
         }else{
-            window.attachEvent('onresize', this._thumbOserver);
+            window.attachEvent('onresize', this._thumbObserver);
         }
         if(this.props.onDisplayModeChange && this.state && this.state.displayMode){
             this.props.onDisplayModeChange(this.state.displayMode);
@@ -236,9 +254,9 @@ class MainFilesList extends React.Component {
             this.props.pydio.getController().deleteFromGuiActions(key);
         }.bind(this));
         if(window.addEventListener){
-            window.removeEventListener('resize', this._thumbOserver);
+            window.removeEventListener('resize', this._thumbObserver);
         }else{
-            window.detachEvent('onresize', this._thumbOserver);
+            window.detachEvent('onresize', this._thumbObserver);
         }
     }
 
@@ -256,7 +274,9 @@ class MainFilesList extends React.Component {
         if(this.state && this.state.repositoryId !== this.props.pydio.repositoryId ){
             this.props.pydio.getController().updateGuiActions(this.getPydioActions());
             let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
-            const columns = configParser.loadConfigs('FilesList').get('columns');
+            configParser.loadConfigs('FilesList').then((columns) => {
+                this.setState({columns});
+            })
             const dMode = this.getPrefValue('FilesListDisplayMode', this.state && this.state.displayMode ? this.state.displayMode:'list');
             if(this.state.displayMode !== dMode && dMode.indexOf('grid-') === 0){
                 let tSize = 200;
@@ -272,7 +292,6 @@ class MainFilesList extends React.Component {
             }
             this.setState({
                 repositoryId: this.props.pydio.repositoryId,
-                columns: columns ? columns : configParser.getDefaultListColumns(),
                 displayMode:dMode
             }, ()=>{
                 if(this.props.onDisplayModeChange) {
@@ -288,7 +307,10 @@ class MainFilesList extends React.Component {
 
     recomputeThumbnailsDimension(nearest){
 
-        const {contextNode, displayMode, columns, thumbNearest} = this.state;
+        const {contextNode, displayMode, thumbNearest} = this.state;
+        if(displayMode.indexOf('grid') !== 0){
+            return
+        }
 
         const MAIN_CONTAINER_FULL_PADDING = 5;
         const THUMBNAIL_MARGIN = displayMode === 'grid-80' ? 4 : 8;
@@ -298,46 +320,31 @@ class MainFilesList extends React.Component {
         }catch(e){
             containerWidth = 200;
         }
-        if(displayMode.indexOf('grid') === 0) {
-            if(!nearest || nearest instanceof Event){
-                nearest = thumbNearest;
-            }
-            // Find nearest dim
-            let blockNumber = Math.floor(containerWidth / nearest);
-            let width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
-            if(this.props.horizontalRibbon){
-                blockNumber = contextNode.getChildren().size;
-                if(displayMode === 'grid-160') {
-                    width = 160;
-                } else if(displayMode === 'grid-320') {
-                    width = 280;
-                } else if(displayMode === 'grid-80') {
-                    width = 100;
-                } else {
-                    width = 200;
-                }
-            }
-            this.setState({
-                elementsPerLine: blockNumber,
-                thumbSize: width,
-                thumbNearest:nearest
-            });
 
-        } else {
-            // Recompute columns widths
-            /*
-            let columnKeys = Object.keys(columns);
-            let defaultFirstWidthPercent = 10;
-            let firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
-            let otherColWidth = (containerWidth - firstColWidth) / (Object.keys(columns).length - 1);
-            columnKeys.map(function(columnKey){
-                columns[columnKey]['width'] = otherColWidth;
-            });
-            this.setState({
-                columns: columns,
-            });
-*/
+        if(!nearest || nearest instanceof Event){
+            nearest = thumbNearest;
         }
+        // Find nearest dim
+        let blockNumber = Math.floor(containerWidth / nearest);
+        let width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
+        if(this.props.horizontalRibbon){
+            blockNumber = contextNode.getChildren().size;
+            if(displayMode === 'grid-160') {
+                width = 160;
+            } else if(displayMode === 'grid-320') {
+                width = 280;
+            } else if(displayMode === 'grid-80') {
+                width = 100;
+            } else {
+                width = 200;
+            }
+        }
+        this.setState({
+            elementsPerLine: blockNumber,
+            thumbSize: width,
+            thumbNearest:nearest
+        });
+
 
     }
 
@@ -371,8 +378,9 @@ class MainFilesList extends React.Component {
 
     entryRenderActions(node){
         let content = null;
-        const {pydio, dataModel} = this.props;
+        const {pydio, dataModel, searchResults} = this.props;
         const {displayMode} = this.state;
+        const overlayClasses = node.getMetadata().get('overlay_class') || ''
         if(pydio.UI.MOBILE_EXTENSIONS){
             const ContextMenuModel = require('pydio/model/context-menu');
             return <IconButton iconClassName="mdi mdi-dots-vertical" style={{zIndex:0, padding: 10}} tooltip="Info" onClick={(event) => {
@@ -383,18 +391,32 @@ class MainFilesList extends React.Component {
                 dataModel.setSelectedNodes([node]);
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
             }}/>;
-        }else if(node.getMetadata().get('overlay_class')){
-            let elements = node.getMetadata().get('overlay_class').split(',').filter(c=>!!c).map(function(c){
+        }else if(overlayClasses || displayMode !== 'list'){
+            let elements = overlayClasses.split(',').filter(c=>!!c).map(function(c){
                 return (
                     <OverlayIcon
                         node={node}
                         key={c}
                         overlay={c}
                         pydio={pydio}
+                        disableActions={!!searchResults}
                         tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
+                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
                     />
                 );
             });
+            if(displayMode !== 'list') {
+                // Add meta button in thumbs mode
+                elements.push(<OverlayIcon
+                        pydio={pydio}
+                        node={node}
+                        overlay={'mdi mdi-tag-outline'}
+                        disableActions={!!searchResults}
+                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
+                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
+                    />
+                );
+            }
             let style;
             if(displayMode === 'detail') {
                 style = {width:34 * elements.length}
@@ -438,7 +460,7 @@ class MainFilesList extends React.Component {
     };
 
     entryRenderSecondLine(node){
-        const {searchResults, searchScope, pydio, dataModel} = this.props;
+        const {searchResults, searchScope, pydio} = this.props;
         let metaData = node.getMetadata();
         let pieces = [];
         const standardPieces = [];
@@ -446,7 +468,14 @@ class MainFilesList extends React.Component {
 
         if (metaData.has('pending_operation')){
             if (metaData.has('pending_operation_uuid')) {
-                return <SingleJobProgress jobID={metaData.get('pending_operation_uuid')} style={{display:'flex', flexDirection:'row-reverse', alignItems:'center'}} progressStyle={{width: 60, paddingRight: 10}} labelStyle={{flex: 1}}/>
+                return (
+                    <SingleJobProgress
+                        jobID={metaData.get('pending_operation_uuid')}
+                        style={{display:'flex', flexDirection:'row-reverse', alignItems:'center'}}
+                        progressStyle={{width: 60, paddingRight: 10}}
+                        labelStyle={{flex: 1}}
+                    />
+                );
             } else {
                 return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
             }
@@ -495,11 +524,12 @@ class MainFilesList extends React.Component {
         }
 
         let first = false;
-        Object.keys(this.state.columns).forEach((s) => {
-            let columnDef = this.state.columns[s];
+        const {columns} = this.state;
+        Object.keys(columns).forEach((s) => {
+            let columnDef = columns[s];
             let label;
             let standard = false;
-            if(s === 'ajxp_label' || s === 'text' || s === 'ajxp_modiftime'){
+            if(s === 'ajxp_label' || s === 'text' || s === 'ajxp_modiftime' || columnDef.inlineHide){
                 return
             } else if(s === "ajxp_dirname" && metaData.get("filename")){
                 let dirName = PathUtils.getDirname(metaData.get("filename"));
@@ -521,9 +551,12 @@ class MainFilesList extends React.Component {
                 if(s === 'mimestring' || s === 'readable_dimension'){
                     standard = true;
                 }
-                const metaValue = metaData.get(s) || "";
+                let metaValue = metaData.get(s) || "";
                 if(!metaValue) {
                     return;
+                }
+                if(metaValue.length && metaValue.length > 26) {
+                    metaValue = <React.Fragment>{metaValue.substr(0, 26)}&hellip;</React.Fragment>;
                 }
                 label = metaValue;
             }
@@ -538,7 +571,19 @@ class MainFilesList extends React.Component {
             const cell = <span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>;
             standard ? standardPieces.push(cell) : otherPieces.push(cell);
         });
-        pieces.push(...otherPieces, ...standardPieces);
+        const metaIc = (
+            <OverlayIcon
+                pydio={pydio}
+                node={node}
+                overlay={'mdi mdi-tag-outline'}
+                style={{height:22, width: 22, margin:'0 2px', padding: '0 2px'}}
+                disableActions={!!searchResults}
+                className={"metadata_chunk metadata_chunk_standard"}
+                tooltipPosition={'bottom-right'}
+                popoverDirection={'left'}
+            />
+        );
+        pieces.push(...otherPieces, metaIc, ...standardPieces);
         return pieces;
 
     };
@@ -579,14 +624,22 @@ class MainFilesList extends React.Component {
     }
 
     buildShowExtensionsItems(){
-        const {showExtensions} = this.state;
+        const {showExtensions, pinBookmarks} = this.state;
         return [
             {name:Pydio.getMessages()['ajax_gui.list.extensions.show'], icon_class:showExtensions?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
                     this.setState({showExtensions:!showExtensions}, () => {
                         this.props.pydio.notify('actions_refreshed');
                         this.setPrefValue('FilesListShowExtensions', !showExtensions);
                     });
-                }}
+                }
+            },
+            {name:Pydio.getMessages()['ajax_gui.list.pin.bookmarks'], icon_class:pinBookmarks?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
+                    this.setState({pinBookmarks:!pinBookmarks}, () => {
+                        this.props.pydio.notify('actions_refreshed');
+                        this.setPrefValue('FilesListPinBookmarks', !pinBookmarks);
+                    });
+                }
+            }
         ]
     }
 
@@ -643,7 +696,7 @@ class MainFilesList extends React.Component {
 
     render() {
 
-        const {contextNode, displayMode, columns, thumbSize} = this.state;
+        const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
         let dMode = displayMode;
@@ -741,7 +794,7 @@ class MainFilesList extends React.Component {
             groupProps = {
                 skipParentNavigation: true,
             };
-            if(dMode !== 'grid' && searchScope === 'all') {
+            if(searchScope === 'all') {
                 groupProps = {
                     ...groupProps,
                     defaultGroupBy:"repository_id",
@@ -752,6 +805,19 @@ class MainFilesList extends React.Component {
                 primaryTextId:searchLoading?'searchengine.searching':478,
                     style:{
                     backgroundColor:'transparent'
+                }
+            }
+        } else if(pinBookmarks) {
+            groupProps = {
+                groupSkipUnique: true,
+                defaultGroupBy: "bookmark",
+                groupByValueFunc:(value) => value === "true" ? -1 : 1,
+                renderGroupLabels:(groupBy, value) => {
+                    if(value === -1) {
+                        return <span><span className={"mdi mdi-pin"}/> Bookmarked</span>
+                    } else {
+                        return <span>All Files</span>
+                    }
                 }
             }
         }

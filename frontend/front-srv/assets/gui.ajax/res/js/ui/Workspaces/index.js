@@ -58,7 +58,6 @@ const classes = {
     WorkspacesListMaterial,
     WorkspacePickerDialog,
     LeftPanel,
-    DynamicLeftPanel,
     UserWidget,
     TourGuide,
     MasterLayout,

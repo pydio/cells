@@ -18,15 +18,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import MetaClient from "./MetaClient";
 import UserMetaPanel from './UserMetaPanel'
 import {FlatButton} from 'material-ui';
+const {InfoPanelCard} = Pydio.requireLib('workspaces')
 
 export default class InfoPanel extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {editMode: false};
+        this.state = {};
         this._nodeObserver = () => {
             if(this.refs.panel){
                 this.refs.panel.resetUpdateData();
@@ -38,20 +40,11 @@ export default class InfoPanel extends React.Component{
         }
     }
 
-    openEditMode(){
-        this.setState({editMode:true });
-    }
-
-    reset(){
-        this.setState({editMode: false});
-    }
-
     componentWillReceiveProps(newProps){
         if(this.props.node){
             this.props.node.stopObserving('node_replaced', this._nodeObserver)
         }
         if(newProps.node !== this.props.node && this.refs.panel){
-            this.reset();
             newProps.node.observe('node_replaced', this._nodeObserver)
         }
     }
@@ -67,70 +60,54 @@ export default class InfoPanel extends React.Component{
         return MetaClient.getInstance().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values);
     }
 
-    saveAndClose(){
-        this.saveMeta().then(()=> {
-            this.reset();
-        });
-    }
-
     onChangeUpdateData(updateData){
         this.setState({updateData})
     }
 
     render(){
         let actions = [];
-        const {node} = this.props;
-        const {MessageHash} = this.props.pydio;
+        const {pydio, node, popoverPanel} = this.props;
+        const {MessageHash} = pydio;
         const values = this.state.updateData || new Map();
         const readOnly = node.getMetadata().get('node_readonly') === 'true';
+        let hasAction = false;
 
-        if(this.state.editMode){
-            actions.push(
-                <FlatButton
-                    key="cancel"
-                    label={values.size ? MessageHash['54'] : MessageHash['86']}
-                    onClick={()=>{this.reset()}}
-                />
-            );
-            if(!readOnly && values.size > 0){
-                actions.push(
-                    <FlatButton
-                        key="edit"
-                        label={this.state.editMode?MessageHash['meta.user.15']:MessageHash['meta.user.14']}
-                        onClick={()=>{this.saveAndClose()}}
-                    />
-                );
-            }
-        } else if (!readOnly) {
+        if(!readOnly && values.size > 0) {
+            hasAction = true
             actions.push(
                 <FlatButton
                     key="edit"
-                    label={this.state.editMode?MessageHash['meta.user.15']:MessageHash['meta.user.14']}
-                    onClick={()=>{this.openEditMode()}}
+                    label={MessageHash['meta.user.15']}
+                    onClick={()=>{this.saveMeta()}}
                 />
             );
         }
+        let style = {}
+        if(!hasAction) {
+            style = {paddingBottom: 16}
+        }
 
         return (
-            <PydioWorkspaces.InfoPanelCard
+            <InfoPanelCard
                 identifier={"meta-user"}
                 style={this.props.style}
                 title={this.props.pydio.MessageHash['meta.user.1']}
                 actions={actions.length ? actions : null}
                 icon="tag-multiple" iconColor="#00ACC1"
+                popoverPanel={popoverPanel}
             >
                 <UserMetaPanel
                     ref="panel"
                     node={this.props.node}
-                    editMode={this.state.editMode}
-                    onRequestEditMode={!readOnly && this.openEditMode.bind(this)}
+                    editMode={!readOnly}
                     pydio={this.props.pydio}
                     onChangeUpdateData={(d) => {this.onChangeUpdateData(d)}}
                     autoSave={()=>{
                         this.saveMeta();
                     }}
+                    style={style}
                 />
-            </PydioWorkspaces.InfoPanelCard>
+            </InfoPanelCard>
         );
     }
 

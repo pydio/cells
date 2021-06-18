@@ -330,8 +330,8 @@ class TreePaginator extends React.Component {
 
     goTo(i){
         const {dataModel, node} = this.props;
-        node.getMetadata().get('paginationData').set('current', i);
-        node.reload(dataModel.getAjxpNodeProvider());
+        node.getMetadata().get('paginationData').set('new_page', i);
+        dataModel.requireContextChange(node);
     }
 
     render(){

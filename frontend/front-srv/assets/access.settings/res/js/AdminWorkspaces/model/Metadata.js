@@ -57,10 +57,10 @@ Metadata.MetaTypes = {
     "integer":      "Number",
     "boolean":      "Boolean",
     "date":         "Date",
+    "choice":       "Selection",
+    "tags":         "Extensible Tags",
     "stars_rate":   "Stars Rating",
     "css_label":    "Color Labels",
-    "tags":         "Extensible Tags",
-    "choice":       "Selection",
     "json":         "JSON"
 };
 

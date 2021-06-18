@@ -406,10 +406,8 @@ class FSTemplate extends React.Component {
 
         }
 
-        if(thumbDisplay) {
-            styles.listStyle = {
-                backgroundColor:superLightBack.toString()
-            }
+        styles.listStyle = {
+            backgroundColor:thumbDisplay?superLightBack.toString():'white'
         }
 
         const {values, setValues, history, facets, activeFacets, toggleFacet,

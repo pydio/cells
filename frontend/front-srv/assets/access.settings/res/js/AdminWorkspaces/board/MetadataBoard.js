@@ -37,6 +37,7 @@ class MetadataBoard extends React.Component{
             ServiceResourcePolicy.constructFromObject({Action:'WRITE', Subject:'*', Effect:'allow'})
         ];
         ns.JsonDefinition = JSON.stringify({type:'string'});
+        ns.Indexable = true;
         return ns;
     }
 

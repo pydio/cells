@@ -230,6 +230,9 @@ export default class AjxpNode extends Observable{
             this.notify("node_replaced", this);
         }
         this.notify("meta_replaced", this);
+        if(this.getParent()){
+            this.getParent().notify("child_replaced", this);
+        }
     }
 
     /**
@@ -287,6 +290,9 @@ export default class AjxpNode extends Observable{
             });
         }
         this.notify("node_replaced", this);
+        if(this.getParent()){
+            this.getParent().notify("child_replaced", this);
+        }
     }
     /**
      * Finds a child node by its path

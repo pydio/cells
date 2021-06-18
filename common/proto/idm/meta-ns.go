@@ -26,12 +26,14 @@ type MetaNamespaceDefinition interface {
 	GetType() string
 	GetData() interface{}
 	GetSteps() bool
+	DefaultHide() bool
 }
 
 type metaNsDef struct {
 	Type  string
 	Data  interface{} `json:"data,omitempty"`
 	Steps bool        `json:"steps,omitempty"`
+	Hide  bool        `json:"hide,omitempty"`
 }
 
 func (d *metaNsDef) GetType() string {
@@ -44,6 +46,10 @@ func (d *metaNsDef) GetData() interface{} {
 
 func (d *metaNsDef) GetSteps() bool {
 	return d.Steps
+}
+
+func (d *metaNsDef) DefaultHide() bool {
+	return d.Hide
 }
 
 func (m *UserMetaNamespace) UnmarshallDefinition() (MetaNamespaceDefinition, error) {

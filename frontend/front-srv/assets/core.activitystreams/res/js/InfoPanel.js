@@ -28,7 +28,7 @@ import ActivityList from './ActivityList'
 class InfoPanel extends React.Component {
 
     render(){
-        const {node, pydio} = this.props;
+        const {node, pydio, popoverPanel} = this.props;
 
         if (pydio.getPluginConfigs("core.activitystreams").get("ACTIVITY_SHOW_ACTIVITIES") === false) {
             return null;
@@ -39,7 +39,7 @@ class InfoPanel extends React.Component {
         const title = node.isLeaf()?pydio.MessageHash['notification_center.11']:pydio.MessageHash['notification_center.10'];
 
         return (
-            <InfoPanelCard key={identifier} identifier={identifier} defaultOpen={defaultOpen} title={title}>
+            <InfoPanelCard key={identifier} identifier={identifier} defaultOpen={defaultOpen} title={title} popoverPanel={popoverPanel}>
                 <ActivityList
                     context="NODE_ID"
                     contextData={node.getMetadata().get('uuid')}
