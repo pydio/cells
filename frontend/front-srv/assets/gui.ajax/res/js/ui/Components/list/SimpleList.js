@@ -62,7 +62,8 @@ let SimpleList = createReactClass({
         containerHeight     : PropTypes.number,
         observeNodeReload   : PropTypes.bool,
         defaultGroupBy      : PropTypes.string,
-        defaultGroupByLabel : PropTypes.string,
+        groupByLabel        : PropTypes.string,
+        groupByValueFunc    : PropTypes.func,
 
         skipParentNavigation: PropTypes.bool,
         skipInternalDataModel:PropTypes.bool,
@@ -362,10 +363,12 @@ let SimpleList = createReactClass({
         if(stop){
             node.stopObserving("child_added", this._childrenObserver);
             node.stopObserving("child_removed", this._childrenObserver);
+            node.stopObserving("child_replaced", this._childrenObserver);
             node.stopObserving("child_node_action", this._childrenActionsObserver);
         }else{
             node.observe("child_added", this._childrenObserver);
             node.observe("child_removed", this._childrenObserver);
+            node.observe("child_replaced", this._childrenObserver);
             node.observe("child_node_action", this._childrenActionsObserver);
         }
     },
@@ -685,7 +688,9 @@ let SimpleList = createReactClass({
     },
 
     scrollToView:function(node){
-        if(!this.indexedElements || !this.refs.infinite || !this.refs.infinite.scrollable) return;
+        if(!this.indexedElements || !this.refs.infinite || !this.refs.infinite.scrollable) {
+            return;
+        }
         const scrollable = this.refs.infinite.scrollable;
         const visibleFrame = {
             top: scrollable.scrollTop + this.props.elementHeight / 2,
@@ -695,9 +700,13 @@ let SimpleList = createReactClass({
 
         let position = -1;
         this.indexedElements.forEach((e, k) => {
-            if(e.node && e.node === node) position = k;
+            if(e.node && e.node === node) {
+                position = k;
+            }
         });
-        if(position === -1) return;
+        if(position === -1) {
+            return;
+        }
         let elementHeight = this.props.elementHeight;
         let scrollTarget = position * elementHeight;
 
@@ -709,7 +718,9 @@ let SimpleList = createReactClass({
         }
         scrollTarget = Math.min(scrollTarget, realMaxScrollTop);
         scrollable.scrollTop = scrollTarget;
-        if(this._manualScrollPe) this._manualScrollPe.stop();
+        if(this._manualScrollPe) {
+            this._manualScrollPe.stop();
+        }
         if(scrollable.scrollHeight < scrollTarget){
             this._manualScrollPe = new PeriodicalExecuter(() => {
                 scrollable.scrollTop = scrollTarget;
@@ -725,7 +736,11 @@ let SimpleList = createReactClass({
 
         let components = [], index = 0;
         const nodeEntriesLength = nodeEntries.length;
-        const {entriesProps} = this.props;
+        let {entriesProps, elementStyle, tableKeys, passScrollingStateToChildren} = this.props;
+        entriesProps = {...entriesProps, style: elementStyle}
+        if(passScrollingStateToChildren) {
+            entriesProps.parentIsScrolling = this.state.isScrolling;
+        }
         nodeEntries.forEach(function(entry){
             let data;
             if(entry.parent) {
@@ -749,14 +764,8 @@ let SimpleList = createReactClass({
                 }else{
                     data.mainIcon = SimpleList.PARENT_FOLDER_ICON;
                 }
-                if(this.props.tableKeys) {
+                if(tableKeys) {
                     data.onClick = data.onDoubleClick;
-                }
-                if(this.props.elementStyle){
-                    data.style = this.props.elementStyle;
-                }
-                if(this.props.passScrollingStateToChildren){
-                    data.parentIsScrolling = this.state.isScrolling;
                 }
                 components.push(React.createElement(ListEntry, data));
             }else if(entry.groupHeader){
@@ -777,8 +786,8 @@ let SimpleList = createReactClass({
                     noHover             : true,
                     ...entriesProps
                 };
-                if(this.props.passScrollingStateToChildren){
-                    data['parentIsScrolling'] = this.state.isScrolling;
+                if(entry.groupFill) {
+                    data.style = {...data.style, visibility:'hidden'};
                 }
                 components.push(React.createElement(ListEntry, data));
             }else{
@@ -803,23 +812,18 @@ let SimpleList = createReactClass({
                 data['isFirst'] = (index === 0);
                 data['isLast'] = (index === nodeEntriesLength - 1);
                 index ++;
-                if(this.props.elementStyle){
-                    data['style'] = this.props.elementStyle;
-                }
-                if(this.props.passScrollingStateToChildren){
-                    data['parentIsScrolling'] = this.state.isScrolling;
-                }
+
                 if(this.props.renderCustomEntry){
 
                     components.push(this.props.renderCustomEntry(data));
 
-                }else if(this.props.tableKeys){
+                }else if(tableKeys){
 
                     if(this.props.defaultGroupBy){
-                        data['tableKeys'] = {...this.props.tableKeys};
+                        data['tableKeys'] = {...tableKeys};
                         delete data['tableKeys'][this.props.defaultGroupBy];
                     }else{
-                        data['tableKeys'] = this.props.tableKeys;
+                        data['tableKeys'] = tableKeys;
                     }
                     components.push(React.createElement(TableListEntry, data));
 
@@ -908,19 +912,21 @@ let SimpleList = createReactClass({
         const theNode = node || this.props.node;
         const props = nextProps || this.props;
 
+        let useGroups, showParent;
         const sortFunction = this.prepareSortFunction();
 
         if(!this.indexedElements || this.indexedElements.length !== theNode.getChildren().size) {
             this.indexedElements = [];
-            let groupBy, groupByLabel, groups, groupKeys, groupLabels;
-            if(props.defaultGroupBy){
-                groupBy = props.defaultGroupBy;
-                groupByLabel = props.groupByLabel || false;
+
+            const {defaultGroupBy, groupByLabel = false} = props;
+            let groups, groupKeys, groupLabels;
+            if(defaultGroupBy){
                 groups = {}; groupKeys = []; groupLabels = {};
             }
 
             if (!props.skipParentNavigation && theNode.getParent()
                 && (props.dataModel.getContextNode() !== theNode || props.skipInternalDataModel)) {
+                showParent = true;
                 this.indexedElements.push({node: theNode.getParent(), parent: true, actions: null});
             }
 
@@ -933,8 +939,13 @@ let SimpleList = createReactClass({
                     return;
                 }
                 const nodeActions = this.getActionsForNode(this.dm, child);
-                if(groupBy){
-                    const groupValue = child.getMetadata().get(groupBy) || 'N/A';
+                if(defaultGroupBy){
+                    let groupValue;
+                    if(props.groupByValueFunc) {
+                        groupValue = props.groupByValueFunc(child.getMetadata().get(defaultGroupBy)) || 'N/A'
+                    } else {
+                        groupValue = child.getMetadata().get(defaultGroupBy) || 'N/A';
+                    }
                     if(!groups[groupValue]) {
                         groups[groupValue] = [];
                         groupKeys.push(groupValue);
@@ -948,39 +959,58 @@ let SimpleList = createReactClass({
                 }
             }.bind(this));
 
-            if(groupBy){
-                groupKeys = groupKeys.sort();
-                groupKeys.map(function(k){
-                    let label = k;
-                    if(groupLabels[k]){
-                        label = groupLabels[k];
-                    }else if(props.renderGroupLabels){
-                        label = props.renderGroupLabels(groupBy, k);
-                    }
-                    this.indexedElements.push({
-                        node: null,
-                        groupHeader:k,
-                        groupHeaderLabel:label,
-                        parent: false,
-                        actions: null
-                    });
-                    if(sortFunction) {
-                        groups[k].sort(sortFunction);
-                    }
-                    this.indexedElements = this.indexedElements.concat(groups[k]);
-                }.bind(this));
+            if(defaultGroupBy){
+                if(props.groupSkipUnique && groupKeys.length === 1) {
+                    // push nodes without group info
+                    this.indexedElements = [...groups[groupKeys[0]]]
+                } else {
+                    useGroups = true;
+                    groupKeys = groupKeys.sort();
+                    groupKeys.map(function(k, idx){
+                        let label = k;
+                        if(groupLabels[k]){
+                            label = groupLabels[k];
+                        }else if(props.renderGroupLabels){
+                            label = props.renderGroupLabels(defaultGroupBy, k);
+                        }
+                        this.indexedElements.push({
+                            node: null,
+                            groupHeader:k,
+                            groupHeaderLabel:label,
+                            parent: false,
+                            actions: null
+                        });
+                        if(sortFunction) {
+                            groups[k].sort(sortFunction);
+                        }
+                        this.indexedElements = this.indexedElements.concat(groups[k]);
+                        // Make sure lines are complete inside group
+                        if(props.elementsPerLine > 1) {
+                            let rest = props.elementsPerLine - (groups[k].length % props.elementsPerLine) - 1;
+                            if(idx === 0 && showParent) {
+                                // First line has parent node as well
+                                rest -= 1;
+                            }
+                            for (let i = 0; i < rest; i ++) {
+                                this.indexedElements.push({
+                                    node: null,
+                                    groupHeader:Math.random(),
+                                    groupFill:true,
+                                    parent: false,
+                                    actions: null,
+                                });
+                            }
+                        }
+                    }.bind(this));
+                }
             }
 
         }
 
-        if(!props.defaultGroupBy && sortFunction) {
+        if(!useGroups && sortFunction) {
             this.indexedElements.sort(sortFunction);
         }
 
-        if(props.elementPerLine > 1){
-            end *= props.elementPerLine;
-            start *= props.elementPerLine;
-        }
         return this.indexedElements.slice(start, end);
     },
 

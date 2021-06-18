@@ -30,7 +30,7 @@ import Action from 'pydio/model/action'
 import ReactDOM from 'react-dom'
 
 import FilePreview from './FilePreview'
-import {IconButton} from 'material-ui'
+import {IconButton, Divider} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {SimpleList} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
@@ -183,6 +183,7 @@ class MainFilesList extends React.Component {
             contextNode : dataModel.getContextNode(),
             displayMode : dMode,
             showExtensions: this.getPrefValue('FilesListShowExtensions', false),
+            pinBookmarks: this.getPrefValue('FilesListPinBookmarks', false),
             thumbNearest: tSize,
             thumbSize   : tSize,
             elementsPerLine: 5,
@@ -623,14 +624,22 @@ class MainFilesList extends React.Component {
     }
 
     buildShowExtensionsItems(){
-        const {showExtensions} = this.state;
+        const {showExtensions, pinBookmarks} = this.state;
         return [
             {name:Pydio.getMessages()['ajax_gui.list.extensions.show'], icon_class:showExtensions?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
                     this.setState({showExtensions:!showExtensions}, () => {
                         this.props.pydio.notify('actions_refreshed');
                         this.setPrefValue('FilesListShowExtensions', !showExtensions);
                     });
-                }}
+                }
+            },
+            {name:Pydio.getMessages()['ajax_gui.list.pin.bookmarks'], icon_class:pinBookmarks?'mdi mdi-toggle-switch':'mdi mdi-toggle-switch-off', callback:()=>{
+                    this.setState({pinBookmarks:!pinBookmarks}, () => {
+                        this.props.pydio.notify('actions_refreshed');
+                        this.setPrefValue('FilesListPinBookmarks', !pinBookmarks);
+                    });
+                }
+            }
         ]
     }
 
@@ -687,7 +696,7 @@ class MainFilesList extends React.Component {
 
     render() {
 
-        const {contextNode, displayMode, columns, thumbSize} = this.state;
+        const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
         let dMode = displayMode;
@@ -785,7 +794,7 @@ class MainFilesList extends React.Component {
             groupProps = {
                 skipParentNavigation: true,
             };
-            if(dMode !== 'grid' && searchScope === 'all') {
+            if(searchScope === 'all') {
                 groupProps = {
                     ...groupProps,
                     defaultGroupBy:"repository_id",
@@ -796,6 +805,19 @@ class MainFilesList extends React.Component {
                 primaryTextId:searchLoading?'searchengine.searching':478,
                     style:{
                     backgroundColor:'transparent'
+                }
+            }
+        } else if(pinBookmarks) {
+            groupProps = {
+                groupSkipUnique: true,
+                defaultGroupBy: "bookmark",
+                groupByValueFunc:(value) => value === "true" ? -1 : 1,
+                renderGroupLabels:(groupBy, value) => {
+                    if(value === -1) {
+                        return <span><span className={"mdi mdi-pin"}/> Bookmarked</span>
+                    } else {
+                        return <span>All Files</span>
+                    }
                 }
             }
         }

@@ -725,6 +725,22 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .overlay_icon_div span.overlay-icon-span {
   color: #b0bec4 !important;
 }
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-icon {
+  display: none;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-text {
+  border-top-width: 0;
+  top: 0;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: center;
+      justify-content: center;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-group-header .material-list-text .material-list-line-1 {
+  font-size: 15px;
+}
 .react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry {
   margin: 4px;
 }
@@ -2008,7 +2024,7 @@ div.menu.desktop a span.ajxp_icon_span {
   display: none;
 }
 .panelCard .panelContent .infoPanelRow .infoPanelLabel {
-  color: rgba(0, 0, 0, 0.33);
+  color: rgba(0, 0, 0, 0.73);
   font-weight: 500;
 }
 .panelCard .panelActions {
