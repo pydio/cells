@@ -228,7 +228,7 @@ export default createReactClass({
     },
 
     checkValidStatus(values){
-        var failedMandatories = [];
+        const failedMandatories = [];
         this.props.parameters.map(function(p){
             if (['string', 'textarea', 'password', 'integer', 'integer-bytes'].indexOf(p.type) > -1 && (p.mandatory === "true" || p.mandatory === true)) {
                 if(!values || !values.hasOwnProperty(p.name) || values[p.name] === undefined || values[p.name] === ""){
