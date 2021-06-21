@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/micro/go-micro/client"
 	"os"
 	"time"
 
@@ -72,16 +73,19 @@ EXAMPLES
 			cmd.Help()
 			return
 		}
-		client := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
+		cli := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 		defer cancel()
 		c = context2.WithUserNameMetadata(c, common.PydioSystemUsername)
-		resp, err := client.TriggerResync(c, &sync.ResyncRequest{Path: syncPath})
+		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: syncPath}, client.WithRetries(1))
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())
 			return
 		}
-		cmd.Println("Resync Triggered.\nResult: " + resp.JsonDiff)
+		cmd.Println("Resync Triggered.")
+		if resp.JsonDiff != "" {
+			cmd.Println("Result: " + resp.JsonDiff)
+		}
 	},
 }
 

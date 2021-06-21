@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // AdminCmd groups the data manipulation commands
@@ -20,6 +21,9 @@ DESCRIPTION
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
+
+		viper.SetDefault("registry", "grpc://:8000")
+		viper.SetDefault("broker", "grpc://:8003")
 
 		// Initialise the default registry
 		handleRegistry()

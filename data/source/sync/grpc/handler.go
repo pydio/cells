@@ -488,6 +488,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
 		theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
+
 		log.TasksLogger(c).Info("Starting Resync")
 		taskChan <- theTask
 
@@ -564,9 +565,12 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			result, e = s.FlatSyncSnapshot(bg, dir, snapName, statusChan, doneChan)
 		} else if len(pathParts) == 1 && pathParts[0] == "init" {
 			result, e = s.FlatScanEmpty(bg, statusChan, doneChan)
-		} else if doneChan != nil {
+		} else  {
 			// Nothing to do, just close doneChan
-			doneChan <- true
+			if doneChan != nil {
+				doneChan <- true
+			}
+
 			resp.Success = true
 			return nil
 		}
