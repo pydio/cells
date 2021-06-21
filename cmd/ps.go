@@ -107,7 +107,7 @@ EXAMPLE
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 
-		viper.SetDefault("registry", "grpc")
+		viper.SetDefault("registry", "grpc://:8000")
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
