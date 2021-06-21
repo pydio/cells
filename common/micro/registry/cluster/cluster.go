@@ -152,7 +152,15 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 			}
 
 			// Making sure old nodes are deleted
+			r.RLock()
+			var keys []string
 			for k := range r.nodes {
+				keys = append(keys, k)
+			}
+			r.RUnlock()
+
+			var keysToDelete []string
+			for _, k := range keys {
 				found := false
 				for _, consumerID := range consumerIDs {
 					if k == consumerID {
@@ -162,9 +170,15 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 				}
 
 				if !found {
-					delete(r.nodes, k)
+					keysToDelete = append(keysToDelete, k)
 				}
 			}
+
+			r.Lock()
+			for _, k := range keysToDelete {
+				delete(r.nodes, k)
+			}
+			r.Unlock()
 
 			select {
 			case <-ticker.C:
@@ -477,17 +491,27 @@ func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 		return []*registry.Service{}, errLocal
 	}
 
+
+	r.RLock()
+	defer r.RUnlock()
+
 	var clusterServices []*registry.Service
 	for _, clusterNode := range r.nodes {
 		services, errCluster := clusterNode.GetService(name)
-		if errCluster != nil {
+		if errCluster != nil && errCluster != registry.ErrNotFound {
 			return localServices, errLocal
 		}
 
 		clusterServices = mergeServices(clusterServices, services)
 	}
 
-	return mergeServices(localServices, clusterServices), nil
+	finalServices := mergeServices(localServices, clusterServices)
+
+	if len(finalServices) == 0 {
+		return nil, registry.ErrNotFound
+	}
+
+	return finalServices, nil
 }
 
 func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
@@ -500,6 +524,9 @@ func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
 	if errLocal != nil && errLocal != registry.ErrNotFound {
 		return nil, errLocal
 	}
+
+	r.RLock()
+	defer r.RUnlock()
 
 	var clusterServices []*registry.Service
 	for _, clusterNode := range r.nodes {

@@ -331,7 +331,7 @@ var mandatoryOptions = []ServiceOption{
 
 		log.Logger(ctx).Debug("BeforeStart - Unique check")
 
-		ticker := time.Tick(1 * time.Second)
+		ticker := time.Tick(5 * time.Second)
 
 	loop:
 		for {
@@ -584,6 +584,7 @@ func (s *service) IsRunning() bool {
 	ctx := s.getContext()
 
 	if err := s.Check(ctx); err != nil {
+		log.Logger(ctx).Debug("Check failed with error ", zap.String("name", s.Name()), zap.Error(err))
 		return false
 	}
 
