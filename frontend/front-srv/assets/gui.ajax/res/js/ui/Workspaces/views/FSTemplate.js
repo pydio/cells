@@ -442,10 +442,10 @@ class FSTemplate extends React.Component {
             } else if(count === 0) {
                 stLabel = pydio.MessageHash['478'] // No results found
             } else if(count < limit) {
-                stLabel = '%1 results found'.replace('%1', count)
+                stLabel = pydio.MessageHash['searchengine.results.foundN'].replace('%1', count)
             } else if(count === limit) {
                 stDisable = false
-                stLabel = 'Showing %1, Load More...'.replace('%1', limit)
+                stLabel = pydio.MessageHash['searchengine.results.withMore'].replace('%1', limit)
             }
             if(stDisable){
                 labelStyle = {...labelStyle, color: themeLight?'#616161':'white'}
@@ -492,7 +492,7 @@ class FSTemplate extends React.Component {
                                     <Textfit
                                         mode="single" min={12} max={22}
                                         style={{...styles.breadcrumbStyle, padding: '0 20px', fontSize: 22, lineHeight:'44px', height:36}}>
-                                        Search: {humanizeValues(values)}
+                                        {pydio.MessageHash['searchengine.topbar.title']}{humanizeValues(values)}
                                     </Textfit>
                                 }
                                 {!searchView && <Breadcrumb {...props} startWithSeparator={false} rootStyle={styles.breadcrumbStyle}/>}

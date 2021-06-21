@@ -30,6 +30,15 @@ const {ModernTextField} = Pydio.requireLib('hoc');
  */
 class ValidLogin extends React.Component{
 
+    constructor(props) {
+        super(props);
+        this.state = {};
+        if(props.value) {
+            const err = PassUtils.isValidLogin(props.value);
+            this.state = {valid: !err, err};
+        }
+    }
+
     textValueChanged(event, value){
         const err = PassUtils.isValidLogin(value);
         const prevStateValid = this.state && this.state.valid;

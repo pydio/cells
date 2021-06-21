@@ -24,8 +24,8 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {Paper, FlatButton, Divider, TextField} from 'material-ui'
-import {User, UsersApi} from 'pydio/http/users-api'
+import {Paper, FlatButton, Divider} from 'material-ui'
+import {User} from 'pydio/http/users-api'
 const {Manager, FormPanel} = Pydio.requireLib('form');
 
 class UserCreationForm extends React.Component{
@@ -157,14 +157,14 @@ class UserCreationForm extends React.Component{
     }
 
     render(){
-        const {pydio, editMode, newUserName} = this.props;
+        const {pydio, editMode} = this.props;
         let status = this.state.valid;
         if(!status && editMode && !this.state.values['new_password']){
             status = true;
         }
 
         return (
-            <Paper zDepth={this.props.zDepth !== undefined ? this.props.zDepth : 2} style={{minHeight: 250, display:'flex', flexDirection:'column', ...this.props.style}}>
+            <Paper zDepth={this.props.zDepth === undefined ? 2 : this.props.zDepth} style={{minHeight: 250, display:'flex', flexDirection:'column', ...this.props.style}}>
                 <FormPanel
                     className="reset-pydio-forms"
                     depth={-1}
