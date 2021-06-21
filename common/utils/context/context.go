@@ -73,7 +73,7 @@ func WithUserNameMetadata(ctx context.Context, userName string) context.Context 
 	md := make(map[string]string)
 	if meta, ok := metadata.FromContext(ctx); ok {
 		for k, v := range meta {
-			if k == strings.ToLower(common.PydioContextUserKey) {
+			if strings.ToLower(k) == strings.ToLower(common.PydioContextUserKey) {
 				continue
 			}
 			md[k] = v
@@ -109,10 +109,21 @@ func CanonicalMeta(ctx context.Context, name string) (string, bool) {
 }
 
 // WithAdditionalMetadata retrieves existing meta, adds new key/values to the map and produces a new context
+// It enforces case-conflicts on all keys
 func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context.Context {
 	md := make(map[string]string)
-	if meta, ok := metadata.FromContext(ctx); ok {
-		for k, v := range meta {
+	if mm, ok := metadata.FromContext(ctx); ok {
+		for k, v := range mm {
+			ignore := false
+			for nk, _ := range meta {
+				if strings.ToLower(nk) == strings.ToLower(k) {
+					ignore = true
+					break
+				}
+			}
+			if ignore {
+				continue
+			}
 			md[k] = v
 		}
 	}
