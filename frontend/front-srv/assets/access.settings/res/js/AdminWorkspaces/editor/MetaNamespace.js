@@ -352,19 +352,16 @@ class MetaNamespace extends React.Component{
         }
 
         let invalid = false, nameError, labelError;
-        if(!namespace.Namespace){
-            invalid = true;
-            nameError = m('editor.ns.error')
-        }
         if(!namespace.Label){
             invalid = true;
             labelError = m('editor.label.error')
+        } else if(!namespace.Namespace || namespace.Namespace === 'usermeta-'){
+            invalid = true;
+            nameError = m('editor.ns.error')
         }
-        if(create){
-            if (namespaces.filter(n => n.Namespace === namespace.Namespace).length){
-                invalid = true;
-                nameError = m('editor.ns.exists');
-            }
+        if(create && namespaces.filter(n => n.Namespace === namespace.Namespace).length){
+            invalid = true;
+            nameError = m('editor.ns.exists');
         }
         if (type === 'choice') {
             const choiceItems = this.getAdditionalData({items:[]}).items;
@@ -387,7 +384,7 @@ class MetaNamespace extends React.Component{
 
         const actions = [
             <FlatButton primary={true} label={pydio.MessageHash['54']} onClick={this.props.onRequestClose}/>,
-            <FlatButton primary={true} disabled={invalid || readonly} label={"Save"} onClick={() => {this.save()}}/>,
+            <FlatButton primary={true} disabled={invalid || readonly} label={pydio.MessageHash['53']} onClick={() => {this.save()}}/>,
         ];
         if(type === 'tags' && !readonly){
             actions.unshift(<FlatButton primary={false} label={m('editor.tags.reset')} onClick={()=>{
