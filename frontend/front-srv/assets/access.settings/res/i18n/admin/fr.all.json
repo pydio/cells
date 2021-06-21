@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "Vous devez aussi être conscient que ceci consomme plus de CPU afin de chiffrer/déchiffrer les données à la volée."
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Définir un identifiant pour la nouvelle clé"
+  },
   "ds.editor.enc.key": {
     "other": "Clé d'encryption"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "Aucun cryptage"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Configurez le chiffrement avec une nouvelle clé..."
   },
   "ds.editor.enc.validate": {
     "other": "Je comprends"
@@ -130,6 +139,18 @@
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Utilisez le mode lecture seule si vous souhaitez empêcher Cells d'écrire des fichiers cachés et utiliser les eTags natifs comme checksum (cela peut être nécessaire pour les buckets avec une énorme quantité de données). Cependant, veuillez noter que tous les workspaces créés sur cette datasource doivent être aussi définis en lecture seule, car les fonctionnalités de déplacement des fichiers ne peut pas fonctionner correctement."
+  },
+  "ds.editor.storage.flatStorage": {
+    "other": "Garder la structure des données dans le stockage"
+  },
+  "ds.editor.storage.legend.flatStorage": {
+    "other": "Le stockage à plat (non structuré) fournit les meilleurs performances. N'utilisez le stockage structuré que si vous voulez vous assurer que les fichiers et les dossiers sont reproduits dans le stockage réel (ou que vous chargez un dossier contenant des données préexistantes). Ceci NE PEUT PAS être modifié après la création de la DataSource."
+  },
+  "ds.editor.storage.skipResync": {
+    "other": "Ne pas lancer la resynchronisation complète au démarrage"
+  },
+  "ds.editor.storage.legend.skipResync": {
+    "other": "Pour les DataSources très volumineuses, vous pouvez éviter une resynchronisation complète au moment du redémarrage."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Stocker les checksum en local (ne pas modifier les objets)"
@@ -419,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "Rétention des fichiers"
   },
+  "ds.versioning.storage": {
+    "other": "Datasources"
+  },
   "logs.1": {
     "other": "Evénements"
   },
@@ -472,6 +496,9 @@
   },
   "logs.9": {
     "other": "Le fichier sera exporté au en CSV formaté avec des séparateurs point-virgules (;) et les valeurs encadrées de guillemets doubles (\")."
+  },
+  "logs.level": {
+    "other": "Niveau"
   },
   "logs.service": {
     "other": "Service"
@@ -590,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Valeur"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Afficher comme des étapes"
+  },
   "metadata.editor.tags.cleared": {
     "other": "Les tags pour le namespace %s ont été supprimés"
   },
@@ -634,6 +664,78 @@
   },
   "metadata.type": {
     "other": "Type"
+  },
+  "metadata.type.string": {
+    "other": "Texte court"
+  },
+  "metadata.type.textarea": {
+    "other": "Paragraphe"
+  },
+  "metadata.type.integer": {
+    "other": "Nombre"
+  },
+  "metadata.type.boolean": {
+    "other": "Valeur Vrai / Faux"
+  },
+  "metadata.type.date": {
+    "other": "Date ou heure"
+  },
+  "metadata.type.stars_rate": {
+    "other": "Vote par étoiles"
+  },
+  "metadata.type.css_label": {
+    "other": "Étiquettes de couleur"
+  },
+  "metadata.type.tags": {
+    "other": "Etiquettes extensibles"
+  },
+  "metadata.type.choice": {
+    "other": "Sélection de valeurs"
+  },
+  "metadata.type.json": {
+    "other": "JSON (format interne)"
+  },
+  "metadata.type.date.format": {
+    "other": "Format"
+  },
+  "metadata.type.date.format.date": {
+    "other": "Date"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Date & Heure"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Heure"
+  },
+  "metadata.type.date.display": {
+    "other": "Affichage"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relatif (il y a xx jours...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Réaction"
+  },
+  "metadata.type.integer.format": {
+    "other": "Format"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "Général"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Taille en octets"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Pourcentage"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Barre de progression"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Afficher dans la liste"
   },
   "perfs.booster.description": {
     "other": "Vérifie que Pydio Booster est actif et que la communication WebSocket fonctionne."
@@ -1399,6 +1501,12 @@
   },
   "ws.editor.other.layout.easy": {
     "other": "Easy Transfer (enterprise seulement)"
+  },
+  "ws.editor.other.skiprecycle": {
+    "other": "Désactiver la corbeille"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Désactiver la corbeille sur ce workspace : les fichiers seront définitivement supprimés. Cela ne s'applique pas aux Cellules créées depuis ce workspace, les fichiers seront toujours déplacés dans la corbeille pour éviter les erreurs humaines."
   },
   "ws.editor.other.sync": {
     "other": "Autoriser la synchronisation"

@@ -84,5 +84,20 @@
   },
   "Config.GroupRetention.MaxNumber.Description": {
     "other": "Nombre maximal à garder sur la période. Utiliser -1 pour garder toutes les versions, 0 pour supprimer toutes les versions."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "Après la suppression du fichier d'origine"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Nombre de versions à garder après la suppression définitive du fichier."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Sauvegarder toutes les versions existantes"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Sauvegarder la version la plus récente"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Supprimer toutes les versions associées"
   }
 }

@@ -84,5 +84,20 @@
   },
   "Config.GroupRetention.MaxNumber.Description": {
     "other": "Max aantal versies om deze periode te behouden. Gebruik -1 om alle versies te bewaren, 0 om alles te verwijderen."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "After original file deletion"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Number of versions to keep after original file deletion."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Backup all existing versions"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Backup most recent version only"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Delete all existing versions"
   }
 }

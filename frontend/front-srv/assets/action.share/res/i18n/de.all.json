@@ -910,5 +910,8 @@
   },
   "sharelist.quick-filter": {
     "other": "Schnellfilter..."
+  },
+  "composite.deleteAll": {
+    "other": "Alle Freigaben deaktivieren"
   }
 }

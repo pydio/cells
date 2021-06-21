@@ -84,5 +84,20 @@
   },
   "Config.GroupRetention.MaxNumber.Description": {
     "other": "Maksimālais glabājamais versiju skaits šajā periodā. Lietojiet -1 lai saglabātu visas versijas, 0 lai dzēstu visas."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "After original file deletion"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Number of versions to keep after original file deletion."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Backup all existing versions"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Backup most recent version only"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Delete all existing versions"
   }
 }

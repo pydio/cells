@@ -40,5 +40,8 @@
   },
   "drop.cell.folder.copy": {
     "other": "复制文件夹"
+  },
+  "download.as.pdf": {
+    "other": "Download as PDF"
   }
 }

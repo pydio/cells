@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "Вы также должны знать, что для плавного шифрования / дешифрования данных на лету может потребоваться больше мощности ЦП."
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Set an identifier for the new key"
+  },
   "ds.editor.enc.key": {
     "other": "Ключ шифрования"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "No Encryption"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
     "other": "Я понимаю"
@@ -130,6 +139,18 @@
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Используйте режим только для чтения, если вам требуется, чтобы Cells никогда не записывали никаких файлов и использовали собственные теги eTag в качестве контрольных сумм (это может быть необходимо для блоков с огромным количеством существующих данных). Обратите внимание, что любые рабочие пространства, созданные на таком источнике данных, должны быть установлены как Только для чтения, так как функция перемещения не сможет функционировать."
+  },
+  "ds.editor.storage.flatStorage": {
+    "other": "Keep data structure on storage"
+  },
+  "ds.editor.storage.legend.flatStorage": {
+    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
+  },
+  "ds.editor.storage.skipResync": {
+    "other": "Skip full resynchronisation at restart"
+  },
+  "ds.editor.storage.legend.skipResync": {
+    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Хранить контрольные суммы локально (не изменять объекты)"
@@ -419,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "Стратегия удержания"
   },
+  "ds.versioning.storage": {
+    "other": "DataSources"
+  },
   "logs.1": {
     "other": "Журналы сервера"
   },
@@ -472,6 +496,9 @@
   },
   "logs.9": {
     "other": "Файл будет экспортирован в формате CSV с разделителями ; и полями, заключенными в двойные кавычки (\")."
+  },
+  "logs.level": {
+    "other": "Уровень"
   },
   "logs.service": {
     "other": "Службы"
@@ -590,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Значение"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Show as steps"
+  },
   "metadata.editor.tags.cleared": {
     "other": "Убраны теги для пространства имён %s"
   },
@@ -634,6 +664,78 @@
   },
   "metadata.type": {
     "other": "Тип"
+  },
+  "metadata.type.string": {
+    "other": "Short Text"
+  },
+  "metadata.type.textarea": {
+    "other": "Paragraph"
+  },
+  "metadata.type.integer": {
+    "other": "Number"
+  },
+  "metadata.type.boolean": {
+    "other": "True/False value"
+  },
+  "metadata.type.date": {
+    "other": "Date or Time"
+  },
+  "metadata.type.stars_rate": {
+    "other": "Рейтинг"
+  },
+  "metadata.type.css_label": {
+    "other": "Color Labels"
+  },
+  "metadata.type.tags": {
+    "other": "Extensible Tags"
+  },
+  "metadata.type.choice": {
+    "other": "Select from values"
+  },
+  "metadata.type.json": {
+    "other": "JSON (internal format)"
+  },
+  "metadata.type.date.format": {
+    "other": "Формат"
+  },
+  "metadata.type.date.format.date": {
+    "other": "Дата"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Date & Time"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Time"
+  },
+  "metadata.type.date.display": {
+    "other": "Отображение"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relative (xx days ago...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Reaction"
+  },
+  "metadata.type.integer.format": {
+    "other": "Формат"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "General"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Byte Size"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Percentage"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Progress"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Show value in files list"
   },
   "perfs.booster.description": {
     "other": "Проверьте, что помощник Pydio запущен и активирует WebSocket"
@@ -1399,6 +1501,12 @@
   },
   "ws.editor.other.layout.easy": {
     "other": "Простой формат перевода (только для Enterprise)"
+  },
+  "ws.editor.other.skiprecycle": {
+    "other": "Skip Recycle Bin"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
   },
   "ws.editor.other.sync": {
     "other": "Разрешить синхронизацию рабочего стола"

@@ -2351,10 +2351,49 @@
   "searchengine.searching": {
     "other": "Searching..."
   },
+  "searchengine.main.placeholder": {
+    "other": "Search..."
+  },
+  "searchengine.topbar.title": {
+    "other": "Search: "
+  },
+  "searchengine.scope.title": {
+    "other": "Search In..."
+  },
+  "searchengine.advanced-filter.tooltip": {
+    "other": "Advanced Filters"
+  },
+  "searchengine.results.foundN": {
+    "other": "%1 results found"
+  },
+  "searchengine.results.withMore": {
+    "other": "Showing %1, load more..."
+  },
+  "searchengine.query.action.save": {
+    "other": "Save"
+  },
+  "searchengine.query.action.clear": {
+    "other": "Clear"
+  },
+  "searchengine.query.action.delete": {
+    "other": "Delete"
+  },
+  "searchengine.query.save-label": {
+    "other": "Enter a label"
+  },
   "chat.load-older": {
     "other": "Older entries"
   },
   "workspace.quota-usage": {
     "other": "Quota Usage"
+  },
+  "action.delete.permanently": {
+    "other": "Delete permanently"
+  },
+  "action.delete.permanently.warning": {
+    "other": "warning, you cannot undo this operation!"
+  },
+  "action.goto.label": {
+    "other": "Go To Folder"
   }
 }

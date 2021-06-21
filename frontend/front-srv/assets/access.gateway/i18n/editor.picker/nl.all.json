@@ -40,5 +40,8 @@
   },
   "drop.cell.folder.copy": {
     "other": "Map kopiëren"
+  },
+  "download.as.pdf": {
+    "other": "Download as PDF"
   }
 }

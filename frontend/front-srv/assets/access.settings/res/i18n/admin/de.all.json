@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "Sie müssen sie auch bewusst sein, dass es mehr CPU für eine reibungslose on-the-fly-Verschlüsselung / Entschlüsselung der Daten erfordern."
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Legen Sie einen Bezeichner für den neuen Schlüssel fest"
+  },
   "ds.editor.enc.key": {
     "other": "Geheimschlüssel"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "Keine Verschlüsselung"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Verschlüsselung mit einem neuen Schlüssel einrichten..."
   },
   "ds.editor.enc.validate": {
     "other": "Okay, ich verstehe"
@@ -130,6 +139,18 @@
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Verwenden Sie den schreibgeschützten Modus, wenn Cells niemals versteckte Dateien schreiben und native eTags als Prüfsummen verwenden soll (dies kann für Buckets mit einer großen Menge vorhandener Daten erforderlich sein). Beachten Sie jedoch, dass alle in dieser Datenquelle erstellten Arbeitsbereiche als schreibgeschützt festgelegt werden sollten, da die Verschiebefunktion nicht ordnungsgemäß funktioniert."
+  },
+  "ds.editor.storage.flatStorage": {
+    "other": "Datenstruktur auf dem Speicher behalten"
+  },
+  "ds.editor.storage.legend.flatStorage": {
+    "other": "Flat (unstrukturiert) Speicher ist am besten für Leistungen. Benutzen Sie den strukturierten Speicher nur, wenn Sie sicherstellen wollen, dass die Dateien und Ordner innerhalb des eigentlichen Speichers reproduziert werden (oder einem Ordner mit bereits vorhandenen Daten) zugeordnet werden. Dies kann NICHT nach der Erstellung von Datenquellen geändert werden."
+  },
+  "ds.editor.storage.skipResync": {
+    "other": "Komplette Resynchronisierung beim Neustart überspringen"
+  },
+  "ds.editor.storage.legend.skipResync": {
+    "other": "Bei großen Datenquellen sollten Sie eine vollständige Resynchronisierung beim Neustart vermeiden."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Prüfsummen lokal speichern (Objekte nicht ändern)"
@@ -419,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "Aufbewahrungsstrategie"
   },
+  "ds.versioning.storage": {
+    "other": "DataSources"
+  },
   "logs.1": {
     "other": "Protokolle"
   },
@@ -472,6 +496,9 @@
   },
   "logs.9": {
     "other": "Die Datei wird im CSV-Format mit Semikolon (;) als Trennzeichen und mit Feldern in doppelten Anführungszeichen (\") exportiert."
+  },
+  "logs.level": {
+    "other": "Ebene"
   },
   "logs.service": {
     "other": "Service"
@@ -590,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Inhalt"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Als Schritte anzeigen"
+  },
   "metadata.editor.tags.cleared": {
     "other": "Gelöschte Tags für Namespaces %s"
   },
@@ -634,6 +664,78 @@
   },
   "metadata.type": {
     "other": "Typ"
+  },
+  "metadata.type.string": {
+    "other": "Kurztext"
+  },
+  "metadata.type.textarea": {
+    "other": "Absatz"
+  },
+  "metadata.type.integer": {
+    "other": "Nummer"
+  },
+  "metadata.type.boolean": {
+    "other": "Wahr/Falsch-Wert"
+  },
+  "metadata.type.date": {
+    "other": "Datum oder Uhrzeit"
+  },
+  "metadata.type.stars_rate": {
+    "other": "Bewertung"
+  },
+  "metadata.type.css_label": {
+    "other": "Farbetiketten"
+  },
+  "metadata.type.tags": {
+    "other": "Erweiterbare Tags"
+  },
+  "metadata.type.choice": {
+    "other": "Aus Werten auswählen"
+  },
+  "metadata.type.json": {
+    "other": "JSON (internes Format)"
+  },
+  "metadata.type.date.format": {
+    "other": "Format des Archivs"
+  },
+  "metadata.type.date.format.date": {
+    "other": "Datum"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Datum & Zeit"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Zeit"
+  },
+  "metadata.type.date.display": {
+    "other": "Ansicht"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relativ (vor xx Tagen...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Reaktion"
+  },
+  "metadata.type.integer.format": {
+    "other": "Format des Archivs"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "Allgemein"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Bytegröße"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Prozentsatz"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Fortschritt"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Wert in Dateiliste anzeigen"
   },
   "perfs.booster.description": {
     "other": "Überprüft, ob Pydio-Boost gestartet ist und WebSocket-Unterstützung anbietet"
@@ -1399,6 +1501,12 @@
   },
   "ws.editor.other.layout.easy": {
     "other": "Easy Transfer Layout (nur für Enterprise Distribution)"
+  },
+  "ws.editor.other.skiprecycle": {
+    "other": "Papierkorb überspringen"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Papierkorb in diesem Arbeitsbereich deaktivieren: Alle Dateien werden dauerhaft gelöscht. Dies gilt nicht für Zellen, die in diesem Arbeitsbereich erstellt wurden. Dateien werden immer in den Arbeitsbereich-Recycling verschoben, um menschliche Fehler zu vermeiden."
   },
   "ws.editor.other.sync": {
     "other": "Desktop-Synchronisierung zulassen"

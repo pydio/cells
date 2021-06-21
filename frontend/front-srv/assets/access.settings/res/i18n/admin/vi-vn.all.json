@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "Bạn cũng phải lưu ý rằng nó có thể cần nhiều CPU hơn để việc mã hóa / giải mã dữ liệu được nhanh chóng."
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Set an identifier for the new key"
+  },
   "ds.editor.enc.key": {
     "other": "Encryption Key"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "No Encryption"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
     "other": "Tôi hiểu"
@@ -130,6 +139,18 @@
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Hãy sử dụng chế độ Chỉ đọc nếu bạn yêu cầu Cells không bao giờ viết bất cứ tệp ẩn nào và sử dụng eTags gốc làm checksums( điều này có thể cần thiết cho buckets với các nhóm dữ liệu hiện có rất lớn). Tuy nhiên, vui lòng chú ý rằng bất cứ không gian làm việc nào được tạo trên datasource này phải được đặt là Chỉ đọc, vì tính năng di chuyển có thể hoạt động không được chính xác."
+  },
+  "ds.editor.storage.flatStorage": {
+    "other": "Keep data structure on storage"
+  },
+  "ds.editor.storage.legend.flatStorage": {
+    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
+  },
+  "ds.editor.storage.skipResync": {
+    "other": "Skip full resynchronisation at restart"
+  },
+  "ds.editor.storage.legend.skipResync": {
+    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Lưu trữ tổng kiểm tra cục bộ (không sửa đổi các đối tượng)"
@@ -419,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "Quy tắc giữ lại các phiên bản"
   },
+  "ds.versioning.storage": {
+    "other": "Storage"
+  },
   "logs.1": {
     "other": "Nhật ký máy chủ"
   },
@@ -472,6 +496,9 @@
   },
   "logs.9": {
     "other": "Tệp sẽ được xuất dưới dạng định dạng CSV phân cách bởi (;) và các trường được đặt trong dấu ngoặc kép (\")."
+  },
+  "logs.level": {
+    "other": "Level"
   },
   "logs.service": {
     "other": "Dịch vụ"
@@ -590,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Giá trị"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Show as steps"
+  },
   "metadata.editor.tags.cleared": {
     "other": "Đã xóa tags cho namespaces %s"
   },
@@ -634,6 +664,78 @@
   },
   "metadata.type": {
     "other": "Loại"
+  },
+  "metadata.type.string": {
+    "other": "Short Text"
+  },
+  "metadata.type.textarea": {
+    "other": "Paragraph"
+  },
+  "metadata.type.integer": {
+    "other": "Number"
+  },
+  "metadata.type.boolean": {
+    "other": "True/False value"
+  },
+  "metadata.type.date": {
+    "other": "Date or Time"
+  },
+  "metadata.type.stars_rate": {
+    "other": "Đánh giá sao"
+  },
+  "metadata.type.css_label": {
+    "other": "Color Labels"
+  },
+  "metadata.type.tags": {
+    "other": "Extensible Tags"
+  },
+  "metadata.type.choice": {
+    "other": "Select from values"
+  },
+  "metadata.type.json": {
+    "other": "JSON (internal format)"
+  },
+  "metadata.type.date.format": {
+    "other": "Định dạng"
+  },
+  "metadata.type.date.format.date": {
+    "other": "Ngày"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Date & Time"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Time"
+  },
+  "metadata.type.date.display": {
+    "other": "Hiển thị"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relative (xx days ago...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Reaction"
+  },
+  "metadata.type.integer.format": {
+    "other": "Định dạng"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "General"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Byte Size"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Percentage"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Progress"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Show value in files list"
   },
   "perfs.booster.description": {
     "other": "Kiểm tra xem Pydio Booster đã được khởi động chưa và cho phép giao tiếp WebSocket"
@@ -1399,6 +1501,12 @@
   },
   "ws.editor.other.layout.easy": {
     "other": "Giao diện chuyển dễ dàng (chỉ dành cho enterprise)"
+  },
+  "ws.editor.other.skiprecycle": {
+    "other": "Skip Recycle Bin"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
   },
   "ws.editor.other.sync": {
     "other": "Cho phép đồng bộ hóa desktop"

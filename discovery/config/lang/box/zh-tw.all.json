@@ -358,5 +358,80 @@
   },
   "workspaceSingleQuery.uuid": {
     "other": "Uuid"
+  },
+  "dataSourceSingleQuery.Name": {
+    "other": "名称："
+  },
+  "dataSourceSingleQuery.IsDisabled": {
+    "other": "Is Disabled"
+  },
+  "dataSourceSingleQuery.StorageType": {
+    "other": "Storage Type"
+  },
+  "dataSourceSingleQuery.StorageType.REMOTE": {
+    "other": "Remote"
+  },
+  "dataSourceSingleQuery.StorageType.ANY": {
+    "other": "Any"
+  },
+  "dataSourceSingleQuery.StorageType.LOCALFS": {
+    "other": "Local"
+  },
+  "dataSourceSingleQuery.PeerAddress": {
+    "other": "Peer Address"
+  },
+  "dataSourceSingleQuery.FlatStorage": {
+    "other": "Flat Storage"
+  },
+  "dataSourceSingleQuery.SkipSyncOnRestart": {
+    "other": "Skip sync on restart"
+  },
+  "dataSourceSingleQuery.IsVersioned": {
+    "other": "Is Versioned"
+  },
+  "dataSourceSingleQuery.IsEncrypted": {
+    "other": "Is Encrypted"
+  },
+  "dataSourceSingleQuery.EncryptionMode": {
+    "other": "Encryption Mode"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER": {
+    "other": "User-key"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
+    "other": "User-pwd"
+  },
+  "dataSourceSingleQuery.EncryptionMode.CLEAR": {
+    "other": "Clear"
+  },
+  "dataSourceSingleQuery.EncryptionMode.MASTER": {
+    "other": "Master-key"
+  },
+  "dataSourceSingleQuery.EncryptionKey": {
+    "other": "Encryption Key"
+  },
+  "dataSourceSingleQuery.VersioningPolicyName": {
+    "other": "Versioning Policy"
+  },
+  "dataSourceSingleQuery.StorageConfigurationName": {
+    "other": "Configuration Key"
+  },
+  "dataSourceSingleQuery.StorageConfigurationValue": {
+    "other": "Configuration Value"
+  },
+  "dataSourceSingleQuery.ObjectServiceName": {
+    "other": "Object Service"
+  },
+  "dataSourceSingleQuery.Not": {
+    "other": "Not"
+  },
+  "triggerFilterQuery.IsSchedule": {
+    "other": "Scheduled Trigger"
+  },
+  "triggerFilterQuery.IsManual": {
+    "other": "Manual Trigger"
+  },
+  "triggerFilterQuery.EventNames": {
+    "other": "Events"
   }
 }

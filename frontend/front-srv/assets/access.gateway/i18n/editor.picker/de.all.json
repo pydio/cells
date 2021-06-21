@@ -40,5 +40,8 @@
   },
   "drop.cell.folder.copy": {
     "other": "Ordner kopieren"
+  },
+  "download.as.pdf": {
+    "other": "Als PDF herunterladen"
   }
 }

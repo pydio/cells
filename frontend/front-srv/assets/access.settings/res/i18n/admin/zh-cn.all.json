@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "您还必须意识到它可能需要更多的 CPU 才能顺利地实时加密和解密数据。"
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Set an identifier for the new key"
+  },
   "ds.editor.enc.key": {
     "other": "加密密钥"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "No Encryption"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
     "other": "我明白了"
@@ -130,6 +139,18 @@
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "如果您不允许程序写入任何隐藏文件并使用ETags作为校验（这对于存储桶中有大量的存在数据来说非常必要），请设置为只读模式。请注意，任何在该数据源中创建的工作区都被设置为只读，文件将无法移动。"
+  },
+  "ds.editor.storage.flatStorage": {
+    "other": "Keep data structure on storage"
+  },
+  "ds.editor.storage.legend.flatStorage": {
+    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
+  },
+  "ds.editor.storage.skipResync": {
+    "other": "Skip full resynchronisation at restart"
+  },
+  "ds.editor.storage.legend.skipResync": {
+    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "本地存储校验(不修改对象)"
@@ -419,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "保留策略"
   },
+  "ds.versioning.storage": {
+    "other": "存储"
+  },
   "logs.1": {
     "other": "服务器日志"
   },
@@ -472,6 +496,9 @@
   },
   "logs.9": {
     "other": "文件将导出为 CSV 格式，带有分号 (;) 分隔符并且字段包含在双引号 (\") 中。"
+  },
+  "logs.level": {
+    "other": "级别"
   },
   "logs.service": {
     "other": "服务"
@@ -590,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Value"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Show as steps"
+  },
   "metadata.editor.tags.cleared": {
     "other": "已清除命名空间 %s 的标签"
   },
@@ -634,6 +664,78 @@
   },
   "metadata.type": {
     "other": "类型"
+  },
+  "metadata.type.string": {
+    "other": "Short Text"
+  },
+  "metadata.type.textarea": {
+    "other": "Paragraph"
+  },
+  "metadata.type.integer": {
+    "other": "Number"
+  },
+  "metadata.type.boolean": {
+    "other": "True/False value"
+  },
+  "metadata.type.date": {
+    "other": "Date or Time"
+  },
+  "metadata.type.stars_rate": {
+    "other": "星级评定"
+  },
+  "metadata.type.css_label": {
+    "other": "Color Labels"
+  },
+  "metadata.type.tags": {
+    "other": "Extensible Tags"
+  },
+  "metadata.type.choice": {
+    "other": "Select from values"
+  },
+  "metadata.type.json": {
+    "other": "JSON (internal format)"
+  },
+  "metadata.type.date.format": {
+    "other": "格式"
+  },
+  "metadata.type.date.format.date": {
+    "other": "日期"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Date & Time"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Time"
+  },
+  "metadata.type.date.display": {
+    "other": "显示"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relative (xx days ago...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Reaction"
+  },
+  "metadata.type.integer.format": {
+    "other": "格式"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "General"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Byte Size"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Percentage"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Progress"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Show value in files list"
   },
   "perfs.booster.description": {
     "other": "Checks that Pydio Booster is started and enables WebSocket communication"
@@ -1399,6 +1501,12 @@
   },
   "ws.editor.other.layout.easy": {
     "other": "Easy Transfer Layout (enterprise only)"
+  },
+  "ws.editor.other.skiprecycle": {
+    "other": "Skip Recycle Bin"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
   },
   "ws.editor.other.sync": {
     "other": "Allow desktop synchronisation"

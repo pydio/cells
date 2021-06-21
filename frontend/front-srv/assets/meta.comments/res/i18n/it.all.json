@@ -10,5 +10,8 @@
   },
   "4": {
     "other": "Vai a %s"
+  },
+  "empty-state": {
+    "other": "No comments"
   }
 }

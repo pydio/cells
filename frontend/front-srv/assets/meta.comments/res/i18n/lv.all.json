@@ -10,5 +10,8 @@
   },
   "4": {
     "other": "Iet uz %s"
+  },
+  "empty-state": {
+    "other": "No comments"
   }
 }

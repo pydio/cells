@@ -10,5 +10,8 @@
   },
   "4": {
     "other": "Aller à %s"
+  },
+  "empty-state": {
+    "other": "Aucun commentaires"
   }
 }

@@ -358,5 +358,80 @@
   },
   "workspaceSingleQuery.uuid": {
     "other": "Uuid"
+  },
+  "dataSourceSingleQuery.Name": {
+    "other": "Nom"
+  },
+  "dataSourceSingleQuery.IsDisabled": {
+    "other": "Est désactivée"
+  },
+  "dataSourceSingleQuery.StorageType": {
+    "other": "Type de Stockage"
+  },
+  "dataSourceSingleQuery.StorageType.REMOTE": {
+    "other": "Distant"
+  },
+  "dataSourceSingleQuery.StorageType.ANY": {
+    "other": "N'importe quel"
+  },
+  "dataSourceSingleQuery.StorageType.LOCALFS": {
+    "other": "Système de fichiers local"
+  },
+  "dataSourceSingleQuery.PeerAddress": {
+    "other": "Adresse du Nœud"
+  },
+  "dataSourceSingleQuery.FlatStorage": {
+    "other": "Stockage à plat"
+  },
+  "dataSourceSingleQuery.SkipSyncOnRestart": {
+    "other": "Ne pas resynchroniser au démarrage"
+  },
+  "dataSourceSingleQuery.IsVersioned": {
+    "other": "Est versionnée"
+  },
+  "dataSourceSingleQuery.IsEncrypted": {
+    "other": "Est encryptée"
+  },
+  "dataSourceSingleQuery.EncryptionMode": {
+    "other": "Mode de cryptage"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER": {
+    "other": "Clé utilisateur"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
+    "other": "Mot de passe utilisateur"
+  },
+  "dataSourceSingleQuery.EncryptionMode.CLEAR": {
+    "other": "Vider"
+  },
+  "dataSourceSingleQuery.EncryptionMode.MASTER": {
+    "other": "Clé d'encryption maître"
+  },
+  "dataSourceSingleQuery.EncryptionKey": {
+    "other": "Clé d'encryption"
+  },
+  "dataSourceSingleQuery.VersioningPolicyName": {
+    "other": "Stratégie de versioning"
+  },
+  "dataSourceSingleQuery.StorageConfigurationName": {
+    "other": "Clé de configuration"
+  },
+  "dataSourceSingleQuery.StorageConfigurationValue": {
+    "other": "Valeur de configuration"
+  },
+  "dataSourceSingleQuery.ObjectServiceName": {
+    "other": "Nom du service Objets"
+  },
+  "dataSourceSingleQuery.Not": {
+    "other": "Négation"
+  },
+  "triggerFilterQuery.IsSchedule": {
+    "other": "Programmation calendaire"
+  },
+  "triggerFilterQuery.IsManual": {
+    "other": "Manuel"
+  },
+  "triggerFilterQuery.EventNames": {
+    "other": "Evénements"
   }
 }

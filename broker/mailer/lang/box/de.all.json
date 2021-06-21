@@ -161,6 +161,18 @@
   "Mail.Config.Mailer.Description": {
     "other": "System zum senden von Emails"
   },
+  "Mail.Config.Disabled.Label": {
+    "other": "Deaktiviert (E-Mails nicht aktivieren)"
+  },
+  "Mail.Config.NoOp.Label": {
+    "other": "No-Op (E-Mails aktivieren, aber nichts senden)"
+  },
+  "Mail.Config.NoOp.Dump": {
+    "other": "E-Mails zu Debugging-Zwecken in eine Datei schreiben"
+  },
+  "Mail.Config.NoOp.DumpTarget": {
+    "other": "Zielordner zum Schreiben von E-Mails"
+  },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP-Server"
   },

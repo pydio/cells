@@ -84,5 +84,20 @@
   },
   "Config.GroupRetention.MaxNumber.Description": {
     "other": "この期間を通して保持するバージョンの最大数。-1 を指定すると、すべてのバージョンを、0 を指定するとすべて削除を意味します。"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "After original file deletion"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Number of versions to keep after original file deletion."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Backup all existing versions"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Backup most recent version only"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Delete all existing versions"
   }
 }
