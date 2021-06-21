@@ -104,7 +104,7 @@ class UnifiedSearchForm extends React.Component {
 
     render() {
 
-        const {onRequestClose, values, setValues, style, active, formStyles, history = [], savedSearches = [], clearSavedSearch, saveSearch, humanizeValues} = this.props;
+        const {onRequestClose, values, setValues, style, active, formStyles, history = [], savedSearches = [], clearSavedSearch, saveSearch, pydio} = this.props;
         const {basenameOrContent=''} = values;
         const {popoverOpen, anchorElement, searchFocus} = this.state || {}
         const filtersCount = Object.keys(values)
@@ -167,7 +167,7 @@ class UnifiedSearchForm extends React.Component {
                     hintStyle={formStyles.hintStyle}
                     fullWidth={true}
                     underlineShow={false}
-                    hintText={"Search..."}
+                    hintText={pydio.MessageHash['searchengine.main.placeholder']}
                     searchText={basenameOrContent || ''}
                     menuProps={{desktop:true}}
                     menuStyle={{maxHeight: 300, width: 400, ...formStyles.completeMenuStyle}}
@@ -177,7 +177,7 @@ class UnifiedSearchForm extends React.Component {
                     onBlur={()=>{this.setState({searchFocus: false})}}
                 />
                 {active &&
-                    <div onClick={this.togglePopover.bind(this)} style={{...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}}>
+                    <div onClick={this.togglePopover.bind(this)} title={pydio.MessageHash['searchengine.advanced-filter.tooltip']} style={{...styles.filterButton, ...formStyles.filterButton, ...filterActiveStyles}}>
                         <span className={"mdi mdi-filter"}/>
                         {filtersCount > 0 && <span>{filtersCount}</span>}
                     </div>

@@ -302,11 +302,11 @@ class WorkspacesList extends React.Component{
         if(searchView) {
             const fakeAllEntry = new Repository('ALL');
             fakeAllEntry.setSlug('ALL')
-            fakeAllEntry.setLabel(pydio.MessageHash[610]) // All workspaces
+            fakeAllEntry.setLabel(messages[610]) // All workspaces
             return (
                 <div className={classNames.join(' ')}>
                     <Entries
-                        title={'Search in...'}
+                        title={messages['searchengine.scope.title']}
                         entries={[fakeAllEntry, ...entries, ...sharedEntries]}
                         filterHint={messages['ws.quick-filter']}
                         titleStyle={{...sectionTitleStyle, marginTop:5, position:'relative', overflow:'visible', transition:'none'}}

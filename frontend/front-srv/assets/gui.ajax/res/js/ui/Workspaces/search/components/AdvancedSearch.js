@@ -197,12 +197,12 @@ class AdvancedSearch extends Component {
             <div className="search-advanced" style={{...rootStyle}}>
                 {promptSearchLabel &&
                     <div style={{display: 'flex',alignItems: 'center', padding: '4px 12px 2px', backgroundColor: '#f8fafc'}}>
-                        <ModernTextField focusOnMount={true} hintText={"Enter search label"} value={currentSearchLabel||""} onChange={(e,v)=>this.setState({currentSearchLabel: v})}/>
-                        <FlatButton label={"Save"} onClick={()=>{
+                        <ModernTextField focusOnMount={true} hintText={getMessage('searchengine.query.save-label')} value={currentSearchLabel||""} onChange={(e,v)=>this.setState({currentSearchLabel: v})}/>
+                        <FlatButton label={getMessage('searchengine.query.action.save')} onClick={()=>{
                             saveSearch(currentSearchLabel);
                             this.setState({promptSearchLabel:false, currentSearchLabel: ''})}
                         } disabled={!currentSearchLabel}/>
-                        <FlatButton label={"Cancel"} onClick={()=>{this.setState({currentSearchLabel:'', promptSearchLabel:false})}}/>
+                        <FlatButton label={getMessage('54')} onClick={()=>{this.setState({currentSearchLabel:'', promptSearchLabel:false})}}/>
                     </div>
                 }
                 {!promptSearchLabel &&
@@ -210,18 +210,18 @@ class AdvancedSearch extends Component {
                     <Subheader style={{...headerStyle, marginTop: 0, flex: 1}}>{getMessage(341)}</Subheader>
                         {(showSave || showClear) &&
                             <div style={linkStyle}>
-                                {showRemove && <a onClick={()=>clearSavedSearch(searchID)}>Delete</a>}
+                                {showRemove && <a onClick={()=>clearSavedSearch(searchID)}>{getMessage('searchengine.query.action.delete')}</a>}
                                 {showRemove && showSave && " | "}
-                                {showSave && <a onClick={()=>searchID?saveSearch():this.setState({promptSearchLabel:true})}>Save</a>}
+                                {showSave && <a onClick={()=>searchID?saveSearch():this.setState({promptSearchLabel:true})}>{getMessage('searchengine.query.action.save')}</a>}
                                 {showSave && showClear && " | "}
-                                {showClear && <a onClick={()=>this.clearAll()}>Clear</a>}
+                                {showClear && <a onClick={()=>this.clearAll()}>{getMessage('searchengine.query.action.clear')}</a>}
                             </div>
                         }
                     </div>
                 }
                 <FieldRow {...rowProps} name={"basenameOrContent"} label={getMessage(1)}>{this.renderField('basenameOrContent',getMessage(1))}</FieldRow>
                 {showScope &&
-                    <FieldRow {...rowProps} name={"scope"} label={"Search in..."} style={{marginRight:16}}>
+                    <FieldRow {...rowProps} name={"scope"} label={getMessage('searchengine.scope.title')} style={{marginRight:16}}>
                         <SearchScopeSelector pydio={pydio} value={values.scope} onChange={(scope)=>{this.onChange({...values, scope})}}/>
                     </FieldRow>
                 }
@@ -241,10 +241,10 @@ class AdvancedSearch extends Component {
                 </AdvancedMetaFields>
 
                 <Subheader style={{...headerStyle}}>{getMessage(498)}</Subheader>
-                <FieldRow {...rowProps} name={"ajxp_modiftime"} label={"Modified"}>
+                <FieldRow {...rowProps} name={"ajxp_modiftime"} label={getMessage(4)}>
                     <DatePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
                 </FieldRow>
-                <FieldRow {...rowProps} name={"ajxp_bytesize"} label={"File Size"}>
+                <FieldRow {...rowProps} name={"ajxp_bytesize"} label={getMessage(2)}>
                     <FileSizePanel values={values} pydio={pydio} inputStyle={text} onChange={(values) => this.onChange(values)} />
                 </FieldRow>
             </div>
