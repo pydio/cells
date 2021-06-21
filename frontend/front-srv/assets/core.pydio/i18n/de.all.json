@@ -2351,10 +2351,49 @@
   "searchengine.searching": {
     "other": "Suche läuft..."
   },
+  "searchengine.main.placeholder": {
+    "other": "Suchen..."
+  },
+  "searchengine.topbar.title": {
+    "other": "Suche: "
+  },
+  "searchengine.scope.title": {
+    "other": "Suchen in..."
+  },
+  "searchengine.advanced-filter.tooltip": {
+    "other": "Erweiterte Filter"
+  },
+  "searchengine.results.foundN": {
+    "other": "%1 Ergebnisse gefunden"
+  },
+  "searchengine.results.withMore": {
+    "other": "Zeige %1, lade mehr..."
+  },
+  "searchengine.query.action.save": {
+    "other": "Speichern"
+  },
+  "searchengine.query.action.clear": {
+    "other": "Löschen der Warteschlange"
+  },
+  "searchengine.query.action.delete": {
+    "other": "Löschen"
+  },
+  "searchengine.query.save-label": {
+    "other": "Label eingeben"
+  },
   "chat.load-older": {
     "other": "Ältere Einträge"
   },
   "workspace.quota-usage": {
     "other": "Kontingentnutzung"
+  },
+  "action.delete.permanently": {
+    "other": "Endgültig löschen"
+  },
+  "action.delete.permanently.warning": {
+    "other": "Warnung, diese Operation kann nicht rückgängig gemacht werden!"
+  },
+  "action.goto.label": {
+    "other": "Zum Ordner"
   }
 }

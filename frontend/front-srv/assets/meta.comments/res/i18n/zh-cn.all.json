@@ -10,5 +10,8 @@
   },
   "4": {
     "other": "转到 %s"
+  },
+  "empty-state": {
+    "other": "No comments"
   }
 }

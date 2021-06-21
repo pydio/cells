@@ -358,5 +358,80 @@
   },
   "workspaceSingleQuery.uuid": {
     "other": "UUID"
+  },
+  "dataSourceSingleQuery.Name": {
+    "other": "Name"
+  },
+  "dataSourceSingleQuery.IsDisabled": {
+    "other": "Ist Deaktiviert"
+  },
+  "dataSourceSingleQuery.StorageType": {
+    "other": "Speichertyp"
+  },
+  "dataSourceSingleQuery.StorageType.REMOTE": {
+    "other": "Remote"
+  },
+  "dataSourceSingleQuery.StorageType.ANY": {
+    "other": "Jeder"
+  },
+  "dataSourceSingleQuery.StorageType.LOCALFS": {
+    "other": "Lokal"
+  },
+  "dataSourceSingleQuery.PeerAddress": {
+    "other": "Peer-Adresse"
+  },
+  "dataSourceSingleQuery.FlatStorage": {
+    "other": "Flacher Speicher"
+  },
+  "dataSourceSingleQuery.SkipSyncOnRestart": {
+    "other": "Sync beim Neustart überspringen"
+  },
+  "dataSourceSingleQuery.IsVersioned": {
+    "other": "Ist versioniert"
+  },
+  "dataSourceSingleQuery.IsEncrypted": {
+    "other": "Verschlüsselt"
+  },
+  "dataSourceSingleQuery.EncryptionMode": {
+    "other": "Verschlüsselungsmodus"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER": {
+    "other": "Benutzerschlüssel"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
+    "other": "Benutzer-Pwd"
+  },
+  "dataSourceSingleQuery.EncryptionMode.CLEAR": {
+    "other": "Löschen der Warteschlange"
+  },
+  "dataSourceSingleQuery.EncryptionMode.MASTER": {
+    "other": "Hauptschlüssel"
+  },
+  "dataSourceSingleQuery.EncryptionKey": {
+    "other": "Geheimschlüssel"
+  },
+  "dataSourceSingleQuery.VersioningPolicyName": {
+    "other": "Versionierungsrichtlinie"
+  },
+  "dataSourceSingleQuery.StorageConfigurationName": {
+    "other": "Konfigurationsschlüssel"
+  },
+  "dataSourceSingleQuery.StorageConfigurationValue": {
+    "other": "Konfigurationswert"
+  },
+  "dataSourceSingleQuery.ObjectServiceName": {
+    "other": "Objektdienst"
+  },
+  "dataSourceSingleQuery.Not": {
+    "other": "Nicht"
+  },
+  "triggerFilterQuery.IsSchedule": {
+    "other": "Geplanter Auslöser"
+  },
+  "triggerFilterQuery.IsManual": {
+    "other": "Manuell Trigger"
+  },
+  "triggerFilterQuery.EventNames": {
+    "other": "Ereignisse"
   }
 }

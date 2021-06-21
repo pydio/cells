@@ -910,5 +910,8 @@
   },
   "sharelist.quick-filter": {
     "other": "Quick filter..."
+  },
+  "composite.deleteAll": {
+    "other": "Disable all shares"
   }
 }

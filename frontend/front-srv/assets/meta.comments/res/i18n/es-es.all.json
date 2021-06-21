@@ -10,5 +10,8 @@
   },
   "4": {
     "other": "Ir a %s"
+  },
+  "empty-state": {
+    "other": "No comments"
   }
 }

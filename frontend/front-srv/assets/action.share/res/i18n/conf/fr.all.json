@@ -111,7 +111,7 @@
     "other": "Durée maximale du fichier avant son expiration"
   },
   "Maximum share expiration limit for file in days, 0 = unlimited": {
-    "other": "Durée maximale du partage avant son expiration en jours (0 = illimitée)"
+    "other": "Durée maximale du partage avant son expiration (en jours, 0 = illimitée)"
   },
   "Minimum length of the generated hash": {
     "other": "Longueur minimale du hash généré"

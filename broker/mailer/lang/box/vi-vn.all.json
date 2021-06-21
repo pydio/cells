@@ -161,6 +161,18 @@
   "Mail.Config.Mailer.Description": {
     "other": "Phần mềm gửi mail đang được sử dụng"
   },
+  "Mail.Config.Disabled.Label": {
+    "other": "Disabled (do not enable emails)"
+  },
+  "Mail.Config.NoOp.Label": {
+    "other": "No-Op (enable emails but do not send anything)"
+  },
+  "Mail.Config.NoOp.Dump": {
+    "other": "Write emails to file for debugging purpose"
+  },
+  "Mail.Config.NoOp.DumpTarget": {
+    "other": "Target folder for writing emails"
+  },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Server"
   },

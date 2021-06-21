@@ -151,5 +151,11 @@
   },
   "list.extensions.show": {
     "other": "Afficher les extensions"
+  },
+  "list.pin.bookmarks": {
+    "other": "Épingler les favoris en haut"
+  },
+  "infopanel.empty.select.file": {
+    "other": "Sélectionnez un fichier pour afficher ses informations"
   }
 }

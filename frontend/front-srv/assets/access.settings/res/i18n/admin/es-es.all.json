@@ -59,8 +59,17 @@
   "ds.editor.enc.dialog.enable.3": {
     "other": "También debe ser consciente de que se puede requerir más CPU si desea realizar una encriptación/descifrado de datos sobre la marcha."
   },
+  "ds.editor.enc.dialog.enable.create": {
+    "other": "Set an identifier for the new key"
+  },
   "ds.editor.enc.key": {
     "other": "Clave de Encriptación"
+  },
+  "ds.editor.enc.key.clear": {
+    "other": "No Encryption"
+  },
+  "ds.editor.enc.key.create": {
+    "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
     "other": "Lo Entiendo"
@@ -130,6 +139,18 @@
   },
   "ds.editor.storage.legend.readOnly": {
     "other": "Utilice el modo de solo-lectura si quiere que Cells no escriba nunca en archivos ocultos y que use eTags nativos como checksums (esto puede ser necesario para buckets con una gran cantidad de datos). Sin embargo, tenga en cuenta que cualquier workspace creado en este datasource debe configurarse como solo-lectura, ya que la funcionalidad \"mover\" no puede funcionar correctamente."
+  },
+  "ds.editor.storage.flatStorage": {
+    "other": "Keep data structure on storage"
+  },
+  "ds.editor.storage.legend.flatStorage": {
+    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
+  },
+  "ds.editor.storage.skipResync": {
+    "other": "Skip full resynchronisation at restart"
+  },
+  "ds.editor.storage.legend.skipResync": {
+    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Almacenar checksums localmente (no modificar objetos)"
@@ -419,6 +440,9 @@
   "ds.versioning.periods": {
     "other": "Estrategia de Retención"
   },
+  "ds.versioning.storage": {
+    "other": "Almacenamiento"
+  },
   "logs.1": {
     "other": "Registro del Servidor"
   },
@@ -472,6 +496,9 @@
   },
   "logs.9": {
     "other": "El archivo se exportará en formato CSV con puntos y comas como separadores (;) y campos entre comillas (\")."
+  },
+  "logs.level": {
+    "other": "Nivel"
   },
   "logs.service": {
     "other": "Servicio"
@@ -590,6 +617,9 @@
   "metadata.editor.selection.value": {
     "other": "Valor"
   },
+  "metadata.editor.selection.steps": {
+    "other": "Show as steps"
+  },
   "metadata.editor.tags.cleared": {
     "other": "Etiquetas borradas para espacios de nombres %s"
   },
@@ -634,6 +664,78 @@
   },
   "metadata.type": {
     "other": "Tipo"
+  },
+  "metadata.type.string": {
+    "other": "Short Text"
+  },
+  "metadata.type.textarea": {
+    "other": "Paragraph"
+  },
+  "metadata.type.integer": {
+    "other": "Number"
+  },
+  "metadata.type.boolean": {
+    "other": "True/False value"
+  },
+  "metadata.type.date": {
+    "other": "Date or Time"
+  },
+  "metadata.type.stars_rate": {
+    "other": "Calificación por estrellas"
+  },
+  "metadata.type.css_label": {
+    "other": "Color Labels"
+  },
+  "metadata.type.tags": {
+    "other": "Extensible Tags"
+  },
+  "metadata.type.choice": {
+    "other": "Select from values"
+  },
+  "metadata.type.json": {
+    "other": "JSON (internal format)"
+  },
+  "metadata.type.date.format": {
+    "other": "Selecciona el formato del archivo"
+  },
+  "metadata.type.date.format.date": {
+    "other": "Fecha"
+  },
+  "metadata.type.date.format.date-time": {
+    "other": "Date & Time"
+  },
+  "metadata.type.date.format.time": {
+    "other": "Time"
+  },
+  "metadata.type.date.display": {
+    "other": "Vista"
+  },
+  "metadata.type.date.display.normal": {
+    "other": "Normal"
+  },
+  "metadata.type.date.display.relative": {
+    "other": "Relative (xx days ago...)"
+  },
+  "metadata.type.reaction": {
+    "other": "Reaction"
+  },
+  "metadata.type.integer.format": {
+    "other": "Selecciona el formato del archivo"
+  },
+  "metadata.type.integer.format.general": {
+    "other": "General"
+  },
+  "metadata.type.integer.format.bytesize": {
+    "other": "Byte Size"
+  },
+  "metadata.type.integer.format.percentage": {
+    "other": "Percentage"
+  },
+  "metadata.type.integer.format.progress": {
+    "other": "Progress"
+  },
+  "metadata.toggle.list-visibility": {
+    "other": "Show value in files list"
   },
   "perfs.booster.description": {
     "other": "Comprueba que Pydio Booster está funcionando y hay comunicación via WebSocket"
@@ -1399,6 +1501,12 @@
   },
   "ws.editor.other.layout.easy": {
     "other": "Diseño de Transferencia Fácil (sólo en versión para Empresas)"
+  },
+  "ws.editor.other.skiprecycle": {
+    "other": "Skip Recycle Bin"
+  },
+  "ws.editor.other.skiprecycle.legend": {
+    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
   },
   "ws.editor.other.sync": {
     "other": "Permitir sincronización de escritorio"

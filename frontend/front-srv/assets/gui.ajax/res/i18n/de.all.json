@@ -151,5 +151,11 @@
   },
   "list.extensions.show": {
     "other": "Erweiterungen anzeigen"
+  },
+  "list.pin.bookmarks": {
+    "other": "Lesezeichen oben anheften"
+  },
+  "infopanel.empty.select.file": {
+    "other": "Wählen Sie eine Datei aus, um Informationen anzuzeigen"
   }
 }
