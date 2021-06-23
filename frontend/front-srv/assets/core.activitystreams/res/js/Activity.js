@@ -157,7 +157,11 @@ class Activity extends React.Component{
         let {pydio, activity, listContext, displayContext, oneLiner, muiTheme} = this.props;
         let secondary = activity.type + (activity.actor ? ' - ' + activity.actor.name : '');
         if (activity.summary) {
-            secondary = <ReactMarkdown source={activity.summary} renderers={{'paragraph':Paragraph, 'link': LinkWrapper(pydio, activity, {color:'inherit'})}}/>;
+            const renderers = {paragraph:Paragraph, link: LinkWrapper(pydio, activity, {color:'inherit'})}
+            if(listContext === 'NODE-LEAF') {
+                renderers.link = () => null
+            }
+            secondary = <ReactMarkdown source={activity.summary} renderers={renderers}/>;
         }
 
         let summary, summaryStyle;
@@ -174,74 +178,66 @@ class Activity extends React.Component{
             }
         } else {
             summaryStyle = {
-                padding: '6px 22px 12px',
+                padding: '6px 22px 13px',
                 marginTop: 6,
                 borderRadius: 2,
                 borderLeft: '2px solid #e0e0e0',
-                marginLeft: 13,
-                color: 'rgba(0,0,0,0.53)',
+                marginLeft: 14,
+                color: 'rgba(0,0,0,0.83)',
                 overflow: 'hidden'
             };
         }
-        const {title, className} = this.computeIcon(activity);
+        const {className} = this.computeIcon(activity);
 
-        if (listContext === 'NODE-LEAF') {
-
-            blockStyle = {margin:'16px 10px'};
-            actionIcon = <FontIcon className={className} title={title} style={{fontSize:17, color: 'rgba(0,0,0,0.17)'}}/>
-
-        } else {
-
-            if(displayContext === 'popover'){
-                blockStyle = {margin:0};
-                const nodes = nodesFromObject(activity.object, pydio);
-                let icon, primaryText;
-                if(nodes.length){
-                    const previewStyles = {
-                        style: {
-                            height: 36,
-                            width: 36,
-                            borderRadius: '50%',
-                        },
-                        mimeFontStyle: {
-                            fontSize: 20,
-                            lineHeight: '36px',
-                            textAlign:'center'
-                        }
-                    };
-                    icon = (
-                        <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
-                            <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
-                            <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: muiTheme.palette.accent2Color}}/>
-                        </div>
-                    );
-                    primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
-                } else {
-                    icon = (
-                        <div style={{margin:'12px 20px 12px 20px', backgroundColor: 'rgb(237, 240, 242)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
-                            <FontIcon className={className} style={{lineHeight:'36px', color:muiTheme.palette.accent2Color}}/>
-                        </div>
-                    );
-                    if(activity.object) {
-                        primaryText = activity.object.name;
-                    } else {
-                        primaryText = activity.name;
+        if(displayContext === 'popover'){
+            blockStyle = {margin:0};
+            const nodes = nodesFromObject(activity.object, pydio);
+            let icon, primaryText;
+            if(nodes.length){
+                const previewStyles = {
+                    style: {
+                        height: 36,
+                        width: 36,
+                        borderRadius: '50%',
+                    },
+                    mimeFontStyle: {
+                        fontSize: 20,
+                        lineHeight: '36px',
+                        textAlign:'center'
                     }
-                }
-                summary = (
-                    <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
-                        {icon}
-                        <div style={{flex:1, overflow:'hidden', paddingRight: 16}}>
-                            <div style={{marginTop: 12, marginBottom: 2, fontSize: 15, color:'rgba(0,0,0,.87)', whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden'}}>{primaryText}</div>
-                            <div style={{color: 'rgba(0,0,0,.33)'}}>{secondary}</div>
-                        </div>
+                };
+                icon = (
+                    <div style={{padding:'12px 20px 12px 20px', position:'relative'}}>
+                        <FilePreview pydio={pydio} node={nodes[0]} loadThumbnail={true} {...previewStyles}/>
+                        <span className={className} style={{position:'absolute', bottom: 8, right: 12, fontSize:18, color: muiTheme.palette.accent2Color}}/>
                     </div>
                 );
+                primaryText = nodes[0].getLabel() || PathUtils.getBasename(nodes[0].getPath())
             } else {
-                summary = (<div style={summaryStyle}>{secondary}</div>);
+                icon = (
+                    <div style={{margin:'12px 20px 12px 20px', backgroundColor: 'rgb(237, 240, 242)', alignItems: 'initial', height: 36, width: 36, borderRadius: '50%', textAlign:'center'}}>
+                        <FontIcon className={className} style={{lineHeight:'36px', color:muiTheme.palette.accent2Color}}/>
+                    </div>
+                );
+                if(activity.object) {
+                    primaryText = activity.object.name;
+                } else {
+                    primaryText = activity.name;
+                }
             }
-
+            summary = (
+                <div style={{display:'flex', alignItems:'flex-start', overflow:'hidden', paddingBottom: 8}}>
+                    {icon}
+                    <div style={{flex:1, overflow:'hidden', paddingRight: 16}}>
+                        <div style={{marginTop: 12, marginBottom: 2, fontSize: 15, color:'rgba(0,0,0,.87)', whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden'}}>{primaryText}</div>
+                        <div style={{color: 'rgba(0,0,0,.33)'}}>{secondary}</div>
+                    </div>
+                </div>
+            );
+        } else {
+            summary = (<div style={summaryStyle}>{secondary}</div>);
         }
+
 
 
 
@@ -258,7 +254,7 @@ class Activity extends React.Component{
                                 userType={'user'}
                                 pydio={pydio}
                                 style={{display:'flex', alignItems:'center', maxWidth: '60%'}}
-                                labelStyle={{fontSize: 14, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
+                                labelStyle={{fontSize: 14, fontWeight: 500, paddingLeft: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:'nowrap'}}
                                 avatarStyle={{flexShrink: 0}}
                                 avatarSize={28}
                                 richOnHover={true}

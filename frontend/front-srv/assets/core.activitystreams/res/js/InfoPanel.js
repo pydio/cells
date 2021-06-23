@@ -44,7 +44,7 @@ class InfoPanel extends React.Component {
                     context="NODE_ID"
                     contextData={node.getMetadata().get('uuid')}
                     boxName="outbox"
-                    style={{overflowY:'scroll', maxHeight: 380}}
+                    style={{overflowY:'scroll', maxHeight: 380, padding:'8px 12px'}}
                     listContext={"NODE-" + (node.isLeaf() ? "LEAF" : "COLLECTION")}
                     pointOfView={"ACTOR"}
                     displayContext="infoPanel"
