@@ -20,19 +20,17 @@
 
 import Pydio from "pydio";
 import DOMUtils from 'pydio/util/dom'
-import React from "react";
+import React, {createRef} from "react";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 const {Paper, FlatButton} = require('material-ui')
 const {ModernTextField} = Pydio.requireLib("hoc");
 
 class InlineEditor extends React.Component {
 
-    // static propTypes = {
-    //     node        : React.PropTypes.instanceOf(AjxpNode),
-    //     callback    : React.PropTypes.func,
-    //     onClose     : React.PropTypes.func,
-    //     detached    : React.PropTypes.bool
-    // };
+    constructor(props) {
+        super(props);
+        this.text = createRef();
+    }
 
     submit(){
         let value;
@@ -55,9 +53,9 @@ class InlineEditor extends React.Component {
     }
 
     componentDidMount() {
-        if(this.refs.text){
-            DOMUtils.selectBaseFileName(this.refs.text.getInput());
-            this.refs.text.focus();
+        if(this.text){
+            DOMUtils.selectBaseFileName(this.text.current.getInput());
+            this.text.current.focus();
         }
     }
 
@@ -77,9 +75,9 @@ class InlineEditor extends React.Component {
     render() {
         const messages = Pydio.getMessages();
         return (
-            <Paper className={"inline-editor" + (this.props.detached ? " detached" : "")} style={{padding: 8}} zDepth={2}>
+            <Paper className={"inline-editor" + (this.props.detached ? " detached" : "")} style={{padding: 8, fontWeight:'initial'}} zDepth={2}>
                 <ModernTextField
-                    ref="text"
+                    ref={this.text}
                     defaultValue={this.props.node.getLabel()}
                     onChange={(e, value)=>{this.setState({value:value})}}
                     onClick={this.catch} onDoubleClick={(e) => this.catchClicks(e)}

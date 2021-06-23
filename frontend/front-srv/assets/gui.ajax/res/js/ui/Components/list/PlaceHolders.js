@@ -43,13 +43,11 @@ export default function PlaceHolders(props) {
         multiplePH = <div style={{display:'flex', flexWrap:'wrap'}}>{multiplePH}</div>
     } else if (tableKeys) {
         // Create table lines PH
-        const wPercent = 100 / Object.keys(tableKeys).length
         customPH = (
-            <div style={{width: '100%', display:'flex', alignItems:'baseline', height: 50}}>
+            <div style={{width: '100%', display:'flex', alignItems:'baseline', height: 48}}>
                 {Object.keys(tableKeys).map(k => {
-                    const w = k==='ajxp_label'?250:wPercent+'%';
                     const f = k==='ajxp_label'?16:null;
-                    return <span style={{display:'inline-block',width:w, fontSize:f, paddingLeft:10, paddingRight: 10}}><PhTextRow/></span>
+                    return <span className={"cell cell-"+k} style={{display:'inline-block', fontSize:f, paddingTop: 8, paddingLeft:10, paddingRight: 10}}><PhTextRow/></span>
                 })}
             </div>
         )

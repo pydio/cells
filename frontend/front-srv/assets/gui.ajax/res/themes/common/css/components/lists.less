@@ -192,6 +192,13 @@
             display: none;
           }
         }
+        &:hover:not(.selected), &.selected {
+          .material-list-line-1 {
+            .label-extension {
+              display: inline !important;
+            }
+          }
+        }
       }
         span.cell{
           color: rgba(0,0,0,0.63);
@@ -217,12 +224,6 @@
             div.mimefont-container{
               font-size: 20px;
               margin-right: 16px;
-            }
-            span:last-child{
-              display: block;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
             }
           }
         }

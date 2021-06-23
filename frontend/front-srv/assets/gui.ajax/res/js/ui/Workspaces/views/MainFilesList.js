@@ -132,37 +132,6 @@ class MainFilesList extends React.Component {
         horizontalRibbon: PropTypes.bool
     };
 
-    tableEntryRenderCell(node){
-        const {showExtensions} = this.state;
-        let label = node.getLabel();
-        if(!showExtensions && node.isLeaf() && label[0] !== "."){
-            let ext = PathUtils.getFileExtension(label);
-            if(ext){
-                ext = '.' + ext;
-                label = label.substring(0, label.length-ext.length);
-            }
-        }
-        return (
-            <span>
-                <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
-                <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{label}</span>
-            </span>
-        );
-    }
-
-    computeLabel(node){
-        const {showExtensions} = this.state;
-        let label = node.getLabel();
-        if(node.isLeaf() && label[0] !== "."){
-            let ext = PathUtils.getFileExtension(label);
-            if(ext){
-                ext = '.' + ext;
-                label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:showExtensions?null:'none'}}>{ext}</span></span>;
-            }
-        }
-        return label;
-    }
-
     constructor(props, context) {
         super(props, context);
         let configParser = new ComponentConfigsParser(this.tableEntryRenderCell.bind(this));
@@ -352,6 +321,28 @@ class MainFilesList extends React.Component {
         });
 
 
+    }
+
+    computeLabel(node){
+        const {showExtensions} = this.state;
+        let label = node.getLabel();
+        if(node.isLeaf() && label[0] !== "."){
+            let ext = PathUtils.getFileExtension(label);
+            if(ext){
+                ext = '.' + ext;
+                label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:showExtensions?null:'none'}}>{ext}</span></span>;
+            }
+        }
+        return label;
+    }
+
+    tableEntryRenderCell(node){
+        return (
+            <span>
+                <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>
+                <span style={{display:'block',overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}} title={node.getLabel()}>{this.computeLabel(node)}</span>
+            </span>
+        );
     }
 
     entryRenderIcon(node, entryProps = {}){

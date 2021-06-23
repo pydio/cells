@@ -594,6 +594,10 @@ div.dialogBox div#element_overlay {
     display: none;
   }
 }
+.react-mui-context .material-list.files-list.table-mode .material-list-entry:hover:not(.selected) .material-list-line-1 .label-extension,
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.selected .material-list-line-1 .label-extension {
+  display: inline !important;
+}
 .react-mui-context .material-list.files-list.table-mode span.cell {
   color: rgba(0, 0, 0, 0.63);
 }
@@ -624,12 +628,6 @@ div.dialogBox div#element_overlay {
 .react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span div.mimefont-container {
   font-size: 20px;
   margin-right: 16px;
-}
-.react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span span:last-child {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-icon-none {
   display: none;
