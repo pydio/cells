@@ -33,11 +33,10 @@ class SearchApi {
 
 
         let query = new TreeQuery();
-        //const prefix = this.computePathPrefix(scope);
         if(scope !== 'all'){
             query.PathPrefix = [scope];
         }
-        console.log(values);
+        //console.log(values);
         const keys = Object.keys(values);
         if (keys.length === 1 && keys[0] === 'basename') {
             query.FileName = this.autoQuote(values['basename']);
@@ -113,22 +112,6 @@ class SearchApi {
             })
         });
 
-    }
-
-    computePathPrefix(scope){
-        const slug = this.pydio.user.getActiveRepositoryObject().getSlug();
-        switch (scope){
-            case 'all':
-                // All workspaces
-                return '';
-            case 'ws':
-                // Current workspace
-                return slug + '/';
-            case 'folder':
-            default:
-                // Current folder
-                return slug + this.pydio.getContextHolder().getContextNode().getPath();
-        }
     }
 
     autoQuote(text){

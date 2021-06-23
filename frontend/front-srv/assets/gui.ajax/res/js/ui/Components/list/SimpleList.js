@@ -317,7 +317,6 @@ let SimpleList = createReactClass({
     },
 
     componentWillReceiveProps: function(nextProps) {
-        console.log(nextProps);
         this.indexedElements = null;
         const currentLength = Math.max(this.state.elements.length, nextProps.infiniteSliceCount);
         this.setState({

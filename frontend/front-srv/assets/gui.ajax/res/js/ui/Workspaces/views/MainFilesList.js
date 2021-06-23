@@ -261,7 +261,13 @@ class MainFilesList extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return (!this.state || this.state.repositoryId !== nextProps.pydio.repositoryId || nextProps.dataModel !== this.props.dataModel || nextState !== this.state );
+        return (!this.state
+            || this.state.repositoryId !== nextProps.pydio.repositoryId
+            || nextProps.dataModel !== this.props.dataModel
+            || nextProps.searchLoading !== this.props.searchLoading
+            || nextProps.searchResults !== this.props.searchResults
+            || nextProps.searchScope !== this.props.searchScope
+            || nextState !== this.state );
     }
 
     componentWillReceiveProps(nextProps) {
