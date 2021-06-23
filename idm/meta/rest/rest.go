@@ -261,7 +261,6 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 		service.RestError500(req, rsp, e)
 		return
 	}
-	log.Logger(ctx).Debug("Got Bookmarks : ", zap.Any("b", output))
 	bulk := &rest.BulkMetaResponse{}
 	for _, meta := range output.Metadatas {
 		node := &tree.Node{
@@ -275,10 +274,9 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 			n.Path = path.Join(n.AppearsIn[0].WsSlug, n.AppearsIn[0].Path)
 			bulk.Nodes = append(bulk.Nodes, n.WithoutReservedMetas())
 		} else {
-			log.Logger(ctx).Error("ReadNode Error : ", zap.Error(e))
+			log.Logger(ctx).Debug("Ignoring Bookmark: ", zap.Error(e))
 		}
 	}
-	log.Logger(ctx).Debug("Return bulk : ", zap.Any("b", bulk))
 	rsp.WriteEntity(bulk)
 
 }

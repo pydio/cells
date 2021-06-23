@@ -273,7 +273,7 @@ class DataSourcesBoard extends React.Component {
                 versionPolicy:versionPolicy,
                 create: create,
                 pydio: pydio,
-                internalSources:dataSources.filter((ds) => ds.StorageConfiguration.cellsInternal).map((ds) => ds.Name),
+                internalSources:dataSources.filter((ds) => ds.StorageConfiguration && ds.StorageConfiguration.cellsInternal).map((ds) => ds.Name),
                 readonly: versioningReadonly || !accessByName('CreateVersioning'),
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
@@ -368,8 +368,8 @@ class DataSourcesBoard extends React.Component {
         const {dataSources, resyncJobs, versioningPolicies, m, createDialog} = this.state;
         dataSources.sort(LangUtils.arraySorter('Name'));
 
-        const splitSources = dataSources.filter(ds => !ds.StorageConfiguration.cellsInternal);
-        const internalSources = dataSources.filter(ds => ds.StorageConfiguration.cellsInternal);
+        const splitSources = dataSources.filter(ds => !(ds.StorageConfiguration && ds.StorageConfiguration.cellsInternal));
+        const internalSources = dataSources.filter(ds => ds.StorageConfiguration && ds.StorageConfiguration.cellsInternal);
 
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
@@ -439,8 +439,7 @@ class DataSourcesBoard extends React.Component {
         if(accessByName('CreateDatasource')){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4']} onClick={() => this.setState({createDialog:true})} {...adminStyles.props.header.flatButton}/>)
         }
-        // TMP TODO
-        const versioningEditable = true; !versioningReadonly && accessByName('CreateVersioning');
+        const versioningEditable = !versioningReadonly && accessByName('CreateVersioning');
         if(versioningEditable){
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onClick={() => {this.openVersionPolicy()}} {...adminStyles.props.header.flatButton}/>)
         }
