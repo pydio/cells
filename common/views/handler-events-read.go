@@ -108,6 +108,10 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 			}
 		}
 		if eventNode.Uuid != "" {
+			if eventNode.Type == tree.NodeType_UNKNOWN {
+				// Assume it's a file
+				eventNode.Type = tree.NodeType_LEAF
+			}
 			c := context2.WithMetaCopy(ctx)
 			go func() {
 				client.Publish(c, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
