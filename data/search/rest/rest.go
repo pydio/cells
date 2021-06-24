@@ -165,7 +165,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			respNode := resp.Node
 			wrapperCtx, wrapperN, _ := inputFilter(ctx, respNode, "in")
 			if err := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); err != nil {
-				log.Logger(ctx).Debug("Skipping node in search results", respNode.ZapPath())
+				log.Logger(ctx).Debug("Skipping node in search results", respNode.ZapPath(), zap.Error(err))
 				continue
 			}
 			for r, p := range nodesPrefixes {
