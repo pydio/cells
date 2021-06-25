@@ -130,7 +130,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 
 	// Create Activities and post them to associated inboxes
 	ac, node := activity.DocumentActivity(author, msg)
-	if node == nil || node.Uuid == "" || tree.IgnoreNodeForOutput(ctx, node) || e.ignoreForInternal(node) {
+	if node == nil || node.Uuid == "" || (node.Path != "" && tree.IgnoreNodeForOutput(ctx, node)) || e.ignoreForInternal(node) {
 		return nil
 	}
 
