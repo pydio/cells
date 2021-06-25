@@ -1,5 +1,3 @@
-import React from 'react';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,13 +18,14 @@ import React from 'react';
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
 import PropTypes from 'prop-types';
-
 import Pydio from 'pydio'
 import UserAvatar from '../users/avatar/UserAvatar'
 import {Paper, FlatButton} from 'material-ui'
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
 import DOMUtils from 'pydio/util/dom'
+import Markdown from 'react-markdown'
 
 class Message extends React.Component {
 
@@ -118,9 +117,9 @@ class Message extends React.Component {
             />
         }
         let text = (
-            <Paper zDepth={0} style={textStyle}>
-                {deleteBox}{message.Message}
-            </Paper>
+            <div style={textStyle}>
+                {deleteBox} <Markdown source={message.Message}/>
+            </div>
         );
         if(!sameAuthor){
             text = (
@@ -128,7 +127,7 @@ class Message extends React.Component {
                     <div>
                         <UserAvatar labelStyle={styles.commentTitle} pydio={pydio} displayLabel={true} displayAvatar={false} userId={message.Author}/>
                     </div>
-                    <div>{deleteBox}{message.Message}</div>
+                    <div>{deleteBox}<Markdown source={message.Message}/></div>
                 </div>
             )
         }

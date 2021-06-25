@@ -45,6 +45,7 @@ class InfoPanel extends React.Component {
                     textFieldProps={{
                         style:{height: 40, lineHeight:'16px'}
                     }}
+                    readonly={node.getMetadata().get('node_readonly') === 'true'}
                 />
             </InfoPanelCard>
         );

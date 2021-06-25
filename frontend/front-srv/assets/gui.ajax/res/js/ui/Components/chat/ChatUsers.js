@@ -1,17 +1,34 @@
-import React from 'react'
+import React, {createRef} from 'react'
+import DOMUtils from 'pydio/util/dom'
 import IdmObjectHelper from 'pydio/model/idm-object-helper';
 
 class ChatUsers extends React.Component{
 
+    constructor(props) {
+        super(props);
+        this.container = createRef()
+    }
+
     render(){
         const {ACLs, roomUsers, pydio, style} = this.props;
+        const {hover = false} = this.state || {};
         const styles = {
+            container: {
+                padding: 16,
+                fontWeight: 500,
+                color: '#757575',
+                borderBottom:'1px solid #e0e0e0',
+                height: 44,
+                transition: DOMUtils.getBeziersTransition(),
+                overflowY: 'auto',
+                ...style
+            },
             user:{
                 margin: 5,
                 whiteSpace: 'nowrap',
-                padding: '5px 10px',
+                padding: '2px 16px',
                 backgroundColor: 'rgb(255 255 255 / 53%)',
-                borderRadius: 16
+                borderRadius: 6
             },
             online:{
                 color:'#4CAF50',
@@ -29,21 +46,49 @@ class ChatUsers extends React.Component{
             if(acl.User){
                 online = roomUsers && roomUsers.indexOf(acl.User.Login) > -1;
             }
-            return (
-                <span style={styles.user}>
-                    {label}
-                    {online !== undefined &&
-                        <span className={"mdi mdi-checkbox-blank-circle" + (online?"":"-outline")} style={online?styles.online:styles.offline}/>
-                    }
-                    {online === undefined &&
-                    <span className={"mdi mdi-account-multiple-outline"} style={styles.offline}/>
-                    }
-                </span>
-            );
-
+            return {online, label}
         });
+        users.sort((a,b)=>{
+            if(a.online) {
+                return -1
+            } else if(b.online) {
+                return 1
+            } else {
+                return 0
+            }
+        })
 
-        return <div style={{padding: 16, fontWeight: 500, color: '#757575', borderBottom:'1px solid #e0e0e0', ...style}}>{users}</div>
+        let contStyle = {...styles.container}
+        if(this.container.current){
+            if(hover){
+                contStyle = {...contStyle, height: this.container.current.scrollHeight}
+            } else if(this.container.current.scrollHeight > 44) {
+                contStyle = {...contStyle, height: 56}
+            }
+        }
+
+        return (
+            <div
+                ref={this.container}
+                onMouseEnter={() => this.setState({hover: true})}
+                onMouseLeave={() => this.setState({hover: false})}
+                style={contStyle}
+            >{users.map(u => {
+                const {label, online} = u;
+                return (
+                    <span style={styles.user}>
+                    {label}
+                        {online !== undefined &&
+                        <span className={"mdi mdi-checkbox-blank-circle" + (online?"":"-outline")} style={online?styles.online:styles.offline}/>
+                        }
+                        {online === undefined &&
+                        <span className={"mdi mdi-account-multiple-outline"} style={styles.offline}/>
+                        }
+                </span>
+                );
+
+            })}</div>
+        )
 
     }
 

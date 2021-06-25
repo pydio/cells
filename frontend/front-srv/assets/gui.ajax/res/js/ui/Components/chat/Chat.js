@@ -1,5 +1,3 @@
-import React from 'react';
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20,6 +18,7 @@ import React from 'react';
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React, {createRef} from "react";
 import PropTypes from 'prop-types';
 
 import Pydio from 'pydio';
@@ -39,6 +38,7 @@ class Chat extends React.Component{
         this.client = null;
         this.state = {messages: [], room: null, value:""};
         this._newMessageListener = this.onNewMessage.bind(this);
+        this.commentPane = createRef()
     }
 
     componentDidMount(){
@@ -53,8 +53,8 @@ class Chat extends React.Component{
         if(prevState.messages.length <= this.state.messages.length){
             const prevLastStamp = prevState.messages.length > 0 ? parseFloat(prevState.messages[prevState.messages.length-1].Timestamp) : 0
             const newLastStamp = this.state.messages.length > 0 ? parseFloat(this.state.messages[this.state.messages.length-1].Timestamp) : 0
-            if(newLastStamp > prevLastStamp){
-                this.refs.comments.scrollTop = 100000;
+            if(newLastStamp > prevLastStamp && this.commentPane.current){
+                this.commentPane.current.scrollTop = 100000;
             }
         }
     }
@@ -158,14 +158,31 @@ class Chat extends React.Component{
     }
 
     keyDown(event){
+        const {value} = this.state;
         if(event.key === 'Enter'){
-            event.preventDefault();
-            this.postMessage();
+            if(event.metaKey || event.ctrlKey) {
+                const target = event.currentTarget;
+                let newValue;
+                let cursor;
+                if(target.selectionEnd < value.length) {
+                    newValue = value.substr(0, target.selectionEnd) + '\n' + value.substr(target.selectionEnd);
+                    cursor = target.selectionEnd+1;
+                } else {
+                    newValue = value + '\n';
+                    cursor = newValue.length;
+                }
+                this.setState({value: newValue}, () => {
+                    target.setSelectionRange(cursor, cursor);
+                })
+            } else {
+                event.preventDefault();
+                this.postMessage();
+            }
         }
     }
 
     render(){
-        const {style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs} = this.props;
+        const {style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs, readonly} = this.props;
         const {messages, room} = this.state;
         let data = [];
         let previousMDate;
@@ -205,7 +222,7 @@ class Chat extends React.Component{
                 {computePresenceFromACLs !== undefined  &&
                     <ChatUsers pydio={pydio} ACLs={computePresenceFromACLs} roomUsers={room?room.Users:[]} style={chatUsersStyle}/>
                 }
-                <div ref="comments" className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
+                <div ref={this.commentPane} className="comments_feed" style={{maxHeight: 300, overflowY: 'auto',  ...pushStyle, ...msgContainerStyle}}>
                     {pusher}
                     {data}
                     {emptyState}
@@ -217,10 +234,10 @@ class Chat extends React.Component{
                         value={this.state.value}
                         onChange={(event, newValue) => {this.setState({value: newValue})}}
                         multiLine={true}
-                        ref="new_comment"
                         onKeyDown={this.keyDown.bind(this)}
                         fullWidth={true}
                         underlineShow={false}
+                        disabled={readonly}
                         {...textFieldProps}
                     />
                 </div>
