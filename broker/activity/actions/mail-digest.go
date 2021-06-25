@@ -26,8 +26,6 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
-
 	activity2 "github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/broker/activity/render"
 	"github.com/pydio/cells/common"
@@ -150,7 +148,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 
 	md := render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang)
 	if strings.TrimSpace(md) == "" {
-		log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).", zap.Any("collection", collection))
+		log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).")
 		return input.WithIgnore(), nil
 	}
 
