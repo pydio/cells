@@ -228,7 +228,7 @@ func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 		case chat.WsMessageType_HISTORY:
 			// Must arrive AFTER a JOIN message
 			foundRoom, e1 := c.findOrCreateRoom(ctx, chatMsg.Room, false)
-			if e1 != nil {
+			if e1 != nil || foundRoom == nil {
 				break
 			}
 			chatClient := c.getChatClient()
