@@ -335,7 +335,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 	}
 
-	log.Logger(f.ctx).Info(fmt.Sprintf("Uploaded %d parts", len(partsInfo)), zap.Any("CompleteParts", completeParts))
+	log.Logger(f.ctx).Info(fmt.Sprintf("Uploaded %d parts", len(partsInfo)), zap.Int("CompleteParts count", len(completeParts)))
 
 	// Will be useful when we use goroutines and channels
 	// // Sort all completed parts.

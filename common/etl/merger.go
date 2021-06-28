@@ -92,7 +92,7 @@ func (m *Merger) diffUsers(extUsers map[string]*idm.User, apiUsers map[string]*i
 			}
 			userToDelete[extUserId] = false
 			if len(ExtUser.Roles) > 0 {
-				log.Logger(context.Background()).Info("External User Roles", zap.Any("roles", ExtUser.Roles))
+				log.Logger(context.Background()).Info("External has roles", zap.Int("length", len(ExtUser.Roles)))
 			}
 			if ExtUser.IsMergeable(apiUser) {
 				user, err, shouldBeUpdated := ExtUser.Merge(apiUser, m.Options)
@@ -187,12 +187,12 @@ func (m *Merger) LoadAndDiffRoles(ctx context.Context, params map[string]interfa
 	if e != nil {
 		return nil, e
 	}
-	log.Logger(ctx).Debug("Source Roles", zap.Any("params", params), zap.Any("list", src))
+	log.Logger(ctx).Debug("Source Roles", zap.Any("params", params), zap.Int("list length", len(src)))
 	target, e := m.Target.ListRoles(ctx, m.Target, params)
 	if e != nil {
 		return nil, e
 	}
-	log.Logger(ctx).Debug("Target Roles", zap.Any("params", params), zap.Any("list", target))
+	log.Logger(ctx).Debug("Target Roles", zap.Any("params", params), zap.Int("list length", len(target)))
 	m.Diff(src, target, diff)
 
 	return diff, nil

@@ -91,7 +91,7 @@ func TestArchiveReader_ListChildren(t *testing.T) {
 		results, e := archiveReader.ListChildrenZip(context.Background(), archiveNode, "actions")
 		So(e, ShouldBeNil)
 
-		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)), zap.Any("results", results))
+		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)))
 		So(results, ShouldHaveLength, 8)
 
 	})
@@ -109,13 +109,13 @@ func TestArchiveReader_ListChildren(t *testing.T) {
 		results, e := archiveReader.ListChildrenZip(context.Background(), archiveNode, "")
 		So(e, ShouldBeNil)
 
-		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)), zap.Any("results", results))
+		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)))
 		So(results, ShouldHaveLength, 2)
 
 		results, e = archiveReader.ListChildrenZip(context.Background(), archiveNode, "TestZip/")
 		So(e, ShouldBeNil)
 
-		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)), zap.Any("results", results))
+		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)))
 		So(results, ShouldHaveLength, 3)
 
 	})
@@ -133,7 +133,7 @@ func TestArchiveReader_ListChildren(t *testing.T) {
 		results, e := archiveReader.ListChildrenTar(context.Background(), false, archiveNode, "actions")
 		So(e, ShouldBeNil)
 
-		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)), zap.Any("results", results))
+		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)))
 		So(results, ShouldHaveLength, 8)
 
 	})
@@ -151,7 +151,7 @@ func TestArchiveReader_ListChildren(t *testing.T) {
 		results, e := archiveReader.ListChildrenTar(context.Background(), true, archiveNode, "actions")
 		So(e, ShouldBeNil)
 
-		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)), zap.Any("results", results))
+		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)))
 		So(results, ShouldHaveLength, 8)
 
 	})
@@ -169,7 +169,7 @@ func TestArchiveReader_ListChildren(t *testing.T) {
 		results, e := archiveReader.ListChildrenTar(context.Background(), true, archiveNode, "")
 		So(e, ShouldBeNil)
 
-		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)), zap.Any("results", results))
+		log.Logger(context.Background()).Debug("Files Read", zap.Int("length", len(results)))
 		So(results, ShouldHaveLength, 3)
 
 	})

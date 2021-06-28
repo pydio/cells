@@ -374,7 +374,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 		rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 		removes := s.diffRoles(update.Roles, inputUser.Roles)
-		log.Logger(ctx).Debug("ADD/REMOVE ROLES", zap.Any("add", rolesToCheck), zap.Any("remove", removes), zap.Any("new", inputUser.Roles), zap.Any("existings", update.Roles))
+		log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
 		rolesToCheck = append(rolesToCheck, removes...)
 		if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 			log.Auditer(ctx).Error(
@@ -670,15 +670,13 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
 	rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 	removes := s.diffRoles(update.Roles, inputUser.Roles)
-	log.Logger(ctx).Debug("ADD/REMOVE ROLES", zap.Any("add", rolesToCheck), zap.Any("remove", removes), zap.Any("new", inputUser.Roles), zap.Any("existings", update.Roles))
+	log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
 	rolesToCheck = append(rolesToCheck, removes...)
 	if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 		log.Auditer(ctx).Error(
 			fmt.Sprintf("Forbidden action: could not assign roles to user [%s]", update.GetLogin()),
 			log.GetAuditId(common.AuditUserUpdate),
-			zap.Any("rolesToCheck", rolesToCheck),
 			update.ZapUuid(),
-			zap.Any("rolesToCheck", rolesToCheck),
 		)
 		service.RestError403(req, rsp, err)
 		return
@@ -699,7 +697,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 			fmt.Sprintf("Updated roles on user [%s]", response.User.GetLogin()),
 			log.GetAuditId(common.AuditUserUpdate),
 			response.User.ZapUuid(),
-			zap.Any("Roles", u.Roles),
+			zap.Int("Roles length", len(u.Roles)),
 		)
 		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 		permissions.ForceClearUserCache(response.User.GetLogin())

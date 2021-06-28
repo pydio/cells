@@ -160,11 +160,11 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 			})
 		}
 	}
-	log.Logger(ctx).Debug("Current Roots", zap.Any("crt", currentRoots))
+	log.Logger(ctx).Debug("Current Roots", log.DangerouslyZapSmallSlice("crt", currentRoots))
 	targetAcls := share.ComputeTargetAcls(ctx, ownerUser, shareRequest.Room, workspace.UUID, readonly)
-	log.Logger(ctx).Debug("Share ACLS", zap.Any("current", currentAcls), zap.Any("target", targetAcls))
+	log.Logger(ctx).Debug("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
 	add, remove := share.DiffAcls(ctx, currentAcls, targetAcls)
-	log.Logger(ctx).Debug("Diff ACLS", zap.Any("add", add), zap.Any("remove", remove))
+	log.Logger(ctx).Debug("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
 
 	for _, acl := range add {
 		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
@@ -185,7 +185,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	log.Logger(ctx).Debug("Share Policies", zap.Any("before", workspace.Policies))
+	log.Logger(ctx).Debug("Share Policies", log.DangerouslyZapSmallSlice("before", workspace.Policies))
 	share.UpdatePoliciesFromAcls(ctx, workspace, currentAcls, targetAcls)
 
 	// Now update workspace

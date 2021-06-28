@@ -113,7 +113,7 @@ func (c *ChildrenRunner) OnDeleteConfig(callback func(context.Context, string)) 
 func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg configx.Values) {
 	sources := config.SourceNamesFromDataConfigs(cfg)
 	c.initialCtx = ctx
-	log.Logger(ctx).Info("Starting umbrella service "+c.childPrefix+" with sources", zap.Any("sources", sources))
+	log.Logger(ctx).Info("Starting umbrella service "+c.childPrefix+" with sources", log.DangerouslyZapSmallSlice("sources", sources))
 	for _, s := range sources {
 		if !c.FilterOutSource(ctx, s) {
 			go c.Start(ctx, s)
@@ -234,7 +234,7 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
 				sources := config.SourceNamesFiltered(arr)
 				log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
-				log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Any("new sources", sources))
+				log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Int("new sources length", len(sources)))
 
 				// First stopping what's been removed
 				for name, cmd := range c.services {

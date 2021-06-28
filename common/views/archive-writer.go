@@ -72,7 +72,7 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 
 	parentRoot := w.commonRoot(nodes)
 
-	log.Logger(ctx).Debug("ZipSelection", zap.String("parent", parentRoot), zap.Any("selection", nodes))
+	log.Logger(ctx).Debug("ZipSelection", zap.String("parent", parentRoot), zap.Int("selection size", len(nodes)))
 
 	filters := []WalkFilter{
 		WalkFilterSkipPydioHiddenFile,

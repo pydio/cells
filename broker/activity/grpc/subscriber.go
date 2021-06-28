@@ -181,7 +181,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		subUuids = append(subUuids, node.Uuid)
 	}
 	subscriptions, err := dao.ListSubscriptions(activity2.OwnerType_NODE, subUuids)
-	log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Any("subs", subscriptions))
+	log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Int("subs length", len(subscriptions)))
 	if err != nil {
 		return err
 	}

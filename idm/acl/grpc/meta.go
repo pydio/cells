@@ -25,11 +25,8 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
@@ -119,7 +116,6 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		}
 
 		if len(shares) > 0 {
-			log.Logger(ctx).Debug("Read Node Stream for Shares : found workspaces owned by user", zap.Any("s", shares), zap.Any("n", nodeAcls), zap.Any("acls", *acls))
 			node.SetMeta("workspaces_shares", shares)
 		}
 

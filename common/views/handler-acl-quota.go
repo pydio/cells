@@ -272,7 +272,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 		}
 		ancestors, er := BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
 		if er != nil {
-			log.Logger(ctx).Error("AncestorsList for rootNode", zap.Any("r", root), zap.Any("ancestors", ancestors), zap.Any("ownerWsRoots", ownerWsRoots))
+			log.Logger(ctx).Debug("AncestorsList for rootNode", zap.Any("r", root), zap.Int("ancestors length", len(ancestors)), zap.Any("ownerWsRoots", ownerWsRoots))
 			err = er
 			return
 		}
@@ -281,7 +281,6 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 				parentWorkspaces = append(parentWorkspaces, ws)
 			}
 		}
-		log.Logger(ctx).Debug("Workspace Parents?", zap.Any("parents", parentWorkspaces))
 		if len(parentWorkspaces) > 0 {
 			return parentWorkspaces, parentContext, nil
 		}

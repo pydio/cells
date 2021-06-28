@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap/zapcore"
+
 	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/pydio/cells/common/config"
@@ -91,7 +93,6 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			targetNodePath = node.Path
 		}
 
-		log.Logger(ctx).Debug("Submitting selected pathes for compression", zap.Any("pathes", selectedPathes))
 		params := map[string]string{
 			"format": format,
 			"target": targetNodePath,
@@ -309,7 +310,13 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			}
 		}
 
-		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
+		var pZap zapcore.Field
+		if len(selectedPathes) > 20 {
+			pZap = log.DangerouslyZapSmallSlice("20 first paths", selectedPathes[:20])
+		} else {
+			pZap = log.DangerouslyZapSmallSlice("paths", selectedPathes)
+		}
+		log.Logger(ctx).Info("Creating copy/move job", pZap, zap.String("target", targetNodePath))
 		if move && strings.Contains(targetNodePath, common.RecycleBinName) {
 			// Update node meta before moving
 			metaClient := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
@@ -574,7 +581,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 		MaxConcurrency: 1,
 	}
 	rootAction := &jobs.Action{}
-	log.Logger(ctx).Info("Got Actions", zap.Any("actions", data))
+	log.Logger(ctx).Info("Got Actions", log.DangerouslyZapSmallSlice("actions", data))
 	parentAction := rootAction
 	for _, a := range data {
 		action := &jobs.Action{

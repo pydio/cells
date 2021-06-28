@@ -313,7 +313,7 @@ func (c *ChatHandler) roomInSession(session *melody.Session, roomUuid string) (*
 				return v, true
 			}
 		}
-		log.Logger(context.Background()).Debug("looking for rooms in session", zap.Any("rooms", rooms), zap.String("search", roomUuid))
+		log.Logger(context.Background()).Debug("looking for rooms in session", zap.String("search", roomUuid))
 	}
 	return nil, false
 }
@@ -331,10 +331,10 @@ func (c *ChatHandler) storeSessionRoom(session *melody.Session, room *sessionRoo
 	}
 	if !found {
 		rooms = append(rooms, room)
-		log.Logger(context.Background()).Debug("storing rooms to session", zap.Any("room", room.uuid), zap.Any("rooms", rooms))
+		log.Logger(context.Background()).Debug("storing rooms to session", zap.Any("room", room.uuid), zap.Int("rooms length", len(rooms)))
 		session.Set(SessionRoomKey, rooms)
 	} else {
-		log.Logger(context.Background()).Debug("rooms to session already found", zap.Any("room", room.uuid), zap.Any("rooms", rooms))
+		log.Logger(context.Background()).Debug("rooms to session already found", zap.Any("room", room.uuid), zap.Int("rooms length", len(rooms)))
 	}
 	return session
 }
@@ -350,7 +350,7 @@ func (c *ChatHandler) removeSessionRoom(session *melody.Session, roomUuid string
 			newRooms = append(newRooms, k)
 		}
 	}
-	log.Logger(context.Background()).Debug("removing room from session", zap.Any("room", roomUuid), zap.Any("rooms", newRooms))
+	log.Logger(context.Background()).Debug("removing room from session", zap.Any("room", roomUuid), zap.Int("rooms length", len(newRooms)))
 	session.Set(SessionRoomKey, newRooms)
 	return session
 }

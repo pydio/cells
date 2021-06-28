@@ -74,7 +74,10 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	req.ReadEntity(&message)
 
 	ctx := req.Request.Context()
-	log.Logger(ctx).Debug("Sending Email", zap.Any("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
+	if len(message.To) > 100 {
+		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to send emails to more than 100 people at once"))
+	}
+	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
 	langs := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	cli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))

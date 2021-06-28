@@ -540,11 +540,15 @@ func (d *daocache) GetNodeByPath(path []string) (*mtree.TreeNode, error) {
 		newPotentialNodes = []*mtree.TreeNode{}
 	}
 
-	if len(potentialNodes) > 1 {
-		log.Logger(context.Background()).Error("Duplicate node", zap.Any("potentialNodes", potentialNodes))
+	le := len(potentialNodes)
+	if le > 1 {
+		if le > 20 {
+			potentialNodes = potentialNodes[:20] // reduce size for logs
+		}
+		log.Logger(context.Background()).Error("Duplicate node", zap.Int("count", le), log.DangerouslyZapSmallSlice("nodes...", potentialNodes))
 	}
 
-	return nil, fmt.Errorf("Cache:GetNodeByPath "+logPath+" : potentialNodes not reduced to 1 value (potential:%d, newPotential:%d", len(potentialNodes), len(newPotentialNodes))
+	return nil, fmt.Errorf("Cache:GetNodeByPath "+logPath+" : potentialNodes not reduced to 1 value (potentials:%d)", le)
 }
 
 func (d *daocache) GetNodeChild(path mtree.MPath, name string) (*mtree.TreeNode, error) {

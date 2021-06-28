@@ -461,7 +461,7 @@ func (e *Executor) MultipartComplete(ctx context.Context, target *tree.Node, upl
 	}
 	s3Path := e.buildS3Path(info, target)
 
-	log.Logger(ctx).Debug("HANDLER-EXEC - before calling minio.CompleteMultipartUpload", zap.Any("Parts", uploadedParts))
+	log.Logger(ctx).Debug("HANDLER-EXEC - before calling minio.CompleteMultipartUpload", zap.Int("Parts count", len(uploadedParts)))
 	_, err := info.Client.CompleteMultipartUploadWithContext(ctx, info.ObjectsBucket, s3Path, uploadID, uploadedParts)
 	if err != nil {
 		log.Logger(ctx).Error("fail to complete upload", zap.Error(err))

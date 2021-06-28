@@ -139,7 +139,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 			}
 		}
 	}
-	log.Logger(ctx).Debug("ParseRootNodes", zap.Any("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
+	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
 	return nil, createdNode, hasReadonly
 
 }

@@ -94,7 +94,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 	}
 	workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
 	if len(workspaces) == 0 {
-		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap(), zap.Any("parents", parents))
+		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap())
 		return ctx, node, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node does not belong to any accessible workspace!")
 	}
 	// Use first workspace by default
@@ -119,7 +119,7 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 	if _, ancestors, e := AncestorsListFromContext(ctx, node, identifier, h.clientsPool, false); e == nil {
 		out := node.Clone()
 		workspaces, wsRoots := accessList.BelongsToWorkspaces(ctx, ancestors...)
-		log.Logger(ctx).Debug("Belongs to workspaces", zap.Any("ws", workspaces), zap.Any("wsRoots", wsRoots))
+		log.Logger(ctx).Debug("Belongs to workspaces", zap.Int("ws length", len(workspaces)), zap.Any("wsRoots", wsRoots))
 		for _, ws := range workspaces {
 			if relativePath, e := h.relativePathToWsRoot(ctx, ws, node.Path, wsRoots[ws.UUID]); e == nil {
 				out.AppearsIn = append(out.AppearsIn, &tree.WorkspaceRelativePath{

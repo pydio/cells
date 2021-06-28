@@ -29,8 +29,6 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	"go.uber.org/zap"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
@@ -184,7 +182,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 			results, err = dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
-			log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Any("results", results))
+			log.Logger(ctx).Debug(fmt.Sprintf("Got %d results for node", len(results)), node.ZapUuid())
 			if err == nil {
 				h.resultsToCache(node.Uuid, subjects, results)
 			}
