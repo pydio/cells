@@ -45,7 +45,6 @@ var (
 )
 
 type ExtractAction struct {
-	Router     *views.Router
 	Format     string
 	TargetName string
 }
@@ -104,7 +103,6 @@ func (ex *ExtractAction) GetName() string {
 
 // Init passes parameters to the action
 func (ex *ExtractAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	ex.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	if format, ok := action.Parameters["format"]; ok {
 		ex.Format = format
 	}
@@ -125,6 +123,13 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if ext == ".gz" && strings.HasSuffix(archiveNode.Path, ".tar.gz") {
 		ext = ".tar.gz"
 	}
+	if archiveNode.Size == 0 {
+		resp, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: archiveNode})
+		if e != nil {
+			return input.WithError(e), e
+		}
+		archiveNode = resp.GetNode()
+	}
 
 	format := jobs.EvaluateFieldStr(ctx, input, ex.Format)
 	if format == "" || format == detectFormat {
@@ -137,16 +142,16 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	targetName := jobs.EvaluateFieldStr(ctx, input, ex.TargetName)
 	if targetName == "" {
 		base := strings.TrimSuffix(path.Base(archiveNode.Path), ext)
-		targetName = computeTargetName(ctx, ex.Router, path.Dir(archiveNode.Path), base)
+		targetName = computeTargetName(ctx, path.Dir(archiveNode.Path), base)
 	}
 	targetNode := &tree.Node{Path: targetName, Type: tree.NodeType_COLLECTION}
-	_, e := ex.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode})
+	_, e := getRouter().CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode})
 	if e != nil {
 		return input.WithError(e), e
 	}
 
 	reader := &views.ArchiveReader{
-		Router: ex.Router,
+		Router: getRouter(),
 	}
 	var err error
 	switch format {

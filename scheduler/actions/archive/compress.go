@@ -52,7 +52,6 @@ const (
 
 // CompressAction implements compression. Currently, it supports zip, tar and tar.gz formats.
 type CompressAction struct {
-	Router     *views.Router
 	Format     string
 	TargetName string
 
@@ -117,7 +116,6 @@ func (c *CompressAction) GetName() string {
 
 // Init passes parameters to the action
 func (c *CompressAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	c.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	if format, ok := action.Parameters["format"]; ok {
 		c.Format = format
 	} else {
@@ -140,7 +138,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Assume Target is root node sibling
 	compressor := &views.ArchiveWriter{
-		Router: c.Router,
+		Router: getRouter(),
 	}
 	if c.filter != nil {
 		compressor.WalkFilter = func(ctx context.Context, node *tree.Node) bool {
@@ -175,7 +173,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	// Remove extension
 	base = strings.TrimSuffix(base, "."+format)
-	targetFile := computeTargetName(ctx, c.Router, dir, base, format)
+	targetFile := computeTargetName(ctx, dir, base, format)
 
 	reader, writer := io.Pipe()
 
@@ -194,7 +192,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 	}()
 
-	c.Router.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &views.PutRequestData{Size: -1})
+	getRouter().PutObject(ctx, &tree.Node{Path: targetFile}, reader, &views.PutRequestData{Size: -1})
 
 	if err != nil {
 		log.TasksLogger(ctx).Error("Error PutObject", zap.Error(err))
@@ -209,7 +207,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Reload node
 	output := input
-	resp, err := c.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetFile}})
+	resp, err := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetFile}})
 	if err == nil {
 		output = input.WithNode(resp.Node)
 		output.AppendOutput(&jobs.ActionOutput{
