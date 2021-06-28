@@ -84,7 +84,6 @@ class Message extends React.Component {
                 transition: DOMUtils.getBeziersTransition(),
             }
         };
-
         let authorIsLogged = false;
         if(pydio.user.id === message.Author){
             authorIsLogged = true;
@@ -118,7 +117,7 @@ class Message extends React.Component {
         }
         let text = (
             <div style={textStyle}>
-                {deleteBox} <Markdown source={message.Message}/>
+                {deleteBox} <Markdown className={"chat-message-md"} source={message.Message}/>
             </div>
         );
         if(!sameAuthor){
@@ -127,7 +126,7 @@ class Message extends React.Component {
                     <div>
                         <UserAvatar labelStyle={styles.commentTitle} pydio={pydio} displayLabel={true} displayAvatar={false} userId={message.Author}/>
                     </div>
-                    <div>{deleteBox}<Markdown source={message.Message}/></div>
+                    <div>{deleteBox}<Markdown className={"chat-message-md"} source={message.Message}/></div>
                 </div>
             )
         }

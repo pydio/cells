@@ -31,6 +31,23 @@ import ChatUsers from './ChatUsers'
 
 const LoadSize = 40;
 
+const mdCSS = `
+.chat-message-md p{
+    padding-top: 0; 
+    margin-bottom: 0;
+}
+.chat-message-md strong {
+    font-weight: 500;
+}
+.chat-message-md a {
+    text-decoration: underline;
+    color:#2196f3;
+}
+.chat-message-md ul {
+    padding-left: 20px;
+}
+`
+
 class Chat extends React.Component{
 
     constructor(props){
@@ -241,6 +258,7 @@ class Chat extends React.Component{
                         {...textFieldProps}
                     />
                 </div>
+                <style type={"text/css"} dangerouslySetInnerHTML={{__html:mdCSS}}/>
             </div>
         )
     }

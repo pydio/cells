@@ -62,7 +62,7 @@ class ChatUsers extends React.Component{
         if(this.container.current){
             if(hover){
                 contStyle = {...contStyle, height: this.container.current.scrollHeight}
-            } else if(this.container.current.scrollHeight > 44) {
+            } else if(this.container.current.scrollHeight > 60) {
                 contStyle = {...contStyle, height: 56}
             }
         }
