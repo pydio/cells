@@ -72,7 +72,6 @@ func getThumbLocation(ctx context.Context, keyName string) (c context.Context, n
 		return
 	}
 	n = &tree.Node{
-		Uuid:  keyName,
 		Type:  tree.NodeType_LEAF,
 		Path:  path.Join(source.Name, keyName),
 		MTime: time.Now().Unix(),

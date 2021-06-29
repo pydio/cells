@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"path"
 	"strings"
 
 	"github.com/micro/go-micro/errors"
@@ -80,6 +81,9 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 				}
 			}
 			branchInfo.LoadedSource = source
+			if source.IsInternal() && node.Uuid == "" {
+				out.Uuid = path.Base(out.Path)
+			}
 			ctx = WithBranchInfo(ctx, identifier, branchInfo)
 		}
 
