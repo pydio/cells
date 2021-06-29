@@ -19,8 +19,10 @@
  */
 
 import {Editor, Panel} from './Editor'
+import Badge from './badge'
 import * as Actions from './actions'
 
+export {Badge}
 export {Editor}
 export {Panel}
 export {Actions}
