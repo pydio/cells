@@ -119,7 +119,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		}
 
 		if len(shares) > 0 {
-			log.Logger(ctx).Debug("Read Node Stream for Shares : found workspaces owned by user", zap.Any("s", shares), zap.Any("n", nodeAcls), zap.Any("acls", *acls))
+			log.Logger(ctx).Debug("Read Node Stream for Shares : found workspaces owned by user", zap.Int("s length", len(shares)), zap.Any("n", nodeAcls), zap.Int("acls length", len(*acls)))
 			node.SetMeta("workspaces_shares", shares)
 		}
 

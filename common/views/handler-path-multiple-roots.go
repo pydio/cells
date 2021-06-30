@@ -80,7 +80,7 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 	parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 	if len(parts) > 0 {
 		rootId := parts[0]
-		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Any("rootNodes", branch.RootUUIDs))
+		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Int("rootNodes length", len(branch.RootUUIDs)))
 		rootKeys, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return ctx, out, e

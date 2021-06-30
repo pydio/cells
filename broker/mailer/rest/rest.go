@@ -74,7 +74,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	req.ReadEntity(&message)
 
 	ctx := req.Request.Context()
-	log.Logger(ctx).Debug("Sending Email", zap.Any("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
+	log.Logger(ctx).Debug("Sending Email", zap.Int("to length", len(message.To)), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
 	langs := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	cli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))

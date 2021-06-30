@@ -91,7 +91,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			targetNodePath = node.Path
 		}
 
-		log.Logger(ctx).Debug("Submitting selected pathes for compression", zap.Any("pathes", selectedPathes))
+		log.Logger(ctx).Debug("Submitting selected pathes for compression", zap.Int("pathes length", len(selectedPathes)))
 		params := map[string]string{
 			"format": format,
 			"target": targetNodePath,
@@ -309,7 +309,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			}
 		}
 
-		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
+		log.Logger(ctx).Info("Creating copy/move job", zap.Int("paths length", len(selectedPathes)), zap.String("target", targetNodePath))
 		if move && strings.Contains(targetNodePath, common.RecycleBinName) {
 			// Update node meta before moving
 			metaClient := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
@@ -574,7 +574,7 @@ func p8migration(ctx context.Context, jsonParams string) (string, error) {
 		MaxConcurrency: 1,
 	}
 	rootAction := &jobs.Action{}
-	log.Logger(ctx).Info("Got Actions", zap.Any("actions", data))
+	log.Logger(ctx).Info("Got Actions", zap.Int("actions length", len(data)))
 	parentAction := rootAction
 	for _, a := range data {
 		action := &jobs.Action{

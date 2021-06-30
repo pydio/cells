@@ -34,7 +34,7 @@ func WorkspaceToCellObject(ctx context.Context, workspace *idm.Workspace, checke
 		log.Logger(ctx).Error("Error while loading common acls for workspace", zap.Error(err))
 		return nil, err
 	}
-	log.Logger(ctx).Debug("Detected Roots for object", zap.Any("roots", detectedRoots))
+	log.Logger(ctx).Debug("Detected Roots for object", zap.Int("roots length", len(detectedRoots)))
 	roomAcls := AclsToCellAcls(ctx, acls)
 
 	log.Logger(ctx).Debug("Computed roomAcls before load", zap.Any("roomAcls", roomAcls))

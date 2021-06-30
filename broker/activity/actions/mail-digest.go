@@ -150,7 +150,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 
 	md := render.Markdown(digest, activity.SummaryPointOfView_GENERIC, lang)
 	if strings.TrimSpace(md) == "" {
-		log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).", zap.Any("collection", collection))
+		log.Logger(ctx).Warn("Computed digest is empty, this is not expected (probably an unsupported AS2.ObjectType).", zap.Int("collection length", len(collection)))
 		return input.WithIgnore(), nil
 	}
 

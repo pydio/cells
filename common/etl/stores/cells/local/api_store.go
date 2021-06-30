@@ -608,7 +608,7 @@ func (apiStore *ApiStore) createCell(ctx context.Context, ownerUser *idm.User, c
 
 	targetAcls := share.ComputeTargetAcls(ctx, ownerUser, cell, workspace.UUID, false) // CHECK THE READONLY FLAG?
 	add, _ := share.DiffAcls(ctx, []*idm.ACL{}, targetAcls)
-	log.Logger(ctx).Debug("Target ACLS", zap.Any("add", add))
+	log.Logger(ctx).Debug("Target ACLS", zap.Int("add length", len(add)))
 
 	for _, acl := range targetAcls {
 		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
@@ -617,7 +617,7 @@ func (apiStore *ApiStore) createCell(ctx context.Context, ownerUser *idm.User, c
 		}
 	}
 
-	log.Logger(ctx).Debug("Share Policies", zap.Any("before", workspace.Policies))
+	log.Logger(ctx).Debug("Share Policies", zap.Int("before length", len(workspace.Policies)))
 	share.UpdatePoliciesFromAcls(ctx, workspace, []*idm.ACL{}, targetAcls)
 
 	// Now update workspace

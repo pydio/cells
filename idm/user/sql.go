@@ -493,7 +493,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		return err
 	}
 
-	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), zap.Any("q2", query.GetSubQueries()))
+	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), zap.Int("q2 length", len(query.GetSubQueries())))
 	res, err := s.DB().Query(queryString, args...)
 	if err != nil {
 		return err

@@ -141,7 +141,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		}
 		req.User.Policies = userPolicies
 	}
-	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Any("p", req.User.Policies), zap.Any("createdNodes", createdNodes))
+	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(req.User.Policies)), zap.Int("createdNodes length", len(createdNodes)))
 	if err := dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
 		return err
 	}

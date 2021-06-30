@@ -218,7 +218,7 @@ func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[st
 				progress <- etl.MergeOperation{Error: err}
 				continue
 			}
-			log.Logger(ctx).Info("Loaded ACLs for role "+apiRole.GetUuid(), zap.Any("acls", leftRolesAcls))
+			log.Logger(ctx).Info("Loaded ACLs for role "+apiRole.GetUuid(), zap.Int("acls length", len(leftRolesAcls)))
 			for _, acl := range leftRolesAcls {
 				if a, ok := wsMapping[acl.GetWorkspaceID()]; ok {
 					acl.RoleID = apiRole.GetUuid()

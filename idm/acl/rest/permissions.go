@@ -97,7 +97,7 @@ func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 	}
 	if !a.MatchPolicies(ctx, role.Uuid, role.Policies, service.ResourcePolicyAction_WRITE) {
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
-		log.Logger(ctx).Error("Error while checking role from ACL rest : ", zap.Any("role", role), zap.Any("subjects", subjects))
+		log.Logger(ctx).Error("Error while checking role from ACL rest : ", zap.Any("role", role), zap.Int("subjects length", len(subjects)))
 		return errors.Forbidden(common.ServiceAcl, "You are not allowed to edit this role ACLs")
 	}
 	log.Logger(ctx).Info("Checking acl write on role PASSED", zap.Any("roleId", roleID))
@@ -156,15 +156,15 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 
 	var check bool
 	if action.GetName() == permissions.AclRead.GetName() {
-		log.Logger(ctx).Debug("Checking read on parent nodes", accessList.Zap(), zap.Any("parentNodes", parentNodes))
+		log.Logger(ctx).Debug("Checking read on parent nodes", accessList.Zap(), zap.Int("parentNodes length", len(parentNodes)))
 		check = accessList.CanRead(ctx, parentNodes...)
 	} else if action.GetName() == permissions.AclWrite.GetName() {
-		log.Logger(ctx).Debug("Checking write on parent nodes", accessList.Zap(), zap.Any("parentNodes", parentNodes))
+		log.Logger(ctx).Debug("Checking write on parent nodes", accessList.Zap(), zap.Int("parentNodes length", len(parentNodes)))
 		check = accessList.CanWrite(ctx, parentNodes...)
 	}
 
 	if !check {
-		log.Logger(ctx).Error("Checking acl on parent nodes FAILED", zap.Any("action", action), accessList.Zap(), zap.Any("parentNodes", parentNodes))
+		log.Logger(ctx).Error("Checking acl on parent nodes FAILED", zap.Any("action", action), accessList.Zap(), zap.Int("parentNodes length", len(parentNodes)))
 		return errors.Forbidden(common.ServiceAcl, "You are not authorized to open rights on this node")
 	}
 

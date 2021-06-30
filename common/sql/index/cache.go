@@ -541,7 +541,7 @@ func (d *daocache) GetNodeByPath(path []string) (*mtree.TreeNode, error) {
 	}
 
 	if len(potentialNodes) > 1 {
-		log.Logger(context.Background()).Error("Duplicate node", zap.Any("potentialNodes", potentialNodes))
+		log.Logger(context.Background()).Error("Duplicate node", zap.Int("potentialNodes length", len(potentialNodes)))
 	}
 
 	return nil, fmt.Errorf("Cache:GetNodeByPath "+logPath+" : potentialNodes not reduced to 1 value (potential:%d, newPotential:%d", len(potentialNodes), len(newPotentialNodes))

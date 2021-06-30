@@ -145,7 +145,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	}
 	logs, done := h.db.GetVersions(request.Node.Uuid)
 	pruningPeriods, err = versions.DispatchChangeLogsByPeriod(pruningPeriods, logs, done)
-	log.Logger(ctx).Debug("[VERSION] Pruning Periods", zap.Any("p", pruningPeriods))
+	log.Logger(ctx).Debug("[VERSION] Pruning Periods", zap.Int("p length", len(pruningPeriods)))
 	var toRemove []*tree.ChangeLog
 	for _, period := range pruningPeriods {
 		out := period.Prune()
@@ -156,7 +156,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 		toRemove = append(toRemove, out...)
 	}
 	if len(toRemove) > 0 {
-		log.Logger(ctx).Debug("[VERSION] Pruning should remove", zap.Any("r", toRemove))
+		log.Logger(ctx).Debug("[VERSION] Pruning should remove", zap.Int("r length", len(toRemove)))
 		if err := h.db.DeleteVersionsForNode(request.Node.Uuid, toRemove...); err != nil {
 			return err
 		}

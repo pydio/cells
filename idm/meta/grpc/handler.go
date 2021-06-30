@@ -172,7 +172,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 			results, err = dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
-			log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Any("results", results))
+			log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Int("results length", len(results)))
 			if err == nil {
 				h.resultsToCache(node.Uuid, subjects, results)
 			}
