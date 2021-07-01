@@ -19,6 +19,7 @@ var (
 type serviceBroker struct {
 	Addrs   []string
 	Client  pb.BrokerClient
+	Stream  pb.Broker_PublishClient
 	options broker.Options
 }
 
@@ -27,6 +28,11 @@ func (b *serviceBroker) Address() string {
 }
 
 func (b *serviceBroker) Connect() error {
+	stream, err := b.Client.Publish(context.TODO())
+	if err != nil {
+		return err
+	}
+	b.Stream = stream
 	return nil
 }
 
@@ -47,14 +53,17 @@ func (b *serviceBroker) Options() broker.Options {
 }
 
 func (b *serviceBroker) Publish(topic string, msg *broker.Message, opts ...broker.PublishOption) error {
-	_, err := b.Client.Publish(context.TODO(), &pb.PublishRequest{
+	err := b.Stream.SendMsg(&pb.PublishRequest{
 		Topic: topic,
 		Message: &pb.Message{
 			Header: msg.Header,
 			Body:   msg.Body,
 		},
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...broker.SubscribeOption) (broker.Subscriber, error) {

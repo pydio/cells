@@ -44,7 +44,7 @@ var _ server.Option
 // Client API for Broker service
 
 type BrokerClient interface {
-	Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error)
+	Publish(ctx context.Context, opts ...client.CallOption) (Broker_PublishClient, error)
 	Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Broker_SubscribeClient, error)
 }
 
@@ -66,14 +66,40 @@ func NewBrokerClient(serviceName string, c client.Client) BrokerClient {
 	}
 }
 
-func (c *brokerClient) Publish(ctx context.Context, in *PublishRequest, opts ...client.CallOption) (*Empty, error) {
-	req := c.c.NewRequest(c.serviceName, "Broker.Publish", in)
-	out := new(Empty)
-	err := c.c.Call(ctx, req, out, opts...)
+func (c *brokerClient) Publish(ctx context.Context, opts ...client.CallOption) (Broker_PublishClient, error) {
+	req := c.c.NewRequest(c.serviceName, "Broker.Publish", &PublishRequest{})
+	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	return &brokerPublishClient{stream}, nil
+}
+
+type Broker_PublishClient interface {
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*PublishRequest) error
+}
+
+type brokerPublishClient struct {
+	stream client.Streamer
+}
+
+func (x *brokerPublishClient) Close() error {
+	return x.stream.Close()
+}
+
+func (x *brokerPublishClient) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *brokerPublishClient) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *brokerPublishClient) Send(m *PublishRequest) error {
+	return x.stream.Send(m)
 }
 
 func (c *brokerClient) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...client.CallOption) (Broker_SubscribeClient, error) {
@@ -123,7 +149,7 @@ func (x *brokerSubscribeClient) Recv() (*Message, error) {
 // Server API for Broker service
 
 type BrokerHandler interface {
-	Publish(context.Context, *PublishRequest, *Empty) error
+	Publish(context.Context, Broker_PublishStream) error
 	Subscribe(context.Context, *SubscribeRequest, Broker_SubscribeStream) error
 }
 
@@ -135,8 +161,39 @@ type Broker struct {
 	BrokerHandler
 }
 
-func (h *Broker) Publish(ctx context.Context, in *PublishRequest, out *Empty) error {
-	return h.BrokerHandler.Publish(ctx, in, out)
+func (h *Broker) Publish(ctx context.Context, stream server.Streamer) error {
+	return h.BrokerHandler.Publish(ctx, &brokerPublishStream{stream})
+}
+
+type Broker_PublishStream interface {
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Recv() (*PublishRequest, error)
+}
+
+type brokerPublishStream struct {
+	stream server.Streamer
+}
+
+func (x *brokerPublishStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *brokerPublishStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *brokerPublishStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *brokerPublishStream) Recv() (*PublishRequest, error) {
+	m := new(PublishRequest)
+	if err := x.stream.Recv(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (h *Broker) Subscribe(ctx context.Context, stream server.Streamer) error {
