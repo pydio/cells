@@ -33,6 +33,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/text/unicode/norm"
+
 	"github.com/krolaw/zipstream"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -94,6 +96,7 @@ func (a *ArchiveReader) ListChildrenZip(ctx context.Context, archiveNode *tree.N
 		}
 
 		innerPath := strings.TrimPrefix(file.Name, "/")
+		innerPath = string(norm.NFC.Bytes([]byte(innerPath)))
 		if !isStat {
 			if !strings.HasPrefix(strings.TrimSuffix(innerPath, "/"), parentPath) {
 				continue
@@ -246,14 +249,15 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 	}
 
 	for _, file := range reader.File {
-		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(file.Name, "/")))
+		fName := string(norm.NFC.Bytes([]byte(file.Name)))
+		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(fName, "/")))
 		if file.FileInfo().IsDir() {
 			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
 			if e != nil {
 				return e
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Creating directory " + strings.TrimSuffix(file.Name, "/")
+				logChannels[0] <- "Creating directory " + strings.TrimSuffix(fName, "/")
 			}
 		} else {
 			fileReader, err := file.Open()
@@ -273,7 +277,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 				return err
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Writing new file " + strings.TrimSuffix(file.Name, "/")
+				logChannels[0] <- "Writing new file " + strings.TrimSuffix(fName, "/")
 			}
 		}
 
@@ -323,6 +327,8 @@ func (a *ArchiveReader) ListChildrenTar(ctx context.Context, gzipFormat bool, ar
 		}
 
 		innerPath := strings.TrimPrefix(file.Name, "/")
+		innerPath = string(norm.NFC.Bytes([]byte(innerPath)))
+
 		log.Logger(ctx).Debug("TAR:LIST " + innerPath)
 		if !isStat {
 			if !strings.HasPrefix(strings.TrimSuffix(innerPath, "/"), parentPath) {
@@ -487,14 +493,15 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 		if file == nil {
 			return err
 		}
-		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(file.Name, "/")))
+		fName := string(norm.NFC.Bytes([]byte(file.Name)))
+		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(fName, "/")))
 		if file.FileInfo().IsDir() {
 			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
 			if e != nil {
 				return e
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Creating directory " + strings.TrimSuffix(file.Name, "/")
+				logChannels[0] <- "Creating directory " + strings.TrimSuffix(fName, "/")
 			}
 		} else {
 			uncompressed += file.Size
@@ -507,7 +514,7 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 				return err
 			}
 			if len(logChannels) > 0 {
-				logChannels[0] <- "Writing file " + strings.TrimSuffix(file.Name, "/")
+				logChannels[0] <- "Writing file " + strings.TrimSuffix(fName, "/")
 			}
 		}
 
