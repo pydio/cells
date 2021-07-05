@@ -26,6 +26,9 @@ import (
 	"fmt"
 	"time"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+	context2 "github.com/pydio/cells/common/utils/context"
+
 	"go.uber.org/zap"
 
 	"github.com/golang/protobuf/proto"
@@ -179,14 +182,20 @@ func init() {
 						m.Init(
 							micro.AfterStart(func() error {
 								var clearConfigKey string
+
+								// Create an authenticated context for sync operations if any
+								bg := context.Background()
+								bg = context2.WithUserNameMetadata(bg, common.PydioSystemUsername)
+								bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(m.Options().Context))
+
 								if _, has := dsObject.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
-									if _, e := syncHandler.FlatScanEmpty(m.Options().Context, nil, nil); e != nil {
+									if _, e := syncHandler.FlatScanEmpty(bg, nil, nil); e != nil {
 										log.Logger(ctx).Warn("Could not scan storage bucket after start", zap.Error(e))
 									} else {
 										clearConfigKey = object.StorageKeyInitFromBucket
 									}
 								} else if snapKey, has := dsObject.StorageConfiguration[object.StorageKeyInitFromSnapshot]; has {
-									if _, e := syncHandler.FlatSyncSnapshot(m.Options().Context, "read", snapKey, nil, nil); e != nil {
+									if _, e := syncHandler.FlatSyncSnapshot(bg, "read", snapKey, nil, nil); e != nil {
 										log.Logger(ctx).Warn("Could not init index from stored snapshot after start", zap.Error(e))
 									} else {
 										clearConfigKey = object.StorageKeyInitFromSnapshot
