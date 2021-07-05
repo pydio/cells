@@ -63,10 +63,19 @@ class IntegerForm extends React.Component{
         const {supportTemplates, search, updateValue, label} = this.props;
         const {format = 'general'} = this.state;
         let {value} = this.props;
-        let searchComp = '='
-        if(search && value.indexOf && ['=','<','>'].indexOf(value.charAt(0))>-1){
-            searchComp = value.charAt(0)
-            value = parseInt(value.substr(1))
+        let searchComp = ''
+        if(search) {
+            if (value.indexOf && ['<','>'].indexOf(value.charAt(0))>-1){
+                searchComp = value.charAt(0)
+                if(value.charAt(1) === "=") {
+                    searchComp += "="
+                    value = parseInt(value.substr(2))
+                } else {
+                    value = parseInt(value.substr(1))
+                }
+            } else {
+                value = parseInt(value)
+            }
         }
         const tf = (type, change, hideUnderline = false) => {
             return (
@@ -87,9 +96,11 @@ class IntegerForm extends React.Component{
                 <div style={{display:'flex'}}>
                     <div style={{width: 60, marginRight:8}}>
                         <ModernSelectField fullWidth={true} value={searchComp} onChange={(e,i,v)=>updateValue(v+''+value)}>
-                            <MenuItem value={"="} primaryText={"="}/>
-                            <MenuItem value={"<"} primaryText={"<"}/>
+                            <MenuItem value={""} primaryText={"="}/>
+                            <MenuItem value={">="} primaryText={">="}/>
+                            <MenuItem value={"<="} primaryText={"<="}/>
                             <MenuItem value={">"} primaryText={">"}/>
+                            <MenuItem value={"<"} primaryText={"<"}/>
                         </ModernSelectField>
                     </div>
                     <div style={{flex: 1}}>{tf('number', (e,v)=>{updateValue(v?(searchComp+''+v):v)})}</div>

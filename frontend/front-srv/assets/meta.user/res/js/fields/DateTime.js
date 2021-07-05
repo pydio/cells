@@ -21,9 +21,9 @@ import React, {Fragment, Component} from 'react'
 import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
-import {DatePicker, TimePicker} from 'material-ui'
+import {DatePicker, TimePicker, MenuItem} from 'material-ui'
 import MetaClient from "../MetaClient";
-const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
 
 class DateTimeField extends Component {
@@ -78,37 +78,80 @@ class DateTimeForm extends Component {
 
     getDate() {
         const {value} = this.props;
+        let searchComp = '';
         if(!value) {
-            return null
+            return {vDate: null, searchComp}
         }
-        const mDate = new Date(parseFloat(value)*1000);
-        if (isNaN(mDate.getTime())) {
-            return new Date(0);
+        let floatValue;
+        if (value.indexOf && ['<','>'].indexOf(value.charAt(0))>-1){
+            searchComp = value.charAt(0)
+            if(value.charAt(1) === "=") {
+                searchComp += "="
+                floatValue = parseFloat(value.substr(2))
+            } else {
+                floatValue = parseFloat(value.substr(1))
+            }
         } else {
-            return mDate;
+            floatValue = parseFloat(value)
+        }
+        const mDate = new Date(parseFloat(floatValue)*1000);
+        if (isNaN(mDate.getTime())) {
+            return {vDate: new Date(0), searchComp};
+        } else {
+            return {vDate: mDate, searchComp};
         }
     }
 
-    updateDate(d) {
-        const {updateValue} = this.props;
-        const mDate = this.getDate() || new Date();
-        d.setHours(mDate.getHours());
-        d.setMinutes(mDate.getMinutes());
-        d.setSeconds(mDate.getSeconds());
-        updateValue(parseInt(d / 1000));
+    updateDate(d, format) {
+        const {updateValue, search} = this.props;
+        let {vDate, searchComp} = this.getDate();
+        if(!vDate){
+            vDate = new Date(0)
+        }
+        if(format === 'date-time') {
+            d.setHours(vDate.getHours());
+            d.setMinutes(vDate.getMinutes());
+            d.setSeconds(vDate.getSeconds());
+        } else {
+            // For date only, fix to 0:00
+            d.setHours(0);
+            d.setMinutes(0);
+            d.setSeconds(0);
+        }
+        if(search) {
+            updateValue(searchComp + '' + parseInt(d / 1000));
+        } else {
+            updateValue(parseInt(d / 1000));
+        }
     }
 
     updateTime(d) {
+        const {updateValue, search} = this.props;
+        let {vDate, searchComp} = this.getDate();
+        if(!vDate){
+            vDate = new Date(0)
+        }
+        vDate.setHours(d.getHours());
+        vDate.setMinutes(d.getMinutes());
+        vDate.setSeconds(d.getSeconds());
+        if(search) {
+            updateValue(searchComp + '' + parseInt(vDate / 1000));
+        } else {
+            updateValue(parseInt(vDate / 1000));
+        }
+    }
+
+    updateComp(searchComparator) {
         const {updateValue} = this.props;
-        const date = this.getDate() || new Date();
-        date.setHours(d.getHours());
-        date.setMinutes(d.getMinutes());
-        date.setSeconds(d.getSeconds());
-        updateValue(parseInt(date / 1000));
+        let {vDate} = this.getDate();
+        if(!vDate){
+            vDate = new Date()
+        }
+        updateValue(searchComparator + '' + parseInt(vDate / 1000));
     }
 
     render() {
-        const {supportTemplates, updateValue, value, label} = this.props;
+        const {supportTemplates, search, updateValue, value, label} = this.props;
         if(supportTemplates) {
             return (
                 <ModernTextField value={value} fullWidth={true} hintText={label} onChange={(event, value)=>{ updateValue(value);}}/>
@@ -116,12 +159,33 @@ class DateTimeForm extends Component {
         }
 
         const {format = 'date'} = this.state;
-        const vDate = this.getDate();
+        const {vDate, searchComp} = this.getDate();
         const parts = [];
+        if (search) {
+            parts.push(
+                <div style={{width: 60, marginRight:8}}>
+                    <ModernSelectField fullWidth={true} value={searchComp} onChange={(e,i,v)=>this.updateComp(v)}>
+                        <MenuItem value={""} primaryText={"="}/>
+                        <MenuItem value={">="} primaryText={">="}/>
+                        <MenuItem value={"<="} primaryText={"<="}/>
+                        <MenuItem value={">"} primaryText={">"}/>
+                        <MenuItem value={"<"} primaryText={"<"}/>
+                    </ModernSelectField>
+                </div>
+            )
+        }
         if(format === 'date' || format === 'date-time') {
             parts.push(
                 <div style={{flex: 3}}>
-                    <DatePicker hintText={"Date"} {...ModernStyles.textField} container={"inline"} fullWidth={true} value={vDate} onChange={(e,d) => this.updateDate(d)}/>
+                    <DatePicker
+                        hintText={"Date"}
+                        {...ModernStyles.textField}
+                        container={"inline"}
+                        fullWidth={true}
+                        value={vDate}
+                        onChange={(e,d) => this.updateDate(d, format)}
+                        autoOk={format === 'date'}
+                    />
                 </div>
             )
         }
@@ -131,7 +195,15 @@ class DateTimeForm extends Component {
         if(format === 'time' || format === 'date-time') {
             parts.push(
                 <div style={{flex: 2}}>
-                    <TimePicker hintText={"Time"} {...ModernStyles.textField} container={"inline"} fullWidth={true} value={vDate} onChange={(e,d) => this.updateTime(d)}/>
+                    <TimePicker
+                        hintText={"Time"}
+                        {...ModernStyles.textField}
+                        dialogStyle={{zIndex: 5000}}
+                        fullWidth={true}
+                        value={vDate}
+                        onChange={(e,d) => this.updateTime(d)}
+                        autoOk={format === 'time'}
+                    />
                 </div>
             )
         }
