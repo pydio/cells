@@ -511,6 +511,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		var name string
 		var leaf int32
 		var etag string
+		var mtime int32
 		res.Scan(
 			&uuid,
 			&level,
@@ -521,6 +522,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 			&name,
 			&leaf,
 			&etag,
+			&mtime,
 		)
 		node := mtree.NewTreeNode()
 		var mpath []uint64
@@ -532,6 +534,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		// node.SetBytes(rat)
 		node.Uuid = uuid
 		node.Etag = etag
+		node.MTime = int64(mtime)
 		s.rebuildGroupPath(node)
 		node.SetMeta("name", name)
 
@@ -620,6 +623,7 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 		var name string
 		var leaf int32
 		var etag string
+		var mtime int32
 		res.Scan(
 			&uuid,
 			&level,
@@ -630,6 +634,7 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 			&name,
 			&leaf,
 			&etag,
+			&mtime,
 		)
 		node := mtree.NewTreeNode()
 		var mpath []uint64
@@ -642,6 +647,7 @@ func (s *sqlimpl) Del(query sql.Enquirer, users chan *idm.User) (int64, error) {
 		node.Uuid = uuid
 		node.Level = int(level)
 		node.Etag = etag
+		node.MTime = int64(mtime)
 		s.rebuildGroupPath(node)
 		node.SetMeta("name", name)
 
