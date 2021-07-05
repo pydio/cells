@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 )
 
-// DATASOURCE Action
+// actionDatasourceAdd created default datasources at install
 func actionDatasourceAdd(c *install.InstallConfig) error {
 
 	var conf *object.DataSource
@@ -102,7 +102,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		}
 		sourceConf.ObjectsBucket = s3buckets[source]
 		if storageFolder != "" {
-			sourceConf.StorageConfiguration[object.StorageKeyFolder] = filepath.Join(storageFolder, source)
+			sourceConf.StorageConfiguration[object.StorageKeyFolder] = filepath.Join(storageFolder, sourceConf.ObjectsBucket)
 		}
 
 		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
@@ -146,14 +146,6 @@ func addDatasourceS3(c *install.InstallConfig) (*object.DataSource, error) {
 		ObjectsPort:          int32(port),
 		StorageConfiguration: make(map[string]string),
 	}
-	/*
-		if h, e := os.Hostname(); e == nil {
-			conf.PeerAddress = h
-		} else {
-			ip, _ := net.GetExternalIP()
-			conf.PeerAddress = ip.String()
-		}
-	*/
 	if c.GetDsS3Custom() != "" {
 		conf.StorageConfiguration[object.StorageKeyCustomEndpoint] = c.GetDsS3Custom()
 		if c.GetDsS3CustomRegion() != "" {
@@ -204,14 +196,6 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 	if runtime.GOOS == "darwin" {
 		normalize = "true"
 	}
-	/*
-		if h, e := os.Hostname(); e == nil {
-			conf.PeerAddress = h
-		} else {
-			ip, _ := net.GetExternalIP()
-			conf.PeerAddress = ip.String()
-		}
-	*/
 	conf.StorageConfiguration = map[string]string{
 		"folder":    folder,
 		"normalize": normalize,
