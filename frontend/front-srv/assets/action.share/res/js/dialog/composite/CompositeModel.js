@@ -32,6 +32,7 @@ class CompositeModel extends Observable {
     links;
     edit;
     node;
+    saving;
 
     constructor(edit = false){
         super();
@@ -157,6 +158,9 @@ class CompositeModel extends Observable {
     }
 
     save(){
+        this.saving = true;
+        this.notify('update');
+
         const proms = [];
         this.cells.map(r => {
             if(r.isDirty()){
@@ -174,8 +178,10 @@ class CompositeModel extends Observable {
             const nodeId = this.node.getMetadata().get('uuid');
             this.cells = this.cells.filter(r => r.hasRootNode(nodeId));
             this.updateUnderlyingNode();
+            this.saving = false
         }).catch(e => {
             this.updateUnderlyingNode();
+            this.saving = false
         })
     }
 
@@ -218,7 +224,7 @@ class CompositeModel extends Observable {
     }
 
     isDirty(){
-        return this.cells.filter(r => r.isDirty()).length || this.links.filter(l => l.isDirty()).length;
+        return !this.saving && this.cells.filter(r => r.isDirty()).length || this.links.filter(l => l.isDirty()).length;
     }
 
     stopObserving(event, callback = null) {
