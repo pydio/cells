@@ -61,7 +61,11 @@ class TableListEntry extends React.Component {
                 }
                 value = dateString;
             } else if(key === 'bytesize'){
-                value = PathUtils.roundFileSize(parseInt(meta.get(key)));
+                if(parseInt(meta.get(key))){
+                    value = PathUtils.roundFileSize(parseInt(meta.get(key)));
+                } else{
+                    value = "-"
+                }
             }else{
                 value = meta.get(key);
             }

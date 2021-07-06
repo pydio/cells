@@ -107,16 +107,6 @@ class ComponentConfigsParser {
                         columns[name].renderBlock = true
                     }
                 }))
-                /*
-                ResourcesManager.detectModuleToLoadAndApply(reactModifier, function(){
-                    columns[name].renderCell = FuncUtils.getFunctionByName(reactModifier, global);
-                    columns[name].renderComponent = columns[name].renderCell
-                    // Special indicator for tags
-                    if(reactModifier.indexOf('renderTagsCloud') > -1) {
-                        columns[name].renderBlock = true
-                    }
-                }, true);
-                 */
             }
         });
         return Promise.all(proms).then(()=> {
