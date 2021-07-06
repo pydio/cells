@@ -25,6 +25,7 @@ import Callbacks from './board/Callbacks'
 
 import CreateUserForm from './forms/CreateUserForm'
 import CreateRoleOrGroupForm from './forms/CreateRoleOrGroupForm'
+import TreeGroupsDialog from "./forms/TreeGroupsDialog";
 
 import ACL from './editor/ACL'
 import Info from './editor/Info'
@@ -45,6 +46,7 @@ window.AdminPeople = {
     },
     Forms: {
         CreateUserForm, CreateRoleOrGroupForm
-    }
+    },
+    TreeGroupsDialog
 
 };

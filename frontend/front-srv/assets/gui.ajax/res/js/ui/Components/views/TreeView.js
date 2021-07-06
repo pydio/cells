@@ -544,7 +544,7 @@ class FoldersTree extends React.Component {
                     onNodeSelect={this.treeNodeSelected}
                     nodeIsSelected={this.nodeIsSelected}
                     dataModel={this.props.dataModel}
-                    node={this.props.dataModel.getRootNode()}
+                    node={this.props.rootNode || this.props.dataModel.getRootNode()}
                     showRoot={this.props.showRoot ? true : false}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
@@ -558,7 +558,7 @@ class FoldersTree extends React.Component {
                     onNodeSelect={this.treeNodeSelected}
                     nodeIsSelected={this.nodeIsSelected}
                     dataModel={this.props.dataModel}
-                    node={this.props.dataModel.getRootNode()}
+                    node={this.props.rootNode || this.props.dataModel.getRootNode()}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
                     showRoot={this.props.showRoot ? true : false}

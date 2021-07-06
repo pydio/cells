@@ -1151,7 +1151,10 @@ let SimpleList = createReactClass({
                         label={a.options.text}
                         data-action={a.options.name}
                         onClick={this.applyMultipleAction}
-                        primary={true}/>
+                        primary={true}
+                        disabled={!this.state.selection || !this.state.selection.size}
+                        style={{marginLeft: 5}}
+                        />
                     );
                 }.bind(this));
                 rightButtons = (<span>{rightButtons}</span>);

@@ -1088,6 +1088,9 @@
   "user.9": {
     "other": "Last connected"
   },
+  "user.moveto.hint": {
+    "other": "Select destination group, leave '/' for root group."
+  },
   "user.filter.tooltip":{
     "other": "Filter users list..."
   },

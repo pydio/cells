@@ -104,6 +104,17 @@
                     <clientCallback module="AdminPeople.Callbacks.applyDND"/>
                 </processing>
             </action>
+            <action name="move">
+                <gui text="70" title="160" iconClass="icon-move" hasAccessKey="false">
+                    <context selection="true" dir=""/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" allowedMimes="user_editable" image="false" editable="false" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="AdminPeople.Callbacks.bulkMoveAction"/>
+                </processing>
+            </action>
+
+
 
             <!-- PLUGINS ACTIONS -->
             <action name="clear_plugins_cache">

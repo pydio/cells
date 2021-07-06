@@ -90,11 +90,17 @@ const CreateRoleOrGroupForm = createReactClass({
                 currentNode = pydio.getContextNode();
             }
             const currentPath = currentNode.getPath().replace('/idm/users', '');
-            PydioApi.getRestClient().getIdmApi().createGroup(currentPath || '/', groupId, groupLabel).then(() => {
-                this.dismiss();
-                currentNode.reload();
-            });
-
+            const api = PydioApi.getRestClient().getIdmApi();
+            api.userOrGroupByIdentifier(currentPath, groupId).then(exists => {
+                if (exists) {
+                    this.setState({groupIdError:'Found group or user with same identifier!'});
+                } else {
+                    api.createGroup(currentPath || '/', groupId, groupLabel).then(() => {
+                        this.dismiss();
+                        currentNode.reload();
+                    });
+                }
+            })
         }else if (type === "role"){
             if(roleLabelError || roleIdError){
                 return;

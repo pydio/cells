@@ -1,14 +1,3 @@
-import React from 'react';
-import createReactClass from 'create-react-class';
-import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon} from 'material-ui'
-import Editor from '../editor/Editor'
-import PydioDataModel from 'pydio/model/data-model'
-import {muiThemeable} from 'material-ui/styles'
-import ResourcesManager from 'pydio/http/resources-manager'
-import UsersSearchBox from './UsersSearchBox'
-import AjxpNode from 'pydio/model/node'
-import Callbacks from './Callbacks'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29,11 +18,19 @@ import Callbacks from './Callbacks'
  * The latest code can be found at <https://pydio.com>.
  */
 
+import React from 'react';
+import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 
+import {IconButton, IconMenu, MenuItem, Divider, Paper, FlatButton, FontIcon} from 'material-ui'
+import Editor from '../editor/Editor'
+import PydioDataModel from 'pydio/model/data-model'
+import {muiThemeable} from 'material-ui/styles'
+import UsersSearchBox from './UsersSearchBox'
+import AjxpNode from 'pydio/model/node'
+import Callbacks from './Callbacks'
 import Pydio from 'pydio'
 const {JobsStore} = Pydio.requireLib('boot');
-import FuncUtils from 'pydio/util/func'
 import {loadEditorClass} from "../editor/util/ClassLoader";
 
 let Dashboard = createReactClass({
@@ -355,7 +352,7 @@ let Dashboard = createReactClass({
         let multipleActions = [];
         if(accessByName('Create')){
             renderActionsFunc = this.renderNodeActions.bind(this);
-            multipleActions = [pydio.Controller.getActionByName('delete')];
+            multipleActions = [pydio.Controller.getActionByName('move'), pydio.Controller.getActionByName('delete')];
             openEditor = this.openRoleEditor.bind(this);
             headerButtons = [
                 <FlatButton primary={true} label={this.context.getMessage("user.1")} onClick={this.createUserAction} {...styles.props.header.flatButton} />,

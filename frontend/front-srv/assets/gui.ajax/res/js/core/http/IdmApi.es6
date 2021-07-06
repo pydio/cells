@@ -130,6 +130,39 @@ class IdmApi {
     }
 
     /**
+     * Check if a user or group has the same identifier
+     * @param baseGroup
+     * @param newIdentifier
+     * @return {Promise<boolean>}
+     */
+    userOrGroupByIdentifier(baseGroup, newIdentifier) {
+        const api = new UserServiceApi(this.client);
+        const request = new RestSearchUserRequest();
+        request.Operation = ServiceOperationType.constructFromObject('OR');
+        request.Limit = 1;
+
+        const userQuery = new IdmUserSingleQuery();
+        userQuery.GroupPath = '/';
+        userQuery.Recursive = true;
+        userQuery.NodeType = IdmNodeType.constructFromObject('USER');
+        userQuery.Login = newIdentifier
+
+        const groupQuery = new IdmUserSingleQuery();
+        groupQuery.FullPath = baseGroup + (baseGroup === '/'?'':'/') + newIdentifier
+        groupQuery.NodeType = IdmNodeType.constructFromObject('GROUP')
+
+        request.Queries = [userQuery, groupQuery];
+
+        return api.searchUsers(request).then(collection => {
+            return (collection.Users && collection.Users.length || collection.Groups && collection.Groups.length)
+        }).catch(e => {
+            return false;
+        });
+
+
+    }
+
+    /**
      *
      * @param roleId string
      * @param offset integer

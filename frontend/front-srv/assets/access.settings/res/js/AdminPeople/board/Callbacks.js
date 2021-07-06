@@ -1,3 +1,4 @@
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 
 class Callbacks {
@@ -68,6 +69,28 @@ class Callbacks {
 
         }
 
+    }
+
+    static bulkMoveAction(manager, args) {
+        const pydio = Pydio.getInstance();
+        const userSelection = args[0];
+        const selection = userSelection.getSelectedNodes();
+
+        pydio.UI.openComponentInModal('AdminPeople', 'TreeGroupsDialog', {
+            pydio: pydio,
+            dataModel: pydio.getContextHolder(),
+            submitValue: (value, targetNode) => {
+                const next = () => {
+                    if(!selection.length) {
+                        return;
+                    }
+                    const source = selection.shift();
+                    AdminComponents.DNDActionsManager.dropNodeOnNode(source, targetNode);
+                    next();
+                };
+                next();
+            }
+        })
     }
 
 }
