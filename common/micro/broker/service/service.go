@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/pborman/uuid"
+	context2 "github.com/pydio/cells/common/utils/context"
+
 	defaults "github.com/pydio/cells/common/micro"
 
 	"github.com/micro/go-micro/broker"
@@ -44,7 +47,7 @@ func (b *serviceBroker) Init(opts ...broker.Option) error {
 	for _, o := range opts {
 		o(&b.options)
 	}
-	b.Client = pb.NewBrokerClient(name, client.DefaultClient)
+	b.Client = pb.NewBrokerClient(name, defaults.NewClient(client.Retries(20)))
 	return nil
 }
 
@@ -71,8 +74,8 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 	for _, o := range opts {
 		o(&options)
 	}
-
-	stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
+	ctx := context2.WithMetadata(context.Background(), map[string]string{"conn-id": uuid.New()})
+	stream, err := b.Client.Subscribe(ctx, &pb.SubscribeRequest{
 		Topic: topic,
 		Queue: options.Queue,
 	})
@@ -96,7 +99,7 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 				return
 			default:
 				if err := sub.run(); err != nil {
-					stream, err := b.Client.Subscribe(context.TODO(), &pb.SubscribeRequest{
+					stream, err := b.Client.Subscribe(ctx, &pb.SubscribeRequest{
 						Topic: topic,
 						Queue: options.Queue,
 					})
