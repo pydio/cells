@@ -83,7 +83,7 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.
 						}
 						return
 					}
-				} else {
+				} else if val != nil {
 					log.Logger(s.parentCtx).Error("Could not cast value to jobs.Task", zap.Any("val", val))
 				}
 			case <-s.stopChan:
