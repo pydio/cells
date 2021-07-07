@@ -34,6 +34,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	gocache "github.com/patrickmn/go-cache"
 	"github.com/pborman/uuid"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -283,10 +284,15 @@ type IndexSQL struct {
 	*sql.Handler
 
 	rootNodeId string
+
+	shortCache     *gocache.Cache
+	shortCacheLock sync.Mutex
 }
 
 // Init handles the db version migration and prepare the statements
 func (dao *IndexSQL) Init(options configx.Values) error {
+
+	dao.shortCache = gocache.New(5*time.Second, 10*time.Second)
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),
@@ -803,7 +809,7 @@ func (dao *IndexSQL) GetNodeLastChild(reqPath mtree.MPath) (*mtree.TreeNode, err
 }
 
 // GetNodeFirstAvailableChildIndex from path
-func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint64, error) {
+func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (available uint64, e error) {
 
 	all := []int{}
 
@@ -811,8 +817,24 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint6
 		all = append(all, int(node.MPath.Index()))
 	}
 
+	dao.shortCacheLock.Lock()
+	defer func() {
+		// Store recently assigned
+		dao.shortCache.Set(append(reqPath, available).String(), true, gocache.DefaultExpiration)
+		dao.shortCacheLock.Unlock()
+		//fmt.Println("FirstAvailableChildIndex:", reqPath.String(), available)
+	}()
+
 	if len(all) == 0 {
-		return 1, nil
+		available = 1
+		for {
+			if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
+				available++
+			} else {
+				break
+			}
+		}
+		return
 	}
 
 	sort.Ints(all)
@@ -821,7 +843,8 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint6
 	for i := 1; i <= max; i++ {
 		found := false
 		for _, v := range all {
-			if i == v {
+			_, cached := dao.shortCache.Get(append(reqPath, available).String())
+			if i == v || cached {
 				// We found the entry, so next one
 				found = true
 				break
@@ -830,11 +853,20 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (uint6
 
 		if !found {
 			// This number is not present, returning it
-			return uint64(i), nil
+			available = uint64(i)
+			return
 		}
 	}
 
-	return uint64(max + 1), nil
+	available = uint64(max + 1)
+	for {
+		if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
+			available++
+		} else {
+			break
+		}
+	}
+	return
 }
 
 // GetNodeChildrenCounts List
@@ -1040,7 +1072,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		len(pathTo) - len(pathFrom),
 	}, updateChildrenArgs...)
 
-	res, err := tx.Stmt(updateChildren).Exec(
+	_, err = tx.Stmt(updateChildren).Exec(
 		updateChildrenArgs...,
 	)
 
@@ -1049,15 +1081,6 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		return err
 	}
 
-	nrows, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	t1 := time.Now()
-	ctx := context.Background()
-
-	log.Logger(ctx).Info("[MoveNodeTree] Finished moving in transaction", zap.Int64("nodes", nrows), zap.Duration("duration", time.Now().Sub(t1)))
 	return nil
 }
 
