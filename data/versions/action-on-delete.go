@@ -27,6 +27,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pborman/uuid"
+
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
@@ -124,6 +126,7 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	base := path.Base(node.GetPath())
 	ext := path.Ext(base)
 	prefix := strings.TrimSuffix(base, ext)
+	parentCreated := false
 
 	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
 
@@ -140,6 +143,14 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 				// Create base-{DATE}-001-vUUID.ext
 				seeded := fmt.Sprintf("%s-%03d-%s-%s%s", prefix, i+1, time.Now().Format("2006-01-02"), strings.Split(version.GetUuid(), "-")[0], ext)
 				backupNode.Path = path.Join(dir, seeded)
+				// Create parents if they do not exist
+				if !parentCreated {
+					if err := c.CreateParents(ctx, dir); err != nil {
+						log.TasksLogger(ctx).Error("Error while trying to create folder "+dir, zap.Error(err))
+					} else {
+						parentCreated = true
+					}
+				}
 				_, err := c.Handler.UpdateNode(ctx, &tree.UpdateNodeRequest{From: deleteNode, To: backupNode})
 				if err != nil {
 					log.TasksLogger(ctx).Error("Error while trying to move version "+deleteNode.Uuid+" to "+backupNode.Path, zap.Error(err))
@@ -164,4 +175,23 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	log.TasksLogger(ctx).Info("Finished moving deleted versions")
 
 	return output, nil
+}
+
+func (c *OnDeleteVersionsAction) CreateParents(ctx context.Context, dirPath string) error {
+	parts := strings.Split(dirPath, "/")
+	crt := ""
+	for _, p := range parts {
+		crt = path.Join(crt, p)
+		dirNode := &tree.Node{Path: crt, Type: tree.NodeType_COLLECTION, MTime: time.Now().Unix()}
+		if _, e := c.Handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: dirNode}); e == nil {
+			// Already exists
+			continue
+		}
+		log.TasksLogger(ctx).Info("Creating folder " + dirNode.GetPath())
+		dirNode.Uuid = uuid.New()
+		if _, er := c.Handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: dirNode}); er != nil {
+			return er
+		}
+	}
+	return nil
 }
