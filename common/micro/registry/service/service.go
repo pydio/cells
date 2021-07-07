@@ -39,6 +39,10 @@ func (s *serviceRegistry) callOpts() []client.CallOption {
 		opts = append(opts, client.WithRequestTimeout(s.opts.Timeout))
 	}
 
+	// add retries
+	// TODO : charles' GUTS feeling :-)
+	opts = append(opts, client.WithRetries(10))
+
 	return opts
 }
 
@@ -197,14 +201,14 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 	// service name. TODO: accept option
 	name := DefaultService
 
-	r :=  &serviceRegistry{
+	r := &serviceRegistry{
 		opts:    options,
 		name:    name,
 		address: addrs,
 		client:  pb.NewRegistryClient(name, cli),
 	}
 
-	go func () {
+	go func() {
 		// Check the stream has a connection to the registry
 		watcher, err := r.Watch()
 		if err != nil {
