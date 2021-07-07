@@ -843,7 +843,7 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 	for i := 1; i <= max; i++ {
 		found := false
 		for _, v := range all {
-			_, cached := dao.shortCache.Get(append(reqPath, available).String())
+			_, cached := dao.shortCache.Get(append(reqPath, uint64(i)).String())
 			if i == v || cached {
 				// We found the entry, so next one
 				found = true
