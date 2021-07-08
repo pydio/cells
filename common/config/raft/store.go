@@ -18,8 +18,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
-	"fmt"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/x/configx"
 	"log"
 	"sync"
@@ -38,11 +36,15 @@ type KVStore struct {
 
 type KV struct {
 	Key string
-	Val string
+	Val interface{}
 }
 
-func NewKVStore(snapshotter *snap.Snapshotter, proposeC chan<- string, commitC <-chan *commit, errorC <-chan error) *KVStore {
-	s := &KVStore{proposeC: proposeC, kvStore: config.Get(), snapshotter: snapshotter}
+func init() {
+	gob.Register(map[string]interface{}{})
+}
+
+func NewKVStore(store configx.Values, snapshotter *snap.Snapshotter, proposeC chan<- string, commitC <-chan *commit, errorC <-chan error) *KVStore {
+	s := &KVStore{proposeC: proposeC, kvStore: store, snapshotter: snapshotter}
 	snapshot, err := s.loadSnapshot()
 	if err != nil {
 		log.Panic(err)
@@ -61,17 +63,15 @@ func NewKVStore(snapshotter *snap.Snapshotter, proposeC chan<- string, commitC <
 func (s *KVStore) Lookup(key string) (string, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	v := config.Get(key).Get()
-	fmt.Println("and the config value is ? ", v, v == nil)
+	v := s.kvStore.Val(key)
 	if v == nil {
 		return "", false
 	}
 	return v.Default("").String(), true
 }
 
-func (s *KVStore) Propose(k string, v string) {
+func (s *KVStore) Propose(k string, v interface{}) {
 	var buf bytes.Buffer
-	fmt.Println("Proposing change ? ", k, v)
 	if err := gob.NewEncoder(&buf).Encode(KV{k, v}); err != nil {
 		log.Fatal(err)
 	}
@@ -101,7 +101,6 @@ func (s *KVStore) readCommits(commitC <-chan *commit, errorC <-chan error) {
 			if err := dec.Decode(&dataKv); err != nil {
 				log.Fatalf("raftexample: could not decode message (%v)", err)
 			}
-			fmt.Println("And the data received is ? ", dataKv.Key, dataKv.Val)
 			s.mu.Lock()
 			s.kvStore.Val(dataKv.Key).Set(dataKv.Val)
 			s.mu.Unlock()

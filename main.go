@@ -28,6 +28,7 @@ import (
 	_ "github.com/pydio/cells/discovery/broker"
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"
+	_ "github.com/pydio/cells/discovery/config/storage"
 	_ "github.com/pydio/cells/discovery/install/rest"
 	_ "github.com/pydio/cells/discovery/registry"
 	_ "github.com/pydio/cells/discovery/update/grpc"

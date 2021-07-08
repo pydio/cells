@@ -1,11 +1,11 @@
 package remote
 
 import (
-	"fmt"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -37,7 +37,7 @@ func New(id string) configx.Entrypoint {
 
 	go func() {
 		for {
-			cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
+			cli := proto.NewConfigClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
 
 			stream, err := cli.Watch(context.Background(), &proto.WatchRequest{
 				Id: id,
@@ -93,7 +93,7 @@ func (r *remote) Val(path ...string) configx.Values {
 func (r *remote) Get() configx.Value {
 	v := configx.New(configx.WithJSON())
 
-	cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
+	cli := proto.NewConfigClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
 	rsp, err := cli.Read(context.TODO(), &proto.ReadRequest{
 		Id:   r.id,
 		Path: "",
@@ -120,7 +120,7 @@ func (r *remote) Set(data interface{}) error {
 		return err
 	}
 
-	cli := proto.NewConfigClient(common.ServiceGrpcNamespace_+common.ServiceConfig, defaults.NewClient())
+	cli := proto.NewConfigClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
 
 	if _, err := cli.Update(context.TODO(), &proto.UpdateRequest{
 		Change: &proto.Change{

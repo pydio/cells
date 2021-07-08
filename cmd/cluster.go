@@ -18,7 +18,7 @@ DESCRIPTION
 
 		initLogLevel()
 
-		initConfig()
+		// initConfig()
 
 		return nil
 	},

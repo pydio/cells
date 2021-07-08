@@ -104,7 +104,6 @@ func (b *serviceBroker) Subscribe(topic string, handler broker.Handler, opts ...
 						Queue: options.Queue,
 					})
 					if err != nil {
-
 						time.Sleep(time.Second)
 						continue
 					}

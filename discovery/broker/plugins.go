@@ -4,6 +4,8 @@ import (
 	"context"
 
 	micro "github.com/micro/go-micro"
+	"github.com/spf13/viper"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	pb "github.com/pydio/cells/common/proto/broker"
@@ -17,7 +19,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Main service broker"),
-			service.Port("8003"),
+			service.Port(viper.GetString("port_broker")),
 			service.WithMicro(func(m micro.Service) error {
 				// Register handler
 				pb.RegisterBrokerHandler(m.Server(), new(Broker))

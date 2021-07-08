@@ -85,15 +85,15 @@ type Service interface {
 
 func buildForkStartParams(serviceName string) []string {
 
-	r := viper.GetString("registry")
-	if r == "memory" {
-		r = fmt.Sprintf("grpc://:%d", viper.GetInt("port_registry"))
-	}
+	//r := viper.GetString("registry")
+	//if r == "memory" {
+		r := fmt.Sprintf("grpc://:%d", viper.GetInt("port_registry"))
+	//}
 
-	b := viper.GetString("broker")
-	if b == "memory" {
-		b = fmt.Sprintf("grpc://:%d", viper.GetInt("port_broker"))
-	}
+	//b := viper.GetString("broker")
+	//if b == "memory" {
+		b := fmt.Sprintf("grpc://:%d", viper.GetInt("port_broker"))
+	//}
 
 	params := []string{
 		"start",
@@ -230,6 +230,7 @@ func NewService(opts ...ServiceOption) Service {
 }
 
 var mandatoryOptions = []ServiceOption{
+
 	// Adding the config to the context
 	AfterInit(func(s Service) error {
 		ctx := s.Options().Context
@@ -303,6 +304,10 @@ var mandatoryOptions = []ServiceOption{
 		log.Logger(ctx).Debug("BeforeStart - Check dependencies")
 
 		for _, d := range s.Options().Dependencies {
+
+			if d.Name == s.Name() {
+				continue
+			}
 
 			log.Logger(ctx).Debug("BeforeStart - Check dependency", zap.String("service", d.Name))
 

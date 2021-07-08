@@ -202,7 +202,6 @@ func (rc *raftNode) publishEntries(ents []raftpb.Entry) (<-chan struct{}, bool) 
 		case raftpb.EntryConfChange:
 			var cc raftpb.ConfChange
 			cc.Unmarshal(ents[i].Data)
-			fmt.Println("HERE WE GO ", cc)
 			rc.confState = *rc.node.ApplyConfChange(cc)
 			switch cc.Type {
 			case raftpb.ConfChangeAddNode:
@@ -370,9 +369,7 @@ func (rc *raftNode) startRaft() {
 	rc.transport.Start()
 
 	for _, s := range services {
-		fmt.Println("Running nodes ", len(s.RunningNodes()))
 		for _, n := range s.RunningNodes() {
-			fmt.Println(n.Port, rc.id)
 			if n.Port - 20000 != rc.id {
 				rc.transport.AddPeer(types.ID(n.Port - 20000), []string{fmt.Sprintf("http://%s:%d", n.Address, n.Port + 1000)})
 			}
@@ -415,7 +412,6 @@ func (rc *raftNode) startRaft() {
 					//rpeers[i] = raft.Peer{ID: uint64(i + 1)}
 					id := n.Port - 20000
 					if id != rc.id {
-						fmt.Println("Proposing configuration change ", uint64(n.Port-20000), fmt.Sprintf("http://%s:%d", n.Address, n.Port+1000))
 						rc.node.ProposeConfChange(context.TODO(), &raftpb.ConfChange{
 							Type:    raftpb.ConfChangeAddNode,
 							NodeID:  uint64(id),
@@ -530,7 +526,6 @@ func (rc *raftNode) serveChannels() {
 		for rc.proposeC != nil && rc.confChangeC != nil {
 			select {
 			case prop, ok := <-rc.proposeC:
-				fmt.Println("And we are proposing here ?")
 				if !ok {
 					rc.proposeC = nil
 				} else {

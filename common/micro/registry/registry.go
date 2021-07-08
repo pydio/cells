@@ -83,8 +83,8 @@ func EnableMemory() {
 	r = NewRegistryWithPeers(r)
 	r = NewRegistryWithProcesses(r)
 
-	s := ss.NewSelectorWithMaxRetries(selector.DefaultSelector, 5)
-	//s := selector.DefaultSelector
+	s := selector.NewSelector(selector.Registry(r))
+	s = ss.NewSelectorWithMaxRetries(s, 5)
 
 	defaults.InitServer(func() server.Option {
 		return server.Registry(r)

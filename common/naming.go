@@ -101,6 +101,7 @@ const (
 	ServiceRestNamespace_    = "pydio.rest."
 	ServiceGatewayNamespace_ = "pydio.gateway."
 	ServiceTestNamespace_    = "pydio.test."
+	ServiceStorageNamespace_ = "pydio.storage."
 
 	ServiceGatewayProxy     = ServiceGatewayNamespace_ + "proxy"
 	ServiceGatewayData      = ServiceGatewayNamespace_ + "data"

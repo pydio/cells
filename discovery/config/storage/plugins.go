@@ -22,13 +22,19 @@ package storage
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"net/http"
-	"strings"
-
+	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/config"
+	microconf "github.com/pydio/cells/common/config/micro"
+	"github.com/pydio/cells/common/config/micro/file"
+	"github.com/pydio/cells/common/proto/storage"
+	proto "github.com/pydio/config-srv/proto/config"
+	microconfig "github.com/pydio/go-os/config"
 	"github.com/spf13/viper"
 	"go.etcd.io/etcd/raft/raftpb"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/raft"
@@ -50,26 +56,44 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Main service loading configurations for all other services."),
 			service.Port(port),
-			service.WithHTTP(func() http.Handler {
-
-				cluster := flag.String("cluster", "http://127.0.0.1:9021", "comma separated cluster peers")
+			service.WithMicro(func(m micro.Service) error {
+				// cluster := flag.String("cluster", "http://127.0.0.1:9021", "comma separated cluster peers")
 
 				// kvport := flag.Int("port", 9121, "key-value server port")
-				join := flag.Bool("join", false, "join an existing cluster")
-				flag.Parse()
+				//join := flag.Bool("join", false, "join an existing cluster")
+				//flag.Parse()
+
+				source := file.NewSource(
+					microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+				)
+
+				defaultConfig := config.New(
+					microconf.New(
+						microconfig.NewConfig(
+							microconfig.WithSource(source),
+							microconfig.PollInterval(10*time.Second),
+						),
+					),
+				)
+
+				cluster := ""
+				join := false
 
 				proposeC := make(chan string)
 				confChangeC := make(chan raftpb.ConfChange)
 
 				getSnapshot := func() ([]byte, error) { return store.GetSnapshot() }
-				commitC, errorC, snapshotterReady := raft.NewRaftNode(id, strings.Split(*cluster, ","), "pydio.storage.config", *join, getSnapshot, proposeC, confChangeC)
+				commitC, errorC, snapshotterReady := raft.NewRaftNode(id, strings.Split(cluster, ","), "pydio.storage.config", join, getSnapshot, proposeC, confChangeC)
 
-				store = raft.NewKVStore(<-snapshotterReady, proposeC, commitC, errorC)
+				store = raft.NewKVStore(defaultConfig.Val(), <-snapshotterReady, proposeC, commitC, errorC)
 
-				return NewRouter()
+				handler := NewHandler(store)
+
+				storage.RegisterStorageEndpointHandler(m.Options().Server, handler)
+				proto.RegisterConfigHandler(m.Options().Server, handler)
+
+				return nil
 			}),
 		)
-
-
 	})
 }

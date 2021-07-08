@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -9,7 +10,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro/broker"
 	"github.com/pydio/cells/common/micro/registry"
-	"github.com/pydio/cells/common/micro/transport/grpc"
 	cells_registry "github.com/pydio/cells/common/registry"
 )
 
@@ -87,9 +87,9 @@ func handleBroker() {
 func handleTransport() {
 	switch viper.Get("transport") {
 	case "grpc":
-		grpc.Enable()
+		fallthrough
 	default:
-		log.Fatal("transport not supported")
+		grpc.Enable()
 	}
 }
 

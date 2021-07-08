@@ -21,19 +21,13 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"net"
-	"strconv"
-
 	"github.com/manifoldco/promptui"
-	"github.com/nats-io/nats-server/v2/server"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/common/registry"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
 )
 
 // clusterStartCmd connects a node to a cluster.
@@ -49,66 +43,44 @@ DESCRIPTION
 ` + promptui.IconWarn + `  Note that the database data will not be transferred to the new database.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags(), map[string]string{})
+
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
+		// Making sure we capture the signals
+		handleSignals()
+
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		natsOpts := &server.Options{}
+		ctx := cmd.Context()
 
-		natsOpts.ServerName = viper.GetString("nats_streaming_cluster_node_id")
-		natsOpts.NoLog = false
-		natsOpts.HTTPPort = viper.GetInt("nats_monitor_port")
-
-		host, p, err := net.SplitHostPort(viper.GetString("nats_address"))
-		if err != nil {
-			log.Fatal("nats: wrong address")
+		// starting the microservice
+		services := []string{
+			common.ServiceStorageNamespace_+common.ServiceConfig,
+			common.ServiceGrpcNamespace_+common.ServiceRegistry,
+			common.ServiceGrpcNamespace_+common.ServiceBroker,
 		}
 
-		port, _ := strconv.Atoi(p)
-		natsOpts.Host = host
-		natsOpts.Port = port
+		plugins.Init(ctx)
 
-		if defaults.RuntimeIsCluster() {
-			clusterOpts := new(server.ClusterOpts)
-
-			clusterHost, p, err := net.SplitHostPort(viper.GetString("nats_cluster_address"))
-			if err != nil {
-				log.Fatal("nats: wrong cluster address")
-			}
-
-			clusterPort, _ := strconv.Atoi(p)
-
-			clusterOpts.Name = viper.GetString("nats_streaming_cluster_id")
-			clusterOpts.Host = clusterHost
-			clusterOpts.Port = clusterPort
-
-			natsOpts.Cluster = *clusterOpts
+		for _, name := range services {
+			micro := registry.Default.GetServiceByName(name)
+			micro.Start(ctx)
 		}
 
-		natsOpts.RoutesStr = viper.GetString("nats_cluster_routes")
-		if natsOpts.RoutesStr != "" {
-			natsOpts.Routes = server.RoutesFromStr(natsOpts.RoutesStr)
+		select {
+		case <-ctx.Done():
+			return nil
 		}
-
-		natsOpts.Debug = true
-		natsOpts.Trace = true
-
-		natsOpts.JetStream = true
-
-		s, err := server.NewServer(natsOpts)
-		if err != nil {
-			return err
-		}
-
-		s.SetLogger(&logger{log.Logger(context.Background())}, true, true)
-
-		if err := server.Run(s); err != nil {
-			return err
-		}
-
-		s.WaitForShutdown()
 
 		return nil
-
 	},
 }
 
@@ -116,6 +88,7 @@ func init() {
 	ClusterCmd.AddCommand(clusterStartCmd)
 	addNatsFlags(clusterStartCmd.Flags())
 	addNatsStreamingFlags(clusterStartCmd.Flags())
+	addRegistryFlags(clusterStartCmd.Flags())
 }
 
 type logger struct {
