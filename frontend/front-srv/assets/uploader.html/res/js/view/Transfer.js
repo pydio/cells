@@ -279,6 +279,9 @@ class Transfer extends React.Component{
             if(item.getSize){
                 statusLabel = item.getHumanSize() + ' - ' + statusLabel;
             }
+            if(status === 'analyse' && item.getAnalyzeStatus && item.getAnalyzeStatus()) {
+                statusLabel += ' (' + item.getAnalyzeStatus() + ')'
+            }
         }
 
         return (

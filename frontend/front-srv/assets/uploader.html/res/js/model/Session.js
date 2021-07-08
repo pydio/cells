@@ -20,9 +20,13 @@
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import PathUtils from 'pydio/util/path'
+import LangUtils from 'pydio/util/lang'
 import FolderItem from './FolderItem'
 import StatusItem from './StatusItem'
-import {TreeServiceApi, RestGetBulkMetaRequest, TreeNode, TreeNodeType} from 'cells-sdk'
+import PromisePool from 'es6-promise-pool'
+import {TreeServiceApi, RestGetBulkMetaRequest} from 'cells-sdk'
+
+const UsePool = true;
 
 class Session extends FolderItem {
 
@@ -31,6 +35,16 @@ class Session extends FolderItem {
         this._repositoryId = repositoryId;
         this._status = StatusItem.StatusAnalyze;
         delete this.children.pg[this.getId()];
+        this._analyzeStatus = ''
+    }
+
+    getAnalyzeStatus() {
+        return this._analyzeStatus
+    }
+
+    setAnalyzeStatus(s) {
+        this._analyzeStatus = s;
+        this.notify('status', this._status);
     }
 
     getFullPath(){
@@ -84,6 +98,7 @@ class Session extends FolderItem {
      * @return {Promise<{Nodes: Array}>}
      */
     bulkStatSliced(api, nodePaths, sliceSize){
+        this.setAnalyzeStatus('checking ' + nodePaths.length + ' items')
         let p = Promise.resolve({Nodes:[]});
         let slice = nodePaths.slice(0, sliceSize);
         while(slice.length){
@@ -92,7 +107,7 @@ class Session extends FolderItem {
             request.NodePaths = slice;
             p = p.then(r => {
                 return api.bulkStatNodes(request).then(response => {
-                    r.Nodes = r.Nodes.concat(response.Nodes || []);
+                    r.Nodes = r.Nodes.concat(response.Nodes || []);
                     return r;
                 })
             });
@@ -144,20 +159,46 @@ class Session extends FolderItem {
                 }
                 const itemStated = (item) => response.Nodes.map(n=>n.Path).indexOf(item.getFullPath()) !== -1;
 
-                // rename files if necessary
-                const renameFiles = () => {
-                    this.walk((item)=>{
-                        if (itemStated(item)){
-                            proms.push(new Promise(async resolve1 => {
+
+                let renameFiles;
+                if (UsePool) {
+                    renameFiles = () => {
+                        const items = [];
+                        this.walk((item) => {
+                            if (itemStated(item)) {
+                                items.push(item);
+                            }
+                        }, () => true, 'file');
+                        const pool = new PromisePool(() => {
+                            if (!items.length) {
+                                return null;
+                            }
+                            const item = items.pop()
+                            return new Promise(async resolve1 => {
                                 const newPath = await this.newPath(item.getFullPath());
                                 const newLabel = PathUtils.getBasename(newPath);
                                 item.updateLabel(newLabel);
+                                this.setAnalyzeStatus('checking ' + newLabel)
                                 resolve1();
-                            }));
-                        }
-                    }, ()=>true, 'file');
-                    return Promise.all(proms);
-                };
+                            })
+                        }, 5)
+                        return pool.start();
+                    }
+                } else {
+                    renameFiles = () => {
+                        this.walk((item) => {
+                            if (itemStated(item)) {
+                                proms.push(new Promise(async resolve1 => {
+                                    const newPath = await this.newPath(item.getFullPath());
+                                    const newLabel = PathUtils.getBasename(newPath);
+                                    item.updateLabel(newLabel);
+                                    resolve1();
+                                }));
+                            }
+                        }, () => true, 'file');
+                        return Promise.all(proms);
+                    };
+                }
 
 
                 // First rename folders if necessary - Blocking, so that renaming a parent folder
@@ -172,6 +213,7 @@ class Session extends FolderItem {
                                 const newPath = await this.newPath(item.getFullPath());
                                 const newLabel = PathUtils.getBasename(newPath);
                                 item.updateLabel(newLabel);
+                                this.setAnalyzeStatus('checking ' + newLabel)
                             }
                         });
                     }, ()=>true, 'folder');
@@ -182,9 +224,9 @@ class Session extends FolderItem {
                         resolve(proms);
                     });
                 } else {
-                    renameFiles().then(proms=>{
+                    renameFiles().then(res=>{
                         this.setStatus('ready');
-                        resolve(proms);
+                        resolve(res);
                     });
                 }
 
