@@ -133,14 +133,10 @@ class Session extends FolderItem {
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestGetBulkMetaRequest();
         request.NodePaths = [];
-        let walkType = 'both';
-        if(overwriteStatus === 'rename'){
-            walkType = 'file';
-        }
         // Recurse children
         this.walk((item)=>{
             request.NodePaths.push(item.getFullPath());
-        }, ()=>true, walkType);
+        }, ()=>true, 'both');
 
         return new Promise((resolve, reject) => {
             const proms = [];
@@ -205,7 +201,6 @@ class Session extends FolderItem {
                 // will change the children paths and see them directly as not existing
                 // To do that, we chain promises to resolve them sequentially
                 if(overwriteStatus === 'rename-folders'){
-                    const folderProms = [];
                     let folderProm = Promise.resolve();
                     this.walk((item)=>{
                         folderProm = folderProm.then(async()=>{
@@ -224,6 +219,11 @@ class Session extends FolderItem {
                         resolve(proms);
                     });
                 } else {
+                    this.walk(item => {
+                        if(itemStated(item) && item.setIgnore) {
+                            item.setIgnore();
+                        }
+                    }, ()=>true, 'folder')
                     renameFiles().then(res=>{
                         this.setStatus('ready');
                         resolve(res);

@@ -40,7 +40,19 @@ class FolderItem extends StatusItem{
         return this._new;
     }
 
+    setIgnore(){
+        this.setStatus(StatusItem.StatusLoaded);
+        this.children.pg[this.getId()] = 100;
+        this.recomputeProgress();
+        this._new = false;
+    }
+
     _doProcess(completeCallback) {
+        if(!this._new) {
+            completeCallback();
+            return;
+        }
+
         let fullPath;
         try{
             fullPath = this.getFullPath()

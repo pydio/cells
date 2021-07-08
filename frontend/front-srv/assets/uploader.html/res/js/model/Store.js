@@ -28,7 +28,6 @@ import StatusItem from './StatusItem'
 import UploadItem from './UploadItem'
 import FolderItem from './FolderItem'
 import Session from './Session'
-import debounce from 'lodash.debounce'
 
 import PydioApi from 'pydio/http/api'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
@@ -225,7 +224,7 @@ class Store extends Observable{
             session.walk((item)=>{
                 folders.push(item);
             }, (item)=>{
-                return item.getStatus() === 'new'
+                return item.getStatus() === 'new' && item.isNew()
             }, 'folder', () => {
                 return folders.length >= max;
             });
@@ -239,7 +238,7 @@ class Store extends Observable{
             session.walk((item)=>{
                 folders.push(item);
             }, (item)=>{
-                return item.getStatus() === 'new'
+                return item.getStatus() === 'new' && item.isNew()
             }, 'folder', ()=>{
                 return folders.length >= 1;
             });
