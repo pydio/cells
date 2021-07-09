@@ -21,7 +21,6 @@
 package role
 
 import (
-	"context"
 	"strings"
 	"time"
 
@@ -31,11 +30,9 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
-	"go.uber.org/zap"
 	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
@@ -214,7 +211,8 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 		if policies, e := s.GetPoliciesForResource(role.Uuid); e == nil {
 			role.Policies = policies
 		} else {
-			log.Logger(context.Background()).Error("Error while loading resource policies", zap.Error(e))
+			return e
+			//log.Logger(context.Background()).Error("Error while loading resource policies", zap.Error(e))
 		}
 		*roles = append(*roles, role)
 	}
