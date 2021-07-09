@@ -256,10 +256,11 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if err := s.IndexSQL.DelNode(updateNode); err != nil {
 			return nil, createdNodes, err
 		}
-		_, _, err := s.IndexSQL.Path(node.Path, true, node)
+		newMPath, _, err := s.IndexSQL.Path(node.Path, true, node)
 		if err != nil {
 			return nil, createdNodes, err
 		}
+		mPath = newMPath
 	}
 	if user.Uuid == "" {
 		foundOrCreatedNode, _ := s.IndexSQL.GetNode(mPath)
