@@ -28,6 +28,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/micro/go-micro/errors"
+
 	"github.com/pydio/cells/common/sync/endpoints/s3"
 
 	"go.uber.org/zap"
@@ -53,11 +55,17 @@ type FlatStorageHandler struct {
 	AbstractHandler
 }
 
+// CreateNode creates directly in index, but make sure not to override
 func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
 	if !isFlatStorage(ctx, "in") || in.GetNode().IsLeaf() {
 		return f.next.CreateNode(ctx, in, opts...)
 	}
-	// Folder : create directly in index
+	if r, e := f.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: in.GetNode().GetPath()}}); e == nil && r.GetNode() != nil {
+		if r.GetNode().IsLeaf() {
+			return nil, errors.Forbidden("cannot.override.file", "trying to create a folder on top of an existing file")
+		}
+		return &tree.CreateNodeResponse{Node: r.GetNode()}, nil
+	}
 	return f.clientsPool.GetTreeClientWrite().CreateNode(ctx, in, opts...)
 }
 
