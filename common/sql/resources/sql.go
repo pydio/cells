@@ -23,6 +23,9 @@ package resources
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/patrickmn/go-cache"
 
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -48,10 +51,13 @@ type ResourcesSQL struct {
 	*sql.Handler
 
 	LeftIdentifier string
+	cache          *cache.Cache
 }
 
 // Init performs necessary up migration.
 func (s *ResourcesSQL) Init(options configx.Values) error {
+
+	s.cache = cache.New(30*time.Second, 2*time.Minute)
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/resources/migrations"),
@@ -78,6 +84,8 @@ func (s *ResourcesSQL) Init(options configx.Values) error {
 // AddPolicy persists a policy in the underlying storage
 func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePolicy) error {
 
+	s.cache.Delete(resourceId)
+
 	prepared, er := s.GetStmt("AddRuleForResource")
 	if er != nil {
 		return er
@@ -90,6 +98,8 @@ func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePoli
 
 // AddPolicies persists a set of policies. If update is true, it replace them by deleting existing ones
 func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*service.ResourcePolicy) error {
+
+	s.cache.Delete(resourceId)
 
 	tx, errTx := s.DB().BeginTx(context.Background(), nil)
 	if errTx != nil {
@@ -140,6 +150,12 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 // GetPoliciesForResource finds all policies for a given resource
 func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error) {
 
+	if cached, ok := s.cache.Get(resourceId); ok {
+		if rules, o := cached.([]*service.ResourcePolicy); o {
+			return rules, nil
+		}
+	}
+
 	var res []*service.ResourcePolicy
 
 	prepared, er := s.GetStmt("SelectRulesForResource")
@@ -147,7 +163,10 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 		return nil, er
 	}
 
-	rows, err := prepared.Query(resourceId)
+	timeout, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	defer cancel()
+
+	rows, err := prepared.QueryContext(timeout, resourceId)
 	if err != nil {
 		return res, err
 	}
@@ -164,11 +183,16 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 		rule.Effect = service.ResourcePolicy_PolicyEffect(service.ResourcePolicy_PolicyEffect_value[effectString])
 		res = append(res, rule)
 	}
+
+	s.cache.Set(resourceId, res, cache.DefaultExpiration)
+
 	return res, nil
 }
 
 // DeletePoliciesForResource removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
+
+	s.cache.Delete(resourceId)
 
 	prepared, er := s.GetStmt("DeleteRulesForResource")
 	if er != nil {
@@ -183,6 +207,18 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 // DeletePoliciesForResource removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
+	// Delete cache items that would contain this subject
+	for k, i := range s.cache.Items() {
+		if rules, ok := i.Object.([]*service.ResourcePolicy); ok {
+			for _, pol := range rules {
+				if pol.Subject == subject {
+					s.cache.Delete(k)
+					break
+				}
+			}
+		}
+	}
+
 	prepared, er := s.GetStmt("DeleteRulesForSubject")
 	if er != nil {
 		return er
@@ -195,6 +231,8 @@ func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
 // DeletePoliciesForResourceAndAction removes policies for a given resource only if they have the corresponding action
 func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error {
+
+	s.cache.Delete(resourceId)
 
 	prepared, er := s.GetStmt("DeleteRulesForResourceAndAction")
 	if er != nil {
