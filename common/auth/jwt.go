@@ -173,35 +173,33 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 
 	// Search by name or by email
 	var user *idm.User
-	var uE error
 
 	// Search by subject
 	if claims.Subject != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, "", claims.Subject); err == nil {
 			user = u
-
+		} else if errors2.Parse(err.Error()).Code != 404 {
+			return err
 		}
 	} else if claims.Name != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Name, ""); err == nil {
 			user = u
+		} else if errors2.Parse(err.Error()).Code != 404 {
+			return err
 		}
 	}
 
-	if user == nil {
+	if user == nil && claims.Email != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Email, ""); err == nil {
 			user = u
 			// Now replace claims.Name
 			claims.Name = claims.Email
 		} else {
-			uE = err
+			return err
 		}
 	}
 	if user == nil {
-		if uE != nil {
-			return uE
-		} else {
-			return errors2.NotFound("user.not.found", "user not found neither by name or email")
-		}
+		return errors2.NotFound("user.not.found", "user not found neither by name or email")
 	}
 
 	// Check if User is locked
