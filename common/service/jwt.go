@@ -27,6 +27,7 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -81,15 +82,19 @@ func JWTHttpWrapper(h http.Handler) http.Handler {
 
 			c, _, err = jwtVerifier.Verify(c, rawIDToken)
 			if err != nil {
-				// This is a wrong JWT go out with error
-				w.WriteHeader(401)
-				w.Write([]byte("Unauthorized.\n"))
-
-				log.Auditer(c).Error(
-					"Blocked invalid JWT",
-					log.GetAuditId(common.AuditInvalidJwt),
-				)
-
+				log.Logger(context.Background()).Error("jwtVerifier Error", zap.Error(err))
+				if isNetworkError(err) {
+					w.WriteHeader(503)
+					w.Write([]byte("Service unavailable.\n"))
+				} else {
+					// This is a wrong JWT go out with error
+					w.WriteHeader(401)
+					w.Write([]byte("Unauthorized.\n"))
+					log.Auditer(c).Error(
+						"Blocked invalid JWT",
+						log.GetAuditId(common.AuditInvalidJwt),
+					)
+				}
 				return
 			}
 
