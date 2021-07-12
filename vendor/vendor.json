@@ -5243,6 +5243,42 @@
 			"revisionTime": "2021-03-24T17:22:49Z"
 		},
 		{
+			"checksumSHA1": "BKjuv1kSzqZvXRguM8jOzejXgPs=",
+			"path": "go.etcd.io/etcd/pkg/fileutil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "UIng8RomwQoXZlqobd0wRmRncYw=",
+			"path": "go.etcd.io/etcd/pkg/types",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "yyhkKWlatlVLPfJ3InPCF7xq5uA=",
+			"path": "go.etcd.io/etcd/raft",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "SWZ6deGCvddk1KPDQiLPV4NWMhA=",
+			"path": "go.etcd.io/etcd/raft/confchange",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "zQ7GwI8vtb6n+WdUFVEoiFFrLk4=",
+			"path": "go.etcd.io/etcd/raft/raftpb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "f9g/vwFOxhZGkAUbRE3qvxQ0YFk=",
+			"path": "go.etcd.io/etcd/raft/tracker",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
 			"checksumSHA1": "HedK9m8E8iyib4bIBtIX7xprOgo=",
 			"path": "go.uber.org/atomic",
 			"revision": "8474b86a5a6f79c443ce4b2992817ff32cf208b8",
