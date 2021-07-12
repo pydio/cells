@@ -114,7 +114,7 @@ EXAMPLE
 		// Initialise the default registry
 		handleRegistry()
 
-		plugins.Init(cmd.Context())
+		plugins.Init(cmd.Context(), "main")
 
 		// If we have an error (registry not running) the running list simply is empty
 		services, _ := defaults.Registry().ListServices()

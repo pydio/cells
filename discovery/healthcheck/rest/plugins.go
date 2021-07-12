@@ -39,7 +39,7 @@ var (
 )
 
 func init() {
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 
 		port := fmt.Sprintf("%v", viper.Get("healthcheck"))
 		if port == "0" {

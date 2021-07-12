@@ -39,8 +39,8 @@ import (
 )
 
 func init() {
-	plugins.RegisterInstall(register)
-	plugins.Register(register)
+	plugins.Register("install",  register)
+	plugins.Register("main", register)
 }
 
 func register(ctx context.Context) {

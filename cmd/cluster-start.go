@@ -68,7 +68,7 @@ DESCRIPTION
 			common.ServiceGrpcNamespace_+common.ServiceBroker,
 		}
 
-		plugins.Init(ctx)
+		plugins.Init(ctx, "cluster")
 
 		for _, name := range services {
 			micro := registry.Default.GetServiceByName(name)

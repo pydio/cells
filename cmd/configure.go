@@ -367,7 +367,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		handleSignals()
 	})
 
-	plugins.InstallInit(ctx)
+	plugins.Init(ctx, "install")
 
 	initServices()
 

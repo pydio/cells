@@ -162,7 +162,7 @@ ENVIRONMENT
 				"Do you want to reset the initial configuration", cmd, args)
 		}
 
-		plugins.Init(cmd.Context())
+		plugins.Init(cmd.Context(), "main")
 
 		// Filtering out services by exclusion
 		registry.Default.Filter(func(s registry.Service) bool {

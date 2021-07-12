@@ -31,7 +31,7 @@ import (
 )
 
 func init() {
-	plugins.RegisterInstall(func(ctx context.Context) {
+	plugins.Register("install",  func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceInstall),
 			service.Context(ctx),

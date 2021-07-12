@@ -68,7 +68,7 @@ func init() {
 		service.Name(common.ServiceGatewayGrpcClear),
 		service.Description("External gRPC Access (clear)"),
 	)
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		ss, _ := config.LoadSites()
 		var hasClear, hasTls bool
 		for _, s := range ss {

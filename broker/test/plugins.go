@@ -16,7 +16,7 @@ import (
 func init() {
 	lock := &sync.Mutex{}
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name("testing"),
 			service.Context(ctx),

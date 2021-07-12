@@ -54,7 +54,7 @@ type EditorLibreOffice struct {
 }
 
 func init() {
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		caddy.RegisterPluginTemplate(
 			play,
 			[]string{"frontend", "plugin", "editor.libreoffice"},

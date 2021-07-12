@@ -57,7 +57,7 @@ var (
 
 func init() {
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.ServiceDataSync)
 		dss := config.ListSourcesFromConfig()

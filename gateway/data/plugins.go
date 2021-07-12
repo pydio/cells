@@ -57,7 +57,7 @@ func (l *logger) Audit(entry interface{}) {
 
 func init() {
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		port := net.GetAvailablePort()
 		service.NewService(
 			service.Name(common.ServiceGatewayData),

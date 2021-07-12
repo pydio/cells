@@ -29,7 +29,7 @@ import (
 )
 
 func init() {
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceWorkspace),
 			service.Context(ctx),

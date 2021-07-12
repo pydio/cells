@@ -1,28 +1,22 @@
 package plugins
 
-import "context"
-
-var (
-	installInitializers []func(ctx context.Context)
-	initializers        []func(ctx context.Context)
-	afterInits          []func()
+import (
+	"context"
+	"strings"
 )
 
-func RegisterInstall(y ...func(ctx context.Context)) {
-	installInitializers = append(installInitializers, y...)
-}
-func Register(y ...func(ctx context.Context)) {
-	initializers = append(initializers, y...)
-}
+var (
+	initializers        = make(map[string][]func(ctx context.Context))
+)
 
-func InstallInit(ctx context.Context) {
-	for _, init := range installInitializers {
-		init(ctx)
+func Register(typ string, y ...func(ctx context.Context)) {
+	for _, t := range strings.Split(typ, ",") {
+		initializers[t] = append(initializers[t], y...)
 	}
 }
 
-func Init(ctx context.Context) {
-	for _, init := range initializers {
+func Init(ctx context.Context, typ string) {
+	for _, init := range initializers[typ] {
 		init(ctx)
 	}
 }

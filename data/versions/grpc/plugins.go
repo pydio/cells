@@ -49,7 +49,7 @@ var (
 
 func init() {
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
 		service.NewService(

@@ -46,7 +46,7 @@ var store *raft.KVStore
 
 func init() {
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("cluster", func(ctx context.Context) {
 		id := viper.GetInt("nats_streaming_cluster_node_id")
 		port := fmt.Sprintf("%d", 20000 + id)
 		fmt.Println(port)

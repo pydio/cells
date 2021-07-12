@@ -83,7 +83,7 @@ var BasePluginsBox = frontend.PluginBox{
 
 func init() {
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		gob.Register(map[string]string{})
 
 		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)

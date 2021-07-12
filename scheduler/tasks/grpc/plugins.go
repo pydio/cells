@@ -37,7 +37,7 @@ import (
 func init() {
 	jobs.RegisterNodesFreeStringEvaluator(bleveimpl.EvalFreeString)
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceTasks),
 			service.Context(ctx),

@@ -38,7 +38,7 @@ func init() {
 	config.RegisterRestEditablePath("services", "pydio.grpc.mailer")
 	config.RegisterRestEditablePath("services", "pydio.rest.share")
 
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceConfig),
 			service.Context(ctx),

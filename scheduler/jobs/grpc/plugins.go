@@ -48,7 +48,7 @@ var (
 )
 
 func init() {
-	plugins.Register(func(ctx context.Context) {
+	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceJobs),
 			service.Context(ctx),
