@@ -5291,6 +5291,12 @@
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},
 		{
+			"checksumSHA1": "6Rsl5Z24OGiDoEHtvrdn+PKg4Nc=",
+			"path": "go.etcd.io/etcd/pkg/tlsutil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
 			"checksumSHA1": "8f0pvxE9Sl7QWbDHUBxIxOEIMdE=",
 			"path": "go.etcd.io/etcd/pkg/transport",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
