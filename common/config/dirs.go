@@ -54,9 +54,12 @@ func ApplicationWorkingDir(dirType ...ApplicationDirType) string {
 	} else if d == ApplicationDirServices && os.Getenv("CELLS_SERVICES_DIR") != "" {
 		f = os.Getenv("CELLS_SERVICES_DIR")
 	} else {
-		vendor := "Pydio"
-		if runtime.GOOS == "linux" {
+		var vendor string
+		switch runtime.GOOS {
+		case "linux", "freebsd":
 			vendor = "pydio"
+		default:
+			vendor = "Pydio"
 		}
 		appName := "cells"
 		configDirs := configdir.New(vendor, appName)
