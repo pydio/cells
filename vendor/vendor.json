@@ -1006,6 +1006,12 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
+			"checksumSHA1": "ZlmDZ2lTxEclP9oBLZDpgbnjyXo=",
+			"path": "github.com/coreos/go-semver/semver",
+			"revision": "58a026bf10c246d5e172cd82fd4b5f94f4ed1ff6",
+			"revisionTime": "2021-05-11T15:26:46Z"
+		},
+		{
 			"checksumSHA1": "zQ6TLRa2BeiERZIPME4H0kXDGXc=",
 			"path": "github.com/couchbase/vellum",
 			"revision": "e91b68ff3efe3cc11723aa25dd315cbc9276cd65",
@@ -5201,6 +5207,12 @@
 			"revisionTime": "2018-03-14T18:20:23Z"
 		},
 		{
+			"checksumSHA1": "wIlZSJMx1wX+6m1OjVRKZIS1Elg=",
+			"path": "github.com/xiang90/probing",
+			"revision": "43a291ad63a214a207fefbf03c7d9d78b703162b",
+			"revisionTime": "2019-01-16T06:12:07Z"
+		},
+		{
 			"checksumSHA1": "jxa5QGd5XWyonlS+O/C9Fadmafc=",
 			"path": "github.com/yudai/gojsondiff",
 			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
@@ -5243,8 +5255,44 @@
 			"revisionTime": "2021-03-24T17:22:49Z"
 		},
 		{
+			"checksumSHA1": "myTVYOliKPm9nKqzKr1OHozmBqI=",
+			"path": "go.etcd.io/etcd/etcdserver/api/snap/snappb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "sjWtEKrdI/2mVp6/7lm1i1kwkUU=",
+			"path": "go.etcd.io/etcd/pkg/crc",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
 			"checksumSHA1": "BKjuv1kSzqZvXRguM8jOzejXgPs=",
 			"path": "go.etcd.io/etcd/pkg/fileutil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "uNiBBoTscRxb9S/JWEkf9GLB9qo=",
+			"path": "go.etcd.io/etcd/pkg/httputil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "+uuqbmn8QFy51dthQuajFM8COcE=",
+			"path": "go.etcd.io/etcd/pkg/ioutil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "NnyXPH+Jxe8sKQSfIeP1Uc5YqG8=",
+			"path": "go.etcd.io/etcd/pkg/pbutil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "8f0pvxE9Sl7QWbDHUBxIxOEIMdE=",
+			"path": "go.etcd.io/etcd/pkg/transport",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},
@@ -5267,6 +5315,12 @@
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},
 		{
+			"checksumSHA1": "KRfw5eJGtajMhJrL1X11x3SGJU0=",
+			"path": "go.etcd.io/etcd/raft/quorum",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
 			"checksumSHA1": "zQ7GwI8vtb6n+WdUFVEoiFFrLk4=",
 			"path": "go.etcd.io/etcd/raft/raftpb",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
@@ -5275,6 +5329,18 @@
 		{
 			"checksumSHA1": "f9g/vwFOxhZGkAUbRE3qvxQ0YFk=",
 			"path": "go.etcd.io/etcd/raft/tracker",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "ZF4Gjhmh2hJ3ozqzW4m8L15SFPY=",
+			"path": "go.etcd.io/etcd/version",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "+MToczOOiPOiQLHGFIVKX7lFWWI=",
+			"path": "go.etcd.io/etcd/wal/walpb",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},
