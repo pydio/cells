@@ -1110,10 +1110,12 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "sp+ojbJZdBj/UsH33LCtDtEHYfI=",
+			"checksumSHA1": "fXKgB2PyUT+Urb4cUzGiCrTTKbM=",
 			"path": "github.com/disintegration/imaging",
-			"revision": "fd34ef7671b12cdf1b024d98c6b327b2770d32c4",
-			"revisionTime": "2018-03-14T22:21:09Z"
+			"revision": "acabd8315e63bfcaac97d52d68a7a0b88d2eea93",
+			"revisionTime": "2019-11-16T20:43:25Z",
+			"version": "v1.6.2",
+			"versionExact": "v1.6.2"
 		},
 		{
 			"checksumSHA1": "jUfDG3VQsA2UZHvvIXncgiddpYA=",
