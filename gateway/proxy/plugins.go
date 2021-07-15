@@ -41,12 +41,12 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
+	_ "github.com/pydio/cells/common/caddy/proxy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	errorUtils "github.com/pydio/cells/common/utils/error"
-	_ "github.com/pydio/cells/common/caddy/proxy"
 )
 
 var (
@@ -97,6 +97,14 @@ var (
 		header_downstream X-Content-Security-Policy "sandbox"
 	}
 	pydioproxy /data {{$.GatewayService}} {
+		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
+		header_upstream X-Real-IP {remote}
+		header_upstream X-Forwarded-Proto {scheme}
+		header_downstream Content-Security-Policy "script-src 'none'"
+		header_downstream X-Content-Security-Policy "sandbox"
+	}
+	pydioproxy /buckets {{$.GatewayService}} {
+		without /buckets
 		header_upstream Host {{if $ExternalHost}}{{$ExternalHost}}{{else}}{host}{{end}}
 		header_upstream X-Real-IP {remote}
 		header_upstream X-Forwarded-Proto {scheme}
@@ -181,10 +189,19 @@ var (
 
 	redir 302 {
 		{{if .HasTLS}}if {>Content-type} not_has "application/grpc"{{end}}
+		if {>Authorization} not_has "AWS4-HMAC-SHA256"
 		if {path} is /
 		/ /login
 	}
-	
+
+	rewrite {
+		if {>Authorization} has "AWS4-HMAC-SHA256"
+		if_op or
+		if {path} is / 
+		if {path} starts_with "/probe-bucket-sign"
+		to /buckets{path}
+	}
+
 	{{range $.PluginTemplates}}
 	{{call . $Site}}
 	{{end}}
@@ -194,6 +211,7 @@ var (
 		if {path} not_starts_with "/oidc/"
 		if {path} not_starts_with "/io"
 		if {path} not_starts_with "/data"
+		if {path} not_starts_with "/buckets"
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
 		if {path} not_starts_with "/dav"
@@ -211,6 +229,7 @@ var (
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 	errors "{{$.Logs}}/caddy_errors.log"
+	log "{{$.Logs}}/caddy_logs.log"
 }
 
 {{if .SSLRedirect}}
@@ -351,8 +370,6 @@ func (g *gatewayProxyServer) Start() error {
 			}
 		}
 	}
-
-
 
 	caddyconf.PluginTemplates = caddy.GetTemplates()
 	caddyconf.PluginPathes = caddy.GetPathes()
