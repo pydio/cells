@@ -117,12 +117,11 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 	}
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
 		if result.GetError() == nil && result.GetMime() != "" {
-			clone.SetMeta(common.MetaNamespaceMime, result.GetMime())
 			// Store in metadata service
-			cNode := &tree.Node{Uuid: clone.Uuid}
-			cNode.SetMeta(common.MetaNamespaceMime, result.GetMime())
+			clone.MetaStore = make(map[string]string, 1)
+			clone.SetMeta(common.MetaNamespaceMime, result.GetMime())
 			if _, e := mimeMetaClient.CreateNode(bgCtx, &tree.CreateNodeRequest{
-				Node:           cNode,
+				Node:           clone,
 				UpdateIfExists: true,
 			}); e == nil {
 				log.Logger(ctx).Info("Stored mime type for node", clone.ZapUuid(), clone.ZapPath(), zap.String("mime", result.GetMime()))
