@@ -250,13 +250,11 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	writer := info.Client
 
 	s3Path := e.buildS3Path(info, node)
-	opts := minio.PutObjectOptions{
-		UserMetadata: requestData.Metadata,
-	}
+	opts := e.putOptionsFromRequestMeta(requestData.Metadata)
 
 	log.Logger(ctx).Debug("[handler exec]: put object", zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
 	if requestData.Size <= 0 {
-		written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
+		written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, opts)
 		if err != nil {
 			return 0, err
 		} else {
@@ -379,10 +377,9 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			ctx = context2.WithMetadata(ctx, ctxMeta)
 		}
 		log.Logger(ctx).Debug("HandlerExec: copy one DS to another", zap.Any("meta", srcStat), zap.Any("requestMeta", requestData.Metadata))
-		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{
-			UserMetadata: requestData.Metadata,
-			Progress:     requestData.Progress,
-		})
+		opts := e.putOptionsFromRequestMeta(requestData.Metadata)
+		opts.Progress = requestData.Progress
+		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, opts)
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: CopyObject / Different Clients",
 				zap.Error(err),
@@ -406,8 +403,7 @@ func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, reque
 	}
 	s3Path := e.buildS3Path(info, target)
 
-	putOptions := minio.PutObjectOptions{}
-	putOptions.UserMetadata = requestData.Metadata
+	putOptions := e.putOptionsFromRequestMeta(requestData.Metadata)
 	id, err := info.Client.NewMultipartUploadWithContext(ctx, info.ObjectsBucket, s3Path, putOptions)
 	return id, err
 }
@@ -427,6 +423,9 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 		return minio.ObjectPart{PartNumber: partNumberMarker},
 			errors.BadRequest(VIEWS_LIBRARY_NAME, "trying to upload a part object that has no data. Double check")
 	} else {
+		if partNumberMarker == 1 && requestData.ContentTypeUnknown() {
+			reader = WrapReaderForMime(ctx, target.Clone(), reader)
+		}
 		cp, err := writer.PutObjectPartWithContext(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum), nil)
 		if err != nil {
 			log.Logger(ctx).Error("PutObjectPart has failed", zap.Error(err))
@@ -494,6 +493,22 @@ func (e *Executor) StreamChanges(ctx context.Context, in *tree.StreamChangesRequ
 
 func (e *Executor) WrappedCanApply(_ context.Context, _ context.Context, _ *tree.NodeChangeEvent) error {
 	return nil
+}
+
+func (e *Executor) putOptionsFromRequestMeta(metadata map[string]string) minio.PutObjectOptions {
+	opts := minio.PutObjectOptions{UserMetadata: make(map[string]string)}
+	for k, v := range metadata {
+		if k == "content-type" {
+			opts.ContentType = v
+		} else if k == "content-encoding" {
+			opts.ContentEncoding = v
+		} else if k == "X-Amz-Storage-Class" || k == "x-amz-storage-class" {
+			opts.StorageClass = v
+		} else if strings.HasPrefix(k, "X-Amz-Meta-") {
+			opts.UserMetadata[k] = v
+		}
+	}
+	return opts
 }
 
 func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {

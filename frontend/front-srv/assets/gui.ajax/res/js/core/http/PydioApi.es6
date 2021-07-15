@@ -442,9 +442,9 @@ class PydioApi{
             if(seed) {
                 seed = '-' + seed;
             } else {
-                seed = '';
+                seed = '-';
             }
-            let cacheKey = node.getMetadata().get('uuid') + seed + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
+            let cacheKey = node.getMetadata().get('uuid') + (attachmentName?'-a':'') + seed + jwt + params.Key + (params.VersionId ? '#' + params.VersionId : '');
             if(cType){
                cacheKey += "#" + cType;
             }

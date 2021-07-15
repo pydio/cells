@@ -110,6 +110,9 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			}
 			temporary.Type = tree.NodeType_LEAF
 			temporary.Etag = common.NodeFlagEtagTemporary
+			if ctype := from.GetStringMeta(common.MetaNamespaceMime); ctype != "" {
+				temporary.SetMeta(common.MetaNamespaceMime, ctype)
+			}
 			if _, er := f.clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: temporary}); er != nil {
 				return 0, er
 			}
@@ -129,7 +132,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 			}
 		}
 		// Now store in index
-		if er := f.postCreate(tgtCtx, "to", to, requestData.Metadata); er != nil {
+		if er := f.postCreate(tgtCtx, "to", to, requestData.Metadata, from.GetStringMeta(common.MetaNamespaceMime)); er != nil {
 			return i, er
 		}
 	} else if e != nil && revertNode != nil {
@@ -145,7 +148,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	i, e := f.next.PutObject(ctx, node, reader, requestData)
 	if e == nil && isFlatStorage(ctx, "in") {
-		if er := f.postCreate(ctx, "in", node, requestData.Metadata); er != nil {
+		if er := f.postCreate(ctx, "in", node, requestData.Metadata, requestData.MetaContentType()); er != nil {
 			return i, er
 		}
 	}
@@ -183,7 +186,7 @@ func (f *FlatStorageHandler) MultipartComplete(ctx context.Context, target *tree
 				meta[common.XAmzMetaClearSize] = fmt.Sprintf("%d", info.Size)
 			}
 		}
-		if er := f.postCreate(ctx, "in", target, meta); er != nil {
+		if er := f.postCreate(ctx, "in", target, meta, ""); er != nil {
 			return info, er
 		}
 	}
@@ -228,7 +231,7 @@ func (f *FlatStorageHandler) resolveUUID(ctx context.Context, node *tree.Node) e
 }
 
 // postCreate updates index after upload by re-read newly added S3 object to get ETag
-func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, node *tree.Node, requestMeta map[string]string) error {
+func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, node *tree.Node, requestMeta map[string]string, cType string) error {
 	var updateNode *tree.Node
 	if updateResp, err := f.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); err == nil {
 		updateNode = updateResp.GetNode()
@@ -259,6 +262,9 @@ func (f *FlatStorageHandler) postCreate(ctx context.Context, identifier string, 
 		} else {
 			log.Logger(ctx).Error("Cannot recompute ETag :"+updateNode.Etag, zap.Error(e))
 		}
+	}
+	if cType != "" {
+		updateNode.SetMeta(common.MetaNamespaceMime, cType)
 	}
 	_, er := f.clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: updateNode, UpdateIfExists: true})
 	if er != nil {

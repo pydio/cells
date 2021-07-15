@@ -347,7 +347,10 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 	if !localTest {
 
-		requestMeta := map[string]string{"X-Amz-Meta-Original-Etag": node.Etag}
+		requestMeta := map[string]string{
+			common.XContentType:        "image/jpeg",
+			"X-Amz-Meta-Original-Etag": node.Etag,
+		}
 		logger.Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize))
 		displayMemStat(ctx, "BEFORE PUT OBJECT WITH CONTEXT")
 		tCtx, tNode, e := getThumbLocation(ctx, objectName)

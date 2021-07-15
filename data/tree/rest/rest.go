@@ -185,7 +185,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				length = int64(len(contents))
 				reader = strings.NewReader(contents)
 			}
-			_, e := router.PutObject(ctx, n, reader, &views.PutRequestData{Size: length})
+			_, e := router.PutObject(ctx, n, reader, &views.PutRequestData{Size: length, Metadata: map[string]string{common.XContentType: "text/plain"}})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return

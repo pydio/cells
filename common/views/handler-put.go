@@ -62,10 +62,11 @@ func retryOnDuplicate(callback func() (*tree.CreateNodeResponse, error), retries
 	return resp, e
 }
 
-// Create a temporary node before calling a Put request. If it is an update, should send back the already existing node
+// getOrCreatePutNode creates a temporary node before calling a Put request.
+// If it is an update, should send back the already existing node.
 // Returns the node, a flag to tell wether it is created or not, and eventually an error
 // The Put event will afterward update the index
-func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, size int64) (*tree.Node, error, onCreateErrorFunc) {
+func (m *PutHandler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *PutRequestData) (*tree.Node, error, onCreateErrorFunc) {
 	treeReader := m.clientsPool.GetTreeClient()
 	treeWriter := m.clientsPool.GetTreeClientWrite()
 
@@ -82,9 +83,13 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 	tmpNode := &tree.Node{
 		Path:  string(norm.NFC.Bytes([]byte(treePath))),
 		MTime: time.Now().Unix(),
-		Size:  size,
+		Size:  requestData.Size,
 		Type:  tree.NodeType_LEAF,
 		Etag:  common.NodeFlagEtagTemporary,
+	}
+
+	if requestData.MetaContentType() != "" {
+		tmpNode.SetMeta(common.MetaNamespaceMime, requestData.MetaContentType())
 	}
 
 	log.Logger(ctx).Debug("[PUT HANDLER] > Create Node", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
@@ -109,7 +114,7 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 
 }
 
-// Recursively create parents
+// CreateParent Recursively create parents
 func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 	parentNode := node.Clone()
 	parentNode.Path = path.Dir(node.Path)
@@ -183,11 +188,14 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 
 		log.Logger(ctx).Debug("PUT: Appending node Uuid to request metadata: " + node.Uuid)
 		requestData.Metadata[common.XAmzMetaNodeUuid] = node.Uuid
+		if requestData.ContentTypeUnknown() {
+			reader = WrapReaderForMime(ctx, node.Clone(), reader)
+		}
 		return m.next.PutObject(ctx, node, reader, requestData)
 
 	} else {
 		// PreCreate a node in the tree.
-		newNode, nodeErr, onErrorFunc := m.GetOrCreatePutNode(ctx, node.Path, requestData.Size)
+		newNode, nodeErr, onErrorFunc := m.getOrCreatePutNode(ctx, node.Path, requestData)
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			return 0, nodeErr
@@ -196,6 +204,8 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 			// This was a PydioSyncHiddenFile and the folder already exists, replace the content
 			// with the actual folder Uuid to avoid replacing it We should never pass there???
 			reader = bytes.NewBufferString(newNode.Uuid)
+		} else if requestData.ContentTypeUnknown() {
+			reader = WrapReaderForMime(ctx, newNode.Clone(), reader)
 		}
 
 		requestData.Metadata[common.XAmzMetaNodeUuid] = newNode.Uuid
@@ -230,7 +240,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 		if metaSize, ok := requestData.Metadata[common.XAmzMetaClearSize]; ok {
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
-		newNode, nodeErr, onErrorFunc := m.GetOrCreatePutNode(ctx, node.Path, size)
+		newNode, nodeErr, onErrorFunc := m.getOrCreatePutNode(ctx, node.Path, &PutRequestData{Size: size})
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {

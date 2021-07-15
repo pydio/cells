@@ -68,17 +68,17 @@ func testMkFileResources() (*PutHandler, context.Context, *HandlerMock) {
 func TestMkfileHandler_GetOrCreatePutNode(t *testing.T) {
 
 	h, ctx, _ := testMkFileResources()
-	Convey("GetOrCreatePutNode", t, func() {
-		node, err, errFunc := h.GetOrCreatePutNode(ctx, "existing/node", 12)
+	Convey("getOrCreatePutNode", t, func() {
+		node, err, errFunc := h.getOrCreatePutNode(ctx, "existing/node", &PutRequestData{Size: 12})
 		So(err, ShouldBeNil)
 		So(errFunc, ShouldBeNil)
 		So(node, ShouldNotBeNil)
 		So(node.Path, ShouldEqual, "existing/node")
 	})
 
-	Convey("GetOrCreatePutNode", t, func() {
+	Convey("getOrCreatePutNode", t, func() {
 
-		node, err, errFunc := h.GetOrCreatePutNode(ctx, "other/node", 12)
+		node, err, errFunc := h.getOrCreatePutNode(ctx, "other/node", &PutRequestData{Size: 12})
 		So(err, ShouldBeNil)
 		So(errFunc, ShouldNotBeNil)
 		So(node, ShouldNotBeNil)

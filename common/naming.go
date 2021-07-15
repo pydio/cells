@@ -146,6 +146,7 @@ const (
 	MetaNamespaceNodeTestLocalFolder = "pydio:test:local-folder-storage"
 	MetaNamespaceRecycleRestore      = "pydio:recycle_restore"
 	MetaNamespaceNodeName            = "name"
+	MetaNamespaceMime                = "mime"
 	RecycleBinName                   = "recycle_bin"
 
 	PydioThumbstoreNamespace       = "pydio-thumbstore"
@@ -169,6 +170,7 @@ const (
 	XPydioIndexationSessionUuid = "X-Pydio-Indexation-Session"
 	XPydioFrontendSessionUuid   = "X-Pydio-Frontend-Session"
 	XPydioMoveUuid              = "X-Pydio-Move"
+	XContentType                = "Content-Type"
 	SyncSessionClose_           = "close-"
 	SyncSessionPrefixCopy       = "copy-"
 	SyncSessionPrefixMove       = "move-"

@@ -257,3 +257,23 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 func WalkFilterSkipPydioHiddenFile(ctx context.Context, node *tree.Node) bool {
 	return !strings.HasSuffix(node.Path, common.PydioSyncHiddenFile)
 }
+
+// MetaContentType looks for Content-Type or content-type key in metadata
+func (p *PutRequestData) MetaContentType() string {
+	if p.Metadata == nil {
+		return ""
+	}
+	if c, o := p.Metadata[common.XContentType]; o {
+		return c
+	}
+	if c, o := p.Metadata[strings.ToLower(common.XContentType)]; o {
+		return c
+	}
+	return ""
+}
+
+// ContentTypeUnknown checks if cType is empty or generic "application/octet-stream"
+func (p *PutRequestData) ContentTypeUnknown() bool {
+	cType := p.MetaContentType()
+	return cType == "" || cType == "application/octet-stream"
+}
