@@ -148,7 +148,8 @@ func (c *Client) getFullPath(path string) string {
 }
 
 func (c *Client) Stat(path string) (i os.FileInfo, err error) {
-	if path == "" || path == "/" {
+	fullPath := c.getFullPath(path)
+	if fullPath == "" || fullPath == "/" {
 		buckets, err := c.Mc.ListBuckets()
 		if err != nil {
 			return nil, err
@@ -731,6 +732,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 					var additionalCreate string
 					if strings.HasSuffix(key, servicescommon.PydioSyncHiddenFile) {
 						additionalCreate = objectPath
+						additionalCreate = c.getLocalPath(additionalCreate)
 						objectPath = path.Dir(key)
 						folder = true
 					}

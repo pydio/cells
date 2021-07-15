@@ -25,6 +25,7 @@ import (
 	"encoding/hex"
 	"io"
 	"io/ioutil"
+	"path"
 	"strings"
 	"time"
 
@@ -517,10 +518,10 @@ func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {
 		return node.GetUuid()
 	}
 
-	path := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
+	p := node.GetStringMeta(common.MetaNamespaceDatasourcePath)
 	if branchInfo.ObjectsBaseFolder != "" {
-		path = strings.TrimLeft(branchInfo.ObjectsBaseFolder, "/") + path
+		p = path.Join(strings.TrimLeft(branchInfo.ObjectsBaseFolder, "/"), p)
 	}
-	return path
+	return p
 
 }
