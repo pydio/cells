@@ -160,7 +160,23 @@ let PluginEditor = createReactClass({
         this.setDirty(true);
     },
 
+    customChecks(formValues) {
+        const {pluginId} = this.props;
+        if(pluginId === "core.uploader") {
+            const partSize = parseInt(formValues['MULTIPART_UPLOAD_PART_SIZE']) || 0
+            if(partSize < 5242880) {
+                formValues['MULTIPART_UPLOAD_PART_SIZE'] = 5242880
+            }
+            const queueSize = parseInt(formValues['MULTIPART_UPLOAD_QUEUE_SIZE']) || 0
+            if(queueSize > 6) {
+                formValues['MULTIPART_UPLOAD_QUEUE_SIZE'] = 6
+            }
+        }
+        return formValues;
+    },
+
     onChange(formValues, dirty){
+        formValues = this.customChecks(formValues)
         this.setState({values:formValues});
         this.setDirty(dirty);
         if(this.props.onDirtyChange){
