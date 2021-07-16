@@ -1804,6 +1804,12 @@
 			"revisionTime": "2017-10-01T06:05:14Z"
 		},
 		{
+			"checksumSHA1": "tEQviXWka5ENDp1LPhxr1vVYD3g=",
+			"path": "github.com/h2non/filetype",
+			"revision": "3305bbb7ac7bdba92674c044fc8f03e0c3a8d507",
+			"revisionTime": "2021-06-02T11:00:14Z"
+		},
+		{
 			"checksumSHA1": "4UANi8WQQ7Ex+x1o0D0nqoCb8wk=",
 			"path": "github.com/hashicorp/consul",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
