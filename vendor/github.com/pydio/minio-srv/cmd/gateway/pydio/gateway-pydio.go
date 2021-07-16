@@ -19,22 +19,22 @@ package pydio
 import (
 	"context"
 	"errors"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/minio/cli"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	miniogo "github.com/pydio/minio-go"
-
 	microerrors "github.com/micro/go-micro/errors"
+	miniogo "github.com/pydio/minio-go"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/pkg/auth"
 	"github.com/pydio/minio-srv/pkg/hash"
+
+	"github.com/minio/cli"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views"
 )
 
 const (
