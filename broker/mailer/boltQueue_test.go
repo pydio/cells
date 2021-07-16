@@ -22,7 +22,9 @@ package mailer
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -32,13 +34,11 @@ import (
 )
 
 var (
-	tmpDbFilePath string
-	conf          configx.Values
+	conf configx.Values
 )
 
 func init() {
 	// Define parameters to shorten tests launch
-	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
 	conf = configx.New()
 	conf.Val("QueueMaxSize").Set(int64(10))
 }
@@ -46,40 +46,49 @@ func init() {
 func TestEmptyDao(t *testing.T) {
 
 	Convey("Test initialize BoltDB DAO", t, func() {
-		bq, e := NewBoltQueue(tmpDbFilePath, true)
+		bDir, e := ioutil.TempDir(os.TempDir(), "bolt-queue-1-*")
+		So(e, ShouldBeNil)
+		bPath := filepath.Join(bDir, "bolt-test.db")
+		bq, e := NewBoltQueue(bPath, true)
 		if e != nil {
-			fmt.Println("Cannot initialise bolt queue at " + tmpDbFilePath)
+			fmt.Println("Cannot initialise bolt queue at " + bPath)
 			fmt.Println("error: " + e.Error())
 		}
 		So(e, ShouldBeNil)
 		So(bq, ShouldNotBeNil)
-		defer bq.db.Close()
+		bq.Close()
 	})
 
 }
 
 func TestEnqueueMail(t *testing.T) {
 
-	queue, _ := NewBoltQueue(tmpDbFilePath, true)
-
-	email := &mailer.Mail{
-		To: []*mailer.User{{
-			Address: "recipient@example.com",
-			Name:    "Recipient",
-		}},
-		From: &mailer.User{
-			Address: "sender@example.com",
-			Name:    "Sender",
-		},
-		Subject:      "Pydio Services coverage test",
-		ContentPlain: "This is a test",
-	}
-
-	email2 := &mailer.Mail{}
-	*email2 = *email
-	email2.Subject = "Second email"
-
 	Convey("Test push", t, func() {
+
+		bDir, e := ioutil.TempDir(os.TempDir(), "bolt-queue-2-*")
+		So(e, ShouldBeNil)
+		bPath := filepath.Join(bDir, "bolt-test.db")
+
+		queue, e := NewBoltQueue(bPath, true)
+		So(e, ShouldBeNil)
+		defer queue.Close()
+
+		email := &mailer.Mail{
+			To: []*mailer.User{{
+				Address: "recipient@example.com",
+				Name:    "Recipient",
+			}},
+			From: &mailer.User{
+				Address: "sender@example.com",
+				Name:    "Sender",
+			},
+			Subject:      "Pydio Services coverage test",
+			ContentPlain: "This is a test",
+		}
+
+		email2 := &mailer.Mail{}
+		*email2 = *email
+		email2.Subject = "Second email"
 
 		err := queue.Push(email)
 		So(err, ShouldBeNil)
