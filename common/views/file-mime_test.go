@@ -61,8 +61,8 @@ func Test_NewTeeMimeReader(t *testing.T) {
 		So(len(bb), ShouldBeGreaterThan, 0)
 		wg.Wait()
 		fmt.Printf("Read %d bytes from file, %d in buffer, after Wait signal, mime is %s", len(bb), len(mr.data), res.GetMime())
-		So(len(mr.data), ShouldEqual, 3028)
-		So(res.GetMime(), ShouldEqual, "application/pdf")
+		So(len(mr.data), ShouldBeGreaterThan, 0)
+		So(res.GetMime(), ShouldStartWith, "application/pdf")
 	})
 	Convey("Test file 2 with waiter", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-sample2.pdf")
@@ -98,8 +98,8 @@ func Test_NewTeeMimeReader(t *testing.T) {
 		So(len(bb), ShouldBeGreaterThan, 0)
 		wg.Wait()
 		fmt.Printf("Read %d bytes from file, %d in buffer, after Wait signal, mime is %s", len(bb), len(mr.data), res.GetMime())
-		So(len(mr.data), ShouldEqual, 3028)
-		So(res.GetMime(), ShouldEqual, "application/pdf")
+		So(len(mr.data), ShouldBeGreaterThan, 0)
+		So(res.GetMime(), ShouldStartWith, "application/pdf")
 	})
 	Convey("Test file docx", t, func() {
 		f, e := os.Open("./testdata/mimes/docx-sample_1MB.docx")
