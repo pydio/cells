@@ -438,6 +438,16 @@ class DataSourceEditor extends React.Component{
                         <ModernTextField autoComplete={"off"} fullWidth={true} variant={'v2'} type={"password"} hintText={m('storage.s3.secret') + ' *'} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                     </form>
                     <DataSourceBucketSelector dataSource={model} hintText={m('storage.s3.bucket')}/>
+                    {model.ObjectsBucket && <div style={{paddingTop: 20}}>
+                        <ModernTextField
+                            fullWidth={true}
+                            variant={"v2"}
+                            hintText={m('storage.s3.bucketPathPrefix')}
+                            value={model.ObjectsBaseFolder || ""}
+                            onChange={(e,v) =>{model.ObjectsBaseFolder = v}}
+                        />
+                    </div>
+                    }
                     <div style={{...styles.subLegend, paddingTop: 40}}>{m('storage.s3.legend.tags')}</div>
                     <div style={{display:'flex'}}>
                         <div style={{flex:1, marginRight: 5}}>

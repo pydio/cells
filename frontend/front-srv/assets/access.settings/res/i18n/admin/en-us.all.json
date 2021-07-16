@@ -299,6 +299,9 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "Objects Tags"
   },
+  "ds.editor.storage.s3.bucketPathPrefix": {
+    "other": "Path prefix inside the bucket (used as a folder)"
+  },
   "ds.editor.title": {
     "other": "DataSource %s"
   },
