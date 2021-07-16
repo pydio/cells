@@ -16,6 +16,7 @@
                replicationMandatory="true" replicationTitle="CONF_MESSAGE[Root Nodes]"/>
         <global_param name="LIST_NODES_PER_PAGE" type="integer" label="CONF_MESSAGE[#Items per page]" description="CONF_MESSAGE[Once in pagination mode, number of items to display per page.]" default="200" expose="true"/>
         <global_param name="DOWNLOAD_ARCHIVE_FORMAT" type="select" choices="zip|Zip,tar|Tar,tar.gz|Tar.gz" label="CONF_MESSAGE[Default download format]" description="CONF_MESSAGE[When downloading a folder or a multiple selection, automatically create an archive using this format]" default="zip"/>
+        <global_param name="DELETE_ALLOW_PERMANENT" type="boolean" label="CONF_MESSAGE[Delete Permanently]" description="CONF_MESSAGE[Enable option to skip recycle bin on deletion]" default="true"/>
 	</server_settings>
 
 	<registry_contributions>

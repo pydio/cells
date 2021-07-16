@@ -52,34 +52,15 @@ export default function (pydio) {
     return function(){
         let message = MessageHash[176];
         let moreComponents
+        const allowPermanentDeletion = pydio.getPluginConfigs("access.gateway").get("DELETE_ALLOW_PERMANENT")
         if (pydio.getContextHolder().getRootNode().getMetadata().get("ws_skip_recycle") === "true"
             || pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
             message = MessageHash[177];
-        } else {
+        } else if (allowPermanentDeletion) {
             moreComponents = {
                 removePermanently: (onChange) => <PermanentRemoveCheckbox onChange={onChange} messages={MessageHash}/>
             };
         }
-        // Detect shared node - Disabled for now as this is NOT disabled by the delete action
-        /*
-        if(pydio.getPluginConfigs('action.share').size){
-            let shared = [];
-            pydio.getContextHolder().getSelectedNodes().forEach((n) => {
-                if(n.getMetadata().get('pydio_is_shared')){
-                    shared.push(n);
-                }
-            });
-            if(shared.length){
-                const n = shared[0];
-                message = (
-                    <div>
-                        <div>{message}</div>
-                        <div style={{color:'#D32F2F', marginTop: 10}}><span className="mdi mdi-alert"/>{MessageHash['share_center.' + (n.isLeaf()?'158':'157')]}</div>
-                    </div>
-                );
-            }
-        }
-        */
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message:message,
             dialogTitleId: 7,
