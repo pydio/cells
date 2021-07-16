@@ -515,7 +515,12 @@ func (e *Executor) putOptionsFromRequestMeta(metadata map[string]string) minio.P
 func (e *Executor) buildS3Path(branchInfo BranchInfo, node *tree.Node) string {
 
 	if branchInfo.FlatStorage && !branchInfo.Binary {
-		return node.GetUuid()
+		nodeId := node.GetUuid()
+		if branchInfo.ObjectsBaseFolder != "" {
+			return path.Join(branchInfo.ObjectsBaseFolder, nodeId)
+		} else {
+			return nodeId
+		}
 	}
 
 	p := node.GetStringMeta(common.MetaNamespaceDatasourcePath)

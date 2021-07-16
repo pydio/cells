@@ -147,8 +147,8 @@ func (c *Client) getFullPath(path string) string {
 	}
 }
 
-func (c *Client) Stat(path string) (i os.FileInfo, err error) {
-	fullPath := c.getFullPath(path)
+func (c *Client) Stat(pa string) (i os.FileInfo, err error) {
+	fullPath := c.getFullPath(pa)
 	if fullPath == "" || fullPath == "/" {
 		buckets, err := c.Mc.ListBuckets()
 		if err != nil {
@@ -164,10 +164,10 @@ func (c *Client) Stat(path string) (i os.FileInfo, err error) {
 		}
 		return nil, errors2.NotFound("bucket.not.found", "cannot find bucket %s", c.Bucket)
 	}
-	objectInfo, e := c.Mc.StatObject(c.Bucket, c.getFullPath(path), minio.StatObjectOptions{})
+	objectInfo, e := c.Mc.StatObject(c.Bucket, fullPath, minio.StatObjectOptions{})
 	if e != nil {
 		// Try folder
-		folderInfo, e2 := c.Mc.StatObject(c.Bucket, c.getFullPath(path)+"/"+servicescommon.PydioSyncHiddenFile, minio.StatObjectOptions{})
+		folderInfo, e2 := c.Mc.StatObject(c.Bucket, path.Join(fullPath, servicescommon.PydioSyncHiddenFile), minio.StatObjectOptions{})
 		if e2 != nil {
 			return nil, e
 		}
