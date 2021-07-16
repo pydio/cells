@@ -133,7 +133,7 @@ func EnableService(hostname, port string) {
 	b := service.NewBroker(
 		service.WithClient(
 			grpc.NewClient(
-				client.RequestTimeout(10*time.Second),
+				client.RequestTimeout(1*time.Hour),
 				client.Selector(bs.NewSelector(hostname, port)),
 			),
 		),
