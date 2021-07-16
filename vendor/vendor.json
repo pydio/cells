@@ -1810,6 +1810,18 @@
 			"revisionTime": "2021-06-02T11:00:14Z"
 		},
 		{
+			"checksumSHA1": "MF4KYL/EsNF+o9pJhbSNvReMbT0=",
+			"path": "github.com/h2non/filetype/matchers",
+			"revision": "3305bbb7ac7bdba92674c044fc8f03e0c3a8d507",
+			"revisionTime": "2021-06-02T11:00:14Z"
+		},
+		{
+			"checksumSHA1": "nAZoBHN0/7cU1Dt0nrN4wsLGe2g=",
+			"path": "github.com/h2non/filetype/types",
+			"revision": "3305bbb7ac7bdba92674c044fc8f03e0c3a8d507",
+			"revisionTime": "2021-06-02T11:00:14Z"
+		},
+		{
 			"checksumSHA1": "4UANi8WQQ7Ex+x1o0D0nqoCb8wk=",
 			"path": "github.com/hashicorp/consul",
 			"revision": "464bad03cb4524866347e2a71b6779942d0cac37",
