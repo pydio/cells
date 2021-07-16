@@ -11,6 +11,7 @@ type WsAttributes struct {
 	SkipRecycle   bool   `json:"SKIP_RECYCLE,omitempty"`
 	DefaultRights string `json:"DEFAULT_RIGHTS,omitempty"`
 	QuotaValue    string `json:"QUOTA,omitempty"`
+	MetaLayout    string `json:"META_LAYOUT,omitempty"`
 }
 
 func (m *Workspace) LoadAttributes() *WsAttributes {
