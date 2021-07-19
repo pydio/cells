@@ -14,6 +14,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file smaller than limit", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-sample.pdf")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, func(res *MimeResult) {
 			fmt.Println("Got MimeResult", res)
 		})
@@ -25,6 +26,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file bigger than limit", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-sample2.pdf")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, func(res *MimeResult) {
 			fmt.Println("Got MimeResult", res)
 		})
@@ -36,6 +38,7 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file exact limit size", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-sample.pdf")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, func(res *MimeResult) {
 			fmt.Println("Got MimeResult", res)
 		})
@@ -48,13 +51,15 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file with waiter", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-sample.pdf")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, nil)
+		waiter := mr.Wait()
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		var res *MimeResult
 		go func() {
 			defer wg.Done()
-			res = <-mr.Wait()
+			res = <-waiter
 		}()
 		bb, er := ioutil.ReadAll(mr)
 		So(er, ShouldBeNil)
@@ -67,13 +72,15 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file 2 with waiter", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-sample2.pdf")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, nil)
+		waiter := mr.Wait()
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		var res *MimeResult
 		go func() {
 			defer wg.Done()
-			res = <-mr.Wait()
+			res = <-waiter
 		}()
 		bb, er := ioutil.ReadAll(mr)
 		So(er, ShouldBeNil)
@@ -85,13 +92,15 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file with wrong extension", t, func() {
 		f, e := os.Open("./testdata/mimes/pdf-fake-ext.jpg")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, nil)
+		waiter := mr.Wait()
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		var res *MimeResult
 		go func() {
 			defer wg.Done()
-			res = <-mr.Wait()
+			res = <-waiter
 		}()
 		bb, er := ioutil.ReadAll(mr)
 		So(er, ShouldBeNil)
@@ -104,13 +113,15 @@ func Test_NewTeeMimeReader(t *testing.T) {
 	Convey("Test file docx", t, func() {
 		f, e := os.Open("./testdata/mimes/docx-sample_1MB.docx")
 		So(e, ShouldBeNil)
+		defer f.Close()
 		mr := NewTeeMimeReader(f, nil)
+		waiter := mr.Wait()
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		var res *MimeResult
 		go func() {
 			defer wg.Done()
-			res = <-mr.Wait()
+			res = <-waiter
 		}()
 		bb, er := ioutil.ReadAll(mr)
 		So(er, ShouldBeNil)
