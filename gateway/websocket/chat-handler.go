@@ -28,6 +28,10 @@ import (
 	"strings"
 	"time"
 
+	servicecontext "github.com/pydio/cells/common/service/context"
+
+	"github.com/micro/go-micro/metadata"
+
 	"github.com/pydio/cells/common/config"
 
 	lkauth "github.com/livekit/protocol/auth"
@@ -471,11 +475,21 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 	if !conf.Val("PYDIO_PLUGIN_ENABLED").Bool() {
 		return
 	}
-	lkUrl := conf.Val("LK_WS_URL").String()
+	var lkUrl string
+	if mc, ok := session.Get(SessionMetaContext); ok {
+		meta := mc.(metadata.Metadata)
+		if host, o := meta[servicecontext.HttpMetaHost]; o && host != "" {
+			lkUrl = "wss://" + host
+		}
+	}
+	if lkUrl == "" {
+		return
+	}
 	apiKey := conf.Val("LK_API_KEY").String()
 	apiSecret := conf.Val("LK_API_SECRET").String()
 	apiSecret = config.Vault().Val(apiSecret).String()
 	sessionUser, _ := session.Get(SessionUsernameKey)
+
 	if token, e := c.getLKJoinToken(apiKey, apiSecret, roomUuid, sessionUser.(string)); e == nil {
 		type CallData struct {
 			Type     string `json:"@type"`
