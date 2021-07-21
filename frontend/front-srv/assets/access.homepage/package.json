@@ -7,13 +7,18 @@
   "license": "AGPL",
   "devDependencies": {
     "assemble-less": "~0.7.0",
-    "grunt": "~0.4.5",
-    "grunt-babel": "~5.0.3",
-    "grunt-browserify": "~4.0.1",
-    "grunt-contrib-compress": "^1.4.3",
-    "grunt-contrib-uglify": "^5.0.0",
-    "grunt-contrib-watch": "~0.6.1",
-    "less-plugin-autoprefix": "~1.5.1"
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-proposal-decorators": "^7.14.5",
+    "babel-plugin-add-module-exports": "^1.0.4",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-react": "^7.14.5",
+    "grunt-babel": "^8.0.0",
+    "grunt-browserify": "^6.0.0",
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^5.0.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "less-plugin-autoprefix": "^2.0.0"
   },
   "dependencies": {
     "react-joyride": "^1.10.1"

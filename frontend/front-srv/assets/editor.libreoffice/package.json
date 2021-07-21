@@ -5,19 +5,19 @@
   "main": "index.js",
   "author": "Abstrium SAS",
   "license": "agpl",
-  "dependencies": {
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-decorators": "^6.24.1",
-    "babel-plugin-transform-react-jsx": "^6.24.1",
-    "babel-preset-es2015": "^6.24.1",
-    "grunt": "^1.0.3",
-    "grunt-babel": "^7.0.0",
-    "grunt-browserify": "^5.3.0",
-    "grunt-contrib-compress": "^1.4.3",
-    "grunt-contrib-watch": "^1.1.0"
-  },
   "devDependencies": {
-    "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "grunt-contrib-uglify": "^5.0.0"
+    "assemble-less": "~0.7.0",
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-proposal-decorators": "^7.14.5",
+    "babel-plugin-add-module-exports": "^1.0.4",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-react": "^7.14.5",
+    "grunt-babel": "^8.0.0",
+    "grunt-browserify": "^6.0.0",
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^5.0.1",
+    "grunt-contrib-watch": "^1.1.0",
+    "less-plugin-autoprefix": "^2.0.0"
   }
 }

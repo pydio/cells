@@ -6,7 +6,8 @@ module.exports = {
         return {
             babel: {
                 options: {
-                    optional: ['es7.decorators']
+                    plugins: ["add-module-exports", ['@babel/plugin-proposal-decorators', {legacy: true}]],
+                    presets: ['@babel/preset-env', '@babel/preset-react']
                 },
                 dist: {
                     files: [

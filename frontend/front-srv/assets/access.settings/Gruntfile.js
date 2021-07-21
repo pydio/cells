@@ -4,7 +4,10 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         babel: {
-            options: {},
+            options: {
+                plugins: ["add-module-exports", ['@babel/plugin-proposal-decorators', {legacy: true}]],
+                presets: ['@babel/preset-env', '@babel/preset-react']
+            },
 
             dist: {
                 files: [

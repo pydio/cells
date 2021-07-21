@@ -2,7 +2,6 @@ module.exports = function(grunt) {
 
     const {initConfig, loadNpmTasks, registerTasks} = require('../gruntConfigCommon.js')
     const config = initConfig('PydioCKEditor')
-    config.babel.options.optional = ['es7.decorators'];
     config.copy = {
         ckeditor: {
             expand: true,

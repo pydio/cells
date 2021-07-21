@@ -5,9 +5,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         babel: {
             options: {
-                "plugins": ["transform-react-jsx", "babel-plugin-transform-object-rest-spread"],
-                "presets":["env"],
-                "comments": false
+                plugins: ["add-module-exports", ['@babel/plugin-proposal-decorators', {legacy: true}]],
+                presets: ['@babel/preset-env', '@babel/preset-react']
             },
             dist: {
                 files: [
