@@ -6300,6 +6300,12 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "7f97868eec74b32b0982dd158a51a446d1da7eb5",
 			"revisionTime": "2018-02-23T19:12:37Z"
+		},
+		{
+			"checksumSHA1": "vEkKIA76kgBmAu5bwxJwi41Aup0=",
+			"path": "gopkg.in/yaml.v3",
+			"revision": "496545a6307b2a7d7a710fd516e5e16e8ab62dbc",
+			"revisionTime": "2021-01-07T19:29:22Z"
 		}
 	],
 	"rootPath": "github.com/pydio/cells"
