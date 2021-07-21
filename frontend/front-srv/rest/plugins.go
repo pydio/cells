@@ -83,6 +83,11 @@ var BasePluginsBox = frontend.PluginBox{
 
 func init() {
 
+	if os.Getenv("CELLS_ENABLE_LIVEKIT") != "" {
+		BasePluginsBox.Exposes = append(BasePluginsBox.Exposes, "action.livekit")
+	}
+	config.RegisterVaultKey("frontend/plugin/action.livekit/LK_API_SECRET")
+
 	plugins.Register("main", func(ctx context.Context) {
 		gob.Register(map[string]string{})
 

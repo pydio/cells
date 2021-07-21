@@ -22,27 +22,28 @@ package websocket
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/config"
 
-	"github.com/pydio/cells/common/auth/claim"
-	json "github.com/pydio/cells/x/jsonx"
-
-	"context"
-
+	lkauth "github.com/livekit/protocol/auth"
 	"github.com/micro/protobuf/jsonpb"
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/chat"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (
@@ -231,6 +232,7 @@ func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 			if e1 != nil || foundRoom == nil {
 				break
 			}
+			c.sendVideoInfoIfSupported(serviceCtx, foundRoom.Uuid, session)
 			chatClient := c.getChatClient()
 			request := &chat.ListMessagesRequest{RoomUuid: foundRoom.Uuid}
 			if chatMsg.Message != nil {
@@ -459,4 +461,46 @@ func (c *ChatHandler) auth(session *melody.Session, room *chat.ChatRoom) (bool, 
 		// TODO
 	}
 	return readonly, nil
+}
+
+func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid string, session *melody.Session) {
+	if os.Getenv("CELLS_ENABLE_LIVEKIT") == "" {
+		return
+	}
+	conf := config.Get("frontend", "plugin", "action.livekit")
+	if !conf.Val("PYDIO_PLUGIN_ENABLED").Bool() {
+		return
+	}
+	lkUrl := conf.Val("LK_WS_URL").String()
+	apiKey := conf.Val("LK_API_KEY").String()
+	apiSecret := conf.Val("LK_API_SECRET").String()
+	apiSecret = config.Vault().Val(apiSecret).String()
+	sessionUser, _ := session.Get(SessionUsernameKey)
+	if token, e := c.getLKJoinToken(apiKey, apiSecret, roomUuid, sessionUser.(string)); e == nil {
+		type CallData struct {
+			Type     string `json:"@type"`
+			RoomUuid string `json:"RoomUuid"`
+			Url      string `json:"Url"`
+			Token    string `json:"Token"`
+		}
+		cd, _ := json.Marshal(&CallData{Type: "VIDEO_CALL", RoomUuid: roomUuid, Url: lkUrl, Token: token})
+		session.Write(cd)
+	} else {
+		log.Logger(ctx).Error("Cannot load LK Token")
+	}
+
+}
+
+// getLKJoinToken computes a valid token for Livekit server
+func (c *ChatHandler) getLKJoinToken(apiKey, apiSecret, room, identity string) (string, error) {
+	at := lkauth.NewAccessToken(apiKey, apiSecret)
+	grant := &lkauth.VideoGrant{
+		RoomJoin: true,
+		Room:     room,
+	}
+	at.AddGrant(grant).
+		SetIdentity(identity).
+		SetValidFor(time.Hour)
+
+	return at.ToJWT()
 }
