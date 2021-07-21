@@ -40,18 +40,18 @@ Popover.prototype.componentWillMount = function () {
             targetOrigin,
             useLayerForClickAway, // eslint-disable-line no-unused-vars
             scrollableContainer, // eslint-disable-line no-unused-vars
-            ...other,
+            ...other
         } = this.props
 
         let styleRoot = {
             ...style,
-            opacity: this.state.setPlacement ? 1 : 0,  // MADE EDIT HERE
+            opacity: this.state.setPlacement ? 1 : 0  // MADE EDIT HERE
         }
 
         if (!animated) {
             styleRoot = {
                 position: 'fixed',
-                zIndex: this.context.muiTheme.zIndex.popover,
+                zIndex: this.context.muiTheme.zIndex.popover
             }
 
             if (!this.state.open) {
@@ -92,12 +92,12 @@ Popover.prototype.componentWillReceiveProps = function (nextProps) {
         this.setState({
             open: true,
             closing: false,
-            setPlacement: false,
+            setPlacement: false
         }, () => {
             // MADE EDIT HERE
             setTimeout(() => {
                 this.setState({
-                    setPlacement: true,
+                    setPlacement: true
                 })
             })
         })
@@ -109,14 +109,14 @@ Popover.prototype.componentWillReceiveProps = function (nextProps) {
             this.setState({ closing: true })
             this.timeout = setTimeout(() => {
                 this.setState({
-                    open: false,
+                    open: false
                 }, () => {
                     this.timeout = null
                 })
             }, 500)
         } else {
             this.setState({
-                open: false,
+                open: false
             })
         }
     }

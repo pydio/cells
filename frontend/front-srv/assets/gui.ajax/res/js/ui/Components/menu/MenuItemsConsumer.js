@@ -25,7 +25,7 @@ const Controller = require('pydio/model/controller')
 import Utils from './Utils'
 import {debounce} from 'lodash'
 
-export default function(Component){
+function MenuItemConsumer(Component){
 
     class Wrapped extends React.Component{
 
@@ -89,3 +89,5 @@ export default function(Component){
     return Wrapped;
 
 }
+
+export default MenuItemConsumer

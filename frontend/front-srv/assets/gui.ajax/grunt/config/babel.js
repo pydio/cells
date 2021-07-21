@@ -3,16 +3,13 @@ module.exports = function(grunt, options){
     options.libName = grunt.option('libName');
 
     return {
-        options: {
-            loose: 'all'
-        },
         core: {
             options: {
-                optional: ['es7.classProperties'],
+                plugins: ["add-module-exports"],
+                presets: ['@babel/preset-env']
             },
             files: [
                 {
-                    mode: {loose: true},
                     expand: true,
                     cwd: 'res/js/core/',
                     src: ['**/*.{es6,js}'],
@@ -23,7 +20,8 @@ module.exports = function(grunt, options){
         },
         lib:{
             options: {
-                optional: ['es7.decorators', 'es7.classProperties'],
+                plugins: ["add-module-exports", ['@babel/plugin-proposal-decorators', {legacy: true}]],
+                presets: ['@babel/preset-env', '@babel/preset-react']
             },
             files: [
                 {

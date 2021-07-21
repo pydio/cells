@@ -26,8 +26,9 @@ import ChatClient from './ChatClient'
 import Message from './Message'
 import EmptyStateView from '../views/EmptyStateView'
 const {PydioContextConsumer, moment} = Pydio.requireLib('boot');
-import {TextField} from 'material-ui'
+import {IconButton, TextField} from 'material-ui'
 import ChatUsers from './ChatUsers'
+import LKContainer from "./LKContainer";
 
 const LoadSize = 40;
 
@@ -64,6 +65,9 @@ class Chat extends React.Component{
 
     componentWillUnmount(){
         this.stop();
+        if(this.videoRoomConnected){
+            this.videoRoomConnected.disconnect();
+        }
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -97,6 +101,11 @@ class Chat extends React.Component{
 
     onNewMessage(msg, deleteMsg = false){
         if(!msg) {
+            return;
+        }
+        if(msg['@type'] === 'VIDEO_CALL') {
+            console.log('Video Enabled!', msg)
+            this.setState({videoData: msg})
             return;
         }
         if(deleteMsg){
@@ -200,7 +209,7 @@ class Chat extends React.Component{
 
     render(){
         const {style, msgContainerStyle, chatUsersStyle, fieldContainerStyle, fieldHint, textFieldProps, emptyStateProps, pydio, pushMessagesToBottom, computePresenceFromACLs, readonly} = this.props;
-        const {messages, room} = this.state;
+        const {messages, room, videoData, joinVideo} = this.state;
         let data = [];
         let previousMDate;
         let previousAuthor;
@@ -244,7 +253,7 @@ class Chat extends React.Component{
                     {data}
                     {emptyState}
                 </div>
-                <div style={{backgroundColor: 'white', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0', ...fieldContainerStyle}}>
+                <div style={{backgroundColor: 'white', position:'relative', paddingLeft: 16, paddingRight: 16, borderTop: '1px solid #e0e0e0', ...fieldContainerStyle}}>
                     <TextField
                         hintText={fieldHint}
                         hintStyle={{whiteSpace:'nowrap'}}
@@ -257,7 +266,17 @@ class Chat extends React.Component{
                         disabled={readonly}
                         {...textFieldProps}
                     />
+                    {videoData &&
+                    <div style={{position:'absolute', top: 0, right: 0}}>
+                        <IconButton
+                            iconStyle={{color:joinVideo?'#F44336':'#4CAF4F'}}
+                            iconClassName={"mdi mdi-video"+(joinVideo?'-off':'')}
+                            onClick={() => this.setState({joinVideo:!joinVideo})}
+                        />
+                    </div>
+                    }
                 </div>
+                {videoData && joinVideo && <LKContainer url={videoData.Url} token={videoData.Token}/>}
                 <style type={"text/css"} dangerouslySetInnerHTML={{__html:mdCSS}}/>
             </div>
         )

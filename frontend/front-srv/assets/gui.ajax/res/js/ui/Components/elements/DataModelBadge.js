@@ -21,7 +21,10 @@ import React from 'react'
 
 export default class DataModelBadge extends React.Component {
 
-    state : {value:''};
+    constructor(props) {
+        super(props);
+        this.state = {value: ''}
+    }
 
     componentDidMount(){
         const {dataModel, options} = this.props;

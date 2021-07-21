@@ -22,7 +22,10 @@ import React from 'react'
 
 export default class LabelWithTip extends React.Component {
 
-    state : {show:false};
+    constructor(props) {
+        super(props);
+        this.state = {show:false};
+    }
 
     show(){
         this.setState({show:true});
