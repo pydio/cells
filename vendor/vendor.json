@@ -2731,6 +2731,12 @@
 			"revisionTime": "2018-03-19T19:41:35Z"
 		},
 		{
+			"checksumSHA1": "Wm4W46GcPKGLnIlQOwThcPRkB+g=",
+			"path": "github.com/livekit/protocol/auth",
+			"revision": "71fedf0a8a9e29e7e0c5a6e893d5c64aeeede2ea",
+			"revisionTime": "2021-07-19T22:08:11Z"
+		},
+		{
 			"checksumSHA1": "XwsEm25icZpVOG3HNfIoEDHJEA4=",
 			"path": "github.com/lpar/gzipped",
 			"revision": "ac6fab0f5299981cc9201a331456c75cf2be8e9e",
@@ -6282,6 +6288,12 @@
 			"revisionTime": "2019-04-10T21:58:30Z",
 			"version": "v2.3.1",
 			"versionExact": "v2.3.1"
+		},
+		{
+			"checksumSHA1": "WOJINpl/cRA11BTebwEFx+yHUE0=",
+			"path": "gopkg.in/square/go-jose.v2/jwt",
+			"revision": "349dc03548930652802aadc09fb126e2b7cb6d80",
+			"revisionTime": "2018-07-25T22:07:06Z"
 		},
 		{
 			"checksumSHA1": "AnKBN2Q4AWaSNb0JyINBQbnpxGM=",
