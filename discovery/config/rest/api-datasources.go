@@ -161,7 +161,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
 
-	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
+	log.Logger(ctx).Debug("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
 	config.SourceNamesToConfig(currentSources)
 	config.MinioConfigNamesToConfig(currentMinios)
 

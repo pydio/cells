@@ -87,12 +87,12 @@ func buildForkStartParams(serviceName string) []string {
 
 	//r := viper.GetString("registry")
 	//if r == "memory" {
-		r := fmt.Sprintf("grpc://:%d", viper.GetInt("port_registry"))
+	r := fmt.Sprintf("grpc://:%d", viper.GetInt("port_registry"))
 	//}
 
 	//b := viper.GetString("broker")
 	//if b == "memory" {
-		b := fmt.Sprintf("grpc://:%d", viper.GetInt("port_broker"))
+	b := fmt.Sprintf("grpc://:%d", viper.GetInt("port_broker"))
 	//}
 
 	params := []string{
@@ -108,7 +108,7 @@ func buildForkStartParams(serviceName string) []string {
 	if viper.GetBool("enable_pprof") {
 		params = append(params, "--enable_pprof")
 	}
-	if config.Get("services", serviceName, configSrvKeyForkDebug).Bool() {
+	if config.Get("services", serviceName, configSrvKeyForkDebug).Bool() /*|| strings.HasPrefix(serviceName, "pydio.grpc.data.")*/ {
 		params = append(params, "--log", "debug")
 	}
 	// Use regexp to specify that we want to start that specific service
@@ -347,15 +347,17 @@ var mandatoryOptions = []ServiceOption{
 
 		log.Logger(ctx).Debug("BeforeStart - Unique check")
 
-		ticker := time.Tick(5 * time.Second)
+		ticker := time.NewTicker(100 * time.Millisecond)
 
 	loop:
 		for {
 			select {
-			case <-ticker:
+			case <-ticker.C:
 				if !s.IsRunning() {
+					ticker.Stop()
 					break loop
 				}
+				ticker.Reset(5 * time.Second)
 			}
 		}
 
