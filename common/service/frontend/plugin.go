@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/jinzhu/copier"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type Plugin interface {
@@ -220,9 +220,9 @@ func (plugin *Cplugin) Translate(messages I18nMessages) {
 
 func (plugin *Cplugin) PluginEnabled(status RequestStatus) bool {
 
-	enabled := status.Config.Val("frontend", "plugin", plugin.GetId(), "PYDIO_PLUGIN_ENABLED").Default(plugin.DefaultEnabled()).Bool()
+	enabled := status.Config.Val("frontend", "plugin", plugin.GetId(), config.KeyFrontPluginEnabled).Default(plugin.DefaultEnabled()).Bool()
 
-	values := status.AclParameters.Val(plugin.GetId(), "PYDIO_PLUGIN_ENABLED")
+	values := status.AclParameters.Val(plugin.GetId(), config.KeyFrontPluginEnabled)
 	for _, scope := range status.WsScopes {
 		enabled = values.Val(scope).Default(enabled).Bool() // Take last value
 	}

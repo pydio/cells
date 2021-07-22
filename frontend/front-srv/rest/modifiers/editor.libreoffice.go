@@ -19,6 +19,7 @@ import (
 var (
 	editorLibreOfficeTemplate    *template.Template
 	editorLibreOfficeTemplateStr = `
+{{if .Enabled}}
         pydioproxy /wopi/ {{.WOPI}} {
             transparent
 			header_upstream Host {{if .Site.ExternalHost}}{{.Site.ExternalHost}}{{else}}{host}{{end}}
@@ -44,10 +45,12 @@ var (
             websocket
             without /lool/
         }
+{{end}}
     `
 )
 
 type EditorLibreOffice struct {
+	Enabled   bool
 	WOPI      string
 	Collabora *url.URL
 	Site      caddy.SiteConf
@@ -75,16 +78,19 @@ func init() {
 
 func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 
-	data := new(EditorLibreOffice)
-
-	data.WOPI = common.ServiceGatewayWopi
+	data := &EditorLibreOffice{
+		WOPI: common.ServiceGatewayWopi,
+	}
 	if len(site) > 0 {
 		data.Site = site[0]
 	}
 
-	if err := getCollaboraConfig(&data.Collabora); err != nil {
+	if enabled, u, err := getCollaboraConfig(); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))
 		return nil, err
+	} else {
+		data.Enabled = enabled
+		data.Collabora = u
 	}
 
 	buf := bytes.NewBuffer([]byte{})
@@ -95,11 +101,13 @@ func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-func getCollaboraConfig(collabora **url.URL) error {
+func getCollaboraConfig() (bool, *url.URL, error) {
 
-	tls := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_SSL").Default(true).Bool()
-	host := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_HOST").Default("localhost").String()
-	port := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_PORT").Default("9980").String()
+	pconf := config.Get("frontend", "plugin", "editor.libreoffice")
+	enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
+	tls := pconf.Val("LIBREOFFICE_SSL").Default(true).Bool()
+	host := pconf.Val("LIBREOFFICE_HOST").Default("localhost").String()
+	port := pconf.Val("LIBREOFFICE_PORT").Default("9980").String()
 
 	scheme := "http"
 	if tls {
@@ -108,10 +116,8 @@ func getCollaboraConfig(collabora **url.URL) error {
 
 	u, err := url.Parse(fmt.Sprintf("%s://%s:%s", scheme, host, port))
 	if err != nil {
-		return err
+		return false, nil, err
 	}
 
-	*collabora = u
-
-	return nil
+	return enabled, u, nil
 }

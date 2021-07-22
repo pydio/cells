@@ -34,6 +34,9 @@ var (
 
 	// VersionsStore is the default Version Store for the configuration
 	VersionsStore filex.VersionsStore
+
+	// KeyFrontPluginEnabled is the frontend config to enable/disable plugins
+	KeyFrontPluginEnabled = "PYDIO_PLUGIN_ENABLED"
 )
 
 // DefaultOAuthClientID set the default client id to use

@@ -472,7 +472,7 @@ func (c *ChatHandler) sendVideoInfoIfSupported(ctx context.Context, roomUuid str
 		return
 	}
 	conf := config.Get("frontend", "plugin", "action.livekit")
-	if !conf.Val("PYDIO_PLUGIN_ENABLED").Bool() {
+	if !conf.Val(config.KeyFrontPluginEnabled).Bool() {
 		return
 	}
 	var lkUrl string

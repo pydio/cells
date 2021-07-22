@@ -62,7 +62,7 @@ func playLK(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 		data.Site = site[0]
 	}
 
-	enabled := config.Get("frontend", "plugin", "action.livekit", "PYDIO_PLUGIN_ENABLED").Bool()
+	enabled := config.Get("frontend", "plugin", "action.livekit", config.KeyFrontPluginEnabled).Bool()
 	lkUrl := config.Get("frontend", "plugin", "action.livekit", "LK_WS_URL").String()
 	if enabled && lkUrl != "" {
 		u, e := url.Parse(lkUrl)
