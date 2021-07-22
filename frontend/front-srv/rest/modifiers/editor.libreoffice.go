@@ -19,14 +19,13 @@ import (
 var (
 	editorLibreOfficeTemplate    *template.Template
 	editorLibreOfficeTemplateStr = `
-{{if .Enabled}}
         pydioproxy /wopi/ {{.WOPI}} {
             transparent
 			header_upstream Host {{if .Site.ExternalHost}}{{.Site.ExternalHost}}{{else}}{host}{{end}}
 			header_upstream X-Real-IP {remote}
 			header_upstream X-Forwarded-Proto {scheme}
         }
-
+{{if .Enabled}}
         proxy /loleaflet/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/loleaflet {
             transparent
             insecure_skip_verify
