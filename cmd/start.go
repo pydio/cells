@@ -33,6 +33,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var (
@@ -285,6 +286,23 @@ ENVIRONMENT
 	},
 
 	PostRunE: func(cmd *cobra.Command, args []string) error {
+		reg := registry.GetCurrentProcess()
+
+	loop:
+		for {
+			select {
+			case <-time.After(30 * time.Second):
+				break loop
+			default:
+				if len(reg.Services) > 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				break loop
+			}
+		}
+
 		return nil
 	},
 }
