@@ -37,6 +37,7 @@ import SimpleReactActionBar from '../views/SimpleReactActionBar'
 import InlineEditor from './InlineEditor'
 import EmptyStateView from '../views/EmptyStateView'
 import PlaceHolders from "./PlaceHolders";
+import Masonry from './Masonry'
 
 const DOMUtils = require('pydio/util/dom')
 const PydioDataModel = require('pydio/model/data-model')

@@ -32,7 +32,7 @@ import ReactDOM from 'react-dom'
 import FilePreview from './FilePreview'
 import {IconButton, Divider} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
-const {SimpleList} = Pydio.requireLib('components');
+const {SimpleList, Masonry} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
 import {debounce} from 'lodash'
@@ -598,6 +598,7 @@ class MainFilesList extends React.Component {
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320',hasAccessKey:false},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80',hasAccessKey:false}
+//            ,{name:'Image Gallery',title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry',hasAccessKey:false}
         ];
         return list.map(item => {
             const i = {...item};
@@ -807,6 +808,10 @@ class MainFilesList extends React.Component {
                     }
                 }
             }
+        }
+
+        if(dMode === 'masonry') {
+            return <Masonry dataModel={dataModel}/>
         }
 
         return (
