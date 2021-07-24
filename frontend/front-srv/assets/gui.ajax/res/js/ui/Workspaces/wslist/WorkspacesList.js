@@ -116,7 +116,7 @@ class Entries extends React.Component{
                     <div key="shared-title" className="section-title" style={titleStyle}>
                         <span style={{cursor:'pointer'}} title={filterHint} onClick={()=>{this.setState({toggleFilter: true})}}>
                             {title}
-                            <span style={{fontSize: 12, opacity: '0.4',marginLeft: 3}} className={"mdi mdi-filter"}/>
+                            {entries.length > 0 && <span style={{fontSize: 12, opacity: '0.4',marginLeft: 3}} className={"mdi mdi-filter"}/>}
                         </span>
                         {createAction}
                     </div>
@@ -129,7 +129,7 @@ class Entries extends React.Component{
                             style={{marginTop: -16, marginBottom: -16, top: -1}}
                             hintText={filterHint}
                             hintStyle={{fontWeight: 400}}
-                            inputStyle={{fontWeight: 400, color:palette.primary1Color}}
+                            inputStyle={{fontWeight: 400, color:palette.primary1Color, backgroundColor:'rgba(0,0,0,.03)'}}
                             value={filterValue}
                             onChange={(e,v) => {this.setState({filterValue:v})}}
                             onBlur={()=>{setTimeout(()=>{if(!filterValue) this.setState({toggleFilter:false})}, 150)}}
@@ -207,6 +207,7 @@ class WorkspacesList extends React.Component{
         const wsList = [];
         workspaces.forEach(o => wsList.push(o));
         return {
+            merge: pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS'),
             random: Math.random(),
             workspaces,
             activeWorkspace: pydio.user ? pydio.user.activeRepository : false,
@@ -228,7 +229,7 @@ class WorkspacesList extends React.Component{
 
     render(){
         let createAction;
-        const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent} = this.state;
+        const {workspaces,activeWorkspace, popoverOpen, popoverAnchor, popoverContent, merge} = this.state;
         const {pydio, className, muiTheme, sectionTitleStyle, searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
 
         // Split Workspaces from Cells
@@ -281,14 +282,14 @@ class WorkspacesList extends React.Component{
             }
         };
 
-        if(this.createRepositoryEnabled() && sharedEntries.length){
+        if(this.createRepositoryEnabled() && (sharedEntries.length||(merge && (sharedEntries.length || entries.length)))){
             createAction = <IconButton
                 key={"create-cell"}
                 style={buttonStyles.button}
                 iconStyle={buttonStyles.icon}
                 iconClassName={"mdi mdi-plus"}
                 tooltip={messages[417]}
-                tooltipPosition={"top-left"}
+                tooltipPosition={merge?"bottom-left":"top-left"}
                 onClick={createClick}
             />
         }
@@ -360,7 +361,7 @@ class WorkspacesList extends React.Component{
                     zDepth={3}
                     style={{borderRadius:6, overflow: 'hidden', marginLeft:sharedEntries.length?-10:0, marginTop:sharedEntries.length?-10:0}}
                 >{popoverContent}</Popover>
-                {entries.length > 0 &&
+                {!merge && entries.length > 0 &&
                     <Entries
                         title={messages[468]}
                         entries={entries}
@@ -373,8 +374,8 @@ class WorkspacesList extends React.Component{
                     />
                 }
                 <Entries
-                    title={messages[469]}
-                    entries={sharedEntries}
+                    title={messages[merge?468:469]}
+                    entries={merge?[...entries, ...sharedEntries]:sharedEntries}
                     filterHint={messages['cells.quick-filter']}
                     titleStyle={{...sectionTitleStyle, position:'relative', overflow:'visible', transition:'none'}}
                     pydio={pydio}
