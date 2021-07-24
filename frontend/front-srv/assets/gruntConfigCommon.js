@@ -58,7 +58,7 @@ module.exports = {
             watch: {
                 js: {
                     files: [
-                        "res/**/*"
+                        "res/js/**/*"
                     ],
                     tasks: ['babel', 'browserify:lib', 'uglify:lib', 'compress'],
                     options: {

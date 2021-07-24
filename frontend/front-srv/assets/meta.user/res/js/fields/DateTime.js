@@ -21,7 +21,7 @@ import React, {Fragment, Component} from 'react'
 import Pydio from 'pydio'
 import asMetaField from "../hoc/asMetaField";
 import asMetaForm from "../hoc/asMetaForm";
-import {DatePicker, TimePicker, MenuItem} from 'material-ui'
+import {DatePicker, TimePicker, MenuItem, FontIcon} from 'material-ui'
 import MetaClient from "../MetaClient";
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot')
@@ -100,6 +100,11 @@ class DateTimeForm extends Component {
         } else {
             return {vDate: mDate, searchComp};
         }
+    }
+
+    clear() {
+        const {updateValue} = this.props;
+        updateValue('');
     }
 
     updateDate(d, format) {
@@ -206,6 +211,13 @@ class DateTimeForm extends Component {
                     />
                 </div>
             )
+        }
+        if(!search && vDate) {
+            parts.push(
+                <div style={{paddingLeft: 5,cursor: 'pointer'}} onClick={() => this.clear()}>
+                    <FontIcon className={"mdi mdi-close"}/>
+                </div>
+            );
         }
         return <div style={{display:'flex', alignItems:'center'}}>{parts}</div>
     }

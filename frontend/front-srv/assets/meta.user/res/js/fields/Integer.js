@@ -21,7 +21,7 @@ class IntegerField extends React.Component{
         switch (format){
             case 'bytesize':
                 const id=()=>{}
-                return <InputIntegerBytes value={value} editMode={false} isDisplayGrid={id} isDisplayForm={id} toggleEditMode={id} disabled={true}/>
+                return <InputIntegerBytes value={value} editMode={false} displayContext={"grid"} toggleEditMode={id} disabled={true}/>
             case 'percentage':
                 return <Fragment>{value}%</Fragment>
             case 'progress':
@@ -60,7 +60,12 @@ class IntegerForm extends React.Component{
     }
 
     render() {
-        const {supportTemplates, search, updateValue, label} = this.props;
+        const {supportTemplates, search, updateValue: propsUpdateValue, label} = this.props;
+        // Disable autoSubmit
+        const updateValue = (v) => {
+            propsUpdateValue(v, false);
+        }
+
         const {format = 'general'} = this.state;
         let {value} = this.props;
         let searchComp = ''
@@ -132,7 +137,7 @@ class IntegerForm extends React.Component{
                     <InputIntegerBytes
                         value={value}
                         editMode={true}
-                        onChange={onChangeInt}
+                        onChange={(newValue, oldValue) => updateValue(parseInt(newValue))}
                         isDisplayGrid={id}
                         isDisplayForm={id}
                         toggleEditMode={id}
