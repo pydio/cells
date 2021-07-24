@@ -205,7 +205,7 @@ class Session extends FolderItem {
                     this.walk((item)=>{
                         folderProm = folderProm.then(async()=>{
                             if (itemStated(item)){
-                                const newPath = await this.newPath(item.getFullPath());
+                                const newPath = await this.newPath(item.getFullPath(), true);
                                 const newLabel = PathUtils.getBasename(newPath);
                                 item.updateLabel(newLabel);
                                 this.setAnalyzeStatus('checking ' + newLabel)
@@ -237,23 +237,25 @@ class Session extends FolderItem {
     }
 
 
-    newPath(fullpath) {
+    newPath(fullpath, isFolder = false) {
         return new Promise(async (resolve) => {
-            const lastSlash = fullpath.lastIndexOf('/');
-            const pos = fullpath.lastIndexOf('.');
             let path = fullpath;
             let ext = '';
 
-            // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
-            if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
-                path = fullpath.substring(0, pos);
-                ext = fullpath.substring(pos);
+            if(!isFolder) {
+                // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
+                const lastSlash = fullpath.lastIndexOf('/');
+                const pos = fullpath.lastIndexOf('.');
+                if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
+                    path = fullpath.substring(0, pos);
+                    ext = fullpath.substring(pos);
+                }
             }
 
             let newPath = fullpath;
             let counter = 1;
+            let exists = true;
 
-            let exists = true; //await this.nodeExists(newPath); // If we are here, we already know it exists
             while (exists) {
                 newPath = path + '-' + counter + ext;
                 counter++;
