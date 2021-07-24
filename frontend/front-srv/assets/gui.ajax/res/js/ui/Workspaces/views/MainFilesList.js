@@ -802,9 +802,9 @@ class MainFilesList extends React.Component {
                 groupByValueFunc:(value) => value === "true" ? -1 : 1,
                 renderGroupLabels:(groupBy, value) => {
                     if(value === -1) {
-                        return <span><span className={"mdi mdi-pin"}/> Bookmarked</span>
+                        return <span><span className={"mdi mdi-pin"}/> {pydio.MessageHash[147]}</span>
                     } else {
-                        return <span>All Files</span>
+                        return <span><span className={"mdi mdi-folder-multiple-outline"}/> {pydio.MessageHash['ajax_gui.pinned-bookmarks.other']}</span>
                     }
                 }
             }

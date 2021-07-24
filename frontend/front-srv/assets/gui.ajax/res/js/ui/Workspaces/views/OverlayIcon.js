@@ -123,6 +123,7 @@ class OverlayIcon extends Component{
                             pydio={pydio}
                             node={node}
                             popoverPanel={true}
+                            popoverRequestClose={() => {this.setState({popoverOpen: false})}}
                             onLoad={()=>{window.dispatchEvent(new Event('resize'))}}
                         />
                     </Popover>

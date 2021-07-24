@@ -962,7 +962,7 @@ let SimpleList = createReactClass({
             if(defaultGroupBy){
                 if(props.groupSkipUnique && groupKeys.length === 1) {
                     // push nodes without group info
-                    this.indexedElements = [...groups[groupKeys[0]]]
+                    this.indexedElements.push(...groups[groupKeys[0]]);
                 } else {
                     useGroups = true;
                     groupKeys = groupKeys.sort();

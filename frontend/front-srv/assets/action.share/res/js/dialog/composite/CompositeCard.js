@@ -163,7 +163,7 @@ class CompositeCard extends React.Component {
 
     render(){
 
-        const {node, mode, pydio, editorOneColumn} = this.props;
+        const {node, mode, pydio, editorOneColumn, popoverPanel, popoverRequestClose} = this.props;
         const {model, mailerData, linkTooltip, copyMessage} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
@@ -306,11 +306,23 @@ class CompositeCard extends React.Component {
                     pydio={pydio}
                     title={pydio.MessageHash['share_center.50']}
                     onDismissAction={this.props.onDismiss}
-                    onDeleteAction={()=>this.deleteAllShares()}
-                    onEditAction={()=>{pydio.Controller.fireAction('share-edit-shared')}}
+                    onDeleteAction={()=>{
+                        if(popoverRequestClose){
+                            popoverRequestClose()
+                        }
+                        this.deleteAllShares()
+                    }}
+                    onEditAction={()=>{
+                        if(popoverRequestClose){
+                            popoverRequestClose()
+                        }
+                        pydio.Controller.fireAction('share-edit-shared')
+                    }}
                     editTooltip={pydio.MessageHash['share_center.125']}
                     deleteTooltip={pydio.MessageHash['share_center.composite.deleteAll']}
                     headerSmall={mode === 'infoPanel'}
+                    popoverPanel={popoverPanel}
+                    popoverRequestClose={popoverRequestClose}
                 >
                     {lines}
                     {!lines.length && <GenericLine placeHolder/>}

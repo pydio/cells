@@ -87,13 +87,15 @@ class GenericCard extends React.Component{
 
     render(){
 
-        const {title, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
+        const {title, popoverPanel, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
 
         const {primary1Color} = muiTheme.palette;
 
         let styles = {
             headerHeight: 100,
             buttonBarHeight: 60,
+            headerBg: primary1Color,
+            headerColor: 'white',
             buttonBar:{
                 display:'flex',
                 height: 60
@@ -107,6 +109,8 @@ class GenericCard extends React.Component{
         if (headerSmall) {
             styles = {
                 headerHeight: 'auto',
+                headerBg: primary1Color,
+                headerColor: 'white',
                 buttonBar: {
                     display: 'flex',
                     alignItems:'center',
@@ -119,6 +123,11 @@ class GenericCard extends React.Component{
                     iconStyle:{color:'white', fontSize: 18}
                 }
             }
+            if(popoverPanel) {
+                styles.headerBg = 'white'
+                styles.headerColor = primary1Color
+                styles.button.iconStyle.color = null;
+            }
         }
 
         return (
@@ -128,7 +137,7 @@ class GenericCard extends React.Component{
                         <FontIcon className={"mdi mdi-pencil"} />
                     </FloatingActionButton>
                 }
-                <Paper zDepth={0} style={{backgroundColor:primary1Color, color: 'white', height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
+                <Paper zDepth={0} style={{backgroundColor:styles.headerBg, color: styles.headerColor, height: styles.headerHeight, borderRadius: '2px 2px 0 0'}}>
                     <div style={styles.buttonBar}>
                         {headerSmall && <span style={{flex: 1, fontSize: 14, fontWeight:500}}>{title}</span>}
                         {!headerSmall && <span style={{flex: 1}}/>}
