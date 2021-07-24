@@ -117,7 +117,6 @@ class AutocompleteBox extends React.Component{
                         openOnFocus={true}
                         menuProps={{maxHeight: 200}}
                         autoComplete={'no-completion'}
-                        {...ModernStyles.textField}
                     />
                 }
             </div>
