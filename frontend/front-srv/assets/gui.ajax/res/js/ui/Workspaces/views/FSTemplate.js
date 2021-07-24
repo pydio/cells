@@ -406,10 +406,6 @@ class FSTemplate extends React.Component {
 
         }
 
-        styles.listStyle = {
-            backgroundColor:thumbDisplay?superLightBack.toString():'white'
-        }
-
         const {values, setValues, history, facets, activeFacets, toggleFacet,
             humanizeValues, limit, setLimit, searchLoading,
             savedSearches, saveSearch, clearSavedSearch
@@ -609,6 +605,7 @@ class FSTemplate extends React.Component {
                         onDisplayModeChange={(dMode) => {
                             this.setState({filesListDisplayMode: dMode});
                         }}
+                        gridBackground={superLightBack}
                         style={styles.listStyle}
                     />
                 {rightColumnState === 'info-panel' &&

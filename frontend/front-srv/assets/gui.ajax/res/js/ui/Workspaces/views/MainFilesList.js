@@ -684,6 +684,7 @@ class MainFilesList extends React.Component {
 
     render() {
 
+        const {pydio, dataModel, style, gridBackground} = this.props;
         const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
@@ -693,6 +694,7 @@ class MainFilesList extends React.Component {
             dMode = 'grid';
         }
         let infiniteSliceCount = 50;
+        let additionalStyle = {}
 
         if(dMode === 'detail'){
 
@@ -724,6 +726,7 @@ class MainFilesList extends React.Component {
             } else if(near === 80) {
                 infiniteSliceCount = 200;
             }
+            additionalStyle = {backgroundColor:gridBackground}
 
         } else if(dMode === 'list'){
 
@@ -733,7 +736,6 @@ class MainFilesList extends React.Component {
 
         }
 
-        const {pydio, dataModel} = this.props;
         const messages = pydio.MessageHash;
         const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
         const secondary = messages[canUpload ? '565' : '566'];
@@ -826,7 +828,7 @@ class MainFilesList extends React.Component {
                 actionBarGroups={["change_main"]}
                 infiniteSliceCount={infiniteSliceCount}
                 skipInternalDataModel={true}
-                style={this.props.style}
+                style={{...style, ...additionalStyle}}
                 displayMode={dMode}
                 usePlaceHolder={true}
                 elementsPerLine={elementsPerLine}
