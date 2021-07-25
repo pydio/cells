@@ -61,12 +61,18 @@ func (f *FlatStorageHandler) CreateNode(ctx context.Context, in *tree.CreateNode
 		return f.next.CreateNode(ctx, in, opts...)
 	}
 	if r, e := f.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: in.GetNode().GetPath()}}); e == nil && r.GetNode() != nil {
-		if r.GetNode().IsLeaf() {
+		rNode := r.GetNode()
+		if rNode.IsLeaf() {
 			return nil, errors.Forbidden("cannot.override.file", "trying to create a folder on top of an existing file")
 		}
-		return &tree.CreateNodeResponse{Node: r.GetNode()}, nil
+		rNode.SetMeta(common.MetaFlagIndexed, true)
+		return &tree.CreateNodeResponse{Node: rNode}, nil
 	}
-	return f.clientsPool.GetTreeClientWrite().CreateNode(ctx, in, opts...)
+	cResp, cErr := f.clientsPool.GetTreeClientWrite().CreateNode(ctx, in, opts...)
+	if cErr == nil && cResp.GetNode() != nil {
+		cResp.GetNode().SetMeta(common.MetaFlagIndexed, true)
+	}
+	return cResp, cErr
 }
 
 func (f *FlatStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
