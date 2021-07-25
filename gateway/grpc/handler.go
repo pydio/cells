@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"time"
 
 	"github.com/micro/go-micro/errors"
 
@@ -20,6 +21,8 @@ func (t *TreeHandler) fixMode(n *tree.Node) {
 		n.Mode = int32(os.ModePerm)
 	} else {
 		n.Mode = int32(os.ModePerm & os.ModeDir)
+		n.Size = 0
+		n.MTime = time.Now().Unix()
 	}
 }
 
