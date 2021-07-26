@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -136,7 +136,7 @@ func SpanClientWrapper(c client.Client) client.Client {
 }
 
 func (c *spanClientWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-
+	//fmt.Println("Client Call", req.Method())
 	if _, ok := SpanFromContext(ctx); !ok {
 		s := NewSpan()
 		ctx = WithSpan(ctx, s)
@@ -154,8 +154,28 @@ func (c *spanClientWrapper) Call(ctx context.Context, req client.Request, rsp in
 	return c.Client.Call(ctx, req, rsp, opts...)
 }
 
+func (c *spanClientWrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Streamer, error) {
+	//fmt.Println("Client Stream", req.Method())
+	if _, ok := SpanFromContext(ctx); !ok {
+		s := NewSpan()
+		ctx = WithSpan(ctx, s)
+	}
+	if opID, _ := GetOperationID(ctx); opID != "" {
+		md := metadata.Metadata{}
+		if meta, ok := metadata.FromContext(ctx); ok {
+			for k, v := range meta {
+				md[k] = v
+			}
+		}
+		md[OperationMetadataId] = opID
+		ctx = metadata.NewContext(ctx, md)
+	}
+	return c.Client.Stream(ctx, req, opts...)
+}
+
 func SpanHandlerWrapper(fn server.HandlerFunc) server.HandlerFunc {
 	return func(ctx context.Context, req server.Request, rsp interface{}) error {
+		// fmt.Println("Server", req.Method())
 		ctx = childOrNewSpan(ctx)
 		ctx = ctxWithOpIdFromMeta(ctx)
 		return fn(ctx, req, rsp)
