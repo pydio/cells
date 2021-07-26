@@ -88,7 +88,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 				if !ancestorsLoaded {
 					var e error
 					if ancestors, e = BuildAncestorsList(ctx, r.GetClientsPool().GetTreeClient(), node); e != nil {
-						log.Logger(ctx).Error("Cannot list ancestors list for", node.Zap(), zap.Error(e))
+						log.Logger(ctx).Debug("Cannot list ancestors list for", node.Zap(), zap.Error(e))
 						return node, false
 					} else {
 						ancestorsLoaded = true
