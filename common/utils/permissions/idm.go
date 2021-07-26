@@ -47,12 +47,10 @@ import (
 
 var (
 	usersCache *cache.Cache
-	aclCache   *cache.Cache
 )
 
 func init() {
 	usersCache = cache.New(5*time.Second, 30*time.Second)
-	aclCache = cache.New(500*time.Millisecond, 30*time.Second)
 }
 
 // GetRolesForUser loads the roles of a given user.
@@ -401,7 +399,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList = NewAccessList([]*idm.Role{})
 		return accessList, nil
 	}
-	if data, ok := aclCache.Get(claims.SessionID + claims.Subject); ok {
+	if data, ok := getAclCache().Get(claims.SessionID + claims.Subject); ok {
 		if accessList, ok = data.(*AccessList); ok {
 			//fmt.Println("=> Returning accesslist from cache")
 			return
@@ -421,7 +419,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	for _, workspace := range idmWorkspaces {
 		accessList.Workspaces[workspace.UUID] = workspace
 	}
-	aclCache.Set(claims.SessionID+claims.Subject, accessList, cache.DefaultExpiration)
+	getAclCache().Set(claims.SessionID+claims.Subject, accessList, cache.DefaultExpiration)
 	return accessList, nil
 }
 
