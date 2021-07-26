@@ -332,7 +332,7 @@ class FSTemplate extends React.Component {
         }
 
         let classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
-        const thumbDisplay = filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0;
+        const thumbDisplay = (filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0) || filesListDisplayMode === 'masonry' ;
         if((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){

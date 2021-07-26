@@ -337,7 +337,7 @@ class MainFilesList extends React.Component {
 
     entryRenderIcon(node, entryProps = {}){
         const {displayMode} = this.state;
-        const lightBackground = displayMode.indexOf('grid') === 0
+        const lightBackground = displayMode.indexOf('grid') === 0 || displayMode === 'masonry'
         if(entryProps && entryProps.parent){
             return (
                 <FilePreview
@@ -422,7 +422,7 @@ class MainFilesList extends React.Component {
         }
         if(!mobile && ( !clickType || clickType === SimpleList.CLICK_TYPE_SIMPLE )){
             const crtSelection = dm.getSelectedNodes();
-            if(event && event.shiftKey && crtSelection.length) {
+            if(event && event.shiftKey && crtSelection.length && this.refs.list) {
                 const newSelection = this.refs.list.computeSelectionFromCurrentPlusTargetNode(crtSelection, node);
                 dm.setSelectedNodes(newSelection);
             } else if(event && (event.ctrlKey || event.metaKey) && crtSelection.length){
@@ -598,7 +598,7 @@ class MainFilesList extends React.Component {
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320',hasAccessKey:false},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80',hasAccessKey:false}
-//            ,{name:'Image Gallery',title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry',hasAccessKey:false}
+           ,{name:'Image Gallery',title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry',hasAccessKey:false}
         ];
         return list.map(item => {
             const i = {...item};
@@ -813,7 +813,36 @@ class MainFilesList extends React.Component {
         }
 
         if(dMode === 'masonry') {
-            return <Masonry dataModel={dataModel}/>
+            const css = `
+               .masonic-grid .mimefont-container {
+                    display:flex; 
+                    height:100%; 
+                    align-items:center !important; 
+                    justify-content:center;
+                    border-radius: 4px;
+               }
+               .masonic-grid .mimefont-container .mimefont {
+                    font-size: 36px;
+                    margin-bottom: 22px;
+               }
+               .react-mui-context .info-panel-open .masonic-grid{
+                    width: calc(100% - 270px) !important;
+               }
+            `;
+            return (
+                <React.Fragment>
+                    <Masonry
+                        className={"masonic-grid"}
+                        dataModel={dataModel}
+                        entryProps={{
+                            handleClicks:this.entryHandleClicks.bind(this),
+                            renderIcon:this.entryRenderIcon.bind(this),
+                            renderActions: this.entryRenderActions.bind(this)
+                        }}
+                    />
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
+                </React.Fragment>
+            )
         }
 
         return (
