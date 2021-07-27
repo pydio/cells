@@ -22,21 +22,55 @@ package dao
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/pydio/cells/common/service/metrics"
+)
+
+var (
+	SqlConnectionOpenTimeout = 60 * time.Second
+	SqlConnectionOpenRetries = 10 * time.Second
 )
 
 func getSqlConnection(driver string, dsn string) (*sql.DB, error) {
 	if db, err := sql.Open(driver, dsn); err != nil {
 		return nil, err
 	} else {
-		if err := db.Ping(); err != nil {
+		if err := pingWithRetries(db); err != nil {
 			return nil, err
 		}
 		computeStats(db)
 		return db, nil
 	}
+}
+
+func pingWithRetries(db *sql.DB) error {
+	var lastErr error
+	if err := db.Ping(); err == nil {
+		return nil
+	} else {
+		lastErr = err
+		fmt.Println("[SQL] Server does not answer yet, will retry in 10 seconds...")
+	}
+	tick := time.NewTicker(SqlConnectionOpenRetries)
+	timeout := time.NewTimer(SqlConnectionOpenTimeout)
+	defer tick.Stop()
+	defer timeout.Stop()
+	for {
+		select {
+		case <-tick.C:
+			if err := db.Ping(); err == nil {
+				return nil
+			} else {
+				lastErr = err
+				fmt.Println("[SQL] Server does not answer yet, will retry in 10 seconds...")
+			}
+		case <-timeout.C:
+			return lastErr
+		}
+	}
+
 }
 
 func computeStats(db *sql.DB) {
