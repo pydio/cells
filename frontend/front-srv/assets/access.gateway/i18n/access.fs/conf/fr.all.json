@@ -27,9 +27,9 @@
     "other": "En mode paginé, nombre d'items à afficher par page."
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "Supprimer définitivement"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "Autoriser la suppression directe (sans passer par la corbeille)"
   }
 }
