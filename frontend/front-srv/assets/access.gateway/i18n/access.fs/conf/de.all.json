@@ -25,5 +25,11 @@
   },
   "Once in pagination mode, number of items to display per page.": {
     "other": "Einmal im Paginierungsmodus, Anzahl der Elemente, die pro Seite angezeigt werden sollen."
+  },
+  "Delete Permanently": {
+    "other": "Endgültig löschen"
+  },
+  "Enable option to skip recycle bin on deletion": {
+    "other": "Option aktivieren, um den Papierkorb beim Löschen zu überspringen"
   }
 }
