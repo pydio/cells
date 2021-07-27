@@ -157,5 +157,8 @@
   },
   "infopanel.empty.select.file": {
     "other": "Select a file to display informations"
+  },
+  "pinned-bookmarks.other": {
+    "other": "All files"
   }
 }

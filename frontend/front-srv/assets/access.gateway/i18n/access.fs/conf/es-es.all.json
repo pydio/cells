@@ -25,5 +25,11 @@
   },
   "Once in pagination mode, number of items to display per page.": {
     "other": "Una vez en modo de paginación, número de items a mostrar por página."
+  },
+  "Delete Permanently": {
+    "other": "Delete Permanently"
+  },
+  "Enable option to skip recycle bin on deletion": {
+    "other": "Enable option to skip recycle bin on deletion"
   }
 }

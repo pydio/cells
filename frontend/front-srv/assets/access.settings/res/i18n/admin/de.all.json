@@ -299,6 +299,9 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "Objekte Tags"
   },
+  "ds.editor.storage.s3.bucketPathPrefix": {
+    "other": "Pfadpräfix im Bucket (wird als Ordner verwendet)"
+  },
   "ds.editor.title": {
     "other": "Datenquelle %s"
   },
@@ -1087,6 +1090,9 @@
   },
   "user.9": {
     "other": "Zuletzt verbunden"
+  },
+  "user.moveto.hint": {
+    "other": "Wählen Sie die Zielgruppe aus, lassen Sie '/' für die Root-Gruppe."
   },
   "user.filter.tooltip": {
     "other": "Benutzerliste filtern..."

@@ -493,5 +493,11 @@
   },
   "Zip Encoding": {
     "other": "Mã hóa Zip"
+  },
+  "Merge Workspaces and Cells": {
+    "other": "Merge Workspaces and Cells"
+  },
+  "Do not display workspaces and cells separately": {
+    "other": "Do not display workspaces and cells separately"
   }
 }
