@@ -39,7 +39,7 @@
             <js
                 className="PydioWorkspaces"
                 file="plug/gui.ajax/res/dist/PydioWorkspaces.min.js"
-                depends="React,PydioComponents,PydioHOCs"
+                depends="React,PydioComponents,PydioHOCs,PydioCoreActions"
                 expose="workspaces"
             />
             <css file="plug/gui.ajax/res/dist/pydio.material.min.css" autoload="true"/>

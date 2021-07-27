@@ -367,6 +367,7 @@ class MainFilesList extends React.Component {
         let content = null;
         const {pydio, dataModel, searchResults} = this.props;
         const {displayMode} = this.state;
+        const gridMode = displayMode.indexOf('grid-') === 0 || displayMode === 'masonry';
         const overlayClasses = node.getMetadata().get('overlay_class') || ''
         if(pydio.UI.MOBILE_EXTENSIONS){
             const ContextMenuModel = require('pydio/model/context-menu');
@@ -379,7 +380,11 @@ class MainFilesList extends React.Component {
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
             }}/>;
         }else if(overlayClasses || displayMode !== 'list'){
-            let elements = overlayClasses.split(',').filter(c=>!!c).map(function(c){
+            let classes = overlayClasses.split(',').filter(c=>!!c);
+            if(gridMode) {
+                classes = classes.filter(c => c !== 'mdi mdi-star')
+            }
+            let elements = classes.map(function(c){
                 return (
                     <OverlayIcon
                         node={node}
@@ -387,20 +392,33 @@ class MainFilesList extends React.Component {
                         overlay={c}
                         pydio={pydio}
                         disableActions={!!searchResults}
-                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
-                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
+                        tooltipPosition={gridMode?'bottom-right':undefined}
+                        popoverDirection={gridMode?'left':'right'}
                     />
                 );
             });
-            if(displayMode !== 'list') {
+            if(displayMode !== 'list' && displayMode !== 'masonry') {
                 // Add meta button in thumbs mode
                 elements.push(<OverlayIcon
                         pydio={pydio}
                         node={node}
                         overlay={'mdi mdi-tag-outline'}
                         disableActions={!!searchResults}
-                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
-                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
+                        tooltipPosition={gridMode ? 'bottom-right':undefined}
+                        popoverDirection={gridMode ? 'left':'right'}
+                    />
+                );
+            }
+            if(gridMode) {
+                // Add toggleable bookmark button
+                elements.unshift(
+                    <OverlayIcon
+                        pydio={pydio}
+                        node={node}
+                        overlay={'mdi mdi-star'+(overlayClasses.indexOf('mdi-star')>-1?'':'-outline')}
+                        disableActions={!!searchResults}
+                        tooltipPosition={'bottom-right'}
+                        clickActions={true}
                     />
                 );
             }

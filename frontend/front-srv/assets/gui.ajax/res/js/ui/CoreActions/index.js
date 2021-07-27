@@ -22,6 +22,7 @@ const Callbacks = {
     switchLanguage : require('./callbacks/switchLanguage'),
     changePass: require('./callbacks/changePass'),
     toggleBookmark: require('./callbacks/toggleBookmark'),
+    toggleBookmarkNode: require('./callbacks/toggleBmNode'),
     activateDesktopNotifications: require('./callbacks/activateDesktopNotifications')
 };
 
