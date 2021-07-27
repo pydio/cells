@@ -80,7 +80,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	innerFlat, sourceFlat, targetFlat := extractDSFlat(ctx, router, sourceNode, targetNode)
 
 	if innerFlat && move {
-		log.Logger(ctx).Info("Move on Flat storage : switching to direct index update")
+		log.Logger(ctx).Debug("Move on Flat storage : switching to direct index update")
 		_, e := router.UpdateNode(ctx, &tree.UpdateNodeRequest{From: sourceNode, To: targetNode})
 		return e
 	}
@@ -161,13 +161,13 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 	if !IsUnitTestEnv { // Do not trigger during unit tests as it calls ACL service
 		if move {
-			log.Logger(ctx).Info("Setting Lock on SourceNode with session " + session)
+			log.Logger(ctx).Debug("Setting Lock on SourceNode with session " + session)
 			locker = permissions.NewLockSession(sourceNode.Uuid, session, time.Second*30)
 		} else {
 			locker = permissions.NewLockSession("", session, time.Second*30)
 		}
 		if childLockDir != "" {
-			log.Logger(ctx).Info("Setting ChildLock on TargetNode Parent")
+			log.Logger(ctx).Debug("Setting ChildLock on TargetNode Parent")
 			locker.AddChildTarget(childLockDir, childLockBase)
 		}
 		// Will be unlocked by sync process, or if targetFlat, manually unlock
@@ -179,7 +179,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 	if !sourceNode.IsLeaf() {
 
 		if targetFlat || sourceFlat {
-			log.Logger(ctx).Info("[Flat Target] Creating target folder before copy")
+			log.Logger(ctx).Debug("[Flat Target] Creating target folder before copy")
 			// Manually create target folder
 			tgtUuid := uuid.New()
 			tgt := ctx
@@ -437,7 +437,7 @@ func updateLockerForByteSize(ctx context.Context, locker permissions.SessionLock
 	ratio := math.Ceil(float64(totalSize) / float64(lockExpirationRatioSize))
 	r := math.Max(countRatio, ratio) + 2
 	newD := time.Duration(int64(r) * int64(time.Second))
-	log.Logger(ctx).Info("Updating lock expiration to ", zap.Duration("duration", newD))
+	log.Logger(ctx).Debug("Updating lock expiration to ", zap.Duration("duration", newD))
 	locker.UpdateExpiration(ctx, newD)
 }
 
