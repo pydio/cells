@@ -52,8 +52,8 @@ func (s *selectorWithMaxRetries) Mark(name string, node *registry.Node, err erro
 			s.Unlock()
 
 			if retries >= s.maxRetries {
-				s.deregister(name, node)
-
+				s.deregisterIfOthersAvailable(name, node)
+				// Even if deregister did not happen, reset counter
 				s.Lock()
 				delete(s.registry, id)
 				s.Unlock()
@@ -64,7 +64,7 @@ func (s *selectorWithMaxRetries) Mark(name string, node *registry.Node, err erro
 	return
 }
 
-func (s *selectorWithMaxRetries) deregister(name string, node *registry.Node) {
+func (s *selectorWithMaxRetries) deregisterIfOthersAvailable(name string, node *registry.Node) {
 	reg := s.Options().Registry
 
 	service, err := reg.GetService(name)
@@ -74,10 +74,12 @@ func (s *selectorWithMaxRetries) deregister(name string, node *registry.Node) {
 
 	cachedService := cp(service)
 
-	if len(cachedService) > 0 {
-		cachedService[0].Nodes = []*registry.Node{node}
+	// Do NOT deregister if there is only one node, it will try again and again
+	// but we do not want to be left with 0 available nodes.
+	if len(cachedService) > 0 && len(cachedService[0].Nodes) > 1 {
 
 		// Deregistering service node
+		cachedService[0].Nodes = []*registry.Node{node}
 		err := reg.Deregister(cachedService[0])
 		if err != nil {
 			return
