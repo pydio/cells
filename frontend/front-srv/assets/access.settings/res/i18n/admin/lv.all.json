@@ -299,6 +299,9 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "Objects Tags"
   },
+  "ds.editor.storage.s3.bucketPathPrefix": {
+    "other": "Path prefix inside the bucket (used as a folder)"
+  },
   "ds.editor.title": {
     "other": "Datu avots %s"
   },
@@ -1087,6 +1090,9 @@
   },
   "user.9": {
     "other": "Pēdējo reizi pieslēdzies"
+  },
+  "user.moveto.hint": {
+    "other": "Select destination group, leave '/' for root group."
   },
   "user.filter.tooltip": {
     "other": "Filtrēt lietotāju sarakstu..."

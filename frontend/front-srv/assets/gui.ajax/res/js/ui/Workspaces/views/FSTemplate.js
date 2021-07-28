@@ -332,7 +332,7 @@ class FSTemplate extends React.Component {
         }
 
         let classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
-        const thumbDisplay = filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0;
+        const thumbDisplay = (filesListDisplayMode && filesListDisplayMode.indexOf("grid-") === 0) || filesListDisplayMode === 'masonry' ;
         if((infoPanelOpen || thumbDisplay) && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){
@@ -404,10 +404,6 @@ class FSTemplate extends React.Component {
             newButtonProps.buttonBackgroundColor = 'rgba(0,0,0,0.05)';
             newButtonProps.buttonHoverColor = 'rgba(0,0,0,0.10)';
 
-        }
-
-        styles.listStyle = {
-            backgroundColor:thumbDisplay?superLightBack.toString():'white'
         }
 
         const {values, setValues, history, facets, activeFacets, toggleFacet,
@@ -609,6 +605,7 @@ class FSTemplate extends React.Component {
                         onDisplayModeChange={(dMode) => {
                             this.setState({filesListDisplayMode: dMode});
                         }}
+                        gridBackground={superLightBack}
                         style={styles.listStyle}
                     />
                 {rightColumnState === 'info-panel' &&

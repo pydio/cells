@@ -83,8 +83,14 @@ export default class InfoPanel extends React.Component{
             );
         }
         let style = {}
+        if(popoverPanel) {
+            style = {...style,
+                maxHeight: '80vh',
+                overflowY: 'auto'
+            }
+        }
         if(!hasAction) {
-            style = {paddingBottom: 16}
+            style = {...style, paddingBottom: 16}
         }
 
         return (

@@ -24,17 +24,22 @@ import Color from 'color'
 import {IconButton, Popover} from 'material-ui'
 const {AsyncComponent} = Pydio.requireLib('boot');
 const {IconButtonMenu} = Pydio.requireLib('components');
+const {Callbacks} = Pydio.requireLib('actions/core')
 
 class OverlayIcon extends Component{
 
     findAction(){
-        const {overlay, pydio, node} = this.props;
-        let tooltip, count, popoverNS, popoverComponent;
+        const {overlay, pydio, node, clickActions} = this.props;
+        let tooltip, count, popoverNS, popoverComponent, clickAction;
         const m = (id) => pydio.MessageHash[id] || id;
         const isLeaf = node.isLeaf();
         switch(overlay){
             case "mdi mdi-star":
+            case "mdi mdi-star-outline":
                 tooltip = isLeaf ? m('overlay.bookmark.file'):m('overlay.bookmark.folder');
+                if(clickActions) {
+                    clickAction = () => Callbacks.toggleBookmarkNode(node)
+                }
                 break;
             case "mdi mdi-share-variant":
                 popoverNS = 'ShareDialog'
@@ -65,7 +70,7 @@ class OverlayIcon extends Component{
             default:
                 break;
         }
-        return {tooltip, count, popoverNS, popoverComponent};
+        return {tooltip, count, popoverNS, popoverComponent, clickAction};
     }
 
     selectAndApply(action) {
@@ -84,13 +89,18 @@ class OverlayIcon extends Component{
     render(){
         const {pydio, node, muiTheme, overlay, selected, tooltipPosition='bottom-left', popoverDirection, style, className} = this.props;
         const light = new Color(muiTheme.palette.primary1Color).saturationl(15).lightness(73).toString();
-        const {tooltip, count, popoverNS, popoverComponent} = this.findAction();
+        const {tooltip, count, popoverNS, popoverComponent, clickAction} = this.findAction();
         let onClick;
         if(popoverComponent) {
             onClick = (e) => {
                 e.stopPropagation();
                 pydio.getContextHolder().setSelectedNodes([node]);
                 this.setState({popoverAnchor: e.currentTarget, popoverOpen: true})
+            }
+        } else  if(clickAction) {
+            onClick = (e) => {
+                e.stopPropagation();
+                clickAction();
             }
         }
         const ic = (
@@ -123,6 +133,7 @@ class OverlayIcon extends Component{
                             pydio={pydio}
                             node={node}
                             popoverPanel={true}
+                            popoverRequestClose={() => {this.setState({popoverOpen: false})}}
                             onLoad={()=>{window.dispatchEvent(new Event('resize'))}}
                         />
                     </Popover>

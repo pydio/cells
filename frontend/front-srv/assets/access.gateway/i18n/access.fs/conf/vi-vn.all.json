@@ -25,5 +25,11 @@
   },
   "Once in pagination mode, number of items to display per page.": {
     "other": "Khi ở chế độ đánh số trang, số mục sẽ hiển thị trên mỗi trang."
+  },
+  "Delete Permanently": {
+    "other": "Delete Permanently"
+  },
+  "Enable option to skip recycle bin on deletion": {
+    "other": "Enable option to skip recycle bin on deletion"
   }
 }

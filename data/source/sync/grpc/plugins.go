@@ -160,7 +160,7 @@ func init() {
 										return err
 									}
 									return nil
-								}, 5*time.Second, 20*time.Second)
+								}, 5*time.Second, 30*time.Second)
 								if e != nil {
 									log.Logger(jobCtx).Error("service started but could not contact Job service to trigger re-indexation")
 									m.Server().Stop()

@@ -21,7 +21,7 @@
                              actionBar="true" contextMenu="true" infoPanel="true"
                              actionBarGroup="change" inZip="false">
                     </context>
-                    <selectionContext dir="true" file="file" recycle="false" unique="false"/></gui>
+                    <selectionContext dir="true" file="file" recycle="false" unique="false" evalMetadata="!metadata.get('search_result')"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="CompressionActions.Callbacks.compressUI"/>
@@ -33,7 +33,7 @@
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change" inZip="false">
                     </context>
-                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="zip,tar,gz,ajxp_browsable_archive"/>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="zip,tar,gz,ajxp_browsable_archive" evalMetadata="!metadata.get('search_result')"/>
                 </gui>
                 <processing>
                     <clientCallback module="CompressionActions.Callbacks.extract"/>

@@ -185,6 +185,7 @@ const (
 	MetaFlagLevelReadonly        = "level_readonly"
 	MetaFlagEncrypted            = "datasource_encrypted"
 	MetaFlagVersioning           = "datasource_versioning"
+	MetaFlagIndexed              = "datasource_node_indexed"
 	MetaFlagWorkspaceRoot        = "ws_root"
 	MetaFlagWorkspaceScope       = "ws_scope"
 	MetaFlagWorkspaceSyncable    = "ws_syncable"

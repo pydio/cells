@@ -25,5 +25,11 @@
   },
   "Once in pagination mode, number of items to display per page.": {
     "other": "Ja ir ieslēgts lapu dalīšanas režīms uzrādiet cik objektus uzrādīt vienā lapā."
+  },
+  "Delete Permanently": {
+    "other": "Delete Permanently"
+  },
+  "Enable option to skip recycle bin on deletion": {
+    "other": "Enable option to skip recycle bin on deletion"
   }
 }

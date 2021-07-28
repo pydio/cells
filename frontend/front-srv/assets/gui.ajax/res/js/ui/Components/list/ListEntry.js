@@ -187,4 +187,4 @@ let DragDropListEntry = flow(
     DropTarget(Types.NODE_PROVIDER, nodeDropTarget, collectDrop)
 )(ListEntry);
 
-export {DragDropListEntry as DragDropListEntry, ListEntry as ListEntry}
+export {DragDropListEntry as DragDropListEntry, ListEntry as ListEntry, ContextMenuWrapper}

@@ -37,6 +37,7 @@ import SimpleReactActionBar from '../views/SimpleReactActionBar'
 import InlineEditor from './InlineEditor'
 import EmptyStateView from '../views/EmptyStateView'
 import PlaceHolders from "./PlaceHolders";
+import {nodesSorterByAttribute, sortNodesNatural} from "./sorters";
 
 const DOMUtils = require('pydio/util/dom')
 const PydioDataModel = require('pydio/model/data-model')
@@ -847,64 +848,22 @@ let SimpleList = createReactClass({
         if(!sortingInfo || this.remoteSortingInfo()) {
             return null;
         }
-        let sortFunction;
         const {sortingInfo:{attribute, direction, sortType}} = this.state || {};
+        let innerSorter
         if(sortType === 'file-natural'){
-            sortFunction = (a, b) => {
-                if (a.parent){
-                    return -1;
-                }
-                if (b.parent){
-                    return 1;
-                }
-                const nodeA = a.node;
-                const nodeB = b.node;
-                // Recycle always last
-                if(nodeA.isRecycle()) {
-                    return 1;
-                }
-                if(nodeB.isRecycle()) {
-                    return -1;
-                }
-                // Folders first
-                const aLeaf = nodeA.isLeaf();
-                const bLeaf = nodeB.isLeaf();
-                let res = (aLeaf && !bLeaf ? 1 : ( !aLeaf && bLeaf ? -1 : 0));
-                if (res === 0) {
-                    return nodeA.getLabel().localeCompare(nodeB.getLabel(), undefined, {numeric: true});
-                } else {
-                    return res;
-                }
-            };
+            innerSorter = sortNodesNatural;
         }else{
-            sortFunction = (a, b) => {
-                if (a.parent){
-                    return -1;
-                }
-                if (b.parent){
-                    return 1;
-                }
-                let res;
-                if(sortType === 'number'){
-                    let aMeta = a.node.getMetadata().get(attribute) || 0;
-                    let bMeta = b.node.getMetadata().get(attribute) || 0;
-                    aMeta = parseFloat(aMeta);
-                    bMeta = parseFloat(bMeta);
-                    res  = (direction === 'asc' ? aMeta - bMeta : bMeta - aMeta);
-                }else if(sortType === 'string'){
-                    let aMeta = a.node.getMetadata().get(attribute) || "";
-                    let bMeta = b.node.getMetadata().get(attribute) || "";
-                    res = (direction === 'asc'? aMeta.localeCompare(bMeta) : bMeta.localeCompare(aMeta));
-                }
-                if(res === 0){
-                    // Resort by label to make it stable
-                    let labComp = a.node.getLabel().localeCompare(b.node.getLabel(), undefined, {numeric: true});
-                    res = (direction === 'asc' ? labComp : -labComp);
-                }
-                return res;
-            };
+            innerSorter = nodesSorterByAttribute(attribute, sortType, direction);
         }
-        return sortFunction;
+        return (a, b) => {
+            if (a.parent){
+                return -1;
+            }
+            if (b.parent){
+                return 1;
+            }
+            return innerSorter(a.node, b.node);
+        }
     },
 
     buildElements: function(start, end, node, nextProps = undefined){
@@ -961,7 +920,7 @@ let SimpleList = createReactClass({
             if(defaultGroupBy){
                 if(props.groupSkipUnique && groupKeys.length === 1) {
                     // push nodes without group info
-                    this.indexedElements = [...groups[groupKeys[0]]]
+                    this.indexedElements.push(...groups[groupKeys[0]]);
                 } else {
                     useGroups = true;
                     groupKeys = groupKeys.sort();

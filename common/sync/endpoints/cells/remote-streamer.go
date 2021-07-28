@@ -30,6 +30,7 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -108,18 +109,18 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	creates = c.sessionsCreates[:cut]
 	c.sessionsCreates = c.sessionsCreates[cut:]
 
-	// do not close defered as it is recursive
-	//defer func() {
-	//	streamer.Close()
-	//}()
+	// do not close stream deferred as it is recursive
 	for _, create := range creates {
 		if e := streamer.Send(create); e != nil {
 			streamer.Close()
 			return e
 		}
 		if resp, e := streamer.Recv(); e == nil {
-			log.Logger(ctx).Debug("Got create node response in session", zap.Any("r", resp))
-			c.recentMkDirs = append(c.recentMkDirs, resp.Node)
+			var indexed bool
+			if er := resp.GetNode().GetMeta(common.MetaFlagIndexed, &indexed); er != nil || !indexed {
+				log.Logger(ctx).Debug("Got create node response in session - register as recentMkDirs", zap.Any("r", resp.GetNode()))
+				c.recentMkDirs = append(c.recentMkDirs, resp.Node)
+			}
 		} else {
 			streamer.Close()
 			return e

@@ -22,18 +22,20 @@ package cmd
 
 import (
 	"fmt"
-	microregistry "github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/metrics"
-	"github.com/pydio/cells/x/filex"
-	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
+
+	microregistry "github.com/micro/go-micro/registry"
+	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/service/metrics"
+	"github.com/pydio/cells/x/filex"
 )
 
 var (
@@ -297,7 +299,7 @@ ENVIRONMENT
 			case <-time.After(30 * time.Second):
 				break loop
 			default:
-				if len(reg.Services) > 0 {
+				if reg != nil && len(reg.Services) > 0 {
 					time.Sleep(1 * time.Second)
 					continue
 				}

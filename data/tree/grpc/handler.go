@@ -201,8 +201,13 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
 	node := req.GetNode()
-	metaStreamer := meta.NewStreamLoader(ctx)
-	defer metaStreamer.Close()
+	var metaStreamer meta.Loader
+	if ms := ctx.Value("MetaStreamer"); ms != nil {
+		metaStreamer = ms.(meta.Loader)
+	} else {
+		metaStreamer = meta.NewStreamLoader(ctx)
+		defer metaStreamer.Close()
+	}
 
 	defer track("ReadNode", ctx, time.Now(), req, resp)
 
@@ -292,7 +297,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				sendNode.Uuid = "DATASOURCE:" + dsName
 			} else {
 				readResp := &tree.ReadNodeResponse{}
-				if err := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: sendNode}, readResp); err != nil {
+				// Pass MetaStreamer to avoid spinning a new one
+				msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
+				if err := s.ReadNode(msCtx, &tree.ReadNodeRequest{Node: sendNode}, readResp); err != nil {
 					return err
 				} else {
 					sendNode = readResp.Node

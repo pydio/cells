@@ -35,6 +35,8 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
@@ -391,11 +393,16 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 	if c.options.RenewFolderUuids {
 		n.Uuid = ""
 	}
-	_, e := cli.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
+	resp, e := cli.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
+
 	if e == nil {
-		c.Lock()
-		c.recentMkDirs = append(c.recentMkDirs, n)
-		c.Unlock()
+		var indexed bool
+		if er := resp.GetNode().GetMeta(common.MetaFlagIndexed, &indexed); er != nil || !indexed {
+			log.Logger(ctx).Debug("Create Node Response :", zap.Any("node", resp.GetNode()))
+			c.Lock()
+			c.recentMkDirs = append(c.recentMkDirs, n)
+			c.Unlock()
+		}
 	}
 	return e
 }

@@ -493,5 +493,11 @@
   },
   "Zip Encoding": {
     "other": "Zip-Encoding"
+  },
+  "Merge Workspaces and Cells": {
+    "other": "Workspaces und Cells zusammenführen"
+  },
+  "Do not display workspaces and cells separately": {
+    "other": "Workspaces und Cells nicht getrennt anzeigen"
   }
 }

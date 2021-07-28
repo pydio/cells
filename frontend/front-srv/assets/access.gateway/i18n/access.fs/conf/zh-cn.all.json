@@ -25,5 +25,11 @@
   },
   "Once in pagination mode, number of items to display per page.": {
     "other": "在分页模式中，每页显示多少项。"
+  },
+  "Delete Permanently": {
+    "other": "Delete Permanently"
+  },
+  "Enable option to skip recycle bin on deletion": {
+    "other": "Enable option to skip recycle bin on deletion"
   }
 }

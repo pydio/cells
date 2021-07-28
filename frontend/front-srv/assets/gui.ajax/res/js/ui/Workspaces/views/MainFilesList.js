@@ -32,7 +32,7 @@ import ReactDOM from 'react-dom'
 import FilePreview from './FilePreview'
 import {IconButton, Divider} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
-const {SimpleList} = Pydio.requireLib('components');
+const {SimpleList, Masonry} = Pydio.requireLib('components');
 const {moment, SingleJobProgress} = Pydio.requireLib('boot');
 import OverlayIcon from './OverlayIcon'
 import {debounce} from 'lodash'
@@ -337,7 +337,7 @@ class MainFilesList extends React.Component {
 
     entryRenderIcon(node, entryProps = {}){
         const {displayMode} = this.state;
-        const lightBackground = displayMode.indexOf('grid') === 0
+        const lightBackground = displayMode.indexOf('grid') === 0 || displayMode === 'masonry'
         if(entryProps && entryProps.parent){
             return (
                 <FilePreview
@@ -367,6 +367,7 @@ class MainFilesList extends React.Component {
         let content = null;
         const {pydio, dataModel, searchResults} = this.props;
         const {displayMode} = this.state;
+        const gridMode = displayMode.indexOf('grid-') === 0 || displayMode === 'masonry';
         const overlayClasses = node.getMetadata().get('overlay_class') || ''
         if(pydio.UI.MOBILE_EXTENSIONS){
             const ContextMenuModel = require('pydio/model/context-menu');
@@ -379,7 +380,11 @@ class MainFilesList extends React.Component {
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
             }}/>;
         }else if(overlayClasses || displayMode !== 'list'){
-            let elements = overlayClasses.split(',').filter(c=>!!c).map(function(c){
+            let classes = overlayClasses.split(',').filter(c=>!!c);
+            if(gridMode) {
+                classes = classes.filter(c => c !== 'mdi mdi-star')
+            }
+            let elements = classes.map(function(c){
                 return (
                     <OverlayIcon
                         node={node}
@@ -387,20 +392,33 @@ class MainFilesList extends React.Component {
                         overlay={c}
                         pydio={pydio}
                         disableActions={!!searchResults}
-                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
-                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
+                        tooltipPosition={gridMode?'bottom-right':undefined}
+                        popoverDirection={gridMode?'left':'right'}
                     />
                 );
             });
-            if(displayMode !== 'list') {
+            if(displayMode !== 'list' && displayMode !== 'masonry') {
                 // Add meta button in thumbs mode
                 elements.push(<OverlayIcon
                         pydio={pydio}
                         node={node}
                         overlay={'mdi mdi-tag-outline'}
                         disableActions={!!searchResults}
-                        tooltipPosition={displayMode.indexOf('grid-') === 0 ? 'bottom-right':undefined}
-                        popoverDirection={displayMode.indexOf('grid-') === 0 ? 'left':'right'}
+                        tooltipPosition={gridMode ? 'bottom-right':undefined}
+                        popoverDirection={gridMode ? 'left':'right'}
+                    />
+                );
+            }
+            if(gridMode) {
+                // Add toggleable bookmark button
+                elements.unshift(
+                    <OverlayIcon
+                        pydio={pydio}
+                        node={node}
+                        overlay={'mdi mdi-star'+(overlayClasses.indexOf('mdi-star')>-1?'':'-outline')}
+                        disableActions={!!searchResults}
+                        tooltipPosition={'bottom-right'}
+                        clickActions={true}
                     />
                 );
             }
@@ -422,7 +440,7 @@ class MainFilesList extends React.Component {
         }
         if(!mobile && ( !clickType || clickType === SimpleList.CLICK_TYPE_SIMPLE )){
             const crtSelection = dm.getSelectedNodes();
-            if(event && event.shiftKey && crtSelection.length) {
+            if(event && event.shiftKey && crtSelection.length && this.refs.list) {
                 const newSelection = this.refs.list.computeSelectionFromCurrentPlusTargetNode(crtSelection, node);
                 dm.setSelectedNodes(newSelection);
             } else if(event && (event.ctrlKey || event.metaKey) && crtSelection.length){
@@ -598,6 +616,7 @@ class MainFilesList extends React.Component {
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320',hasAccessKey:false},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80',hasAccessKey:false}
+           ,{name:'Image Gallery',title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry',hasAccessKey:false}
         ];
         return list.map(item => {
             const i = {...item};
@@ -683,6 +702,7 @@ class MainFilesList extends React.Component {
 
     render() {
 
+        const {pydio, dataModel, style, gridBackground} = this.props;
         const {contextNode, displayMode, columns, thumbSize, pinBookmarks} = this.state;
         let tableKeys, sortKeys, elementStyle, className = 'files-list layout-fill main-files-list';
         let elementHeight, entryRenderSecondLine, near, elementsPerLine = 1;
@@ -692,6 +712,7 @@ class MainFilesList extends React.Component {
             dMode = 'grid';
         }
         let infiniteSliceCount = 50;
+        let additionalStyle = {}
 
         if(dMode === 'detail'){
 
@@ -723,6 +744,7 @@ class MainFilesList extends React.Component {
             } else if(near === 80) {
                 infiniteSliceCount = 200;
             }
+            additionalStyle = {backgroundColor:gridBackground}
 
         } else if(dMode === 'list'){
 
@@ -732,7 +754,6 @@ class MainFilesList extends React.Component {
 
         }
 
-        const {pydio, dataModel} = this.props;
         const messages = pydio.MessageHash;
         const canUpload = (pydio.Controller.getActionByName('upload') && !contextNode.getMetadata().has('node_readonly'));
         const secondary = messages[canUpload ? '565' : '566'];
@@ -801,12 +822,45 @@ class MainFilesList extends React.Component {
                 groupByValueFunc:(value) => value === "true" ? -1 : 1,
                 renderGroupLabels:(groupBy, value) => {
                     if(value === -1) {
-                        return <span><span className={"mdi mdi-pin"}/> Bookmarked</span>
+                        return <span><span className={"mdi mdi-pin"}/> {pydio.MessageHash[147]}</span>
                     } else {
-                        return <span>All Files</span>
+                        return <span><span className={"mdi mdi-folder-multiple-outline"}/> {pydio.MessageHash['ajax_gui.pinned-bookmarks.other']}</span>
                     }
                 }
             }
+        }
+
+        if(dMode === 'masonry') {
+            const css = `
+               .masonic-grid .mimefont-container {
+                    display:flex; 
+                    height:100%; 
+                    align-items:center !important; 
+                    justify-content:center;
+                    border-radius: 4px;
+               }
+               .masonic-grid .mimefont-container .mimefont {
+                    font-size: 36px;
+                    margin-bottom: 22px;
+               }
+               .react-mui-context .info-panel-open .masonic-grid{
+                    width: calc(100% - 270px) !important;
+               }
+            `;
+            return (
+                <React.Fragment>
+                    <Masonry
+                        className={"masonic-grid"}
+                        dataModel={dataModel}
+                        entryProps={{
+                            handleClicks:this.entryHandleClicks.bind(this),
+                            renderIcon:this.entryRenderIcon.bind(this),
+                            renderActions: this.entryRenderActions.bind(this)
+                        }}
+                    />
+                    <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
+                </React.Fragment>
+            )
         }
 
         return (
@@ -821,7 +875,7 @@ class MainFilesList extends React.Component {
                 actionBarGroups={["change_main"]}
                 infiniteSliceCount={infiniteSliceCount}
                 skipInternalDataModel={true}
-                style={this.props.style}
+                style={{...style, ...additionalStyle}}
                 displayMode={dMode}
                 usePlaceHolder={true}
                 elementsPerLine={elementsPerLine}

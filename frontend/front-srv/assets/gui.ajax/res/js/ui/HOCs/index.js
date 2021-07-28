@@ -40,6 +40,7 @@ import * as Modern from './material/ModernComponents'
 import * as Utils from './utils'
 import ReactPlaceHolder, {TextBlock as PhTextBlock, MediaBlock as PhMediaBlock, RectShape as PhRectShape, RoundShape as PhRoundShape, TextRow as PhTextRow} from './placeholders'
 import withSearch from './search/withSearch'
+import * as hooks from './hooks'
 
 const PydioHOCs = {
     EditorActions: actions,
@@ -83,6 +84,7 @@ const PydioHOCs = {
     PhRectShape,
     PhRoundShape,
     Utils,
+    ...hooks,
 };
 
 export {PydioHOCs as default}

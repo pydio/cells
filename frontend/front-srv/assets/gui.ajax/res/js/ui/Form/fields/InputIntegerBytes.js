@@ -59,7 +59,6 @@ class InputIntegerBytes extends React.Component{
 
     render() {
         const sizeUnit = Pydio.getMessages()['byte_unit_symbol'] || 'B';
-        //const noQuota = Pydio.getMessages()['ajxp_admin.ws.editor.other.bytesValue.noquota'];
         const {value, onChange, isDisplayGrid, isDisplayForm, editMode, disabled, toggleEditMode, attributes, variant} = this.props;
 
         let bytesValue = 0, unit = '';
@@ -70,7 +69,7 @@ class InputIntegerBytes extends React.Component{
         }
 
         if(isDisplayGrid() && !editMode) {
-            return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? bytesValue + unit : 'Empty'}</div>;
+            return <div onClick={disabled?function(){}:toggleEditMode} className={value?'':'paramValue-empty'}>{value ? bytesValue + unit + sizeUnit : 'Empty'}</div>;
         }
         return (
             <div>

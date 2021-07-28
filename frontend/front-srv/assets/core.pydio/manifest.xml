@@ -13,6 +13,7 @@
 	<server_settings>
 		<global_param name="APPLICATION_TITLE" group="CONF_MESSAGE[Main]" type="string" label="CONF_MESSAGE[App Title]" description="CONF_MESSAGE[Your application title]" mandatory="true" default="Pydio" expose="true"/>
         <global_param name="DEFAULT_LANGUAGE" group="CONF_MESSAGE[Main]" type="select" choices="PYDIO_AVAILABLE_LANGUAGES" label="CONF_MESSAGE[Default Language]" description="CONF_MESSAGE[Default language when a user does not have set his/her own.]" mandatory="true" default="en"/>
+        <global_param name="MERGE_WORKSPACES_AND_CELLS" group="CONF_MESSAGE[Main]" type="boolean" label="CONF_MESSAGE[Merge Workspaces and Cells]" description="CONF_MESSAGE[Do not display workspaces and cells separately]" mandatory="false" default="false"/>
 	</server_settings>
 
     <registry_contributions>

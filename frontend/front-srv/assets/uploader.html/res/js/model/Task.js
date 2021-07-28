@@ -29,7 +29,7 @@ class Task {
      * @param session {Session}
      */
     constructor(session){
-        pydio = Pydio.getInstance();
+        const pydio = Pydio.getInstance();
         this.job = new JobsJob();
         this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;

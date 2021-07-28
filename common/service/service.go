@@ -409,7 +409,7 @@ var mandatoryOptions = []ServiceOption{
 		}
 
 		if d == nil {
-			return fmt.Errorf("Storage is not available")
+			return fmt.Errorf("storage %s is not available", driver)
 		}
 
 		ctx = servicecontext.WithDAO(ctx, d)

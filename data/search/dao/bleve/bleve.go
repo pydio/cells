@@ -472,7 +472,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	nss := s.nsProvider.Namespaces()
 	for metaName, _ := range s.nsProvider.IncludedIndexes() {
 		def, _ := nss[metaName].UnmarshallDefinition()
-		if def != nil && (def.GetType() == "number" || def.GetType() == "boolean" || def.GetType() == "date") {
+		if def != nil && (def.GetType() == "integer" || def.GetType() == "boolean" || def.GetType() == "date") {
 			continue
 		}
 		metaFacet := bleve.NewFacetRequest("Meta."+metaName, 4)

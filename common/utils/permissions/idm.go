@@ -399,7 +399,13 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 		accessList = NewAccessList([]*idm.Role{})
 		return accessList, nil
 	}
-
+	if data, ok := getAclCache().Get(claims.SessionID + claims.Subject); ok {
+		if accessList, ok = data.(*AccessList); ok {
+			//fmt.Println("=> Returning accesslist from cache")
+			return
+		}
+	}
+	//fmt.Println("Loading AccessList")
 	roles := GetRoles(ctx, strings.Split(claims.Roles, ","))
 	accessList = NewAccessList(roles)
 	accessList.Append(GetACLsForRoles(ctx, roles, AclRead, AclDeny, AclWrite, AclLock, AclPolicy))
@@ -413,7 +419,7 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 	for _, workspace := range idmWorkspaces {
 		accessList.Workspaces[workspace.UUID] = workspace
 	}
-
+	getAclCache().Set(claims.SessionID+claims.Subject, accessList, cache.DefaultExpiration)
 	return accessList, nil
 }
 

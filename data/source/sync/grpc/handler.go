@@ -170,7 +170,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			}
 			indexOK = true
 			return nil
-		}, 3*time.Second, 50*time.Second)
+		}, 5*time.Second, 60*time.Second)
 	}()
 	// Making sure Objects is started
 	go func() {
@@ -215,7 +215,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 					return nil
 				}
 			}
-		}, 4*time.Second, 50*time.Second)
+		}, 5*time.Second, 60*time.Second)
 	}()
 
 	wg.Wait()
@@ -565,7 +565,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			result, e = s.FlatSyncSnapshot(bg, dir, snapName, statusChan, doneChan)
 		} else if len(pathParts) == 1 && pathParts[0] == "init" {
 			result, e = s.FlatScanEmpty(bg, statusChan, doneChan)
-		} else  {
+		} else {
 			// Nothing to do, just close doneChan
 			if doneChan != nil {
 				doneChan <- true

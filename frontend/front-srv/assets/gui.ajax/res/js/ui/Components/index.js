@@ -24,6 +24,7 @@ import NodeListCustomProvider from './list/NodeListCustomProvider'
 import {ListEntry} from './list/ListEntry'
 import ListPaginator from './list/ListPaginator'
 import MaterialTable from './list/MaterialTable'
+import Masonry from './list/Masonry'
 
 import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 
@@ -74,6 +75,7 @@ const PydioComponents = {
     ListEntry               : ListEntry,
     ListPaginator           : ListPaginator,
     MaterialTable,
+    Masonry,
 
     TreeView                : TreeView,
     DNDTreeView             : DNDTreeView,

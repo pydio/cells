@@ -27,7 +27,7 @@
                     <context selection="true" dir="" recycle="false"
                              actionBar="true" actionBarGroup="put" contextMenu="true" infoPanel="true"/>
                     <selectionContext dir="true" file="true" recycle="false" enableRoot="true"
-                                      unique="true" allowedMimes="ajxp_folder,PYDIO_MIMES_ZIP" behaviour="hidden">
+                                      unique="true" allowedMimes="ajxp_folder" behaviour="hidden">
                     </selectionContext>
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="true"

@@ -138,7 +138,7 @@
     "other": "Moteur d'envoi de courriel"
   },
   "Mail.Config.From.Label": {
-    "other": "Adresse d'expéditeur par défaut"
+    "other": "Adresse par défaut de l'expéditeur"
   },
   "Mail.Config.From.Description": {
     "other": "Adresse d'expédition utilisée par défaut lors de l'envoi de mail. Utilisez un mail de support réel plutôt qu'un \"no-reply\"."
@@ -237,13 +237,13 @@
     "other": "Autre chemin (mettre manuellement dans le pydio.json)"
   },
   "Mail.Config.FromName.Label": {
-    "other": "Nom d'affichage par défaut des expéditeurs"
+    "other": "Nom affiché de l'expéditeur, par défaut"
   },
   "Mail.Config.FromName.Description": {
     "other": "Nom complet à utiliser comme valeur par défaut lors de l’envoi d'emails."
   },
   "Mail.Config.FromCtl.Label": {
-    "other": "Adresse et nom de l'expéditeur à utiliser"
+    "other": "Nom et adresse à utiliser pour l'expéditeur"
   },
   "Mail.Config.FromCtl.Description": {
     "other": "Définissez l'adresse/nom de l'expéditeur à utiliser. Si aucune adresse de courriel utilisateur n'est configurée, l'adresse et le nom par défaut FROM seront utilisés dans tous les cas."

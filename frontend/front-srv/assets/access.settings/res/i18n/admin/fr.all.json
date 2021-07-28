@@ -299,6 +299,9 @@
   "ds.editor.storage.s3.objectsTags": {
     "other": "Balises d'objets"
   },
+  "ds.editor.storage.s3.bucketPathPrefix": {
+    "other": "Préfixe du chemin dans le container (utilisé comme un dossier)"
+  },
   "ds.editor.title": {
     "other": "Datasource %s"
   },
@@ -1087,6 +1090,9 @@
   },
   "user.9": {
     "other": "Dernière connexion"
+  },
+  "user.moveto.hint": {
+    "other": "Sélectionnez le groupe de destination, laissez '/' pour la racine."
   },
   "user.filter.tooltip": {
     "other": "Filtrer la liste..."

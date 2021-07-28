@@ -42,7 +42,7 @@ const styles = {
     textFieldV2:{
         style:{...v2Block},
         inputStyle:{position: 'absolute', height:30, marginTop:0, bottom: 2, paddingLeft: 8, paddingRight: 8},
-        hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
+        hintStyle:{bottom: 4, paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
         underlineStyle:{opacity:1, bottom: 0},
         underlineFocusStyle:{opacity:1, borderRadius: 0, bottom: 0},
         floatingLabelFixed: true,
@@ -213,7 +213,6 @@ function withModernTheme(formComponent) {
             } else if (formComponent === AutoComplete) {
 
                 const {style, ...tfStyles} = getV2WithBlocks({...styles.textFieldV2}, hasLeftBlock, hasRightBlock)
-
                 return <AutoComplete
                     {...otherProps}
                     ref={"component"}
