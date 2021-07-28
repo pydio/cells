@@ -34,6 +34,11 @@ import (
 	"github.com/pydio/cells/idm/policy"
 )
 
+var (
+	groupsCache      []*idm.PolicyGroup
+	groupsCacheValid bool
+)
+
 type Handler struct {
 }
 
@@ -84,6 +89,12 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 
 func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyGroupsRequest, response *idm.ListPolicyGroupsResponse) error {
 
+	if groupsCacheValid {
+		response.PolicyGroups = groupsCache
+		response.Total = int32(len(groupsCache))
+		return nil
+	}
+
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 	groups, err := dao.ListPolicyGroups(ctx)
 	if err != nil {
@@ -92,10 +103,15 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
 
+	groupsCache = groups
+	groupsCacheValid = true
+
 	return nil
 }
 
 func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicyGroupRequest, response *idm.StorePolicyGroupResponse) error {
+
+	groupsCacheValid = false
 
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 
@@ -115,6 +131,9 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 }
 
 func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePolicyGroupRequest, response *idm.DeletePolicyGroupResponse) error {
+
+	groupsCacheValid = false
+
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 
 	err := dao.DeletePolicyGroup(ctx, request.PolicyGroup)
