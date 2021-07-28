@@ -1032,7 +1032,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		return er
 	}
 
-	if _, errTx = tx.Stmt(updateTree).Exec(
+	if _, errTx = tx.Stmt(updateTree.(*databasesql.Stmt)).Exec(
 		nodeFrom.Level,
 		nodeFrom.Name(),
 		nodeFrom.IsLeafInt(),
@@ -1072,7 +1072,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		len(pathTo) - len(pathFrom),
 	}, updateChildrenArgs...)
 
-	_, err = tx.Stmt(updateChildren).Exec(
+	_, err = tx.Stmt(updateChildren.(*databasesql.Stmt)).Exec(
 		updateChildrenArgs...,
 	)
 

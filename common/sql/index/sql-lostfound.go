@@ -246,7 +246,7 @@ func (dao *IndexSQL) FixRandHash2(excludes ...LostAndFound) (int64, error) {
 		}
 	}
 
-	var s *sql2.Stmt
+	var s sql.Stmt
 	var e error
 	if len(xUuid) > 0 {
 		s, e = dao.GetStmt("fixRandHash2WithExcludes", xUuid...)

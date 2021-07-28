@@ -29,6 +29,8 @@ import (
 	server "github.com/micro/go-micro/server"
 	"github.com/pydio/cells/common/utils/net"
 
+	// limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -108,6 +110,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
+				// micro.WrapHandler(limiter.NewHandlerWrapper(30)),
 			)
 
 			meta := registry.BuildServiceMeta()
