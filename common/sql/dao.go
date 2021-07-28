@@ -22,17 +22,20 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/x/configx"
 )
 
 var (
+	DefaultConnectionTimeout = 10 * time.Second
 	ErrNoRows = sql.ErrNoRows
 )
 
@@ -43,8 +46,8 @@ type DAO interface {
 	DB() *sql.DB
 	Version() (string, error)
 	Prepare(string, interface{}) error
-	GetStmt(string, ...interface{}) (*sql.Stmt, error)
-	GetStmtWithArgs(string, ...interface{}) (*sql.Stmt, []interface{}, error)
+	GetStmt(string, ...interface{}) (Stmt, error)
+	GetStmtWithArgs(string, ...interface{}) (Stmt, []interface{}, error)
 	UseExclusion()
 	Lock()
 	Unlock()
@@ -53,6 +56,16 @@ type DAO interface {
 	Concat(...string) string
 	Hash(...string) string
 	HashParent(string, ...string) string
+}
+
+type Stmt interface {
+	Close() error
+	Exec(...interface{}) (sql.Result, error)
+	ExecContext(context.Context, ...interface{}) (sql.Result, error)
+	Query(...interface{}) (*sql.Rows, error)
+	QueryContext(context.Context, ...interface{}) (*sql.Rows, error)
+	QueryRow(...interface{}) *sql.Row
+	QueryRowContext(context.Context, ...interface{}) *sql.Row
 }
 
 // Handler for the main functions of the DAO
@@ -65,7 +78,7 @@ type Handler struct {
 	funcs         map[string]func(DAO, ...string) string      // Queries that need to be run before we get a statement
 	funcsWithArgs map[string]func(DAO, ...string) (string, []interface{})
 
-	prepared     map[string]*sql.Stmt
+	prepared     map[string]Stmt
 	preparedLock *sync.RWMutex
 
 	mu       atomic.Value
@@ -93,7 +106,7 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 		ifuncs:        make(map[string]func(DAO, ...interface{}) string),
 		funcs:         make(map[string]func(DAO, ...string) string),
 		funcsWithArgs: make(map[string]func(DAO, ...string) (string, []interface{})),
-		prepared:      make(map[string]*sql.Stmt),
+		prepared:      make(map[string]Stmt),
 		preparedLock:  new(sync.RWMutex),
 		replacer:      strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
 		mu:            mu,
@@ -141,7 +154,7 @@ func (h *Handler) Prepare(key string, query interface{}) error {
 	return nil
 }
 
-func (h *Handler) addStmt(query string) (*sql.Stmt, error) {
+func (h *Handler) addStmt(query string) (Stmt, error) {
 	stmt, err := h.DB().Prepare(query)
 	if err != nil {
 		return nil, err
@@ -152,14 +165,16 @@ func (h *Handler) addStmt(query string) (*sql.Stmt, error) {
 		return stmt, nil
 	}
 
+	stmtWt := &stmtWithTimeout{stmt}
+
 	h.preparedLock.Lock()
 	defer h.preparedLock.Unlock()
 
-	h.prepared[query] = stmt
-	return stmt, nil
+	h.prepared[query] = stmtWt
+	return stmtWt, nil
 }
 
-func (h *Handler) readStmt(query string) *sql.Stmt {
+func (h *Handler) readStmt(query string) Stmt {
 	h.preparedLock.RLock()
 	defer h.preparedLock.RUnlock()
 
@@ -170,7 +185,7 @@ func (h *Handler) readStmt(query string) *sql.Stmt {
 	return nil
 }
 
-func (h *Handler) getStmt(query string) (*sql.Stmt, error) {
+func (h *Handler) getStmt(query string) (Stmt, error) {
 	// fmt.Println(query)
 	if stmt := h.readStmt(query); stmt != nil {
 		return stmt, nil
@@ -180,7 +195,7 @@ func (h *Handler) getStmt(query string) (*sql.Stmt, error) {
 }
 
 // GetStmt returns a list of all statements used by the dao
-func (h *Handler) GetStmt(key string, args ...interface{}) (*sql.Stmt, error) {
+func (h *Handler) GetStmt(key string, args ...interface{}) (Stmt, error) {
 
 	if v, ok := h.stmts[key]; ok {
 		return h.getStmt(v)
@@ -204,7 +219,7 @@ func (h *Handler) GetStmt(key string, args ...interface{}) (*sql.Stmt, error) {
 }
 
 // GetStmt returns a list of all statements used by the dao
-func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (*sql.Stmt, []interface{}, error) {
+func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (Stmt, []interface{}, error) {
 	if v, ok := h.funcsWithArgs[key]; ok {
 		var sParams []string
 		for _, s := range params {
@@ -244,4 +259,27 @@ func (h *Handler) Hash(s ...string) string {
 
 func (h *Handler) HashParent(name string, mpath ...string) string {
 	return h.helper.HashParent(name, mpath...)
+}
+
+type stmtWithTimeout struct {
+	*sql.Stmt
+}
+
+func (s *stmtWithTimeout) Close() error {
+	return s.Stmt.Close()
+}
+
+func (s *stmtWithTimeout) Exec(args ...interface{}) (sql.Result, error) {
+	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
+
+	return s.Stmt.ExecContext(ctx, args...)
+}
+
+func (s *stmtWithTimeout) Query(args ...interface{}) (*sql.Rows, error) {
+	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
+	return s.Stmt.QueryContext(ctx, args...)
+}
+func (s *stmtWithTimeout) QueryRow(args ...interface{}) *sql.Row {
+	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
+	return s.Stmt.QueryRowContext(ctx, args...)
 }

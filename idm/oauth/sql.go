@@ -175,7 +175,7 @@ func (s *sqlImpl) Delete(patUuid string) error {
 func (s *sqlImpl) List(byType auth.PatType, byUser string) (tt []*auth.PersonalAccessToken, e error) {
 	s.Lock()
 	defer s.Unlock()
-	var stmt *sql2.Stmt
+	var stmt sql.Stmt
 	var err error
 	var args []interface{}
 	if byUser != "" && byType != auth.PatType_ANY {

@@ -289,6 +289,9 @@ ENVIRONMENT
 
 	PostRunE: func(cmd *cobra.Command, args []string) error {
 		reg := registry.GetCurrentProcess()
+		if reg == nil {
+			return nil
+		}
 
 	loop:
 		for {
