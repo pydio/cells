@@ -21,6 +21,7 @@
 package ladon_manager
 
 import (
+	"context"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
@@ -31,6 +32,7 @@ import (
 	. "github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 	"github.com/pkg/errors"
+	sql2 "github.com/pydio/cells/common/sql"
 	"github.com/rubenv/sql-migrate"
 )
 
@@ -195,7 +197,10 @@ func (s *SQLManager) create(policy Policy, tx *sqlx.Tx) (err error) {
 func (s *SQLManager) FindRequestCandidates(r *Request) (Policies, error) {
 	query := Migrations[s.database].QueryRequestCandidates
 
-	rows, err := s.db.Query(s.db.Rebind(query), r.Subject, r.Subject)
+	ctx, cancel := context.WithTimeout(context.Background(), sql2.DefaultConnectionTimeout)
+	defer cancel()
+
+	rows, err := s.db.QueryContext(ctx, s.db.Rebind(query), r.Subject, r.Subject)
 	if err == sql.ErrNoRows {
 		return nil, NewErrResourceNotFound(err)
 	} else if err != nil {
