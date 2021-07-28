@@ -22,7 +22,6 @@ package user
 
 import (
 	"context"
-	databasesql "database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -328,7 +327,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 
 	// Execute retrieved statements within the transaction
-	if stmt := tx.Stmt(delAttributes.(*databasesql.Stmt)); stmt != nil {
+	if stmt := tx.Stmt(delAttributes.GetSQLStmt()); stmt != nil {
 		defer stmt.Close()
 		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
 			return nil, createdNodes, errTx
@@ -337,7 +336,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
-	if stmt := tx.Stmt(addAttribute.(*databasesql.Stmt)); stmt != nil {
+	if stmt := tx.Stmt(addAttribute.GetSQLStmt()); stmt != nil {
 		defer stmt.Close()
 		for attr, val := range user.Attributes {
 			if _, errTx = stmt.Exec(
@@ -352,7 +351,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
-	if stmt := tx.Stmt(delUserRoles.(*databasesql.Stmt)); stmt != nil {
+	if stmt := tx.Stmt(delUserRoles.GetSQLStmt()); stmt != nil {
 		defer stmt.Close()
 		if _, errTx = stmt.Exec(user.Uuid); errTx != nil {
 			return nil, createdNodes, errTx
@@ -361,7 +360,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		return nil, createdNodes, fmt.Errorf("empty statement")
 	}
 
-	if stmt := tx.Stmt(addUserRole.(*databasesql.Stmt)); stmt != nil {
+	if stmt := tx.Stmt(addUserRole.GetSQLStmt()); stmt != nil {
 		uProf := ""
 		if p, o := user.Attributes[idm.UserAttrProfile]; o {
 			uProf = p

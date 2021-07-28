@@ -23,10 +23,8 @@ package resources
 import (
 	"context"
 	"fmt"
-	"time"
-	databasesql "database/sql"
-
 	"github.com/patrickmn/go-cache"
+	"time"
 
 	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -120,7 +118,7 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 		if deleteRules, er := s.GetStmt("DeleteRulesForResource"); er != nil {
 			errTx = er
 			return errTx
-		} else if txStmt := tx.Stmt(deleteRules.(*databasesql.Stmt)); txStmt != nil {
+		} else if txStmt := tx.Stmt(deleteRules.GetSQLStmt()); txStmt != nil {
 			defer txStmt.Close()
 			if _, errTx = txStmt.Exec(resourceId); errTx != nil {
 				return errTx
@@ -134,7 +132,7 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 	if addRule, er := s.GetStmt("AddRuleForResource"); er != nil {
 		errTx = er
 		return errTx
-	} else if txStmt := tx.Stmt(addRule.(*databasesql.Stmt)); txStmt != nil {
+	} else if txStmt := tx.Stmt(addRule.GetSQLStmt()); txStmt != nil {
 		defer txStmt.Close()
 		for _, policy := range policies {
 			if _, errTx = txStmt.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions); errTx != nil {

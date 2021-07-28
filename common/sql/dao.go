@@ -60,6 +60,7 @@ type DAO interface {
 
 type Stmt interface {
 	Close() error
+	GetSQLStmt() *sql.Stmt
 	Exec(...interface{}) (sql.Result, error)
 	ExecContext(context.Context, ...interface{}) (sql.Result, error)
 	Query(...interface{}) (*sql.Rows, error)
@@ -160,12 +161,12 @@ func (h *Handler) addStmt(query string) (Stmt, error) {
 		return nil, err
 	}
 
+	stmtWt := &stmtWithTimeout{stmt}
+
 	if h.Driver() == "sqlite3" {
 		// We don't keep statements open with sqlite3
-		return stmt, nil
+		return stmtWt, nil
 	}
-
-	stmtWt := &stmtWithTimeout{stmt}
 
 	h.preparedLock.Lock()
 	defer h.preparedLock.Unlock()
@@ -269,6 +270,10 @@ func (s *stmtWithTimeout) Close() error {
 	return s.Stmt.Close()
 }
 
+func (s *stmtWithTimeout) GetSQLStmt() *sql.Stmt {
+	return s.Stmt
+}
+
 func (s *stmtWithTimeout) Exec(args ...interface{}) (sql.Result, error) {
 	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
 
@@ -279,6 +284,7 @@ func (s *stmtWithTimeout) Query(args ...interface{}) (*sql.Rows, error) {
 	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
 	return s.Stmt.QueryContext(ctx, args...)
 }
+
 func (s *stmtWithTimeout) QueryRow(args ...interface{}) *sql.Row {
 	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
 	return s.Stmt.QueryRowContext(ctx, args...)
