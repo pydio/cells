@@ -300,7 +300,7 @@
     "other": "Balises d'objets"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix inside the bucket (used as a folder)"
+    "other": "Préfixe du chemin dans le container (utilisé comme un dossier)"
   },
   "ds.editor.title": {
     "other": "Datasource %s"
@@ -1092,7 +1092,7 @@
     "other": "Dernière connexion"
   },
   "user.moveto.hint": {
-    "other": "Select destination group, leave '/' for root group."
+    "other": "Sélectionnez le groupe de destination, laissez '/' pour la racine."
   },
   "user.filter.tooltip": {
     "other": "Filtrer la liste..."
