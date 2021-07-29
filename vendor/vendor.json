@@ -5378,6 +5378,12 @@
 			"revisionTime": "2018-01-22T17:25:45Z"
 		},
 		{
+			"checksumSHA1": "/uy8yEBHrHUStBtvuaxPxnYwDPM=",
+			"path": "go.uber.org/ratelimit",
+			"revision": "20146b0c903af820a8f1819a5781203daa922aab",
+			"revisionTime": "2021-03-07T18:34:52Z"
+		},
+		{
 			"checksumSHA1": "hTsGbLDKo7/2jp1UZUjeUT0+xkA=",
 			"path": "go.uber.org/zap",
 			"revision": "f85c78b1dd998214c5f2138155b320a4a43fbe36",
