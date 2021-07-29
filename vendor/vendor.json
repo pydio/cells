@@ -170,6 +170,12 @@
 			"versionExact": "v2.2.5"
 		},
 		{
+			"checksumSHA1": "eTOn5enI2P7We+0u4FXHk/Ivga8=",
+			"path": "github.com/andres-erbsen/clock",
+			"revision": "9e14626cd129ba01ccb6806bcca9d523e570aaf0",
+			"revisionTime": "2016-05-26T14:50:45Z"
+		},
+		{
 			"checksumSHA1": "2rWSos1D+xqNSGkvEMOG3pntod8=",
 			"path": "github.com/andybalholm/cascadia",
 			"revision": "349dd0209470eabd9514242c688c403c0926d266",
