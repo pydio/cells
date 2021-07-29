@@ -27,10 +27,7 @@ import (
 	"github.com/micro/go-micro/selector"
 	"github.com/micro/go-micro/selector/cache"
 	server "github.com/micro/go-micro/server"
-	"github.com/pydio/cells/common/utils/net"
-
-	// limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
-
+	limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
@@ -39,6 +36,9 @@ import (
 	"github.com/pydio/cells/common/registry"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/net"
+	"os"
+	"strconv"
 )
 
 var (
@@ -110,7 +110,6 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
-				// micro.WrapHandler(limiter.NewHandlerWrapper(30)),
 			)
 
 			meta := registry.BuildServiceMeta()
@@ -119,14 +118,13 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				meta["source"] = s.Options().Source
 			}
 
-			// context is always added last - so that there is no override
-			svc.Init(
+			opts := []micro.Option{
 				micro.Context(ctx),
 				micro.Name(name),
+				micro.Metadata(meta),
 				micro.WrapClient(servicecontext.SpanClientWrapper),
 				micro.WrapHandler(servicecontext.SpanHandlerWrapper),
 				micro.WrapSubscriber(servicecontext.SpanSubscriberWrapper),
-				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
 					return f(svc)
 				}),
@@ -143,6 +141,15 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),
+			}
+
+			if rateLimit, err := strconv.Atoi(os.Getenv("MICRO_RATE_LIMIT")); err == nil {
+				opts = append(opts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
+			}
+
+			// context is always added last - so that there is no override
+			svc.Init(
+				opts...,
 			)
 
 			// newTracer(name, &options)

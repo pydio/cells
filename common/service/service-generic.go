@@ -23,8 +23,10 @@ package service
 import (
 	"errors"
 	"fmt"
+	limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -64,7 +66,7 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				server.RegisterTTL(DefaultRegisterTTL),
 			)
 
-			svc.Init(
+			opts := []micro.Option{
 				micro.Version(o.Version),
 				micro.Client(defaults.NewClient()),
 				micro.Server(srv),
@@ -84,6 +86,14 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 
 					return nil
 				}),
+			}
+
+			if rateLimit, err :=  strconv.Atoi(os.Getenv("GENERIC_RATE_LIMIT")); err == nil {
+				opts = append(opts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
+			}
+
+			svc.Init(
+				opts...,
 			)
 
 			meta := registry.BuildServiceMeta()
@@ -137,13 +147,13 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				return err
 			}
 
-			svc.Init(
+			svcOpts := []micro.Option{
 				micro.Version(o.Version),
 				micro.Registry(defaults.Registry()),
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
 				micro.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 
@@ -158,6 +168,14 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 					return UpdateServiceVersion(s)
 				}),
 				micro.Server(srv),
+			}
+
+			if rateLimit, err :=  strconv.Atoi(os.Getenv("HTTP_RATE_LIMIT")); err == nil {
+				svcOpts = append(svcOpts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
+			}
+
+			svc.Init(
+				svcOpts...,
 			)
 
 			meta := registry.BuildServiceMeta()
