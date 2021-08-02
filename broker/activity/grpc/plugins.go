@@ -87,6 +87,13 @@ func init() {
 					return nil
 				}))
 				if err := s.Subscribe(s.NewSubscriber(common.TopicTreeChanges, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+					// Always ignore events on Temporary nodes and internal nodes
+					if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
+						return nil
+					}
+					if msg.Source != nil && msg.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+						return nil
+					}
 					if msg.Optimistic {
 						return nil
 					}
