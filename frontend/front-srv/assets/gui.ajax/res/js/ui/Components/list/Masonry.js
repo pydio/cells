@@ -37,19 +37,20 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
             dataModel.stopObserving('selection_changed', handler);
         }
     }, [selected, node]);
-    let bs = null;
+    let bs = 'rgb(0, 0, 0, .15) 0 0 10px';
     if(selected){
-        bs = 'rgb(1, 141, 204) 0px 0px 0px 2px';
+        bs = 'rgb(1, 141, 204) 0px 0px 0px 2px, rgb(0, 0, 0, .15) 0 0 10px';
     }
 
     const {handleClicks, renderIcon, renderActions} = entryProps;
     const labelStyle = {
         position:'absolute',
         bottom: 0, left: 0, right: 0,
-        height: 24,
-        padding: '2px 6px',
-        color: 'white',
-        backgroundColor: 'rgba(0,0,0, 0.3)',
+        height: 28,
+        padding: '4px 6px',
+        borderTop: '1px solid rgba(224,224,224,.4)',
+        color: 'rgba(0,0,0,.73)',
+        backgroundColor: src ? 'rgba(255,255,255,.73)' : 'rgba(255,255,255,1)',
         fontWeight: 500,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -61,8 +62,8 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
     return (
         <ContextMenuWrapper
             node={node}
-            style={{width, height: width*ratio, backgroundColor:'#eee', boxShadow: bs, position:'relative', borderRadius: 4}}
-            onClick={(event) => handleClicks(node, SimpleList.CLICK_TYPE_SIMPLE, event)}
+            style={{width, height: width*ratio, backgroundColor:'rgb(249, 250, 251)', boxShadow: bs, position:'relative', borderRadius: 4}}
+            onClick={(event) => handleClicks(node, parent?SimpleList.CLICK_TYPE_DOUBLE:SimpleList.CLICK_TYPE_SIMPLE, event)}
             onDoubleClick={(event) => handleClicks(node, SimpleList.CLICK_TYPE_DOUBLE, event)}
             onMouseOver={() => setHover(true)}
             onMouseOut={() => setHover(false)}
