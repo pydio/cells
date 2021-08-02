@@ -14,18 +14,25 @@ import (
 	"github.com/micro/misc/lib/addr"
 )
 
+var (
+	MAX_GOROUTINES = 1000000
+)
+
 type memoryBroker struct {
 	opts broker.Options
 
 	addr string
 	sync.RWMutex
 	connected   bool
+	count       int64
+	events      chan struct{}
 	Subscribers map[string][]*memorySubscriber
 }
 
 type memorySubscriber struct {
-	id      string
-	topic   string
+	id    string
+	topic string
+
 	exit    chan bool
 	handler broker.Handler
 	opts    broker.SubscribeOptions
@@ -96,12 +103,29 @@ func (m *memoryBroker) Publish(topic string, msg *broker.Message, opts ...broker
 	}
 
 	for _, sub := range subs {
-		if err := sub.handler(&memoryEvent{topic: topic, message: msg}); err != nil {
-			//if eh := sub.opts.ErrorHandler; eh != nil {
-			//	eh(msg, err)
-			//}
-			continue
+		m.events <- struct{}{}
+
+		done := make(chan struct{}, 1)
+		go func(sub2 *memorySubscriber, done chan struct{}) {
+			defer close(done)
+			if err := sub2.handler(&memoryEvent{topic: topic, message: msg}); err != nil {
+				fmt.Println("Broker publication to subscriber error ", topic, err)
+				//if eh := sub.opts.ErrorHandler; eh != nil {
+				//	eh(msg, err)
+				//}
+				return
+			}
+		}(sub, done)
+
+		select {
+		case <-time.After(500 * time.Millisecond):
+			fmt.Println("Broker publication to subscriber timed out ", topic)
+			break
+		case <-done:
+			break
 		}
+
+		<-m.events
 	}
 
 	return nil
@@ -196,6 +220,7 @@ func NewBroker(opts ...broker.Option) broker.Broker {
 
 	return &memoryBroker{
 		opts:        options,
+		events:      make(chan struct{}, MAX_GOROUTINES),
 		Subscribers: make(map[string][]*memorySubscriber),
 	}
 }
