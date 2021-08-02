@@ -24,10 +24,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/broker"
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/utils/mtree"
@@ -51,40 +47,6 @@ func init() {
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level >= ? AND leaf=1`, sub), args
 	}
-
-	// listen to tree node events and invalidate cache
-	defaults.Broker().Subscribe(common.TopicTreeChanges, func(publication broker.Publication) error {
-		var event tree.NodeChangeEvent
-		if e := proto.Unmarshal(publication.Message().Body, &event); e == nil && !event.Optimistic {
-			switch event.Type {
-			case tree.NodeChangeEvent_CREATE:
-				fallthrough
-			case tree.NodeChangeEvent_UPDATE_CONTENT:
-				for _, mp := range parents(event.Target.Path) {
-					folderSizeLock.Lock()
-					delete(folderSizeCache, mp)
-					folderSizeLock.Unlock()
-				}
-				break
-			case tree.NodeChangeEvent_DELETE:
-				for _, mp := range parents(event.Source.Path) {
-					folderSizeLock.Lock()
-					delete(folderSizeCache, mp)
-					folderSizeLock.Unlock()
-				}
-				break
-			case tree.NodeChangeEvent_UPDATE_PATH:
-				for _, mp := range append(parents(event.Target.Path), parents(event.Source.Path)...) {
-					folderSizeLock.Lock()
-					delete(folderSizeCache, mp)
-					folderSizeLock.Unlock()
-				}
-
-				break
-			}
-		}
-		return nil
-	})
 }
 
 func parents(p string) []string {
