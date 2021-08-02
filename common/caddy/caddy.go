@@ -28,6 +28,7 @@ import (
 	"net"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -62,6 +63,7 @@ var (
 	restartRequired    bool
 	gatewayCtx         = servicecontext.WithServiceName(context.Background(), common.ServiceGatewayProxy)
 	LastKnownCaddyFile string
+	dirOnce            *sync.Once
 )
 
 func init() {
@@ -69,6 +71,7 @@ func init() {
 	caddy.AppVersion = common.Version().String()
 	httpserver.GracefulTimeout = 30 * time.Second
 	restartChan = make(chan bool, 1)
+	dirOnce = &sync.Once{}
 
 	go watchRestart()
 }
@@ -106,7 +109,9 @@ type TemplateFunc func(site ...SiteConf) (*bytes.Buffer, error)
 
 // Enable the caddy builder
 func Enable(caddyfile string, player TemplateFunc) {
-	httpserver.RegisterDevDirective("pydioproxy", "proxy")
+	dirOnce.Do(func() {
+		httpserver.RegisterDevDirective("pydioproxy", "proxy")
+	})
 	caddytemplate, err := template.New("pydiocaddy").Funcs(FuncMap).Parse(caddyfile)
 	if err != nil {
 		log.Fatal("could not load template: ", zap.Error(err))
