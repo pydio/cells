@@ -425,7 +425,9 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 			errors.BadRequest(VIEWS_LIBRARY_NAME, "trying to upload a part object that has no data. Double check")
 	} else {
 		if partNumberMarker == 1 && requestData.ContentTypeUnknown() {
-			reader = WrapReaderForMime(ctx, target.Clone(), reader)
+			cl := target.Clone()
+			cl.Type = tree.NodeType_LEAF // Force leaf!
+			reader = WrapReaderForMime(ctx, cl, reader)
 		}
 		cp, err := writer.PutObjectPartWithContext(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum), nil)
 		if err != nil {
