@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import PydioApi from "pydio/http/api"
 import createReactClass from 'create-react-class'
 import {muiThemeable, getMuiTheme, darkBaseTheme} from 'material-ui/styles';
-import {TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu} from 'material-ui';
+import {CircularProgress, TextField, MuiThemeProvider, FlatButton, Checkbox, FontIcon, MenuItem, SelectField, IconButton, IconMenu} from 'material-ui';
 import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
 
 const LanguagePicker = (props) => {
@@ -76,7 +76,6 @@ let LoginDialogMixin = {
             globalParameters: pydio.Parameters,
             authParameters: pydio.getPluginConfigs('auth'),
             errorId: null,
-            displayCaptcha: false
         };
     },
 
@@ -91,7 +90,7 @@ let LoginDialogMixin = {
             login = this.refs.login.getValue();
         }
 
-        restClient.sessionLoginWithCredentials(login, this.refs.password.getValue())
+        return restClient.sessionLoginWithCredentials(login, this.refs.password.getValue())
             .then(() => this.dismiss())
             .then(() => restClient.getOrUpdateJwt().then(() => pydio.loadXmlRegistry(null, null, null)).catch(() => {}))
             .catch(e => {
@@ -125,12 +124,15 @@ let LoginPasswordDialog = createReactClass({
     },
 
     getInitialState(){
-        return {rememberChecked: false};
+        return {rememberChecked: false, loading: false};
     },
 
     submit(){
         let client = PydioApi.getRestClient();
-        this.postLoginData(client);
+        this.setState({loading: true}, () => {this._updater(this.makeButtons())})
+        this.postLoginData(client).then(() => {
+            this.setState({loading: false}, () => {this._updater(this.makeButtons())})
+        });
     },
 
     fireForgotPassword(e){
@@ -146,12 +148,32 @@ let LoginPasswordDialog = createReactClass({
         return {minHeight: 250};
     },
 
-    getButtons(){
+    makeButtons() {
         const pydio = Pydio.getInstance();
-        const passwordOnly = this.state.globalParameters.get('PASSWORD_AUTH_ONLY');
-        const secureLoginForm = passwordOnly || this.state.authParameters.get('SECURE_LOGIN_FORM');
+        const {globalParameters, authParameters, loading} = this.state;
+        const passwordOnly = globalParameters.get('PASSWORD_AUTH_ONLY');
+        const secureLoginForm = passwordOnly || authParameters.get('SECURE_LOGIN_FORM');
 
-        const enterButton = <FlatButton id="dialog-login-submit" default={true} labelStyle={{color:'white'}} key="enter" label={pydio.MessageHash[617]} onClick={() => this.submit()}/>;
+        let enterButton
+        if(loading) {
+            enterButton = (
+                <div style={{height: 36, padding: '8px 30px', display: 'inline-block', backgroundColor: 'rgba(153,153,153,.2)'}}>
+                    <CircularProgress size={20} mode={"indeterminate"} color={"white"} thickness={2.5}/>
+                </div>
+            )
+        } else {
+            enterButton = (
+                <FlatButton
+                    id="dialog-login-submit"
+                    default={true}
+                    labelStyle={{color:'white'}}
+                    key="enter"
+                    disabled={loading}
+                    label={pydio.MessageHash[617]}
+                    onClick={() => this.submit()}/>
+            );
+
+        }
         let buttons = [];
         if(false && !secureLoginForm){
             buttons.push(
@@ -164,7 +186,11 @@ let LoginPasswordDialog = createReactClass({
         }else{
             return [enterButton];
         }
+    },
 
+    getButtons(updater){
+        this._updater = updater;
+        return this.makeButtons();
     },
 
     render(){
