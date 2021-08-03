@@ -302,6 +302,9 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 	if event.Target != nil && (event.Target.Etag == common.NodeFlagEtagTemporary || event.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
 		return nil
 	}
+	if event.Type == tree.NodeChangeEvent_DELETE && event.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+		return nil
+	}
 
 	s.batcher.Events <- &cache.EventWithContext{
 		NodeChangeEvent: *event,
