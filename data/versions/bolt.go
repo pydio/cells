@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 var (
@@ -145,7 +146,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan boo
 			return nil
 		})
 		if e != nil {
-			log.Logger(context.Background()).Error("listVersions", zap.Error(e))
+			log.Logger(servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceVersions)).Error("listVersions", zap.Error(e))
 		}
 
 	}()
