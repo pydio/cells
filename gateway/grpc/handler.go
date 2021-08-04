@@ -32,7 +32,7 @@ func (t *TreeHandler) ReadNodeStream(ctx context.Context, s tree.NodeProviderStr
 	for {
 		r, e := s.Recv()
 		if e != nil {
-			if e != io.EOF {
+			if e != io.EOF && e != io.ErrUnexpectedEOF {
 				s.SendMsg(e)
 				err = e
 			}
