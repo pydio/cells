@@ -93,7 +93,17 @@ func (m *memoryBroker) Publish(topic string, msg *broker.Message, opts ...broker
 	}
 	m.RUnlock()
 
-	m.bus.Pub(msg, topic)
+	// Clone message before publication
+	cM := &broker.Message{
+		Header: make(map[string]string, len(msg.Header)),
+		Body:   make([]byte, len(msg.Body)),
+	}
+	for k, v := range msg.Header {
+		cM.Header[k] = v
+	}
+	copy(cM.Body, msg.Body)
+
+	m.bus.Pub(cM, topic)
 	return nil
 }
 
@@ -122,7 +132,7 @@ func (m *memoryBroker) Subscribe(topic string, handler broker.Handler, opts ...b
 		for {
 			select {
 			case msg := <-listener:
-				handler(&memoryEvent{topic: topic, message: msg.(*broker.Message)})
+				handler(memoryEventWithClonedMessage(topic, msg))
 			case <-sub.exit:
 				return
 			}
@@ -165,6 +175,23 @@ func (s *memoryEvent) Message() *broker.Message {
 
 func (s *memoryEvent) Ack() error {
 	return nil
+}
+
+// memoryEventWithClonedMessage creates a clone of msg and populate a memoryEvent with it
+func memoryEventWithClonedMessage(topic string, msg interface{}) *memoryEvent {
+	pM := msg.(*broker.Message)
+	cM := &broker.Message{
+		Header: make(map[string]string, len(pM.Header)),
+		Body:   make([]byte, len(pM.Body)),
+	}
+	for k, v := range pM.Header {
+		cM.Header[k] = v
+	}
+	copy(cM.Body, pM.Body)
+	return &memoryEvent{
+		topic:   topic,
+		message: cM,
+	}
 }
 
 func NewBroker(opts ...broker.Option) broker.Broker {
