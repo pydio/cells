@@ -18,20 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
+import React from 'react'
 import createReactClass from 'create-react-class'
 import PydioApi from 'pydio/http/api'
 import {JobsServiceApi, RestUserJobRequest} from 'cells-sdk'
 import PathUtils from 'pydio/util/path'
-import {MenuItem} from 'material-ui'
+import {MenuItem, FlatButton} from 'material-ui'
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
-
+const {ActionDialogMixin} = Pydio.requireLib("boot")
 
 let CompressionDialog = createReactClass({
 
     mixins:[
-        PydioReactUI.ActionDialogMixin,
-        PydioReactUI.CancelButtonProviderMixin,
-        PydioReactUI.SubmitButtonProviderMixin
+        ActionDialogMixin
     ],
 
     getDefaultProps: function(){
@@ -53,7 +52,9 @@ let CompressionDialog = createReactClass({
         const {userSelection} = this.props;
         if(userSelection.isUnique()){
             baseName = PathUtils.getBasename(userSelection.getUniqueFileName());
-            if(!userSelection.hasDir()) baseName = baseName.substr(0, baseName.lastIndexOf("\."));
+            if(!userSelection.hasDir()) {
+                baseName = baseName.substr(0, baseName.lastIndexOf("\."));
+            }
         }else{
             baseName = PathUtils.getBasename(userSelection.getContextNode().getPath());
             if(baseName === "") {
@@ -66,8 +67,33 @@ let CompressionDialog = createReactClass({
         return {
             archiveBase:baseName,
             compression:defaultCompression,
-            fileName: this.buildUniqueFileName(baseName, defaultCompression)
+            fileName: this.buildUniqueFileName(baseName, defaultCompression),
+            loading: false
         }
+    },
+
+    getButtons(updater) {
+        this._updater = updater;
+        return this.makeButtons();
+    },
+
+    makeButtons() {
+        const {loading} = this.state;
+        return [
+            <FlatButton
+                key="cancel"
+                label={this.props.pydio.MessageHash['49']}
+                primary={false}
+                onClick={() => this.dismiss()}
+            />,
+            <FlatButton
+                label={this.props.pydio.MessageHash['48']}
+                primary={true}
+                keyboardFocused={true}
+                disabled={loading}
+                onClick={() => this.submit()}
+            />
+        ]
     },
 
     buildUniqueFileName: function(base, extension){
@@ -112,9 +138,12 @@ let CompressionDialog = createReactClass({
             })
         });
         const api = new JobsServiceApi(PydioApi.getRestClient());
-        console.log('Sending background job', job);
+        this.setState({loading: true}, () => this._updater(this.makeButtons()))
         api.userCreateJob("compress", job).then(r => {
             this.dismiss();
+            this.setState({loading: false}, () => this._updater(this.makeButtons()))
+        }).catch(e => {
+            this.setState({loading: false, err: e.message}, () => this._updater(this.makeButtons()))
         });
 
     },
@@ -125,7 +154,7 @@ let CompressionDialog = createReactClass({
         });
 
         const messages = this.props.pydio.MessageHash;
-        const {compression, fileName} = this.state;
+        const {compression, fileName, err} = this.state;
         const flStyle = {
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -133,9 +162,24 @@ let CompressionDialog = createReactClass({
         };
 
         return (
-            <div style={{display:'flex'}}>
-                <ModernTextField style={{width: 210, marginRight: 10}} onChange={this.textFieldChange} value={fileName} floatingLabelText={messages['compression.4']}  floatingLabelStyle={flStyle}/>
-                <ModernSelectField style={{width: 160}} onChange={this.selectFieldChange} value={compression} floatingLabelText={messages['compression.3']} floatingLabelStyle={flStyle}>{formatMenus}</ModernSelectField>
+            <div>
+                <div style={{display:'flex'}}>
+                    <ModernTextField
+                        style={{width: 210, marginRight: 10}}
+                        onChange={this.textFieldChange}
+                        value={fileName}
+                        floatingLabelText={messages['compression.4']}
+                        floatingLabelStyle={flStyle}
+                    />
+                    <ModernSelectField
+                        style={{width: 160}}
+                        onChange={this.selectFieldChange}
+                        value={compression}
+                        floatingLabelText={messages['compression.3']}
+                        floatingLabelStyle={flStyle}
+                    >{formatMenus}</ModernSelectField>
+                </div>
+                {err && <div style={{color:'#e53935'}}>{err}</div>}
             </div>
         );
     }
