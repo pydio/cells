@@ -79,14 +79,14 @@ func NewChildrenRunner(parentName string, childPrefix string) *ChildrenRunner {
 		parentName:  parentName,
 		childPrefix: childPrefix,
 	}
-	c.mutex = &sync.Mutex{}
+	c.mutex = &sync.RWMutex{}
 	c.services = make(map[string]*exec.Cmd)
 	return c
 }
 
 // ChildrenRunner For Regexp based service
 type ChildrenRunner struct {
-	mutex             *sync.Mutex
+	mutex             *sync.RWMutex
 	services          map[string]*exec.Cmd
 	parentService     micro.Service
 	parentName        string
@@ -280,9 +280,11 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
 				// Then start what's been added
 				for _, source := range sources {
+					c.mutex.RLock()
 					if _, ok := c.services[source]; !ok && !c.FilterOutSource(ctx, source) {
 						go c.Start(ctx, source)
 					}
+					c.mutex.RUnlock()
 				}
 			}
 
