@@ -98,6 +98,7 @@ export default createReactClass({
         if(groupOtherList.length){
             allToolbars = allToolbars.concat(['MORE_ACTION']);
         }
+        let hasFab = false;
         let mergedMenuItems = [];
         allToolbars.map(barName => {
             if(!groups.has(barName)) {
@@ -198,6 +199,7 @@ export default createReactClass({
                 }else{
                     let click = () => {action.apply();};
                     if(fabAction && fabAction === actionName) {
+                        hasFab = true;
                         actions.push(<FloatingActionButton
                             key={actionName}
                             onClick={click}
@@ -263,6 +265,9 @@ export default createReactClass({
             cName += ' empty-toolbar';
         }
         let style = {...toolbarStyle};
+        if (hasFab) {
+            style = {...toolbarStyle, minHeight: 41}
+        }
         return <div className={cName} style={style} id={this.props.id}>{actions}</div>
     },
 });

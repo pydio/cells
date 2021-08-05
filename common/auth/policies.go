@@ -103,7 +103,9 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 					subjects = append(subjects, "role:"+r.Uuid)
 				}
 			} else {
-				log.Logger(ctx).Warn("[policies] Cannot find user "+uName+", although in context (maybe deleted?)", zap.Error(e))
+				if errors.Parse(e.Error()).Code != 404 {
+					log.Logger(ctx).Warn("[policies] Cannot find user '"+uName+"' although in context", zap.Error(e))
+				}
 			}
 		} else {
 			log.Logger(ctx).Error("Cannot find claims in context", zap.Any("c", ctx))

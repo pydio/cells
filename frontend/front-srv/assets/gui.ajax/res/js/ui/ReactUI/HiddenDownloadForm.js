@@ -18,16 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PropTypes from 'prop-types';
-
-import React from 'react';
+import React, {createRef} from 'react';
 
 export default class HiddenDownloadForm extends React.Component {
 
-    static get propTypes() {
-        return {
-            pydio: PropTypes.instanceOf(Pydio).isRequired
-        };
+    constructor(props) {
+        super(props);
+        this.iframe = createRef();
     }
 
     componentDidMount() {
@@ -40,15 +37,14 @@ export default class HiddenDownloadForm extends React.Component {
 
     triggerDownload(userSelection, parameters){
         if (parameters['presignedUrl']) {
-            this.iframe.src = parameters['presignedUrl'];
-            return;
+            this.iframe.current.src = parameters['presignedUrl'];
         }
     }
 
     render() {
         return (
             <div style={{visibility:'hidden', position:'absolute', left: -10000}}>
-                <iframe ref={(iframe) => this.iframe = iframe} name="dl_form_iframe"></iframe>
+                <iframe ref={this.iframe} name="dl_form_iframe"></iframe>
             </div>
         );
     }

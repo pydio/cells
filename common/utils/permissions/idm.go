@@ -482,7 +482,7 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
-			if e != io.EOF {
+			if e != io.EOF && e != io.ErrUnexpectedEOF {
 				return nil, e
 			}
 			break

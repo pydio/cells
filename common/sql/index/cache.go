@@ -27,6 +27,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -674,10 +675,16 @@ func (d *daocache) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 		childRegexp := regexp.MustCompile(`^` + path.String() + `\..*`)
 
 		// Looping
-		for k, node := range d.cache {
+		var keys []string
+		for k, _ := range d.cache {
 			if childRegexp.Match([]byte(k)) {
-				c <- node
+				keys = append(keys, k)
 			}
+		}
+		// Resort keys
+		sort.Strings(keys)
+		for _, k := range keys {
+			c <- d.cache[k]
 		}
 	}()
 

@@ -196,8 +196,12 @@ var (
 
 	rewrite {
 		if {>Authorization} has "AWS4-HMAC-SHA256"
-		if_op or
 		if {path} is / 
+		to /buckets{path}
+	}
+
+	rewrite {
+		if {>Authorization} has "AWS4-HMAC-SHA256"
 		if {path} starts_with "/probe-bucket-sign"
 		to /buckets{path}
 	}

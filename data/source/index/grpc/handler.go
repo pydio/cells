@@ -329,9 +329,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 
 	defer track(ctx, "ListNodes", time.Now(), req, resp)
 
-	var session = ""
-
-	dao := getDAO(ctx, session)
+	dao := getDAO(ctx, "")
 	name := servicecontext.GetServiceName(ctx)
 
 	defer resp.Close()
@@ -615,6 +613,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 			} else {
 				client.Publish(ctx, client.NewPublication(common.TopicIndexChanges, ev))
 			}
+			<-time.After(100 * time.Microsecond)
 		}
 
 	}
