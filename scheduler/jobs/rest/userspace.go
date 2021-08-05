@@ -56,25 +56,48 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 	jobUuid := "compress-folders-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
+	theRouter := getRouter()
+	permError := errors.Forbidden("forbidden.files", "Some files or folder are not allowed to be read or downloaded, you cannot build this archive")
 
-	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	err := theRouter.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
 		var targetSize int64
 		for i, p := range selectedPathes {
 			node := &tree.Node{Path: p}
 			srcCtx, node, nodeErr := inputFilter(ctx, node, "in")
-			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
 			}
-			if err := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
-				return err
+			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
+			node.SetMeta("acl-check-download", true)
+			if err := theRouter.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
+				return permError
 			}
-			if resp, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); e != nil {
+			resp, e := theRouter.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+			if e != nil {
 				return e
-			} else {
-				targetSize += resp.GetNode().GetSize()
 			}
+			if !resp.GetNode().IsLeaf() {
+				// Check children for permissions as well
+				childrenStream, e := theRouter.GetClientsPool().GetTreeClient().ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
+				if e != nil {
+					return e
+				}
+				for {
+					c, er := childrenStream.Recv()
+					if er != nil {
+						break
+					}
+					cNode := c.GetNode()
+					cNode.SetMeta("acl-check-download", true)
+					if err := theRouter.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: cNode}); err != nil {
+						childrenStream.Close()
+						return permError
+					}
+				}
+				childrenStream.Close()
+			}
+			targetSize += resp.GetNode().GetSize()
 			selectedPathes[i] = node.Path
 		}
 

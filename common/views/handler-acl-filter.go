@@ -205,7 +205,7 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 	if !accessList.CanRead(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
 	}
-	if (accessList.HasExplicitDeny(ctx, permissions.FlagDownload, parents...)) {
+	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, parents...) {
 		return nil, errors.Forbidden("download.forbidden", "Node is not downloadable")
 	}
 	return a.next.GetObject(ctx, node, requestData)
@@ -305,7 +305,11 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 
 	case tree.NodeChangeEvent_READ:
 
-		rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, true, false)
+		if operation.GetSource().HasMetaKey("acl-check-download") {
+			rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, true, false, permissions.FlagDownload)
+		} else {
+			rwErr = a.checkPerm(srcCtx, operation.GetSource(), "in", false, true, false)
+		}
 
 	}
 	if rwErr != nil {
@@ -331,8 +335,8 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	if write && !accessList.CanWrite(ctx, parents...) {
 		return errors.Forbidden("node.not.writeable", "path is not writeable")
 	}
-	if len(explicitFlags) > 0 && accessList.HasExplicitDeny(ctx,explicitFlags[0], parents...) {
-		return errors.Forbidden("explicit.deny", "path has explicit denies for flag " + permissions.FlagsToNames[explicitFlags[0]])
+	if len(explicitFlags) > 0 && accessList.HasExplicitDeny(ctx, explicitFlags[0], parents...) {
+		return errors.Forbidden("explicit.deny", "path has explicit denies for flag "+permissions.FlagsToNames[explicitFlags[0]])
 	}
 	return nil
 
