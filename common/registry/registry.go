@@ -277,7 +277,16 @@ func GetPeers() map[string]*Peer {
 }
 
 func (c *pydioregistry) GetPeers() map[string]*Peer {
-	return c.peers
+	ret := make(map[string]*Peer, len(c.peers))
+
+	// copy map
+	c.peerlock.RLock()
+	for k, v := range c.peers {
+		ret[k] = v
+	}
+	c.peerlock.RUnlock()
+
+	return ret
 }
 
 func GetPeer(node *registry.Node) *Peer {
@@ -286,10 +295,15 @@ func GetPeer(node *registry.Node) *Peer {
 
 // GetPeer retrieves or creates a Peer from the Node info
 func (c *pydioregistry) GetPeer(node *registry.Node) *Peer {
-	if p, ok := c.peers[node.Address]; ok {
+	c.peerlock.RLock()
+	p, ok := c.peers[node.Address]
+	c.peerlock.RUnlock()
+	if ok {
 		return p
 	}
-	p := NewPeer(node.Address, node.Metadata)
+	p = NewPeer(node.Address, node.Metadata)
+	c.peerlock.Lock()
 	c.peers[node.Address] = p
+	c.peerlock.Unlock()
 	return p
 }
