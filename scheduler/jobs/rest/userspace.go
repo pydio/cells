@@ -68,7 +68,6 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			if nodeErr != nil {
 				return nodeErr
 			}
-			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			node.SetMeta("acl-check-download", true)
 			if err := theRouter.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
 				return permError
