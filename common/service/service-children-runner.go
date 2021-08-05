@@ -281,10 +281,11 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 				// Then start what's been added
 				for _, source := range sources {
 					c.mutex.RLock()
-					if _, ok := c.services[source]; !ok && !c.FilterOutSource(ctx, source) {
+					_, ok := c.services[source]
+					c.mutex.RUnlock()
+					if !ok && !c.FilterOutSource(ctx, source) {
 						go c.Start(ctx, source)
 					}
-					c.mutex.RUnlock()
 				}
 			}
 
