@@ -140,7 +140,7 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 		return err
 	}
 
-	log.Logger(ctx).Info("Received request", zap.Any("Data", req))
+	log.Logger(ctx).Debug("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
 	k, err = dao.GetKey(common.PydioSystemUsername, req.Key.ID)
@@ -152,14 +152,14 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 		return errors.BadRequest(common.ServiceEncKey, fmt.Sprintf("Key already exists with [%s] id", req.Key.ID))
 	}
 
-	log.Logger(ctx).Info("Opening sealed key with imported password")
+	log.Logger(ctx).Debug("Opening sealed key with imported password")
 	err = open(req.Key, []byte(req.StrPassword))
 	if err != nil {
 		rsp.Success = false
 		return errors.InternalServerError(common.ServiceEncKey, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
 	}
 
-	log.Logger(ctx).Info("Sealing with master key")
+	log.Logger(ctx).Debug("Sealing with master key")
 	err = sealWithMasterKey(req.Key)
 	if err != nil {
 		rsp.Success = false
@@ -178,9 +178,9 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 		req.Key.Owner = common.PydioSystemUsername
 	}
 
-	log.Logger(ctx).Info("Received request", zap.Any("Data", req))
+	log.Logger(ctx).Debug("Received request", zap.Any("Data", req))
 
-	log.Logger(ctx).Info("Adding import info")
+	log.Logger(ctx).Debug("Adding import info")
 	// We set import info
 
 	if req.Key.Info == nil {
@@ -196,14 +196,14 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 		Date: int32(time.Now().Unix()),
 	})
 
-	log.Logger(ctx).Info("Saving new key")
+	log.Logger(ctx).Debug("Saving new key")
 	err = dao.SaveKey(req.Key)
 	if err != nil {
 		rsp.Success = false
 		return errors.InternalServerError(common.ServiceEncKey, "failed to save imported key, cause: %s", err.Error())
 	}
 
-	log.Logger(ctx).Info("Returning response")
+	log.Logger(ctx).Debug("Returning response")
 	rsp.Success = true
 	return nil
 }
@@ -220,7 +220,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	if err != nil {
 		return err
 	}
-	log.Logger(ctx).Info(fmt.Sprintf("Exporting key %s", rsp.Key.Content))
+	log.Logger(ctx).Debug(fmt.Sprintf("Exporting key %s", rsp.Key.Content))
 
 	// We set export info
 	if rsp.Key.Info.Exports == nil {
