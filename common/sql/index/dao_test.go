@@ -28,6 +28,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/pydio/cells/common/utils/mtree"
 
@@ -612,6 +613,68 @@ func TestArborescence(t *testing.T) {
 		}
 
 		getDAO(ctxNoCache).Flush(true)
+	})
+}
+
+func TestFlatFolderWithMassiveChildren(t *testing.T) {
+	Convey("Testing a flat folder with tons of children", t, func() {
+		var i int
+		d := getDAO(ctxNoCache)
+		s := time.Now()
+		var nodes []*mtree.TreeNode
+		for i = 0; i < 50; i++ {
+			_, node, _ := d.Path(fmt.Sprintf("/child-%d", i), true)
+			nodes = append(nodes, node[0])
+			if i > 0 && i%1000 == 0 {
+				t.Logf("Inserted %d - avg %v\n", i, time.Now().Sub(s)/1000)
+				s = time.Now()
+			}
+			if i == 5 {
+				// Create a missing number + cache usage
+				d.DelNode(nodes[2])
+			} else if i == 10 {
+				// Create a missing number and wait for cache to be expired
+				d.DelNode(nodes[1])
+				<-time.After(6 * time.Second)
+			}
+		}
+	})
+}
+
+func TestFindMissingNumbers(t *testing.T) {
+	Convey("Find missing numbers in sorted slice of ints", t, func() {
+		test := []int{2, 4, 5, 7}
+		res, has, _ := firstAvailableSlot(test, false)
+		So(has, ShouldBeTrue)
+		So(res, ShouldEqual, 1)
+
+		test = []int{2, 4, 5, 7}
+		res, has, _ = firstAvailableSlot(test, true)
+		So(has, ShouldBeTrue)
+		So(res, ShouldEqual, 3)
+
+		test = []int{4, 5, 7}
+		res, has, _ = firstAvailableSlot(test, true)
+		So(has, ShouldBeTrue)
+		So(res, ShouldEqual, 6)
+
+		test = []int{2, 4, 5, 7}
+		padStart := false
+		var missings []int
+		for {
+			slot, has, rest := firstAvailableSlot(test, padStart)
+			if !has {
+				break
+			}
+			missings = append(missings, slot)
+			padStart = true
+			test = rest
+		}
+		So(missings, ShouldHaveLength, 3)
+		So(missings, ShouldContain, 1)
+		So(missings, ShouldContain, 3)
+		So(missings, ShouldContain, 6)
+
 	})
 }
 

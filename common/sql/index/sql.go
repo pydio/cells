@@ -277,6 +277,14 @@ func init() {
 			WHERE %s AND level = ? AND name != '.pydio'
 			GROUP BY leaf`, sub), args
 	}
+
+	queries["childrenIndexes"] = func(dao sql.DAO, mpathes ...string) (string, []interface{}) {
+		sub, args := getMPathLike([]byte(mpathes[0]))
+		return fmt.Sprintf(`
+			SELECT SUBSTR(`+dao.Concat("mpath1", "mpath2", "mpath3", "mpath4")+", "+fmt.Sprintf("%d", len(mpathes[0])+2)+`)
+			FROM %%PREFIX%%_idx_tree
+			WHERE %s AND level = ?`, sub), args
+	}
 }
 
 // IndexSQL implementation
@@ -811,21 +819,38 @@ func (dao *IndexSQL) GetNodeLastChild(reqPath mtree.MPath) (*mtree.TreeNode, err
 // GetNodeFirstAvailableChildIndex from path
 func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (available uint64, e error) {
 
-	all := []int{}
+	all := []int{0}
+	//s := time.Now()
+	dao.Lock()
+	if stmt, args, e := dao.GetStmtWithArgs("childrenIndexes", reqPath.String()); e == nil {
+		rows, err := stmt.Query(append(args, len(reqPath)+1)...)
+		if err != nil {
+			dao.Unlock()
+			return 0, err
+		}
 
-	for node := range dao.GetNodeChildren(reqPath) {
-		all = append(all, int(node.MPath.Index()))
+		for rows.Next() {
+			var index string
+			if e := rows.Scan(&index); e != nil {
+				break
+			}
+			if i, e := strconv.Atoi(index); e == nil {
+				all = append(all, i)
+			} else {
+				dao.Unlock()
+				return 0, e
+			}
+		}
 	}
+	dao.Unlock()
 
 	dao.shortCacheLock.Lock()
 	defer func() {
-		// Store recently assigned
 		dao.shortCache.Set(append(reqPath, available).String(), true, gocache.DefaultExpiration)
 		dao.shortCacheLock.Unlock()
-		//fmt.Println("FirstAvailableChildIndex:", reqPath.String(), available)
 	}()
-
-	if len(all) == 0 {
+	// All is just [0], return 1 or next ones
+	if len(all) == 1 {
 		available = 1
 		for {
 			if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
@@ -838,26 +863,37 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 	}
 
 	sort.Ints(all)
+
 	max := all[len(all)-1]
-
-	for i := 1; i <= max; i++ {
-		found := false
-		for _, v := range all {
-			_, cached := dao.shortCache.Get(append(reqPath, uint64(i)).String())
-			if i == v || cached {
-				// We found the entry, so next one
-				found = true
-				break
+	// No missing numbers : jump directly to the end
+	if max == len(all)-1 {
+		available = uint64(max + 1)
+		// Increment if cached
+		for {
+			if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
+				available++
+			} else {
+				return
 			}
-		}
-
-		if !found {
-			// This number is not present, returning it
-			available = uint64(i)
-			return
 		}
 	}
 
+	// Look for available slot - binary search first missing number
+	padStart := false
+	for {
+		slot, has, rest := firstAvailableSlot(all, padStart)
+		if !has {
+			break
+		}
+		padStart = true
+		if _, cached := dao.shortCache.Get(append(reqPath, uint64(slot)).String()); cached {
+			all = rest
+			continue
+		}
+		available = uint64(slot)
+		return
+	}
+	// We should not get here !
 	available = uint64(max + 1)
 	for {
 		if _, o := dao.shortCache.Get(append(reqPath, available).String()); o {
@@ -1416,4 +1452,38 @@ func getMPathesIn(mpathes ...string) (string, []interface{}) {
 	}
 
 	return strings.Join(res, " or "), args
+}
+
+func firstAvailableSlot(numbers []int, padStart bool) (missing int, has bool, rest []int) {
+
+	if len(numbers) <= 0 {
+		return
+	}
+	if numbers[0] > 0 {
+		if padStart {
+			pad := make([]int, numbers[0])
+			for i := 0; i < numbers[0]; i++ {
+				pad[i] = i
+			}
+			numbers = append(pad, numbers...)
+		} else {
+			numbers = append([]int{0}, numbers...)
+		}
+	}
+
+	left := 0
+	right := len(numbers) - 1
+
+	for left <= right {
+		middle := (right + left) >> 1
+		if numbers[middle] != middle {
+			if middle == 0 || numbers[middle-1] == middle-1 {
+				return middle, true, numbers[middle:]
+			}
+			right = middle - 1
+		} else {
+			left = middle + 1
+		}
+	}
+	return
 }
