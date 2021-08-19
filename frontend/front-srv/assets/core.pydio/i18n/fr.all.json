@@ -333,7 +333,7 @@
     "other": "Votre langue diffère du langage actuel.\\n Voulez-vous recharger la page afin de changer de langue ?"
   },
   "197": {
-    "other": "Vos préférences ont été sauvées avec succès.\\n\\n Si vous avez changé de mot de passe, il sera pris en compte après la prochaine déconnexion."
+    "other": "Votre changement de mot de passe prendra effet après votre déconnexion."
   },
   "198": {
     "other": "Nouveau"
@@ -483,7 +483,7 @@
     "other": "Mauvais mot de passe!"
   },
   "241": {
-    "other": "Vos préférences ont été sauvées avec succès"
+    "other": "Vos préférences ont été mises à jour."
   },
   "242": {
     "other": "Log Svn"
