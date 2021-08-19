@@ -19,10 +19,11 @@ import (
 )
 
 var (
-	tokUserLogin   string
-	tokExpireTime  string
-	tokAutoRefresh string
-	tokScopes      []string
+	tokUserLogin     string
+	tokExpireTime    string
+	tokAutoRefresh   string
+	tokCreationQuiet bool
+	tokScopes        []string
 )
 
 var pTokCmd = &cobra.Command{
@@ -105,15 +106,18 @@ TOKEN SCOPE
 		if u.Attributes != nil && u.Attributes[idm.UserAttrDisplayName] != "" {
 			uDisplay = u.Attributes[idm.UserAttrDisplayName]
 		}
-		if tokAutoRefresh != "" {
-			cmd.Println(promptui.IconGood + fmt.Sprintf(" This token for %s will expire on %s unless it is automatically refreshed.", uDisplay, time.Now().Add(time.Duration(refreshSeconds)*time.Second).Format(time.RFC850)))
+		if tokCreationQuiet {
+			cmd.Println(resp.AccessToken)
 		} else {
-			cmd.Println(promptui.IconGood + fmt.Sprintf(" This token for %s will expire on %s.", uDisplay, expire.Format(time.RFC850)))
+			if tokAutoRefresh != "" {
+				cmd.Println(promptui.IconGood + fmt.Sprintf(" This token for %s will expire on %s unless it is automatically refreshed.", uDisplay, time.Now().Add(time.Duration(refreshSeconds)*time.Second).Format(time.RFC850)))
+			} else {
+				cmd.Println(promptui.IconGood + fmt.Sprintf(" This token for %s will expire on %s.", uDisplay, expire.Format(time.RFC850)))
+			}
+			cmd.Println(promptui.IconGood + " " + resp.AccessToken)
+			cmd.Println("")
+			cmd.Println(promptui.IconWarn + " Make sure to secure it as it grants access to the user resources!")
 		}
-		cmd.Println(promptui.IconGood + " " + resp.AccessToken)
-		cmd.Println("")
-		cmd.Println(promptui.IconWarn + " Make sure to secure it as it grants access to the user resources!")
-
 	},
 }
 
@@ -123,4 +127,5 @@ func init() {
 	pTokCmd.Flags().StringVarP(&tokExpireTime, "expire", "e", "", "Expire after duration, format is 20u where u is a unit: s (second), (minute), h (hour), d(day).")
 	pTokCmd.Flags().StringVarP(&tokAutoRefresh, "auto", "a", "", "Auto-refresh (number of seconds, see help)")
 	pTokCmd.Flags().StringSliceVarP(&tokScopes, "scope", "s", []string{}, "Optional scopes")
+	pTokCmd.Flags().BoolVarP(&tokCreationQuiet, "quiet", "q", false, "Only return the newly created token value (typically useful in automation scripts with a short expiry time)")
 }
