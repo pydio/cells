@@ -107,7 +107,7 @@ TOKEN SCOPE
 			uDisplay = u.Attributes[idm.UserAttrDisplayName]
 		}
 		if tokCreationQuiet {
-			cmd.Println(resp.AccessToken)
+			cmd.Print(resp.AccessToken)
 		} else {
 			if tokAutoRefresh != "" {
 				cmd.Println(promptui.IconGood + fmt.Sprintf(" This token for %s will expire on %s unless it is automatically refreshed.", uDisplay, time.Now().Add(time.Duration(refreshSeconds)*time.Second).Format(time.RFC850)))
