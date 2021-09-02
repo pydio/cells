@@ -334,6 +334,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	if err = c.actualLsRecursive(recursive, c.getFullPath(root), wrappingFunc); err != nil {
 		return err
 	}
+	log.Logger(c.globalContext).Info("Finished actualLsRecursive, batcher has size", zap.Int("batch", len(batcher.pending)))
 	batcher.flush()
 	if collect {
 		go func() {
@@ -351,7 +352,12 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 	defer close(doneChan)
 	createdDirs := make(map[string]bool)
 	log.Logger(c.globalContext).Info("Listing all S3 objects for path", zap.String("bucket", c.Bucket), zap.String("path", recursivePath))
+	idx := 0
 	for objectInfo := range c.Mc.ListObjectsV2(c.Bucket, recursivePath, recursive, doneChan) {
+		if idx == 0 {
+			log.Logger(c.globalContext).Info("Received at least one object from minio")
+		}
+		idx++
 		if objectInfo.Err != nil {
 			log.Logger(c.globalContext).Error("Error while listing", zap.Error(objectInfo.Err))
 			return objectInfo.Err

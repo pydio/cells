@@ -49,6 +49,7 @@ func (b *statBatcher) flush() {
 			if tN, e := b.c.loadNode(b.c.globalContext, input.path, !input.info.isDir); e == nil {
 				results[idx] = tN
 			} else {
+				log.Logger(b.c.globalContext).Error("Error while stating node in batcher", zap.String("p", input.path), zap.Error(e))
 				results[idx] = nil
 			}
 		}(i, in)

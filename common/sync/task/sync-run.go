@@ -120,8 +120,9 @@ func (s *Sync) runUni(ctx context.Context, patch merger.Patch, rootPath string, 
 					ops = append(ops, operation)
 				}
 			})
-			if len(ops) > 50 {
+			if len(ops) > 0 {
 				// Recheck deleted resources
+				log.Logger(ctx).Info("Failsafe : rechecking deletion operations are legit", zap.Int("n", len(ops)))
 				for _, op := range ops {
 					log.Logger(ctx).Debug("Failsafe : rechecking deletion operation is real on " + op.GetRefPath())
 					ep := op.Source()
