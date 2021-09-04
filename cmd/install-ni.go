@@ -40,10 +40,10 @@ import (
 	json "github.com/pydio/cells/x/jsonx"
 )
 
-type NiInstallConfig struct{
+type NiInstallConfig struct {
 	install.InstallConfig `yaml:",inline"`
-	ProxyConfigs []*install.ProxyConfig `json:"proxyConfigs" yaml:"proxy_configs"`
-	CustomConfigs map[string]interface{} `json:"customConfigs" yaml:"custom_configs"`
+	ProxyConfigs          []*install.ProxyConfig `json:"proxyConfigs" yaml:"proxyconfigs"`
+	CustomConfigs         map[string]interface{} `json:"customConfigs" yaml:"customconfigs"`
 }
 
 func nonInteractiveInstall(cmd *cobra.Command, args []string) (*install.InstallConfig, error) {

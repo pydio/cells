@@ -27,9 +27,9 @@
     "other": "ページネーションモード時の、1ページごとの表示件数"
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "完全に削除"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "削除時にごみ箱をスキップするオプションを有効にする"
   }
 }

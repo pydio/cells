@@ -27,22 +27,22 @@
     "other": "Acciones"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Identificadores del nodo"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Identificadores de rol"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Identificadores de espacio de trabajo"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Buscar en cadena de error (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
     "other": "Is Success"
@@ -60,7 +60,7 @@
     "other": "Size of Json body is smaller than"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
     "other": "Search on String body (regexp)"
@@ -177,13 +177,13 @@
     "other": "Nombre"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "treeQuery.Content": {
     "other": "Contenido"
@@ -219,7 +219,7 @@
     "other": "Size greater than"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "treeQuery.PathDepth": {
     "other": "Path Depth"
@@ -285,7 +285,7 @@
     "other": "Usuario"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "userSingleQuery.Password": {
     "other": "Contraseña"
@@ -297,7 +297,7 @@
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "workspaceSingleQuery.AttributeName": {
     "other": "Attribute Name"
@@ -318,7 +318,7 @@
     "other": "Último actualizado"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "workspaceSingleQuery.Scope": {
     "other": "Ámbito"
@@ -336,7 +336,7 @@
     "other": "Nombre"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "workspaceSingleQuery.scope": {
     "other": "Workspace Type"
@@ -423,7 +423,7 @@
     "other": "Object Service"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "triggerFilterQuery.IsSchedule": {
     "other": "Scheduled Trigger"
