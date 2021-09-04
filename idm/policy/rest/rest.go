@@ -49,13 +49,17 @@ func (h *PolicyHandler) getClient() idm.PolicyEngineServiceClient {
 	return idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
 }
 
-// List Policy Groups
+// ListPolicies lists Policy Groups
 func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
-	log.Logger(ctx).Info("Received Policy.List API request")
+	log.Logger(ctx).Debug("Received Policy.List API request")
 
 	response, err := h.getClient().ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+	if err != nil {
+		service.RestErrorDetect(req, rsp, err)
+		return
+	}
 	languages := i18n.UserLanguagesFromRestRequest(req, config.Get())
 	tr := lang.Bundle().GetTranslationFunc(languages...)
 	for _, g := range response.PolicyGroups {
@@ -64,10 +68,6 @@ func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response
 		for _, r := range g.Policies {
 			r.Description = tr(r.Description)
 		}
-	}
-	if err != nil {
-		service.RestError500(req, rsp, err)
-		return
 	}
 
 	rsp.WriteEntity(response)

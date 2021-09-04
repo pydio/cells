@@ -293,7 +293,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 
 func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) {
 	cli := auth.NewPersonalAccessTokenServiceClient(registry.GetClient(common.ServiceToken))
-	log.Logger(ctx).Info("Sending generate request", zap.Any("req", genReq))
+	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
 	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {
 		service.RestErrorDetect(req, resp, e)
