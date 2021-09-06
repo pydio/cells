@@ -699,7 +699,7 @@
     "other": "JSON (internal format)"
   },
   "metadata.type.date.format": {
-    "other": "Format"
+    "other": "Formato"
   },
   "metadata.type.date.format.date": {
     "other": "Data"
@@ -723,7 +723,7 @@
     "other": "Reaction"
   },
   "metadata.type.integer.format": {
-    "other": "Format"
+    "other": "Formato"
   },
   "metadata.type.integer.format.general": {
     "other": "General"
