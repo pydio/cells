@@ -74,6 +74,7 @@ type raftNode struct {
 	errorC      chan<- error             // errors from raft session
 
 	id          int    // client ID for raft session
+	memberID    types.ID
 	serviceID   string
 	serviceAddress string
 	service     string // name of the service to send replication to
@@ -122,6 +123,8 @@ func NewRaftNode(id int, name string, address string, service string, join bool,
 	defaultLogger.EnableDebug()
 	raft.SetLogger(defaultLogger)
 
+	services, _ := registry.GetRunningService(service)
+
 	rc := &raftNode{
 		proposeC:    proposeC,
 		confChangeC: confChangeC,
@@ -131,7 +134,7 @@ func NewRaftNode(id int, name string, address string, service string, join bool,
 		serviceID:   name,
 		serviceAddress: address,
 		service:     service,
-		join:        join,
+		join:        len(services) > 0,
 		getSnapshot: getSnapshot,
 		snapCount:   defaultSnapshotCount,
 		stopc:       make(chan struct{}),
@@ -205,19 +208,22 @@ func (rc *raftNode) publishEntries(ents []raftpb.Entry) (<-chan struct{}, bool) 
 					var m *membership.Member
 					json.Unmarshal(cc.Context, &m)
 
-					if rc.serviceID != m.Name {
-						rc.transport.AddPeer(types.ID(cc.NodeID), m.PeerURLs)
+					if rc.memberID != m.ID {
+						rc.transport.AddPeer(m.ID, m.PeerURLs)
 					}
 				}
 			case raftpb.ConfChangeRemoveNode:
 				var m *membership.Member
-				json.Unmarshal(cc.Context, &m)
+				if err := json.Unmarshal(cc.Context, &m); err != nil {
+					continue
+				}
+
 				if m.ID.String() == rc.serviceID {
 					log.Println("I've been removed from the cluster! Shutting down.")
 					return nil, false
 				}
 
-				rc.transport.RemovePeer(types.ID(cc.NodeID))
+				rc.transport.RemovePeer(m.ID)
 			}
 		}
 	}
@@ -289,31 +295,31 @@ func (rc *raftNode) replayWAL() *wal.WAL {
 	w, id, cid, st, ents := readWAL(rc.logger, rc.waldir, walsnap, false)
 
 	// discard the previously uncommitted entries
-	for i, ent := range ents {
-		if ent.Index > st.Commit {
-			rc.logger.Info(
-				"discarding uncommitted WAL entries",
-				zap.Uint64("entry-index", ent.Index),
-				zap.Uint64("commit-index-from-wal", st.Commit),
-				zap.Int("number-of-discarded-entries", len(ents)-i),
-			)
-			ents = ents[:i]
-			break
-		}
-	}
+	//for i, ent := range ents {
+	//	if ent.Index > st.Commit {
+	//		rc.logger.Info(
+	//			"discarding uncommitted WAL entries",
+	//			zap.Uint64("entry-index", ent.Index),
+	//			zap.Uint64("commit-index-from-wal", st.Commit),
+	//			zap.Int("number-of-discarded-entries", len(ents)-i),
+	//		)
+	//		ents = ents[:i]
+	//		break
+	//	}
+	//}
 
 	// force append the configuration change entries
-	toAppEnts := createConfigChangeEnts(
-		rc.logger,
-		getIDs(rc.logger, snapshot, ents),
-		uint64(id),
-		st.Term,
-		st.Commit,
-	)
-	ents = append(ents, toAppEnts...)
+	//toAppEnts := createConfigChangeEnts(
+	//	rc.logger,
+	//	getIDs(rc.logger, snapshot, ents),
+	//	uint64(id),
+	//	st.Term,
+	//	st.Commit,
+	//)
+	//ents = append(ents, toAppEnts...)
 
 	// force commit newly appended entries
-	err := w.Save(raftpb.HardState{}, toAppEnts)
+	err := w.Save(raftpb.HardState{}, ents)
 	if err != nil {
 		rc.logger.Fatal("failed to save hard state and entries", zap.Error(err))
 	}
@@ -336,6 +342,8 @@ func (rc *raftNode) replayWAL() *wal.WAL {
 	s.Append(ents)
 
 	rc.raftStorage = s
+
+
 
 	return w
 }
@@ -366,6 +374,7 @@ func (rc *raftNode) startRaft() {
 	cl.AddMember(member)
 
 	rc.cluster = cl
+	rc.memberID = member.ID
 
 	// Creating snap dir
 	rc.snapdir = "service-" + member.ID.String() + "-snap"
@@ -382,12 +391,12 @@ func (rc *raftNode) startRaft() {
 
 	hasWAL := wal.Exist(rc.waldir)
 
-	if !hasWAL{
-		id, n, s, w = rc.startNode(rc.serviceID, cl, cl.MemberIDs())
-	} else {
+	if hasWAL {
 		snapshot := rc.loadSnapshot()
 
 		id, cl, n, s, w = rc.restartNode(snapshot)
+	} else {
+		id, n, s, w = rc.startNode(rc.serviceID, cl, cl.MemberIDs())
 	}
 
 	// signal replay has finished
@@ -410,6 +419,12 @@ func (rc *raftNode) startRaft() {
 	}
 
 	rc.transport.Start()
+
+	for _, m := range cl.Members() {
+		if m.ID != id {
+			rc.transport.AddPeer(m.ID, m.PeerURLs)
+		}
+	}
 
 	// And watching the registry after that
 	go rc.serveRegistry()
@@ -451,7 +466,7 @@ func (rc *raftNode) startNode(name string, cl *membership.RaftCluster, ids []typ
 		MaxInflightMsgs:           256,
 	}
 
-	if len(peers) == 0 {
+	if len(peers) > 1 {
 		n = raft.RestartNode(c)
 	} else {
 		n = raft.StartNode(c, peers)
@@ -584,16 +599,16 @@ func (rc *raftNode) serveRegistry() {
 
 		if res.Action == "create" || res.Action == "update" {
 			for _, n := range res.Service.Nodes {
-				if n.Id != rc.serviceID {
-					// Adding self as member
-					u, _ := url.Parse(n.Metadata["rafttransport"])
-					member := membership.NewMember(n.Id, types.URLs([]url.URL{*u}), "cells", nil)
+				u, _ := url.Parse(n.Metadata["rafttransport"])
+				member := membership.NewMember(n.Id, types.URLs([]url.URL{*u}), "cells", nil)
+
+				if member.ID != rc.memberID && rc.cluster.MemberByName(n.Id) == nil {
 					rc.cluster.AddMember(member)
 
 					d, _ := json.Marshal(member)
-
 					rc.node.ProposeConfChange(context.TODO(), &raftpb.ConfChange{
 						Type:    raftpb.ConfChangeAddNode,
+						NodeID:  uint64(member.ID),
 						Context: d,
 					})
 				}
@@ -830,7 +845,7 @@ func NewClusterFromService(lg *zap.Logger, service string) *membership.RaftClust
 	services, _ := registry.GetRunningService(service)
 	for _, s := range services {
 		for _, node := range s.RunningNodes() {
-			u, _ := url.Parse(fmt.Sprintf("http://%s:%d", node.Address, node.Port))
+			u, _ := url.Parse(node.Metadata["rafttransport"])
 			m = append(m, membership.NewMember(node.Id, types.URLs([]url.URL{*u}), "cells", nil))
 		}
 	}
