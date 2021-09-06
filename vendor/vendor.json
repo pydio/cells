@@ -5306,6 +5306,12 @@
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},
 		{
+			"checksumSHA1": "uP0gde9NxLydj+EceknoNnBlnt0=",
+			"path": "go.etcd.io/etcd/etcdserver/api/v2store",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
 			"checksumSHA1": "/r105DqHszOaPOfaq0z18UEA5Co=",
 			"path": "go.etcd.io/etcd/etcdserver/etcdserverpb",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
