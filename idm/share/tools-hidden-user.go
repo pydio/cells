@@ -102,7 +102,7 @@ func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.
 }
 
 // UpdateACLsForHiddenUser deletes and replaces access ACLs for a hidden user.
-func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId string, rootNodes []*tree.Node, permissions []rest.ShareLinkAccessType, update bool) error {
+func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId string, rootNodes []*tree.Node, permissions []rest.ShareLinkAccessType, parentPolicy string, update bool) error {
 
 	HasRead := false
 	HasWrite := false
@@ -117,7 +117,7 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 
 	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
 	if update {
-		// Delete all existing acls for existing user
+		// Delete existing acls for existing user
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{RoleIDs: []string{roleId}})
 		_, e := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 		if e != nil {
@@ -134,22 +134,37 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 		return err
 	}
 	for _, rootNode := range rootNodes {
-		if HasRead {
+		if parentPolicy != "" {
+			newPol, e := InheritPolicies(ctx, parentPolicy, HasRead, HasWrite)
+			if e != nil {
+				return e
+			}
 			acls = append(acls, &idm.ACL{
-				RoleID:      roleId,
+				RoleID: roleId,
 				WorkspaceID: workspaceId,
-				NodeID:      rootNode.Uuid,
-				Action:      permissions2.AclRead,
+				NodeID: rootNode.Uuid,
+				Action: &idm.ACLAction{
+					Name: permissions2.AclPolicy.Name,
+					Value: newPol,
+				},
 			})
-		}
-
-		if HasWrite {
-			acls = append(acls, &idm.ACL{
-				RoleID:      roleId,
-				WorkspaceID: workspaceId,
-				NodeID:      rootNode.Uuid,
-				Action:      permissions2.AclWrite,
-			})
+		} else {
+			if HasRead {
+				acls = append(acls, &idm.ACL{
+					RoleID:      roleId,
+					WorkspaceID: workspaceId,
+					NodeID:      rootNode.Uuid,
+					Action:      permissions2.AclRead,
+				})
+			}
+			if HasWrite {
+				acls = append(acls, &idm.ACL{
+					RoleID:      roleId,
+					WorkspaceID: workspaceId,
+					NodeID:      rootNode.Uuid,
+					Action:      permissions2.AclWrite,
+				})
+			}
 		}
 	}
 	// Add default Repository Id for the role

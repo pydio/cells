@@ -100,7 +100,20 @@ func AclsToCellAcls(ctx context.Context, acls []*idm.ACL) map[string]*rest.CellA
 				roomAcl = &rest.CellAcl{RoleId: acl.RoleID, Actions: []*idm.ACLAction{}}
 				roomAcls[acl.RoleID] = roomAcl
 			}
-			roomAcl.Actions = append(roomAcl.Actions, acl.Action)
+			if acl.Action.Name == permissions.AclPolicy.Name {
+				r, w, e := InterpretInheritedPolicy(ctx, acl.Action.Value)
+				if e != nil {
+					log.Logger(ctx).Error("Error while interpreting inherited policy", zap.Error(e))
+				}
+				if r {
+					roomAcl.Actions = append(roomAcl.Actions, permissions.AclRead)
+				}
+				if w {
+					roomAcl.Actions = append(roomAcl.Actions, permissions.AclWrite)
+				}
+			} else {
+				roomAcl.Actions = append(roomAcl.Actions, acl.Action)
+			}
 			registeredRolesAcls[id] = true
 		}
 	}
@@ -234,6 +247,10 @@ func DiffReadRoles(ctx context.Context, initial []*idm.ACL, newOnes []*idm.ACL) 
 		for _, acl := range acls {
 			if acl.Action.Name == permissions.AclRead.Name {
 				roles[acl.RoleID] = true
+			} else if acl.Action.Name == permissions.AclPolicy.Name {
+				if r, _, _ := InterpretInheritedPolicy(ctx, acl.Action.Value); r {
+					roles[acl.RoleID] = true
+				}
 			}
 		}
 		return
@@ -256,23 +273,51 @@ func DiffReadRoles(ctx context.Context, initial []*idm.ACL, newOnes []*idm.ACL) 
 }
 
 // ComputeTargetAcls create ACL objects that should be applied for this cell.
-func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell, workspaceId string, readonly bool) []*idm.ACL {
+func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell, workspaceId string, readonly bool, parentPolicy string) ([]*idm.ACL, error) {
 
+	if parentPolicy != "" {
+		log.Logger(ctx).Debug("Share: Computing ACL based on parent policy " + parentPolicy)
+	}
 	userId := ownerUser.Uuid
 	var targetAcls []*idm.ACL
 	for _, node := range cell.RootNodes {
 		userInAcls := false
 		for _, acl := range cell.ACLs {
+			var read, write bool
 			for _, action := range acl.Actions {
 				// Recheck just in case
 				if readonly && action.Name == permissions.AclWrite.Name {
 					continue
 				}
+				if parentPolicy != "" {
+					if action.Name == permissions.AclRead.Name {
+						read = true
+					}
+					if action.Name == permissions.AclWrite.Name {
+						write = true
+					}
+				} else {
+					targetAcls = append(targetAcls, &idm.ACL{
+						NodeID:      node.Uuid,
+						RoleID:      acl.RoleId,
+						WorkspaceID: workspaceId,
+						Action:      action,
+					})
+				}
+			}
+			if parentPolicy != "" {
+				newPol, er := InheritPolicies(ctx, parentPolicy, read, write)
+				if er != nil {
+					return nil, er
+				}
 				targetAcls = append(targetAcls, &idm.ACL{
-					NodeID:      node.Uuid,
-					RoleID:      acl.RoleId,
+					NodeID: node.Uuid,
+					RoleID: acl.RoleId,
 					WorkspaceID: workspaceId,
-					Action:      action,
+					Action: &idm.ACLAction{
+						Name:  permissions.AclPolicy.Name,
+						Value: newPol,
+					},
 				})
 			}
 			if acl.RoleId == userId {
@@ -281,23 +326,39 @@ func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell
 		}
 		// Make sure that the current user has at least READ permissions
 		if !userInAcls {
-			targetAcls = append(targetAcls, &idm.ACL{
-				NodeID:      node.Uuid,
-				RoleID:      userId,
-				WorkspaceID: workspaceId,
-				Action:      permissions.AclRead,
-			})
-			if !readonly {
+			if parentPolicy != "" {
+				minPol, er := InheritPolicies(ctx, parentPolicy, true, !readonly)
+				if er != nil {
+					return nil, er
+				}
+				targetAcls = append(targetAcls, &idm.ACL{
+					NodeID: node.Uuid,
+					RoleID: userId,
+					WorkspaceID: workspaceId,
+					Action: &idm.ACLAction{
+						Name:  permissions.AclPolicy.Name,
+						Value: minPol,
+					},
+				})
+			} else {
 				targetAcls = append(targetAcls, &idm.ACL{
 					NodeID:      node.Uuid,
 					RoleID:      userId,
 					WorkspaceID: workspaceId,
-					Action:      permissions.AclWrite,
+					Action:      permissions.AclRead,
 				})
+				if !readonly {
+					targetAcls = append(targetAcls, &idm.ACL{
+						NodeID:      node.Uuid,
+						RoleID:      userId,
+						WorkspaceID: workspaceId,
+						Action:      permissions.AclWrite,
+					})
+				}
 			}
 		}
 	}
-	return targetAcls
+	return targetAcls, nil
 }
 
 // UpdatePoliciesFromAcls recomputes the required policies from acl changes.

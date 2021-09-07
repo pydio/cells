@@ -61,6 +61,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 				{Name: "content_lock"},
 				permissions.AclRead,
 				permissions.AclWrite,
+				permissions.AclPolicy,
 			},
 		})
 		dao.Search(&service.Query{SubQueries: []*any.Any{q}}, acls)

@@ -112,6 +112,13 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
+	// Detect if one root has an access set via policy
+	parentPol, e := share.DetectInheritedPolicy(ctx, shareRequest.Room.RootNodes, nil)
+	if e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
+
 	if e := share.CheckCellOptionsAgainstConfigs(ctx, &shareRequest); e != nil {
 		service.RestErrorDetect(req, rsp, e)
 		return
@@ -161,17 +168,15 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 	log.Logger(ctx).Debug("Current Roots", log.DangerouslyZapSmallSlice("crt", currentRoots))
-	targetAcls := share.ComputeTargetAcls(ctx, ownerUser, shareRequest.Room, workspace.UUID, readonly)
-	log.Logger(ctx).Debug("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
-	add, remove := share.DiffAcls(ctx, currentAcls, targetAcls)
-	log.Logger(ctx).Debug("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
-
-	for _, acl := range add {
-		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
-		if err != nil {
-			log.Logger(ctx).Error("Share: Error while creating ACLs", zap.Error(err))
-		}
+	targetAcls, e := share.ComputeTargetAcls(ctx, ownerUser, shareRequest.Room, workspace.UUID, readonly, parentPol)
+	if e != nil {
+		service.RestError500(req, rsp, e)
+		return
 	}
+	log.Logger(ctx).Info("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
+	add, remove := share.DiffAcls(ctx, currentAcls, targetAcls)
+	log.Logger(ctx).Info("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
+
 	for _, acl := range remove {
 		removeQuery, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 			NodeIDs:      []string{acl.NodeID},
@@ -182,6 +187,12 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		_, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service2.Query{SubQueries: []*any.Any{removeQuery}}})
 		if err != nil {
 			log.Logger(ctx).Error("Share: Error while deleting ACLs", zap.Error(err))
+		}
+	}
+	for _, acl := range add {
+		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
+		if err != nil {
+			log.Logger(ctx).Error("Share: Error while creating ACLs", zap.Error(err))
 		}
 	}
 
@@ -307,6 +318,11 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestErrorDetect(req, rsp, e)
 		return
 	}
+	parentPolicy, e := share.DetectInheritedPolicy(ctx, link.RootNodes, rootWorkspaces)
+	if e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
 
 	pluginOptions, e := share.CheckLinkOptionsAgainstConfigs(ctx, link, rootWorkspaces, files, folders)
 	if e != nil {
@@ -417,7 +433,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		}
 	}
 
-	err = share.UpdateACLsForHiddenUser(ctx, user.Uuid, workspace.UUID, link.RootNodes, link.Permissions, !create)
+	err = share.UpdateACLsForHiddenUser(ctx, user.Uuid, workspace.UUID, link.RootNodes, link.Permissions, parentPolicy, !create)
 	track("UpdateACLsForHiddenUser")
 	if err != nil {
 		service.RestError500(req, rsp, err)

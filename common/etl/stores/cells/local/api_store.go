@@ -566,7 +566,7 @@ func (apiStore *ApiStore) createShareLink(ctx context.Context, ownerUser *idm.Us
 	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
 	wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace})
 
-	err = share.UpdateACLsForHiddenUser(ctx, user.Uuid, workspace.UUID, link.RootNodes, link.Permissions, false)
+	err = share.UpdateACLsForHiddenUser(ctx, user.Uuid, workspace.UUID, link.RootNodes, link.Permissions, "", false)
 	if err != nil {
 		return err
 	}
@@ -606,7 +606,7 @@ func (apiStore *ApiStore) createCell(ctx context.Context, ownerUser *idm.User, c
 		})
 	}
 
-	targetAcls := share.ComputeTargetAcls(ctx, ownerUser, cell, workspace.UUID, false) // CHECK THE READONLY FLAG?
+	targetAcls, _ := share.ComputeTargetAcls(ctx, ownerUser, cell, workspace.UUID, false, "") // CHECK THE READONLY FLAG?
 	add, _ := share.DiffAcls(ctx, []*idm.ACL{}, targetAcls)
 	log.Logger(ctx).Debug("Target ACLS", zap.Int("ADD length", len(add)))
 

@@ -3,6 +3,8 @@ package share
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/proto/idm"
 	"strings"
 
 	"github.com/pborman/uuid"
@@ -144,6 +146,73 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 
 }
 
+func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParents []*tree.WorkspaceRelativePath) (string, error) {
+
+	var cellNode bool
+	for _, r := range roots {
+		if r.HasMetaKey("CellNode") {
+			cellNode = true
+			break
+		}
+	}
+	if (cellNode) {
+		// Check if there is a default policy set for cells using custom folders
+		claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+		if !ok {
+			return "", fmt.Errorf("cannot find claims in context")
+		}
+		roles := permissions.GetRoles(ctx, strings.Split(claims.Roles, ","))
+		acls := permissions.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "default-cells-policy"})
+		var foundPolicy string
+		for _, role := range roles {
+			for _, acl := range acls {
+				if acl.RoleID == role.Uuid && acl.Action.Name == "default-cells-policy" {
+					foundPolicy = strings.TrimPrefix(strings.Trim(acl.Action.Value, `"`), "policy:")
+				}
+			}
+		}
+		if foundPolicy != "" {
+			return foundPolicy, nil
+		}
+	}
+
+	accessList, e := permissions.AccessListFromContextClaims(ctx)
+	if e != nil {
+		return "", e
+	}
+	if !accessList.HasPolicyBasedAcls() {
+		return "", nil
+	}
+	var ww []*tree.WorkspaceRelativePath
+	if loadedParents != nil {
+		ww = loadedParents
+	} else {
+		rpw, e := RootsParentWorkspaces(ctx, roots)
+		if e != nil {
+			return "", e
+		}
+		ww = rpw
+	}
+	wsNodes := accessList.GetWorkspacesNodes()
+	var parentPol string
+	for _, w := range ww {
+		if nn, ok := wsNodes[w.WsUuid]; ok {
+			for _, b := range nn {
+				if b.BitmaskFlag&permissions.FlagPolicy != 0 {
+					for _, p := range b.PolicyIds {
+						if strings.HasSuffix(p, "-ro") || strings.HasSuffix(p, "-rw") || strings.HasSuffix(p, "-wo") {
+							continue
+						}
+						parentPol = p
+						break
+					}
+				}
+			}
+		}
+	}
+	return parentPol, nil
+}
+
 // DeleteRootNodeRecursively loads all children of a root node and delete them, including the
 // .pydio hidden files when they are folders.
 func DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *tree.Node) error {
@@ -220,4 +289,21 @@ func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) (workspaces [
 	}
 	return
 
+}
+
+func RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (ww []*tree.WorkspaceRelativePath, e error) {
+	router := views.NewUuidRouter(views.RouterOptions{})
+	for _, r := range rr {
+		resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: r.Uuid}})
+		if er != nil {
+			e = er
+			return
+		}
+		if resp.Node == nil {
+			e = errors.NotFound(common.ServiceShare, "cannot find root node")
+			return
+		}
+		ww = append(ww, resp.Node.AppearsIn...)
+	}
+	return
 }
