@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import {MenuItem, Dialog, FlatButton, FontIcon} from 'material-ui'
 const {ModernTextField, ModernSelectField} = Pydio.requireLib('hoc');
 
-import {JobsJobParameter} from 'cells-sdk'
+import {JobsJob, JobsJobParameter} from 'cells-sdk'
 
 class Parameter extends React.Component{
 
