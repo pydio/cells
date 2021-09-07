@@ -81,7 +81,6 @@ let Dashboard = createReactClass({
 
         if(selectJob && jobs){
             const found = jobs.filter((j) => j.ID === selectJob);
-            console.log(selectJob, found);
             if(found.length){
                 return (
                     <JobBoard

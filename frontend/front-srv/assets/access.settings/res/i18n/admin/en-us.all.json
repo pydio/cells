@@ -1883,6 +1883,12 @@
   "scheduler.schedule.detail.minutes":{
     "other": "Period in minutes"
   },
+  "scheduler.job-parameters.dialog": {
+    "other": "Job Parameters"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "Parameters"
+  },
   "developer.rest.apis":{
     "other": "Rest APIs Documentation"
   },

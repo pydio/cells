@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2019 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import Pydio from 'pydio'
 import ResourcesManager from 'pydio/http/resources-manager'
 import PydioApi from 'pydio/http/api'
 import {JobsJob} from 'cells-sdk'
@@ -69,6 +70,8 @@ class JobSchedule extends React.Component {
                 onUpdate();
                 this.setState({open: false, job: req.Job, rand:Math.random()});
             }).catch(e => {})
+        }).catch(e => {
+            console.error('Cannot load specific library', e)
         })
     }
 
@@ -79,10 +82,10 @@ class JobSchedule extends React.Component {
             <div>
                 <FlatButton primary={true} icon={<FontIcon className={"mdi mdi-timer"}/>} key={rand} label={<ScheduleForm schedule={job.Schedule} rand={rand}/>} onClick={()=>{this.setState({open:true})}}/>
                 <Dialog
-                    title="Job Schedule"
+                    title={Pydio.getMessages()['ajxp_admin.scheduler.schedule.title']}
                     actions={[
-                        <FlatButton label={"Close"} onClick={()=>{this.setState({open:false})}}/>,
-                        <FlatButton label={"Save"} onClick={()=>{this.updateJob()}}/>,
+                        <FlatButton label={Pydio.getMessages()[54]} onClick={()=>{this.setState({open:false})}}/>,
+                        <FlatButton label={Pydio.getMessages()[53]} onClick={()=>{this.updateJob()}}/>,
                     ]}
                     modal={false}
                     open={this.state.open}

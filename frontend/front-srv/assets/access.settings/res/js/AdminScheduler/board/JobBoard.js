@@ -22,11 +22,11 @@ import React from 'react'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import {ConfigServiceApi} from 'cells-sdk'
-import ResourcesManager from 'pydio/http/resources-manager'
-import {IconButton, FontIcon, FlatButton, RaisedButton, Paper} from 'material-ui'
+import {FontIcon, FlatButton} from 'material-ui'
 import TasksList from './TasksList'
 import JobSchedule from './JobSchedule'
 import Loader from "./Loader";
+import JobParameters from "./JobParameters";
 
 const {JobsStore} = Pydio.requireLib("boot");
 
@@ -72,7 +72,6 @@ class JobBoard extends React.Component {
             return true
         }
         let hasManualFilter = false;
-        console.log(job);
         try{
             job.Actions.forEach(a => {
                 if (!a.TriggerFilter) {
@@ -103,8 +102,11 @@ class JobBoard extends React.Component {
         const flatProps = {...adminStyles.props.header.flatButton};
         const iconColor = adminStyles.props.header.flatButton.labelStyle.color;
         if(!create){
+            if(jobsEditable && job.Parameters && job.Parameters.length) {
+                actions.push(<JobParameters job={job}/>)
+            }
             if(Loader.canManualRun(job)){
-                if(job.Schedule && jobsEditable){
+                if(jobsEditable){
                     actions.push(<JobSchedule job={job} edit={true} onUpdate={()=>{}}/>);
                 }
                 const bProps = {...flatProps};
