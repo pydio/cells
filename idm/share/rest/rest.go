@@ -173,9 +173,9 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, e)
 		return
 	}
-	log.Logger(ctx).Info("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
+	log.Logger(ctx).Debug("Share ACLS", log.DangerouslyZapSmallSlice("current", currentAcls), log.DangerouslyZapSmallSlice("target", targetAcls))
 	add, remove := share.DiffAcls(ctx, currentAcls, targetAcls)
-	log.Logger(ctx).Info("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
+	log.Logger(ctx).Debug("Diff ACLS", log.DangerouslyZapSmallSlice("add", add), log.DangerouslyZapSmallSlice("remove", remove))
 
 	for _, acl := range remove {
 		removeQuery, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
