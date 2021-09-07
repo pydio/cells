@@ -5276,8 +5276,62 @@
 			"revisionTime": "2021-03-24T17:22:49Z"
 		},
 		{
+			"checksumSHA1": "Abkg82CziensrAijegP2wjsG2t4=",
+			"path": "go.etcd.io/etcd/auth/authpb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "miUlD7xtNqfWDjrMPFGMvcUHFCA=",
+			"path": "go.etcd.io/etcd/etcdserver/api/membership",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "/TtJlhanDwf4Pc6vTwqPoDDl8Ks=",
+			"path": "go.etcd.io/etcd/etcdserver/api/membership/membershippb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
 			"checksumSHA1": "myTVYOliKPm9nKqzKr1OHozmBqI=",
 			"path": "go.etcd.io/etcd/etcdserver/api/snap/snappb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "igFfy67505XzwnOP9bSySW1GuRY=",
+			"path": "go.etcd.io/etcd/etcdserver/api/v2error",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "uP0gde9NxLydj+EceknoNnBlnt0=",
+			"path": "go.etcd.io/etcd/etcdserver/api/v2store",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "/r105DqHszOaPOfaq0z18UEA5Co=",
+			"path": "go.etcd.io/etcd/etcdserver/etcdserverpb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "uUYYv9BCsyclxclcRGH7FKm2pzM=",
+			"path": "go.etcd.io/etcd/mvcc/backend",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "C/ndQTz6TCtOsL29UYTxuax9/rw=",
+			"path": "go.etcd.io/etcd/mvcc/mvccpb",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "U1JIOpUR66p7JkVJJVWip3Xdmng=",
+			"path": "go.etcd.io/etcd/pkg/cpuutil",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},
@@ -5302,6 +5356,12 @@
 		{
 			"checksumSHA1": "+uuqbmn8QFy51dthQuajFM8COcE=",
 			"path": "go.etcd.io/etcd/pkg/ioutil",
+			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
+			"revisionTime": "2020-04-07T03:27:46Z"
+		},
+		{
+			"checksumSHA1": "uPPg7/LUPqbVaAnooQ+45uW7FR8=",
+			"path": "go.etcd.io/etcd/pkg/netutil",
 			"revision": "7eae024eade9e4d523544026c9312b687dbfae94",
 			"revisionTime": "2020-04-07T03:27:46Z"
 		},

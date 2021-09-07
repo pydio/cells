@@ -86,18 +86,18 @@
     "other": "Número máximo de versões para manter durante este período. Use '-1' para manter todas as versões, '0' para deletar todas."
   },
   "Config.GroupRetention.NodeDeletedStrategy.Name": {
-    "other": "After original file deletion"
+    "other": "Após apagar o arquivo original"
   },
   "Config.GroupRetention.NodeDeletedStrategy.Description": {
-    "other": "Number of versions to keep after original file deletion."
+    "other": "Número de versões a manter após apagar o arquivo original."
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
-    "other": "Backup all existing versions"
+    "other": "Backup de todas as versões existentes"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
-    "other": "Backup most recent version only"
+    "other": "Backup apenas da versão mais recente"
   },
   "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
-    "other": "Delete all existing versions"
+    "other": "Apagar todas as versões existentes"
   }
 }

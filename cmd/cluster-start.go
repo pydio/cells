@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"time"
 )
 
 // clusterStartCmd connects a node to a cluster.
@@ -79,6 +80,31 @@ DESCRIPTION
 		case <-ctx.Done():
 			return nil
 		}
+
+		return nil
+	},
+	PostRunE: func(cmd *cobra.Command, args []string) error {
+		reg := registry.GetCurrentProcess()
+		if reg == nil {
+			return nil
+		}
+
+	loop:
+		for {
+			select {
+			case <-time.After(30 * time.Second):
+				break loop
+			default:
+				if reg != nil && len(reg.Services) > 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				break loop
+			}
+		}
+
+		time.Sleep(10 * time.Second)
 
 		return nil
 	},

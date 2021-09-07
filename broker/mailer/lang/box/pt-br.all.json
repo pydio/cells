@@ -162,16 +162,16 @@
     "other": "Motor usado para enviar e-mails"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Desativado (não ativar os e-mails)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "Não-Op (ativar os e-mails, mas não enviar nada)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Escrever e-mails para um ficheiro para fins de depuração"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Pasta de destino para escrever e-mails"
   },
   "Mail.Config.Smtp.Label": {
     "other": "Servidor SMTP"

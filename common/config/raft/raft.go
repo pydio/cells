@@ -16,18 +16,23 @@ package raft
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
+	"go.etcd.io/etcd/etcdserver/api/membership"
 	"go.etcd.io/etcd/etcdserver/api/rafthttp"
 	"go.etcd.io/etcd/etcdserver/api/snap"
 	stats "go.etcd.io/etcd/etcdserver/api/v2stats"
+	"go.etcd.io/etcd/etcdserver/etcdserverpb"
 	"go.etcd.io/etcd/pkg/fileutil"
+	"go.etcd.io/etcd/pkg/pbutil"
 	"go.etcd.io/etcd/pkg/types"
 	"go.etcd.io/etcd/raft"
 	"go.etcd.io/etcd/raft/raftpb"
@@ -48,6 +53,7 @@ type Transporter interface {
 	RemovePeer(types.ID)
 	Send([]raftpb.Message)
 	Start() error
+	Stop()
 	ErrorC() chan error
 	Handler() http.Handler
 }
@@ -68,8 +74,11 @@ type raftNode struct {
 	errorC      chan<- error             // errors from raft session
 
 	id          int    // client ID for raft session
+	memberID    types.ID
+	serviceID   string
+	serviceAddress string
 	service     string // name of the service to send replication to
-	peers       []string
+	cluster     *membership.RaftCluster
 	join        bool   // node is joining an existing cluster
 	waldir      string // path to WAL directory
 	snapdir     string // path to snapshot directory
@@ -104,25 +113,17 @@ var defaultSnapshotCount uint64 = 10000
 // provided the proposal channel. All log entries are replayed over the
 // commit channel, followed by a nil message (to indicate the channel is
 // current), then new log entries. To shutdown, close proposeC and read errorC.
-func NewRaftNode(id int, cluster []string, service string, join bool, getSnapshot func() ([]byte, error), proposeC <-chan string,
+func NewRaftNode(id int, name string, address string, service string, join bool, getSnapshot func() ([]byte, error), proposeC <-chan string,
 	confChangeC <-chan raftpb.ConfChange) (<-chan *commit, <-chan error, <-chan *snap.Snapshotter) {
 
 	commitC := make(chan *commit)
 	errorC := make(chan error)
 
-	//peers := []string{
-	//	fmt.Sprintf("http://:%d", 21000 + id),
-	//}
-	//
-	//services, _ := registry.GetRunningService(service)
-	//fmt.Println(services)
-	//for _, s := range services {
-	//	for _, n := range s.RunningNodes() {
-	//		peers = append(peers, fmt.Sprintf("http://%s:%d", n.Address, n.Port))
-	//	}
-	//}
+	defaultLogger := &raft.DefaultLogger{Logger: log.New(os.Stderr, "raft", log.LstdFlags)}
+	defaultLogger.EnableDebug()
+	raft.SetLogger(defaultLogger)
 
-	// fmt.Println("And the peers are ? ", peers)
+	services, _ := registry.GetRunningService(service)
 
 	rc := &raftNode{
 		proposeC:    proposeC,
@@ -130,11 +131,10 @@ func NewRaftNode(id int, cluster []string, service string, join bool, getSnapsho
 		commitC:     commitC,
 		errorC:      errorC,
 		id:          id,
+		serviceID:   name,
+		serviceAddress: address,
 		service:     service,
-		// peers:       peers,
-		join:        join,
-		waldir:      fmt.Sprintf("service-%d", id),
-		snapdir:     fmt.Sprintf("service-%d-snap", id),
+		join:        len(services) > 0,
 		getSnapshot: getSnapshot,
 		snapCount:   defaultSnapshotCount,
 		stopc:       make(chan struct{}),
@@ -154,7 +154,6 @@ func (rc *raftNode) saveSnap(snap raftpb.Snapshot) error {
 	walSnap := walpb.Snapshot{
 		Index: snap.Metadata.Index,
 		Term:  snap.Metadata.Term,
-		// ConfState: &snap.Metadata.ConfState,
 	}
 	// save the snapshot file before writing the snapshot to the wal.
 	// This makes it possible for the snapshot file to become orphaned, but prevents
@@ -206,14 +205,25 @@ func (rc *raftNode) publishEntries(ents []raftpb.Entry) (<-chan struct{}, bool) 
 			switch cc.Type {
 			case raftpb.ConfChangeAddNode:
 				if len(cc.Context) > 0 {
-					rc.transport.AddPeer(types.ID(cc.NodeID), []string{string(cc.Context)})
+					var m *membership.Member
+					json.Unmarshal(cc.Context, &m)
+
+					if rc.memberID != m.ID {
+						rc.transport.AddPeer(m.ID, m.PeerURLs)
+					}
 				}
 			case raftpb.ConfChangeRemoveNode:
-				if cc.NodeID == uint64(rc.id) {
+				var m *membership.Member
+				if err := json.Unmarshal(cc.Context, &m); err != nil {
+					continue
+				}
+
+				if m.ID.String() == rc.serviceID {
 					log.Println("I've been removed from the cluster! Shutting down.")
 					return nil, false
 				}
-				rc.transport.RemovePeer(types.ID(cc.NodeID))
+
+				rc.transport.RemovePeer(m.ID)
 			}
 		}
 	}
@@ -236,23 +246,16 @@ func (rc *raftNode) publishEntries(ents []raftpb.Entry) (<-chan struct{}, bool) 
 	return applyDoneC, true
 }
 
-//func (rc *raftNode) loadSnapshot() *raftpb.Snapshot {
-//	if wal.Exist(rc.waldir) {
-//		walSnaps, err := wal.ValidSnapshotEntries(rc.logger, rc.waldir)
-//		if err != nil {
-//			log.Fatalf("raftexample: error listing snapshots (%v)", err)
-//		}
-//		snapshot, err := rc.snapshotter.LoadNewestAvailable(walSnaps)
-//		if err != nil && err != snap.ErrNoSnapshot {
-//			log.Fatalf("raftexample: error loading snapshot (%v)", err)
-//		}
-//		return snapshot
-//	}
-//	return &raftpb.Snapshot{}
-//}
+func (rc *raftNode) loadSnapshot() *raftpb.Snapshot {
+	snapshot, err := rc.snapshotter.Load()
+	if err != nil && err != snap.ErrNoSnapshot {
+		log.Fatalf("raftexample: error loading snapshot (%v)", err)
+	}
+	return snapshot
+}
 
 // openWAL returns a WAL ready for reading.
-func (rc *raftNode) openWAL() *wal.WAL {
+func (rc *raftNode) openWAL(snapshot *raftpb.Snapshot) *wal.WAL {
 	if !wal.Exist(rc.waldir) {
 		if err := os.Mkdir(rc.waldir, 0750); err != nil {
 			log.Fatalf("raftexample: cannot create dir for wal (%v)", err)
@@ -266,9 +269,9 @@ func (rc *raftNode) openWAL() *wal.WAL {
 	}
 
 	walsnap := walpb.Snapshot{}
-	//if snapshot != nil {
-	//	walsnap.Index, walsnap.Term = snapshot.Metadata.Index, snapshot.Metadata.Term
-	//}
+	if snapshot != nil {
+		walsnap.Index, walsnap.Term = snapshot.Metadata.Index, snapshot.Metadata.Term
+	}
 	log.Printf("loading WAL at term %d and index %d", walsnap.Term, walsnap.Index)
 	w, err := wal.Open(zap.NewExample(), rc.waldir, walsnap)
 	if err != nil {
@@ -281,20 +284,66 @@ func (rc *raftNode) openWAL() *wal.WAL {
 // replayWAL replays WAL entries into the raft instance.
 func (rc *raftNode) replayWAL() *wal.WAL {
 	log.Printf("replaying WAL of member %d", rc.id)
-	// snapshot := rc.loadSnapshot()
-	w := rc.openWAL()
-	_, st, ents, err := w.ReadAll()
-	if err != nil {
-		log.Fatalf("raftexample: failed to read WAL (%v)", err)
-	}
-	rc.raftStorage = raft.NewMemoryStorage()
-	//if snapshot != nil {
-	//	rc.raftStorage.ApplySnapshot(*snapshot)
-	//}
-	rc.raftStorage.SetHardState(st)
 
-	// append to storage so raft starts at the right place in log
-	rc.raftStorage.Append(ents)
+	snapshot := rc.loadSnapshot()
+
+	var walsnap walpb.Snapshot
+	if snapshot != nil {
+		walsnap.Index, walsnap.Term = snapshot.Metadata.Index, snapshot.Metadata.Term
+	}
+
+	w, id, cid, st, ents := readWAL(rc.logger, rc.waldir, walsnap, false)
+
+	// discard the previously uncommitted entries
+	//for i, ent := range ents {
+	//	if ent.Index > st.Commit {
+	//		rc.logger.Info(
+	//			"discarding uncommitted WAL entries",
+	//			zap.Uint64("entry-index", ent.Index),
+	//			zap.Uint64("commit-index-from-wal", st.Commit),
+	//			zap.Int("number-of-discarded-entries", len(ents)-i),
+	//		)
+	//		ents = ents[:i]
+	//		break
+	//	}
+	//}
+
+	// force append the configuration change entries
+	//toAppEnts := createConfigChangeEnts(
+	//	rc.logger,
+	//	getIDs(rc.logger, snapshot, ents),
+	//	uint64(id),
+	//	st.Term,
+	//	st.Commit,
+	//)
+	//ents = append(ents, toAppEnts...)
+
+	// force commit newly appended entries
+	err := w.Save(raftpb.HardState{}, ents)
+	if err != nil {
+		rc.logger.Fatal("failed to save hard state and entries", zap.Error(err))
+	}
+	if len(ents) != 0 {
+		st.Commit = ents[len(ents)-1].Index
+	}
+
+	rc.logger.Info(
+		"forcing restart member",
+		zap.String("cluster-id", cid.String()),
+		zap.String("local-member-id", id.String()),
+		zap.Uint64("commit-index", st.Commit),
+	)
+
+	s := raft.NewMemoryStorage()
+	if snapshot != nil {
+		s.ApplySnapshot(*snapshot)
+	}
+	s.SetHardState(st)
+	s.Append(ents)
+
+	rc.raftStorage = s
+
+
 
 	return w
 }
@@ -308,56 +357,59 @@ func (rc *raftNode) writeError(err error) {
 }
 
 func (rc *raftNode) startRaft() {
+
+	var (
+		w  *wal.WAL
+		n  raft.Node
+		s  *raft.MemoryStorage
+		id types.ID
+		cl *membership.RaftCluster
+	)
+
+	cl = NewClusterFromService(rc.logger, rc.service)
+
+	// Adding self as member
+	u, _ := url.Parse(rc.serviceAddress)
+	member := membership.NewMember(rc.serviceID, types.URLs([]url.URL{*u}), "cells", nil)
+	cl.AddMember(member)
+
+	rc.cluster = cl
+	rc.memberID = member.ID
+
+	// Creating snap dir
+	rc.snapdir = "service-" + member.ID.String() + "-snap"
 	if !fileutil.Exist(rc.snapdir) {
 		if err := os.Mkdir(rc.snapdir, 0750); err != nil {
 			log.Fatalf("raftexample: cannot create dir for snapshot (%v)", err)
 		}
 	}
-	rc.snapshotter = snap.New(zap.NewExample(), rc.snapdir)
 
-	oldwal := wal.Exist(rc.waldir)
-	rc.wal = rc.replayWAL()
+	rc.snapshotter = snap.New(rc.logger, rc.snapdir)
+
+	// Creating waldir
+	rc.waldir = "service-" + member.ID.String()
+
+	hasWAL := wal.Exist(rc.waldir)
+
+	if hasWAL {
+		snapshot := rc.loadSnapshot()
+
+		id, cl, n, s, w = rc.restartNode(snapshot)
+	} else {
+		id, n, s, w = rc.startNode(rc.serviceID, cl, cl.MemberIDs())
+	}
 
 	// signal replay has finished
 	rc.snapshotterReady <- rc.snapshotter
 
-	services, _ := registry.GetRunningService(rc.service)
-	lgth := 1
-	for _, s := range services {
-		lgth += len(s.RunningNodes())
-	}
-
-	rpeers := make([]raft.Peer, lgth)
-	rpeers[rc.id - 1] = raft.Peer{ID: uint64(rc.id)}
-	for _, s := range services {
-		for _, n := range s.RunningNodes() {
-			i := n.Port - 20001
-			rpeers[i] = raft.Peer{ID: uint64(i + 1)}
-		}
-	}
-
-	c := &raft.Config{
-		ID:                        uint64(rc.id),
-		ElectionTick:              10,
-		HeartbeatTick:             1,
-		Storage:                   rc.raftStorage,
-		MaxSizePerMsg:             1024 * 1024,
-		MaxInflightMsgs:           256,
-		MaxUncommittedEntriesSize: 1 << 30,
-	}
-
-	if oldwal || rc.join {
-		rc.node = raft.RestartNode(c)
-	} else {
-	rc.node = raft.StartNode(c, rpeers)
-	}
-
-	// rc.transport = newTransport()
+	rc.node = n
+	rc.wal = w
+	rc.raftStorage = s
 
 	rc.transport = &rafthttpwitherror{
 		&rafthttp.Transport{
 			Logger:      rc.logger,
-			ID:          types.ID(rc.id),
+			ID:          id,
 			ClusterID:   0x1000,
 			Raft:        rc,
 			ServerStats: stats.NewServerStats("", ""),
@@ -368,80 +420,105 @@ func (rc *raftNode) startRaft() {
 
 	rc.transport.Start()
 
-	for _, s := range services {
-		for _, n := range s.RunningNodes() {
-			if n.Port - 20000 != rc.id {
-				rc.transport.AddPeer(types.ID(n.Port - 20000), []string{fmt.Sprintf("http://%s:%d", n.Address, n.Port + 1000)})
-			}
+	for _, m := range cl.Members() {
+		if m.ID != id {
+			rc.transport.AddPeer(m.ID, m.PeerURLs)
 		}
 	}
-	//for i := range rc.peers {
-	//	if i+1 != rc.id {
-	//		services, _ := registry.GetRunningService(service)
-	//		//fmt.Println(services)
-	//		//for _, s := range services {
-	//		//	for _, n := range s.RunningNodes() {
-	//		//		peers = append(peers, fmt.Sprintf("http://%s:%d", n.Address, n.Port))
-	//		//	}
-	//		//}
-	//		rc.transport.AddPeer(types.ID(i+1), []string{rc.peers[i]})
-	//	}
-	//}
 
 	// And watching the registry after that
-	go func() {
-		w, err := registry.Watch()
-		if err != nil {
-			return
-		}
-		for {
-			res, err := w.Next()
-			if err != nil {
-				continue
-			}
-
-			if res.Service.Name != rc.service {
-				continue
-			}
-
-			if res.Action == "create" || res.Action == "update" {
-				for _, n := range res.Service.Nodes {
-					//i := n.Port - 20001
-					//f i > len(rpeers)
-					//rpeers
-					//rpeers[i] = raft.Peer{ID: uint64(i + 1)}
-					id := n.Port - 20000
-					if id != rc.id {
-						rc.node.ProposeConfChange(context.TODO(), &raftpb.ConfChange{
-							Type:    raftpb.ConfChangeAddNode,
-							NodeID:  uint64(id),
-							Context: []byte(fmt.Sprintf("http://%s:%d", n.Address, n.Port+1000)),
-						})
-					}
-					// rc.transport.AddPeer(types.ID(n.Port - 20000), []string{fmt.Sprintf("http://%s:%d", n.Address, n.Port + 1000)})
-				}
-			} else if res.Action == "delete" {
-				for _, n := range res.Service.Nodes {
-					rc.transport.RemovePeer(types.ID(n.Port - 20000))
-				}
-			}
-		}
-	}()
-
+	go rc.serveRegistry()
 	go rc.serveRaft()
 	go rc.serveChannels()
 }
 
+func (rc *raftNode) startNode(name string, cl *membership.RaftCluster, ids []types.ID) (id types.ID, n raft.Node, s *raft.MemoryStorage, w *wal.WAL) {
+	var err error
+	member := cl.MemberByName(name)
+	metadata := pbutil.MustMarshal(
+		&etcdserverpb.Metadata{
+			NodeID:    uint64(member.ID),
+			ClusterID: uint64(cl.ID()),
+		},
+	)
+	if w, err = wal.Create(rc.logger, rc.waldir, metadata); err != nil {
+		rc.logger.Panic("failed to create WAL", zap.Error(err))
+	}
+	peers := make([]raft.Peer, len(ids))
+	for i, id := range ids {
+		d, _ := json.Marshal((*cl).Member(id))
+
+		peers[i] = raft.Peer{ID: uint64(id), Context: d}
+	}
+	id = member.ID
+	rc.logger.Info(
+		"starting local member",
+		zap.String("local-member-id", id.String()),
+		zap.String("cluster-id", cl.ID().String()),
+	)
+	s = raft.NewMemoryStorage()
+	c := &raft.Config{
+		ID:              uint64(id),
+		ElectionTick:    10,
+		HeartbeatTick:   1,
+		Storage:         s,
+		MaxSizePerMsg:             1024 * 1024,
+		MaxInflightMsgs:           256,
+	}
+
+	if len(peers) > 1 {
+		n = raft.RestartNode(c)
+	} else {
+		n = raft.StartNode(c, peers)
+	}
+
+	return id, n, s, w
+}
+
+func (rc *raftNode) restartNode(snapshot *raftpb.Snapshot) (types.ID, *membership.RaftCluster, raft.Node, *raft.MemoryStorage, *wal.WAL) {
+	var walsnap walpb.Snapshot
+	if snapshot != nil {
+		walsnap.Index, walsnap.Term = snapshot.Metadata.Index, snapshot.Metadata.Term
+	}
+	w, id, cid, st, ents := readWAL(rc.logger, rc.waldir, walsnap, false)
+
+	rc.logger.Info(
+		"restarting local member",
+		zap.String("cluster-id", cid.String()),
+		zap.String("local-member-id", id.String()),
+		zap.Uint64("commit-index", st.Commit),
+	)
+	cl := membership.NewCluster(rc.logger, "cells")
+	cl.SetID(id, cid)
+	s := raft.NewMemoryStorage()
+	if snapshot != nil {
+		s.ApplySnapshot(*snapshot)
+	}
+	s.SetHardState(st)
+	s.Append(ents)
+	c := &raft.Config{
+		ID:              uint64(id),
+		ElectionTick:    10,
+		HeartbeatTick:   1,
+		Storage:         s,
+		MaxSizePerMsg:   1024 * 1024,
+		MaxInflightMsgs: 256,
+	}
+
+	n := raft.RestartNode(c)
+	return id, cl, n, s, w
+}
+
 // stop closes http, closes all channels, and stops raft.
 func (rc *raftNode) stop() {
-	// rc.stopHTTP()
+	rc.stopHTTP()
 	close(rc.commitC)
 	close(rc.errorC)
 	rc.node.Stop()
 }
 
 func (rc *raftNode) stopHTTP() {
-	// rc.transport.Stop()
+	rc.transport.Stop()
 	close(rc.httpstopc)
 	<-rc.httpdonec
 }
@@ -503,6 +580,48 @@ func (rc *raftNode) maybeTriggerSnapshot(applyDoneC <-chan struct{}) {
 
 	log.Printf("compacted log at index %d", compactIndex)
 	rc.snapshotIndex = rc.appliedIndex
+}
+
+func (rc *raftNode) serveRegistry() {
+	w, err := registry.Watch()
+	if err != nil {
+		return
+	}
+	for {
+		res, err := w.Next()
+		if err != nil {
+			continue
+		}
+
+		if res.Service.Name != rc.service {
+			continue
+		}
+
+		if res.Action == "create" || res.Action == "update" {
+			for _, n := range res.Service.Nodes {
+				u, _ := url.Parse(n.Metadata["rafttransport"])
+				member := membership.NewMember(n.Id, types.URLs([]url.URL{*u}), "cells", nil)
+
+				if member.ID != rc.memberID && rc.cluster.MemberByName(n.Id) == nil {
+					rc.cluster.AddMember(member)
+
+					d, _ := json.Marshal(member)
+					rc.node.ProposeConfChange(context.TODO(), &raftpb.ConfChange{
+						Type:    raftpb.ConfChangeAddNode,
+						NodeID:  uint64(member.ID),
+						Context: d,
+					})
+				}
+			}
+		} else if res.Action == "delete" {
+			for _, n := range res.Service.Nodes {
+				rc.node.ProposeConfChange(context.TODO(), &raftpb.ConfChange{
+					Type: raftpb.ConfChangeRemoveNode,
+					Context: []byte(n.Id),
+				})
+			}
+		}
+	}
 }
 
 func (rc *raftNode) serveChannels() {
@@ -608,8 +727,129 @@ func (rc *raftNode) serveRaft() {
 func (rc *raftNode) Process(ctx context.Context, m raftpb.Message) error {
 	return rc.node.Step(ctx, m)
 }
-func (rc *raftNode) IsIDRemoved(id uint64) bool  { return false }
-func (rc *raftNode) ReportUnreachable(id uint64) { rc.node.ReportUnreachable(id) }
+func (rc *raftNode) IsIDRemoved(id uint64) bool  {
+	return false
+}
+func (rc *raftNode) ReportUnreachable(id uint64) {
+	rc.node.ReportUnreachable(id)
+}
 func (rc *raftNode) ReportSnapshot(id uint64, status raft.SnapshotStatus) {
 	rc.node.ReportSnapshot(id, status)
 }
+
+// getIDs returns an ordered set of IDs included in the given snapshot and
+// the entries. The given snapshot/entries can contain three kinds of
+// ID-related entry:
+// - ConfChangeAddNode, in which case the contained ID will be added into the set.
+// - ConfChangeRemoveNode, in which case the contained ID will be removed from the set.
+// - ConfChangeAddLearnerNode, in which the contained ID will be added into the set.
+func getIDs(lg *zap.Logger, snap *raftpb.Snapshot, ents []raftpb.Entry) []uint64 {
+	ids := make(map[uint64]bool)
+	if snap != nil {
+		for _, id := range snap.Metadata.ConfState.Voters {
+			ids[id] = true
+		}
+	}
+	for _, e := range ents {
+		if e.Type != raftpb.EntryConfChange {
+			continue
+		}
+		var cc raftpb.ConfChange
+		pbutil.MustUnmarshal(&cc, e.Data)
+		switch cc.Type {
+		case raftpb.ConfChangeAddLearnerNode:
+			ids[cc.NodeID] = true
+		case raftpb.ConfChangeAddNode:
+			ids[cc.NodeID] = true
+		case raftpb.ConfChangeRemoveNode:
+			delete(ids, cc.NodeID)
+		case raftpb.ConfChangeUpdateNode:
+			// do nothing
+		default:
+			lg.Panic("unknown ConfChange Type", zap.String("type", cc.Type.String()))
+		}
+	}
+	sids := make(types.Uint64Slice, 0, len(ids))
+	for id := range ids {
+		sids = append(sids, id)
+	}
+	sort.Sort(sids)
+	return []uint64(sids)
+}
+
+// createConfigChangeEnts creates a series of Raft entries (i.e.
+// EntryConfChange) to remove the set of given IDs from the cluster. The ID
+// `self` is _not_ removed, even if present in the set.
+// If `self` is not inside the given ids, it creates a Raft entry to add a
+// default member with the given `self`.
+func createConfigChangeEnts(lg *zap.Logger, ids []uint64, self uint64, term, index uint64) []raftpb.Entry {
+	found := false
+	for _, id := range ids {
+		if id == self {
+			found = true
+		}
+	}
+
+	var ents []raftpb.Entry
+	next := index + 1
+
+	// NB: always add self first, then remove other nodes. Raft will panic if the
+	// set of voters ever becomes empty.
+	if !found {
+		//m := membership.Member{
+		//	ID:             types.ID(self),
+		//	RaftAttributes: membership.RaftAttributes{PeerURLs: []string{"http://localhost:2380"}},
+		//}
+		//ctx, err := json.Marshal(m)
+		//if err != nil {
+		//	lg.Panic("failed to marshal member", zap.Error(err))
+		//}
+		cc := &raftpb.ConfChange{
+			Type:    raftpb.ConfChangeAddNode,
+			NodeID:  self,
+			// Context: []byte(fmt.Sprintf("http://%s:%d", "", n.Port+1000)),
+		}
+		e := raftpb.Entry{
+			Type:  raftpb.EntryConfChange,
+			Data:  pbutil.MustMarshal(cc),
+			Term:  term,
+			Index: next,
+		}
+		ents = append(ents, e)
+		next++
+	}
+
+	for _, id := range ids {
+		if id == self {
+			continue
+		}
+		cc := &raftpb.ConfChange{
+			Type:   raftpb.ConfChangeRemoveNode,
+			NodeID: id,
+		}
+		e := raftpb.Entry{
+			Type:  raftpb.EntryConfChange,
+			Data:  pbutil.MustMarshal(cc),
+			Term:  term,
+			Index: next,
+		}
+		ents = append(ents, e)
+		next++
+	}
+
+	return ents
+}
+
+func NewClusterFromService(lg *zap.Logger, service string) *membership.RaftCluster {
+	var m []*membership.Member
+	services, _ := registry.GetRunningService(service)
+	for _, s := range services {
+		for _, node := range s.RunningNodes() {
+			u, _ := url.Parse(node.Metadata["rafttransport"])
+			m = append(m, membership.NewMember(node.Id, types.URLs([]url.URL{*u}), "cells", nil))
+		}
+	}
+
+	return membership.NewClusterFromMembers(lg, "cells", types.ID(0), m)
+}
+

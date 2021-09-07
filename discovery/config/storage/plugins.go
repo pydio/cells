@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/server"
 	"github.com/pydio/cells/common/config"
 	microconf "github.com/pydio/cells/common/config/micro"
 	"github.com/pydio/cells/common/config/micro/file"
@@ -33,7 +34,6 @@ import (
 	"github.com/spf13/viper"
 	"go.etcd.io/etcd/raft/raftpb"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/pydio/cells/common"
@@ -45,7 +45,6 @@ import (
 var store *raft.KVStore
 
 func init() {
-
 	plugins.Register("cluster", func(ctx context.Context) {
 		id := viper.GetInt("nats_streaming_cluster_node_id")
 		port := fmt.Sprintf("%d", 20000 + id)
@@ -57,12 +56,6 @@ func init() {
 			service.Description("Main service loading configurations for all other services."),
 			service.Port(port),
 			service.WithMicro(func(m micro.Service) error {
-				// cluster := flag.String("cluster", "http://127.0.0.1:9021", "comma separated cluster peers")
-
-				// kvport := flag.Int("port", 9121, "key-value server port")
-				//join := flag.Bool("join", false, "join an existing cluster")
-				//flag.Parse()
-
 				source := file.NewSource(
 					microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
 				)
@@ -76,14 +69,36 @@ func init() {
 					),
 				)
 
-				cluster := ""
 				join := false
 
 				proposeC := make(chan string)
 				confChangeC := make(chan raftpb.ConfChange)
 
-				getSnapshot := func() ([]byte, error) { return store.GetSnapshot() }
-				commitC, errorC, snapshotterReady := raft.NewRaftNode(id, strings.Split(cluster, ","), "pydio.storage.config", join, getSnapshot, proposeC, confChangeC)
+				getSnapshot := func() ([]byte, error) {
+					return store.GetSnapshot()
+				}
+
+				meta := make(map[string]string)
+				for k, v := range m.Options().Server.Options().Metadata {
+					meta[k] = v
+				}
+
+				meta["rafttransport"] = fmt.Sprintf("http://:%d", 21000 + id)
+
+				m.Options().Server.Init(
+					server.Metadata(meta),
+				)
+
+				commitC, errorC, snapshotterReady := raft.NewRaftNode(
+					id,
+					m.Server().Options().Id,
+					meta["rafttransport"],
+					"pydio.storage.config",
+					join,
+					getSnapshot,
+					proposeC,
+					confChangeC,
+					)
 
 				store = raft.NewKVStore(defaultConfig.Val(), <-snapshotterReady, proposeC, commitC, errorC)
 
