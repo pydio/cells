@@ -23,7 +23,7 @@ import Pydio from 'pydio'
 import ScheduleForm from "./ScheduleForm";
 import Events from "./Events";
 
-import {Paper} from 'material-ui'
+import {Dialog, Paper, FlatButton} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {moment} = Pydio.requireLib("boot");
 const {MaterialTable} = Pydio.requireLib('components');
@@ -131,7 +131,8 @@ class JobsList extends React.Component {
 
     render(){
 
-        const {pydio, selectRows, muiTheme, jobs = [], loading} = this.props;
+        const {pydio, selectRows, muiTheme, jobs = [], loading, jobsEditable} = this.props;
+        const {flowsOpen} = this.state ||{};
 
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
         const adminStyles = AdminComponents.AdminStyles(muiTheme.palette);
@@ -176,15 +177,15 @@ class JobsList extends React.Component {
         userKeys[0] = {
             name:'Owner',
             label:m('job.owner'),
-            style:{width:'10%'},
-            headerStyle:{width:'10%'},
+            style:{width:180},
+            headerStyle:{width:180},
             hideSmall: true
         };
         userKeys[1] = {
             name:'Label',
             label:m('job.label'),
-            style:{width:'45%', fontSize: 15},
-            headerStyle:{width:'45%'},
+            style:{width:'40%', fontSize: 15},
+            headerStyle:{width:'40%'},
             sorter:{type:'string'}
         }
 
@@ -240,6 +241,40 @@ class JobsList extends React.Component {
                         storageKey={'console.scheduler.jobs.list'}
                     />
                 </Paper>
+                {jobsEditable &&
+                <div
+                    style={{...adminStyles.body.block.container, backgroundColor: 'white', fontSize: 15, display:'flex', alignItems: 'center', cursor:'pointer'}}
+                    onClick={()=>{this.setState({flowsOpen: true})}}
+                >
+                    <Dialog
+                        open={flowsOpen}
+                        bodyStyle={{padding: 0, minHeight: 450}}
+                        contentStyle={{maxWidth: 622}}
+                        onRequestClose={()=>this.setState({flowsOpen: false})}
+                        actions={[
+                            <FlatButton label={pydio.MessageHash[54]} onClick={()=>this.setState({flowsOpen: false})}/>,
+                            <FlatButton secondary={true} label={m('cellsflows.dialog.button')} onClick={()=> {window.open('https://pydio.com/en/pydio-cells/cells-flows?utm_source=cellsflows-app'); this.setState({flowsOpen: false})}}/>
+                        ]}
+                    >
+                        <img src={"/plug/access.settings/res/images/cellsflows.png"} alt={"Cells Flows"} style={{width: '100%'}}/>
+                        <div style={{fontSize: 14, padding: '16px 20px',borderTop: '1px solid rgba(0, 0, 0, .1)', textAlign: 'justify', color: 'rgba(0,0,0,.73)'}}>{m('cellsflows.dialog.text')}</div>
+                    </Dialog>
+                    <div style={{width: 180, paddingLeft: 24}}>
+                        <FlatButton
+                            label={m('cellsflows.cta.button')}
+                            disabled={true}
+                            backgroundColor={"rgb(251, 251, 252)"}
+                            style={{width:'100%', height: 30, lineHeight:'30px'}}
+                            secondary={true}
+                            onClick={() => {}}
+                        />
+                    </div>
+                    <div style={{flex: 1, padding: '16px 24px'}}>{m('cellsflows.cta.text')}</div>
+                    <div style={{fontSize: 20, paddingRight: 24, color:'rgba(0,0,0,.33)'}}>
+                        <span className={"mdi mdi-chevron-right"}/>
+                    </div>
+                </div>
+                }
                 <AdminComponents.SubHeader
                     title={m('users.title')}
                     legend={m('users.legend')}

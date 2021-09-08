@@ -1682,6 +1682,18 @@
   "scheduler.users.empty":{
     "other": "No jobs launched by users"
   },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Custom Job"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "Find out more"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
+  },
   "scheduler.job.label":{
     "other": "Label"
   },
