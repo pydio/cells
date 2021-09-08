@@ -298,6 +298,8 @@ message PurgeActivitiesRequest {
     int32 maxCount = 5;
     // Remove records updated before...
     int32 updatedBeforeTimestamp = 6;
+    // Trigger DB compaction after purge
+    bool CompactDB = 8;
     // Clear original DB after compaction
     bool ClearBackups = 7;
 }
