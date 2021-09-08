@@ -110,6 +110,7 @@ let Dashboard = createReactClass({
                     selectRows={(rows)=>{this.selectRows(rows)}}
                     jobs={jobs}
                     loading={loading}
+                    jobsEditable={jobsEditable}
                 />
             </div>
         );

@@ -41,8 +41,7 @@ class JobsList extends React.Component {
             overflow:'hidden',
             textOverflow: 'ellipsis'
         };
-        let system = [];
-        let other = [];
+        let system = [], other = [], inactives = [];
         if (jobs === undefined) {
             return {system, other};
         }
@@ -115,14 +114,11 @@ class JobsList extends React.Component {
                 data.SortValue = '3-' + job.Label;
             }
             if (job.Inactive) {
-                data.Label = <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
                 data.TaskStartTime = <span style={{opacity: 0.43}}>{data.TaskStartTime}</span>;
                 data.TaskEndTime = <span style={{opacity: 0.43}}>{data.TaskEndTime}</span>;
                 data.TaskStatus = <span style={{opacity: 0.43}}>{data.TaskStatus}</span>;
-                data.SortValue = '3-' + job.Label;
-            }
-
-            if (job.Owner === 'pydio.system.user') {
+                inactives.push(data)
+            } else if (job.Owner === 'pydio.system.user') {
                 system.push(data);
             } else {
                 other.push(data);
@@ -130,7 +126,7 @@ class JobsList extends React.Component {
 
         });
 
-        return {system, other};
+        return {system, other, inactives};
     }
 
     render(){
@@ -192,8 +188,35 @@ class JobsList extends React.Component {
             sorter:{type:'string'}
         }
 
+        const inactiveKeys = [
+            {
+                name:'Trigger',
+                label:m('job.trigger'),
+                style:{width:180, textAlign:'left', paddingRight: 0},
+                headerStyle:{width:180, paddingRight: 0},
+                hideSmall: true,
+                sorter:{
+                    type:'number',
+                    default:true,
+                    value:row=>row.SortValue
+                }
+            },
+            {
+                name:'Label',
+                label:m('job.label'),
+                style:{fontSize: 15},
+                sorter:{
+                    type: 'string',
+                    value:data=>data.Label
+                },
+                renderCell:(data => {
+                    return <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
+                })
+            }
+        ]
 
-        let {system, other} = this.extractRowsInfo(jobs, m);
+
+        let {system, other, inactives} = this.extractRowsInfo(jobs, m);
         const actions = [{
             iconClassName:'mdi mdi-chevron-right',
             onClick:(row)=>selectRows([row])
@@ -229,8 +252,27 @@ class JobsList extends React.Component {
                         showCheckboxes={false}
                         emptyStateString={m('users.empty')}
                         masterStyles={adminStyles.body.tableMaster}
+                        paginate={[25, 50, 100]}
                     />
                 </Paper>
+                {inactives &&
+                <React.Fragment>
+                    <AdminComponents.SubHeader
+                        title={m('inactives.title')}
+                        legend={m('inactives.legend')}
+                    />
+                    <Paper {...adminStyles.body.block.props}>
+                        <MaterialTable
+                            data={inactives}
+                            columns={inactiveKeys}
+                            actions={actions}
+                            onSelectRows={(rows)=>{selectRows(rows)}}
+                            showCheckboxes={false}
+                            masterStyles={adminStyles.body.tableMaster}
+                        />
+                    </Paper>
+                </React.Fragment>
+                }
             </div>
         );
 
