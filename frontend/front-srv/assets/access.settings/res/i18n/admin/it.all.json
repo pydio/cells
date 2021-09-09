@@ -1664,6 +1664,12 @@
   "scheduler.system.legend": {
     "other": "Questi job sono predefiniti all'interno dell'applicazione. Sono generalmente incaricati di estrarre informazioni dal nodo in background o di eseguire alcune operazioni di pulizia."
   },
+  "scheduler.inactives.title": {
+    "other": "Inactive Jobs"
+  },
+  "scheduler.inactives.legend": {
+    "other": "These jobs are inactive, click on a job to enable it."
+  },
   "scheduler.system.empty": {
     "other": "Nessun job pianificato."
   },
@@ -1675,6 +1681,18 @@
   },
   "scheduler.users.empty": {
     "other": "Nessun job lanciato dagli utenti"
+  },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Custom Job"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "Find out more"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
   "scheduler.job.label": {
     "other": "Etichetta"
@@ -1882,6 +1900,12 @@
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Periodo in minuti"
+  },
+  "scheduler.job-parameters.dialog": {
+    "other": "Job Parameters"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "Parametri"
   },
   "developer.rest.apis": {
     "other": "Documentazione REST-API"

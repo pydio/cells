@@ -1664,6 +1664,12 @@
   "scheduler.system.legend": {
     "other": "Ces jobs sont enregistrés par défaut. Ils sont en charge de l'extraction d'information des fichiers en tâche de fond, et d'opérations de nettoyage."
   },
+  "scheduler.inactives.title": {
+    "other": "Tâches inactives"
+  },
+  "scheduler.inactives.legend": {
+    "other": "Ces tâches sont inactives, cliquez dessus pour activer."
+  },
   "scheduler.system.empty": {
     "other": "Pas de jobs programmés."
   },
@@ -1675,6 +1681,18 @@
   },
   "scheduler.users.empty": {
     "other": "Pas de jobs lancés"
+  },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Tâche personnalisée"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Vous avez besoin de créer votre propre scénario ? Découvrez comment Cells Flows vous permet d'automatiser facilement les tâches répétitives dans Cells."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "En savoir plus"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "De la création de vos propres workflows à la planification des tâches ou à l’intégration d’outils tiers, nos composants personnalisables vous aident à répondre aux événements et à automatiser leur traitement."
   },
   "scheduler.job.label": {
     "other": "Libellé"
@@ -1882,6 +1900,12 @@
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Période en minutes"
+  },
+  "scheduler.job-parameters.dialog": {
+    "other": "Paramètres"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "Paramètres"
   },
   "developer.rest.apis": {
     "other": "Documentation de l'API REST"

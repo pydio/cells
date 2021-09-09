@@ -1664,6 +1664,12 @@
   "scheduler.system.legend": {
     "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
   },
+  "scheduler.inactives.title": {
+    "other": "Inactive Jobs"
+  },
+  "scheduler.inactives.legend": {
+    "other": "These jobs are inactive, click on a job to enable it."
+  },
   "scheduler.system.empty": {
     "other": "No jobs scheduled."
   },
@@ -1675,6 +1681,18 @@
   },
   "scheduler.users.empty": {
     "other": "No jobs launched by users"
+  },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Custom Job"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "Find out more"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
   "scheduler.job.label": {
     "other": "Метка"
@@ -1882,6 +1900,12 @@
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Период в минутах"
+  },
+  "scheduler.job-parameters.dialog": {
+    "other": "Job Parameters"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "Установите метку и короткое описание"
   },
   "developer.rest.apis": {
     "other": "Документация API"

@@ -1664,6 +1664,12 @@
   "scheduler.system.legend": {
     "other": "Diese Jobs werden standardmäßig in der Anwendung registriert. Sie sind im Allgemeinen dafür verantwortlich, Informationen von Nodes im Hintergrund zu extrahieren oder einige Reinigungsvorgänge auszuführen."
   },
+  "scheduler.inactives.title": {
+    "other": "Inaktive Jobs"
+  },
+  "scheduler.inactives.legend": {
+    "other": "Diese Jobs sind inaktiv, klicken Sie auf einen Job, um ihn zu aktivieren."
+  },
   "scheduler.system.empty": {
     "other": "Keine Jobs geplant."
   },
@@ -1675,6 +1681,18 @@
   },
   "scheduler.users.empty": {
     "other": "Keine Jobs von Benutzern gestartet"
+  },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Eigener Job"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Müssen Sie Ihren eigenen Job erstellen? Entdecken Sie, wie Cells Flow die Automatisierung Ihrer wiederholten manuellen Aufgaben in Cells vereinfachen."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "Mehr erfahren"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "Von der Erstellung eigener Workflows über die Planung von Aufgaben bis hin zur Integration mit Tools von Drittanbietern helfen Ihnen unsere anpassbaren Komponenten, automatisch auf Ereignisse zu reagieren und Maßnahmen zu ergreifen."
   },
   "scheduler.job.label": {
     "other": "Titel"
@@ -1882,6 +1900,12 @@
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Zeitraum in Minuten"
+  },
+  "scheduler.job-parameters.dialog": {
+    "other": "Job Parameter"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "Einstellungen"
   },
   "developer.rest.apis": {
     "other": "REST-API Dokumentation"
