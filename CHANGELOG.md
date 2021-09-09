@@ -1,34 +1,30 @@
-# Changes between v2.3.2 and v2.3.3
+# Changes between v2.3.3 and v2.3.4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.3.2...v2.3.3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.3.3...v2.3.4)
 
-- [#38d894f](https://github.com/pydio/cells/commit/38d894f6e90ec742d9aaa8def52bf1fa55e06cee): Optimize GetNodeFirstAvailableChildIndex : dedicated sql query, do not look for missing numbers if sql is "full", use binary search to find first available slot.
-- [#f9e1061](https://github.com/pydio/cells/commit/f9e10613cc81ab70b697944a42dacdfb871ba865): Merge remote-tracking branch 'origin/master'
-- [#9a86ab1](https://github.com/pydio/cells/commit/9a86ab1ca703ddae8e29928d966a62e94c150f75): Freeing the read lock quicker
-- [#23c816c](https://github.com/pydio/cells/commit/23c816ce31b7a4f88fb6e06f5ebc31a5565129e4): Lower logs level
-- [#3728fec](https://github.com/pydio/cells/commit/3728feceba0486cd45ea74535e8fc52da3cef509): Set disable button on click for compression action
-- [#68e03d7](https://github.com/pydio/cells/commit/68e03d71099ec0c2f5a870bea644f720a20fc958): Merge remote-tracking branch 'origin/master'
-- [#608de7e](https://github.com/pydio/cells/commit/608de7edc713f12051bb5e7da1cc94986cc9c766): Remove unnecessary debug log
-- [#271320e](https://github.com/pydio/cells/commit/271320ee19498dfac5dfb889a9195956e3753992): Additional checks for specific policies when launching compression action
-- [#7708c56](https://github.com/pydio/cells/commit/7708c562da93c68d5590bfcff7811d3cfc139758): RMutex to registry peers
-- [#57cd36c](https://github.com/pydio/cells/commit/57cd36c557a540bfb7c763d4938eba88d48e8b86): RMutex to service children runner
-- [#706b741](https://github.com/pydio/cells/commit/706b741f548f9766eeda6ebeabc12bcfd9119525): Correct check on stream error - Skip warning on user if 404
-- [#8183955](https://github.com/pydio/cells/commit/818395551575fe51eb31ca1f2c938d1080f5e17f): Re-adapt dl iframe to react createRef
-- [#063cf3d](https://github.com/pydio/cells/commit/063cf3d5ec09385bbe6bb1b95a29f018248bdd51): Split download into multiple actions for selective disable
-- [#3674de6](https://github.com/pydio/cells/commit/3674de6c8ca94646d179bc1011e50d2733a4dbcc): Split specific buckets rewrite in two instructions (if_op not working as expected)
-- [#211e082](https://github.com/pydio/cells/commit/211e082bf7a74c12ef6e660f2e568bd228110fe6): Bolt versions tag logger with service name
-- [#68b6f5a](https://github.com/pydio/cells/commit/68b6f5a6d760bb34833c08c755ef0ec30eb066c6): Fix GetNodeTree sorting in cacheDAO - Delay childrenEvents a bit on deletion.
-- [#c45a786](https://github.com/pydio/cells/commit/c45a786fa78a67ad410e4cf208265cfdccf402b5): Clone msg in memory broker
-- [#ba556d4](https://github.com/pydio/cells/commit/ba556d4ee7a8af549e836d38bb34a204fcaea0df): Switch memory broker to a pub/sub implementation
-- [#2b187cf](https://github.com/pydio/cells/commit/2b187cffec6f419210fc109bf9fe2ef95506bdfe): Hidden command for benching broker
-- [#2854603](https://github.com/pydio/cells/commit/2854603f9b009c6d4406f3187ec62c233884c084): Meta/grpc: key-based mutex can lock, disable
-- [#b72e8cf](https://github.com/pydio/cells/commit/b72e8cf4925868c502b9cd7f96fa8471085dc0d9): Scheduler subscriber : filter out internal DS events
-- [#75b9baa](https://github.com/pydio/cells/commit/75b9baab612e0c5be4ec75755c4b0d6e3304509c): Setting timeout and max number of routines to memory broker
-- [#51514fe](https://github.com/pydio/cells/commit/51514fe33baddce87131ee3ae655336de039d22e): once.Do devDirective registration, as it was preventing restart after install.
-- [#b2a8c5e](https://github.com/pydio/cells/commit/b2a8c5e02be039f232c860b3978d5389e490bc08): Harmonize masonry with thumbs view
-- [#ace499e](https://github.com/pydio/cells/commit/ace499e9ec6b83e84b198bebdd8ecd4a937347d9): Show loader on ENTER button when submitting login
-- [#0058d0a](https://github.com/pydio/cells/commit/0058d0ad7e2ba68618f9a40b7bc7ac853e60c2be): Skip internal events in activity subscriber
-- [#369f75b](https://github.com/pydio/cells/commit/369f75b970b049184aad8d6087416dce1159d637): Folder-size-cache: remove unnecessary subscriber
-- [#ab64685](https://github.com/pydio/cells/commit/ab64685599104b81b94acd1876a09a9ab9763669): Mime extractor on multipart : force LEAF on node to avoid display issue
-- [#44df03f](https://github.com/pydio/cells/commit/44df03fbdead2143aa5743e64a13110097d1ae75): Next development cycle
-- [#e5a145a](https://github.com/pydio/cells/commit/e5a145a206a8050206ca2d3e1aafb66b14958a42): Rate limiting
+- [#a4e9bc2](https://github.com/pydio/cells/commit/a4e9bc2f083ed84b52a98ad080bdb6b85880ef2f): Fix a few glitches + new messages
+- [#d26abf5](https://github.com/pydio/cells/commit/d26abf5b517c0d34dc14df35f80f7741f00e796f): Fix a few glitches + new messages
+- [#1f6656d](https://github.com/pydio/cells/commit/1f6656d47a7acd3d77a9f1f09f84d81822b43434): Adding requests to the prune token functionality
+- [#e3b7ef3](https://github.com/pydio/cells/commit/e3b7ef33831354c87e999a23922595aab7a7f4ab): Fix EXIF orientation inside new Image Gallery
+- [#a4eefd6](https://github.com/pydio/cells/commit/a4eefd6bc048ebbeffb2339c5dfaa1e3764f2560): CTA for Cells Flows feature
+- [#2c6479e](https://github.com/pydio/cells/commit/2c6479efbbe48cdc1330817cc7544d88beed0b15): Scheduler: split inactive jobs from the list
+- [#87fa93b](https://github.com/pydio/cells/commit/87fa93b16861ab9f017eefc7444677214927c1dc): Purge Activities : dedicated command line tool, fix updated flag support, add flag for compacting DB or not.
+- [#059ad76](https://github.com/pydio/cells/commit/059ad76d86a010761d37bb267f27f25c8dabeb85): Wrong ref to SDK
+- [#1cbc5c2](https://github.com/pydio/cells/commit/1cbc5c2e69bbdcb90ff045993b6694ab34f5d70f): Missing translations for in jobs schedule
+- [#34a0002](https://github.com/pydio/cells/commit/34a0002e5c79b001a3777be18f281c79c649ae22): Forgotten Info log
+- [#0357629](https://github.com/pydio/cells/commit/035762992377a873e3fe6076a1bee9d35f47fede): Merge remote-tracking branch 'origin/master'
+- [#47cfb0c](https://github.com/pydio/cells/commit/47cfb0c5f3bfb804536d6004566d834e631179db): Filter derived policies
+- [#09ba60c](https://github.com/pydio/cells/commit/09ba60c75211932dbb68c0e5cf8e0a5d3add0b88): Rework share tools for better policies support.
+- [#dc08e58](https://github.com/pydio/cells/commit/dc08e58c47ad203b4213c9e8f2d7a442bf3abc1d): More Portuguese
+- [#b1355a3](https://github.com/pydio/cells/commit/b1355a329b2319c480e64ebbe82a6d9df512bffe): More Portuguese
+- [#570cd1c](https://github.com/pydio/cells/commit/570cd1cdb94354809810bd0a70db2fa9481db6d8): Dynamic configuration of raft nodes
+- [#ba915a4](https://github.com/pydio/cells/commit/ba915a4e8136e7fa5b44b9de3f828c6033d35d0b): Lower log level
+- [#af351d3](https://github.com/pydio/cells/commit/af351d3d14d24046b3719d6e0537c95b00ab6d01): Command line tool to migrate datasource to/from flat storage.
+- [#03e0d00](https://github.com/pydio/cells/commit/03e0d00947170c2d4df5ecdaae3edd15fabbd003): Homogeneize yaml params for installer + example for multi-site
+- [#657e1d0](https://github.com/pydio/cells/commit/657e1d057bb9cd13020537b0ee850c0da910fa70): Rather print token to standard out to ease later use
+- [#8882319](https://github.com/pydio/cells/commit/88823196a9d676563744a1e72dbd511d29836c5d): Rather use Print for quiet mode to ease use of the generated token
+- [#e82155f](https://github.com/pydio/cells/commit/e82155f2ba7e9c2048cc35caa5daa575e6dd23e9): More Japanese and Spanish, fix a glitch in French
+- [#40c421c](https://github.com/pydio/cells/commit/40c421cb609d3054abf85b71b5afbe6869c45f68): More Japanese and Spanish, fix a glitch in French
+- [#360ed8d](https://github.com/pydio/cells/commit/360ed8d35e49bb830df0422b0f14e4e4ed9c426f): Add a "--quiet" flag to the PAT command
+- [#522409b](https://github.com/pydio/cells/commit/522409b6a8d181cd21b6c3f4a90e1c8dbcb4d6aa): Next development cycle
+- [#4e9712f](https://github.com/pydio/cells/commit/4e9712f914eb485dfcb70b9fe043036f62c0bf94): Change to the raft cluster start
