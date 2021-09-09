@@ -8,6 +8,29 @@ import {ContextMenuWrapper} from "./ListEntry";
 import {sortNodesNatural} from "./sorters";
 import SimpleList from "./SimpleList";
 
+const rotations = {
+    2:{scaleX:-1, scaleY:1},
+    3:{rotate:'180deg'},
+    4:{rotate:'180deg', scaleX:-1, scaleY:1},
+    5:{rotate:'90deg', scaleX:1, scaleY:-1, tX:-1, tY:1},
+    6:{rotate:'90deg', tX:-1, tY:-1},
+    7:{rotate:'270deg', scaleX:1, scaleY:-1, tX:1, tY:-1},
+    8:{rotate:'270deg', tX:1, tY: 1},
+}
+function rotate(rotation) {
+    const pieces = [];
+    if(rotation.rotate){
+        pieces.push(`rotate(${rotation.rotate})`)
+    }
+    if(rotation.scaleX) {
+        pieces.push(`scale(${rotation.scaleX}, ${rotation.scaleY})`)
+    }
+    if(rotation.translateX) {
+        pieces.push(`translate(${rotation.translateX}px,${rotation.translateY}px)`)
+    }
+    return pieces.join(' ');
+}
+
 function usePreview(node) {
     let ratio = 0.5;
     if(node.getMetadata().has('ImageDimensions')){
@@ -25,7 +48,8 @@ function usePreview(node) {
 
 const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
 
-    const {ratio, src} = usePreview(node);
+    // ratio may be modified by exif orientation
+    let {ratio, src} = usePreview(node);
     const [selected, setSelected] = useState(dataModel.getSelectedNodes().indexOf(node) > -1)
     const [hover, setHover] = useState(false);
     useEffect(() => {
@@ -59,6 +83,25 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
     }
     const parentLabel = Pydio.getMessages()['react.1']
 
+    let rotateStyle={}
+    if(src && ratio && node.getMetadata().get("image_exif_orientation")){
+        const orientation = parseInt(node.getMetadata().get("image_exif_orientation"));
+        if(rotations[orientation]) {
+            const rot = {...rotations[orientation]};
+            if (orientation < 5) {
+                rotateStyle = {transform:rotate(rot)}
+            } else {
+                ratio = 1/ratio;
+                const contW = width;
+                const contH = width * ratio;
+                const translate = (contW - contH) / 2
+                rot.translateX = translate*rot.tX
+                rot.translateY = translate*rot.tY
+                rotateStyle = {transform:rotate(rot), width: contH}
+            }
+        }
+    }
+
     return (
         <ContextMenuWrapper
             node={node}
@@ -68,7 +111,7 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
             onMouseOver={() => setHover(true)}
             onMouseOut={() => setHover(false)}
         >
-            {src && <img alt={node.getPath()} src={src} style={{width:width, borderRadius: 4}}/>}
+            {src && <img alt={node.getPath()} src={src} style={{width:width, borderRadius: 4, ...rotateStyle}}/>}
             {parent && <div className={"mimefont-container"}><div className={"mimefont mdi mdi-chevron-left"}/></div>}
             {!parent && !src && renderIcon(node)}
             {!parent && <div style={{position:'absolute', top: 0, left: 0}}>{renderActions(node)}</div>}
