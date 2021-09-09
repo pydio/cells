@@ -54,22 +54,22 @@
     "other": "{{.Object}} laboja {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Metadatus laboja {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Metadatus laboja {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} laboja metadatus {{.Object}}"
   },
   "CommentedBy": {
-    "other": "Commented by {{.Actor}}"
+    "other": "Komentēja {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "Komentēja pie {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} publicēja jaunu komentāru pie {{.Object}}"
   },
   "MovedBy": {
     "other": "Pārvietoja {{.Actor}}"
