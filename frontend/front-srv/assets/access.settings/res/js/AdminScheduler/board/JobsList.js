@@ -290,7 +290,7 @@ class JobsList extends React.Component {
                         paginate={[25, 50, 100]}
                     />
                 </Paper>
-                {inactives &&
+                {inactives && inactives.length > 0 &&
                 <React.Fragment>
                     <AdminComponents.SubHeader
                         title={m('inactives.title')}
