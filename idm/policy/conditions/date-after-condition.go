@@ -40,13 +40,15 @@ type DateAfterCondition struct {
 // that represent a point in time after the specified time reference
 func (c *DateAfterCondition) Fulfills(value interface{}, _ *ladon.Request) bool {
 
+	if value == nil {
+		return false
+	}
+
 	s, ok := value.(string)
 	if !ok {
 		log.Logger(context.Background()).Error("passed value must be a string", zap.Any("input param", value))
 		return false
 	}
-
-	log.Logger(context.Background()).Error("checking aftert time condition with input date: " + s)
 
 	t, parseErr := time.Parse(timeLayout, s)
 	if parseErr != nil {

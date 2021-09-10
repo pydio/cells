@@ -41,6 +41,10 @@ type DateWithinPeriodCondition struct {
 // It expects a string formatted this way: "2006-01-02T15:04-0700"
 func (c *DateWithinPeriodCondition) Fulfills(value interface{}, _ *ladon.Request) bool {
 
+	if value == nil {
+		return false
+	}
+
 	s, ok := value.(string)
 	if !ok {
 		log.Logger(context.Background()).Error("passed value must be a string", zap.Any("input param", value))
