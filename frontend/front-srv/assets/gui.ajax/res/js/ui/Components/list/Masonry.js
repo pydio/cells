@@ -7,6 +7,8 @@ import useImage from 'react-use-image'
 import {ContextMenuWrapper} from "./ListEntry";
 import {sortNodesNatural} from "./sorters";
 import SimpleList from "./SimpleList";
+import EmptyStateView from "../views/EmptyStateView";
+import {debounce} from 'lodash'
 
 const rotations = {
     2:{scaleX:-1, scaleY:1},
@@ -45,6 +47,10 @@ function usePreview(node) {
     }
     return {ratio, src};
 }
+
+const triggerResize = debounce(() => {
+    window.dispatchEvent(new Event('resize'));
+}, 500)
 
 const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
 
@@ -133,7 +139,7 @@ function childrenToItems(node, itemProps) {
     return items;
 }
 
-export default React.memo(({className, dataModel, entryProps}) => {
+export default React.memo(({className, dataModel, entryProps, emptyStateProps, containerStyle={}}) => {
 
     const itemProps = {dataModel, entryProps};
     const computeItems = () => {
@@ -191,25 +197,33 @@ export default React.memo(({className, dataModel, entryProps}) => {
     const { width, height } = useSize(containerRef);
     const { scrollTop, isScrolling } = useScroller(containerRef);
 
+    useEffect(() => {
+        triggerResize();
+    }, [containerStyle.marginLeft])
+
+
     const positioner = usePositioner({
         width,
         columnWidth: 220,
         columnGutter: 8
     }, [items]);
     const resizeObserver = useResizeObserver(positioner);
+    const masonryElement = useMasonry({
+        positioner,
+        resizeObserver,
+        items,
+        height,
+        scrollTop,
+        isScrolling,
+        overscanBy: 6,
+        render: ResizingCard
+    });
 
+    let useEmptyView = emptyStateProps && !node.isLoading() && (!items || !items.length)
     return (
-        <div style={{width: '100%', flex: 1, padding: 8, overflowY:'auto'}} className={className} ref={containerRef} onKeyDown={keyDown}>
-            {useMasonry({
-                positioner,
-                resizeObserver,
-                items,
-                height,
-                scrollTop,
-                isScrolling,
-                overscanBy: 6,
-                render: ResizingCard
-            })}
+        <div style={{flex: 1, padding: 8, overflowY:'auto', ...containerStyle}} className={className} ref={containerRef} onKeyDown={keyDown}>
+            {useEmptyView && <EmptyStateView pydio={Pydio.getInstance()} {...emptyStateProps} />}
+            {!useEmptyView && masonryElement}
         </div>
     );
 

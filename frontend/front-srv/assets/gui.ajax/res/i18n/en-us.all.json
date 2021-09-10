@@ -146,6 +146,9 @@
   "list.display-mode.thumbs-small": {
     "other": "Thumbs Small"
   },
+  "list.display-mode.masonry": {
+    "other": "Image Gallery"
+  },
   "list.extensions.action": {
     "other": "Files extensions"
   },

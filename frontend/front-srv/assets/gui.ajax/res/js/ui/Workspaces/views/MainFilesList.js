@@ -614,9 +614,9 @@ class MainFilesList extends React.Component {
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.list'],title:227,icon_class:'mdi mdi-view-list',value:'list',hasAccessKey:true,accessKey:'list_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.details'],title:461,icon_class:'mdi mdi-view-headline',value:'detail',hasAccessKey:true,accessKey:'detail_access_key'},
             {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs'],title:229,icon_class:'mdi mdi-view-grid',value:'grid-160',hasAccessKey:true,accessKey:'thumbs_access_key'},
-            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320',hasAccessKey:false},
-            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80',hasAccessKey:false}
-           ,{name:'Image Gallery',title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry',hasAccessKey:false}
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-large'],title:229,icon_class:'mdi mdi-view-agenda',value:'grid-320', hasAccessKey:false},
+            {name:Pydio.getMessages()['ajax_gui.list.display-mode.thumbs-small'],title:229,icon_class:'mdi mdi-view-module',value:'grid-80', hasAccessKey:false}
+           ,{name:Pydio.getMessages()['ajax_gui.list.display-mode.masonry'], title:229,icon_class:'mdi mdi-view-dashboard',value:'masonry', hasAccessKey:false}
         ];
         return list.map(item => {
             const i = {...item};
@@ -857,6 +857,8 @@ class MainFilesList extends React.Component {
                             renderIcon:this.entryRenderIcon.bind(this),
                             renderActions: this.entryRenderActions.bind(this)
                         }}
+                        emptyStateProps={emptyStateProps}
+                        containerStyle={style}
                     />
                     <style type={"text/css"} dangerouslySetInnerHTML={{__html:css}}/>
                 </React.Fragment>
