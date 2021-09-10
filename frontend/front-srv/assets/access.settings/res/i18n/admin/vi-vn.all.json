@@ -1664,6 +1664,12 @@
   "scheduler.system.legend": {
     "other": "Những công việc này được đăng ký theo mặc định bên trong ứng dụng. Họ thường chịu trách nhiệm trích xuất thông tin từ node trong nền hoặc thực hiện một số thao tác làm sạch."
   },
+  "scheduler.inactives.title": {
+    "other": "Inactive Jobs"
+  },
+  "scheduler.inactives.legend": {
+    "other": "These jobs are inactive, click on a job to enable it."
+  },
   "scheduler.system.empty": {
     "other": "Không có công việc theo lịch trình."
   },
@@ -1675,6 +1681,18 @@
   },
   "scheduler.users.empty": {
     "other": "Không có việc làm được đưa ra bởi người dùng"
+  },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Custom Job"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "Find out more"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
   "scheduler.job.label": {
     "other": "Nhãn"
@@ -1882,6 +1900,12 @@
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Thời gian tính bằng phút"
+  },
+  "scheduler.job-parameters.dialog": {
+    "other": "Job Parameters"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "Tham số"
   },
   "developer.rest.apis": {
     "other": "Tài liệu API còn lại"

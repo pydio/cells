@@ -171,10 +171,10 @@
     "other": "Les Roles sont des conteneurs permettant de définir des contrôles d'accès ou des paramètres spécifiques, qui peuvent ensuite être appliqués à n'importe quel utilisateur."
   },
   "dashboard.technical.hide": {
-    "other": "Montrer les rôles techniques"
+    "other": "Masquer les rôles techniques"
   },
   "dashboard.technical.show": {
-    "other": "Cacher les rôles techniques"
+    "other": "Montrer les rôles techniques"
   },
   "last_update": {
     "other": "Dernière modification"

@@ -42,10 +42,10 @@
     "other": "Šis ir Jums domāto paziņojumu kopsavilkums uz servera {{.Configs.Title}}"
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} sent you a message!"
+    "other": "{{.TplData.From}} nosūtīja Jums ziņu!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} sent you a message using {{.Configs.Title}} application: {{.TplData.Message}}"
+    "other": "{{.TplData.From}} nosūtīja Jums ziņu {{.Configs.Title}} aplikācijā: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
     "other": "Sveicināti {{.Configs.Title}}"
@@ -162,16 +162,16 @@
     "other": "Programma kuru izmanto e-pastu sūtīšanai"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Izslēgts (neieslēdziet e-pastus)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (ieslgt e-pastus, bet neko nesūtīt)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Rakstīt e-pastus failā priekš atkļūdošanas"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "E-pastu ierakstīšanas direktorija"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP Serveris"
@@ -207,10 +207,10 @@
     "other": "Izslēgt sertifikāta verifikāciju ja SMTP serverim ir pašu izveidots sertifikāts"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Sūtītāja lokālais nosaukums"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "SMTP ziņotājs nosūta 'localhost' EHLO komandā pēc noklusējuma, lietojiet šo lauku lai iestatītu pielāgotu nosaukumu"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Serviss"
@@ -225,7 +225,7 @@
     "other": "Sendmail"
   },
   "Mail.Config.Sendmail.Legend": {
-    "other": "WARNING: Default executable path is /usr/bin/sendmail. If you need to change it, please make sure to set the 'defaults > sendmail' key in your pydio.json configuration file."
+    "other": "UZMANĪBU: Noklusētais ceļš ir /usr/bin/sendmail. Ja vēlaties to mainīt, pārliecinieties ka iestatīta 'defaults > sendmail' atslēga pydio.json konfigurācijas failā."
   },
   "Mail.Config.Sendmail.Executable.Label": {
     "other": "Programmas ceļš"

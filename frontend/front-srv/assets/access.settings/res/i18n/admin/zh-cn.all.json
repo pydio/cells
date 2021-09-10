@@ -1664,6 +1664,12 @@
   "scheduler.system.legend": {
     "other": "这些任务是应用程序内默认注册的。 他们通常负责在后台提取节点的某些信息，或进行某些清理操作。"
   },
+  "scheduler.inactives.title": {
+    "other": "Inactive Jobs"
+  },
+  "scheduler.inactives.legend": {
+    "other": "These jobs are inactive, click on a job to enable it."
+  },
   "scheduler.system.empty": {
     "other": "No jobs scheduled."
   },
@@ -1675,6 +1681,18 @@
   },
   "scheduler.users.empty": {
     "other": "No jobs launched by users"
+  },
+  "scheduler.cellsflows.cta.button": {
+    "other": "+ Custom Job"
+  },
+  "scheduler.cellsflows.cta.text": {
+    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+  },
+  "scheduler.cellsflows.dialog.button": {
+    "other": "Find out more"
+  },
+  "scheduler.cellsflows.dialog.text": {
+    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
   "scheduler.job.label": {
     "other": "标签"
@@ -1882,6 +1900,12 @@
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Period in minutes"
+  },
+  "scheduler.job-parameters.dialog": {
+    "other": "Job Parameters"
+  },
+  "scheduler.job-parameters.button": {
+    "other": "参数"
   },
   "developer.rest.apis": {
     "other": "API 文档"
