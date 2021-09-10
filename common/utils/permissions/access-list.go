@@ -24,6 +24,7 @@ import (
 	"context"
 	"sort"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -83,6 +84,8 @@ type AccessList struct {
 
 	hasClaimsScopes bool
 	claimsScopes    map[string]Bitmask
+
+	replicationMutex sync.Mutex
 }
 
 // NewAccessList creates a new AccessList.
@@ -139,6 +142,9 @@ func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
 
 // ReplicateBitmask copies a bitmask value from one position to another
 func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string) bool {
+	// Protect this method from concurrency
+	a.replicationMutex.Lock()
+	defer a.replicationMutex.Unlock()
 	if b, o := a.NodesAcls[fromUuid]; o {
 		a.NodesAcls[toUuid] = b
 		return true
