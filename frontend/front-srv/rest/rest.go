@@ -215,11 +215,14 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	sessionName := "pydio"
+	isMinisite := false
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
 		sessionName = sessionName + "-" + h
+		isMinisite = true
 	}
 	if h := req.HeaderParameter(common.XPydioFrontendSessionUuid); h != "" {
 		sessionName = sessionName + "-" + h
+		isMinisite = true
 	}
 
 	session, err := frontend.GetSessionStore(req.Request).Get(req.Request, sessionName)
@@ -231,6 +234,10 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	// Legacy code
 	if _, ok := session.Values["jwt"]; ok {
 		delete(session.Values, "jwt")
+	}
+
+	if isMinisite {
+		session.Values["minisite"] = true
 	}
 
 	response := &rest.FrontSessionResponse{}

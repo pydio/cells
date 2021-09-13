@@ -57,6 +57,7 @@ var profilesLevel = map[string]int{
 	common.PydioProfileShared:   1,
 	common.PydioProfileStandard: 2,
 	common.PydioProfileAdmin:    3,
+	"": 4,
 }
 
 type UserHandler struct {
@@ -429,7 +430,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		inputUser.GroupPath = strings.TrimSuffix(inputUser.GroupPath, "/") + "/" + inputUser.GroupLabel
 	} else {
 		// Add a default profile
-		if _, ok := inputUser.Attributes[idm.UserAttrProfile]; !ok {
+		if value, ok := inputUser.Attributes[idm.UserAttrProfile]; !ok || value == "" {
 			inputUser.Attributes[idm.UserAttrProfile] = common.PydioProfileShared
 		}
 		// Check profile is not higher than current user profile

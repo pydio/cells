@@ -171,6 +171,11 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 			return input.WithError(e), e
 		}
 	}
+	// Final check for format
+	if format != zipFormat && format != tarFormat && format != tarGzFormat {
+		er := fmt.Errorf("unsupported archive format")
+		return input.WithError(er), er
+	}
 	// Remove extension
 	base = strings.TrimSuffix(base, "."+format)
 	targetFile := computeTargetName(ctx, dir, base, format)

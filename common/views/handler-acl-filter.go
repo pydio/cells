@@ -57,7 +57,7 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
-		return nil, err
+		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
 		return nil, errors.Forbidden("node.not.readable", "Node is not readable")
@@ -93,7 +93,7 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
-		return nil, err
+		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 
 	if !accessList.CanRead(ctx, parents...) {
@@ -159,7 +159,7 @@ func (a *AclFilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRe
 	accessList := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 	ctx, fromParents, err := AncestorsListFromContext(ctx, in.From, "from", a.clientsPool, false)
 	if err != nil {
-		return nil, err
+		return nil, a.recheckParents(ctx, err, in.From, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
 		return nil, errors.Forbidden("node.not.readable", "Source Node is not readable")
@@ -181,7 +181,7 @@ func (a *AclFilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRe
 	accessList := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 	ctx, delParents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
-		return nil, err
+		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 	if !accessList.CanWrite(ctx, delParents...) {
 		return nil, errors.Forbidden("node.not.writeable", "Node is not writeable, cannot delete!")
@@ -200,7 +200,7 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, node, "in", a.clientsPool, false)
 	if err != nil {
-		return nil, err
+		return nil, a.recheckParents(ctx, err, node, true, false)
 	}
 	if !accessList.CanRead(ctx, parents...) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
@@ -259,7 +259,7 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 	accessList := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 	ctx, fromParents, err := AncestorsListFromContext(ctx, from, "from", a.clientsPool, false)
 	if err != nil {
-		return 0, err
+		return 0, a.recheckParents(ctx, err, from, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
@@ -327,7 +327,7 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	accessList := val.(*permissions.AccessList)
 	ctx, parents, err := AncestorsListFromContext(c, node, identifier, a.clientsPool, orParents)
 	if err != nil {
-		return err
+		return a.recheckParents(c, err, node, read, write)
 	}
 	if read && !accessList.CanRead(ctx, parents...) {
 		return errors.Forbidden("node.not.readable", "path is not readable")
@@ -340,4 +340,31 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 	}
 	return nil
 
+}
+
+func (a *AclFilterHandler) recheckParents(c context.Context, originalError error, node *tree.Node, read, write bool) error {
+
+	if errors.Parse(originalError.Error()).Code != 404 {
+		return originalError
+	}
+
+	val := c.Value(CtxUserAccessListKey{})
+	if val == nil {
+		return fmt.Errorf("cannot find accessList in context for checking permissions")
+	}
+	accessList := val.(*permissions.AccessList)
+
+	parents, e := BuildAncestorsListOrParent(c, a.clientsPool.GetTreeClient(), node)
+	if e != nil {
+		return e
+	}
+
+	if read && !accessList.CanRead(c, parents...) {
+		return errors.Forbidden("node.not.readable", "path is not readable")
+	}
+	if write && !accessList.CanWrite(c, parents...) {
+		return errors.Forbidden("node.not.writeable", "path is not writeable")
+	}
+
+	return originalError
 }

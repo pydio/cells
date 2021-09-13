@@ -52,6 +52,20 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			return err
 		}
 
+		// If user is "hidden", he is not allowed to log on the main interface
+		if user.Attributes != nil {
+			_, mini := session.Values["minisite"]
+			if h, o := user.Attributes["hidden"]; o && h == "true" && !mini {
+				log.Auditer(ctx).Error(
+					"Hidden user ["+user.Login+"] tried to log in on main interface",
+					log.GetAuditId(common.AuditLoginPolicyDenial),
+					zap.String(common.KeyUserUuid, user.Uuid),
+				)
+				log.Logger(ctx).Error("Denied login for hidden user " + user.Login + " on main interface")
+				return errors.Unauthorized("hidden.user.nominisite", "You are not allowed to log in to this interface")
+			}
+		}
+
 		// Checking user is locked
 		if permissions.IsUserLocked(user) {
 			log.Auditer(ctx).Error(
