@@ -54,6 +54,9 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 	jobUuid := "compress-folders-" + uuid.New()
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
+	if format != "zip" && format != "tar" && format != "tar.gz" {
+		return "", fmt.Errorf("unsupported format value, please use one of zap, tar or tar.gz")
+	}
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
@@ -264,6 +267,11 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			if nodeErr != nil {
 				return nodeErr
 			}
+			// Check perms first
+			if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); rErr != nil {
+				return rErr
+			}
+			// Load node to retrieve its size
 			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
 			if e != nil {
 				return e
@@ -279,9 +287,12 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 					return sErr
 				}
 			} else {
-				if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: r.Node}); rErr != nil {
-					return rErr
-				}
+				/*
+					// Already checked above
+					if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: r.Node}); rErr != nil {
+						return rErr
+					}
+				*/
 				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: checkNode}); er != nil {
 					return er
 				}
