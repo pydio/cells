@@ -73,6 +73,13 @@ var dataSourceMigrateCmd = &cobra.Command{
 			return e
 		}
 
+		running, _ := registry.GetRunningService(common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name)
+		if len(running) > 0 {
+			migrateLogger("[ERROR] Datasource " + source.Name + " sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
+			return e
+		}
+
+
 		// Prepare Clients
 		rootNode, idxClient, idxWrite, mc, e := migratePrepareClients(authCtx, source)
 		if e != nil {
