@@ -171,8 +171,8 @@ func (dao *FolderSizeCacheSQL) DelNode(node *mtree.TreeNode) error {
 func (dao *FolderSizeCacheSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error {
 	root := nodeTo.MPath.CommonRoot(nodeFrom.MPath)
 
-	dao.invalidateMPathHierarchy(nodeTo.MPath, len(nodeTo.MPath)-len(root))
-	dao.invalidateMPathHierarchy(nodeFrom.MPath, len(nodeFrom.MPath)-len(root))
+	dao.invalidateMPathHierarchy(nodeTo.MPath, len(root))
+	dao.invalidateMPathHierarchy(nodeFrom.MPath, len(root))
 
 	return dao.DAO.MoveNodeTree(nodeFrom, nodeTo)
 }
@@ -185,7 +185,7 @@ func (dao *FolderSizeCacheSQL) invalidateMPathHierarchy(mpath mtree.MPath, level
 
 	parents := mpath.Parents()
 	if level > -1 {
-		parents = mpath.Parents()[0:level]
+		parents = mpath.Parents()[level:]
 	}
 
 	for _, p := range parents {
