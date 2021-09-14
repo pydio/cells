@@ -146,6 +146,9 @@
   "list.display-mode.thumbs-small": {
     "other": "Petites vignettes"
   },
+  "list.display-mode.masonry": {
+    "other": "Galerie d'images"
+  },
   "list.extensions.action": {
     "other": "Extensions de fichiers"
   },

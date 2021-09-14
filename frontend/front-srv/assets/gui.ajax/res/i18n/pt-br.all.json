@@ -1,15 +1,15 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "Começar a adicionar novos arquivos ou pastas ao espaço de trabalho atual."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Adicionar arquivos"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "Esta barra de ferramentas permite alterar a tela: mudar para miniaturas ou modo detalhado dependendo do seu uso, e ordenar arquivos por nome, data, etc..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Opções de Exibição"
   },
   "tour.globsearch.1": {
     "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
@@ -145,6 +145,9 @@
   },
   "list.display-mode.thumbs-small": {
     "other": "Thumbs Small"
+  },
+  "list.display-mode.masonry": {
+    "other": "Image Gallery"
   },
   "list.extensions.action": {
     "other": "Files extensions"

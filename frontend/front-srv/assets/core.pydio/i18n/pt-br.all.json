@@ -1620,40 +1620,40 @@
     "other": "Edit team label"
   },
   "581": {
-    "other": "User belongs to %s team(s)"
+    "other": "Usuário pertence a %s equipe(s)"
   },
   "582": {
-    "other": "Delete User"
+    "other": "Excluir Usuário"
   },
   "583": {
-    "other": "Search Directory"
+    "other": "Pesquisar Diretório"
   },
   "584": {
-    "other": "Directory"
+    "other": "Diretorio"
   },
   "585": {
-    "other": "No External Users"
+    "other": "Nenhum usuário externo"
   },
   "586": {
-    "other": "Create your own users and share files or folders from your workspaces with them."
+    "other": "Criar seus próprios usuários e compartilhar arquivos ou pastas de seus espaços de trabalho com eles."
   },
   "587": {
-    "other": "No results"
+    "other": "Sem resultados"
   },
   "588": {
-    "other": "Start typing in the search form to find users in the directory"
+    "other": "Comece a digitar o formulário de busca para encontrar usuários no diretório"
   },
   "589": {
-    "other": "External user"
+    "other": "Usuário externo"
   },
   "59": {
     "other": "Arquivo MP3"
   },
   "590": {
-    "other": "Internal user"
+    "other": "Usuário interno"
   },
   "591": {
-    "other": "Choose a name for the team, and you will be able to add users to it after creation."
+    "other": "Escolher um nome para a equipe, e você poderá adicionar usuários após a criação."
   },
   "592": {
     "other": "Catálogo de endereços"
@@ -1662,22 +1662,22 @@
     "other": "My Users"
   },
   "594": {
-    "other": "Trusted Servers"
+    "other": "Servidores Confiáveis"
   },
   "595": {
-    "other": "Search user..."
+    "other": "Pesquisar usuário..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Servidor '%s'"
   },
   "597": {
-    "other": "all"
+    "other": "todos"
   },
   "598": {
-    "other": "Send a message"
+    "other": "Enviar uma mensagem"
   },
   "599": {
-    "other": "Add a user"
+    "other": "Adicionar um usuário"
   },
   "6": {
     "other": "Renomear"
@@ -1686,121 +1686,121 @@
     "other": "Arquivo RAR"
   },
   "600": {
-    "other": "Edit user"
+    "other": "Editar usuário"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "Uma célula compartilhada"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 células compartilhadas"
   },
   "603": {
-    "other": "Team"
+    "other": "Equipe"
   },
   "604": {
-    "other": "Remote User"
+    "other": "Usuário Remoto"
   },
   "605": {
-    "other": "More search options"
+    "other": "Mais opções de busca"
   },
   "606": {
-    "other": "Less search options"
+    "other": "Menos opções de busca"
   },
   "607": {
     "other": "Search inside all workspaces"
   },
   "608": {
-    "other": "Current folder"
+    "other": "Pasta atual"
   },
   "609": {
-    "other": "Whole workspace"
+    "other": "Espaço de trabalho inteiro"
   },
   "61": {
     "other": "Arquivo GZ"
   },
   "610": {
-    "other": "All worskpaces"
+    "other": "Todos os espaços de trabalho"
   },
   "611": {
-    "other": "Start typing to search"
+    "other": "Comece a digitar para buscar"
   },
   "612": {
-    "other": "Custom range"
+    "other": "Faixa personalizada"
   },
   "613": {
-    "other": "Greater than..."
+    "other": "Maior que..."
   },
   "614": {
-    "other": "Smaller than..."
+    "other": "Menor que..."
   },
   "615": {
-    "other": "Execute"
+    "other": "Executar"
   },
   "616": {
-    "other": "Mask"
+    "other": "Máscara"
   },
   "617": {
     "other": "Entrar"
   },
   "618": {
-    "other": "Switch language..."
+    "other": "Alternar idioma..."
   },
   "619": {
-    "other": "Search limited to current folder and its children"
+    "other": "Pesquisa limitada à pasta atual e suas sub-pastas"
   },
   "62": {
     "other": "Diretório raíz"
   },
   "620": {
-    "other": "Search limited to current workspace"
+    "other": "Pesquisa limitada ao espaço de trabalho atual"
   },
   "621": {
-    "other": "This field cannot be empty"
+    "other": "Este campo não pode ficar vazio"
   },
   "622": {
-    "other": "Error Stack"
+    "other": "Pilha de erros"
   },
   "623": {
-    "other": "Copy"
+    "other": "Copiar"
   },
   "624": {
-    "other": "Copied!"
+    "other": "Copiado!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Carta"
   },
   "626": {
-    "other": "Files Shared with me"
+    "other": "Arquivos compartilhados comigo"
   },
   "627": {
-    "other": "Shares from remote servers"
+    "other": "Compartilhamentos de servidores remotos"
   },
   "628": {
     "other": "Reverter"
   },
   "629": {
-    "other": "No records yet"
+    "other": "Sem registros ainda"
   },
   "63": {
     "other": "Sair"
   },
   "630": {
-    "other": "Folders shared with me"
+    "other": "Pastas compartilhadas comigo"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Esta célula está vazia!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Sem células ainda"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "As células são espaços compartilhados com outras pessoas para colaborar em documentos"
   },
   "634": {
-    "other": "You"
+    "other": "Você"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Seu grupo"
   },
   "634c": {
     "other": "All users"
@@ -1914,7 +1914,7 @@
     "other": "Buscar"
   },
   "88": {
-    "other": "Download"
+    "other": "Baixar"
   },
   "89": {
     "other": "Não foi possível abrir o arquivo"
@@ -2136,52 +2136,52 @@
     "other": "Editores"
   },
   "plugtype.title.feed": {
-    "other": "Events Feed Storage"
+    "other": "Armazenamento de Eventos Feed"
   },
   "plugtype.title.gui": {
-    "other": "Graphical User Interface"
+    "other": "Interface Gráfica do Usuário"
   },
   "plugtype.title.helper": {
-    "other": "Helper"
+    "other": "Assistente"
   },
   "plugtype.title.index": {
     "other": "Indexação"
   },
   "plugtype.title.log": {
-    "other": "Loggers"
+    "other": "Registradores"
   },
   "plugtype.title.mailer": {
-    "other": "Mailers"
+    "other": "Correios"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Mecanismo de Busca"
   },
   "plugtype.title.meta": {
-    "other": "Workspace Meta Aspects"
+    "other": "Meta Aspectos da Espaço de Trabalho"
   },
   "plugtype.title.metastore": {
-    "other": "Metadata Storage"
+    "other": "Armazenamento de Metadados"
   },
   "plugtype.title.mq": {
-    "other": "Instant Messaging"
+    "other": "Mensagens Instantâneas"
   },
   "plugtype.title.sec": {
     "other": "Segurança"
   },
   "plugtype.title.shorten": {
-    "other": "URL Shortening"
+    "other": "Encurtamento de URL"
   },
   "plugtype.title.uploader": {
-    "other": "Uploaders"
+    "other": "Remetentes"
   },
   "preview_access_key": {
     "other": "V"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "pasta pai"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "ações em massa"
   },
   "refresh_access_key": {
     "other": "r"
@@ -2208,79 +2208,79 @@
     "other": "V"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Acesso público"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Movendo arquivo em segundo plano ..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Movendo pasta em segundo plano ..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Copiando seleção em segundo plano ..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Arquivo está bloqueado"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "A pasta está bloqueada"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Atualmente observando este arquivo"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Atualmente observando esta pasta"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Arquivo compartilhado, clique para Editar"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Pasta compartilhada, clique para editar"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "O arquivo está marcado"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Pasta está marcada"
   },
   "bookmark.button.tip.add": {
-    "other": "Bookmark this element"
+    "other": "Marcar este elemento"
   },
   "bookmark.button.tip.remove": {
-    "other": "Remove this bookmark"
+    "other": "Remover este marcador"
   },
   "bookmark.button.tip.mixed": {
-    "other": "Mixed values, click to bookmark all"
+    "other": "Valores mistos, clique para marcar todos"
   },
   "bookmark.button.tip.saving": {
-    "other": "Saving bookmark status"
+    "other": "Salvando status do marcador"
   },
   "bookmark.secondary.inside": {
-    "other": "Inside"
+    "other": "Dentro"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Arquivo Vazio"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Documento sem título"
   },
   "filename.forbidden.slash": {
-    "other": "Do not use / in file names!"
+    "other": "Não use / em nomes de arquivo!"
   },
   "rename.newvalue.error.similar": {
-    "other": "Please use a different value for renaming!"
+    "other": "Por favor, use um valor diferente para renomear!"
   },
   "rename.processing": {
-    "other": "Renaming %1 to %2"
+    "other": "Renomeando %1 para %2"
   },
   "cells.quick-filter": {
-    "other": "Filter Cells"
+    "other": "Filtrar células"
   },
   "ws.quick-filter": {
-    "other": "Filter Workspaces"
+    "other": "Filtrar Espaços de Trabalho"
   },
   "visibility.panel.title": {
-    "other": "Visibility"
+    "other": "Visibilidade"
   },
   "visibility.panel.right-read": {
     "other": "Visualizar"
@@ -2292,40 +2292,40 @@
     "other": "Usuários"
   },
   "visibility.panel.list.teams": {
-    "other": "Your Teams"
+    "other": "Seus Times"
   },
   "visibility.panel.edit": {
-    "other": "Change visibility"
+    "other": "Alterar visibilidade"
   },
   "visibility.panel.save": {
-    "other": "Save changes"
+    "other": "Salvar as alterações"
   },
   "visibility.panel.revert": {
-    "other": "Revert changes"
+    "other": "Reverter alterações"
   },
   "visibility.panel.error": {
-    "other": "An error occured"
+    "other": "Ocorreu um erro"
   },
   "visibility.panel.pickuser": {
-    "other": "Pick a user..."
+    "other": "Escolha um usuário..."
   },
   "visibility.panel.setvisible": {
-    "other": "Set visible to..."
+    "other": "Definir visível para..."
   },
   "visibility.users.advanced": {
-    "other": "This advanced feature allows you to decide if the users you create in your address book can be seen and/or edited by other users. By default, your users are only visible to you."
+    "other": "Este recurso avançado permite que você decida se os usuários que você criar em seu livro de endereços podem ser vistos e/ou editados por outros usuários. Por padrão, os usuários só são visíveis para você."
   },
   "user.unknown": {
-    "other": "Unknown"
+    "other": "Desconhecido"
   },
   "addressbook.pick.group": {
-    "other": "Select group"
+    "other": "Selecionar grupo"
   },
   "confirm.dialog.title": {
     "other": "Confirmar"
   },
   "confirm.dialog.destructive": {
-    "other": "You are about to delete"
+    "other": "Você está prestes a excluir"
   },
   "confirm.dialog.skipNext": {
     "other": "Do not warn me next time"

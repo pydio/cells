@@ -51,34 +51,34 @@
     "other": "JSON contem a chave..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Pesquisar no corpo do Json (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "O tamanho do corpo de Json é maior que"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "O tamanho do corpo Json é menor que"
   },
   "actionOutputSingleQuery.Not": {
     "other": "Não"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "Pesquisar no corpo de texto (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "O tamanho do corpo da string é maior que"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "O tamanho do corpo da string é menor que"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "Tempo da tarefa maior que"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "Tempo da tarefa menor que"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Condição Livre"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -93,34 +93,34 @@
     "other": "igual a"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "Correspondências"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "corresponde"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "CondiçãoCIDR"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "Assunto igual"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "Recurso contém"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "Texto igual"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "Correspondências de texto"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "ParesDeString igual"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "A string não corresponde"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "Período da data"
   },
   "contextMetaCondition.OfficeHoursCondition": {
     "other": "Horário de expediente"
@@ -132,46 +132,46 @@
     "other": "Tipo de conteúdo"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "String de Cookies"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "Protocolo HTTP"
   },
   "contextMetaField.RemoteAddress": {
     "other": "Endereço Remoto"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "Solicitar Hostname"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "Método de solicitação"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "URI de requisição"
   },
   "contextMetaField.ServerTime": {
     "other": "Hora do servidor"
   },
   "contextMetaField.UserAgent": {
-    "other": "User Agent"
+    "other": "Agente usuário"
   },
   "contextMetaSingleQuery.Condition": {
     "other": "Condição"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "Nome do Campo"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "Aplicação Automática"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "A função é de grupo"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "É Equipe"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "É Função do Usuário"
   },
   "roleSingleQuery.Label": {
     "other": "Nome"
@@ -186,49 +186,49 @@
     "other": "não"
   },
   "treeQuery.Content": {
-    "other": "Content"
+    "other": "Conteúdo"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "Data de modificação (usar comparação)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "Extensões do Arquivo"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "Nome do Arquivo"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Nome do arquivo ou Conteúdo"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "Sequência de pesquisa Bleve-like"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "Consulta de Geolocalização"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "Modificado antes de"
   },
   "treeQuery.MaxSize": {
-    "other": "MaxSize"
+    "other": "TamMáximo"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "Modificado desde"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "Tamanho maior que"
   },
   "treeQuery.Not": {
     "other": "Não"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "Profundidade do caminho"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "Prefixo do Caminho"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Caminhos Absolutos"
   },
   "treeQuery.Type": {
     "other": "Tipo"
@@ -240,34 +240,34 @@
     "other": "Arquivo"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "Qualquer"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "UUIDs do nó"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "Tem algum valor"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Nome do atributo"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Valor do atributo"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "Conectado desde"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Caminho Completo"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "Caminho do Grupo"
   },
   "userSingleQuery.HasProfile": {
     "other": "Possui perfil"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "Possui Função"
   },
   "userSingleQuery.Login": {
     "other": "Usuário"
@@ -381,7 +381,7 @@
     "other": "Endereço do parceiro"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "Armazenamento plano"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
     "other": "Não sincronizar ao reiniciar"
