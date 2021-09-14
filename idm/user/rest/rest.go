@@ -413,13 +413,21 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Check specific frontend USER_CREATE_USERS permission
-	var isHidden bool
-	if h, o := inputUser.Attributes["hidden"]; o && h == "true" {
-		isHidden = true
-	}
-	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool() && ctxClaims.Profile != common.PydioProfileAdmin && !isHidden {
+	if update == nil && !config.Get("frontend", "plugin", "core.auth", "USER_CREATE_USERS").Default(true).Bool() && ctxClaims.Profile != common.PydioProfileAdmin && !inputUser.IsHidden() {
 		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
 		return
+	}
+	if update == nil && ctxClaims.Profile == common.PydioProfileShared {
+		// Recheck that crtUser is not hidden
+		crtUser, e := permissions.SearchUniqueUser(ctx, ctxLogin, "")
+		if e != nil {
+			service.RestError401(req, rsp, fmt.Errorf("invalid context user"))
+			return
+		}
+		if crtUser.IsHidden() {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create users"))
+			return
+		}
 	}
 
 	if inputUser.IsGroup {

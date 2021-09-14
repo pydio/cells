@@ -19,6 +19,7 @@ const (
 	UserAttrEmail       = "email"
 	UserAttrHasEmail    = "hasEmail"
 	UserAttrAuthSource  = "AuthSource"
+	UserAttrHidden      = "hidden"
 )
 
 func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool) *User {
@@ -67,4 +68,14 @@ func isPublicAttribute(att string) (public bool) {
 	}
 
 	return
+}
+
+func (u *User) IsHidden() bool {
+	if u == nil || u.Attributes == nil {
+		return false
+	}
+	if h, o := u.Attributes[UserAttrHidden]; o && h == "true" {
+		return true
+	}
+	return false
 }

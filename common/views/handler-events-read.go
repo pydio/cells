@@ -145,7 +145,7 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 		return
 	}
 	bgContext := context.Background()
-	user, e := permissions.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	user, e := permissions.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
 	if e != nil || user == nil {
 		return
 	}

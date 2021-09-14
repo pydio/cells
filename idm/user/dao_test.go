@@ -105,7 +105,7 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ1.GroupPath = "/path/to/group"
 		singleQ1.HasRole = "a_role_name"
 
-		singleQ2.AttributeName = "hidden"
+		singleQ2.AttributeName = idm.UserAttrHidden
 		singleQ2.AttributeAnyValue = true
 		//		singleQ2.Not = true
 
@@ -141,9 +141,9 @@ func TestQueryBuilder(t *testing.T) {
 			Password:  "xxxxxxx",
 			GroupPath: "/path/to/group",
 			Attributes: map[string]string{
-				"displayName": "John Doe",
-				"hidden":      "false",
-				"active":      "true",
+				idm.UserAttrDisplayName: "John Doe",
+				idm.UserAttrHidden:      "false",
+				"active":                "true",
 			},
 			Roles: []*idm.Role{
 				{Uuid: "1", Label: "Role1"},
@@ -324,7 +324,7 @@ func TestQueryBuilder(t *testing.T) {
 			}
 			userQueryAny2, _ := ptypes.MarshalAny(userQuery2)
 			userQuery3 := &idm.UserSingleQuery{
-				AttributeName:  "hidden",
+				AttributeName:  idm.UserAttrHidden,
 				AttributeValue: "false",
 			}
 			userQueryAny3, _ := ptypes.MarshalAny(userQuery3)
@@ -357,9 +357,9 @@ func TestQueryBuilder(t *testing.T) {
 			Password:  "xxxxxxx",
 			GroupPath: "/path/to/group",
 			Attributes: map[string]string{
-				"displayName": "Administrator",
-				"hidden":      "false",
-				"active":      "true",
+				idm.UserAttrDisplayName: "Administrator",
+				idm.UserAttrHidden:      "false",
+				"active":                "true",
 			},
 			Roles: []*idm.Role{
 				{Uuid: "1", Label: "Role1"},
