@@ -72,7 +72,7 @@
     "other": "Plugin Meta"
   },
   "120": {
-    "other": "Go Pro"
+    "other": "Seja Pro"
   },
   "121": {
     "other": "Obter suporte profissional para sua instalação"
@@ -204,58 +204,58 @@
     "other": "Grupo criado com sucesso"
   },
   "161": {
-    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+    "other": "Você está tentando se mover dentro de um grupo, e perderá direitos super-administrativos. Faça login como outro usuário se você realmente quer fazer isso. Abortando."
   },
   "162": {
-    "other": "You are not authorized to update user %s"
+    "other": "Você não está autorizado a atualizar o usuário %s"
   },
   "163": {
-    "other": "Roles reordered for user %s"
+    "other": "Papéis reordenados para o usuário %s"
   },
   "164": {
-    "other": "Successfully updated roles"
+    "other": "Papeis atualizados com sucesso"
   },
   "165": {
-    "other": "Successfully saved user preferences"
+    "other": "Preferências de usuário salvas com sucesso"
   },
   "166": {
-    "other": "Successfully set lock (%1) on user (%2)"
+    "other": "Bloqueio definido com sucesso (%1) no usuário (%2)"
   },
   "167": {
-    "other": "Successfully unlocked user (%s)"
+    "other": "Usuário desbloqueado com sucesso (%s)"
   },
   "168": {
-    "other": "%1 users were moved to group %2"
+    "other": "%1 usuários foram movidos para o grupo %2"
   },
   "169": {
-    "other": "No users were moved, there must have been something wrong!"
+    "other": "Nenhum usuário foi movido, deve ter havido algo de errado!"
   },
   "17": {
     "other": "Data"
   },
   "170": {
-    "other": "Enable %1 (%2)"
+    "other": "HAbilitar %1 (%2)"
   },
   "171": {
-    "other": "Import Users (Enterprise only)"
+    "other": "Importar Usuários (apenas Enterprise)"
   },
   "172": {
-    "other": "Services"
+    "other": "Serviços"
   },
   "173": {
-    "other": "Pydio Backend Services and their running status"
+    "other": "Serviços de Backend do Pydio e seus status de execução"
   },
   "174": {
-    "other": "Identity Management"
+    "other": "Gerenciamento de Identidade"
   },
   "175": {
-    "other": "Data Management"
+    "other": "Gerenciamento de Dados"
   },
   "176": {
-    "other": "Security Policies"
+    "other": "Políticas de Segurança"
   },
   "177": {
-    "other": "Security Policies"
+    "other": "Políticas de Segurança"
   },
   "18": {
     "other": "I.P."
@@ -300,7 +300,7 @@
     "other": "Ler"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Gerenciamento de Dados"
   },
   "3": {
     "other": "Áreas de Trabalho"

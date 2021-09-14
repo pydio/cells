@@ -36,10 +36,10 @@
     "other": "ODF Presentation"
   },
   "ext.ods": {
-    "other": "ODF Spreadsheet"
+    "other": "Planilha ODF"
   },
   "ext.odt": {
-    "other": "ODF Text Document"
+    "other": "Documento de texto ODF"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"

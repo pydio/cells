@@ -54,7 +54,7 @@
     "other": "Mailer Plugin"
   },
   "Mailers": {
-    "other": "Mailers"
+    "other": "Correios"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
     "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."

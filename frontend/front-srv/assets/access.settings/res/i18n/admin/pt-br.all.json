@@ -942,7 +942,7 @@
     "other": "REST Resources"
   },
   "react.1": {
-    "other": "parent folder"
+    "other": "pasta pai"
   },
   "react.10": {
     "other": "Inherit Permissions"
@@ -960,7 +960,7 @@
     "other": "Show resulting tree"
   },
   "react.2": {
-    "other": "bulk actions"
+    "other": "ações em massa"
   },
   "react.3": {
     "other": "Search Results for '%s'"
@@ -1605,7 +1605,7 @@
     "other": "Services handling data and metadata."
   },
   "services.tag.idm.title": {
-    "other": "Identity Management"
+    "other": "Gerenciamento de Identidade"
   },
   "services.tag.idm.description": {
     "other": "All services related to authentication and authorizations, roles, security policies, etc."
@@ -1749,7 +1749,7 @@
     "other": "Update User"
   },
   "scheduler.trigger.delete.user": {
-    "other": "Delete User"
+    "other": "Excluir Usuário"
   },
   "scheduler.trigger.bind.user": {
     "other": "User Bind"

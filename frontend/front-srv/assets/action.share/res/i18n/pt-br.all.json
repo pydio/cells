@@ -588,52 +588,52 @@
     "other": "Compartilhar arquivo"
   },
   "270": {
-    "other": "users"
+    "other": "usuários"
   },
   "271": {
-    "other": "groups"
+    "other": "grupos"
   },
   "272": {
-    "other": "teams"
+    "other": "times"
   },
   "273": {
-    "other": "nobody"
+    "other": "ninguém"
   },
   "274": {
-    "other": " and "
+    "other": " e "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "Criar células para colaborar com outros usuários. Primeiro comece descrevendo o objeto desta célula."
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "Título da sua célula"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "Opcionalmente, adicione uma descrição"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "Escolha com quem você vai compartilhar dados"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "Criar uma célula agora!"
   },
   "28": {
     "other": "Compartilhar diretório"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "A célula tem sua própria pasta"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "A célula será criada em uma nova pasta"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "Adicionar uma pasta existente..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "Selecionar um nó na árvore..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "Visível nas células %s"
   },
   "29": {
     "other": "WebLink"
@@ -795,7 +795,7 @@
     "other": "Visualizar"
   },
   "73": {
-    "other": "Download"
+    "other": "Baixar"
   },
   "74": {
     "other": "Enviar arquivos"
@@ -852,7 +852,7 @@
     "other": "Ese link é válido até..."
   },
   "88": {
-    "other": "downloads"
+    "other": "transferências"
   },
   "89": {
     "other": "Número de downloads / downloads autorizados. Clique para resetar o contador."
@@ -891,27 +891,27 @@
     "other": "Todos os elementos compartilahdos"
   },
   "cells.create.advanced": {
-    "other": "Add users/data"
+    "other": "Adicionar usuários/dados"
   },
   "cells.create.buttons.separator": {
     "other": "ou"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "Compartilhar pasta(s) existente(s)"
   },
   "cell.visibility.advanced": {
-    "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+    "other": "Este recurso avançado permite decidir quem pode editar as propriedades desta Célula (direito de adicionar/remover usuários e adicionar/remover pastas na raiz da célula). Para simplesmente gerenciar os acessos aos dados, use a aba 'Compartilhar com'."
   },
   "link.visibility.advanced": {
-    "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
+    "other": "Este recurso avançado permite que você decida se este link é visível para outros usuários quando eles veem este arquivo, e se eles podem editar suas propriedades. Por padrão, os links que você cria só são visíveis para você. Você pode transferir uma propriedade de link permitindo que um outro usuário o edite."
   },
   "dialog.close.confirm.unsaved": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "Existem alterações não salvas. Tem certeza que deseja fechar?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Filtro rápido..."
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "Desativar todos os compartilhamentos"
   }
 }
