@@ -132,7 +132,7 @@ func RegisterDigestJob(ctx context.Context) error {
 	log.Logger(ctx).Info("Registering default job for creating activities digests")
 	// Build queries for standard users
 	q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{NodeType: idm.NodeType_USER})
-	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeAnyValue: true, Not: true})
+	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeAnyValue: true, Not: true})
 	job := &jobs.Job{
 		ID:             "users-activity-digest",
 		Label:          "Users activities digest",

@@ -56,8 +56,8 @@ func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.
 			GroupPath: ownerUser.GroupPath,
 			Policies:  link.Policies,
 			Attributes: map[string]string{
-				"profile": "shared",
-				"hidden":  "true",
+				idm.UserAttrProfile: "shared",
+				idm.UserAttrHidden:  "true",
 			},
 		}
 		if passwordHashed {
@@ -140,11 +140,11 @@ func UpdateACLsForHiddenUser(ctx context.Context, roleId string, workspaceId str
 				return e
 			}
 			acls = append(acls, &idm.ACL{
-				RoleID: roleId,
+				RoleID:      roleId,
 				WorkspaceID: workspaceId,
-				NodeID: rootNode.Uuid,
+				NodeID:      rootNode.Uuid,
 				Action: &idm.ACLAction{
-					Name: permissions2.AclPolicy.Name,
+					Name:  permissions2.AclPolicy.Name,
 					Value: newPol,
 				},
 			})
@@ -194,7 +194,7 @@ func DeleteHiddenUser(ctx context.Context, link *rest.ShareLink) error {
 	}
 	uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: link.UserLogin})
-	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
 	_, e := uClient.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{
 		SubQueries: []*any.Any{q1, q2},
 		Operation:  service.OperationType_AND,
@@ -210,7 +210,7 @@ func ClearLostHiddenUsers(ctx context.Context) error {
 
 	// List hidden users and check for their associated links
 	uClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
-	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
 	stream, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 	if e != nil {
 		return e
