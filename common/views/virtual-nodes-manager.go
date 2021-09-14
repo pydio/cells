@@ -183,6 +183,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	}
 	if create {
 		resolved.MTime = time.Now().Unix()
+		resolved.Type = tree.NodeType_COLLECTION
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
@@ -197,6 +198,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 				newNode := resolved.Clone()
 				newNode.Path = path.Join(newNode.Path, common.PydioSyncHiddenFile)
 				nodeUuid := newNode.Uuid
+				newNode.MetaStore = make(map[string]string) // Reset metastore !
 				newNode.Uuid = ""
 				createCtx := context2.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 				if _, pE := router.PutObject(createCtx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Size: int64(len(nodeUuid))}); pE != nil {
