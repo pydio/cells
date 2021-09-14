@@ -138,7 +138,11 @@ func (d *daocache) resync() {
 	d.childCache = make(map[string][]*mtree.TreeNode)
 	d.nameCache = make(map[string][]*mtree.TreeNode)
 
-	for node := range d.DAO.GetNodeTree(mtree.NewMPath(1)) {
+	for obj := range d.DAO.GetNodeTree(mtree.NewMPath(1)) {
+		node, ok := obj.(*mtree.TreeNode)
+		if !ok {
+			continue
+		}
 		mpath := node.MPath.String()
 		pmpath := node.MPath.Parent().String()
 
@@ -646,9 +650,9 @@ func (d *daocache) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 	return res, 0
 }
 
-func (d *daocache) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
+func (d *daocache) GetNodeChildren(path mtree.MPath) chan interface{} {
 
-	c := make(chan *mtree.TreeNode)
+	c := make(chan interface{})
 
 	go func() {
 		d.mutex.RLock()
@@ -665,8 +669,8 @@ func (d *daocache) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 	return c
 }
 
-func (d *daocache) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
-	c := make(chan *mtree.TreeNode)
+func (d *daocache) GetNodeTree(path mtree.MPath) chan interface{} {
+	c := make(chan interface{})
 
 	go func() {
 		d.mutex.RLock()

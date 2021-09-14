@@ -338,8 +338,6 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		return errors.InternalServerError(name, "Please use either Recursive (children) or Ancestors (parents) flag, but not both.")
 	}
 
-	var c chan *mtree.TreeNode
-
 	// Special case for  "Ancestors", node can have either Path or Uuid
 	// There is no need to compute additional stats here (folderSize)
 	if req.Ancestors {
@@ -406,6 +404,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 			}
 		}
 
+		var c chan interface{}
 		if req.Recursive {
 			c = dao.GetNodeTree(path)
 		} else {
@@ -420,7 +419,13 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		log.Logger(ctx).Debug("Listing nodes on DS with Filter", zap.Int32("req.FilterType", int32(req.FilterType)), zap.Bool("true", req.FilterType == tree.NodeType_COLLECTION))
 
 		names := strings.Split(reqPath, "/")
-		for node := range c {
+		var receivedErr error
+		for obj := range c {
+			node, isNode := obj.(*mtree.TreeNode)
+			if !isNode {
+				receivedErr = obj.(error)
+				break
+			}
 
 			if req.FilterType == tree.NodeType_COLLECTION && node.Type == tree.NodeType_LEAF {
 				continue
@@ -452,6 +457,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				continue
 			}
 			resp.Send(&tree.ListNodesResponse{Node: node.Node})
+		}
+		if receivedErr != nil {
+			return receivedErr
 		}
 	}
 
@@ -570,7 +578,13 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	if node.Type == tree.NodeType_COLLECTION {
 		c := dao.GetNodeTree(path)
 		names := strings.Split(reqPath, "/")
-		for child := range c {
+		var treeErr error
+		for obj := range c {
+			child, ok := obj.(*mtree.TreeNode)
+			if !ok {
+				treeErr = obj.(error)
+				break
+			}
 			if child.Name() == common.PydioSyncHiddenFile {
 				continue
 			}
@@ -588,6 +602,9 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 				Source: child.Node,
 				Silent: true,
 			})
+		}
+		if treeErr != nil {
+			return treeErr
 		}
 	}
 

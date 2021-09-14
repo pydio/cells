@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pydio/cells/common/utils/mtree"
+
 	"github.com/pydio/cells/common/sql"
 )
 
@@ -136,7 +138,8 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 	if er != nil {
 		return nil, er
 	}
-	rows, er := stmt.Query()
+	rows, ca, er := stmt.LongQuery()
+	defer ca()
 	if er != nil {
 		return nil, er
 	}
@@ -155,6 +158,9 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 			return nil, err
 		}
 		duplicates = append(duplicates, duplicate{strings.TrimSuffix(safename, "_"), pmpath})
+	}
+	if e := rows.Err(); e != nil {
+		return nil, e
 	}
 
 	for _, t := range duplicates {
@@ -178,7 +184,11 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 			lf.leaf = leaf
 			lf.uuids = append(lf.uuids, uid)
 		}
+		rE := rows.Err()
 		rows.Close()
+		if rE != nil {
+			return nil, rE
+		}
 		output = append(output, lf)
 	}
 
@@ -187,7 +197,8 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 		if er2 != nil {
 			return nil, er2
 		}
-		rows2, er2 := stmt2.Query()
+		rows2, ca, er2 := stmt2.LongQuery()
+		defer ca()
 		if er2 != nil {
 			return nil, er2
 		}
@@ -208,10 +219,15 @@ func (dao *IndexSQL) LostAndFounds() (output []LostAndFound, err error) {
 			if !leaf {
 				t, _ := dao.GetNodeByUUID(uid)
 				for c := range dao.GetNodeTree(t.MPath) {
-					output = append(output, &lostFoundImpl{uuids: []string{c.Uuid}, lostMPath: c.MPath.String()})
+					if n, o := c.(*mtree.TreeNode); o {
+						output = append(output, &lostFoundImpl{uuids: []string{n.Uuid}, lostMPath: n.MPath.String()})
+					}
 				}
 			}
 
+		}
+		if e := rows2.Err(); e != nil {
+			return nil, e
 		}
 	}
 

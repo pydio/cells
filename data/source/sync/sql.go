@@ -132,7 +132,8 @@ func (h *sqlImpl) Purge(knownETags []string) int {
 		return 0
 	}
 	var dbTags []string
-	res, e := stmt.Query()
+	res, ca, e := stmt.LongQuery()
+	defer ca()
 	if e != nil {
 		h.logError(e)
 		return 0

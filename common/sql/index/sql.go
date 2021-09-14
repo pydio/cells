@@ -551,11 +551,13 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 	dao.Lock()
 
 	var rows *databasesql.Rows
+	var ca context.CancelFunc
 	var err error
 
 	mpath := rootNode.MPath
 	if stmt, args, e := dao.GetStmtWithArgs("dirtyEtags", mpath.String()); e == nil {
-		rows, err = stmt.Query(append(args, len(mpath))...) // Start at root level
+		rows, ca, err = stmt.LongQuery(append(args, len(mpath))...) // Start at root level
+		defer ca()
 		if err != nil {
 			dao.Unlock()
 			return err
@@ -722,7 +724,8 @@ func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 
 		get := func(mpathes ...interface{}) {
 			if stmt, args, e := dao.GetStmtWithArgs("selectNodes", mpathes...); e == nil {
-				rows, err := stmt.Query(args...)
+				rows, ca, err := stmt.LongQuery(args...)
+				defer ca()
 				if err != nil {
 					return
 				}
@@ -940,14 +943,15 @@ func (dao *IndexSQL) GetNodeChildrenCounts(path mtree.MPath) (int, int) {
 }
 
 // GetNodeChildren List
-func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
+func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
 
 	dao.Lock()
 
-	c := make(chan *mtree.TreeNode)
+	c := make(chan interface{})
 
 	go func() {
 		var rows *databasesql.Rows
+		var ca context.CancelFunc
 		var err error
 
 		defer func() {
@@ -965,7 +969,8 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 
 		// First we check if we already have an object with the same key
 		if stmt, args, e := dao.GetStmtWithArgs("children", mpath.String()); e == nil {
-			rows, err = stmt.Query(append(args, len(path)+1)...)
+			rows, ca, err = stmt.LongQuery(append(args, len(path)+1)...)
+			defer ca()
 			if err != nil {
 				return
 			}
@@ -973,9 +978,13 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 			for rows.Next() {
 				treeNode, err := dao.scanDbRowToTreeNode(rows)
 				if err != nil {
+					c <- err
 					break
 				}
 				c <- treeNode
+			}
+			if e := rows.Err(); e != nil {
+				c <- e
 			}
 		}
 	}()
@@ -984,14 +993,15 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
 }
 
 // GetNodeTree List from the path
-func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
+func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan interface{} {
 
 	dao.Lock()
 
-	c := make(chan *mtree.TreeNode)
+	c := make(chan interface{})
 
 	go func() {
 		var rows *databasesql.Rows
+		var ca context.CancelFunc
 		var err error
 
 		defer func() {
@@ -1010,7 +1020,8 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 
 		// First we check if we already have an object with the same key
 		if stmt, args, e := dao.GetStmtWithArgs("tree", mpath.String()); e == nil {
-			rows, err = stmt.Query(append(args, len(mpath)+1)...)
+			rows, ca, err = stmt.LongQuery(append(args, len(mpath)+1)...)
+			defer ca()
 			if err != nil {
 				return
 			}
@@ -1018,9 +1029,13 @@ func (dao *IndexSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
 			for rows.Next() {
 				treeNode, err := dao.scanDbRowToTreeNode(rows)
 				if err != nil {
+					c <- err
 					break
 				}
 				c <- treeNode
+			}
+			if e := rows.Err(); e != nil {
+				c <- e
 			}
 		}
 	}()
@@ -1046,8 +1061,10 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 
 	nodeFrom.SetName(nodeTo.Name())
 	nodeFrom.SetMPath(pathTo...)
+	ctx, cancel := context.WithTimeout(context.Background(), sql.LongConnectionTimeout)
+	defer cancel()
 
-	tx, errTx := dao.DB().BeginTx(context.Background(), nil)
+	tx, errTx := dao.DB().BeginTx(ctx, nil)
 	if errTx != nil {
 		return errTx
 	}

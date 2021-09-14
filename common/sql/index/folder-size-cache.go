@@ -100,19 +100,21 @@ func (dao *FolderSizeCacheSQL) GetNodeByUUID(uuid string) (*mtree.TreeNode, erro
 }
 
 // GetNodeChildren List
-func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath) chan *mtree.TreeNode {
-	c := make(chan *mtree.TreeNode)
+func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
+	c := make(chan interface{})
 
 	go func() {
 		defer close(c)
 
 		cc := dao.DAO.GetNodeChildren(path)
 
-		for node := range cc {
-			if node != nil && !node.IsLeaf() {
-				dao.folderSize(node)
+		for obj := range cc {
+			if node, ok := obj.(*mtree.TreeNode); ok {
+				if node != nil && !node.IsLeaf() {
+					dao.folderSize(node)
+				}
 			}
-			c <- node
+			c <- obj
 		}
 	}()
 
@@ -120,19 +122,21 @@ func (dao *FolderSizeCacheSQL) GetNodeChildren(path mtree.MPath) chan *mtree.Tre
 }
 
 // GetNodeTree List from the path
-func (dao *FolderSizeCacheSQL) GetNodeTree(path mtree.MPath) chan *mtree.TreeNode {
-	c := make(chan *mtree.TreeNode)
+func (dao *FolderSizeCacheSQL) GetNodeTree(path mtree.MPath) chan interface{} {
+	c := make(chan interface{})
 
 	go func() {
 		defer close(c)
 
 		cc := dao.DAO.GetNodeTree(path)
 
-		for node := range cc {
-			if node != nil && !node.IsLeaf() {
-				dao.folderSize(node)
+		for obj := range cc {
+			if node, ok := obj.(*mtree.TreeNode); ok {
+				if node != nil && !node.IsLeaf() {
+					dao.folderSize(node)
+				}
 			}
-			c <- node
+			c <- obj
 		}
 	}()
 

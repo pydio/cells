@@ -35,8 +35,9 @@ import (
 )
 
 var (
-	DefaultConnectionTimeout = 10 * time.Second
-	ErrNoRows = sql.ErrNoRows
+	DefaultConnectionTimeout = 30 * time.Second
+	LongConnectionTimeout    = 10 * time.Minute
+	ErrNoRows                = sql.ErrNoRows
 )
 
 // DAO interface definition
@@ -64,6 +65,7 @@ type Stmt interface {
 	Exec(...interface{}) (sql.Result, error)
 	ExecContext(context.Context, ...interface{}) (sql.Result, error)
 	Query(...interface{}) (*sql.Rows, error)
+	LongQuery(...interface{}) (*sql.Rows, context.CancelFunc, error)
 	QueryContext(context.Context, ...interface{}) (*sql.Rows, error)
 	QueryRow(...interface{}) *sql.Row
 	QueryRowContext(context.Context, ...interface{}) *sql.Row
@@ -276,13 +278,18 @@ func (s *stmtWithTimeout) GetSQLStmt() *sql.Stmt {
 
 func (s *stmtWithTimeout) Exec(args ...interface{}) (sql.Result, error) {
 	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
-
 	return s.Stmt.ExecContext(ctx, args...)
 }
 
 func (s *stmtWithTimeout) Query(args ...interface{}) (*sql.Rows, error) {
 	ctx, _ := context.WithTimeout(context.Background(), DefaultConnectionTimeout)
 	return s.Stmt.QueryContext(ctx, args...)
+}
+
+func (s *stmtWithTimeout) LongQuery(args ...interface{}) (*sql.Rows, context.CancelFunc, error) {
+	ctx, ca := context.WithTimeout(context.Background(), LongConnectionTimeout)
+	rows, e := s.Stmt.QueryContext(ctx, args...)
+	return rows, ca, e
 }
 
 func (s *stmtWithTimeout) QueryRow(args ...interface{}) *sql.Row {

@@ -495,7 +495,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 	}
 
 	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), log.DangerouslyZapSmallSlice("q2", query.GetSubQueries()))
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), sql.LongConnectionTimeout)
 	defer cancel()
 	res, err := s.DB().QueryContext(ctx, queryString, args...)
 	if err != nil {
