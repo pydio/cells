@@ -82,7 +82,7 @@ func JWTHttpWrapper(h http.Handler) http.Handler {
 
 			c, _, err = jwtVerifier.Verify(c, rawIDToken)
 			if err != nil {
-				log.Logger(context.Background()).Error("jwtVerifier Error", zap.Error(err))
+				log.Logger(context.Background()).Debug("jwtVerifier Error", zap.Error(err))
 				if isNetworkError(err) {
 					w.WriteHeader(503)
 					w.Write([]byte("Service unavailable.\n"))
