@@ -134,7 +134,9 @@ func RestError401(req *restful.Request, resp *restful.Response, err error) {
 		RestError503(req, resp, err)
 		return
 	}
-	log.Logger(req.Request.Context()).Error("Rest Error 401", zap.Error(err))
+	if !strings.Contains(err.Error(), "empty idToken") {
+		log.Logger(req.Request.Context()).Error("Rest Error 401", zap.Error(err))
+	}
 	resp.AddHeader("Content-Type", "application/json")
 	e := &rest.Error{
 		Title:  err.Error(),
