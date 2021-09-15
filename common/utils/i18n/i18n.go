@@ -48,7 +48,7 @@ var (
 		"lv":    "Latv",
 		"ru":    "русский",    // Russian
 		"vi-vn": "Tiếng Việt", // Vietnamese
-		"zh-cn": "简体中文",       // Chinese simplified		
+		"zh-cn": "简体中文",       // Chinese simplified
 	}
 
 	// LoadingStrings have to be hard-coded to be loaded first. When not defined, we fall back to "loading..." message (in English).
@@ -81,10 +81,10 @@ var (
 		"ja":    "日本人", //Japanese
 		"ko":    "한국어",
 		"nl":    "Nederlands",
-		"pt-br": "Brasileiro",
+		"pt-br": "Português do Brasil",
 		"pt-pt": "Português",
-		"sv-se": "Svenska",    // Swedish
-		"zh-tw": "中國傳統的",      // Chinese traditional
+		"sv-se": "Svenska", // Swedish
+		"zh-tw": "中國傳統的",   // Chinese traditional
 	}
 
 	LanguagesLegacyNames = map[string]string{
