@@ -1,17 +1,17 @@
 {
   "Show file/folders activities": {
-    "other": "Show file/folders activities"
+    "other": "Afficher les activités des fichiers/dossiers"
   },
   "Display file and folders activities in the right-hand info panel": {
-    "other": "Display file and folders activities in the right-hand info panel"
+    "other": "Afficher les activités de fichiers et de dossiers dans le panneau d'information de droite"
   },
   "Activities": {
-    "other": "Activities"
+    "other": "Activités"
   },
   "Activity Center": {
-    "other": "Activity Center"
+    "other": "Centre d'activités"
   },
   "Activity Streams 2.0": {
-    "other": "Activity Streams 2.0"
+    "other": "Flux d'activité AS2.0"
   }
 }

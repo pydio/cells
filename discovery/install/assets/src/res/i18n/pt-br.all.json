@@ -117,19 +117,19 @@
     "other": "Manual"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Nome do Host"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "Servidor onde o mysql está sendo executado"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "Nome da Base de Dados"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "Banco de dados a usar (será criado se não existir)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "Porta"
   },
   "form.dbTCPPort.legend": {
     "other": "Port to connect to mysql"

@@ -1,18 +1,18 @@
 {
   "User Account Panel": {
-    "other": "User Account Panel"
+    "other": "Panneau de compte utilisateur"
   },
   "User account panel for managing settings and opening address book": {
-    "other": "User account panel for managing settings and opening address book"
+    "other": "Panneau de compte utilisateur pour gérer les paramètres et ouvrir le carnet d'adresses"
   },
   "Disable Address Book": {
-    "other": "Disable Address Book"
+    "other": "Désactiver le carnet d'adresses"
   },
   "Do not display address book in user account panel.": {
-    "other": "Do not display address book in user account panel."
+    "other": "Ne pas afficher le carnet d'adresse dans le menu utilisateur."
   },
   "User Dashboard": {
-    "other": "User Dashboard"
+    "other": "Profil Utilisateur"
   },
   "User home dashboard, can be displayed before accessing to workspaces": {
     "other": "User home dashboard, can be displayed before accessing to workspaces"
