@@ -1,56 +1,56 @@
 {
   "1.android": {
-    "other": "There is a native APPLICATION_TITLE client available for accessing %s on Android OS."
+    "other": "Il existe un client natif pour accéder à %s sur Android."
   },
   "1.ios": {
-    "other": "There is a native application available for accessing %s through iPhone/iPad!"
+    "other": "Il existe un client natif pour accéder à %s sur l'iPhone/iPad."
   },
   "2.android": {
-    "other": "I have it already, open it and add this server to my preconfigured remote servers"
+    "other": "Je l'ai déjà, l'ouvrir et ajouter ce serveur à mes serveurs distants"
   },
   "2.ios": {
-    "other": "I have it already, open it and add this server to my remote servers"
+    "other": "Je l'ai déjà, l'ouvrir et ajouter ce serveur à mes serveurs distants"
   },
   "3.android": {
-    "other": "I don't have it, send me to the Play Store now!"
+    "other": "Je ne l'ai pas, envoyez moi vers Google Play Store maintenant!"
   },
   "3.ios": {
-    "other": "I don't have it, send me to the App Store now!"
+    "other": "Je ne l'ai pas, envoyez moi vers l'App Store maintenant !"
   },
   "4.android": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "Je n'en veux pas, laissez moi utiliser la version web de %s."
   },
   "4.ios": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "Je n'en veux pas, laissez moi utiliser la version web de %s."
   },
   "Mobile": {
     "other": "Mobile"
   },
   "Template extending gui.ajax for small screen terminals.": {
-    "other": "Template extending gui.ajax for small screen terminals."
+    "other": "Extension de gui.ajax pour les petits écrans."
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "Désactiver cette fonctionnalité"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
-    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
+    "other": "Ne pas afficher de bannière intelligente lors de l'ouverture de l'interface Web sur un terminal mobile."
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "Icône de l'application iOS"
   },
   "iOS Application ID": {
-    "other": "iOS Application ID"
+    "other": "ID de l'application iOS"
   },
   "iOS Application ID on the store": {
-    "other": "iOS Application ID on the store"
+    "other": "Identifiant de l'application iOS sur le store"
   },
   "Android Application ID": {
-    "other": "Android Application ID"
+    "other": "ID de l'application Android"
   },
   "Android App ID": {
-    "other": "Android App ID"
+    "other": "ID Application Android"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Icône de l'application Android"
   }
 }

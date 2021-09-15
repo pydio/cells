@@ -1,203 +1,203 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "Pas de paramètres"
   },
   "10": {
-    "other": "Write Only"
+    "other": "Ecriture seule"
   },
   "11": {
-    "other": "Denied"
+    "other": "Refusé"
   },
   "12": {
-    "other": "No Access"
+    "other": "Pas d'accès"
   },
   "13": {
-    "other": "Search Parameters or Actions"
+    "other": "Chercher dans les paramètres et actions"
   },
   "14": {
-    "other": "Pick parameter or action"
+    "other": "Sélectionner un paramètre ou une action"
   },
   "15": {
-    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+    "other": "Sélectionner un paramètre ou une action pour l'ajouter au rôle. Vous pouvez chercher dans les paramètres en utilisant le champ ci-dessous."
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "Montrer/cacher les valeurs héritées"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "Ajouter un paramètre ou une action"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "Paramètre des plugins"
   },
   "19": {
-    "other": "always overrides"
+    "other": "Toujours écraser"
   },
   "2": {
-    "other": "Enabled"
+    "other": "Activé"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ ajouter un rôle"
   },
   "21": {
-    "other": "reloading..."
+    "other": "rechargement..."
   },
   "22": {
-    "other": "Loading actions cache, please wait, this will be done only once..."
+    "other": "Chargement du cache des actions, veuillez patienter, cela ne sera fait qu'une fois..."
   },
   "23": {
-    "other": "Loading parameters cache, please wait, this will be done only once..."
+    "other": "Chargement du cache des paramètres, veuillez patienter, cela ne sera fait qu'une fois..."
   },
   "24": {
-    "other": "User Information"
+    "other": "Information utilisateur"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "Restrictions d'accès"
   },
   "26": {
-    "other": "Group Information"
+    "other": "Information du groupe"
   },
   "27": {
-    "other": "Group Info"
+    "other": "Info du groupe"
   },
   "28": {
-    "other": "Role Information"
+    "other": "Information du rôle"
   },
   "29": {
-    "other": "Role Info"
+    "other": "Info du rôle"
   },
   "3": {
-    "other": "Disabled"
+    "other": "Désactivé"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "Profil & Rôles"
   },
   "31": {
-    "other": "User unique Identifier. You cannot modify this value."
+    "other": "Identifiant unique de l'utilisateur. Vous ne pouvez pas le modifier."
   },
   "32": {
-    "other": "Specific profile. May imply some roles automatically applied."
+    "other": "Profil spécifique. Peut impliquer l'ajout automatique de rôles."
   },
   "33": {
-    "other": "Close"
+    "other": "Fermer"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "Contrôle d'accès"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "Accès aux workspaces"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "Pages de l'application"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "Personnalisation"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "Paramètres de l'application"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "Paramètres des workspaces"
   },
   "4": {
-    "other": "Clear value"
+    "other": "Effacer la valeur"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "Paramètres par workspaces"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "Paramètres supplémentaires"
   },
   "42": {
-    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+    "other": "Vous pouvez ici personnaliser la valeur d'un paramètre ou désactiver une action. Ceux-ci concernent les aspects génériques de l'application (configuration, authentification, interface, etc). Pour changer des paramètres liés aux workspaces, voir les autres onglets."
   },
   "43": {
-    "other": "Grant access to workspaces for the current role/user/group"
+    "other": "Gestion des accès aux workspaces"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "Pages principles de l'application"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "Accès aux pages spécifiques (type Page d'accueil, Console d'Admin, etc.)"
   },
   "46": {
-    "other": "Parameters and actions"
+    "other": "Paramètres et Actions"
   },
   "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+    "other": "Personnaliser la valeur d'un paramètre ou désactiver une action pour des workspaces spécifiques."
   },
   "49": {
-    "other": "Shares"
+    "other": "Cellules et Liens Publics"
   },
   "5": {
-    "other": "Override value"
+    "other": "Ecraser cette valeur"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "Fichiers et Dossiers partagés"
   },
   "51": {
-    "other": "With this user"
+    "other": "Avec cet utilisateur"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "Partagés par cet utilisateur"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "Partagé par %1 depuis le workspace %2"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "Informations du compte. Utilisez le bouton sur la droite pour plus d'actions."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Le profil et les rôles permettent d'assigner des permissions automatiquement à cet utilisateur."
   },
   "6": {
-    "other": "Save value"
+    "other": "Sauver cette valeur"
   },
   "7": {
     "other": "Action %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "Lecture & Ecriture"
   },
   "9": {
-    "other": "Read Only"
+    "other": "Lecture seule"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Gérer les rôles"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Ajouter pour..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Tous les workspaces"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Cellules partagées"
   },
   "parameters.scope.workspace": {
     "other": "Workspace %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Ajouter un paramètre ou une action"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "Aucun paramètres ou actions"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Page d'accueil"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Page de bienvenue affichée après le login"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "Console d'administration"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Tableau de bord d'administration de Pydio Cells"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Droits définis manuellement"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "Tout le workspace"
   }
 }

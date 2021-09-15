@@ -1,8 +1,8 @@
 {
   "Geolocation feature to either display a WMS layer or simply place an exif-localized photo. Requires OpenLayers": {
-    "other": "Função de Geolocalização que mostra uma camada WMS ou simplesmente localiza a informação EXIF de uma fotografia. Requer o Serviço OpenLayers"
+    "other": "Recurso de geolocalização para exibir uma camada WMS ou simplesmente colocar uma foto exif localizada. Requer OpenLayers"
   },
   "Map viewer": {
-    "other": "Visualizador de Mapas"
+    "other": "Visualizador de mapa"
   }
 }

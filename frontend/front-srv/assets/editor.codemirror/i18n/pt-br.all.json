@@ -3,33 +3,33 @@
     "other": "Visualizar código"
   },
   "10": {
-    "other": "Indent size"
+    "other": "Tamanho da indentação"
   },
   "2": {
-    "other": "CodeMirror Syntax Highlighter"
+    "other": "Destaque de Sintaxe CodeMirror"
   },
   "3": {
     "other": "Wrapping"
   },
   "3b": {
-    "other": "Toggle lines wrapping"
+    "other": "Ativar/desativar quebra de linhas"
   },
   "4": {
-    "other": "Numbers"
+    "other": "Números"
   },
   "5": {
-    "other": "Toggle lines numbers"
+    "other": "Alternar número de linhas"
   },
   "6": {
-    "other": "Jump to line"
+    "other": "Pular para a linha"
   },
   "7": {
-    "other": "Undo"
+    "other": "Desfazer"
   },
   "8": {
-    "other": "Redo"
+    "other": "Refazer"
   },
   "9": {
-    "other": "Text Search"
+    "other": "Pesquisa de Texto"
   }
 }

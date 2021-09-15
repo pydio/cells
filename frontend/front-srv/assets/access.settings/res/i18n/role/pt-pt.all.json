@@ -1,132 +1,141 @@
 {
   "1": {
-    "other": "Editor de Papel"
+    "other": "Role Editor"
   },
   "10": {
-    "other": "Utilize os selectores abaixo para seleccionar as acções que pretende desactivar para os utilizadores com este papel. Pode escolher desactivar a acção para todos os repositórios, ou apenas para um em específico."
+    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
   },
   "11": {
-    "other": "Identificador de Plugin"
+    "other": "Plugin Identifier"
   },
   "12": {
-    "other": "seleccione um plugin..."
+    "other": "Select a plugin..."
   },
   "12a": {
-    "other": "seleccione uma acção..."
+    "other": "Select an action..."
   },
   "12b": {
-    "other": "seleccione um parâmetro..."
+    "other": "Select a parameter..."
   },
   "12c": {
-    "other": "seleccione uma ou todas as Áreas de Trabalho..."
+    "other": "Pick one or all workspaces..."
   },
   "12d": {
-    "other": "Todas as Áreas de Trabalho"
+    "other": "All Workspaces"
   },
   "12e": {
-    "other": "Áreas de Trabalho partilhadas"
+    "other": "Shared Workspaces"
   },
   "13": {
-    "other": "Nome da Acção"
+    "other": "Action name"
   },
   "14": {
-    "other": "Âmbito do Repositório"
+    "other": "Repository Scope"
   },
   "15": {
-    "other": "Adicionar Acção"
+    "other": "Add Action"
   },
   "16": {
-    "other": "Utilize os seleccionadores abaixo para seleccionar os parâmetros que pretende definir para os utilizadores com este papel. Pode ser aplicado para uma ou todas as Áreas de Trabalho em simultâneo, porém pode depender do contexto do plugin."
+    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
   },
   "17": {
-    "other": "Nome do Parâmetro"
+    "other": "Parameter name"
   },
   "18": {
-    "other": "Adicionar parâmetro"
+    "other": "Add parameter"
   },
   "19": {
-    "other": "Existem alterações não gravadas, tem a certeza de que pretende fechar?"
+    "other": "There are unsaved changes, are you sure you want to close?"
   },
   "2": {
-    "other": "Editor de Papel"
+    "other": "Role editor"
   },
   "20": {
-    "other": "Papel no Repositório actualizado com sucesso"
+    "other": "Role updated successfully"
   },
   "21": {
-    "other": "ID de Utilizador"
+    "other": "ID do usuário"
   },
   "22": {
-    "other": "Perfil Especial"
+    "other": "Special Profile"
   },
   "23": {
-    "other": "Repositório Pré-Definido"
+    "other": "Default Workspace"
   },
   "24": {
-    "other": "Papéis (use as teclas Ctrl/Cmd para seleccionar vários)"
+    "other": "Papéis de Usuário"
   },
   "25": {
-    "other": "Alterar Palavra-Chave"
+    "other": "Alterar senha"
   },
   "26": {
-    "other": "Bloquear Utilizador"
+    "other": "Lock out user"
   },
   "27": {
-    "other": "Reactivar utilizador"
+    "other": "Reactivate user"
   },
   "28": {
-    "other": "Forçar Mudança de Palavra-Chave"
+    "other": "Force password change"
   },
   "28b": {
     "other": "Cancel password change"
   },
   "29": {
-    "other": "Introduza uma nova Palavra-Chave para este utilizador"
+    "other": "Enter new password for this user"
   },
   "3": {
-    "other": "Informações de Conta"
+    "other": "Account Info"
   },
   "30": {
     "other": "Confirmar"
   },
   "31": {
-    "other": "ID de Papel"
+    "other": "Role ID"
+  },
+  "31.hint": {
+    "other": "Role ID (empty for auto-generate)"
+  },
+  "31.exists": {
+    "other": "Identifier already exists"
   },
   "32": {
-    "other": "Etiqueta de Papel"
+    "other": "Role Label"
   },
   "33": {
-    "other": "Aplicar automaticamente a todos os utilizadores com o perfil..."
+    "other": "Apply automatically to users with profile..."
   },
   "34": {
-    "other": "ID de Grupo"
+    "other": "Group ID"
   },
   "35": {
-    "other": "Etiqueta de Grupo"
+    "other": "Group Label"
   },
   "36": {
-    "other": "bloqueado"
+    "other": "locked"
   },
   "37": {
-    "other": "Negar"
+    "other": "Deny"
   },
   "38": {
-    "other": "herdado"
+    "other": "inherited"
+  },
+  "workspace.roots.invalid": {
+    "other": "invalid roots"
   },
   "39": {
-    "other": "Desactivar"
+    "other": "Disable"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Activar"
+    "other": "Enable"
   },
   "41": {
     "other": "Remover"
   },
   "42": {
-    "other": "Informação personalizada de papel"
+    "other": "Role custom data"
   },
   "43": {
     "other": "Select one or more"
@@ -144,19 +153,19 @@
     "other": "Search Roles"
   },
   "5": {
-    "other": "Acções"
+    "other": "Ações"
   },
   "6": {
-    "other": "Parâmetros"
+    "other": "Parametros"
   },
   "7": {
-    "other": "Informação Interna"
+    "other": "Internal Data"
   },
   "8": {
-    "other": "Informação Pessoal"
+    "other": "Personal information"
   },
   "9": {
-    "other": "Seleccione as Áreas de Trabalho a que este papel tem acesso. Use 'Negar' para substituir as definições estabelecidas por um papel anterior ou simplesmente para negar acesso à Área de Trabalho em questão mesmo com permissões herdadas pelos papéis."
+    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
   },
   "dashboard.description": {
     "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
@@ -169,5 +178,17 @@
   },
   "last_update": {
     "other": "Last updated"
+  },
+  "role.id.description": {
+    "other": "Unique ID of this role (cannot be changed)."
+  },
+  "role.label.description": {
+    "other": "Human-readable label."
+  },
+  "role.autoapply.description": {
+    "other": "Role is always applied to users with this profile(s)."
+  },
+  "role.override.description": {
+    "other": "Role is always applied last after other roles, except for user role that will still prevail."
   }
 }

@@ -1,92 +1,80 @@
 {
+  "Files Metadata": {
+    "other": "Metadados de arquivos"
+  },
+  "User Metadata implementation": {
+    "other": "Implementação dos metadados do usuário"
+  },
   "Additional info": {
-    "other": "Additional info"
+    "other": "Informação Adicional"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "Rótulos de cor"
   },
   "Column visibility": {
-    "other": "Column visibility"
-  },
-  "Columns visibility": {
-    "other": "Visibilidade das Colunas"
-  },
-  "Comma separated list of fields, use standard characters here.": {
-    "other": "Lista de campos, separados por virgulas. Utilize apenas caracteres padrão aqui."
-  },
-  "Comma separated list of labels, be sure to define as many as fields!": {
-    "other": "Lista de etiquetas, separada por virgulas. Certifique-se de que define o máximo de campos possíveis!"
+    "other": "Visibilidade da coluna"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "Criado por..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "Dependendo do tipo de campo. Atualmente usado apenas para seleção"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "ID do campo"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "Tipo do Campo"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "Oculto"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Ficheiro Oculto usado dentro das pastas para guardar a informação de Metadata"
+    "other": "Arquivo oculto usado em pastas para salvar os metadados"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fiels, use standard characters here."
+    "other": "ID de campos, use caracteres padrão aqui."
   },
   "Label": {
-    "other": "Label"
+    "other": "Rótulo"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "Rótulo do campo, amigável para humano"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "Última atualização por..."
   },
   "Long text": {
-    "other": "Long text"
-  },
-  "Meta Fields": {
-    "other": "Campos Meta"
+    "other": "Texto longo"
   },
   "Meta File": {
-    "other": "Ficheiro Meta"
-  },
-  "Meta Labels": {
-    "other": "Etiquetas Meta"
+    "other": "Meta Arquivo"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
-  },
-  "Set default visibility for each columns. Either by columns, using commas, or one value that will be applied to all columns. Value can be 'visible' or 'hidden'.": {
-    "other": "Define a visibilidade de cada uma das colunas. Será aplicado a todas as colunas usando colunas, virgulas, ou um valor. O valor pode ser 'Visivel(Visible)' ou 'Escondido(hidden)'."
+    "other": "Seleção (defina as escolhas em Informações Adicionais)"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "Definir visibilidade padrão."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "Texto curto"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Implementação simples da Metadata guardada num ficheiro oculto."
+    "other": "Implementação de metadados simples armazenada em um arquivo oculto."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "Classificação por estrelas"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "Tags (conjuntos completos de valores)"
   },
   "Text Metadata": {
-    "other": "Texto de Metadata"
+    "other": "Metadados do texto"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "Tipo de campo"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "Visível"
   }
 }

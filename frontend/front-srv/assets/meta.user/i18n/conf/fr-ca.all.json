@@ -1,78 +1,78 @@
 {
   "Files Metadata": {
-    "other": "Files Metadata"
+    "other": "Métadonnées de Fichiers"
   },
   "User Metadata implementation": {
-    "other": "User Metadata implementation"
+    "other": "Implémentation des métadonnées utilisateur"
   },
   "Additional info": {
-    "other": "Additional info"
+    "other": "Info. complémentaires"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "Etiquettes de couleur"
   },
   "Column visibility": {
-    "other": "Column visibility"
+    "other": "Visibilité de la colonne"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "Créé par..."
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "Dépend du type du champ. Actuellement utilisé uniquement pour les sélections"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "ID du champ"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "Type de champ"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "Cachée"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Hidden file used inside folders to save meta data"
+    "other": "Nom du fichier caché dans les répertoires dans lequel stocker les méta-données"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fields, use standard characters here."
+    "other": "Id des champs. N'utilisez que des caractères standards."
   },
   "Label": {
-    "other": "Label"
+    "other": "Libellé"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "Label du champ, lisible par un humain"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "Mis à jour par..."
   },
   "Long text": {
-    "other": "Long text"
+    "other": "Texte long"
   },
   "Meta File": {
-    "other": "Meta File"
+    "other": "Fichier méta"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
+    "other": "Sélection (définir les valeurs dans 'Info. complémentaires')"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "Définir la visibilité par défaut."
   },
   "Short text": {
-    "other": "Short text"
+    "other": "Texte court"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Simple metadata implementation stored in a hidden file."
+    "other": "Métadonnées simples stockées dans un fichier caché."
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "Vote par étoiles"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "Tags (ensemble de valeurs extensibles)"
   },
   "Text Metadata": {
-    "other": "Text Metadata"
+    "other": "Métadonnées texte"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "Type de champ"
   },
   "Visible": {
     "other": "Visible"

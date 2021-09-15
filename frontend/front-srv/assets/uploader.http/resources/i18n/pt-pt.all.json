@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Transferência Remota"
+    "other": "DL Remoto"
   },
   "10": {
-    "other": "Transferir para o APPLICATION_TITLE"
+    "other": "Baixar para APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Transferir para %s"
+    "other": "Baixar para %s"
   },
   "10b": {
-    "other": "Transferir para %s"
+    "other": "DL para %s"
   },
   "10c": {
-    "other": "Transferir Para %s"
+    "other": "DL para %s"
   },
   "10d": {
-    "other": "Transferência AjXp (%s)"
+    "other": "AjXp Download (%s)"
   },
   "11": {
-    "other": "Arraste um dos seguintes URLs para a sua lista de marcadores : "
+    "other": "Arraste um dos seguintes links para sua barra de favoritos: "
   },
   "12": {
-    "other": "Activar transferência de ficheiros remota"
+    "other": "Ativar baixar arquivo remoto"
   },
   "13": {
     "other": "Do computador"
   },
   "14": {
-    "other": "De um Servidor Remoto"
+    "other": "Do servidor remoto"
   },
   "15": {
-    "other": "Ou crie um marcador manualmente e utilize o código seguinte como URL : "
+    "other": "Ou crie um marcador manualmente e use o código abaixo como o link URL: "
   },
   "16": {
-    "other": "Arrasta-me para a sua lista de marcadores!"
+    "other": "Arraste-me para sua barra de marcadores!"
   },
   "17": {
-    "other": "Transferir Ficheiro"
+    "other": "Baixar arquivo"
   },
   "18": {
-    "other": "Ficheiro Parcial"
+    "other": "Arquivo parcial"
   },
   "2": {
-    "other": "Transferir ficheiro(s) de um servidor remoto"
+    "other": "Baixar arquivo(s) do servidor remoto"
   },
   "3": {
     "other": "m"
   },
   "4": {
-    "other": "Introduza pelo menos um URL a apontar para o ficheiro que pretende transferir directamente de um servidor remoto HTTP para a pasta actual. Esta acção irá ser processada em segundo plano, pelo que poderá continuar a utilizar o AjaxPlorer enquanto a transferência é efectuada."
+    "other": "Insira pelo menos uma URL apontando para um arquivo que você deseja baixar diretamente de um servidor HTTP externo para a pasta atual. Esta ação será enviada para segundo plano e você poderá continuar usando o APPLICATION_TITLE durante a descarga."
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "A transferir"
+    "other": "Baixando"
   },
   "7": {
     "other": "para o servidor"
   },
   "8": {
-    "other": "Ficheiro transferido com sucesso, a recarregar o cliente!"
+    "other": "Arquivo baixado, recarregando o cliente!"
   },
   "9": {
-    "other": "Gerar Marcador"
+    "other": "Gerar marcador"
   }
 }

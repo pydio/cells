@@ -1,44 +1,44 @@
 {
   "Exif Rotation": {
-    "other": "Exif Rotation"
+    "other": "Rotação de Exif"
   },
   "Generate thumbnails or not": {
-    "other": "Generate thumbnails or not"
+    "other": "Gerar miniaturas ou não"
   },
   "Image viewer": {
-    "other": "Image viewer"
+    "other": "Visualizador de imagem"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "Visualizador de imagens, usado para pré-visualizar imagens e navegá-las em um slide. Gera uma versão em miniatura das imagens."
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "Tamanhos de baixa resolução"
   },
   "Quality": {
-    "other": "Quality"
+    "other": "Qualidade"
   },
   "Remote Wrappers": {
-    "other": "Remote Wrappers"
+    "other": "Wrappers remotos"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "Girar imagem usando rotação exif"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "Limite de tamanho"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "Limite"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "Limite para versões de imagens mais baixas"
   },
   "Thumbnails": {
     "other": "Miniaturas"
   },
   "Thumbs quality": {
-    "other": "Thumbs quality"
+    "other": "Qualidade das miniaturas"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "Quando conectado a um servidor remoto, a extração de metadados pode tornar a ação da listagem muito longa, pois deve primeiro copiar cada arquivo localmente. Para plugins usando os wrappers e arquivos cujo tamanho é maior que este limite, o tipo de imagem e a dimensão serão ignorados."
   }
 }

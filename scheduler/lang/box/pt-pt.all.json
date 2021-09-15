@@ -1,0 +1,71 @@
+{
+  "Jobs.Default.Thumbs": {
+    "other": "Extrair miniaturas de imagens e dados Exif"
+  },
+  "Jobs.Default.ThumbsCache": {
+    "other": "Limpar cache de miniaturas para arquivos excluídos"
+  },
+  "Jobs.Default.Directories": {
+    "other": "Sincronizar diretórios externos"
+  },
+  "Jobs.Default.PruneJobs": {
+    "other": "Limpar trabalhos e tarefas no agendador"
+  },
+  "Jobs.Default.FakeLongJob": {
+    "other": "Fingir um longo trabalho de execução (para fins de teste)"
+  },
+  "Jobs.Default.FakeUsersJob": {
+    "other": "Criação de usuários aleatórios (para fins de teste)"
+  },
+  "Jobs.Default.FakeGrpcJob": {
+    "other": "Exemplo de trabalho RPC (para fins de teste)"
+  },
+  "Jobs.Default.ArchiveJobs": {
+    "other": "Arquivamento automático do serviço de mudanças"
+  },
+  "Jobs.User.Compress": {
+    "other": "Seleção de Compressão..."
+  },
+  "Jobs.User.Extract": {
+    "other": "Extraindo arquivo..."
+  },
+  "Jobs.User.Delete": {
+    "other": "Excluindo seleção em segundo plano..."
+  },
+  "Jobs.User.DirCopy": {
+    "other": "Copiando pasta em segundo plano..."
+  },
+  "Jobs.User.DirMove": {
+    "other": "Movendo pasta em segundo plano..."
+  },
+  "Jobs.User.FileCopy": {
+    "other": "Copiando arquivo em segundo plano..."
+  },
+  "Jobs.User.FileMove": {
+    "other": "Movendo arquivo em segundo plano..."
+  },
+  "Jobs.User.MultipleCopy": {
+    "other": "Copiando seleção em segundo plano..."
+  },
+  "Jobs.User.MultipleMove": {
+    "other": "Movendo a seleção em segundo plano..."
+  },
+  "Jobs.User.MoveRecycle": {
+    "other": "Movendo para a lixeira em segundo plano..."
+  },
+  "Jobs.User.ResyncDS": {
+    "other": "Reindexando a fonte de dados {{.DsName}}..."
+  },
+  "Jobs.User.Wget": {
+    "other": "Baixando arquivo em segundo plano..."
+  },
+  "Jobs.User.DeletingItem": {
+    "other": "Excluindo %s"
+  },
+  "Jobs.User.CopyingItem": {
+    "other": "Copiando %s"
+  },
+  "Jobs.User.MovingItem": {
+    "other": "Movendo %s"
+  }
+}

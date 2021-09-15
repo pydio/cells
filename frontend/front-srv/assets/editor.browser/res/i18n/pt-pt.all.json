@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Janela Externa"
+    "other": "Janela externa"
   },
   "2": {
-    "other": "Janela Externa no Navegador"
+    "other": "Janela de navegador externa"
   },
   "3": {
-    "other": "A Abrir ficheiro numa janela Externa, por favor aguarde, esta janela deverá ser fechada automaticamente."
+    "other": "Abrindo o arquivo na janela externa, por favor aguarde. Essa janela deve fechar automaticamente."
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "Nova URL nos Marcadores"
   },
   "5": {
-    "other": "Alternatively, you can \u003ca\u003ecreate a new bookmark to an URL\u003c/a\u003e"
+    "other": "Como alternativa, você pode <a>criar um novo marcador para uma URL</a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "Digite uma URL começando com http/https"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "URL dos Marcadores"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "Digite um rótulo para este marcador"
   }
 }

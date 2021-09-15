@@ -1,29 +1,35 @@
 {
   "1": {
-    "other": "E-mail enviado com sucesso para %s "
+    "other": "E-mail enviado com sucesso para %s usuário(s)"
   },
   "2": {
-    "other": "Endereço de e-mail do destinatário não existente!"
+    "other": "Nenhum endereço encontrado para enviar o e-mail!"
   },
   "3": {
-    "other": "Não existe um serviço de e-mails configurado, por favor contacte o seu administrador"
+    "other": "Nenhum serviço de e-mail configurado para enviar e-mails, favor contatar o administrador"
   },
   "4": {
-    "other": "From"
+    "other": "De"
   },
   "5": {
-    "other": "To"
+    "other": "Para"
   },
   "6": {
-    "other": "Subject"
+    "other": "Assunto"
   },
   "7": {
-    "other": "Message"
+    "other": "Mensagem"
   },
   "8": {
-    "other": "User or email"
+    "other": "Escolha um usuário ou digite um endereço"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "Ingestão de Notificações"
+  },
+  "sender.error": {
+    "other": "Não foi possível enviar o e-mail corretamente!"
+  },
+  "entries.ignored": {
+    "other": "Aviso, algumas entradas foram ignoradas, apenas usuários que definiram seu endereço de e-mail corretamente receberão convites. Não foram processados nenhuma equipe ou grupo."
   }
 }

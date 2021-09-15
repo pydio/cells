@@ -3,7 +3,7 @@
     "other": "Receber notificações de..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "Observando..."
   },
   "10": {
     "other": "Alguém está abrindo o arquivo"
@@ -54,24 +54,24 @@
     "other": "Consultas"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "Receber notificações quando..."
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "Nunca (sem notificações)"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "Conteúdo é acessado"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "O conteúdo é modificado"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "O conteúdo é acessado ou modificado"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "Valores mistos"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "Salvando status"
   }
 }

@@ -6,60 +6,60 @@
     "other": "Date"
   },
   "11": {
-    "other": "Author"
+    "other": "Auteur"
   },
   "12": {
     "other": "Modification"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "Êtes-vous sûr ? Cette opération va créer une nouvelle version du fichier avec le contenu de la révision sélectionnée."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Pas de précédentes versions"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Les versions sont créées lorsque le contenu est modifié"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Versions précédentes de '%s'"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Précédentes versions du document"
   },
   "3": {
-    "other": "Download"
+    "other": "Télécharger"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "Télécharger cette version sur votre ordinateur"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Voir (navigateur)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "Ouvrir la version sélectionnée dans le navigateur"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "Revenir à..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "Revenir à la version sélectionnée"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Fichier créé"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Fichier supprimé"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Contenu modifié"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Déplacement"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Fichier renommé"
   }
 }

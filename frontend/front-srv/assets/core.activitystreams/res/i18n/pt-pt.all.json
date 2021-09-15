@@ -3,25 +3,40 @@
     "other": "Notificações"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "Atividade do Diretório"
   },
   "11": {
-    "other": "File Activity"
+    "other": "Atividade do Arquivo"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "Dependendo do seu navegador, será pedida uma permissão específica. Para desabilitar, acesse as configurações de seu navegador. Se você já habilitou este recurso, provavelmente nada irá acontecer."
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "Seu navegador parece não suportar Notificações de Desktop ainda."
   },
   "14": {
-    "other": "No alerts"
+    "other": "Sem alertas"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "Notificações sobre arquivos que você monitora aparecerão aqui"
+  },
+  "16": {
+    "other": "Dentro"
+  },
+  "17": {
+    "other": "Carregando atividades..."
+  },
+  "18": {
+    "other": "Nenhuma atividade recente"
+  },
+  "19": {
+    "other": "Mais"
   },
   "2": {
     "other": "Feed de Notificações"
+  },
+  "20": {
+    "other": "Carregando feed..."
   },
   "3": {
     "other": "Alertas"
@@ -33,15 +48,15 @@
     "other": "Todos os Eventos"
   },
   "6": {
-    "other": "Ir para ..."
+    "other": "Ir para..."
   },
   "7": {
     "other": "Descartar"
   },
   "8": {
-    "other": "No alerts"
+    "other": "Sem alertas"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "Atividade da Área de Trabalho"
   }
 }

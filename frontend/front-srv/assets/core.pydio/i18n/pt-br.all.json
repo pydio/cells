@@ -183,16 +183,16 @@
     "other": "Adicionar local atual para Meus Favoritos"
   },
   "152-on": {
-    "other": "Bookmark"
+    "other": "Marcadores"
   },
   "153-on": {
-    "other": "Add item to MyBookmarks"
+    "other": "Adicionar Item aos Marcadores"
   },
   "152-off": {
-    "other": "Remove Bookmark"
+    "other": "Remover Marcador"
   },
   "153-off": {
-    "other": "Remove item from MyBookmarks"
+    "other": "Remover item dos marcadores"
   },
   "154": {
     "other": "Novo diretório"
@@ -741,7 +741,7 @@
     "other": "CodePress visualizador código"
   },
   "319": {
-    "other": "HTML Editor"
+    "other": "Editor HTML"
   },
   "32": {
     "other": "Explorar"
@@ -930,7 +930,7 @@
     "other": "Aviso, você esteve inativo mais do que __IDLE__, você será desconectado em __LOGOUT__"
   },
   "375t": {
-    "other": "Are you still there?"
+    "other": "Você ainda está aí?"
   },
   "376": {
     "other": "Clique em qualquer lugar para reativar"
@@ -963,10 +963,10 @@
     "other": "Muito forte"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Por favor, use apenas caracteres minúsculos para logins"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Por favor, use caracteres alfanuméricos ou e-mails válidos para logins"
   },
   "386": {
     "other": "Seu login falhou por três tentativas.\nPara sua segurança, por favor preencha o código que aparece na imagem."
@@ -1527,34 +1527,34 @@
     "other": "Executando tarefa %s em segundo plano"
   },
   "557": {
-    "other": "Credentials required"
+    "other": "Credenciais necessárias"
   },
   "558": {
-    "other": "Please provide a password to enter this workspace."
+    "other": "Forneça uma senha para inserir este espaço de trabalho."
   },
   "559": {
-    "other": "Authentication failed for this workspace."
+    "other": "A autenticação falhou para este espaço de trabalho."
   },
   "56": {
     "other": "Imagem BMP"
   },
   "560": {
-    "other": "Authentication required"
+    "other": "Autenticação requerida"
   },
   "561": {
-    "other": "We will redirect you to the Authentication page of the provider. If you are not redirected automatically, press OK to retry..."
+    "other": "Nós vamos redirecioná-lo para a página de Autenticação do provedor. Se você não for redirecionado automaticamente, pressione OK para tentar novamente..."
   },
   "562": {
-    "other": "This folder is empty!"
+    "other": "Esta pasta está vazia!"
   },
   "563": {
-    "other": "This workspace is empty!"
+    "other": "Este espaço de trabalho está vazio!"
   },
   "564": {
-    "other": "Recycle Bin is empty."
+    "other": "A lixeira está vazia."
   },
   "565": {
-    "other": "Starting adding files or folders by picking them or dragging directly from your desktop"
+    "other": "Comece a adicionar arquivos ou pastas escolhendo-os ou arrastando-os diretamente da sua área de trabalho"
   },
   "566": {
     "other": "You are not allowed to add files here"

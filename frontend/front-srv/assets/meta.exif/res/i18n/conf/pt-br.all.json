@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "Lista associada de rótulos, certifique-se de definir tantos quanto os campos!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "Lista de campos separados por vírgula, use a sintaxe 'EXIF_SECTION.ExifName'."
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Metadados Exif"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "Extrai os metadados EXIF de uma imagem JPG. Usado em conjunto com editor.exif"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "Campos do Painel de Informações"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "Rótulos do Painel de Informações"
   }
 }
