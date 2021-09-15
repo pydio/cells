@@ -1,105 +1,105 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "Ajoutez des fichiers ou des répertoires au workspace courant"
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Ajouter des fichiers"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "Cette barre d'outil vous permet de changer les options d'affichage, de tri des données, etc."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Options d'affichage"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "Utilisez ce moteur de recherche pour trouver des fichiers dans tous les workspaces. Seuls les 5 premiers résultats sont affichés, entrez dans un workspace pour affiner votre recherche et avoir plus de résultats."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "Quand il n'y a pas de recherche, ici s'affiche l'historique récent des fichiers et dossiers que vous avez accédé."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "Recherche"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "Vous trouverez ici différentes informations concernant la sélection courante: infos sur le fichier, statut de partage, méta-données, etc."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "Vous pouvez fermer le panneau en appuyant sur le bouton Info dans la barre d'outil"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "Fichier"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Dossier"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Recherche"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "Panneau d'informations"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Retour"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Fermer"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Terminer"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Suivant"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Ignorer"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "A la première connexion, vos historique est probablement vide. Effectuez une recherche ou entrez maintenant dans un workspace ou une cellule pour y ajouter des fichiers."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Ouvrir un workspace"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "Annuaire de tous les utilisateurs accédant à la plateforme. Créez vos propres utilisateurs et constituez des équipes pour partager facilement des fichiers avec plusieurs personnes."
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "Les alertes vous informent lorsqu'un utilisateur accède à une ressource partagée. Vous pouvez les recevoir directement par email."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "Retour à la page d'accueil"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "Accéder à d'autres options : gestion de votre profil et options de sécurité, accès à tous vos partages, déconnexion."
   },
   "tour.uwidget.title": {
-    "other": "User Cartouche"
+    "other": "Cartouche Utilisateur"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Ignorer"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Démarrer le tour"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "Glissez ici votre meilleur photo pour votre profil! Cette petite visite va vous introduire brièvement l'interface web."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "Bienvenue sur APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "Vous pouvez ajouter ou retirer des widgets. Vous pouvez aussi les ré-ordonner pas glisser-déposer."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Gadgets"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "Les workspaces regroupent les fichiers pour vous permettre d'organiser vos données. Ils peuvent être accessible seulement par vous ou partagés par plusieurs utilisateurs. "
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Les cellules sont des espaces de collaboration partagés entre utilisateurs. Créez vos propres cellules autour d'un répertoire, d'une équipe, ou de n'importe quel autre sujet."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "Workspaces & Cellules"
   },
   "background.jobs.title": {
     "other": "Tâches de fond"
@@ -108,60 +108,60 @@
     "other": "Tâches en cours"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "Problème de connexion"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "La WebSocket semble être déconnectée, assurez-vous que le serveur est opérationnel et que la connexion WebSocket fonctionne."
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "Authentification réussie"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "Échec de l'authentification"
   },
   "oauth.authentication.code": {
-    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "Vous avez été authentifié avec succès. Veuillez copier et coller le code dans votre terminal."
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "Copier le code dans votre presse-papiers"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "Le code est copié dans votre presse-papiers, vous pouvez le coller dans la ligne de commande."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "Impossible de copier dans le presse-papiers."
   },
   "list.display-mode.list": {
-    "other": "List"
+    "other": "Liste"
   },
   "list.display-mode.details": {
-    "other": "Details"
+    "other": "Détails"
   },
   "list.display-mode.thumbs": {
-    "other": "Thumbs"
+    "other": "Vignettes"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "Grandes vignettes"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "Petites vignettes"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "Galerie d'images"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "Extensions de fichiers"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Afficher les extensions"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "Épingler les favoris en haut"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "Sélectionnez un fichier pour afficher ses informations"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Tous les fichiers"
   }
 }

@@ -1,77 +1,77 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "Surveiller..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "Surveillance..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "Un utilisateur ouvre le fichier"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "Un utilisateur explore ce répertoire"
   },
   "11": {
     "other": "Modification"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "Un utilisateur modifie le ficher"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "Un utilisateur modifie un ficher de ce répertoire"
   },
   "13": {
-    "other": "Both"
+    "other": "Les deux"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "Un utilisateur ouvre ou modifie le contenu du fichier"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "Un utilisateur liste ou modifie le contenu du répertoire"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "Être alerté lors de l'accès à ce dossier"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "Arrêter la surveillance"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "Ne plus surveiller l'accès à ce dossier"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "Surveiller..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "Surveiller les modifications de ce fichier"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "Ne plus surveiller"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "Ne plus surveiller les modifications de ce fichier"
   },
   "9": {
     "other": "Consultation"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "Recevoir des notifications quand..."
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "Jamais (aucune notification)"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "Le contenu est accédé"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "Le contenu est modifié"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "Le contenu est accédé ou modifié"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "Valeurs multiples"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "Enregistrement du statut"
   }
 }

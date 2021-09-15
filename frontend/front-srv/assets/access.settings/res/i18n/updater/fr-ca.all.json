@@ -1,105 +1,105 @@
 {
   "title": {
-    "other": "Software Updates"
+    "other": "Mises à jour du logiciel"
   },
   "legend": {
-    "other": "In-app binary updates"
+    "other": "Mise à jour automatique des binaires"
   },
   "current.version": {
-    "other": "Current Version"
+    "other": "Version actuelle"
   },
   "confirm.update": {
-    "other": "Are you sure that you want to perform the update?"
+    "other": "Etes-vous certain de vouloir appliquer cette mise à jour ?"
   },
   "packages.available": {
-    "other": "Following packages are available for update"
+    "other": "Ci-dessous, les versions disponibles pour la mise à jour"
   },
   "checking": {
-    "other": "Checking for available updates..."
+    "other": "Récupération des mises à jour disponibles..."
   },
   "noupdates": {
-    "other": "No necessary update detected: click to perform a new check."
+    "other": "Aucune mise à jour nécessaire détectée : cliquez pour effectuer une nouvelle vérification."
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "Veuillez sélectionner au moins une version!"
   },
   "package.released": {
-    "other": "Released"
+    "other": "Publié"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "Révision"
   },
   "check.legend": {
-    "other": "Click to check for new update"
+    "other": "Cliquer pour vérifier si une mise à jour est disponible"
   },
   "check.button": {
-    "other": "Check now"
+    "other": "Vérifier maintenant"
   },
   "package.version": {
     "other": "Version"
   },
   "package.label": {
-    "other": "Label"
+    "other": "Libellé"
   },
   "package.details": {
-    "other": "Details"
+    "other": "Détails"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "Voir les changements"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "Démarrer"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "Sauver les changements"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "Mettre à jour vers Cells Enterprise"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "Suivant"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "Démarrer"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "Annuler"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "Installer maintenant"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "Fermer"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "Veuillez accepter le Contrat de Licence Utilisateur Final"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "En cochant cette case, j'accepte ce CLUF"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "Entrez une clé de licence valide (fournie par un représentant de Pydio)"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "Si vous n'en possédez pas, contactez un commercial pour recevoir une clé d'évaluation en utilisant le bouton ci-dessous ou directement via "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "Coller la clé fournie ici..."
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "Recherche de la version correspondante de Cells Enterprise"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "Impossible de charger les versions disponibles pour Cells Enterprise !"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "L'erreur était"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "Prêt pour l’installation de %s"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "Publié"
   },
   "upgrade.ed.version.arch": {
     "other": "Architecture"
@@ -108,18 +108,18 @@
     "other": "Description"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "En cliquant sur Suivant, la nouvelle version va être téléchargée et remplacera votre binaire Cells actuel. Une sauvegarde de l'exécutable original sera effectuée dans le dossier de configuration de Cells (sous %s) au cas où vous deviez le récupérer."
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "Impossible de trouver une version correspondante pour Cells Enterprise"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "Pour éviter de mélanger ce changement d'édition et les mises à jour, nous recommandons de passer d'une version Home à Enterprise sur un même numéro de version."
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "Veuillez d'abord mettre à jour votre version actuelle à l'une des versions suivantes, puis réessayez de passer à Cells Enterprise."
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "Installation en cours. Merci de patienter..."
   }
 }

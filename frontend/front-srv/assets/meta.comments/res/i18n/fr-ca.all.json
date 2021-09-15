@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Comments"
+    "other": "Commentaires"
   },
   "2": {
-    "other": "Enter your comment here"
+    "other": "Entrez votre commentaire ici"
   },
   "3": {
-    "other": "Post"
+    "other": "Envoyer"
   },
   "4": {
-    "other": "Go to %s"
+    "other": "Aller à %s"
   },
   "empty-state": {
-    "other": "No comments"
+    "other": "Aucun commentaires"
   }
 }

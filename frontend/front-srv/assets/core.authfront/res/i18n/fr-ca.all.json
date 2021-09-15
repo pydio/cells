@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "Password Reset"
+    "other": "Réinitialisation du mot de passe"
   },
   "2": {
-    "other": "Set your new password"
+    "other": "Définissez votre nouveau mot de passe"
   },
   "3": {
-    "other": "Please enter your login or email address, a reset password will be sent to you by email."
+    "other": "Entrez votre identifiant utilisateur ou votre address email, une demande de réinitialisation vous sera envoyée par courriel."
   },
   "4": {
-    "other": "Your login or email"
+    "other": "Identifiant ou email"
   },
   "5": {
-    "other": "A reset password request has been sent to the email registered with your account. Click on the link in the email to recreate a password."
+    "other": "Un courriel contenant une demande de réinitialisation du mot de passe a été envoyé à l'adresse courriel enregistrée dans votre compte. Cliquez sur le lien du courriel pour créer un nouveau mot de passe."
   },
   "6": {
-    "other": "Thank you, please reload now to log in!"
+    "other": "Merci, veuillez recharger la page pour vous connecter avec ce nouveau mot de passe!"
   },
   "7": {
-    "other": "A password reset has been requested on the account associated to this email address. If you are not the author of this request, you can safely ignore this email. Otherwise click on the following link to reset your password:"
+    "other": "Une demande de réinitialisation de mot de passe a été demandée pour le compte associé à ce courriel. Si vous n'en êtes pas l'auteur, vous pouvez ignorer ce courriel. Sinon cliquez sur le lien suivant :"
   },
   "8": {
-    "other": "Use the form below to reset your password. Please enter your login and the new password twice."
+    "other": "Utilisez le formulaire pour remettre à zéro votre mot de passe. Entrez votre identifiant et votre nouveau mot de passe deux fois."
   }
 }

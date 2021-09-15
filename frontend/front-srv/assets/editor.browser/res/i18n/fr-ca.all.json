@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "External window"
+    "other": "Fenêtre externe"
   },
   "2": {
-    "other": "External browser window"
+    "other": "Fenêtre externe du navigateur"
   },
   "3": {
-    "other": "Opening file in external window, please wait, this window should close automatically."
+    "other": "Ouvrir le fichier dans une nouvelle fenêtre du navigateur, veuillez patienter, cette fenêtre se fermera automatiquement"
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "Nouveau Favori (URL)"
   },
   "5": {
-    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+    "other": "Vous pouvez aussi <a>créer un favori vers une URL</a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "Entrer une adresse internet commençant par http/https"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "Favori"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "Entrer un libellé pour ce favori."
   }
 }
