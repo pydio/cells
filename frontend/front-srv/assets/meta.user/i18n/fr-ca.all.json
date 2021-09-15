@@ -1,50 +1,50 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "Metadonnées"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Tag existant ou nouveau"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Aucune métadonnées, cliquez pour en ajouter"
   },
   "16": {
-    "other": "No metadata set"
+    "other": "Aucune métadonnée"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Sélection multiple:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "cochez les champs que vous souhaitez mettre à jour, la nouvelle valeur sera appliquée à tous les éléments sélectionnés."
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Editer les meta"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Sauver"
   },
   "2": {
-    "other": "No Label"
+    "other": "Pas de libellés"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "Retirer la notation"
   },
   "4": {
-    "other": "Low"
+    "other": "Faible"
   },
   "5": {
-    "other": "Todo"
+    "other": "A faire"
   },
   "6": {
-    "other": "Personal"
+    "other": "Personnel"
   },
   "7": {
-    "other": "Work"
+    "other": "Travail"
   },
   "8": {
     "other": "Important"
   },
   "9": {
-    "other": "No Value"
+    "other": "Pas de valeurs"
   }
 }

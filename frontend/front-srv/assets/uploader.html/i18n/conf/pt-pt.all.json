@@ -1,38 +1,38 @@
 {
   "Always Override": {
-    "other": "Always Override"
+    "other": "Sempre Substituir"
   },
   "Auto Close": {
     "other": "Fechar Automaticamente"
   },
   "Auto Rename File": {
-    "other": "Auto Rename File"
+    "other": "Renomear Arquivo Automaticamente"
   },
   "Auto Start": {
-    "other": "Começar Automaticamente"
+    "other": "Início Automático"
   },
   "Auto-switching HTML5 or IFrame uploader.": {
-    "other": "Ferramenta de Envio de ficheiros Auto-Manipulável por HTML5 ou IFrame."
+    "other": "Auto-comutação HTML5 ou IFrame uploader."
   },
   "Default Behaviour": {
-    "other": "Comportamento Pré-Definido"
+    "other": "Comportamento Padrão"
   },
   "Default value for automatically closing the dialog after upload or not": {
-    "other": "Valor Pré-Definido para fechar ou não automaticamente a caixa de diálogo após terminar o envio"
+    "other": "Valor padrão para fechar automaticamente a caixa de diálogo após o envio ou não"
   },
   "Default value for automatically starting upload or not": {
-    "other": "Valor Pré-Definido para começar ou não o envio automaticamente"
+    "other": "Valor padrão para iniciar automaticamente o envio ou não"
   },
   "Existing Files": {
-    "other": "Ficheiros Existentes"
+    "other": "Arquivos existentes"
   },
   "HTML Uploader": {
-    "other": "Envio por HTML"
+    "other": "Padrão"
   },
   "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
-    "other": "Informar o utilizador ou não se um ficheiro já existe (comportamento pré definido, o utilizador tem a possibilidade de alterar esta preferência)"
+    "other": "Informar o usuário ou não se o arquivo já existe (comportamento padrão, o usuário poderá alterar essa preferência)"
   },
   "Prompt user": {
-    "other": "Prompt user"
+    "other": "Perguntar ao usuário"
   }
 }

@@ -1,44 +1,59 @@
 {
   "Allowed Extensions": {
-    "other": "Extensões Permitidas"
-  },
-  "Cumul. Size": {
-    "other": "Tamanho comutativo."
+    "other": "Extensões permitidas"
   },
   "Ext. Label": {
-    "other": "Etiqueta de Ext."
+    "other": "Rótulo de Ext."
   },
   "Extensions List": {
     "other": "Lista de Extensões"
   },
   "File Size": {
-    "other": "Tamanho de Ficheiro"
-  },
-  "Files Number": {
-    "other": "Número de Ficheiros"
+    "other": "Tamanho do Arquivo"
   },
   "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
-    "other": "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list."
+    "other": "Filtre os arquivos que podem ser carregados, por extensões. Use uma lista separada por vírgulas."
   },
   "Limitations": {
     "other": "Limitações"
   },
-  "Maximum number of files for each upload. Leave to 0 for no limit.": {
-    "other": "Maximum number of files for each upload. Leave to 0 for no limit."
-  },
-  "Maximum size per file allowed to upload. By default, this is fixed by php config 'upload_max_filesize'. Use this one only if you want to set it smaller than the php config. If you want to increase the php value, please check the PHP documentation for how to set a php config. Use either the php config syntax with letters for size (e.g. '2M' for 2MegaBytes , '1G' for one gigabyte, etc.) or an integer value like 2097152 for 2 megabytes.": {
-    "other": "Maximum size per file allowed to upload. By default, this is fixed by php config 'upload_max_filesize'. Use this one only if you want to set it smaller than the php config. If you want to increase the php value, please check the PHP documentation for how to set a php config. Use either the php config syntax with letters for size (e.g. '2M' for 2MegaBytes , '1G' for one gigabyte, etc.) or an integer value like 2097152 for 2 megabytes."
-  },
-  "Maximum total size (all files size cumulated) by upload. Leave to 0 if you do not want any limit. See the previous variable for syntax ('2M' or 2097152 )": {
-    "other": "Maximum total size (all files size cumulated) by upload. Leave to 0 if you do not want any limit. See the previous variable for syntax ('2M' or 2097152 )"
+  "Maximum size per file allowed to upload.": {
+    "other": "Tamanho máximo por arquivo permitido para envio."
   },
   "Options shared by all uploaders plugins": {
-    "other": "Options shared by all uploaders plugins"
+    "other": "Opções compartilhadas por todos os plugins de remetentes"
   },
   "Uploaders Options": {
-    "other": "Uploaders Options"
+    "other": "Opções de Envio"
   },
   "User readable label for the list of allowed extensions (images, all files, etc).": {
-    "other": "User readable label for the list of allowed extensions (images, all files, etc)."
+    "other": "Rótulo legível do usuário para a lista de extensões permitidas (imagens, todos os arquivos, etc)."
+  },
+  "Multipart Uploads": {
+    "other": "Envio em múltiplas partes"
+  },
+  "Multipart Parts Size": {
+    "other": "Tamanho das múltiplas partes"
+  },
+  "Multipart Threshold": {
+    "other": "Limite das múltiplas partes"
+  },
+  "Switch to Multipart Upload for files bigger than this value (in bytes)": {
+    "other": "Mudar para Envio em múltiplas partes para arquivos maiores que este valor (em bytes)"
+  },
+  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
+    "other": "Tamanho de chunk usado para envio de várias partes, deve ser maior do que 5MB (5242800B)"
+  },
+  "Queue Size": {
+    "other": "Tamanho da Fila"
+  },
+  "Number of concurrent uploads (maximum 6, due to browsers limitations)": {
+    "other": "Número de envios simultâneos (máximo de 6, devido a limitações do navegador)"
+  },
+  "Timeout": {
+    "other": "Tempo Limite"
+  },
+  "Request Timeout (in minutes) for each concurrent part upload": {
+    "other": "Tempo limite do pedido (em minutos) para cada parte simultânea do envio"
   }
 }

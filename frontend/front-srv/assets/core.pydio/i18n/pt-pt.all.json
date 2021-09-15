@@ -1,0 +1,2399 @@
+{
+  "0": {
+    "other": "Última versão"
+  },
+  "1": {
+    "other": "Nome do arquivo"
+  },
+  "10": {
+    "other": "Arquivo texto"
+  },
+  "100": {
+    "other": "Não foi possível encontrar o arquivo "
+  },
+  "101": {
+    "other": "O diretório de origem e o destino são os mesmos!"
+  },
+  "102": {
+    "other": "Erro ao criar o arquivo :"
+  },
+  "103": {
+    "other": "Não foi possível encontrar o diretório "
+  },
+  "104": {
+    "other": "Vá para o local informado"
+  },
+  "105": {
+    "other": "Enviar um e-mail com a URL para acessar diretamente este local."
+  },
+  "106": {
+    "other": "Enviar e-mail"
+  },
+  "107": {
+    "other": "Seu nome e/ou e-mail"
+  },
+  "108": {
+    "other": "E-mail do destinatário"
+  },
+  "109": {
+    "other": "URL clicável"
+  },
+  "11": {
+    "other": "Javascript"
+  },
+  "110": {
+    "other": "Adicionar um comentário"
+  },
+  "111": {
+    "other": "O seguinte e-mail foi enviado :"
+  },
+  "112": {
+    "other": "O envio do e-mail falhou : "
+  },
+  "113": {
+    "other": "A seleção está vazia!"
+  },
+  "114": {
+    "other": "Ocorreu um erro desconhecido durante a cópia!"
+  },
+  "115": {
+    "other": "O arquivo foi salvo com sucesso"
+  },
+  "116": {
+    "other": "arquivos"
+  },
+  "117": {
+    "other": "O diretório"
+  },
+  "118": {
+    "other": "Download de múltiplos arquivos"
+  },
+  "119": {
+    "other": "Clique em cada arquivo para efetuar o download."
+  },
+  "12": {
+    "other": "Imagem GIF"
+  },
+  "120": {
+    "other": "Você não tem permissão para apagar toda hierarquia de diretórios!"
+  },
+  "121": {
+    "other": "Arquivo de imagem "
+  },
+  "122": {
+    "other": "Lixeira"
+  },
+  "123": {
+    "other": "foi movido para a "
+  },
+  "124": {
+    "other": "Sobrescrever os arquivos existentes?"
+  },
+  "125": {
+    "other": "Um arquivo/diretório com este nome já existe (os nomes NÃO são sensíveis a caixa). Informe outro nome!"
+  },
+  "126": {
+    "other": "Miniaturas"
+  },
+  "127": {
+    "other": "Tamanho"
+  },
+  "128": {
+    "other": "arquivos selecionados."
+  },
+  "129": {
+    "other": "Visualizar"
+  },
+  "13": {
+    "other": "Imagem JPG"
+  },
+  "130": {
+    "other": "Diretórios"
+  },
+  "131": {
+    "other": "Detalhes"
+  },
+  "132": {
+    "other": "Arquivo não selecionado"
+  },
+  "133": {
+    "other": "Nome"
+  },
+  "134": {
+    "other": "Tipo"
+  },
+  "135": {
+    "other": "Dimensões"
+  },
+  "136": {
+    "other": "Visualizar imagem"
+  },
+  "138": {
+    "other": "Última mod."
+  },
+  "139": {
+    "other": "Editar Online"
+  },
+  "14": {
+    "other": "Página HTML"
+  },
+  "140": {
+    "other": "Ouvir todo diretório"
+  },
+  "141": {
+    "other": "Carregando diretório"
+  },
+  "142": {
+    "other": "Logado como "
+  },
+  "143": {
+    "other": "Navegação de convidado. Entrar."
+  },
+  "144": {
+    "other": "Não autenticado."
+  },
+  "145": {
+    "other": "Meus favoritos"
+  },
+  "146": {
+    "other": "Apagar favorito"
+  },
+  "147": {
+    "other": "Favoritos"
+  },
+  "148": {
+    "other": "Acima"
+  },
+  "149": {
+    "other": "Atualizar"
+  },
+  "15": {
+    "other": "Página HTML"
+  },
+  "150": {
+    "other": "Exibir"
+  },
+  "151": {
+    "other": "Alternar modo de exibição..."
+  },
+  "152": {
+    "other": "Favorito"
+  },
+  "153": {
+    "other": "Adicionar local atual para Meus Favoritos"
+  },
+  "152-on": {
+    "other": "Marcadores"
+  },
+  "153-on": {
+    "other": "Adicionar Item aos Marcadores"
+  },
+  "152-off": {
+    "other": "Remover Marcador"
+  },
+  "153-off": {
+    "other": "Remover item dos marcadores"
+  },
+  "154": {
+    "other": "Novo diretório"
+  },
+  "155": {
+    "other": "Criar novo diretório"
+  },
+  "156": {
+    "other": "Novo arquivo"
+  },
+  "157": {
+    "other": "Criar novo arquivo vazio"
+  },
+  "158": {
+    "other": "Renomear arquivo ou pasta selecionado"
+  },
+  "159": {
+    "other": "Copiar seleção para..."
+  },
+  "16": {
+    "other": "Arquivo REAL"
+  },
+  "160": {
+    "other": "Mover arquivos selecionados para ..."
+  },
+  "161": {
+    "other": "Apagar arquivos selecionados."
+  },
+  "162": {
+    "other": "Editar arquivos de texto online."
+  },
+  "163": {
+    "other": "Entrar"
+  },
+  "164": {
+    "other": "Sair"
+  },
+  "165": {
+    "other": "Configurações"
+  },
+  "166": {
+    "other": "Sobre"
+  },
+  "167": {
+    "other": "Sobre o Pydio"
+  },
+  "168": {
+    "other": "Conectar ao APPLICATION_TITLE"
+  },
+  "169": {
+    "other": "Desconectar do APPLICATION_TITLE"
+  },
+  "17": {
+    "other": "Arquivo REAL"
+  },
+  "170": {
+    "other": "Diretório atual"
+  },
+  "171": {
+    "other": "Navegar"
+  },
+  "172": {
+    "other": "Sua seleção"
+  },
+  "173": {
+    "other": "Novo nome do diretório"
+  },
+  "174": {
+    "other": "Novo nome do arquivo"
+  },
+  "175": {
+    "other": "Selecione o diretório de destino"
+  },
+  "176": {
+    "other": "Os arquivos selecionados serão movidos para a lixeira."
+  },
+  "177": {
+    "other": "Você tem certeza que quer remover permanentemente os arquivos selecionados?"
+  },
+  "178": {
+    "other": "Anterior"
+  },
+  "179": {
+    "other": "Próximo"
+  },
+  "18": {
+    "other": "Script PERL"
+  },
+  "180": {
+    "other": "Informe seu usuário/senha"
+  },
+  "181": {
+    "other": "Usuário"
+  },
+  "182": {
+    "other": "Senha"
+  },
+  "183": {
+    "other": "Selecione um diretório de destino diferente do diretório de origem!"
+  },
+  "184": {
+    "other": "Buscar no diretório atual e sub-diretórios"
+  },
+  "185": {
+    "other": "Parar a busca"
+  },
+  "186": {
+    "other": "Pré-visualizar imagem"
+  },
+  "187": {
+    "other": "Edição on-line - "
+  },
+  "189": {
+    "other": "Alterar minhas preferências"
+  },
+  "19": {
+    "other": "Arquivo ZIP"
+  },
+  "190": {
+    "other": "Idioma"
+  },
+  "191": {
+    "other": "Exibição Padrão"
+  },
+  "192": {
+    "other": "Lista de detalhes"
+  },
+  "193": {
+    "other": "Miniaturas"
+  },
+  "194": {
+    "other": "Alterar senha"
+  },
+  "195": {
+    "other": "Preferências do usuário"
+  },
+  "196": {
+    "other": "Seu idioma difere do idioma atual!\\n Você quer atualizar a página para mudar o idioma?"
+  },
+  "197": {
+    "other": "Sua nova senha só valerá após desconectar-se da sessão atual."
+  },
+  "198": {
+    "other": "Novo"
+  },
+  "199": {
+    "other": "Confirmar"
+  },
+  "2": {
+    "other": "Tamanho"
+  },
+  "20": {
+    "other": "Arquivo WAV"
+  },
+  "200": {
+    "other": "Mudar repositório para..."
+  },
+  "201": {
+    "other": "Atenção, algumas mudanças não foram salvas!\\n Você tem certeza que quer fechar?"
+  },
+  "202": {
+    "other": "Atenção, copia recursiva!"
+  },
+  "203": {
+    "other": "O diretório de destino é o mesmo do diretório de origem!"
+  },
+  "204": {
+    "other": "O arquivo \""
+  },
+  "205": {
+    "other": "\" excede o limite de tamanho ("
+  },
+  "206": {
+    "other": "Mb).\\nNão será enviado."
+  },
+  "207": {
+    "other": "Você não tem permissão de escrita neste diretório"
+  },
+  "208": {
+    "other": "Você não tem permissão de leitura neste diretório"
+  },
+  "209": {
+    "other": "Erro interno no servidor, contate o administrador do sistema!"
+  },
+  "21": {
+    "other": "Script PHP"
+  },
+  "210": {
+    "other": "O envio falhou"
+  },
+  "211": {
+    "other": "O tamanho do arquivo é muito grande!"
+  },
+  "212": {
+    "other": "Nenhum arquivo encontrado no servidor!"
+  },
+  "213": {
+    "other": "Erro ao copiar arquivo para o diretório atual"
+  },
+  "214": {
+    "other": "Procurar arquivos"
+  },
+  "215": {
+    "other": "Iniciar envio"
+  },
+  "216": {
+    "other": "Limpar lista"
+  },
+  "217": {
+    "other": "Limpeza completa"
+  },
+  "218": {
+    "other": "Remover da lista"
+  },
+  "219": {
+    "other": "Completado"
+  },
+  "22": {
+    "other": "Script PHP"
+  },
+  "220": {
+    "other": "Esvaziar"
+  },
+  "221": {
+    "other": "Esvaziar lixeira"
+  },
+  "222": {
+    "other": "Restaurar"
+  },
+  "223": {
+    "other": "Restaurar arquivo para seu local original"
+  },
+  "224": {
+    "other": "Ir para"
+  },
+  "225": {
+    "other": "Renomear favorito"
+  },
+  "226": {
+    "other": "Lista"
+  },
+  "227": {
+    "other": "Alternar para a visão de lista"
+  },
+  "228": {
+    "other": "Miniaturas"
+  },
+  "229": {
+    "other": "Alternar para a visão de miniaturas"
+  },
+  "23": {
+    "other": "Arquivo"
+  },
+  "230": {
+    "other": "Tocar"
+  },
+  "231": {
+    "other": "Exibir Slideshow"
+  },
+  "232": {
+    "other": "Parar"
+  },
+  "233": {
+    "other": "Parar Slideshow"
+  },
+  "234": {
+    "other": "Exibir imagens selecionadas"
+  },
+  "235": {
+    "other": "Tela cheia"
+  },
+  "236": {
+    "other": "Restaurar"
+  },
+  "237": {
+    "other": "Senha antiga"
+  },
+  "238": {
+    "other": "Senhas diferem!"
+  },
+  "239": {
+    "other": "Informe a senha atual"
+  },
+  "24": {
+    "other": "Diretório pai"
+  },
+  "240": {
+    "other": "Senha incorreta!"
+  },
+  "241": {
+    "other": "Suas preferências foram salvas com sucesso."
+  },
+  "242": {
+    "other": "Log Svn"
+  },
+  "243": {
+    "other": "Revisão"
+  },
+  "244": {
+    "other": "Autor"
+  },
+  "245": {
+    "other": "Data"
+  },
+  "246": {
+    "other": "Mensagem"
+  },
+  "247": {
+    "other": "Extrair"
+  },
+  "248": {
+    "other": "Extrair seleção do arquivo compactado para..."
+  },
+  "249": {
+    "other": "Usuários"
+  },
+  "25": {
+    "other": "Enviar um ou vários arquivo (máx. %s) no diretório : "
+  },
+  "250": {
+    "other": "Áreas de trabalho"
+  },
+  "251": {
+    "other": "Logs"
+  },
+  "252": {
+    "other": "O tamanho limite total para arquivos foi atingido."
+  },
+  "253": {
+    "other": "Ocorreu um erro HTTP:"
+  },
+  "254": {
+    "other": "Ocorreu um erro de E/S:"
+  },
+  "255": {
+    "other": "Ocorreu um erro de segurança:"
+  },
+  "256": {
+    "other": "Enviado"
+  },
+  "257": {
+    "other": "Remover"
+  },
+  "258": {
+    "other": "Número de arquivos :"
+  },
+  "259": {
+    "other": "Tamanho total :"
+  },
+  "26": {
+    "other": "Criar um novo diretório em : "
+  },
+  "260": {
+    "other": "bytes"
+  },
+  "261": {
+    "other": "Lembrar-me"
+  },
+  "262": {
+    "other": "Um ou mais arquivos já existem \\nno diretório de destino.\\nO que você deseja fazer?"
+  },
+  "263": {
+    "other": "Sobrescrever"
+  },
+  "264": {
+    "other": "Prosseguir"
+  },
+  "265": {
+    "other": "Arquivos"
+  },
+  "266": {
+    "other": "B"
+  },
+  "267": {
+    "other": "Criar"
+  },
+  "268": {
+    "other": "Criar nova tabela"
+  },
+  "269": {
+    "other": "Estrutura"
+  },
+  "27": {
+    "other": "Enviar"
+  },
+  "270": {
+    "other": "Editar estrutura da tabela"
+  },
+  "271": {
+    "other": "Remover"
+  },
+  "272": {
+    "other": "Remover tabela aberta"
+  },
+  "273": {
+    "other": "Inserir"
+  },
+  "274": {
+    "other": "Inserir novo registro"
+  },
+  "275": {
+    "other": "Você tem certeza que quer remover a(s) tabela(s) selecionada(s)?"
+  },
+  "276": {
+    "other": "Editar registro selecionado"
+  },
+  "277": {
+    "other": "Remover registros selecionados"
+  },
+  "278": {
+    "other": "Você tem certeza que quer remover o(s) registro(s) selecionado(s)??"
+  },
+  "279": {
+    "other": "Tabelas"
+  },
+  "28": {
+    "other": "Criar um novo arquivo em : "
+  },
+  "280": {
+    "other": "Registros"
+  },
+  "281": {
+    "other": "Limites"
+  },
+  "282": {
+    "other": "Tamanho por arquivo"
+  },
+  "283": {
+    "other": "Tamanho total"
+  },
+  "284": {
+    "other": "Número de arquivos"
+  },
+  "285": {
+    "other": "Não foi possível encontrar o usuário, por favor tente novamente.\\n Verifique se o Caps Lock não está ativado!"
+  },
+  "286": {
+    "other": "Seu usuário está desatualizado para esta versão, por favor use o procedimento de atualização."
+  },
+  "287": {
+    "other": "Permissões de Arquivo"
+  },
+  "288": {
+    "other": "Usuário"
+  },
+  "289": {
+    "other": "Grupo"
+  },
+  "29": {
+    "other": "Criar"
+  },
+  "290": {
+    "other": "Todos"
+  },
+  "291": {
+    "other": "Aplicar recursivamente?"
+  },
+  "292": {
+    "other": "Compartilhar"
+  },
+  "293": {
+    "other": "Criar um link público para este arquivo"
+  },
+  "294": {
+    "other": "Duração do link (em dias) e senha para acesso (deixe em branco para link sem senha)."
+  },
+  "295": {
+    "other": "Dias"
+  },
+  "296": {
+    "other": "Por favor copie o link abaixo:"
+  },
+  "297": {
+    "other": "Novo Usuario"
+  },
+  "298": {
+    "other": "Criar novo usuario"
+  },
+  "299": {
+    "other": "Novo Repo."
+  },
+  "3": {
+    "other": "Tipo"
+  },
+  "30": {
+    "other": "Informe um nome para o diretório e clique em &quot;Criar&quot;"
+  },
+  "300": {
+    "other": "Criar um novo repo."
+  },
+  "301": {
+    "other": "Editar configuração"
+  },
+  "302": {
+    "other": "Copiar como um Texto"
+  },
+  "303": {
+    "other": "Copiar seleção como texto separado por TAB."
+  },
+  "304": {
+    "other": "Voltar"
+  },
+  "305": {
+    "other": "Voltar a página inicial"
+  },
+  "306": {
+    "other": "Muitas pastas"
+  },
+  "307": {
+    "other": "Preencha campos opcionais"
+  },
+  "308": {
+    "other": "Gerar Link"
+  },
+  "309": {
+    "other": "Gerar"
+  },
+  "31": {
+    "other": "Você deve selecionar um arquivo"
+  },
+  "310": {
+    "other": "Opções"
+  },
+  "311": {
+    "other": "Upload automatico quando um arquivo é adicionado"
+  },
+  "312": {
+    "other": "Opções do uploader"
+  },
+  "313": {
+    "other": "Comprimir..."
+  },
+  "314": {
+    "other": "Comprimir seleção em zip..."
+  },
+  "315": {
+    "other": "Comprimir seleção em"
+  },
+  "316": {
+    "other": "Abrir com..."
+  },
+  "317": {
+    "other": "Visualizar código"
+  },
+  "318": {
+    "other": "CodePress visualizador código"
+  },
+  "319": {
+    "other": "Editor HTML"
+  },
+  "32": {
+    "other": "Explorar"
+  },
+  "320": {
+    "other": "WYSIWYG editor HTML"
+  },
+  "321": {
+    "other": "Selecionar"
+  },
+  "322": {
+    "other": "Selecionar o arquivo atual"
+  },
+  "323": {
+    "other": "E-mail esta URL"
+  },
+  "324": {
+    "other": "Não há editor disponível"
+  },
+  "325": {
+    "other": "Melhor Ajuste"
+  },
+  "326": {
+    "other": "Sem Ajuste"
+  },
+  "327": {
+    "other": "100%"
+  },
+  "328": {
+    "other": "Leitor de Documentos"
+  },
+  "329": {
+    "other": "Veja PDF, SVG, TIF e mais online"
+  },
+  "33": {
+    "other": "Erro ao enviar o arquivo !"
+  },
+  "330": {
+    "other": "Por favor aguarde enquando as páginas são geradas..."
+  },
+  "331": {
+    "other": "Página"
+  },
+  "332": {
+    "other": "de"
+  },
+  "333": {
+    "other": "Editor de imagem Pixlr"
+  },
+  "334": {
+    "other": "mais"
+  },
+  "335": {
+    "other": "Por favor entre com um número de pag. entre 1 e "
+  },
+  "336": {
+    "other": "Desculpe você não pode adicionar pastas, somente arquivos!"
+  },
+  "337": {
+    "other": "Auto start upload"
+  },
+  "338": {
+    "other": "Fechar automaticamente após envio"
+  },
+  "339": {
+    "other": "Arquivos existentes"
+  },
+  "34": {
+    "other": "O arquivo"
+  },
+  "340": {
+    "other": "Alerta"
+  },
+  "341": {
+    "other": "Info. do arquivo"
+  },
+  "342": {
+    "other": "Info. da pasta"
+  },
+  "343": {
+    "other": "Info. da imagem"
+  },
+  "344": {
+    "other": "Buscar em"
+  },
+  "345": {
+    "other": "Não foi possível buscar informações da versão"
+  },
+  "346": {
+    "other": "Sua versão está atualizada"
+  },
+  "347": {
+    "other": "Uma nova versão (%s) está disponível! Visite %s"
+  },
+  "348": {
+    "other": "Um novo repositório foi compartilhado."
+  },
+  "349": {
+    "other": "Aviso, faltando argumentos"
+  },
+  "35": {
+    "other": "criado com sucesso no diretório"
+  },
+  "350": {
+    "other": "Um usuário que não pertence a você já existe com este nome, por favor escolha outro nome."
+  },
+  "351": {
+    "other": "Você não pode tornar público seus compartilhamentos."
+  },
+  "352": {
+    "other": "Um repositório com o mesmo nome já existe, por favor escolha outro nome."
+  },
+  "353": {
+    "other": "Usuário alvo"
+  },
+  "354": {
+    "other": "Crie um novo usuário ou escolha um dos que já existem na lista."
+  },
+  "355": {
+    "other": "Usuário"
+  },
+  "356": {
+    "other": "Senha usuário"
+  },
+  "357": {
+    "other": "Repositório Alvo"
+  },
+  "358": {
+    "other": "Escolha um nome para o compartilhamento e permissões para seu usuário."
+  },
+  "359": {
+    "other": "Rótulo"
+  },
+  "36": {
+    "other": "O tamanho é"
+  },
+  "360": {
+    "other": "Direitos"
+  },
+  "361": {
+    "other": "Ler"
+  },
+  "362": {
+    "other": "Escrever"
+  },
+  "363": {
+    "other": "Compartilhamentos"
+  },
+  "364": {
+    "other": "Você não possui direitos para efetuar esta operação"
+  },
+  "365": {
+    "other": "Você não pode efetuar upload de mais de %s arquivos por vez."
+  },
+  "366": {
+    "other": "Este usuário não possui repositório ativo."
+  },
+  "367": {
+    "other": "Você não pode efetuar upload deste tipo arquivo. Por favor escolhe dentre as seguintes extensões : "
+  },
+  "368": {
+    "other": "Seleção extraída com sucesso do arquivo %s para a pasta %s"
+  },
+  "369": {
+    "other": "Atalho"
+  },
+  "37": {
+    "other": "Você deve informar um nome válido"
+  },
+  "370": {
+    "other": "APPLICATION_TITLE Download Público"
+  },
+  "371": {
+    "other": "Uma senha é requerida para este download"
+  },
+  "372": {
+    "other": "Repositório atual"
+  },
+  "373": {
+    "other": "Destino"
+  },
+  "374": {
+    "other": "Você não pode copiar pastas entre repositórios"
+  },
+  "375": {
+    "other": "Aviso, você esteve inativo mais do que __IDLE__, você será desconectado em __LOGOUT__"
+  },
+  "375t": {
+    "other": "Você ainda está aí?"
+  },
+  "376": {
+    "other": "Clique em qualquer lugar para reativar"
+  },
+  "378": {
+    "other": "Aviso, senha vazia ou muito curta!"
+  },
+  "379": {
+    "other": "Palavra não-segura!"
+  },
+  "38": {
+    "other": "O diretório"
+  },
+  "380": {
+    "other": "Muito curto"
+  },
+  "381": {
+    "other": "Muito fraco"
+  },
+  "382": {
+    "other": "Fraco"
+  },
+  "383": {
+    "other": "Médio"
+  },
+  "384": {
+    "other": "Forte"
+  },
+  "385": {
+    "other": "Muito forte"
+  },
+  "validation.login.lowercase": {
+    "other": "Por favor, use apenas caracteres minúsculos para logins"
+  },
+  "validation.login.format": {
+    "other": "Por favor, use caracteres alfanuméricos ou e-mails válidos para logins"
+  },
+  "386": {
+    "other": "Seu login falhou por três tentativas.\nPara sua segurança, por favor preencha o código que aparece na imagem."
+  },
+  "389": {
+    "other": "Por favor leia o código abaixo :"
+  },
+  "39": {
+    "other": "foi criado em"
+  },
+  "390": {
+    "other": "Código"
+  },
+  "391": {
+    "other": "Sem Repositório"
+  },
+  "392": {
+    "other": "Alerta, A versão do APPLICATION_TITLE mudou (agora %s), por favor limpe o cache do browser e reinicie a página para garantir que tudo está funcional!"
+  },
+  "393": {
+    "other": "Alerta, os nomes devem ter no máximo %s caracteres, este nome de arquivo não é permitido!"
+  },
+  "394": {
+    "other": "Lamento, mas no momento compartilhar pastas não é possível usando esta configuração (Usuário não são editáveis). Compartilhar arquivos ainda é permitido."
+  },
+  "395": {
+    "other": "O item que soltou parece ser uma pasta, e pastas não podem ser enviadas para o servidor! Tem a certeza que pretende enviar?"
+  },
+  "396": {
+    "other": "Método de autent."
+  },
+  "397": {
+    "other": "Transferência em partes"
+  },
+  "398": {
+    "other": "Transfira o arquivo seleccionado em partes"
+  },
+  "399": {
+    "other": "Insira o número de partes que pretende transferir, clique no botão e clique em cada arquivo para os transferir."
+  },
+  "4": {
+    "other": "Modificado"
+  },
+  "40": {
+    "other": "Este diretório já existe (os nomes não são sensíveis a caixa)"
+  },
+  "400": {
+    "other": "Número de partes:"
+  },
+  "401": {
+    "other": "Pode transferir e instalar o seguinte software para unir as partes depois de já estarem no seu computador: "
+  },
+  "402": {
+    "other": "http://www.hjsplit.org/"
+  },
+  "403": {
+    "other": "Preferências WebDAV"
+  },
+  "404": {
+    "other": "WebDAV é um protocolo que lhe permite montar as áreas de trabalho APPLICATION_TITLE como uma 'unidade de rede' diretamente no seu computador. Para ativar esse recurso, marque a caixa abaixo, e digite sua senha, se necessário."
+  },
+  "405": {
+    "other": "Qualquer cliente WebDAV irá pedir um endereço, um login e uma senha. Utilize a URL abaixo, juntamente com o seu login e senha."
+  },
+  "406": {
+    "other": "Ativar compartilhamento WebDAV"
+  },
+  "407": {
+    "other": "Digite sua senha se é a primeira vez que você está ativando compartilhamentos WebDAV, ou se você quiser re-digite uma nova senha:"
+  },
+  "408": {
+    "other": "Compartilhamentos WebDAV ativados com sucesso"
+  },
+  "409": {
+    "other": "Compartilhamentos WebDAV desativados com sucesso"
+  },
+  "41": {
+    "other": "foi renomeado para"
+  },
+  "410": {
+    "other": "Senha WebDAV atualizada com sucesso"
+  },
+  "411": {
+    "other": "Abrir"
+  },
+  "412": {
+    "other": "Envios apenas"
+  },
+  "413": {
+    "other": "Compartilhado por"
+  },
+  "414": {
+    "other": "Use as setas para navegar e +/- para alterar o zoom"
+  },
+  "415": {
+    "other": "Alternar visibilidade do painel esquerdo"
+  },
+  "416": {
+    "other": "Painel Esquerdo"
+  },
+  "417": {
+    "other": "Adicionar área de trabalho..."
+  },
+  "418": {
+    "other": "Criar sua própria área de trabalho"
+  },
+  "419": {
+    "other": "Carregando modelos..."
+  },
+  "42": {
+    "other": "para"
+  },
+  "420": {
+    "other": "Modelos"
+  },
+  "421": {
+    "other": "Novo %s"
+  },
+  "422": {
+    "other": "Favor preencher os parâmetros necessários. Fly over the field titles with your mouse to have more information."
+  },
+  "423": {
+    "other": "Apagar área de trabalho"
+  },
+  "424": {
+    "other": "Tem certeza de que deseja excluir esta área de trabalho? A operação é irreversível."
+  },
+  "425": {
+    "other": "A área de trabalho foi criada e adicionada à sua lista de áreas de trabalhos, se você deseja removê-la, certifique-se de mudar para outra área de trabalho, clique na cruz vermelha ao lado do nome da área de trabalho."
+  },
+  "426": {
+    "other": "Ocorreu um erro durante a criação da área de trabalho"
+  },
+  "427": {
+    "other": "Ocorreu um erro durante a exclusão da área de trabalho"
+  },
+  "428": {
+    "other": "A área de trabalho foi excluída com sucesso"
+  },
+  "429": {
+    "other": "Esta é a forma como a área de trabalho irá aparecer na sua lista."
+  },
+  "43": {
+    "other": "já existe (os nomes não são sensíveis a caixa)"
+  },
+  "430": {
+    "other": "Arquivos Comuns"
+  },
+  "431": {
+    "other": "Modelo de Exemplo"
+  },
+  "432": {
+    "other": "Meus Arquivos"
+  },
+  "433": {
+    "other": "pronto"
+  },
+  "434": {
+    "other": "enviando"
+  },
+  "435": {
+    "other": "terminado"
+  },
+  "436": {
+    "other": "erro"
+  },
+  "437": {
+    "other": "Opa, parece que o seu token de segurança expirou! Favor %s apertando atualizar ou F5 no seu navegador!"
+  },
+  "438": {
+    "other": "recarregar a página"
+  },
+  "439": {
+    "other": "Opções Principais"
+  },
+  "44": {
+    "other": "foi apagado"
+  },
+  "440": {
+    "other": "Sim"
+  },
+  "441": {
+    "other": "Não"
+  },
+  "442": {
+    "other": "Minha Conta"
+  },
+  "443": {
+    "other": "Atualize suas informações pessoais"
+  },
+  "444": {
+    "other": "Favor atualizar sua senha, caso contrário você não será capaz de logar."
+  },
+  "445": {
+    "other": "Você será desconectado agora, favor realizar o login novamente usando a nova senha, obrigado!"
+  },
+  "446": {
+    "other": "Apresentação"
+  },
+  "447": {
+    "other": "Meu grupo"
+  },
+  "448": {
+    "other": "criar usuário"
+  },
+  "449": {
+    "other": "Criando %s, escolha uma senha"
+  },
+  "45": {
+    "other": "diretório"
+  },
+  "450": {
+    "other": "Ordenar por..."
+  },
+  "451": {
+    "other": "Classificar miniaturas por..."
+  },
+  "452": {
+    "other": "Tamanho miniaturas"
+  },
+  "453": {
+    "other": "Definir tamanho das miniaturas"
+  },
+  "454": {
+    "other": "Selecionar arquivos em seu computador"
+  },
+  "455": {
+    "other": "Áreas de Trabalho"
+  },
+  "456": {
+    "other": "Mais"
+  },
+  "457": {
+    "other": "atualizar"
+  },
+  "458": {
+    "other": "apagar"
+  },
+  "459": {
+    "other": "Diretório raiz"
+  },
+  "46": {
+    "other": "arquivo"
+  },
+  "460": {
+    "other": "Lista"
+  },
+  "461": {
+    "other": "Alternar para visualização em lista"
+  },
+  "462": {
+    "other": "Visualizar"
+  },
+  "463": {
+    "other": "Baixar todos"
+  },
+  "464": {
+    "other": "Baixar todo o conteúdo da área de trabalho (compactado)"
+  },
+  "465": {
+    "other": "Exibir URLs alternativas (montar áreas de trabalhos separadamente)"
+  },
+  "466": {
+    "other": "Carregando..."
+  },
+  "467": {
+    "other": "Todos itens compartilhados"
+  },
+  "468": {
+    "other": "Minhas Áreas de Trabalho"
+  },
+  "469": {
+    "other": "Compartilhado comigo"
+  },
+  "47": {
+    "other": "Você realmente deseja apagar o"
+  },
+  "470": {
+    "other": "Criado %date"
+  },
+  "471": {
+    "other": "Criado por %user %date"
+  },
+  "472": {
+    "other": "Compartilhado por %user"
+  },
+  "473": {
+    "other": "Compartilhado por %user %date"
+  },
+  "474": {
+    "other": "Descrição indisponível"
+  },
+  "475": {
+    "other": "Arquivos compartilhados entre todos os usuários"
+  },
+  "476": {
+    "other": "Sua área de trabalho pessoal"
+  },
+  "477": {
+    "other": "Selecione um arquivo ou diretório para visualizar os detalhes aqui"
+  },
+  "478": {
+    "other": "Nenhum resultado encontrado"
+  },
+  "479": {
+    "other": "Esqueceu sua senha?"
+  },
+  "48": {
+    "other": "OK"
+  },
+  "480": {
+    "other": "Procurar em todas as pastas da área de trabalho atual."
+  },
+  "481": {
+    "other": "Todos os seus arquivos e pastas compartilhadas"
+  },
+  "482": {
+    "other": "Acesso rápido aos seus itens favoritos"
+  },
+  "483": {
+    "other": "Você não está autorizado para criar mais usuários!"
+  },
+  "484": {
+    "other": "Criar usuário"
+  },
+  "485": {
+    "other": "Criar um usuário compartilhado"
+  },
+  "486": {
+    "other": "Avançado"
+  },
+  "487": {
+    "other": "Basico"
+  },
+  "488": {
+    "other": "Filtro Avançado"
+  },
+  "489": {
+    "other": "Metadados"
+  },
+  "49": {
+    "other": "CANCELAR"
+  },
+  "490": {
+    "other": "Intervalo de datas"
+  },
+  "491": {
+    "other": "Depois"
+  },
+  "492": {
+    "other": "até"
+  },
+  "493": {
+    "other": "Hoje"
+  },
+  "494": {
+    "other": "Ontem"
+  },
+  "495": {
+    "other": "Última semana"
+  },
+  "496": {
+    "other": "Último mês"
+  },
+  "497": {
+    "other": "Último ano"
+  },
+  "498": {
+    "other": "Propriedade do Documento"
+  },
+  "499": {
+    "other": "Arquivo"
+  },
+  "5": {
+    "other": "Ações"
+  },
+  "50": {
+    "other": "Arquivo Exe"
+  },
+  "500": {
+    "other": "Extensão"
+  },
+  "501": {
+    "other": "ou"
+  },
+  "502": {
+    "other": "Diretório"
+  },
+  "503": {
+    "other": "Tamanho"
+  },
+  "504": {
+    "other": "1k,1M,1G"
+  },
+  "505": {
+    "other": "para"
+  },
+  "506": {
+    "other": "Parâmetros de aplicação (usuários, áreas de trabalhos, configurações)"
+  },
+  "507": {
+    "other": "Bem-vindo a %s"
+  },
+  "508": {
+    "other": "Acabei de criar uma conta para você em %s. Para conectar-se, favor clicar no seguinte link %link e usar essas credenciais: <br><br> Usuário: %user <br><br> Senha: %pass"
+  },
+  "509": {
+    "other": "Salve como uma equipe"
+  },
+  "51": {
+    "other": "Editar"
+  },
+  "510": {
+    "other": "Favor digitar o nome da equipe"
+  },
+  "511": {
+    "other": "Minha %s"
+  },
+  "512": {
+    "other": "Desktop Tela Cheia"
+  },
+  "513": {
+    "other": "exibir"
+  },
+  "514": {
+    "other": "ocultar"
+  },
+  "515": {
+    "other": "Sem favoritos - Arraste arquivos ou diretórios aqui para um acesso rápido."
+  },
+  "516": {
+    "other": "expandir"
+  },
+  "517": {
+    "other": "recolher"
+  },
+  "518": {
+    "other": "Alternativamente, você pode <a class='create_file_alt_link'>criar um novo arquivo vazio</a>."
+  },
+  "519": {
+    "other": "Atualizar usuário"
+  },
+  "52": {
+    "other": "Editando arquivo"
+  },
+  "520": {
+    "other": "Atualizar dados de usuário e senha"
+  },
+  "521": {
+    "other": "Usuário foi atualizado com sucesso"
+  },
+  "522": {
+    "other": "ID do usuário"
+  },
+  "523": {
+    "other": "Senha"
+  },
+  "524": {
+    "other": "Atualizar Senha"
+  },
+  "525": {
+    "other": "Exibir imagem original"
+  },
+  "526": {
+    "other": "Versão de resolução baixa"
+  },
+  "527": {
+    "other": "Compartilhado com"
+  },
+  "528": {
+    "other": "Usuários internos"
+  },
+  "53": {
+    "other": "Salvar"
+  },
+  "530": {
+    "other": "Usuários externos"
+  },
+  "531": {
+    "other": "Usuários"
+  },
+  "532": {
+    "other": "Grupos"
+  },
+  "533": {
+    "other": "Identificador utilizado para login, favor utilizar caracteres alfanumericos ou e-mail em caixa baixa."
+  },
+  "534": {
+    "other": "Senha utilizada para login"
+  },
+  "535": {
+    "other": "Enviar senha por e-mail"
+  },
+  "536": {
+    "other": "Enviar e-mail de boas-vindas com a senha para o novo usuário"
+  },
+  "537": {
+    "other": "Arquivo é muito grande! Tamanho máximo permitido é %i"
+  },
+  "538": {
+    "other": "Erro ao enviar: arquivo não encontrado no servidor!"
+  },
+  "539": {
+    "other": "Erro ao enviar: arquivo incompleto"
+  },
+  "54": {
+    "other": "Cancelar"
+  },
+  "540": {
+    "other": "Erro ao enviar: diretório temporário não encontrado"
+  },
+  "541": {
+    "other": "Erro ao enviar: não foi possível gravar no diretório temporário"
+  },
+  "542": {
+    "other": "Erro ao enviar: uma extensão PHP interrompeu o processo de envio."
+  },
+  "543": {
+    "other": "Resultados limitados a %s."
+  },
+  "544": {
+    "other": "Exibir mais"
+  },
+  "545": {
+    "other": "Compartilhamento Remoto"
+  },
+  "546": {
+    "other": "Este item foi compartilhado com você por %%OWNER%% de uma localização remota. Deseja continuar?"
+  },
+  "547": {
+    "other": "Aceitar"
+  },
+  "548": {
+    "other": "Recusar"
+  },
+  "549": {
+    "other": "Anteriormente você aceitou este item compartilhado com você por %%OWNER%% de uma localização remota. Deseja rejeitar agora?"
+  },
+  "55": {
+    "other": "foi modificado"
+  },
+  "550": {
+    "other": "Rejeitar este compartilhamento"
+  },
+  "551": {
+    "other": "Rejeitar"
+  },
+  "552": {
+    "other": "Favor fornecer uma senha."
+  },
+  "553": {
+    "other": "Senha inválida, favor tentar novamente. \\n Verifique se a função Caps Lock não está ativada!"
+  },
+  "554": {
+    "other": "%s resultado(s) na Lixeira"
+  },
+  "556": {
+    "other": "Executando tarefa %s em segundo plano"
+  },
+  "557": {
+    "other": "Credenciais necessárias"
+  },
+  "558": {
+    "other": "Forneça uma senha para inserir este espaço de trabalho."
+  },
+  "559": {
+    "other": "A autenticação falhou para este espaço de trabalho."
+  },
+  "56": {
+    "other": "Imagem BMP"
+  },
+  "560": {
+    "other": "Autenticação requerida"
+  },
+  "561": {
+    "other": "Nós vamos redirecioná-lo para a página de Autenticação do provedor. Se você não for redirecionado automaticamente, pressione OK para tentar novamente..."
+  },
+  "562": {
+    "other": "Esta pasta está vazia!"
+  },
+  "563": {
+    "other": "Este espaço de trabalho está vazio!"
+  },
+  "564": {
+    "other": "A lixeira está vazia."
+  },
+  "565": {
+    "other": "Comece a adicionar arquivos ou pastas escolhendo-os ou arrastando-os diretamente da sua área de trabalho"
+  },
+  "566": {
+    "other": "You are not allowed to add files here"
+  },
+  "567": {
+    "other": "Browse Recycle Bin"
+  },
+  "568": {
+    "other": "My Teams"
+  },
+  "569": {
+    "other": "New Team"
+  },
+  "57": {
+    "other": "Imagem PNG"
+  },
+  "570": {
+    "other": "Delete Team"
+  },
+  "571": {
+    "other": "No teams created yet"
+  },
+  "572": {
+    "other": "Create your own teams in order to easily share data between multiple users"
+  },
+  "571.readonly": {
+    "other": "No teams available"
+  },
+  "572.readonly": {
+    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+  },
+  "571.create_team_action": {
+    "other": "Create and edit Teams"
+  },
+  "571.create_team_legend": {
+    "other": "Let users create and edit their own teams"
+  },
+  "573": {
+    "other": "Add user to team"
+  },
+  "574": {
+    "other": "Remove from team"
+  },
+  "575": {
+    "other": "Team Members"
+  },
+  "576": {
+    "other": "%s members"
+  },
+  "577": {
+    "other": "No members"
+  },
+  "578": {
+    "other": "Nome da Equipe"
+  },
+  "579": {
+    "other": "Create Team"
+  },
+  "58": {
+    "other": "Arquivo CSS"
+  },
+  "580": {
+    "other": "Edit team label"
+  },
+  "581": {
+    "other": "Usuário pertence a %s equipe(s)"
+  },
+  "582": {
+    "other": "Excluir Usuário"
+  },
+  "583": {
+    "other": "Pesquisar Diretório"
+  },
+  "584": {
+    "other": "Diretorio"
+  },
+  "585": {
+    "other": "Nenhum usuário externo"
+  },
+  "586": {
+    "other": "Criar seus próprios usuários e compartilhar arquivos ou pastas de seus espaços de trabalho com eles."
+  },
+  "587": {
+    "other": "Sem resultados"
+  },
+  "588": {
+    "other": "Comece a digitar o formulário de busca para encontrar usuários no diretório"
+  },
+  "589": {
+    "other": "Usuário externo"
+  },
+  "59": {
+    "other": "Arquivo MP3"
+  },
+  "590": {
+    "other": "Usuário interno"
+  },
+  "591": {
+    "other": "Escolher um nome para a equipe, e você poderá adicionar usuários após a criação."
+  },
+  "592": {
+    "other": "Catálogo de endereços"
+  },
+  "593": {
+    "other": "My Users"
+  },
+  "594": {
+    "other": "Servidores Confiáveis"
+  },
+  "595": {
+    "other": "Pesquisar usuário..."
+  },
+  "596": {
+    "other": "Servidor '%s'"
+  },
+  "597": {
+    "other": "todos"
+  },
+  "598": {
+    "other": "Enviar uma mensagem"
+  },
+  "599": {
+    "other": "Adicionar um usuário"
+  },
+  "6": {
+    "other": "Renomear"
+  },
+  "60": {
+    "other": "Arquivo RAR"
+  },
+  "600": {
+    "other": "Editar usuário"
+  },
+  "601": {
+    "other": "Uma célula compartilhada"
+  },
+  "602": {
+    "other": "%1 células compartilhadas"
+  },
+  "603": {
+    "other": "Equipe"
+  },
+  "604": {
+    "other": "Usuário Remoto"
+  },
+  "605": {
+    "other": "Mais opções de busca"
+  },
+  "606": {
+    "other": "Menos opções de busca"
+  },
+  "607": {
+    "other": "Search inside all workspaces"
+  },
+  "608": {
+    "other": "Pasta atual"
+  },
+  "609": {
+    "other": "Espaço de trabalho inteiro"
+  },
+  "61": {
+    "other": "Arquivo GZ"
+  },
+  "610": {
+    "other": "Todos os espaços de trabalho"
+  },
+  "611": {
+    "other": "Comece a digitar para buscar"
+  },
+  "612": {
+    "other": "Faixa personalizada"
+  },
+  "613": {
+    "other": "Maior que..."
+  },
+  "614": {
+    "other": "Menor que..."
+  },
+  "615": {
+    "other": "Executar"
+  },
+  "616": {
+    "other": "Máscara"
+  },
+  "617": {
+    "other": "Entrar"
+  },
+  "618": {
+    "other": "Alternar idioma..."
+  },
+  "619": {
+    "other": "Pesquisa limitada à pasta atual e suas sub-pastas"
+  },
+  "62": {
+    "other": "Diretório raíz"
+  },
+  "620": {
+    "other": "Pesquisa limitada ao espaço de trabalho atual"
+  },
+  "621": {
+    "other": "Este campo não pode ficar vazio"
+  },
+  "622": {
+    "other": "Pilha de erros"
+  },
+  "623": {
+    "other": "Copiar"
+  },
+  "624": {
+    "other": "Copiado!"
+  },
+  "625": {
+    "other": "Carta"
+  },
+  "626": {
+    "other": "Arquivos compartilhados comigo"
+  },
+  "627": {
+    "other": "Compartilhamentos de servidores remotos"
+  },
+  "628": {
+    "other": "Reverter"
+  },
+  "629": {
+    "other": "Sem registros ainda"
+  },
+  "63": {
+    "other": "Sair"
+  },
+  "630": {
+    "other": "Pastas compartilhadas comigo"
+  },
+  "631": {
+    "other": "Esta célula está vazia!"
+  },
+  "632": {
+    "other": "Sem células ainda"
+  },
+  "633": {
+    "other": "As células são espaços compartilhados com outras pessoas para colaborar em documentos"
+  },
+  "634": {
+    "other": "Você"
+  },
+  "634b": {
+    "other": "Seu grupo"
+  },
+  "634c": {
+    "other": "All users"
+  },
+  "635": {
+    "other": "Chat Room"
+  },
+  "636": {
+    "other": "Start typing and hit Enter"
+  },
+  "637": {
+    "other": "No messages yet, start typing to chat with users of this cell!"
+  },
+  "638": {
+    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+  },
+  "639": {
+    "other": "In this cell"
+  },
+  "64": {
+    "other": "Arquivo XLS"
+  },
+  "640": {
+    "other": "Create a cell with %s"
+  },
+  "641": {
+    "other": "Remove from current cell"
+  },
+  "642": {
+    "other": "Add to current cell"
+  },
+  "643": {
+    "other": "You now share a cell with %s"
+  },
+  "644": {
+    "other": "Could not create cell: %s"
+  },
+  "65": {
+    "other": "Arquivo Word"
+  },
+  "66": {
+    "other": "Copiar"
+  },
+  "67": {
+    "other": "Arquivo selecionado"
+  },
+  "68": {
+    "other": "Colar em"
+  },
+  "69": {
+    "other": "Ou selecione outro diretório"
+  },
+  "7": {
+    "other": "Apagar"
+  },
+  "70": {
+    "other": "Mover"
+  },
+  "71": {
+    "other": "Este arquivo já existe (os nomes NÃO são sensíveis a caixa)"
+  },
+  "72": {
+    "other": "O caminho raíz não está correto. Verifique-o no arquivo conf/conf.php"
+  },
+  "73": {
+    "other": "foi copiado no diretório"
+  },
+  "74": {
+    "other": "foi movido para o diretório"
+  },
+  "75": {
+    "other": "O arquivo users.txt não está no diretório prive"
+  },
+  "76": {
+    "other": "Este arquivo foi removido"
+  },
+  "77": {
+    "other": "Enviar"
+  },
+  "78": {
+    "other": "Senha"
+  },
+  "79": {
+    "other": "Arquivo PDF"
+  },
+  "8": {
+    "other": "Diretório"
+  },
+  "80": {
+    "other": "Arquivo MOV"
+  },
+  "81": {
+    "other": "Arquivo AVI"
+  },
+  "82": {
+    "other": "Arquivo MPG"
+  },
+  "83": {
+    "other": "Arquivo MPEG"
+  },
+  "84": {
+    "other": "Ajuda"
+  },
+  "85": {
+    "other": "Atualizar"
+  },
+  "86": {
+    "other": "Fechar"
+  },
+  "87": {
+    "other": "Buscar"
+  },
+  "88": {
+    "other": "Baixar"
+  },
+  "89": {
+    "other": "Não foi possível abrir o arquivo"
+  },
+  "9": {
+    "other": "Arquivo Midi"
+  },
+  "90": {
+    "other": "Imprimir"
+  },
+  "91": {
+    "other": "Arquivo FLASH"
+  },
+  "92": {
+    "other": "Idioma"
+  },
+  "93": {
+    "other": "Para escolher seu idioma, seu navegador deve aceitar cookies."
+  },
+  "94": {
+    "other": "Usuário"
+  },
+  "95": {
+    "other": "Escolha seu idioma :"
+  },
+  "96": {
+    "other": "Por favor, selecione o diretório de destino na árvore : "
+  },
+  "97": {
+    "other": "Enviar arquivo"
+  },
+  "98": {
+    "other": "Clique em qualquer lugar desta caixa para fechar."
+  },
+  "99": {
+    "other": "não possui permissão para escrita. Pode haver algum problema de permissão, por favor, verifique com o administrador."
+  },
+  "about_access_key": {
+    "other": "S"
+  },
+  "bookmarks_access_key": {
+    "other": "F"
+  },
+  "byte_unit_symbol": {
+    "other": "B"
+  },
+  "copy_access_key": {
+    "other": "C"
+  },
+  "create_repo_accesskey": {
+    "other": "R"
+  },
+  "create_user_accesskey": {
+    "other": "U"
+  },
+  "date_format": {
+    "other": "d/m/Y H:i"
+  },
+  "date_intl_locale": {
+    "other": "pt-PT"
+  },
+  "date_relative_date": {
+    "other": "em DATE"
+  },
+  "date_relative_date_format": {
+    "other": "d \\d\\e F Y"
+  },
+  "date_relative_days_ago": {
+    "other": "a %s dias atrás"
+  },
+  "date_relative_days_ahead": {
+    "other": "em %s dias"
+  },
+  "date_relative_time": {
+    "other": "TIME"
+  },
+  "date_relative_time_format": {
+    "other": "H:i"
+  },
+  "date_relative_today": {
+    "other": "hoje às TIME"
+  },
+  "date_relative_tomorrow": {
+    "other": "amanhã às TIME"
+  },
+  "date_relative_yesterday": {
+    "other": "ontem às TIME"
+  },
+  "delete_access_key": {
+    "other": "A"
+  },
+  "detail_access_key": {
+    "other": "L"
+  },
+  "download_access_key": {
+    "other": "w"
+  },
+  "edit_access_key": {
+    "other": "E"
+  },
+  "empty_recycle_access_key": {
+    "other": "z"
+  },
+  "file_access_key": {
+    "other": "F"
+  },
+  "folder_access_key": {
+    "other": "A"
+  },
+  "languageLabel": {
+    "other": "Português (Brasil)"
+  },
+  "leftpane_accesskey": {
+    "other": "L"
+  },
+  "list_access_key": {
+    "other": "L"
+  },
+  "move_access_key": {
+    "other": "M"
+  },
+  "open_with_access": {
+    "other": "O"
+  },
+  "parent_access_key": {
+    "other": "c"
+  },
+  "plugtype.desc.access": {
+    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+  },
+  "plugtype.desc.action": {
+    "other": "Feature oriented plugins for various aspects"
+  },
+  "plugtype.desc.auth": {
+    "other": "How users data are stored in the backend"
+  },
+  "plugtype.desc.authfront": {
+    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+  },
+  "plugtype.desc.boot": {
+    "other": "Unique plugin for loading the framework"
+  },
+  "plugtype.desc.cache": {
+    "other": "Unique plugin to set up the cache server used by the application"
+  },
+  "plugtype.desc.conf": {
+    "other": "How configuration data are stored in the backend"
+  },
+  "plugtype.desc.cypher": {
+    "other": "Data encryption plugins"
+  },
+  "plugtype.desc.editor": {
+    "other": "Viewers or editors for wide range of mime types"
+  },
+  "plugtype.desc.feed": {
+    "other": "Implementations for storing data events (only SQL yet)"
+  },
+  "plugtype.desc.gui": {
+    "other": "Main web interface, themes and extensions"
+  },
+  "plugtype.desc.helper": {
+    "other": "Helpers tools for administrative tasks"
+  },
+  "plugtype.desc.index": {
+    "other": "Tools for indexing data and providing quick search option"
+  },
+  "plugtype.desc.log": {
+    "other": "Send application logs to various channels"
+  },
+  "plugtype.desc.mailer": {
+    "other": "Tools for letting the application send emails"
+  },
+  "plugtype.desc.search-engine": {
+    "other": "Search Engine options"
+  },
+  "plugtype.desc.meta": {
+    "other": "Additional features to be added to the workspaces"
+  },
+  "plugtype.desc.metastore": {
+    "other": "Various implementations for storing metadata along with files and folders"
+  },
+  "plugtype.desc.mq": {
+    "other": "Implementations of a simple PUB/SUB server"
+  },
+  "plugtype.desc.sec": {
+    "other": "Advanced Security Features"
+  },
+  "plugtype.desc.shorten": {
+    "other": "Webservices bridges for shortening public links"
+  },
+  "plugtype.desc.uploader": {
+    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+  },
+  "plugtype.title.access": {
+    "other": "Controlador de Áreas de Trabalhos"
+  },
+  "plugtype.title.action": {
+    "other": "Plugins de ações"
+  },
+  "plugtype.title.auth": {
+    "other": "Authentication Backends"
+  },
+  "plugtype.title.authfront": {
+    "other": "Authentication Frontends"
+  },
+  "plugtype.title.boot": {
+    "other": "Loader"
+  },
+  "plugtype.title.cache": {
+    "other": "Servidor de cache"
+  },
+  "plugtype.title.conf": {
+    "other": "Configuration Storage"
+  },
+  "plugtype.title.cypher": {
+    "other": "Encryption Tools"
+  },
+  "plugtype.title.editor": {
+    "other": "Editores"
+  },
+  "plugtype.title.feed": {
+    "other": "Armazenamento de Eventos Feed"
+  },
+  "plugtype.title.gui": {
+    "other": "Interface Gráfica do Usuário"
+  },
+  "plugtype.title.helper": {
+    "other": "Assistente"
+  },
+  "plugtype.title.index": {
+    "other": "Indexação"
+  },
+  "plugtype.title.log": {
+    "other": "Registradores"
+  },
+  "plugtype.title.mailer": {
+    "other": "Correios"
+  },
+  "plugtype.title.search-engine": {
+    "other": "Mecanismo de Busca"
+  },
+  "plugtype.title.meta": {
+    "other": "Meta Aspectos da Espaço de Trabalho"
+  },
+  "plugtype.title.metastore": {
+    "other": "Armazenamento de Metadados"
+  },
+  "plugtype.title.mq": {
+    "other": "Mensagens Instantâneas"
+  },
+  "plugtype.title.sec": {
+    "other": "Segurança"
+  },
+  "plugtype.title.shorten": {
+    "other": "Encurtamento de URL"
+  },
+  "plugtype.title.uploader": {
+    "other": "Remetentes"
+  },
+  "preview_access_key": {
+    "other": "V"
+  },
+  "react.1": {
+    "other": "pasta pai"
+  },
+  "react.2": {
+    "other": "ações em massa"
+  },
+  "refresh_access_key": {
+    "other": "r"
+  },
+  "rename_access_key": {
+    "other": "R"
+  },
+  "restore_access_key": {
+    "other": "u"
+  },
+  "settings_access_key": {
+    "other": "G"
+  },
+  "svn_log_access_key": {
+    "other": "L"
+  },
+  "thumbs_access_key": {
+    "other": "s"
+  },
+  "upload_access_key": {
+    "other": "E"
+  },
+  "view_access_key": {
+    "other": "V"
+  },
+  "public_link_user": {
+    "other": "Acesso público"
+  },
+  "background.move.file": {
+    "other": "Movendo arquivo em segundo plano ..."
+  },
+  "background.move.folder": {
+    "other": "Movendo pasta em segundo plano ..."
+  },
+  "background.copy.selection": {
+    "other": "Copiando seleção em segundo plano ..."
+  },
+  "overlay.lock.file": {
+    "other": "Arquivo está bloqueado"
+  },
+  "overlay.lock.folder": {
+    "other": "A pasta está bloqueada"
+  },
+  "overlay.watch.file": {
+    "other": "Atualmente observando este arquivo"
+  },
+  "overlay.watch.folder": {
+    "other": "Atualmente observando esta pasta"
+  },
+  "overlay.shared.file": {
+    "other": "Arquivo compartilhado, clique para Editar"
+  },
+  "overlay.shared.folder": {
+    "other": "Pasta compartilhada, clique para editar"
+  },
+  "overlay.bookmark.file": {
+    "other": "O arquivo está marcado"
+  },
+  "overlay.bookmark.folder": {
+    "other": "Pasta está marcada"
+  },
+  "bookmark.button.tip.add": {
+    "other": "Marcar este elemento"
+  },
+  "bookmark.button.tip.remove": {
+    "other": "Remover este marcador"
+  },
+  "bookmark.button.tip.mixed": {
+    "other": "Valores mistos, clique para marcar todos"
+  },
+  "bookmark.button.tip.saving": {
+    "other": "Salvando status do marcador"
+  },
+  "bookmark.secondary.inside": {
+    "other": "Dentro"
+  },
+  "mkfile.empty.template.label": {
+    "other": "Arquivo Vazio"
+  },
+  "mkfile.untitled.document": {
+    "other": "Documento sem título"
+  },
+  "filename.forbidden.slash": {
+    "other": "Não use / em nomes de arquivo!"
+  },
+  "rename.newvalue.error.similar": {
+    "other": "Por favor, use um valor diferente para renomear!"
+  },
+  "rename.processing": {
+    "other": "Renomeando %1 para %2"
+  },
+  "cells.quick-filter": {
+    "other": "Filtrar células"
+  },
+  "ws.quick-filter": {
+    "other": "Filtrar Espaços de Trabalho"
+  },
+  "visibility.panel.title": {
+    "other": "Visibilidade"
+  },
+  "visibility.panel.right-read": {
+    "other": "Visualizar"
+  },
+  "visibility.panel.right-edit": {
+    "other": "Editar"
+  },
+  "visibility.panel.list.users": {
+    "other": "Usuários"
+  },
+  "visibility.panel.list.teams": {
+    "other": "Seus Times"
+  },
+  "visibility.panel.edit": {
+    "other": "Alterar visibilidade"
+  },
+  "visibility.panel.save": {
+    "other": "Salvar as alterações"
+  },
+  "visibility.panel.revert": {
+    "other": "Reverter alterações"
+  },
+  "visibility.panel.error": {
+    "other": "Ocorreu um erro"
+  },
+  "visibility.panel.pickuser": {
+    "other": "Escolha um usuário..."
+  },
+  "visibility.panel.setvisible": {
+    "other": "Definir visível para..."
+  },
+  "visibility.users.advanced": {
+    "other": "Este recurso avançado permite que você decida se os usuários que você criar em seu livro de endereços podem ser vistos e/ou editados por outros usuários. Por padrão, os usuários só são visíveis para você."
+  },
+  "user.unknown": {
+    "other": "Desconhecido"
+  },
+  "addressbook.pick.group": {
+    "other": "Selecionar grupo"
+  },
+  "confirm.dialog.title": {
+    "other": "Confirmar"
+  },
+  "confirm.dialog.destructive": {
+    "other": "Você está prestes a excluir"
+  },
+  "confirm.dialog.skipNext": {
+    "other": "Do not warn me next time"
+  },
+  "material.paginator.rows": {
+    "other": "Rows per page"
+  },
+  "material.paginator.of": {
+    "other": "de"
+  },
+  "form.input-image.fileTypes": {
+    "other": "Please use only images (jpeg,png,bmp,webp)"
+  },
+  "form.input-image.clearButton": {
+    "other": "Resetar"
+  },
+  "form.input-image.clearConfirm": {
+    "other": "Do you want to remove current image?"
+  },
+  "form.input-image.avatarMax": {
+    "other": "Please use images smaller than 5MB"
+  },
+  "searchengine.searching": {
+    "other": "Searching..."
+  },
+  "searchengine.main.placeholder": {
+    "other": "Search..."
+  },
+  "searchengine.topbar.title": {
+    "other": "Search: "
+  },
+  "searchengine.scope.title": {
+    "other": "Search In..."
+  },
+  "searchengine.advanced-filter.tooltip": {
+    "other": "Advanced Filters"
+  },
+  "searchengine.results.foundN": {
+    "other": "%1 results found"
+  },
+  "searchengine.results.withMore": {
+    "other": "Showing %1, load more..."
+  },
+  "searchengine.query.action.save": {
+    "other": "Salvar"
+  },
+  "searchengine.query.action.clear": {
+    "other": "Limpar lista"
+  },
+  "searchengine.query.action.delete": {
+    "other": "Apagar"
+  },
+  "searchengine.query.save-label": {
+    "other": "Enter a label"
+  },
+  "chat.load-older": {
+    "other": "Older entries"
+  },
+  "workspace.quota-usage": {
+    "other": "Quota Usage"
+  },
+  "action.delete.permanently": {
+    "other": "Delete permanently"
+  },
+  "action.delete.permanently.warning": {
+    "other": "warning, you cannot undo this operation!"
+  },
+  "action.goto.label": {
+    "other": "Go To Folder"
+  }
+}

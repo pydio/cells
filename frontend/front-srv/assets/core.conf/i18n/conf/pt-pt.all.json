@@ -39,7 +39,7 @@
     "other": "Configurations Management"
   },
   "Core SQL Connexion": {
-    "other": "Core SQL Connexion"
+    "other": "Core SQL Connection"
   },
   "Country": {
     "other": "Country"
@@ -51,7 +51,7 @@
     "other": "Default Workspace"
   },
   "Default start repository": {
-    "other": "Default start workspace"
+    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
   },
   "Display roles and/or groups": {
     "other": "Display roles and/or groups"
@@ -78,7 +78,7 @@
     "other": "Full name displayed to others"
   },
   "Generic Conf Features": {
-    "other": "Funções de Configuração Genéricas"
+    "other": "Generic Conf Features"
   },
   "Hide real login": {
     "other": "Hide real login"
@@ -105,10 +105,10 @@
     "other": "Internal / External Users"
   },
   "Language": {
-    "other": "Language"
+    "other": "Idioma"
   },
   "Let user create repositories": {
-    "other": "Deixar utilizadores criarem Áreas de Trabalho"
+    "other": "Let user create workspaces"
   },
   "Let user create repositories from templates": {
     "other": "Let user create repositories from templates"
@@ -135,13 +135,13 @@
     "other": "Minimum number of characters to trigger the auto completion feature"
   },
   "Name": {
-    "other": "Name"
+    "other": "Nome"
   },
   "Preferences Saving": {
     "other": "Preferences Saving"
   },
   "Remember guest preferences": {
-    "other": "Guardar preferências dos Visitantes"
+    "other": "Remember guest preferences"
   },
   "Role Label": {
     "other": "Role Label"
@@ -153,7 +153,7 @@
     "other": "Roles / Groups Directory Listing"
   },
   "SQL Connexion": {
-    "other": "SQL Connexion"
+    "other": "SQL Connection"
   },
   "See existing users": {
     "other": "See existing users"
@@ -168,7 +168,7 @@
     "other": "Shared users limit"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connexion definition that can be used by other sql-based plugins"
+    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
   },
   "Skip user history": {
     "other": "Skip interface preferences"

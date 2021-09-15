@@ -1,194 +1,194 @@
 {
   "1": {
-    "other": "Role Editor"
+    "other": "Editeur de rôle"
   },
   "10": {
-    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
+    "other": "Utilisez les sélecteurs ci-dessous pour choisir les actions que vous souhaitez désactiver pour ce rôle. Ceci peut s'appliquer worskpace par workspace ou pour tous les workspaces."
   },
   "11": {
-    "other": "Plugin Identifier"
+    "other": "Identifiant du plugin"
   },
   "12": {
-    "other": "Select a plugin..."
+    "other": "Sélectionner un plugin..."
   },
   "12a": {
-    "other": "Select an action..."
+    "other": "Sélectionner une action..."
   },
   "12b": {
-    "other": "Select a parameter..."
+    "other": "Sélectionner un paramètre..."
   },
   "12c": {
-    "other": "Pick one or all workspaces..."
+    "other": "Choisir un ou tous les workspaces..."
   },
   "12d": {
-    "other": "All Workspaces"
+    "other": "Tous les workspaces"
   },
   "12e": {
-    "other": "Shared Workspaces"
+    "other": "Workspace partagés"
   },
   "13": {
-    "other": "Action name"
+    "other": "Nom de l'action"
   },
   "14": {
-    "other": "Repository Scope"
+    "other": "Portée des workspaces"
   },
   "15": {
-    "other": "Add Action"
+    "other": "Ajouter cette action"
   },
   "16": {
-    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
+    "other": "Utilisez les sélecteurs ci-dessous pour choisir les paramètres que vous voulez personnaliser pour le rôle. La valeur pour s'appliquer dépôt par dépôt ou pour tous les dépôts, mais ceci peut aussi dépendre des paramètres choisis."
   },
   "17": {
-    "other": "Parameter name"
+    "other": "Nom du paramètre"
   },
   "18": {
-    "other": "Add parameter"
+    "other": "Ajouter le paramètre"
   },
   "19": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
   },
   "2": {
-    "other": "Role editor"
+    "other": "Editeur de rôle"
   },
   "20": {
-    "other": "Role updated successfully"
+    "other": "Le rôle a été mis à jour"
   },
   "21": {
-    "other": "User ID"
+    "other": "ID utilisateur"
   },
   "22": {
-    "other": "Special Profile"
+    "other": "Profil spécifique"
   },
   "23": {
-    "other": "Default Workspace"
+    "other": "Workspace par défaut"
   },
   "24": {
-    "other": "User Roles"
+    "other": "Rôles (utiliser les touches Ctrl/Cmd pour en sélectionner plusieurs)"
   },
   "25": {
-    "other": "Change Password"
+    "other": "Changer de mot de passe"
   },
   "26": {
-    "other": "Lock out user"
+    "other": "Exclure l'utilisateur"
   },
   "27": {
-    "other": "Reactivate user"
+    "other": "Réactiver l'utilisateur"
   },
   "28": {
-    "other": "Force password change"
+    "other": "Forcer une mise à jour du mot de passe"
   },
   "28b": {
-    "other": "Cancel password change"
+    "other": "Annuler la mise à jour forcée du mot de passe"
   },
   "29": {
-    "other": "Enter new password for this user"
+    "other": "Entrez le nouveau mot de passe pour cet utilisateur"
   },
   "3": {
-    "other": "Account Info"
+    "other": "Info du compte"
   },
   "30": {
-    "other": "Confirm"
+    "other": "Confirmez"
   },
   "31": {
-    "other": "Role ID"
+    "other": "ID rôle"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "Identifiant (vide pour génération automatique)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "Cet identifiant existe déjà"
   },
   "32": {
-    "other": "Role Label"
+    "other": "Libellé"
   },
   "33": {
-    "other": "Apply automatically to users with profile..."
+    "other": "Appliquer automatiquement aux utilisateurs de type..."
   },
   "34": {
-    "other": "Group ID"
+    "other": "ID groupe"
   },
   "35": {
-    "other": "Group Label"
+    "other": "Libellé"
   },
   "36": {
-    "other": "locked"
+    "other": "désactivé"
   },
   "37": {
-    "other": "Deny"
+    "other": "Exclure"
   },
   "38": {
-    "other": "inherited"
+    "other": "hérité"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "noeuds racines non-valides"
   },
   "39": {
-    "other": "Disable"
+    "other": "Désactiver"
   },
   "4": {
-    "other": "ACL"
+    "other": "Accès"
   },
   "40": {
-    "other": "Enable"
+    "other": "Activer"
   },
   "41": {
-    "other": "Remove"
+    "other": "Supprimer"
   },
   "42": {
-    "other": "Role custom data"
+    "other": "Données du rôle"
   },
   "43": {
-    "other": "Select one or more"
+    "other": "Sélectionner un ou plusieurs"
   },
   "44": {
-    "other": "Plugins Parameters Fine-tuning"
+    "other": "Paramètres avancés de plugins"
   },
   "45": {
-    "other": "Access Control List"
+    "other": "Contrôle d'accès"
   },
   "46": {
-    "other": "Disabled Actions"
+    "other": "Actions désactivées"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "Rechercher dans les rôles"
   },
   "5": {
     "other": "Actions"
   },
   "6": {
-    "other": "Parameters"
+    "other": "Paramètres"
   },
   "7": {
-    "other": "Internal Data"
+    "other": "Données internes"
   },
   "8": {
-    "other": "Personal information"
+    "other": "Informations personnelles"
   },
   "9": {
-    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
+    "other": "Sélectionnez les workspaces auxquels les utilisateurs ayant ce rôle auront accès. Utilisez la valeur 'Exclure' pour soit écraser un droit donné par un autre rôle, ou définitivement interdire l'accès à ce workspace pour les rôles hérités."
   },
   "dashboard.description": {
-    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+    "other": "Les Roles sont des conteneurs permettant de définir des contrôles d'accès ou des paramètres spécifiques, qui peuvent ensuite être appliqués à n'importe quel utilisateur."
   },
   "dashboard.technical.hide": {
-    "other": "Hide technical roles"
+    "other": "Masquer les rôles techniques"
   },
   "dashboard.technical.show": {
-    "other": "Show technical roles"
+    "other": "Montrer les rôles techniques"
   },
   "last_update": {
-    "other": "Last updated"
+    "other": "Dernière modification"
   },
   "role.id.description": {
-    "other": "Unique ID of this role (cannot be changed)."
+    "other": "Identifiant unique de ce rôle (ne peut pas être modifié)."
   },
   "role.label.description": {
-    "other": "Human-readable label."
+    "other": "Libellé du rôle."
   },
   "role.autoapply.description": {
-    "other": "Role is always applied to users with this profile(s)."
+    "other": "Ce rôle est toujours appliqué aux utilisateurs ayant ce(s) profil(s)."
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "Le rôle est toujours appliqué en dernier, après les autres rôles, à l'exception du rôle utilisateur qui prévaut."
   }
 }

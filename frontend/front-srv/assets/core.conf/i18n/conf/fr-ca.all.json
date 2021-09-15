@@ -1,215 +1,215 @@
 {
   "Address used for notifications": {
-    "other": "Address used for notifications"
+    "other": "Adresse utilisée pour les notifications"
   },
   "All roles": {
-    "other": "All roles"
+    "other": "Tous les rôles"
   },
   "Allow Group Listing": {
-    "other": "Allow Group Listing"
+    "other": "Lister les groupes"
   },
   "Allow Role Listing": {
-    "other": "Allow Role Listing"
+    "other": "Lister les rôles"
   },
   "Allow the users to create a new user when sharing a folder": {
-    "other": "Allow the users to create a new user when sharing a folder"
+    "other": "Autoriser les utilisateurs à créer un nouvel utilisateur lors du partage d'un répertoire"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "Autoriser les utilisateurs à voir une liste d'utilisateurs existants lors du partage d'un répertoire"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
+    "other": "Autoriser la recherche d'utilisateurs dans tous les groupes via l'auto-completion (utile si l'option précédente est désactivée) et partage des fichiers/répertoires avec eux."
   },
   "Always Override": {
-    "other": "Always Override"
+    "other": "Toujours écraser"
   },
   "Always override other roles, included group roles.": {
-    "other": "Always override other roles, included group roles."
+    "other": "Toujours écraser les autres rôles, ainsi que les paramètres de groupes."
   },
   "Avatar": {
     "other": "Avatar"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "Choisissez le plugin de configuration"
   },
   "Configuration Store Instance": {
-    "other": "Configuration Store Instance"
+    "other": "Instance de stockage des configurations"
   },
   "Configurations Management": {
-    "other": "Configurations Management"
+    "other": "Gestion des configurations"
   },
   "Core SQL Connexion": {
-    "other": "Core SQL Connection"
+    "other": "Connexion SQL principale"
   },
   "Country": {
-    "other": "Country"
+    "other": "Pays"
   },
   "Create external users": {
-    "other": "Create external users"
+    "other": "Créer des utilisateurs externes"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "Workspace par défaut"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "Workspace montré après le login. La 'Home' correspond à l'écran d'accueil avec le flux d'activités et le moteur de recherche"
   },
   "Display roles and/or groups": {
-    "other": "Display roles and/or groups"
+    "other": "Afficher les roles et/ou les groupes"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "Ne pas afficher le véritable identifiant entre parenthèses"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
-    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+    "other": "Ne pas charger la liste des rôles ou des utilisateurs si aucun caractère n'est tapé. Evite d'envoyer de très large requêtes aux annuaires d'utilisateurs."
   },
   "Email": {
-    "other": "Email"
+    "other": "Courriel"
   },
   "Excluded Roles": {
-    "other": "Excluded Roles"
+    "other": "Roles exclus"
   },
   "External Users Creation": {
-    "other": "External Users Creation"
+    "other": "Création d'utilisateurs externes"
   },
   "External users parameters": {
-    "other": "External users parameters"
+    "other": "Paramètres des utilisateurs externes"
   },
   "Full name displayed to others": {
-    "other": "Full name displayed to others"
+    "other": "Nom complet, affiché à tous les utilisateurs"
   },
   "Generic Conf Features": {
-    "other": "Generic Conf Features"
+    "other": "Configurations génériques"
   },
   "Hide real login": {
-    "other": "Hide real login"
+    "other": "Cacher le véritable identifiant"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
-    "other": "If previous option is set to True, directly display a full list of users from all groups"
+    "other": "Afficher la liste de tous les utilisateurs de tous les groupes"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "Si elle est configurée, cette action va être déclenchée automatiquement au login. Par exemple 'logout' (empêche le login), 'pass_change' (force le changement de mot de passe), etc."
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
+    "other": "Si l'utilisateur 'guest' est activé, se souvenir de ses préférences entre les sessions."
   },
   "Image displayed next to the user name": {
-    "other": "Image displayed next to the user name"
+    "other": "Image affichée à côté du nom"
   },
   "Included Roles": {
-    "other": "Included Roles"
+    "other": "Roles inclus"
   },
   "Instance": {
-    "other": "Instance"
+    "other": "Occurrence"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "Utilisateurs internes / externes"
   },
   "Language": {
-    "other": "Language"
+    "other": "Langue"
   },
   "Let user create repositories": {
-    "other": "Let user create workspaces"
+    "other": "Autoriser les utilisateurs à créer des workspaces"
   },
   "Let user create repositories from templates": {
-    "other": "Let user create repositories from templates"
+    "other": "Autoriser les utilisateurs à créer des workspaces."
   },
   "List Roles By": {
-    "other": "List Roles By"
+    "other": "Filter la liste des rôles"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "Lister les utilisateurs de tous les groupes"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "List of parameters to be edited when creating a new shared user."
+    "other": "Liste des paramètres modifiables lors de la création d'un nouvel utilisateur partagé."
   },
   "Make regexp mandatory": {
-    "other": "Make regexp mandatory"
+    "other": "Caractère de recherche obligatoire"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximum number of shared users per user"
+    "other": "Nombre maximal d'utilisateurs partagés par utilisateur"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "Maximum number of users displayed in the users autocompleter"
+    "other": "Nombre maximal d'utilisateurs affichés dans l'auto-completion des utilisateurs"
   },
   "Minimum number of characters to trigger the auto completion feature": {
-    "other": "Minimum number of characters to trigger the auto completion feature"
+    "other": "Nombre minimal de caractères pour déclencher la fonctionnalité d'auto-completion"
   },
   "Name": {
-    "other": "Name"
+    "other": "Nom"
   },
   "Preferences Saving": {
-    "other": "Preferences Saving"
+    "other": "Enregistrement des préférences"
   },
   "Remember guest preferences": {
-    "other": "Remember guest preferences"
+    "other": "Se souvenir des préférences de l'utilisateur 'Invité'."
   },
   "Role Label": {
-    "other": "Role Label"
+    "other": "Libellé du rôle"
   },
   "Role/Group Listing": {
-    "other": "Role/Group Listing"
+    "other": "Lister les groupes ET les rôles"
   },
   "Roles / Groups Directory Listing": {
-    "other": "Roles / Groups Directory Listing"
+    "other": "Listing des Roles / Groupes"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "Connexion SQL"
   },
   "See existing users": {
-    "other": "See existing users"
+    "other": "Voir les utilisateurs existants"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
-    "other": "Sets how the application core data (users,roles,etc) is stored."
+    "other": "Définit le stockage des données principales de l'application (utilisateurs, rôles, ...)."
   },
   "Share with existing users from all groups": {
-    "other": "Share with existing users from all groups"
+    "other": "Partager avec des utilisateurs de tous les groupes"
   },
   "Shared users limit": {
-    "other": "Shared users limit"
+    "other": "Limite d'utilisateurs partagés"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
+    "other": "Définition d'une connexion SQL simple pouvant être utilisée par d'autres plugins basés sur sql"
   },
   "Skip user history": {
-    "other": "Skip interface preferences"
+    "other": "Ne pas conserver les préférences d'interface"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "Exclure ces rôles de la liste: liste separée par ',' ou commencer par 'preg:' pour une expression régulière."
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "Inclure ces rôles de la liste: liste séparée par ',' ou commencer par 'preg:' pour une expression régulière."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
-    "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
+    "other": "Utilisez cette option pour éviter le rechargement automatique du dernier état de l'interface (répertoire, onglets ouverts, ...)"
   },
   "User Language": {
-    "other": "User Language"
+    "other": "Langue de l'utilisateur"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "Roles utilisateurs seulement"
   },
   "Users Directory Listing": {
-    "other": "Users Directory Listing"
+    "other": "Listing des utilisateurs"
   },
   "Users Lock Action": {
-    "other": "Users Lock Action"
+    "other": "Action de lock"
   },
   "Users completer limit": {
-    "other": "Users completer limit"
+    "other": "Limite de la complétion des utilisateurs"
   },
   "Users completer min chars": {
-    "other": "Users completer min chars"
+    "other": "Nb min. caractères pour la complétion des utilisateurs"
   },
   "Users only (do not list groups nor roles)": {
-    "other": "Users only (do not list groups nor roles)"
+    "other": "Utilisateurs seulement"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Whether users can create their own repositories, based on predefined templates."
+    "other": "Autoriser les utilisateurs à créer des workspaces, à partir des modèles de workspaces prédéfinis."
   },
   "Worskpace creation delegation": {
-    "other": "Worskpace creation delegation"
+    "other": "Délégation de la création de workspace"
   },
   "role prefix": {
-    "other": "Role prefix"
+    "other": "Role commençant par"
   }
 }

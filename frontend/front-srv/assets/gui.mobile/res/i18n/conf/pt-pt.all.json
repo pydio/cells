@@ -1,32 +1,56 @@
 {
   "1.android": {
-    "other": "Existe uma aplicação nativa para aceder %s através do %s no Android."
+    "other": "Há um cliente nativo APPLICATION_TITLE disponível para acessar %s no SO Android."
   },
   "1.ios": {
-    "other": "Existe uma aplicação nativa para aceder %s através do iPhone/iPad!"
+    "other": "Há um aplicativo nativo disponível para acessar %s através do iPhone/iPad!"
   },
   "2.android": {
-    "other": "Já possuo a aplicação. Pretendo abri-la e adicionar este servidor à minha lista de servidores remotos"
+    "other": "Eu já o tenho, abro e adiciono este servidor aos meus servidores remotos pré-configurados"
   },
   "2.ios": {
-    "other": "Já possuo a aplicação. Pretendo abri-la e adicionar este servidor à minha lista de servidores remotos"
+    "other": "Eu já o tenho, abro e adiciono esse servidor aos meus servidores remotos"
   },
   "3.android": {
-    "other": "Ainda não tenho a aplicação, abra-me a página da Loja de Aplicações da mesma!"
+    "other": "Eu não tenho isso, mande-me para a Play Store agora!"
   },
   "3.ios": {
-    "other": "Ainda não tenho a aplicação, abra-me a página da Loja de Aplicações da mesma!"
+    "other": "Eu não tenho isso, mande-me para a App Store agora!"
   },
   "4.android": {
-    "other": "Não tenho interesse na aplicação, deixe-me usar a versão Web de %s."
+    "other": "Eu não me importo em usar a versão web do %s."
   },
   "4.ios": {
-    "other": "Não tenho interesse na aplicação, deixe-me usar a versão Web de %s."
+    "other": "Eu não me importo em usar a versão web do %s."
   },
   "Mobile": {
     "other": "Móvel"
   },
   "Template extending gui.ajax for small screen terminals.": {
-    "other": "Modelo que extende a gui.ajax para equipamentos com ecrã pequeno."
+    "other": "Modelo estendendo gui.ajax para terminais de tela pequena."
+  },
+  "Disable this feature": {
+    "other": "Desabilitar este recurso"
+  },
+  "Do not display a smart banner when opening web interface on a mobile terminal.": {
+    "other": "Não exibir um banner inteligente ao abrir a interface web em um terminal móvel."
+  },
+  "iOS Application Icon": {
+    "other": "Ícone do aplicativo iOS"
+  },
+  "iOS Application ID": {
+    "other": "ID do aplicativo iOS"
+  },
+  "iOS Application ID on the store": {
+    "other": "ID do aplicativo iOS na loja"
+  },
+  "Android Application ID": {
+    "other": "ID do aplicativo Android"
+  },
+  "Android App ID": {
+    "other": "ID do app Android"
+  },
+  "Android App Icon": {
+    "other": "Ícone do Aplicativo Android"
   }
 }

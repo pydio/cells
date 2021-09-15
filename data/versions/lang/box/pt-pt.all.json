@@ -1,0 +1,103 @@
+{
+  "Job.Version.Title": {
+    "other": "Tarefa Baseada em Evento para replicar dados por versão"
+  },
+  "Job.Version.StatusFile": {
+    "other": "Versão criada {{.Uuid}} dentro do repositório de versão "
+  },
+  "Job.Version.StatusMeta": {
+    "other": "Metadados da versão criada para {{.Uuid}}"
+  },
+  "Job.Version.StatusPrune": {
+    "one": "Versão {{.Count}} suprimida",
+    "other": "Versões {{.Count}} suprimidas"
+  },
+  "Job.Pruning.Title": {
+    "other": "Limpando arquivos de versões para nodes excluídos"
+  },
+  "Job.Pruning.StatusDone": {
+    "one": "Versão {{.Count}} removida com sucesso",
+    "other": "Versões {{.Count}} removidas com sucesso."
+  },
+  "Config.GroupPolicy.Title": {
+    "other": "Política"
+  },
+  "Config.GroupPolicy.Name.Label": {
+    "other": "Nome"
+  },
+  "Config.GroupPolicy.Name.Description": {
+    "other": "Nome da Política"
+  },
+  "Config.GroupPolicy.Description.Label": {
+    "other": "Descrição"
+  },
+  "Config.GroupPolicy.Description.Description": {
+    "other": "Descrição da política"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Label": {
+    "other": "Armazenamento"
+  },
+  "Config.GroupPolicy.VersionsDataSourceName.Description": {
+    "other": "Fonte de dados usada para armazenar versões"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
+    "other": "Repositório"
+  },
+  "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
+    "other": "Repositório usado dentro desta fonte de dados"
+  },
+  "Config.GroupSizes.Title": {
+    "other": "Limite de Tamanho"
+  },
+  "Config.GroupSizes.MaxTotalSize.Label": {
+    "other": "Tamanho Global de todas as versões mantidas neste repositório"
+  },
+  "Config.GroupSizes.MaxTotalSize.Description": {
+    "other": "Limitar o tamanho total. Se o limite for atingido, as versões mais antigas serão excluídas. Use '-1' para deixar sem limite"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Label": {
+    "other": "Tamanho acumulado para versões de um determinado arquivo"
+  },
+  "Config.GroupSizes.MaxSizePerFile.Description": {
+    "other": "Limitar o tamanho total de todas as versões de um arquivo. Se o limite for atingido, as versões mais antigas serão excluídas. Use '-1' para deixar sem limite"
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
+    "other": "Ignorar arquivos maiores que: "
+  },
+  "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
+    "other": "Não faça versões de arquivos com tamanho maior que este limite. Use '-1' para deixar sem limite"
+  },
+  "Config.GroupRetention.Title": {
+    "other": "Período de Retenção"
+  },
+  "Config.GroupRetention.Description": {
+    "other": "Numéro de versões a serem mantidas por período"
+  },
+  "Config.GroupRetention.IntervalStart.Name": {
+    "other": "Início do Período"
+  },
+  "Config.GroupRetention.IntervalStart.Description": {
+    "other": "O Ponto de início usado para calcular o período. '0' é a hora da última versão definida, use outro período para definir um limite"
+  },
+  "Config.GroupRetention.MaxNumber.Name": {
+    "other": "Número Máximo de Versões"
+  },
+  "Config.GroupRetention.MaxNumber.Description": {
+    "other": "Número máximo de versões para manter durante este período. Use '-1' para manter todas as versões, '0' para deletar todas."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Name": {
+    "other": "Após apagar o arquivo original"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.Description": {
+    "other": "Número de versões a manter após apagar o arquivo original."
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepAll": {
+    "other": "Backup de todas as versões existentes"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepLast": {
+    "other": "Backup apenas da versão mais recente"
+  },
+  "Config.GroupRetention.NodeDeletedStrategy.KeepNone": {
+    "other": "Apagar todas as versões existentes"
+  }
+}

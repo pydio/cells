@@ -1,8 +1,8 @@
 {
   "Source Viewer": {
-    "other": "Visualizador de Código-Fonte"
+    "other": "Visualizador de Fontes"
   },
   "Syntax Highlighter for all major code source files": {
-    "other": "Visualizador Syntax Highlighter para todos os tipos principais de código-fonte"
+    "other": "Realce de sintaxe para todos os arquivos de origem de código suportados"
   }
 }

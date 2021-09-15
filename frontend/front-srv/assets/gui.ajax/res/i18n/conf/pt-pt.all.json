@@ -6,16 +6,16 @@
     "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "Uma mensagem adicional a ser mostrada no ecrã de arranque"
+    "other": "An additional message displayed in the start up screen"
   },
   "Analytics Domain": {
-    "other": "Domínio das Estatísticas"
+    "other": "Analytics Domain"
   },
   "Analytics Events": {
-    "other": "Eventos de Estatísticas"
+    "other": "Analytics Events"
   },
   "Analytics ID": {
-    "other": "ID Estatísticas"
+    "other": "Analytics ID"
   },
   "Append a title to the image logo": {
     "other": "Append a title to the image logo"
@@ -48,19 +48,19 @@
     "other": "Background Attributes (Low Resolution)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Interface rica baseada no Navegador. Contém configurações para temas, mensagens de boas vindas personalizadas, etc."
+    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
   },
   "Center in Page (no-repeat)": {
     "other": "Center in Page (no-repeat)"
   },
   "Client Plugin": {
-    "other": "Plugin de Cliente"
+    "other": "Client Plugin"
   },
   "Client Session Config": {
-    "other": "Configuração de Sessão do Cliente"
+    "other": "Client Session Config"
   },
   "Client Timeout": {
-    "other": "Sessão de Cliente Expirou"
+    "other": "Client Timeout"
   },
   "Custom Background (1)": {
     "other": "Custom background (1)"
@@ -81,7 +81,7 @@
     "other": "Custom background (6)"
   },
   "Custom Icon": {
-    "other": "Icon personalizado"
+    "other": "Custom Icon"
   },
   "Detected Encoding": {
     "other": "Detected Encoding"
@@ -105,10 +105,10 @@
     "other": "Fetch Window (repeat vertically)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Tamanho da fonte usada no título do ecrã de arranque"
+    "other": "Font sized used for the title in the start up screen"
   },
   "Google Analytics": {
-    "other": "Estatísticas Google"
+    "other": "Google Analytics"
   },
   "Google Analytics Analytics Domain": {
     "other": "Google Analytics Analytics Domain"
@@ -132,10 +132,10 @@
     "other": "Icon Path (Legacy)"
   },
   "Icon Width": {
-    "other": "Largura do Icon"
+    "other": "Icon Width"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "ID da sua conta GA, algo como 'UE-XXXX-YY'"
+    "other": "Id of your GA account, something like UE-XXXX-YY"
   },
   "Image used as a background": {
     "other": "Image used as a background"
@@ -162,7 +162,7 @@
     "other": "Low-Resolution Background"
   },
   "Main Options": {
-    "other": "Opções Gerais"
+    "other": "Opções Principais"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
     "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
@@ -186,7 +186,7 @@
     "other": "Minisite Logo"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "´Tempo em minutos antes da sessão expirar que deve ser avisado o utilizador"
+    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
     "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
@@ -201,10 +201,10 @@
     "other": "Replace the top left logo in the top toolbar"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Introduza o domínio para os relatórios das estatísticas (não é obrigatório)"
+    "other": "Set the domain for your analytics reports (not mandatory!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for yuor analytics reports (not mandatory!)"
+    "other": "Set the domain for your analytics reports (not mandatory!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
@@ -216,16 +216,16 @@
     "other": "Skip the title, only display an image"
   },
   "Start Up Screen": {
-    "other": "Ecrã de Arranque"
+    "other": "Start Up Screen"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "O tempo de sessão de um cliente em SEGUNDOS. Por pré definição, este valor copia o valor do servidor. Na maior parte das instalações PHP, esse valor é 1440 (24 minutos). Pode colocar este valor com -1, isto irá permitir tempos de sessão 'Infinitos', fazendo um ping regular ao servidor (mantendo assim a sessão PHP activa). Não é recomendável utilizar esta opção em 0 por óbvias questões de segurança."
+    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
   },
   "Theme": {
-    "other": "Tema"
+    "other": "Theme"
   },
   "Theme used for display": {
-    "other": "Tema a utilizar"
+    "other": "Theme used for display"
   },
   "Tile (repeat both directions)": {
     "other": "Tile (repeat both directions)"
@@ -234,7 +234,7 @@
     "other": "Title"
   },
   "Title Font Size": {
-    "other": "Fonte de Título"
+    "other": "Title Font Size"
   },
   "Top Toolbar": {
     "other": "Top Toolbar"
@@ -243,10 +243,10 @@
     "other": "Top-right logo displayed on minisite page"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URL para uma imagem personalizada a ser usada como logo no arranque"
+    "other": "URI to a custom image to be used as start up logo"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Usar Registo de eventos, experimental, apenas implementado na área de transferências do Pydio"
+    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
   },
   "Use configured branding": {
     "other": "Use configured branding"
@@ -255,18 +255,36 @@
     "other": "User Home Logo"
   },
   "Warning Before": {
-    "other": "Avisar antes"
+    "other": "Warning before session expires"
   },
   "Web Session": {
     "other": "Web Session"
   },
+  "Web Interface auto-logout after inactivity": {
+    "other": "Web Interface auto-logout after inactivity"
+  },
+  "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
+    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+  },
   "Welcome Message": {
-    "other": "Mensagem de Boas Vindas"
+    "other": "Welcome Message"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Página de Boas-vindas"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Largura da imagem personalizada"
+    "other": "Width of the custom image (Default 35px)"
+  },
+  "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
+    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+  },
+  "Warning Before Session Expiration": {
+    "other": "Warning Before Session Expiration"
+  },
+  "Custom HTML Header": {
+    "other": "Custom HTML Header"
+  },
+  "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
+    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
   }
 }

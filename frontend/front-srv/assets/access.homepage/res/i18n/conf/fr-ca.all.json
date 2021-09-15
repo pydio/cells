@@ -1,56 +1,56 @@
 {
   "Android App URL": {
-    "other": "URL to Android App"
+    "other": "URL de l'application Android"
   },
   "Display Server QRCode": {
-    "other": "Display Server QRCode"
+    "other": "Afficher le QRCode du serveur"
   },
   "Enable Getting Started": {
-    "other": "Enable Getting Started"
+    "other": "Activer 'Pour Débuter'"
   },
   "Enable Global Search": {
-    "other": "Enable Global Search"
+    "other": "Activer la recherche globale"
   },
   "Enable addition tabulation to access getting started videos": {
-    "other": "Enable addition tabulation to access getting started videos"
+    "other": "Activer le panneau d'information affichant des vidéos pour débuter avec la plateforme."
   },
   "Enable cross-workspaces search form on home page": {
-    "other": "Enable cross-workspaces search form on home page"
+    "other": "Activer le formulaire de recherche inter-workspace sur la page d'accueil"
   },
   "Let users connect easily to the latest mobile applications by displaying a QRCode": {
-    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+    "other": "Simplifiez le processus de connection pour les utilisateurs par l'utilisation d'un QRCode."
   },
   "Mac PydioSync URL": {
-    "other": "Mac PydioSync URL"
+    "other": "PydioSync Mac"
   },
   "Open workspace by simple click": {
-    "other": "Open workspace by simple click"
+    "other": "Ouvrir les workspaces par clic simple"
   },
   "Open workspace by simple click instead of double click.": {
-    "other": "Open workspace by simple click instead of double click."
+    "other": "Ouvrir les workspaces par clic simple plutôt que double-clic."
   },
   "URL of the Android application": {
-    "other": "URL to Android App (leave empty if you want to hide the block)"
+    "other": "URL de l'application native Android (laisser vide pour cacher le bloc)"
   },
   "URL of the iOS application": {
-    "other": "URL to iOS App (leave empty if you want to hide the block)"
+    "other": "URL de l'application native iOS (laisser vide pour cacher le bloc)"
   },
   "URL of the mac sync application": {
-    "other": "URL to Mac sync application (leave empty if you want to hide the block)"
+    "other": "URL de l'application de synchronisation pour MacOS (laisser vide pour cacher le bloc)"
   },
   "URL of the windows sync application": {
-    "other": "URL to Windows sync application (leave empty if you want to hide the block)"
+    "other": "URL de l'application de synchronisation pour Windows Desktop (laisser vide pour cacher le bloc)"
   },
   "Welcome Page": {
-    "other": "Welcome Page"
+    "other": "Page d'accueil"
   },
   "Welcome Page displaying a list of workspaces": {
-    "other": "Welcome Page displaying a list of workspaces"
+    "other": "Ecran d'accueil des utilisateurs après authentification."
   },
   "Windows PydioSync URL": {
-    "other": "Windows PydioSync URL"
+    "other": "PydioSync Windows"
   },
   "iOS App URL": {
-    "other": "URL to iOS App"
+    "other": "URL de l'application iOS"
   }
 }

@@ -1,35 +1,35 @@
 {
   "Path": {
-    "other": "Path"
+    "other": "Chemin"
   },
   "Default download format": {
-    "other": "Default download format"
+    "other": "Format de téléchargement par défaut"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "When downloading a folder or a multiple selection, automatically create an archive using this format"
+    "other": "Lors du téléchargement d'un dossier ou d'une sélection multiple, création automatique d'une archive en utilisant ce format"
   },
   "Path to the folder on the server": {
-    "other": "Path to the folder on the server"
+    "other": "Chemin d'accès au dossier sur le serveur"
   },
   "Gateway": {
-    "other": "Gateway"
+    "other": "Passerelle"
   },
   "Pydio S3 Gateway": {
-    "other": "Pydio S3 Gateway"
+    "other": "Passerelle S3"
   },
   "Absolute path to one or more root nodes": {
-    "other": "Absolute path to one or more root nodes"
+    "other": "Chemin absolu vers un ou plusieurs répertoire racine"
   },
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "Nombre d'éléments par page"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "En mode paginé, nombre d'items à afficher par page."
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "Supprimer définitivement"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "Autoriser la suppression directe (sans passer par la corbeille)"
   }
 }

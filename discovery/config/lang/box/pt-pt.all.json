@@ -1,0 +1,437 @@
+{
+  "30 days max": {
+    "other": "Máximo 30 dias"
+  },
+  "Remove versions after 30 days": {
+    "other": "Remover versões após 30 dias"
+  },
+  "Keep All": {
+    "other": "Manter tudo"
+  },
+  "Keep all versions forever": {
+    "other": "Manter todas as versões para sempre"
+  },
+  "Regular Pruning": {
+    "other": "Suprimir regularmente"
+  },
+  "Prune versions regularly at various intervals": {
+    "other": "Suprimir versões regularmente em vários intervalos"
+  },
+  "aclAction.Name": {
+    "other": "Nome"
+  },
+  "aclAction.Value": {
+    "other": "Valor"
+  },
+  "aclSingleQuery.Actions": {
+    "other": "Ações"
+  },
+  "aclSingleQuery.NodeIDs": {
+    "other": "Identificadores de nós"
+  },
+  "aclSingleQuery.Not": {
+    "other": "Não"
+  },
+  "aclSingleQuery.RoleIDs": {
+    "other": "Identificadores dos papéis"
+  },
+  "aclSingleQuery.WorkspaceIDs": {
+    "other": "Identificadores das Áreas de Trabalho"
+  },
+  "aclSingleQuery.not": {
+    "other": "não"
+  },
+  "actionOutputSingleQuery.ErrorStringRegexp": {
+    "other": "Pesquisar no erro (com expressão regular)"
+  },
+  "actionOutputSingleQuery.IsSuccess": {
+    "other": "Concluído"
+  },
+  "actionOutputSingleQuery.JsonBodyHasKey": {
+    "other": "JSON contem a chave..."
+  },
+  "actionOutputSingleQuery.JsonBodyRegexp": {
+    "other": "Pesquisar no corpo do Json (regexp)"
+  },
+  "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
+    "other": "O tamanho do corpo de Json é maior que"
+  },
+  "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
+    "other": "O tamanho do corpo Json é menor que"
+  },
+  "actionOutputSingleQuery.Not": {
+    "other": "Não"
+  },
+  "actionOutputSingleQuery.StringBodyRegexp": {
+    "other": "Pesquisar no corpo de texto (regexp)"
+  },
+  "actionOutputSingleQuery.StringBodySizeGreaterThan": {
+    "other": "O tamanho do corpo da string é maior que"
+  },
+  "actionOutputSingleQuery.StringBodySizeSmallerThan": {
+    "other": "O tamanho do corpo da string é menor que"
+  },
+  "actionOutputSingleQuery.TaskTimeGt": {
+    "other": "Tempo da tarefa maior que"
+  },
+  "actionOutputSingleQuery.TaskTimeLt": {
+    "other": "Tempo da tarefa menor que"
+  },
+  "actionOutputSingleQuery.FreeCondition": {
+    "other": "Condição Livre"
+  },
+  "conditionCIDRCondition.CIDR": {
+    "other": "CIDR"
+  },
+  "conditionCIDRCondition.cidr": {
+    "other": "cidr"
+  },
+  "conditionStringEqualCondition.Equals": {
+    "other": "Igual a"
+  },
+  "conditionStringEqualCondition.equals": {
+    "other": "igual a"
+  },
+  "conditionStringMatchCondition.Matches": {
+    "other": "Correspondências"
+  },
+  "conditionStringMatchCondition.matches": {
+    "other": "corresponde"
+  },
+  "contextMetaCondition.CIDRCondition": {
+    "other": "CondiçãoCIDR"
+  },
+  "contextMetaCondition.EqualsSubjectCondition": {
+    "other": "Assunto igual"
+  },
+  "contextMetaCondition.ResourceContainsCondition": {
+    "other": "Recurso contém"
+  },
+  "contextMetaCondition.StringEqualCondition": {
+    "other": "Texto igual"
+  },
+  "contextMetaCondition.StringMatchCondition": {
+    "other": "Correspondências de texto"
+  },
+  "contextMetaCondition.StringPairsEqualCondition": {
+    "other": "ParesDeString igual"
+  },
+  "contextMetaCondition.StringNotMatchCondition": {
+    "other": "A string não corresponde"
+  },
+  "contextMetaCondition.WithinPeriodCondition": {
+    "other": "Período da data"
+  },
+  "contextMetaCondition.OfficeHoursCondition": {
+    "other": "Horário de expediente"
+  },
+  "contextMetaCondition.DateAfterCondition": {
+    "other": "Data após"
+  },
+  "contextMetaField.ContentType": {
+    "other": "Tipo de conteúdo"
+  },
+  "contextMetaField.CookiesString": {
+    "other": "String de Cookies"
+  },
+  "contextMetaField.HttpProtocol": {
+    "other": "Protocolo HTTP"
+  },
+  "contextMetaField.RemoteAddress": {
+    "other": "Endereço Remoto"
+  },
+  "contextMetaField.RequestHostname": {
+    "other": "Solicitar Hostname"
+  },
+  "contextMetaField.RequestMethod": {
+    "other": "Método de solicitação"
+  },
+  "contextMetaField.RequestURI": {
+    "other": "URI de requisição"
+  },
+  "contextMetaField.ServerTime": {
+    "other": "Hora do servidor"
+  },
+  "contextMetaField.UserAgent": {
+    "other": "Agente usuário"
+  },
+  "contextMetaSingleQuery.Condition": {
+    "other": "Condição"
+  },
+  "contextMetaSingleQuery.FieldName": {
+    "other": "Nome do Campo"
+  },
+  "roleSingleQuery.HasAutoApply": {
+    "other": "Aplicação Automática"
+  },
+  "roleSingleQuery.IsGroupRole": {
+    "other": "A função é de grupo"
+  },
+  "roleSingleQuery.IsTeam": {
+    "other": "É Equipe"
+  },
+  "roleSingleQuery.IsUserRole": {
+    "other": "É Função do Usuário"
+  },
+  "roleSingleQuery.Label": {
+    "other": "Nome"
+  },
+  "roleSingleQuery.Not": {
+    "other": "Não"
+  },
+  "roleSingleQuery.Uuid": {
+    "other": "UUID"
+  },
+  "roleSingleQuery.not": {
+    "other": "não"
+  },
+  "treeQuery.Content": {
+    "other": "Conteúdo"
+  },
+  "treeQuery.DurationDate": {
+    "other": "Data de modificação (usar comparação)"
+  },
+  "treeQuery.Extension": {
+    "other": "Extensões do Arquivo"
+  },
+  "treeQuery.FileName": {
+    "other": "Nome do Arquivo"
+  },
+  "treeQuery.FileNameOrContent": {
+    "other": "Nome do arquivo ou Conteúdo"
+  },
+  "treeQuery.FreeString": {
+    "other": "Sequência de pesquisa Bleve-like"
+  },
+  "treeQuery.GeoQuery": {
+    "other": "Consulta de Geolocalização"
+  },
+  "treeQuery.MaxDate": {
+    "other": "Modificado antes de"
+  },
+  "treeQuery.MaxSize": {
+    "other": "TamMáximo"
+  },
+  "treeQuery.MinDate": {
+    "other": "Modificado desde"
+  },
+  "treeQuery.MinSize": {
+    "other": "Tamanho maior que"
+  },
+  "treeQuery.Not": {
+    "other": "Não"
+  },
+  "treeQuery.PathDepth": {
+    "other": "Profundidade do caminho"
+  },
+  "treeQuery.PathPrefix": {
+    "other": "Prefixo do Caminho"
+  },
+  "treeQuery.Paths": {
+    "other": "Caminhos Absolutos"
+  },
+  "treeQuery.Type": {
+    "other": "Tipo"
+  },
+  "treeQuery.Type.COLLECTION": {
+    "other": "Pasta"
+  },
+  "treeQuery.Type.LEAF": {
+    "other": "Arquivo"
+  },
+  "treeQuery.Type.UNKNOWN": {
+    "other": "Qualquer"
+  },
+  "treeQuery.UUIDs": {
+    "other": "UUIDs do nó"
+  },
+  "userSingleQuery.AttributeAnyValue": {
+    "other": "Tem algum valor"
+  },
+  "userSingleQuery.AttributeName": {
+    "other": "Nome do atributo"
+  },
+  "userSingleQuery.AttributeValue": {
+    "other": "Valor do atributo"
+  },
+  "userSingleQuery.ConnectedSince": {
+    "other": "Conectado desde"
+  },
+  "userSingleQuery.FullPath": {
+    "other": "Caminho Completo"
+  },
+  "userSingleQuery.GroupPath": {
+    "other": "Caminho do Grupo"
+  },
+  "userSingleQuery.HasProfile": {
+    "other": "Possui perfil"
+  },
+  "userSingleQuery.HasRole": {
+    "other": "Possui Função"
+  },
+  "userSingleQuery.Login": {
+    "other": "Usuário"
+  },
+  "userSingleQuery.NodeType": {
+    "other": "Tipo do objeto"
+  },
+  "userSingleQuery.NodeType.GROUP": {
+    "other": "Grupo"
+  },
+  "userSingleQuery.NodeType.UNKNOWN": {
+    "other": "Qualquer um"
+  },
+  "userSingleQuery.NodeType.USER": {
+    "other": "Usuário"
+  },
+  "userSingleQuery.Not": {
+    "other": "Não"
+  },
+  "userSingleQuery.Password": {
+    "other": "Senha"
+  },
+  "userSingleQuery.Recursive": {
+    "other": "Recursivo"
+  },
+  "userSingleQuery.Uuid": {
+    "other": "UUID"
+  },
+  "userSingleQuery.not": {
+    "other": "não"
+  },
+  "workspaceSingleQuery.AttributeName": {
+    "other": "Nome do atributo"
+  },
+  "workspaceSingleQuery.AttributeValue": {
+    "other": "Valor do atributo"
+  },
+  "workspaceSingleQuery.Description": {
+    "other": "Descrição"
+  },
+  "workspaceSingleQuery.HasAttribute": {
+    "other": "Tem atributo"
+  },
+  "workspaceSingleQuery.Label": {
+    "other": "Nome"
+  },
+  "workspaceSingleQuery.LastUpdated": {
+    "other": "Última atualização"
+  },
+  "workspaceSingleQuery.Not": {
+    "other": "Não"
+  },
+  "workspaceSingleQuery.Scope": {
+    "other": "Âmbito"
+  },
+  "workspaceSingleQuery.Slug": {
+    "other": "Link encurtado"
+  },
+  "workspaceSingleQuery.Uuid": {
+    "other": "UUID"
+  },
+  "workspaceSingleQuery.description": {
+    "other": "Descrição"
+  },
+  "workspaceSingleQuery.label": {
+    "other": "Nome"
+  },
+  "workspaceSingleQuery.not": {
+    "other": "não"
+  },
+  "workspaceSingleQuery.scope": {
+    "other": "Tipo de área de trabalho"
+  },
+  "workspaceSingleQuery.scope.ADMIN": {
+    "other": "Área de Trabalho"
+  },
+  "workspaceSingleQuery.scope.ANY": {
+    "other": "Qualquer um"
+  },
+  "workspaceSingleQuery.scope.LINK": {
+    "other": "Link público"
+  },
+  "workspaceSingleQuery.scope.ROOM": {
+    "other": "Célula"
+  },
+  "workspaceSingleQuery.slug": {
+    "other": "Link encurtado"
+  },
+  "workspaceSingleQuery.uuid": {
+    "other": "UUID"
+  },
+  "dataSourceSingleQuery.Name": {
+    "other": "Nome"
+  },
+  "dataSourceSingleQuery.IsDisabled": {
+    "other": "Está desativado"
+  },
+  "dataSourceSingleQuery.StorageType": {
+    "other": "Tipo de armazenamento"
+  },
+  "dataSourceSingleQuery.StorageType.REMOTE": {
+    "other": "Remoto"
+  },
+  "dataSourceSingleQuery.StorageType.ANY": {
+    "other": "Qualquer um"
+  },
+  "dataSourceSingleQuery.StorageType.LOCALFS": {
+    "other": "Local"
+  },
+  "dataSourceSingleQuery.PeerAddress": {
+    "other": "Endereço do parceiro"
+  },
+  "dataSourceSingleQuery.FlatStorage": {
+    "other": "Armazenamento plano"
+  },
+  "dataSourceSingleQuery.SkipSyncOnRestart": {
+    "other": "Não sincronizar ao reiniciar"
+  },
+  "dataSourceSingleQuery.IsVersioned": {
+    "other": "Tem versões"
+  },
+  "dataSourceSingleQuery.IsEncrypted": {
+    "other": "Está encriptado"
+  },
+  "dataSourceSingleQuery.EncryptionMode": {
+    "other": "Modo de encriptação"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER": {
+    "other": "Chave do usuário"
+  },
+  "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
+    "other": "Usuário-pwd"
+  },
+  "dataSourceSingleQuery.EncryptionMode.CLEAR": {
+    "other": "Limpar lista"
+  },
+  "dataSourceSingleQuery.EncryptionMode.MASTER": {
+    "other": "Chave-mestra"
+  },
+  "dataSourceSingleQuery.EncryptionKey": {
+    "other": "Chave Criptográfica"
+  },
+  "dataSourceSingleQuery.VersioningPolicyName": {
+    "other": "Política de versionamento"
+  },
+  "dataSourceSingleQuery.StorageConfigurationName": {
+    "other": "Chave de configuração"
+  },
+  "dataSourceSingleQuery.StorageConfigurationValue": {
+    "other": "Valor da configuração"
+  },
+  "dataSourceSingleQuery.ObjectServiceName": {
+    "other": "Serviço de objeto"
+  },
+  "dataSourceSingleQuery.Not": {
+    "other": "Não"
+  },
+  "triggerFilterQuery.IsSchedule": {
+    "other": "Desencadeamento agendado"
+  },
+  "triggerFilterQuery.IsManual": {
+    "other": "Desencadeamento manual"
+  },
+  "triggerFilterQuery.EventNames": {
+    "other": "Eventos"
+  }
+}

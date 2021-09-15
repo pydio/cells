@@ -9,76 +9,76 @@
     "other": "{{.Object}} a été accédé par {{.Actor}}"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "cellule"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Créé par {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Création du {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} a été créé par {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Supprimé par {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Suppression du {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} a été effacé par {{.Actor}}"
   },
   "SharedWs": {
-    "other": "Shared in {{.Object}}"
+    "other": "Partagé dans {{.Object}}"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} has shared {{.Object}} with you"
+    "other": "{{.Actor}} a partagé {{.Object}} avec vous"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Vos activités quotidiennes sur Pydio"
   },
   "Document": {
     "other": "Document"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Répertoire"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Modifié par {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Modification du {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} a été modifié par {{.Actor}}"
   },
   "MetaModifiedBy": {
-    "other": "Metadata modified by {{.Actor}}"
+    "other": "Métadonnées modifiées par {{.Actor}}"
   },
   "MetaModifiedObject": {
-    "other": "Modified metadata on {{.Object}}"
+    "other": "Modification des métadonnées de {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} modified metadata on {{.Object}}"
+    "other": "{{.Actor}} a modifié les métadonnées de {{.Object}}"
   },
   "CommentedBy": {
     "other": "Commenté par {{.Actor}}"
   },
   "CommentedObject": {
-    "other": "Commented {{.Object}}"
+    "other": "A commenté {{.Object}}"
   },
   "CommentedObjectBy": {
-    "other": "{{.Actor}} published new comment on {{.Object}}"
+    "other": "{{.Actor}} a publié un nouveau commentaire sur {{.Object}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Déplacé par {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Déplacement du {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} a été déplacé par {{.Actor}}"
   },
   "Workspace": {
     "other": "Workspace"
