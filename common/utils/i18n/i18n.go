@@ -65,6 +65,7 @@ var (
 		"lv":    "Ielādē...",
 		"nl":    "Bezig met laden...",
 		"pt-br": "Carregando...",
+		"pt-pt": "Carregando...",
 		"ru":    "Загружается ...",
 		"sv-se": "Läser in...",
 		"vi-vn": "Đang tải...",
@@ -80,7 +81,8 @@ var (
 		"ja":    "日本人", //Japanese
 		"ko":    "한국어",
 		"nl":    "Nederlands",
-		"pt-br": "Português",
+		"pt-br": "Brasileiro",
+		"pt-pt": "Português",
 		"sv-se": "Svenska",    // Swedish
 		"zh-tw": "中國傳統的",      // Chinese traditional
 	}
