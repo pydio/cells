@@ -33,6 +33,9 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
+var pathNotReadable = errors.Forbidden("path.not.readable", "path is not readable")
+var pathNotWriteable = errors.Forbidden("path.not.writeable", "path is not writeable")
+
 // AclFilterHandler checks for read/write permissions depending on the call using the context AccessList.
 type AclFilterHandler struct {
 	AbstractHandler
@@ -47,7 +50,7 @@ func (a *AclFilterHandler) skipContext(ctx context.Context, identifier ...string
 	return ok && bI.Binary
 }
 
-// Check if node is readable and forward to next middleware
+// ReadNode checks if node is readable and forward to next middleware
 func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 	if a.skipContext(ctx) {
 		return a.next.ReadNode(ctx, in, opts...)
@@ -61,7 +64,7 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	}
 
 	if !accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
+		return nil, pathNotReadable
 	}
 	response, err := a.next.ReadNode(ctx, in, opts...)
 	if err != nil {
@@ -75,6 +78,7 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	return response, err
 }
 
+// ListNodes filters list results with ACLs permissions
 func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (streamer tree.NodeProvider_ListNodesClient, e error) {
 	if a.skipContext(ctx) {
 		return a.next.ListNodes(ctx, in, opts...)
@@ -137,7 +141,7 @@ func (a *AclFilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRe
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, errors.Forbidden("parent.not.writeable", "Target Location is not writeable (CreateNode)")
+		return nil, pathNotWriteable
 	}
 	return a.next.CreateNode(ctx, in, opts...)
 }
@@ -152,14 +156,14 @@ func (a *AclFilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRe
 		return nil, a.recheckParents(ctx, err, in.From, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
+		return nil, pathNotReadable
 	}
 	ctx, toParents, err := AncestorsListFromContext(ctx, in.To, "to", a.clientsPool, true)
 	if err != nil {
 		return nil, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Node is not writeable")
+		return nil, pathNotWriteable
 	}
 	return a.next.UpdateNode(ctx, in, opts...)
 }
@@ -174,7 +178,7 @@ func (a *AclFilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRe
 		return nil, a.recheckParents(ctx, err, in.Node, true, false)
 	}
 	if !accessList.CanWrite(ctx, delParents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable, cannot delete!")
+		return nil, pathNotWriteable
 	}
 	return a.next.DeleteNode(ctx, in, opts...)
 }
@@ -190,7 +194,7 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 		return nil, a.recheckParents(ctx, err, node, true, false)
 	}
 	if !accessList.CanRead(ctx, parents...) {
-		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not readable")
+		return nil, pathNotReadable
 	}
 	return a.next.GetObject(ctx, node, requestData)
 }
@@ -209,7 +213,7 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 		return 0, err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
+		return 0, pathNotWriteable
 	}
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
@@ -225,7 +229,7 @@ func (a *AclFilterHandler) MultipartCreate(ctx context.Context, node *tree.Node,
 		return "", err
 	}
 	if !accessList.CanWrite(ctx, parents...) {
-		return "", errors.Forbidden(VIEWS_LIBRARY_NAME, "Node is not writeable")
+		return "", pathNotWriteable
 	}
 	return a.next.MultipartCreate(ctx, node, requestData)
 }
@@ -240,14 +244,14 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 		return 0, a.recheckParents(ctx, err, from, true, false)
 	}
 	if !accessList.CanRead(ctx, fromParents...) {
-		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Source Node is not readable")
+		return 0, pathNotReadable
 	}
 	ctx, toParents, err := AncestorsListFromContext(ctx, to, "to", a.clientsPool, true)
 	if err != nil {
 		return 0, err
 	}
 	if !accessList.CanWrite(ctx, toParents...) {
-		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Target Location is not writeable (CopyObject)")
+		return 0, pathNotWriteable
 	}
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
@@ -297,10 +301,10 @@ func (a *AclFilterHandler) checkPerm(c context.Context, node *tree.Node, identif
 		return a.recheckParents(c, err, node, read, write)
 	}
 	if read && !accessList.CanRead(ctx, parents...) {
-		return errors.Forbidden("node.not.readable", "path is not readable")
+		return pathNotReadable
 	}
 	if write && !accessList.CanWrite(ctx, parents...) {
-		return errors.Forbidden("node.not.writeable", "path is not writeable")
+		return pathNotWriteable
 	}
 	return nil
 
@@ -324,10 +328,10 @@ func (a *AclFilterHandler) recheckParents(c context.Context, originalError error
 	}
 
 	if read && !accessList.CanRead(c, parents...) {
-		return errors.Forbidden("node.not.readable", "path is not readable")
+		return pathNotReadable
 	}
 	if write && !accessList.CanWrite(c, parents...) {
-		return errors.Forbidden("node.not.writeable", "path is not writeable")
+		return pathNotWriteable
 	}
 
 	return originalError
