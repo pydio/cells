@@ -59,7 +59,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 	theRouter := getRouter()
 	permError := errors.Forbidden("forbidden.files", "Some files or folder are not allowed to be read or downloaded, you cannot build this archive")
 	if format != "zip" && format != "tar" && format != "tar.gz" {
-		return "", fmt.Errorf("unsupported format value, please use one of zap, tar or tar.gz")
+		return "", fmt.Errorf("unsupported format, please use one of zip, tar or tar.gz")
 	}
 
 	err := theRouter.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
