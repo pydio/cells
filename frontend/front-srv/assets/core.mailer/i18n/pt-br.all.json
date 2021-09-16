@@ -27,9 +27,9 @@
     "other": "Ingestão de Notificações"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "Não foi possível enviar o e-mail corretamente!"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Aviso, algumas entradas foram ignoradas, apenas usuários que definiram seu endereço de e-mail corretamente receberão convites. Não foram processados nenhuma equipe ou grupo."
   }
 }

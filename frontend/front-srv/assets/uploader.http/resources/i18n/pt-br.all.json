@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Remote DL"
+    "other": "DL Remoto"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "Baixar para APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "Baixar para %s"
   },
   "10b": {
-    "other": "DL to %s"
+    "other": "DL para %s"
   },
   "10c": {
-    "other": "DL to %s"
+    "other": "DL para %s"
   },
   "10d": {
     "other": "AjXp Download (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "Arraste um dos seguintes links para sua barra de favoritos: "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "Ativar baixar arquivo remoto"
   },
   "13": {
-    "other": "From computer"
+    "other": "Do computador"
   },
   "14": {
-    "other": "From remote server"
+    "other": "Do servidor remoto"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "Ou crie um marcador manualmente e use o código abaixo como o link URL: "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "Arraste-me para sua barra de marcadores!"
   },
   "17": {
-    "other": "Download file"
+    "other": "Baixar arquivo"
   },
   "18": {
-    "other": "Partial file"
+    "other": "Arquivo parcial"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "Baixar arquivo(s) do servidor remoto"
   },
   "3": {
     "other": "m"
   },
   "4": {
-    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+    "other": "Insira pelo menos uma URL apontando para um arquivo que você deseja baixar diretamente de um servidor HTTP externo para a pasta atual. Esta ação será enviada para segundo plano e você poderá continuar usando o APPLICATION_TITLE durante a descarga."
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "Baixando"
   },
   "7": {
-    "other": "to server"
+    "other": "para o servidor"
   },
   "8": {
-    "other": "File downloaded, reloading the client!"
+    "other": "Arquivo baixado, recarregando o cliente!"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "Gerar marcador"
   }
 }

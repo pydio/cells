@@ -336,7 +336,7 @@
     "other": "DataSources"
   },
   "3c": {
-    "other": "Template Paths"
+    "other": "Caminhos do Modelo"
   },
   "4": {
     "other": "Logs"
@@ -531,19 +531,19 @@
     "other": "Opções do Plugin atualizadas com sucesso"
   },
   "98": {
-    "other": "Main Settings"
+    "other": "Configurações Principais"
   },
   "99": {
     "other": "Plugins de recursos"
   },
   "topbar.title": {
-    "other": "Cells Console"
+    "other": "Console de Células"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Mostrar/ocultar parâmetros avançados"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Aprenda mais sobre o Pydio Cells"
   },
   "group_access": {
     "other": "G"

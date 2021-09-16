@@ -1,27 +1,30 @@
 {
   "1": {
-    "other": "MetaData"
+    "other": "Metadados"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Existente ou nova tag"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Nenhum metadados definido, clique para adicionar algum"
+  },
+  "16": {
+    "other": "Sem metadados"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Seleção Múltipla:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "marque os campos que você deseja atualizar, o valor será aplicado a todos os arquivos selecionados"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Editar metadado"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Salvar metadado"
   },
   "2": {
-    "other": "Sem Etiqueta"
+    "other": "Sem Rótulo"
   },
   "3": {
     "other": "Remover Classificação"
@@ -30,7 +33,7 @@
     "other": "Baixo"
   },
   "5": {
-    "other": "Para Fazer"
+    "other": "A fazer"
   },
   "6": {
     "other": "Pessoal"
@@ -42,6 +45,6 @@
     "other": "Importante"
   },
   "9": {
-    "other": "No value"
+    "other": "Sem Valor"
   }
 }

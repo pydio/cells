@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Email successfully sent to %s user(s)"
+    "other": "Le courriel a été envoyé avec succès à %s utilisateur(s)"
   },
   "2": {
-    "other": "No address found to send the email!"
+    "other": "Impossible de trouver une adresse pour envoyer le courriel !"
   },
   "3": {
-    "other": "No mailer configured to send emails, contact your administrator"
+    "other": "Aucun programme d'envoi de courriel n'a été trouvé, contactez votre administrateur"
   },
   "4": {
-    "other": "From"
+    "other": "De"
   },
   "5": {
-    "other": "To"
+    "other": "A"
   },
   "6": {
-    "other": "Subject"
+    "other": "Sujet"
   },
   "7": {
     "other": "Message"
   },
   "8": {
-    "other": "Pick a user or type an address"
+    "other": "Utilisateur ou courriel"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "Résumé des notifications"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "Impossible d'envoyer l'email !"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "Attention, certains destinataires ont été ignorés, seuls les utilisateurs ayant renseigné une adresse email peuvent recevoir des invitations. Les équipes et les groupes ne sont pas traités non plus."
   }
 }

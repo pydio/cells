@@ -1,63 +1,63 @@
 {
   "39": {
-    "other": "Select a workspace"
+    "other": "Abaixo está uma lista dos espaços de trabalho que você pode acessar. Estes podem ser pessoais ou compartilhados com/por outros usuários."
   },
   "40": {
-    "other": "Welcome, %s"
+    "other": "Bem-vindo, %s! "
   },
   "41": {
-    "other": "Use this workspace as default"
+    "other": "Usar este espaço de trabalho como padrão"
   },
   "42": {
-    "other": "Enter"
+    "other": "Entrar"
   },
   "43": {
-    "other": "My Profile"
+    "other": "Meu Perfil"
   },
   "43t": {
-    "other": "All my personal data"
+    "other": "Todos os meus dados pessoais"
   },
   "44": {
-    "other": "My Account"
+    "other": "Minha Conta"
   },
   "45": {
-    "other": "Personal data"
+    "other": "Dados pessoais"
   },
   "46": {
-    "other": "Address Book"
+    "other": "Catálogo de endereços"
   },
   "47": {
-    "other": "Users and teams that you created"
+    "other": "Usuários e equipes criados por você"
   },
   "48": {
-    "other": "My Users"
+    "other": "Meus Usuários"
   },
   "49": {
-    "other": "External users that you created"
+    "other": "Usuários externos criados por criou"
   },
   "50": {
-    "other": "My Teams"
+    "other": "Minhas Equipes"
   },
   "51": {
-    "other": "Teams of users, used as shortcuts when sharing"
+    "other": "Equipes de usuários, usados como atalhos ao compartilhar"
   },
   "52": {
-    "other": "Are you sure you want to delete this team? This will not remove any users."
+    "other": "Tem certeza de que deseja apagar esta equipe? Nenhum usuário será removido."
   },
   "53": {
-    "other": "Getting Started"
+    "other": "Primeiros passos"
   },
   "54": {
-    "other": "Get started with APPLICATION_TITLE by following How-to videos"
+    "other": "Primeiros passos com APPLICATION_TITLE com os seguintes videos"
   },
   "55": {
-    "other": "Do you need help \u003ca\u003eto get started?\u003c/a\u003e"
+    "other": "Novo no APPLICATION_TITLE? <a>Assista nossos tutorials</a>!"
   },
   "56": {
-    "other": "Getting started with APPLICATION_TITLE? Here are some videos for you!"
+    "other": "Conhecendo APPLICATION_TITLE agora? Assista estes vídeos!"
   },
   "57": {
-    "other": "Download APPLICATION_TITLE for..."
+    "other": "Faça o Download APPLICATION_TITLE para..."
   },
   "58": {
     "other": "Android"
@@ -72,108 +72,171 @@
     "other": "Windows"
   },
   "62": {
-    "other": "\u003ch2\u003eWhat is a workspace?\u003c/h2\u003e\n            This video explains what Workspaces are in APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eWhy are Workspaces central in APPLICATION_TITLE?\u003c/li\u003e\n                \u003cli\u003eWhat are Workspaces from a technical perspective?\u003c/li\u003e\n                \u003cli\u003eHow do they allow you to organise your data?\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[How-to] O que é um espaço de trabalho?</h2>\n            Este vídeo explica o que são espaços de trabalho em APPLICATION_TITLE\n            <ul>\n                <li>Porque são os espaços de trabalho centrais a APPLICATION_TITLE?</li>\n                <li>O que são espaços de trabalho de uma perspetiva técnica?</li>\n                <li>Como permitem que organize seus dados?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "\u003ch2\u003eUpload files to APPLICATION_TITLE\u003c/h2\u003e\n            Get started with APPLICATION_TITLE and see how to upload files\n            \u003cul\u003e\n                \u003cli\u003eDrag and drop files into APPLICATION_TITLE\u003c/li\u003e\n                \u003cli\u003eCreate a new folder\u003c/li\u003e\n                \u003cli\u003eRename files and folders\u003c/li\u003e\n                \u003cli\u003eDownload files to your Computer\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2> [Como] Carregar arquivos para APPLICATION_TITLE </h2>\n             Comece com APPLICATION_TITLE e veja como fazer upload de arquivos\n             <ul>\n                 <li> Arraste e solte arquivos em APPLICATION_TITLE </li>\n                 <li> Crie uma nova pasta </li>\n                 <li> Renomear arquivos e pastas </li>\n                 <li> Baixe arquivos para o seu computador </li>\n             </ul>"
   },
   "64": {
-    "other": "\u003ch2\u003eSearch, browse and manage your files\u003c/h2\u003e\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eCross-workspaces search bar\u003c/li\u003e\n                \u003cli\u003eContent display modes, Keyboard shortcuts\u003c/li\u003e\n                \u003cli\u003eSort Files\u003c/li\u003e\n                \u003cli\u003eMeta Data, Bookmarks\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Como] Pesquisar, navegar e gerenciar seus arquivos</h2>\n             Este vídeo mostra várias dicas para gerenciar com eficiência seus arquivos em APPLICATION_TITLE\n             <ul>\n                 <li>Barra de pesquisa entre espaços de trabalho</li>\n                 <li>Modos de exibição de conteúdo, atalhos de teclado</li>\n                 <li>Classificar arquivos</li>\n                 <li>Metadados, favoritos</li>\n             </ul>"
   },
   "65": {
-    "other": "Discover more on the APPLICATION_TITLE channel!"
+    "other": "Aprenda mais no canal do APPLICATION_TITLE!"
   },
   "66": {
-    "other": "\u003ch2\u003eUsing APPLICATION_TITLE on iOS device\u003c/h2\u003e\n                            This video explains how to use the APPLICATION_TITLE application (available on the App Store). Process is quite similar on Android as well.\n\u003cul\u003e\u003cli\u003eSetup the server connection\u003c/li\u003e\n\u003cli\u003eNavigating through the files\u003c/li\u003e\n\u003cli\u003eKeeping files offline and interacting with external applications\u003c/li\u003e\n\u003cli\u003eProtecting the app with a PIN-code\u003c/li\u003e\n\u003cli\u003eUsing bookmarks and search engine\u003c/li\u003e\u003c/ul\u003e"
+    "other": "<h2> [Como fazer] Usando APPLICATION_TITLE no dispositivo iOS </h2>\n                             Este vídeo explica como usar o aplicativo APPLICATION_TITLE (disponível na App Store). O processo também é bastante semelhante no Android.\n<ul> <li> Configure a conexão do servidor </li>\n<li> Navegando pelos arquivos </li>\n<li> Manter os arquivos offline e interagir com aplicativos externos </li>\n<li> Protegendo o aplicativo com um código PIN </li>\n<li> Usando favoritos e mecanismo de pesquisa </li> </ul>"
   },
   "67": {
-    "other": "You are not %s, %logout"
+    "other": "Se você não é %s, %logout."
   },
   "68": {
-    "other": "Download Sync Client for Windows"
+    "other": "Baixar cliente de sincronização para Windows"
   },
   "69": {
-    "other": "Download Sync Client for Mac OSX"
+    "other": "Baixar cliente de sincronização para Mac OSX"
   },
   "70": {
-    "other": "Native application for iOS devices"
+    "other": "Aplicação nativa para dispositivos iOS"
   },
   "71": {
-    "other": "Native application for Android Devices"
+    "other": "Aplicação nativa para dispositivos Android"
   },
   "72": {
-    "other": "Server QRCode"
+    "other": "QRCode do servidor"
   },
   "73": {
-    "other": "Easily connect your mobile applications"
+    "other": "Conecte suas aplicações móveis facilmente"
   },
   "74": {
-    "other": "Scan this QRCode with your mobile application to easily configure the connection"
+    "other": "Escanear este QRCode para configurar facilmente seu aplicativo móvel"
   },
   "75": {
-    "other": "Search all files..."
+    "other": "Pesquisar todos os arquivos..."
   },
   "76": {
-    "other": "Access the %1 through the top-right menu"
+    "other": "Aceder %1 através do menu superior direito"
   },
   "77": {
-    "other": "admin dashboard"
+    "other": "painel de administração"
   },
   "78": {
-    "other": "Pick a target workspace"
+    "other": "Selecione o espaço de trabalho de destino"
   },
   "79": {
-    "other": "\u003ch2\u003eSharing files and folders\u003c/h2\u003e\n            This tutorial shows you how to share files and folders, internally or externally\n            \u003cul\u003e\n                \u003cli\u003eCreating share links for external people\u003c/li\u003e\n                \u003cli\u003eSharing files and folders with internal collaborators\u003c/li\u003e\n                \u003cli\u003eSharing a folder as a workspace\u003c/li\u003e\n                \u003cli\u003eLayout options of shared folders\u003c/li\u003e\n                \u003cli\u003eCreating a blind drop folder\u003c/li\u003e\n                \u003cli\u003eManaging users and share rights\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2> [Instruções] Compartilhando arquivos e pastas </h2>\n             Este tutorial mostra como compartilhar arquivos e pastas, interna ou externamente\n             <ul>\n                 <li> Criação de links de compartilhamento para pessoas externas </li>\n                 <li> Compartilhamento de arquivos e pastas com colaboradores internos </li>\n                 <li> Compartilhando uma pasta como área de trabalho </li>\n                 <li> Opções de layout de pastas compartilhadas </li>\n                 <li> Criação de uma pasta cega </li>\n                 <li> Gerenciamento de usuários e direitos de compartilhamento </li>\n             </ul>"
   },
   "80": {
-    "other": "\u003ch2\u003eSharing : security features\u003c/h2\u003e\n            This video goes through the various share settings that help you secure your shares\n            \u003cul\u003e\n                \u003cli\u003ePassword protection\u003c/li\u003e\n                \u003cli\u003eExpiration date\u003c/li\u003e\n                \u003cli\u003eLimit the number of downloads\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2> [Instruções] Compartilhamento: recursos de segurança </h2>\n             Este vídeo apresenta várias configurações de compartilhamento que ajudam a proteger seus compartilhamentos\n             <ul>\n                 <li> Proteção por senha </li>\n                 <li> Data de expiração </li>\n                 <li> Limite o número de downloads </li>\n             </ul>"
   },
   "81": {
-    "other": "\u003ch2\u003eCustomize your share links\u003c/h2\u003e\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+    "other": "<h2> [Como fazer] Personalize seus links de compartilhamento </h2>\n             Veja como você pode personalizar o URL de seus links de compartilhamento para torná-los mais amigáveis."
   },
   "82": {
-    "other": "\u003ch2\u003eShared links custom rights\u003c/h2\u003e\n            This video shows you how to manage the permissions attached to your shares\n            \u003cul\u003e\n                \u003cli\u003ePreview\u003c/li\u003e\n                \u003cli\u003eDownload\u003c/li\u003e\n                \u003cli\u003eUpload / Edit\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2> [Como fazer] Direitos personalizados de links compartilhados </h2>\n             Este vídeo mostra como gerenciar as permissões associadas aos seus compartilhamentos\n             <ul>\n                 <li> Visualização </li>\n                 <li> Download </li>\n                 <li> Carregar / editar </li>\n             </ul>"
   },
   "83": {
-    "other": "\u003ch2\u003eLanguage\u003c/h2\u003e\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2> [Como fazer] Idioma </h2>\n             APPLICATION_TITLE está disponível em outros idiomas. Este vídeo mostra como alterar o idioma em APPLICATION_TITLE."
   },
   "84": {
-    "other": "\u003ch2\u003eAlerts\u003c/h2\u003e\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2> [Como fazer] Alertas </h2>\n             Aprenda a definir alertas em um arquivo, para ver quando ele foi modificado ou consultado."
   },
   "85": {
-    "other": "\u003ch2\u003eCollaborative edition\u003c/h2\u003e\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            \u003cul\u003e\n                \u003cli\u003eWork on text docs, presentations, spreadsheets\u003c/li\u003e\n                \u003cli\u003eEdit docs collaboratively in real time\u003c/li\u003e\n                \u003cli\u003eCreate new documents directly from your browser\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2> [Instruções] Edição colaborativa </h2>\n             Este vídeo mostra como editar documentos compartilhados de escritório, graças ao pacote de escritório online Collabora\n             <ul>\n                 <li> Trabalhe em documentos de texto, apresentações e planilhas </li>\n                 <li> Edite documentos de forma colaborativa em tempo real </li>\n                 <li> Crie novos documentos diretamente de seu navegador </li>\n             </ul>"
   },
   "86": {
-    "other": "Play video"
+    "other": "Reproduzir vídeo"
   },
   "87": {
-    "other": "Recent History"
+    "other": "Minha atividade recente"
   },
   "88": {
-    "other": "Drop a file here from your desktop"
+    "other": "Largue aqui um arquivo do seu desktop"
   },
   "89": {
-    "other": "Selected file for upload"
+    "other": "Arquivo selecionado para upload"
   },
   "90": {
-    "other": "Select target workspace"
+    "other": "Selecione o espaço de trabalho de destino"
   },
   "91": {
-    "other": "Keep your files offline with our Desktop Sync Client"
+    "other": "Mantenha seus arquivos offline com nosso Cliente de Sincronização Desktop"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Download de aplicações"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Upload rápido"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Tutorial em Vídeo"
   },
   "desc": {
-    "other": "Welcome page"
+    "other": "Página de boas vindas"
   },
   "title": {
-    "other": "Home"
+    "other": "Início"
+  },
+  "search.result.location": {
+    "other": "Pasta"
+  },
+  "search.facets.title": {
+    "other": "Filtrar resultados..."
+  },
+  "search.facet.type": {
+    "other": "Tipo"
+  },
+  "search.facet.extension": {
+    "other": "Extensão"
+  },
+  "search.facet.size": {
+    "other": "Tamanho"
+  },
+  "search.facet.modified": {
+    "other": "Modificado"
+  },
+  "search.facet.found": {
+    "other": "Encontrado em"
+  },
+  "search.facet.metadata": {
+    "other": "Metadados"
+  },
+  "facet.label.file": {
+    "other": "Arquivo"
+  },
+  "facet.label.folder": {
+    "other": "Pasta"
+  },
+  "facet.label.size.lt.1MB": {
+    "other": "< 1MB"
+  },
+  "facet.label.size.1MB.to.10MB": {
+    "other": "1MB a 10MB"
+  },
+  "facet.label.size.10MB.to.100MB": {
+    "other": "1MB a 10MB"
+  },
+  "facet.label.size.gt.100MB": {
+    "other": "100MB"
+  },
+  "facet.label.date.moments": {
+    "other": "Momentos atrás"
+  },
+  "facet.label.date.today": {
+    "other": "Hoje"
+  },
+  "facet.label.date.last.7": {
+    "other": "Últimos 7 dias"
+  },
+  "facet.label.date.last.30": {
+    "other": "Últimos 30 dias"
+  },
+  "facet.label.date.older.30": {
+    "other": "Com mais de 30 dias"
+  },
+  "facet.label.found.contents": {
+    "other": "Conteúdo"
+  },
+  "facet.label.found.basename": {
+    "other": "Nome do Arquivo"
   }
 }

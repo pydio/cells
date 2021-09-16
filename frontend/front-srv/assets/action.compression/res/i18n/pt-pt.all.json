@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Comprimir"
+  },
+  "10": {
+    "other": "Extrair arquivos selecionados"
+  },
+  "11": {
+    "other": "Caminho para os arquivos extraídos "
+  },
+  "12": {
+    "other": "Iniciando a extração..."
+  },
+  "13": {
+    "other": "Extraindo arquivos ... %s "
+  },
+  "14": {
+    "other": "Extração finalizada com sucesso na pasta '%s'."
+  },
+  "15": {
+    "other": "O arquivo selecionado não é nem um arquivo TAR, nem TAR.GZ, nem TAR.BZ2."
+  },
+  "16": {
+    "other": "Você só pode compactar nos formatos TAR, TAR.GZ ou TAR.BZ2."
+  },
+  "17": {
+    "other": "Você não pode comprimir pastas vazias."
+  },
+  "2": {
+    "other": "Comprimir seleção"
+  },
+  "3": {
+    "other": "Formato"
+  },
+  "4": {
+    "other": "Nome do arquivo"
+  },
+  "5": {
+    "other": "Iniciando compressão..."
+  },
+  "6": {
+    "other": "Adicionando ficheiros ao arquivo... %s "
+  },
+  "7": {
+    "other": "Compressão em %s..."
+  },
+  "8": {
+    "other": "Seu arquivo foi concluído com sucesso!!"
+  },
+  "9": {
+    "other": "Extrair"
+  }
+}

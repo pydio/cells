@@ -1,14 +1,14 @@
 {
   "Info Panel": {
-    "other": "Info Panel"
+    "other": "Panneau d'informations"
   },
   "Info Panel...": {
-    "other": "Info Panel..."
+    "other": "Panneau d'informations..."
   },
   "Open in...": {
-    "other": "Open in..."
+    "other": "Ouvrir dans..."
   },
   "Simple Picker to open any type of file in any available editor.": {
-    "other": "Simple Picker to open any type of file in any available editor."
+    "other": "Outil pour associer n'importe quel type de fichier avec un éditeur."
   }
 }

@@ -1,9 +1,9 @@
 {
   "#Items per page": {
-    "other": "#Itens por página"
+    "other": "#Items per page"
   },
   "16X16 Icon for representing the template": {
-    "other": "Icon com a dimensão de 16X16 que irá representar o modelo"
+    "other": "16X16 Icon for representing the template"
   },
   "A user-defined description of the content of this workspace": {
     "other": "A user-defined description of the content of this workspace"
@@ -17,80 +17,68 @@
   "API setting - Redirect URL for the OAuth Application": {
     "other": "API setting - Redirect URL for the OAuth Application"
   },
-  "Absolute path to the public folder where temporary download links will be created. Setting this empty will disable the sharing feature.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. Setting this empty will disable the sharing feature."
-  },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
     "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
   },
-  "Admin E-Mail": {
-    "other": "E-Mail de Administrador"
-  },
   "Admin Login": {
-    "other": "Login de Administrador"
+    "other": "Admin Login"
   },
   "Admin email": {
     "other": "Admin email"
-  },
-  "Administrator E-Mail, not used for the moment": {
-    "other": "E-Mail de Administrador, não usado de momento"
   },
   "Administrator email, not used for the moment": {
     "other": "Administrator email, not used for the moment"
   },
   "Alias": {
-    "other": "Pseudónimo"
+    "other": "Alias"
   },
   "Alias for replacing the generated unique id of the repository": {
     "other": "Alias for replacing the generated unique id of the workspace"
-  },
-  "Alias for replacing the generated unique id of the workspace": {
-    "other": "Pseudónimo utilizado para substituir um ID único gerado para um repositório"
   },
   "Allow group administrators to create a repository from this template.": {
     "other": "Allow group administrators to create a repository from this template."
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Permitir a utilizadores sem permissão de administrador criar uma Área de Trabalho baseada neste Modelo."
+    "other": "Allow non-admin users to create a workspace from this template."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Permite aos utilizadores escolherem um outro utilizador ao partilhar uma pasta"
+    "other": "Allow the users to pick an existing user when sharing a folder"
   },
   "Allow to group admins": {
     "other": "Allow to group admins"
   },
   "Allow to user": {
-    "other": "Permitir ao utilizador"
+    "other": "Allow to user"
   },
   "App Title": {
-    "other": "Título da Aplicação"
+    "other": "Application Title"
   },
   "Ascending": {
     "other": "Ascending"
   },
   "Auth Driver Commons": {
-    "other": "Opções do Controlador Auth"
+    "other": "Auth Driver Commons"
   },
   "Auth URL": {
     "other": "Auth URL"
   },
   "Auto Create User": {
-    "other": "Criar Utilizador Automaticamente"
+    "other": "Auto Create User"
   },
   "Auto apply role": {
     "other": "Auto apply role"
   },
   "Big Icon": {
-    "other": "Icon Grande"
+    "other": "Big Icon"
   },
   "Big Icon for representing the template": {
-    "other": "Icon de Grande dimensão que irá representar o Modelo"
+    "other": "Big Icon for representing the template"
   },
   "Browser Access": {
     "other": "Browser Access"
   },
   "Character Encoding": {
-    "other": "Codificação de Caracteres"
+    "other": "Character Encoding"
   },
   "Client ID": {
     "other": "Client ID"
@@ -99,34 +87,31 @@
     "other": "Client SECRET"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Lista de Fontes Meta e de Plugins Meta, separada por virgulas, que será aplicada automaticamente a todas as Áreas de Trabalho criadas com este controlador"
+    "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
-    "other": "Lista de extensões a ocultar, separada por virgulas. Extensões, ficheiros e pastas que forem ocultados, também não terão permissões de acesso aos mesmos."
-  },
-  "Comma-separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Lista de Fontes Meta e de Meta Plugins, separada por virgulas, que irá ser aplicada automaticamente a todas as Áreas de Trabalho criadas por este controlador"
+    "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
   },
   "Comma-separated list of specific files to hide": {
-    "other": "Lista de ficheiros a esconder, separada por virgulas"
+    "other": "Comma-separated list of specific files to hide"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Lista de pastas a esconder, separada por virgulas"
+    "other": "Comma-separated list of specific folders to hide"
   },
   "Command Line": {
     "other": "Command Line"
   },
   "Command-line Active": {
-    "other": "Activar a Linha de Comandos"
+    "other": "Command-line Active"
   },
   "Command-line PHP": {
-    "other": "Linha de Comandos PHP"
+    "other": "Command-line PHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "URI Comum para aceder às partilhas. Por favor LEIA A DOCUMENTAÇÃO para utilizar esta função com segurança."
+    "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
   },
   "Compression Features": {
-    "other": "Opções de Compressão"
+    "other": "Compression Features"
   },
   "Core Connexion": {
     "other": "Core Connexion"
@@ -150,25 +135,25 @@
     "other": "Database server"
   },
   "Default Label": {
-    "other": "Etiqueta Pré-Definida"
+    "other": "Default Label"
   },
   "Default Language": {
-    "other": "Língua Pré-Definida"
+    "other": "Default Language"
   },
   "Default Metasources": {
-    "other": "Fontes Meta Pré-Definidas"
+    "other": "Default Metasources"
   },
   "Default Rights": {
-    "other": "Permissões Pré-Definidas"
+    "other": "Default Rights"
   },
   "Default field to sort on": {
     "other": "Default field to sort on"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Língua a ser utilizada por pré-Definição quando um utilizador ainda não tenha escolhido uma a seu gosto."
+    "other": "Default language when a user does not have set his/her own."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Autenticação pré-definida do Domínio Digest. Por favor LEIA A DOCUMENTAÇÃO para utilizar esta função com segurança."
+    "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
   },
   "Default sorting direction": {
     "other": "Default sorting direction"
@@ -180,10 +165,10 @@
     "other": "Descending"
   },
   "Description": {
-    "other": "Description"
+    "other": "Descrição"
   },
   "Digest Realm": {
-    "other": "Domínio Digest"
+    "other": "Digest Realm"
   },
   "Disable WebDAV": {
     "other": "Disable WebDAV"
@@ -213,7 +198,7 @@
     "other": "Driver type (do not touch)"
   },
   "Enable WebDAV": {
-    "other": "Activar WebDAV"
+    "other": "Enable WebDAV"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
     "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
@@ -222,16 +207,16 @@
     "other": "Enable for all users"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "Activa o suporte para webDAV. Por favor LEIA A DOCUMENTAÇÃO para utilizar esta função com segurança."
+    "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
   },
   "Existing users": {
-    "other": "Utilizadores Existentes"
+    "other": "Existing users"
   },
   "Explicitly disable WebDAV access for this repository.": {
     "other": "Explicitly disable WebDAV access for this repository."
   },
   "File": {
-    "other": "File"
+    "other": "Arquivo"
   },
   "File Type": {
     "other": "File Type"
@@ -240,13 +225,13 @@
     "other": "File size"
   },
   "Filename length": {
-    "other": "Tamanho do Nome de Ficheiro"
+    "other": "Filename length"
   },
   "Filesystem Commons": {
-    "other": "Opções do Sistema de Ficheiros"
+    "other": "Filesystem Commons"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "Para Controladores Exotic Auth, um ID de Utilizador que tem que ser considerado como Administrador por pré-definição."
+    "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
     "other": "For multiple authentication, apply this role to users authenticated via this driver"
@@ -261,76 +246,76 @@
     "other": "Group Path"
   },
   "Gzip Download": {
-    "other": "Compressão com Gzip"
+    "other": "Gzip Download"
   },
   "Gzip Limit": {
-    "other": "Limite Gzip"
+    "other": "Gzip Limit"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
-    "other": "Comprime todos os ficheiros com Gzip antes de os enviar para o cliente. Desactivado por pré-definição, esta função é maioritariamente útil em ficheiros de pequenas dimensões, e irá causar degradação do desempenho com ficheiros grandes. Esta função não tem nada a ver com a função de criação de ficheiros ZIP, é apenas um método de compressão de ficheiros do servidor em si que é aplicado antes de se iniciar a transferência para o cliente final."
+    "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
   },
   "Hide extensions": {
-    "other": "Ocultar Extenções"
+    "other": "Hide extensions"
   },
   "Hide files": {
-    "other": "Ocultar Ficheiros"
+    "other": "Hide files"
   },
   "Hide folders": {
-    "other": "Ocultar Pastas"
+    "other": "Hide folders"
   },
   "Hide recycle bin": {
-    "other": "Esconder a Reciclagem"
+    "other": "Hide recycle bin"
   },
   "Host": {
     "other": "Host"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "Anfitrião a ser usado no protocolo webDAV. Em principio é detectado automaticamente por pré-definição. Por favor LEIA A DOCUMENTAÇÃO para utilizar esta função com segurança."
+    "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
-    "other": "Se activado, o limite pré-definido deve ser definido com um valor superior quando os ficheiros não são mais comprimidos."
+    "other": "If activated, a default limit should be set above when files are no more compressed."
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
     "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "Se colocado um determinado URL, a acção de login não irá activar o ecrã de login mas sim redireccionar automaticamente para o URL especificado."
+    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "Caso encontre problemas a criar ficheiros ZIP online, ou na criação de múltiplos ficheiros para transferência, pode desactivar esta função."
+    "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
     "other": "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings."
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "Se o seu servidor não possuir a codificação de caracteres correctamente configurada, pode ser útil especificar a mesma aqui manualmente."
+    "other": "If your server does not set correctly its charset, it can be good to specify it here manually."
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Deixe em branco caso não queira utilizar a Reciclagem no seu servidor."
+    "other": "Leave empty if you do not want to use a recycle bin."
   },
   "Login Redirect": {
-    "other": "Redirecionamento de Login"
+    "other": "Login Redirect"
   },
   "Main": {
     "other": "Opções Principais"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Contentor principal das definições do Core do AjaxPlorerMain (Título de Aplicação, partilhas, configurações webdav, etc...)"
+    "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
   },
   "Maximum characters length of new files or folders": {
-    "other": "Tamanho máximo em caracteres de ficheiros e pastas novas"
+    "other": "Maximum characters length of new files or folders"
   },
   "Metadata and indexation": {
-    "other": "Indexação e Metadata"
+    "other": "Metadata and indexation"
   },
   "Miscellaneous": {
-    "other": "Outros"
+    "other": "Miscellaneous"
   },
   "Modification date": {
     "other": "Modification date"
   },
   "Name": {
-    "other": "Name"
+    "other": "Nome"
   },
   "OAuth Commons": {
     "other": "OAuth Commons"
@@ -339,19 +324,19 @@
     "other": "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line."
   },
   "On specific hosts, you may have to use a specific path to access the php command line": {
-    "other": "Em alguns Anfitriões, terá de especificar o caminho interno completo para aceder à linha de comandos PHP"
+    "other": "On specific hosts, you may have to use a specific path to access the php command line"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Uma vez em modo de paginação, o número de itens que deverão ser mostrados por página."
+    "other": "Once in pagination mode, number of items to display per page."
   },
   "Pagination Threshold": {
-    "other": "Threshold de Paginação"
+    "other": "Pagination Threshold"
   },
   "Password": {
-    "other": "Palavra-Chave"
+    "other": "Senha"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Etiqueta Pré-Definida para uma nova Área de Trabalho, pode utilizar a palavra 'PYDIO_USER' neste campo."
+    "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
   },
   "Public Base URI": {
     "other": "Public Base URI"
@@ -360,13 +345,13 @@
     "other": "Pydio Main Options"
   },
   "Read Only": {
-    "other": "Read Only"
+    "other": "Somente leitura"
   },
   "Read and Write": {
     "other": "Read and Write"
   },
   "Recycle Bin Folder": {
-    "other": "Pasta Reciclagem"
+    "other": "Recycle Bin Folder"
   },
   "Redirect URL": {
     "other": "Redirect URL"
@@ -384,7 +369,7 @@
     "other": "Repository Commons"
   },
   "Repository Slug": {
-    "other": "Repositório SLUG"
+    "other": "Repository Slug"
   },
   "Scope": {
     "other": "Scope"
@@ -396,7 +381,7 @@
     "other": "Server URL used to build share links and notifications. It will be detected if empty."
   },
   "Session credentials": {
-    "other": "Dados de Sessão"
+    "other": "Session credentials"
   },
   "Set this repository group owner : only users of this group will see it": {
     "other": "Set this repository group owner : only users of this group will see it"
@@ -405,49 +390,49 @@
     "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
   },
   "Shares Host": {
-    "other": "Anfitrião de Partilhas"
+    "other": "Shares Host"
   },
   "Shares URI": {
-    "other": "URI de Partilha"
+    "other": "Shares URI"
   },
   "Sharing": {
-    "other": "Partilhas"
+    "other": "Sharing"
   },
   "Show files beginning with a .": {
-    "other": "Mostrar ficheiros começados por '.'"
+    "other": "Show files beginning with a ."
   },
   "Show hidden files": {
-    "other": "Mostrar Ficheiros Ocultos"
+    "other": "Show hidden files"
   },
   "Skip auto-update admin rights": {
     "other": "Skip auto-update admin rights"
   },
   "Small Icon": {
-    "other": "Icon Pequeno"
+    "other": "Small Icon"
   },
   "Template Options": {
-    "other": "Opções de Modelo"
+    "other": "Template Options"
   },
   "Temporary Folder": {
-    "other": "Pasta Temporária"
+    "other": "Temporary Folder"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
     "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
   },
   "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder": {
-    "other": "É apenas necessário se existirem erros relacionados com permissões nas directorias temporárias : provavelmente estão relacionados com o modo PHP SAFE MODE (deverá deixar de existir na versão 6 do PHP) ou restrições relacionadas com OPEN_BASEDIR. Se for este o caso, pode criar e marcar com permissões de escrita uma pasta temporária na raíz do seu anfitrião (mas que esteja localizada acima da pasta web/ ou www/ ou http/ caso possível!!!) e por fim introduzir aqui o caminho completo para essa pasta"
+    "other": "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "O padrão (empty, r, ou rw) serão aplicados durante a criação de novos utilizadores nesta Área de Trabalho."
+    "other": "This right pattern (empty, r, or rw) will be applied at user creation for this workspace."
   },
   "Token URL": {
     "other": "Token URL"
   },
   "Transmit Clear Pass": {
-    "other": "Transmitir Palavra-Chave Livre"
+    "other": "Transmit Clear Pass"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
-    "other": "Tente usar os dados actuais de utilizador do Pydio para se ligar. ATENÇÃO: O ficheiro de configuração 'PYDIO_SESSION_SET_CREDENTIALS' deverá estar marcado como Verdadeiro(True)!"
+    "other": "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!"
   },
   "URI where to serve the public links": {
     "other": "URI where to serve the public links"
@@ -462,51 +447,57 @@
     "other": "Use PHP MySQLi extension"
   },
   "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions.": {
-    "other": "Utilizar a Framework do Pydio a partir da Linha de Comandos, permitindo correr Tarefas Cronológicas ou acções em segundo plano (CRONTAB)."
+    "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
-    "other": "Utilizador"
+    "other": "Usuário"
   },
   "User Credentials": {
-    "other": "Dados de Utilizador"
+    "other": "User Credentials"
   },
   "User name": {
-    "other": "Nome de Utilizador"
+    "other": "User name"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "Nome de Utilizador - Pode ser substituído por utilizador (veja o separador 'Dados Pessoais' na parte dos utilizadores)"
+    "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
   },
   "User password": {
-    "other": "Palavra-Chave de Utilizador"
+    "other": "User password"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "Palavra-Chave de Utilizador - Pode ser substituída por utilizador."
+    "other": "User password - Can be overriden on a per-user basis."
   },
   "WebDAV Server": {
-    "other": "Servidor WebDAV"
+    "other": "WebDAV Server"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
-    "other": "Quando uma página possuir mais itens que o número especificado aqui, o modo de visualização será mudado automaticamente para 'Modo de Paginação' para se obter melhor desempenho."
+    "other": "When a folder will contain more items than this number, display will switch to pagination mode, for better performances."
   },
   "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems.": {
-    "other": "Quando definido como 'verdadeiro(true)' o utilizador-objecto será criado automaticamente se a autenticação for feita com sucesso. Usado para autenticar sistemas remotos."
+    "other": "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems."
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
-    "other": "Se a password será ou não encriptada durante a transmissão da mesma do cliente para o servidor"
+    "other": "Whether the password will be transmitted clear or encoded between the client and the server"
   },
   "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.": {
-    "other": "Mostrar ou não a pasta Reciclagem. Ao contrário das seguintes opções, a pasta continua a ter permissões de escrita, mas estará oculta."
+    "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
   },
   "Write Only (upload)": {
     "other": "Write Only (upload)"
   },
   "Your application title": {
-    "other": "Este título irá aparecer como título da janela, e no logo de inicio."
+    "other": "This title will appear as the window title, in the splash screen."
   },
   "Zip Creation": {
-    "other": "Criação de ZIPs"
+    "other": "Zip Creation"
   },
   "Zip Encoding": {
     "other": "Zip Encoding"
+  },
+  "Merge Workspaces and Cells": {
+    "other": "Merge Workspaces and Cells"
+  },
+  "Do not display workspaces and cells separately": {
+    "other": "Do not display workspaces and cells separately"
   }
 }

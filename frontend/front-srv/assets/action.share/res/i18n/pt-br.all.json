@@ -186,7 +186,7 @@
     "other": "Direitos de acesso"
   },
   "151": {
-    "other": "Layout"
+    "other": "Leiaute"
   },
   "152": {
     "other": "Atualizar"
@@ -450,7 +450,7 @@
     "other": "Você não possui permissão de compartilhar diretórios internamente"
   },
   "229": {
-    "other": "Insert a preview of the file by pasting this code inside an HTML page."
+    "other": "Insirir uma visualização do arquivo colando este código dentro de uma página HTML."
   },
   "22b": {
     "other": "Sem mais downloads"
@@ -459,130 +459,130 @@
     "other": "Senha"
   },
   "230": {
-    "other": "Please save before sending an invitation"
+    "other": "Por favor, salve antes de enviar um convite"
   },
   "231": {
-    "other": "Click to start downloading"
+    "other": "Clique para começar a baixar"
   },
   "232": {
-    "other": "No entries found for share, did you maybe delete some users?"
+    "other": "Nenhuma entrada encontrada para compartilhar, você pode excluir alguns usuários?"
   },
   "233": {
-    "other": "Reset this share"
+    "other": "Redefinir este compartilhamento"
   },
   "234": {
-    "other": "It has been added to your %s workspace."
+    "other": "Foi adicionado ao seu %s espaço de trabalho."
   },
   "235": {
-    "other": "Generate unique links to identify users"
+    "other": "Gerar links exclusivos para identificar usuários"
   },
   "236": {
-    "other": "Restrict access only to identified users"
+    "other": "Restringir acesso apenas a usuários identificados"
   },
   "237": {
-    "other": "Use a random key instead of email in link"
+    "other": "Usar uma chave aleatória em vez de e-mail no link"
   },
   "238": {
-    "other": "Share Types"
+    "other": "Tipos de Compartilhamento"
   },
   "24": {
     "other": "Defina uma data de validade ou uma senha de acesso para este compartilhamento."
   },
   "240": {
-    "other": "Group by..."
+    "other": "Agrupar por..."
   },
   "241": {
-    "other": "Shares List"
+    "other": "Lista de Compartilhamentos"
   },
   "242": {
-    "other": "Load More Results"
+    "other": "Carregar Mais Resultados"
   },
   "243": {
-    "other": "Public Links"
+    "other": "Links Públicos"
   },
   "244": {
-    "other": "Shared Folders"
+    "other": "Pastas compartilhadas"
   },
   "245": {
-    "other": "%s personal invitation(s) sent"
+    "other": "%s convite(s) pessoal(s) enviado(s)"
   },
   "246": {
-    "other": "Open cell"
+    "other": "Abrir célula"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "Editar célula"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "Excluir célula"
   },
   "249": {
-    "other": "Contents"
+    "other": "Conteúdo"
   },
   "25": {
     "other": "Sem limite"
   },
   "250": {
-    "other": "Cells"
+    "other": "Células"
   },
   "251": {
     "other": "Link"
   },
   "252": {
-    "other": "Access"
+    "other": "Acesso"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Visibilidade"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "Compartilhado em células"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "Tem certeza que deseja excluir todas as células e links deste item?"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "Compartilhado com %s"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "Criado em %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "Editar usuários da célula"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "Remover desta célula"
   },
   "26": {
     "other": "Escolha os usuários ou grupos e defina suas as permissões de acesso. Usar somente 'Escrever' irá criar uma Área de trabalho apenas de Envio."
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "Pasta é compartilhada nas seguintes células. Você pode editar os usuários ou criar uma nova célula."
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "Escolha os usuários ou grupos que terão acesso a esta célula"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "Compartilhe esse diretório com outros usuários criando uma nova célula"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "Adicionar à Célula..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ Nova Célula"
   },
   "265": {
-    "other": "Link Label"
+    "other": "Rótulo do Link"
   },
   "266": {
-    "other": "Link Description"
+    "other": "Descrição do link"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "Rótulo da Célula"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "Descrição da Célula"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "Você criará uma célula compartilhada com %USERS. Escolha algumas pastas que você quer compartilhar ou simplesmente deixe o Pydio criar uma pasta vazia para você!"
   },
   "27": {
     "other": "Compartilhar arquivo"

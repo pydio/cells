@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "Prune revoked tokens and expired reset password keys"
+    "other": "Suppression des jetons et des clés de réinitialisation de mot de passe expirés"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "Deleted {{.Count}} expired revoked token",
-    "other": "Deleted {{.Count}} expired revoked tokens"
+    "one": "Suppression d'un jeton révoqué",
+    "other": "Suppression de {{.Count}} jetons révoqués et expirés"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "Deleted {{.DeletionCount}} expired reset password token",
-    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
+    "one": "Suppression d'une clé de réinitialisation expirée",
+    "other": "Suppression de {{.DeletionCount}} clés de réinitialisation expirées"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "Impossible de trouver l'adresse e-mail correspondante"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "Un e-mail contenant des informations complémentaires vous a été envoyé"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "Oups, une erreur s'est produite - Veuillez relancer le processus de réinitialisation du mot de passe"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "Le jeton a expiré, veuillez suivre à nouveau le processus de réinitialisation du mot de passe!"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "Le jeton ne correspond pas à cet identifiant utilisateur !"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "Impossible de trouver l'utilisateur correspondant !"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "Une erreur s'est produite lors de la mise à jour du mot de passe!"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "Votre mot de passe a bien été réinitialisé, vous pouvez maintenant revenir à la page de connexion !"
   }
 }

@@ -1,26 +1,26 @@
 {
   "Application Tab": {
-    "other": "Application Tab"
+    "other": "Onglet de l'application"
   },
   "Browser Tab": {
-    "other": "Browser Tab"
+    "other": "Onglet du navigateur"
   },
   "Choose where the documents are opened": {
-    "other": "Choose where the documents are opened"
+    "other": "Choisir où les documents s'ouvrent"
   },
   "Choose where the http links are opened": {
-    "other": "Choose where the http links are opened"
+    "other": "Choisir où les liens Http s'ouvrent"
   },
   "External Window": {
-    "other": "External Window"
+    "other": "Fenêtre externe"
   },
   "Open documents in...": {
-    "other": "Open documents in..."
+    "other": "Ouvrir les documents dans..."
   },
   "Open file in a new browser window, thus using native browser capabilities.": {
-    "other": "Open file in a new browser window, thus using native browser capabilities."
+    "other": "Ouvrir le fichier dans une nouvelle fenêtre."
   },
   "Open link in...": {
-    "other": "Open link in..."
+    "other": "Ouvrir le lien dans..."
   }
 }

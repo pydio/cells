@@ -1,9 +1,9 @@
 {
   "1": {
-    "other": "Abrir Openlayers"
+    "other": "Mapa OpenLayers"
   },
   "10": {
-    "other": "Limpar"
+    "other": "Limpar lista"
   },
   "2": {
     "other": "Filtrar"
@@ -15,18 +15,18 @@
     "other": "Camadas"
   },
   "5": {
-    "other": "Antialias"
+    "other": "Suavização"
   },
   "6": {
     "other": "Formato"
   },
   "7": {
-    "other": "Estilo"
+    "other": "Estilos"
   },
   "8": {
-    "other": "Filtro"
+    "other": "Filtrar"
   },
   "9": {
-    "other": "Procurar"
+    "other": "Buscar"
   }
 }

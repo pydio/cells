@@ -1,27 +1,27 @@
 {
   "1": {
-    "other": "Editor de Código-Fonte"
+    "other": "Visualizar código"
   },
   "10": {
-    "other": "Tamanho de Recuo"
+    "other": "Tamanho da indentação"
   },
   "2": {
-    "other": "Marcador de CodeMirror Syntax"
+    "other": "Destaque de Sintaxe CodeMirror"
   },
   "3": {
-    "other": "Invólucro"
+    "other": "Wrapping"
   },
   "3b": {
-    "other": "Activar invólucro de linhas"
+    "other": "Ativar/desativar quebra de linhas"
   },
   "4": {
     "other": "Números"
   },
   "5": {
-    "other": "Activar números de linha"
+    "other": "Alternar número de linhas"
   },
   "6": {
-    "other": "Saltar para linha"
+    "other": "Pular para a linha"
   },
   "7": {
     "other": "Desfazer"
@@ -30,6 +30,6 @@
     "other": "Refazer"
   },
   "9": {
-    "other": "Procurar Texto"
+    "other": "Pesquisa de Texto"
   }
 }

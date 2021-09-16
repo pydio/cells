@@ -3,15 +3,15 @@
     "other": "Avatars"
   },
   "Choose an avatar web service": {
-    "other": "Choose an avatar web service"
+    "other": "Choisissez un service web d'avatar"
   },
   "Get user avatar from Gravatar/Libravatar": {
-    "other": "Get user avatar from Gravatar/Libravatar"
+    "other": "Obtenir des avatars depuis Gravatar / Libravatar"
   },
   "Gravatar type": {
-    "other": "Gravatar type"
+    "other": "Type Gravatar"
   },
   "Provider": {
-    "other": "Provider"
+    "other": "Fournisseur"
   }
 }

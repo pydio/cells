@@ -1,11 +1,8 @@
 {
-  "Audio Player": {
-    "other": "Reprodutor de Música"
-  },
   "Sound Player": {
-    "other": "Sound Player"
+    "other": "Reprodutor de som"
   },
   "Uses HTML5 or Flash to play a sound": {
-    "other": "Utiliza um reprodutor HTML5 ou Flash para reproduzir música"
+    "other": "Usa HTML5 ou Flash para reproduzir um som"
   }
 }

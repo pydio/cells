@@ -1,0 +1,98 @@
+{
+  "cont.btn.fb": {
+    "other": "Seguir"
+  },
+  "cont.btn.github": {
+    "other": "Estrelas GitHub"
+  },
+  "cont.btn.tw": {
+    "other": "Twitter"
+  },
+  "cont.intro": {
+    "other": "O código está disponível publicamente no Github. Você quer consertar um bug, ajudar outros no fórum ou empurrar o próximo recurso matador? Participe disso!\n                            Ou mostre seu amor pelas redes sociais!"
+  },
+  "cont.subtitle": {
+    "other": "Células do Pydio é um software de código aberto gratuito. Contribua de volta!"
+  },
+  "cont.title": {
+    "other": "Pagamento adiantado!"
+  },
+  "cont.topic.pr": {
+    "other": "Eu implementei uma nova função: github Pull Requests"
+  },
+  "cont.topic.report": {
+    "other": "Acho que encontrei um erro! Publique no fórum."
+  },
+  "cont.topic.report.2": {
+    "other": "Meu bug é qualificado: abra um incidente no github."
+  },
+  "cont.topic.translate": {
+    "other": "Como criar ou completar uma tradução de idioma?"
+  },
+  "ent.advanced": {
+    "other": "Painel Avançado de Administrador"
+  },
+  "ent.advanced.legend": {
+    "other": "Painel de administração exclusivo para monitoramento em tempo real do uso da plataforma."
+  },
+  "ent.btn.contact": {
+    "other": "Contatar Vendas"
+  },
+  "ent.btn.more": {
+    "other": "Saiba mais"
+  },
+  "ent.features": {
+    "other": "Recursos destinados para empresas"
+  },
+  "ent.features.legend": {
+    "other": "Recursos prontos para empresas: conectores AD / LDAP, registros auditáveis para conformidade, fácil transferência ..."
+  },
+  "ent.subtitle": {
+    "other": "MAIS RECURSOS - COMPLIANÇA GDPR - MARCA EXTENDIDA"
+  },
+  "ent.support": {
+    "other": "Suporte e Manutenção"
+  },
+  "ent.support.legend": {
+    "other": "Obtenha ajuda com a sua instalação diretamente da equipe principal"
+  },
+  "ent.title": {
+    "other": "Descubra Pydio Cells Empresarial"
+  },
+  "ent.upgrade": {
+    "other": "Atualize agora!"
+  },
+  "ent.upgrade.legend": {
+    "other": "Atualização do Cells Empresarial no aplicativo (requer licença)"
+  },
+  "welc.btn.advanced": {
+    "other": "Avançado"
+  },
+  "welc.btn.parameters": {
+    "other": "Sobre parâmetros"
+  },
+  "welc.btn.start": {
+    "other": "Primeiros passos"
+  },
+  "welc.btn.users": {
+    "other": "Usuários"
+  },
+  "welc.btn.ws": {
+    "other": "Áreas de Trabalho"
+  },
+  "welc.guide": {
+    "other": "Se você não sabe por onde começar, o Guia do Administrador é definitivamente uma boa leitura!"
+  },
+  "welc.intro": {
+    "other": "Este é o seu painel para gerenciar o Pydio. Usando o menu à esquerda você pode criar <a class=\"doc-link\" data-path=\"/data/workspaces\">espaços de trabalho</a> e <a class=\"doc-link\" data-path=\"/idm/users\">usuários</a>,\n                            verifique todos <a class=\"doc-link\" data-path=\"/admin/logs\">eventos</a> que aconteceram na plataforma, e gerenciar <a class=\"doc-link\" data-path=\"/parameters/core\">configurações</a> e <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+  },
+  "welc.import": {
+    "other": "Se você estiver executando uma instalação do Pydio 8, por favor, esteja ciente de que <u>Pydio 8 será considerado (descontinuado) Fim Of-Life no final de 2019</u>. Você pode usar a <a class=\"doc-link\" data-path=\"/data/migration\">Ferramenta de Importação</a> para migrar todos os dados para as Células de Pydio."
+  },
+  "welc.subtitle": {
+    "other": "O local para administrar e monitorar as atividades da sua plataforma"
+  },
+  "welc.title": {
+    "other": "Bem-vindo ao Pydio Cells v2"
+  }
+}

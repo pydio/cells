@@ -1,131 +1,131 @@
 {
   "start": {
-    "other": "Start"
+    "other": "Démarrer"
   },
   "pause": {
-    "other": "Pause"
+    "other": "Suspendre"
   },
   "clear": {
-    "other": "Clear"
+    "other": "Supprimer"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "Vider la liste..."
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "Transferts terminés"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "Transferts échoués"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "Tous les transferts"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d de plus - voir tout"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Si un fichier existe avec le même nom:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Arrêter l'upload et m'alerter"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Renommer les répertoires puis les fichiers"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Renommer les fichiers (fusionner les dossiers)"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Ecraser les fichiers en silence"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "Renommer les répertoires, puis les fichiers qui existent"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Renommer seulement les fichiers (fusionner les répertoires)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "Fusionner les répertoires et écraser les fichiers existants"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "Sauver ce choix"
   },
   "options": {
-    "other": "Upload options"
+    "other": "Options d'envoi"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Vous n'êtes pas autorisé à ajouter des fichiers ici"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "Transfert des fichiers vers le serveur..."
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Il semble que votre navigateur ne supporte pas le dépôt de dossiers"
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Préparation des fichiers et répertoires pour l'upload..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "Déposez vos fichiers ici"
   },
   "drop-or": {
-    "other": "or"
+    "other": "ou"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "choisir des fichiers"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "choisir un dossier"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "Transferts"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "En attente"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "Une erreur s'est produite"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "En pause"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "Analyse ..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "Création du dossier"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "Chargement du fichier"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "Dossier créé"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "Fichier transféré"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "Sous-partie transferée"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "Transfert de la sous-partie en cours"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "Transfert de la sous-partie avant mise en pause"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "Ce transfert ne peut être mis en pause"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "Le transfert d'une sous-partie ne peut-être mis en pause"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "interrompu par l'utilisateur"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "vous n'êtes pas autorisé à transférer des fichiers ici"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "quota atteint, impossible de transférer"
   }
 }

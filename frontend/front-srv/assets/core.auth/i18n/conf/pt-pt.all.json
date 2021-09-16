@@ -9,10 +9,10 @@
     "other": "Add a Forgot Password link at the bottom of the login form"
   },
   "Authentication": {
-    "other": "Authentication"
+    "other": "Autenticação"
   },
   "Both": {
-    "other": "Both"
+    "other": "Ambos"
   },
   "Cache master users": {
     "other": "Cache master users"
@@ -36,7 +36,7 @@
     "other": "Enable Forgot Password"
   },
   "Enable Users": {
-    "other": "Activar Utilizadores"
+    "other": "Enable Users"
   },
   "Enable the 'guest' user, who does not need to log in.": {
     "other": "Enable the 'guest' user, who does not need to log in."
@@ -45,10 +45,10 @@
     "other": "Forgot Password Action"
   },
   "Generic Auth Features": {
-    "other": "Funções Auth Genéricas"
+    "other": "Generic Features"
   },
   "Guest Browsing": {
-    "other": "Navegação como visitante"
+    "other": "Guest Browsing"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
     "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
@@ -63,7 +63,7 @@
     "other": "Main Instance"
   },
   "Master Authentifiaction Label": {
-    "other": "Master Authentifiaction Label"
+    "other": "Master Authentication Label"
   },
   "Master Only": {
     "other": "Master Only"
@@ -87,7 +87,7 @@
     "other": "Options applied to all auth drivers"
   },
   "Password length": {
-    "other": "Tamanho da Palavra-Chave"
+    "other": "Password length"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
     "other": "Raise the security of the login form by disabling autocompletion and remember me feature"
@@ -108,16 +108,16 @@
     "other": "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
   },
   "Slave Authentifiaction Label": {
-    "other": "Slave Authentifiaction Label"
+    "other": "Slave Authentication Label"
   },
   "Slave Only": {
     "other": "Slave Only"
   },
   "Store Credentials in Session": {
-    "other": "Guardar credenciais na Sessão"
+    "other": "Store Credentials in Session"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!"
+    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
   },
   "User Choice": {
     "other": "User Choice"
@@ -130,5 +130,26 @@
   },
   "Will be shown to the user at login": {
     "other": "Will be shown to the user at login"
+  },
+  "Security": {
+    "other": "Segurança"
+  },
+  "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
+    "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
+  },
+  "Let user create new cells": {
+    "other": "Let user create new cells"
+  },
+  "Whether users can create their own cells or not": {
+    "other": "Whether users can create their own cells or not"
+  },
+  "Delegation": {
+    "other": "Delegation"
+  },
+  "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
+    "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."
+  },
+  "Auto-wildcard search": {
+    "other": "Auto-wildcard search"
   }
 }

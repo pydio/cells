@@ -1,8 +1,8 @@
 {
   "Manual Locking mechanism to avoid concurrent edition": {
-    "other": "Manual Locking mechanism to avoid concurrent edition"
+    "other": "Blocage manuel des fichiers pour éviter l'édition concurrente"
   },
   "Simple Lock": {
-    "other": "Simple Lock"
+    "other": "Blocage simple"
   }
 }

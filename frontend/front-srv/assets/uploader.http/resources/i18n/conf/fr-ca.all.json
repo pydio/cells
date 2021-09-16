@@ -1,26 +1,26 @@
 {
   "Async downloader to load a file from another source": {
-    "other": "Async downloader to load a file from another source"
+    "other": "Télécharger un fichier dans l'application depuis une autre source"
   },
   "Remote Download": {
-    "other": "Remote Server"
+    "other": "Téléchargement à distance"
   },
   "Legend": {
-    "other": "Legend"
+    "other": "Légende"
   },
   "Please beware that using this plugin can be dangerous, as it allows users to remotely download files from a third-party server directly to the Cells storage.": {
-    "other": "Please beware that using this plugin can be dangerous, as it allows users to remotely download files from a third-party server directly to the Cells storage."
+    "other": "Veuillez noter que l'utilisation de cette fonctionnalité peut être dangereuse, car il permet aux utilisateurs de télécharger à distance des fichiers depuis un serveur tiers directement sur le stockage de Cells."
   },
   "White List": {
-    "other": "White List"
+    "other": "Liste blanche"
   },
   "Black List": {
-    "other": "Black List"
+    "other": "Liste noire"
   },
   "Comma-separated list of http Hosts that are allowed to be used for remote download. If not empty, this list will be always used in favor of the black list.": {
-    "other": "Comma-separated list of http Hosts that are allowed to be used for remote download. If not empty, this list will be always used in favor of the black list."
+    "other": "Liste d'hôtes http séparés par des virgules qui sont autorisés à être utilisés pour le téléchargement à distance. Si non vide, cette liste sera toujours utilisée en faveur de la liste noire."
   },
   "Comma-separated list of http Hosts that are forbidden to be used for remote download. You should typically register your private network IPs here.": {
-    "other": "Comma-separated list of http Hosts that are forbidden to be used for remote download. You should typically register your private network IPs here."
+    "other": "Liste d'hôtes http séparés par des virgules qui ne sont pas autorisés à être utilisés pour le téléchargement à distance. Vous devriez généralement enregistrer les adresses IP de votre réseau privé ici."
   }
 }

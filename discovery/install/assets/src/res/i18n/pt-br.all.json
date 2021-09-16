@@ -1,9 +1,9 @@
 {
   "welcome.stepLabel": {
-    "other": "Terms of Use"
+    "other": "Termos do uso"
   },
   "welcome.title": {
-    "other": "Welcome to Pydio Cells Installation Wizard"
+    "other": "Bem-vindo ao Assistente de Instalação do Pydio Cells"
   },
   "welcome.legend": {
     "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
@@ -117,19 +117,19 @@
     "other": "Manual"
   },
   "form.dbTCPHostname.label": {
-    "other": "Host Name"
+    "other": "Nome do Host"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "Servidor onde o mysql está sendo executado"
   },
   "form.dbName.label": {
-    "other": "Database Name"
+    "other": "Nome da Base de Dados"
   },
   "form.dbName.legend": {
-    "other": "Database to use (will be created if it does not exist)"
+    "other": "Banco de dados a usar (será criado se não existir)"
   },
   "form.dbTCPPort.label": {
-    "other": "Port"
+    "other": "Porta"
   },
   "form.dbTCPPort.legend": {
     "other": "Port to connect to mysql"
@@ -216,7 +216,7 @@
     "other": "Key to connect to S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Segredo de Api"
+    "other": "Segredo da Api S3"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Secret Key"
@@ -249,9 +249,9 @@
     "other": "Voltar"
   },
   "stepper.button.last": {
-    "other": "Install Now"
+    "other": "Instalar Agora"
   },
   "stepper.button.reload": {
-    "other": "Atualizar"
+    "other": "Recarregar"
   }
 }

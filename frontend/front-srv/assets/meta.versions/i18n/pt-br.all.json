@@ -1,6 +1,6 @@
 {
   "1": {
-    "other": "Versions"
+    "other": "Versões"
   },
   "10": {
     "other": "Data"
@@ -9,57 +9,57 @@
     "other": "Autor"
   },
   "12": {
-    "other": "Modification"
+    "other": "Modificações"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "Tem certeza de que deseja fazer isso? Reverter para uma versão antiga agora irá criar uma nova versão do documento com a revisão selecionada."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Nenhuma versão anterior encontrada"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Versões são criadas quando você atualiza o conteúdo do arquivo"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Versões anteriores para '%s'"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "Versões anteriores do documento"
   },
   "3": {
     "other": "Baixar"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "Baixar a versão selecionada para o seu computador"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "Pré-visualizar (navegador)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "Abrir a versão selecionada numa janela do navegador"
   },
   "7": {
-    "other": "Revert to..."
+    "other": "Reverter para..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "Reverter o arquivo para a revisão selecionada no servidor"
   },
   "9": {
     "other": "#"
   },
   "CREATION": {
-    "other": "File created"
+    "other": "Arquivo criado"
   },
   "DELETION": {
-    "other": "File deleted"
+    "other": "Arquivo excluído"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "Conteúdo modificado"
   },
   "MOVE": {
-    "other": "File moved"
+    "other": "Arquivo movido"
   },
   "RENAME": {
-    "other": "File renamed"
+    "other": "Arquivo renomeado"
   }
 }

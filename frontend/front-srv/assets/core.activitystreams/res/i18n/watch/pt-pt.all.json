@@ -2,52 +2,76 @@
   "1": {
     "other": "Receber notificações de..."
   },
+  "1-off": {
+    "other": "Observando..."
+  },
   "10": {
-    "other": "Alguém está a abrir o ficheiro"
+    "other": "Alguém está abrindo o arquivo"
   },
   "10b": {
-    "other": "Alguém está a explorar a pasta"
+    "other": "Alguém está explorando o diretório"
   },
   "11": {
     "other": "Alterações"
   },
   "12": {
-    "other": "Alguém está a alterar o ficheiro"
+    "other": "Alguém está modificando o arquivo"
   },
   "12b": {
-    "other": "Alguém está a modificar um ficheiro dentro desta pasta"
+    "other": "Alguém está modificando um arquivo dentro deste diretório"
   },
   "13": {
     "other": "Ambos"
   },
   "14": {
-    "other": "Alguém está a abrir ou a escrever no ficheiro"
+    "other": "Alguém está abrindo ou escrevendo no arquivo"
   },
   "14b": {
-    "other": "Alguém está a explorar ou a modificar os conteúdos desta pasta"
+    "other": "Alguém está explorando ou modificando o conteúdo deste diretório"
   },
   "2": {
-    "other": "Ser notificado sempre que esta pasta for acedida"
+    "other": "Ser notificado sempre que este diretório for acessado"
   },
   "3": {
-    "other": "Desligar Notificações"
+    "other": "Desativar notificações"
   },
   "4": {
-    "other": "Desactivar notificações de acesso para esta pasta"
+    "other": "Desativar notificações de acesso para este diretório"
   },
   "5": {
     "other": "Receber notificações de..."
   },
   "6": {
-    "other": "Ser notificado sempre que este ficheiro for alterado"
+    "other": "Ser notificado sempre que este arquivo for alterado"
   },
   "7": {
-    "other": "Desligar Notificações"
+    "other": "Desativar Notificações"
   },
   "8": {
-    "other": "Desactivar notificações de alterações para este ficheiro"
+    "other": "Desativar notificações de alterações para este arquivo"
   },
   "9": {
-    "other": "Consultar"
+    "other": "Consultas"
+  },
+  "selector.legend": {
+    "other": "Receber notificações quando..."
+  },
+  "selector.ignore": {
+    "other": "Nunca (sem notificações)"
+  },
+  "selector.read": {
+    "other": "Conteúdo é acessado"
+  },
+  "selector.change": {
+    "other": "O conteúdo é modificado"
+  },
+  "selector.both": {
+    "other": "O conteúdo é acessado ou modificado"
+  },
+  "selector.mixed": {
+    "other": "Valores mistos"
+  },
+  "selector.saving": {
+    "other": "Salvando status"
   }
 }
