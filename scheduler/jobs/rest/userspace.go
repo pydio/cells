@@ -55,7 +55,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 	if format != "zip" && format != "tar" && format != "tar.gz" {
-		return "", fmt.Errorf("unsupported format value, please use one of zap, tar or tar.gz")
+		return "", fmt.Errorf("unsupported format, please use one of zip, tar or tar.gz")
 	}
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
