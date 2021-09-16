@@ -188,7 +188,7 @@ class BottomBar extends React.Component {
     }
 
     render() {
-        const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
+        const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false, searchString = "", searchJump = ""} = this.state
         const {readonly, size, scale, playing = false, resolution, onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
 
         // Content functions
@@ -326,8 +326,8 @@ class BottomBar extends React.Component {
                     )}
                     {searchable && (
                         <ToolbarGroup>
-                            <TextField onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
-                            <TextField onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                            <TextField onMouseDown={(e) => e.stopPropagation()} onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                            <TextField onMouseDown={(e) => e.stopPropagation()} onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
                         </ToolbarGroup>
                     )}
                 </Toolbar>
