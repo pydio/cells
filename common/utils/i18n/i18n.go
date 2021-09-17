@@ -46,6 +46,7 @@ var (
 		"fr":    "Français",
 		"it":    "Italiano",
 		"lv":    "Latv",
+		"pt-br": "Português do Brasil",
 		"ru":    "русский",    // Russian
 		"vi-vn": "Tiếng Việt", // Vietnamese
 		"zh-cn": "简体中文",       // Chinese simplified
@@ -81,7 +82,6 @@ var (
 		"ja":    "日本人", //Japanese
 		"ko":    "한국어",
 		"nl":    "Nederlands",
-		"pt-br": "Português do Brasil",
 		"pt-pt": "Português",
 		"sv-se": "Svenska", // Swedish
 		"zh-tw": "中國傳統的",   // Chinese traditional
