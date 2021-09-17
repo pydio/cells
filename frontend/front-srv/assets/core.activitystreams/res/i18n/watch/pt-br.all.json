@@ -66,7 +66,7 @@
     "other": "O conteúdo é modificado"
   },
   "selector.both": {
-    "other": "O conteúdo é acessado ou modificado"
+    "other": "Conteúdo é acessado ou modificado"
   },
   "selector.mixed": {
     "other": "Valores mistos"

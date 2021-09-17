@@ -1,66 +1,66 @@
 {
   "1": {
-    "other": "Role Editor"
+    "other": "Editor de Função"
   },
   "10": {
-    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
+    "other": "Use os seletores abaixo para selecionar as ações que você deseja desativar para os usuários desta função. Você pode optar por desativar a ação para todos os repositórios ou apenas para um determinado espaço de trabalho."
   },
   "11": {
-    "other": "Plugin Identifier"
+    "other": "Identificador do Plugin"
   },
   "12": {
-    "other": "Select a plugin..."
+    "other": "Selecione um plugin..."
   },
   "12a": {
-    "other": "Select an action..."
+    "other": "Selecionar uma ação..."
   },
   "12b": {
-    "other": "Select a parameter..."
+    "other": "Selecionar um parâmetro..."
   },
   "12c": {
-    "other": "Pick one or all workspaces..."
+    "other": "Escolher um ou todos os espaços de trabalho..."
   },
   "12d": {
-    "other": "All Workspaces"
+    "other": "Todos os espaços de trabalho"
   },
   "12e": {
-    "other": "Shared Workspaces"
+    "other": "Espaços de trabalho Compartilhados"
   },
   "13": {
-    "other": "Action name"
+    "other": "Nome da ação"
   },
   "14": {
-    "other": "Repository Scope"
+    "other": "Escopo do Repositório"
   },
   "15": {
-    "other": "Add Action"
+    "other": "Adicionar Ação"
   },
   "16": {
-    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
+    "other": "Use os seletores abaixo para selecionar os parâmetros que você deseja refinar para os usuários desta função. Só pode ser aplicado a todo ou a um espaço de trabalho dado, embora isso possa depender do contexto do plugin."
   },
   "17": {
-    "other": "Parameter name"
+    "other": "Nome do parâmetro"
   },
   "18": {
-    "other": "Add parameter"
+    "other": "Adicionar parâmetro"
   },
   "19": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "Existem alterações não salvas. Tem certeza que deseja fechar?"
   },
   "2": {
-    "other": "Role editor"
+    "other": "Editor de função"
   },
   "20": {
-    "other": "Role updated successfully"
+    "other": "Função atualizada com sucesso"
   },
   "21": {
     "other": "ID do usuário"
   },
   "22": {
-    "other": "Special Profile"
+    "other": "Perfil Especial"
   },
   "23": {
-    "other": "Default Workspace"
+    "other": "Espaço de trabalho Padrão"
   },
   "24": {
     "other": "Papéis de Usuário"
@@ -69,88 +69,88 @@
     "other": "Alterar senha"
   },
   "26": {
-    "other": "Lock out user"
+    "other": "Bloquear usuário"
   },
   "27": {
-    "other": "Reactivate user"
+    "other": "Reativar usuário"
   },
   "28": {
-    "other": "Force password change"
+    "other": "Forçar troca de senha"
   },
   "28b": {
-    "other": "Cancel password change"
+    "other": "Cancelar troca de senha"
   },
   "29": {
-    "other": "Enter new password for this user"
+    "other": "Digite a nova senha para este usuário"
   },
   "3": {
-    "other": "Account Info"
+    "other": "Informações da Conta"
   },
   "30": {
     "other": "Confirmar"
   },
   "31": {
-    "other": "Role ID"
+    "other": "ID da Função"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "ID da função (vazio para geração automática)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "O identificador já existe"
   },
   "32": {
-    "other": "Role Label"
+    "other": "Rótulo da função"
   },
   "33": {
-    "other": "Apply automatically to users with profile..."
+    "other": "Aplicar automaticamente aos usuários com perfil..."
   },
   "34": {
-    "other": "Group ID"
+    "other": "ID do Grupo"
   },
   "35": {
-    "other": "Group Label"
+    "other": "Rótulo do Grupo"
   },
   "36": {
-    "other": "locked"
+    "other": "bloqueado"
   },
   "37": {
-    "other": "Deny"
+    "other": "Negar"
   },
   "38": {
-    "other": "inherited"
+    "other": "herdado"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "raízes inválidas"
   },
   "39": {
-    "other": "Disable"
+    "other": "Desabilitar"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Enable"
+    "other": "Habilitar"
   },
   "41": {
     "other": "Remover"
   },
   "42": {
-    "other": "Role custom data"
+    "other": "Dados personalizados da função"
   },
   "43": {
-    "other": "Select one or more"
+    "other": "Selecione uma ou mais"
   },
   "44": {
-    "other": "Plugins Parameters Fine-tuning"
+    "other": "Parâmetros de Plugins Fine-tuning"
   },
   "45": {
-    "other": "Access Control List"
+    "other": "Lista de Controle de Acesso"
   },
   "46": {
-    "other": "Disabled Actions"
+    "other": "Ações desativadas"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "Buscar funções"
   },
   "5": {
     "other": "Ações"
@@ -159,36 +159,36 @@
     "other": "Parametros"
   },
   "7": {
-    "other": "Internal Data"
+    "other": "Dados Internos"
   },
   "8": {
-    "other": "Personal information"
+    "other": "Informação Pessoal"
   },
   "9": {
-    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
+    "other": "Selecione os espaços de trabalho para os quais o uso com esta função terá acesso. Use o valor 'Negar' para sobrescrever um valor definido por uma função anterior, ou negar definitivamente o acesso a este espaço de trabalho mesmo a funções herdadas."
   },
   "dashboard.description": {
-    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+    "other": "Funções são contêineres para Listas de Acesso para conceder acesso a quaisquer espaços de trabalho ou personalizar parâmetros e ações. Eles podem ser atribuídos manualmente a qualquer usuário."
   },
   "dashboard.technical.hide": {
-    "other": "Hide technical roles"
+    "other": "Ocultar funções técnicas"
   },
   "dashboard.technical.show": {
-    "other": "Show technical roles"
+    "other": "Mostrar funções técnicas"
   },
   "last_update": {
-    "other": "Last updated"
+    "other": "Última atualização"
   },
   "role.id.description": {
-    "other": "Unique ID of this role (cannot be changed)."
+    "other": "ID exclusivo desta função (não pode ser alterado)."
   },
   "role.label.description": {
-    "other": "Human-readable label."
+    "other": "Rótulo legível por humanos."
   },
   "role.autoapply.description": {
-    "other": "Role is always applied to users with this profile(s)."
+    "other": "A função é sempre aplicada aos usuários com esse(s) perfil(s)."
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "A função é sempre aplicada depois de outras funções, exceto para a função do usuário que ainda prevalecerá."
   }
 }

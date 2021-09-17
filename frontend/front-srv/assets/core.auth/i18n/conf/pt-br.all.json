@@ -1,12 +1,12 @@
 {
   "Action to trigger when clicking on Forgot Password": {
-    "other": "Action to trigger when clicking on Forgot Password"
+    "other": "Ação a ser acionada ao clicar em Esqueci a Senha"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "Activate the users management system to protect your Pydio installation."
+    "other": "Ative o sistema de gerenciamento de usuários para proteger sua instalação do Pydio."
   },
   "Add a Forgot Password link at the bottom of the login form": {
-    "other": "Add a Forgot Password link at the bottom of the login form"
+    "other": "Adicione um link de Esqueci a Senha no final do formulário de login"
   },
   "Authentication": {
     "other": "Autenticação"
@@ -15,141 +15,141 @@
     "other": "Ambos"
   },
   "Cache master users": {
-    "other": "Cache master users"
+    "other": "Cache de usuários mestres"
   },
   "Case Sensitive": {
-    "other": "Case Sensitive"
+    "other": "Sensível a Maiúsculas e Minúsculas"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "Escolha o plugin de configuração"
   },
   "Create a local copy (at login time) of master users inside slave base": {
-    "other": "Create a local copy (at login time) of master users inside slave base"
+    "other": "Criar uma cópia local (no tempo de login) de usuários mestres dentro da base escrava"
   },
   "Disable Brute Force Check (Captcha)": {
-    "other": "Disable Brute Force Check (Captcha)"
+    "other": "Desativar Verificação Força Bruta (Captcha)"
   },
   "Disable the check of failed login attempts, will disable the Captcha display": {
-    "other": "Disable the check of failed login attempts, will disable the Captcha display"
+    "other": "Desativar a verificação de tentativas de falhas de login, desativará a exibição do Captcha"
   },
   "Enable Forgot Password": {
-    "other": "Enable Forgot Password"
+    "other": "Habilitar a Esqueci a Senha"
   },
   "Enable Users": {
-    "other": "Enable Users"
+    "other": "Habilitar Usuários"
   },
   "Enable the 'guest' user, who does not need to log in.": {
-    "other": "Enable the 'guest' user, who does not need to log in."
+    "other": "Habilitar o usuário 'convidado', que não precisa fazer login."
   },
   "Forgot Password Action": {
-    "other": "Forgot Password Action"
+    "other": "Ação Esqueci a Senha"
   },
   "Generic Auth Features": {
-    "other": "Generic Features"
+    "other": "Recursos Genéricos"
   },
   "Guest Browsing": {
-    "other": "Guest Browsing"
+    "other": "Navegando como Visitante"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
-    "other": "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)"
+    "other": "No modo Master_Slave, use esta opção para limitar a listagem de usuários na administração apenas para um driver (deixe vazio se você quiser ver todos os usuários)"
   },
   "Instance Type": {
-    "other": "Instance Type"
+    "other": "Tipo de Instância"
   },
   "Login Form": {
-    "other": "Login Form"
+    "other": "Formulário de Login"
   },
   "Main Instance": {
-    "other": "Main Instance"
+    "other": "Instância Principal"
   },
   "Master Authentifiaction Label": {
-    "other": "Master Authentication Label"
+    "other": "Rótulo de Autenticação Mestre"
   },
   "Master Only": {
-    "other": "Master Only"
+    "other": "Somente Mestre"
   },
   "Master/Slave": {
-    "other": "Master/Slave"
+    "other": "Mestre/Escravo"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
-    "other": "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup."
+    "other": "Mestre/escravo assumirá que o mestre é somente leitura, e o escravo é uma alternativa local para permitir compartilhamento de recursos. Escolher Usuário permitirá que o usuário escolha manualmente o seu método de autenticação na inicialização."
   },
   "Minimum number of characters required for passwords in the application": {
-    "other": "Minimum number of characters required for passwords in the application"
+    "other": "Número mínimo de caracteres necessários para senhas no aplicativo"
   },
   "Mode": {
-    "other": "Mode"
+    "other": "Modo"
   },
   "Multiple Instances Mode": {
-    "other": "Multiple Instances Mode"
+    "other": "Modo de Múltiplas Instâncias"
   },
   "Options applied to all auth drivers": {
-    "other": "Options applied to all auth drivers"
+    "other": "Opções aplicadas a todos os drivers de autenticação"
   },
   "Password length": {
-    "other": "Password length"
+    "other": "Comprimento da Senha"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
-    "other": "Raise the security of the login form by disabling autocompletion and remember me feature"
+    "other": "Desative o preenchimento automático e lembre-se de melhorar a segurança do formulário de login"
   },
   "Secondary Instance (optional)": {
-    "other": "Secondary Instance (optional)"
+    "other": "Instância Secundária (opcional)"
   },
   "Secondary Instance Driver": {
-    "other": "Secondary Instance Driver"
+    "other": "Driver de Instância Secundária"
   },
   "Secure Login Form": {
-    "other": "Secure Login Form"
+    "other": "Formulário de Login Seguro"
   },
   "Separator": {
-    "other": "Separator"
+    "other": "Separador"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
-    "other": "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins."
+    "other": "Definir as credenciais dos usuários na sessão após um login bem-sucedido, isto pode ser necessário quando se faz uma ponte entre autentificação e plugins de acesso específicos."
   },
   "Slave Authentifiaction Label": {
-    "other": "Slave Authentication Label"
+    "other": "Rótulo de Autenticação Escrava"
   },
   "Slave Only": {
-    "other": "Slave Only"
+    "other": "Somente Escravo"
   },
   "Store Credentials in Session": {
-    "other": "Store Credentials in Session"
+    "other": "Armazenar Credenciais na Sessão"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
+    "other": "Isto é necessário para discriminar os dados dos usuários carregados de várias fontes. Aviso, use caracteres compatíveis com o nome da pasta. Por exemplo :: não funciona!"
   },
   "User Choice": {
-    "other": "User Choice"
+    "other": "Escolha do Usuário"
   },
   "Users Listing": {
-    "other": "Users Listing"
+    "other": "Listagem de Usuários"
   },
   "Whether the users identifiers should be case sensitive or not": {
-    "other": "Whether the users identifiers should be case sensitive or not. WARNING, sql-based drivers will disable this by default, even if you check this."
+    "other": "Se os identificadores de usuários devem ou não ser sensíveis a maiúsculas de minúsculas. ATENÇÃO, os drivers baseados em sql vão desativar isso por padrão, mesmo que você verifique isto."
   },
   "Will be shown to the user at login": {
-    "other": "Will be shown to the user at login"
+    "other": "Será exibido ao usuário no login"
   },
   "Security": {
     "other": "Segurança"
   },
   "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system.": {
-    "other": "Action to trigger when clicking on Forgot Password. Can be changed to trigger a custom action if you rely on external authentication system."
+    "other": "Ação a ser acionada quando clicar em Esqueci a senha. Pode ser alterada para acionar uma ação personalizada se você depender de um sistema de autenticação externa."
   },
   "Let user create new cells": {
-    "other": "Let user create new cells"
+    "other": "Permitir que o usuário crie novas células"
   },
   "Whether users can create their own cells or not": {
-    "other": "Whether users can create their own cells or not"
+    "other": "Se usuários podem criar suas próprias células ou não"
   },
   "Delegation": {
-    "other": "Delegation"
+    "other": "Delegação"
   },
   "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string.": {
-    "other": "Directory search is looking for labels 'starting with' the search string. Switching this on will prepend a wildcard to look for labels 'containing' the string."
+    "other": "A busca de diretórios está procurando por rótulos 'começando com' na sequência de pesquisa. Mudar esta opção irá usar um caractere curinga antes para procurar por rótulos 'contendo' a string."
   },
   "Auto-wildcard search": {
-    "other": "Auto-wildcard search"
+    "other": "Busca automática com curinga"
   }
 }

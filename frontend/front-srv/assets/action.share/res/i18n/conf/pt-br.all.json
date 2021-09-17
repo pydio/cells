@@ -1,176 +1,176 @@
 {
   "Allow users to generate public links on files": {
-    "other": "Allow users to generate public links on files"
+    "other": "Permitir que usuários gerem links públicos em arquivos"
   },
   "Allow users to generate public links on folders": {
-    "other": "Allow users to generate public links on folders"
+    "other": "Permitir que usuários gerem links públicos em pastas"
   },
   "Allow users to manually choose a hash for the generated links": {
-    "other": "Allow users to manually choose a hash for the generated links"
+    "other": "Permitir que os usuários escolham manualmente um hash para os links gerados"
   },
   "Authorizations": {
-    "other": "Authorizations"
+    "other": "Autorizações"
   },
   "Avoid labels duplication": {
-    "other": "Avoid labels duplication"
+    "other": "Evitar duplicação de rótulos"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "Cor de Fundo"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "Criar QRCode"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "Criar e exibir QRCode para link compartilhado"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "Desabilitar compartilhamento de pastas"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+    "other": "Proibir que os usuários criem pastas compartilhadas se um espaço de trabalho já existir com o mesmo rótulo"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "Não permitir que os usuários criem links públicos, apenas links privados (protegidos por senha)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "Botão para Baixar"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "Baixar texto"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "Baixar texto c/ Senha"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "Habilitar compartilhamento de pasta"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Enable folder sharing (workspace and minisite)"
+    "other": "Habilitar compartilhamento de pastas (espaço de trabalho e mini-site)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+    "other": "Habilitar compartilhamento interno de arquivos (compartilhamento com usuários existentes ou temporários)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+    "other": "Habilitar compartilhamento interno de pastas (compartilhamento com usuários existentes ou temporários)"
   },
   "Enable public link generation for files": {
-    "other": "Enable public link generation for files"
+    "other": "Habilitar a geração de links públicos para arquivos"
   },
   "Enable public links for files": {
-    "other": "Enable public links for files"
+    "other": "Habilitar links públicos para arquivos"
   },
   "Files: enable internal sharing": {
-    "other": "Files: enable internal sharing"
+    "other": "Arquivos: habilitar compartilhamento interno"
   },
   "Files: enable public links": {
-    "other": "Files: enable public links"
+    "other": "Arquivos: habilitar links públicos"
   },
   "Folder Sharing": {
-    "other": "Folder Sharing"
+    "other": "Compartilhamento de Pasta"
   },
   "Folders: enable internal sharing": {
-    "other": "Folders: enable internal sharing"
+    "other": "Pastas: habilitar compartilhamento interno"
   },
   "Folders: enable public links": {
-    "other": "Folders: enable public links"
+    "other": "Pastas: habilitar links públicos"
   },
   "Force External Mailer": {
-    "other": "Force External Mailer"
+    "other": "Forçar Mailer Externo"
   },
   "Fork Events Forwarding": {
-    "other": "Fork Events Forwarding"
+    "other": "Encaminhamento de Eventos Fork"
   },
   "Hash minimum length": {
-    "other": "Hash minimum length"
+    "other": "Tamanho mínimo do hash"
   },
   "Hash user-editable": {
-    "other": "Hash user-editable"
+    "other": "Hash editável pelo usuário"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+    "other": "Se você detectar problemas de performances enquanto modifica arquivos sob árvores profundas, tente ativar aquele. Por favor, tenha certeza do que você faz, pois isso pode acionar um monte de processos php no servidor."
   },
   "Image used as a button for downloading the file": {
-    "other": "Image used as a button for downloading the file"
+    "other": "Imagem usada como um botão para baixar o arquivo"
   },
   "Internal Sharing": {
-    "other": "Internal Sharing"
+    "other": "Compartilhamento Interno"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "Geração de link"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "Prefixo obrigatório para o login de usuários temporários criados"
   },
   "Maximum download limit for file, 0 = unlimited": {
-    "other": "Maximum download limit for file, 0 = unlimited"
+    "other": "Limite máximo para baixar o arquivo, 0 = ilimitado"
   },
   "Maximum file download limit": {
-    "other": "Maximum file download limit"
+    "other": "Limite máximo para baixar arquivo"
   },
   "Maximum file expiration limit": {
-    "other": "Maximum file expiration limit"
+    "other": "Limite máximo de expiração de arquivos"
   },
   "Maximum share expiration limit for file in days, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file in days, 0 = unlimited"
+    "other": "Limite máximo de expiração de compartilhamento para o arquivo em dias, 0 = ilimitado"
   },
   "Minimum length of the generated hash": {
-    "other": "Minimum length of the generated hash"
+    "other": "Tamanho mínimo do hash gerado"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Mini-site"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "Mini-sites e Espaços de trabalho"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "Somente mini-sites"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "Título da Página"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "Definir senha obrigatória"
   },
   "Share Center actions and hooks": {
-    "other": "Share Center actions and hooks"
+    "other": "Compartilhar centros de ações e ganchos"
   },
   "Share page background color.": {
-    "other": "Share page background color."
+    "other": "Compartilhar cor de fundo da página."
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "Compartilhar cor da página de texto."
   },
   "Share page text shadow color.": {
-    "other": "Share page text shadow color."
+    "other": "Compartilhar cor da sombra do texto da página."
   },
   "Shared users configurations": {
-    "other": "Shared users configurations"
+    "other": "Configurações de usuários compartilhados"
   },
   "Sharing Features": {
     "other": "Compartilhar Recursos"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "Cor do texto"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "Sombra do texto"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "Prefixo dos usuários temp."
   },
   "Use Rewrite Rule": {
-    "other": "Use Rewrite Rule"
+    "other": "Usar regra de reescrita"
   },
   "Use external mailer for invitations": {
-    "other": "Use external mailer for invitations"
+    "other": "Usar o remetente externo para convites"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+    "other": "Usar mecanismo de servidor web RewriteEngine para gerar URLs mais bonitas"
   },
   "Weblink Page": {
-    "other": "Weblink Page"
+    "other": "Página do Weblink"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "Somente Espaços de trabalho"
   }
 }
