@@ -24,7 +24,7 @@
     "other": "Por favor, certifique-se de que seu banco de dados está executando MySQL versão 5.6 ou superior"
   },
   "database.installDetected": {
-    "other": "Parece que há uma instalação de células neste banco de dados. Por favor confirme para continuar ou "
+    "other": "Parece que há uma instalação de Cells neste banco de dados. Por favor confirme para continuar ou "
   },
   "database.installDetected.retry": {
     "other": "tentar novamente com um novo valor"
