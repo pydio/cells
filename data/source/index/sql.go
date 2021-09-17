@@ -53,6 +53,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 		return err
 	}
 
+	log.Logger(context.Background()).Debug("Finished IndexSQL Init")
+
 	// Preparing the db statements
 	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
@@ -61,6 +63,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 			}
 		}
 	}
+
+	log.Logger(context.Background()).Debug("Local sql Prepares")
 
 	if _, err := s.IndexSQL.GetNode(mtree.NewMPath(1)); err != nil {
 		log.Logger(context.Background()).Info("Creating root node in index ")

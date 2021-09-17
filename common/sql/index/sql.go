@@ -313,6 +313,8 @@ func (dao *IndexSQL) Init(options configx.Values) error {
 		return err
 	}
 
+	log.Logger(context.Background()).Debug("Finished IndexSQL Migrations")
+
 	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {
 			if err := dao.Prepare(key, query); err != nil {
@@ -320,6 +322,8 @@ func (dao *IndexSQL) Init(options configx.Values) error {
 			}
 		}
 	}
+
+	log.Logger(context.Background()).Debug("Finished IndexSQL Prepares")
 
 	return nil
 }

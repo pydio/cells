@@ -170,7 +170,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			}
 			indexOK = true
 			return nil
-		}, 5*time.Second, 60*time.Second)
+		}, 5*time.Second, 180*time.Second)
 	}()
 	// Making sure Objects is started
 	go func() {
@@ -215,7 +215,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 					return nil
 				}
 			}
-		}, 5*time.Second, 60*time.Second)
+		}, 5*time.Second, 180*time.Second)
 	}()
 
 	wg.Wait()
