@@ -357,7 +357,7 @@ class ResourcePoliciesPanel extends React.Component{
             }
         };
         const {edit, policies, dirtyPolicies, error, idmUser, userTeams, loading, pickedUser, pickedLabel} = this.state;
-        const {onDismiss, style, skipTitle, resourceId, pydio, userListExcludes, readonly, description} = this.props;
+        const {onDismiss, style, skipTitle, resourceId, pydio, userListExcludes = [], readonly, description} = this.props;
         let blocks = [];
         const mess = pydio.MessageHash;
 

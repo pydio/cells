@@ -37,8 +37,6 @@ class ReactEditorOpener extends React.Component {
     constructor(props) {
         super(props)
 
-        const {node, editorData} = props
-
         this.state = {
             ready: false
         }

@@ -37,7 +37,6 @@ import EmptyStateView from './views/EmptyStateView'
 import ModalAppBar from './views/ModalAppBar'
 
 import ReactEditorOpener from './editor/ReactEditorOpener'
-import {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} from './editor/PaperEditor'
 import DynamicGrid from './dynamic-grid/DynamicGrid'
 import Store from './dynamic-grid/Store'
 import GridItemMixin from './dynamic-grid/GridItemMixin'
@@ -90,9 +89,6 @@ const PydioComponents = {
     QuotaUsageLine,
 
     ReactEditorOpener       : ReactEditorOpener,
-    PaperEditorLayout       : PaperEditorLayout,
-    PaperEditorNavEntry     : PaperEditorNavEntry,
-    PaperEditorNavHeader    : PaperEditorNavHeader,
 
     DynamicGrid             : DynamicGrid,
     DynamicGridItemMixin    : GridItemMixin,

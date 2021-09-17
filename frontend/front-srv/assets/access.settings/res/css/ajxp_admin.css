@@ -1,8 +1,5 @@
 @import "scheduler/layout.css";
 @import "scheduler/material.css";
-/*
-Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibles/colors.less
-*/
 #ajxp_desktop.ajxp_ws-settings #global_toolbar {
   display: none;
 }
@@ -15,9 +12,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   /******************/
   /*    PLUGINS     */
   /******************/
-  /**************/
-  /* SEARCH BOX */
-  /**************/
   /******************/
   /* LOGS DASHBOARD */
   /******************/
@@ -209,11 +203,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 .react-mui-context .material-list.plugins-list .plugins-list-actions {
   margin-right: 0;
 }
-.react-mui-context .material-list.plugins-list .plugins-list-actions .mui-toggle {
-  float: left;
-  width: 45px;
-  margin-top: 10px;
-}
 .react-mui-context .material-list.plugins-list .plugins-list-actions .plugin-edit {
   float: left;
 }
@@ -225,9 +214,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   position: absolute;
   right: 10px;
   top: 74px;
-}
-.react-mui-context .searchbox-input-fill .mui-text-field {
-  width: 100%;
 }
 .react-mui-context .logger-filterInput {
   float: right;
@@ -245,9 +231,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   top: -4px;
   left: 0;
   font-size: 10px;
-}
-.react-mui-context .export-log-dialog .mui-text-field {
-  width: 140px;
 }
 @media only screen and (min-width: 480px) and (max-width: 710px) {
   .react-mui-context .logs-dashboard h1 {
@@ -304,9 +287,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   padding-top: 21px;
   height: 50px;
   overflow: visible;
-}
-.react-mui-context .logs-filter .mui-menu {
-  max-width: 124px;
 }
 .react-mui-context .recent-logs {
   overflow-y: auto;
@@ -648,24 +628,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     right: 0;
   }
 }
-.react-mui-context .people-dashboard .mui-tab-item-container {
-  height: 56px;
-  background-color: #F5F5F5 !important;
-  border-bottom: 1px solid #E0E0E0;
-}
-.react-mui-context .people-dashboard .mui-tab-item-container .mui-tab-item {
-  line-height: 56px;
-  font-size: 14px;
-  text-transform: uppercase;
-  color: #454545;
-}
-.react-mui-context .people-dashboard .mui-tab-item-container .mui-tab-item.mui-tab-is-active {
-  color: #454545 !important;
-}
-.react-mui-context .people-dashboard .mui-tab-template {
-  display: flex;
-  flex-direction: column;
-}
 .react-mui-context .people-dashboard .people-tree {
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   width: 226px;
@@ -702,11 +664,7 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 }
 @media only screen and (max-width: 480px) {
   .react-mui-context .people-dashboard .search-box {
-    /*display: none;*/
     left: 24px;
-  }
-  .react-mui-context .people-dashboard .mui-toolbar-group.mui-right .mui-drop-down-menu {
-    display: none;
   }
   .react-mui-context .people-dashboard h1 {
     text-align: left;
@@ -1297,115 +1255,16 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   padding: 0;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.23);
 }
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-title .left-picker-toggle {
-  display: none;
+.react-mui-context .paper-editor .paper-editor-content .paper-editor-title .show-720 {
+  display: none !important;
 }
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-title .title-bar .separator {
-  float: left;
-  height: 29px;
-  margin-top: 3px;
-  margin-left: 2px;
-  margin-right: 6px;
+.react-mui-context .paper-editor .paper-editor-content .paper-editor-title .hide-720 {
+  display: block;
 }
 .react-mui-context .paper-editor .paper-editor-content .paper-editor-left {
-  width: 256px;
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  border-right: 1px solid #e0e0e0;
-  background-color: #fafafa;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .mui-drop-down-menu .mui-menu-label {
-  padding-left: 16px;
-  font-size: 13px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .mui-drop-down-menu .mui-menu-control-underline {
-  display: none;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .mui-radio-button.mui-enhanced-switch {
-  padding: 8px 20px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left > div > span,
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left div.mui-subheader > span {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  display: block;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry {
-  padding: 16px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry .legend {
-  display: block;
-  color: rgba(0, 0, 0, 0.63);
-  font-size: 12px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry .mui-icon-button {
-  float: right;
-  margin-top: -16px;
-  margin-right: -16px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry .mui-icon-button .mui-font-icon {
-  font-size: 16px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry.menu-entry-selected {
-  color: #ff6e40;
-  font-weight: 500;
-  background-color: #ffffff;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry.menu-entry-selected .legend {
-  margin-top: 12px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry-dropdown.plugin-selected {
-  background-color: #ffffff;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry-toggleable {
-  padding: 8px 16px;
-  font-size: 13px;
-  transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry:last-of-type,
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry.last {
-  border-bottom: none;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .menu-entry:hover {
-  background-color: rgba(255, 255, 255, 0.63);
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left h2 {
-  margin-top: 15px;
-  margin-left: 16px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left h4 {
-  margin-left: 8px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left h5 {
-  margin-left: 8px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .mui-subheader {
-  padding-left: 16px;
-  color: rgba(0, 0, 0, 0.25);
-  font-size: 16px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .mui-subheader:first-child {
-  margin-top: 12px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .pydio-form-panel {
-  width: 256px;
-  overflow: hidden;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .pydio-form-panel .mui-text-field,
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .pydio-form-panel .mui-drop-down-menu {
-  width: 280px;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .pydio-form-panel h2 {
-  display: none;
-}
-.react-mui-context .paper-editor .paper-editor-content .paper-editor-left .pydio-form-panel .pydio-form-group {
-  margin: 8px;
-  width: 256px;
 }
 .react-mui-context .paper-editor .paper-editor-content .paper-editor-right {
   padding: 0;
@@ -1448,43 +1307,14 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   .react-mui-context .paper-editor.visible {
     top: 80px;
   }
-  .react-mui-context .paper-editor.visible .paper-editor-title h2 {
-    text-align: center;
-    font-size: 24px;
-    display: block;
-    width: 100%;
-    padding-top: 0;
+  .react-mui-context .paper-editor.visible .paper-editor-title .show-720 {
+    display: block !important;
   }
-  .react-mui-context .paper-editor.visible .paper-editor-title h2 .left-picker-toggle {
-    display: inline;
-  }
-  .react-mui-context .paper-editor.visible .paper-editor-title h2 .left-picker-toggle .mui-font-icon {
-    color: white;
-    font-size: 22px;
-  }
-  .react-mui-context .paper-editor.visible .paper-editor-title .title-bar {
-    margin-top: 0;
-    margin-bottom: 5px;
+  .react-mui-context .paper-editor.visible .paper-editor-title .hide-720 {
+    display: none !important;
   }
   .react-mui-context .paper-editor.visible .paper-editor-content .paper-editor-left {
-    width: 100%;
-    height: 0;
-    flex-shrink: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.17);
-    text-align: center;
-    transition: height 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  }
-  .react-mui-context .paper-editor.visible .paper-editor-content .paper-editor-left:hover,
-  .react-mui-context .paper-editor.visible .paper-editor-content .paper-editor-left.picker-open {
-    height: 150px;
-  }
-  .react-mui-context .paper-editor.visible .paper-editor-content .paper-editor-left .mui-subheader {
     display: none;
-  }
-  .react-mui-context .paper-editor.visible .paper-editor-content .paper-editor-left .menu-entry {
-    margin: 0 16px;
-    border-radius: 5px;
-    font-size: 16px;
   }
 }
 @media only screen and (max-width: 420px) {
@@ -1535,15 +1365,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .image-label {
   display: none;
 }
-@media only screen and (max-width: 1200px) {
-  .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone {
-    width: 206px !important;
-    height: 206px !important;
-  }
-  .react-mui-context .edit-object-user .paper-editor-left .mui-subheader:first-child {
-    margin-top: 159px !important;
-  }
-}
 @media only screen and (max-width: 720px) {
   .react-mui-context .edit-object-user .paper-editor-title h2 {
     text-align: left !important;
@@ -1562,9 +1383,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   }
   .react-mui-context .edit-object-user .avatar-provider .form-entry-image .binary-remove-button {
     zoom: 0.7;
-  }
-  .react-mui-context .edit-object-user .paper-editor-left .mui-subheader:first-child {
-    margin-top: 109px !important;
   }
 }
 .react-mui-context .admin-helper-panel {
@@ -1640,94 +1458,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   font-size: 14px;
   color: rgba(0, 0, 0, 0.33);
 }
-.react-mui-context .mui-left-nav.admin-main-nav .mui-left-nav-menu {
-  z-index: 9;
-  padding-top: 60px;
-}
-.react-mui-context .mui-left-nav.admin-main-nav .mui-left-nav-menu > .mui-paper-container {
-  overflow-y: hidden;
-}
-.react-mui-context .mui-left-nav.admin-main-nav .mui-left-nav-menu > .mui-paper-container .left-nav-menu-scroller {
-  overflow-y: auto;
-  width: 100%;
-  height: 100%;
-}
-.react-mui-context .mui-left-nav.admin-main-nav .mui-menu {
-  background-color: rgba(0, 0, 0, 0);
-  width: auto !important;
-}
-.react-mui-context .mui-left-nav.admin-main-nav .mui-menu span.menu-flag {
-  display: inline;
-  background-color: white;
-  color: #424242;
-  height: 22px;
-  border-radius: 10px;
-  padding: 0 5px;
-  margin-left: 5px;
-}
-.react-mui-context .mui-left-nav.admin-main-nav .mui-menu-item-icon {
-  float: right !important;
-  margin-right: -15px !important;
-  opacity: 0.8;
-  color: #f5f5f5;
-  width: 48px;
-  text-align: center;
-  font-size: 20px;
-  border-radius: 3px;
-}
-.react-mui-context .mui-left-nav.admin-main-nav .mui-is-selected .mui-menu-item-icon {
-  color: white;
-  opacity: 1;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-.react-mui-context .mui-left-nav.admin-main-nav .hideable-subheader {
-  height: 48px;
-}
-.react-mui-context .mui-left-nav.admin-main-nav.mui-closed {
-  /*
-      .mui-left-nav-menu {
-        transform: translate3d(-200px, 0, 0);
-        > .mui-paper-container {
-          overflow-y: hidden;
-          .left-nav-menu-scroller{
-            overflow-y: hidden;
-          }
-        }
-      }
-
-      .hideable-subheader {
-        height: 0;
-      }
-      */
-}
-.react-mui-context .mui-menu-item.tree-item {
-  white-space: nowrap;
-}
-.react-mui-context .mui-menu-item.tree-item.has-checkboxes {
-  display: flex;
-  flex-direction: row;
-  height: 40px;
-  border-bottom: 1px solid #f4f4f4;
-}
-.react-mui-context .mui-menu-item.tree-item.has-checkboxes .tree-item-label {
-  flex: 1;
-  padding: 11px 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-.react-mui-context .mui-menu-item .tree-icon {
-  font-size: 16px;
-  margin-right: 3px;
-}
-.react-mui-context .mui-menu-item .tree-icon.icon-folder-close {
-  font-size: 13px;
-}
-@media only screen and (max-width: 420px) {
-  .react-mui-context .mui-left-nav.admin-main-nav.mui-closed .mui-left-nav-menu {
-    transform: translate3d(-256px, 0, 0);
-  }
-}
 .react-mui-context label {
   margin: 0;
   font-size: inherit;
@@ -1737,19 +1467,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-}
-.react-mui-context .mui-app-bar {
-  z-index: 9 !important;
-}
-.react-mui-context .mui-app-bar #logging_string .user_widget_label i {
-  font-size: 14px;
-  font-weight: 500;
-}
-.react-mui-context .mui-app-bar #logging_string .icon-caret-down {
-  display: none;
-}
-.react-mui-context .mui-app-bar #logging_string .icon-angle-down {
-  font-size: 18px;
 }
 .react-mui-context li {
   list-style: none;

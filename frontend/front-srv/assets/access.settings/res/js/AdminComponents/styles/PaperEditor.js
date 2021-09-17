@@ -20,7 +20,7 @@
 import Pydio from 'pydio'
 import React from 'react'
 import PropTypes from 'prop-types'
-import {IconButton, Menu, Subheader, MenuItem} from 'material-ui'
+import {IconButton,IconMenu, Menu, Subheader, MenuItem} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import AdminStyles from './AdminStyles'
 
@@ -69,7 +69,6 @@ class PaperEditorLayout extends React.Component{
             titleLeftIcon:{
                 color: 'rgba(0, 0, 0, 0.24)',
                 fontSize: 24,
-                display: 'inline-block',
                 marginRight: 6
             },
             titleBar: {
@@ -98,8 +97,14 @@ class PaperEditorLayout extends React.Component{
         return (
             <div className={"paper-editor-content layout-fill vertical-layout" + (className?' '+ className:'')}>
                 <div className="paper-editor-title" style={styles.title}>
-                    {titleLeftIcon && <span style={styles.titleLeftIcon} className={titleLeftIcon}/>}
-                    <div style={styles.titleH2}>{title} <div className="left-picker-toggle"><IconButton iconClassName="icon-caret-down" onClick={this.toggleMenu.bind(this)} /></div></div>
+                    {titleLeftIcon && <span style={styles.titleLeftIcon} className={titleLeftIcon + ' hide-720'}/>}
+                    {leftNavItems &&
+                    <IconMenu
+                        onChange={(e,v)=>leftNavChange(v)}
+                        iconButtonElement={<IconButton iconClassName="mdi mdi-menu" iconStyle={styles.titleLeftIcon} className={"show-720"}/>}>
+                        {leftNavItems.map(i => i.subHeader ? <Subheader >{i.subHeader}</Subheader> : <MenuItem value={i.value} primaryText={i.label} /> )}
+                    </IconMenu>}
+                    <div style={styles.titleH2}>{title}</div>
                     <div style={styles.titleBar}>{titleActionBar}</div>
                     {closeButton}
                 </div>

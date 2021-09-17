@@ -1,6 +1,3 @@
-/*
-Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibles/colors.less
-*/
 @import "colors.less";
 @import "./scheduler/layout.css";
 @import "./scheduler/material.css";
@@ -202,11 +199,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     }
     .plugins-list-actions {
       margin-right: 0;
-      .mui-toggle {
-        float: left;
-        width: 45px;
-        margin-top: 10px;
-      }
       .plugin-edit {
         float: left;
         .mdi-pencil {
@@ -221,14 +213,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     position: absolute;
     right: 10px;
     top: 74px;
-  }
-
-
-  /**************/
-  /* SEARCH BOX */
-  /**************/
-  .searchbox-input-fill .mui-text-field {
-    width: 100%;
   }
 
 
@@ -251,12 +235,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
       top: -4px;
       left: 0;
       font-size: 10px;
-    }
-  }
-
-  .export-log-dialog{
-    .mui-text-field{
-      width: 140px;
     }
   }
 
@@ -327,9 +305,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     padding-top: 21px;
     height: 50px;
     overflow: visible;
-    .mui-menu {
-      max-width: 124px;
-    }
   }
 
   .recent-logs {
@@ -715,24 +690,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
         }
       }
     }
-    .mui-tab-item-container {
-      height: 56px;
-      background-color: #F5F5F5 !important;
-      border-bottom: 1px solid #E0E0E0;
-      .mui-tab-item {
-        line-height: 56px;
-        font-size: 14px;
-        text-transform: uppercase;
-        color: #454545;
-        &.mui-tab-is-active {
-          color: #454545 !important;
-        }
-      }
-    }
-    .mui-tab-template {
-      display: flex;
-      flex-direction: column;
-    }
     .people-tree {
       transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
       width: 226px;
@@ -782,11 +739,7 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     @media only screen and (max-width: 480px) {
       & {
         .search-box {
-          /*display: none;*/
           left: 24px;
-        }
-        .mui-toolbar-group.mui-right .mui-drop-down-menu {
-          display: none;
         }
         h1 {
           text-align: left;
@@ -1486,118 +1439,18 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
       padding: 0;
       box-shadow: 0 0 6px rgba(0, 0, 0, 0.23);
       .paper-editor-title {
-        .left-picker-toggle {
-          display: none;
+        .show-720 {
+          display:none !important;
         }
-        .title-bar {
-          .separator {
-            float: left;
-            height: 29px;
-            margin-top: 3px;
-            margin-left: 2px;
-            margin-right: 6px;
-          }
+        .hide-720 {
+          display:block;
         }
       }
       .paper-editor-left {
-        width: @left-frame-width;
         padding: 0;
         overflow-y: auto;
         overflow-x: hidden;
-        border-right: 1px solid #e0e0e0;
-        background-color: #fafafa;
-        .mui-drop-down-menu {
-          .mui-menu-label {
-            padding-left: 16px;
-            font-size: 13px;
-          }
-          .mui-menu-control-underline {
-            display: none;
-          }
-        }
-        .mui-radio-button.mui-enhanced-switch {
-          padding: 8px 20px;
-        }
 
-        > div > span, div.mui-subheader > span {
-          .text-overflow-ellipsis();
-          display: block;
-        }
-        .menu-entry {
-          padding: 16px;
-          font-size: 13px;
-          cursor: pointer;
-          transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-          .legend {
-            display: block;
-            color: rgba(0, 0, 0, 0.63);
-            font-size: 12px;
-          }
-          .mui-icon-button {
-            float: right;
-            margin-top: -16px;
-            margin-right: -16px;
-            .mui-font-icon {
-              font-size: 16px;
-            }
-          }
-          &.menu-entry-selected {
-            color: rgb(255, 110, 64);
-            font-weight: 500;
-            background-color: #ffffff;
-            .legend {
-              margin-top: 12px;
-            }
-          }
-          &-dropdown {
-            &.plugin-selected {
-              background-color: #ffffff;
-            }
-          }
-          &-toggleable {
-            padding: 8px 16px;
-            font-size: 13px;
-            transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-          }
-          &:last-of-type, &.last {
-            border-bottom: none;
-          }
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.63);
-          }
-        }
-        h2 {
-          margin-top: 15px;
-          margin-left: 16px;
-        }
-        h4 {
-          margin-left: 8px;
-        }
-        h5 {
-          margin-left: 8px;
-        }
-        .mui-subheader {
-          padding-left: 16px;
-          color: rgba(0, 0, 0, 0.25);
-          font-size: 16px;
-          &:first-child {
-            margin-top: 12px;
-          }
-        }
-        .pydio-form-panel {
-          width: @left-frame-width;
-          overflow: hidden;
-          .mui-text-field, .mui-drop-down-menu {
-            width: 280px;
-          }
-          h2 {
-            display: none;
-          }
-          .pydio-form-group {
-            margin: 8px;
-            width: @left-frame-width;
-          }
-        }
       }
       .paper-editor-right {
         padding: 0;
@@ -1648,49 +1501,18 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
         left: 80px;
         right: 16px;
       }
-
       &.visible {
         top: 80px;
         .paper-editor-title {
-          h2 {
-            text-align: center;
-            font-size: 24px;
-            display: block;
-            width: 100%;
-            padding-top: 0;
-            .left-picker-toggle {
-              display: inline;
-              .mui-font-icon {
-                color: white;
-                font-size: 22px;
-              }
-            }
+          .show-720 {
+            display:block !important;
           }
-          .title-bar {
-            margin-top: 0;
-            margin-bottom: 5px;
+          .hide-720 {
+            display:none !important;
           }
         }
         .paper-editor-content .paper-editor-left {
-          width: 100%;
-          height: 0;
-          flex-shrink: 0;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.17);
-          text-align: center;
-          transition: height 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-          &:hover, &.picker-open {
-            height: 150px;
-          }
-          .mui-subheader {
-            display: none;
-          }
-          .menu-entry {
-            margin: 0 16px;
-            border-radius: 5px;
-            font-size: 16px;
-            &.menu-entry-selected {
-            }
-          }
+          display: none;
         }
       }
     }
@@ -1751,16 +1573,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
         }
       }
     }
-    @media only screen and (max-width: 1200px) {
-      .avatar-provider .form-entry-image .file-dropzone {
-        width: 206px !important;
-        height: 206px !important;
-      }
-
-      .paper-editor-left .mui-subheader:first-child {
-        margin-top: 159px !important;
-      }
-    }
     @media only screen and (max-width: 720px) {
       .paper-editor-title h2 {
         text-align: left !important;
@@ -1780,10 +1592,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
         .binary-remove-button{
           zoom: 0.7
         }
-      }
-
-      .paper-editor-left .mui-subheader:first-child {
-        margin-top: 109px !important;
       }
     }
   }
@@ -1880,110 +1688,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     }
   }
 
-  .mui-left-nav.admin-main-nav {
-
-    .mui-left-nav-menu {
-      z-index: 9;
-      padding-top: 60px;
-      > .mui-paper-container {
-        overflow-y: hidden;
-        .left-nav-menu-scroller{
-          overflow-y: auto;
-          width: 100%;
-          height:100%;
-        }
-      }
-    }
-
-    .mui-menu {
-      background-color: @transparent;
-      width: auto !important;
-
-      span.menu-flag {
-        display: inline;
-        background-color: white;
-        color: #424242;
-        height: 22px;
-        border-radius: 10px;
-        padding: 0 5px;
-        margin-left: 5px;
-      }
-    }
-
-    .mui-menu-item-icon {
-      float: right !important;
-      margin-right: -15px !important;
-      opacity: 0.8;
-      color: #f5f5f5;
-      width: 48px;
-      text-align: center;
-      font-size: 20px;
-      border-radius: 3px;
-    }
-
-    .mui-is-selected {
-      .mui-menu-item-icon {
-        color: white;
-        opacity: 1;
-        background-color: rgba(255, 255, 255, 0.20);
-      }
-    }
-
-    .hideable-subheader{
-      height: 48px;
-    }
-
-    &.mui-closed {
-      /*
-      .mui-left-nav-menu {
-        transform: translate3d(-200px, 0, 0);
-        > .mui-paper-container {
-          overflow-y: hidden;
-          .left-nav-menu-scroller{
-            overflow-y: hidden;
-          }
-        }
-      }
-
-      .hideable-subheader {
-        height: 0;
-      }
-      */
-    }
-
-  }
-
-  .mui-menu-item {
-    &.tree-item {
-      white-space: nowrap;
-      &.has-checkboxes {
-        display: flex;
-        flex-direction: row;
-        height: 40px;
-        border-bottom: 1px solid #f4f4f4;
-        .tree-item-label {
-          flex: 1;
-          padding: 11px 0;
-          .text-overflow-ellipsis();
-        }
-      }
-    }
-    .tree-icon {
-      font-size: 16px;
-      margin-right: 3px;
-      &.icon-folder-close {
-        font-size: 13px;
-      }
-    }
-  }
-
-  @media only screen
-  and (max-width: 420px) {
-    .mui-left-nav.admin-main-nav.mui-closed .mui-left-nav-menu {
-      transform: translate3d(-256px, 0, 0);
-    }
-  }
-
   label {
     margin: 0;
     font-size: inherit;
@@ -1992,22 +1696,6 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   .ellipsis-label {
     display: block;
     .text-overflow-ellipsis();
-  }
-
-  .mui-app-bar {
-    z-index: 9 !important;
-    #logging_string {
-      .user_widget_label i {
-        font-size: 14px;
-        font-weight: 500;
-      }
-      .icon-caret-down {
-        display: none;
-      }
-      .icon-angle-down {
-        font-size: 18px;
-      }
-    }
   }
 
   li {
