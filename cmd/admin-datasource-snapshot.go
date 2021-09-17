@@ -1,0 +1,120 @@
+/*
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package cmd
+
+import (
+	"context"
+	"os"
+	"time"
+
+	"github.com/manifoldco/promptui"
+
+	"github.com/micro/go-micro/client"
+	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
+	defaults "github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/sync"
+	context2 "github.com/pydio/cells/common/utils/context"
+)
+
+var (
+	snapshotDsName    string
+	snapshotOperation string
+	snapshotBasename  string
+)
+
+var dsSnaphsotCmd = &cobra.Command{
+	Use:   "snapshot",
+	Short: "Dump/Load snapshot of the index for a flat datasource",
+	Long: `
+DESCRIPTION
+
+  For flat format datasources, files are stored horizontally with UUID as their names inside the storage. 
+  The associated tree structure (files and folders) is maintained in the Cells database only.
+  For best restore/backup operations, it can be useful to regularly dump a snapshot of this tree structure inside a 
+  particular file inside the storage, which can be used later on to reload data on a clean installation.
+
+  This command allows to dump/load the index on-file.
+
+EXAMPLES
+
+  1. Dump database index inside a snapshot.db file inside the datasource storage :
+  $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=dump --basename=snapshot.db
+
+  2. Reload database index from a snapshot.db file located inside the datasource storage :
+  $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=load --basename=snapshot.db
+
+`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if snapshotDsName == "" {
+			cmd.Println("Please provide a datasource name (--datasource)")
+			cmd.Help()
+			return
+		}
+		if snapshotBasename == "" {
+			cmd.Println("Please provide a snapshot basename (--basename)")
+			cmd.Help()
+			return
+		}
+		if snapshotOperation != "dump" && snapshotOperation != "load" {
+			cmd.Println("Please provide the operation as one of 'dump' or 'load'.")
+			cmd.Help()
+			return
+		}
+		syncService = "pydio.grpc.data.sync." + snapshotDsName
+
+		cli := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
+		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+		defer cancel()
+		c = context2.WithUserNameMetadata(c, common.PydioSystemUsername)
+		req := &sync.ResyncRequest{}
+		if snapshotOperation == "dump" {
+			req.Path = "write/" + snapshotBasename
+			cmd.Printf("Trigger snapshot generation for %s inside %s\n", snapshotDsName, snapshotBasename)
+		} else {
+			req.Path = "read/" + snapshotBasename
+			cmd.Printf("Read snapshot %s and populate index for datasource %s\n", snapshotBasename, snapshotDsName)
+			conf := promptui.Prompt{Label: "DANGER : this will override the current content of this datasource index. Are you sure you want to do that", IsConfirm: true, Default: "N"}
+			_, e := conf.Run()
+			if e != nil {
+				cmd.Println("Aborting operation")
+				return
+			}
+		}
+		resp, err := cli.TriggerResync(c, req, client.WithRetries(1))
+		if err != nil {
+			cmd.Println("Resync Failed: " + err.Error())
+			return
+		}
+		cmd.Println("Resync Triggered.")
+		if resp.JsonDiff != "" {
+			cmd.Println("Result: " + resp.JsonDiff)
+		}
+	},
+}
+
+func init() {
+	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotDsName, "datasource", "d", "", "Name of datasource to resynchronize")
+	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotOperation, "operation", "o", "dump", "One of [dump|load] to either dump index or reload it from existing data")
+	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotBasename, "basename", "b", "snapshot.db", "Basename of the snapshot file inside the datasource storage bucket")
+	DataSourceCmd.AddCommand(dsSnaphsotCmd)
+}

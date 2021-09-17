@@ -20,15 +20,37 @@
 
 package cmd
 
+import (
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
+
+var CleanCmd = &cobra.Command{
+	Use: "clean",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		bindViperFlags(cmd.Flags(), map[string]string{})
+
+		viper.SetDefault("registry", "grpc://:8000")
+		viper.SetDefault("broker", "grpc://:8003")
+
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
+		initConfig()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
+	},
+	Short: "Housekeeping commands",
+	Long:  "Collection of tools for purging Cells internal data (activities, logs, etc)",
+}
+
 func init() {
-	purgeCmd := *cleanActivities
-	purgeCmd.Use = "purge-activities"
-	purgeCmd.Long = `
-
-DEPRECATED
-
-  Kept for backward-compatibility, use './cells admin clean activities' instead.
-` + purgeCmd.Long
-	purgeCmd.Hidden = true
-	AdminCmd.AddCommand(&purgeCmd)
+	AdminCmd.AddCommand(CleanCmd)
 }

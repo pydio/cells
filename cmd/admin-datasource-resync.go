@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2018-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -35,46 +35,37 @@ import (
 )
 
 var (
-	syncDsName  string
-	syncService string
-	syncPath    string
+	resyncDsName string
 )
 
-var dataSyncCmd = &cobra.Command{
+var dsResyncCmd = &cobra.Command{
 	Use:   "resync",
-	Short: "Trigger a service resync",
+	Short: "Trigger resync for a structured datasource",
 	Long: `
 DESCRIPTION
 
-  Trigger the re-indexation of a service. 
-  This can be currently used for datasource indexes (see 'admin datasource' commands) and search engine.
+  Trigger the re-indexation of a datasource. This is only applicable to structured datasource.
 
 EXAMPLES
 
   To trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
 
-  1. By datasource name:
-  $ ` + os.Args[0] + ` admin resync --datasource=pydiods1
+  $ ` + os.Args[0] + ` admin datasource resync --datasource=pydiods1
 
-  2. By service name:
-  $ ` + os.Args[0] + ` admin resync --service=pydio.grpc.data.sync.pydiods1 
-
-  3. Re-index search engine:
-  $ ` + os.Args[0] + ` admin resync --service=pydio.grpc.search --path=/
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		if syncDsName != "" {
-			syncService = "pydio.grpc.data.sync." + syncDsName
-		} else if syncService == "" {
-			cmd.Println("Please provide at least a datasource name or a service name!")
+		if resyncDsName == "" {
+			cmd.Println("Please provide a datasource name (--datasource)")
 			cmd.Help()
 			return
 		}
+		syncService = "pydio.grpc.data.sync." + resyncDsName
+
 		cli := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 		defer cancel()
 		c = context2.WithUserNameMetadata(c, common.PydioSystemUsername)
-		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: syncPath}, client.WithRetries(1))
+		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "/"}, client.WithRetries(1))
 		if err != nil {
 			cmd.Println("Resync Failed: " + err.Error())
 			return
@@ -87,8 +78,6 @@ EXAMPLES
 }
 
 func init() {
-	dataSyncCmd.PersistentFlags().StringVar(&syncDsName, "datasource", "", "Name of datasource to resync")
-	dataSyncCmd.PersistentFlags().StringVar(&syncService, "service", "", "If no datasource name is passed, use the complete service name to resync")
-	dataSyncCmd.PersistentFlags().StringVar(&syncPath, "path", "/", "Path to resync")
-	AdminCmd.AddCommand(dataSyncCmd)
+	dsResyncCmd.PersistentFlags().StringVarP(&syncDsName, "datasource", "d", "", "Name of datasource to resynchronize")
+	DataSourceCmd.AddCommand(dsResyncCmd)
 }
