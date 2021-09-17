@@ -12,19 +12,19 @@
     "other": "Opções de Exibição"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "Use este formulário de pesquisa para localizar arquivos ou pastas em qualquer espaço de trabalho e células. Apenas os primeiros 5 resultados são mostrados, insira um espaço de trabalho para obter mais resultados e mais opções de pesquisa."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "Quando nenhuma pesquisa é inserida, o histórico dos seus arquivos e pastas acessados é exibido."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "Pesquisa Global"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "Aqui, você encontrará muitas informações sobre a seleção atual: informação de arquivos, status de compartilhamento, metadados definidos pelo usuário, etc."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "Você pode fechar este painel usando o botão de informações na barra de ferramentas de exibição"
   },
   "tour.infopanel.file": {
     "other": "Arquivo"
@@ -36,7 +36,7 @@
     "other": "Buscar"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "Painel de Informações"
   },
   "tour.locale.back": {
     "other": "Voltar"
@@ -45,7 +45,7 @@
     "other": "Fechar"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Finalizar"
   },
   "tour.locale.next": {
     "other": "Próximo"
@@ -54,82 +54,82 @@
     "other": "Prosseguir"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "Na primeira conexão, seu histórico provavelmente está vazio. Digite um espaço de trabalho ou célula para começar a adicionar arquivos."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Abrir um espaço de trabalho"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "Diretório de todos os usuários que acessam à plataforma. Crie seus próprios usuários e constitua equipes que podem ser usadas para compartilhar recursos"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "O painel de alertas irá informá-lo quando um usuário com quem você compartilhou alguns recursos acessou ele. Eles podem ser enviados diretamente para você por e-mail."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "Voltar ao painel de boas-vindas com este botão"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "Acesso a outras opções: gerenciar seus recursos de perfil e segurança, navegar por todos os recursos que você compartilhou, sair da plataforma."
   },
   "tour.uwidget.title": {
-    "other": "User Cartouche"
+    "other": "Quadro do Usuário"
   },
   "tour.welcomemodal.skip": {
     "other": "Prosseguir"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Iniciar o tour"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "Arraste a melhor foto de você para o seu perfil! Esse tour rápido irá guiá-lo através da interface web."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "Bem-vindo ao APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "Você pode adicionar ou remover widgets aqui. Você também pode reordená-los simplesmente arrastando-os."
   },
   "tour.widget-cards.title": {
     "other": "Widgets"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "Espaços de trabalho são pastas de nível superior que te ajudam a organizar seus dados. Eles podem ser acessadas apenas por você, ou compartilhar com muitas pessoas."
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Células são espaços colaborativos que você pode compartilhar com outros usuários. Crie suas próprias células com base em uma pasta, uma equipe de usuários ou qualquer tópico relevante."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "Espaços de Trabalho e Células"
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "Tarefas em Segundo Plano"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "Trabalhos em execução"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "Problemas de conexão"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "O websocket parece estar desconectado, por favor certifique-se de que o servidor está ativo e a conexão do websocket está funcionando."
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "Autenticação bem-sucedida"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "Falha na Autenticação"
   },
   "oauth.authentication.code": {
-    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "Você foi autenticado com sucesso. Por favor, copie e cole o código no seu terminal de linha de comando"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "Copiar códigos para a área de transferência"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "Código copiado para a área de transferência, você pode colá-lo na linha de comando."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "Não foi possível copiar para a área de transferência."
   },
   "list.display-mode.list": {
     "other": "Lista de detalhes"
@@ -141,27 +141,27 @@
     "other": "Miniaturas"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "Miniaturas Grande"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "Miniaturas pequenas"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "Galeria de imagens"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "Extensões de arquivos"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Mostrar extensões"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "Fixar marcadores no topo"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "Selecione um arquivo para exibir informações"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Todos os arquivos"
   }
 }

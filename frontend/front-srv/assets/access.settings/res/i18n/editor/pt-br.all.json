@@ -162,40 +162,40 @@
     "other": "Somente leitura"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Gerenciar funções do usuário"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Adicionar para..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Todos os espaços de trabalho"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Apenas células compartilhadas"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "Espaço de trabalho %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Adicionar parâmetro ou ação personalizada"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "Sem parâmetros ou ações"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Página Inicial"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Página de boas-vindas exibida após o login"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "Console Administrativo"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Painel de administração do Pydio Cells"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Permissões definidas manualmente"
   },
   "acls.rights.advanced.root": {
     "other": "Espaço de trabalho inteiro"

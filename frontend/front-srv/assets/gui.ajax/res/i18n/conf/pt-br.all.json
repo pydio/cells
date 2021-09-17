@@ -1,290 +1,290 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "JS frameworks Adicional"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "Lista de caminhos separados por vírgulas para arquivos JS, que devem ser carregados ANTES da estrutura principal do Pydio ser carregado. A forma preferida deveria ser usando as declarações de recursos do plugin. Carregar arquivos JS na inicialização da página pode ser opção somente em alguns casos."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "Uma mensagem adicional exibida na tela de início"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "Domínio do Analytics"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "Evento de Analytics"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "ID do Analytics"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "Acrescentar um título ao logo da imagem"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "Título da Aplicação"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "Atributos da imagem usada como plano de fundo"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "Atributos do fundo (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "Atributos do fundo (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "Atributos do fundo (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "Atributos do fundo (4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "Atributos do fundo (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "Atributos do fundo (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "Atributos de fundo (baixa resolução)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "Interface rica baseada em navegadores. Contém configurações para temas, mensagem de boas-vindas personalizada, etc."
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "Centralizar na Página (no-repeat)"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "Plugin Cliente"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "Configuração de Sessão Cliente"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "Timeout do Cliente"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "Fundo personalizado (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "Fundo personalizado (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "Fundo personalizado (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "Fundo personalizado (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "Fundo personalizado (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "Fundo personalizado (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "Ícone personalizado"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "Codificação detectada"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "Caminho do servidor detectado"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "Exibir Ferramenta da Marca"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Habilitar Tour de Boas-Vindas"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Habilitar o pequeno tour disparado na primeira visita"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "Buscar Janela (sem repetir)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "Buscar Janela (repetir verticalmente)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "Tamanho da fonte usada para o título na tela inicial"
   },
   "Google Analytics": {
     "other": "Google Analytics"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Analytics Domain do Google Analytics"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "Analytics Events do Google Analytics"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "Analytics ID do Google Analytics"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "Altura do ícone personalizado (com a menção de píxeis)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "Altura do Ícone"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "Somente Ícone"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "Caminho do Ícone (Legado)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "Largura do Ícone"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "Id da sua conta GA, algo como UE-XXXX-YY"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "Imagem usada como fundo"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "Página de Login"
   },
   "Logo": {
     "other": "Logo"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "Altura do Logo"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "Logotipo à Esquerdo"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "Logo Acima"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "Largura do Logo"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "Fundo em baixa resolução"
   },
   "Main Options": {
     "other": "Opções Principais"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "Certifique-se de usar uma imagem de resolução menor, caso contrário o carregamento de dispositivos móveis fica muito lento."
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "Definir manualmente um deslocamento à esquerda"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "Definir manualmente uma altura do logotipo"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "Definir manualmente uma largura do logotipo"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "Definir manualmente um deslocamento superior"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "Mini-site"
   },
   "Minisite Logo": {
-    "other": "Minisite Logo"
+    "other": "Logo do Mini-Site"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "Número de MINUTOS antes da expiração da sessão para emitir um alerta ao usuário"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "Sobrescrever estilos e cores padrão com as opções definidas na ferramenta de marca. Certifique-se de recarregar a interface se você alternar esta opção."
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "Imagens de Fundo de Página"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "Substituir o logo exibido na página de boas-vindas"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "Substituir o logo superior esquerdo na barra de ferramentas superior"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Definir o domínio para os seus relatórios de análise (não obrigatório!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Definir o domínio para os seus relatórios de análise (não obrigatório!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "Configure alguns parâmetros da aplicação. Se você ativar os e-mails, use o botão de teste para verificar se o seu php está configurado corretamente."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "Mostre a paleta na interface para alterar as cores e os logos da interface. Certifique-se de recarregar a interface se você alternar esta opção."
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "Pular o título, exibindo apenas uma imagem"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "Tela Inicial"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "O comprimento da sessão do cliente em SEGUNDOS. A duração da sessão do servidor será utilizada por padrão. Na maioria das instalações PHP, a duração da sessão é definida como 1440 segundos (24 minutos). Você pode definir este valor como 0. Isto fará com que a sessão do cliente fique 'infinito' batendo o servidor periodicamente. Isto mantém a sessão do PHP viva. Por razões de segurança evidentes, esta não é uma configuração recomendada."
   },
   "Theme": {
-    "other": "Theme"
+    "other": "Tema"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "Tema usado para exibição"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "Mosaico (repita em ambas as direções)"
   },
   "Title": {
-    "other": "Title"
+    "other": "Título"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "Tamanho da Fonte do Título"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "Barra de Ferramentas de Topo"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "Logo superior direito exibido na página de mini-site"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "URI para uma imagem personalizada para ser usado como logo de início"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "Usar Log de Eventos, experimental apenas implementada na ação de baixar no Pydio"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "Usar marca configurada"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "Logo da Página Inicial"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "Aviso antes da sessão expirar"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Sessão Web"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "Logout automático da interface web após inatividade"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "Por segurança, desconecte o usuário se não houver nenhuma atividade. Defina a expiração de cookie por padrão."
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "Mensagem de Boas-vindas"
   },
   "Welcome Page": {
     "other": "Página de Boas-vindas"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "Largura da imagem personalizada (Padrão 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Alerta o usuário que a sessão da web está prestes a expirar. Número de minutos antes da expiração da sessão"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Aviso antes da expiração da sessão"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "Cabeçalho HTML personalizado"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "HTML personalizado que você quer que seja incluído no cabeçalho das páginas. Cuidado, certifique-se de colocar HTML válido aqui!"
   }
 }

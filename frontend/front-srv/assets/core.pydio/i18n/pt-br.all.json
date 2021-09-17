@@ -1557,67 +1557,67 @@
     "other": "Comece a adicionar arquivos ou pastas escolhendo-os ou arrastando-os diretamente da sua área de trabalho"
   },
   "566": {
-    "other": "You are not allowed to add files here"
+    "other": "Você não tem permissão para adicionar arquivos aqui"
   },
   "567": {
-    "other": "Browse Recycle Bin"
+    "other": "Navegar na Lixeira"
   },
   "568": {
     "other": "My Teams"
   },
   "569": {
-    "other": "New Team"
+    "other": "Nova Equipe"
   },
   "57": {
     "other": "Imagem PNG"
   },
   "570": {
-    "other": "Delete Team"
+    "other": "Excluir Equipe"
   },
   "571": {
-    "other": "No teams created yet"
+    "other": "Nenhum time criado ainda"
   },
   "572": {
-    "other": "Create your own teams in order to easily share data between multiple users"
+    "other": "Crie suas próprias equipes para compartilhar dados facilmente entre vários usuários"
   },
   "571.readonly": {
-    "other": "No teams available"
+    "other": "Não há equipes disponíveis"
   },
   "572.readonly": {
-    "other": "You are not allowed to create teams, but some authorized users may share teams with you"
+    "other": "Você não tem permissão para criar equipes, mas alguns usuários autorizados podem compartilhar equipes com você"
   },
   "571.create_team_action": {
-    "other": "Create and edit Teams"
+    "other": "Criar e editar equipes"
   },
   "571.create_team_legend": {
-    "other": "Let users create and edit their own teams"
+    "other": "Permitir que usuários criem e editem suas próprias equipes"
   },
   "573": {
-    "other": "Add user to team"
+    "other": "Adicionar usuário à equipe"
   },
   "574": {
-    "other": "Remove from team"
+    "other": "Remover da equipe"
   },
   "575": {
-    "other": "Team Members"
+    "other": "Membros da equipe"
   },
   "576": {
-    "other": "%s members"
+    "other": "%s membros"
   },
   "577": {
-    "other": "No members"
+    "other": "Não há membros"
   },
   "578": {
     "other": "Nome da Equipe"
   },
   "579": {
-    "other": "Create Team"
+    "other": "Criar uma Equipe"
   },
   "58": {
     "other": "Arquivo CSS"
   },
   "580": {
-    "other": "Edit team label"
+    "other": "Editar rótulo do time"
   },
   "581": {
     "other": "Usuário pertence a %s equipe(s)"
@@ -1803,40 +1803,40 @@
     "other": "Seu grupo"
   },
   "634c": {
-    "other": "All users"
+    "other": "Todos os usuários"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Sala de Bate-Papo"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Comece a digitar e pressione Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Nenhuma mensagem ainda, comece a digitar para conversar com usuários desta célula!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "A célula contém várias pastas raiz ou arquivos, você não pode enviar dados diretamente aqui."
   },
   "639": {
-    "other": "In this cell"
+    "other": "Nesta célula"
   },
   "64": {
     "other": "Arquivo XLS"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Criar uma célula com %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Remover da célula atual"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Adicionar à célula atual"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Agora você compartilha uma célula com %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Não foi possível criar a célula: %s"
   },
   "65": {
     "other": "Arquivo Word"
@@ -1989,7 +1989,7 @@
     "other": "em %s dias"
   },
   "date_relative_time": {
-    "other": "TIME"
+    "other": "DATA"
   },
   "date_relative_time_format": {
     "other": "H:i"
@@ -2043,70 +2043,70 @@
     "other": "c"
   },
   "plugtype.desc.access": {
-    "other": "Plugins defining how a workspace will both access its backend (a file storage or whatever else) and major layouts and actions."
+    "other": "Plugins que definem como um espaço de trabalho acessarão seu backend (um armazenamento de arquivos ou qualquer outro tipo) e os principais layouts e ações."
   },
   "plugtype.desc.action": {
-    "other": "Feature oriented plugins for various aspects"
+    "other": "Plugins orientados para recursos para vários aspectos"
   },
   "plugtype.desc.auth": {
-    "other": "How users data are stored in the backend"
+    "other": "Como os dados de usuários são armazenados no backend"
   },
   "plugtype.desc.authfront": {
-    "other": "Methods for gathering identification credentials (web form, api key, etc)"
+    "other": "Métodos para a coleta de credenciais de identificação (formulário web, chave de api, etc)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework"
+    "other": "Plugin exclusivo para carregar o framework"
   },
   "plugtype.desc.cache": {
-    "other": "Unique plugin to set up the cache server used by the application"
+    "other": "Plugin exclusivo para configurar o servidor de cache usado pela aplicação"
   },
   "plugtype.desc.conf": {
-    "other": "How configuration data are stored in the backend"
+    "other": "Como os dados de configuração são armazenados no backend"
   },
   "plugtype.desc.cypher": {
-    "other": "Data encryption plugins"
+    "other": "Plugins de criptografia de dados"
   },
   "plugtype.desc.editor": {
-    "other": "Viewers or editors for wide range of mime types"
+    "other": "Visualizadores ou editores para uma ampla variedade de tipos mime"
   },
   "plugtype.desc.feed": {
-    "other": "Implementations for storing data events (only SQL yet)"
+    "other": "Implementações para armazenar eventos de dados (apenas SQL por hora)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface, themes and extensions"
+    "other": "Principais interface web, temas e extensões"
   },
   "plugtype.desc.helper": {
-    "other": "Helpers tools for administrative tasks"
+    "other": "Ferramentas de ajuda para tarefas administrativas"
   },
   "plugtype.desc.index": {
-    "other": "Tools for indexing data and providing quick search option"
+    "other": "Ferramentas para indexação de dados e fornecendo opções de busca rápida"
   },
   "plugtype.desc.log": {
-    "other": "Send application logs to various channels"
+    "other": "Enviar logs de aplicação para vários canais"
   },
   "plugtype.desc.mailer": {
-    "other": "Tools for letting the application send emails"
+    "other": "Ferramentas para permitir que o aplicativo envie e-mails"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Opções do mecanismo de busca"
   },
   "plugtype.desc.meta": {
-    "other": "Additional features to be added to the workspaces"
+    "other": "Recursos adicionais para serem adicionados aos espaços de trabalho"
   },
   "plugtype.desc.metastore": {
-    "other": "Various implementations for storing metadata along with files and folders"
+    "other": "Várias implementações para armazenar metadados juntamente com arquivos e pastas"
   },
   "plugtype.desc.mq": {
-    "other": "Implementations of a simple PUB/SUB server"
+    "other": "Implementações de um simples servidor PUB/SUB"
   },
   "plugtype.desc.sec": {
-    "other": "Advanced Security Features"
+    "other": "Recursos Avançados de Segurança"
   },
   "plugtype.desc.shorten": {
-    "other": "Webservices bridges for shortening public links"
+    "other": "Pontes de Webservices para encurtar links públicos"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
+    "other": "Remetentes baseados em várias tecnologias como HTML, Javascript, Java e outros"
   },
   "plugtype.title.access": {
     "other": "Controlador de Áreas de Trabalhos"
@@ -2115,22 +2115,22 @@
     "other": "Plugins de ações"
   },
   "plugtype.title.auth": {
-    "other": "Authentication Backends"
+    "other": "Autenticação de Backends"
   },
   "plugtype.title.authfront": {
-    "other": "Authentication Frontends"
+    "other": "Frontend de Autenticação"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Carregador"
   },
   "plugtype.title.cache": {
     "other": "Servidor de cache"
   },
   "plugtype.title.conf": {
-    "other": "Configuration Storage"
+    "other": "Armazenamento de Configuração"
   },
   "plugtype.title.cypher": {
-    "other": "Encryption Tools"
+    "other": "Ferramentas de criptografia"
   },
   "plugtype.title.editor": {
     "other": "Editores"
@@ -2328,46 +2328,46 @@
     "other": "Você está prestes a excluir"
   },
   "confirm.dialog.skipNext": {
-    "other": "Do not warn me next time"
+    "other": "Não me avisar da próxima vez"
   },
   "material.paginator.rows": {
-    "other": "Rows per page"
+    "other": "Linhas por página"
   },
   "material.paginator.of": {
     "other": "de"
   },
   "form.input-image.fileTypes": {
-    "other": "Please use only images (jpeg,png,bmp,webp)"
+    "other": "Por favor use apenas imagens (jpeg,png,bmp,webp)"
   },
   "form.input-image.clearButton": {
     "other": "Resetar"
   },
   "form.input-image.clearConfirm": {
-    "other": "Do you want to remove current image?"
+    "other": "Você quer remover a imagem atual?"
   },
   "form.input-image.avatarMax": {
-    "other": "Please use images smaller than 5MB"
+    "other": "Por favor, use imagens menores que 5MB"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Buscando..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Buscar..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Buscar: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Buscar em..."
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Filtros Avançados"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 resultados encontrados"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "Mostrando %1, carregar mais..."
   },
   "searchengine.query.action.save": {
     "other": "Salvar"
@@ -2379,21 +2379,21 @@
     "other": "Apagar"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Digite um rótulo"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Entradas antigas"
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Uso da Cota"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Excluir permanentemente"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "aviso, você não pode desfazer esta operação!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Ir para a pasta"
   }
 }

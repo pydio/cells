@@ -150,7 +150,7 @@
     "other": "Ignorar ressincronização completa ao reiniciar"
   },
   "ds.editor.storage.legend.skipResync": {
-    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
+    "other": "Para enormes fontes de dados, você pode querer evitar a ressincronização total no momento da reinicialização."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Armazenar checksums localmente (não modificar objetos)"
@@ -300,7 +300,7 @@
     "other": "Tags de objetos"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Path prefix inside the bucket (used as a folder)"
+    "other": "Prefixo do caminho dentro do bucket (usado como uma pasta)"
   },
   "ds.editor.title": {
     "other": "Fontes de dados %s"
@@ -621,7 +621,7 @@
     "other": "Valor"
   },
   "metadata.editor.selection.steps": {
-    "other": "Show as steps"
+    "other": "Mostrar como passos"
   },
   "metadata.editor.tags.cleared": {
     "other": "Limpar tags para namespaces %s"
@@ -669,34 +669,34 @@
     "other": "Tipo"
   },
   "metadata.type.string": {
-    "other": "Short Text"
+    "other": "Texto Curto"
   },
   "metadata.type.textarea": {
-    "other": "Paragraph"
+    "other": "Parágrafo"
   },
   "metadata.type.integer": {
-    "other": "Number"
+    "other": "Número"
   },
   "metadata.type.boolean": {
-    "other": "True/False value"
+    "other": "Valor verdadeiro/falso"
   },
   "metadata.type.date": {
-    "other": "Date or Time"
+    "other": "Data ou Hora"
   },
   "metadata.type.stars_rate": {
     "other": "Classificação por estrelas"
   },
   "metadata.type.css_label": {
-    "other": "Color Labels"
+    "other": "Rótulos de cor"
   },
   "metadata.type.tags": {
-    "other": "Extensible Tags"
+    "other": "Tags Extensíveis"
   },
   "metadata.type.choice": {
-    "other": "Select from values"
+    "other": "Selecionar dos valores"
   },
   "metadata.type.json": {
-    "other": "JSON (internal format)"
+    "other": "JSON (formato interno)"
   },
   "metadata.type.date.format": {
     "other": "Formato"
@@ -705,10 +705,10 @@
     "other": "Data"
   },
   "metadata.type.date.format.date-time": {
-    "other": "Date & Time"
+    "other": "Data & Hora"
   },
   "metadata.type.date.format.time": {
-    "other": "Time"
+    "other": "Horário"
   },
   "metadata.type.date.display": {
     "other": "Exibir"
@@ -717,28 +717,28 @@
     "other": "Normal"
   },
   "metadata.type.date.display.relative": {
-    "other": "Relative (xx days ago...)"
+    "other": "Relativo (xx dias atrás...)"
   },
   "metadata.type.reaction": {
-    "other": "Reaction"
+    "other": "Reação"
   },
   "metadata.type.integer.format": {
     "other": "Formato"
   },
   "metadata.type.integer.format.general": {
-    "other": "General"
+    "other": "Geral"
   },
   "metadata.type.integer.format.bytesize": {
-    "other": "Byte Size"
+    "other": "Tamanho em Byte"
   },
   "metadata.type.integer.format.percentage": {
-    "other": "Percentage"
+    "other": "Porcentagem"
   },
   "metadata.type.integer.format.progress": {
-    "other": "Progress"
+    "other": "Progresso"
   },
   "metadata.toggle.list-visibility": {
-    "other": "Show value in files list"
+    "other": "Mostrar valor na lista de arquivos"
   },
   "perfs.booster.description": {
     "other": "Verifica se Pydio Booster é iniciado e permite a comunicação de WebSocket"
@@ -753,109 +753,109 @@
     "other": "Booster do Pydio"
   },
   "perfs.cache.description": {
-    "other": "Checks that a Pydio is configured to use a cache layer"
+    "other": "Verifica se um Pydio está configurado para usar uma camada de cache"
   },
   "perfs.cache.error": {
-    "other": "It does not seem that you have activated the cache service."
+    "other": "Parece que você não ativou o serviço de cache."
   },
   "perfs.cache.help": {
-    "other": "Pydio can connect to an external cache server like Redis or Memcache, or use in-memory cache to greatly improve file browsing performances."
+    "other": "Pydio pode se conectar a um servidor de cache externo, como Redis ou Memcache, ou usar o cache na memória para melhorar muito o desempenho de navegação de arquivos."
   },
   "perfs.cache.title": {
-    "other": "Pydio Cache"
+    "other": "Cache do Pydio"
   },
   "perfs.cli.description": {
-    "other": "Defer time-consuming tasks to command line."
+    "other": "Adiar tarefas demoradas para a linha de comando."
   },
   "perfs.cli.error": {
-    "other": "Warning, command line is not enabled!"
+    "other": "Aviso, a linha de comando não está habilitada!"
   },
   "perfs.cli.help": {
-    "other": "Enable the command line in core parameters. This will greatly improve end-user performances, as time-consuming tasks are delegated to other processes."
+    "other": "Ativar a linha de comando nos parâmetros centrais. Isso melhorará muito o desempenho do usuário final, já que tarefas demoradas são delegadas a outros processos."
   },
   "perfs.cli.title": {
-    "other": "Command-line PHP"
+    "other": "Linha de comando PHP"
   },
   "perfs.debug.description": {
-    "other": "Checks if debug modes are disabled on the server"
+    "other": "Verifica se os modos de depuração estão desativados no servidor"
   },
   "perfs.debug.error": {
-    "other": "Warning, one of PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG or PYDIO_SKIP_CACHE is set to True!"
+    "other": "Aviso, um dos PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG ou PYDIO_SKIP_CACHE está definido como Verdadeiro!"
   },
   "perfs.debug.help": {
-    "other": "Make sure to disable debug modes on the server. This is done manually by editing the conf/booststrap_context.php (or /etc/pydio/bootstrap_context.php) file."
+    "other": "Certifique-se de desativar os modos de depuração no servidor. Isso é feito manualmente editando o arquivo conf/booststrap_context.php (ou /etc/pydio/bootstrap_context.php)."
   },
   "perfs.debug.title": {
-    "other": "Debug Modes"
+    "other": "Modos de Depuração"
   },
   "perfs.desc": {
-    "other": "Checking system configurations for possible improvements."
+    "other": "Verificando as configurações do sistema para possíveis melhorias."
   },
   "perfs.load.description": {
-    "other": "Detect high server load (Linux servers only)"
+    "other": "Detectar alta carga do servidor (servidor Linux somente)"
   },
   "perfs.load.error": {
-    "other": "Maybe adding some CPU or RAM to your server could be neccessary."
+    "other": "Talvez adicionar alguma CPU ou RAM ao seu servidor possa ser necessário."
   },
   "perfs.load.help": {
-    "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
+    "other": "Uma alta carga do servidor pode indicar que seu servidor está sem CPU ou RAM devido ao uso do Pydio."
   },
   "perfs.load.title": {
-    "other": "Server Load"
+    "other": "Carga do Servidor"
   },
   "perfs.mailer.description": {
-    "other": "Checks that mailer is using the Queue feature"
+    "other": "Verifica se o mailer está usando o recurso de fila"
   },
   "perfs.mailer.error": {
-    "other": "Mailer is not configured to defer emails sending."
+    "other": "O mailer não está configurado para adiar o envio de emails."
   },
   "perfs.mailer.help": {
-    "other": "Using the mail queue avoids sending every emails directly during every actions and requests, but store them in a separate database and process the queue separately."
+    "other": "Usando a fila de e-mails evita enviar todos os emails diretamente durante cada ação e solicitação, mas armazena-os em um banco de dados separado e processa a fila separadamente."
   },
   "perfs.mailer.title": {
-    "other": "Mailer Queue"
+    "other": "Fila de Mailer"
   },
   "perfs.more": {
     "other": "Mais informações"
   },
   "perfs.opcache.description": {
-    "other": "Checks that a PHP Opcode cache is active"
+    "other": "Verifica se um cache de Opcode PHP está ativo"
   },
   "perfs.opcache.error": {
-    "other": "Could not detect any php extension from APC, APCu, Opcache or XCache."
+    "other": "Não foi possível detectar qualquer extensão php de APC, APCu, Opcache ou XCache."
   },
   "perfs.opcache.help": {
-    "other": "Pydio is a rich PHP framework that requires loading a lot of files in memory. Make sure to enable a PHP Opcache like APC/u, Opcache or XCache."
+    "other": "Pydio é um framework PHP rico que requer carregar um monte de arquivos na memória. Certifique-se de habilitar um PHP Opcache como APC/u, Opcache ou XCache."
   },
   "perfs.opcache.title": {
-    "other": "Opcode Cache Extension"
+    "other": "Opcode Extensão de Cache"
   },
   "perfs.score": {
-    "other": "Performance Score"
+    "other": "Pontuação de Desempenho"
   },
   "perfs.tests": {
-    "other": "Performances Tests"
+    "other": "Testes de desempenho"
   },
   "perfs.title": {
-    "other": "System Performances"
+    "other": "Desempenho do sistema"
   },
   "perfs.widget": {
-    "other": "Add widget to dashboard"
+    "other": "Adicionar widget ao painel"
   },
   "plugins.1": {
-    "other": "General Options"
+    "other": "Opções Gerais"
   },
   "plugins.2": {
-    "other": "Master Driver"
+    "other": "Driver Mestre"
   },
   "plugins.3": {
-    "other": "Secondary Driver"
+    "other": "Driver Secundário"
   },
   "plugins.4": {
-    "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
+    "other": "Plugins de editor são os pré-visualizadores/editores associados a qualquer tipo de arquivo no aplicativo.\n                    Esses plugins são tratados especificamente na GUI (extensões) e podem declarar os mimetypes suportados por eles.\n                    O parâmetro de ordem também permite definir uma prioridade para a ação 'Abrir com...'."
   },
   "plugins.5": {
-    "other": "Save Changes"
+    "other": "Salvar Alterações"
   },
   "plugins.6": {
     "other": "Reverter"
@@ -873,7 +873,7 @@
     "other": "Descrição"
   },
   "plugins.list.action.edit": {
-    "other": "Edit plugin parameters"
+    "other": "Editar parâmetros do plugin"
   },
   "plugins.documentation": {
     "other": "Documentação"
@@ -882,178 +882,178 @@
     "other": "Criar"
   },
   "policies.policy.description": {
-    "other": "Policy Description"
+    "other": "Descrição da Política"
   },
   "policies.policy.name": {
     "other": "Nome da Política"
   },
   "policies.policy.rules": {
-    "other": "# Rules"
+    "other": "# Regras"
   },
   "policies.policy.display": {
-    "other": "Show policy rules"
+    "other": "Mostrar regras de políticas"
   },
   "policies.policy.edit": {
-    "other": "Edit policy rules"
+    "other": "Editar regras de política"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "Editar rótulos"
   },
   "policies.policy.saveLabels": {
-    "other": "Save Changes"
+    "other": "Salvar Alterações"
   },
   "policies.policy.delete": {
-    "other": "Delete policy"
+    "other": "Excluir política"
   },
   "policies.policy.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? Make sure it does not break the security of the application!"
+    "other": "Tem certeza que deseja excluir esta política? Certifique-se de que ela não quebra a segurança do aplicativo!"
   },
   "policies.policy.new": {
-    "other": "+ New Policy"
+    "other": "+ Nova Política"
   },
   "policies.policy.type": {
-    "other": "Policy Type"
+    "other": "Tipo de Política"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "Adicionar nova regra"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "Excluir regra"
   },
   "policies.rule.delete.confirm": {
-    "other": "Are you sure you want to remove this security rule? This could break the security model of the application!"
+    "other": "Tem certeza que deseja remover esta regra de segurança? Isto pode quebrar o modelo de segurança do aplicativo!"
   },
   "policies.type.acl.legend": {
-    "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
+    "other": "Essas políticas são usadas para fornecer dinamicamente acesso de leitura/escrita a áreas de trabalho ou nós com base no contexto de solicitação e/ou nos metadados do nó. Eles são definidos aqui e usados no Painel de Controle de Acesso dos usuários e funções."
   },
   "policies.type.acl.title": {
-    "other": "Context-based ACLs"
+    "other": "ACLs baseadas em contexto"
   },
   "policies.type.oidc.legend": {
-    "other": "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
+    "other": "O Servidor OpenId Connect é usado para autenticação do usuário, antes de qualquer acesso às APIs. Como tal, você pode desativar totalmente a operação de login para um conjunto de usuários com base no contexto de solicitações, isto é, desativar o registro de log de um determinado conjunto de IP ou em um dado momento."
   },
   "policies.type.oidc.title": {
-    "other": "OpenId Connect Resources"
+    "other": "Recursos de OpenId Connect"
   },
   "policies.type.rest.legend": {
-    "other": "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally not touch these unless you know exactly what you do."
+    "other": "Essas políticas estão protegendo as APIs REST em uma base por uri / por método. Eles concedem acesso básico a algumas APIs específicas para descoberta pública, e um acesso de restrição a muitas APIs para se certificar de que elas são acessadas apenas pelo aplicativo frontend. Geralmente, você não deve tocar nelas a menos que saiba exatamente o que faz."
   },
   "policies.type.rest.title": {
-    "other": "REST Resources"
+    "other": "Recursos do REST"
   },
   "react.1": {
     "other": "pasta pai"
   },
   "react.10": {
-    "other": "Inherit Permissions"
+    "other": "Herdar permissões"
   },
   "react.11": {
-    "other": "Empty Permissions"
+    "other": "Permissões Vazias"
   },
   "react.12": {
-    "other": "Clear Permissions"
+    "other": "Limpar Permissões"
   },
   "react.13": {
-    "other": "Show full permissions"
+    "other": "Mostrar permissões totais"
   },
   "react.14": {
-    "other": "Show resulting tree"
+    "other": "Mostrar árvore resultante"
   },
   "react.2": {
     "other": "ações em massa"
   },
   "react.3": {
-    "other": "Search Results for '%s'"
+    "other": "Resultado da busca por %s"
   },
   "react.4": {
-    "other": "Close Results"
+    "other": "Fechar Resultados"
   },
   "react.5": {
-    "other": "deny"
+    "other": "negar"
   },
   "react.5a": {
-    "other": "read"
+    "other": "ler"
   },
   "react.5b": {
-    "other": "write"
+    "other": "escrever"
   },
   "react.6": {
-    "other": "children"
+    "other": "filho"
   },
   "react.7": {
-    "other": "Create a rule"
+    "other": "Criar uma regra"
   },
   "react.8": {
-    "other": "You are about to manage permissions at the lower level. This folder will be read\n                        only by default, and you will manage permissions selectively on its children. Choose\n                        whether to copy the current permissions to its children, or to clear their permissions, which would make\n                        them inaccessible by default."
+    "other": "Você está prestes a gerenciar as permissões no nível inferior. Esta pasta será lida\n                        apenas por padrão, e você gerenciará as permissões seletivamente em seus filhos. Escolha\n                        se deseja copiar as permissões atuais para seus filhos, ou para limpar suas permissões, o que os tornaria\n                        inacessíveis por padrão."
   },
   "react.9": {
-    "other": "You are about to disable the permissions management at the sub-level: all\n                        children will automatically inherit this folder permissions, and you current settings\n                        for these children will be lost. Are you sure to confirm ?"
+    "other": "Você está prestes a desativar o gerenciamento de permissões no subnível: todos os\n                        filhos herdarão automaticamente as permissões desta pasta, e suas configurações atuais\n                        para estas crianças serão perdidas. Tem certeza que deseja confirmar?"
   },
   "scheduler.1": {
-    "other": "Scheduler is used to trigger tasks automatically on a regular basis. It requires the launch of a master command regularly: if you are using Pydio Booster, it should trigger this for you. Otherwise, use a CRON to launch master command every minute."
+    "other": "O agendador é usado para acionar tarefas automaticamente em uma base regular. Isso requer o lançamento de um comando mestre regularmente: se você estiver usando o Pydio Booster, deve ativar isso para você. Caso contrário, use um CRON para iniciar o comando mestre a cada minuto."
   },
   "scheduler.2": {
-    "other": "Command-line is not enabled in the %1, the scheduler will not be able to run the jobs."
+    "other": "A linha de comando não está habilitada na %1, o agendador não poderá executar as tarefas."
   },
   "scheduler.3": {
-    "other": "global configurations"
+    "other": "configurações globais"
   },
   "user.1": {
-    "other": "+ User"
+    "other": "+ Usuário"
   },
   "user.10": {
-    "other": "Access to %i workspaces"
+    "other": "Acesso aos %i espaços de trabalho"
   },
   "user.11": {
-    "other": "%i roles"
+    "other": "%i funções"
   },
   "user.12": {
-    "other": "Group path"
+    "other": "Caminho do grupo"
   },
   "user.13": {
-    "other": "shared"
+    "other": "compartilhamentos"
   },
   "user.14": {
-    "other": "Create a new role"
+    "other": "Criar uma nova função"
   },
   "user.15": {
-    "other": "Create a new group"
+    "other": "Criar um novo grupo"
   },
   "user.16": {
-    "other": "Group Identifier"
+    "other": "Identificador do Grupo"
   },
   "user.16.empty": {
-    "other": "Please provide a unique identifier"
+    "other": "Por favor, forneça um identificador exclusivo"
   },
   "user.16.format": {
-    "other": "Please use only alphanumeric characters"
+    "other": "Por favor, use apenas caracteres alfanuméricos"
   },
   "user.17": {
-    "other": "Group Label"
+    "other": "Rótulo do Grupo"
   },
   "user.17.empty": {
-    "other": "Please provide a label for this group"
+    "other": "Por favor, forneça um rótulo para este grupo"
   },
   "user.18": {
-    "other": "Role Identifier"
+    "other": "Identificador da função"
   },
   "user.18.empty": {
-    "other": "Please provide a label for this role"
+    "other": "Por favor, forneça um rótulo para esta função"
   },
   "user.19": {
     "other": "Criar novo usuario"
   },
   "user.2": {
-    "other": "+ Group"
+    "other": "+ Grupo"
   },
   "user.20": {
-    "other": "User will be created in group %s"
+    "other": "O usuário será criado no grupo %s"
   },
   "user.21": {
-    "other": "User login"
+    "other": "Login do usuário"
   },
   "user.22": {
-    "other": "User password"
+    "other": "Senha do usuário"
   },
   "user.23": {
     "other": "Confirmar senha"
@@ -1065,10 +1065,10 @@
     "other": "Papel Grupo Raiz"
   },
   "user.26": {
-    "other": "%s Group Role"
+    "other": "Função do grupo %s"
   },
   "user.27": {
-    "other": "User Personal Role"
+    "other": "Função Pessoal do Usuário"
   },
   "user.3": {
     "other": "Grupos"
@@ -1077,79 +1077,79 @@
     "other": "Papéis"
   },
   "user.5": {
-    "other": "Groups & Users"
+    "other": "Grupos e Usuários"
   },
   "user.6": {
-    "other": "+ Role"
+    "other": "+ Função"
   },
   "user.7": {
-    "other": "Search users & groups"
+    "other": "Buscar usuários e grupos"
   },
   "user.8": {
-    "other": "Set parameters on this group to apply them all groups and users."
+    "other": "Defina parâmetros neste grupo para aplicá-los a todos os grupos e usuários."
   },
   "user.9": {
-    "other": "Last connected"
+    "other": "Última conexão"
   },
   "user.moveto.hint": {
-    "other": "Select destination group, leave '/' for root group."
+    "other": "Selecione o grupo de destino, deixe '/' para o grupo raiz."
   },
   "user.filter.tooltip": {
-    "other": "Filter users list..."
+    "other": "Filtrar lista de usuários..."
   },
   "user.filter.internal": {
     "other": "Usuários internos"
   },
   "user.filter.shared": {
-    "other": "Shared users"
+    "other": "Usuários compartilhados"
   },
   "user.filter.admins": {
-    "other": "Admins only"
+    "other": "Somente administradores"
   },
   "user.filter.all": {
-    "other": "All users"
+    "other": "Todos os usuários"
   },
   "user.filter.anon": {
-    "other": "Show anonymous"
+    "other": "Mostrar anônimo"
   },
   "versions.editor.delete": {
-    "other": "Delete Policy"
+    "other": "Excluir Política"
   },
   "versions.editor.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? This is undoable!"
+    "other": "Tem certeza de que deseja excluir essa política? Isto pode ser desfeito!"
   },
   "versions.editor.error.lastdelete": {
-    "other": "The last period is configured to delete all versions, you cannot add a new one!"
+    "other": "O último período está configurado para excluir todas as versões, você não pode adicionar uma!"
   },
   "versions.editor.title": {
-    "other": "Policy %s"
+    "other": "Política %s"
   },
   "versions.period.keep-all": {
-    "other": "Keep all"
+    "other": "Manter todos"
   },
   "versions.period.keep-all.always": {
-    "other": "Always keep all versions"
+    "other": "Sempre manter todas as versões"
   },
   "versions.period.keep-n": {
-    "other": "Keep %s versions"
+    "other": "Manter %s versões"
   },
   "versions.period.keep-n-after": {
-    "other": "Keep %1 versions after %2"
+    "other": "Manter %1 versões após %2"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versions"
+    "other": "Máx. %s versões"
   },
   "versions.period.remove-all": {
-    "other": "Remove all"
+    "other": "Revomer tudo"
   },
   "versions.period.remove-all-after": {
-    "other": "Remove all after %s"
+    "other": "Remover tudo após %s"
   },
   "versions.period.retentions-n": {
-    "other": "%s retention periods"
+    "other": "%s períodos de retenção"
   },
   "virtual.create": {
-    "other": "+ Template Path"
+    "other": "+ Caminho do Modelo"
   },
   "virtual.create.button": {
     "other": "Criar"
@@ -1158,217 +1158,217 @@
     "other": "Nome"
   },
   "virtual.col.id": {
-    "other": "Template ID"
+    "other": "ID do modelo"
   },
   "virtual.col.code": {
-    "other": "Template Code"
+    "other": "Código do Modelo"
   },
   "virtual.label.new": {
-    "other": "Label for template"
+    "other": "Rótulo para o modelo"
   },
   "virtual.legend.1": {
-    "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
+    "other": "Caminhos dos Modelos são dinamicamente calculados dependendo do contexto. Eles podem ser usados como raízes para espaços de trabalho na substituição de um caminho de fonte de dados fixa. Eles são usados por padrão para criar os Arquivos Pessoais no espaço de trabalho que aponta para uma pasta diferente para cada usuário, e para calcular a localização das pastas de células de usuários."
   },
   "virtual.legend.2": {
-    "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
+    "other": "Use Ctrl+Space dentro do editor para obter a dica sobre os valores possíveis. Os valores atuais suportados são: User.Name (dinamicamente resolvido para o usuário atual conectado) e DataSources (para escolher uma fonte de dados dinamicamente)."
   },
   "virtual.title": {
     "other": "Caminhos do Modelo"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "Salvar modelo"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "Excluir modelo"
   },
   "virtual.delete.confirm": {
-    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+    "other": "Tem certeza que deseja excluir este caminho do modelo? A operação é irreversível!"
   },
   "virtual.code": {
-    "other": "Template code"
+    "other": "Código modelo"
   },
   "virtual.code.display": {
-    "other": "Display code"
+    "other": "Mostrar código"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "Editar código"
   },
   "virtual.card.title": {
-    "other": "Dynamically computed path"
+    "other": "Caminho calculado dinamicamente"
   },
   "virtual.card.cleanOnDelete": {
-    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
+    "other": "Após a exclusão do usuário, renomeie dados para {deleted-NAME-UUID}."
   },
   "ws.1": {
-    "other": "Manage DataSources"
+    "other": "Gerenciar Fonte de Dados"
   },
   "ws.10": {
-    "other": "Select a DataSource"
+    "other": "Selecionar uma Fonte de dados"
   },
   "ws.11": {
-    "other": "Workspace based on ..."
+    "other": "Espaço de trabalho baseado em..."
   },
   "ws.12": {
-    "other": "Template %s"
+    "other": "Modelo %s"
   },
   "ws.13": {
-    "other": "Template Options"
+    "other": "Opções de Modelo"
   },
   "ws.14": {
-    "other": "Set Generic Options"
+    "other": "Configurar Opções Genéricas"
   },
   "ws.15": {
-    "other": "Workspace Options"
+    "other": "Opções do Espaço de trabalho"
   },
   "ws.16": {
-    "other": "Choose Storage Driver"
+    "other": "Escolher Driver de Armazenamento"
   },
   "ws.17": {
-    "other": "Select Storage Type"
+    "other": "Selecionar Tipo de Armazenamento"
   },
   "ws.18": {
-    "other": "Loading drivers"
+    "other": "Carregando drivers"
   },
   "ws.19": {
-    "other": "Save to add features"
+    "other": "Salve para adicionar recursos"
   },
   "ws.2": {
-    "other": "Close DataSources"
+    "other": "Fechar Fonte de dados"
   },
   "ws.20": {
     "other": "Criar"
   },
   "ws.21": {
-    "other": "Template General Options"
+    "other": "Opções Gerais do Modelo"
   },
   "ws.22": {
-    "other": "Workspace General Options"
+    "other": "Opções Gerais do Espaço de trabalho"
   },
   "ws.23": {
     "other": "Apagar área de trabalho"
   },
   "ws.24": {
-    "other": "Children Workspaces"
+    "other": "Espaços de trabalho filho"
   },
   "ws.25": {
-    "other": "Shares"
+    "other": "Compartilhamentos"
   },
   "ws.26": {
-    "other": "Folders Permissions"
+    "other": "Permissões de pastas"
   },
   "ws.27": {
-    "other": "Additional Features"
+    "other": "Recursos Adicionais"
   },
   "ws.28": {
-    "other": "Summary"
+    "other": "Resumo"
   },
   "ws.29": {
     "other": "Parametros"
   },
   "ws.3": {
-    "other": "+ workspace"
+    "other": "+ espaço de trabalho"
   },
   "ws.filter.workspaces": {
-    "other": "Filter workspaces..."
+    "other": "Filtrar Espaços de Trabalho..."
   },
   "ws.30": {
-    "other": "General Options"
+    "other": "Opções Gerais"
   },
   "ws.31": {
-    "other": "Remove Feature"
+    "other": "Remover Recurso"
   },
   "ws.32": {
-    "other": "Add a feature..."
+    "other": "Adicionar uma funcionalidade..."
   },
   "ws.33": {
-    "other": "Recent Activity"
+    "other": "Atividade Recente"
   },
   "ws.34": {
-    "other": "Last events on this workspace"
+    "other": "Últimos eventos neste espaço de trabalho"
   },
   "ws.35": {
-    "other": "Accessible to %i users"
+    "other": "Acessível a %i usuários"
   },
   "ws.36": {
-    "other": "+ %i files or folders shared"
+    "other": "+ %i arquivos ou pastas compartilhadas"
   },
   "ws.37": {
-    "other": "Workspaces using this template"
+    "other": "Espaços de trabalho usando este modelo"
   },
   "ws.38": {
-    "other": "Shared Items in this workspace"
+    "other": "Itens compartilhados neste espaço de trabalho"
   },
   "ws.39": {
     "other": "Dono"
   },
   "ws.4": {
-    "other": "+ datasource"
+    "other": "+ fontes de dados"
   },
   "ws.40": {
-    "other": "Share Type"
+    "other": "Tipo de Compartilhamento"
   },
   "ws.41": {
-    "other": "Path"
+    "other": "Caminho"
   },
   "ws.42": {
-    "other": "Folder Level Permissions"
+    "other": "Permissões de nível de pasta"
   },
   "ws.43": {
-    "other": "Specify here the default access permissions to this workspace folders.\n                                To enable the permissions management at a sub-level, select the 'CHILDREN' on a given folder.\n                                This will set the current folder as readonly by default, and you will be able to open accesses\n                                selectively to any of its children folders."
+    "other": "Especifique aqui as permissões de acesso padrão para esta pasta do espaço de trabalho.\n                                Para ativar o gerenciamento de permissões em um subnível selecione 'CHILDREN' em uma determinada pasta.\n                                Isso irá definir a pasta atual como somente leitura por padrão e você poderá abrir acessos\n                                de forma seletiva para qualquer uma das pastas filhas."
   },
   "ws.44": {
-    "other": "Please be aware that this is only a mask: if you modify the real folders directly, you may have\n                                to edit this mask accordingly. Also, these permissions may be globally limited by the 'Default Rights'\n                                paremeter set for this workspace (see the General tab)."
+    "other": "Por favor, esteja ciente de que isto é apenas uma máscara: se você modificar as pastas reais diretamente, Você pode ter\n                                para editar esta máscara de acordo. Além disso, essas permissões podem estar globalmente limitadas pelo conjunto 'Direitos Padrões'\n                                para esta área de trabalho (veja a guia Geral)."
   },
   "ws.45": {
-    "other": "As its parameters are using 'PYDIO_USER' or 'PYDIO_GROUP_*' keywords, the contents of\n                                this workspace will vary depending on the currently authenticated user. For this reason, you cannot browse the\n                                folders directly and assign permissions to them, but you can freely define some generic pathes that will be used as masks."
+    "other": "Como seus parâmetros estão usando as palavras-chave 'PYDIO_USER' ou 'PYDIO_GROUP_*', o conteúdo\n                                deste espaço de trabalho vai variar dependendo do usuário autenticado atualmente. Por esta razão, você não pode navegar pelas\n                                pastas diretamente e atribuir permissões à elas, mas você pode definir livremente alguns caminhos genéricos que serão usados como máscaras."
   },
   "ws.46": {
-    "other": "Add a feature"
+    "other": "Adicionar um recurso"
   },
   "ws.47": {
-    "other": "Select a feature"
+    "other": "Selecionar um recurso"
   },
   "ws.48": {
-    "other": "Beware, this workspace/template is not editable, as it is defined directly in the conf/bootstrap_repositories.php file."
+    "other": "Cuidado, este espaço de trabalho/modelo não é editável, pois é definido diretamente no arquivo conf/bootstrap_repositories.php."
   },
   "ws.49": {
     "other": ""
   },
   "ws.4b": {
-    "other": "+ version policy"
+    "other": "+ política de versão"
   },
   "ws.5": {
-    "other": "Slug"
+    "other": "Curto"
   },
   "ws.50": {
-    "other": "Indexation"
+    "other": "Indexação"
   },
   "ws.51": {
-    "other": "This workspace has an indexer (%s). Normally, indexation is done \"on-the-fly\" when files are added/removed\n                    through the application interfaces. However if you are doing some modifications directly at the storage level, you may have\n                    to manually re-trigger an indexation from time to time. Use buttons below to either index now, or program a task in the scheduler\n                    to run indexation on a regular basis."
+    "other": "Este espaço de trabalho tem um indexador (%s). Normalmente, indexação é feita \"on-the-fly\" quando arquivos são adicionados/removidos\n                    através das interfaces de aplicativo. No entanto, se você estiver fazendo algumas modificações diretamente no nível de armazenamento, você pode ter\n                    para reacionar manualmente uma indexação de vez em quando. Use os botões abaixo para indexar agora, ou programe uma tarefa no agendador\n                    para executar a indexação regularmente."
   },
   "ws.52": {
-    "other": "Please note: as this worksace has user-specific contents, indexation will be launched for each user."
+    "other": "Observação: como este espaço de trabalho possui conteúdo específico do usuário, a indexação será iniciada para cada usuário."
   },
   "ws.53": {
-    "other": "Launch indexation now"
+    "other": "Iniciar indexação agora"
   },
   "ws.54": {
-    "other": "Schedule every day at 3AM"
+    "other": "Agendar todos os dias às 3 h da manhã"
   },
   "ws.55": {
-    "other": "Automatic Purge"
+    "other": "Limpeza Automática"
   },
   "ws.56": {
-    "other": "This workspace has a \"purge\" setup, to automatically remove documents that were left untouched since %s days. Make sure to add a task in the\n                    scheduler to regularly process this workspace and look for expired document. You can use the buttons below to create this task automatically,\n                    ok run the purge directly."
+    "other": "Este espaço de trabalho tem uma configuração de \"limpeza\", para remover automaticamente documentos que ficaram intocados desde %s dias. Certifique-se de adicionar uma tarefa ao agendador\n                    para processar este espaço de trabalho regularmente e procurar o documento expirado. Você pode usar os botões abaixo para criar esta tarefa automaticamente,\n                    ok executar a limpeza diretamente."
   },
   "ws.57": {
-    "other": "Please note: as this worksace has user-specific contents, purge will be running for each user."
+    "other": "Observação: como este espaço de trabalho possui conteúdo específico do usuário, a limpeza será executada para cada usuário."
   },
   "ws.58": {
-    "other": "Purge now"
+    "other": "Limpar agora"
   },
   "ws.59": {
-    "other": "Schedule every day at 4AM"
+    "other": "Agendar todos os dias às 4 h da manhã"
   },
   "ws.6": {
     "other": "Nova Área de Trabalho"
@@ -1377,208 +1377,208 @@
     "other": "Atividade da Área de Trabalho"
   },
   "ws.61": {
-    "other": "Activity of the workspace is displayed to the users in the right-hand panel. You can clear all activity\n                            for this workspace, which can be handy e.g. if you are going \"live\" in production after a staging period where you have\n                            made some tests in this workspace."
+    "other": "A atividade do espaço de trabalho é exibida para os usuários no painel à direita. Você pode limpar todas as atividades\n                            para este espaço de trabalho, que pode ser útil, isto é, se você vai \"a quente\" em produção após um período de teste onde você\n                            fez alguns testes neste espaço de trabalho."
   },
   "ws.62": {
-    "other": "Clear Activity"
+    "other": "Limpar Atividade"
   },
   "ws.63": {
-    "other": "Warning, this will clear all activity of this workspace displayed to users. Are you sure you want to do that?"
+    "other": "Aviso, isto irá limpar toda a atividade deste espaço de trabalho exibido aos usuários. Tem certeza que deseja fazer isso?"
   },
   "ws.64": {
-    "other": "Cleared %s events"
+    "other": "%s eventos foram limpos"
   },
   "ws.65": {
-    "other": "Workspace Maintenance"
+    "other": "Manutenção do Espaço de trabalho"
   },
   "ws.66": {
-    "other": "Running Tasks"
+    "other": "Executando tarefas"
   },
   "ws.67": {
-    "other": "No tasks running"
+    "other": "Não há tarefas em execução"
   },
   "ws.68": {
-    "other": "No Parameters"
+    "other": "Sem Parâmetros"
   },
   "ws.69": {
-    "other": "Template-based workspace"
+    "other": "Espaço de trabalho baseado em modelo"
   },
   "ws.7": {
     "other": "Nova fonte de dados"
   },
   "ws.70": {
-    "other": "Driver-based workspace"
+    "other": "Espaço de trabalho baseado no driver"
   },
   "ws.71": {
-    "other": "Complete the steps below"
+    "other": "Complete as etapas abaixo"
   },
   "ws.72": {
-    "other": "Fill in the form on the right"
+    "other": "Preencha o formulário à direita"
   },
   "ws.73": {
-    "other": "Pick value before continuing"
+    "other": "Escolha o valor antes de continuar"
   },
   "ws.74": {
-    "other": "Use the form on the right to create a new DataSource. "
+    "other": "Use o formulário à direita para criar uma nova Fonte de Dados. "
   },
   "ws.75": {
-    "other": "A DataSource defines where your data is stored."
+    "other": "Uma fonte de dados define onde seus dados são armazenados."
   },
   "ws.76": {
-    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
+    "other": "Pydio irá agregar todos os seus dados em uma árvore mestra, na qual você pode atribuir direitos usando espaços de trabalho."
   },
   "ws.8": {
-    "other": "Existing DataSource"
+    "other": "Fonte de Dados Existente"
   },
   "ws.9": {
     "other": "Opções do Controlador"
   },
   "ws.board.empty": {
-    "other": "No workspaces defined"
+    "other": "Não há espaços de trabalho definidos"
   },
   "ws.board.summary": {
-    "other": "Workspace Roots"
+    "other": "Raízes do Espaço de trabalho"
   },
   "ws.board.syncable": {
-    "other": "Sync"
+    "other": "Sincronizar"
   },
   "ws.complete.datasources": {
-    "other": "DataSources and Folders"
+    "other": "Fonte de dados e Pastas"
   },
   "ws.complete.label": {
-    "other": "Select a folder or a predefined template path"
+    "other": "Selecione uma pasta ou um caminho de modelo predefinido"
   },
   "ws.complete.resolves": {
-    "other": "Resolves to"
+    "other": "Resolver para"
   },
   "ws.complete.templates": {
-    "other": "Preset Template Paths"
+    "other": "Caminhos Pré-definidos de Modelo"
   },
   "ws.dashboard": {
-    "other": "Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."
+    "other": "Os espaços de trabalho definem o ponto de acesso principal aos seus dados para os usuários. Certifique-se de definir pelo menos uma fonte de dados para ser capaz de criar um espaço de trabalho que aponte para um caminho desta fonte de dados."
   },
   "ws.editor.data.legend": {
-    "other": "Workspace exposes one or many 'roots' to the users: choose one or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
+    "other": "Espaço de trabalho expõe um ou muitas 'raízes' aos usuários: escolha um ou mais caminhos de qualquer Fonte de dados ou um caminho de modelo que será resolvido automaticamente em tempo de execução."
   },
   "ws.editor.data.title": {
-    "other": "Data Access"
+    "other": "Acesso aos dados"
   },
   "ws.editor.default_rights": {
-    "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
+    "other": "Configurar as permissões padrão para este espaço de trabalho (aplicado a todos os usuários internos do aplicativo). Você pode substituir essas permissões em uma base por usuário / por função / por grupo na seção Pessoas."
   },
   "ws.editor.default_rights.none": {
-    "other": "None"
+    "other": "Nenhum"
   },
   "ws.editor.default_rights.read": {
-    "other": "Read only"
+    "other": "Somente Leitura"
   },
   "ws.editor.default_rights.readwrite": {
-    "other": "Read and Write"
+    "other": "Leitura e Escrita"
   },
   "ws.editor.default_rights.write": {
-    "other": "Write only"
+    "other": "Somente escrita"
   },
   "ws.editor.description": {
-    "other": "Additional description (optional)"
+    "other": "Descrição adicional (opcional)"
   },
   "ws.editor.help.1": {
-    "other": "Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources."
+    "other": "Espaços de trabalho concedem acessos aos seus dados aos usuários. Eles expõem uma ou várias pastas escolhidas dentro de seus recursos de dados."
   },
   "ws.editor.help.2": {
-    "other": "It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis."
+    "other": "É importante organizar adequadamente como os dados serão apresentados aos seus usuários. Você pode criar espaços de trabalho para várias partes da sua organização (finanças, marketing, dados técnicos, etc., numa base por projeto, etc.). Você pode atribuir acessos a espaços de trabalho por usuário / por função / por grupo."
   },
   "ws.editor.help.delete": {
-    "other": "Warning, dangerous operation! This is not reversible."
+    "other": "Atenção, operação perigosa! Isto é irreversível."
   },
   "ws.editor.label.legend": {
-    "other": "Human-friendly label for this workspace"
+    "other": "Rótulo amigável aos humanos para este espaço de trabalho"
   },
   "ws.editor.options.legend": {
-    "other": "Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data."
+    "other": "Rótulo e descrição são exibidos para os usuários. Escolha um nome auto-explicativo para ajudar os usuários a organizar melhor os dados."
   },
   "ws.editor.other": {
-    "other": "Other Properties"
+    "other": "Outras Propriedades"
   },
   "ws.editor.other.layout": {
-    "other": "Workspace Layout"
+    "other": "Leiaute do espaço de trabalho"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "Padrão"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Easy Transfer Layout (enterprise only)"
+    "other": "Leiaute de Transferência Fácil (apenas empresarial)"
   },
   "ws.editor.other.skiprecycle": {
-    "other": "Skip Recycle Bin"
+    "other": "Ignorar Lixeira"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
+    "other": "Desativar a lixeira neste espaço de trabalho: todos os arquivos serão excluídos permanentemente. Isto não se aplica às células criadas dentro deste espaço de trabalho, os arquivos serão sempre movidos para a lixeira de espaços de trabalho para evitar erros humanos."
   },
   "ws.editor.other.sync": {
     "other": "Allow desktop synchronisation (still experimental)"
   },
   "ws.editor.other.sync.legend": {
-    "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
+    "other": "Sincronização do desktop permite que os usuários sincronizem seus arquivos offline em seu computador. Atenção, este recurso é atualmente suportado apenas para arquivos pessoais, já que espaços de trabalho compartilhados podem criar conflitos se muitos usuários sincronizarem documentos na mesma pasta. Para arquivos pessoais, você também pode ativar/desativar este recurso por função usando as Políticas de Segurança."
   },
   "ws.editor.other.sync-personal": {
-    "other": "(personal workspaces only)"
+    "other": "(somente espaços de trabalho pessoal)"
   },
   "ws.editor.sync.warning": {
     "other": "Atenção!"
   },
   "ws.editor.sync.warning.validate": {
-    "other": "I understand"
+    "other": "Eu entendo"
   },
   "ws.editor.sync.warning.enable": {
-    "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
+    "other": "Habilitando a sincronização em espaços de trabalho compartilhados pode ter resultados inesperados se muitos usuários estiverem sincronizando e editando arquivos juntos. Por favor, note que ESTE RECURSO ATUALMENTE NÃO É SUPORTADO pelos nossos serviços profissionais. Por favor, use esse recurso a seu próprio risco!"
   },
   "ws.editor.sync.warning.disable": {
-    "other": "If people are connected to this workspace, their sync task will not be working any more! Are you sure you want to change that?"
+    "other": "Se as pessoas estiverem conectadas a este espaço de trabalho, sua tarefa de sincronização não funcionará mais! Tem certeza que deseja alterar isso?"
   },
   "ws.editor.other.quota": {
-    "other": "Disk Usage Quota (leave 0 for no limit). This quota is computed on all files of this workspace. For user-specific workspaces (like Personal Files), you can refine this value on a per user/group/role base in the People section."
+    "other": "Cota de Uso de Disco (deixe 0 para sem limite). Esta cota é calculada em todos os arquivos deste espaço de trabalho. Para espaços de trabalho específicos do usuário (como Arquivos Pessoais), você pode refinar esse valor em uma base por usuário/grupo/função na seção Pessoas."
   },
   "ws.editor.other.quota.noquota": {
-    "other": "No Quota set"
+    "other": "Sem conjunto de cotas"
   },
   "ws.editor.path.folder": {
-    "other": "Folder Path"
+    "other": "Caminho da Pasta"
   },
   "ws.editor.path.template": {
-    "other": "Template Path"
+    "other": "Caminho dos Modelos"
   },
   "ws.editor.slug.legend": {
-    "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+    "other": "Nome técnico usado por exemplo nas URLs, calculado automaticamente, mas você pode personalizá-lo."
   },
   "services.filter.nofilter": {
-    "other": "All Services"
+    "other": "Todos os serviços"
   },
   "services.filter.started": {
-    "other": "Running Only"
+    "other": "Somente em execução"
   },
   "services.filter.stopped": {
-    "other": "Stopped Only"
+    "other": "Parado Apenas"
   },
   "services.peerfilter.title": {
-    "other": "Select Node"
+    "other": "Selecionar Nó"
   },
   "services.toggle.details": {
-    "other": "Show Details"
+    "other": "Mostrar Detalhes"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "Carregando status dos serviços"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "Sem serviço"
   },
   "services.column.name": {
-    "other": "Service Name"
+    "other": "Nome do Serviço"
   },
   "services.column.description": {
     "other": "Descrição"
   },
   "services.column.version": {
-    "other": "Version"
+    "other": "Versão"
   },
   "services.column.tag": {
     "other": "Tag"
@@ -1590,115 +1590,115 @@
     "other": "Gateways"
   },
   "services.tag.gateway.description": {
-    "other": "World-facing services for accessing the platform"
+    "other": "Serviços voltados ao mundo para acessar a plataforma"
   },
   "services.tag.datasource.title": {
-    "other": "Data Sources"
+    "other": "Fontes de Dados"
   },
   "services.tag.datasource.description": {
-    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
+    "other": "Endpoints de armazenamento usados para acessar armazenamentos de arquivos concretos. Os serviços principais estão encarregados de iniciar subserviços (por fonte de dado)."
   },
   "services.tag.data.title": {
-    "other": "Data"
+    "other": "Dado"
   },
   "services.tag.data.description": {
-    "other": "Services handling data and metadata."
+    "other": "Serviços manipulando dados e metadados."
   },
   "services.tag.idm.title": {
     "other": "Gerenciamento de Identidade"
   },
   "services.tag.idm.description": {
-    "other": "All services related to authentication and authorizations, roles, security policies, etc."
+    "other": "Todos os serviços relacionados à autenticação e autorizações, funções, políticas de segurança, etc."
   },
   "services.tag.scheduler.title": {
-    "other": "Scheduler"
+    "other": "Agendador"
   },
   "services.tag.scheduler.description": {
-    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
+    "other": "Serviços para gerenciar tarefas de segundo plano. O servidor de tarefas pode ser despachado por vários colegas."
   },
   "services.tag.broker.title": {
     "other": "Broker"
   },
   "services.tag.broker.description": {
-    "other": "Services dispatching and processing events (generally toward users) across the application."
+    "other": "Serviços de despacho e processamento de eventos (geralmente para usuários) por toda a aplicação."
   },
   "services.tag.frontend.title": {
     "other": "Frontend"
   },
   "services.tag.frontend.description": {
-    "other": "Web services for user interfaces in the browser"
+    "other": "Serviços da Web para interfaces de usuário no navegador"
   },
   "services.tag.discovery.title": {
     "other": "Discovery"
   },
   "services.tag.discovery.description": {
-    "other": "Basic configurations and services registries called by all other services."
+    "other": "Configurações e registos de serviços básicos solicitados por todos os outros serviços."
   },
   "services.service.ip": {
-    "other": "Running on %s"
+    "other": "Executando em %s"
   },
   "services.service.datasource.sync": {
-    "other": "Sync"
+    "other": "Sincronizar"
   },
   "services.service.datasource.objects": {
-    "other": "Objects"
+    "other": "Objetos"
   },
   "services.service.datasource.objects.legend": {
-    "other": "S3 layer to serve data as object storage"
+    "other": "Camada S3 para servir como armazenamento de objeto"
   },
   "services.service.datasource.legend": {
-    "other": "Datasource is synchronizing data from objects layer to index DB."
+    "other": "A fonte de dados está sincronizando dados da camada de objetos com o índice de BD."
   },
   "services.service.datasource.index": {
-    "other": "Indexation"
+    "other": "Indexação"
   },
   "scheduler.title": {
-    "other": "Scheduler"
+    "other": "Agendador"
   },
   "scheduler.legend": {
-    "other": "Jobs running in background on a periodical basis or triggered by events"
+    "other": "Trabalhos em execução em segundo plano periodicamente ou desencadeados por eventos"
   },
   "scheduler.system.title": {
-    "other": "System Jobs"
+    "other": "Tarefas do Sistema"
   },
   "scheduler.system.legend": {
-    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Estas tarefas estão registradas por padrão dentro do aplicativo. Eles geralmente são encarregados de extrair informações do nó em segundo plano, ou fazer algumas operações de limpeza."
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Jobs"
+    "other": "Trabalhos inativos"
   },
   "scheduler.inactives.legend": {
-    "other": "These jobs are inactive, click on a job to enable it."
+    "other": "Estes trabalhos estão inativos, clique em um trabalho que lhe permita fazê-lo."
   },
   "scheduler.system.empty": {
-    "other": "No jobs scheduled."
+    "other": "Nenhum trabalho agendado."
   },
   "scheduler.users.title": {
-    "other": "Users Jobs"
+    "other": "Trabalhos dos Usuários"
   },
   "scheduler.users.legend": {
-    "other": "These jobs are dynamically created and trigged by user actions."
+    "other": "Estes trabalhos são criados dinamicamente e desencadeados pelas ações dos usuários."
   },
   "scheduler.users.empty": {
-    "other": "No jobs launched by users"
+    "other": "Nenhum trabalho iniciado por usuários"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Job"
+    "other": "+ Trabalho Personalizado"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
+    "other": "Você precisa criar seu próprio trabalho? Descubra como o Cells Flows torna fácil automatizar suas tarefas manuais repetitivas no Cells."
   },
   "scheduler.cellsflows.dialog.button": {
-    "other": "Find out more"
+    "other": "Saiba mais"
   },
   "scheduler.cellsflows.dialog.text": {
-    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
+    "other": "Desde criar seus próprios fluxos de trabalho até agendar tarefas ou integrar com ferramentas de terceiros, nossos componentes personalizáveis ajudam você a responder a eventos e tomar ações automaticamente."
   },
   "scheduler.job.label": {
     "other": "Nome"
   },
   "scheduler.job.endTime": {
-    "other": "Last Execution"
+    "other": "Última Execução"
   },
   "scheduler.job.status": {
     "other": "Status"
@@ -1707,103 +1707,103 @@
     "other": "Dono"
   },
   "scheduler.job.trigger": {
-    "other": "Trigger"
+    "other": "Gatilho"
   },
   "scheduler.job.delete": {
     "other": "Apagar"
   },
   "scheduler.job.delete.confirm": {
-    "other": "Are you sure you want to delete this job? This operation cannot be reverted!"
+    "other": "Tem certeza de que deseja excluir este trabalho? Esta operação não pode ser revertida!"
   },
   "scheduler.tasks.delete.confirm": {
-    "other": "Are you sure you want to clear all tasks for this job?"
+    "other": "Tem certeza de que deseja limpar todas as tarefas deste trabalho?"
   },
   "scheduler.trigger.create.node": {
-    "other": "Create Node"
+    "other": "Criar Nó"
   },
   "scheduler.trigger.read.node": {
-    "other": "Read Node"
+    "other": "Ler Nó"
   },
   "scheduler.trigger.update.path": {
-    "other": "Update Path"
+    "other": "Atualizar Caminho"
   },
   "scheduler.trigger.update.content": {
-    "other": "Update Content"
+    "other": "Atualizar Conteúdo"
   },
   "scheduler.trigger.update.metadata": {
-    "other": "Update Metadata"
+    "other": "Atualizar Metadado"
   },
   "scheduler.trigger.update.user-metadata": {
-    "other": "Update User Metadata"
+    "other": "Atualizar Metadado de Usuário"
   },
   "scheduler.trigger.delete.node": {
-    "other": "Delete Node"
+    "other": "Excluir Nó"
   },
   "scheduler.trigger.create.user": {
-    "other": "Create User"
+    "other": "Criar Usuário"
   },
   "scheduler.trigger.read.user": {
-    "other": "Read User"
+    "other": "Ler Usuário"
   },
   "scheduler.trigger.update.user": {
-    "other": "Update User"
+    "other": "Atualizar Usuário"
   },
   "scheduler.trigger.delete.user": {
     "other": "Excluir Usuário"
   },
   "scheduler.trigger.bind.user": {
-    "other": "User Bind"
+    "other": "Usuário Bind"
   },
   "scheduler.trigger.logout.user": {
-    "other": "User Logout"
+    "other": "Logout do Usuário"
   },
   "scheduler.trigger.events": {
-    "other": "Events"
+    "other": "Eventos"
   },
   "scheduler.trigger.manual": {
-    "other": "Manual Trigger"
+    "other": "Gatilho Manual"
   },
   "scheduler.trigger.periodic": {
-    "other": "Periodic Schedule"
+    "other": "Programação periódica"
   },
   "scheduler.job.disabled": {
-    "other": "disabled"
+    "other": "desabilitado"
   },
   "scheduler.tasks.running.count": {
-    "other": "%s tasks running"
+    "other": "%s tarefas em execução"
   },
   "scheduler.task.action.pause": {
-    "other": "Pause Task"
+    "other": "Pausar Tarefa"
   },
   "scheduler.task.action.resume": {
-    "other": "Resume Task"
+    "other": "Resumir Tarefa"
   },
   "scheduler.task.action.stop": {
-    "other": "Stop Now"
+    "other": "Parar Agora"
   },
   "scheduler.task.action.delete": {
     "other": "Apagar"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Job"
+    "other": "Habilitar Tarefa"
   },
   "scheduler.task.action.run": {
-    "other": "Run Now"
+    "other": "Executar Agora"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Job"
+    "other": "Desabilitar Tarefa"
   },
   "scheduler.task.id": {
     "other": "ID"
   },
   "scheduler.task.start": {
-    "other": "Start"
+    "other": "Inicio"
   },
   "scheduler.task.end": {
-    "other": "End"
+    "other": "Final"
   },
   "scheduler.task.duration": {
-    "other": "Duration"
+    "other": "Duração"
   },
   "scheduler.task.status": {
     "other": "Status"
@@ -1812,148 +1812,148 @@
     "other": "Mensagem"
   },
   "scheduler.tasks.running": {
-    "other": "Running Tasks"
+    "other": "Executando tarefas"
   },
   "scheduler.tasks.history": {
-    "other": "Tasks History"
+    "other": "Histórico de tarefas"
   },
   "scheduler.tasks.history.empty": {
-    "other": "No tasks have run yet"
+    "other": "Nenhuma tarefa foi executada ainda"
   },
   "scheduler.tasks.history.more": {
-    "other": "%s other tasks not shown..."
+    "other": "%s outras tarefas não mostradas..."
   },
   "scheduler.tasks.running.empty": {
-    "other": "No tasks currently running"
+    "other": "Não há tarefas em execução"
   },
   "scheduler.tasks.bulk.delete": {
-    "other": "Delete Tasks"
+    "other": "Excluir Tarefas"
   },
   "scheduler.tasks.bulk.enable": {
-    "other": "Enable Multiple"
+    "other": "Habilitar Múltiplos"
   },
   "scheduler.tasks.bulk.disable": {
-    "other": "Disable Multiple"
+    "other": "Desabilitar Múltiplos"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Limpar Tudo"
   },
   "scheduler.tasks.activity.title": {
-    "other": "Task Activity"
+    "other": "Atividade da Tarefa"
   },
   "scheduler.tasks.activity.loading": {
-    "other": "Loading activity..."
+    "other": "Carregando atividades..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "Nenhum log encontrado"
   },
   "scheduler.schedule.monthly": {
-    "other": "Every %1 of each month at %2"
+    "other": "A cada %1 de cada mês às %2"
   },
   "scheduler.schedule.monthly.short": {
-    "other": "Every %1 of each month"
+    "other": "A cada %1 de cada mês"
   },
   "scheduler.schedule.weekly": {
-    "other": "Every %1 at %2"
+    "other": "A cada %1 às %2"
   },
   "scheduler.schedule.weekly.short": {
-    "other": "Every %1"
+    "other": "A cada %1"
   },
   "scheduler.schedule.daily": {
-    "other": "Every day at %1"
+    "other": "Todos os dias às %1"
   },
   "scheduler.schedule.daily.short": {
-    "other": "At %1"
+    "other": "Às %1"
   },
   "scheduler.schedule.timely": {
-    "other": "Every %1"
+    "other": "A cada %1"
   },
   "scheduler.schedule.title": {
-    "other": "Job Schedule"
+    "other": "Calendário de tarefas"
   },
   "scheduler.schedule.type": {
-    "other": "Scheduling Type"
+    "other": "Tipo de Agendamento"
   },
   "scheduler.schedule.type.manual": {
     "other": "Manual"
   },
   "scheduler.schedule.type.monthly": {
-    "other": "Monthly"
+    "other": "Mensalmente"
   },
   "scheduler.schedule.type.weekly": {
-    "other": "Weekly"
+    "other": "Semanalmente"
   },
   "scheduler.schedule.type.daily": {
-    "other": "Daily"
+    "other": "Diariamente"
   },
   "scheduler.schedule.type.timely": {
-    "other": "Every..."
+    "other": "A cada..."
   },
   "scheduler.schedule.detail.monthday": {
-    "other": "Day of the month"
+    "other": "Dia do mês"
   },
   "scheduler.schedule.detail.weekday": {
-    "other": "Day of the week"
+    "other": "Dia da semana"
   },
   "scheduler.schedule.detail.daytime": {
-    "other": "Time of the day"
+    "other": "Hora do dia"
   },
   "scheduler.schedule.detail.minutes": {
-    "other": "Period in minutes"
+    "other": "Período em minutos"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Job Parameters"
+    "other": "Parâmetros do trabalho"
   },
   "scheduler.job-parameters.button": {
     "other": "Parametros"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Documentation"
+    "other": "Documentação de APIs Rest"
   },
   "developer.rest.apis.legend": {
-    "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
+    "other": "Abaixo estão todas as APIs disponíveis no Pydio Cells. Para consumir essas APIs, primeiro você precisa se autenticar no serviço OpenIDConnect para obter um JWT válido. Veja o guia do administrador online para saber mais."
   },
   "mailer.test.title": {
-    "other": "Send a test email"
+    "other": "Enviar um e-mail de teste"
   },
   "mailer.test.legend": {
-    "other": "Make sure to save your configuration changes before sending a test email."
+    "other": "Certifique-se de salvar suas alterações de configuração antes de enviar um e-mail de teste."
   },
   "mailer.test.loading": {
-    "other": "Loading Mailer Library..."
+    "other": "Carregando Biblioteca de Mailer..."
   },
   "sites.title": {
     "other": "Sites"
   },
   "sites.externals": {
-    "other": "External URLs"
+    "other": "URLs externas"
   },
   "sites.details": {
-    "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
+    "other": "<div>\nOs sites definem como as células são ligadas às interfaces de rede e como elas são expostas ao mundo exterior.\nUse ‘<i>./cells configure sites</i>para gerenciar seus sites na linha de comando.\n<br/><br/>\nCada site tem os seguintes parâmetros:\n\n<ol>\n<li>1. <u>Bind(s)</u>: um ou mais [ip/hostname:porta] para ligar o servidor interno para.</li>\n<li>2. <u>Configurações TLS</u>: Configuração TLS para suporte de HTTPS.</li>\n<li>3. <u>URL externa</u>: a URL que você se comunica com os seus usuários finais. Pode ser diferente de seu endereço vinculado, normalmente se o aplicativo está atrás de um proxy reverso ou dentro de um contêiner com mapeamento de portas.</li>\n<li>4. <u>Modo de Manutenção</u> [On|Off]: exiba uma página de manutenção neste endpoint, embora o Cells esteja em execução.</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>Additional notes</i>\n<ol>\n<li>1. When there are no sites defined, Cells use a default configuration (https://0.0.0.0:8080 with self-signed).</li>\n<li>2. Sites can be overridden at runtime by using ‘--bind’ flag or ‘CELLS_BIND’ environment variable.\n</li>\n</ol></div>"
+    "other": "<div><i>Notas adicionais</i>\n<ol>\n<li>1. Quando não há sites definidos, o Cells usa uma configuração padrão (https://0.0.0.0:8080 auto-assinado).</li>\n<li>2. Sites podem ser substituídos pela variável de ambiente '--bind' ou 'CELLS_BIND'.\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
-    "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
+    "other": "<div>\nCells usa sua URL pública detectada em alguns recursos. Ele tentará usar o valor mais apropriado com base na sua configuração. <br/><br/>Por exemplo:\n<ul>\n<li>&bull; Se um site exclusivo for definido e tiver uma URL externa, ele provavelmente está correto.</li>\n<li>&bull; Quando vários sites são definidos, talvez você queira forçar uma URL única que será usada para todas as comunicações externas.</li>\n<li>&bull; Se nenhuma URL externa for detectada, ela voltará ao endereço do link interno. Nesse caso, provavelmente você não quer enviar um IP privado (ou 0.0.0.0:porta…) para o mundo exterior.</li>\n</ul>\n\n<br/>\nOs campos abaixo mostram os valores detectados. Selecione para editar ou digitar um valor personalizado e pressione enter para salvar.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "URL used to build links in emails"
+    "other": "URL usada para construir links em e-mails"
   },
   "sites.links.url": {
-    "other": "URL used to build public links"
+    "other": "URL usada para construir links públicos"
   },
   "sites.no-defaults": {
-    "other": "No defaults set"
+    "other": "Sem padrões definidos"
   },
   "sites.enter-to-save": {
-    "other": "(hit enter to save)"
+    "other": "(aperte enter para salvar)"
   },
   "sites.detected.sites": {
-    "other": "Sites currently detected"
+    "other": "Sites atualmente detectados"
   },
   "sites.configs.command": {
-    "other": "Use './cells config sites' command to edit sites."
+    "other": "Use o comando './cells config sites' para editar sites."
   },
   "sites.column.bind": {
     "other": "Bind"
@@ -1962,21 +1962,21 @@
     "other": "TLS"
   },
   "sites.column.external": {
-    "other": "Reverse Proxy"
+    "other": "Proxy reverso"
   },
   "sites.configs.tls.letsencrypt": {
     "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Self Signed"
+    "other": "Auto Assinado"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificate"
+    "other": "Certificado"
   },
   "sites.configs.tls.notls": {
-    "other": "No TLS"
+    "other": "Sem TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "No TLS behind proxy"
+    "other": "Sem TLS atrás de proxy"
   }
 }
