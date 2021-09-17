@@ -114,7 +114,7 @@
     "other": "Procurar dados de um sistema de arquivos local ou arquivos na sua rede."
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Restringir a fonte de dados para um endereço de par irá iniciar o serviço apenas um nó específico. Usar o valor \"qualquer\" iniciará o serviço em todos os nós onde as células são executadas, que pode ser útil se um sistema de arquivos compartilhado é montado em todos os nós no mesmo local, ou se o nó pode alterar seu IP ao reiniciar. Para evitar conflitos, é melhor ou usar QUALQUER uma fonte de dados ou selecionar nós específicos para todos os dados."
+    "other": "Restringir a fonte de dados para um endereço de par irá iniciar o serviço apenas um nó específico. Usar o valor \"qualquer\" iniciará o serviço em todos os nós onde as Cells são executadas, que pode ser útil se um sistema de arquivos compartilhado é montado em todos os nós no mesmo local, ou se o nó pode alterar seu IP ao reiniciar. Para evitar conflitos, é melhor ou usar QUALQUER uma fonte de dados ou selecionar nós específicos para todos os dados."
   },
   "ds.editor.storage.legend.fs.path": {
     "other": "Certifique-se de que a última pasta esteja em letras minúsculas e de que o pai esteja editável. Se sua pasta existente for caso positivo, você pode usar links simbólicos para contornar essa limitação."
@@ -1929,7 +1929,7 @@
     "other": "URLs externas"
   },
   "sites.details": {
-    "other": "<div>\nOs sites definem como as células são ligadas às interfaces de rede e como elas são expostas ao mundo exterior.\nUse ‘<i>./cells configure sites</i>para gerenciar seus sites na linha de comando.\n<br/><br/>\nCada site tem os seguintes parâmetros:\n\n<ol>\n<li>1. <u>Bind(s)</u>: um ou mais [ip/hostname:porta] para ligar o servidor interno para.</li>\n<li>2. <u>Configurações TLS</u>: Configuração TLS para suporte de HTTPS.</li>\n<li>3. <u>URL externa</u>: a URL que você se comunica com os seus usuários finais. Pode ser diferente de seu endereço vinculado, normalmente se o aplicativo está atrás de um proxy reverso ou dentro de um contêiner com mapeamento de portas.</li>\n<li>4. <u>Modo de Manutenção</u> [On|Off]: exiba uma página de manutenção neste endpoint, embora o Cells esteja em execução.</li>\n</ol></div>"
+    "other": "<div>\nOs sites definem como as Cells são ligadas às interfaces de rede e como elas são expostas ao mundo exterior.\nUse ‘<i>./cells configure sites</i>para gerenciar seus sites na linha de comando.\n<br/><br/>\nCada site tem os seguintes parâmetros:\n\n<ol>\n<li>1. <u>Bind(s)</u>: um ou mais [ip/hostname:porta] para ligar o servidor interno para.</li>\n<li>2. <u>Configurações TLS</u>: Configuração TLS para suporte de HTTPS.</li>\n<li>3. <u>URL externa</u>: a URL que você se comunica com os seus usuários finais. Pode ser diferente de seu endereço vinculado, normalmente se o aplicativo está atrás de um proxy reverso ou dentro de um contêiner com mapeamento de portas.</li>\n<li>4. <u>Modo de Manutenção</u> [On|Off]: exiba uma página de manutenção neste endpoint, embora o Cells esteja em execução.</li>\n</ol></div>"
   },
   "sites.details.note": {
     "other": "<div><i>Notas adicionais</i>\n<ol>\n<li>1. Quando não há sites definidos, o Cells usa uma configuração padrão (https://0.0.0.0:8080 auto-assinado).</li>\n<li>2. Sites podem ser substituídos pela variável de ambiente '--bind' ou 'CELLS_BIND'.\n</li>\n</ol></div>"
