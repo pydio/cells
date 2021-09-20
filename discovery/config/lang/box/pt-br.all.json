@@ -36,7 +36,7 @@
     "other": "Identificadores dos papéis"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Identificadores das Áreas de Trabalho"
+    "other": "Identificadores dos Espaços de Trabalho"
   },
   "aclSingleQuery.not": {
     "other": "não"

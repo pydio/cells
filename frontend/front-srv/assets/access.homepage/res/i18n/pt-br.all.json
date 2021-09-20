@@ -78,13 +78,13 @@
     "other": "<h2> [Como] Carregar arquivos para APPLICATION_TITLE </h2>\n             Comece com APPLICATION_TITLE e veja como fazer upload de arquivos\n             <ul>\n                 <li> Arraste e solte arquivos em APPLICATION_TITLE </li>\n                 <li> Crie uma nova pasta </li>\n                 <li> Renomear arquivos e pastas </li>\n                 <li> Baixe arquivos para o seu computador </li>\n             </ul>"
   },
   "64": {
-    "other": "<h2>[Como] Pesquisar, navegar e gerenciar seus arquivos</h2>\n             Este vídeo mostra várias dicas para gerenciar com eficiência seus arquivos em APPLICATION_TITLE\n             <ul>\n                 <li>Barra de pesquisa entre espaços de trabalho</li>\n                 <li>Modos de exibição de conteúdo, atalhos de teclado</li>\n                 <li>Classificar arquivos</li>\n                 <li>Metadados, favoritos</li>\n             </ul>"
+    "other": "<h2>[Como Fazer] Pesquisar, navegar e gerenciar seus arquivos</h2>\n             Este vídeo mostra várias dicas para gerenciar com eficiência seus arquivos em APPLICATION_TITLE\n             <ul>\n                 <li>Barra de pesquisa entre espaços de trabalho</li>\n                 <li>Modos de exibição de conteúdo, atalhos de teclado</li>\n                 <li>Classificar arquivos</li>\n                 <li>Metadados, Marcadores</li>\n             </ul>            "
   },
   "65": {
     "other": "Aprenda mais no canal do APPLICATION_TITLE!"
   },
   "66": {
-    "other": "<h2> [Como fazer] Usando APPLICATION_TITLE no dispositivo iOS </h2>\n                             Este vídeo explica como usar o aplicativo APPLICATION_TITLE (disponível na App Store). O processo também é bastante semelhante no Android.\n<ul> <li> Configure a conexão do servidor </li>\n<li> Navegando pelos arquivos </li>\n<li> Manter os arquivos offline e interagir com aplicativos externos </li>\n<li> Protegendo o aplicativo com um código PIN </li>\n<li> Usando favoritos e mecanismo de pesquisa </li> </ul>"
+    "other": "<h2> [Como fazer] Usando APPLICATION_TITLE no dispositivo iOS </h2>\n                             Este vídeo explica como usar o aplicativo APPLICATION_TITLE (disponível na App Store). O processo também é bastante semelhante no Android.\n<ul> <li> Configure a conexão do servidor </li>\n<li> Navegando pelos arquivos </li>\n<li> Manter os arquivos offline e interagir com aplicativos externos </li>\n<li> Protegendo o aplicativo com um código PIN </li>\n<li> Usando marcadores e mecanismo de pesquisa </li> </ul>"
   },
   "67": {
     "other": "Se você não é %s, %logout."

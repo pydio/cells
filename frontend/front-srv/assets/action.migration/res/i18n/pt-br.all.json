@@ -147,7 +147,7 @@
     "other": "Para espaços de trabalho por usuário (como Meus Arquivos), certifique-se de colocar os dados sob a localização existente do caminho do modelo \"pessoal\" do Cells."
   },
   "step.prereq.ds.done": {
-    "other": "Assim que as fontes de dados forem indexados corretamente, você poderá iniciar o processo de migração. O assistente irá ajudá-lo a mapear as suas áreas de trabalho do Pydio 8 para novas áreas de trabalho."
+    "other": "Assim que as fontes de dados forem indexados corretamente, você poderá iniciar o processo de migração. O assistente irá ajudá-lo a mapear seus espaços de trabalho do Pydio 8 para novos espaços de trabalho."
   },
   "step.prereq.start": {
     "other": "Pronto! Vamos começar"
@@ -264,7 +264,7 @@
     "other": "Não há nenhuma configuração específica para esta etapa. Os usuários serão sincronizados com o servidor remoto. Sempre que possível, seu hash de senha será importado também (nenhuma senha é armazenada ou transmitida de forma limpa), para que os usuários possam logar com o mesmo identificador no novo servidor."
   },
   "dash.feature.workspaces": {
-    "other": "Áreas de Trabalho"
+    "other": "Espaços de Trabalho"
   },
   "dash.feature.acls": {
     "other": "ACLs dos Espaços de trabalho"
