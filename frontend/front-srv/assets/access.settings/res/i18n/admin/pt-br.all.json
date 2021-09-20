@@ -924,7 +924,7 @@
     "other": "Tem certeza que deseja remover esta regra de segurança? Isto pode quebrar o modelo de segurança do aplicativo!"
   },
   "policies.type.acl.legend": {
-    "other": "Essas políticas são usadas para fornecer dinamicamente acesso de leitura/escrita a áreas de trabalho ou nós com base no contexto de solicitação e/ou nos metadados do nó. Eles são definidos aqui e usados no Painel de Controle de Acesso dos usuários e funções."
+    "other": "Essas políticas são usadas para fornecer dinamicamente acesso de leitura/escrita aos espaços de trabalho ou nós com base no contexto de solicitação e/ou nos metadados do nó. Eles são definidos aqui e usados no Painel de Controle de Acesso dos usuários e funções."
   },
   "policies.type.acl.title": {
     "other": "ACLs baseadas em contexto"
@@ -1035,7 +1035,7 @@
     "other": "Por favor, forneça um rótulo para este grupo"
   },
   "user.18": {
-    "other": "Identificador da função"
+    "other": "Identificador do Papel"
   },
   "user.18.empty": {
     "other": "Por favor, forneça um rótulo para esta função"
@@ -1080,7 +1080,7 @@
     "other": "Grupos e Usuários"
   },
   "user.6": {
-    "other": "+ Função"
+    "other": "+ Papel"
   },
   "user.7": {
     "other": "Buscar usuários e grupos"

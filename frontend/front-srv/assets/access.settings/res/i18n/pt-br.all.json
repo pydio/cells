@@ -39,7 +39,7 @@
     "other": "Adicionar uma origem"
   },
   "110": {
-    "other": "Áreas de Trabalho & Usuários"
+    "other": "Espaços de Trabalho & Usuários"
   },
   "111": {
     "other": "Logs & Outros Dados"
@@ -129,7 +129,7 @@
     "other": "Dia-a-dia da administração da aplicação: quem acessa o que, criação de papéis, etc."
   },
   "138": {
-    "other": "Criar e Apagar áreas de trabalho, adicionar recursos utilizando origens meta."
+    "other": "Criar e excluir espaços de trabalho, adicionar recursos utilizando meta fontes."
   },
   "139": {
     "other": "Gerenciar usuários e grupos"
@@ -303,7 +303,7 @@
     "other": "Gerenciamento de Dados"
   },
   "3": {
-    "other": "Áreas de Trabalho"
+    "other": "Espaços de Trabalho"
   },
   "30": {
     "other": "Escrever"

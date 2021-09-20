@@ -9,7 +9,7 @@
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "O código está disponível publicamente no Github. Você quer consertar um bug, ajudar outros no fórum ou empurrar o próximo recurso matador? Participe disso!\n                            Ou mostre seu amor pelas redes sociais!"
+    "other": "O código está disponível publicamente no Github. Você quer consertar um bug, ajudar outros no fórum ou enviar o próximo recurso matador? Participe!\n                            Ou mostre seu amor pelas redes sociais!"
   },
   "cont.subtitle": {
     "other": "Pydio Cells é um software de código aberto gratuito. Contribua de volta!"
@@ -24,7 +24,7 @@
     "other": "Acho que encontrei um erro! Publique no fórum."
   },
   "cont.topic.report.2": {
-    "other": "Meu bug é qualificado: abra um incidente no github."
+    "other": "Meu bug é qualificado: abra um issue no github."
   },
   "cont.topic.translate": {
     "other": "Como criar ou completar uma tradução de idioma?"
@@ -42,7 +42,7 @@
     "other": "Saiba mais"
   },
   "ent.features": {
-    "other": "Recursos destinados para empresas"
+    "other": "Recursos destinados à empresas"
   },
   "ent.features.legend": {
     "other": "Recursos prontos para empresas: conectores AD / LDAP, registros auditáveis para conformidade, fácil transferência ..."
@@ -78,16 +78,16 @@
     "other": "Usuários"
   },
   "welc.btn.ws": {
-    "other": "Áreas de Trabalho"
+    "other": "Espaços de Trabalho"
   },
   "welc.guide": {
     "other": "Se você não sabe por onde começar, o Guia do Administrador é definitivamente uma boa leitura!"
   },
   "welc.intro": {
-    "other": "Este é o seu painel para gerenciar o Pydio. Usando o menu à esquerda você pode criar <a class=\"doc-link\" data-path=\"/data/workspaces\">espaços de trabalho</a> e <a class=\"doc-link\" data-path=\"/idm/users\">usuários</a>,\n                            verifique todos <a class=\"doc-link\" data-path=\"/admin/logs\">eventos</a> que aconteceram na plataforma, e gerenciar <a class=\"doc-link\" data-path=\"/parameters/core\">configurações</a> e <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Este é o seu painel para gerenciar o Pydio. Usando o menu à esquerda você pode criar <a class=\"doc-link\" data-path=\"/data/workspaces\">espaços de trabalho</a> e <a class=\"doc-link\" data-path=\"/idm/users\">usuários</a>,\n                            verificar todos <a class=\"doc-link\" data-path=\"/admin/logs\">eventos</a> que aconteceram na plataforma, e gerenciar <a class=\"doc-link\" data-path=\"/parameters/core\">configurações</a> e <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
   },
   "welc.import": {
-    "other": "Se você estiver executando uma instalação do Pydio 8, por favor, esteja ciente de que <u>Pydio 8 será considerado (descontinuado) Fim Of-Life no final de 2019</u>. Você pode usar a <a class=\"doc-link\" data-path=\"/data/migration\">Ferramenta de Importação</a> para migrar todos os dados para as Células de Pydio."
+    "other": "Se você estiver executando uma instalação do Pydio 8, por favor, esteja ciente de que <u>Pydio 8 será considerado descontinuado (End-Of-Life) no final de 2019</u>. Você pode usar a <a class=\"doc-link\" data-path=\"/data/migration\">Ferramenta de Importação</a> para migrar todos os dados para o Pydio Cells."
   },
   "welc.subtitle": {
     "other": "O local para administrar e monitorar as atividades da sua plataforma"

@@ -126,7 +126,7 @@
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Abrir células"
+    "other": "Abrir Cells"
   },
   "Mail.AdminTestMail.LinkInstructions": {
     "other": "Clique para abrir a tela inicial"

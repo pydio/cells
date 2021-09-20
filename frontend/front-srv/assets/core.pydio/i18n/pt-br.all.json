@@ -153,13 +153,13 @@
     "other": "Não autenticado."
   },
   "145": {
-    "other": "Meus favoritos"
+    "other": "Meus Marcadores"
   },
   "146": {
     "other": "Apagar favorito"
   },
   "147": {
-    "other": "Favoritos"
+    "other": "Marcadores"
   },
   "148": {
     "other": "Acima"
@@ -180,7 +180,7 @@
     "other": "Favorito"
   },
   "153": {
-    "other": "Adicionar local atual para Meus Favoritos"
+    "other": "Adicionar local atual para Meus Marcadores"
   },
   "152-on": {
     "other": "Marcadores"
@@ -513,7 +513,7 @@
     "other": "Enviar um ou vários arquivo (máx. %s) no diretório : "
   },
   "250": {
-    "other": "Áreas de trabalho"
+    "other": "Espaços de trabalho"
   },
   "251": {
     "other": "Logs"
@@ -672,7 +672,7 @@
     "other": "Criar novo usuario"
   },
   "299": {
-    "other": "Novo Repo."
+    "other": "Espaços de Trabalho"
   },
   "3": {
     "other": "Tipo"
@@ -1026,7 +1026,7 @@
     "other": "Preferências WebDAV"
   },
   "404": {
-    "other": "WebDAV é um protocolo que lhe permite montar as áreas de trabalho APPLICATION_TITLE como uma 'unidade de rede' diretamente no seu computador. Para ativar esse recurso, marque a caixa abaixo, e digite sua senha, se necessário."
+    "other": "WebDAV é um protocolo que lhe permite montar os espaços de trabalho APPLICATION_TITLE como uma 'unidade de rede' diretamente no seu computador. Para ativar esse recurso, marque a caixa abaixo, e digite sua senha, se necessário."
   },
   "405": {
     "other": "Qualquer cliente WebDAV irá pedir um endereço, um login e uma senha. Utilize a URL abaixo, juntamente com o seu login e senha."
@@ -1071,7 +1071,7 @@
     "other": "Adicionar área de trabalho..."
   },
   "418": {
-    "other": "Criar sua própria área de trabalho"
+    "other": "Criar seu próprio espaço de trabalho"
   },
   "419": {
     "other": "Carregando modelos..."
@@ -1095,7 +1095,7 @@
     "other": "Tem certeza de que deseja excluir esta área de trabalho? A operação é irreversível."
   },
   "425": {
-    "other": "A área de trabalho foi criada e adicionada à sua lista de áreas de trabalhos, se você deseja removê-la, certifique-se de mudar para outra área de trabalho, clique na cruz vermelha ao lado do nome da área de trabalho."
+    "other": "O espaço de trabalho foi criado e adicionado à sua lista de espaços de trabalhos, se você deseja removê-la, certifique-se de mudar para outra área de trabalho, clique na cruz vermelha ao lado do nome do espaço de trabalho."
   },
   "426": {
     "other": "Ocorreu um erro durante a criação da área de trabalho"
@@ -1194,7 +1194,7 @@
     "other": "Selecionar arquivos em seu computador"
   },
   "455": {
-    "other": "Áreas de Trabalho"
+    "other": "Espaços de Trabalho"
   },
   "456": {
     "other": "Mais"
@@ -1227,7 +1227,7 @@
     "other": "Baixar todo o conteúdo da área de trabalho (compactado)"
   },
   "465": {
-    "other": "Exibir URLs alternativas (montar áreas de trabalhos separadamente)"
+    "other": "Exibir URLs alternativas (montar espaços de trabalhos separadamente)"
   },
   "466": {
     "other": "Carregando..."
@@ -1236,7 +1236,7 @@
     "other": "Todos itens compartilhados"
   },
   "468": {
-    "other": "Minhas Áreas de Trabalho"
+    "other": "Espaços de Trabalho"
   },
   "469": {
     "other": "Compartilhado comigo"
@@ -1284,7 +1284,7 @@
     "other": "Todos os seus arquivos e pastas compartilhadas"
   },
   "482": {
-    "other": "Acesso rápido aos seus itens favoritos"
+    "other": "Acesso rápido aos seus itens marcados"
   },
   "483": {
     "other": "Você não está autorizado para criar mais usuários!"
@@ -1365,7 +1365,7 @@
     "other": "para"
   },
   "506": {
-    "other": "Parâmetros de aplicação (usuários, áreas de trabalhos, configurações)"
+    "other": "Parâmetros de aplicação (usuários, espaços de trabalhos, configurações)"
   },
   "507": {
     "other": "Bem-vindo a %s"
@@ -1395,7 +1395,7 @@
     "other": "ocultar"
   },
   "515": {
-    "other": "Sem favoritos - Arraste arquivos ou diretórios aqui para um acesso rápido."
+    "other": "Sem marcadores - Arraste arquivos ou diretórios aqui para um acesso rápido."
   },
   "516": {
     "other": "expandir"
@@ -2109,7 +2109,7 @@
     "other": "Remetentes baseados em várias tecnologias como HTML, Javascript, Java e outros"
   },
   "plugtype.title.access": {
-    "other": "Controlador de Áreas de Trabalhos"
+    "other": "Drivers de Espaços de Trabalhos"
   },
   "plugtype.title.action": {
     "other": "Plugins de ações"

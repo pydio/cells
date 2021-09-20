@@ -3,7 +3,7 @@
     "other": "Catálogo de endereços"
   },
   "10": {
-    "other": "Áreas de Trabalho Associadas"
+    "other": "Espaços de Trabalho Associados"
   },
   "11": {
     "other": "Tem certeza de que deseja apagar os seguintes elementos?"
@@ -63,13 +63,13 @@
     "other": "Arquivos compartilhados para transferência direta, protegidos ou não por uma senha."
   },
   "29": {
-    "other": "Delega Áreas de Trabalho criados por usuários."
+    "other": "Delega Espaços de Trabalho criados por usuários."
   },
   "3": {
     "other": "Arquivos compartilhados"
   },
   "30": {
-    "other": "Usuários criados para acessar às Áreas de Trabalho Delegadas."
+    "other": "Usuários criados para acessar os espaços de trabalho delegados."
   },
   "31": {
     "other": "Descrição"
@@ -96,7 +96,7 @@
     "other": "Notificações"
   },
   "39": {
-    "other": "Lista de áreas de trabalhos que possui acesso. Podem ser pessoais ou compartilhados com/por outros usuários."
+    "other": "Lista de espaços de trabalhos que possui acesso. Podem ser pessoais ou compartilhados com/por outros usuários."
   },
   "4": {
     "other": "Caminho do Arquivo"

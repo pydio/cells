@@ -1,6 +1,6 @@
 {
   "tour.create-menu": {
-    "other": "Começar a adicionar novos arquivos ou pastas ao espaço de trabalho atual."
+    "other": "Comece a adicionar novos arquivos ou pastas ao espaço de trabalho atual."
   },
   "tour.create-menu.title": {
     "other": "Adicionar arquivos"
@@ -141,7 +141,7 @@
     "other": "Miniaturas"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Miniaturas Grande"
+    "other": "Miniaturas grandes"
   },
   "list.display-mode.thumbs-small": {
     "other": "Miniaturas pequenas"
