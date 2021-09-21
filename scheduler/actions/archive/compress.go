@@ -169,6 +169,12 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		base = strings.TrimRight(base, path.Ext(base))
 	}
 
+	// Final check for format
+	if c.Format != zipFormat && c.Format != tarFormat && c.Format != tarGzFormat {
+		er := fmt.Errorf("unsupported archive format")
+		return input.WithError(er), er
+	}
+
 	targetFile := computeTargetName(ctx, c.Router, dir, base, c.Format)
 
 	reader, writer := io.Pipe()
