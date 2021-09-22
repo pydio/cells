@@ -59,6 +59,39 @@
   "task.label": {
     "other": "Hochladen von Dateien..."
   },
+  "task.status.folders": {
+    "other": "Ordner werden erstellt"
+  },
+  "task.message.folder-one": {
+    "other": "Ordner wird erstellt"
+  },
+  "task.message.folder-many": {
+    "other": "%s Ordner werden erstellt"
+  },
+  "task.status.analyse": {
+    "other": "Bereite die Dateien für den Upload"
+  },
+  "task.message.analyse-many": {
+    "other": "Analyse von %s Elementen..."
+  },
+  "task.message.analyse-one": {
+    "other": "Analyse eines Element"
+  },
+  "task.message.analyse-wait": {
+    "other": "Bitte warten..."
+  },
+  "task.status.ready": {
+    "other": "Bereit zum Upload"
+  },
+  "task.status.paused": {
+    "other": "Upload pausiert"
+  },
+  "task.status.upload": {
+    "other": "Dateien werden hochgeladen"
+  },
+  "task.message.upload-progress": {
+    "other": "%s% hochgeladen"
+  },
   "no-folders-support": {
     "other": "Ihr Browser unterstützt das Hochladen von Ordnern nicht"
   },

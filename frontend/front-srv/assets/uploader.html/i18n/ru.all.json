@@ -59,6 +59,39 @@
   "task.label": {
     "other": "Загрузка файлов на сервер..."
   },
+  "task.status.folders": {
+    "other": "Creating Folders"
+  },
+  "task.message.folder-one": {
+    "other": "Creating one folder"
+  },
+  "task.message.folder-many": {
+    "other": "Creating %s folders"
+  },
+  "task.status.analyse": {
+    "other": "Preparing files for upload"
+  },
+  "task.message.analyse-many": {
+    "other": "Analyzing %s items..."
+  },
+  "task.message.analyse-one": {
+    "other": "Analyzing one item"
+  },
+  "task.message.analyse-wait": {
+    "other": "Please wait..."
+  },
+  "task.status.ready": {
+    "other": "Ready to upload"
+  },
+  "task.status.paused": {
+    "other": "Upload paused"
+  },
+  "task.status.upload": {
+    "other": "Uploading files"
+  },
+  "task.message.upload-progress": {
+    "other": "Uploading %s%"
+  },
   "no-folders-support": {
     "other": "Похоже, ваш браузер не поддерживает перетаскивание папок"
   },
