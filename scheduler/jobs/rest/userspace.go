@@ -28,26 +28,26 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/zap/zapcore"
-
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/config"
-
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 func compress(ctx context.Context, selectedPathes []string, targetNodePath string, format string, languages ...string) (string, error) {
@@ -126,6 +126,10 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			return e
 		}
 
+		q, _ := ptypes.MarshalAny(&tree.Query{
+			Paths: selectedPathes,
+		})
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -141,7 +145,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						Collect: true,
-						Pathes:  selectedPathes,
+						Query:   &service.Query{SubQueries: []*any.Any{q}},
 					},
 				},
 			},
@@ -208,6 +212,10 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			return e
 		}
 
+		q, _ := ptypes.MarshalAny(&tree.Query{
+			Paths: []string{archiveNode},
+		})
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -222,7 +230,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 					ID:         "actions.archive.extract",
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: []string{archiveNode},
+						Query: &service.Query{SubQueries: []*any.Any{q}},
 					},
 				},
 			},
@@ -366,6 +374,10 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			return e
 		}
 
+		q, _ := ptypes.MarshalAny(&tree.Query{
+			Paths: selectedPathes,
+		})
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -386,8 +398,8 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 						"create":       "true",
 					},
 					NodesSelector: &jobs.NodesSelector{
-						//Collect: true,
-						Pathes: selectedPathes,
+						Collect: false,
+						Query:   &service.Query{SubQueries: []*any.Any{q}},
 					},
 				},
 			},
@@ -468,32 +480,6 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 	} else {
 		return []string{}, errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
 	}
-	/*
-		if err := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-			updateCtx, realParent, e := inputFilter(ctx, parentNode, "sel")
-			if e != nil {
-				return e
-			} else {
-				accessList, e := views.AccessListFromContext(updateCtx)
-				if e != nil {
-					return e
-				}
-				// First load ancestors or grab them from BranchInfo
-				ctx, parents, err := views.AncestorsListFromContext(updateCtx, realParent, "in", getRouter().GetClientsPool(), false)
-				if err != nil {
-					return err
-				}
-				if !accessList.CanWrite(ctx, parents...) {
-					return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
-				}
-				fullPathParentNode = realParent
-			}
-
-			return nil
-		}); err != nil {
-			return jobUuids, err
-		}
-	*/
 
 	var whiteList, blackList []string
 	wl := config.Get("frontend", "plugin", "uploader.http", "REMOTE_UPLOAD_WHITELIST").String()
@@ -529,30 +515,6 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 		if _, err := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: &tree.Node{Path: path.Join(parentPath, basename)}}); err != nil {
 			return jobUuids, err
 		}
-		/*
-			if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-				updateCtx, realTarget, e := inputFilter(ctx, &tree.Node{Path: path.Join(parentPath, basename)}, "sel")
-				if e != nil {
-					return e
-				} else {
-					accessList, e := views.AccessListFromContext(updateCtx)
-					if e != nil {
-						return e
-					}
-					// First load ancestors or grab them from BranchInfo
-					ctx, parents, err := views.AncestorsListFromContext(updateCtx, realTarget, "in", getRouter().GetClientsPool(), true)
-					if err != nil {
-						return err
-					}
-					if !accessList.CanWrite(ctx, parents...) {
-						return errors.Forbidden(common.ServiceJobs, "Parent Node is not writeable")
-					}
-				}
-				return nil
-			}); err != nil {
-				return jobUuids, err
-			}
-		*/
 		if e := disallowTemplate(params); e != nil {
 			return nil, e
 		}
@@ -569,6 +531,8 @@ func wgetTasks(ctx context.Context, parentPath string, urls []string, languages 
 					ID:         "actions.cmd.wget",
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
+						// Here we specifically use Pathes instead of a query as it defines
+						// a target node that does NOT exists
 						Pathes: []string{path.Join(fullPathParentNode.Path, basename)},
 					},
 				},

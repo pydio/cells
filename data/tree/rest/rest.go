@@ -27,13 +27,10 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common/utils/mtree"
-
 	"github.com/emicklei/go-restful"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
@@ -48,12 +45,15 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
 	"github.com/pydio/cells/data/templates"
 	"github.com/pydio/cells/scheduler/lang"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type Handler struct {
@@ -361,6 +361,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		}
 
 		jobUuid := "copy-move-" + uuid.New()
+		q, _ := ptypes.MarshalAny(&tree.Query{
+			Paths: selectedPaths,
+		})
+
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          username,
@@ -381,7 +385,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 						"create":       "true",
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: selectedPaths,
+						Query: &service2.Query{SubQueries: []*any.Any{q}},
 					},
 				},
 			},
@@ -402,6 +406,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 		taskLabel := T("Jobs.User.Delete")
 		jobUuid := "delete-" + uuid.New()
+		q, _ := ptypes.MarshalAny(&tree.Query{
+			Paths: deleteJobs.RealDeletes,
+		})
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          username,
@@ -416,7 +423,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 					ID:         "actions.tree.delete",
 					Parameters: map[string]string{},
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: deleteJobs.RealDeletes,
+						Query: &service2.Query{SubQueries: []*any.Any{q}},
 					},
 				},
 			},
@@ -533,6 +540,9 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
 			jobUuid := "copy-move-" + uuid.New()
+			q, _ := ptypes.MarshalAny(&tree.Query{
+				Paths: []string{currentFullPath},
+			})
 			job := &jobs.Job{
 				ID:             jobUuid,
 				Owner:          username,
@@ -552,7 +562,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 							"create":    "true",
 						},
 						NodesSelector: &jobs.NodesSelector{
-							Pathes: []string{currentFullPath},
+							Query: &service2.Query{SubQueries: []*any.Any{q}},
 						},
 					},
 				},

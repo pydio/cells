@@ -3,23 +3,25 @@ package share
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/proto/idm"
 	"strings"
 
-	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
-
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/gosimple/slug"
 	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 )
@@ -155,7 +157,7 @@ func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParent
 			break
 		}
 	}
-	if (cellNode) {
+	if cellNode {
 		// Check if there is a default policy set for cells using custom folders
 		claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 		if !ok {
@@ -228,6 +230,9 @@ func DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *
 		// Now send deletion to scheduler
 		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
 		jobUuid := "cells-delete-" + uuid.New()
+		q, _ := ptypes.MarshalAny(&tree.Query{
+			Paths: []string{realNode.Path},
+		})
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          ownerName,
@@ -240,7 +245,7 @@ func DeleteRootNodeRecursively(ctx context.Context, ownerName string, roomNode *
 					ID:         "actions.tree.delete",
 					Parameters: map[string]string{},
 					NodesSelector: &jobs.NodesSelector{
-						Pathes: []string{realNode.Path},
+						Query: &service.Query{SubQueries: []*any.Any{q}},
 					},
 				},
 			},
