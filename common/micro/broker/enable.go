@@ -113,7 +113,20 @@ func EnableHTTP() {
 }
 
 func EnableMemory() {
-	b := memory.NewBroker()
+	b := NewBroker(
+		memory.NewBroker(),
+		BeforeDisconnect(func() error {
+			s, err := registry.ListRunningServices()
+			if err != nil {
+				return err
+			}
+			if len(s) > 0 {
+				return fmt.Errorf("services are still running")
+			}
+
+			return nil
+		}),
+	)
 
 	defaults.InitServer(func() server.Option {
 		return server.Broker(b)
