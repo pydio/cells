@@ -38,6 +38,33 @@
   "ds.board.wsfromds.defaultPrefix": {
     "other": "Datasource %s"
   },
+  "ds.format-picker.title": {
+    "other": "Create DataSource"
+  },
+  "ds.format-picker.legend": {
+    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
+  },
+  "ds.format-picker.submit": {
+    "other": "Début"
+  },
+  "ds.format-picker.flat.title": {
+    "other": "Stockage à plat"
+  },
+  "ds.format-picker.flat.legend": {
+    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+  },
+  "ds.format-picker.structured.title": {
+    "other": "Import Existing Data"
+  },
+  "ds.format-picker.structured.legend": {
+    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+  },
+  "ds.format-picker.internal.title": {
+    "other": "Cells Internals"
+  },
+  "ds.format-picker.internal.legend": {
+    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
+  },
   "ds.editor.delete.warning": {
     "other": "Etes-vous sûr de vouloir supprimer cette datasource? C'est irréversible, et vous perdrez les données associées aux fichiers!"
   },
@@ -310,6 +337,33 @@
   },
   "ds.editor.versioning.disabled": {
     "other": "Ne pas activer le versioning"
+  },
+  "ds.editor.tab.button-back": {
+    "other": "Retour"
+  },
+  "ds.editor.tab.button-next": {
+    "other": "Suivant"
+  },
+  "ds.editor.tab.button-create": {
+    "other": "Créer"
+  },
+  "ds.editor.tab.identifier": {
+    "other": "Identifiant"
+  },
+  "ds.editor.tab.main": {
+    "other": "Options principales"
+  },
+  "ds.editor.tab.storage": {
+    "other": "Type de Stockage"
+  },
+  "ds.editor.tab.lifecycle": {
+    "other": "Data Lifecycle"
+  },
+  "ds.editor.tab.advanced": {
+    "other": "Advanced Options"
+  },
+  "ds.editor.initFlatFromSnapshot": {
+    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
   },
   "ds.encryption": {
     "other": "Encryptée"

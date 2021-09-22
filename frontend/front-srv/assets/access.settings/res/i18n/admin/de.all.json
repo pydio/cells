@@ -38,6 +38,33 @@
   "ds.board.wsfromds.defaultPrefix": {
     "other": "Datasource %s"
   },
+  "ds.format-picker.title": {
+    "other": "Datasource erstellen"
+  },
+  "ds.format-picker.legend": {
+    "other": "Datasources sind Einhängepunkte, die es Ihnen ermöglichen, den tatsächlichen Speicher mit der Anwendung zu verbinden. Wählen Sie zunächst aus, wie die Daten im Speicher organisiert werden sollen.\nAnalyse einer Position."
+  },
+  "ds.format-picker.submit": {
+    "other": "Starten"
+  },
+  "ds.format-picker.flat.title": {
+    "other": "Flacher Speicher"
+  },
+  "ds.format-picker.flat.legend": {
+    "other": "Die Dateien werden im Speicher als Binärdateien gespeichert, um die Leistung zu verbessern. Die Struktur von Dateien und Ordnern wird nur im internen Index gespeichert."
+  },
+  "ds.format-picker.structured.title": {
+    "other": "Vorhandene Daten importieren"
+  },
+  "ds.format-picker.structured.legend": {
+    "other": "Dateien und Ordner werden im Ist-Zustand gespeichert, die Echtzeit-Synchronisation spiegelt die Speicherstruktur in internen Indizes wider."
+  },
+  "ds.format-picker.internal.title": {
+    "other": "Cells intern"
+  },
+  "ds.format-picker.internal.legend": {
+    "other": "Dient zur Speicherung interner Binärdateien (z. B. Dateiversionen, Miniaturansichten). Eingeschränkte Funktionen, die Daten werden nicht von Suchmaschinen indiziert."
+  },
   "ds.editor.delete.warning": {
     "other": "Sind Sie sicher, dass Sie diese Datenquelle löschen möchten? Das ist irreversible und Sie können alle Daten verlieren, die mit diesem Knoten verbunden sind!"
   },
@@ -310,6 +337,33 @@
   },
   "ds.editor.versioning.disabled": {
     "other": "Versionierung nicht aktivieren"
+  },
+  "ds.editor.tab.button-back": {
+    "other": "Zurück"
+  },
+  "ds.editor.tab.button-next": {
+    "other": "Weiter"
+  },
+  "ds.editor.tab.button-create": {
+    "other": "Erstellen"
+  },
+  "ds.editor.tab.identifier": {
+    "other": "Bezeichnung"
+  },
+  "ds.editor.tab.main": {
+    "other": "Grundeinstellungen"
+  },
+  "ds.editor.tab.storage": {
+    "other": "Speichertyp"
+  },
+  "ds.editor.tab.lifecycle": {
+    "other": "Data Lifecycle"
+  },
+  "ds.editor.tab.advanced": {
+    "other": "Erweiterte Optionen"
+  },
+  "ds.editor.initFlatFromSnapshot": {
+    "other": "Wenn dieser Speicher zuvor als flache Datenquelle verwendet wurde, initialisieren Sie ihn anhand einer vorhandenen Snapshot-Datei (die sich innerhalb des Speichers befinden muss)"
   },
   "ds.encryption": {
     "other": "Verschlüsselt"
