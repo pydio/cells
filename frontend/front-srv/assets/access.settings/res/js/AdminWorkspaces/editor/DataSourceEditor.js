@@ -338,16 +338,16 @@ class DataSourceEditor extends React.Component{
                     <div style={{flex: 1}}>
                         <Stepper activeStep={createSteps.indexOf(currentPane)}>
                             <Step>
-                                <StepLabel>Identifier</StepLabel>
+                                <StepLabel>{m('tab.identifier')}</StepLabel>
                             </Step>
                             <Step>
-                                <StepLabel>Storage Type</StepLabel>
+                                <StepLabel>{m('tab.storage')}</StepLabel>
                             </Step>
                             <Step>
-                                <StepLabel>Data Lifecycle</StepLabel>
+                                <StepLabel>{m('tab.lifecycle')}</StepLabel>
                             </Step>
                             <Step>
-                                <StepLabel>Advanced</StepLabel>
+                                <StepLabel>{m('tab.advanced')}</StepLabel>
                             </Step>
                         </Stepper>
                     </div>
@@ -356,10 +356,10 @@ class DataSourceEditor extends React.Component{
             CreateButton = (
                 <div style={{...stepperStyle, top: null, bottom: 0, backgroundColor:'white', boxShadow:'rgba(0, 0, 0, .1) 0px -1px 2px'}}>
                     <span style={{flex: 1}}/>
-                    <FlatButton primary={true} label={"Back"} onClick={()=>this.stepperBack()} disabled={backDisabled}/>
-                    <FlatButton primary={true} label={"Next"} onClick={()=>this.stepperNext()} disabled={nextDisabled}/>
+                    <FlatButton primary={true} label={m('tab.button-back')} onClick={()=>this.stepperBack()} disabled={backDisabled}/>
+                    <FlatButton primary={true} label={m('tab.button-next')} onClick={()=>this.stepperNext()} disabled={nextDisabled}/>
                     <div style={{width:1, height:40, backgroundColor:'#efefef', margin:'0 5px'}}/>
-                    <FlatButton primary={true} label={"Create"} onClick={()=>this.saveSource()} disabled={!observable.isValid()}/>
+                    <FlatButton primary={true} label={m('tab.button-create')} onClick={()=>this.saveSource()} disabled={!observable.isValid()}/>
                 </div>
             );
         }
@@ -537,7 +537,7 @@ class DataSourceEditor extends React.Component{
                     <ModernTextField
                         fullWidth={true}
                         variant={'v2'}
-                        hintText={'If this storage was previously used as a Cells datasource, initialize from existing snapshot file...'}
+                        hintText={m('initFlatFromSnapshot')}
                         value={model.StorageConfiguration.initFromSnapshot || ''}
                         onChange={(e,v)=>{
                             if (v) {
@@ -611,9 +611,9 @@ class DataSourceEditor extends React.Component{
                 titleActionBar={titleActionBarButtons}
                 closeAction={this.props.closeEditor}
                 leftNavItems={create?null:[{
-                    label:'Main Options', value:'main', icon:'mdi mdi-database-plus'},
-                    {label:'Data Lifecycle', value:'data', icon:'mdi mdi-recycle'},
-                    {label:'Advanced', value:'advanced', icon:'mdi mdi-settings'}
+                    label:m('tab.main'), value:'main', icon:'mdi mdi-database-plus'},
+                    {label:m('tab.lifecycle'), value:'data', icon:'mdi mdi-recycle'},
+                    {label:m('tab.advanced'), value:'advanced', icon:'mdi mdi-settings'}
                     ]}
                 leftNavSelected={currentPane}
                 leftNavChange={(key) => {this.setState({currentPane:key})}}

@@ -45,11 +45,14 @@ class CreateDSDialog extends React.Component {
     render() {
         const {open, onRequestClose} = this.props
         const {value} = this.state;
-        const makeRadio = (value, label, subTitle) => {
+
+        const m = (id) => Pydio.getMessages()['ajxp_admin.ds.format-picker.'+id] || id
+
+        const makeRadio = (value) => {
             const lab = (
                 <div>
-                    <div>{label}</div>
-                    <div style={{opacity:.67, margin:'5px 0 10px'}}>{subTitle}</div>
+                    <div>{m(value+'.title')}</div>
+                    <div style={{opacity:.67, margin:'5px 0 10px'}}>{m(value+'.legend')}</div>
                 </div>
             );
             return (
@@ -57,22 +60,22 @@ class CreateDSDialog extends React.Component {
             );
         }
         const actions = [
-            <FlatButton label={"Cancel"} onClick={() => {onRequestClose()}} primary={true}/>,
-            <FlatButton label={"Setup DataSource"} primary={true} onClick={() => this.submit()}/>
+            <FlatButton label={Pydio.getMessages()['54']} onClick={() => {onRequestClose()}} primary={true}/>,
+            <FlatButton label={m('submit')} primary={true} onClick={() => this.submit()}/>
         ];
 
         return (
             <Dialog
                 open={open}
-                title={"Create Data Source"}
+                title={m('title')}
                 onRequestClose={onRequestClose}
                 actions={actions}
             >
-                <div style={{marginBottom: 20}}>DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage.</div>
+                <div style={{marginBottom: 20}}>{m('legend')}</div>
                 <RadioButtonGroup valueSelected={value} onChange={(e, v) => this.setState({value: v})}>
-                    {makeRadio('flat', 'Flat Storage', 'Best for performances, files are stored as blob binaries inside the storage. Files and folders structure is kept in Cells internal DB only.')}
-                    {makeRadio('structured', 'Import existing data', 'Files and folders are stored as-is : a real-time synchronisation maintains storage structure and Cells indexes.')}
-                    {makeRadio('internal', 'Cells internals', 'Used to store Cells internal binaries (e.g. files versions). Limited features, data is not indexed in search engines.')}
+                    {makeRadio('flat')}
+                    {makeRadio('structured')}
+                    {makeRadio('internal')}
                 </RadioButtonGroup>
             </Dialog>
         );
