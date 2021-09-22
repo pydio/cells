@@ -44,5 +44,5 @@ type MessageRepository interface {
 
 // Single entry point to convert time.Time to Unix timestamps defined as int32
 func convertTimeToTs(ts time.Time) int32 {
-	return int32(ts.Unix())
+	return int32(ts.UTC().Unix())
 }
