@@ -3,13 +3,11 @@ package index
 import (
 	"context"
 	"fmt"
-
-	"github.com/pydio/cells/common/utils/mtree"
-	"github.com/pydio/cells/x/configx"
-
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -72,39 +70,23 @@ func getDAO(ctx context.Context) DAO {
 
 func printTree(ctx context.Context) {
 	// query
-
-	st, _ := getSQLDAO(ctx).GetStmt("printTree")
-	rows, _ := st.Query()
-
-	var uuid, mpath string
-	var level int
-	var rat []byte
-
-	for rows.Next() {
-		err := rows.Scan(&uuid, &level, &mpath, &rat)
-		if err != nil {
-			return
-		}
-
-		fmt.Println(uuid, level, mpath, rat)
+	rows, err := getSQLDAO(ctx).DB().Query("SELECT uuid, name, mpath1, mpath2, mpath3, mpath4 FROM test_idx_tree")
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-}
 
-func printNodes(ctx context.Context) {
-	// query
-	st, _ := getSQLDAO(ctx).GetStmt("printNodes")
-	rows, _ := st.Query()
+		for rows.Next() {
+			var (
+				uuid string
+				name string
+				mpath1 string
+				mpath2 string
+				mpath3 string
+				mpath4 string
+			)
+			err := rows.Scan(&uuid, &name, &mpath1, &mpath2, &mpath3, &mpath4)
+			fmt.Println(uuid, name, mpath1, mpath2, mpath3, mpath4, err)
 
-	var uuid, name, etag, mode string
-	var mtime, size int
-	var leaf *bool
-
-	for rows.Next() {
-		err := rows.Scan(&uuid, &name, &leaf, &mtime, &etag, &size, &mode)
-		if err != nil {
-			return
 		}
-
-		fmt.Println(uuid, name, leaf, mtime, etag, size, mode)
-	}
 }

@@ -62,6 +62,7 @@ func init() {
 	}
 
 	ctxNoCache = servicecontext.WithDAO(context.Background(), d)
+
 }
 
 func TestMysql(t *testing.T) {
@@ -480,6 +481,80 @@ func TestMysql(t *testing.T) {
 		newEtag2 := hex.EncodeToString(hash2.Sum(nil))
 		So(parentNode.Etag, ShouldEqual, newEtag2)
 
+	})
+}
+
+func TestMoveNode(t *testing.T) {
+
+	// Getting children count
+	Convey("Test Moving Node with long mpath", t, func() {
+
+		currentDAO := NewFolderSizeCacheDAO(getDAO(ctxNoCache))
+
+		newNode12 := NewNode(&tree.Node{
+			Uuid: "node123",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1,2,3}, []string{"node12"})
+
+		if err := currentDAO.AddNode(newNode12); err != nil {
+			So(err, ShouldBeNil)
+		}
+
+		// Add new node and check size
+		newNode := NewNode(&tree.Node{
+			Uuid: "newNodeFolderSize",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1,2,3,4,5,6,7,8,9,10}, []string{"newNodeFolderSize"})
+
+		if err := currentDAO.AddNode(newNode); err != nil {
+			So(err, ShouldBeNil)
+		}
+
+		newNodeChild := NewNode(&tree.Node{
+			Uuid: "newNodeChildSize",
+			Type: tree.NodeType_COLLECTION,
+		}, append(newNode.MPath, 1), []string{"newNodeChild"})
+
+		if err := currentDAO.AddNode(newNodeChild); err != nil {
+			So(err, ShouldBeNil)
+		}
+
+		printTree(ctxNoCache)
+
+		movedNewNode13 := NewNode(&tree.Node{
+			Uuid: "node12",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1, 3}, []string{"node12"})
+
+		err := currentDAO.MoveNodeTree(newNode12, movedNewNode13)
+		So(err, ShouldBeNil)
+
+		// printTree(ctxNoCache)
+
+		_, e := getDAO(ctxNoCache).GetNode([]uint64{1, 3})
+		So(e, ShouldBeNil)
+
+		newNode12 = NewNode(&tree.Node{
+			Uuid: "node123",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1,2,3}, []string{"node12"})
+
+		// Moving back
+		err = currentDAO.MoveNodeTree(movedNewNode13, newNode12)
+		So(err, ShouldBeNil)
+
+		// printTree(ctxNoCache)
+
+		newNode124 := NewNode(&tree.Node{
+			Uuid: "node124",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1,2,4}, []string{"node12"})
+
+		// Moving back
+		err = currentDAO.MoveNodeTree(newNode12, newNode124)
+		So(err, ShouldBeNil)
+
+		// printTree(ctxNoCache)
 	})
 
 }

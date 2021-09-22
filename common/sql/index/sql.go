@@ -53,11 +53,9 @@ var (
 	mu        atomic.Value
 	inserting atomic.Value
 	cond      *sync.Cond
-)
 
-const (
 	batchLen = 20
-	indexLen = 767
+	indexLen = 255
 )
 
 // BatchSend sql structure
@@ -128,24 +126,75 @@ func init() {
 		whereSub, whereArgs := getMPathLike([]byte(args[0]))
 
 		mapping := args[1:]
-		mpath1 := mapping[0:2]
-		mpath2 := mapping[2:4]
-		mpath3 := mapping[4:6]
-		mpath4 := mapping[6:8]
+		var mpathFrom = make([]string, 4)
+		var mpathTo = make([]string, 4)
 
-		var mpathSub []string
+		mpathFrom[0]= mapping[0]
+		mpathFrom[1] = mapping[2]
+		mpathFrom[2] = mapping[4]
+		mpathFrom[3] = mapping[6]
 
-		if mpath1[0] != mpath1[1] {
-			mpathSub = append(mpathSub, `mpath1 = `+dao.Concat(`"`+mpath1[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath1[0])+2)+`)`))
-		}
-		if mpath2[0] != mpath2[1] {
-			mpathSub = append(mpathSub, `mpath2 = `+dao.Concat(`"`+mpath2[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath2[0])+2)+`)`))
-		}
-		if mpath3[0] != mpath3[1] {
-			mpathSub = append(mpathSub, `mpath3 = `+dao.Concat(`"`+mpath3[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath3[0])+2)+`)`))
-		}
-		if mpath4[0] != mpath4[1] {
-			mpathSub = append(mpathSub, `mpath4 = `+dao.Concat(`"`+mpath4[1]+`."`, `SUBSTR(mpath1, `+fmt.Sprintf("%d", len(mpath4[0])+2)+`)`))
+		mpathTo[0] = mapping[1]
+		mpathTo[1] = mapping[3]
+		mpathTo[2] = mapping[5]
+		mpathTo[3] = mapping[7]
+
+		// Getting the total index for mpath
+		totalMPathFrom := len(mpathFrom[0]) + len(mpathFrom[1]) + len(mpathFrom[2]) + len(mpathFrom[3])
+		totalMPathTo := len(mpathTo[0]) + len(mpathTo[1]) + len(mpathTo[2]) + len(mpathTo[3])
+
+		var (
+			quotientMPathFrom int = totalMPathFrom / indexLen
+			moduloMPathFrom int = totalMPathFrom % indexLen
+			quotientMPathTo int = totalMPathTo / indexLen
+			moduloMPathTo int = totalMPathTo % indexLen
+			mpathSub []string
+		)
+
+		cnt := 1
+
+		for i := 0; i < 4; i++ {
+			if i < quotientMPathTo {
+				// We just copy the result
+				mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d="%s"`, i + 1, mpathTo[i]))
+			} else if i == quotientMPathTo {
+				// We copy the result and concat the remainder of
+				if moduloMPathFrom > moduloMPathTo {
+					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+1, moduloMPathFrom+1, indexLen-moduloMPathFrom)
+					remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+2, 1, moduloMPathFrom-moduloMPathTo)
+					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i + 1, dao.Concat(`"`+mpathTo[i] +`"`, remainder1, remainder2)))
+				} else {
+					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+1, moduloMPathFrom+1, indexLen-moduloMPathTo)
+					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i + 1, dao.Concat(`"`+mpathTo[i] +`"`, remainder1)))
+				}
+			} else {
+				idx := quotientMPathFrom + cnt
+				cnt = cnt + 1
+
+				if moduloMPathFrom > moduloMPathTo {
+					if idx < 3 {
+						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, moduloMPathFrom-moduloMPathTo+1, indexLen-(moduloMPathFrom-moduloMPathTo))
+						remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+2, 1, moduloMPathFrom-moduloMPathTo)
+						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
+					} else if idx < 4 {
+						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, moduloMPathFrom-moduloMPathTo+1, indexLen-(moduloMPathFrom-moduloMPathTo))
+						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1)))
+					} else {
+						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=""`, i+1))
+					}
+				} else {
+					if idx < 3 {
+						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx, indexLen-(moduloMPathTo-moduloMPathFrom)+1, moduloMPathTo-moduloMPathFrom)
+						remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, 1, indexLen-(moduloMPathTo-moduloMPathFrom))
+						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
+					} else if idx < 4 {
+						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx, indexLen-(moduloMPathTo-moduloMPathFrom)+1, moduloMPathTo-moduloMPathFrom)
+						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1)))
+					} else {
+						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=""`, i+1))
+					}
+				}
+			}
 		}
 
 		if hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
@@ -285,6 +334,10 @@ func init() {
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ?`, sub), args
 	}
+}
+
+func RegisterIndexLen(len int) {
+	indexLen = len
 }
 
 // IndexSQL implementation
@@ -1106,12 +1159,6 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNo
 		return errTx
 	}
 
-	/*
-		if err := dao.SetNode(nodeFrom); err != nil {
-			return err
-		}
-	*/
-
 	// Then replace the children mpaths
 	updateChildren, updateChildrenArgs, err := dao.GetStmtWithArgs("updateReplace",
 		pathFrom.String(),
@@ -1369,10 +1416,10 @@ func (b *BatchSend) Close() error {
 func prepareMPathParts(node *mtree.TreeNode) (string, string, string, string) {
 	mPath := make([]byte, indexLen*4)
 	copy(mPath, []byte(node.MPath.String()))
-	mPath1 := string(bytes.Trim(mPath[(indexLen*0):(indexLen*1-1)], "\x00"))
-	mPath2 := string(bytes.Trim(mPath[(indexLen*1):(indexLen*2-1)], "\x00"))
-	mPath3 := string(bytes.Trim(mPath[(indexLen*2):(indexLen*3-1)], "\x00"))
-	mPath4 := string(bytes.Trim(mPath[(indexLen*3):(indexLen*4-1)], "\x00"))
+	mPath1 := string(bytes.Trim(mPath[(indexLen*0):(indexLen*1)], "\x00"))
+	mPath2 := string(bytes.Trim(mPath[(indexLen*1):(indexLen*2)], "\x00"))
+	mPath3 := string(bytes.Trim(mPath[(indexLen*2):(indexLen*3)], "\x00"))
+	mPath4 := string(bytes.Trim(mPath[(indexLen*3):(indexLen*4)], "\x00"))
 	return mPath1, mPath2, mPath3, mPath4
 }
 
