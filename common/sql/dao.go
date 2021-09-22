@@ -25,6 +25,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -39,6 +40,23 @@ var (
 	LongConnectionTimeout    = 10 * time.Minute
 	ErrNoRows                = sql.ErrNoRows
 )
+
+func init() {
+	if dc := os.Getenv("CELLS_SQL_DEFAULT_CONN"); dc != "" {
+		if ddc, e := time.ParseDuration(dc); e == nil {
+			fmt.Println("[ENV] Overriding DefaultConnectionTimeout with env value", ddc)
+			DefaultConnectionTimeout = ddc
+		}
+	}
+
+	if dc := os.Getenv("CELLS_SQL_LONG_CONN"); dc != "" {
+		if ddc, e := time.ParseDuration(dc); e == nil {
+			fmt.Println("[ENV] Overriding LongConnectionTimeout with env value", ddc)
+			LongConnectionTimeout = ddc
+		}
+	}
+
+}
 
 // DAO interface definition
 type DAO interface {
