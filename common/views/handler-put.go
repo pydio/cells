@@ -272,23 +272,31 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 
 func (m *PutHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
 
-	treeReader := m.clientsPool.GetTreeClient()
-	treeWriter := m.clientsPool.GetTreeClientWrite()
-
-	treePath := strings.TrimLeft(target.Path, "/")
-	existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
-		Node: &tree.Node{
-			Path: treePath,
-		},
-	})
-	if err == nil && existingResp.Node != nil && existingResp.Node.Etag == common.NodeFlagEtagTemporary {
-		log.Logger(ctx).Info("Received MultipartAbort - Clean temporary node:", existingResp.Node.Zap())
-		// Delete Temporary Node Now!
-		treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
-			Path: string(norm.NFC.Bytes([]byte(treePath))),
-			Type: tree.NodeType_LEAF,
-		}})
+	deleteTemporary := func() {
+		treeReader := m.clientsPool.GetTreeClient()
+		treeWriter := m.clientsPool.GetTreeClientWrite()
+		treePath := strings.TrimLeft(target.Path, "/")
+		existingResp, err := treeReader.ReadNode(ctx, &tree.ReadNodeRequest{
+			Node: &tree.Node{
+				Path: treePath,
+			},
+		})
+		if err == nil && existingResp.Node != nil && existingResp.Node.Etag == common.NodeFlagEtagTemporary {
+			log.Logger(ctx).Info("Received MultipartAbort - Clean temporary node:", existingResp.Node.Zap())
+			// Delete Temporary Node Now!
+			treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
+				Path: string(norm.NFC.Bytes([]byte(treePath))),
+				Type: tree.NodeType_LEAF,
+			}})
+		}
 	}
 
-	return m.next.MultipartAbort(ctx, target, uploadID, requestData)
+	if !isFlatStorage(ctx, "in") {
+		deleteTemporary()
+	}
+	e := m.next.MultipartAbort(ctx, target, uploadID, requestData)
+	if isFlatStorage(ctx, "in") {
+		deleteTemporary()
+	}
+	return e
 }
