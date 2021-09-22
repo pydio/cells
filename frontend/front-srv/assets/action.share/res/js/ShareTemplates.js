@@ -1,3 +1,23 @@
+/*
+ * Copyright 2007-2021 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+import React from 'react'
 const {Textfit} = require('react-textfit');
 import PropTypes from 'prop-types';
 import createReactClass from 'create-react-class'
@@ -6,6 +26,7 @@ const Color = require('color');
 import {muiThemeable} from 'material-ui/styles';
 import {connect} from 'react-redux';
 import {compose} from 'redux';
+import {Paper} from 'material-ui'
 import PathUtils from 'pydio/util/path'
 import DOMUtils from 'pydio/util/dom'
 
@@ -201,7 +222,7 @@ let StandardLayout = createReactClass({
 
         return (
             <div className="vertical_fit vertical_layout" style={bgStyle}>
-                <MaterialUI.Paper zDepth={1} rounded={false} style={styles.appBarStyle}>
+                <Paper zDepth={1} rounded={false} style={styles.appBarStyle}>
                     <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
                     <div id="workspace_toolbar" style={{display:'flex', flex: 1, overflow:'hidden'}}>
                         <Breadcrumb {...this.props} rootStyle={{padding: '0 14px', height: 36, lineHeight: '36px', maxWidth:null}}/>
@@ -225,7 +246,7 @@ let StandardLayout = createReactClass({
                             <Toolbar {...this.props} id="main-toolbar" toolbars={toolbars} groupOtherList={uniqueNode ? [] : ["change_main", "more", "change", "remote"]} renderingType="icon-font" buttonStyle={styles.buttonsStyle}/>
                         </div>
                     </div>
-                </MaterialUI.Paper>
+                </Paper>
                 {this.props.children}
                 <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
             </div>
@@ -520,123 +541,20 @@ class DropZoneMinisite extends React.Component{
 
 }
 
-class FilmStripMinisite extends React.Component{
-
-    componentDidMount(){
-        pydio.UI.registerEditorOpener(this);
-    }
-
-    componentWillUnmount() {
-        pydio.UI.unregisterEditorOpener(this);
-    }
-
-    componentWillReceiveProps(nextProps) {
-
-        const {pydio, node, dispatch} = nextProps;
-
-        if(this.props.node){
-            dispatch(EditorActions.tabDelete(this.props.node.getLabel()));
-        }
-
-        if (!node || !node.isLeaf()) return;
-
-        const selectedMime = PathUtils.getAjxpMimeType(node);
-        const editors = pydio.Registry.findEditorsForMime(selectedMime, false);
-        if (editors.length && editors[0].openable) {
-
-            const editorData = editors[0];
-
-            pydio.Registry.loadEditorResources(
-                editorData.resourcesManager,
-                () => {
-                    let EditorClass = null
-
-                    if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
-                        this.setState({
-                            error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                        });
-                        return
-                    }
-
-                    let tabId = dispatch(EditorActions.tabCreate({
-                        id: node.getLabel(),
-                        title: node.getLabel(),
-                        url: node.getPath(),
-                        icon: PydioWorkspaces.FilePreview,
-                        Editor: EditorClass.Editor,
-                        Controls: EditorClass.Controls,
-                        metadata: node.getMetadata(),
-                        readonly: node.getMetadata().get("node_readonly") === "true",
-                        pydio,
-                        node,
-                        editorData,
-                        registry: pydio.Registry
-                    })).id;
-
-                    dispatch(EditorActions.editorSetActiveTab(tabId))
-                }
-            )
-        }
-    }
-
-    openEditorForNode(node, editorData) {
-        const {dispatch} = this.props
-        if(!node.isLeaf()) return;
-        pydio.Registry.loadEditorResources(
-            editorData.resourcesManager,
-            () => {
-                let EditorClass = null
-
-                if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
-                    this.setState({
-                        error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                    });
-                    return
-                }
-
-                dispatch(EditorActions.tabModify({
-                    id: node.getLabel(),
-                    title: node.getLabel(),
-                    url: node.getPath(),
-                    icon: PydioWorkspaces.FilePreview,
-                    Editor: EditorClass.Editor,
-                    Controls: EditorClass.Controls,
-                    metadata: node.getMetadata(),
-                    readonly: node.getMetadata().get("node_readonly") === "true",
-                    pydio,
-                    node,
-                    editorData,
-                    registry: pydio.Registry
-                }))
-            }
-        )
-    }
-
+class FilmStripMinisite extends React.Component {
 
     render(){
 
-
-        let node = this.props && this.props.node ?  this.props.node : null;
-
-        let editor;
-        if(node && node.isLeaf()) {
-            editor = (
-                <Editor displayToolbar={false} style={{display: "flex", flex: 1}}/>
-            );
-        }
-
         return (
-            <StandardLayout {...this.props} skipDisplayToolbar={true}>
-                <div className="vertical_layout" style={{flex:1, backgroundColor:'#424242', position:'relative'}}>
-                    {editor}
-                </div>
-                <div style={{height: 10, background: '#424242', zIndex: 1}}/>
-                <div className="vertical_layout" style={{height: 250, backgroundColor:'#424242', zIndex:1}}>
-                    <MainFilesList ref="list"  dataModel={this.props.pydio.getContextHolder()} {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
+            <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
+                <div style={{backgroundColor:'white'}} className="layout-fill vertical-layout">
+                    <MainFilesList ref="list" {...this.props} dataModel={this.props.pydio.getContextHolder()} displayMode={"masonry"}/>
                     <Copyright mode={"insert"} {...this.props}/>
                 </div>
+                <EditionPanel {...this.props}/>
             </StandardLayout>
         );
+
     }
 
 }
