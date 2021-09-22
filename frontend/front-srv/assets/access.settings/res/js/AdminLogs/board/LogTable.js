@@ -234,7 +234,7 @@ class LogTable extends React.Component {
                 }
             },
             {name:'Ts', label: pydio.MessageHash["settings.17"], renderCell:(row)=>{
-                const m = moment(row.Ts * 1000);
+                const m = moment(row.Ts * 1000).utc().local();
                 let dateString;
                 if (m.isSame(Date.now(), 'day')){
                     dateString = m.format('HH:mm:ss');

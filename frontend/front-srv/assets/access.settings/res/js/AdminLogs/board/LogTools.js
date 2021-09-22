@@ -157,7 +157,7 @@ class LogTools extends React.Component{
             <div style={{display: 'flex', alignItems: 'center', width: '100%', marginTop: 3}}>
 
                 {focus &&
-                    <div style={focusBadge}>Focus on +/- 5 minutes at {moment(new Date(focus*1000)).format('hh:mm:ss')}</div>
+                    <div style={focusBadge}>Focus on +/- 5 minutes at {moment(new Date(focus*1000)).format('HH:mm:ss')}</div>
                 }
 
                 <div style={{marginRight: 5, width: 170}} >
