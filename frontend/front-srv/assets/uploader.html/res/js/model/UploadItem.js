@@ -151,6 +151,12 @@ class UploadItem extends StatusItem {
         };
 
         this.setStatus(StatusItem.StatusLoading);
+        addEventListener('unload', () => {
+            if(this._status === StatusItem.StatusLoading){
+                console.error("Page unloaded during upload, try to abort upload!")
+                this._doAbort();
+            }
+        })
 
         try{
             Configs.getInstance().extensionAllowed(this);
@@ -164,6 +170,9 @@ class UploadItem extends StatusItem {
     }
 
     _doAbort(completeCallback){
+        if(this._status === StatusItem.StatusLoaded) {
+            return
+        }
         if(this.xhr){
             try{
                 //console.log('Should abort', this.getFullPath());

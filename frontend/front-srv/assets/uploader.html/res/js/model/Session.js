@@ -47,6 +47,14 @@ class Session extends FolderItem {
         this.notify('status', this._status);
     }
 
+    setCreateFolders(number) {
+        this._createFoldersStatus = number;
+    }
+
+    getCreateFolders() {
+        return this._createFoldersStatus;
+    }
+
     getFullPath(){
         const repoList = Pydio.getInstance().user.getRepositoriesList();
         if(!repoList.has(this._repositoryId)){

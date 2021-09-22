@@ -226,6 +226,7 @@ class StatusItem extends Observable {
 
 StatusItem.StatusNew = 'new';
 StatusItem.StatusAnalyze = 'analyse';
+StatusItem.StatusFolders = 'folders';
 StatusItem.StatusLoading = 'loading';
 StatusItem.StatusLoaded = 'loaded';
 StatusItem.StatusError = 'error';

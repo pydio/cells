@@ -221,13 +221,17 @@ class Store extends Observable{
     getFolders(max = 60){
         let folders = [];
         this._sessions.forEach(session => {
+            let has = 0;
             session.walk((item)=>{
                 folders.push(item);
+                has ++;
             }, (item)=>{
                 return item.getStatus() === 'new' && item.isNew()
             }, 'folder', () => {
                 return folders.length >= max;
             });
+            session.setCreateFolders(has);
+            session.setStatus(has?StatusItem.StatusFolders:StatusItem.StatusLoading)
         });
         return folders;
     }
@@ -258,7 +262,7 @@ class Store extends Observable{
             }, 'file', ()=>{
                 return items.length >= max - processing;
             });
-            if(sessItems === 0){
+            if(sessItems === 0 && processing === 0){
                 session.Task.setIdle();
             }
         });

@@ -170,6 +170,14 @@ class JobsStore extends Observable {
         this.notify("tasks_updated", job.ID);
     }
 
+    deleteLocalJob(jobID) {
+        this.localJobs.delete(jobID);
+        if(this.tasksList && this.tasksList.has(jobID)) {
+            this.tasksList.delete(jobID);
+        }
+        this.notify("tasks_updated");
+    }
+
     /**
      *
      * @param task JobsTask

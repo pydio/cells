@@ -33,7 +33,8 @@ class Task {
         this.job = new JobsJob();
         this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;
-        this.job.Label = pydio.MessageHash['html_uploader.task.label'];
+        const m = (id) => pydio.MessageHash['html_uploader.task.' + id] || id;
+        this.job.Label = m('label');
         this.job.Stoppable = true;
         const task = new JobsTask();
         this.task = task;
@@ -46,29 +47,45 @@ class Task {
         };
 
         task._statusObserver = (s)=>{
-            if(s === StatusItem.StatusAnalyze){
-                this.job.Label = 'Preparing files for upload';
-                if(session.getChildren().length){
-                    task.StatusMessage = 'Analyzing (' + session.getChildren().length + ') items';
+            if(s === StatusItem.StatusFolders && session.getCreateFolders()) {
+                this.job.Label = m('status.folders');
+                const ff = session.getCreateFolders();
+                if(ff > 1) {
+                    task.StatusMessage = m('message.folder-many').replace('%s', ff)
                 } else {
-                    task.StatusMessage = 'Please wait...';
+                    task.StatusMessage = m('message.folder-one')
+                }
+                task.Status = JobsTaskStatus.constructFromObject('Running');
+            } else if(s === StatusItem.StatusAnalyze) {
+                this.job.Label = m('status.analyse')
+                const aa = session.getChildren().length;
+                if (aa > 1) {
+                    task.StatusMessage = m('message.analyse-many').replace('%s', aa)
+                } else if (aa === 1){
+                    task.StatusMessage = m('message.analyse-one')
+                } else {
+                    task.StatusMessage = m('message.analyse-wait');
                 }
                 task.Status = JobsTaskStatus.constructFromObject('Running');
             } else if(s === 'ready') {
-                this.job.Label = pydio.MessageHash['html_uploader.7'];
-                task.StatusMessage = 'Ready to upload';
+                this.job.Label = m('7');
+                task.StatusMessage = m('status.ready');
                 task.Status = JobsTaskStatus.constructFromObject('Idle');
             } else if(s === 'paused'){
-                this.job.Label = 'Task paused';
+                this.job.Label = m('status.paused');
                 task.Status = JobsTaskStatus.constructFromObject('Paused');
+            } else if(s === 'loading') {
+                this.job.Label = m('status.upload');
+                task.Status = JobsTaskStatus.constructFromObject('Running');
             }
             this.notifyMainStore();
         };
         task._progressObserver = (p)=>{
+            this.job.Label = m('status.upload');
             task.Progress = p / 100;
             task.Status = JobsTaskStatus.constructFromObject('Running');
             if (p > 0) {
-                task.StatusMessage = 'Uploading ' + Math.ceil(p) + '%';
+                task.StatusMessage = m('message.upload-progress').replace('%s', Math.ceil(p));
             }
             this.notifyMainStore();
         };
@@ -83,12 +100,19 @@ class Task {
 
 
     setIdle(){
+        if(this.task.Progress === 1) {
+            JobsStore.getInstance().deleteLocalJob(this.job.ID);
+            return;
+        }
         this.task.Status = JobsTaskStatus.constructFromObject('Idle');
         this.task.StatusMessage = '';
         this.notifyMainStore();
     }
 
     notifyMainStore(){
+        if(this.task.Progress === 1){
+            return // do not enqueue finished sessions !
+        }
         this.task.StartTime = (new Date).getTime() / 1000;
         this.job.Tasks = [this.task];
         JobsStore.getInstance().enqueueLocalJob(this.job);
