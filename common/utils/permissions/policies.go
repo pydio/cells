@@ -151,6 +151,11 @@ func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Po
 	return policies, nil
 }
 
+// ClearCachedPolicies empties local cache
+func ClearCachedPolicies(ctx context.Context, resType string) {
+	checkersCache.Delete(resType)
+}
+
 func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, error) {
 
 	if ww, ok := checkersCache.Get(resType); ok {

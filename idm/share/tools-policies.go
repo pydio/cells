@@ -24,26 +24,27 @@ func InheritPolicies(ctx context.Context, policyName string, read, write bool) (
 		return "", fmt.Errorf("cannot find parent policy %s", policyName)
 	}
 	var suffix = ""
-	if read&&write{
+	if read && write {
 		suffix = "rw"
-	} else if read{
+	} else if read {
 		suffix = "ro"
-	} else if write{
+	} else if write {
 		suffix = "wo"
 	} else {
 		return "", fmt.Errorf("provide at least one of read or write for extending policy")
 	}
 	// Create inherited flavours
-	if ro, o := policyByName(gg, policyName+"-" +suffix); o {
+	if ro, o := policyByName(gg, policyName+"-"+suffix); o {
 		return ro.Uuid, nil
 	}
-	roPol, e := derivePolicy(parent, read, write,suffix);
+	roPol, e := derivePolicy(parent, read, write, suffix)
 	if e != nil {
 		return "", e
 	}
-	if _, e := polClient.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{PolicyGroup: roPol});e != nil {
+	if _, e := polClient.StorePolicyGroup(ctx, &idm.StorePolicyGroupRequest{PolicyGroup: roPol}); e != nil {
 		return "", e
 	}
+	permissions.ClearCachedPolicies(ctx, "acl")
 	return roPol.Uuid, nil
 }
 
@@ -58,11 +59,11 @@ func derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix string) (*id
 		label = "Write Only"
 	}
 	newG := &idm.PolicyGroup{
-		Uuid: policy.Uuid+"-"+suffix,
-		Name: policy.Name + " ("+label+")",
-		Description: policy.Description + " (generated for sharing)",
+		Uuid:          policy.Uuid + "-" + suffix,
+		Name:          policy.Name + " (" + label + ")",
+		Description:   policy.Description + " (generated for sharing)",
 		ResourceGroup: policy.ResourceGroup,
-		OwnerUuid: policy.OwnerUuid,
+		OwnerUuid:     policy.OwnerUuid,
 	}
 	var hasRead, hasWrite bool
 	var allowPol *idm.Policy
@@ -70,7 +71,7 @@ func derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix string) (*id
 		// Deny : append policy
 		if p.Effect == idm.PolicyEffect_deny {
 			p.Id = uuid.New()
-			p.Subjects = []string{"policy:"+newG.Uuid}
+			p.Subjects = []string{"policy:" + newG.Uuid}
 			newG.Policies = append(newG.Policies, p)
 			continue
 		}
@@ -95,12 +96,12 @@ func derivePolicy(policy *idm.PolicyGroup, read, write bool, suffix string) (*id
 	}
 	// Reset actions
 	allowPol.Id = uuid.New()
-	allowPol.Subjects = []string{"policy:"+newG.Uuid}
+	allowPol.Subjects = []string{"policy:" + newG.Uuid}
 	allowPol.Actions = []string{}
-	if(read) {
+	if read {
 		allowPol.Actions = append(allowPol.Actions, permissions.AclRead.Name)
 	}
-	if(write) {
+	if write {
 		allowPol.Actions = append(allowPol.Actions, permissions.AclWrite.Name)
 	}
 	newG.Policies = append(newG.Policies, allowPol)
