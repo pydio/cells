@@ -680,7 +680,7 @@ importers:
       aws-sdk: ^2.847.0
       babel-plugin-add-module-exports: ^1.0.4
       browserify-shim: ^3.8.14
-      cells-sdk: github:pydio/cells-sdk-js#next
+      cells-sdk: 3.0.0-rc1.0
       chart.js: ^1.0.2
       classnames: ~2.1.3
       clipboard: ^1.5.8
@@ -760,7 +760,7 @@ importers:
       wicked-good-xpath: ^1.3.0
     dependencies:
       aws-sdk: 2.856.0
-      cells-sdk: github.com/pydio/cells-sdk-js/21a8bbda2392552a7928070cb3969153e009fb0e
+      cells-sdk: 3.0.0-rc1.0
       chart.js: 1.1.1
       classnames: 2.1.5
       clipboard: 1.7.1
@@ -3380,6 +3380,14 @@ packages:
     dev: true
     optional: true
 
+  /cells-sdk/3.0.0-rc1.0:
+    resolution: {integrity: sha512-GPcPEP7J6r2vXgp0Pschel/dQuPr4HJfOpevAUPM8urZ/spdGqTfZYyt6vaN9Psont3xaz6iWkA6HlcvprNIaA==}
+    dependencies:
+      superagent: 6.1.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /chain-function/1.0.1:
     resolution: {integrity: sha512-SxltgMwL9uCko5/ZCLiyG2B7R9fY4pDZUw7hJ4MhirdjBLosoDqkWABi3XMucddHdLiFJMb7PD2MZifZriuMTg==}
     dev: false
@@ -4709,7 +4717,7 @@ packages:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.31
+      mime-types: 2.1.32
 
   /form-data/3.0.1:
     resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
@@ -6444,24 +6452,26 @@ packages:
   /mime-db/1.48.0:
     resolution: {integrity: sha512-FM3QwxV+TnZYQ2aRqhlKBMHxk10lTbMt3bBkMAp54ddrNeVSfcQYOOKuGuy3Ddrm38I04If834fOUSq1yzslJQ==}
     engines: {node: '>= 0.6'}
+    dev: true
+    optional: true
 
   /mime-db/1.49.0:
     resolution: {integrity: sha512-CIc8j9URtOVApSFCQIF+VBkX1RwXp/oMMOrqdyXSBXq5RWNEsRfyj1kiRnQgmNXmHxPoFIxOroKA3zcU9P+nAA==}
     engines: {node: '>= 0.6'}
-    dev: false
 
   /mime-types/2.1.31:
     resolution: {integrity: sha512-XGZnNzm3QvgKxa8dpzyhFTHmpP3l5YNusmne07VUOXxou9CqUqYa/HBy124RqtVh/O2pECas/MOcsDgpilPOPg==}
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.48.0
+    dev: true
+    optional: true
 
   /mime-types/2.1.32:
     resolution: {integrity: sha512-hJGaVS4G4c9TSMYh2n6SQAGrC4RnfU+daP8G7cSCmaqNjiOoUY0VHCMS42pxnQmVF1GWwFhbHWn3RIxCqTmZ9A==}
     engines: {node: '>= 0.6'}
     dependencies:
       mime-db: 1.49.0
-    dev: false
 
   /mime/1.2.11:
     resolution: {integrity: sha1-WCA+7Ybjpe8XrtK32evUfwpg3RA=}
@@ -9306,16 +9316,6 @@ packages:
   /zlib-browserify/0.0.1:
     resolution: {integrity: sha1-T6akXQDbwV8xikr6HZr8Aljhdsw=}
     dev: true
-
-  github.com/pydio/cells-sdk-js/21a8bbda2392552a7928070cb3969153e009fb0e:
-    resolution: {tarball: https://codeload.github.com/pydio/cells-sdk-js/tar.gz/21a8bbda2392552a7928070cb3969153e009fb0e}
-    name: cells-sdk
-    version: 3.0.0
-    dependencies:
-      superagent: 6.1.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   github.com/pydio/pydio-sdk-js/b82cab5bb5bb495fb7cde736814681b52e158a9c:
     resolution: {tarball: https://codeload.github.com/pydio/pydio-sdk-js/tar.gz/b82cab5bb5bb495fb7cde736814681b52e158a9c}
