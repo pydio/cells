@@ -12,7 +12,8 @@
 - Material UI JS framework is written by Call-Em-All, see [https://material-ui.com/](https://material-ui.com/) (MIT License)
 - Material Design Icons : [https://materialdesignicons.com/](https://materialdesignicons.com/) (SIL Open Font License, Version 1.1.)
 - Font Awesome by Dave Gandy : [https://fontawesome.com/](https://fontawesome.com/) (SIL Open Font License)
-- Background Photos from [https://unsplash.com/](https://unsplash.com/) - Brad Neathery, Dustin Lee, Luis Llerena, Tim Gouw, Though Catalog
+- Background Photos: [Andrej Lišakov](https://unsplash.com/@lishakov), [Ray Mallick](https://unsplash.com/@rmallick6806), [Pawel Czerwinski
+  ](https://unsplash.com/@pawel_czerwinski) (Unsplash License)
 
 ##### Other Plugins
 
