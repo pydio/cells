@@ -27,11 +27,11 @@ import (
 	"context"
 	"path/filepath"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
-
 	"github.com/micro/go-micro"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/sync"
@@ -59,9 +59,12 @@ func init() {
 			service.Fork(true),
 			service.WithMicro(func(m micro.Service) error {
 
-				cfg := servicecontext.GetConfig(m.Options().Context)
+				cfg := config.Get("services", Name)
 
 				indexContent := cfg.Val("indexContent").Bool()
+				if indexContent {
+					log.Logger(m.Options().Context).Info("Enabling content indexation in search engine")
+				}
 
 				dir, _ := config.ServiceDataDir(Name)
 				bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")
