@@ -192,6 +192,8 @@ class AdvancedSearch extends Component {
         let showClear = scope !== 'all' || (others && Object.keys(others).length > 0)
         let showSave = scope !== 'all' || basenameOrContent || (others && Object.keys(others).length > 0)
         let showRemove = !!searchID
+        const {indexContent = false} = options;
+        const fNameLabel = getMessage(indexContent?'searchengine.field.basenameOrContent' : 1);
 
         return (
             <div className="search-advanced" style={{...rootStyle}}>
@@ -219,7 +221,7 @@ class AdvancedSearch extends Component {
                         }
                     </div>
                 }
-                <FieldRow {...rowProps} name={"basenameOrContent"} label={getMessage(1)}>{this.renderField('basenameOrContent',getMessage(1))}</FieldRow>
+                <FieldRow {...rowProps} name={"basenameOrContent"} label={fNameLabel}>{this.renderField('basenameOrContent',fNameLabel)}</FieldRow>
                 {showScope &&
                     <FieldRow {...rowProps} name={"scope"} label={getMessage('searchengine.scope.title')} style={{marginRight:16}}>
                         <SearchScopeSelector pydio={pydio} value={values.scope} onChange={(scope)=>{this.onChange({...values, scope})}}/>

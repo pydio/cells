@@ -191,7 +191,7 @@ export default function withSearch(Component, historyIdentifier, scope){
 
         mergeFacets(values = {}, facets = []){
             let data = {};
-            const {basenameOrContent} = values;
+            const {basenameOrContent=''} = values;
             facets.forEach(facet => {
                 switch (facet.FieldName){
                     case "Size":
@@ -212,7 +212,7 @@ export default function withSearch(Component, historyIdentifier, scope){
                         break;
                     case "Basename":
                         data['basenameOrContent'] = ''
-                        data['basename'] = basenameOrContent
+                        data['basename'] = basenameOrContent.replace('*', '') + '*' // wildchar basename
                         break;
                     default:
                         if(facet.FieldName.indexOf('Meta.') === 0) {
