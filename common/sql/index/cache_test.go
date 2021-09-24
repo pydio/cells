@@ -192,6 +192,19 @@ func TestMysqlWithCache(t *testing.T) {
 		// printNodes()
 	})
 
+	Convey("Create combined error", t, func() {
+		newSession()
+
+		cDao := getDAO(ctxWithCache).(*daocache)
+		for i := 0; i < 20; i++ {
+			cDao.errors = append(cDao.errors, fmt.Errorf("error %d", i))
+		}
+		err := cDao.Flush(true)
+		So(err, ShouldNotBeNil)
+		So(err.Error(), ShouldEqual, "Combined errors (first 10) : error 0 error 1 error 2 error 3 error 4 error 5 error 6 error 7 error 8 error 9")
+
+	})
+
 	Convey("Test Getting a file - Success", t, func() {
 		newSession()
 
