@@ -77,20 +77,23 @@ func PolicyHTTPWrapper(h http.Handler) http.Handler {
 
 		// Effective request to ladon
 		resp, err := client.IsAllowed(c, request)
-		// log.Logger(c).Error("Querying Policy Service", zap.Any("request", request), zap.Any("response", resp), zap.Error(err))
 
 		if err != nil || !resp.Allowed {
+			code := 401
+			body := "Unauthorized"
 			log.Logger(c).Debug("PolicyHttpHandlerWrapper denied access", zap.Error(err), zap.Any("request", request))
 			var msg string
 			if err != nil {
-				msg = "Ladon validation failed: " + err.Error()
+				code = 500
+				body = "Internal server error."
+				msg = "Cannot check policies: " + err.Error()
 			} else { //resp.Allowed == false
-				msg = fmt.Sprintf("Ladon blocked %s request at %s. Ladon Response: %s", r.Method, r.RequestURI, resp.String())
+				msg = fmt.Sprintf("Policies blocked %s request at %s. Response: %s", r.Method, r.RequestURI, resp.String())
 			}
 
 			log.Logger(c).Error(msg, zap.Error(err))
-			w.WriteHeader(401)
-			w.Write([]byte("Unauthorized.\n"))
+			w.WriteHeader(code)
+			w.Write([]byte(body + "\n"))
 			return
 		}
 
