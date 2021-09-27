@@ -140,7 +140,7 @@ class LogTable extends React.Component {
 
     render(){
         const {loading, rootSpans, selectedRows} = this.state;
-        const {pydio, onTimestampContext, query, focus, darkTheme} = this.props;
+        const {pydio, onTimestampContext, query, focus, darkTheme, timeOffset = 0} = this.props;
         const {onPageNext, onPagePrev, nextDisabled, prevDisabled, onPageSizeChange, page, size, pageSizes} = this.props;
         let logs = this.openSpans();
         if(selectedRows.length){
@@ -169,6 +169,7 @@ class LogTable extends React.Component {
                                 log={log}
                                 focus={focus}
                                 darkTheme={darkTheme}
+                                timeOffset={timeOffset}
                                 onSelectPeriod={onTimestampContext}
                                 onRequestClose={()=> this.setState({selectedRows:[]})}
                             />
@@ -234,7 +235,7 @@ class LogTable extends React.Component {
                 }
             },
             {name:'Ts', label: pydio.MessageHash["settings.17"], renderCell:(row)=>{
-                const m = moment(row.Ts * 1000).utc().local();
+                const m = moment((row.Ts+timeOffset) * 1000).utc().local();
                 let dateString;
                 if (m.isSame(Date.now(), 'day')){
                     dateString = m.format('HH:mm:ss');

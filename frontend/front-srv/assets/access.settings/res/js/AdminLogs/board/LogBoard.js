@@ -52,6 +52,9 @@ class LogBoard extends React.Component {
         if(newProps.darkTheme !== undefined){
             this.setState({darkTheme: newProps.darkTheme})
         }
+        if(newProps.timeOffset !== undefined){
+            this.setState({timeOffset: newProps.timeOffset})
+        }
     }
 
     handleReload() {
@@ -86,7 +89,7 @@ class LogBoard extends React.Component {
 
     render(){
         const {pydio, noHeader, service, disableExport, currentNode} = this.props;
-        const {page, size, query, tmpQuery, focus, contentType, z, results, darkTheme} = this.state;
+        const {page, size, query, tmpQuery, focus, contentType, z, results, darkTheme, timeOffset = 0} = this.state;
         const title = pydio.MessageHash["ajxp_admin.logs.1"];
         const buttons = (
             <LogTools
@@ -126,6 +129,7 @@ class LogBoard extends React.Component {
                     focus={focus}
                     contentType={contentType}
                     darkTheme={darkTheme}
+                    timeOffset={timeOffset}
                     z={z}
                     onLoadingStatusChange={this.handleLoadingStatusChange.bind(this)}
                     onTimestampContext={this.handleTimestampContext.bind(this)}
@@ -149,11 +153,6 @@ class LogBoard extends React.Component {
                         />
                         <div className="layout-fill">
                             {mainContent}
-                            {(!service || service === 'syslog') &&
-                                <div style={{padding: '0 26px', color: '#9e9e9e', fontWeight: 500}}>
-                                    <u>{pydio.MessageHash['ajxp_admin.logs.sys.note']}</u> {pydio.MessageHash['ajxp_admin.logs.sys.note.content']}
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>
