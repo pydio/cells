@@ -28,6 +28,7 @@ import (
 	log2 "log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -300,15 +301,18 @@ func initLogLevel() {
 	// Init log level
 	logLevel := viper.GetString("logs_level")
 	logJson := viper.GetBool("log_json")
+	common.LogToFile = viper.GetBool("log_to_file")
 
 	// Backward compatibility
 	if logLevel == "production" {
 		logLevel = "info"
 		logJson = true
+		common.LogToFile = true
 	}
 
 	// Making sure the log level is passed everywhere (fork processes for example)
 	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
+	os.Setenv("CELLS_LOG_TO_FILE", strconv.FormatBool(common.LogToFile))
 
 	if logJson {
 		os.Setenv("CELLS_LOG_JSON", "true")
