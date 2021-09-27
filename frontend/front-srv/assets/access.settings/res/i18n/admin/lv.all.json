@@ -524,8 +524,35 @@
   "logs.filter.period": {
     "other": "Laika periods"
   },
+  "logs.filter.period.from": {
+    "other": "No"
+  },
+  "logs.filter.period.to": {
+    "other": "Kam"
+  },
+  "logs.filter.period.time": {
+    "other": "At..."
+  },
+  "logs.filter.login": {
+    "other": "Pieslēgties"
+  },
+  "logs.filter.ip": {
+    "other": "IP"
+  },
   "logs.filter.fulltext": {
     "other": "Pilna teksta meklēšana"
+  },
+  "logs.tz.tooltip": {
+    "other": "Show local/server timezone"
+  },
+  "logs.tz.local": {
+    "other": "Local Timezone"
+  },
+  "logs.tz.server": {
+    "other": "Server Timezone"
+  },
+  "logs.toggleTheme": {
+    "other": "Light/Dark Theme"
   },
   "logs.sys.note": {
     "other": "Ņemiet vērā:"

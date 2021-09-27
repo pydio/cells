@@ -60,37 +60,37 @@
     "other": "Transfert des fichiers vers le serveur..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Création de dossiers"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Création du dossier"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Création de %s dossiers"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Préparation des fichiers pour le téléchargement"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Analyse de %s éléments..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Analyse d'un élément"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Veuillez patienter..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Prêt à télécharger"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Transfert en pause"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Transfert de fichiers"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "%s% transféré"
   },
   "no-folders-support": {
     "other": "Il semble que votre navigateur ne supporte pas le dépôt de dossiers"
