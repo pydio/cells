@@ -3,6 +3,7 @@ package frontend
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"time"
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
@@ -17,6 +18,7 @@ type BackendConf struct {
 	PackageLabel  string
 	PackageType   string
 	Version       string
+	ServerOffset  int
 }
 
 type CustomWording struct {
@@ -95,6 +97,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 	vHash := VersionHash()
 	vDate := ""
 	vRev := ""
+	_, tz := time.Now().Zone()
 	if len(showVersion) > 0 && showVersion[0] {
 		vHash = common.Version().String()
 		vDate = common.BuildStamp
@@ -134,6 +137,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 			BuildRevision: vRev,
 			BuildStamp:    vDate,
 			License:       "agplv3",
+			ServerOffset:  tz, // TODO
 		},
 	}
 
