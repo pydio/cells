@@ -155,7 +155,7 @@ class CellCard extends React.Component{
                     <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(54)} data={model.getAclsSubjects()} placeHolder placeHolderReady={!loading}/>
                     <GenericLine iconClassName="mdi mdi-folder" legend={m(249)} data={nodes} placeHolder placeHolderReady={!loading} />
                     {quotaLines}
-                    {mode !== 'infoPanel' && (watchLine || <GenericLine placeHolder/>)}
+                    {mode !== 'infoPanel' && (watchLine || <GenericLine placeHolder placeHolderReady={!loading}/>)}
                 </GenericCard>
             );
             if(mode === 'infoPanel'){
