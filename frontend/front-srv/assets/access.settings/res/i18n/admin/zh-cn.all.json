@@ -524,8 +524,35 @@
   "logs.filter.period": {
     "other": "时间段"
   },
+  "logs.filter.period.from": {
+    "other": "来自"
+  },
+  "logs.filter.period.to": {
+    "other": "至"
+  },
+  "logs.filter.period.time": {
+    "other": "At..."
+  },
+  "logs.filter.login": {
+    "other": "登录"
+  },
+  "logs.filter.ip": {
+    "other": "IP"
+  },
   "logs.filter.fulltext": {
     "other": "全文搜索"
+  },
+  "logs.tz.tooltip": {
+    "other": "Show local/server timezone"
+  },
+  "logs.tz.local": {
+    "other": "Local Timezone"
+  },
+  "logs.tz.server": {
+    "other": "Server Timezone"
+  },
+  "logs.toggleTheme": {
+    "other": "Light/Dark Theme"
   },
   "logs.sys.note": {
     "other": "请注意："

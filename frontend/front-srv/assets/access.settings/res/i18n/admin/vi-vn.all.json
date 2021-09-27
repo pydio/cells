@@ -524,8 +524,35 @@
   "logs.filter.period": {
     "other": "Khoảng thời gian"
   },
+  "logs.filter.period.from": {
+    "other": "Từ"
+  },
+  "logs.filter.period.to": {
+    "other": "Đến"
+  },
+  "logs.filter.period.time": {
+    "other": "At..."
+  },
+  "logs.filter.login": {
+    "other": "Đăng nhập"
+  },
+  "logs.filter.ip": {
+    "other": "IP"
+  },
   "logs.filter.fulltext": {
     "other": "Tìm kiếm toàn văn bản"
+  },
+  "logs.tz.tooltip": {
+    "other": "Show local/server timezone"
+  },
+  "logs.tz.local": {
+    "other": "Local Timezone"
+  },
+  "logs.tz.server": {
+    "other": "Server Timezone"
+  },
+  "logs.toggleTheme": {
+    "other": "Light/Dark Theme"
   },
   "logs.sys.note": {
     "other": "Xin lưu ý:"

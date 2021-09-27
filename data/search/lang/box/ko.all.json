@@ -6,13 +6,13 @@
     "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "파일 이름 분석"
   },
   "Search.Config.BasenameAnalyze.Description": {
     "other": "Analyzer used on file names"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "내용 분석"
   },
   "Search.Config.ContentAnalyzer.Description": {
     "other": "Analyzer used on contents"

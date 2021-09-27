@@ -2381,6 +2381,9 @@
   "searchengine.query.save-label": {
     "other": "Label eingeben"
   },
+  "searchengine.field.basenameOrContent": {
+    "other": "Name/Inhalt"
+  },
   "chat.load-older": {
     "other": "Ältere Einträge"
   },
