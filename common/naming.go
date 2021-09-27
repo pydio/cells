@@ -21,6 +21,8 @@
 package common
 
 import (
+	"strconv"
+
 	hashiversion "github.com/hashicorp/go-version"
 	"go.uber.org/zap/zapcore"
 )
@@ -246,9 +248,11 @@ var (
 
 // Logging Levels.
 var (
-	LogConfig        LogConfigType
-	LogLevel         zapcore.Level
-	LogCaptureStdOut bool
+	LogConfig           LogConfigType
+	LogLevel            zapcore.Level
+	LogToFile           bool
+	LogFileDefaultValue = "true"
+	LogCaptureStdOut    bool
 )
 
 var (
@@ -265,4 +269,11 @@ var (
 func Version() *hashiversion.Version {
 	v, _ := hashiversion.NewVersion(version)
 	return v
+}
+
+func MustLogFileDefaultValue() bool {
+	if v, e := strconv.ParseBool(LogFileDefaultValue); e == nil {
+		return v
+	}
+	return true
 }

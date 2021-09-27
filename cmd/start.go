@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common"
+
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/spf13/cobra"
 
@@ -330,6 +332,7 @@ func init() {
 	// Other internal flags
 	StartCmd.Flags().String("log", "info", "Sets the log level : 'info', 'debug', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
 	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text. Necessary for production.")
+	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file, by default inside CELLS_WORKING_DIR/logs")
 	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
