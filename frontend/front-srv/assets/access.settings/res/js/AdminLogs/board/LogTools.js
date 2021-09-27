@@ -45,10 +45,18 @@ class LogTools extends React.Component{
         this.publishStateChange = debounce(this.publishStateChange.bind(this), 250);
     }
 
+    componentDidMount() {
+        try{
+            const localState = JSON.parse(localStorage.getItem('pydio.logs.ux-state'))
+            this.setState(localState, this.publishStateChange.bind(this))
+        }catch(e){}
+    }
 
     publishStateChange(){
         const {filter, serviceFilter, level, remoteAddress, userName, date, endDate, darkTheme, timeOffset} = this.state;
         const query = Log.buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
+        const localState = {darkTheme, timeOffset}
+        localStorage.setItem('pydio.logs.ux-state', JSON.stringify(localState))
         this.props.onStateChange({query, darkTheme, timeOffset});
     }
 
