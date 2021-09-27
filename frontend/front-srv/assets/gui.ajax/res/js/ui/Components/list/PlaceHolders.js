@@ -32,7 +32,7 @@ export default function PlaceHolders(props) {
         customPH = (
             <div style={{width: tSize, height: tSize, display:'flex', flexDirection: 'column', alignItems: 'center', margin: 2}}>
                 <div style={{flex: 1, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                    <PhRoundShape style={{width: 40, height: 40}}/>
+                    <PhRoundShape style={{width: 40, height: 40, borderRadius: 6}}/>
                 </div>
                 <PhTextRow style={{fontSize: 20}}/>
             </div>
@@ -57,7 +57,7 @@ export default function PlaceHolders(props) {
     } else {
         customPH = (
             <div style={{display:'flex', padding: '0 16px', alignItems:'center', height:elementHeight, borderBottom: '1px solid rgba(0,0,0,.03)'}}>
-                <PhRoundShape style={{width: 40, height: 40, marginRight:20}}/>
+                <PhRoundShape style={{width: 40, height: 40, marginRight:20, borderRadius: 6}}/>
                 <div style={{flex:1}}>
                     <PhTextRow style={{fontSize: 16, width: '80%', marginTop: 0}}/>
                     <PhTextRow style={{fontSize: 13, width: '70%'}}/>

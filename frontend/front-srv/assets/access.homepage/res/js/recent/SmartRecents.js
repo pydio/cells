@@ -214,18 +214,24 @@ class RecentCard extends React.Component{
     }
 
     render(){
-        const {opacity} = this.state;
+        const {opacity, hover} = this.state;
         const styles={
             paper:{
-                width: 120, height: 140, margin: 16, display:'flex', flexDirection:'column', cursor:'pointer',
+                width: 140, height: 160,
+                margin: 10,
+                padding: 6,
+                borderRadius: 6,
+                boxShadow: hover?'0px 15px 30px -6px rgba(0, 0, 0, .15)' : '-1px 0px 15px 0px rgba(0, 0, 0, 0.1)',
+                display:'flex', flexDirection:'column', cursor:'pointer',
                 alignItems:'center', textAlign:'center',
                 opacity: opacity,
                 transition:'all 1000ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
             },
             preview:{
-                boxShadow: 'rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px',
-                borderRadius: '50%',
-                width: 90,
+                /*boxShadow: 'rgba(0, 0, 0, 0.10) 0px 1px 6px, rgba(0, 0, 0, 0.10) 0px 1px 4px',*/
+                //backgroundColor:'white',
+                borderRadius: 6,
+                width: '100%',
                 flex:1,
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -238,7 +244,7 @@ class RecentCard extends React.Component{
 
         const {title, legend, node, pydio} = this.props;
         return (
-            <Paper zDepth={0} style={styles.paper} onClick={() => {pydio.goTo(node);}}>
+            <Paper zDepth={0} style={styles.paper} onClick={() => {pydio.goTo(node);}} onMouseOver={()=>this.setState({hover:true})} onMouseOut={()=>this.setState({hover:false})} title={node && node.getLabel()}>
                 {node && <FilePreview node={node} style={styles.preview} mimeFontStyle={{fontSize:40}} loadThumbnail={true}/>}
                 <div style={{...styles.label, ...styles.title}}>{title}</div>
                 <div style={{...styles.label, ...styles.legend}}>{legend}</div>
@@ -270,8 +276,8 @@ class SmartRecents extends React.Component{
             <div style={{display:'flex', flexWrap:'wrap'}}>
                 {[0,1,2,3,4,5,6,7].map(() => {
                     return (
-                        <div style={{margin:16,width:120, height: 140, display:'flex', flexDirection:'column', alignItems:'center'}}>
-                            <PhRoundShape style={{width:90, height:90}}/>
+                        <div style={{margin:10,width:140, height: 160, padding: 6, display:'flex', flexDirection:'column', alignItems:'center'}}>
+                            <PhRoundShape style={{width:'100%', height:100, borderRadius: 6}}/>
                             <PhTextRow/>
                             <PhTextRow/>
                         </div>

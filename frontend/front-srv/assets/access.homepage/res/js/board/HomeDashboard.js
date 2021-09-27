@@ -88,7 +88,7 @@ class AltDashboard extends React.Component {
                 flexDirection:'column',
                 alignItems:'center',
                 backgroundColor: 'white',
-                position:'relative',
+                overflow:'hidden'
             },
             wsListStyle:{
                 backgroundColor     : lightBg.toString(),
@@ -167,7 +167,7 @@ class AltDashboard extends React.Component {
                     </div>
                 </Paper>
                 <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle} fullScreen={fullScreen} onFocusChange={(f)=>{this.setState({fullScreen: f})}}>
-                    <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
+                    <SmartRecents {...this.props} style={{maxWidth: 660, width:'100%', padding:'8px 0'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
                 </HomeSearchForm>
             </MasterLayout>
 

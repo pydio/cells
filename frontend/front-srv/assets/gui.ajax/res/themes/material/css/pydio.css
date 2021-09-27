@@ -490,7 +490,7 @@ div.dialogBox div#element_overlay {
   height: 100%;
 }
 .react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div.mimefont-container {
-  border-radius: 50%;
+  border-radius: 4px;
   margin: 15px 15px;
   height: 40px;
   width: 40px;
@@ -726,7 +726,7 @@ div.dialogBox div#element_overlay {
   margin: 0;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container {
-  border-radius: 50%;
+  border-radius: 4px;
   margin: 0 0;
   height: 100%;
   width: 100%;
