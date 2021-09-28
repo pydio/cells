@@ -99,13 +99,13 @@ RUN
 
 WORKING DIRECTORIES
 
-  By default, application data is stored under the standard OS application dir : 
+  By default, application data is stored under the standard OS application dir: 
   
    - Linux: ${USER_HOME}/.config/pydio/cells
    - Darwin: ${USER_HOME}/Library/Application Support/Pydio/cells
    - Windows: ${USER_HOME}/ApplicationData/Roaming/Pydio/cells
 
-  You can customize the storage locations with the following ENV variables : 
+  You can customize the storage locations with the following ENV variables: 
   
    - CELLS_WORKING_DIR: replace the whole standard application dir
    - CELLS_DATA_DIR: replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
@@ -114,11 +114,13 @@ WORKING DIRECTORIES
 
 LOGS LEVEL
 
-  By default, logs are outputted in console format at the Info level. You can set the --log flag or set the 
-  CELLS_LOGS_LEVEL environment variable to one of the following values:
-   - debug, info, error: logs are written in console format with the according level
-   - production: logs are written in json format, to be used with a log aggregator tool.
+  By default, logs are outputted in console format at the Info level and appended in a CELLS_LOG_DIR/pydio.log file. You can: 
+   - Change the level (debug, info or error) with the --log flag or the CELLS_LOGS_LEVEL environment variable
+   - Output the logs in json format with --log_json=true 
+   - Prevent logs to be written in file with --log_to_file=false
 
+  For backward compatibility, --log=production still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
+      
 SERVICES DISCOVERY
 
   Microservices use NATS as a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 

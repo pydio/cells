@@ -94,7 +94,7 @@ ENVIRONMENT
   is equivalent to 
   $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
 
-  [Note]: the only exception is the --log flag, that is mapped to CELLS_LOG_LEVEL instead.
+  [Note]: the only exception is the --log flag, that is mapped to CELLS_LOGS_LEVEL instead.
 
   2. Working Directories 
 
@@ -339,8 +339,8 @@ func init() {
 
 	// Other internal flags
 	StartCmd.Flags().String("log", "info", "Sets the log level : 'info', 'debug', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
-	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text. Necessary for production.")
-	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file, by default inside CELLS_WORKING_DIR/logs")
+	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
+	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
 	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
