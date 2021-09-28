@@ -23,6 +23,10 @@ package websocket
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/pydio/cells/common"
+	context2 "github.com/pydio/cells/common/utils/context"
 
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/melody"
@@ -104,4 +108,17 @@ func ClearSession(session *melody.Session) {
 	session.Set(SessionSubjectsKey, nil)
 	session.Set(SessionLimiterKey, nil)
 
+}
+
+func prepareRemoteContext(session *melody.Session) (context.Context, error) {
+	claims, o1 := session.Get(SessionClaimsKey)
+	if !o1 {
+		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
+	}
+	metaCtx := auth.ContextFromClaims(context.Background(), claims.(claim.Claims))
+	metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
+	if md, o := session.Get(SessionMetaContext); o {
+		metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
+	}
+	return metaCtx, nil
 }

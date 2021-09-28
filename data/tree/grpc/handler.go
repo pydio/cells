@@ -277,7 +277,8 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 		if req.Node.GetPath() == "" && req.Node.GetUuid() != "" {
 			log.Logger(ctx).Debug("First Find node by uuid ", zap.String("uuid", req.Node.GetUuid()))
 
-			sendNode, err := s.lookUpByUuid(ctx, req.Node.GetUuid(), false, false)
+			var err error
+			sendNode, err = s.lookUpByUuid(ctx, req.Node.GetUuid(), false, false)
 			if err != nil {
 				return err
 			}
@@ -698,6 +699,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 	}
 
 	c, cancel := context.WithCancel(ctx)
+	defer cancel()
 	wg := &sync.WaitGroup{}
 	for dsName, ds := range s.DataSources {
 		wg.Add(1)
