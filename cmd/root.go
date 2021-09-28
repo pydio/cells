@@ -115,7 +115,7 @@ WORKING DIRECTORIES
 LOGS LEVEL
 
   By default, logs are outputted in console format at the Info level and appended in a CELLS_LOG_DIR/pydio.log file. You can: 
-   - Change the level (debug, info or error) with the --log flag or the CELLS_LOGS_LEVEL environment variable
+   - Change the level (debug, info, warn or error) with the --log flag or the CELLS_LOGS_LEVEL environment variable
    - Output the logs in json format with --log_json=true 
    - Prevent logs to be written in file with --log_to_file=false
 
@@ -325,6 +325,8 @@ func initLogLevel() {
 	switch logLevel {
 	case "info":
 		common.LogLevel = zap.InfoLevel
+	case "warn":
+		common.LogLevel = zap.WarnLevel
 	case "debug":
 		common.LogLevel = zap.DebugLevel
 	case "error":

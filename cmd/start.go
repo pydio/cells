@@ -338,7 +338,7 @@ func init() {
 	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")
 
 	// Other internal flags
-	StartCmd.Flags().String("log", "info", "Sets the log level : 'info', 'debug', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
+	StartCmd.Flags().String("log", "info", "Sets the log level: 'info', 'debug', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
 	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
 	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
 	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
