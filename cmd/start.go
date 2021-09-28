@@ -103,11 +103,19 @@ ENVIRONMENT
   - CELLS_LOG_DIR: replace the location for storing logs (default CELLS_WORKING_DIR/logs)
   - CELLS_SERVICES_DIR: replace location for services-specific data (default CELLS_WORKING_DIR/services)
 
-  3. Others
+  3. Timeouts, limits, proxies
 
-  - CELLS_CACHES_HARD_LIMIT: raise memory used by internal caches (in MB, default is 8)
+  - CELLS_SQL_DEFAULT_CONN, CELLS_SQL_LONG_CONN: timeouts used for SQL queries. Use a golang duration (10s, 1m, etc). Defaults are respectively 30 seconds and 10 minutes.
+  - CELLS_CACHES_HARD_LIMIT: maximum memory limit used by internal caches (in MB, default is 8). This is a per/cache limit, not global.
   - CELLS_UPDATE_HTTP_PROXY: if your server uses a client proxy to access outside world, this can be set to query update server.
-  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY: Golang-specific environment variables to configure a client proxy for all external http calls.   
+  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY: golang-specific environment variables to configure a client proxy for all external http calls.
+
+  4. Development variables
+
+  - CELLS_ENABLE_WIP_LANGUAGES: show partially translated languages in the UX language picker. 
+  - CELLS_ENABLE_LIVEKIT: enable experimental support for video calls in the chat window, using a livekit-server.
+  - CELLS_ENABLE_FORMS_DEVEL: display a basic UX form with all possible fields types in the UX (for React developers)
+
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 
