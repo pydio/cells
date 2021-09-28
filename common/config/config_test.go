@@ -21,7 +21,6 @@
 package config
 
 import (
-	"fmt"
 	"sync"
 	"testing"
 
@@ -45,8 +44,12 @@ func TestConfig(t *testing.T) {
 		Get("test/bool1").Del()
 		// Get("test/bool2").Del()
 		Save("test", "test")
+	})
 
-		fmt.Println(Get("test").Map())
+	Convey("Test setting", t, func() {
+		c := Get().Val("test/test/test")
+		Set("test1", "test/test/test/test1")
+		So(c.Val("test1").String(), ShouldEqual, "test1")
 	})
 
 	Convey("Test Watch", t, func() {

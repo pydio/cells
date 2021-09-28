@@ -18,10 +18,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pydio/cells/common/config"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"time"
@@ -377,7 +379,7 @@ func (rc *raftNode) startRaft() {
 	rc.memberID = member.ID
 
 	// Creating snap dir
-	rc.snapdir = "service-" + member.ID.String() + "-snap"
+	rc.snapdir = filepath.Join(config.ApplicationWorkingDir(), "service-" + member.ID.String() + "-snap")
 	if !fileutil.Exist(rc.snapdir) {
 		if err := os.Mkdir(rc.snapdir, 0750); err != nil {
 			log.Fatalf("raftexample: cannot create dir for snapshot (%v)", err)
@@ -387,7 +389,7 @@ func (rc *raftNode) startRaft() {
 	rc.snapshotter = snap.New(rc.logger, rc.snapdir)
 
 	// Creating waldir
-	rc.waldir = "service-" + member.ID.String()
+	rc.waldir = filepath.Join(config.ApplicationWorkingDir() + "service-" + member.ID.String())
 
 	hasWAL := wal.Exist(rc.waldir)
 

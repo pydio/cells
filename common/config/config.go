@@ -91,9 +91,7 @@ func New(store configx.Entrypoint) Store {
 				continue
 			}
 
-			im := configx.New(configx.WithJSON())
-			im.Set(resp)
-			ret.im = im
+			ret.im.Set(resp)
 		}
 	}()
 
@@ -171,7 +169,7 @@ func (c *cacheconfig) Del() error {
 }
 
 func (c *cacheconfig) Val(k ...string) configx.Values {
-	return &cacheValues{c.im.Val(k...), c.store, k}
+	return &cacheValues{c.im, c.store, k}
 }
 
 type cacheValues struct {
@@ -181,16 +179,16 @@ type cacheValues struct {
 }
 
 func (c *cacheValues) Val(s ...string) configx.Values {
-	return &cacheValues{c.Values.Val(s...), c.store, append(c.path, s...)}
+	return &cacheValues{c.Values, c.store, append(c.path, s...)}
 }
 
 func (c *cacheValues) Get() configx.Value {
-	return c.Values.Get()
+	return c.Values.Val(c.path...).Get()
 }
 
 // We store it in the cache and in the store
 func (c *cacheValues) Set(v interface{}) error {
-	err := c.Values.Set(v)
+	err := c.Values.Val(c.path...).Set(v)
 	if err != nil {
 		return err
 	}
@@ -199,7 +197,7 @@ func (c *cacheValues) Set(v interface{}) error {
 }
 
 func (c *cacheValues) Del() error {
-	err := c.Values.Del()
+	err := c.Values.Val(c.path...).Del()
 	if err != nil {
 		return err
 	}
@@ -207,6 +205,45 @@ func (c *cacheValues) Del() error {
 	return c.store.Val(c.path...).Del()
 }
 
+func (c *cacheValues) Default(i interface{}) configx.Value {
+	return c.Values.Val(c.path...).Default(i)
+}
+
+func (c *cacheValues) String() string {
+	return c.Values.Val(c.path...).String()
+}
+
 func (c *cacheValues) MarshalJSON() ([]byte, error) {
-	return []byte(c.Values.String()), nil
+	return []byte(c.Values.Val(c.path...).String()), nil
+}
+
+func (c *cacheValues) Bool() bool {
+	return c.Values.Val(c.path...).Bool()
+}
+func (c *cacheValues) Bytes() []byte {
+	return c.Values.Val(c.path...).Bytes()
+}
+func (c *cacheValues) Int() int {
+	return c.Values.Val(c.path...).Int()
+}
+func (c *cacheValues) Int64() int64 {
+	return c.Values.Val(c.path...).Int64()
+}
+func (c *cacheValues) Duration() time.Duration {
+	return c.Values.Val(c.path...).Duration()
+}
+func (c *cacheValues) StringMap() map[string]string {
+	return c.Values.Val(c.path...).StringMap()
+}
+func (c *cacheValues) StringArray() []string {
+	return c.Values.Val(c.path...).StringArray()
+}
+func (c *cacheValues) Slice() []interface{} {
+	return c.Values.Val(c.path...).Slice()
+}
+func (c *cacheValues) Map() map[string]interface{} {
+	return c.Values.Val(c.path...).Map()
+}
+func (c *cacheValues) Scan(i interface{}) error {
+	return c.Values.Val(c.path...).Scan(i)
 }

@@ -25,6 +25,7 @@ package grpc
 
 import (
 	"context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 	"path/filepath"
 
 	"github.com/micro/go-micro"
@@ -59,7 +60,8 @@ func init() {
 			service.Fork(true),
 			service.WithMicro(func(m micro.Service) error {
 
-				cfg := config.Get("services", Name)
+				ctx := m.Options().Context
+				cfg := servicecontext.GetConfig(ctx)
 
 				indexContent := cfg.Val("indexContent").Bool()
 				if indexContent {
