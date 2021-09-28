@@ -39,10 +39,10 @@
     "other": "Datasource %s"
   },
   "ds.format-picker.title": {
-    "other": "Create DataSource"
+    "other": "Nouvelle Datasource"
   },
   "ds.format-picker.legend": {
-    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
+    "other": "Les Datasources sont des points de montage qui vous permettent d'attacher un stockage réel à l'application. Tout d'abord, sélectionnez la façon dont les données sont organisées à l'intérieur du stockage."
   },
   "ds.format-picker.submit": {
     "other": "Début"
@@ -51,19 +51,19 @@
     "other": "Stockage à plat"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+    "other": "Pour de meilleures performances, les fichiers sont stockés en tant que binaires à l'intérieur du stockage. La structure des fichiers et des dossiers est conservée dans l'index interne seulement."
   },
   "ds.format-picker.structured.title": {
-    "other": "Import Existing Data"
+    "other": "Importer des données existantes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+    "other": "Les fichiers et les dossiers sont stockés tels quels, la synchronisation en temps réel reflète la structure de stockage à l'intérieur des index internes."
   },
   "ds.format-picker.internal.title": {
-    "other": "Cells Internals"
+    "other": "Format Interne"
   },
   "ds.format-picker.internal.legend": {
-    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
+    "other": "Utilisé pour stocker des binaires internes (par exemple, des versions de fichiers, des vignettes). Fonctionnalités limitées, les données ne sont pas indexées dans les moteurs de recherche."
   },
   "ds.editor.delete.warning": {
     "other": "Etes-vous sûr de vouloir supprimer cette datasource? C'est irréversible, et vous perdrez les données associées aux fichiers!"
@@ -357,13 +357,13 @@
     "other": "Type de Stockage"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "Cycle de vie des données"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Options avancées"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
+    "other": "Si ce stockage a été précédemment utilisé comme datasource, initialisez-le à partir d'un fichier de snapshot existant (doit être présent dans le stockage)"
   },
   "ds.encryption": {
     "other": "Encryptée"
@@ -524,8 +524,35 @@
   "logs.filter.period": {
     "other": "Période"
   },
+  "logs.filter.period.from": {
+    "other": "De"
+  },
+  "logs.filter.period.to": {
+    "other": "A"
+  },
+  "logs.filter.period.time": {
+    "other": "À..."
+  },
+  "logs.filter.login": {
+    "other": "Identifiant"
+  },
+  "logs.filter.ip": {
+    "other": "Adresse IP"
+  },
   "logs.filter.fulltext": {
     "other": "Recherche dans le texte"
+  },
+  "logs.tz.tooltip": {
+    "other": "Fuseau horaire local/serveur"
+  },
+  "logs.tz.local": {
+    "other": "Fuseau horaire local"
+  },
+  "logs.tz.server": {
+    "other": "Fuseau horaire du serveur"
+  },
+  "logs.toggleTheme": {
+    "other": "Thème Clair/Sombre"
   },
   "logs.sys.note": {
     "other": "Notez:"

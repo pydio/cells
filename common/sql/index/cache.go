@@ -293,7 +293,7 @@ func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...*tre
 	}
 }
 
-// Flush
+// Flush triggers actual inserts and restarts a new cache if final is false
 func (d *daocache) Flush(final bool) error {
 	close(d.insertChan)
 
@@ -308,11 +308,15 @@ func (d *daocache) Flush(final bool) error {
 	if l == 1 {
 		err = errs[0]
 	} else if l > 0 {
+		if l > 10 { // limit number of errors
+			errs = errs[:10]
+			l = len(errs)
+		}
 		f := make([]string, l)
 		for i, e := range errs {
 			f[i] = e.Error()
 		}
-		err = errors.New("Combined errors : " + strings.Join(f, " "))
+		err = errors.New("Combined errors (first 10) : " + strings.Join(f, " "))
 	}
 
 	if !final {

@@ -66,7 +66,7 @@ func RestError404(req *restful.Request, resp *restful.Response, err error) {
 		RestError503(req, resp, err)
 		return
 	}
-	log.Logger(req.Request.Context()).Error("Rest Error 404", zap.Error(err))
+	log.Logger(req.Request.Context()).Warn("Rest Error 404", zap.Error(err))
 	resp.AddHeader("Content-Type", "application/json")
 	e := &rest.Error{
 		Title:  err.Error(),

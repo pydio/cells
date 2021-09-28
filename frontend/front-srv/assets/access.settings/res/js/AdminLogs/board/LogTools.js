@@ -22,7 +22,7 @@ import Pydio from 'pydio'
 import React from 'react'
 import debounce from 'lodash.debounce'
 import Log from '../model/Log'
-import {RaisedButton, DatePicker, TimePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
+import {DatePicker, TimePicker, IconButton, FlatButton, FontIcon, IconMenu, MenuItem, Subheader, Dialog} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 const {ModernTextField, ModernSelectField, ModernStyles} = Pydio.requireLib('hoc');
 const {moment} = Pydio.requireLib('boot');
@@ -31,21 +31,33 @@ class LogTools extends React.Component{
 
     constructor(props){
         super(props);
+        const serverOffset = Pydio.getInstance().Parameters.get('backend')['ServerOffset'];
+        const localOffset = new Date().getTimezoneOffset() * 60
         this.state = {
             filter: "",
             filterMode: "fulltext",
             levelShow:false,
             serviceFilterShow: false,
-            darkTheme: false
+            darkTheme: false,
+            serverOffset:serverOffset+localOffset,
+            timeOffset: 0
         };
         this.publishStateChange = debounce(this.publishStateChange.bind(this), 250);
     }
 
+    componentDidMount() {
+        try{
+            const localState = JSON.parse(localStorage.getItem('pydio.logs.ux-state'))
+            this.setState(localState, this.publishStateChange.bind(this))
+        }catch(e){}
+    }
 
     publishStateChange(){
-        const {filter, serviceFilter, level, remoteAddress, userName, date, endDate, darkTheme} = this.state;
+        const {filter, serviceFilter, level, remoteAddress, userName, date, endDate, darkTheme, timeOffset} = this.state;
         const query = Log.buildQuery(filter, serviceFilter, level, remoteAddress, userName, date, endDate);
-        this.props.onStateChange({query, darkTheme});
+        const localState = {darkTheme, timeOffset}
+        localStorage.setItem('pydio.logs.ux-state', JSON.stringify(localState))
+        this.props.onStateChange({query, darkTheme, timeOffset});
     }
 
     handleToggleShow(field){
@@ -72,6 +84,11 @@ class LogTools extends React.Component{
     toggleDarkTheme() {
         const {darkTheme} = this.state;
         this.setState({darkTheme:!darkTheme}, this.publishStateChange.bind(this));
+    }
+
+    toggleUseServerOffset() {
+        const {serverOffset, timeOffset} = this.state;
+        this.setState({timeOffset: timeOffset?0:serverOffset}, this.publishStateChange.bind(this))
     }
 
     handleFilterChange(val, keyName) {
@@ -149,15 +166,15 @@ class LogTools extends React.Component{
             borderRadius: 3
         };
 
-        const {filter, date, dateShow, endDate, endDateShow, serviceFilter, serviceFilterShow, level, levelShow, userName, userNameShow, remoteAddress, remoteAddressShow, exportUrl, exportFilename, exportOnClick} = this.state;
+        const {filter, date, dateShow, endDate, endDateShow, serviceFilter, serviceFilterShow, level, levelShow, userName, userNameShow, remoteAddress, remoteAddressShow, exportUrl, exportFilename, exportOnClick, serverOffset, timeOffset} = this.state;
         const {MessageHash} = pydio;
         const hasFilter = filter || serviceFilter || date || endDate || level || userName || remoteAddress;
-        const checkIcon = <FontIcon style={{top: 0}} className={"mdi mdi-check"}/>;
+        const checkIcon = <FontIcon style={{top: 0, fontSize: 20}} className={"mdi mdi-check"}/>;
         return (
             <div style={{display: 'flex', alignItems: 'center', width: '100%', marginTop: 3}}>
 
                 {focus &&
-                    <div style={focusBadge}>Focus on +/- 5 minutes at {moment(new Date(focus*1000)).format('HH:mm:ss')}</div>
+                    <div style={focusBadge}>Focus on +/- 5 minutes at {moment(new Date((focus+timeOffset)*1000)).format('HH:mm:ss')}</div>
                 }
 
                 <div style={{marginRight: 5, width: 170}} >
@@ -166,7 +183,7 @@ class LogTools extends React.Component{
 
                 {levelShow &&
                     <div style={{marginRight: 5, marginTop: -2, width: 100}}>
-                        <ModernSelectField hintText={"Level"} fullWidth={true} value={level}
+                        <ModernSelectField hintText={MessageHash['ajxp_admin.logs.level']} fullWidth={true} value={level}
                                            onChange={(e, i, v) => this.handleFilterChange(v, 'level')}>
                             <MenuItem primaryText={""}/>
                             <MenuItem primaryText={"ERROR"} value={"ERROR"}/>
@@ -178,19 +195,19 @@ class LogTools extends React.Component{
 
                 {serviceFilterShow &&
                     <div style={{marginRight: 5, width: 80}} >
-                        <ModernTextField hintText={"Service"} fullWidth={true} value={serviceFilter} onChange={(e, v) => this.handleFilterChange(v, 'serviceFilter')} />
+                        <ModernTextField hintText={MessageHash['ajxp_admin.logs.service']} fullWidth={true} value={serviceFilter} onChange={(e, v) => this.handleFilterChange(v, 'serviceFilter')} />
                     </div>
                 }
 
                 {remoteAddressShow &&
                     <div style={{marginRight: 5, width: 80}} >
-                        <ModernTextField hintText={"IP"} fullWidth={true} onChange={(e, v) => this.handleFilterChange(v, 'remoteAddress')} />
+                        <ModernTextField hintText={MessageHash['ajxp_admin.logs.filter.ip']} fullWidth={true} onChange={(e, v) => this.handleFilterChange(v, 'remoteAddress')} />
                     </div>
                 }
 
                 {userNameShow &&
                     <div style={{marginRight: 5, width: 80}} >
-                        <ModernTextField hintText={"Login"} fullWidth={true} onChange={(e, v) => this.handleFilterChange(v, 'userName')} />
+                        <ModernTextField hintText={MessageHash['ajxp_admin.logs.filter.login']} fullWidth={true} onChange={(e, v) => this.handleFilterChange(v, 'userName')} />
                     </div>
                 }
 
@@ -204,16 +221,16 @@ class LogTools extends React.Component{
                 }
                 {endDateShow &&
                 <div style={{display:'flex', alignItems:'center'}}>
-                    <DatePicker hintText={'From'} onChange={(e, date) => this.handleDateChange(date)}
+                    <DatePicker hintText={MessageHash['ajxp_admin.logs.filter.period.from']} onChange={(e, date) => this.handleDateChange(date)}
                                 autoOk={true} maxDate={new Date()} value={date}
                                 showYearSelector={true} style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
-                    <TimePicker hintText={'at...'} disabled={!date} onChange={(e, time) => this.handleDateChange(date, time)}
+                    <TimePicker hintText={MessageHash['ajxp_admin.logs.filter.period.time']} disabled={!date} onChange={(e, time) => this.handleDateChange(date, time)}
                                 autoOk={true} value={date}
                                 style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
-                    <DatePicker hintText={'To'} onChange={(e, date) => this.handleEndDateChange(date)}
+                    <DatePicker hintText={MessageHash['ajxp_admin.logs.filter.period.to']} onChange={(e, date) => this.handleEndDateChange(date)}
                                 autoOk={true} minDate={this.state.date} maxDate={new Date()} value={endDate}
                                 showYearSelector={true} style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
-                    <TimePicker hintText={'at...'} disabled={!endDate} onChange={(e, time) => this.handleEndDateChange(endDate, time)}
+                    <TimePicker hintText={MessageHash['ajxp_admin.logs.filter.period.time']} disabled={!endDate} onChange={(e, time) => this.handleEndDateChange(endDate, time)}
                                 autoOk={true} value={endDate}
                                 style={{width: 100}} textFieldStyle={{width: 96}} {...ModernStyles.textField} />
                     <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onClick={() => {this.handleDateChange(undefined); this.handleEndDateChange(undefined)}} {...adminStyles.props.header.iconButton}/>
@@ -225,14 +242,26 @@ class LogTools extends React.Component{
                     targetOrigin={{vertical:'top', horizontal:'right'}}
                     desktop={true}
                 >
-                    {<Subheader>{MessageHash['ajxp_admin.logs.filter.legend']}</Subheader>}
+                    <Subheader>{MessageHash['ajxp_admin.logs.filter.legend']}</Subheader>
                     <MenuItem primaryText={MessageHash['ajxp_admin.logs.2']}  rightIcon={dateShow && !endDateShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('date')}}/>
                     <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.period']}  rightIcon={endDateShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('endDate')}}/>
-                    <MenuItem primaryText={"Level"}  rightIcon={levelShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('level')}}/>
-                    <MenuItem primaryText={"Service"}  rightIcon={serviceFilterShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('serviceFilter')}}/>
-                    <MenuItem primaryText={"User Login"}  rightIcon={userNameShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('userName')}}/>
-                    <MenuItem primaryText={"IP"}  rightIcon={remoteAddressShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('remoteAddress')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.level']}  rightIcon={levelShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('level')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.service']}  rightIcon={serviceFilterShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('serviceFilter')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.login']}  rightIcon={userNameShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('userName')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.ip']}  rightIcon={remoteAddressShow ? checkIcon : null} onClick={()=>{this.handleToggleShow('remoteAddress')}}/>
                 </IconMenu>
+
+                {serverOffset !== 0 &&
+                <IconMenu
+                    iconButtonElement={<IconButton iconClassName={"mdi mdi-alarm"+(timeOffset?'-snooze':'')} tooltip={MessageHash['ajxp_admin.logs.tz.tooltip']} {...adminStyles.props.header.iconButton}/>}
+                    anchorOrigin={{vertical:'top', horizontal:'right'}}
+                    targetOrigin={{vertical:'top', horizontal:'right'}}
+                    desktop={true}
+                >
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.tz.local']} rightIcon={timeOffset ? null : checkIcon} onClick={()=>{this.toggleUseServerOffset()}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.tz.server']}  rightIcon={timeOffset ? checkIcon : null} onClick={()=>{this.toggleUseServerOffset()}}/>
+                </IconMenu>
+                }
 
                 {!disableExport &&
                     <IconMenu
@@ -252,13 +281,13 @@ class LogTools extends React.Component{
                     open={!!exportUrl}
                     modal={true}
                     title={MessageHash['ajxp_admin.logs.11']}
-                    actions={[<FlatButton label={"Cancel"} onClick={exportOnClick}/>]}
+                    actions={[<FlatButton label={MessageHash['54']} onClick={exportOnClick}/>]}
                 >
                     <span style={{fontSize:13}}>
                         {MessageHash['ajxp_admin.logs.export.clicklink']}: <a style={{textDecoration:'underline'}} href={exportUrl} download={exportFilename} onClick={exportOnClick}>{exportFilename}</a>
                     </span>
                 </Dialog>
-                <IconButton iconClassName={"mdi mdi-brightness-6"} onClick={() => this.toggleDarkTheme()} iconStyle={{...adminStyles.props.header.iconButton.iconStyle, transform:this.state.darkTheme?'rotate(180deg)':''}} />
+                <IconButton iconClassName={"mdi mdi-brightness-6"} tooltip={MessageHash['ajxp_admin.logs.toggleTheme']} onClick={() => this.toggleDarkTheme()} iconStyle={{...adminStyles.props.header.iconButton.iconStyle, transform:this.state.darkTheme?'rotate(180deg)':''}} />
             </div>
         )
     }

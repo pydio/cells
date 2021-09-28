@@ -32,11 +32,20 @@ class TaskActivity extends React.Component{
 
     constructor(props){
         super(props);
+        const serverOffset = Pydio.getInstance().Parameters.get('backend')['ServerOffset'];
+        const localOffset = new Date().getTimezoneOffset() * 60
         this.state = {
             activity:[],
             loading: false,
             page:0,
+            serverOffset:serverOffset+localOffset,
+            timeOffset: 0
         };
+    }
+
+    toggleTimeOffset() {
+        const {timeOffset, serverOffset} = this.state;
+        this.setState({timeOffset:timeOffset?0:serverOffset})
     }
 
     componentDidMount(){
@@ -168,7 +177,7 @@ class TaskActivity extends React.Component{
 
     render(){
         const {pydio, onRequestClose} = this.props;
-        const {activity, loading, page} = this.state;
+        const {activity, loading, page, serverOffset, timeOffset = 0} = this.state;
         const cellBg = "#f5f5f5";
         const lineHeight = 32;
         const columns = [
@@ -176,7 +185,7 @@ class TaskActivity extends React.Component{
                 return this.computeTag(row)
             }},
             {name:'Ts', label:pydio.MessageHash['settings.17'], style:{width: 100, height: lineHeight, backgroundColor:cellBg, paddingRight: 10, userSelect:'text'}, headerStyle:{width: 100, paddingRight: 10}, renderCell:(row=>{
-                    const m = moment(row.Ts * 1000);
+                    const m = moment((row.Ts+timeOffset) * 1000);
                     return m.format('HH:mm:ss');
                 })},
             {name:'Msg', label:pydio.MessageHash['ajxp_admin.logs.message'], style:{height: lineHeight, backgroundColor:cellBg, userSelect:'text'}}
@@ -190,6 +199,11 @@ class TaskActivity extends React.Component{
                         {(page > 0 || activity.length >= 200) && <span style={{fontSize: 12}}>{pydio.MessageHash[331]} {(loading?<CircularProgress size={16} thickness={1.5}/>:<span>{page + 1}</span>)}</span>}
                         {activity.length >= 200 && <FontIcon className={"mdi mdi-chevron-right"} color={"rgba(0,0,0,.7)"} style={{cursor: 'pointer'}} onClick={()=>{this.loadActivity(this.props, page + 1)}}/>}
                     </div>
+                    {serverOffset &&
+                    <div style={{paddingRight: 15, cursor: "pointer"}} onClick={()=>this.toggleTimeOffset()}>
+                        <FontIcon className={"mdi mdi-alarm"+(timeOffset?"-snooze":"")} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
+                    </div>
+                    }
                     <div style={{paddingRight: 15, cursor: "pointer"}} onClick={onRequestClose}>
                         <FontIcon className={"mdi mdi-close"} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
                     </div>

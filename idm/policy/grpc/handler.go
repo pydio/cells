@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/ory/ladon"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -73,7 +74,10 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			// log.Logger(context.Background()).Error("IsAllowed: explicitly denied", zap.Any("ladonRequest", ladonRequest))
 			return nil
 		} else {
-			// Unexpected Error
+			if strings.Contains(err.Error(), "connection refused") {
+				log.Logger(ctx).Error("Connection to DB error", zap.Error(err))
+				err = fmt.Errorf("DAO error received")
+			}
 			return err
 		}
 	}

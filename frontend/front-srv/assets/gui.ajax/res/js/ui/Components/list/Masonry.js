@@ -76,8 +76,8 @@ const ResizingCard  = ({width, data:{node, parent, dataModel, entryProps}}) => {
     const labelStyle = {
         position:'absolute',
         bottom: 0, left: 0, right: 0,
-        height: 28,
-        padding: '4px 6px',
+        height: 32,
+        padding: '6px 10px',
         borderTop: '1px solid rgba(224,224,224,.4)',
         color: 'rgba(0,0,0,.73)',
         backgroundColor: src ? 'rgba(255,255,255,.73)' : 'rgba(255,255,255,1)',

@@ -2381,6 +2381,9 @@
   "searchengine.query.save-label": {
     "other": "Digite um rótulo"
   },
+  "searchengine.field.basenameOrContent": {
+    "other": "Name/Content"
+  },
   "chat.load-older": {
     "other": "Entradas antigas"
   },

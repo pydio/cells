@@ -41,7 +41,6 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/chat"
@@ -436,11 +435,10 @@ var uuidRouter *views.Router
 func (c *ChatHandler) auth(session *melody.Session, room *chat.ChatRoom) (bool, error) {
 
 	var readonly bool
-	value, ok := session.Get(SessionClaimsKey)
-	if !ok {
-		return false, fmt.Errorf("cannot find access list in session")
+	ctx, err := prepareRemoteContext(session)
+	if err != nil {
+		return false, err
 	}
-	ctx := auth.ContextFromClaims(context.Background(), value.(claim.Claims))
 
 	switch room.Type {
 	case chat.RoomType_NODE:

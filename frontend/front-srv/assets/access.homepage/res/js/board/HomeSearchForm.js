@@ -60,7 +60,7 @@ class HomeSearchForm extends Component{
                 padding: '2px 4px 4px 4px',
                 borderRadius: 50,
                 position:'absolute',
-                top: fullScreen? 25 : -25
+                top: fullScreen? 25 : 174
             },
             textField: {flex: 1},
             textInput: {color: 'inherit'},

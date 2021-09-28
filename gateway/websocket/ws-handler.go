@@ -28,7 +28,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/metadata"
 	"github.com/micro/protobuf/jsonpb"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
@@ -44,9 +43,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	servicecontext "github.com/pydio/cells/common/service/context"
 	service "github.com/pydio/cells/common/service/proto"
-	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	json "github.com/pydio/cells/x/jsonx"
@@ -253,15 +250,10 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			hasData bool
 		)
 
-		claims, o1 := session.Get(SessionClaimsKey)
-		if !o1 {
-			log.Logger(ctx).Warn("WebSocket: strange, session has empty key for claims or username")
+		metaCtx, err := prepareRemoteContext(session)
+		if err != nil {
+			log.Logger(ctx).Warn("WebSocket error", zap.Error(err))
 			return false
-		}
-		metaCtx := auth.ContextFromClaims(context.Background(), claims.(claim.Claims))
-		metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
-		if md, o := session.Get(SessionMetaContext); o {
-			metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
 		}
 
 		eTarget := event.Target

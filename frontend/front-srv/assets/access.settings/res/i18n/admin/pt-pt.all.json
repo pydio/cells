@@ -524,8 +524,35 @@
   "logs.filter.period": {
     "other": "Período de tempo"
   },
+  "logs.filter.period.from": {
+    "other": "De"
+  },
+  "logs.filter.period.to": {
+    "other": "Para"
+  },
+  "logs.filter.period.time": {
+    "other": "At..."
+  },
+  "logs.filter.login": {
+    "other": "Usuário"
+  },
+  "logs.filter.ip": {
+    "other": "IP"
+  },
   "logs.filter.fulltext": {
     "other": "Pesquisa em texto"
+  },
+  "logs.tz.tooltip": {
+    "other": "Show local/server timezone"
+  },
+  "logs.tz.local": {
+    "other": "Local Timezone"
+  },
+  "logs.tz.server": {
+    "other": "Server Timezone"
+  },
+  "logs.toggleTheme": {
+    "other": "Light/Dark Theme"
   },
   "logs.sys.note": {
     "other": "Nota por favor:"

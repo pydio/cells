@@ -25,7 +25,7 @@ if [ "$needInstall" = true -a "$1" = "cells" -a "$2" = "start" ]; then
 fi
 
 # Solve issue when no bind is defined on configure
-if [ "$needInstall" = true -a "xxx$CELLS_BIND" = "xxx" ]; then   
+if [ "$needInstall" = true -a "$2" = "configure" -a "xxx$CELLS_BIND" = "xxx" ]; then   
 	# we have to check in ENV and all flags
 	bindFlag=false
 	for currArg in "$@"
@@ -56,7 +56,9 @@ fi
 # Workaround issue of key generation at first run until it is fixed.
 cells version > /dev/null
 
-echo "### $(cells version)"
+if [ "$2" != "version" ]; then
+	echo "### $(cells version)"
+fi 
 echo "### About to execute: [$@]"
 
 "$@"

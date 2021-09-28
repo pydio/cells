@@ -86,8 +86,8 @@ func Init() {
 			)
 		}
 
-		if common.LogConfig == common.LogConfigProduction {
-
+		syncers := []zapcore.WriteSyncer{StdOut}
+		if common.LogToFile {
 			// Additional logger: stores messages in local file
 			logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
 			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
@@ -96,48 +96,40 @@ func Init() {
 				MaxBackups: 100,
 				MaxAge:     28, // days
 			})
+			syncers = append(syncers, rotaterSync)
+		}
+		syncers = append(syncers, customSyncers...)
+		syncer := zapcore.NewMultiWriteSyncer(syncers...)
 
-			syncers := []zapcore.WriteSyncer{StdOut, rotaterSync}
-			syncers = append(syncers, customSyncers...)
-			w := zapcore.NewMultiWriteSyncer(syncers...)
+		if common.LogConfig == common.LogConfigProduction {
 
 			// lumberjack.Logger is already safe for concurrent use, so we don't need to lock it.
 			cfg := zap.NewProductionEncoderConfig()
 			cfg.EncodeTime = RFC3369TimeEncoder
-
 			core := zapcore.NewCore(
 				zapcore.NewJSONEncoder(cfg),
-				w,
+				syncer,
 				common.LogLevel,
 			)
-
 			core = zapcore.NewTee(core, serverCore)
-
 			logger = zap.New(core)
+
 		} else {
+
 			cfg := zap.NewDevelopmentEncoderConfig()
 			cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
-
-			var syncer zapcore.WriteSyncer
-			syncer = StdOut
-			if len(customSyncers) > 0 {
-				syncers := []zapcore.WriteSyncer{StdOut}
-				syncers = append(syncers, customSyncers...)
-				syncer = zapcore.NewMultiWriteSyncer(syncers...)
-			}
 			core := zapcore.NewCore(
 				newColorConsoleEncoder(cfg),
 				syncer,
 				common.LogLevel,
 			)
-
 			core = zapcore.NewTee(core, serverCore)
-
 			if common.LogLevel == zap.DebugLevel {
 				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
 			} else {
 				logger = zap.New(core)
 			}
+
 		}
 
 		nop := zap.NewNop()

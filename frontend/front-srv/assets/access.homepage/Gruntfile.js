@@ -2,7 +2,6 @@ module.exports = function(grunt) {
 
     const {initConfig, loadNpmTasks} = require('../gruntConfigCommon.js')
     const basicConfig = initConfig('WelcomeComponents')
-    basicConfig.babel.options.optional = ['es7.decorators', 'es7.classProperties'];
     basicConfig.less = {
         development: {
             options: {

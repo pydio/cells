@@ -124,7 +124,7 @@ class LogDetail extends React.Component{
     }
 
     render(){
-        const {log, pydio, onRequestClose, onSelectPeriod, style, focus, darkTheme, userDisplay = 'avatar'} = this.props;
+        const {log, pydio, onRequestClose, onSelectPeriod, style, focus, darkTheme, timeOffset=0, userDisplay = 'avatar'} = this.props;
         const {copySuccess} = this.state;
         const styles = {
             divider: {marginTop: 5, marginBottom:5},
@@ -210,7 +210,7 @@ class LogDetail extends React.Component{
                     <Divider style={styles.divider}/>
                 </Fragment>
                 }
-                <GenericLine iconClassName={"mdi mdi-calendar"} legend={"Event Date"} data={new Date(log.Ts * 1000).toLocaleString()}/>
+                <GenericLine iconClassName={"mdi mdi-calendar"} legend={"Event Date"} data={new Date((log.Ts+timeOffset) * 1000).toLocaleString()}/>
                 <GenericLine iconClassName={"mdi mdi-comment-text"} legend={"Event Message"} data={msg} />
                 <GenericLine iconClassName={"mdi mdi-server-network"} legend={"Service"} data={log.Logger} />
 
