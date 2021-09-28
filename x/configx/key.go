@@ -43,6 +43,16 @@ func StringToKeys(s ...string) []string {
 		r = append(r, strings.Split(v, "/")...)
 	}
 
+	lastIndex := 0
+	for i, v := range r {
+		if v == "#" {
+			lastIndex = i
+
+		}
+	}
+
+	r = r[lastIndex:]
+
 	return r
 }
 

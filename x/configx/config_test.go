@@ -3,6 +3,7 @@ package configx
 import (
 	"fmt"
 	"github.com/pydio/cells/x/filex"
+	"strings"
 	"testing"
 
 	json "github.com/pydio/cells/x/jsonx"
@@ -287,5 +288,12 @@ func TestScan(t *testing.T) {
 
 		err := m.Scan(&i)
 		So(err, ShouldBeNil)
+	})
+}
+
+func TestDefault(t *testing.T) {
+	Convey("Testing reference", t, func() {
+		So(strings.Join(StringToKeys("1/2/#/3"), "/"), ShouldEqual, "#/3")
+		So(strings.Join(StringToKeys("1/2/#/3/#/4"), "/"), ShouldEqual, "#/4")
 	})
 }

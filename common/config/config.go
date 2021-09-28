@@ -179,7 +179,8 @@ type cacheValues struct {
 }
 
 func (c *cacheValues) Val(s ...string) configx.Values {
-	return &cacheValues{c.Values, c.store, append(c.path, s...)}
+	path := configx.StringToKeys(append(c.path, s...)...)
+	return &cacheValues{c.Values, c.store, path}
 }
 
 func (c *cacheValues) Get() configx.Value {
