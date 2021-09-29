@@ -39,10 +39,10 @@
     "other": "Fontes de dados %s"
   },
   "ds.format-picker.title": {
-    "other": "Create DataSource"
+    "other": "Criar Fonte de Dados"
   },
   "ds.format-picker.legend": {
-    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
+    "other": "Fontes de Dados são pontos de montagem permitindo que você anexe o armazenamento real ao aplicativo. Primeiro selecione a maneira como os dados são organizados dentro do armazenamento."
   },
   "ds.format-picker.submit": {
     "other": "Inicio"
@@ -51,19 +51,19 @@
     "other": "Armazenamento plano"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+    "other": "O melhor para desempenho, os arquivos são armazenados como binários dentro do armazenamento. A estrutura dos arquivos e pastas é mantida apenas no índice interno."
   },
   "ds.format-picker.structured.title": {
-    "other": "Import Existing Data"
+    "other": "Importar dados existentes"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+    "other": "Arquivos e pastas são armazenadas como está, sincronização em tempo real reflete a estrutura de armazenamento dentro de índices internos."
   },
   "ds.format-picker.internal.title": {
-    "other": "Cells Internals"
+    "other": "Células Internas"
   },
   "ds.format-picker.internal.legend": {
-    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
+    "other": "Usado para armazenar binários internos (por exemplo, versões de arquivos, miniaturas). Recursos limitados, dados não são indexados nos mecanismos de busca."
   },
   "ds.editor.delete.warning": {
     "other": "Tem certeza que deseja excluir esta informação? Isso não pode ser desfeito, e você pode perder todos os dados vinculados a estes nós!"
@@ -357,13 +357,13 @@
     "other": "Tipo de armazenamento"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "Ciclo de vida de dados"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "Opções Avançadas"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
+    "other": "Se este armazenamento foi usado anteriormente como uma fonte de dados plana, inicialize-o a partir de um arquivo snapshot existente (deve ser encontrado dentro do armazenamento)"
   },
   "ds.encryption": {
     "other": "Criptografado"
@@ -531,7 +531,7 @@
     "other": "Para"
   },
   "logs.filter.period.time": {
-    "other": "At..."
+    "other": "Em..."
   },
   "logs.filter.login": {
     "other": "Usuário"
@@ -543,16 +543,16 @@
     "other": "Pesquisa em texto"
   },
   "logs.tz.tooltip": {
-    "other": "Show local/server timezone"
+    "other": "Mostrar fuso horário local/servidor"
   },
   "logs.tz.local": {
-    "other": "Local Timezone"
+    "other": "Fuso horário local"
   },
   "logs.tz.server": {
-    "other": "Server Timezone"
+    "other": "Fuso horário do servidor"
   },
   "logs.toggleTheme": {
-    "other": "Light/Dark Theme"
+    "other": "Tema claro/escuro"
   },
   "logs.sys.note": {
     "other": "Nota por favor:"
