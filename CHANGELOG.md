@@ -1,7 +1,11 @@
-# Changes between v2.2.9 and v2.2.11
+# Changes between v2.2.9 and v2.2.12
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.9...v2.2.11)
+[See Full Changelog](https://github.com/pydio/cells/compare/v2.2.9...v2.2.12)
 
+- [#b5cd996](https://github.com/pydio/cells/commit/b5cd99641a83e8ef032d85975eb79ecacd0899ab): Fix typo (zap instead of zip)
+- [#1fd948c](https://github.com/pydio/cells/commit/1fd948c505a3874e23829592a03f2e47284e0c64): Harmonize error messages
+- [#839d46d](https://github.com/pydio/cells/commit/839d46dc870333b87ad678050097de9be6b02172): Next development cycle
+- [#ef5961e](https://github.com/pydio/cells/commit/ef5961ee0dd7cc951b190b6c619ccb1ea646ca91): Release v2.2.11
 - [#207bea6](https://github.com/pydio/cells/commit/207bea644fdd91921dbaa1fbadf9b801193c2703): Factorize "hidden" string to idm.UserAttrHidden
 - [#d9483eb](https://github.com/pydio/cells/commit/d9483eb6ca67b196572f49b0dfcce10a0a9551db): Fix error parsing from grpc/status to internal format
 - [#fd24b33](https://github.com/pydio/cells/commit/fd24b3307216d7e9ebae180b2ac4ef4d263db18d): Bump Makefile version
