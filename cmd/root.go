@@ -114,10 +114,10 @@ WORKING DIRECTORIES
 
 LOGS LEVEL
 
-  By default, logs are outputted in console format at the Info level and appended in a CELLS_LOG_DIR/pydio.log file. You can: 
+  By default, logs are outputted in console format at the Info level and appended to a CELLS_LOG_DIR/pydio.log file. You can: 
    - Change the level (debug, info, warn or error) with the --log flag or the CELLS_LOGS_LEVEL environment variable
    - Output the logs in json format with --log_json=true 
-   - Prevent logs to be written in file with --log_to_file=false
+   - Prevent logs from being written to a file with --log_to_file=false
 
   For backward compatibility, --log=production still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
       
