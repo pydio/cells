@@ -60,37 +60,37 @@
     "other": "Enviando arquivos para o servidor..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Criando Pastas"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Criando uma pasta"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Criando %s pastas"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Preparando arquivos para envio"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Analisando %s itens..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Analisando um item"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Aguarde..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Pronto para enviar"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Envio pausado"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Enviando arquivos"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Enviando %s%"
   },
   "no-folders-support": {
     "other": "Parece que seu navegador não oferece suporte a descarte de pastas"
