@@ -247,9 +247,14 @@ var mandatoryOptions = []ServiceOption{
 			s.Init(Watch(func(_ Service, c configx.Values) {
 				s.Stop()
 
+				ctx := s.Options().Context
+				//fmt.Println("In context ? ", config.Get("services", s.Name()))
+				//ctx = servicecontext.WithConfig(ctx, config.Get("services", s.Name()))
+				//s.Init(Context(ctx))
+
 				<-time.After(1 * time.Second)
 
-				s.Start(s.Options().Context)
+				s.Start(ctx)
 			}))
 		}
 
