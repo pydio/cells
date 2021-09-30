@@ -75,7 +75,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			return nil
 		} else {
 			if strings.Contains(err.Error(), "connection refused") {
-				log.Logger(ctx).Error("Connection to DB error", zap.Error(err))
+				log.Logger(ctx).Error("Connection to DB error", zap.String("error", err.Error()))
 				err = fmt.Errorf("DAO error received")
 			}
 			return err

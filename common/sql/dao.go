@@ -44,14 +44,12 @@ var (
 func init() {
 	if dc := os.Getenv("CELLS_SQL_DEFAULT_CONN"); dc != "" {
 		if ddc, e := time.ParseDuration(dc); e == nil {
-			fmt.Println("[ENV] Overriding DefaultConnectionTimeout with env value", ddc)
 			DefaultConnectionTimeout = ddc
 		}
 	}
 
 	if dc := os.Getenv("CELLS_SQL_LONG_CONN"); dc != "" {
 		if ddc, e := time.ParseDuration(dc); e == nil {
-			fmt.Println("[ENV] Overriding LongConnectionTimeout with env value", ddc)
 			LongConnectionTimeout = ddc
 		}
 	}

@@ -85,8 +85,10 @@ var RootCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Cells is a comprehensive sync & share solution for your collaborators. 
-  Open-source software deployed on-premise or in a private cloud.
+  Pydio Cells is self-hosted Document Sharing & Collaboration software for organizations that need 
+  advanced sharing without security trade-offs. Cells gives you full control of your document sharing 
+  environment – combining fast performance, huge file transfer sizes, granular security, and advanced 
+  workflow automations in an easy-to-set-up and easy-to-support self-hosted platform.
 
 CONFIGURE
 
@@ -121,10 +123,6 @@ LOGS LEVEL
 
   For backward compatibility, --log=production still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
       
-SERVICES DISCOVERY
-
-  Microservices use NATS as a registry mechanism to discover each other. Cells ships and starts its own NATS (nats.io) 
-  implementation, unless a nats server is already running on the standard port, in which case it will be detected.
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Special case
