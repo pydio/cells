@@ -168,9 +168,7 @@ func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, reg
 		}
 		optionsData["metaColumns"] = searchables
 		optionsData["reactColumnsRenderers"] = searchableRenderers
-		if config.Get("services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool() {
-			optionsData["indexContent"] = true
-		}
+		optionsData["indexContent"] = config.Get("services", common.ServiceGrpcNamespace_+common.ServiceSearch, "indexContent").Default(false).Bool()
 		searchOptions, _ := json.Marshal(optionsData)
 		tPart.AttrajxpOptions = string(searchOptions)
 		if appendPart {
