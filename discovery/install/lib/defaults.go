@@ -86,7 +86,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DsPort = fmt.Sprintf("%d", net.GetAvailablePort())
 	c.DsFolder = config.ApplicationWorkingDir(config.ApplicationDirData)
 	c.FrontendApplicationTitle = "Pydio Cells"
-	c.FrontendDefaultLanguage = "en"
+	c.FrontendDefaultLanguage = "en-us"
 	c.FrontendLogin = "admin"
 	c.FrontendPassword = ""
 	c.FrontendRepeatPassword = ""

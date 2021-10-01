@@ -127,11 +127,7 @@ func init() {
 
 // GetDefaultLanguage reads default language from config
 func GetDefaultLanguage(conf configx.Values) string {
-	if l := conf.Val("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("").String(); l != "" {
-		return l
-	} else {
-		return conf.Val("defaults", "lang").Default("en").String()
-	}
+	return conf.Val("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
 }
 
 // UserLanguagesFromRestRequest tries to find user language from various sources:
