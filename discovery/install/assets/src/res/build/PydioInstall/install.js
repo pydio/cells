@@ -65,6 +65,8 @@ var defaultLanguage = 'en-us';
 var client = new _client2.default();
 var api = new _InstallServiceApi2.default(client);
 
+var supportedLanguages = [_react2.default.createElement(_materialUi.MenuItem, { key: "en-us", value: "en-us", primaryText: "English" }), _react2.default.createElement(_materialUi.MenuItem, { key: "fr", value: "fr", primaryText: "Français" }), _react2.default.createElement(_materialUi.MenuItem, { key: "de", value: "de", primaryText: "Deutsch" }), _react2.default.createElement(_materialUi.MenuItem, { key: "es-es", value: "es-es", primaryText: "Español" }), _react2.default.createElement(_materialUi.MenuItem, { key: "it", value: "it", primaryText: "Italiano" }), _react2.default.createElement(_materialUi.MenuItem, { key: "pt-br", value: "pt-br", primaryText: "Português do Brasil" })];
+
 var renderTextField = function renderTextField(_ref) {
     var input = _ref.input,
         label = _ref.label,
@@ -910,12 +912,7 @@ var InstallForm = function (_React$Component) {
                             _react2.default.createElement(
                                 _reduxForm.Field,
                                 { name: 'frontendDefaultLanguage', component: renderSelectField, label: this.t('form.frontendDefaultLanguage.label') },
-                                _react2.default.createElement(_materialUi.MenuItem, { value: "en", primaryText: "English" }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: "fr", primaryText: "Français" }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: "de", primaryText: "Deutsch" }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: "es", primaryText: "Español" }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: "it", primaryText: "Italiano" }),
-                                _react2.default.createElement(_materialUi.MenuItem, { value: "pt", primaryText: "Português" })
+                                supportedLanguages
                             ),
                             adminFound && _react2.default.createElement(
                                 'div',
@@ -1198,7 +1195,7 @@ var InstallForm = function (_React$Component) {
                 { zDepth: 2, style: { width: 800, minHeight: panelHeight, margin: 'auto', position: 'relative', backgroundColor: 'rgba(255,255,255,0.96)' } },
                 _react2.default.createElement(
                     'div',
-                    { style: { width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13, display: 'flex', flexDirection: 'column' } },
+                    { style: { width: 256, height: panelHeight, backgroundColor: 'rgb(94, 142, 174)', fontSize: 13, display: 'flex', flexDirection: 'column' } },
                     _react2.default.createElement('div', { style: { backgroundImage: 'url(res/css/PydioLogo250.png)', backgroundSize: '90%',
                             backgroundRepeat: 'no-repeat', backgroundPosition: 'center center', width: 256, height: 100 } }),
                     _react2.default.createElement(
@@ -1212,18 +1209,13 @@ var InstallForm = function (_React$Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        { style: { height: 56, padding: '0px 120px 0px 16px' } },
+                        { style: { height: 56, padding: '0px 16px' } },
                         _react2.default.createElement(
                             _materialUi.SelectField,
                             { value: lang, onChange: function onChange(e, i, v) {
-                                    _this7.setState({ lang: v });
+                                    change('frontendDefaultLanguage', v), _this7.setState({ lang: v });
                                 }, fullWidth: true, labelStyle: { color: 'rgba(255,255,255,.87)' }, underlineStyle: { display: 'none' } },
-                            _react2.default.createElement(_materialUi.MenuItem, { value: "en-us", primaryText: "English" }),
-                            _react2.default.createElement(_materialUi.MenuItem, { value: "fr", primaryText: "Français" }),
-                            _react2.default.createElement(_materialUi.MenuItem, { value: "de", primaryText: "Deutsch" }),
-                            _react2.default.createElement(_materialUi.MenuItem, { value: "es", primaryText: "Español" }),
-                            _react2.default.createElement(_materialUi.MenuItem, { value: "it", primaryText: "Italiano" }),
-                            _react2.default.createElement(_materialUi.MenuItem, { value: "pt", primaryText: "Português" })
+                            supportedLanguages
                         )
                     )
                 )

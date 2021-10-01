@@ -16,6 +16,15 @@ const defaultLanguage = 'en-us';
 const client = new Client();
 const api = new InstallServiceApi(client);
 
+const supportedLanguages = [
+    <MenuItem key={"en-us"} value={"en-us"} primaryText={"English"}/>,
+    <MenuItem key={"fr"} value={"fr"} primaryText={"Français"}/>,
+    <MenuItem key={"de"} value={"de"} primaryText={"Deutsch"}/>,
+    <MenuItem key={"es-es"} value={"es-es"} primaryText={"Español"}/>,
+    <MenuItem key={"it"} value={"it"} primaryText={"Italiano"}/>,
+    <MenuItem key={"pt-br"} value={"pt-br"} primaryText={"Português do Brasil"}/>
+]
+
 const renderTextField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
@@ -571,14 +580,7 @@ class InstallForm extends React.Component {
 
                         <div style={flexContainer}>
                             <Field name="frontendApplicationTitle" component={renderTextField} floatingLabel={this.t('form.frontendApplicationTitle.label')} label={this.t('form.frontendApplicationTitle.legend')} />
-                            <Field name="frontendDefaultLanguage" component={renderSelectField} label={this.t('form.frontendDefaultLanguage.label')}>
-                                <MenuItem value={"en"} primaryText={"English"}/>
-                                <MenuItem value={"fr"} primaryText={"Français"}/>
-                                <MenuItem value={"de"} primaryText={"Deutsch"}/>
-                                <MenuItem value={"es"} primaryText={"Español"}/>
-                                <MenuItem value={"it"} primaryText={"Italiano"}/>
-                                <MenuItem value={"pt"} primaryText={"Português"}/>
-                            </Field>
+                            <Field name="frontendDefaultLanguage" component={renderSelectField} label={this.t('form.frontendDefaultLanguage.label')}>{supportedLanguages}</Field>
                             {adminFound &&
                             <div style={{marginTop: 10}}>
                                 <Checkbox checked={adminFoundOverride} onCheck={(e,v)=>{this.setState({adminFoundOverride: v})}} label={this.t('admin.adminFound')}/>
@@ -771,7 +773,7 @@ class InstallForm extends React.Component {
 
         return (
             <Paper zDepth={2} style={{width: 800, minHeight: panelHeight, margin: 'auto', position:'relative', backgroundColor:'rgba(255,255,255,0.96)'}}>
-                <div style={{width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13, display:'flex', flexDirection:'column'}}>
+                <div style={{width: 256, height: panelHeight, backgroundColor: 'rgb(94, 142, 174)', fontSize: 13, display:'flex', flexDirection:'column'}}>
                     <div style={{backgroundImage:'url(res/css/PydioLogo250.png)', backgroundSize:'90%',
                         backgroundRepeat: 'no-repeat', backgroundPosition:'center center', width: 256, height: 100}}></div>
                     <form onSubmit={handleSubmit} autoComplete={"off"} style={{flex: 1}}>
@@ -779,15 +781,8 @@ class InstallForm extends React.Component {
                             {steps}
                         </Stepper>
                     </form>
-                    <div style={{height: 56, padding:'0px 120px 0px 16px'}}>
-                        <SelectField value={lang} onChange={(e,i,v)=>{this.setState({lang: v})}} fullWidth={true} labelStyle={{color: 'rgba(255,255,255,.87)'}} underlineStyle={{display:'none'}}>
-                            <MenuItem value={"en-us"} primaryText={"English"}/>
-                            <MenuItem value={"fr"} primaryText={"Français"}/>
-                            <MenuItem value={"de"} primaryText={"Deutsch"}/>
-                            <MenuItem value={"es"} primaryText={"Español"}/>
-                            <MenuItem value={"it"} primaryText={"Italiano"}/>
-                            <MenuItem value={"pt"} primaryText={"Português"}/>
-                        </SelectField>
+                    <div style={{height: 56, padding:'0px 16px'}}>
+                        <SelectField value={lang} onChange={(e,i,v)=>{change('frontendDefaultLanguage', v), this.setState({lang: v})}} fullWidth={true} labelStyle={{color: 'rgba(255,255,255,.87)'}} underlineStyle={{display:'none'}}>{supportedLanguages}</SelectField>
                     </div>
                 </div>
             </Paper>

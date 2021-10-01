@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { createStore, combineReducers } from 'redux'
 import { reducer as reduxFormReducer } from 'redux-form'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import {getMuiTheme, muiThemeable} from 'material-ui/styles'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import ReactForm from './install'
 import Client from './client';
@@ -40,9 +40,18 @@ class PydioInstaller extends React.Component {
     };
 
     render() {
+
+        const bgBlue = 'rgb(38, 64, 95)'
+        const bgRed = 'rgb(219, 25, 24)'
+
+        const originalTheme = getMuiTheme();
+        const newPalette = {...originalTheme.palette, primary1Color:bgBlue, accent1Color:bgRed};
+        const muiTheme = getMuiTheme({palette:newPalette});
+        console.log(originalTheme, muiTheme);
+
         return (
             <Provider store={store}>
-                <MuiThemeProvider muiTheme={getMuiTheme()}>
+                <MuiThemeProvider muiTheme={muiTheme}>
                     <ReactForm onSubmit={this.handleSubmit} {...this.state}></ReactForm>
                 </MuiThemeProvider>
             </Provider>

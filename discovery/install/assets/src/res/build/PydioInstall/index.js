@@ -18,9 +18,7 @@ var _redux = require('redux');
 
 var _reduxForm = require('redux-form');
 
-var _getMuiTheme = require('material-ui/styles/getMuiTheme');
-
-var _getMuiTheme2 = _interopRequireDefault(_getMuiTheme);
+var _styles = require('material-ui/styles');
 
 var _MuiThemeProvider = require('material-ui/styles/MuiThemeProvider');
 
@@ -90,12 +88,21 @@ var PydioInstaller = function (_React$Component) {
     _createClass(PydioInstaller, [{
         key: 'render',
         value: function render() {
+
+            var bgBlue = 'rgb(38, 64, 95)';
+            var bgRed = 'rgb(219, 25, 24)';
+
+            var originalTheme = (0, _styles.getMuiTheme)();
+            var newPalette = _extends({}, originalTheme.palette, { primary1Color: bgBlue, accent1Color: bgRed });
+            var muiTheme = (0, _styles.getMuiTheme)({ palette: newPalette });
+            console.log(originalTheme, muiTheme);
+
             return _react2.default.createElement(
                 _reactRedux.Provider,
                 { store: store },
                 _react2.default.createElement(
                     _MuiThemeProvider2.default,
-                    { muiTheme: (0, _getMuiTheme2.default)() },
+                    { muiTheme: muiTheme },
                     _react2.default.createElement(_install2.default, _extends({ onSubmit: this.handleSubmit }, this.state))
                 )
             );
