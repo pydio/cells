@@ -4,6 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/pydio/cells/common/utils/i18n"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	service "github.com/pydio/cells/common/service/proto"
+
+	"github.com/pydio/cells/common/registry"
 
 	json "github.com/pydio/cells/x/jsonx"
 
@@ -111,6 +120,26 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			)
 			log.Logger(ctx).Error("policy denies login for request", zap.Any(common.KeyPolicyRequest, policyRequest), zap.Error(err))
 			return errors.Unauthorized(common.ServiceUser, "User "+user.Login+" is not authorized to log in")
+		}
+
+		if lang, ok := in.AuthInfo["lang"]; ok {
+			if _, o := i18n.AvailableLanguages[lang]; o {
+				aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
+				// Remove previous value if any
+				delQ, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{RoleIDs: []string{user.GetUuid()}, Actions: []*idm.ACLAction{{Name: "parameter:core.conf:lang"}}, WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"}})
+				aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*any.Any{delQ}}}, client.WithRequestTimeout(500*time.Millisecond))
+				// Insert new ACL with language value
+				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+					Action:      &idm.ACLAction{Name: "parameter:core.conf:lang", Value: lang},
+					RoleID:      user.GetUuid(),
+					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+				}}, client.WithRequestTimeout(500*time.Millisecond))
+				if e != nil {
+					log.Logger(ctx).Error("Cannot update language for user", user.ZapLogin(), zap.String("lang", lang), zap.Error(e))
+				} else {
+					log.Logger(ctx).Info("Updated language for "+user.GetLogin()+" to "+lang, user.ZapLogin(), zap.String("lang", lang))
+				}
+			}
 		}
 
 		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
