@@ -21,6 +21,9 @@
 package service
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/micro/cli"
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/cmd"
@@ -37,8 +40,6 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/net"
-	"os"
-	"strconv"
 )
 
 var (
@@ -88,7 +89,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			var srvOpts []server.Option
 			if o.Port != "" {
-				srvOpts = append(srvOpts, server.Address(net.DefaultAdvertiseAddress + ":"+o.Port))
+				srvOpts = append(srvOpts, server.Address(net.DefaultAdvertiseAddress+":"+o.Port))
 			}
 			if o.TLSConfig != nil {
 				srvOpts = append(srvOpts, grpc.AuthTLS(o.TLSConfig))
@@ -129,12 +130,12 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 					return f(svc)
 				}),
 				micro.AfterStart(func() error {
-					log.Logger(ctx).Info("started")
+					log.Logger(ctx).Info("Started")
 
 					return nil
 				}),
 				micro.BeforeStop(func() error {
-					log.Logger(ctx).Info("stopping")
+					log.Logger(ctx).Info("Stopping")
 
 					return nil
 				}),

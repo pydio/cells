@@ -23,13 +23,14 @@ package service
 import (
 	"errors"
 	"fmt"
-	limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+
+	limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/codec"
@@ -72,23 +73,23 @@ func WithGeneric(f func(...server.Option) server.Server) ServiceOption {
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
 				micro.Transport(defaults.Transport()),
 				micro.Broker(defaults.Broker()),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
-					log.Logger(ctx).Info("started")
+					log.Logger(ctx).Info("Started")
 
 					return nil
 				}),
 				micro.BeforeStop(func() error {
-					log.Logger(ctx).Info("stopping")
+					log.Logger(ctx).Info("Stopping")
 
 					return nil
 				}),
 			}
 
-			if rateLimit, err :=  strconv.Atoi(os.Getenv("GENERIC_RATE_LIMIT")); err == nil {
+			if rateLimit, err := strconv.Atoi(os.Getenv("GENERIC_RATE_LIMIT")); err == nil {
 				opts = append(opts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
 			}
 
@@ -155,12 +156,12 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.RegisterTTL(DefaultRegisterTTL),
 				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
 				micro.AfterStart(func() error {
-					log.Logger(ctx).Info("started")
+					log.Logger(ctx).Info("Started")
 
 					return nil
 				}),
 				micro.BeforeStop(func() error {
-					log.Logger(ctx).Info("stopping")
+					log.Logger(ctx).Info("Stopping")
 
 					return nil
 				}),
@@ -170,7 +171,7 @@ func WithHTTP(handlerFunc func() http.Handler) ServiceOption {
 				micro.Server(srv),
 			}
 
-			if rateLimit, err :=  strconv.Atoi(os.Getenv("HTTP_RATE_LIMIT")); err == nil {
+			if rateLimit, err := strconv.Atoi(os.Getenv("HTTP_RATE_LIMIT")); err == nil {
 				svcOpts = append(svcOpts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
 			}
 

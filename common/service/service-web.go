@@ -22,13 +22,14 @@ package service
 
 import (
 	"encoding/json"
-	limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 	"net/http"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 	"sync"
+
+	limiter "github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 	// json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/emicklei/go-restful"
@@ -108,19 +109,19 @@ func WithWeb(handler func() WebHandler, opts ...micro.Option) ServiceOption {
 				micro.Server(srv),
 				micro.Registry(defaults.Registry()),
 				micro.RegisterTTL(DefaultRegisterTTL),
-				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL/2)),
+				micro.RegisterInterval(randomTimeout(DefaultRegisterTTL / 2)),
 				micro.Context(ctx),
 				micro.AfterStart(func() error {
-					log.Logger(ctx).Info("started")
+					log.Logger(ctx).Info("Started")
 					return nil
 				}),
 				micro.BeforeStop(func() error {
-					log.Logger(ctx).Info("stopping")
+					log.Logger(ctx).Info("Stopping")
 					return nil
 				}),
 			}
 
-			if rateLimit, err :=  strconv.Atoi(os.Getenv("WEB_RATE_LIMIT")); err == nil {
+			if rateLimit, err := strconv.Atoi(os.Getenv("WEB_RATE_LIMIT")); err == nil {
 				opts = append(opts, micro.WrapHandler(limiter.NewHandlerWrapper(rateLimit)))
 			}
 
