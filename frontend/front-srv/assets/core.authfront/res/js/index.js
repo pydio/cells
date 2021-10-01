@@ -29,6 +29,7 @@ import {TokenServiceApi, RestResetPasswordRequest} from 'cells-sdk';
 const LanguagePicker = (props) => {
     const items = [];
     const pydio = Pydio.getInstance();
+    const {onChange = ()=>{}} = props;
     
     pydio.listLanguagesWithCallback((key, label, current = 'en') => items.push(
         <MenuItem
@@ -58,7 +59,7 @@ const LanguagePicker = (props) => {
     return (
         <IconMenu
             iconButtonElement={<IconButton tooltip={pydio.MessageHash[618]} iconClassName="mdi mdi-flag-outline" {...iconStyles}/>}
-            onItemClick={(e,o) => {pydio.loadI18NMessages(o.props.value)}}
+            onItemClick={(e,o) => {pydio.loadI18NMessages(o.props.value); onChange(o.props.value)}}
             desktop={true}
             anchorOrigin={anchorOrigin} targetOrigin={targetOrigin}
         >
@@ -76,6 +77,7 @@ let LoginDialogMixin = {
             globalParameters: pydio.Parameters,
             authParameters: pydio.getPluginConfigs('auth'),
             errorId: null,
+            loginLanguage: undefined
         };
     },
 
@@ -90,7 +92,7 @@ let LoginDialogMixin = {
             login = this.refs.login.getValue();
         }
 
-        return restClient.sessionLoginWithCredentials(login, this.refs.password.getValue())
+        return restClient.sessionLoginWithCredentials(login, this.refs.password.getValue(), this.state.loginLanguage)
             .then(() => this.dismiss())
             .then(() => restClient.getOrUpdateJwt().then(() => pydio.loadXmlRegistry(null, null, null)).catch(() => {}))
             .catch(e => {
@@ -259,7 +261,11 @@ let LoginPasswordDialog = createReactClass({
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {loginTitle}
                     <div style={{position:'absolute', bottom: 9, left:24}}>
-                        <LanguagePicker anchorOrigin={{horizontal: 'left', vertical: 'bottom'}} targetOrigin={{horizontal: 'left', vertical: 'bottom'}}/>
+                        <LanguagePicker
+                            anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                            targetOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                            onChange={(v) => this.setState({loginLanguage: v})}
+                        />
                     </div>
                 </div>
                 {loginLegend && <div>{loginLegend}</div>}

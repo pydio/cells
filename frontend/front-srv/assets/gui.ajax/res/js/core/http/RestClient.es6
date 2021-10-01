@@ -93,8 +93,13 @@ class RestClient extends ApiClient{
         return qs.parse(window.location.search).login_challenge
     }
 
-    sessionLoginWithCredentials(login, password){
-        return this.jwtWithAuthInfo({login, password, challenge: this.getCurrentChallenge(), type:"credentials"})
+    sessionLoginWithCredentials(login, password, language = undefined){
+        const authInfo = {login, password, challenge: this.getCurrentChallenge(), type:"credentials"}
+        if(language){
+            // Updated language
+            authInfo.lang = language
+        }
+        return this.jwtWithAuthInfo(authInfo)
     }
 
     sessionLoginWithAuthCode(code) {
