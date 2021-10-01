@@ -199,7 +199,7 @@ class TaskActivity extends React.Component{
                         {(page > 0 || activity.length >= 200) && <span style={{fontSize: 12}}>{pydio.MessageHash[331]} {(loading?<CircularProgress size={16} thickness={1.5}/>:<span>{page + 1}</span>)}</span>}
                         {activity.length >= 200 && <FontIcon className={"mdi mdi-chevron-right"} color={"rgba(0,0,0,.7)"} style={{cursor: 'pointer'}} onClick={()=>{this.loadActivity(this.props, page + 1)}}/>}
                     </div>
-                    {serverOffset &&
+                    {serverOffset !== 0 &&
                     <div style={{paddingRight: 15, cursor: "pointer"}} onClick={()=>this.toggleTimeOffset()}>
                         <FontIcon className={"mdi mdi-alarm"+(timeOffset?"-snooze":"")} color={"rgba(0,0,0,.3)"} style={{fontSize: 16}}/>
                     </div>
