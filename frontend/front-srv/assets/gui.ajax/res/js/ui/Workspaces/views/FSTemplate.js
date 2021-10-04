@@ -219,7 +219,7 @@ class FSTemplate extends React.Component {
 
         let styles = {
             appBarStyle : {
-                zIndex: 901,
+                zIndex: mobile ? 1 : 901,
                 backgroundColor: appBarBackColor.toString(),
                 height: headerHeight,
                 display:'flex'
