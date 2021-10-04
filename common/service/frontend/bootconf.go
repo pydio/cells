@@ -3,6 +3,10 @@ package frontend
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"io/ioutil"
+	"path"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/pborman/uuid"
@@ -19,6 +23,7 @@ type BackendConf struct {
 	PackageType   string
 	Version       string
 	ServerOffset  int
+	PackagingInfo []string
 }
 
 type CustomWording struct {
@@ -75,18 +80,11 @@ func VersionHash() string {
 	return versionHash
 }
 
-// func numberFromIntOrString(value reader.Value, def int) int {
-// 	intVal := def
-// 	if value.Int(-1) != -1 {
-// 		intVal = value.Int(def)
-// 	} else if value.String("") != "" {
-// 		if parsed, e := strconv.ParseInt(value.String(""), 10, 32); e == nil {
-// 			intVal = int(parsed)
-// 		}
-// 	}
-// 	return intVal
-// }
+var packagingOnce sync.Once
+var packagingData []byte
 
+// ComputeBootConf creates a JSON for web interface with a lot of useful info.
+// There is no proto associated
 func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) {
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
@@ -98,10 +96,19 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 	vDate := ""
 	vRev := ""
 	_, tz := time.Now().Zone()
+	var packagingInfo []string
 	if len(showVersion) > 0 && showVersion[0] {
 		vHash = common.Version().String()
 		vDate = common.BuildStamp
 		vRev = common.BuildRevision
+		packagingOnce.Do(func() {
+			if data, e := ioutil.ReadFile(path.Join(config.ApplicationWorkingDir(), "package.info")); e == nil {
+				packagingData = data
+			}
+		})
+		if len(packagingData) > 0 {
+			packagingInfo = strings.Split(string(packagingData), "\n")
+		}
 	}
 
 	b := &BootConf{
@@ -137,7 +144,8 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 			BuildRevision: vRev,
 			BuildStamp:    vDate,
 			License:       "agplv3",
-			ServerOffset:  tz, // TODO
+			ServerOffset:  tz,
+			PackagingInfo: packagingInfo,
 		},
 	}
 
