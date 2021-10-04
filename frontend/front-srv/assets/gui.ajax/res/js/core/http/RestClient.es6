@@ -102,8 +102,8 @@ class RestClient extends ApiClient{
         return this.jwtWithAuthInfo(authInfo)
     }
 
-    sessionLoginWithAuthCode(code) {
-        return this.jwtWithAuthInfo({code, type:"authorization_code"}, false)
+    sessionLoginWithAuthCode(code, additionalInfo = {}) {
+        return this.jwtWithAuthInfo({code, type:"authorization_code", ...additionalInfo}, false)
     }
 
     sessionRefresh(){

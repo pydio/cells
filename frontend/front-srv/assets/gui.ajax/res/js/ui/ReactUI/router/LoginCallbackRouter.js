@@ -28,7 +28,15 @@ const LoginCallbackRouterWrapper = (pydio) => {
         render() {
             const values = queryString.parse(this.props.location.search)
 
-            PydioApi.getRestClient().sessionLoginWithAuthCode(values.code).then(() => {
+            // Eventually find loginLanguage in sessionStorage
+            const additionalInfo = {};
+            const loginLanguage = sessionStorage.getItem('loginLanguage')
+            if (loginLanguage){
+                additionalInfo.lang = loginLanguage
+            }
+            sessionStorage.removeItem('loginLanguage');
+
+            PydioApi.getRestClient().sessionLoginWithAuthCode(values.code, additionalInfo).then(() => {
                 browserHistory.replace("/")
 
                 const challenge = values.challenge
