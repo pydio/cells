@@ -21,6 +21,7 @@
 package rest
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -63,14 +64,27 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	}
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
+		var original map[string]interface{}
+		if o := config.Get(path...).Map(); o != nil && len(o) > 0 {
+			original = o
+			config.Del(path...)
+		}
 		config.Set(parsed, path...)
 		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
 			service.RestError500(req, resp, err)
+			// Restoring original value
+			if original != nil {
+				config.Set(original, path...)
+			}
 			return
 		}
-		resp.WriteEntity(&configuration)
-
+		s.logPluginEnabled(req.Request.Context(), configuration.FullPath, parsed, original)
+		// Reload new data
+		resp.WriteEntity(&rest.Configuration{
+			FullPath: configuration.FullPath,
+			Data:     config.Get(path...).String(),
+		})
 	} else {
 		service.RestError500(req, resp, e)
 	}
@@ -98,4 +112,23 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 	}
 	resp.WriteEntity(output)
 
+}
+
+func (s *Handler) logPluginEnabled(ctx context.Context, cPath string, conf map[string]interface{}, original map[string]interface{}) {
+	k, o := conf["PYDIO_PLUGIN_ENABLED"]
+	if !o {
+		return
+	}
+	if original != nil {
+		k1, o1 := original["PYDIO_PLUGIN_ENABLED"]
+		if o1 && k1 == k {
+			return
+		}
+	}
+	status := k.(bool)
+	if status {
+		log.Auditer(ctx).Info("Enabling plugin " + cPath)
+	} else {
+		log.Auditer(ctx).Info("Disabling plugin " + cPath)
+	}
 }
