@@ -22,6 +22,8 @@
 package lang
 
 import (
+	"sync"
+
 	"github.com/pydio/packr"
 
 	"github.com/pydio/cells/common/utils/i18n"
@@ -29,11 +31,12 @@ import (
 
 var (
 	bundle *i18n.I18nBundle
+	o      = sync.Once{}
 )
 
 func Bundle() *i18n.I18nBundle {
-	if bundle == nil {
+	o.Do(func() {
 		bundle = i18n.NewI18nBundle(packr.NewBox("../../../broker/mailer/lang/box"))
-	}
+	})
 	return bundle
 }

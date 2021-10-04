@@ -22,6 +22,8 @@
 package lang
 
 import (
+	"sync"
+
 	"github.com/nicksnyder/go-i18n/i18n"
 	i18n2 "github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/packr"
@@ -29,11 +31,12 @@ import (
 
 var (
 	b *i18n2.I18nBundle
+	o = sync.Once{}
 )
 
 func T(lang ...string) i18n.TranslateFunc {
-	if b == nil {
+	o.Do(func() {
 		b = i18n2.NewI18nBundle(packr.NewBox("../../../broker/activity/lang/box"))
-	}
+	})
 	return b.GetTranslationFunc(lang...)
 }

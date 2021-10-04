@@ -22,17 +22,20 @@
 package lang
 
 import (
+	"sync"
+
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/packr"
 )
 
 var (
 	bundle *i18n.I18nBundle
+	o      = sync.Once{}
 )
 
 func Bundle() *i18n.I18nBundle {
-	if bundle == nil {
+	o.Do(func() {
 		bundle = i18n.NewI18nBundle(packr.NewBox("../../../idm/oauth/lang/box"))
-	}
+	})
 	return bundle
 }
