@@ -28,6 +28,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 
 	micro "github.com/micro/go-log"
@@ -157,6 +158,8 @@ func Init() {
 							fields = append(fields, zap.String(exp, parsed[i]))
 						}
 						logger.Named(common.ServiceMicroApi).Debug("Rest Api Call", fields...)
+					} else if strings.Contains(line, "[DEV NOTICE]") {
+						logger.Named(common.ServiceGatewayProxy).Debug(line)
 					} else {
 						// Log the stdout line to my event logger
 						logger.Info(line)
