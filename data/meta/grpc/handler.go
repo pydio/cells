@@ -121,8 +121,9 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 		}, &tree.UpdateNodeResponse{})
 		break
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
-		// We may have to store the metadata again
-		log.Logger(ctx).Debug("Received Update content", zap.Any("event", e))
+		// Simply forward to TopicMetaChange
+		log.Logger(ctx).Debug("Received Update content, forwarding to TopicMetaChange", zap.Any("event", e))
+		client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, e))
 		break
 	case tree.NodeChangeEvent_DELETE:
 		// Lets delete all metadata
