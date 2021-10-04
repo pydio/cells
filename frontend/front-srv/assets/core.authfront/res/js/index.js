@@ -77,7 +77,7 @@ let LoginDialogMixin = {
             globalParameters: pydio.Parameters,
             authParameters: pydio.getPluginConfigs('auth'),
             errorId: null,
-            loginLanguage: undefined
+            loginLanguage: sessionStorage.getItem('loginLanguage') || undefined
         };
     },
 
@@ -91,8 +91,10 @@ let LoginDialogMixin = {
         }else{
             login = this.refs.login.getValue();
         }
+        const {loginLanguage} = this.state;
+        sessionStorage.removeItem('loginLanguage');
 
-        return restClient.sessionLoginWithCredentials(login, this.refs.password.getValue(), this.state.loginLanguage)
+        return restClient.sessionLoginWithCredentials(login, this.refs.password.getValue(), loginLanguage)
             .then(() => this.dismiss())
             .then(() => restClient.getOrUpdateJwt().then(() => pydio.loadXmlRegistry(null, null, null)).catch(() => {}))
             .catch(e => {
@@ -264,7 +266,7 @@ let LoginPasswordDialog = createReactClass({
                         <LanguagePicker
                             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                             targetOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                            onChange={(v) => this.setState({loginLanguage: v})}
+                            onChange={(v) => {this.setState({loginLanguage: v}); sessionStorage.setItem('loginLanguage', v)}}
                         />
                     </div>
                 </div>
@@ -320,63 +322,6 @@ class DarkThemeContainer extends React.Component{
 }
 
 DarkThemeContainer = muiThemeable()(DarkThemeContainer);
-
-let MultiAuthSelector = createReactClass({
-
-    getValue(){
-        return this.state.value;
-    },
-
-    getInitialState(){
-        return {value:Object.keys(this.props.authSources).shift()}
-    },
-
-    onChange(object, key, payload){
-        this.setState({value: payload});
-    },
-
-    render(){
-        let menuItems = [];
-        for (let key in this.props.authSources){
-            menuItems.push(<MenuItem value={key} primaryText={this.props.authSources[key]}/>);
-        }
-        return (
-            <SelectField
-                value={this.state.value}
-                onChange={this.onChange}
-                floatingLabelText="Login as..."
-            >{menuItems}</SelectField>);
-
-    }
-});
-
-class MultiAuthModifier extends PydioReactUI.AbstractDialogModifier{
-
-    constructor(){
-        super();
-    }
-
-    enrichSubmitParameters(props, state, refs, params){
-
-        const selectedSource = refs.multi_selector.getValue();
-        params['auth_source'] = selectedSource
-        if(props.masterAuthSource && selectedSource === props.masterAuthSource){
-            params['userid'] = selectedSource + props.userIdSeparator + params['userid'];
-        }
-
-    }
-
-    renderAdditionalComponents(props, state, accumulator){
-
-        if(!props.authSources){
-            console.error('Could not find authSources');
-            return;
-        }
-        accumulator.top.push( <MultiAuthSelector ref="multi_selector" {...props} parentState={state}/> );
-
-    }
-
-}
 
 class Callbacks{
 
@@ -593,4 +538,4 @@ const ResetPasswordDialog = createReactClass({
 
 });
 
-export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, MultiAuthModifier, LanguagePicker}
+export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, LanguagePicker}
