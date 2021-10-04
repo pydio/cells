@@ -232,11 +232,16 @@ let UpdaterDashboard = createReactClass({
         }
 
         let versionLabel = backend.PackageLabel + ' ' + backend.Version;
-        let upgradeWizard;
+        let upgradeWizard, packagingInfoMain, packagingInfoOthers;
         if(backend.PackageType === "PydioHome" && backend.Version){
             upgradeWizard = <UpgraderWizard open={this.state.upgradeDialog} onDismiss={() => this.setState({upgradeDialog:false})} currentVersion={backend.Version} pydio={this.props.pydio}/>;
             versionLabel = <span>{versionLabel} <a style={{color:primary1Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; {this.context.getMessage('upgrade.ed.title', 'updater')}...</a></span>
         }
+        if(backend.PackagingInfo && backend.PackagingInfo.map) {
+            packagingInfoOthers = backend.PackagingInfo.filter(i => !!i)
+            packagingInfoMain = "Package: " + packagingInfoOthers.shift()
+        }
+        console.log(packagingInfoMain, packagingInfoOthers)
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
                 <AdminComponents.Header
@@ -250,11 +255,16 @@ let UpdaterDashboard = createReactClass({
                 <div style={{flex: 1, overflow: 'auto'}}>
                     <Paper {...adminStyles.body.block.props}>
                         <div style={subHeaderStyle}>{this.context.getMessage('current.version', 'updater')}</div>
-                        <List style={{padding: '0 16px'}}>
+                        <List style={{padding: 0}}>
                             <ListItem primaryText={versionLabel} disabled={true} secondaryTextLines={2} secondaryText={<span>
-                                {this.context.getMessage('package.released', 'updater') + " : " + backend.BuildStamp}<br/>
-                                {this.context.getMessage('package.revision', 'updater') + " : " + backend.BuildRevision}
+                                {this.context.getMessage('package.released', 'updater') + ": " + backend.BuildStamp}<br/>
+                                {this.context.getMessage('package.revision', 'updater') + ": " + backend.BuildRevision}
                             </span>}/>
+                            {packagingInfoOthers &&
+                            <ListItem style={{paddingTop: 0, lineHeight:'19px'}} primaryText={packagingInfoMain} disabled={true} secondaryTextLines={1} secondaryText={<span>
+                                {packagingInfoOthers.map(i => <span>{i}<br/></span>)}
+                            </span>}/>
+                            }
                         </List>
                     </Paper>
                     {watchJob &&
