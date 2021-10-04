@@ -188,6 +188,7 @@ class LogTools extends React.Component{
                             <MenuItem primaryText={""}/>
                             <MenuItem primaryText={"ERROR"} value={"ERROR"}/>
                             <MenuItem primaryText={"INFO"} value={"INFO"}/>
+                            <MenuItem primaryText={"WARN"} value={"WARN"}/>
                             <MenuItem primaryText={"DEBUG"} value={"DEBUG"}/>
                         </ModernSelectField>
                     </div>
