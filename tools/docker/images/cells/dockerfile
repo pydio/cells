@@ -14,11 +14,6 @@ RUN chmod +x /pydio/cells /pydio/jq
 FROM busybox:glibc
 ARG version
 
-ENV CELLS_WORKING_DIR /var/cells
-ENV CADDYPATH /var/cells/certs 
-
-WORKDIR $CELLS_WORKING_DIR
-
 # Add necessary files
 COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
 COPY libdl.so.2 /pydio/libdl.so.2
@@ -26,11 +21,18 @@ COPY --from=certs /pydio/jq /bin/jq
 COPY --from=certs /etc/ssl/certs /etc/ssl/certs
 COPY --from=certs /pydio/cells /pydio/cells
 
+ENV CADDYPATH /var/cells/certs 
+ENV CELLS_WORKING_DIR /var/cells
+WORKDIR $CELLS_WORKING_DIR
+
 # Final configuration
 RUN ln -s /pydio/cells /bin/cells \
     && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
     && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
-    && chmod +x /pydio/docker-entrypoint.sh
+    && chmod +x /pydio/docker-entrypoint.sh \
+    && echo "Pydio Cells Home Docker Image" > /var/cells/package.info \
+    && echo "  A ready-to-go docker image based on BusyBox to configure and launch Cells in no time." >> /var/cells/package.info \
+    && echo "  Generated on $(date) with docker build script from version ${version}" >> /var/cells/package.info
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["cells", "start"]
