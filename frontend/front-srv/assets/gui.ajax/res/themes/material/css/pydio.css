@@ -510,6 +510,15 @@ div.dialogBox div#element_overlay {
       -ms-flex: 1;
           flex: 1;
 }
+.react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div.mimefont-container div.mimefont.mimefont-overlay {
+  display: block;
+  position: absolute;
+  height: 14px;
+  font-size: 13px !important;
+  line-height: 14px;
+  bottom: 2px;
+  right: 2px;
+}
 .react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 {
   line-height: 22px;
 }
@@ -749,6 +758,15 @@ div.dialogBox div#element_overlay {
       -ms-flex: 1;
           flex: 1;
 }
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container div.mimefont.mimefont-overlay {
+  display: block;
+  position: absolute;
+  height: 14px;
+  font-size: 13px !important;
+  line-height: 14px;
+  bottom: 2px;
+  right: 2px;
+}
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container .mimefont {
   margin: auto;
 }
@@ -771,10 +789,18 @@ div.dialogBox div#element_overlay {
   padding: 0;
   top: 0px;
   left: 4px;
+  right: 4px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions span.overlay-class-span {
   color: rgba(0, 0, 0, 0.63);
   padding: 0 2px;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions .mimefont.mimefont-overlay {
+  padding: 12px;
+  font-size: 15px;
 }
 .react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .overlay_icon_div span.overlay-icon-span {
   color: #b0bec4 !important;

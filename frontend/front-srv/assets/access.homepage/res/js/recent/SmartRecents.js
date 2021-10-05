@@ -228,8 +228,7 @@ class RecentCard extends React.Component{
                 transition:'all 1000ms cubic-bezier(0.23, 1, 0.32, 1) 0ms'
             },
             preview:{
-                /*boxShadow: 'rgba(0, 0, 0, 0.10) 0px 1px 6px, rgba(0, 0, 0, 0.10) 0px 1px 4px',*/
-                //backgroundColor:'white',
+                boxShadow: '0 0 0 1px #edf0f2',
                 borderRadius: 6,
                 width: '100%',
                 flex:1,
@@ -237,6 +236,7 @@ class RecentCard extends React.Component{
                 justifyContent: 'center',
                 display: 'flex'
             },
+            fontOverlay:{position:'absolute', bottom:0, right: 5},
             label:{fontSize:14, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis', width: '100%'},
             title:{fontSize:14, marginTop: 10},
             legend:{fontSize: 11, fontWeight: 500, color: '#9E9E9E'},
@@ -245,7 +245,7 @@ class RecentCard extends React.Component{
         const {title, legend, node, pydio} = this.props;
         return (
             <Paper zDepth={0} style={styles.paper} onClick={() => {pydio.goTo(node);}} onMouseOver={()=>this.setState({hover:true})} onMouseOut={()=>this.setState({hover:false})} title={node && node.getLabel()}>
-                {node && <FilePreview node={node} style={styles.preview} mimeFontStyle={{fontSize:40}} loadThumbnail={true}/>}
+                {node && <FilePreview node={node} style={styles.preview} mimeFontStyle={{fontSize:40}} loadThumbnail={true} mimeFontOverlay={true} mimeFontOverlayStyle={styles.fontOverlay}/>}
                 <div style={{...styles.label, ...styles.title}}>{title}</div>
                 <div style={{...styles.label, ...styles.legend}}>{legend}</div>
             </Paper>
