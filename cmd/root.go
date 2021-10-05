@@ -117,11 +117,14 @@ WORKING DIRECTORIES
 LOGS LEVEL
 
   By default, logs are outputted in console format at the Info level and appended to a CELLS_LOG_DIR/pydio.log file. You can: 
-   - Change the level (debug, info, warn or error) with the --log flag or the CELLS_LOGS_LEVEL environment variable
+   - Change the level (debug, info, warn or error) with the --log flag
    - Output the logs in json format with --log_json=true 
    - Prevent logs from being written to a file with --log_to_file=false
 
-  For backward compatibility, --log=production still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
+  For backward compatibility:
+   - The CELLS_LOGS_LEVEL environment variable still works to define the --log flag (or CELLS_LOG env var)
+     but is now deprecated and will disappear in version 4.     
+   - The --log=production flag still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
       
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
@@ -299,7 +302,10 @@ func initLogLevel() {
 	}
 
 	// Init log level
-	logLevel := viper.GetString("logs_level")
+	logLevel := viper.GetString("log")
+	if logLevel == "" { // Backward compatibility
+		logLevel = viper.GetString("logs_level")
+	}
 	logJson := viper.GetBool("log_json")
 	common.LogToFile = viper.GetBool("log_to_file")
 

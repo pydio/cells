@@ -94,8 +94,6 @@ ENVIRONMENT
   is equivalent to 
   $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
 
-  [Note]: the only exception is the --log flag, that is mapped to CELLS_LOGS_LEVEL instead.
-
   2. Working Directories 
 
   - CELLS_WORKING_DIR: replace the whole standard application dir
@@ -136,7 +134,6 @@ ENVIRONMENT
 		}
 
 		bindViperFlags(cmd.Flags(), map[string]string{
-			"log":  "logs_level",
 			"fork": "is_fork",
 		})
 
