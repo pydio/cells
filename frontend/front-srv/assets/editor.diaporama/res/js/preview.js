@@ -56,9 +56,18 @@ class Preview extends Component {
         if (!src) {
             return null;
         }
+        let mFont;
+        const {mimeFontOverlay} = remainingProps;
+        if(mimeFontOverlay && node.isLeaf() && node.getMetadata().get('ImagePreview')){
+            const icClass = node.getSvgSource()
+            if (icClass){
+                mFont = 'mdi mdi-' + icClass
+            }
+        }
         return (<ImageContainer
             {...remainingProps}
             src={src}
+            mFont={mFont}
             imgStyle={{
                 width: "100%",
                 height: "100%",

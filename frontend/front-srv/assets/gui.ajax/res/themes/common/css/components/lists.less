@@ -15,6 +15,15 @@
       font-size: @fontsize;
       text-align: center;
       flex: 1;
+      &.mimefont-overlay{
+        display: block;
+        position: absolute;
+        height: 14px;
+        font-size: 13px !important;
+        line-height: 14px;
+        bottom: 2px;
+        right: 2px;
+      }
     }
 
   }
@@ -304,9 +313,15 @@
           padding: 0;
           top: 0px;
           left: 4px;
+          right: 4px;
+          display: flex;
           span.overlay-class-span {
             color: rgba(0,0,0,0.63);
             padding: 0 2px;
+          }
+          .mimefont.mimefont-overlay {
+            padding: 12px;
+            font-size: 15px;
           }
         }
 

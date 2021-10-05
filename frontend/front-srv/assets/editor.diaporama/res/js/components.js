@@ -73,7 +73,7 @@ export class ImageContainer extends Component {
     }
 
     render() {
-        const {src, style, width, height, imgStyle, imgClassName, scale = 1, ...remaining} = this.props;
+        const {src, style, width, height, imgStyle, imgClassName, scale = 1, mFont, ...remaining} = this.props;
 
         const {editorData} = this.props;
         if(editorData && editorData.extensions && editorData.extensions.length > 0){
@@ -97,8 +97,15 @@ export class ImageContainer extends Component {
             }
         }
 
+        // Do not pass all "remaining" as div props
+        const {className, mimeFontOverlayStyle} = remaining || {};
+        const otherStyle = {};
+        if(mFont){
+            otherStyle.position='relative';
+        }
+
         return (
-            <div style={{...ImageContainer.styles, ...style}} {...remaining}>
+            <div style={{...ImageContainer.styles, ...style, ...otherStyle}} className={className}>
                 <Image
                     src={src}
                     className={imgClassName}
@@ -108,6 +115,7 @@ export class ImageContainer extends Component {
                         ...imgStyle,
                     }}
                 />
+                {mFont && <div className={mFont + ' mimefont mimefont-overlay'} style={mimeFontOverlayStyle}/>}
             </div>
         )
     }
