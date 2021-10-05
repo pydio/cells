@@ -84,6 +84,10 @@ func PolicyHTTPWrapper(h http.Handler) http.Handler {
 			log.Logger(c).Debug("PolicyHttpHandlerWrapper denied access", zap.Error(err), zap.Any("request", request))
 			var msg string
 			if err != nil {
+				if isRestApiPublicMethod(r) {
+					h.ServeHTTP(w, r)
+					return
+				}
 				code = 500
 				body = "Internal server error."
 				msg = "Cannot check policies: " + err.Error()

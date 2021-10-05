@@ -35,6 +35,10 @@ import (
 	"github.com/pydio/cells/common/log"
 )
 
+func isRestApiPublicMethod(r *http.Request) bool {
+	return r.Method == "GET" && strings.HasPrefix(r.RequestURI, "/frontend/state")
+}
+
 func newClaimsProvider(service micro.Service) error {
 
 	var options []micro.Option
@@ -83,11 +87,15 @@ func JWTHttpWrapper(h http.Handler) http.Handler {
 			c, _, err = jwtVerifier.Verify(c, rawIDToken)
 			if err != nil {
 				log.Logger(context.Background()).Debug("jwtVerifier Error", zap.Error(err))
+				if isRestApiPublicMethod(r) {
+					h.ServeHTTP(w, r) // Serve an empty state
+					return
+				}
 				if isNetworkError(err) {
 					w.WriteHeader(503)
 					w.Write([]byte("Service unavailable.\n"))
 				} else {
-					// This is a wrong JWT go out with error
+					// This is a wrong JWT, go out with error
 					w.WriteHeader(401)
 					w.Write([]byte("Unauthorized.\n"))
 					log.Auditer(c).Error(
