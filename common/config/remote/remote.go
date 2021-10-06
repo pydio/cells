@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/status"
 	"time"
 
-	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/x/configx"
 	proto "github.com/pydio/config-srv/proto/config"
@@ -21,6 +20,7 @@ import (
 
 type remote struct {
 	id     string
+	service string
 	config configx.Values
 
 	watchers []*receiver
@@ -29,15 +29,16 @@ type remote struct {
 	stream proto.ConfigClient
 }
 
-func New(id string) configx.Entrypoint {
+func New(service, id string) configx.Entrypoint {
 
 	r := &remote{
 		id: id,
+		service: service,
 	}
 
 	go func() {
 		for {
-			cli := proto.NewConfigClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
+			cli := proto.NewConfigClient(service, defaults.NewClient())
 
 			stream, err := cli.Watch(context.Background(), &proto.WatchRequest{
 				Id: id,
@@ -93,7 +94,7 @@ func (r *remote) Val(path ...string) configx.Values {
 func (r *remote) Get() configx.Value {
 	v := configx.New(configx.WithJSON())
 
-	cli := proto.NewConfigClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
+	cli := proto.NewConfigClient(r.service, defaults.NewClient())
 	rsp, err := cli.Read(context.TODO(), &proto.ReadRequest{
 		Id:   r.id,
 		Path: "",
@@ -120,7 +121,7 @@ func (r *remote) Set(data interface{}) error {
 		return err
 	}
 
-	cli := proto.NewConfigClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
+	cli := proto.NewConfigClient(r.service, defaults.NewClient())
 
 	if _, err := cli.Update(context.TODO(), &proto.UpdateRequest{
 		Change: &proto.Change{

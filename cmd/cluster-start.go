@@ -57,6 +57,10 @@ DESCRIPTION
 		// Making sure we capture the signals
 		handleSignals()
 
+		skipUpgrade = true
+
+		initConfig()
+
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {

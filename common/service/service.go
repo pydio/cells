@@ -98,7 +98,7 @@ func buildForkStartParams(serviceName string) []string {
 	params := []string{
 		"start",
 		"--fork",
-		// "--config", "remote",
+		"--config", viper.GetString("config"),
 		"--registry", r,
 		"--broker", b,
 	}

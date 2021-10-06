@@ -491,27 +491,43 @@ func TestMoveNode(t *testing.T) {
 
 		currentDAO := NewFolderSizeCacheDAO(getDAO(ctxNoCache))
 
+		// RegisterIndexLen(22)
+
 		newNode12 := NewNode(&tree.Node{
-			Uuid: "node123",
+			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,3}, []string{"node12"})
+		}, mtree.MPath{1,2,3}, []string{"nodeParent"})
 
 		if err := currentDAO.AddNode(newNode12); err != nil {
 			So(err, ShouldBeNil)
 		}
 
+		// 1.2.3
+
 		// Add new node and check size
 		newNode := NewNode(&tree.Node{
-			Uuid: "newNodeFolderSize",
+			Uuid: "newNodeFolder",
 			Type: tree.NodeType_COLLECTION,
 		}, mtree.MPath{1,2,3,4,5,6,7,8,9,10}, []string{"newNodeFolderSize"})
 
 		if err := currentDAO.AddNode(newNode); err != nil {
 			So(err, ShouldBeNil)
 		}
+		// Add new node and check size
+		newNode2 := NewNode(&tree.Node{
+			Uuid: "newNodeFolder2",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, []string{"newDeepFolder"})
+
+		if err := currentDAO.AddNode(newNode2); err != nil {
+			So(err, ShouldBeNil)
+		}
+
+		// 1.2.3
+		// 1.2.3.4.5.6.7.8.9.10
 
 		newNodeChild := NewNode(&tree.Node{
-			Uuid: "newNodeChildSize",
+			Uuid: "newNodeChild",
 			Type: tree.NodeType_COLLECTION,
 		}, append(newNode.MPath, 1), []string{"newNodeChild"})
 
@@ -519,15 +535,23 @@ func TestMoveNode(t *testing.T) {
 			So(err, ShouldBeNil)
 		}
 
-		printTree(ctxNoCache)
+		// 1.2.3
+		// 1.2.3.4.5.6.7.8.9.10
+		// 1.2.3.4.5.6.7.8.9.10.1
+
+		// printTree(ctxNoCache)
 
 		movedNewNode13 := NewNode(&tree.Node{
-			Uuid: "node12",
+			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1, 3}, []string{"node12"})
+		}, mtree.MPath{1, 3}, []string{"nodeParent"})
 
 		err := currentDAO.MoveNodeTree(newNode12, movedNewNode13)
 		So(err, ShouldBeNil)
+
+		// 1.3
+		// 1.3.4.5.6.7.8.9.10
+		// 1.3.4.5.6.7.8.9.10.1
 
 		// printTree(ctxNoCache)
 
@@ -535,26 +559,46 @@ func TestMoveNode(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		newNode12 = NewNode(&tree.Node{
-			Uuid: "node123",
+			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,3}, []string{"node12"})
+		}, mtree.MPath{1,2,3}, []string{"nodeParent"})
 
 		// Moving back
 		err = currentDAO.MoveNodeTree(movedNewNode13, newNode12)
 		So(err, ShouldBeNil)
 
+		// 1.2.3
+		// 1.2.3.4.5.6.7.8.9.10
+		// 1.2.3.4.5.6.7.8.9.10.1
+
 		// printTree(ctxNoCache)
 
 		newNode124 := NewNode(&tree.Node{
-			Uuid: "node124",
+			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,4}, []string{"node12"})
+		}, mtree.MPath{1,2,4}, []string{"nodeParent"})
 
 		// Moving back
 		err = currentDAO.MoveNodeTree(newNode12, newNode124)
 		So(err, ShouldBeNil)
 
+		// 1.2.4
+		// 1.2.4.4.5.6.7.8.9.10
+		// 1.2.4.4.5.6.7.8.9.10.1
+
 		// printTree(ctxNoCache)
+
+		newNode125 := NewNode(&tree.Node{
+			Uuid: "nodeParent",
+			Type: tree.NodeType_COLLECTION,
+		}, mtree.MPath{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, []string{"nodeParent"})
+
+		// Moving back
+		err = currentDAO.MoveNodeTree(newNode124, newNode125)
+		So(err, ShouldBeNil)
+
+		printTree(ctxNoCache)
+
 	})
 
 }

@@ -9,5 +9,5 @@ func RuntimeIsLocal() bool {
 
 // RuntimeIsRemote check if the environment runtime config is a remote server
 func RuntimeIsRemote() bool {
-	return viper.GetString("config") == "remote"
+	return viper.GetString("config") == "remote" || viper.GetString("config") == "raft"
 }
