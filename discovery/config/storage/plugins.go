@@ -57,7 +57,7 @@ func init() {
 			service.Port(port),
 			service.WithMicro(func(m micro.Service) error {
 				source := file.NewSource(
-					microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+					microconfig.SourceName(filepath.Join(config.PydioConfigDir, "cluster", config.PydioConfigFile)),
 				)
 
 				defaultConfig := config.New(
@@ -106,6 +106,10 @@ func init() {
 
 				storage.RegisterStorageEndpointHandler(m.Options().Server, handler)
 				proto.RegisterConfigHandler(m.Options().Server, handler)
+
+				if m := config.Get().Map(); len(m) > 0 {
+					store.Propose("", m)
+				}
 
 				return nil
 			}),

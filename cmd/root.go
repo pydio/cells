@@ -74,6 +74,8 @@ var (
 	infoCommands    = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 
 	initStartingToolsOnce = &sync.Once{}
+
+	skipUpgrade = false
 )
 
 const startTagUnique = "unique"
@@ -224,10 +226,32 @@ func initConfig() (new bool) {
 		config.RegisterLocal(localConfig)
 
 		vaultConfig = config.New(
-			remote.New("vault"),
+			remote.New(common.ServiceGrpcNamespace_ + common.ServiceConfig,"vault"),
 		)
 		defaultConfig = config.New(
-			remote.New("config"),
+			remote.New(common.ServiceGrpcNamespace_ + common.ServiceConfig,"config"),
+		)
+	case "raft":
+		localSource := file.NewSource(
+			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
+		)
+
+		localConfig = config.New(
+			micro.New(
+				microconfig.NewConfig(
+					microconfig.WithSource(localSource),
+					microconfig.PollInterval(10*time.Second),
+				),
+			),
+		)
+
+		config.RegisterLocal(localConfig)
+
+		vaultConfig = config.New(
+			remote.New(common.ServiceStorageNamespace_ + common.ServiceConfig,"vault"),
+		)
+		defaultConfig = config.New(
+			remote.New(common.ServiceStorageNamespace_ + common.ServiceConfig,"config"),
 		)
 	default:
 		source := file.NewSource(
@@ -265,6 +289,14 @@ func initConfig() (new bool) {
 		config.RegisterLocal(localConfig)
 	}
 
+	config.Register(defaultConfig)
+	config.RegisterVault(vaultConfig)
+	config.RegisterVersionStore(versionsStore)
+
+	if skipUpgrade {
+		return
+	}
+
 	if defaultConfig.Val("version").String() == "" {
 		new = true
 
@@ -280,10 +312,6 @@ func initConfig() (new bool) {
 			}
 		}
 	}
-
-	config.Register(defaultConfig)
-	config.RegisterVault(vaultConfig)
-	config.RegisterVersionStore(versionsStore)
 
 	// Need to do something for the versions
 	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val(), common.Version()); err == nil && save {

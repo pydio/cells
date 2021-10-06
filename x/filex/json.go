@@ -3,6 +3,7 @@ package filex
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	json "github.com/pydio/cells/x/jsonx"
 )
@@ -15,6 +16,9 @@ func Save(filename string, data interface{}) error {
 		return err
 	}
 
+	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+		return err
+	}
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return err

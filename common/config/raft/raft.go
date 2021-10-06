@@ -389,7 +389,7 @@ func (rc *raftNode) startRaft() {
 	rc.snapshotter = snap.New(rc.logger, rc.snapdir)
 
 	// Creating waldir
-	rc.waldir = filepath.Join(config.ApplicationWorkingDir() + "service-" + member.ID.String())
+	rc.waldir = filepath.Join(config.ApplicationWorkingDir(), "service-" + member.ID.String())
 
 	hasWAL := wal.Exist(rc.waldir)
 

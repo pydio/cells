@@ -66,6 +66,8 @@ func init() {
 				indexContent := cfg.Val("indexContent").Bool()
 				if indexContent {
 					log.Logger(m.Options().Context).Info("Enabling content indexation in search engine")
+				} else {
+					log.Logger(m.Options().Context).Info("disabling content indexation in search engine")
 				}
 
 				dir, _ := config.ServiceDataDir(Name)
