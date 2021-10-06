@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"io/ioutil"
 	"path"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -104,6 +105,10 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 		packagingOnce.Do(func() {
 			if data, e := ioutil.ReadFile(path.Join(config.ApplicationWorkingDir(), "package.info")); e == nil {
 				packagingData = data
+			} else if runtime.GOOS != "windows" {
+				if data2, e2 := ioutil.ReadFile(path.Join("/opt/pydio", "package.info")); e2 == nil {
+					packagingData = data2
+				}
 			}
 		})
 		if len(packagingData) > 0 {
