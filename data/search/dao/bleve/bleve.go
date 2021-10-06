@@ -253,9 +253,13 @@ func (s *BleveServer) IndexNode(c context.Context, n *tree.Node, reloadCore bool
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
 	}
+	forceCore := false
+	if n.GetPath() == "" || n.GetType() == tree.NodeType_UNKNOWN {
+		forceCore = true
+	}
 	iNode := &tree.IndexableNode{
 		Node:       *n,
-		ReloadCore: reloadCore,
+		ReloadCore: reloadCore || forceCore,
 		ReloadNs:   !reloadCore,
 	}
 	s.inserts <- iNode
