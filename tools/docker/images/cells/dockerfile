@@ -15,24 +15,24 @@ FROM busybox:glibc
 ARG version
 
 # Add necessary files
-COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
-COPY libdl.so.2 /pydio/libdl.so.2
+COPY docker-entrypoint.sh /opt/pydio/bin/docker-entrypoint.sh
+COPY libdl.so.2 /opt/pydio/bin/libdl.so.2
 COPY --from=certs /pydio/jq /bin/jq
 COPY --from=certs /etc/ssl/certs /etc/ssl/certs
-COPY --from=certs /pydio/cells /pydio/cells
+COPY --from=certs /pydio/cells /opt/pydio/bin/cells
 
 ENV CADDYPATH /var/cells/certs 
 ENV CELLS_WORKING_DIR /var/cells
 WORKDIR $CELLS_WORKING_DIR
 
 # Final configuration
-RUN ln -s /pydio/cells /bin/cells \
-    && ln -s /pydio/libdl.so.2 /lib64/libdl.so.2 \
-    && ln -s /pydio/docker-entrypoint.sh /bin/docker-entrypoint.sh \
-    && chmod +x /pydio/docker-entrypoint.sh \
-    && echo "Pydio Cells Home Docker Image" > /var/cells/package.info \
-    && echo "  A ready-to-go docker image based on BusyBox to configure and launch Cells in no time." >> /var/cells/package.info \
-    && echo "  Generated on $(date) with docker build script from version ${version}" >> /var/cells/package.info
+RUN ln -s /opt/pydio/bin/cells /bin/cells \
+    && ln -s /opt/pydio/bin/libdl.so.2 /lib64/libdl.so.2 \
+    && ln -s /opt/pydio/bin/docker-entrypoint.sh /bin/docker-entrypoint.sh \
+    && chmod +x /opt/pydio/bin/docker-entrypoint.sh \
+    && echo "Pydio Cells Home Docker Image" > /opt/pydio/package.info \
+    && echo "  A ready-to-go Docker image based on BusyBox to configure and launch Cells in no time." >> /opt/pydio/package.info \
+    && echo "  Generated on $(date) with docker build script from version ${version}" >> /opt/pydio/package.info
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["cells", "start"]
