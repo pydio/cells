@@ -149,6 +149,9 @@ let LoginPasswordDialog = createReactClass({
     },
 
     dialogBodyStyle(){
+        if (this.state.globalParameters.get('PASSWORD_AUTH_ONLY')){
+            return {};
+        }
         return {minHeight: 250};
     },
 
