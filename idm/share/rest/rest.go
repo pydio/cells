@@ -409,26 +409,32 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		share.LoadHashDocumentData(ctx, storedLink, []*idm.ACL{})
 
 		link.PasswordRequired = storedLink.PasswordRequired
-		var saveUser bool
-		if putRequest.PasswordEnabled && !storedLink.PasswordRequired {
-			user.Password = putRequest.CreatePassword
-			link.PasswordRequired = true
-			saveUser = true
-		} else if !putRequest.PasswordEnabled && storedLink.PasswordRequired {
-			user.Password = user.Login + share.PasswordComplexitySuffix
-			link.PasswordRequired = false
-			saveUser = true
-		} else if putRequest.PasswordEnabled && storedLink.PasswordRequired && putRequest.UpdatePassword != "" {
-			user.Password = putRequest.UpdatePassword
-			saveUser = true
-		}
-		if saveUser {
-			uCli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
-			_, err := uCli.CreateUser(ctx, &idm.CreateUserRequest{
-				User: user,
-			})
-			if err != nil {
-				service.RestError500(req, rsp, err)
+		var passNewEnable = putRequest.PasswordEnabled && !storedLink.PasswordRequired
+		var passNewDisable = !putRequest.PasswordEnabled && storedLink.PasswordRequired
+		var passUpdated = putRequest.PasswordEnabled && storedLink.PasswordRequired && putRequest.UpdatePassword != ""
+		if passNewEnable || passNewDisable || passUpdated {
+			// Password conditions have changed : re-create a new hidden user
+			if e := share.DeleteHiddenUser(ctx, storedLink); e != nil {
+				service.RestError500(req, rsp, e)
+				return
+			}
+			storedLink.UserLogin = ""
+			storedLink.UserUuid = ""
+			if passUpdated {
+				putRequest.CreatePassword = putRequest.UpdatePassword
+			}
+			uUser, e := share.GetOrCreateHiddenUser(ctx, ownerUser, storedLink, putRequest.PasswordEnabled, putRequest.CreatePassword, false)
+			if e != nil {
+				service.RestError500(req, rsp, e)
+				return
+			}
+			user = uUser
+			link.UserLogin = user.Login
+			link.UserUuid = user.Uuid
+			if passNewEnable {
+				link.PasswordRequired = true
+			} else if passNewDisable {
+				link.PasswordRequired = false
 			}
 		}
 	}
