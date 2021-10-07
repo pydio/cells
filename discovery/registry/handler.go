@@ -4,14 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common/micro/registry/service"
 	pb "github.com/pydio/cells/common/proto/registry"
-)
-
-var (
-	NotImplemented = errors.New("notimplemented", "service not implemented", 501)
 )
 
 type Handler struct{}
@@ -57,7 +52,7 @@ func (h *Handler) ListServices(ctx context.Context, req *pb.ListRequest, resp *p
 }
 
 func (h *Handler) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Registry_WatchStream) error {
-	// defer stream.Close()
+	defer stream.Close()
 
 	var opts []registry.WatchOption
 	if s := req.GetService(); s != "" {
@@ -80,6 +75,4 @@ func (h *Handler) Watch(ctx context.Context, req *pb.WatchRequest, stream pb.Reg
 			Service: service.ToProto(res.Service),
 		})
 	}
-
-	return nil
 }
