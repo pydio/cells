@@ -1446,66 +1446,18 @@ func getMPathEquals(mpath []byte) (string, []interface{}) {
 
 // t.mpath LIKE ?
 func getMPathLike(mpath []byte) (string, []interface{}) {
-	var res []string
-	var args []interface{}
 
 	mpath = append(mpath, []byte(".%")...)
 
-	done := false
-	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
-
-		if !done {
-			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
-			args = append(args, mpath[(cnt*indexLen):])
-			done = true
-		} else {
-			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
-			args = append(args, mpath[(cnt*indexLen):])
-		}
-
-		if idx := cnt * indexLen; idx == 0 {
-			break
-		}
-
-		mpath = mpath[0 : cnt*indexLen]
-	}
-
-	return strings.Join(res, " and "), args
+	return getMPathEquals(mpath)
 }
 
 // and (t.mpath = ? OR t.mpath LIKE ?)
 func getMPathEqualsOrLike(mpath []byte) (string, []interface{}) {
-	var res []string
-	var args []interface{}
+	equals, equalsArgs := getMPathEquals(mpath)
+	like, likeArgs := getMPathLike(mpath)
 
-	mpath = append(mpath, []byte(".%")...)
-
-	done := false
-	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
-
-		if !done {
-			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
-			res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
-
-			args = append(args, mpath[(cnt*indexLen):len(mpath)-2], mpath[(cnt*indexLen):])
-
-			done = true
-		} else {
-			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
-		}
-
-		if idx := cnt * indexLen; idx == 0 {
-			break
-		}
-
-		mpath = mpath[0 : cnt*indexLen]
-	}
-
-	return strings.Join(res, " or "), args
+	return fmt.Sprintf("(%s) or (%s)", equals, like), append(equalsArgs, likeArgs...)
 }
 
 // where t.mpath in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

@@ -582,6 +582,48 @@ func TestIndex(t *testing.T) {
 	})
 }
 
+func TestIndexLongNode(t *testing.T) {
+
+	s := NewTreeServer(&object.DataSource{Name: ""})
+
+	wg.Add(1)
+	defer wg.Done()
+
+	Convey("Insert a new child at root level", t, func() {
+		path := ""
+		for i := 0; i < 255; i++ {
+			name := fmt.Sprintf("test%d", i)
+			path = path + fmt.Sprintf("/%d", i)
+			node := &tree.Node{Path: path, Uuid: name, Etag: name, Type: tree.NodeType_COLLECTION }
+
+			_, err := send(s, "CreateNode", &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
+			So(err, ShouldBeNil)
+		}
+
+		t.Log("Before")
+
+		respBefore, errBefore := send(s, "GetNode", &tree.ReadNodeRequest{Node: &tree.Node{Path: path}})
+		So(errBefore, ShouldBeNil)
+		So(respBefore, ShouldNotBeNil)
+
+		t.Log("Move")
+		node := &tree.Node{Path: "/test.xml", Uuid: "testxml", Etag: "testxml", Type:  tree.NodeType_LEAF}
+		_, err := send(s, "CreateNode", &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
+		So(err, ShouldBeNil)
+
+		target := &tree.Node{Path: path + "/test.xml", Uuid: "testxml", Etag: "testxml", Type:  tree.NodeType_LEAF}
+
+		resp, err := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node, To: target})
+		So(err, ShouldBeNil)
+		So(resp.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		t.Log("After")
+		respAfter, errAfter := send(s, "GetNode", &tree.ReadNodeRequest{Node: &tree.Node{Path: path}})
+		So(errAfter, ShouldBeNil)
+		So(respAfter, ShouldNotBeNil)
+	})
+}
+
 /*
 // TODO
 func TestMassiveOperations(t *testing.T) {
