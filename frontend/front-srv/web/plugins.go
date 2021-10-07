@@ -23,12 +23,15 @@ package web
 
 import (
 	"context"
-	"github.com/pydio/cells/common/caddy"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"time"
+
+	servicecontext "github.com/pydio/cells/common/service/context"
+
+	"github.com/pydio/cells/common/caddy"
 
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
@@ -105,7 +108,7 @@ func init() {
 				// Adding subscriber
 				if _, err := defaults.Broker().Subscribe(common.TopicReloadAssets, func(p broker.Publication) error {
 					// Reload FS
-					log.Info("Reloading PluginFS")
+					log.Logger(servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceFrontStatics)).Info("Reloading frontend plugins from file system")
 					frontend.HotReload()
 					httpFs = frontend.GetPluginsFS()
 					return nil

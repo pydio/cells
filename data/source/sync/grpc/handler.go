@@ -175,8 +175,10 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	// Making sure Objects is started
 	go func() {
 		defer wg.Done()
+		var retryCount int
 		service.Retry(ctx, func() error {
-			log.Logger(ctx).Info("Sync " + dataSource + " - Try to contact Objects")
+			retryCount++
+			log.Logger(ctx).Info(fmt.Sprintf("Trying to contact object service %s (retry %d)", common.ServiceDataObjects_+syncConfig.ObjectsServiceName, retryCount))
 			cli := object.NewObjectsEndpointClient(registry.GetClient(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName))
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 			if err != nil {
@@ -199,7 +201,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			if syncConfig.ObjectsBucket == "" {
 				_, err = mc.ListBucketsWithContext(testCtx)
 				if err != nil {
-					log.Logger(ctx).Warn("Cannot contact s3 service (list buckets), will retry in 4s", zap.Error(err))
+					if retryCount > 1 {
+						log.Logger(ctx).Warn("Cannot contact s3 service (list buckets), will retry in 4s", zap.Error(err))
+					}
 					return err
 				} else {
 					log.Logger(ctx).Info("Successfully listed buckets")
@@ -208,7 +212,9 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			} else {
 				_, err = mc.ListObjectsWithContext(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
 				if err != nil {
-					log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
+					if retryCount > 1 {
+						log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
+					}
 					return err
 				} else {
 					log.Logger(ctx).Info("Successfully listed objects from bucket " + syncConfig.ObjectsBucket)
