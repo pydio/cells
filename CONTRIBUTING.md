@@ -115,6 +115,8 @@ Before making code changes, make sure you create a separate branch for these cha
 git checkout -b my-new-feature
 ```
 
+If you're using Go 1.16 or later, don't forget to [set the environment variable `GO111MODULE` to `off`](README.md#note-on-the-third-party-libraries) before attempting your first compilation!
+
 ### Test Pydio Cells changes
 
 After your code changes, make sure
