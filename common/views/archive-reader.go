@@ -141,7 +141,7 @@ func (a *ArchiveReader) ListChildrenZip(ctx context.Context, archiveNode *tree.N
 			Path:  archiveNode.Path + "/" + innerPath,
 			Size:  int64(file.UncompressedSize64),
 			Type:  nodeType,
-			MTime: file.Modified.Unix(),
+			MTime: file.ModTime().Unix(),
 		}
 		results = append(results, node)
 		if isStat {
