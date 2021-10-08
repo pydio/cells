@@ -136,7 +136,7 @@ func (m *PutHandler) createParentIfNotExist(ctx context.Context, node *tree.Node
 			}
 			return er2
 		} else if r != nil {
-			log.Logger(ctx).Info("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
+			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
 			// As we are not going through the real FS, make sure to normalize now the file path
 			tmpNode := &tree.Node{
 				Uuid:  r.Node.Uuid,
@@ -147,7 +147,7 @@ func (m *PutHandler) createParentIfNotExist(ctx context.Context, node *tree.Node
 				Etag:  "-1",
 			}
 			treeWriter := m.clientsPool.GetTreeClientWrite()
-			log.Logger(ctx).Info("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 			if er != nil {
 				parsedErr := errors.Parse(er.Error())
