@@ -1,51 +1,39 @@
-# Changes between v3.0.0-rc1 and v3.0.0-rc2
+# Changes between v3.0.0-rc2 and v3.0.0-rc3
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.0-rc1...v3.0.0-rc2)
+[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.0-rc2...v3.0.0-rc3)
 
-- [#202a1f2](https://github.com/pydio/cells/commit/202a1f214c4de43d7724f9a01f03d0565e908609): Tweak logs and help() contents.
-- [#4cd30a4](https://github.com/pydio/cells/commit/4cd30a46a37bda4a551527a2532cabdb2abd2776): Always refresh indexContent value in search engine ux options
-- [#f23407e](https://github.com/pydio/cells/commit/f23407e30353f6504a99ae20a5921873a02127e0): Fix typos in doc after review
-- [#d445759](https://github.com/pydio/cells/commit/d445759d4fa07eca5d948cfc46be66f59ca7d279): Improve Brazilian messages
-- [#f4e2200](https://github.com/pydio/cells/commit/f4e2200c60d46469e200192954c35ed3b5174b68): A few more translations in various languages
-- [#9deb2a7](https://github.com/pydio/cells/commit/9deb2a7921a9834b0c10a19eafd171b21877023e): Fixing config
-- [#b18f6d9](https://github.com/pydio/cells/commit/b18f6d9932519114834868278ca8524a2b0538c4): Fixing config
-- [#596c663](https://github.com/pydio/cells/commit/596c663d3a65f34a38558b0ab5c30b560b4ebd1b): Fix shadowed variable issue in tree when loading node ancestors
-- [#0814c14](https://github.com/pydio/cells/commit/0814c145f935c17da87ff3999fb6a270af02f4bb): Make possible to use WARN log level
-- [#959c284](https://github.com/pydio/cells/commit/959c284f3cf04b0f4b412b79ac701b446630f158): Better management of the cells version command in Docker
-- [#fea4efa](https://github.com/pydio/cells/commit/fea4efab3004669966a3927929f98a8be3b0065a): Adapt inline documentation for logs
-- [#9f22b92](https://github.com/pydio/cells/commit/9f22b9298aece96229c7446c17f2330eb281f408): Update non-bound ENV variables
-- [#89e8099](https://github.com/pydio/cells/commit/89e80999e4a1d8e88cac8c127f927df8118cdba1): Squarify!
-- [#cb08102](https://github.com/pydio/cells/commit/cb08102c22578e4703f5b3126580754b62861ca4): A few more messages + DE/FR translation
-- [#5cb297b](https://github.com/pydio/cells/commit/5cb297b560e1c5238715f91681418864fcf95a5f): A few more messages + DE/FR translation
-- [#539cfc0](https://github.com/pydio/cells/commit/539cfc078dbf8b2b1db101975ded2b5fcc06cdc1): Missing placeholderReady prop
-- [#e66b455](https://github.com/pydio/cells/commit/e66b45520431916ca1923c9f3fe3c70728bce47f): Merge remote-tracking branch 'origin/master'
-- [#92aa074](https://github.com/pydio/cells/commit/92aa0742d8bbfec8d32076b528c5abe59769af19): Save logs state (theme, timezone) in localStorage
-- [#3f3ec06](https://github.com/pydio/cells/commit/3f3ec060e95aed78c077a910b7f132d296f3da70): Adapt after clean
-- [#55cfc32](https://github.com/pydio/cells/commit/55cfc3271bc476521db868da7f9262d7321c48cc): Log 404 errors with a WARN level instead of ERROR
-- [#b96d6be](https://github.com/pydio/cells/commit/b96d6be1d90156cde2a08e4674fdbfeaa6b4419b): Merge remote-tracking branch 'origin/master'
-- [#44708eb](https://github.com/pydio/cells/commit/44708eb7fa8116cf3642054b753f2026e4669254): New flag log_to_file with default true except when using 'make dev' command.
-- [#8e8acdc](https://github.com/pydio/cells/commit/8e8acdcafadc8d2164af84696987220797daa3f3): Missing i18n in logs board
-- [#bc9e372](https://github.com/pydio/cells/commit/bc9e3720f6ef430e38dab76f60a057ffc0f07e2f): Remove unmaintained legacy code
-- [#a1fbac6](https://github.com/pydio/cells/commit/a1fbac68c3a937e096b2ff8db837ce6ebd03bdd0): Tests with timezone in Logs interface
-- [#5e0ba94](https://github.com/pydio/cells/commit/5e0ba946f86e28808cd86dd9b48f76864ef8255e): Pass timezone in bootconf
-- [#45b37c9](https://github.com/pydio/cells/commit/45b37c920f72280badf5487cd16d00a31bcd8603): Improve error catching on policies checks
-- [#668c444](https://github.com/pydio/cells/commit/668c444489b463d9d4f8729564ff4440dc1d025f): Limit Combined Errors size
-- [#8a741c7](https://github.com/pydio/cells/commit/8a741c7db3a6f798240557f945a033611f0b6930): Clear policies cache when creating new policies as they will be used directly.
-- [#ec9e2f4](https://github.com/pydio/cells/commit/ec9e2f4c639a6b48d0d38e2a2c9779d5926b7cd7): Fix advanced search when indexContent is on.
-- [#53feb4e](https://github.com/pydio/cells/commit/53feb4eb76463445cf770b7157b91e68a1deb930): Fix search engine restart on options changed
-- [#2caace6](https://github.com/pydio/cells/commit/2caace6a844bf604bd8e126722fff80d4dfe4c51): Fix slug for opening doc in other workspace
-- [#a08fbc6](https://github.com/pydio/cells/commit/a08fbc6101b0db47197341d73bff1c65bc48e558): Bump sdk to v3.0.0-rc1.0
-- [#1357ffe](https://github.com/pydio/cells/commit/1357ffed8dc9686515dd9654e46c826186c03401): Update backgrounds
-- [#114d67c](https://github.com/pydio/cells/commit/114d67cb75198f108f7af0cdfccf9acd325efa05): Adapt logs UTC time display - To be applied to jobs/tasks time ?
-- [#39d9364](https://github.com/pydio/cells/commit/39d9364d4be65d8d719c64fbbd738845dd954ba8): Index logs time in UTC format
-- [#068d190](https://github.com/pydio/cells/commit/068d190d62bcce0b62a878c88e554235c5dbb63c): A few more strings + DE translations
-- [#463ee46](https://github.com/pydio/cells/commit/463ee46c52d2dc8fb8b5c19ab1906cf2d2486d9f): A few more strings + DE translations
-- [#cf94e82](https://github.com/pydio/cells/commit/cf94e824571270903084b8e9b3be431395d3d4d4): New ENV CELLS_SQL_LONG_CONN and CELLS_SQL_DEFAULT_CONN to override defaults
-- [#35d4600](https://github.com/pydio/cells/commit/35d46008a5c49f6a9130e264e574b62a93bbc834): Switch minisite Film Strip to new Image Gallery view
-- [#97eb851](https://github.com/pydio/cells/commit/97eb8519339c3f060515b76a54b526beac50ff39): User-jobs : use tree.Query Paths instead of NodesSelector.Pathes when possible
-- [#e707cfb](https://github.com/pydio/cells/commit/e707cfb0238ae7a47502f710b59f18532fe0343c): Making sure memory broker doesn't disconnect before the end
-- [#3e1d889](https://github.com/pydio/cells/commit/3e1d8897bf9ae37d7dc5c8787cd9ee6e95bdec62): Missing strings on datasource creator / editor
-- [#c85e96f](https://github.com/pydio/cells/commit/c85e96f1a07b4e80f5d8b73f00c63fdc4268a7b1): Flat storage : fix abort multipart (delete temporary **after** storage aborted)
-- [#8b981a7](https://github.com/pydio/cells/commit/8b981a7a4ae590ff8a3611761adf8f2c4e8e63b5): Rework upload glitches & i18n
-- [#3959645](https://github.com/pydio/cells/commit/39596450559b1037895451f0318fc7d845d42ad3): Fixing long mpath replace
-- [#a70a15d](https://github.com/pydio/cells/commit/a70a15d1c3ff7d8a251402d8450be82885ceffce): Next development cycle
+- [#d17c180](https://github.com/pydio/cells/commit/d17c180046e272679f44d1ed919a5fafe61bbb9f): Fixing order of updates
+- [#9b3e081](https://github.com/pydio/cells/commit/9b3e0816932775caf4b5aa523754ea9fe9670ed0): Sync start : remove logs on first try when pinging object service.
+- [#0855bf5](https://github.com/pydio/cells/commit/0855bf51c6230793d4bb40b3bda1fe2b65f156cb): We may have an unclosed stream
+- [#48b3ce7](https://github.com/pydio/cells/commit/48b3ce73316bcd94961e883318e774d074ff6457): Fixing nodes indexing for really long mpath
+- [#1156bd9](https://github.com/pydio/cells/commit/1156bd9a8e95bbe5b5220dbe478e8975f88900d9): Change public links password update : delete/recreate user to force disconnection if link is already loaded.
+- [#7920bb6](https://github.com/pydio/cells/commit/7920bb6bab29d09c869b360fa24a223b86d556a9): /frontend/state : always send an empty state
+- [#a9d69a8](https://github.com/pydio/cells/commit/a9d69a85e81d7e9991a2eed89bb1fc12b9b3e871): Fix login box minHeight on public links
+- [#dc7d50a](https://github.com/pydio/cells/commit/dc7d50a0c0e129517f1904c6f77efac979fd0ddf): Merge remote-tracking branch 'origin/master'
+- [#95f209c](https://github.com/pydio/cells/commit/95f209ce43a10f01323db4448d6a8b3dfc9c8a2b): Bleve : forceReloadCore is type is unknown.
+- [#4db9a82](https://github.com/pydio/cells/commit/4db9a826ef4badcaa27b5a807789f2ff03ac8bc4): Change cluster
+- [#04ccb2f](https://github.com/pydio/cells/commit/04ccb2f8b11ace192e704b707dedf538b58c78bd): Merge remote-tracking branch 'origin/master'
+- [#818b523](https://github.com/pydio/cells/commit/818b523f4d6089d29504da103e49f18fca2b5443): Look up package.info in /opt/pydio
+- [#1c82b8c](https://github.com/pydio/cells/commit/1c82b8cb969b0e15915ef84de5688da6f109989e): Rather use same conventions for all images
+- [#493b02b](https://github.com/pydio/cells/commit/493b02b4bf666c60e3db895642ab9f518375a0b6): Add a package.info file
+- [#0f48503](https://github.com/pydio/cells/commit/0f4850338e60803028c76badc2d477e312bfc1af): HttpWrappers : specific case for /frontend/state endpoint to always return an xml state to the UX.
+- [#8e7acee](https://github.com/pydio/cells/commit/8e7aceeac2cf91b00047aa56fb507840aa8b6280): Merge remote-tracking branch 'origin/master'
+- [#53e8194](https://github.com/pydio/cells/commit/53e81945eafe55fd03ad3754eee2f475308d360e): Show mimefont badge for docs with ImagePreview
+- [#ad1cb93](https://github.com/pydio/cells/commit/ad1cb9352b31efae08c92a929076c94ab9001507): Add standard "CELLS_LOG" environment flag
+- [#5e2fd4d](https://github.com/pydio/cells/commit/5e2fd4d146ed66f54379c9c540a6d44f1200d6ef): i18n bundle initializations can lead to a lock
+- [#c0b43ad](https://github.com/pydio/cells/commit/c0b43ad42175f731cc4bb4840145ef3f9005fe8c): Fix indexation issue on UpdateContent event
+- [#fee6855](https://github.com/pydio/cells/commit/fee6855f1d47e132a29302aa042140cefddc735e): Handle loginLanguage from sessionStorage
+- [#9132d11](https://github.com/pydio/cells/commit/9132d11f351964918b22f1071e77757bc6e23f2b): Login language changed: temp store in sessionStorage
+- [#3d90a0e](https://github.com/pydio/cells/commit/3d90a0ebf5c14eecb3698cb096ff81db890a5f30): Added WARN level in logs filter
+- [#815bc04](https://github.com/pydio/cells/commit/815bc04c6ad2c1d092faf0e4fde5c2a6a606fcb2): Hide [DEV NOTICE] about specific proxy registering
+- [#9430018](https://github.com/pydio/cells/commit/9430018025f90bf7cdc48fc6f52e6224aa3a3c1f): Fix top-bar zIndex for Mobile display
+- [#6f160a2](https://github.com/pydio/cells/commit/6f160a2487acb795109751d4948bc6f13297679a): Updater board : handle backend.PackagingInfo display
+- [#433e7be](https://github.com/pydio/cells/commit/433e7be57289f7dd58da6e4cba9ea4413a19bf14): Read and display content of package.info file if found
+- [#537646e](https://github.com/pydio/cells/commit/537646eb67fe8e8fc8faa1a52f20b84215eda50e): Fix config values merged on save, plus API returns updated values.
+- [#4cf5cd1](https://github.com/pydio/cells/commit/4cf5cd164c3889bfd1a51b0486906c35d22dff3f): Fix wrong comparison
+- [#e9880a3](https://github.com/pydio/cells/commit/e9880a37e11d758e02dd8f888d6bb6cda43edd56): Update "started/stopping" messages (capitalized)
+- [#38e0437](https://github.com/pydio/cells/commit/38e0437a5211295745eecfff4e7a1b9c23a4cf14): Login middlewares : if "lang" is set and login succeed, update user language (acl).
+- [#3e767bb](https://github.com/pydio/cells/commit/3e767bbedbd108566f7ea57979ded19c33427254): Authfront session login : optional "lang" param
+- [#8fb852a](https://github.com/pydio/cells/commit/8fb852ab9f5d9fccbd490dd606959b7b40e5c989): Fix defaults for language, always use core.pydio main option (or "en-us" value)
+- [#429a49e](https://github.com/pydio/cells/commit/429a49ed0ed3ae5d03e89e4570657b8b0ec6ed5d): Re-adapt installer background and palette, fix i18n picker
+- [#ab6a19b](https://github.com/pydio/cells/commit/ab6a19b29a021a9cf89b65cc9499618247a17d77): Recompile install languages

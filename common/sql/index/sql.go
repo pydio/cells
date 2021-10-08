@@ -183,17 +183,17 @@ func init() {
 						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=""`, i+1))
 					}
 				} else {
-					if idx < 3 {
-						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx, indexLen-(moduloMPathTo-moduloMPathFrom)+1, moduloMPathTo-moduloMPathFrom)
-						remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, 1, indexLen-(moduloMPathTo-moduloMPathFrom))
-						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
-					} else if idx < 4 {
-						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx, indexLen-(moduloMPathTo-moduloMPathFrom)+1, moduloMPathTo-moduloMPathFrom)
-						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1)))
-					} else {
-						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=""`, i+1))
-					}
+					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx, indexLen-(moduloMPathTo-moduloMPathFrom)+1, moduloMPathTo-moduloMPathFrom)
+					remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, 1, indexLen-(moduloMPathTo-moduloMPathFrom))
+					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
 				}
+			}
+		}
+
+		// Reversing array so that the update is in the correct position
+		if totalMPathFrom < totalMPathTo {
+			for i, j := 0, len(mpathSub)-1; i < j; i, j = i+1, j-1 {
+				mpathSub[i], mpathSub[j] = mpathSub[j], mpathSub[i]
 			}
 		}
 
