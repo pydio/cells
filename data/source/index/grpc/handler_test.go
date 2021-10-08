@@ -112,6 +112,12 @@ func TestMain(m *testing.M) {
 		return
 	}
 
+	//sqlDAO := sql.NewDAO("mysql", "root@tcp(localhost:3306)/cells3?parseTime=true", "test")
+	//if sqlDAO == nil {
+	//	fmt.Print("Could not start test")
+	//	return
+	//}
+
 	d := index.NewDAO(sqlDAO)
 	if err := d.Init(options); err != nil {
 		fmt.Print("Could not start test ", err)
@@ -621,6 +627,44 @@ func TestIndexLongNode(t *testing.T) {
 		respAfter, errAfter := send(s, "GetNode", &tree.ReadNodeRequest{Node: &tree.Node{Path: path}})
 		So(errAfter, ShouldBeNil)
 		So(respAfter, ShouldNotBeNil)
+
+		node2 := &tree.Node{Path: "/0", Uuid: "test1", Etag: "test0", Type: tree.NodeType_COLLECTION }
+		target2 := &tree.Node{Path: "/0b", Uuid: "test1b", Etag: "test1b", Type: tree.NodeType_COLLECTION }
+		_, errCreate := send(s, "CreateNode", &tree.CreateNodeRequest{Node: target2, UpdateIfExists: true})
+		So(errCreate, ShouldBeNil)
+
+		target3 := &tree.Node{Path: "/0b/0", Type: tree.NodeType_COLLECTION }
+
+		resp2, err2 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node2, To: target3})
+		So(err2, ShouldBeNil)
+		So(resp2.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		resp3, err3 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: target3, To: node2})
+		So(err3, ShouldBeNil)
+		So(resp3.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		target4 := &tree.Node{Path: "/0c", Type: tree.NodeType_COLLECTION }
+		resp4, err4 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node2, To: target4})
+		So(err4, ShouldBeNil)
+		So(resp4.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		resp4b, err4b := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: target4, To: node2})
+		So(err4b, ShouldBeNil)
+		So(resp4b.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		target5 := &tree.Node{Path: "/0d/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0", Type: tree.NodeType_COLLECTION }
+		resp5, err5 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node2, To: target5})
+		So(err5, ShouldBeNil)
+		So(resp5.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		resp5b, err5b := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: target5, To: node2})
+		So(err5b, ShouldBeNil)
+		So(resp5b.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
+
+		t.Log("After move")
+		respAfter2, errAfter2 := send(s, "GetNode", &tree.ReadNodeRequest{Node: target2})
+		So(errAfter2, ShouldBeNil)
+		So(respAfter2, ShouldNotBeNil)
 	})
 }
 
