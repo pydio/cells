@@ -27,6 +27,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pydio/cells/scheduler/actions/tools"
+
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
@@ -47,12 +49,12 @@ var (
 )
 
 type DeleteAction struct {
-	Client            views.Handler
+	tools.ScopedRouterConsumer
 	childrenOnlyParam string
 	ignoreNonExisting string
 }
 
-func (c *DeleteAction) GetDescription(lang ...string) actions.ActionDescription {
+func (c *DeleteAction) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:               deleteActionName,
 		Label:            "Delete files",
@@ -98,9 +100,8 @@ func (c *DeleteAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *DeleteAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *DeleteAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
 
-	c.Client = views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	if co, ok := action.Parameters["childrenOnly"]; ok {
 		c.childrenOnlyParam = co
 	} else {
@@ -109,6 +110,7 @@ func (c *DeleteAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action
 	if i, o := action.Parameters["ignoreNonExisting"]; o {
 		c.ignoreNonExisting = i
 	}
+	c.ParseScope(job.Owner, action.Parameters)
 
 	return nil
 }
@@ -128,8 +130,13 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 	}
 
 	sourceNode := input.Nodes[0]
+	c2, cli, e := c.GetHandler(ctx)
+	if e != nil {
+		return input.WithError(e), e
+	}
+	ctx = c2
 
-	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
+	readR, readE := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
 		log.Logger(ctx).Error("Read Source", zap.Error(readE))
 		if ignore, _ := jobs.EvaluateFieldBool(ctx, input, c.ignoreNonExisting); ignore {
@@ -142,7 +149,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 
 	var isFlat bool
 	var firstLevelFolders []*tree.Node
-	if router, ok := c.Client.(*views.Router); ok {
+	if router, ok := cli.(*views.Router); ok {
 		if b, err := router.BranchInfoForNode(ctx, sourceNode); err == nil {
 			isFlat = b.FlatStorage
 		} else {
@@ -151,7 +158,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 	}
 
 	if sourceNode.IsLeaf() {
-		_, err := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
+		_, err := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
 		if err != nil {
 			return input.WithError(err), err
 		}
@@ -160,7 +167,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		var delErr error
 		wg := &sync.WaitGroup{}
 		throttle := make(chan struct{}, 4)
-		list, e := c.Client.ListNodes(ctx, &tree.ListNodesRequest{Node: sourceNode, Recursive: true})
+		list, e := cli.ListNodes(ctx, &tree.ListNodesRequest{Node: sourceNode, Recursive: true})
 		if e != nil {
 			return input.WithError(e), e
 		}
@@ -195,7 +202,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 					statusPath = path.Dir(statusPath)
 				}
 				channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
-				_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n})
+				_, er := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n})
 				if er != nil {
 					delErr = er
 				}
@@ -208,13 +215,13 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		if isFlat {
 			if !childrenOnly {
 				log.Logger(ctx).Info("Deleting sourceNode", sourceNode.ZapPath())
-				if _, e := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
+				if _, e := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode}); e != nil {
 					return input.WithError(e), e
 				}
 			} else {
 				for _, n := range firstLevelFolders {
 					log.Logger(ctx).Info("Deleting first level of nodes", n.ZapPath())
-					if _, e := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n}); e != nil {
+					if _, e := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n}); e != nil {
 						return input.WithError(e), e
 					}
 				}

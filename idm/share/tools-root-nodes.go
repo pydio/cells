@@ -150,6 +150,8 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 
 func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParents []*tree.WorkspaceRelativePath) (string, error) {
 
+	var parentPol string
+
 	var cellNode bool
 	for _, r := range roots {
 		if r.HasMetaKey("CellNode") {
@@ -165,16 +167,12 @@ func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParent
 		}
 		roles := permissions.GetRoles(ctx, strings.Split(claims.Roles, ","))
 		acls := permissions.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "default-cells-policy"})
-		var foundPolicy string
 		for _, role := range roles {
 			for _, acl := range acls {
 				if acl.RoleID == role.Uuid && acl.Action.Name == "default-cells-policy" {
-					foundPolicy = strings.TrimPrefix(strings.Trim(acl.Action.Value, `"`), "policy:")
+					parentPol = strings.TrimPrefix(strings.Trim(acl.Action.Value, `"`), "policy:")
 				}
 			}
-		}
-		if foundPolicy != "" {
-			return foundPolicy, nil
 		}
 	}
 
@@ -183,8 +181,9 @@ func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParent
 		return "", e
 	}
 	if !accessList.HasPolicyBasedAcls() {
-		return "", nil
+		return parentPol, nil
 	}
+
 	var ww []*tree.WorkspaceRelativePath
 	if loadedParents != nil {
 		ww = loadedParents
@@ -196,7 +195,6 @@ func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParent
 		ww = rpw
 	}
 	wsNodes := accessList.GetWorkspacesNodes()
-	var parentPol string
 	for _, w := range ww {
 		if nn, ok := wsNodes[w.WsUuid]; ok {
 			for _, b := range nn {
@@ -205,8 +203,11 @@ func DetectInheritedPolicy(ctx context.Context, roots []*tree.Node, loadedParent
 						if strings.HasSuffix(p, "-ro") || strings.HasSuffix(p, "-rw") || strings.HasSuffix(p, "-wo") {
 							continue
 						}
-						parentPol = p
-						break
+						if parentPol != "" && parentPol != p {
+							return "", fmt.Errorf("roots have conflicting access policies, cannot assign permissions")
+						} else {
+							parentPol = p
+						}
 					}
 				}
 			}
@@ -299,6 +300,9 @@ func CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) (workspaces [
 func RootsParentWorkspaces(ctx context.Context, rr []*tree.Node) (ww []*tree.WorkspaceRelativePath, e error) {
 	router := views.NewUuidRouter(views.RouterOptions{})
 	for _, r := range rr {
+		if r.HasMetaKey("CellNode") {
+			continue
+		}
 		resp, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: r.Uuid}})
 		if er != nil {
 			e = er

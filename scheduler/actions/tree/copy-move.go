@@ -28,6 +28,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/cells/scheduler/actions/tools"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common/proto/idm"
@@ -56,15 +58,14 @@ var (
 )
 
 type CopyMoveAction struct {
-	Client            views.Handler
-	Move              bool
-	Copy              bool
-	TargetPlaceholder string
-	CreateFolder      bool
-	TargetIsParent    bool
+	tools.ScopedRouterConsumer
+	move              bool
+	targetPlaceholder string
+	createFolder      bool
+	targetIsParent    bool
 }
 
-func (c *CopyMoveAction) GetDescription(lang ...string) actions.ActionDescription {
+func (c *CopyMoveAction) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                copyMoveActionName,
 		Label:             "Copy/Move",
@@ -136,34 +137,28 @@ func (c *CopyMoveAction) ProvidesProgress() bool {
 }
 
 // Init passes parameters to the action
-func (c *CopyMoveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-
-	if c.Client == nil {
-		c.Client = views.NewStandardRouter(views.RouterOptions{AdminView: true})
-	}
+func (c *CopyMoveAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
 
 	if action.Parameters == nil {
 		return errors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
 	}
 	var tOk bool
-	c.TargetPlaceholder, tOk = action.Parameters["target"]
+	c.targetPlaceholder, tOk = action.Parameters["target"]
 	if !tOk {
 		return errors.InternalServerError(common.ServiceJobs, "Could not find parameters for CopyMove action")
 	}
-	c.Move = false
 	if actionType, ok := action.Parameters["type"]; ok && actionType == "move" {
-		c.Move = true
+		c.move = true
 	}
-	c.Copy = !c.Move
 
 	if createParam, ok := action.Parameters["create"]; ok {
-		c.CreateFolder, _ = strconv.ParseBool(createParam)
+		c.createFolder, _ = strconv.ParseBool(createParam)
 	}
 
 	if targetParent, ok := action.Parameters["targetParent"]; ok && targetParent == "true" {
-		c.TargetIsParent = true
+		c.targetIsParent = true
 	}
-
+	c.ParseScope(job.Owner, action.Parameters)
 	return nil
 }
 
@@ -177,23 +172,25 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguageFromContext(ctx, config.Get(), true))
 
 	targetNode := &tree.Node{
-		Path: jobs.EvaluateFieldStr(ctx, input, c.TargetPlaceholder),
+		Path: jobs.EvaluateFieldStr(ctx, input, c.targetPlaceholder),
 	}
-	if c.TargetIsParent {
+	if c.targetIsParent {
 		targetNode.Path = path.Join(targetNode.Path, path.Base(sourceNode.Path))
 	}
 
-	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
+	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.targetIsParent))
 
-	// Do not copy on itself, ignore - NO : suffixPathWillDoTheJob
-	//if targetNode.Path == input.Nodes[0].Path {
-	//	return input, nil
-	//}
+	// Load correct client
+	c2, cli, e := c.GetHandler(ctx)
+	if e != nil {
+		return input.WithError(e), e
+	}
+	ctx = c2
 
 	// Handle already existing
-	c.suffixPathIfNecessary(ctx, targetNode)
+	c.suffixPathIfNecessary(ctx, cli, targetNode)
 
-	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
+	readR, readE := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
 		log.Logger(ctx).Error("Read Source", zap.Error(readE))
 		return input.WithError(readE), readE
@@ -201,12 +198,12 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	sourceNode = readR.Node
 	output := input
 
-	if e := views.CopyMoveNodes(ctx, c.Client, sourceNode, targetNode, c.Move, true, channels.StatusMsg, channels.Progress, T); e != nil {
+	if e := views.CopyMoveNodes(ctx, cli, sourceNode, targetNode, c.move, true, channels.StatusMsg, channels.Progress, T); e != nil {
 		output = output.WithError(e)
 		return output, e
 	}
 
-	if c.Move {
+	if c.move {
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully moved %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
 	} else {
 		log.TasksLogger(ctx).Info(fmt.Sprintf("Successfully copied %s to %s", sourceNode.GetPath(), targetNode.GetPath()))
@@ -219,12 +216,12 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 }
 
-func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *tree.Node) {
+func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, cli views.Handler, targetNode *tree.Node) {
 	// Look for registered child locks : children that are currently in creation
 	pNode := &tree.Node{Path: path.Dir(targetNode.Path)}
 	compares := make(map[string]struct{})
 
-	if r, e := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil {
+	if r, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: pNode}); e == nil {
 		pNode = r.GetNode()
 		aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
@@ -252,10 +249,10 @@ func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *
 	noExt := strings.TrimSuffix(targetNode.Path, ext)
 	noExtBaseQuoted := regexp.QuoteMeta(path.Base(noExt))
 
-	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case insensitive)
+	// List basenames with regexp "(?i)^(toto-[[:digit:]]*|toto).txt$" to look for same name or same base-DIGIT.ext (case-insensitive)
 	searchNode.SetMeta(tree.MetaFilterGrep, "(?i)^("+noExtBaseQuoted+"\\-[[:digit:]]*|"+noExtBaseQuoted+")"+ext+"$")
 	listReq := &tree.ListNodesRequest{Node: searchNode, Recursive: false}
-	c.Client.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
+	cli.ListNodesWithCallback(ctx, listReq, func(ctx context.Context, node *tree.Node, err error) error {
 		if node.Path == searchNode.Path {
 			return nil
 		}

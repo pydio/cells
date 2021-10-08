@@ -278,6 +278,10 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 	if accessList.HasExplicitDeny(ctx, permissions.FlagUpload, toParents...) {
 		return 0, errors.Forbidden("upload.forbidden", "Parents have upload explicitly disabled")
 	}
+	fullTargets := append(toParents, to)
+	if accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fromParents...) && !accessList.HasExplicitDeny(ctx, permissions.FlagDownload, fullTargets...) {
+		return 0, errors.Forbidden("upload.forbidden", "Source has download explicitly disabled and target does not")
+	}
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
 

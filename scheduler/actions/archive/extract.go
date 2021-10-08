@@ -27,17 +27,17 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pydio/cells/common/log"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/scheduler/actions/tools"
 )
 
 var (
@@ -45,11 +45,12 @@ var (
 )
 
 type ExtractAction struct {
-	Format     string
-	TargetName string
+	tools.ScopedRouterConsumer
+	format     string
+	targetName string
 }
 
-func (ex *ExtractAction) GetDescription(lang ...string) actions.ActionDescription {
+func (ex *ExtractAction) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                extractActionName,
 		Label:             "Extract Archive",
@@ -102,13 +103,14 @@ func (ex *ExtractAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (ex *ExtractAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (ex *ExtractAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
 	if format, ok := action.Parameters["format"]; ok {
-		ex.Format = format
+		ex.format = format
 	}
 	if target, ok := action.Parameters["target"]; ok {
-		ex.TargetName = target
+		ex.targetName = target
 	}
+	ex.ParseScope(job.Owner, action.Parameters)
 	return nil
 }
 
@@ -118,20 +120,26 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil
 	}
+	c2, handler, er := ex.GetHandler(ctx)
+	if er != nil {
+		return input.WithError(er), er
+	}
+	ctx = c2
+
 	archiveNode := input.Nodes[0]
 	ext := filepath.Ext(archiveNode.Path)
 	if ext == ".gz" && strings.HasSuffix(archiveNode.Path, ".tar.gz") {
 		ext = ".tar.gz"
 	}
 	if archiveNode.Size == 0 {
-		resp, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: archiveNode})
+		resp, e := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: archiveNode})
 		if e != nil {
 			return input.WithError(e), e
 		}
 		archiveNode = resp.GetNode()
 	}
 
-	format := jobs.EvaluateFieldStr(ctx, input, ex.Format)
+	format := jobs.EvaluateFieldStr(ctx, input, ex.format)
 	if format == "" || format == detectFormat {
 		format = strings.ToLower(strings.TrimLeft(ext, "."))
 		if format != zipFormat && format != tarFormat && format != tarGzFormat {
@@ -139,19 +147,19 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 			return input.WithError(e), e
 		}
 	}
-	targetName := jobs.EvaluateFieldStr(ctx, input, ex.TargetName)
+	targetName := jobs.EvaluateFieldStr(ctx, input, ex.targetName)
 	if targetName == "" {
 		base := strings.TrimSuffix(path.Base(archiveNode.Path), ext)
-		targetName = computeTargetName(ctx, path.Dir(archiveNode.Path), base)
+		targetName = computeTargetName(ctx, handler, path.Dir(archiveNode.Path), base)
 	}
 	targetNode := &tree.Node{Path: targetName, Type: tree.NodeType_COLLECTION}
-	_, e := getRouter().CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode})
+	_, e := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode})
 	if e != nil {
 		return input.WithError(e), e
 	}
 
 	reader := &views.ArchiveReader{
-		Router: getRouter(),
+		Router: handler,
 	}
 	var err error
 	switch format {

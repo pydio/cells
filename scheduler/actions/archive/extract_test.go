@@ -49,11 +49,12 @@ func TestExtractAction_Init(t *testing.T) {
 			Parameters: map[string]string{
 				"format": "tar.gz",
 				"target": "path",
+				"scope":  "owner",
 			},
 		})
 		So(e, ShouldBeNil)
-		So(action.Format, ShouldEqual, "tar.gz")
-		So(action.TargetName, ShouldEqual, "path")
+		So(action.format, ShouldEqual, "tar.gz")
+		So(action.targetName, ShouldEqual, "path")
 
 	})
 }

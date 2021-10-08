@@ -20,7 +20,7 @@ import (
 type deleteJobs struct {
 	RecyclesNodes map[string]*tree.Node
 	RecycleMoves  map[string][]string
-	RealDeletes   []string
+	Deletes       []string
 }
 
 func newDeleteJobs() *deleteJobs {

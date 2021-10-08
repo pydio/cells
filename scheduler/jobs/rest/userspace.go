@@ -28,8 +28,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
@@ -44,13 +42,13 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 	json "github.com/pydio/cells/x/jsonx"
 )
 
-func compress(ctx context.Context, selectedPathes []string, targetNodePath string, format string, languages ...string) (string, error) {
+func compress(ctx context.Context, selectedPaths []string, targetNodePath string, format string, languages ...string) (string, error) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	jobUuid := "compress-folders-" + uuid.New()
@@ -61,11 +59,13 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 	if format != "zip" && format != "tar" && format != "tar.gz" {
 		return "", fmt.Errorf("unsupported format, please use one of zip, tar or tar.gz")
 	}
+	initialPaths := append([]string{}, selectedPaths...)
+	initialTarget := targetNodePath
 
 	err := theRouter.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
 		var targetSize int64
-		for i, p := range selectedPathes {
+		for _, p := range selectedPaths {
 			node := &tree.Node{Path: p}
 			srcCtx, node, nodeErr := inputFilter(ctx, node, "in")
 			if nodeErr != nil {
@@ -79,28 +79,29 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			if e != nil {
 				return e
 			}
-			if !resp.GetNode().IsLeaf() {
-				// Check children for permissions as well
-				childrenStream, e := theRouter.GetClientsPool().GetTreeClient().ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
-				if e != nil {
-					return e
-				}
-				for {
-					c, er := childrenStream.Recv()
-					if er != nil {
-						break
+			/*
+				if !resp.GetNode().IsLeaf() {
+					// Check children for permissions as well
+					childrenStream, e := theRouter.GetClientsPool().GetTreeClient().ListNodes(ctx, &tree.ListNodesRequest{Node: node, Recursive: true})
+					if e != nil {
+						return e
 					}
-					cNode := c.GetNode()
-					cNode.SetMeta("acl-check-download", true)
-					if err := theRouter.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: cNode}); err != nil {
-						childrenStream.Close()
-						return permError
+					for {
+						c, er := childrenStream.Recv()
+						if er != nil {
+							break
+						}
+						cNode := c.GetNode()
+						cNode.SetMeta("acl-check-download", true)
+						if err := theRouter.WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: cNode}); err != nil {
+							childrenStream.Close()
+							return permError
+						}
 					}
-				}
-				childrenStream.Close()
-			}
+					childrenStream.Close()
+				}*/
 			targetSize += resp.GetNode().GetSize()
-			selectedPathes[i] = node.Path
+			//selectedPaths[i] = node.Path
 		}
 
 		if targetNodePath != "" {
@@ -115,20 +116,17 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 			if err := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_CREATE, Target: node}); err != nil {
 				return err
 			}
-			targetNodePath = node.Path
+			//targetNodePath = node.Path
 		}
 
 		params := map[string]string{
 			"format": format,
-			"target": targetNodePath,
+			"target": initialTarget,
+			"scope":  "owner",
 		}
 		if e := disallowTemplate(params); e != nil {
 			return e
 		}
-
-		q, _ := ptypes.MarshalAny(&tree.Query{
-			Paths: selectedPathes,
-		})
 
 		job := &jobs.Job{
 			ID:             jobUuid,
@@ -145,7 +143,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
 						Collect: true,
-						Query:   &service.Query{SubQueries: []*any.Any{q}},
+						Pathes:  initialPaths,
 					},
 				},
 			},
@@ -167,6 +165,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	userName := claims.Name
 	T := lang.Bundle().GetTranslationFunc(languages...)
+	initialTargetPath := targetPath
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
@@ -176,7 +175,6 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			return nodeErr
 		}
-		archiveNode := node.Path
 		if err := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: node}); err != nil {
 			return err
 		}
@@ -206,15 +204,12 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 
 		params := map[string]string{
 			"format": format,
-			"target": targetPath,
+			"scope":  "owner",
+			"target": initialTargetPath,
 		}
 		if e := disallowTemplate(params); e != nil {
 			return e
 		}
-
-		q, _ := ptypes.MarshalAny(&tree.Query{
-			Paths: []string{archiveNode},
-		})
 
 		job := &jobs.Job{
 			ID:             jobUuid,
@@ -230,7 +225,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 					ID:         "actions.archive.extract",
 					Parameters: params,
 					NodesSelector: &jobs.NodesSelector{
-						Query: &service.Query{SubQueries: []*any.Any{q}},
+						Pathes: []string{selectedNode},
 					},
 				},
 			},
@@ -258,14 +253,17 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 	}
 
 	jobUuid := "copy-move-" + uuid.New()
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userName := claims.Name
+	userName, _ := permissions.FindUserNameInContext(ctx)
+
 	sourceId := "in"
 	targetId := "in"
 	if move {
 		sourceId = "from"
 		targetId = "to"
 	}
+	var ownerPaths []string
+	ownerPaths = append(ownerPaths, selectedPathes...)
+	ownerTarget := targetNodePath
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
@@ -316,9 +314,6 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 					return sErr
 				}
 			} else {
-				//if rErr := getRouter().WrappedCanApply(srcCtx, nil, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: r.Node}); rErr != nil {
-				//	return rErr
-				//}
 				if er := getRouter().WrappedCanApply(nil, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_CONTENT, Target: checkNode}); er != nil {
 					return er
 				}
@@ -374,10 +369,6 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			return e
 		}
 
-		q, _ := ptypes.MarshalAny(&tree.Query{
-			Paths: selectedPathes,
-		})
-
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          userName,
@@ -392,14 +383,15 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 					ID: "actions.tree.copymove",
 					Parameters: map[string]string{
 						"type":         taskType,
-						"target":       targetNodePath,
+						"scope":        "owner",
+						"target":       ownerTarget,
 						"targetParent": targetParent,
 						"recursive":    "true",
 						"create":       "true",
 					},
 					NodesSelector: &jobs.NodesSelector{
 						Collect: false,
-						Query:   &service.Query{SubQueries: []*any.Any{q}},
+						Pathes:  ownerPaths,
 					},
 				},
 			},

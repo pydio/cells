@@ -295,7 +295,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 					return errors.New("children.locks", "Resource is currently busy, please retry later", 423)
 				}
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
-				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
+				deleteJobs.Deletes = append(deleteJobs.Deletes, node.GetPath()) // Pass user-scope path
 				log.Auditer(ctx).Info(
 					fmt.Sprintf("Definitively deleted [%s]", node.GetPath()),
 					log.GetAuditId(common.AuditNodeMovedToBin),
@@ -402,13 +402,10 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	}
 
-	if len(deleteJobs.RealDeletes) > 0 {
+	if len(deleteJobs.Deletes) > 0 {
 
 		taskLabel := T("Jobs.User.Delete")
 		jobUuid := "delete-" + uuid.New()
-		q, _ := ptypes.MarshalAny(&tree.Query{
-			Paths: deleteJobs.RealDeletes,
-		})
 		job := &jobs.Job{
 			ID:             jobUuid,
 			Owner:          username,
@@ -420,10 +417,12 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			AutoClean:      true,
 			Actions: []*jobs.Action{
 				{
-					ID:         "actions.tree.delete",
-					Parameters: map[string]string{},
+					ID: "actions.tree.delete",
+					Parameters: map[string]string{
+						"scope": "owner",
+					},
 					NodesSelector: &jobs.NodesSelector{
-						Query: &service2.Query{SubQueries: []*any.Any{q}},
+						Pathes: deleteJobs.Deletes,
 					},
 				},
 			},

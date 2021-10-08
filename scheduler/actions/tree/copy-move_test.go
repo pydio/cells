@@ -69,9 +69,9 @@ func TestCopyMoveAction_Init(t *testing.T) {
 			},
 		})
 		So(e, ShouldBeNil)
-		So(action.TargetPlaceholder, ShouldEqual, "target/path")
-		So(action.CreateFolder, ShouldBeTrue)
-		So(action.Move, ShouldBeTrue)
+		So(action.targetPlaceholder, ShouldEqual, "target/path")
+		So(action.createFolder, ShouldBeTrue)
+		So(action.move, ShouldBeTrue)
 
 	})
 }
@@ -97,7 +97,7 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 		mock := &views.HandlerMock{
 			Nodes: map[string]*tree.Node{"path/to/original": originalNode},
 		}
-		action.Client = mock
+		action.PresetHandler(mock)
 		status := make(chan string, 10000)
 		progress := make(chan float32, 10000)
 
@@ -144,7 +144,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 				"path/to/original": originalNode,
 			},
 		}
-		action.Client = mock
+		action.PresetHandler(mock)
 
 		action.Init(job, nil, &jobs.Action{
 			Parameters: map[string]string{
@@ -192,7 +192,7 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		mock := &views.HandlerMock{
 			Nodes: map[string]*tree.Node{"path/to/original": originalNode},
 		}
-		action.Client = mock
+		action.PresetHandler(mock)
 		action.Init(job, nil, &jobs.Action{
 			Parameters: map[string]string{
 				"target": "target/path/moved",

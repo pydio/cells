@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/nicksnyder/go-i18n/i18n"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
@@ -28,7 +29,7 @@ type (
 )
 
 const (
-	// Consider move takes 1s per 100MB of data to copy
+	// Consider move takes 1s per 100 MB of data to copy
 	lockExpirationRatioSize   = 1024 * 1024 * 100
 	lockExpirationRatioNumber = 25
 )
@@ -72,9 +73,17 @@ func extractDSFlat(ctx context.Context, handler Handler, sourceNode, targetNode 
 	return
 }
 
+// is403 checks if error is not nil and has code 403
+func is403(e error) bool {
+	if e == nil {
+		return false
+	}
+	return errors.Parse(e.Error()).Code == 403
+}
+
 // CopyMoveNodes performs a recursive copy or move operation of a node to a new location. It can be inter- or intra-datasources.
 // It will eventually pass contextual metadata like X-Pydio-Session (to batch event inside the SYNC) or X-Pydio-Move (to
-// reconciliate creates and deletes when move is done between two differing datasources).
+// reconcile creates and deletes when move is done between two differing datasources).
 func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, targetNode *tree.Node, move bool, isTask bool, statusChan chan string, progressChan chan float32, tFunc ...i18n.TranslateFunc) (oErr error) {
 
 	innerFlat, sourceFlat, targetFlat := extractDSFlat(ctx, router, sourceNode, targetNode)
@@ -117,7 +126,6 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 	}()
 
-	// TODO - should be its own function really ?
 	publishError := func(dsName, errorPath string) {
 		client.Publish(context.Background(), client.NewPublication(common.TopicIndexEvent, &tree.IndexEvent{
 			ErrorDetected:  true,
@@ -236,9 +244,9 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 			children = append(children, child.Node)
 		}
 		if statErrors > 0 {
-			// There are some missing childrens, this copy/move operation will fail - interrupt now
+			// There are some missing children, this copy/move operation will fail - interrupt now
 			publishError(sourceDs, sourceNode.Path)
-			return fmt.Errorf("Errors found while copy/move node, stopping")
+			return fmt.Errorf("errors found while copy/move node, stopping")
 		}
 
 		if len(children) > 0 {
@@ -300,7 +308,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 		t := time.Now()
 		var lastNode *tree.Node
-		var errors []error
+		var errs []error
 		progress := &copyPgReader{
 			progressChan: progressChan,
 			total:        totalSize,
@@ -322,8 +330,11 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 					defer wg.Done()
 				}()
 				e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, false, childNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
-				if e != nil {
-					errors = append(errors, e)
+				if is403(e) {
+					childrenMoved++
+					taskLogger.Info("-- Ignoring " + childNode.Path + " (" + e.Error() + ")")
+				} else if e != nil {
+					errs = append(errs, e)
 				} else {
 					childrenMoved++
 					taskLogger.Info("-- Copy/Move Success for " + childNode.Path)
@@ -332,17 +343,21 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 
 		}
 		wg.Wait()
-		if len(errors) > 0 {
-			panic(errors[0])
+		if len(errs) > 0 {
+			panic(errs[0])
 		}
 		if lastNode != nil {
 			// Now process very last node
 			e := processCopyMove(ctx, router, session, move, crossDs, sourceDs, targetDs, sourceFlat, targetFlat, true, lastNode, prefixPathSrc, prefixPathTarget, targetDsPath, logger, publishError, statusChan, progress, tFunc...)
-			if e != nil {
+			if is403(e) {
+				childrenMoved++
+				taskLogger.Info("-- Ignoring " + lastNode.Path + " (" + e.Error() + ")")
+			} else if e != nil {
 				panic(e)
+			} else {
+				childrenMoved++
+				taskLogger.Info("-- Copy/Move Success for " + lastNode.Path)
 			}
-			childrenMoved++
-			taskLogger.Info("-- Copy/Move Success for " + lastNode.Path)
 		}
 		log.Logger(ctx).Info("Recursive copy operation timing", zap.Duration("duration", time.Now().Sub(t)))
 
@@ -502,6 +517,10 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 			Metadata: meta,
 			Progress: progress,
 		})
+		if is403(e) {
+			logger.Warn("-- Copy Ignored", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+			return e
+		}
 		if e != nil {
 			logger.Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
 			publishError(sourceDs, childNode.Path)
@@ -531,7 +550,11 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 					log.Logger(ctx).Error("---- Could not Revert", zap.Error(revertErr), justCopied.Zap())
 				}
 			}
-			publishError(sourceDs, childNode.Path)
+			if is403(moveErr) {
+				moveErr = fmt.Errorf("some original objects are not allowed to be deleted") // replace by a non-403 to trigger error
+			} else {
+				publishError(sourceDs, childNode.Path)
+			}
 			return moveErr
 		}
 		logger.Debug("-- Delete Success " + childNode.Path)

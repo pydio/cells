@@ -141,7 +141,7 @@ func (a *ArchiveReader) ListChildrenZip(ctx context.Context, archiveNode *tree.N
 			Path:  archiveNode.Path + "/" + innerPath,
 			Size:  int64(file.UncompressedSize64),
 			Type:  nodeType,
-			MTime: file.ModTime().Unix(),
+			MTime: file.Modified.Unix(),
 		}
 		results = append(results, node)
 		if isStat {
@@ -253,6 +253,9 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(fName, "/")))
 		if file.FileInfo().IsDir() {
 			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
+			if is403(e) {
+				continue
+			}
 			if e != nil {
 				return e
 			}
@@ -273,6 +276,9 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 			}
 
 			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &PutRequestData{Size: int64(file.UncompressedSize64)})
+			if is403(err) {
+				continue
+			}
 			if err != nil {
 				return err
 			}
@@ -497,6 +503,9 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 		pa := path.Join(targetNode.GetPath(), path.Clean("/"+strings.TrimSuffix(fName, "/")))
 		if file.FileInfo().IsDir() {
 			_, e := a.Router.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: pa, Type: tree.NodeType_COLLECTION}})
+			if is403(e) {
+				continue
+			}
 			if e != nil {
 				return e
 			}
@@ -510,6 +519,9 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 				return fmt.Errorf("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
 			}
 			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &PutRequestData{Size: file.Size})
+			if is403(err) {
+				continue
+			}
 			if err != nil {
 				return err
 			}

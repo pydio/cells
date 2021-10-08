@@ -45,17 +45,7 @@ func init() {
 
 }
 
-var router *views.Router
-
-// getRouter lazy-loads a router
-func getRouter() *views.Router {
-	if router == nil {
-		router = views.NewStandardRouter(views.RouterOptions{AdminView: true})
-	}
-	return router
-}
-
-func computeTargetName(ctx context.Context, dirPath string, base string, extension ...string) string {
+func computeTargetName(ctx context.Context, handler views.Handler, dirPath string, base string, extension ...string) string {
 	ext := ""
 	if len(extension) > 0 {
 		ext = "." + extension[0]
@@ -63,7 +53,7 @@ func computeTargetName(ctx context.Context, dirPath string, base string, extensi
 	index := 0
 	// List current siblings, do not use ReadNode as ReadNode(toto.zip) does exists
 	var children []string
-	if s, err := getRouter().ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: dirPath}, Recursive: false}); err == nil {
+	if s, err := handler.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: dirPath}, Recursive: false}); err == nil {
 		defer s.Close()
 		for {
 			r, e := s.Recv()

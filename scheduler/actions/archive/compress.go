@@ -27,15 +27,16 @@ import (
 	"path"
 	"strings"
 
+	"github.com/micro/go-micro/client"
 	json "github.com/pydio/cells/x/jsonx"
 
-	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/scheduler/actions/tools"
 	"go.uber.org/zap"
 )
 
@@ -52,6 +53,7 @@ const (
 
 // CompressAction implements compression. Currently, it supports zip, tar and tar.gz formats.
 type CompressAction struct {
+	tools.ScopedRouterConsumer
 	Format     string
 	TargetName string
 
@@ -115,7 +117,7 @@ func (c *CompressAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *CompressAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *CompressAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
 	if format, ok := action.Parameters["format"]; ok {
 		c.Format = format
 	} else {
@@ -124,6 +126,7 @@ func (c *CompressAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	if target, ok := action.Parameters["target"]; ok {
 		c.TargetName = target
 	}
+	c.ParseScope(job.Owner, action.Parameters)
 	return nil
 }
 
@@ -136,9 +139,14 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	nodes := input.Nodes
 	log.Logger(ctx).Debug("Compress to : " + c.Format)
 
+	c2, handler, e := c.GetHandler(ctx)
+	if e != nil {
+		return input.WithError(e), e
+	}
+	ctx = c2
 	// Assume Target is root node sibling
 	compressor := &views.ArchiveWriter{
-		Router: getRouter(),
+		Router: handler,
 	}
 	if c.filter != nil {
 		compressor.WalkFilter = func(ctx context.Context, node *tree.Node) bool {
@@ -178,7 +186,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	// Remove extension
 	base = strings.TrimSuffix(base, "."+format)
-	targetFile := computeTargetName(ctx, dir, base, format)
+	targetFile := computeTargetName(ctx, handler, dir, base, format)
 
 	reader, writer := io.Pipe()
 
@@ -197,7 +205,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 	}()
 
-	getRouter().PutObject(ctx, &tree.Node{Path: targetFile}, reader, &views.PutRequestData{Size: -1})
+	handler.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &views.PutRequestData{Size: -1})
 
 	if err != nil {
 		log.TasksLogger(ctx).Error("Error PutObject", zap.Error(err))
@@ -212,7 +220,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Reload node
 	output := input
-	resp, err := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetFile}})
+	resp, err := handler.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetFile}})
 	if err == nil {
 		output = input.WithNode(resp.Node)
 		output.AppendOutput(&jobs.ActionOutput{

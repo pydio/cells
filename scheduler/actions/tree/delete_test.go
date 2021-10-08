@@ -41,9 +41,8 @@ func TestDeleteAction_GetName(t *testing.T) {
 func TestDeleteAction_Init(t *testing.T) {
 	Convey("", t, func() {
 		action := &DeleteAction{}
-		job := &jobs.Job{}
+		job := &jobs.Job{Owner: "owner"}
 		action.Init(job, nil, &jobs.Action{})
-		So(action.Client, ShouldNotBeNil)
 	})
 }
 
@@ -57,7 +56,7 @@ func TestDeleteAction_Run(t *testing.T) {
 		mock := &views.HandlerMock{
 			Nodes: map[string]*tree.Node{"/test": {Path: "/test", Type: tree.NodeType_LEAF}},
 		}
-		action.Client = mock
+		action.PresetHandler(mock)
 		status := make(chan string)
 		progress := make(chan float32)
 
@@ -67,7 +66,7 @@ func TestDeleteAction_Run(t *testing.T) {
 		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
 
 		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
-			Nodes: []*tree.Node{&tree.Node{
+			Nodes: []*tree.Node{{
 				Path: "/test",
 			}},
 		})

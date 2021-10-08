@@ -110,6 +110,11 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 			header.SetMode(0777)
 			header.Modified = n.GetModTime()
 			r, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
+			if is403(e1) {
+				// IGNORE
+				log.Logger(ctx).Debug("Ignoring file for archive: ", zap.String("path", internalPath), zap.Any("node", n), zap.Error(e1))
+				return nil
+			}
 			if e1 != nil {
 				log.Logger(ctx).Error("Error while getting object, will not be appended to archive", zap.String("path", n.Path), zap.Error(e1))
 				return e1
@@ -187,17 +192,22 @@ func (w *ArchiveWriter) TarSelection(ctx context.Context, output io.Writer, gzip
 				header.Typeflag = tar.TypeReg
 			}
 			log.Logger(ctx).Debug("Adding file to archive: ", zap.String("path", internalPath), zap.Any("node", n))
-			e := tw.WriteHeader(header)
-			if e != nil {
-				log.Logger(ctx).Error("Error while creating path", zap.String("path", internalPath), zap.Error(e))
-				return e
-			}
 			reader, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
+			if is403(e1) {
+				log.Logger(ctx).Debug("Ignore file to archive: ", zap.String("path", internalPath), zap.Any("node", n), zap.Error(e1))
+				return nil
+			}
 			if e1 != nil {
 				log.Logger(ctx).Error("Error while getting object and writing to tarball", zap.String("path", internalPath), zap.Error(e1))
 				return e1
 			}
 			defer reader.Close()
+
+			e := tw.WriteHeader(header)
+			if e != nil {
+				log.Logger(ctx).Error("Error while creating path", zap.String("path", internalPath), zap.Error(e))
+				return e
+			}
 
 			size, _ := io.Copy(tw, reader)
 			totalSizeWritten += size
