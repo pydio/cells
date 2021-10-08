@@ -254,7 +254,7 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return encoder.AddObject("DataSource", &s.DataSource)
 }
 
-func WalkFilterSkipPydioHiddenFile(ctx context.Context, node *tree.Node) bool {
+func WalkFilterSkipPydioHiddenFile(_ context.Context, node *tree.Node) bool {
 	return !strings.HasSuffix(node.Path, common.PydioSyncHiddenFile)
 }
 

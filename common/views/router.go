@@ -299,6 +299,7 @@ func (v *Router) CanApply(ctx context.Context, operation *tree.NodeChangeEvent) 
 }
 
 // To respect Handler interface
+
 func (v *Router) SetNextHandler(Handler)     {}
 func (v *Router) SetClientsPool(SourcesPool) {}
 

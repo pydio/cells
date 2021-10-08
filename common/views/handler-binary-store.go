@@ -144,6 +144,7 @@ func (a *BinaryStoreHandler) GetObject(ctx context.Context, node *tree.Node, req
 ///////////////////////////////
 // THIS STORE IS NOT WRITEABLE
 ///////////////////////////////
+
 func (a *BinaryStoreHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
 	if a.isStorePath(in.Node.Path) {
 		return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Forbidden store")

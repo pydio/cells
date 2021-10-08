@@ -27,10 +27,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/forms"
-
 	"github.com/micro/go-micro/client"
 
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
@@ -79,20 +78,20 @@ type ActionDescription struct {
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
 type ConcreteAction interface {
 
-	// Unique identifier
+	// GetName returns a unique identifier
 	GetName() string
-	// Pass parameters
+	// Init initialize parameters
 	Init(job *jobs.Job, cl client.Client, action *jobs.Action) error
-	// Run the actual action code
+	// Run performs the actual action code
 	Run(ctx context.Context, channels *RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error)
 }
 
-// Actions that implement this interface can send their status updates to a parent task
+// TaskUpdaterDelegateAction Actions that implement this interface can send their status updates to a parent task
 type TaskUpdaterDelegateAction interface {
 	SetTask(task *jobs.Task)
 }
 
-// Actions that implement this interface will publish progress updates on the progress channel.
+// ProgressProviderAction Actions that implement this interface will publish progress updates on the progress channel.
 type ProgressProviderAction interface {
 	ProvidesProgress() bool
 }
@@ -103,13 +102,13 @@ type DescriptionProviderAction interface {
 	GetParametersForm() *forms.Form
 }
 
-// Actions that implement this interface can eventually be stopped and/or paused+resumed
+// ControllableAction Actions that implement this interface can eventually be stopped and/or paused+resumed
 type ControllableAction interface {
 	CanPause() bool
 	CanStop() bool
 }
 
-// Actions that implement this interface may perform some recursive nodes listing internally.
+// RecursiveNodeWalkerAction Actions that implement this interface may perform some recursive nodes listing internally.
 // If the action definition has a NodeFilter set, pass this along to the running instance to
 // filter nodes on the go.
 type RecursiveNodeWalkerAction interface {

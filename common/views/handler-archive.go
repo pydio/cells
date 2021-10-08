@@ -59,7 +59,7 @@ func NewArchiveHandler() *ArchiveHandler {
 	return a
 }
 
-// Override the response of GetObject if it is sent on a folder key : create an archive on-the-fly.
+// GetObject overrides the response of GetObject if it is sent on a folder key : create an archive on-the-fly.
 func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
 
 	originalPath := node.Path
@@ -109,8 +109,8 @@ func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, request
 		} else if testFolder := a.archiveFolderName(originalPath); len(testFolder) > 0 {
 			// Send a ReadNodeRequest.ObjectStats on folder to check for specific download permission
 			if _, e := a.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
-				Path: testFolder,
-				MetaStore: map[string]string{"acl-check-download":"true"},
+				Path:      testFolder,
+				MetaStore: map[string]string{"acl-check-download": "true"},
 			}}); e != nil {
 				return nil, e
 			}
@@ -127,7 +127,7 @@ func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, request
 
 }
 
-// Override the response of ReadNode to create a fake stat for archive file
+// ReadNode overrides the response of ReadNode to create a fake stat for archive file
 func (a *ArchiveHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 	originalPath := in.Node.Path
 

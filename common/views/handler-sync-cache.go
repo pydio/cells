@@ -257,7 +257,7 @@ func (s *SynchronousCacheHandler) ListNodes(ctx context.Context, in *tree.ListNo
 				}
 				wrap.Send(resp)
 			}
-			for key, _ := range diff.Adds {
+			for key := range diff.Adds {
 				if child, ok := s.cacheGet(ctx, key); ok {
 					wrap.Send(&tree.ListNodesResponse{Node: child})
 				}

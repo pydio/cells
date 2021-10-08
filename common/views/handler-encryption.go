@@ -597,7 +597,7 @@ func (e *EncryptionHandler) getNodeInfoForRead(ctx context.Context, node *tree.N
 	if err != nil {
 		return nil, 0, 0, 0, err
 	}
-	return rsp.NodeInfo, int64(rsp.EncryptedOffset), int64(rsp.EncryptedCount), rsp.HeadSKippedPlainBytesCount, nil
+	return rsp.NodeInfo, rsp.EncryptedOffset, rsp.EncryptedCount, rsp.HeadSKippedPlainBytesCount, nil
 }
 
 func (e *EncryptionHandler) getNodeInfoForWrite(ctx context.Context, node *tree.Node) (*encryption.NodeInfo, error) {

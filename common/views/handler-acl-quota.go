@@ -338,7 +338,7 @@ func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.W
 		log.Logger(ctx).Debug("Found Quota", zap.Any("q", maxQuota), zap.Any("roots", detectedRoots))
 		treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 		resolver := GetVirtualNodesManager().GetResolver(a.clientsPool, false)
-		for nodeId, _ := range detectedRoots {
+		for nodeId := range detectedRoots {
 			var rootNode *tree.Node
 			if n, o := resolver(ctx, &tree.Node{Uuid: nodeId}); o {
 				rootNode = n

@@ -26,7 +26,7 @@ import (
 	"io"
 
 	"github.com/micro/go-micro/client"
-	minio "github.com/pydio/minio-go"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 

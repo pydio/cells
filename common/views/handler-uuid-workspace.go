@@ -77,7 +77,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
 				accessList.ReplicateBitmask(vNode.Uuid, resolvedRoot.Uuid)
 				for _, roots := range accessList.GetWorkspacesNodes() {
-					for rootId, _ := range roots {
+					for rootId := range roots {
 						if rootId == vNode.Uuid {
 							delete(roots, vNode.Uuid)
 							roots[resolvedRoot.Uuid] = aclNodeMask

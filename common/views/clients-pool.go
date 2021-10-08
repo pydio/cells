@@ -30,7 +30,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
-	cache "github.com/patrickmn/go-cache"
+	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -44,7 +44,6 @@ import (
 )
 
 var (
-	clientWithRetriesOnce    = &sync.Once{}
 	ancestorsCacheExpiration = 800 * time.Millisecond
 	ancestorsParentsCache    = cache.New(ancestorsCacheExpiration, 5*time.Second)
 	ancestorsNodesCache      = cache.New(ancestorsCacheExpiration, 5*time.Second)
@@ -174,7 +173,7 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 
 		e := fmt.Errorf("Could not find DataSource " + dsName)
 		var keys []string
-		for k, _ := range p.sources {
+		for k := range p.sources {
 			keys = append(keys, k)
 		}
 		log.Logger(context.Background()).Error(e.Error(), zap.Strings("currentSources", keys))
@@ -287,7 +286,7 @@ func (p *ClientsPool) watchConfigChanges() {
 	}
 }
 
-func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSource *object.DataSource, registerKey ...string) error {
+func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSource *object.DataSource) error {
 
 	log.Logger(context.Background()).Debug("Adding dataSource", zap.String("dsname", dataSourceName))
 	p.Lock()
@@ -299,14 +298,4 @@ func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSour
 
 	p.sources[dataSourceName] = loaded
 	return nil
-}
-
-func filterServices(vs []registry.Service, f func(string) bool) []string {
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if f(v.Name()) {
-			vsf = append(vsf, v.Name())
-		}
-	}
-	return vsf
 }

@@ -151,12 +151,12 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
 
 	resolved := &tree.Node{}
-	userName, claim := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
+	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
 		return nil, errors.New("claims.not.found", "No Claims found in context", 500)
 	}
-	resolved, e := m.resolvePathWithClaims(ctx, vNode, claim, clientsPool)
+	resolved, e := m.resolvePathWithClaims(ctx, vNode, claims, clientsPool)
 	if e != nil {
 		return nil, e
 	}
@@ -264,7 +264,7 @@ func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 			log.Logger(ctx).Debug("Clientspool.clients is empty! reload datasources now!")
 			clientsPool.LoadDataSources()
 		}
-		for key, _ := range clientsPool.GetDataSources() {
+		for key := range clientsPool.GetDataSources() {
 			datasourceKeys[key] = key
 		}
 		in := map[string]interface{}{

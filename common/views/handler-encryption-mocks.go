@@ -251,7 +251,7 @@ func (m *mockNodeKeyManagerClient) CopyNodeInfo(ctx context.Context, in *encrypt
 func (m *mockNodeKeyManagerClient) DeleteNode(ctx context.Context, in *encryption.DeleteNodeRequest, opts ...client.CallOption) (*encryption.DeleteNodeResponse, error) {
 	var entriesToDelete []string
 
-	for entry, _ := range m.keys {
+	for entry := range m.keys {
 		if strings.HasSuffix(entry, fmt.Sprintf(":%s", in.NodeId)) {
 			entriesToDelete = append(entriesToDelete, entry)
 		}
