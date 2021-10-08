@@ -197,6 +197,13 @@ func init() {
 			}
 		}
 
+		// Reversing array so that the update is in the correct position
+		if totalMPathFrom < totalMPathTo {
+			for i, j := 0, len(mpathSub)-1; i < j; i, j = i+j, j-1 {
+				mpathSub[i], mpathSub[j] = mpathSub[j], mpathSub[i]
+			}
+		}
+
 		if hash := dao.Hash("mpath1", "mpath2", "mpath3", "mpath4"); hash != "" {
 			mpathSub = append(mpathSub, `hash = `+hash)
 		}
