@@ -6,7 +6,7 @@ FYI, we use Github only for "qualified bugs" : bugs that are easily reproduced, 
 
 So, what should I do in case of:
 
-- **Install or upgrade issue?**  Search the [F.A.Q](https://pydio.com/en/docs/faq)  or [READ THE DOCS](https://pydio.com/en/docs)  
+- **Install or upgrade issue?**  Search the [F.A.Q](https://pydio.com/en/docs/faq)  or [READ THE DOCS](https://pydio.com/en/docs)
 - **No answer yet?** Search the [FORUM](https://forum.pydio.com)
 - **Still stuck?** It's time to ask the community via the [FORUM](https://forum.pydio.com)
 
@@ -23,8 +23,8 @@ If you report an issue (either on the forum or upon request by submitting a gith
 - Pydio Cells version
 - Switch to debug mode by starting Pydio Cells with `$ ./cells --log debug start` and attach relevant log to your request
 - Describe steps and provide files to help us reproduce the bug
-- Attach any screenshot that might be relevant 
-- If you are referring to a discussion on the Forum, add the link. 
+- Attach any screenshot that might be relevant
+- If you are referring to a discussion on the Forum, add the link.
 
 _Remember: the more info you give, the more easily we can reproduce the bug, the quicker we can fix it._
 
@@ -64,8 +64,8 @@ log.Logger(context.Background()).Debug...
 ```
 
 - Error should always use the Error level: `log.Logger(ctx).Error(...)`
-- In Go, it is idiomatic to start error message with a lower case.  
-  For instance rather use `log.Logger(ctx).Error("unable to save file")`  
+- In Go, it is idiomatic to start error message with a lower case.
+  For instance rather use `log.Logger(ctx).Error("unable to save file")`
   than `log.Logger(ctx).Error("Unable to save file")`
 
 ### Comments
@@ -95,7 +95,7 @@ Fork [Pydio Cells](https://github.com/pydio/cells/fork) source repository to you
 mkdir -p $GOPATH/src/github.com/pydio
 cd $GOPATH/src/github.com/pydio
 git clone <the URL you just copied>
-cd pydio
+cd cells
 ```
 
 ### Set up git remote as ``upstream``

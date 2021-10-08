@@ -28,3 +28,5 @@ discovery/metrics
 *.ank
 /cmd/jobs-*
 
+# Gwyn's settings for her Nova editor
+.nova
