@@ -32,6 +32,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/client"
+
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
@@ -114,8 +116,8 @@ func (m *PutHandler) getOrCreatePutNode(ctx context.Context, nodePath string, re
 
 }
 
-// CreateParent Recursively create parents
-func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
+// createParentIfNotExist Recursively create parents
+func (m *PutHandler) createParentIfNotExist(ctx context.Context, node *tree.Node) error {
 	parentNode := node.Clone()
 	parentNode.Path = path.Dir(node.Path)
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
@@ -124,7 +126,7 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 	parentNode.SetMeta(common.MetaNamespaceDatasourcePath, path.Dir(parentNode.GetStringMeta(common.MetaNamespaceDatasourcePath)))
 	parentNode.Type = tree.NodeType_COLLECTION
 	if _, e := m.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
-		if er := m.CreateParent(ctx, parentNode); er != nil {
+		if er := m.createParentIfNotExist(ctx, parentNode); er != nil {
 			return er
 		}
 		if r, er2 := m.next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode}); er2 != nil {
@@ -134,7 +136,7 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 			}
 			return er2
 		} else if r != nil {
-			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
+			log.Logger(ctx).Info("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
 			// As we are not going through the real FS, make sure to normalize now the file path
 			tmpNode := &tree.Node{
 				Uuid:  r.Node.Uuid,
@@ -145,7 +147,7 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 				Etag:  "-1",
 			}
 			treeWriter := m.clientsPool.GetTreeClientWrite()
-			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
+			log.Logger(ctx).Info("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 			if er != nil {
 				parsedErr := errors.Parse(er.Error())
@@ -157,6 +159,18 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 		}
 	}
 	return nil
+}
+
+// CreateNode recursively creates parents if they do not already exist
+// Only applicable to COLLECTION inside a structured storage (need to create .pydio hidden files)
+func (m *PutHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
+	if info, ok := GetBranchInfo(ctx, "in"); ok && (info.FlatStorage || info.Binary || info.IsInternal()) || in.Node.IsLeaf() {
+		return m.next.CreateNode(ctx, in, opts...)
+	}
+	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone()); e != nil {
+		return nil, e
+	}
+	return m.next.CreateNode(ctx, in, opts...)
 }
 
 func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
@@ -176,7 +190,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 		return m.next.PutObject(ctx, node, reader, requestData)
 	}
 
-	if e := m.CreateParent(ctx, node); e != nil {
+	if e := m.createParentIfNotExist(ctx, node); e != nil {
 		return 0, e
 	}
 
