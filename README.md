@@ -57,21 +57,23 @@ When you clone the `github.com/pydio/cells` repository, you then also have an em
 
 Please also note that we had to fork a few libraries before integrating them as dependencies, the most important one being [`minio`](https://github.com/minio/minio). If you need to modify this part of the code, please get in touch with us.
 
-Finally, please take into account that Go versions starting with 1.16 and beyond [automatically assume a modules-based configuration](https://go.dev/blog/go116-module-changes). Therefore, you **must** force Go to use the non-module-aware compilation strategy, which requires setting the environment variable `GO111MODULE` to `off`. Under `bash` this is accomplished with:
+Finally, please take into account that Go versions starting with 1.16 and beyond [automatically assume a modules-based configuration](https://go.dev/blog/go116-module-changes), even if there is _no_ `go.mod` or `go.sum` present in the folder (which will be created from scratch). Therefore, you **must** force Go to use the non-module-aware compilation strategy, which requires setting the environment variable `GO111MODULE` to `auto`: that way, _if_ there is no `go.mod` on a directory, Go will revert to the old-style, non-module-aware compilation. If in the future modules are implemented, then `auto` will activate the module-aware compilation mode whenever it finds a `go.mod` on a directory.
+
+Under `bash` this is accomplished with:
 
 ```sh
-export GO111MODULE=off
+export GO111MODULE=auto
 ```
 
 Set it _before_ you start the compilation process!
 
-You can also force Go to _always_ compile without modules, using the following command:
+You can also force Go to compile without modules, using the following command:
 
 ```sh
 go env -w GO111MODULE=auto
 ```
 
-but keep in mind that this will apply to _all_ of your Go compilations, not only Pydio Cells!
+but keep in mind that this will be set _globally_ and thus apply to _all_ your Go compilations, not only Pydio Cells!
 
 ## Running the tests
 
