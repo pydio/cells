@@ -158,7 +158,7 @@
   "Default sorting direction": {
     "other": "Hướng mặc định để sắp xếp"
   },
-  "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
+  "Delegates download operations to an alternative agent, either webserver or Pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
     "other": "Ủy quyền các hoạt động tải xuống cho một tác nhân thay thế, một máy chủ web hoặc một tác nhân pydio. Hãy cẩn thận, điều này yêu cầu các mô-đun khách phải được cài đặt. Khi sử dụng XSendFile / XaccelRedirect, bạn phải thêm thủ công các thư mục nơi tệp sẽ được tải xuống trong cài đặt mô-đun"
   },
   "Descending": {
@@ -275,8 +275,8 @@
   "If activated, a default limit should be set above when files are no more compressed.": {
     "other": "Nếu được kích hoạt, giới hạn mặc định sẽ được đặt ở trên khi tệp không được nén nữa."
   },
-  "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "Nếu nó không được suy ra trực tiếp từ URL pydio hiện tại cộng với URI cơ sở công khai, thì hãy thay thế URL truy cập công khai tại đây."
+  "If not inferred directly from the current Pydio URL plus the public base URI, replace the public access URL here.": {
+    "other": "Nếu nó không được suy ra trực tiếp từ URL Pydio hiện tại cộng với URI cơ sở công khai, thì hãy thay thế URL truy cập công khai tại đây."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
     "other": "Nếu được đặt thành một URL nhất định, hành động đăng nhập sẽ không kích hoạt hiển thị màn hình đăng nhập mà chuyển hướng đến URL này."

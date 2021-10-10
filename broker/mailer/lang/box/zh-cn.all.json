@@ -216,10 +216,10 @@
     "other": "SendGrid 服务"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api 密钥"
+    "other": "API 密钥"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "连接 SendGrid 的 Api 密钥"
+    "other": "连接 SendGrid 的 API 密钥"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "邮件程序"

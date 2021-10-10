@@ -135,7 +135,7 @@
     "other": "远程存储数据源将通过远程、兼容 S3 存储的文件服务来代理所有请求而提供文件服务。"
   },
   "ds.editor.legend.s3.2": {
-    "other": "使用标准的 API Key/ Api Secret进行身份验证，使用官方Amazon S3则将URL留空， 或填写您自己的S3兼容存储的URL。"
+    "other": "使用标准的 API Key/ API Secret进行身份验证，使用官方Amazon S3则将URL留空， 或填写您自己的S3兼容存储的URL。"
   },
   "ds.editor.storage.legend.fs": {
     "other": "Browse data from a local or network-attached file system."
@@ -252,7 +252,7 @@
     "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is MacOSX"
+    "other": "Operating System is macOS"
   },
   "ds.editor.storage.azure.api": {
     "other": "Azure Account Name"
@@ -270,7 +270,7 @@
     "other": "存储空间名"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 Api Key"
+    "other": "S3 API Key"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "存储空间名"
@@ -288,13 +288,13 @@
     "other": "Leave empty for Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 Api 地域"
+    "other": "S3 API 地域"
   },
   "ds.editor.storage.s3.path": {
     "other": "Internal Path"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 Api Secret"
+    "other": "S3 API Secret"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Select one or more buckets"

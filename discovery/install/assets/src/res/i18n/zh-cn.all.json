@@ -120,7 +120,7 @@
     "other": "主机名"
   },
   "form.dbTCPHostname.legend": {
-    "other": "运行 mysql 的服务器"
+    "other": "运行 MySQL的服务器"
   },
   "form.dbName.label": {
     "other": "数据库名称"
@@ -132,7 +132,7 @@
     "other": "端口"
   },
   "form.dbTCPPort.legend": {
-    "other": "连接到 mysql 的端口"
+    "other": "连接到 MySQL的端口"
   },
   "form.dbUser.label": {
     "other": "数据库用户"
@@ -210,13 +210,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 API Key"
   },
   "form.dsS3ApiKey.legend": {
     "other": "连接到 S3 的Key"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 API Secret"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "密钥"

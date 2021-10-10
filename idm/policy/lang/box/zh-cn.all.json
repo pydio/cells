@@ -30,7 +30,7 @@
     "other": "登录用户和管理员访问权限"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "决定用户/共享用户/管理员如何访问Rest APIs的标准"
+    "other": "决定用户/共享用户/管理员如何访问REST APIs的标准"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
     "other": "完全的 REST 访问管理配置文件"

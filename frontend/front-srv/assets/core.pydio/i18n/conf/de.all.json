@@ -158,7 +158,7 @@
   "Default sorting direction": {
     "other": "Standard-Reihenfolge in der die Daten angezeigt werden"
   },
-  "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
+  "Delegates download operations to an alternative agent, either webserver or Pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
     "other": "Delegiert Download-Operationen an einen alternativen Agent (Webserver oder Pydio-Agent). Achtung, dies erfordert ein externes Modul. Mit 'XSendFile/XaccelRedirect' müssen die Download-Ordner manuell in der Modul-Konfiguration hinterlegt werden."
   },
   "Descending": {
@@ -275,7 +275,7 @@
   "If activated, a default limit should be set above when files are no more compressed.": {
     "other": "Dateien die größer sind werden nicht mehr komprimiert. Einschränkung sollte für gute Geschwindigkeit verwendet werden."
   },
-  "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
+  "If not inferred directly from the current Pydio URL plus the public base URI, replace the public access URL here.": {
     "other": "Tragen Sie hier die URL für öffentliche Links ein, falls diese nicht 'Server-URL' + 'Base-URI' ist."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {

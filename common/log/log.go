@@ -157,7 +157,7 @@ func Init() {
 							}
 							fields = append(fields, zap.String(exp, parsed[i]))
 						}
-						logger.Named(common.ServiceMicroApi).Debug("Rest Api Call", fields...)
+						logger.Named(common.ServiceMicroApi).Debug("Rest API Call", fields...)
 					} else if strings.Contains(line, "[DEV NOTICE]") {
 						logger.Named(common.ServiceGatewayProxy).Debug(line)
 					} else {

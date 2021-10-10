@@ -135,7 +135,7 @@
     "other": "Attālinātas glabāšanas datu avoti sniegs datus no attālināta, s3 savietojama datu avota pastarpinot visus pieprasījumus."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Izmantot standarta API atslēgu /Api paroli autentifikācijai, priekš AmazonS3 atstājiet tukšu mērķa saiti vai lietojiet jūsu glabātuves saiti priekš citiem jūsu risinājumiem."
+    "other": "Izmantot standarta API atslēgu /API paroli autentifikācijai, priekš AmazonS3 atstājiet tukšu mērķa saiti vai lietojiet jūsu glabātuves saiti priekš citiem jūsu risinājumiem."
   },
   "ds.editor.storage.legend.fs": {
     "other": "Browse data from a local or network-attached file system."
@@ -252,7 +252,7 @@
     "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "MacOSX operētājsistēma"
+    "other": "macOS operētājsistēma"
   },
   "ds.editor.storage.azure.api": {
     "other": "Azure konta nosaukums"
@@ -270,7 +270,7 @@
     "other": "Bucket nosaukums"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 Api atslēga"
+    "other": "S3 API atslēga"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Bucket nosaukums"
@@ -288,13 +288,13 @@
     "other": "Priekš Amazon S3 atstājiet tukšu"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 Api Region"
+    "other": "S3 API Region"
   },
   "ds.editor.storage.s3.path": {
     "other": "Iekšējais ceļš"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 Api Parole"
+    "other": "S3 API Parole"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Select one or more buckets"
@@ -1989,7 +1989,7 @@
     "other": "Parametri"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Dokumentācija"
+    "other": "REST APIs Dokumentācija"
   },
   "developer.rest.apis.legend": {
     "other": "Zemāk minēti visi API kuri ir pieejami Pydio. Lai izmantotu šos API vispirms ir jāveic autentifikācija ar OpenIDConnect servisu klai saņemti derīgu JWT. Vairāk skatīt tiešsaistē administratora rokasgrāmatā."

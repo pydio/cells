@@ -322,13 +322,13 @@ func setupS3Connection(c *install.InstallConfig) (buckets []string, canCreate bo
 	} else if s3CustomRegion != "" {
 		c.DsS3CustomRegion = strings.Trim(s3CustomRegion, " ")
 	}
-	pr = p.Prompt{Label: "Please enter S3 Api Key", Validate: notEmpty}
+	pr = p.Prompt{Label: "Please enter S3 API Key", Validate: notEmpty}
 	if apiKey, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {
 		c.DsS3ApiKey = strings.Trim(apiKey, " ")
 	}
-	pr = p.Prompt{Label: "Please enter S3 Api Secret", Validate: notEmpty, Mask: '*'}
+	pr = p.Prompt{Label: "Please enter S3 API Secret", Validate: notEmpty, Mask: '*'}
 	if apiSecret, e := pr.Run(); e != nil {
 		return buckets, canCreate, e
 	} else {

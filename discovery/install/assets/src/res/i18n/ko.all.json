@@ -120,7 +120,7 @@
     "other": "호스트명"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Server where mysql is running"
+    "other": "Server where MySQLis running"
   },
   "form.dbName.label": {
     "other": "데이터베이스 이름"
@@ -210,13 +210,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 Api Key"
+    "other": "S3 API Key"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Key to connect to S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 Api Secret"
+    "other": "S3 API Secret"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Secret Key"

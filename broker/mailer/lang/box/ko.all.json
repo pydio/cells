@@ -216,7 +216,7 @@
     "other": "SendGrid 서비스"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "Api 키"
+    "other": "API 키"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
     "other": "SendGrid 에서 서비스에 연결하기 위해 받은 API 키"

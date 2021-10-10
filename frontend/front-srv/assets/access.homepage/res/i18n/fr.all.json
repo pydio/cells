@@ -66,7 +66,7 @@
     "other": "iPhone / iPad"
   },
   "60": {
-    "other": "Mac OSX"
+    "other": "macOS"
   },
   "61": {
     "other": "Windows"
@@ -75,7 +75,7 @@
     "other": "<h2>[Tuto] Qu’est-ce qu’un workspace?</h2>\n            Cette vidéo explique pourquoi APPLICATION_TITLE est basé sur des Workspaces\n            <ul>\n                <li>Qu'est ce qu'un workspace dans APPLICATION_TITLE?</li>\n                <li>Qu’est-ce qu’un Workspace d’un point de vue technique?</li>\n                <li>En quoi permettent-ils d’organiser vos données?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[Tuto] Comment uploader des fichiers dans pydio ?</h2>\n            Pour débuter, découvrez comment uploader des fichiers dans APPLICATION_TITLE:\n            <ul>\n                <li>Faire Cliquer-Glisser des fichiers vers APPLICATION_TITLE</li>\n                <li>Créer un nouveau dossier</li>\n                <li>Renommer des fichiers et des dossiers</li>\n                <li>Télécharger des fichiers sur votre Desktop</li>\n            </ul>\n            "
+    "other": "<h2>[Tuto] Comment uploader des fichiers dans Pydio ?</h2>\n            Pour débuter, découvrez comment uploader des fichiers dans APPLICATION_TITLE:\n            <ul>\n                <li>Faire Cliquer-Glisser des fichiers vers APPLICATION_TITLE</li>\n                <li>Créer un nouveau dossier</li>\n                <li>Renommer des fichiers et des dossiers</li>\n                <li>Télécharger des fichiers sur votre Desktop</li>\n            </ul>\n            "
   },
   "64": {
     "other": "<h2>[Tuto] Rechercher, consulter et gérer vos fichiers</h2>\n            Cette vidéo vous montre différentes astuces pour gérer efficacement vos fichiers avec APPLICATION_TITLE\n            <ul>\n                <li>Barre de recherche Cross-Workspaces</li>\n                <li>Modes d’affichage du contenu</li>\n                <li>Raccourcis-claviers</li>\n                <li>Options de tri des fichiers</li>\n                <li>Meta-données, Favoris</li>\n            </ul>\n            "

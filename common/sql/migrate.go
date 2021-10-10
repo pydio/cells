@@ -235,7 +235,7 @@ func getMigrationDbMap(db *sql.DB, dialect string) (*gorp.DbMap, error) {
 		return nil, fmt.Errorf("Unknown dialect: %s", dialect)
 	}
 
-	// When using the mysql driver, make sure that the parseTime option is
+	// When using the MySQL driver, make sure that the parseTime option is
 	// configured, otherwise it won't map time columns to time.Time. See
 	// https://github.com/rubenv/sql-migrate/issues/2
 	if dialect == "mysql" {

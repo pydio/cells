@@ -194,12 +194,12 @@ func checkConnection(dsn string) error {
 }
 
 func getMysqlVersion(db *sql.DB) (string, error) {
-	// Here we check the version of mysql and the default charset
+	// Here we check the version of MySQL and the default charset
 	var version string
 	err := db.QueryRow("SELECT VERSION()").Scan(&version)
 	switch {
 	case err == sql.ErrNoRows:
-		return "", fmt.Errorf("Could not retrieve your mysql version - Please create the database manually and retry")
+		return "", fmt.Errorf("Could not retrieve your MySQL version - Please create the database manually and retry")
 	case err != nil:
 		return "", err
 	}

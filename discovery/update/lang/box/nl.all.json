@@ -6,7 +6,7 @@
     "other": "Server bijwerken"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL van de updateserver"
+    "other": "HTTP URL van de updateserver"
   },
   "Update.Config.PublicKey.Label": {
     "other": "Publieke sleutel"

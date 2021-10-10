@@ -135,7 +135,7 @@
     "other": "Las fuentes de datos de Almacenamiento Remoto proporcionarán archivos desde un almacenamiento remoto s3 operando como \"proxy\" de todas las peticiones."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Utilice la clave API estándar / Api Secret para autenticarse, dejar la URL vacía para AmazonS3 o utilizar su propia URL de almacenamiento para otras soluciones alojadas en sus sistemas locales."
+    "other": "Utilice la clave API estándar / API Secret para autenticarse, dejar la URL vacía para AmazonS3 o utilizar su propia URL de almacenamiento para otras soluciones alojadas en sus sistemas locales."
   },
   "ds.editor.storage.legend.fs": {
     "other": "Browse data from a local or network-attached file system."
@@ -252,7 +252,7 @@
     "other": "Nombre del directorio"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "El sistema operativo es MacOSX"
+    "other": "El sistema operativo es macOS"
   },
   "ds.editor.storage.azure.api": {
     "other": "Nombre de Usuario Azure"
@@ -270,7 +270,7 @@
     "other": "Nombre del Bucket"
   },
   "ds.editor.storage.s3.api": {
-    "other": "Clave Api S3"
+    "other": "Clave API S3"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Nombre del Bucket"
@@ -288,13 +288,13 @@
     "other": "Dejar vacío para Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "Región de Api S3"
+    "other": "Región de API S3"
   },
   "ds.editor.storage.s3.path": {
     "other": "Ruta Interna"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "Secreto Api S3"
+    "other": "Secreto API S3"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Seleccione uno o más cubos"

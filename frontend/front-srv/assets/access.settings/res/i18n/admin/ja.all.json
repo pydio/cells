@@ -252,7 +252,7 @@
     "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is MacOSX"
+    "other": "Operating System is macOS"
   },
   "ds.editor.storage.azure.api": {
     "other": "Azure Account Name"
@@ -288,13 +288,13 @@
     "other": "Leave empty for Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 Api Region"
+    "other": "S3 API Region"
   },
   "ds.editor.storage.s3.path": {
     "other": "Internal Path"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 Api Secret"
+    "other": "S3 API Secret"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Select one or more buckets"
@@ -1989,7 +1989,7 @@
     "other": "Parameters"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Documentation"
+    "other": "REST APIs Documentation"
   },
   "developer.rest.apis.legend": {
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."

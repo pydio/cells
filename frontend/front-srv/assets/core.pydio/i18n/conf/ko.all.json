@@ -158,8 +158,8 @@
   "Default sorting direction": {
     "other": "Default sorting direction"
   },
-  "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+  "Delegates download operations to an alternative agent, either webserver or Pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
+    "other": "Delegates download operations to an alternative agent, either webserver or Pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
   },
   "Descending": {
     "other": "Descending"
@@ -275,8 +275,8 @@
   "If activated, a default limit should be set above when files are no more compressed.": {
     "other": "If activated, a default limit should be set above when files are no more compressed."
   },
-  "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+  "If not inferred directly from the current Pydio URL plus the public base URI, replace the public access URL here.": {
+    "other": "If not inferred directly from the current Pydio URL plus the public base URI, replace the public access URL here."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
     "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."

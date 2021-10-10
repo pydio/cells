@@ -135,7 +135,7 @@
     "other": "Os recursos de dados de armazenamento remoto servirão arquivos de um armazenamento remoto compatível com s3-ao proxying de todas as requisições."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Use a chave de API padrão / Api Secret para autenticar, deixe a URL do endpoint em branco para AmazonS3 ou use a URL de armazenamento para outras soluções locais."
+    "other": "Use a chave de API padrão / API Secret para autenticar, deixe a URL do endpoint em branco para AmazonS3 ou use a URL de armazenamento para outras soluções locais."
   },
   "ds.editor.storage.legend.fs": {
     "other": "Procurar dados de um sistema de arquivos local ou arquivos na sua rede."
@@ -252,7 +252,7 @@
     "other": "Nome da pasta"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Sistema operacional é MacOSX"
+    "other": "Sistema operacional é macOS"
   },
   "ds.editor.storage.azure.api": {
     "other": "Nome da Conta Azure"
@@ -270,7 +270,7 @@
     "other": "Nome do repositório"
   },
   "ds.editor.storage.s3.api": {
-    "other": "Chave Api S3"
+    "other": "Chave API S3"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Nome do repositório"
@@ -288,13 +288,13 @@
     "other": "Deixe em branco para Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 Região Api"
+    "other": "S3 Região API"
   },
   "ds.editor.storage.s3.path": {
     "other": "Caminho interno"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 Segredo de Api"
+    "other": "S3 Segredo de API"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Selecione um ou mais repositórios"
@@ -1989,7 +1989,7 @@
     "other": "Parametros"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Documentation"
+    "other": "REST APIs Documentation"
   },
   "developer.rest.apis.legend": {
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."

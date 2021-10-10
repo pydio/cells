@@ -20,7 +20,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The following elements are required to compile and run pydio on your machine
+The following elements are required to compile and run Pydio on your machine
 
 - Go language v1.13 or higher (tested with latest 1.13, 1.14 & 1.15), with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain,
 - MySQL database 5.6 or higher (or MariaDB equivalent). The new MySQL 8 authentication method is supported starting at Cells 1.4.1.
