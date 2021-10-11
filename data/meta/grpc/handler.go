@@ -345,6 +345,8 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 // Search a stream of nodes based on its metadata
 func (s *MetaServer) Search(ctx context.Context, request *tree.SearchRequest, result tree.Searcher_SearchStream) error {
 
+	defer result.Close()
+
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 
 	metaByUUID, err := dao.ListMetadata(request.Query.FileName)
@@ -361,7 +363,6 @@ func (s *MetaServer) Search(ctx context.Context, request *tree.SearchRequest, re
 		})
 	}
 
-	result.Close()
 	return nil
 }
 

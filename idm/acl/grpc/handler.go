@@ -96,6 +96,8 @@ func (h *Handler) DeleteACL(ctx context.Context, req *idm.DeleteACLRequest, resp
 // SearchACL in database
 func (h *Handler) SearchACL(ctx context.Context, request *idm.SearchACLRequest, response idm.ACLService_SearchACLStream) error {
 
+	defer response.Close()
+
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)
 
 	acls := new([]interface{})
@@ -111,8 +113,6 @@ func (h *Handler) SearchACL(ctx context.Context, request *idm.SearchACLRequest, 
 
 		response.Send(&idm.SearchACLResponse{ACL: val})
 	}
-
-	response.Close()
 
 	return nil
 }
