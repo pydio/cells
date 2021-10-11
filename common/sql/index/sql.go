@@ -129,7 +129,7 @@ func init() {
 		var mpathFrom = make([]string, 4)
 		var mpathTo = make([]string, 4)
 
-		mpathFrom[0]= mapping[0]
+		mpathFrom[0] = mapping[0]
 		mpathFrom[1] = mapping[2]
 		mpathFrom[2] = mapping[4]
 		mpathFrom[3] = mapping[6]
@@ -145,10 +145,10 @@ func init() {
 
 		var (
 			quotientMPathFrom int = totalMPathFrom / indexLen
-			moduloMPathFrom int = totalMPathFrom % indexLen
-			quotientMPathTo int = totalMPathTo / indexLen
-			moduloMPathTo int = totalMPathTo % indexLen
-			mpathSub []string
+			moduloMPathFrom   int = totalMPathFrom % indexLen
+			quotientMPathTo   int = totalMPathTo / indexLen
+			moduloMPathTo     int = totalMPathTo % indexLen
+			mpathSub          []string
 		)
 
 		cnt := 1
@@ -156,16 +156,16 @@ func init() {
 		for i := 0; i < 4; i++ {
 			if i < quotientMPathTo {
 				// We just copy the result
-				mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d="%s"`, i + 1, mpathTo[i]))
+				mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d="%s"`, i+1, mpathTo[i]))
 			} else if i == quotientMPathTo {
 				// We copy the result and concat the remainder of
 				if moduloMPathFrom > moduloMPathTo {
 					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+1, moduloMPathFrom+1, indexLen-moduloMPathFrom)
 					remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+2, 1, moduloMPathFrom-moduloMPathTo)
-					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i + 1, dao.Concat(`"`+mpathTo[i] +`"`, remainder1, remainder2)))
+					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
 				} else {
 					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+1, moduloMPathFrom+1, indexLen-moduloMPathTo)
-					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i + 1, dao.Concat(`"`+mpathTo[i] +`"`, remainder1)))
+					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1)))
 				}
 			} else {
 				idx := quotientMPathFrom + cnt
@@ -796,6 +796,7 @@ func (dao *IndexSQL) GetNodes(mpathes ...mtree.MPath) chan *mtree.TreeNode {
 
 					c <- node
 				}
+
 			} else {
 				log.Logger(context.Background()).Error("Error while getting statement in GetNodes", zap.Error(e))
 				return
@@ -1004,7 +1005,8 @@ func (dao *IndexSQL) GetNodeChildren(path mtree.MPath) chan interface{} {
 
 	dao.Lock()
 
-	c := make(chan interface{})
+	// Use a buffered chan to give some air to mysql buffer
+	c := make(chan interface{}, 10000)
 
 	go func() {
 		var rows *databasesql.Rows
