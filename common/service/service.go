@@ -549,10 +549,30 @@ func (s *service) ForkStart(ctx context.Context, retries ...int) {
 
 	log.Logger(ctx).Debug("Starting SubProcess: " + name)
 
-	if err := cmd.Start(); err != nil {
-		log.Logger(ctx).Error("Could not start process", zap.Error(err))
+	se := make(chan error, 1)
+	go func() {
+		defer close(se)
+		if err := cmd.Start(); err == nil {
+			se <- nil
+		} else {
+			se <- err
+		}
+	}()
+	var startErr error
+	select {
+	case startErr = <-se:
+	case <-time.After(10 * time.Second):
+		startErr = fmt.Errorf("start 10s timeout")
 	}
-	log.Logger(ctx).Debug("Started SubProcess: " + name)
+	if startErr != nil {
+		log.Logger(ctx).Error("Could not start process", zap.Error(startErr))
+	} else {
+		log.Logger(ctx).Debug("Started SubProcess: " + name)
+	}
+	/*
+		if err := cmd.Start(); err != nil {
+			log.Logger(ctx).Error("Could not start process", zap.Error(err))
+		}*/
 
 	if err := cmd.Wait(); err == nil {
 		return
