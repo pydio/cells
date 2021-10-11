@@ -121,7 +121,7 @@ func writeSnapshot(client model.Endpoint, fsPath, storageKey string) error {
 
 	target, ok := client.(model.DataSyncTarget)
 	if !ok {
-		return fmt.Errorf("client must implement DataSyncSource")
+		return fmt.Errorf("client must implement DataSyncTarget")
 	}
 	stat, e := os.Stat(fsPath)
 	if e != nil {
@@ -151,4 +151,12 @@ func writeSnapshot(client model.Endpoint, fsPath, storageKey string) error {
 	} else {
 		return err
 	}
+}
+
+func deleteSnapshot(client model.Endpoint, storageKey string) error {
+	target, ok := client.(model.DataSyncTarget)
+	if !ok {
+		return fmt.Errorf("client must implement DataSyncTarget")
+	}
+	return target.DeleteNode(context.Background(), storageKey)
 }

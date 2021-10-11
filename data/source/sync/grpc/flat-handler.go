@@ -45,7 +45,7 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 			log.TasksLogger(ctx).Info(" - Indexing s3 object "+clone.GetPath(), clone.ZapPath(), clone.ZapUuid())
 		}
 	}, "", true)
-	if syncDone != nil{
+	if syncDone != nil {
 		syncDone <- true
 	}
 	return stats.withData("nodesCreated", nodesCreated), e
@@ -54,8 +54,29 @@ func (s *Handler) FlatScanEmpty(ctx context.Context, syncStatus chan model.Statu
 // FlatSyncSnapshot can read or write a snapshot of the index inside the storage
 func (s *Handler) FlatSyncSnapshot(ctx context.Context, mode string, snapName string, syncStatus chan model.Status, syncDone chan interface{}) (model.Stater, error) {
 
-	if mode != "read" && mode != "write" {
-		return nil, fmt.Errorf("please use one of read or write for snapshoting mode")
+	if mode != "read" && mode != "write" && mode != "delete" {
+		return nil, fmt.Errorf("please use one of read, write or delete for snapshoting mode")
+	}
+	if snapName == "" {
+		return nil, fmt.Errorf("please provide the snapshot name to use")
+	}
+
+	if mode == "delete" {
+		e := deleteSnapshot(s.s3client, snapName)
+		if syncStatus != nil {
+			var status *model.ProcessingStatus
+			if e != nil {
+				status = model.NewProcessingStatus("Could not delete snapshot " + snapName)
+				status.SetError(e)
+			} else {
+				status = model.NewProcessingStatus("Removed snapshot " + snapName + " from DB")
+			}
+			syncStatus <- status
+		}
+		if syncDone != nil {
+			syncDone <- true
+		}
+		return &flatSyncStater{source: s.dsName, target: "snapshot:delete"}, e
 	}
 
 	indexClient := index.NewClient(s.dsName, s.indexClientRead, s.indexClientWrite, s.indexClientSession)
@@ -83,7 +104,7 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, mode string, snapName st
 		if syncDone != nil {
 			syncDone <- true
 		}
-		return &flatSyncStater{source: "index", target: "snapshot"}, e
+		return &flatSyncStater{source: s.dsName, target: "snapshot:write"}, e
 	} else {
 		syncTask := task.NewSync(snapshotClient, indexClient, model.DirectionRight)
 		syncTask.SkipTargetChecks = true

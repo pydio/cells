@@ -40,6 +40,7 @@ var (
 	snapshotDsName    string
 	snapshotOperation string
 	snapshotBasename  string
+	snapshotNI        bool
 )
 
 var dsSnaphsotCmd = &cobra.Command{
@@ -63,6 +64,9 @@ EXAMPLES
   2. Reload database index from a snapshot.db file located inside the datasource storage :
   $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=load --basename=snapshot.db
 
+  3. Remove a known snapshot.db file from datasource storage :
+  $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=delete --basename=snapshot.db
+
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if snapshotDsName == "" {
@@ -75,8 +79,8 @@ EXAMPLES
 			cmd.Help()
 			return
 		}
-		if snapshotOperation != "dump" && snapshotOperation != "load" {
-			cmd.Println("Please provide the operation as one of 'dump' or 'load'.")
+		if snapshotOperation != "dump" && snapshotOperation != "load" && snapshotOperation != "delete" {
+			cmd.Println("Please provide the operation as one of 'dump', 'load' or 'delete'.")
 			cmd.Help()
 			return
 		}
@@ -87,25 +91,38 @@ EXAMPLES
 		defer cancel()
 		c = context2.WithUserNameMetadata(c, common.PydioSystemUsername)
 		req := &sync.ResyncRequest{}
-		if snapshotOperation == "dump" {
+		if snapshotOperation == "delete" {
+			req.Path = "delete/" + snapshotBasename
+			cmd.Println("Removing snapshot " + snapshotBasename + " from storage")
+			if !snapshotNI {
+				conf := promptui.Prompt{Label: "This is undoable, are you sure you want to do that", IsConfirm: true, Default: "N"}
+				_, e := conf.Run()
+				if e != nil {
+					cmd.Println("Aborting operation")
+					return
+				}
+			}
+		} else if snapshotOperation == "dump" {
 			req.Path = "write/" + snapshotBasename
 			cmd.Printf("Trigger snapshot generation for %s inside %s\n", snapshotDsName, snapshotBasename)
 		} else {
 			req.Path = "read/" + snapshotBasename
 			cmd.Printf("Read snapshot %s and populate index for datasource %s\n", snapshotBasename, snapshotDsName)
-			conf := promptui.Prompt{Label: "DANGER : this will override the current content of this datasource index. Are you sure you want to do that", IsConfirm: true, Default: "N"}
-			_, e := conf.Run()
-			if e != nil {
-				cmd.Println("Aborting operation")
-				return
+			if !snapshotNI {
+				conf := promptui.Prompt{Label: "DANGER : this will override the current content of this datasource index. Are you sure you want to do that", IsConfirm: true, Default: "N"}
+				_, e := conf.Run()
+				if e != nil {
+					cmd.Println("Aborting operation")
+					return
+				}
 			}
 		}
 		resp, err := cli.TriggerResync(c, req, client.WithRetries(1))
 		if err != nil {
-			cmd.Println("Resync Failed: " + err.Error())
+			cmd.Println("Command failed: " + err.Error())
 			return
 		}
-		cmd.Println("Resync Triggered.")
+		cmd.Println("Command sent.")
 		if resp.JsonDiff != "" {
 			cmd.Println("Result: " + resp.JsonDiff)
 		}
@@ -114,7 +131,8 @@ EXAMPLES
 
 func init() {
 	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotDsName, "datasource", "d", "", "Name of datasource to resynchronize")
-	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotOperation, "operation", "o", "dump", "One of [dump|load] to either dump index or reload it from existing data")
+	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotOperation, "operation", "o", "dump", "One of [dump|load|delete] to either dump index, reload an existing snapshot, or remove a snapshot")
 	dsSnaphsotCmd.PersistentFlags().StringVarP(&snapshotBasename, "basename", "b", "snapshot.db", "Basename of the snapshot file inside the datasource storage bucket")
+	dsSnaphsotCmd.PersistentFlags().BoolVarP(&snapshotNI, "force", "f", false, "Force operation, skip confirmation prompts")
 	DataSourceCmd.AddCommand(dsSnaphsotCmd)
 }
