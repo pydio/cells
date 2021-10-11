@@ -135,7 +135,7 @@
     "other": "Источники данных Удаленного хранилища будут обслуживать файлы из удаленного s3-совместимого хранилища, передавая все запросы."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Используйте стандартный ключ API / API Secret для аутентификации, оставьте конечный URL пустым для AmazonS3 или используйте ваш URL хранилища для других решений."
+    "other": "Используйте стандартный ключ API / Api Secret для аутентификации, оставьте конечный URL пустым для AmazonS3 или используйте ваш URL хранилища для других решений."
   },
   "ds.editor.storage.legend.fs": {
     "other": "Browse data from a local or network-attached file system."
@@ -252,7 +252,7 @@
     "other": "Имя папки"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Операционная система macOS"
+    "other": "Операционная система MacOSX"
   },
   "ds.editor.storage.azure.api": {
     "other": "Имя аккаунта Azure"
@@ -270,7 +270,7 @@
     "other": "Имя сегмента"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 API ключ"
+    "other": "S3 Api ключ"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Имя сегмента"
@@ -288,13 +288,13 @@
     "other": "Оставьте пустым для Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 API регион"
+    "other": "S3 Api регион"
   },
   "ds.editor.storage.s3.path": {
     "other": "Внутренний путь"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 API секрет"
+    "other": "S3 Api секрет"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Выберите один или несколько сегментов"

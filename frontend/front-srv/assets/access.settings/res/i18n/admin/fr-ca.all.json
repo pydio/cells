@@ -252,7 +252,7 @@
     "other": "Nom du dossier"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Le système d'exploitation est macOS"
+    "other": "Le système d'exploitation est Mac OSX"
   },
   "ds.editor.storage.azure.api": {
     "other": "Nom du compte Azure"

@@ -135,7 +135,7 @@
     "other": "I datasource di archiviazione remota serviranno i file da un archivio remoto compatibile s3 inoltrando tutte le richieste."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Usa la chiave API / API Secret per autenticarti, lascia vuoto l'URL dell'endpoint per AmazonS3 o usa il tuo URL di archiviazione per le altre soluzioni on premise."
+    "other": "Usa la chiave API / Api Secret per autenticarti, lascia vuoto l'URL dell'endpoint per AmazonS3 o usa il tuo URL di archiviazione per le altre soluzioni on premise."
   },
   "ds.editor.storage.legend.fs": {
     "other": "Browse data from a local or network-attached file system."
@@ -252,7 +252,7 @@
     "other": "Nome cartella"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Sistema Operativo macOS"
+    "other": "Sistema Operativo MacOSX"
   },
   "ds.editor.storage.azure.api": {
     "other": "Nome Account Azure"
@@ -270,7 +270,7 @@
     "other": "Nome del Bucket"
   },
   "ds.editor.storage.s3.api": {
-    "other": "Chiave API S3"
+    "other": "Chiave Api S3"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Nome del Bucket"
@@ -288,13 +288,13 @@
     "other": "Lascia vuoto per Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 API Region"
+    "other": "S3 Api Region"
   },
   "ds.editor.storage.s3.path": {
     "other": "Percorso Interno"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "API Segreta S3"
+    "other": "Api Segreta S3"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Selezionare uno o più bucket"

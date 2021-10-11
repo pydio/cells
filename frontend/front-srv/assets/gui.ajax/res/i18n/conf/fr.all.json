@@ -3,7 +3,7 @@
     "other": "Framework JS additionnel"
   },
   "Additional JS frameworks description": {
-    "other": "Liste de chemins vers des fichiers javascripts qui doivent être chargés AVANT que la framework Pydio soit chargé. Utiliser plutôt les plugins."
+    "other": "Liste de chemins vers des fichiers javascripts qui doivent être chargés AVANT que la framework pydio soit chargé. Utiliser plutôt les plugins."
   },
   "An additionnal message displayed in the start up screen": {
     "other": "Message supplémentaire ajouté sur l'écran d'accueil"

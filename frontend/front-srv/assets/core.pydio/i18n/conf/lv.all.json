@@ -158,8 +158,8 @@
   "Default sorting direction": {
     "other": "Noklusētais šķirošanas virziens"
   },
-  "Delegates download operations to an alternative agent, either webserver or Pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Deleģē lejupielādes darbību alternatīvam aģentam, vai nu web serverim vai Pydio aplikācijai. Uzmanību, šai funkcijai vajag instalēt ārējus moduļus. Lietojot XSendFile/XaccelRedirect nepieciešams manuāli pievienot direktorijas kurās faili tiks lejupielādēti moduļa konfigurācijā"
+  "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
+    "other": "Deleģē lejupielādes darbību alternatīvam aģentam, vai nu web serverim vai pydio aplikācijai. Uzmanību, šai funkcijai vajag instalēt ārējus moduļus. Lietojot XSendFile/XaccelRedirect nepieciešams manuāli pievienot direktorijas kurās faili tiks lejupielādēti moduļa konfigurācijā"
   },
   "Descending": {
     "other": "Dilstoši"
@@ -275,7 +275,7 @@
   "If activated, a default limit should be set above when files are no more compressed.": {
     "other": "Ja ieslēgts, noklusētais limits tiks iestatīts augstāks ja faili netiek vairāk kompresēti."
   },
-  "If not inferred directly from the current Pydio URL plus the public base URI, replace the public access URL here.": {
+  "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
     "other": "Ja nav pārņemts tieši no Pydio saites un publiskās pamata saites šiet var nomainīt publisko piekļuves saiti."
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {

@@ -143,12 +143,12 @@ func (h *Handler) DB() *sql.DB {
 
 // Version
 func (h *Handler) Version() (string, error) {
-	// Here we check the version of MySQL and the default charset
+	// Here we check the version of mysql and the default charset
 	var version string
 	err := h.DB().QueryRow("SELECT VERSION()").Scan(&version)
 	switch {
 	case err == sql.ErrNoRows:
-		return "", fmt.Errorf("Could not retrieve MySQL version")
+		return "", fmt.Errorf("Could not retrieve mysql version")
 	case err != nil:
 		return "", err
 	}

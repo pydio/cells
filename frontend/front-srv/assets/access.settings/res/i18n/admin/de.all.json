@@ -135,7 +135,7 @@
     "other": "Remote Storage-Datenquellen werden Dateien aus einem Remote-kompatiblen, S3-kompatiblen Speicher bereitstellen, indem sie alle Anforderungen weiterleiten."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Verwenden Sie die standard-API-Schlüssel / API Secret zur authentifizierung. Lassen Sie AmazonS3 Endpunkt-URL leer oder verwenden Sie Ihre Speicher-URL für andere on Premise-Lösungen."
+    "other": "Verwenden Sie die standard-API-Schlüssel / Api Secret zur authentifizierung. Lassen Sie AmazonS3 Endpunkt-URL leer oder verwenden Sie Ihre Speicher-URL für andere on Premise-Lösungen."
   },
   "ds.editor.storage.legend.fs": {
     "other": "Durchsuchen Sie Daten aus einem lokalen oder an ein Netzwerk angeschlossenen Dateisystem."
@@ -252,7 +252,7 @@
     "other": "Ordnername"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Betriebssystem ist macOS"
+    "other": "Betriebssystem ist MacOSX"
   },
   "ds.editor.storage.azure.api": {
     "other": "Azure-Konto Name"
@@ -288,13 +288,13 @@
     "other": "Für Amazon S3 leer lassen"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 API Region"
+    "other": "S3 Api Region"
   },
   "ds.editor.storage.s3.path": {
     "other": "Interner Pfad"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 API Secret"
+    "other": "S3 Api Secret"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Wählen Sie eine oder mehrere Buckets aus"

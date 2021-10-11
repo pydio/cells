@@ -120,7 +120,7 @@
     "other": "ホスト名"
   },
   "form.dbTCPHostname.legend": {
-    "other": "MySQLーバー"
+    "other": "mysqlサーバー"
   },
   "form.dbName.label": {
     "other": "データベース名"
@@ -132,7 +132,7 @@
     "other": "ポート"
   },
   "form.dbTCPPort.legend": {
-    "other": "MySQL接続するポート"
+    "other": "mysqlに接続するポート"
   },
   "form.dbUser.label": {
     "other": "データベースのユーザー"

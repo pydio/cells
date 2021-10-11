@@ -135,7 +135,7 @@
     "other": "Remote Storage datasources will serve files from a remote, s3-compatible storage by proxying all requests."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Use the standard API Key / API Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
+    "other": "Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
   },
   "ds.editor.storage.legend.fs":{
     "other": "Browse data from a local or network-attached file system."
@@ -252,7 +252,7 @@
     "other": "Folder name"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is macOS"
+    "other": "Operating System is MacOSX"
   },
   "ds.editor.storage.azure.api": {
     "other": "Azure Account Name"
@@ -270,7 +270,7 @@
     "other": "Bucket Name"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 API Key"
+    "other": "S3 Api Key"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Bucket Name"
@@ -288,13 +288,13 @@
     "other": "Leave empty for Amazon S3"
   },
   "ds.editor.storage.s3.region": {
-    "other": "S3 API Region"
+    "other": "S3 Api Region"
   },
   "ds.editor.storage.s3.path": {
     "other": "Internal Path"
   },
   "ds.editor.storage.s3.secret": {
-    "other": "S3 API Secret"
+    "other": "S3 Api Secret"
   },
   "ds.editor.storage.buckets.legend": {
     "other": "Select one or more buckets"
@@ -1989,7 +1989,7 @@
     "other": "Parameters"
   },
   "developer.rest.apis":{
-    "other": "REST APIs Documentation"
+    "other": "Rest APIs Documentation"
   },
   "developer.rest.apis.legend":{
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."

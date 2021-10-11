@@ -210,13 +210,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "Chiave API S3"
+    "other": "Chiave Api S3"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Chiave per connettersi a S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "API Segreta S3"
+    "other": "Api Segreta S3"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Chiave Segreta"

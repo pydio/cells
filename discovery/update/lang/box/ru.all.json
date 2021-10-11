@@ -6,7 +6,7 @@
     "other": "Обновить сервер"
   },
   "Update.Config.Url.Description": {
-    "other": "HTTP URL сервера обновления"
+    "other": "Http URL сервера обновления"
   },
   "Update.Config.PublicKey.Label": {
     "other": "Открытый ключ"

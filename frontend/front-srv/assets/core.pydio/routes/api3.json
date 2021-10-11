@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "Pydio Cells REST API",
+    "title": "Pydio Cells Rest API",
     "version": "1.0",
     "contact": {
       "name": "Pydio",
@@ -6172,7 +6172,7 @@
           "type": "string"
         }
       },
-      "title": "REST request for revocation. Token is not mandatory, if not set\nrequest will use current JWT token"
+      "title": "Rest request for revocation. Token is not mandatory, if not set\nrequest will use current JWT token"
     },
     "restRevokeResponse": {
       "type": "object",
@@ -6185,7 +6185,7 @@
           "type": "string"
         }
       },
-      "title": "REST response"
+      "title": "Rest response"
     },
     "restRolesCollection": {
       "type": "object",
@@ -6228,7 +6228,7 @@
           "$ref": "#/definitions/serviceOperationType"
         }
       },
-      "title": "REST request for ACL's"
+      "title": "Rest request for ACL's"
     },
     "restSearchResults": {
       "type": "object",
@@ -6345,7 +6345,7 @@
           "$ref": "#/definitions/serviceOperationType"
         }
       },
-      "title": "REST request for searching workspaces"
+      "title": "Rest request for searching workspaces"
     },
     "restServiceCollection": {
       "type": "object",
@@ -6688,7 +6688,7 @@
           "format": "int32"
         }
       },
-      "title": "REST response for workspace search"
+      "title": "Rest response for workspace search"
     },
     "serviceOperationType": {
       "type": "string",

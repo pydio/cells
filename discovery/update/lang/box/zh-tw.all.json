@@ -6,7 +6,7 @@
     "other": "Update Server"
   },
   "Update.Config.Url.Description": {
-    "other": "HTTP URL of the update server"
+    "other": "Http URL of the update server"
   },
   "Update.Config.PublicKey.Label": {
     "other": "Public Key"

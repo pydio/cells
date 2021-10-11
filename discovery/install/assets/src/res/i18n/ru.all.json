@@ -210,13 +210,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 API ключ"
+    "other": "S3 Api ключ"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Ключ для подключения к S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 API код"
+    "other": "S3 Api код"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Секретный ключ"

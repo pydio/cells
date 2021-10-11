@@ -120,7 +120,7 @@
     "other": "Nome do Host"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Servidor onde o MySQLestá sendo executado"
+    "other": "Servidor onde o mysql está sendo executado"
   },
   "form.dbName.label": {
     "other": "Nome da Base de Dados"
@@ -210,13 +210,13 @@
     "other": "Deixe em branco para padrão (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "Chave API S3"
+    "other": "Chave Api S3"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Tecla para se conectar ao S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "Segredo da API S3"
+    "other": "Segredo da Api S3"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Chave Secreta"

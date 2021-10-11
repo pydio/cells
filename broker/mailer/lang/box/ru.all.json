@@ -216,10 +216,10 @@
     "other": "Сервис SendGrid"
   },
   "Mail.Config.SendGrid.ApiKey.Label": {
-    "other": "API Ключ"
+    "other": "Api Ключ"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "API Key, предоставленный SendGrid для подключения к сервису"
+    "other": "Api Key, предоставленный SendGrid для подключения к сервису"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"

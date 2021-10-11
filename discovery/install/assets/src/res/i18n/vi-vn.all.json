@@ -120,7 +120,7 @@
     "other": "Tên Host"
   },
   "form.dbTCPHostname.legend": {
-    "other": "Nơi máy chủ MySQLđang chạy"
+    "other": "Nơi máy chủ mysql đang chạy"
   },
   "form.dbName.label": {
     "other": "Tên database"
@@ -210,13 +210,13 @@
     "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
-    "other": "S3 API Key"
+    "other": "S3 Api Key"
   },
   "form.dsS3ApiKey.legend": {
     "other": "Key để kết nối với S3"
   },
   "form.dsS3ApiSecret.label": {
-    "other": "S3 API Secret"
+    "other": "S3 Api Secret"
   },
   "form.dsS3ApiSecret.legend": {
     "other": "Khóa Bí mật"
