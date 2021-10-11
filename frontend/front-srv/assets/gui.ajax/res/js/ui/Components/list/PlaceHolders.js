@@ -44,10 +44,18 @@ export default function PlaceHolders(props) {
     } else if (tableKeys) {
         // Create table lines PH
         customPH = (
-            <div style={{width: '100%', display:'flex', alignItems:'baseline', height: 48}}>
+            <div style={{width: '100%', display:'flex', alignItems:'baseline', height: 42, borderBottom:'1px solid rgba(0,0,0,.03)'}}>
                 {Object.keys(tableKeys).map(k => {
-                    const f = k==='ajxp_label'?16:null;
-                    return <span className={"cell cell-"+k} style={{display:'inline-block', fontSize:f, paddingTop: 8, paddingLeft:10, paddingRight: 10}}><PhTextRow/></span>
+                    if(k === 'ajxp_label'){
+                        return (
+                            <span className={"cell cell-"+k} style={{display:'flex', fontSize:16, paddingTop: 6, marginBottom:2, paddingLeft:16, paddingRight: 10}}>
+                                <PhTextRow style={{display:'inline-block', width:16, marginRight: 16}}/>
+                                <PhTextRow style={{flex: 1}}/>
+                            </span>
+                        );
+                    } else {
+                        return <span className={"cell cell-"+k} style={{display:'inline-block', paddingTop: 6, marginBottom:2, paddingLeft:10, paddingRight: 10}}><PhTextRow/></span>
+                    }
                 })}
             </div>
         )

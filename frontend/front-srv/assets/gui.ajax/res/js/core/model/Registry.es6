@@ -31,7 +31,6 @@ export default class Registry{
         this._extensionsRegistry = {"editor":[], "uploader":[]};
         this._resourcesRegistry = {};
         this._pydioObject = pydioObject;
-        this._xPathLoading = false;
         this._globalLoading = false;
     }
 
@@ -40,7 +39,9 @@ export default class Registry{
      * @param s
      */
     loadFromString(s){
-        if(this._fileExtensions) this._fileExtensions = null;
+        if(this._fileExtensions) {
+            this._fileExtensions = null;
+        }
         this._registry = XMLUtils.parseXml(s).documentElement;
     }
 
@@ -48,7 +49,9 @@ export default class Registry{
      *
      */
     loadXML(documentElement){
-        if(this._fileExtensions) this._fileExtensions = null;
+        if(this._fileExtensions) {
+            this._fileExtensions = null;
+        }
         this._registry = documentElement;
         this._pydioObject.fire("registry_loaded", this._registry);
     }
@@ -79,6 +82,7 @@ export default class Registry{
         const url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state';
 
         this._pydioObject.fire("registry_loading")
+        this._pydioObject.fire("connection-start")
         this._globalLoading = true;
         PydioApi.getRestClient().getOrUpdateJwt()
             .then(jwt => {
@@ -103,6 +107,7 @@ export default class Registry{
             .then((response) => response.text())
             .then((txt) => {
                 this._globalLoading = false;
+                this._pydioObject.fire("connection-end")
 
                 this._registry = XMLUtils.parseXml(txt).documentElement;
 
@@ -113,37 +118,11 @@ export default class Registry{
                 }
             })
             .catch(e=> {
+                this._pydioObject.fire("repository_list_refreshed", {list:false,active:false});
                 this._pydioObject.getController().fireAction("login")
                 this._globalLoading = false;
+                this._pydioObject.fire("connection-end")
             });
-    }
-
-    /**
-     * Inserts a document fragment retrieved from server inside the full tree.
-     * The node must contains the xPath attribute to locate it inside the registry.
-     * @param documentElement DOMNode
-     */
-    refreshXmlRegistryPart (documentElement){
-        const xPath = documentElement.getAttribute("xPath");
-        const existingNode = XMLUtils.XPathSelectSingleNode(this._registry, xPath);
-        let parentNode;
-        if(existingNode && existingNode.parentNode){
-            parentNode = existingNode.parentNode;
-            parentNode.removeChild(existingNode);
-            if(documentElement.firstChild){
-                parentNode.appendChild(documentElement.firstChild.cloneNode(true));
-            }
-        }else if(xPath.indexOf("/") > -1){
-            // try selecting parentNode
-            const parentPath = xPath.substring(0, xPath.lastIndexOf("/"));
-            parentNode = XMLUtils.XPathSelectSingleNode(this._registry, parentPath);
-            if(parentNode && documentElement.firstChild){
-                parentNode.appendChild(documentElement.firstChild.cloneNode(true));
-            }
-        }else{
-            if(documentElement.firstChild) this._registry.appendChild(documentElement.firstChild.cloneNode(true));
-        }
-        this._pydioObject.fire("registry_part_loaded", xPath);
     }
 
     /**
@@ -184,7 +163,9 @@ export default class Registry{
         if(activeCondition && activeCondition.firstChild){
             try{
                 const func = new Function(activeCondition.firstChild.nodeValue.trim());
-                if(func() === false) return false;
+                if(func() === false) {
+                    return false;
+                }
             }catch(e){}
         }
         if(xmlNode.nodeName === 'editor'){
@@ -204,8 +185,8 @@ export default class Registry{
                 editorActions       : xmlNode.getAttribute("actions"),
                 editorClass         : xmlNode.getAttribute("className"),
                 mimes               : xmlNode.getAttribute("mimes").split(","),
-                write               : (xmlNode.getAttribute("write") && xmlNode.getAttribute("write")==="true"?true:false),
-                canWrite            : (xmlNode.getAttribute("canWrite") && xmlNode.getAttribute("canWrite")==="true"?true:false)
+                write               : (!!(xmlNode.getAttribute("write") && xmlNode.getAttribute("write") === "true")),
+                canWrite            : (!!(xmlNode.getAttribute("canWrite") && xmlNode.getAttribute("canWrite") === "true"))
             });
             if(xmlNode.hasAttribute('extensions')){
                 // register additional extensions
@@ -230,7 +211,6 @@ export default class Registry{
             const extensionOnInit = XMLUtils.XPathSelectSingleNode(xmlNode, 'processing/extensionOnInit');
             if(extensionOnInit && extensionOnInit.firstChild){
                 try{
-                    // @TODO: THIS WILL LIKELY TRIGGER PROTOTYPE CODE
                     eval(extensionOnInit.firstChild.nodeValue);
                 }catch(e){
                     Logger.error("Ignoring Error in extensionOnInit code:");
@@ -294,7 +274,7 @@ export default class Registry{
      * @returns AbstractEditor
      */
     findEditorById (editorId){
-        return this._extensionsRegistry.editor.find(function(el){return(el.id == editorId);});
+        return this._extensionsRegistry.editor.find(function(el){return(el.id === editorId);});
     }
 
     /**
@@ -313,8 +293,12 @@ export default class Registry{
         }
         this._extensionsRegistry.editor.forEach(function(el){
             if(el.mimes.indexOf(mime) !==-1 || el.mimes.indexOf('*') !==-1 ) {
-                if(restrictToPreviewProviders && !el.previewProvider) return;
-                if(!checkWrite || !el.write) editors.push(el);
+                if(restrictToPreviewProviders && !el.previewProvider) {
+                    return;
+                }
+                if(!checkWrite || !el.write) {
+                    editors.push(el);
+                }
             }
         });
         if(editors.length && editors.length > 1){
@@ -363,7 +347,9 @@ export default class Registry{
      */
     getDefaultImageFromParameters(pluginId, paramName){
         const node = XMLUtils.XPathSelectSingleNode(this._registry, "plugins/*[@id='"+pluginId+"']/server_settings/global_param[@name='"+paramName+"']");
-        if(!node) return '';
+        if(!node) {
+            return '';
+        }
         return node.getAttribute("defaultImage") || '';
     }
 
