@@ -156,7 +156,13 @@ class FilePreview extends PureComponent {
         let element, additionalClass = '';
 
         if (processing) {
-            element = <CircularProgress size={40} thickness={2} />
+            if (rootStyle.height > 150) {
+                element = <CircularProgress size={30} thickness={2}/>
+                rootStyle.alignItems = 'center';
+                rootStyle.justifyContent= 'center';
+            } else {
+                element = <CircularProgress size={24} thickness={1.5} style={{margin:8}} />
+            }
         } else if (EditorClass) {
             element = <EditorClass pydio={Pydio.getInstance()} {...this.props} preview={true} mimeFontStyle={mimeFontStyle} />
             additionalClass = ' editor_mime_' + node.getAjxpMime();
