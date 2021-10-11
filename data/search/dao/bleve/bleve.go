@@ -459,8 +459,8 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	sizeFacet := bleve.NewFacetRequest("Size", 4)
 	var s2, s3, s4 float64
 	s2 = 1024 * 1024
-	s3 = 1024 * 1024 * 1024 * 10
-	s4 = 1024 * 1024 * 1024 * 100
+	s3 = 1024 * 1024 * 10
+	s4 = 1024 * 1024 * 100
 	sizeFacet.AddNumericRange("size.lt.1MB", nil, &s2)
 	sizeFacet.AddNumericRange("size.1MB.to.10MB", &s2, &s3)
 	sizeFacet.AddNumericRange("size.10MB.to.100MB", &s3, &s4)
