@@ -178,7 +178,7 @@ let Dashboard = createReactClass({
                 </List>
                 <Divider/>
                 <CardActions style={{textAlign:'right'}}>
-                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"} {...icProps}/>} primary={true}  onClick={()=>{window.open('https://pydio.com/en/features/pydio-cells-overview')}} {...flatProps}/>
+                    <FlatButton label={message('ent.btn.more')} icon={<FontIcon className={"icomoon-cells"} {...icProps}/>} primary={true}  onClick={()=>{window.open('https://pydio.com/en/pydio-cells/overview')}} {...flatProps}/>
                     <FlatButton label={message('ent.btn.contact')}  icon={<FontIcon className={"mdi mdi-domain"} {...icProps}/>} primary={true}  onClick={()=>{window.open('https://pydio.com/en/pricing/contact')}} {...flatProps}/>
                 </CardActions>
             </Card>
