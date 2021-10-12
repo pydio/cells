@@ -93,6 +93,11 @@ func (m *MailDigestAction) Init(job *jobs.Job, cl client.Client, action *jobs.Ac
 // Run processes the actual action code
 func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
+	if !config.Get("services", common.ServiceGrpcNamespace_+common.ServiceMailer, "valid").Default(false).Bool() {
+		log.Logger(ctx).Debug("Ignoring as no valid mailer was found")
+		return input.WithIgnore(), nil
+	}
+
 	if len(input.Users) == 0 {
 		e := errors.BadRequest(digestActionName, "action should be triggered with one user in input")
 		return input.WithError(e), e
