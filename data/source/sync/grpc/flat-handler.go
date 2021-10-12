@@ -88,14 +88,14 @@ func (s *Handler) FlatSyncSnapshot(ctx context.Context, mode string, snapName st
 		if e := snapshotClient.Close(true); e != nil {
 			log.Logger(ctx).Error("Error while closing snapshot", zap.Error(e))
 		} else {
-			log.Logger(ctx).Info("Successfully closed snapshot")
+			log.Logger(ctx).Info("Successfully closed " + snapName)
 		}
 	}()
 	if mode == "write" {
-		log.Logger(ctx).Info("Loading capture from index to boltdb")
+		log.Logger(ctx).Info("Loading capture from index to boltdb (" + snapName + ")")
 		e := snapshotClient.Capture(ctx, indexClient)
 		if syncStatus != nil {
-			status := model.NewProcessingStatus("Captured index into BoltDB file")
+			status := model.NewProcessingStatus("Captured index into BoltDB " + snapName)
 			if e != nil {
 				status.SetError(e)
 			}

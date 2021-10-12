@@ -119,11 +119,7 @@ func init() {
 						syncHandler.Start()
 						m.Init(
 							micro.AfterStart(func() error {
-								// Now post a job to start indexation in background
-								md := make(map[string]string)
-								md[common.PydioContextUserKey] = common.PydioSystemUsername
-								ctx = metadata.NewContext(ctx, md)
-
+								// Post a job to start indexation in background
 								e = service.Retry(jobCtx, func() error {
 									if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
 										if !dsObject.SkipSyncOnRestart {
@@ -135,22 +131,7 @@ func init() {
 										}
 									} else if errors.Parse(err.Error()).Code == 404 {
 										log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
-										job := &jobs.Job{
-											ID:             "resync-ds-" + datasource,
-											Owner:          common.PydioSystemUsername,
-											Label:          "Sync DataSource " + datasource,
-											Inactive:       false,
-											MaxConcurrency: 1,
-											AutoStart:      !dsObject.SkipSyncOnRestart,
-											Actions: []*jobs.Action{
-												{
-													ID: "actions.cmd.resync",
-													Parameters: map[string]string{
-														"service": serviceName,
-													},
-												},
-											},
-										}
+										job := getJobDefinition(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
 										_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
 											Job: job,
 										}, registry.ShortRequestTimeout())
@@ -211,6 +192,30 @@ func init() {
 										log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue.StorageConfiguration))
 									}
 								}
+
+								// Post a job to dump snapshot manually (Flat, non-internal only)
+								if !dsObject.IsInternal() {
+									e = service.Retry(jobCtx, func() error {
+										if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
+											if errors.Parse(err.Error()).Code == 404 {
+												log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
+												job := getJobDefinition(datasource, serviceName, true, false)
+												_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
+													Job: job,
+												}, registry.ShortRequestTimeout())
+												return e
+											} else {
+												log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
+												return err
+											}
+										}
+										return nil
+									}, 5*time.Second, 30*time.Second)
+									if e != nil {
+										log.Logger(jobCtx).Warn("service started but could not contact Job service insert snapshot dump")
+									}
+								}
+
 								return nil
 							}),
 							micro.BeforeStop(func() error {
@@ -245,4 +250,46 @@ func WithStorage(source string) service.ServiceOption {
 		return service.WithStorage(sync.NewDAO, prefix)
 	}
 	return nil
+}
+
+func getJobDefinition(dsName, serviceName string, flat, autoStart bool) *jobs.Job {
+	if flat {
+		return &jobs.Job{
+			ID:             "snapshot-" + dsName,
+			Owner:          common.PydioSystemUsername,
+			Label:          "Snapshot DB index for Datasource " + dsName,
+			MaxConcurrency: 1,
+			AutoStart:      autoStart,
+			Actions: []*jobs.Action{
+				{
+					ID:    "actions.cmd.resync",
+					Label: "Dump Snapshot",
+					Parameters: map[string]string{
+						"service": serviceName,
+						"path":    "write/snapshot.db",
+					},
+				},
+			},
+		}
+
+	} else {
+
+		return &jobs.Job{
+			ID:             "resync-ds-" + dsName,
+			Owner:          common.PydioSystemUsername,
+			Label:          "Sync DataSource " + dsName,
+			Inactive:       false,
+			MaxConcurrency: 1,
+			AutoStart:      autoStart,
+			Actions: []*jobs.Action{
+				{
+					ID: "actions.cmd.resync",
+					Parameters: map[string]string{
+						"service": serviceName,
+					},
+				},
+			},
+		}
+	}
+
 }
