@@ -237,11 +237,12 @@ let UpdaterDashboard = createReactClass({
             upgradeWizard = <UpgraderWizard open={this.state.upgradeDialog} onDismiss={() => this.setState({upgradeDialog:false})} currentVersion={backend.Version} pydio={this.props.pydio}/>;
             versionLabel = <span>{versionLabel} <a style={{color:primary1Color, cursor:'pointer'}} onClick={() => this.setState({upgradeDialog:true})}>&gt; {this.context.getMessage('upgrade.ed.title', 'updater')}...</a></span>
         }
+
         if(backend.PackagingInfo && backend.PackagingInfo.map) {
             packagingInfoOthers = backend.PackagingInfo.filter(i => !!i)
             packagingInfoMain = "Package: " + packagingInfoOthers.shift()
         }
-        console.log(packagingInfoMain, packagingInfoOthers)
+
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
                 <AdminComponents.Header
