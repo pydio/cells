@@ -91,6 +91,7 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProvi
 	defer streamer.Close()
 	metaStreamer := meta.NewStreamLoader(ctx)
 	defer metaStreamer.Close()
+	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
 
 	for {
 		request, err := streamer.Recv()
@@ -101,15 +102,9 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProvi
 			return err
 		}
 		response := &tree.ReadNodeResponse{}
-		err = s.ReadNode(ctx, request, response)
-		if err != nil {
-			response.Success = false
-		} else {
-			response.Success = true
-			metaStreamer.LoadMetas(ctx, response.Node)
-		}
-		e := streamer.Send(response)
-		if e != nil {
+		err = s.ReadNode(msCtx, request, response)
+		response.Success = err == nil
+		if e := streamer.Send(response); e != nil {
 			return e
 		}
 	}
@@ -212,20 +207,12 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	defer track("ReadNode", ctx, time.Now(), req, resp)
 
 	if node.GetPath() == "" && node.GetUuid() != "" {
-
-		log.Logger(ctx).Debug("ReadNode", zap.String("uuid", node.GetUuid()))
-
 		respNode, err := s.lookUpByUuid(ctx, node.GetUuid(), req.WithCommits, req.WithExtendedStats)
 		if err != nil {
 			return err
 		}
 		resp.Node = respNode
-
-		log.Logger(ctx).Debug("Response after lookUp", zap.String("path", resp.Node.GetPath()))
-
-		//s.enrichNodeWithMeta(ctx, resp.Node)
 		metaStreamer.LoadMetas(ctx, resp.Node)
-
 		return nil
 	}
 
@@ -251,7 +238,6 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 		resp.Node = response.Node
 		s.updateDataSourceNode(resp.Node, dsName)
-		//s.enrichNodeWithMeta(ctx, resp.Node)
 		metaStreamer.LoadMetas(ctx, resp.Node)
 
 		return nil
