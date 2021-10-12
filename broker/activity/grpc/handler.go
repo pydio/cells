@@ -74,6 +74,7 @@ func (h *Handler) PostActivity(ctx context.Context, stream proto.ActivityService
 func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamActivitiesRequest, stream proto.ActivityService_StreamActivitiesStream) error {
 
 	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+	defer stream.Close()
 
 	log.Logger(ctx).Debug("Should get activities", zap.Any("r", request))
 	treeStreamer := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceTree))
@@ -161,6 +162,8 @@ func (h *Handler) Subscribe(ctx context.Context, request *proto.SubscribeRequest
 
 func (h *Handler) SearchSubscriptions(ctx context.Context, request *proto.SearchSubscriptionsRequest, stream proto.ActivityService_SearchSubscriptionsStream) error {
 
+	defer stream.Close()
+
 	dao := servicecontext.GetDAO(ctx).(activity.DAO)
 
 	var userId string
@@ -175,7 +178,6 @@ func (h *Handler) SearchSubscriptions(ctx context.Context, request *proto.Search
 	if err != nil {
 		return err
 	}
-	defer stream.Close()
 	for _, sub := range users {
 		if len(sub.Events) == 0 {
 			continue
