@@ -84,7 +84,16 @@ class TagsCloud extends React.Component {
         this.setState({loading: true});
         this.suggestionLoader(function(tags){
             const values = tags.filter(tag => !!tag).map((tag) => {
-                return {text:tag, value:<MenuItem>{tag}</MenuItem>};
+                return {
+                    value:(
+                        <MenuItem
+                            innerDivStyle={{paddingLeft:0, marginLeft: 0}}
+                            style={{margin:'5px 10px', fontSize: 14, fontWeight: 500, paddingLeft: 10, borderRadius: 4,...colorsFromString(tag)}}
+                        >
+                            <span className={'mdi mdi-label-outline'} style={{marginRight: 5}}/>{tag}
+                        </MenuItem>),
+                    text:tag
+                };
             });
             this.setState({dataSource: values, loading: false, loaded: true});
         }.bind(this));
@@ -144,12 +153,11 @@ class TagsCloud extends React.Component {
         const {editMode, search} = this.props;
         const {tags, searchText} = this.state;
 
-        let tagsList, autoCompleter;
+        let tagsList = <div/>, autoCompleter, knownTags = [];
 
         if (tags && tags.split) {
-            tagsList = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag).map(tag => this.renderChip(tag));
-        } else {
-            tagsList = <div></div>
+            knownTags = tags.split(',').map(tag => LangUtils.trim(tag, ' ')).filter(tag => !!tag)
+            tagsList = knownTags.map(tag => this.renderChip(tag));
         }
 
         if (editMode) {
@@ -161,9 +169,9 @@ class TagsCloud extends React.Component {
                     onUpdateInput={this.handleUpdateInput.bind(this)}
                     onNewRequest={this.handleNewRequest.bind(this)}
                     dataSource={this.state.dataSource}
-                    filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                    filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0 && knownTags.indexOf(key) === -1)}
                     openOnFocus={true}
-                    menuProps={{maxHeight: 200}}
+                    menuProps={{maxHeight: 200, desktop: true}}
                     style={{marginBottom: -8}}
                     onClose={() => {if(searchText) {
                         this.handleNewRequest()
