@@ -253,6 +253,8 @@ class LogTable extends React.Component {
                     color = '#1976D0';
                 } else if (row.Level === 'error') {
                     color = '#E53935';
+                } else if (row.Level === 'warn') {
+                    color = '#fb8c00';
                 } else if (row.Level === 'debug') {
                     color = '#673AB7';
                 }

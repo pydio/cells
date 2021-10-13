@@ -186,10 +186,10 @@ class LogTools extends React.Component{
                         <ModernSelectField hintText={MessageHash['ajxp_admin.logs.level']} fullWidth={true} value={level}
                                            onChange={(e, i, v) => this.handleFilterChange(v, 'level')}>
                             <MenuItem primaryText={""}/>
-                            <MenuItem primaryText={"ERROR"} value={"ERROR"}/>
-                            <MenuItem primaryText={"INFO"} value={"INFO"}/>
-                            <MenuItem primaryText={"WARN"} value={"WARN"}/>
-                            <MenuItem primaryText={"DEBUG"} value={"DEBUG"}/>
+                            <MenuItem primaryText={"ERROR"} value={"ERROR"} innerDivStyle={{color:'#E53935', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"WARN"} value={"WARN"} innerDivStyle={{color:'#FB8C00', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"INFO"} value={"INFO"} innerDivStyle={{color:'#1976D0', fontWeight: 500, fontSize: 14}}/>
+                            <MenuItem primaryText={"DEBUG"} value={"DEBUG"} innerDivStyle={{color:'#673AB7', fontWeight: 500, fontSize: 14}}/>
                         </ModernSelectField>
                     </div>
                 }
