@@ -7,14 +7,14 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/proto/idm"
-
 	"github.com/pborman/uuid"
 	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
 var (
@@ -52,7 +52,7 @@ DESCRIPTION
 				Type:  tree.NodeType_LEAF,
 				Size:  int64(len(s)),
 				MTime: time.Now().Unix(),
-			}, bytes.NewBufferString(s), &views.PutRequestData{Size: int64(len(s))})
+			}, bytes.NewBufferString(s), &models.PutRequestData{Size: int64(len(s))})
 			if e != nil {
 				fmt.Println("[ERROR] Cannot write file", e)
 			}

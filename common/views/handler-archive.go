@@ -27,8 +27,6 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -39,6 +37,8 @@ import (
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type selectionProvider interface {
@@ -60,7 +60,7 @@ func NewArchiveHandler() *ArchiveHandler {
 }
 
 // GetObject overrides the response of GetObject if it is sent on a folder key : create an archive on-the-fly.
-func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 
 	originalPath := node.Path
 

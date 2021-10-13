@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -33,8 +33,8 @@ import (
 
 	"github.com/patrickmn/go-cache"
 
-	"github.com/pydio/cells-sdk-go"
-	http2 "github.com/pydio/cells-sdk-go/transport/http"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
+	http2 "github.com/pydio/cells/common/sync/endpoints/cells/transport/http"
 )
 
 var (
@@ -55,12 +55,12 @@ func NewTokenStore() *TokenStore {
 	return t
 }
 
-func (t *TokenStore) Store(c *cells_sdk.SdkConfig, token string, expiry time.Duration) {
+func (t *TokenStore) Store(c *transport.SdkConfig, token string, expiry time.Duration) {
 	//fmt.Println("[Auth] Storing token with expiration ", expiry)
 	t.internalCache.Set(t.computeKey(c), token, expiry)
 }
 
-func (t *TokenStore) TokenFor(c *cells_sdk.SdkConfig) string {
+func (t *TokenStore) TokenFor(c *transport.SdkConfig) string {
 
 	if token, ok := t.internalCache.Get(t.computeKey(c)); ok {
 		return token.(string)
@@ -69,7 +69,7 @@ func (t *TokenStore) TokenFor(c *cells_sdk.SdkConfig) string {
 
 }
 
-func (t *TokenStore) computeKey(c *cells_sdk.SdkConfig) string {
+func (t *TokenStore) computeKey(c *transport.SdkConfig) string {
 	// Is this relly necessary or rather security theater?
 	// using a generic password causes issues when testing wrong password access.
 	//s := fmt.Sprintf("%s-%s-%s-%s-%s", c.Url, c.ClientKey, c.ClientSecret, c.User, "OBFUSCATED PWD XXXX")
@@ -84,7 +84,7 @@ func (t *TokenStore) computeKey(c *cells_sdk.SdkConfig) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func RetrieveToken(sdkConfig *cells_sdk.SdkConfig) (string, error) {
+func RetrieveToken(sdkConfig *transport.SdkConfig) (string, error) {
 
 	if sdkConfig.UseTokenCache {
 		cached := store.TokenFor(sdkConfig)

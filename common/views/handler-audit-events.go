@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // HandlerAuditEvent is responsible for auditing all events on Nodes
@@ -42,7 +43,7 @@ type HandlerAuditEvent struct {
 }
 
 // GetObject logs an audit message on each GetObject Events after calling following handlers.
-func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	auditer := log.Auditer(ctx)
 	reader, e := h.next.GetObject(ctx, node, requestData)
 
@@ -65,7 +66,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 }
 
 // PutObject logs an audit message after calling following handlers.
-func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	auditer := log.Auditer(ctx)
 	written, e := h.next.PutObject(ctx, node, reader, requestData)
 
@@ -182,19 +183,19 @@ func (h *HandlerAuditEvent) DeleteNode(ctx context.Context, in *tree.DeleteNodeR
 	return response, e
 }
 
-func (h *HandlerAuditEvent) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (h *HandlerAuditEvent) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	// TODO implement
 	return h.next.CopyObject(ctx, from, to, requestData)
 }
 
 // Multi part upload management
 
-func (h *HandlerAuditEvent) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (h *HandlerAuditEvent) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	// TODO implement
 	return h.next.MultipartCreate(ctx, target, requestData)
 }
 
-func (h *HandlerAuditEvent) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (h *HandlerAuditEvent) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	// TODO implement
 	return h.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, reader, requestData)
 }
@@ -204,12 +205,12 @@ func (h *HandlerAuditEvent) MultipartComplete(ctx context.Context, target *tree.
 	return h.next.MultipartComplete(ctx, target, uploadID, uploadedParts)
 }
 
-func (h *HandlerAuditEvent) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (h *HandlerAuditEvent) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	// TODO implement
 	return h.next.MultipartAbort(ctx, target, uploadID, requestData)
 }
 
-func (h *HandlerAuditEvent) MultipartList(ctx context.Context, prefix string, requestData *MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
+func (h *HandlerAuditEvent) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
 	// TODO implement
 	return h.next.MultipartList(ctx, prefix, requestData)
 }

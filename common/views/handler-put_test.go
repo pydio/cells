@@ -25,9 +25,11 @@ import (
 	"strings"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/common/views/models"
 )
 
 func testMkFileResources() (*PutHandler, context.Context, *HandlerMock) {
@@ -69,7 +71,7 @@ func TestMkfileHandler_GetOrCreatePutNode(t *testing.T) {
 
 	h, ctx, _ := testMkFileResources()
 	Convey("getOrCreatePutNode", t, func() {
-		node, err, errFunc := h.getOrCreatePutNode(ctx, "existing/node", &PutRequestData{Size: 12})
+		node, err, errFunc := h.getOrCreatePutNode(ctx, "existing/node", &models.PutRequestData{Size: 12})
 		So(err, ShouldBeNil)
 		So(errFunc, ShouldBeNil)
 		So(node, ShouldNotBeNil)
@@ -78,7 +80,7 @@ func TestMkfileHandler_GetOrCreatePutNode(t *testing.T) {
 
 	Convey("getOrCreatePutNode", t, func() {
 
-		node, err, errFunc := h.getOrCreatePutNode(ctx, "other/node", &PutRequestData{Size: 12})
+		node, err, errFunc := h.getOrCreatePutNode(ctx, "other/node", &models.PutRequestData{Size: 12})
 		So(err, ShouldBeNil)
 		So(errFunc, ShouldNotBeNil)
 		So(node, ShouldNotBeNil)
@@ -94,14 +96,14 @@ func TestMkfileHandler_PutObject(t *testing.T) {
 
 	h, ctx, _ := testMkFileResources()
 	Convey("PutObject 1", t, func() {
-		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/" + common.PydioSyncHiddenFile}, strings.NewReader(""), &PutRequestData{})
+		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/" + common.PydioSyncHiddenFile}, strings.NewReader(""), &models.PutRequestData{})
 		So(err, ShouldBeNil)
 		So(size, ShouldBeZeroValue)
 
 	})
 
 	Convey("PutObject 2", t, func() {
-		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/node"}, strings.NewReader(""), &PutRequestData{})
+		size, err := h.PutObject(ctx, &tree.Node{Path: "/path/node"}, strings.NewReader(""), &models.PutRequestData{})
 		So(err, ShouldBeNil)
 		So(size, ShouldBeZeroValue)
 

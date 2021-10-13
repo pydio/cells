@@ -31,11 +31,11 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
-	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
@@ -43,6 +43,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/sync/endpoints/s3"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/views/models"
 )
 
 var (
@@ -126,7 +127,7 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 			meta[common.XPydioSessionUuid] = session
 		}
 		if !in.UpdateIfExists {
-			if read, er := e.GetObject(ctx, newNode, &GetRequestData{StartOffset: 0, Length: 36}); er == nil {
+			if read, er := e.GetObject(ctx, newNode, &models.GetRequestData{StartOffset: 0, Length: 36}); er == nil {
 				bytes, _ := ioutil.ReadAll(read)
 				read.Close()
 				node.Uuid = string(bytes)
@@ -143,7 +144,7 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 			log.Logger(ctx).Debug("Creating Folder with Uuid", node.ZapUuid())
 			nodeUuid = node.Uuid
 		}
-		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Metadata: meta, Size: int64(len(nodeUuid))})
+		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &models.PutRequestData{Metadata: meta, Size: int64(len(nodeUuid))})
 		if err != nil {
 			return nil, err
 		}
@@ -195,7 +196,7 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 	return &tree.DeleteNodeResponse{Success: success}, err
 }
 
-func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	// Init logger now
 	logger := log.Logger(ctx)
 	info, ok := GetBranchInfo(ctx, "in")
@@ -243,7 +244,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 	return reader, err
 }
 
-func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	info, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return 0, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
@@ -271,7 +272,7 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	}
 }
 
-func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 
 	// If DS's are same datasource, simple S3 Copy operation. Otherwise it must copy from one to another.
 	destInfo, ok := GetBranchInfo(ctx, "to")
@@ -397,7 +398,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 
 }
 
-func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	info, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return "", errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find client")
@@ -409,7 +410,7 @@ func (e *Executor) MultipartCreate(ctx context.Context, target *tree.Node, reque
 	return id, err
 }
 
-func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	info, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return minio.ObjectPart{PartNumber: partNumberMarker}, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
@@ -439,7 +440,7 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 	}
 }
 
-func (e *Executor) MultipartList(ctx context.Context, prefix string, requestData *MultipartRequestData) (res minio.ListMultipartUploadsResult, err error) {
+func (e *Executor) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (res minio.ListMultipartUploadsResult, err error) {
 	info, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return res, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find client")
@@ -447,7 +448,7 @@ func (e *Executor) MultipartList(ctx context.Context, prefix string, requestData
 	return info.Client.ListMultipartUploadsWithContext(ctx, info.ObjectsBucket, prefix, requestData.ListKeyMarker, requestData.ListUploadIDMarker, requestData.ListDelimiter, requestData.ListMaxUploads)
 }
 
-func (e *Executor) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (e *Executor) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	info, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find client")

@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 func newTestHandlerBranchTranslator(pool *ClientsPool) (*PathDataSourceHandler, *HandlerMock) {
@@ -286,7 +287,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 		_, er := b.GetObject(ctx, &tree.Node{
 			Path:      "datasource/root/inner/path",
 			MetaStore: make(map[string]string),
-		}, &GetRequestData{})
+		}, &models.GetRequestData{})
 		So(er, ShouldBeNil) // found
 
 	})
@@ -298,7 +299,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 		_, er := b.PutObject(ctx, &tree.Node{
 			Path:      "test-workspace/inner/path",
 			MetaStore: make(map[string]string),
-		}, strings.NewReader(""), &PutRequestData{})
+		}, strings.NewReader(""), &models.PutRequestData{})
 		So(er, ShouldBeNil) // found
 
 	})
@@ -315,7 +316,7 @@ func TestBranchTranslator_OtherMethods(t *testing.T) {
 		}, &tree.Node{
 			Path:      "test-workspace/inner/path1",
 			MetaStore: make(map[string]string),
-		}, &CopyRequestData{})
+		}, &models.CopyRequestData{})
 		So(er, ShouldBeNil) // found
 
 	})

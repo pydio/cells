@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package actions
 
 import (
@@ -8,10 +28,6 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/forms"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
@@ -19,6 +35,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/etl/models"
+	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -27,7 +44,9 @@ import (
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
+	models2 "github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/scheduler/actions"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type MigratePydioMetaAction struct {
@@ -222,7 +241,7 @@ func (c *MigratePydioMetaAction) BrowseNodesForMeta(ctx context.Context, slug st
 	}
 	for i, metaNode := range metas {
 		channels.Progress <- float32(i) / float32(total)
-		reader, e := router.GetObject(ctx, metaNode, &views.GetRequestData{Length: -1})
+		reader, e := router.GetObject(ctx, metaNode, &models2.GetRequestData{Length: -1})
 		if e != nil {
 			log.TasksLogger(ctx).Warn("Cannot get node content - skipping", metaNode.Zap(), zap.Error(e))
 			errors = append(errors, e)

@@ -26,12 +26,12 @@ import (
 	"io"
 
 	"github.com/micro/go-micro/client"
-	"go.uber.org/zap"
-
 	"github.com/pydio/minio-go"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 type ContextWrapper func(ctx context.Context) (context.Context, error)
@@ -124,7 +124,7 @@ func (a *AbstractHandler) StreamChanges(ctx context.Context, in *tree.StreamChan
 	return a.next.StreamChanges(ctx, in, opts...)
 }
 
-func (a *AbstractHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (a *AbstractHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (a *AbstractHandler) GetObject(ctx context.Context, node *tree.Node, reques
 	return a.next.GetObject(ctx, node, requestData)
 }
 
-func (a *AbstractHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *AbstractHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return 0, err
@@ -140,7 +140,7 @@ func (a *AbstractHandler) PutObject(ctx context.Context, node *tree.Node, reader
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *AbstractHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (a *AbstractHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return 0, err
@@ -154,7 +154,7 @@ func (a *AbstractHandler) WrappedCanApply(srcCtx context.Context, targetCtx cont
 
 // Multi part upload management
 
-func (a *AbstractHandler) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (a *AbstractHandler) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return "", err
@@ -162,7 +162,7 @@ func (a *AbstractHandler) MultipartCreate(ctx context.Context, target *tree.Node
 	return a.next.MultipartCreate(ctx, target, requestData)
 }
 
-func (a *AbstractHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (a *AbstractHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return minio.ObjectPart{PartNumber: partNumberMarker}, err
@@ -178,7 +178,7 @@ func (a *AbstractHandler) MultipartComplete(ctx context.Context, target *tree.No
 	return a.next.MultipartComplete(ctx, target, uploadID, uploadedParts)
 }
 
-func (a *AbstractHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (a *AbstractHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return err
@@ -186,7 +186,7 @@ func (a *AbstractHandler) MultipartAbort(ctx context.Context, target *tree.Node,
 	return a.next.MultipartAbort(ctx, target, uploadID, requestData)
 }
 
-func (a *AbstractHandler) MultipartList(ctx context.Context, prefix string, requestData *MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
+func (a *AbstractHandler) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
 	ctx, err := a.wrapContext(ctx)
 	if err != nil {
 		return minio.ListMultipartUploadsResult{}, err

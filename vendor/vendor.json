@@ -4436,30 +4436,6 @@
 			"revisionTime": "2019-09-05T20:14:53Z"
 		},
 		{
-			"checksumSHA1": "NdL+B9VTnM2Sd1Uoq0elAoXlL3g=",
-			"path": "github.com/pydio/cells-sdk-go",
-			"revision": "ce637a36835bda5f5965ebe2aacb68025ba9e86e",
-			"revisionTime": "2019-10-15T19:52:55Z"
-		},
-		{
-			"checksumSHA1": "jUASx35M8tnoWQtabPuVq3plDm8=",
-			"path": "github.com/pydio/cells-sdk-go/transport/http",
-			"revision": "ce637a36835bda5f5965ebe2aacb68025ba9e86e",
-			"revisionTime": "2019-10-15T19:52:55Z"
-		},
-		{
-			"checksumSHA1": "tbDYGzm1e8+w1W0C9Kd27fj7yBA=",
-			"path": "github.com/pydio/cells-sdk-go/transport/mc",
-			"revision": "ce637a36835bda5f5965ebe2aacb68025ba9e86e",
-			"revisionTime": "2019-10-15T19:52:55Z"
-		},
-		{
-			"checksumSHA1": "eR/ZvzP12MEPPsmjmAZ7CCXP+n8=",
-			"path": "github.com/pydio/cells-sdk-go/transport/oidc",
-			"revision": "ce637a36835bda5f5965ebe2aacb68025ba9e86e",
-			"revisionTime": "2019-10-15T19:52:55Z"
-		},
-		{
 			"checksumSHA1": "fYA/Rl0HUmTWPs8Vvwfr4m+ow9M=",
 			"path": "github.com/pydio/config-srv/config",
 			"revision": "64a62c922b843136452584805c96bd9ae3f98347",
@@ -4562,10 +4538,10 @@
 			"revisionTime": "2018-11-14T16:22:46Z"
 		},
 		{
-			"checksumSHA1": "RKMRgiWaXg8DGStql1vdRnqM0VI=",
+			"checksumSHA1": "e7tNR5uFvOzuuaq2d/ZcjU0Z4F4=",
 			"path": "github.com/pydio/minio-srv",
-			"revision": "5ff5d66c9fc7a8cdc0c27d0b82149be42faa449b",
-			"revisionTime": "2021-10-13T13:12:14Z",
+			"revision": "d2c7b9b077bb03d996105c07caac5aac15c37aae",
+			"revisionTime": "2021-10-13T17:11:16Z",
 			"tree": true
 		},
 		{

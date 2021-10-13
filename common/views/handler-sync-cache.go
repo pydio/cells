@@ -27,8 +27,6 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/allegro/bigcache"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/broker"
@@ -44,6 +42,8 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/cache"
+	"github.com/pydio/cells/common/views/models"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -268,7 +268,7 @@ func (s *SynchronousCacheHandler) ListNodes(ctx context.Context, in *tree.ListNo
 	return r, e
 }
 
-func (s *SynchronousCacheHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (s *SynchronousCacheHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	w, e := s.next.PutObject(ctx, node, reader, requestData)
 	if e == nil {
 		newNode := node.Clone()

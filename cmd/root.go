@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/common/config/remote"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
+	context_wrapper "github.com/pydio/cells/common/log/context-wrapper"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/filex"
@@ -70,8 +71,7 @@ var (
 	EnvPrefixOld = "pydio"
 	EnvPrefixNew = "cells"
 
-	installCommands = []string{"configure", "install"}
-	infoCommands    = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
+	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 
 	initStartingToolsOnce = &sync.Once{}
 
@@ -226,10 +226,10 @@ func initConfig() (new bool) {
 		config.RegisterLocal(localConfig)
 
 		vaultConfig = config.New(
-			remote.New(common.ServiceGrpcNamespace_ + common.ServiceConfig,"vault"),
+			remote.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "vault"),
 		)
 		defaultConfig = config.New(
-			remote.New(common.ServiceGrpcNamespace_ + common.ServiceConfig,"config"),
+			remote.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "config"),
 		)
 	case "raft":
 		localSource := file.NewSource(
@@ -248,10 +248,10 @@ func initConfig() (new bool) {
 		config.RegisterLocal(localConfig)
 
 		vaultConfig = config.New(
-			remote.New(common.ServiceStorageNamespace_ + common.ServiceConfig,"vault"),
+			remote.New(common.ServiceStorageNamespace_+common.ServiceConfig, "vault"),
 		)
 		defaultConfig = config.New(
-			remote.New(common.ServiceStorageNamespace_ + common.ServiceConfig,"config"),
+			remote.New(common.ServiceStorageNamespace_+common.ServiceConfig, "config"),
 		)
 	default:
 		source := file.NewSource(
@@ -365,7 +365,7 @@ func initLogLevel() {
 		common.LogLevel = zap.ErrorLevel
 	}
 
-	log.Init()
+	log.Init(config.ApplicationWorkingDir(config.ApplicationDirLogs), context_wrapper.RichContext)
 
 	// Using it once
 	log.Logger(context.Background())

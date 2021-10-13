@@ -43,20 +43,20 @@ import (
 	"github.com/pydio/cells/common/sync/endpoints/memory"
 	"github.com/pydio/cells/common/sync/model"
 	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
-type objectsClient interface {
-	GetObject(ctx context.Context, node *tree.Node, requestData *views.GetRequestData) (io.ReadCloser, error)
-	PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *views.PutRequestData) (int64, error)
-	CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *views.CopyRequestData) (int64, error)
+type ObjectsClient interface {
+	GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error)
+	PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error)
+	CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error)
 }
 
 type clientProviderFactory interface {
 	GetNodeProviderClient(context.Context) (context.Context, tree.NodeProviderClient, error)
 	GetNodeReceiverClient(context.Context) (context.Context, tree.NodeReceiverClient, error)
 	GetNodeChangesStreamClient(context.Context) (context.Context, tree.NodeChangesStreamerClient, error)
-	GetObjectsClient(context.Context) (context.Context, objectsClient, error)
+	GetObjectsClient(context.Context) (context.Context, ObjectsClient, error)
 
 	GetNodeProviderStreamClient(context.Context) (context.Context, tree.NodeProviderStreamerClient, error)
 	GetNodeReceiverStreamClient(context.Context) (context.Context, tree.NodeReceiverStreamClient, error)
@@ -70,34 +70,34 @@ type Options struct {
 	RenewFolderUuids bool
 }
 
-type abstract struct {
+type Abstract struct {
 	sync.Mutex
-	factory clientProviderFactory
-	source  model.PathSyncSource
+	Factory clientProviderFactory
+	Source  model.PathSyncSource
 
-	clientUUID   string
-	root         string
-	options      Options
-	recentMkDirs []*tree.Node
+	ClientUUID   string
+	Root         string
+	Options      Options
+	RecentMkDirs []*tree.Node
+	GlobalCtx    context.Context
 
 	watchConn         chan model.WatchConnectionInfo
 	updateSnapshot    model.PathSyncTarget
 	watchCtxCancelled bool
-	globalCtx         context.Context
 }
 
 // SetUpdateSnapshot registers a snapshot to be updated when events are received from server
-func (c *abstract) SetUpdateSnapshot(target model.PathSyncTarget) {
+func (c *Abstract) SetUpdateSnapshot(target model.PathSyncTarget) {
 	c.updateSnapshot = target
 }
 
 // PatchUpdateSnapshot does nothing
-func (c *abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
+func (c *Abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 	// Do nothing - we assume Snapshot was updated directly during Watch when receiving events
 }
 
 // Convert micro errors to user readable errors
-func (c *abstract) parseMicroErrors(e error) error {
+func (c *Abstract) parseMicroErrors(e error) error {
 	er := errors.Parse(e.Error())
 	if er.Code == 408 {
 		return fmt.Errorf("cannot connect (408 Timeout): the gRPC port may not be correctly opened in the server")
@@ -112,8 +112,8 @@ func (c *abstract) parseMicroErrors(e error) error {
 }
 
 // LoadNode forwards call to cli.ReadNode
-func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
-	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext(ctx))
+func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
+	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +140,9 @@ func (c *abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 // Walk uses cli.ListNodes() to browse nodes starting from a root (recursively or not).
 // Temporary nodes are ignored.
 // Workspaces nodes are ignored if they don't have the WorkspaceSyncable flag in their Metadata
-func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
-	log.Logger(c.globalCtx).Debug("Walking Router on " + c.rooted(root))
-	ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext())
+func (c *Abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
+	log.Logger(c.GlobalCtx).Debug("Walking Router on " + c.rooted(root))
+	ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext())
 	if err != nil {
 		return err
 	}
@@ -170,7 +170,7 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 		if !n.IsLeaf() {
 			n.Etag = "-1" // Force recomputing Etags for Folders
 		}
-		if c.options.BrowseOnly {
+		if c.Options.BrowseOnly {
 			var s string
 			if e := n.GetMeta(common.MetaFlagWorkspaceScope, &s); e == nil && s != "" {
 				// This is a workspace or a cell. Check it has the syncable flag
@@ -187,7 +187,7 @@ func (c *abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 }
 
 // GetCachedBranches implements CachedBranchProvider by loading branches in a MemDB
-func (c *abstract) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
+func (c *Abstract) GetCachedBranches(ctx context.Context, roots ...string) model.PathSyncSource {
 	memDB := memory.NewMemDB()
 	// Make sure to dedup roots
 	rts := make(map[string]string)
@@ -206,14 +206,14 @@ func (c *abstract) GetCachedBranches(ctx context.Context, roots ...string) model
 
 // Watch uses a GRPC connection to listen to events from the Grpc Gateway (wired to the
 // the Tree Service via a Router).
-func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
+func (c *Abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	c.watchConn = make(chan model.WatchConnectionInfo)
 	changes := make(chan *tree.NodeChangeEvent)
 	finished := make(chan error)
 	// Reset watchCtxCancelled if it's a Resume after a Pause
 	c.watchCtxCancelled = false
-	ctx, cancel := context.WithCancel(c.globalCtx)
+	ctx, cancel := context.WithCancel(c.GlobalCtx)
 
 	obj := &model.WatchObject{
 		EventInfoChan:  make(chan model.EventInfo),
@@ -233,16 +233,16 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 				}
 			case er := <-finished:
 				if !strings.Contains(er.Error(), "DeadlineExceeded") {
-					log.Logger(c.globalCtx).Info("Connection finished " + er.Error())
+					log.Logger(c.GlobalCtx).Info("Connection finished " + er.Error())
 				}
 				if c.watchConn != nil {
 					c.watchConn <- model.WatchDisconnected
 				}
 				<-time.After(5 * time.Second)
-				log.Logger(c.globalCtx).Info("Restarting events watcher after 5s")
+				log.Logger(c.GlobalCtx).Info("Restarting events watcher after 5s")
 				go c.receiveEvents(ctx, changes, finished)
 			case <-obj.DoneChan:
-				log.Logger(c.globalCtx).Info("Stopping event watcher")
+				log.Logger(c.GlobalCtx).Info("Stopping event watcher")
 				c.watchCtxCancelled = true
 				cancel()
 				return
@@ -256,7 +256,7 @@ func (c *abstract) Watch(recursivePath string) (*model.WatchObject, error) {
 }
 
 // changeValidPath checks if a change event received is to be processed or ignored
-func (c *abstract) changeValidPath(n *tree.Node) bool {
+func (c *Abstract) changeValidPath(n *tree.Node) bool {
 	if n == nil {
 		return true
 	}
@@ -273,20 +273,20 @@ func (c *abstract) changeValidPath(n *tree.Node) bool {
 }
 
 // changeToEventInfo transforms a *tree.NodeChangeEvent to the sync model EventInfo.
-func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.EventInfo, send bool) {
+func (c *Abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.EventInfo, send bool) {
 
 	TimeFormatFS := "2006-01-02T15:04:05.000Z"
 	now := time.Now().UTC().Format(TimeFormatFS)
 	if c.updateSnapshot != nil && change.Type == tree.NodeChangeEvent_CREATE && path.Base(change.Target.Path) == common.PydioSyncHiddenFile {
 		// Special case for .pydio creations, to be updated in snapshot but ignored for event processed further
-		c.updateSnapshot.CreateNode(c.globalCtx, change.Target, true)
+		c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true)
 	}
 	if !c.changeValidPath(change.Target) || !c.changeValidPath(change.Source) {
 		return
 	}
-	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.clientUUID
+	send = change.Metadata == nil || change.Metadata[common.XPydioClientUuid] != c.ClientUUID
 	if change.Type == tree.NodeChangeEvent_CREATE || change.Type == tree.NodeChangeEvent_UPDATE_CONTENT {
-		log.Logger(c.globalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
+		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Target.Path + " - " + change.Target.Etag)
 		event = model.EventInfo{
 			Type:     model.EventCreate,
 			Path:     change.Target.Path,
@@ -295,27 +295,27 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 			Folder:   !change.Target.IsLeaf(),
 			Size:     change.Target.Size,
 			Metadata: change.Metadata,
-			Source:   c.source,
+			Source:   c.Source,
 		}
 		if c.updateSnapshot != nil {
-			log.Logger(c.globalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Target.Path + "-" + change.Target.Etag)
-			c.updateSnapshot.CreateNode(c.globalCtx, change.Target, true)
+			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Target.Path + "-" + change.Target.Etag)
+			c.updateSnapshot.CreateNode(c.GlobalCtx, change.Target, true)
 		}
 	} else if change.Type == tree.NodeChangeEvent_DELETE {
-		log.Logger(c.globalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Source.Path)
+		log.Logger(c.GlobalCtx).Debug("Got Event " + change.Type.String() + " - " + change.Source.Path)
 		event = model.EventInfo{
 			Type:     model.EventRemove,
 			Path:     change.Source.Path,
 			Time:     now,
 			Metadata: change.Metadata,
-			Source:   c.source,
+			Source:   c.Source,
 		}
 		if c.updateSnapshot != nil {
-			log.Logger(c.globalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
-			c.updateSnapshot.DeleteNode(c.globalCtx, change.Source.Path)
+			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
+			c.updateSnapshot.DeleteNode(c.GlobalCtx, change.Source.Path)
 		}
 	} else if change.Type == tree.NodeChangeEvent_UPDATE_PATH {
-		log.Logger(c.globalCtx).Debug("Got Move Event " + change.Type.String() + " - " + change.Source.Path + " - " + change.Target.Path)
+		log.Logger(c.GlobalCtx).Debug("Got Move Event " + change.Type.String() + " - " + change.Source.Path + " - " + change.Target.Path)
 		event = model.EventInfo{
 			Type:       model.EventSureMove,
 			Path:       change.Target.Path,
@@ -325,26 +325,26 @@ func (c *abstract) changeToEventInfo(change *tree.NodeChangeEvent) (event model.
 			MoveSource: change.Source,
 			MoveTarget: change.Target,
 			Metadata:   change.Metadata,
-			Source:     c.source,
+			Source:     c.Source,
 		}
 		if c.updateSnapshot != nil {
-			log.Logger(c.globalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
-			c.updateSnapshot.MoveNode(c.globalCtx, change.Source.Path, change.Target.Path)
+			log.Logger(c.GlobalCtx).Debug("[Router] Updating Snapshot " + change.Type.String() + " - " + change.Source.Path)
+			c.updateSnapshot.MoveNode(c.GlobalCtx, change.Source.Path, change.Target.Path)
 		}
 	}
 	return
 }
 
 // receiveEvents starts a streamer to the GRPC gateway
-func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error) {
-	ctx, cli, err := c.factory.GetNodeChangesStreamClient(c.getContext(ctx))
+func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeChangeEvent, finished chan error) {
+	ctx, cli, err := c.Factory.GetNodeChangesStreamClient(c.getContext(ctx))
 	if err != nil {
 		if !c.watchCtxCancelled {
 			finished <- err
 		}
 		return
 	}
-	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.root}, client.WithRequestTimeout(10*time.Minute))
+	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root}, client.WithRequestTimeout(10*time.Minute))
 	if e != nil {
 		if !c.watchCtxCancelled {
 			finished <- e
@@ -361,7 +361,7 @@ func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 			return
 		}
 		if e != nil {
-			log.Logger(c.globalCtx).Error("Stopping watcher on error" + e.Error())
+			log.Logger(c.GlobalCtx).Error("Stopping watcher on error" + e.Error())
 			if !c.watchCtxCancelled {
 				finished <- e
 			}
@@ -378,19 +378,19 @@ func (c *abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 }
 
 // ComputeChecksum is not implemented
-func (c *abstract) ComputeChecksum(node *tree.Node) error {
+func (c *Abstract) ComputeChecksum(node *tree.Node) error {
 	return fmt.Errorf("not.implemented")
 }
 
 // CreateNode is used for creating folders only
-func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
-	ctx, cli, err := c.factory.GetNodeReceiverClient(c.getContext(ctx))
+func (c *Abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
+	ctx, cli, err := c.Factory.GetNodeReceiverClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
 	n := node.Clone()
 	n.Path = c.rooted(n.Path)
-	if c.options.RenewFolderUuids {
+	if c.Options.RenewFolderUuids {
 		n.Uuid = ""
 	}
 	resp, e := cli.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
@@ -400,7 +400,7 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 		if er := resp.GetNode().GetMeta(common.MetaFlagIndexed, &indexed); er != nil || !indexed {
 			log.Logger(ctx).Debug("Create Node Response :", zap.Any("node", resp.GetNode()))
 			c.Lock()
-			c.recentMkDirs = append(c.recentMkDirs, n)
+			c.RecentMkDirs = append(c.RecentMkDirs, n)
 			c.Unlock()
 		}
 	}
@@ -409,14 +409,14 @@ func (c *abstract) CreateNode(ctx context.Context, node *tree.Node, updateIfExis
 
 // DeleteNode forwards call to the grpc gateway. For folders, the recursive deletion
 // will happen on the gateway side. It may take some time, thus a request timeout of 5 minutes.
-func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
+func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	// Ignore .pydio files !
 	if path.Base(name) == common.PydioSyncHiddenFile {
 		log.Logger(ctx).Debug("[router] Ignoring " + name)
 		return nil
 	}
 	c.flushRecentMkDirs()
-	ctx, cliRead, err := c.factory.GetNodeProviderClient(c.getContext(ctx))
+	ctx, cliRead, err := c.Factory.GetNodeProviderClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
@@ -428,7 +428,7 @@ func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
 			return e
 		}
 	}
-	_, cliWrite, err := c.factory.GetNodeReceiverClient(c.getContext(ctx))
+	_, cliWrite, err := c.Factory.GetNodeReceiverClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
@@ -437,9 +437,9 @@ func (c *abstract) DeleteNode(ctx context.Context, name string) (err error) {
 }
 
 // MoveNode renames a file or folder and *blocks* until the node has been properly moved (sync)
-func (c *abstract) MoveNode(ct context.Context, oldPath string, newPath string) (err error) {
+func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) (err error) {
 	c.flushRecentMkDirs()
-	ctx, cli, err := c.factory.GetNodeReceiverClient(c.getContext(ct))
+	ctx, cli, err := c.Factory.GetNodeReceiverClient(c.getContext(ct))
 	if err != nil {
 		return err
 	}
@@ -458,7 +458,7 @@ func (c *abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 }
 
 // GetWriteOn retrieves a WriteCloser wired to the S3 gateway to PUT a file.
-func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
+func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
 	if targetSize == 0 {
 		//It is working indeed!
 		//return nil, writeDone, writeErr, fmt.Errorf("cannot create empty files")
@@ -466,7 +466,7 @@ func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
 	if path.Base(p) == common.PydioSyncHiddenFile {
-		log.Logger(c.globalCtx).Debug("[router] Ignoring " + p)
+		log.Logger(c.GlobalCtx).Debug("[router] Ignoring " + p)
 		defer close(writeDone)
 		defer close(writeErr)
 		return &NoopWriter{}, writeDone, writeErr, nil
@@ -475,7 +475,7 @@ func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 	n := &tree.Node{Path: c.rooted(p)}
 	reader, out := io.Pipe()
 
-	ctx, cli, err := c.factory.GetObjectsClient(c.getContext())
+	ctx, cli, err := c.Factory.GetObjectsClient(c.getContext())
 	if err != nil {
 		return nil, writeDone, writeErr, err
 	}
@@ -490,7 +490,7 @@ func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 			close(writeDone)
 			close(writeErr)
 		}()
-		_, e := cli.PutObject(ctx, n, reader, &views.PutRequestData{Size: targetSize, Metadata: meta})
+		_, e := cli.PutObject(ctx, n, reader, &models.PutRequestData{Size: targetSize, Metadata: meta})
 		if e != nil {
 			fmt.Println("[ERROR]", "Cannot PutObject", e.Error())
 			writeErr <- e
@@ -502,34 +502,34 @@ func (c *abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 }
 
 // GetReaderOn retrieves an io.ReadCloser from the S3 Get operation
-func (c *abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
+func (c *Abstract) GetReaderOn(p string) (out io.ReadCloser, err error) {
 	n := &tree.Node{Path: c.rooted(p)}
-	ctx, cli, err := c.factory.GetObjectsClient(c.getContext())
+	ctx, cli, err := c.Factory.GetObjectsClient(c.getContext())
 	if err != nil {
 		return nil, err
 	}
-	o, e := cli.GetObject(ctx, n, &views.GetRequestData{StartOffset: 0, Length: -1})
+	o, e := cli.GetObject(ctx, n, &models.GetRequestData{StartOffset: 0, Length: -1})
 	return o, e
 }
 
 // flushRecentMkDirs makes sure all CreateNode request that have been sent are indeed
 // reflected in the server index.
-func (c *abstract) flushRecentMkDirs() {
-	if len(c.recentMkDirs) > 0 {
+func (c *Abstract) flushRecentMkDirs() {
+	if len(c.RecentMkDirs) > 0 {
 		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready...")
 		c.Lock()
-		c.readNodesBlocking(c.recentMkDirs)
-		c.recentMkDirs = nil
+		c.readNodesBlocking(c.RecentMkDirs)
+		c.RecentMkDirs = nil
 		c.Unlock()
 		log.Logger(context.Background()).Info("Cells Endpoint: checking that recently created folders are ready - OK")
 	}
 }
 
 // readNodeBlocking retries to read a node until it is available (it may habe just been indexed).
-func (c *abstract) readNodeBlocking(n *tree.Node) {
+func (c *Abstract) readNodeBlocking(n *tree.Node) {
 	// Block until move is correctly indexed
 	model.Retry(func() error {
-		ctx, cli, err := c.factory.GetNodeProviderClient(c.getContext())
+		ctx, cli, err := c.Factory.GetNodeProviderClient(c.getContext())
 		if err != nil {
 			return err
 		}
@@ -539,7 +539,7 @@ func (c *abstract) readNodeBlocking(n *tree.Node) {
 }
 
 // readNodesBlocking wraps many parallel calls to readNodeBlocking.
-func (c *abstract) readNodesBlocking(nodes []*tree.Node) {
+func (c *Abstract) readNodesBlocking(nodes []*tree.Node) {
 	if len(nodes) == 0 {
 		return
 	}
@@ -561,18 +561,18 @@ func (c *abstract) readNodesBlocking(nodes []*tree.Node) {
 }
 
 // rooted returns the path with the root prefix
-func (c *abstract) rooted(p string) string {
-	return path.Join(c.root, p)
+func (c *Abstract) rooted(p string) string {
+	return path.Join(c.Root, p)
 }
 
 // unrooted returns the path without the root prefix
-func (c *abstract) unrooted(p string) string {
-	return strings.TrimLeft(strings.TrimPrefix(p, c.root), "/")
+func (c *Abstract) unrooted(p string) string {
+	return strings.TrimLeft(strings.TrimPrefix(p, c.Root), "/")
 }
 
 // getContext prepares a context (either from Background() or from the passed parent
 // context that includes the XPydioClientUuid header.
-func (c *abstract) getContext(ctx ...context.Context) context.Context {
+func (c *Abstract) getContext(ctx ...context.Context) context.Context {
 	var ct context.Context
 	if len(ctx) > 0 {
 		ct = ctx[0]
@@ -580,7 +580,7 @@ func (c *abstract) getContext(ctx ...context.Context) context.Context {
 		ct = context.Background()
 	}
 	ct = context2.WithAdditionalMetadata(ct, map[string]string{
-		common.XPydioClientUuid: c.clientUUID,
+		common.XPydioClientUuid: c.ClientUUID,
 	})
 	return ct
 }

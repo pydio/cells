@@ -33,8 +33,6 @@ import (
 	"strconv"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/disintegration/imaging"
 	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
@@ -50,7 +48,9 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/scheduler/actions"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (
@@ -191,7 +191,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	} else {
 		// TODO : tmp security until Router is transmitting nodes immutably
 		routerNode := proto.Clone(node).(*tree.Node)
-		reader, err = getRouter().GetObject(ctx, routerNode, &views.GetRequestData{Length: -1})
+		reader, err = getRouter().GetObject(ctx, routerNode, &models.GetRequestData{Length: -1})
 		errPath = routerNode.Path
 	}
 	if err != nil {
@@ -358,7 +358,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			return false, e
 		}
 		tNode.Size = int64(buf.Len())
-		written, err := getRouter().PutObject(tCtx, tNode, buf, &views.PutRequestData{
+		written, err := getRouter().PutObject(tCtx, tNode, buf, &models.PutRequestData{
 			Size:     tNode.Size,
 			Metadata: requestMeta,
 		})

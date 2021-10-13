@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // FileSystem is the pydio specific implementation of the generic webdav.FileSystem interface
@@ -231,7 +232,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	// }
 	// f.node.Path = inPath
 
-	multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &views.MultipartRequestData{})
+	multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &models.MultipartRequestData{})
 	if err != nil {
 		log.Logger(f.ctx).Error("Error while creating multipart")
 		if f.createErrorCallback != nil {
@@ -274,7 +275,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 		}
 
 		if nr > 0 {
-			reqData := views.PutRequestData{
+			reqData := models.PutRequestData{
 				Size:              int64(nr), // int64(len(buf)),
 				MultipartUploadID: multipartID,
 				MultipartPartID:   i, // must be >= 1
@@ -448,7 +449,7 @@ func (f *File) Read(p []byte) (int, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
-	reader, err := f.fs.Router.GetObject(f.ctx, f.node, &views.GetRequestData{StartOffset: f.off, Length: int64(len(p))})
+	reader, err := f.fs.Router.GetObject(f.ctx, f.node, &models.GetRequestData{StartOffset: f.off, Length: int64(len(p))})
 	if err != nil {
 		log.Logger(f.ctx).Debug("File.Read Failed", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap(), zap.Error(err))
 		return 0, err

@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/data/versions/lang"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -141,7 +142,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		},
 	}
 
-	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
+	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err

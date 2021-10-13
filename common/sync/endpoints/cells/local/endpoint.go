@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package cells
+package local
 
 import (
 	"context"
@@ -29,12 +29,13 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/pydio/cells/common"
-	microbroker "github.com/pydio/cells/common/micro/broker"
-	microregistry "github.com/pydio/cells/common/micro/registry"
-	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
+	"github.com/pydio/cells/common/micro/broker"
+	"github.com/pydio/cells/common/micro/registry"
+	"github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	registry2 "github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/sync/endpoints/cells"
 	"github.com/pydio/cells/common/sync/model"
 	"github.com/pydio/cells/common/views"
 )
@@ -50,42 +51,42 @@ func init() {
 // Local directly connects to a Cells server running in the same network,
 // by connecting to the local NATS registry
 type Local struct {
-	abstract
+	cells.Abstract
 }
 
 // NewLocal creates a new instance of a Local endpoint
-func NewLocal(root string, options Options) *Local {
+func NewLocal(root string, options cells.Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			microregistry.EnableService("127.0.0.1", "8000")
-			microbroker.EnableService("127.0.0.1", "8003")
-			grpctransport.Enable()
-			registry.Init()
+			registry.EnableService("127.0.0.1", "8000")
+			broker.EnableService("127.0.0.1", "8003")
+			grpc.Enable()
+			registry2.Init()
 		})
 	}
 	l := &Local{
-		abstract: abstract{
-			root:       strings.TrimLeft(root, "/"),
-			options:    options,
-			clientUUID: uuid.New(),
+		Abstract: cells.Abstract{
+			Root:       strings.TrimLeft(root, "/"),
+			Options:    options,
+			ClientUUID: uuid.New(),
 		},
 	}
-	l.factory = &localRouterFactory{
+	l.Factory = &localRouterFactory{
 		router: views.NewStandardRouter(views.RouterOptions{
 			WatchRegistry:    true,
 			AdminView:        true,
 			SynchronousTasks: true,
 		}),
 	}
-	l.source = l
-	l.globalCtx = servicecontext.WithServiceName(context.Background(), "endpoint.cells.local")
+	l.Source = l
+	l.GlobalCtx = servicecontext.WithServiceName(context.Background(), "endpoint.cells.local")
 	return l
 }
 
 // GetEndpointInfo returns info about this endpoint
 func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI:                   "router:///" + l.root,
+		URI: "router:///" + l.Root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,
@@ -114,7 +115,7 @@ func (f *localRouterFactory) GetNodeChangesStreamClient(ctx context.Context) (co
 }
 
 // GetObjectsClient returns the internal Router
-func (f *localRouterFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
+func (f *localRouterFactory) GetObjectsClient(ctx context.Context) (context.Context, cells.ObjectsClient, error) {
 	return f.userToContext(ctx), f.router, nil
 }
 

@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 package cells
 
 import (
@@ -37,7 +38,7 @@ import (
 
 // BulkLoadNodes streams ReadNode requests from server
 func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (map[string]interface{}, error) {
-	newCtx, cli, err := c.factory.GetNodeProviderStreamClient(ctx)
+	newCtx, cli, err := c.Factory.GetNodeProviderStreamClient(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (c *Remote) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 	if c.session != nil {
 		n := node.Clone()
 		n.Path = c.rooted(n.Path)
-		if c.options.RenewFolderUuids {
+		if c.Options.RenewFolderUuids {
 			n.Uuid = ""
 		}
 		c.sessionsCreates = append(c.sessionsCreates, &tree.CreateNodeRequest{
@@ -80,7 +81,7 @@ func (c *Remote) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 		})
 		return nil
 	} else {
-		return c.abstract.CreateNode(ctx, node, updateIfExists)
+		return c.Abstract.CreateNode(ctx, node, updateIfExists)
 	}
 }
 
@@ -95,7 +96,7 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	if len(c.sessionsCreates) == 0 {
 		return nil
 	}
-	ctx, cli, err := c.factory.GetNodeReceiverStreamClient(c.getContext(ctx))
+	ctx, cli, err := c.Factory.GetNodeReceiverStreamClient(c.getContext(ctx))
 	if err != nil {
 		return err
 	}
@@ -118,8 +119,8 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 		if resp, e := streamer.Recv(); e == nil {
 			var indexed bool
 			if er := resp.GetNode().GetMeta(common.MetaFlagIndexed, &indexed); er != nil || !indexed {
-				log.Logger(ctx).Debug("Got create node response in session - register as recentMkDirs", zap.Any("r", resp.GetNode()))
-				c.recentMkDirs = append(c.recentMkDirs, resp.Node)
+				log.Logger(ctx).Debug("Got create node response in session - register as RecentMkDirs", zap.Any("r", resp.GetNode()))
+				c.RecentMkDirs = append(c.RecentMkDirs, resp.Node)
 			}
 		} else {
 			streamer.Close()
@@ -140,7 +141,7 @@ func (c *Remote) FinishSession(ctx context.Context, sessionUuid string) error {
 	e := c.FlushSession(ctx, sessionUuid)
 	c.session = nil
 	c.Lock()
-	c.recentMkDirs = nil
+	c.RecentMkDirs = nil
 	c.Unlock()
 	return e
 }
