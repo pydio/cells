@@ -43,6 +43,12 @@ type PathWorkspaceHandler struct {
 	AbstractBranchFilter
 }
 
+type noWorkspaceInPath struct{}
+
+func (noWorkspaceInPath) Error() string {
+	return "no.workspace.in.path"
+}
+
 func NewPathWorkspaceHandler() *PathWorkspaceHandler {
 	u := &PathWorkspaceHandler{}
 	u.inputMethod = u.updateBranchInfo
@@ -72,8 +78,8 @@ func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (
 					return ws, true, nil
 				}
 			}
-			// There is a workspace but it is not in the ACL !
-			return nil, false, errors.Forbidden("workspace.not.accessible", fmt.Sprintf("Workspace %s is not accessible", parts[0]))
+			// There is a workspace in path, but it is not in the ACL!
+			return nil, false, errors.NotFound("workspace.not.found", fmt.Sprintf("Workspace %s is not found", parts[0]))
 		} else {
 			// Root without workspace part
 			return nil, false, nil
@@ -99,7 +105,7 @@ func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.
 		})
 		return WithBranchInfo(ctx, identifier, branchInfo), out, nil
 	}
-	return ctx, node, errors.NotFound(VIEWS_LIBRARY_NAME, "Workspace not found in Path")
+	return ctx, node, noWorkspaceInPath{}
 }
 
 func (a *PathWorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
@@ -115,7 +121,7 @@ func (a *PathWorkspaceHandler) updateOutputBranch(ctx context.Context, node *tre
 func (a *PathWorkspaceHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 	_, _, err := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if err != nil {
-		if errors.Parse(err.Error()).Status == "Not Found" {
+		if err.Error() == (noWorkspaceInPath{}).Error() {
 			// Return a fake root node
 			return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
 		} else {
@@ -127,8 +133,12 @@ func (a *PathWorkspaceHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 }
 
 func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
-	_, _, wsFound := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
-	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
+	_, _, err := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
+	if err != nil {
+		// Real error
+		if err.Error() != (noWorkspaceInPath{}).Error() {
+			return nil, err
+		}
 		// List user workspaces here
 		accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*permissions.AccessList)
 		if !ok {
