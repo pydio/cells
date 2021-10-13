@@ -60,7 +60,7 @@ func init() {
 				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicIdmEvent, &WsRolesCleaner{handler}))
 
 				// Clean acls on Nodes deletion
-				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicTreeChanges, &NodesCleaner{Handler: handler}))
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicTreeChanges, newNodesCleaner(m.Options().Context, handler)))
 
 				// For when it will be used: clean locks at startup
 				/*

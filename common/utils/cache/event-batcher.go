@@ -32,7 +32,7 @@ import (
 
 // EventWithContext composes a NodeChangeEvent and a context
 type EventWithContext struct {
-	tree.NodeChangeEvent
+	*tree.NodeChangeEvent
 	Ctx context.Context
 }
 
@@ -41,25 +41,27 @@ type EventsBatcher struct {
 	Events chan *EventWithContext
 	Done   chan bool
 
-	globalCtx  context.Context
-	batch      []*EventWithContext
-	debounce   time.Duration
-	idle       time.Duration
-	maxEvents  int
-	processOne func(context.Context, *tree.NodeChangeEvent)
+	globalCtx       context.Context
+	batch           []*EventWithContext
+	debounce        time.Duration
+	idle            time.Duration
+	maxEvents       int
+	atomic          bool
+	processOneOrAll func(context.Context, ...*tree.NodeChangeEvent)
 }
 
-// NewEventsBatcher inits a new EventsBatcher
-func NewEventsBatcher(ctx context.Context, debounce time.Duration, idle time.Duration, max int, process func(context.Context, *tree.NodeChangeEvent)) *EventsBatcher {
+// NewEventsBatcher initializes a new EventsBatcher
+func NewEventsBatcher(ctx context.Context, debounce time.Duration, idle time.Duration, max int, atomic bool, process func(context.Context, ...*tree.NodeChangeEvent)) *EventsBatcher {
 	b := &EventsBatcher{
 		Events: make(chan *EventWithContext),
 		Done:   make(chan bool, 1),
 
-		globalCtx:  ctx,
-		debounce:   debounce,
-		idle:       idle,
-		maxEvents:  max,
-		processOne: process,
+		globalCtx:       ctx,
+		debounce:        debounce,
+		idle:            idle,
+		maxEvents:       max,
+		atomic:          atomic,
+		processOneOrAll: process,
 	}
 	go b.Start()
 	return b
@@ -95,9 +97,18 @@ func (b *EventsBatcher) process() {
 	if len(b.batch) == 0 {
 		return
 	}
-	log.Logger(b.globalCtx).Debug("Processing NodeEvents Batch", zap.Int("size", len(b.batch)))
-	for _, e := range b.batch {
-		b.processOne(e.Ctx, &e.NodeChangeEvent)
+	if b.atomic {
+		log.Logger(b.globalCtx).Debug("Processing batched events one by one", zap.Int("size", len(b.batch)))
+		for _, e := range b.batch {
+			b.processOneOrAll(e.Ctx, e.NodeChangeEvent)
+		}
+	} else {
+		log.Logger(b.globalCtx).Debug("Processing batched events as a batch", zap.Int("size", len(b.batch)))
+		var cleanEvents []*tree.NodeChangeEvent
+		for _, e := range b.batch {
+			cleanEvents = append(cleanEvents, e.NodeChangeEvent)
+		}
+		b.processOneOrAll(b.globalCtx, cleanEvents...)
 	}
 	b.batch = []*EventWithContext{}
 }

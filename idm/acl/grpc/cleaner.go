@@ -22,14 +22,17 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/protobuf/ptypes"
 
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils/cache"
 )
 
 type WsRolesCleaner struct {
@@ -40,16 +43,16 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 	if msg.Type != idm.ChangeEventType_DELETE {
 		return nil
 	}
-	queries := []*any.Any{}
+	var queries []*any.Any
 	if msg.Workspace != nil {
-		// Delete ACL's for this workspace
+		// Delete ACL for this workspace
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 			WorkspaceIDs: []string{msg.Workspace.UUID},
 		})
 		queries = append(queries, q)
 	}
 	if msg.Role != nil {
-		// Delete ACL's for this workspace
+		// Delete ACL for this role
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 			RoleIDs: []string{msg.Role.Uuid},
 		})
@@ -65,24 +68,43 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 	return nil
 }
 
-type NodesCleaner struct {
-	Handler *Handler
+type nodesCleaner struct {
+	handler *Handler
+	batcher *cache.EventsBatcher
 }
 
-func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
+func newNodesCleaner(ctx context.Context, h *Handler) *nodesCleaner {
+	nc := &nodesCleaner{handler: h}
+	nc.batcher = cache.NewEventsBatcher(ctx, 750*time.Millisecond, 2*time.Second, 5000, false, func(ctx context.Context, events ...*tree.NodeChangeEvent) {
+		nc.process(ctx, events...)
+	})
+	return nc
+}
+
+func (c *nodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
 	if msg.Type != tree.NodeChangeEvent_DELETE || msg.Source == nil || msg.Source.Uuid == "" || msg.Optimistic {
 		return nil
 	}
-	// fmt.Println("Received a nodes cleaner handle message ", msg)
+	c.batcher.Events <- &cache.EventWithContext{Ctx: ctx, NodeChangeEvent: msg}
+	return nil
+}
+
+func (c *nodesCleaner) process(ctx context.Context, events ...*tree.NodeChangeEvent) {
 
 	// Mark ACLs for deletion
+	var uu []string
+	for _, e := range events {
+		uu = append(uu, e.Source.Uuid)
+	}
+	log.Logger(ctx).Debug(fmt.Sprintf("Marking %d nodes ACL as expired", len(uu)))
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
-		NodeIDs: []string{msg.Source.Uuid},
+		NodeIDs: uu,
 	})
-	return c.Handler.ExpireACL(ctx, &idm.ExpireACLRequest{
+	c.handler.ExpireACL(ctx, &idm.ExpireACLRequest{
 		Query: &service.Query{
 			SubQueries: []*any.Any{q},
 		},
 		Timestamp: time.Now().Unix(),
 	}, &idm.ExpireACLResponse{})
+
 }

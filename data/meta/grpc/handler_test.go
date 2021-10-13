@@ -28,16 +28,16 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/event"
 	common "github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/data/meta"
+	"github.com/pydio/cells/x/configx"
 )
 
 var (
@@ -45,7 +45,7 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	var options config.Map
+	options := configx.New()
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {
@@ -184,9 +184,9 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Create Event to Subscriber", t, func() {
 
 		sub := server.CreateNodeChangeSubscriber(ctx)
-		sub.outputChannel <- &event.EventWithContext{
-			Context: ctx,
-			Event: &common.NodeChangeEvent{
+		sub.outputChannel <- &cache.EventWithContext{
+			Ctx: ctx,
+			NodeChangeEvent: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_CREATE,
 				Target: &common.Node{
 					Uuid: "event-node-uid",
@@ -225,9 +225,9 @@ func TestSubscriber(t *testing.T) {
 			},
 		}, &common.UpdateNodeResponse{})
 
-		sub.outputChannel <- &event.EventWithContext{
-			Context: ctx,
-			Event: &common.NodeChangeEvent{
+		sub.outputChannel <- &cache.EventWithContext{
+			Ctx: ctx,
+			NodeChangeEvent: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_UPDATE_META,
 				Target: &common.Node{
 					Uuid: "event-node-uid",
@@ -267,9 +267,9 @@ func TestSubscriber(t *testing.T) {
 			},
 		}, &common.UpdateNodeResponse{})
 
-		sub.outputChannel <- &event.EventWithContext{
-			Context: ctx,
-			Event: &common.NodeChangeEvent{
+		sub.outputChannel <- &cache.EventWithContext{
+			Ctx: ctx,
+			NodeChangeEvent: &common.NodeChangeEvent{
 				Type: common.NodeChangeEvent_DELETE,
 				Source: &common.Node{
 					Uuid: "event-node-uid",

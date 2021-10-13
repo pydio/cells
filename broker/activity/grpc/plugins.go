@@ -79,8 +79,8 @@ func init() {
 				// Register Subscribers
 				subscriber := NewEventsSubscriber(dao)
 				s := m.Options().Server
-				batcher := cache.NewEventsBatcher(m.Options().Context, 3*time.Second, 20*time.Second, 2000, func(ctx context.Context, msg *tree.NodeChangeEvent) {
-					subscriber.HandleNodeChange(ctx, msg)
+				batcher := cache.NewEventsBatcher(m.Options().Context, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
+					subscriber.HandleNodeChange(ctx, msg[0])
 				})
 				m.Init(micro.BeforeStop(func() error {
 					batcher.Stop()
@@ -97,7 +97,7 @@ func init() {
 					if msg.Optimistic {
 						return nil
 					}
-					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: *msg, Ctx: ctx}
+					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
 					return nil
 				})); err != nil {
 					return err
@@ -106,7 +106,7 @@ func init() {
 					if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
 						return nil
 					}
-					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: *msg, Ctx: ctx}
+					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
 					return nil
 				})); err != nil {
 					return err

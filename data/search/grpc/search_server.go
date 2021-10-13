@@ -31,11 +31,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/event"
 	"github.com/pydio/cells/common/log"
 	protosync "github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils/cache"
 	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/data/search/dao"
 )
@@ -43,7 +43,7 @@ import (
 // SearchServer implements GRPC server for index/search
 type SearchServer struct {
 	Engine           dao.SearchEngine
-	eventsChannel    chan *event.EventWithContext
+	eventsChannel    chan *cache.EventWithContext
 	TreeClient       tree.NodeProviderClient
 	NsProvider       *meta.NamespacesProvider
 	ReIndexThrottler chan struct{}
@@ -63,11 +63,11 @@ func (s *SearchServer) CreateNodeChangeSubscriber() *EventsSubscriber {
 
 func (s *SearchServer) initEventsChannel() {
 
-	s.eventsChannel = make(chan *event.EventWithContext)
+	s.eventsChannel = make(chan *cache.EventWithContext)
 	go func() {
 		for eventWCtx := range s.eventsChannel {
-			ctx := servicecontext.WithServiceName(eventWCtx.Context, common.ServiceGrpcNamespace_+common.ServiceSearch)
-			s.processEvent(ctx, eventWCtx.Event)
+			ctx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
+			s.processEvent(ctx, eventWCtx.NodeChangeEvent)
 		}
 	}()
 }

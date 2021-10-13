@@ -25,23 +25,24 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/pydio/cells/common/event"
-	"github.com/pydio/cells/common/proto/tree"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/utils/cache"
 )
 
 func TestEventsSubscriber_Handle(t *testing.T) {
 
 	Convey("Test Events Subscriber", t, func() {
 
-		out := make(chan *event.EventWithContext)
+		out := make(chan *cache.EventWithContext)
 		subscriber := &EventsSubscriber{
 			outputChannel: out,
 		}
 
 		wg := sync.WaitGroup{}
 		wg.Add(1)
-		var output *event.EventWithContext
+		var output *cache.EventWithContext
 		go func() {
 			defer wg.Done()
 			for {
@@ -66,9 +67,9 @@ func TestEventsSubscriber_Handle(t *testing.T) {
 
 		wg.Wait()
 
-		So(output, ShouldResemble, &event.EventWithContext{
-			Context: ctx,
-			Event:   ev,
+		So(output, ShouldResemble, &cache.EventWithContext{
+			Ctx:             ctx,
+			NodeChangeEvent: ev,
 		})
 
 	})

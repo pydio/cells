@@ -24,13 +24,13 @@ import (
 	"context"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/event"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/utils/cache"
 )
 
 // EventsSubscriber definition
 type EventsSubscriber struct {
-	outputChannel chan *event.EventWithContext
+	outputChannel chan *cache.EventWithContext
 }
 
 // Handle the events received and send them to the subscriber
@@ -47,9 +47,9 @@ func (e *EventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent
 	}
 
 	go func() {
-		e.outputChannel <- &event.EventWithContext{
-			Context: ctx,
-			Event:   msg,
+		e.outputChannel <- &cache.EventWithContext{
+			Ctx:             ctx,
+			NodeChangeEvent: msg,
 		}
 	}()
 	return nil

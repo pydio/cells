@@ -32,7 +32,6 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/event"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
@@ -43,7 +42,7 @@ import (
 // MetaServer definition
 type MetaServer struct {
 	//	Dao           DAO
-	eventsChannel chan *event.EventWithContext
+	eventsChannel chan *cache.EventWithContext
 	cache         *cache.InstrumentedCache
 	cacheMutex    *cache.KeyMutex
 }
@@ -65,7 +64,7 @@ func (s *MetaServer) Stop() {
 func (s *MetaServer) CreateNodeChangeSubscriber(parentContext context.Context) *EventsSubscriber {
 
 	if s.eventsChannel == nil {
-		s.initEventsChannel(parentContext)
+		s.initEventsChannel()
 	}
 	subscriber := &EventsSubscriber{
 		outputChannel: s.eventsChannel,
@@ -73,14 +72,14 @@ func (s *MetaServer) CreateNodeChangeSubscriber(parentContext context.Context) *
 	return subscriber
 }
 
-func (s *MetaServer) initEventsChannel(parentContext context.Context) {
+func (s *MetaServer) initEventsChannel() {
 
 	// Todo: find a way to close channel on topic UnSubscription ?
-	s.eventsChannel = make(chan *event.EventWithContext)
+	s.eventsChannel = make(chan *cache.EventWithContext)
 	go func() {
 		for eventWCtx := range s.eventsChannel {
-			newCtx := servicecontext.WithServiceName(eventWCtx.Context, common.ServiceGrpcNamespace_+common.ServiceMeta)
-			s.processEvent(newCtx, eventWCtx.Event)
+			newCtx := servicecontext.WithServiceName(eventWCtx.Ctx, common.ServiceGrpcNamespace_+common.ServiceMeta)
+			s.processEvent(newCtx, eventWCtx.NodeChangeEvent)
 		}
 	}()
 }

@@ -90,7 +90,9 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 
 	s.RootContext = context.WithValue(parentContext, common.PydioContextUserKey, common.PydioSystemUsername)
 
-	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, s.processNodeEvent)
+	s.batcher = cache.NewEventsBatcher(s.RootContext, 2*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, events ...*tree.NodeChangeEvent) {
+		s.processNodeEvent(ctx, events[0])
+	})
 
 	// Use a "Queue" mechanism to make sure events are distributed across tasks instances
 	opts := func(o *server.SubscriberOptions) {
@@ -307,7 +309,7 @@ func (s *Subscriber) nodeEvent(ctx context.Context, event *tree.NodeChangeEvent)
 	}
 
 	s.batcher.Events <- &cache.EventWithContext{
-		NodeChangeEvent: *event,
+		NodeChangeEvent: event,
 		Ctx:             ctx,
 	}
 
