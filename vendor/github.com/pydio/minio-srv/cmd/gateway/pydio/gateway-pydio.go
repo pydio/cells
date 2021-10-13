@@ -173,8 +173,12 @@ func (l *pydioObjects) ListPydioObjects(ctx context.Context, bucket string, pref
 		FilterType:   FilterType,
 	})
 	if err != nil {
+		if microerrors.Parse(err.Error()).Code == 404 {
+			return nil, nil, nil // Ignore and return empty list
+		}
 		return nil, nil, pydioToMinioError(err, bucket, prefix)
 	}
+	defer lNodeClient.Close()
 	for {
 		clientResponse, err := lNodeClient.Recv()
 		if err != nil {
