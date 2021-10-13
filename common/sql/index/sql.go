@@ -65,7 +65,6 @@ type BatchSend struct {
 }
 
 func init() {
-
 	inserting.Store(make(map[string]bool))
 	cond = sync.NewCond(&sync.Mutex{})
 
@@ -144,50 +143,47 @@ func init() {
 		totalMPathTo := len(mpathTo[0]) + len(mpathTo[1]) + len(mpathTo[2]) + len(mpathTo[3])
 
 		var (
-			quotientMPathFrom int = totalMPathFrom / indexLen
-			moduloMPathFrom   int = totalMPathFrom % indexLen
-			quotientMPathTo   int = totalMPathTo / indexLen
-			moduloMPathTo     int = totalMPathTo % indexLen
+			quoMPathTo   int = totalMPathTo / indexLen
+			modMPathTo int = totalMPathTo % indexLen
 			mpathSub          []string
 		)
 
-		cnt := 1
+		// rows before
+		for i := 0; i < quoMPathTo; i++ {
+			mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d="%s"`, i+1, mpathTo[i]))
+		}
 
-		for i := 0; i < 4; i++ {
-			if i < quotientMPathTo {
-				// We just copy the result
-				mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d="%s"`, i+1, mpathTo[i]))
-			} else if i == quotientMPathTo {
-				// We copy the result and concat the remainder of
-				if moduloMPathFrom > moduloMPathTo {
-					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+1, moduloMPathFrom+1, indexLen-moduloMPathFrom)
-					remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+2, 1, moduloMPathFrom-moduloMPathTo)
-					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
-				} else {
-					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, quotientMPathFrom+1, moduloMPathFrom+1, indexLen-moduloMPathTo)
-					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1)))
-				}
-			} else {
-				idx := quotientMPathFrom + cnt
-				cnt = cnt + 1
+		// for the final rows, we do some clever concatenations based on the length of the origin and the target
+		maxLen := indexLen * 4
+		curIndexFrom := totalMPathFrom
+		curIndexTo := totalMPathTo
 
-				if moduloMPathFrom > moduloMPathTo {
-					if idx < 3 {
-						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, moduloMPathFrom-moduloMPathTo+1, indexLen-(moduloMPathFrom-moduloMPathTo))
-						remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+2, 1, moduloMPathFrom-moduloMPathTo)
-						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
-					} else if idx < 4 {
-						remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, moduloMPathFrom-moduloMPathTo+1, indexLen-(moduloMPathFrom-moduloMPathTo))
-						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1)))
-					} else {
-						mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=""`, i+1))
-					}
-				} else {
-					remainder1 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx, indexLen-(moduloMPathTo-moduloMPathFrom)+1, moduloMPathTo-moduloMPathFrom)
-					remainder2 := fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, idx+1, 1, indexLen-(moduloMPathTo-moduloMPathFrom))
-					mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, i+1, dao.Concat(`"`+mpathTo[i]+`"`, remainder1, remainder2)))
-				}
+		for cnt := quoMPathTo; cnt < 4; cnt++ {
+			if curIndexFrom >= maxLen || curIndexTo >= maxLen {
+				break
 			}
+
+			var concat []string
+
+			incr := indexLen
+			if cnt == quoMPathTo {
+				incr = indexLen - modMPathTo
+				concat = append(concat, `"`+ mpathTo[cnt] + `"`)
+			}
+			tarIndexFrom := curIndexFrom + incr
+			if tarIndexFrom > maxLen {
+				tarIndexFrom = maxLen
+			}
+
+			modParts := getModuloParts(curIndexFrom, tarIndexFrom, indexLen)
+			for _, modPart := range modParts {
+				concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo + 1, modPart.from + 1, modPart.to - modPart.from))
+			}
+
+			mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, cnt + 1, dao.Concat(concat...)))
+
+			curIndexFrom = tarIndexFrom
+			curIndexTo = curIndexTo + incr
 		}
 
 		// Reversing array so that the update is in the correct position
@@ -1508,4 +1504,54 @@ func firstAvailableSlot(numbers []int, padStart bool) (missing int, has bool, re
 		}
 	}
 	return
+}
+
+type modPart struct {
+	quo int
+	from int
+	to int
+}
+
+func getModuloParts(start, end, len int) []modPart {
+	startQuo := start / len
+	endQuo := end / len
+
+	startMod := start % len
+	endMod := end % len
+
+	if startQuo == endQuo {
+		return []modPart{{
+			quo: startQuo,
+			from: startMod,
+			to: endMod,
+		}}
+	}
+
+	var ret []modPart
+
+	if startMod != len {
+		ret = append(ret, modPart{
+			quo:  startQuo,
+			from: startMod,
+			to:   len,
+		})
+	}
+
+	for i := startQuo + 1; i < endQuo; i++ {
+		ret = append(ret, modPart{
+			quo: i,
+			from: 0,
+			to: len,
+		})
+	}
+
+	if endMod != 0 {
+		ret = append(ret, modPart{
+			quo:  endQuo,
+			from: 0,
+			to:   endMod,
+		})
+	}
+
+	return ret
 }
