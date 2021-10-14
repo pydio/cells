@@ -189,6 +189,7 @@ func (a *ArchiveReader) ReadChildZip(ctx context.Context, archiveNode *tree.Node
 		file.Close()
 		remoteReader.Close()
 		archiveName = file.Name()
+		defer os.Remove(archiveName)
 	}
 
 	reader, err := zip.OpenReader(archiveName)
@@ -241,6 +242,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 		remoteReader.Close()
 		archiveName = file.Name()
 		archiveSize = archiveNode.GetSize()
+		defer os.Remove(archiveName)
 	}
 
 	reader, err := zip.OpenReader(archiveName)
