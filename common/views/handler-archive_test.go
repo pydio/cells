@@ -27,9 +27,11 @@ import (
 	"sync"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/common/views/models"
 )
 
 type mockSelectionProvider struct {
@@ -137,7 +139,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Zip Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.zip",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldBeNil)
@@ -151,7 +153,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Zip Selection", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/selection-uuid-selection.zip",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldBeNil)
@@ -165,7 +167,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Tar Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.tar",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldBeNil)
@@ -179,7 +181,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Tar Selection", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/selection-uuid-selection.tar",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldBeNil)
@@ -193,7 +195,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Tar.gz Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.tar.gz",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldBeNil)
@@ -207,7 +209,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Tar.gz Selection", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/selection-uuid-selection.tar.gz",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldBeNil)
@@ -221,7 +223,7 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	Convey("Test Get Wrong Selection Uuid", t, func() {
 		_, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/selection-uuid2-selection.zip",
-		}, &GetRequestData{
+		}, &models.GetRequestData{
 			Length: -1,
 		})
 		So(e, ShouldNotBeNil)

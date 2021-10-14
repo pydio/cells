@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -29,21 +29,21 @@ import (
 
 	"github.com/pydio/minio-go"
 
-	sdk "github.com/pydio/cells-sdk-go"
-	"github.com/pydio/cells-sdk-go/transport/oidc"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport/oidc"
+	"github.com/pydio/cells/common/views/models"
 )
 
 type S3Client struct {
-	config   *sdk.SdkConfig
-	s3config *sdk.S3Config
+	config   *transport.SdkConfig
+	s3config *transport.S3Config
 }
 
-func NewS3Client(config *sdk.SdkConfig) *S3Client {
+func NewS3Client(config *transport.SdkConfig) *S3Client {
 	return &S3Client{
 		config: config,
-		s3config: &sdk.S3Config{
+		s3config: &transport.S3Config{
 			Bucket:                 "data",
 			ApiKey:                 "gateway",
 			ApiSecret:              "gatewaysecret",
@@ -55,7 +55,7 @@ func NewS3Client(config *sdk.SdkConfig) *S3Client {
 	}
 }
 
-func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *views.GetRequestData) (io.ReadCloser, error) {
+func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	jwt, err := oidc.RetrieveToken(g.config)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 	return r, e
 }
 
-func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *views.PutRequestData) (int64, error) {
+func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 
 	jwt, err := oidc.RetrieveToken(g.config)
 	if err != nil {
@@ -101,7 +101,7 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	})
 }
 
-func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *views.CopyRequestData) (int64, error) {
+func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	jwt, err := oidc.RetrieveToken(g.config)
 	if err != nil {
 		return 0, err

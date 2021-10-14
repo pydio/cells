@@ -35,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
 const (
@@ -343,7 +344,7 @@ func (l *pydioObjects) GetObject(ctx context.Context, bucket string, key string,
 	path := strings.TrimLeft(key, "/")
 	objectReader, err := l.Router.GetObject(ctx, &tree.Node{
 		Path: path,
-	}, &views.GetRequestData{
+	}, &models.GetRequestData{
 		StartOffset: startOffset,
 		Length:      length,
 		VersionId:   opts.VersionID,
@@ -369,7 +370,7 @@ func (l *pydioObjects) PutObject(ctx context.Context, bucket string, object stri
 
 	written, err := l.Router.PutObject(ctx, &tree.Node{
 		Path: strings.TrimLeft(object, "/"),
-	}, data, &views.PutRequestData{
+	}, data, &models.PutRequestData{
 		Size:      data.Size(),
 		Sha256Sum: data.SHA256(),
 		Md5Sum:    data.MD5(),
@@ -405,7 +406,7 @@ func (l *pydioObjects) CopyObject(ctx context.Context, srcBucket string, srcObje
 		Path: strings.TrimLeft(srcObject, "/"),
 	}, &tree.Node{
 		Path: strings.TrimLeft(destObject, "/"),
-	}, &views.CopyRequestData{
+	}, &models.CopyRequestData{
 		SrcVersionId: srcOpts.VersionID,
 	})
 
@@ -439,7 +440,7 @@ func (l *pydioObjects) DeleteObject(ctx context.Context, bucket string, object s
 // ListMultipartUploads lists all multipart uploads.
 func (l *pydioObjects) ListMultipartUploads(ctx context.Context, bucket string, prefix string, keyMarker string, uploadIDMarker string, delimiter string, maxUploads int) (lmi minio.ListMultipartsInfo, e error) {
 
-	result, err := l.Router.MultipartList(ctx, prefix, &views.MultipartRequestData{
+	result, err := l.Router.MultipartList(ctx, prefix, &models.MultipartRequestData{
 		ListKeyMarker:      keyMarker,
 		ListUploadIDMarker: uploadIDMarker,
 		ListDelimiter:      delimiter,
@@ -458,7 +459,7 @@ func (l *pydioObjects) NewMultipartUpload(ctx context.Context, bucket string, ob
 
 	uploadID, err = l.Router.MultipartCreate(ctx, &tree.Node{
 		Path: object,
-	}, &views.MultipartRequestData{
+	}, &models.MultipartRequestData{
 		Metadata: minio.ToMinioClientMetadata(reqMetadata),
 	})
 	if err != nil {
@@ -473,7 +474,7 @@ func (l *pydioObjects) PutObjectPart(ctx context.Context, bucket string, object 
 
 	//sha256Sum, err := hex.DecodeString(data.sha256Sum)
 	//md5Sum, err := hex.DecodeString(data.md5Sum)
-	objectPart, err := l.Router.MultipartPutObjectPart(ctx, &tree.Node{Path: object}, uploadID, partID, data, &views.PutRequestData{
+	objectPart, err := l.Router.MultipartPutObjectPart(ctx, &tree.Node{Path: object}, uploadID, partID, data, &models.PutRequestData{
 		Size:              data.Size(),
 		Md5Sum:            data.MD5(),    // md5Sum,
 		Sha256Sum:         data.SHA256(), //sha256Sum,
@@ -507,7 +508,7 @@ func (l *pydioObjects) ListObjectParts(ctx context.Context, bucket string, objec
 // AbortMultipartUpload aborts a ongoing multipart upload
 func (l *pydioObjects) AbortMultipartUpload(ctx context.Context, bucket string, object string, uploadID string) error {
 
-	return l.Router.MultipartAbort(ctx, &tree.Node{Path: object}, uploadID, &views.MultipartRequestData{})
+	return l.Router.MultipartAbort(ctx, &tree.Node{Path: object}, uploadID, &models.MultipartRequestData{})
 
 }
 

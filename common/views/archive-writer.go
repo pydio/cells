@@ -33,6 +33,7 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 type ArchiveWriter struct {
@@ -109,7 +110,7 @@ func (w *ArchiveWriter) ZipSelection(ctx context.Context, output io.Writer, node
 			}
 			header.SetMode(0777)
 			header.Modified = n.GetModTime()
-			r, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
+			r, e1 := w.Router.GetObject(ctx, n, &models.GetRequestData{StartOffset: 0, Length: -1})
 			if is403(e1) {
 				// IGNORE
 				log.Logger(ctx).Debug("Ignoring file for archive: ", zap.String("path", internalPath), zap.Any("node", n), zap.Error(e1))
@@ -192,7 +193,7 @@ func (w *ArchiveWriter) TarSelection(ctx context.Context, output io.Writer, gzip
 				header.Typeflag = tar.TypeReg
 			}
 			log.Logger(ctx).Debug("Adding file to archive: ", zap.String("path", internalPath), zap.Any("node", n))
-			reader, e1 := w.Router.GetObject(ctx, n, &GetRequestData{StartOffset: 0, Length: -1})
+			reader, e1 := w.Router.GetObject(ctx, n, &models.GetRequestData{StartOffset: 0, Length: -1})
 			if is403(e1) {
 				log.Logger(ctx).Debug("Ignore file to archive: ", zap.String("path", internalPath), zap.Any("node", n), zap.Error(e1))
 				return nil

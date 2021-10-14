@@ -33,16 +33,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/text/unicode/norm"
-
 	"github.com/krolaw/zipstream"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 type ArchiveReader struct {
@@ -58,7 +58,7 @@ func (a *ArchiveReader) openArchiveStream(ctx context.Context, archiveNode *tree
 	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		archive, openErr = os.Open(filepath.Join(localFolder, archiveNode.Uuid))
 	} else {
-		archive, openErr = a.Router.GetObject(ctx, archiveNode, &GetRequestData{StartOffset: 0, Length: -1})
+		archive, openErr = a.Router.GetObject(ctx, archiveNode, &models.GetRequestData{StartOffset: 0, Length: -1})
 		if openErr != nil {
 			log.Logger(ctx).Error("Cannot open Archive", zap.Any("node", archiveNode), zap.Error(openErr))
 		}
@@ -171,7 +171,7 @@ func (a *ArchiveReader) ReadChildZip(ctx context.Context, archiveNode *tree.Node
 	if localFolder := archiveNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
 		archiveName = filepath.Join(localFolder, archiveNode.Uuid)
 	} else {
-		remoteReader, openErr := a.Router.GetObject(ctx, archiveNode, &GetRequestData{StartOffset: 0, Length: -1})
+		remoteReader, openErr := a.Router.GetObject(ctx, archiveNode, &models.GetRequestData{StartOffset: 0, Length: -1})
 		if openErr != nil {
 			return nil, openErr
 		}
@@ -222,7 +222,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 		}
 		archiveSize = s.Size()
 	} else {
-		remoteReader, openErr := a.Router.GetObject(ctx, archiveNode, &GetRequestData{StartOffset: 0, Length: -1})
+		remoteReader, openErr := a.Router.GetObject(ctx, archiveNode, &models.GetRequestData{StartOffset: 0, Length: -1})
 		if openErr != nil {
 			return openErr
 		}
@@ -275,7 +275,7 @@ func (a *ArchiveReader) ExtractAllZip(ctx context.Context, archiveNode *tree.Nod
 				return fmt.Errorf("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
 			}
 
-			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &PutRequestData{Size: int64(file.UncompressedSize64)})
+			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, fileReader, &models.PutRequestData{Size: int64(file.UncompressedSize64)})
 			if is403(err) {
 				continue
 			}
@@ -518,7 +518,7 @@ func (a *ArchiveReader) ExtractAllTar(ctx context.Context, gzipFormat bool, arch
 				log.Auditer(ctx).Error("Decompression of archive " + archiveNode.GetPath() + " was interrupted because compression ratio seems too high. It could be a tar bomb. You can set the defaults/archiveMaxRatio value to override default threshold (100).")
 				return fmt.Errorf("interrupting archive decompression: ratio seems too high, it could be a zip-bomb.")
 			}
-			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &PutRequestData{Size: file.Size})
+			_, err = a.Router.PutObject(ctx, &tree.Node{Path: pa}, tarReader, &models.PutRequestData{Size: file.Size})
 			if is403(err) {
 				continue
 			}

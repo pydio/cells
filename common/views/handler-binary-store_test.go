@@ -26,9 +26,11 @@ import (
 	"testing"
 
 	"github.com/micro/go-micro/errors"
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/pydio/cells/common/views/models"
 )
 
 var (
@@ -134,7 +136,7 @@ func TestBinaryStoreHandler_WriteOperations(t *testing.T) {
 
 	Convey("Test PutObject in BinaryStore", t, func() {
 
-		_, e := handler.PutObject(ctx, &tree.Node{Path: testBinaryStoreName + "/thumb"}, strings.NewReader(""), &PutRequestData{})
+		_, e := handler.PutObject(ctx, &tree.Node{Path: testBinaryStoreName + "/thumb"}, strings.NewReader(""), &models.PutRequestData{})
 		parsed := errors.Parse(e.Error())
 		So(parsed.Code, ShouldEqual, 403)
 
@@ -161,7 +163,7 @@ func TestBinaryStoreHandler_WriteOperations(t *testing.T) {
 
 	Convey("Test CopyObject in BinaryStore", t, func() {
 
-		_, e := handler.CopyObject(ctx, &tree.Node{Path: testBinaryStoreName + "/thumb"}, &tree.Node{Path: testBinaryStoreName + "/thumb1"}, &CopyRequestData{})
+		_, e := handler.CopyObject(ctx, &tree.Node{Path: testBinaryStoreName + "/thumb"}, &tree.Node{Path: testBinaryStoreName + "/thumb1"}, &models.CopyRequestData{})
 		parsed := errors.Parse(e.Error())
 		So(parsed.Code, ShouldEqual, 403)
 

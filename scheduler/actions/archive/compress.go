@@ -28,16 +28,17 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/client"
-	json "github.com/pydio/cells/x/jsonx"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/scheduler/actions"
 	"github.com/pydio/cells/scheduler/actions/tools"
-	"go.uber.org/zap"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -205,7 +206,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 	}()
 
-	handler.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &views.PutRequestData{Size: -1})
+	handler.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &models.PutRequestData{Size: -1})
 
 	if err != nil {
 		log.TasksLogger(ctx).Error("Error PutObject", zap.Error(err))

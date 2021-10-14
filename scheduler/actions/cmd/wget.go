@@ -31,8 +31,6 @@ import (
 	"path/filepath"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -43,7 +41,9 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/scheduler/actions"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -147,7 +147,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 			written, er = io.Copy(localFile, httpResponse.Body)
 		}
 	} else {
-		written, er = w.Router.PutObject(ctx, targetNode, httpResponse.Body, &views.PutRequestData{Size: httpResponse.ContentLength})
+		written, er = w.Router.PutObject(ctx, targetNode, httpResponse.Body, &models.PutRequestData{Size: httpResponse.ContentLength})
 	}
 	log.Logger(ctx).Debug("After PUT Object", zap.Int64("Written Bytes", written), zap.Error(er), zap.Any("ctx", ctx))
 	if er != nil {

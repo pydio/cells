@@ -32,16 +32,12 @@ import (
 	"time"
 
 	micro "github.com/micro/go-log"
-	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	lumberjack "gopkg.in/natefinch/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/config"
 	servicecontext "github.com/pydio/cells/common/service/context"
-	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -50,10 +46,13 @@ type WriteSyncer interface {
 	Sync() error
 }
 
+type LogContextWrapper func(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger
+
 var (
-	mainLogger  = newLogger()
-	auditLogger = newLogger()
-	tasksLogger = newLogger()
+	mainLogger     = newLogger()
+	auditLogger    = newLogger()
+	tasksLogger    = newLogger()
+	contextWrapper = basicContextWrapper
 
 	StdOut *os.File
 
@@ -65,7 +64,7 @@ var (
 )
 
 // Init for the log package - called by the main
-func Init() {
+func Init(logDir string, ww ...LogContextWrapper) {
 	SetLoggerInit(func() *zap.Logger {
 
 		StdOut = os.Stdout
@@ -90,7 +89,7 @@ func Init() {
 		syncers := []zapcore.WriteSyncer{StdOut}
 		if common.LogToFile {
 			// Additional logger: stores messages in local file
-			logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
+			// logDir := config.ApplicationWorkingDir(config.ApplicationDirLogs)
 			rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 				Filename:   filepath.Join(logDir, "pydio.log"),
 				MaxSize:    10, // megabytes
@@ -170,6 +169,9 @@ func Init() {
 
 		return logger
 	})
+	if len(ww) > 0 {
+		contextWrapper = ww[0]
+	}
 }
 
 // RegisterWriteSyncer optional writers for logs
@@ -192,7 +194,7 @@ func SetLoggerInit(f func() *zap.Logger) {
 
 // Logger returns a zap logger with as much context as possible.
 func Logger(ctx context.Context) *zap.Logger {
-	return fillLogContext(ctx, mainLogger.get())
+	return contextWrapper(ctx, mainLogger.get())
 }
 
 // SetAuditerInit defines what function to use to init the auditer
@@ -202,7 +204,7 @@ func SetAuditerInit(f func() *zap.Logger) {
 
 // Auditer returns a zap logger with as much context as possible
 func Auditer(ctx context.Context) *zap.Logger {
-	return fillLogContext(ctx, auditLogger.get(), zap.String("LogType", "audit"))
+	return contextWrapper(ctx, auditLogger.get(), zap.String("LogType", "audit"))
 }
 
 // SetTasksLoggerInit defines what function to use to init the tasks logger
@@ -212,7 +214,7 @@ func SetTasksLoggerInit(f func() *zap.Logger) {
 
 // TasksLogger returns a zap logger with as much context as possible.
 func TasksLogger(ctx context.Context) *zap.Logger {
-	return fillLogContext(ctx, tasksLogger.get(), zap.String("LogType", "tasks"))
+	return contextWrapper(ctx, tasksLogger.get(), zap.String("LogType", "tasks"))
 }
 
 // GetAuditId simply returns a zap field that contains this message id to ease audit log analysis.
@@ -257,67 +259,12 @@ func Info(msg string, fields ...zapcore.Field) {
 	mainLogger.Info(msg, fields...)
 }
 
-// Enrich the passed logger with generic context info, used by both syslog and audit loggers
-func fillLogContext(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger {
-
+func basicContextWrapper(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger {
 	if ctx == nil {
 		return logger
 	}
-
-	// Name Logger
 	if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
 		logger = logger.Named(serviceName)
 	}
-
-	// Compute all fields
-	if span, ok := servicecontext.SpanFromContext(ctx); ok {
-		if len(span.RootParentId) > 0 {
-			fields = append(fields, zap.String(common.KeySpanRootUuid, span.RootParentId))
-		}
-		if len(span.ParentId) > 0 {
-			fields = append(fields, zap.String(common.KeySpanParentUuid, span.RootParentId))
-		}
-		fields = append(fields, zap.String(common.KeySpanUuid, span.SpanId))
-	}
-	if opId, opLabel := servicecontext.GetOperationID(ctx); opId != "" {
-		fields = append(fields, zap.String(common.KeyOperationUuid, opId))
-		if opLabel != "" {
-			fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
-		}
-	}
-	if jobId, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
-		fields = append(fields, zap.String(common.KeySchedulerJobId, jobId))
-	}
-	if taskUuid, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
-		fields = append(fields, zap.String(common.KeySchedulerTaskId, taskUuid))
-	}
-	if taskPath, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
-		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
-	}
-	if ctxMeta, has := metadata.FromContext(ctx); has {
-		for _, key := range []string{
-			servicecontext.HttpMetaRemoteAddress,
-			servicecontext.HttpMetaUserAgent,
-			servicecontext.HttpMetaContentType,
-			servicecontext.HttpMetaProtocol,
-		} {
-			if val, hasKey := ctxMeta[key]; hasKey {
-				fields = append(fields, zap.String(key, val))
-			}
-		}
-	}
-	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
-		uuid := claims.Subject
-		fields = append(fields,
-			zap.String(common.KeyUsername, claims.Name),
-			zap.String(common.KeyUserUuid, uuid),
-			zap.String(common.KeyGroupPath, claims.GroupPath),
-			zap.String(common.KeyProfile, claims.Profile),
-			zap.String(common.KeyRoles, claims.Roles),
-		)
-	}
-	if len(fields) == 0 {
-		return logger
-	}
-	return logger.With(fields...)
+	return logger
 }

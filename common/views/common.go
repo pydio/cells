@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
 )
 
 const (
@@ -88,36 +89,6 @@ type (
 		TransparentBinary bool
 		AncestorsList     map[string][]*tree.Node
 	}
-
-	PutRequestData struct {
-		Size              int64
-		Md5Sum            []byte
-		Sha256Sum         []byte
-		Metadata          map[string]string
-		MultipartUploadID string
-		MultipartPartID   int
-	}
-
-	GetRequestData struct {
-		StartOffset int64
-		Length      int64
-		VersionId   string
-	}
-
-	CopyRequestData struct {
-		Metadata     map[string]string
-		SrcVersionId string
-		Progress     io.Reader
-	}
-
-	MultipartRequestData struct {
-		Metadata map[string]string
-
-		ListKeyMarker      string
-		ListUploadIDMarker string
-		ListDelimiter      string
-		ListMaxUploads     int
-	}
 )
 
 type NodeFilter func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error)
@@ -130,14 +101,14 @@ type Handler interface {
 	tree.NodeProviderClient
 	tree.NodeReceiverClient
 	tree.NodeChangesStreamerClient
-	GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error)
-	PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error)
-	CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error)
+	GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error)
+	PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error)
+	CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error)
 
-	MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error)
-	MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error)
-	MultipartList(ctx context.Context, prefix string, requestData *MultipartRequestData) (minio.ListMultipartUploadsResult, error)
-	MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error
+	MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error)
+	MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error)
+	MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (minio.ListMultipartUploadsResult, error)
+	MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error
 	MultipartComplete(ctx context.Context, target *tree.Node, uploadID string, uploadedParts []minio.CompletePart) (minio.ObjectInfo, error)
 	MultipartListObjectParts(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, maxParts int) (minio.ListObjectPartsResult, error)
 
@@ -256,24 +227,4 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 
 func WalkFilterSkipPydioHiddenFile(_ context.Context, node *tree.Node) bool {
 	return !strings.HasSuffix(node.Path, common.PydioSyncHiddenFile)
-}
-
-// MetaContentType looks for Content-Type or content-type key in metadata
-func (p *PutRequestData) MetaContentType() string {
-	if p.Metadata == nil {
-		return ""
-	}
-	if c, o := p.Metadata[common.XContentType]; o {
-		return c
-	}
-	if c, o := p.Metadata[strings.ToLower(common.XContentType)]; o {
-		return c
-	}
-	return ""
-}
-
-// ContentTypeUnknown checks if cType is empty or generic "application/octet-stream"
-func (p *PutRequestData) ContentTypeUnknown() bool {
-	cType := p.MetaContentType()
-	return cType == "" || cType == "application/octet-stream"
 }

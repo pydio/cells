@@ -24,8 +24,6 @@ import (
 	"context"
 	"io"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -38,6 +36,8 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 // HandlerEventRead publishes events after reading files.
@@ -80,7 +80,7 @@ func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 	return c, e
 }
 
-func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 
 	logger := log.Logger(ctx)
 

@@ -30,8 +30,6 @@ import (
 	"strconv"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 
@@ -39,7 +37,8 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type File struct {
@@ -81,7 +80,7 @@ func download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	read, err := viewsRouter.GetObject(r.Context(), n, &views.GetRequestData{StartOffset: 0, Length: -1})
+	read, err := viewsRouter.GetObject(r.Context(), n, &models.GetRequestData{StartOffset: 0, Length: -1})
 	if err != nil {
 		log.Logger(r.Context()).Error("cannot get object", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -116,7 +115,7 @@ func uploadStream(w http.ResponseWriter, r *http.Request) {
 		size, _ = strconv.ParseInt(h[0], 10, 64)
 	}
 
-	written, err := viewsRouter.PutObject(r.Context(), n, r.Body, &views.PutRequestData{
+	written, err := viewsRouter.PutObject(r.Context(), n, r.Body, &models.PutRequestData{
 		Size: size,
 	})
 	if err != nil {

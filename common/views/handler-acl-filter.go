@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
 )
 
 var pathNotReadable = errors.Forbidden("path.not.readable", "path is not readable")
@@ -196,7 +197,7 @@ func (a *AclFilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRe
 	return a.next.DeleteNode(ctx, in, opts...)
 }
 
-func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if a.skipContext(ctx) {
 		return a.next.GetObject(ctx, node, requestData)
 	}
@@ -215,7 +216,7 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 	return a.next.GetObject(ctx, node, requestData)
 }
 
-func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	if a.skipContext(ctx) {
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
@@ -237,7 +238,7 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *AclFilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (a *AclFilterHandler) MultipartCreate(ctx context.Context, node *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	if a.skipContext(ctx) {
 		return a.next.MultipartCreate(ctx, node, requestData)
 	}
@@ -256,7 +257,7 @@ func (a *AclFilterHandler) MultipartCreate(ctx context.Context, node *tree.Node,
 	return a.next.MultipartCreate(ctx, node, requestData)
 }
 
-func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	if a.skipContext(ctx) {
 		return a.next.CopyObject(ctx, from, to, requestData)
 	}

@@ -50,6 +50,7 @@ import (
 	"github.com/pydio/cells/common/utils/mtree"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
 	"github.com/pydio/cells/data/templates"
 	"github.com/pydio/cells/scheduler/lang"
@@ -185,7 +186,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				length = int64(len(contents))
 				reader = strings.NewReader(contents)
 			}
-			_, e := router.PutObject(ctx, n, reader, &views.PutRequestData{Size: length, Metadata: map[string]string{common.XContentType: "text/plain"}})
+			_, e := router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: map[string]string{common.XContentType: "text/plain"}})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return

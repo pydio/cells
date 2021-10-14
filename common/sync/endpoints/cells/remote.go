@@ -32,16 +32,15 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-
 	"github.com/pborman/uuid"
 
-	sdk "github.com/pydio/cells-sdk-go"
-	"github.com/pydio/cells-sdk-go/transport/mc"
-	"github.com/pydio/cells-sdk-go/transport/oidc"
 	"github.com/pydio/cells/common"
 	microgrpc "github.com/pydio/cells/common/micro/client/grpc"
 	"github.com/pydio/cells/common/proto/tree"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport/mc"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport/oidc"
 	"github.com/pydio/cells/common/sync/model"
 )
 
@@ -65,8 +64,8 @@ type RemoteConfig struct {
 
 // Remote connect to a remove Cells server using the GRPC gateway.
 type Remote struct {
-	abstract
-	config *sdk.SdkConfig
+	Abstract
+	config *transport.SdkConfig
 
 	session         *tree.IndexationSession
 	sessionsCreates []*tree.CreateNodeRequest
@@ -78,7 +77,7 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	if config.IdToken != "" {
 		useCache = false
 	}
-	sdkConfig := &sdk.SdkConfig{
+	sdkConfig := &transport.SdkConfig{
 		Url:        config.Url,
 		SkipVerify: config.SkipVerify,
 		// Password Flow
@@ -95,21 +94,21 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 	}
 
 	c := &Remote{
-		abstract: abstract{
-			root:       strings.TrimLeft(root, "/"),
-			options:    options,
-			clientUUID: uuid.New(),
+		Abstract: Abstract{
+			Root:       strings.TrimLeft(root, "/"),
+			Options:    options,
+			ClientUUID: uuid.New(),
 		},
 		config: sdkConfig,
 	}
-	c.factory = &remoteClientFactory{
+	c.Factory = &remoteClientFactory{
 		config:   sdkConfig,
 		registry: NewDynamicRegistry(sdkConfig),
 	}
-	c.source = c
+	c.Source = c
 	logCtx := context.Background()
 	logCtx = servicecontext.WithServiceName(logCtx, "endpoint.cells.remote")
-	c.globalCtx = logCtx
+	c.GlobalCtx = logCtx
 	return c
 }
 
@@ -118,13 +117,13 @@ func (c *Remote) RefreshRemoteConfig(config RemoteConfig) {
 	c.config.IdToken = config.IdToken
 	c.config.RefreshToken = config.RefreshToken
 	c.config.TokenExpiresAt = config.ExpiresAt
-	c.factory.(*remoteClientFactory).config = c.config
+	c.Factory.(*remoteClientFactory).config = c.config
 }
 
 // GetEndpointInfo returns Endpoint information in standard format.
 func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: fmt.Sprintf("%s/%s", c.config.Url, c.root),
+		URI: fmt.Sprintf("%s/%s", c.config.Url, c.Root),
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,
@@ -135,7 +134,7 @@ func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 
 // remoteClientFactory implements the clientProviderFactory interface
 type remoteClientFactory struct {
-	config   *sdk.SdkConfig
+	config   *transport.SdkConfig
 	registry *DynamicRegistry
 }
 
@@ -179,7 +178,7 @@ func (f *remoteClientFactory) GetNodeProviderStreamClient(ctx context.Context) (
 	return ctx, tree.NewNodeProviderStreamerClient(RemoteCellsServiceName, cli), nil
 }
 
-func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, objectsClient, error) {
+func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, ObjectsClient, error) {
 	return ctx, mc.NewS3Client(f.config), nil
 
 }

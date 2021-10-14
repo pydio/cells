@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -37,8 +38,8 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/idm/key"
-	"github.com/pydio/minio-go"
 )
 
 //EncryptionHandler encryption node middleware
@@ -57,7 +58,7 @@ func (e *EncryptionHandler) SetNodeKeyManagerClient(nodeKeyManagerClient encrypt
 }
 
 //GetObject enriches request metadata for GetObject with Encryption Materials, if required by the datasource.
-func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		return e.next.GetObject(ctx, node, requestData)
 	}
@@ -132,7 +133,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 
 	if info.Node.Legacy {
 		eMat := crypto.NewLegacyAESGCMMaterials(info)
-		rangeRequestData := &GetRequestData{VersionId: requestData.VersionId, StartOffset: 0, Length: -1}
+		rangeRequestData := &models.GetRequestData{VersionId: requestData.VersionId, StartOffset: 0, Length: -1}
 		if !fullRead {
 			err = eMat.SetPlainRange(requestData.StartOffset, requestData.Length)
 			if err != nil {
@@ -152,7 +153,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 		if !fullRead {
 			eMat.SetPlainRange(skipBytesCount, requestData.Length)
 		}
-		rangeRequestData := &GetRequestData{
+		rangeRequestData := &models.GetRequestData{
 			StartOffset: offset,
 			Length:      length,
 			VersionId:   requestData.VersionId,
@@ -166,7 +167,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 }
 
 // PutObject enriches request metadata for PutObject with Encryption Materials, if required by datasource.
-func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
 		return e.next.PutObject(ctx, node, reader, requestData)
 	}
@@ -281,7 +282,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 }
 
 // CopyObject enriches request metadata for CopyObject with Encryption Materials, if required by the datasource
-func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	srcInfo, ok2 := GetBranchInfo(ctx, "from")
 	destInfo, ok := GetBranchInfo(ctx, "to")
 	if !ok || !ok2 {
@@ -349,7 +350,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 			}
 			cloneFrom = rsp.Node
 		}
-		reader, err := e.GetObject(readCtx, cloneFrom, &GetRequestData{StartOffset: 0, Length: cloneFrom.Size})
+		reader, err := e.GetObject(readCtx, cloneFrom, &models.GetRequestData{StartOffset: 0, Length: cloneFrom.Size})
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.CopyObject: Different Clients - Read Source Error", zap.Any("srcInfo", srcInfo), cloneFrom.Zap("readFrom"), zap.Error(err))
 			return 0, err
@@ -372,7 +373,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 				writeCtx = context2.WithAdditionalMetadata(writeCtx, map[string]string{common.XPydioMoveUuid: cloneTo.Uuid})
 			}
 		}
-		putReqData := &PutRequestData{
+		putReqData := &models.PutRequestData{
 			Size:     cloneFrom.Size,
 			Metadata: requestData.Metadata,
 		}
@@ -394,7 +395,7 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 	}
 }
 
-func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	var err error
 	branchInfo, ok := GetBranchInfo(ctx, "in")
 	if !ok || branchInfo.EncryptionMode != object.EncryptionMode_MASTER {
@@ -488,7 +489,7 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 	return e.next.MultipartCreate(ctx, target, requestData)
 }
 
-func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	var err error
 	branchInfo, ok := GetBranchInfo(ctx, "in")
 	if !ok || branchInfo.EncryptionMode != object.EncryptionMode_MASTER {
@@ -579,7 +580,7 @@ func (e *EncryptionHandler) copyNodeEncryptionData(ctx context.Context, source *
 	return err
 }
 
-func (e *EncryptionHandler) getNodeInfoForRead(ctx context.Context, node *tree.Node, requestData *GetRequestData) (*encryption.NodeInfo, int64, int64, int64, error) {
+func (e *EncryptionHandler) getNodeInfoForRead(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (*encryption.NodeInfo, int64, int64, int64, error) {
 	nodeEncryptionClient := e.nodeKeyManagerClient
 	if nodeEncryptionClient == nil {
 		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(common.ServiceGrpcNamespace_+common.ServiceEncKey, defaults.NewClient())

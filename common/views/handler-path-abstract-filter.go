@@ -36,6 +36,7 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/minio-go"
 )
 
@@ -294,7 +295,7 @@ func (v *AbstractBranchFilter) CreateNode(ctx context.Context, in *tree.CreateNo
 	return response, err
 }
 
-func (v *AbstractBranchFilter) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (v *AbstractBranchFilter) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	ctx, filtered, err := v.inputMethod(ctx, node, "in")
 	if err != nil {
 		return nil, err
@@ -302,7 +303,7 @@ func (v *AbstractBranchFilter) GetObject(ctx context.Context, node *tree.Node, r
 	return v.next.GetObject(ctx, filtered, requestData)
 }
 
-func (v *AbstractBranchFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (v *AbstractBranchFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	ctx, filtered, err := v.inputMethod(ctx, node, "in")
 	if err != nil {
 		return 0, err
@@ -310,7 +311,7 @@ func (v *AbstractBranchFilter) PutObject(ctx context.Context, node *tree.Node, r
 	return v.next.PutObject(ctx, filtered, reader, requestData)
 }
 
-func (v *AbstractBranchFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (v *AbstractBranchFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 
 	var outF, outT *tree.Node
 	var e error
@@ -326,7 +327,7 @@ func (v *AbstractBranchFilter) CopyObject(ctx context.Context, from *tree.Node, 
 	return v.next.CopyObject(ctx, outF, outT, requestData)
 }
 
-func (v *AbstractBranchFilter) MultipartCreate(ctx context.Context, node *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (v *AbstractBranchFilter) MultipartCreate(ctx context.Context, node *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	ctx, filtered, err := v.inputMethod(ctx, node, "in")
 	if err != nil {
 		return "", err
@@ -342,7 +343,7 @@ func (v *AbstractBranchFilter) MultipartComplete(ctx context.Context, node *tree
 	return v.next.MultipartComplete(ctx, filtered, uploadID, uploadedParts)
 }
 
-func (v *AbstractBranchFilter) MultipartPutObjectPart(ctx context.Context, node *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (v *AbstractBranchFilter) MultipartPutObjectPart(ctx context.Context, node *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	ctx, filtered, err := v.inputMethod(ctx, node, "in")
 	if err != nil {
 		log.Logger(ctx).Error("HANDLER-PATH-ABSTRACT-FILTER - error in inputMethod \n", zap.Error(err), zap.Any("\n#####  context", ctx))
@@ -351,7 +352,7 @@ func (v *AbstractBranchFilter) MultipartPutObjectPart(ctx context.Context, node 
 	return v.next.MultipartPutObjectPart(ctx, filtered, uploadID, partNumberMarker, reader, requestData)
 }
 
-func (v *AbstractBranchFilter) MultipartAbort(ctx context.Context, node *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (v *AbstractBranchFilter) MultipartAbort(ctx context.Context, node *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	ctx, filtered, err := v.inputMethod(ctx, node, "in")
 	if err != nil {
 		return err
