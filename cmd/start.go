@@ -134,7 +134,7 @@ ENVIRONMENT
 		}
 
 		bindViperFlags(cmd.Flags(), map[string]string{
-			"log":  "logs_level",
+			//	"log":  "logs_level",
 			"fork": "is_fork",
 		})
 

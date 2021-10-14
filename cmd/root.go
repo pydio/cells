@@ -330,7 +330,7 @@ func initLogLevel() {
 	}
 
 	// Init log level
-	logLevel := viper.GetString("logs_level")
+	logLevel := viper.GetString("log")
 	logJson := viper.GetBool("log_json")
 	common.LogToFile = viper.GetBool("log_to_file")
 
@@ -384,6 +384,7 @@ func initAdvertiseIP() {
 	}
 }
 
+// initEnvPrefixes looks up for legacy ENV and replace them
 func initEnvPrefixes() {
 	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
 	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
@@ -392,6 +393,11 @@ func initEnvPrefixes() {
 			parts := strings.Split(pair, "=")
 			if len(parts) == 2 && parts[1] != "" {
 				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+			}
+		} else if strings.HasPrefix(pair, "CELLS_LOGS_LEVEL") {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				os.Setenv("CELLS_LOG", parts[1])
 			}
 		}
 	}
@@ -425,4 +431,3 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-

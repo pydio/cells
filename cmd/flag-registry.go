@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"net/url"
+
 	"github.com/pydio/cells/common/micro/transport/grpc"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"net/url"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro/broker"
@@ -40,7 +41,7 @@ func bindViperFlags(flags *pflag.FlagSet, replaceKeys map[string]string) {
 }
 
 // handleRegistry looks up for "registry" key in viper and starts the registry
-func handleRegistry(){
+func handleRegistry() {
 	addr := viper.GetString("registry")
 	u, err := url.Parse(addr)
 	if err != nil {
