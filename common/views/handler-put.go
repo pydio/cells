@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
-
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
@@ -41,6 +40,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // PutHandler handles Put requests by creating temporary files in the index before forwarding data to the object service.
@@ -68,7 +68,7 @@ func retryOnDuplicate(callback func() (*tree.CreateNodeResponse, error), retries
 // If it is an update, should send back the already existing node.
 // Returns the node, a flag to tell wether it is created or not, and eventually an error
 // The Put event will afterward update the index
-func (m *PutHandler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *PutRequestData) (*tree.Node, error, onCreateErrorFunc) {
+func (m *PutHandler) getOrCreatePutNode(ctx context.Context, nodePath string, requestData *models.PutRequestData) (*tree.Node, error, onCreateErrorFunc) {
 	treeReader := m.clientsPool.GetTreeClient()
 	treeWriter := m.clientsPool.GetTreeClientWrite()
 
@@ -173,7 +173,7 @@ func (m *PutHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest,
 	return m.next.CreateNode(ctx, in, opts...)
 }
 
-func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	log.Logger(ctx).Debug("[HANDLER PUT] > Putting object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
@@ -181,7 +181,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 	}
 
 	if strings.HasSuffix(node.Path, common.PydioSyncHiddenFile) {
-		if test, e := m.GetObject(ctx, node, &GetRequestData{Length: -1}); e == nil {
+		if test, e := m.GetObject(ctx, node, &models.GetRequestData{Length: -1}); e == nil {
 			data, _ := ioutil.ReadAll(test)
 			log.Logger(ctx).Error("Cannot override the content of .pydio as it already has the ID " + string(data))
 			test.Close()
@@ -237,7 +237,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 
 // MultipartCreate registers a node in the virtual fs with size 0 and ETag: temporary
 // (we do not have the real size at this point because we are using streams.)
-func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	log.Logger(ctx).Debug("PUT - MULTIPART CREATE: before middle ware method")
 
 	// What is it? to be checked
@@ -254,7 +254,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 		if metaSize, ok := requestData.Metadata[common.XAmzMetaClearSize]; ok {
 			size, _ = strconv.ParseInt(metaSize, 10, 64)
 		}
-		newNode, nodeErr, onErrorFunc := m.getOrCreatePutNode(ctx, node.Path, &PutRequestData{Size: size})
+		newNode, nodeErr, onErrorFunc := m.getOrCreatePutNode(ctx, node.Path, &models.PutRequestData{Size: size})
 		log.Logger(ctx).Debug("PreLoad or PreCreate Node in tree", zap.String("path", node.Path), zap.Any("node", newNode), zap.Error(nodeErr))
 		if nodeErr != nil {
 			if onErrorFunc != nil {
@@ -284,7 +284,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 	return multipartId, err
 }
 
-func (m *PutHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (m *PutHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 
 	deleteTemporary := func() {
 		treeReader := m.clientsPool.GetTreeClient()

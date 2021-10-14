@@ -16,6 +16,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
 func readBinary(ctx context.Context, router *views.Router, node *tree.Node, output io.Writer, headers http.Header, extension string, resize ...int) error {
@@ -29,7 +30,7 @@ func readBinary(ctx context.Context, router *views.Router, node *tree.Node, outp
 	if len(resize) == 0 {
 
 		ctx = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
-		reader, e := router.GetObject(ctx, node, &views.GetRequestData{Length: info.Node.Size})
+		reader, e := router.GetObject(ctx, node, &models.GetRequestData{Length: info.Node.Size})
 		if e != nil {
 			return e
 		}
@@ -48,13 +49,13 @@ func readBinary(ctx context.Context, router *views.Router, node *tree.Node, outp
 		if thumb, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: newNode}); e == nil {
 			log.Logger(ctx).Debug("Thumbnail exists, return it", newNode.Zap())
 			headers.Set("Content-Type", "image/jpeg")
-			reader, _ := router.GetObject(ctx, newNode, &views.GetRequestData{Length: thumb.Node.Size})
+			reader, _ := router.GetObject(ctx, newNode, &models.GetRequestData{Length: thumb.Node.Size})
 			defer reader.Close()
 			io.Copy(output, reader)
 			return nil
 		}
 
-		reader, e := router.GetObject(ctx, node, &views.GetRequestData{Length: info.Node.Size})
+		reader, e := router.GetObject(ctx, node, &models.GetRequestData{Length: info.Node.Size})
 		if e != nil {
 			return e
 		}
@@ -77,7 +78,7 @@ func readBinary(ctx context.Context, router *views.Router, node *tree.Node, outp
 		}
 		defer func() {
 			// Now store buffered data
-			_, e := router.PutObject(ctx, newNode, w, &views.PutRequestData{Size: int64(w.Len())})
+			_, e := router.PutObject(ctx, newNode, w, &models.PutRequestData{Size: int64(w.Len())})
 			log.Logger(ctx).Debug("Storing thumbnail", newNode.Zap(), zap.Error(e))
 		}()
 

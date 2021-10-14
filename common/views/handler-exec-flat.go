@@ -28,24 +28,21 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/sync/endpoints/s3"
-
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/common/log"
-
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/sync/endpoints/s3"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/views/models"
 )
 
 var keyClient encryption.NodeKeyManagerClient
@@ -88,7 +85,7 @@ func (f *FlatStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 	return resp, e
 }
 
-func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if isFlatStorage(ctx, "in") {
 		if e := f.resolveUUID(ctx, node); e != nil {
 			return nil, e
@@ -97,7 +94,7 @@ func (f *FlatStorageHandler) GetObject(ctx context.Context, node *tree.Node, req
 	return f.next.GetObject(ctx, node, requestData)
 }
 
-func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 
 	var revertNode *tree.Node
 	if isFlatStorage(ctx, "to") {
@@ -151,7 +148,7 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 	return i, e
 }
 
-func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	i, e := f.next.PutObject(ctx, node, reader, requestData)
 	if e == nil && isFlatStorage(ctx, "in") {
 		if er := f.postCreate(ctx, "in", node, requestData.Metadata, requestData.MetaContentType()); er != nil {
@@ -161,7 +158,7 @@ func (f *FlatStorageHandler) PutObject(ctx context.Context, node *tree.Node, rea
 	return i, e
 }
 
-func (f *FlatStorageHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (f *FlatStorageHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	if isFlatStorage(ctx, "in") {
 		if e := f.resolveUUID(ctx, target); e != nil {
 			return minio.ObjectPart{}, e
@@ -208,7 +205,7 @@ func (f *FlatStorageHandler) MultipartListObjectParts(ctx context.Context, targe
 	return f.next.MultipartListObjectParts(ctx, target, uploadID, partNumberMarker, maxParts)
 }
 
-func (f *FlatStorageHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (f *FlatStorageHandler) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	if isFlatStorage(ctx, "in") {
 		if e := f.resolveUUID(ctx, target); e != nil {
 			return e

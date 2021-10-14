@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // VersionHandler capture ListNodes and GetObject calls to find existing nodes versions and retrieve them.
@@ -126,7 +127,7 @@ func (v *VersionHandler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest
 }
 
 // GetObject redirects to Version Store if request contains a VersionID
-func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	ctx, err := v.wrapContext(ctx)
 	if err != nil {
 		return nil, err
@@ -165,7 +166,7 @@ func (v *VersionHandler) GetObject(ctx context.Context, node *tree.Node, request
 }
 
 // CopyObject intercept request with a SrcVersionId to read original from Version Store
-func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	ctx, err := v.wrapContext(ctx)
 	if err != nil {
 		return 0, err

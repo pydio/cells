@@ -28,18 +28,18 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/rwcarlsen/goexif/exif"
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -179,7 +179,7 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 		targetFileName := filepath.Join(localFolder, baseName)
 		reader, rer = os.Open(targetFileName)
 	} else {
-		reader, rer = getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
+		reader, rer = getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &models.GetRequestData{Length: -1})
 	}
 
 	//reader, rer := node.ReadFile(ctx)

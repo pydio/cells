@@ -36,6 +36,7 @@ import (
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 func NewHandlerMock() *HandlerMock {
@@ -140,7 +141,7 @@ func (h *HandlerMock) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest
 	return nil, nil
 }
 
-func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if len(h.RootDir) > 0 {
 		file, err := os.Open(filepath.Join(h.RootDir, node.Path))
 		if err != nil {
@@ -172,7 +173,7 @@ func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestDat
 
 }
 
-func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	log.Logger(ctx).Info("[MOCK] PutObject" + node.Path)
 
 	if len(h.RootDir) > 0 {
@@ -210,7 +211,7 @@ func (h *HandlerMock) PutObject(ctx context.Context, node *tree.Node, reader io.
 	return 0, nil
 }
 
-func (h *HandlerMock) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (h *HandlerMock) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	log.Logger(ctx).Info("[MOCK] CopyObject " + from.Path + " to " + to.Path)
 	h.Nodes["from"] = from
 	h.Nodes["to"] = to
@@ -218,22 +219,22 @@ func (h *HandlerMock) CopyObject(ctx context.Context, from *tree.Node, to *tree.
 	return 0, nil
 }
 
-func (h *HandlerMock) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (h *HandlerMock) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	h.Nodes["in"] = target
 	h.Context = ctx
 	return "", nil
 }
 
-func (h *HandlerMock) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (op minio.ObjectPart, e error) {
+func (h *HandlerMock) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (op minio.ObjectPart, e error) {
 	return
 }
 
-func (h *HandlerMock) MultipartList(ctx context.Context, prefix string, requestData *MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
+func (h *HandlerMock) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
 	h.Context = ctx
 	return minio.ListMultipartUploadsResult{}, nil
 }
 
-func (h *HandlerMock) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (h *HandlerMock) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	h.Context = ctx
 	h.Nodes["in"] = target
 	return nil

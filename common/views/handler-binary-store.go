@@ -26,8 +26,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pydio/cells/common/proto/object"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
@@ -35,8 +33,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // BinaryStoreHandler captures put/get calls to an internal storage
@@ -117,7 +117,7 @@ func (a *BinaryStoreHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequ
 	return a.next.ReadNode(ctx, in, opts...)
 }
 
-func (a *BinaryStoreHandler) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (a *BinaryStoreHandler) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	if a.isStorePath(node.Path) {
 		source, er := a.clientsPool.GetDataSourceInfo(a.StoreName)
 		if e := a.checkContextForAnonRead(ctx); e != nil {
@@ -189,7 +189,7 @@ func (a *BinaryStoreHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 	return r, e
 }
 
-func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	if a.isStorePath(node.Path) {
 		if !a.AllowPut {
 			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Forbidden store")
@@ -209,7 +209,7 @@ func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, rea
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *BinaryStoreHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (a *BinaryStoreHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	if a.isStorePath(from.Path) || a.isStorePath(to.Path) {
 		return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Forbidden store")
 	}

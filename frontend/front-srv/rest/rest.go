@@ -52,6 +52,7 @@ import (
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils/permissions"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
 const (
@@ -467,7 +468,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			}
 		}
 
-		_, e = router.PutObject(ctx, node, fileInput, &views.PutRequestData{
+		_, e = router.PutObject(ctx, node, fileInput, &models.PutRequestData{
 			Size: fileSize,
 		})
 		if e != nil {
@@ -495,7 +496,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))
 		}
 
-		_, e := router.PutObject(ctx, node, fileInput, &views.PutRequestData{
+		_, e := router.PutObject(ctx, node, fileInput, &models.PutRequestData{
 			Size: fileSize,
 		})
 		if e != nil {

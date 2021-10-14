@@ -29,6 +29,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 	"github.com/pydio/minio-go"
 )
 
@@ -189,7 +190,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test wrapper on GetObject", t, func() {
 
 		_, mock, errTest := testMethod(func(h Handler) error {
-			_, e := h.GetObject(context.Background(), &tree.Node{Path: "/test"}, &GetRequestData{})
+			_, e := h.GetObject(context.Background(), &tree.Node{Path: "/test"}, &models.GetRequestData{})
 			return e
 		})
 
@@ -206,7 +207,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test wrapper on PutObject", t, func() {
 
 		_, mock, errTest := testMethod(func(h Handler) error {
-			_, e := h.PutObject(context.Background(), &tree.Node{Path: "/test"}, strings.NewReader("hello"), &PutRequestData{})
+			_, e := h.PutObject(context.Background(), &tree.Node{Path: "/test"}, strings.NewReader("hello"), &models.PutRequestData{})
 			return e
 		})
 
@@ -223,7 +224,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test wrapper on CopyObject", t, func() {
 
 		_, mock, errTest := testMethod(func(h Handler) error {
-			_, e := h.CopyObject(context.Background(), &tree.Node{Path: "/test1"}, &tree.Node{Path: "/test2"}, &CopyRequestData{})
+			_, e := h.CopyObject(context.Background(), &tree.Node{Path: "/test1"}, &tree.Node{Path: "/test2"}, &models.CopyRequestData{})
 			return e
 		})
 
@@ -241,7 +242,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test wrapper on MultipartCreate", t, func() {
 
 		_, mock, errTest := testMethod(func(h Handler) error {
-			_, e := h.MultipartCreate(context.Background(), &tree.Node{Path: "/test"}, &MultipartRequestData{})
+			_, e := h.MultipartCreate(context.Background(), &tree.Node{Path: "/test"}, &models.MultipartRequestData{})
 			return e
 		})
 
@@ -258,7 +259,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test wrapper on MultipartAbort", t, func() {
 
 		_, mock, errTest := testMethod(func(h Handler) error {
-			return h.MultipartAbort(context.Background(), &tree.Node{Path: "/test"}, "upload", &MultipartRequestData{})
+			return h.MultipartAbort(context.Background(), &tree.Node{Path: "/test"}, "upload", &models.MultipartRequestData{})
 		})
 
 		So(mock.Context.Value(wrapperKey), ShouldNotBeNil)
@@ -291,7 +292,7 @@ func TestWrapper(t *testing.T) {
 	Convey("Test wrapper on MultipartList", t, func() {
 
 		_, mock, errTest := testMethod(func(h Handler) error {
-			_, e := h.MultipartList(context.Background(), "/test", &MultipartRequestData{})
+			_, e := h.MultipartList(context.Background(), "/test", &models.MultipartRequestData{})
 			return e
 		})
 

@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // TODO these tests are currently broken and should be repaired.
@@ -55,7 +56,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	Convey("Test Get Object w. Enc", t, func() {
 
-		reqData := &GetRequestData{}
+		reqData := &models.GetRequestData{}
 		reader, e := handler.GetObject(ctx, &tree.Node{Path: "test"}, reqData)
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
@@ -64,7 +65,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	Convey("Test Put Object w. Enc", t, func() {
 
-		reqData := &PutRequestData{}
+		reqData := &models.PutRequestData{}
 		_, e := handler.PutObject(ctx, &tree.Node{Path: "test2"}, strings.NewReader(""), reqData)
 		So(e, ShouldBeNil)
 		So(mock.Nodes["in"], ShouldNotBeNil)
@@ -76,7 +77,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	Convey("Test Get Object wo. Enc", t, func() {
 
-		reqData := &GetRequestData{}
+		reqData := &models.GetRequestData{}
 		reader, e := handler.GetObject(emptyCtx, &tree.Node{Path: "test"}, reqData)
 		So(reader, ShouldNotBeNil)
 		So(e, ShouldBeNil)
@@ -85,7 +86,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	Convey("Test Put Object wp. Enc", t, func() {
 
-		reqData := &PutRequestData{}
+		reqData := &models.PutRequestData{}
 		_, e := handler.PutObject(emptyCtx, &tree.Node{Path: "test2"}, strings.NewReader(""), reqData)
 		So(e, ShouldBeNil)
 		So(mock.Nodes["in"], ShouldNotBeNil)
@@ -97,7 +98,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 		ctx = WithBranchInfo(ctx, "from", branchInfo)
 		ctx = WithBranchInfo(ctx, "to", branchInfo)
-		reqData := &CopyRequestData{}
+		reqData := &models.CopyRequestData{}
 		_, e := handler.CopyObject(ctx, &tree.Node{Path: "test2"}, &tree.Node{Path: "test2"}, reqData)
 		So(e, ShouldBeNil)
 		So(mock.Nodes["from"], ShouldNotBeNil)
@@ -107,7 +108,7 @@ func TestEncryptionHandler_GetObject(t *testing.T) {
 
 	Convey("Test Copy Object wo Enc", t, func() {
 
-		reqData := &CopyRequestData{}
+		reqData := &models.CopyRequestData{}
 		_, e := handler.CopyObject(emptyCtx, &tree.Node{Path: "test2"}, &tree.Node{Path: "test2"}, reqData)
 		So(e, ShouldNotBeNil)
 
@@ -144,7 +145,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	data := "blamekhkds sdsfsdfdsfdblamekhkds sdsdzkjdqzkhgiàrjv=iu=éàioeruopée"
 
 	Convey("Test Put Object w. Enc", t, func() {
-		reqData := &PutRequestData{}
+		reqData := &models.PutRequestData{}
 		node := tree.Node{Path: "test", Uuid: "test"}
 		_ = node.SetMeta(common.MetaNamespaceDatasourceName, "test")
 		_, e := handler.PutObject(ctx, &node, strings.NewReader(data), reqData)
@@ -152,7 +153,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	})
 
 	Convey("Test Get Object w. encryption", t, func() {
-		reqData := &GetRequestData{StartOffset: 0, Length: -1}
+		reqData := &models.GetRequestData{StartOffset: 0, Length: -1}
 		node := tree.Node{Path: "test", Uuid: "test", Size: int64(len(data))}
 		_ = node.SetMeta(common.MetaNamespaceDatasourceName, "test")
 		reader, e := handler.GetObject(ctx, &node, reqData)
@@ -167,7 +168,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	Convey("Test Get with supported range 1", t, func() {
 		rangeOffset := 7
 		length := -1
-		reqData := &GetRequestData{
+		reqData := &models.GetRequestData{
 			Length:      int64(length),
 			StartOffset: int64(rangeOffset),
 		}
@@ -185,7 +186,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	Convey("Test Get Object with supported range 2", t, func() {
 		rangeOffset := 15
 		length := 30
-		reqData := &GetRequestData{
+		reqData := &models.GetRequestData{
 			Length:      int64(length),
 			StartOffset: int64(rangeOffset),
 		}
@@ -203,7 +204,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	Convey("Test Get Object with supported range 3", t, func() {
 		rangeOffset := 0
 		length := -1
-		reqData := &GetRequestData{
+		reqData := &models.GetRequestData{
 			Length:      int64(length),
 			StartOffset: int64(rangeOffset),
 		}
@@ -221,7 +222,7 @@ func TestEncryptionHandler_Encrypted(t *testing.T) {
 	Convey("Test Get with not supported range", t, func() {
 		rangeOffset := -1
 		length := 0
-		reqData := &GetRequestData{
+		reqData := &models.GetRequestData{
 			Length:      int64(length),
 			StartOffset: int64(rangeOffset),
 		}
@@ -278,7 +279,7 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 		file, err := os.Open(filepath.Join(dataFolder, "plain"))
 		So(err, ShouldBeNil)
 
-		reqData := &PutRequestData{}
+		reqData := &models.PutRequestData{}
 		node := tree.Node{Path: "encTest", Uuid: "encTest"}
 		_ = node.SetMeta(common.MetaNamespaceDatasourceName, "test")
 		_, e := handler.PutObject(ctx, &node, file, reqData)
@@ -292,7 +293,7 @@ func TestRangeEncryptionHandler_Encrypted(t *testing.T) {
 			rangeOffset := i
 			length := 300
 
-			reqData := &GetRequestData{
+			reqData := &models.GetRequestData{
 				Length:      int64(length),
 				StartOffset: int64(rangeOffset),
 			}

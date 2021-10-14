@@ -9,18 +9,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/auth"
-
 	"github.com/blevesearch/bleve"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils/meta"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -131,7 +131,7 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	ref := indexNode.GetStringMeta("ContentRef")
 	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
 		delete(indexNode.Meta, "ContentRef")
-		if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &views.GetRequestData{Length: -1}); e == nil {
+		if reader, e := b.getStdRouter().GetObject(b.ctx, &tree.Node{Path: ref}, &models.GetRequestData{Length: -1}); e == nil {
 			if strings.HasSuffix(ref, ".gz") {
 				// Content is gzip-compressed
 				if gR, e := gzip.NewReader(reader); e == nil {

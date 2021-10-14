@@ -26,6 +26,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // AclContentLockFilter checks for user-defined content locks in the context AccessList.
@@ -34,7 +35,7 @@ type AclContentLockFilter struct {
 }
 
 // PutObject check locks before allowing Put operation.
-func (a *AclContentLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *AclContentLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
@@ -44,7 +45,7 @@ func (a *AclContentLockFilter) PutObject(ctx context.Context, node *tree.Node, r
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *AclContentLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (a *AclContentLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.IsInternal() {
 		return a.next.MultipartCreate(ctx, target, requestData)
 	}
@@ -55,7 +56,7 @@ func (a *AclContentLockFilter) MultipartCreate(ctx context.Context, target *tree
 }
 
 // CopyObject should check: quota on CopyObject operation? Can we copy an object on top of an existing node?
-func (a *AclContentLockFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (a *AclContentLockFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	return a.next.CopyObject(ctx, from, to, requestData)
 }
 

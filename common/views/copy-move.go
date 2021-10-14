@@ -22,6 +22,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
 )
 
 type (
@@ -394,7 +395,7 @@ func CopyMoveNodes(ctx context.Context, router Handler, sourceNode *tree.Node, t
 		}
 		statusChan <- copyMoveStatusKey(sourceNode.Path, move, tFunc...)
 
-		_, e := router.CopyObject(ctx, sourceNode, targetNode, &CopyRequestData{
+		_, e := router.CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{
 			Metadata: copyMeta,
 			Progress: &copyPgReader{offset: 0, total: sourceNode.Size, progressChan: progressChan},
 		})
@@ -513,7 +514,7 @@ func processCopyMove(ctx context.Context, handler Handler, session string, move,
 				meta[common.XPydioMoveUuid] = childNode.Uuid
 			}
 		}
-		_, e := handler.CopyObject(ctx, childNode, targetNode, &CopyRequestData{
+		_, e := handler.CopyObject(ctx, childNode, targetNode, &models.CopyRequestData{
 			Metadata: meta,
 			Progress: progress,
 		})

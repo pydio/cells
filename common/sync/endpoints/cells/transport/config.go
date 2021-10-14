@@ -1,6 +1,6 @@
 // Package cells_sdk provides a ready to use SDK to use the Cells REST API in Go language.
 // It also provides some patterns that ease implementation of Go programs that use the SDK.
-package cells_sdk
+package transport
 
 // SdkConfig stores parameters to talk to a running Cells instance REST API via the Go SDK.
 type SdkConfig struct {
@@ -47,12 +47,3 @@ type S3Config struct {
 	// Should be cleaned as soon as we defined the logging strategy for this repo.
 	IsDebug bool `json:"isDebug"`
 }
-
-var (
-	// DefaultConfig stores a convenience static object that must be configured only once
-	// and is globally accessible to easily retrieve an up-and-running connected client.
-	DefaultConfig *SdkConfig
-	// DefaultS3Config stores a convenience static object that must be configured only once
-	// and is globally accessible to easily retrieve an up-and-running connected client.
-	DefaultS3Config *S3Config
-)

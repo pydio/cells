@@ -48,6 +48,7 @@ import (
 	"github.com/pydio/cells/common/config/remote"
 	"github.com/pydio/cells/common/config/sql"
 	"github.com/pydio/cells/common/log"
+	context_wrapper "github.com/pydio/cells/common/log/context-wrapper"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils/net"
 	"github.com/pydio/cells/x/filex"
@@ -70,8 +71,7 @@ var (
 	EnvPrefixOld = "pydio"
 	EnvPrefixNew = "cells"
 
-	installCommands = []string{"configure", "install"}
-	infoCommands    = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
+	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 
 	initStartingToolsOnce = &sync.Once{}
 
@@ -226,10 +226,10 @@ func initConfig() (new bool) {
 		config.RegisterLocal(localConfig)
 
 		vaultConfig = config.New(
-			remote.New(common.ServiceGrpcNamespace_ + common.ServiceConfig,"vault"),
+			remote.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "vault"),
 		)
 		defaultConfig = config.New(
-			remote.New(common.ServiceGrpcNamespace_ + common.ServiceConfig,"config"),
+			remote.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "config"),
 		)
 	case "raft":
 		localSource := file.NewSource(
@@ -248,10 +248,10 @@ func initConfig() (new bool) {
 		config.RegisterLocal(localConfig)
 
 		vaultConfig = config.New(
-			remote.New(common.ServiceStorageNamespace_ + common.ServiceConfig,"vault"),
+			remote.New(common.ServiceStorageNamespace_+common.ServiceConfig, "vault"),
 		)
 		defaultConfig = config.New(
-			remote.New(common.ServiceStorageNamespace_ + common.ServiceConfig,"config"),
+			remote.New(common.ServiceStorageNamespace_+common.ServiceConfig, "config"),
 		)
 	default:
 		source := file.NewSource(
@@ -331,9 +331,6 @@ func initLogLevel() {
 
 	// Init log level
 	logLevel := viper.GetString("log")
-	if logLevel == "" { // Backward compatibility
-		logLevel = viper.GetString("logs_level")
-	}
 	logJson := viper.GetBool("log_json")
 	common.LogToFile = viper.GetBool("log_to_file")
 
@@ -345,7 +342,7 @@ func initLogLevel() {
 	}
 
 	// Making sure the log level is passed everywhere (fork processes for example)
-	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
+	os.Setenv("CELLS_LOG", logLevel)
 	os.Setenv("CELLS_LOG_TO_FILE", strconv.FormatBool(common.LogToFile))
 
 	if logJson {
@@ -365,7 +362,7 @@ func initLogLevel() {
 		common.LogLevel = zap.ErrorLevel
 	}
 
-	log.Init()
+	log.Init(config.ApplicationWorkingDir(config.ApplicationDirLogs), context_wrapper.RichContext)
 
 	// Using it once
 	log.Logger(context.Background())
@@ -387,6 +384,7 @@ func initAdvertiseIP() {
 	}
 }
 
+// initEnvPrefixes looks up for legacy ENV and replace them
 func initEnvPrefixes() {
 	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
 	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
@@ -395,6 +393,11 @@ func initEnvPrefixes() {
 			parts := strings.Split(pair, "=")
 			if len(parts) == 2 && parts[1] != "" {
 				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+			}
+		} else if strings.HasPrefix(pair, "CELLS_LOGS_LEVEL") {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				os.Setenv("CELLS_LOG", parts[1])
 			}
 		}
 	}

@@ -30,6 +30,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // RouterOptions holds configuration flags to pass to a routeur constructor easily.
@@ -218,34 +219,34 @@ func (v *Router) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opt
 	return h.DeleteNode(ctx, in, opts...)
 }
 
-func (v *Router) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+func (v *Router) GetObject(ctx context.Context, node *tree.Node, requestData *models.GetRequestData) (io.ReadCloser, error) {
 	h := v.handlers[0]
 	return h.GetObject(ctx, node, requestData)
 }
 
-func (v *Router) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (v *Router) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	h := v.handlers[0]
 	return h.PutObject(ctx, node, reader, requestData)
 }
 
-func (v *Router) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (v *Router) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 	h := v.handlers[0]
 	return h.CopyObject(ctx, from, to, requestData)
 }
 
-func (v *Router) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (v *Router) MultipartCreate(ctx context.Context, target *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	return v.handlers[0].MultipartCreate(ctx, target, requestData)
 }
 
-func (v *Router) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (v *Router) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 	return v.handlers[0].MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, reader, requestData)
 }
 
-func (v *Router) MultipartList(ctx context.Context, prefix string, requestData *MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
+func (v *Router) MultipartList(ctx context.Context, prefix string, requestData *models.MultipartRequestData) (minio.ListMultipartUploadsResult, error) {
 	return v.handlers[0].MultipartList(ctx, prefix, requestData)
 }
 
-func (v *Router) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *MultipartRequestData) error {
+func (v *Router) MultipartAbort(ctx context.Context, target *tree.Node, uploadID string, requestData *models.MultipartRequestData) error {
 	return v.handlers[0].MultipartAbort(ctx, target, uploadID, requestData)
 }
 

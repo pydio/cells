@@ -28,12 +28,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/patrickmn/go-cache"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/patrickmn/go-cache"
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
@@ -45,6 +44,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // AclQuotaFilter applies storage quota limitation on a per-workspace basis.
@@ -103,7 +103,7 @@ func (a *AclQuotaFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest,
 }
 
 // PutObject checks quota on PutObject operation.
-func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 
 	// Note : as the temporary file created by PutHandler is already in index,
 	// currentUsage ALREADY takes into account the input data size.
@@ -120,7 +120,7 @@ func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader 
 }
 
 // MultipartPutObjectPart checks quota on MultipartPutObjectPart.
-func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
@@ -134,7 +134,7 @@ func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tre
 }
 
 // CopyObject checks quota on CopyObject operation.
-func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
 
 	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok && !branchInfo.IsInternal() {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {

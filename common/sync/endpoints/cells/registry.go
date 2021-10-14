@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 package cells
 
 import (
@@ -29,16 +30,15 @@ import (
 	"strconv"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/micro/go-micro/client"
 	muerrors "github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-plugins/registry/memory"
 	"github.com/pkg/errors"
 
-	sdk "github.com/pydio/cells-sdk-go"
+	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
 	"github.com/pydio/cells/common/sync/model"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (
@@ -47,7 +47,7 @@ var (
 )
 
 // detectGrpcPort contacts the discovery service to find the grpc port
-func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port string, err error) {
+func detectGrpcPort(config *transport.SdkConfig, reload bool) (host string, port string, err error) {
 
 	u, e := url.Parse(config.Url)
 	if e != nil {
@@ -118,12 +118,12 @@ func detectGrpcPort(config *sdk.SdkConfig, reload bool) (host string, port strin
 // detect the target GRPC port from the discovery endpoint of the target server.
 type DynamicRegistry struct {
 	Micro          registry.Registry
-	config         *sdk.SdkConfig
+	config         *transport.SdkConfig
 	detectionError error
 }
 
 // NewDynamicRegistry creates a new DynamicRegistry from a standard SdkConfig
-func NewDynamicRegistry(config *sdk.SdkConfig) *DynamicRegistry {
+func NewDynamicRegistry(config *transport.SdkConfig) *DynamicRegistry {
 	d := &DynamicRegistry{
 		config: config,
 		Micro:  memory.NewRegistry(),

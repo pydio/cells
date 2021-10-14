@@ -29,13 +29,14 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/minio-go"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // UploadLimitFilter restricts atomic uploads by extension and maximum size, based on the front plugins configuration.
@@ -44,7 +45,7 @@ type UploadLimitFilter struct {
 }
 
 // Check Upload Limits (size, extension) defined in the frontend on PutObject operation
-func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 
 	size, exts, err := a.getUploadLimits(ctx)
 	if err != nil {
@@ -72,7 +73,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 }
 
 // Check Upload Limits (size, extension) defined in the frontend on MultipartPutObjectPart
-func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 
 	size, exts, err := a.getUploadLimits(ctx)
 	if err != nil {

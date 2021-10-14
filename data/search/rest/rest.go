@@ -22,14 +22,11 @@
 package rest
 
 import (
+	"context"
 	"strings"
-
-	"github.com/pydio/cells/common/utils/meta"
 
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
-
-	"context"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -37,6 +34,7 @@ import (
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
 )
@@ -101,8 +99,11 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	metaLoader := meta.NewStreamLoader(ctx)
-	defer metaLoader.Close()
+	cl := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceTree))
+	nodeStreamer, e := cl.ReadNodeStream(ctx)
+	if e == nil {
+		defer nodeStreamer.Close()
+	}
 
 	err := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
@@ -171,6 +172,12 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			for r, p := range nodesPrefixes {
 				if strings.HasPrefix(respNode.Path, r+"/") {
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))
+					if nodeStreamer != nil {
+						nodeStreamer.Send(&tree.ReadNodeRequest{Node: respNode.Clone()})
+						if nsR, e := nodeStreamer.Recv(); e == nil {
+							respNode = nsR.GetNode()
+						}
+					}
 					_, filtered, err := outputFilter(ctx, respNode, "search-"+p)
 					if err != nil {
 						return err
@@ -183,7 +190,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 							}
 						}
 					}
-					metaLoader.LoadMetas(ctx, filtered)
+					//metaLoader.LoadMetas(ctx, filtered)
 					nodes = append(nodes, filtered.WithoutReservedMetas())
 				}
 			}

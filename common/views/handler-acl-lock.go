@@ -28,6 +28,7 @@ import (
 
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/common/views/models"
 )
 
 // AclLockFilter filters call by checking internal locks.
@@ -54,7 +55,7 @@ type AclLockFilter struct {
 // }
 
 // PutObject check locks before allowing Put operation.
-func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 	branchInfo, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return a.next.PutObject(ctx, node, reader, requestData)
@@ -77,7 +78,7 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-func (a *AclLockFilter) MultipartCreate(ctx context.Context, node *tree.Node, requestData *MultipartRequestData) (string, error) {
+func (a *AclLockFilter) MultipartCreate(ctx context.Context, node *tree.Node, requestData *models.MultipartRequestData) (string, error) {
 	branchInfo, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return a.next.MultipartCreate(ctx, node, requestData)
