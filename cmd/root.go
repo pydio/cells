@@ -342,7 +342,7 @@ func initLogLevel() {
 	}
 
 	// Making sure the log level is passed everywhere (fork processes for example)
-	os.Setenv("CELLS_LOGS_LEVEL", logLevel)
+	os.Setenv("CELLS_LOG", logLevel)
 	os.Setenv("CELLS_LOG_TO_FILE", strconv.FormatBool(common.LogToFile))
 
 	if logJson {
