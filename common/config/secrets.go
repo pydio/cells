@@ -26,6 +26,9 @@ func NewKeyForSecret() string {
 
 // GetSecret returns the non encrypted value for a uuid
 func GetSecret(uuid string) configx.Values {
+	if uuid == "" {
+		return configx.New()
+	}
 	return stdvault.Val(uuid)
 }
 
