@@ -5,16 +5,14 @@ import (
 	"io"
 	"math"
 
-	"github.com/micro/go-micro/metadata"
-
-	"github.com/pydio/cells/common/registry"
+	"github.com/h2non/filetype"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"go.uber.org/zap"
-
-	"github.com/h2non/filetype"
+	"github.com/pydio/cells/common/registry"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 const mimeReadLimit = 8192
@@ -107,14 +105,7 @@ func WrapReaderForMime(ctx context.Context, clone *tree.Node, reader io.Reader) 
 	if mimeMetaClient == nil {
 		mimeMetaClient = tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
 	}
-	bgCtx := context.Background()
-	if ctxMeta, ok := metadata.FromContext(ctx); ok {
-		newM := make(map[string]string)
-		for k, v := range ctxMeta {
-			newM[k] = v
-		}
-		bgCtx = metadata.NewContext(bgCtx, newM)
-	}
+	bgCtx := context2.NewBackgroundWithMetaCopy(ctx)
 	return NewTeeMimeReader(reader, func(result *MimeResult) {
 		if result.GetError() == nil && result.GetMime() != "" {
 			// Store in metadata service

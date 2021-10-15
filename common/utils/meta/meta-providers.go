@@ -76,6 +76,7 @@ func initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_R
 	for _, cli := range metaProviders {
 		metaStreamer, metaE := cli.ReadNodeStream(ctx)
 		if metaE != nil {
+			log.Logger(ctx).Warn("Could not open meta provider!", zap.Error(metaE))
 			continue
 		}
 		streamers = append(streamers, metaStreamer)

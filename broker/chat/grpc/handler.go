@@ -26,7 +26,6 @@ import (
 	"fmt"
 
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 
 	chat2 "github.com/pydio/cells/broker/chat"
@@ -36,6 +35,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
+	context2 "github.com/pydio/cells/common/utils/context"
 )
 
 var (
@@ -135,9 +135,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	resp.Success = true
 	go func() {
 		for _, m := range resp.Messages {
-			bgCtx := metadata.NewContext(context.Background(), map[string]string{
-				common.PydioContextUserKey: m.Author,
-			})
+			bgCtx := context2.NewBackgroundWithUserKey(m.Author)
 			client.Publish(bgCtx, client.NewPublication(common.TopicChatEvent, &chat.ChatEvent{
 				Message: m,
 			}))
@@ -180,9 +178,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 	}
 	go func() {
 		for _, m := range req.Messages {
-			bgCtx := metadata.NewContext(context.Background(), map[string]string{
-				common.PydioContextUserKey: m.Author,
-			})
+			bgCtx := context2.NewBackgroundWithUserKey(m.Author)
 			if room, err := db.RoomByUuid(chat.RoomType_NODE, m.RoomUuid); err == nil {
 				if count, e := db.CountMessages(room); e == nil {
 					var meta = ""

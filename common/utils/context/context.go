@@ -143,3 +143,21 @@ func WithMetaCopy(ctx context.Context) context.Context {
 	}
 	return metadata.NewContext(ctx, md)
 }
+
+func NewBackgroundWithUserKey(userName string) context.Context {
+	return metadata.NewContext(context.Background(), map[string]string{
+		common.PydioContextUserKey: userName,
+	})
+}
+
+func NewBackgroundWithMetaCopy(ctx context.Context) context.Context {
+	bgCtx := context.Background()
+	if ctxMeta, ok := metadata.FromContext(ctx); ok {
+		newM := make(map[string]string)
+		for k, v := range ctxMeta {
+			newM[k] = v
+		}
+		bgCtx = metadata.NewContext(bgCtx, newM)
+	}
+	return bgCtx
+}

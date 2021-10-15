@@ -25,10 +25,8 @@ import (
 	"fmt"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/metadata"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
@@ -37,7 +35,9 @@ import (
 	servicecontext "github.com/pydio/cells/common/service/context"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/cache"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/idm/meta"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 // Handler definition.
@@ -105,7 +105,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	}
 
 	go func() {
-		bgCtx := h.copyContext(ctx)
+		bgCtx := context2.NewBackgroundWithMetaCopy(ctx)
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for nodeId, source := range sources {
@@ -159,7 +159,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 
 	defer stream.Close()
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-	bgCtx := h.copyContext(ctx)
+	bgCtx := context2.NewBackgroundWithMetaCopy(ctx)
 	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e
@@ -291,16 +291,4 @@ func (h *Handler) clearCacheForNode(nodeId string) {
 		h.searchCache.Delete(k)
 	}
 
-}
-
-func (h *Handler) copyContext(ctx context.Context) context.Context {
-	bgCtx := context.Background()
-	if ctxMeta, ok := metadata.FromContext(ctx); ok {
-		newM := make(map[string]string)
-		for k, v := range ctxMeta {
-			newM[k] = v
-		}
-		bgCtx = metadata.NewContext(bgCtx, newM)
-	}
-	return bgCtx
 }

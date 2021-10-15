@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/idm/acl"
 )
 
-// Implements ReadNodeStream to be a meta provider
+// ReadNodeStream implements method to be a MetaProvider
 func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)

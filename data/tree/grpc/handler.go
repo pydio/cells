@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/mocks"
 	"github.com/pydio/cells/common/proto/tree"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/utils/meta"
 )
 
@@ -89,10 +90,14 @@ type TreeServer struct {
 // ReadNodeStream Implement stream for readNode method
 func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 	defer streamer.Close()
-	metaStreamer := meta.NewStreamLoader(ctx)
-	defer metaStreamer.Close()
-	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
 
+	// In some cases, initial ctx could be canceled _before_ this function is called
+	// We must make sure that metaStreamers are using a proper context at creation
+	// otherwise it can create a goroutine leak on linux.
+	metaStreamer := meta.NewStreamLoader(context2.NewBackgroundWithMetaCopy(ctx))
+	defer metaStreamer.Close()
+
+	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
 	for {
 		request, err := streamer.Recv()
 		if request == nil {
