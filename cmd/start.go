@@ -113,6 +113,7 @@ ENVIRONMENT
   - CELLS_ENABLE_WIP_LANGUAGES: show partially translated languages in the UX language picker. 
   - CELLS_ENABLE_LIVEKIT: enable experimental support for video calls in the chat window, using a livekit-server.
   - CELLS_ENABLE_FORMS_DEVEL: display a basic UX form with all possible fields types in the UX (for React developers)
+  - CELLS_DEFAULT_DS_STRUCT: if true, create default datasources using structured format instead of flat
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
