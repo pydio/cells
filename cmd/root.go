@@ -297,7 +297,7 @@ func initConfig() (new bool) {
 		return
 	}
 
-	if defaultConfig.Val("version").String() == "" {
+	if defaultConfig.Val("version").String() == "" && defaultConfig.Val("defaults/database").String() == "" {
 		new = true
 
 		var data interface{}
