@@ -520,7 +520,7 @@ class DataSourceEditor extends React.Component{
 
         const AdvancedOptions = (
             <Paper zDepth={0} style={makeStyle(styles.section, 'advanced')}>
-                <div style={styles.title}>{'Advanced storage options'}</div>
+                <div style={styles.title}>{m('tab.advanced')}</div>
 
                 {!model.StorageConfiguration.cellsInternal &&
                 <div>
