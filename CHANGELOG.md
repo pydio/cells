@@ -1,7 +1,46 @@
-# Changes between v3.0.0-rc2 and v3.0.0-rc3
+# Changes between v3.0.0-rc2 and v3.0.0-rc4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.0-rc2...v3.0.0-rc3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v3.0.0-rc2...v3.0.0-rc4)
 
+- [#b794bd8](https://github.com/pydio/cells/commit/b794bd8604de3fc03ed91a8160adcaf458aace49): Fixing migration for older versions
+- [#8c2ad18](https://github.com/pydio/cells/commit/8c2ad183f0b94a023f7e2475d370453a5316649b): Fix missing i18n string
+- [#5ab9db0](https://github.com/pydio/cells/commit/5ab9db057366de5403ee4adf27f4a932251c9b62): Fix wrong i18n message when searching users in console
+- [#609ce9c](https://github.com/pydio/cells/commit/609ce9cde6dd65e45bd82a0b954e006d6e817114): Bump cells-sdk version
+- [#1fba607](https://github.com/pydio/cells/commit/1fba607c86ea7648f68cf5d918ab248497500953): Create a new context for new sub-streams
+- [#a868912](https://github.com/pydio/cells/commit/a868912174b4984b7b227afe21b514eef3d2b26c): New env CELLS_DEFAULT_DS_STRUCT for install
+- [#90416ce](https://github.com/pydio/cells/commit/90416ce47c5e8712b9e67346ee95781f2b10b17a): Fixing secret for vault
+- [#9475f02](https://github.com/pydio/cells/commit/9475f02bc37d215302660ebca02b061a2de36d15): Remove tmp pydio-archive files
+- [#a8a55d3](https://github.com/pydio/cells/commit/a8a55d331867a512fe4dc39b05055c50520a15d4): Drop logs_level usage and just check ENV legacy flag at startup (2)
+- [#5b0c7e2](https://github.com/pydio/cells/commit/5b0c7e264f1b2036fa15d56f84026cd35c1bfe30): Drop logs_level usage and just check ENV legacy flag at startup.
+- [#59ebc71](https://github.com/pydio/cells/commit/59ebc715daf734b773613a3b946c7dcdb73d16a3): Merge remote-tracking branch 'origin/master'
+- [#90576a9](https://github.com/pydio/cells/commit/90576a92dbbee471c6e6638cc9ab1284086d30a2): Search: load node directly instead of loading only metas (to include core metas)
+- [#072db31](https://github.com/pydio/cells/commit/072db311f1cf822209a056f4ac3eae3287561c2f): Revert CELLS_LOG flag, does not work this way
+- [#fffd221](https://github.com/pydio/cells/commit/fffd221fff3d11d694ad3ec4992edb560801915d): Some refactoring to decouple some packages
+- [#3086983](https://github.com/pydio/cells/commit/308698348abca9695c5ad724d10995934fd12390): Latest fix to the mpath
+- [#3d0b226](https://github.com/pydio/cells/commit/3d0b2268ebd1f0e1093b7b5ca382e3e53740bad2): Handler-path-workspace : use custom error instead of 404 when no ws is found in path.
+- [#1f285fe](https://github.com/pydio/cells/commit/1f285fe28ba39508e463a9a5ec7722d281a16d5b): Use colors in tags autocomplete suggestions
+- [#70016ac](https://github.com/pydio/cells/commit/70016ac56410be333c21e05a78a6a5d7df7e2490): Re-order logs level filter values
+- [#cd4e471](https://github.com/pydio/cells/commit/cd4e471b69463d376ed644732a60b1ec55530439): Factorise cache.EventsBatcher, use in ACL Expiration
+- [#98bb7c9](https://github.com/pydio/cells/commit/98bb7c92e76c7469200128be2cd0a3090e2300e7): ReadNodeStream : pass initialized MetaLoader to ReadNode in context
+- [#44e5531](https://github.com/pydio/cells/commit/44e5531cfed0dfddbb47ed035b5ced6cd6f3f523): Check the pydio.grpc.mailer>valid key to ignore mail-digest job if no mailer is set.
+- [#6316a06](https://github.com/pydio/cells/commit/6316a06252e9494e0f02d6ba59befde017294450): Fix Cells overview link to website
+- [#3d70583](https://github.com/pydio/cells/commit/3d7058362d8e9b3895f48b4f42a067df49b5bb8a): Missing stream.Close on activity server
+- [#3f3551a](https://github.com/pydio/cells/commit/3f3551affa1a659723c23f9022ffbc6a01951ab9): Remove console log
+- [#196a5b6](https://github.com/pydio/cells/commit/196a5b6146ec8ef004a16818457e48560514c613): Insert manual job to dump snapshot
+- [#6c1008e](https://github.com/pydio/cells/commit/6c1008e089a3be4a7c3472447994a8aeee0ff93d): Additional snapshot command "delete" to ease manageability and rotation
+- [#bb91d52](https://github.com/pydio/cells/commit/bb91d52089ba308fa4ba967c4cdc0193a58557d3): Improve table placeholders - wire network loader to registry loader
+- [#4f7d0c7](https://github.com/pydio/cells/commit/4f7d0c7ff06d56749cbfb6fa4648f90ab94b36c8): Wrap forked start in a select with a timeout
+- [#fe739ce](https://github.com/pydio/cells/commit/fe739ce8a4725c58fd66d36921931b4cdac23cab): Track possible unclosed stream
+- [#12e781a](https://github.com/pydio/cells/commit/12e781a64fc24a33cd8dfedf3830d2a3b1a13d55): Facet Size issue (10G instead of 10M)
+- [#bfac5c6](https://github.com/pydio/cells/commit/bfac5c6e8d0a60fedba5fed79681342dd00137cf): Fix FilePreview circular progress sizing
+- [#7d9cca0](https://github.com/pydio/cells/commit/7d9cca0c24c6bfbd49a5bd52d9e380873c533f66): GetNodeChildren : use a buffered channel to avoid filling sql buffer
+- [#4dd2a9d](https://github.com/pydio/cells/commit/4dd2a9d40466af3b08093699018215d34c0b9218): Recursively create parents for mkdir on struct datasource (remove logs)
+- [#820424c](https://github.com/pydio/cells/commit/820424c20565fab7d6a2a2383c9420a779d5235b): Recursively create parents for mkdir on struct datasource
+- [#ebedba3](https://github.com/pydio/cells/commit/ebedba3d8ff26ec0357576463ec0d40f70ee86a3): Revert Modified to ModTime
+- [#1ff158a](https://github.com/pydio/cells/commit/1ff158a4c48c6f841ab968e6b4b33534927ab1a1): Code lint, style, redundancies
+- [#8798dff](https://github.com/pydio/cells/commit/8798dff80fb6d8743122b5151083ed743f295a75): Allow owner scope in copy-move, delete, compress and extract actions
+- [#9039508](https://github.com/pydio/cells/commit/9039508e644e62788db314f0f2361bb5452d1adc): Fixing for mpath4
+- [#748a6fc](https://github.com/pydio/cells/commit/748a6fcb97616d77c37d12005ab9094cc309e766): Release v3.0.0-rc3
 - [#d17c180](https://github.com/pydio/cells/commit/d17c180046e272679f44d1ed919a5fafe61bbb9f): Fixing order of updates
 - [#9b3e081](https://github.com/pydio/cells/commit/9b3e0816932775caf4b5aa523754ea9fe9670ed0): Sync start : remove logs on first try when pinging object service.
 - [#0855bf5](https://github.com/pydio/cells/commit/0855bf51c6230793d4bb40b3bda1fe2b65f156cb): We may have an unclosed stream
