@@ -1074,10 +1074,10 @@ let SimpleList = createReactClass({
 
             leftToolbar =(
                 <ToolbarGroup key={0} float="left">
-                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('react.3').replace('%s', this.props.searchResultData.term)}</div>
+                    <div style={{fontSize: 12, fontWeight: 500, color: '#9e9e9e'}}>{this.getMessage('searchengine.topbar.title') + ' ' + this.props.searchResultData.term}</div>
                 </ToolbarGroup>
             );
-            rightButtons = <RaisedButton key={1} label={this.getMessage('react.4')} primary={true} onClick={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
+            rightButtons = <RaisedButton key={1} label={this.getMessage('86')} primary={true} onClick={this.props.searchResultData.toggleState} style={{marginRight: -10}} />;
 
         }else if(this.actionsCache.multiple.size || this.props.multipleActions){
             let bulkLabel = this.getMessage('react.2');
