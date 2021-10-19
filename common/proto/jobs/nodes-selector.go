@@ -110,43 +110,83 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			}
 			return nil
 		}
-		// For simple/quick requests
-		sName := common.ServiceTree
+		filter := func(n *tree.Node) bool {
+			return true
+		}
+		if q.PathDepth > 0 {
+			// Filter results by PathDepth
+			filter = func(n *tree.Node) bool {
+				depth := int32(len(strings.Split(strings.Trim(n.GetPath(), "/"), "/")))
+				return depth == q.PathDepth
+			}
+		}
+		var total int
 		if q.FreeString != "" || q.Content != "" || q.FileNameOrContent != "" {
-			// Use the Search Service instead
-			sName = common.ServiceSearch
-		}
-		treeClient := tree.NewSearcherClient(common.ServiceGrpcNamespace_+sName, cl)
-		sStream, eR := treeClient.Search(ctx, &tree.SearchRequest{
-			Query:   q,
-			Details: true,
-		})
-		if eR != nil {
-			return eR
-		}
-		count := 0
-		defer sStream.Close()
-		for {
-			resp, rE := sStream.Recv()
-			if rE != nil {
-				break
-			}
-			if resp == nil || resp.Node == nil {
-				continue
-			}
-			if q.PathDepth > 0 {
-				depth := int32(len(strings.Split(strings.Trim(resp.GetNode().GetPath(), "/"), "/")))
-				if depth != q.PathDepth {
-					continue
+			// Use the Search Service, relaunch search as long as there are results (request size cannot be empty)
+			var cursor int32
+			size := int32(50)
+			for {
+				req := &tree.SearchRequest{
+					Query:   q,
+					Details: true,
+					From:    cursor,
+					Size:    size,
+				}
+				res, loadMore, err := n.performListing(ctx, cl, common.ServiceSearch, req, filter, objects)
+				if err != nil {
+					return err
+				}
+				total += res
+				if loadMore {
+					cursor += size
+				} else {
+					break
 				}
 			}
-			log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
-			objects <- resp.Node
-			count ++
+		} else {
+			// For simple requests, directly use the Tree service
+			var e error
+			req := &tree.SearchRequest{
+				Query:   q,
+				Details: true,
+			}
+			total, _, e = n.performListing(ctx, cl, common.ServiceTree, req, filter, objects)
+			if e != nil {
+				return e
+			}
 		}
-		log.Logger(ctx).Info("Finished Search Request with query", zap.Any("q", q), zap.Int("count", count))
+		log.Logger(ctx).Info("Selector finished request with query", zap.Any("q", q), zap.Int("count", total))
 	}
 	return nil
+}
+
+func (n *NodesSelector) performListing(ctx context.Context, cl client.Client, serviceName string, req *tree.SearchRequest, filter func(n *tree.Node) bool, objects chan interface{}) (int, bool, error) {
+	treeClient := tree.NewSearcherClient(common.ServiceGrpcNamespace_+serviceName, cl)
+	sStream, eR := treeClient.Search(ctx, req)
+	if eR != nil {
+		return 0, false, eR
+	}
+	var received int32
+	var count int
+	defer sStream.Close()
+	for {
+		resp, rE := sStream.Recv()
+		if rE != nil {
+			break
+		}
+		if resp == nil || resp.Node == nil {
+			continue
+		}
+		received++
+		if !filter(resp.GetNode()) {
+			continue
+		}
+		log.Logger(ctx).Debug("Search Request with query received Node", resp.Node.ZapPath())
+		objects <- resp.Node
+		count++
+	}
+	mayHaveMore := req.Size > 0 && received == req.Size
+	return count, mayHaveMore, nil
 }
 
 func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
