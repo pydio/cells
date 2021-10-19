@@ -736,7 +736,9 @@ class MainFilesList extends React.Component {
             className += ' material-list-grid grid-size-' + near;
             const labelHeight = near === 80 ? 16 : 36
             elementsPerLine = this.state.elementsPerLine
-            elementHeight =  Math.ceil((thumbSize + labelHeight) / elementsPerLine);
+            if (elementsPerLine > 0) {
+                elementHeight =  Math.ceil((thumbSize + labelHeight) / elementsPerLine);
+            }
             if(!elementHeight || this.props.horizontalRibbon){
                 elementHeight = 1;
             }
