@@ -73,12 +73,11 @@ var dataSourceMigrateCmd = &cobra.Command{
 			return e
 		}
 
-		running, _ := registry.GetRunningService(common.ServiceGrpcNamespace_+common.ServiceDataSync_+source.Name)
+		running, _ := registry.GetRunningService(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name)
 		if len(running) > 0 {
-			migrateLogger("[ERROR] Datasource " + source.Name + " sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
+			migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
 			return e
 		}
-
 
 		// Prepare Clients
 		rootNode, idxClient, idxWrite, mc, e := migratePrepareClients(authCtx, source)
@@ -104,10 +103,12 @@ var dataSourceMigrateCmd = &cobra.Command{
 		if !srcFound {
 			e := fmt.Errorf("cannot find source bucket %s", srcBucket)
 			migrateLogger("[ERROR] "+e.Error(), true)
+			return e
 		}
 		if !tgtFound {
 			e := fmt.Errorf("cannot find target bucket %s, please create it manually", tgtBucket)
 			migrateLogger("[ERROR] "+e.Error(), true)
+			return e
 		}
 
 		rootSize := humanize.Bytes(uint64(rootNode.GetSize()))
@@ -240,7 +241,10 @@ func migratePrepareClients(ctx context.Context, source *object.DataSource) (root
 		return
 	}
 	conf := or.GetMinioConfig()
-	apiSecret := config.GetSecret(conf.ApiSecret).String()
+	apiSecret := conf.ApiSecret
+	if s := config.GetSecret(conf.ApiSecret).String(); s != "" {
+		apiSecret = s
+	}
 	mc, e = minio.NewCore(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort), conf.ApiKey, apiSecret, conf.RunningSecure)
 	if e != nil {
 		return
