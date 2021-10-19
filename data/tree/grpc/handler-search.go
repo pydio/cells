@@ -126,7 +126,7 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		ext := strings.Split(q.Extension, "|")
 		var greps []string
 		for _, x := range ext {
-			greps = append(greps, x+"$")
+			greps = append(greps, "(?i)"+x+"$")
 		}
 		if q.Not {
 			listReq.Node.SetMeta(tree.MetaFilterNoGrep, strings.Join(greps, "|"))
