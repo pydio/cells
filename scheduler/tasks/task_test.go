@@ -23,7 +23,6 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
 	"time"
 
@@ -59,9 +58,8 @@ func TestNewTaskFromEvent(t *testing.T) {
 		So(task, ShouldResemble, &Task{
 			context:        outCtx,
 			Job:            &jobs.Job{ID: "ajob"},
-			lock:           &sync.RWMutex{},
 			initialMessage: msg,
-			RunUUID:        task.RunUUID,
+			run:            task.run,
 			lockedTask: &jobs.Task{
 				ID:            task.lockedTask.ID,
 				JobID:         "ajob",
@@ -83,11 +81,11 @@ func TestTaskSetters(t *testing.T) {
 		So(task, ShouldNotBeNil)
 
 		task.Add(2)
-		So(task.RC, ShouldEqual, 2)
+		So(task.rc, ShouldEqual, 2)
 		task.Done(1)
-		So(task.RC, ShouldEqual, 1)
+		So(task.rc, ShouldEqual, 1)
 		task.Done(1)
-		So(task.RC, ShouldEqual, 0)
+		So(task.rc, ShouldEqual, 0)
 
 		now := time.Now()
 		stamp := int32(now.Unix())

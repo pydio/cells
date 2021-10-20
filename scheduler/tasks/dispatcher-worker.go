@@ -24,16 +24,12 @@ import (
 	"github.com/pydio/cells/common/log"
 )
 
-var (
-	RC int
-)
-
 // Worker represents the worker that executes the jobs.
 type Worker struct {
-	WorkerPool chan chan Runnable
-	JobChannel chan Runnable
+	workerPool chan chan Runnable
+	jobChannel chan Runnable
 	quit       chan bool
-	JobReQueue chan Runnable
+	jobRequeue chan Runnable
 	activeChan chan int
 	tags       map[string]string
 }
@@ -41,9 +37,9 @@ type Worker struct {
 // NewWorker creates and configures a new worker.
 func NewWorker(workerPool chan chan Runnable, requeue chan Runnable, activeChan chan int, tags map[string]string) Worker {
 	return Worker{
-		WorkerPool: workerPool,
-		JobChannel: make(chan Runnable),
-		JobReQueue: requeue,
+		workerPool: workerPool,
+		jobChannel: make(chan Runnable),
+		jobRequeue: requeue,
 		tags:       tags,
 		activeChan: activeChan,
 		quit:       make(chan bool)}
@@ -55,19 +51,18 @@ func (w Worker) Start() {
 	go func() {
 		for {
 			// register the current worker into the worker queue.
-			w.WorkerPool <- w.JobChannel
+			w.workerPool <- w.jobChannel
 
 			select {
-			case runnable := <-w.JobChannel:
+			case runnable := <-w.jobChannel:
 				// we have received a work request.
 				w.activeChan <- 1
-				err := runnable.RunAction(w.JobReQueue)
+				err := runnable.RunAction(w.jobRequeue)
 				// TODO : do something with errors
 				if err != nil {
 					log.Logger(runnable.Context).Error("cannot run action " + runnable.ID + ": " + err.Error())
 				}
 				w.activeChan <- -1
-				//log.Logger(runnable.Context).Info("Runnable in dispatcher: Finished", zap.Int("RC", RC), zap.String("runnable", runnable.ID))
 
 			case <-w.quit:
 				// we have received a signal to stop

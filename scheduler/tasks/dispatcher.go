@@ -32,8 +32,8 @@ const (
 // Dispatcher orchestrates the jobs by dispatching work to available workers.
 type Dispatcher struct {
 	// A pool of workers channels that are registered with the dispatcher
-	JobQueue   chan Runnable
-	WorkerPool chan chan Runnable
+	jobQueue   chan Runnable
+	workerPool chan chan Runnable
 	maxWorker  int
 	tags       map[string]string
 	active     int
@@ -46,9 +46,9 @@ func NewDispatcher(maxWorkers int, tags map[string]string) *Dispatcher {
 	pool := make(chan chan Runnable, maxWorkers)
 	jobQueue := make(chan Runnable)
 	return &Dispatcher{
-		WorkerPool: pool,
+		workerPool: pool,
 		maxWorker:  maxWorkers,
-		JobQueue:   jobQueue,
+		jobQueue:   jobQueue,
 		tags:       tags,
 		activeChan: make(chan int),
 		quit:       make(chan bool, 1),
@@ -61,7 +61,7 @@ func (d *Dispatcher) Run() {
 	var workers []Worker
 
 	for i := 0; i < d.maxWorker; i++ {
-		worker := NewWorker(d.WorkerPool, d.JobQueue, d.activeChan, d.tags)
+		worker := NewWorker(d.workerPool, d.jobQueue, d.activeChan, d.tags)
 		worker.Start()
 
 		workers = append(workers, worker)
@@ -75,12 +75,12 @@ func (d *Dispatcher) Run() {
 			case a := <-d.activeChan:
 				d.active += a
 				g.Update(float64(d.active))
-			case jobImpl := <-d.JobQueue:
+			case jobImpl := <-d.jobQueue:
 				// a jobs request has been received
 				go func(job Runnable) {
 					// try to obtain a worker job channel that is available.
 					// this will block until a worker is idle
-					jobChannel := <-d.WorkerPool
+					jobChannel := <-d.workerPool
 
 					// dispatch the job to the worker job channel
 					jobChannel <- job

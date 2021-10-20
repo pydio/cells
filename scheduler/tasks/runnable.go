@@ -66,7 +66,7 @@ func NewRunnable(ctx context.Context, parentPath string, chainIndex int, cl clie
 	aPath := path.Join(parentPath, fmt.Sprintf(action.ID+"$%d", chainIndex))
 	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
 		servicecontext.ContextMetaJobUuid:        task.Job.ID,
-		servicecontext.ContextMetaTaskUuid:       task.RunUUID,
+		servicecontext.ContextMetaTaskUuid:       task.GetRunUUID(),
 		servicecontext.ContextMetaTaskActionPath: aPath,
 	})
 	r := Runnable{
