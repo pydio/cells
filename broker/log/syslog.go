@@ -106,7 +106,7 @@ func (s *SyslogServer) Open(indexPath string, mappingName string) error {
 		s.cursor = len(s.indexes) - 1
 	}
 
-	s.inserts = make(chan interface{})
+	s.inserts = make(chan interface{}, 1000)
 	s.insertsDone = make(chan bool)
 	s.opened = true
 
@@ -259,7 +259,10 @@ func (s *SyslogServer) flush() {
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *SyslogServer) PutLog(line *log.Log) error {
-	s.inserts <- line
+	select {
+	case s.inserts <- line:
+	default:
+	}
 	return nil
 }
 

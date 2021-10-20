@@ -43,7 +43,7 @@ func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 	syncer := &LogSyncer{
 		serverServiceName: serviceName,
 		ctx:               ctx,
-		logSyncerMessages: make(chan *log.Log, 10),
+		logSyncerMessages: make(chan *log.Log, 100),
 	}
 
 	go syncer.logSyncerWatch()
@@ -108,10 +108,12 @@ func (l *LogSyncer) Write(p []byte) (n int, err error) {
 
 	clone := make([]byte, len(p))
 	written := copy(clone, p)
-
-	l.logSyncerMessages <- &log.Log{
+	select {
+	case l.logSyncerMessages <- &log.Log{
 		Nano:    int32(time.Now().Nanosecond()),
 		Message: clone,
+	}:
+	default:
 	}
 	return written, nil
 }
