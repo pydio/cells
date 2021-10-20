@@ -126,6 +126,7 @@ func TestNewBleveEngine(t *testing.T) {
 }
 
 func TestSizeRotation(t *testing.T) {
+	BlockingInserts = true
 	Convey("Test Rotation", t, func() {
 		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
 		os.MkdirAll(filepath.Dir(p), 0777)
@@ -210,7 +211,7 @@ func TestSizeRotation(t *testing.T) {
 		fmt.Println(indexPaths)
 
 		s.Resync(nil)
-		<-time.After(3 * time.Second)
+		<-time.After(5 * time.Second)
 
 		indexPaths = s.listIndexes()
 		So(indexPaths, ShouldHaveLength, 9)
@@ -227,11 +228,6 @@ func TestSizeRotation(t *testing.T) {
 	})
 }
 
-func log2json(level string, msg string) string {
-	str := fmt.Sprintf(`{"ts": "%s", "level": "%s", "msg": "%s"}`, time.Now().Format(time.RFC3339), level, msg)
-	return str
-}
-
 func log2map(level string, msg string) *log.Log {
 
 	str := fmt.Sprintf(`{"ts": "%s", "level": "%s", "msg": "%s"}`, time.Now().Format(time.RFC3339), level, msg)
@@ -239,27 +235,6 @@ func log2map(level string, msg string) *log.Log {
 		Message: []byte(str),
 		Nano:    int32(time.Now().UnixNano()),
 	}
-}
-
-func json2map(line string) map[string]string {
-	var rawdata map[string]interface{}
-	// var data map[string]string
-	err := json.Unmarshal([]byte(line), &rawdata)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	data := make(map[string]string)
-	for k, v := range rawdata {
-		switch v := v.(type) {
-		case string:
-			data[k] = v
-		default:
-			fmt.Printf("Cannot unmarshall object for key %s\n", k)
-		}
-	}
-
-	return data
 }
 
 const (

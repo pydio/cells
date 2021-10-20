@@ -44,8 +44,13 @@ import (
 )
 
 const (
+	BufferedChanSize    = 10000
 	MinRotationSize     = 68 * 1024
 	DefaultRotationSize = int64(200 * 1024 * 1024)
+)
+
+var (
+	BlockingInserts = false
 )
 
 // SyslogServer is the syslog specific implementation of the Log server
@@ -105,8 +110,11 @@ func (s *SyslogServer) Open(indexPath string, mappingName string) error {
 		s.SearchIndex.Add(s.indexes...)
 		s.cursor = len(s.indexes) - 1
 	}
-
-	s.inserts = make(chan interface{}, 1000)
+	if BlockingInserts {
+		s.inserts = make(chan interface{})
+	} else {
+		s.inserts = make(chan interface{}, BufferedChanSize)
+	}
 	s.insertsDone = make(chan bool)
 	s.opened = true
 
@@ -236,6 +244,7 @@ func (s *SyslogServer) rotateIfNeeded() {
 		return
 	}
 	if du > s.rotationSize {
+		fmt.Println("Rotating "+s.indexPath+" for size ", du)
 		// Open a new index
 		newPath := fmt.Sprintf("%s.%04d", s.indexPath, len(s.indexes))
 		newIndex, er := openOneIndex(newPath, s.mappingName)
@@ -259,9 +268,13 @@ func (s *SyslogServer) flush() {
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *SyslogServer) PutLog(line *log.Log) error {
-	select {
-	case s.inserts <- line:
-	default:
+	if BlockingInserts {
+		s.inserts <- line
+	} else {
+		select {
+		case s.inserts <- line:
+		default:
+		}
 	}
 	return nil
 }
@@ -279,7 +292,7 @@ func (s *SyslogServer) DeleteLogs(query string) (int64, error) {
 }
 
 // AggregatedLogs performs a faceted query in the syslog repository. UNIMPLEMENTED.
-func (s *SyslogServer) AggregatedLogs(msgId string, timeRangeType string, refTime int32) (chan log.TimeRangeResponse, error) {
+func (s *SyslogServer) AggregatedLogs(_ string, _ string, _ int32) (chan log.TimeRangeResponse, error) {
 	return nil, fmt.Errorf("unimplemented method")
 }
 
