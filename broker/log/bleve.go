@@ -101,7 +101,35 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	if str == "" {
 		q = bleve.NewMatchAllQuery()
 	} else {
-		q = bleve.NewQueryStringQuery(str)
+		qs := bleve.NewQueryStringQuery(str)
+		q = qs
+		if parsed, e := qs.Parse(); e == nil {
+			var changed bool
+			if bQ, o := parsed.(*query.BooleanQuery); o {
+				if cj, o2 := bQ.Must.(*query.ConjunctionQuery); o2 {
+					for i, m := range cj.Conjuncts {
+						if mp, o3 := m.(*query.MatchPhraseQuery); o3 {
+							phrase := mp.MatchPhrase
+							if strings.Contains(phrase, " ") {
+								match := query.NewMatchQuery(mp.MatchPhrase)
+								match.SetField(match.FieldVal)
+								match.SetBoost(mp.Boost())
+								cj.Conjuncts[i] = match
+							} else {
+								match := query.NewWildcardQuery("*" + mp.MatchPhrase + "*")
+								match.SetField(match.FieldVal)
+								match.SetBoost(mp.Boost())
+								cj.Conjuncts[i] = match
+							}
+							changed = true
+						}
+					}
+				}
+			}
+			if changed {
+				q = parsed
+			}
+		}
 	}
 	req := bleve.NewSearchRequest(q)
 	req.SortBy([]string{"-" + common.KeyTs, "-" + common.KeyNano})

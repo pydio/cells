@@ -291,8 +291,9 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 }
 
 func (s *BleveServer) makeBaseNameField(term string, boost float64) query.Query {
-	if s.basenameAnalyzer == defaultBasenameAnalyzer {
-		wCard := bleve.NewWildcardQuery("*" + strings.Trim(strings.ToLower(term), "*") + "*")
+	if s.basenameAnalyzer == defaultBasenameAnalyzer && !strings.Contains(term, " ") {
+		term = strings.Trim(strings.ToLower(term), "* ")
+		wCard := bleve.NewWildcardQuery("*" + term + "*")
 		wCard.SetField("Basename")
 		if boost > 0 {
 			wCard.SetBoost(boost)
