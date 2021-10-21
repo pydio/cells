@@ -6,7 +6,7 @@
 [![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
 [![Build Status](https://travis-ci.org/pydio/cells.svg?branch=master)](https://travis-ci.org/pydio/cells)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=3)](https://goreportcard.com/report/github.com/pydio/cells)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=4)](https://goreportcard.com/report/github.com/pydio/cells)
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
 
