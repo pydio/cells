@@ -1,8 +1,29 @@
+/*
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package sql
 
 import (
 	"bytes"
 	"errors"
+
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/x/configx"
@@ -12,8 +33,8 @@ import (
 )
 
 type SQL struct {
-	dao    dao.DAO
-	config configx.Values
+	dao      dao.DAO
+	config   configx.Values
 	watchers []*receiver
 }
 
@@ -119,7 +140,7 @@ func (s *SQL) update() {
 		v := s.Val(w.path...).Bytes()
 		select {
 		case w.updates <- v:
-			default:
+		default:
 		}
 	}
 }
@@ -134,9 +155,9 @@ func (s *SQL) Save(ctxUser, ctxMessage string) error {
 
 func (s *SQL) Watch(path ...string) (configx.Receiver, error) {
 	r := &receiver{
-		exit: make(chan bool),
-		path: path,
-		value: s.Val(path...).Bytes(),
+		exit:    make(chan bool),
+		path:    path,
+		value:   s.Val(path...).Bytes(),
 		updates: make(chan []byte),
 	}
 
@@ -146,9 +167,9 @@ func (s *SQL) Watch(path ...string) (configx.Receiver, error) {
 }
 
 type receiver struct {
-	exit chan bool
-	path []string
-	value []byte
+	exit    chan bool
+	path    []string
+	value   []byte
 	updates chan []byte
 }
 

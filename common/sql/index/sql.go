@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -143,9 +143,9 @@ func init() {
 		totalMPathTo := len(mpathTo[0]) + len(mpathTo[1]) + len(mpathTo[2]) + len(mpathTo[3])
 
 		var (
-			quoMPathTo   int = totalMPathTo / indexLen
+			quoMPathTo int = totalMPathTo / indexLen
 			modMPathTo int = totalMPathTo % indexLen
-			mpathSub          []string
+			mpathSub   []string
 		)
 
 		// rows before
@@ -168,7 +168,7 @@ func init() {
 			incr := indexLen
 			if cnt == quoMPathTo {
 				incr = indexLen - modMPathTo
-				concat = append(concat, `"`+ mpathTo[cnt] + `"`)
+				concat = append(concat, `"`+mpathTo[cnt]+`"`)
 			}
 			tarIndexFrom := curIndexFrom + incr
 			if tarIndexFrom > maxLen {
@@ -177,10 +177,10 @@ func init() {
 
 			modParts := getModuloParts(curIndexFrom, tarIndexFrom, indexLen)
 			for _, modPart := range modParts {
-				concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo + 1, modPart.from + 1, modPart.to - modPart.from))
+				concat = append(concat, fmt.Sprintf(`SUBSTR(mpath%d, %d, %d)`, modPart.quo+1, modPart.from+1, modPart.to-modPart.from))
 			}
 
-			mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, cnt + 1, dao.Concat(concat...)))
+			mpathSub = append(mpathSub, fmt.Sprintf(`mpath%d=%s`, cnt+1, dao.Concat(concat...)))
 
 			curIndexFrom = tarIndexFrom
 			curIndexTo = curIndexTo + incr
@@ -1507,9 +1507,9 @@ func firstAvailableSlot(numbers []int, padStart bool) (missing int, has bool, re
 }
 
 type modPart struct {
-	quo int
+	quo  int
 	from int
-	to int
+	to   int
 }
 
 func getModuloParts(start, end, len int) []modPart {
@@ -1521,9 +1521,9 @@ func getModuloParts(start, end, len int) []modPart {
 
 	if startQuo == endQuo {
 		return []modPart{{
-			quo: startQuo,
+			quo:  startQuo,
 			from: startMod,
-			to: endMod,
+			to:   endMod,
 		}}
 	}
 
@@ -1539,9 +1539,9 @@ func getModuloParts(start, end, len int) []modPart {
 
 	for i := startQuo + 1; i < endQuo; i++ {
 		ret = append(ret, modPart{
-			quo: i,
+			quo:  i,
 			from: 0,
-			to: len,
+			to:   len,
 		})
 	}
 

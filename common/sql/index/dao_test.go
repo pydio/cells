@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -496,7 +496,7 @@ func TestMoveNode(t *testing.T) {
 		newNode12 := NewNode(&tree.Node{
 			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,3}, []string{"nodeParent"})
+		}, mtree.MPath{1, 2, 3}, []string{"nodeParent"})
 
 		if err := currentDAO.AddNode(newNode12); err != nil {
 			So(err, ShouldBeNil)
@@ -508,7 +508,7 @@ func TestMoveNode(t *testing.T) {
 		newNode := NewNode(&tree.Node{
 			Uuid: "newNodeFolder",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,3,4,5,6,7,8,9,10}, []string{"newNodeFolderSize"})
+		}, mtree.MPath{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, []string{"newNodeFolderSize"})
 
 		if err := currentDAO.AddNode(newNode); err != nil {
 			So(err, ShouldBeNil)
@@ -517,7 +517,7 @@ func TestMoveNode(t *testing.T) {
 		newNode2 := NewNode(&tree.Node{
 			Uuid: "newNodeFolder2",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, []string{"newDeepFolder"})
+		}, mtree.MPath{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, []string{"newDeepFolder"})
 
 		if err := currentDAO.AddNode(newNode2); err != nil {
 			So(err, ShouldBeNil)
@@ -561,7 +561,7 @@ func TestMoveNode(t *testing.T) {
 		newNode12 = NewNode(&tree.Node{
 			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,3}, []string{"nodeParent"})
+		}, mtree.MPath{1, 2, 3}, []string{"nodeParent"})
 
 		// Moving back
 		err = currentDAO.MoveNodeTree(movedNewNode13, newNode12)
@@ -576,7 +576,7 @@ func TestMoveNode(t *testing.T) {
 		newNode124 := NewNode(&tree.Node{
 			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,2,4}, []string{"nodeParent"})
+		}, mtree.MPath{1, 2, 4}, []string{"nodeParent"})
 
 		// Moving back
 		err = currentDAO.MoveNodeTree(newNode12, newNode124)
@@ -591,7 +591,7 @@ func TestMoveNode(t *testing.T) {
 		newNode125 := NewNode(&tree.Node{
 			Uuid: "nodeParent",
 			Type: tree.NodeType_COLLECTION,
-		}, mtree.MPath{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, []string{"nodeParent"})
+		}, mtree.MPath{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, []string{"nodeParent"})
 
 		// Moving back
 		err = currentDAO.MoveNodeTree(newNode124, newNode125)

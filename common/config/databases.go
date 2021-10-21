@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -34,6 +34,6 @@ func GetDatabase(key string) (string, string) {
 func SetDatabase(key string, driver string, dsn string) error {
 	return local.Val("databases/" + key).Set(map[string]string{
 		"driver": driver,
-		"dsn": dsn,
+		"dsn":    dsn,
 	})
 }

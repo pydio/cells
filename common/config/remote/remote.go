@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package remote
 
 import (
@@ -6,11 +26,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/x/configx"
@@ -19,20 +40,20 @@ import (
 )
 
 type remote struct {
-	id     string
+	id      string
 	service string
-	config configx.Values
+	config  configx.Values
 
 	watchers []*receiver
 
-	ctx context.Context
+	ctx    context.Context
 	stream proto.ConfigClient
 }
 
 func New(service, id string) configx.Entrypoint {
 
 	r := &remote{
-		id: id,
+		id:      id,
 		service: service,
 	}
 
@@ -143,9 +164,9 @@ func (r *remote) Del() error {
 
 func (r *remote) Watch(path ...string) (configx.Receiver, error) {
 	rcvr := &receiver{
-		exit: make(chan bool),
-		path: path,
-		value: r.Val(path...).Bytes(),
+		exit:    make(chan bool),
+		path:    path,
+		value:   r.Val(path...).Bytes(),
 		updates: make(chan []byte),
 	}
 
@@ -155,9 +176,9 @@ func (r *remote) Watch(path ...string) (configx.Receiver, error) {
 }
 
 type receiver struct {
-	exit chan bool
-	path []string
-	value []byte
+	exit    chan bool
+	path    []string
+	value   []byte
 	updates chan []byte
 }
 
@@ -185,7 +206,6 @@ func (r *receiver) Next() (configx.Values, error) {
 		}
 	}
 }
-
 
 func (r *receiver) Stop() {
 	select {

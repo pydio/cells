@@ -1,12 +1,33 @@
+/*
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package cluster
 
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 
 	"github.com/micro/go-plugins/registry/memory"
 
@@ -28,9 +49,9 @@ var (
 )
 
 type clusterRegistry struct {
-	local        registry.Registry
-	nats         registry.Registry
-	nodes        map[string]registry.Registry
+	local registry.Registry
+	nats  registry.Registry
+	nodes map[string]registry.Registry
 
 	options registry.Options
 
@@ -41,13 +62,13 @@ type clusterRegistry struct {
 
 	consumerInbox string
 
-	mgr          *jsm.Manager
-	stream       *jsm.Stream
-	sub          *nats.Subscription
-	consumer     *jsm.Consumer
+	mgr      *jsm.Manager
+	stream   *jsm.Stream
+	sub      *nats.Subscription
+	consumer *jsm.Consumer
 
 	natsAvailable bool
-	jsmAvailable bool
+	jsmAvailable  bool
 
 	cancelNats context.CancelFunc
 
@@ -147,7 +168,7 @@ func NewRegistry(local registry.Registry, opts ...registry.Option) registry.Regi
 					log.Warn("[nats cluster] error retrieving consumers ", zap.Error(err))
 				}
 
-				time.Sleep(1* time.Second)
+				time.Sleep(1 * time.Second)
 				continue
 			}
 
@@ -418,7 +439,7 @@ func (r *clusterRegistry) reset() error {
 	r.stream = nil
 	r.consumer = nil
 	if r.sub != nil {
-		if err :=  r.sub.Unsubscribe(); err != nil {
+		if err := r.sub.Unsubscribe(); err != nil {
 			return err
 		}
 
@@ -491,7 +512,6 @@ func (r *clusterRegistry) GetService(name string) ([]*registry.Service, error) {
 		return []*registry.Service{}, errLocal
 	}
 
-
 	r.RLock()
 	defer r.RUnlock()
 
@@ -540,8 +560,6 @@ func (r *clusterRegistry) ListServices() ([]*registry.Service, error) {
 
 	return mergeServices(localServices, clusterServices), nil
 }
-
-
 
 func (r *clusterRegistry) Watch(opts ...registry.WatchOption) (registry.Watcher, error) {
 	var wo registry.WatchOptions

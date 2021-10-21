@@ -1,16 +1,22 @@
-// Copyright 2015 The etcd Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 
 package raft
 
@@ -18,7 +24,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pydio/cells/common/config"
 	"log"
 	"net/http"
 	"net/url"
@@ -27,6 +32,8 @@ import (
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/pydio/cells/common/config"
 
 	"go.etcd.io/etcd/etcdserver/api/membership"
 	"go.etcd.io/etcd/etcdserver/api/rafthttp"
@@ -75,16 +82,16 @@ type raftNode struct {
 	commitC     chan<- *commit           // entries committed to log (k,v)
 	errorC      chan<- error             // errors from raft session
 
-	id          int    // client ID for raft session
-	memberID    types.ID
-	serviceID   string
+	id             int // client ID for raft session
+	memberID       types.ID
+	serviceID      string
 	serviceAddress string
-	service     string // name of the service to send replication to
-	cluster     *membership.RaftCluster
-	join        bool   // node is joining an existing cluster
-	waldir      string // path to WAL directory
-	snapdir     string // path to snapshot directory
-	getSnapshot func() ([]byte, error)
+	service        string // name of the service to send replication to
+	cluster        *membership.RaftCluster
+	join           bool   // node is joining an existing cluster
+	waldir         string // path to WAL directory
+	snapdir        string // path to snapshot directory
+	getSnapshot    func() ([]byte, error)
 
 	confState     raftpb.ConfState
 	snapshotIndex uint64
@@ -128,20 +135,20 @@ func NewRaftNode(id int, name string, address string, service string, join bool,
 	services, _ := registry.GetRunningService(service)
 
 	rc := &raftNode{
-		proposeC:    proposeC,
-		confChangeC: confChangeC,
-		commitC:     commitC,
-		errorC:      errorC,
-		id:          id,
-		serviceID:   name,
+		proposeC:       proposeC,
+		confChangeC:    confChangeC,
+		commitC:        commitC,
+		errorC:         errorC,
+		id:             id,
+		serviceID:      name,
 		serviceAddress: address,
-		service:     service,
-		join:        len(services) > 0,
-		getSnapshot: getSnapshot,
-		snapCount:   defaultSnapshotCount,
-		stopc:       make(chan struct{}),
-		httpstopc:   make(chan struct{}),
-		httpdonec:   make(chan struct{}),
+		service:        service,
+		join:           len(services) > 0,
+		getSnapshot:    getSnapshot,
+		snapCount:      defaultSnapshotCount,
+		stopc:          make(chan struct{}),
+		httpstopc:      make(chan struct{}),
+		httpdonec:      make(chan struct{}),
 
 		logger: zap.NewExample(),
 
@@ -345,8 +352,6 @@ func (rc *raftNode) replayWAL() *wal.WAL {
 
 	rc.raftStorage = s
 
-
-
 	return w
 }
 
@@ -379,7 +384,7 @@ func (rc *raftNode) startRaft() {
 	rc.memberID = member.ID
 
 	// Creating snap dir
-	rc.snapdir = filepath.Join(config.ApplicationWorkingDir(), "service-" + member.ID.String() + "-snap")
+	rc.snapdir = filepath.Join(config.ApplicationWorkingDir(), "service-"+member.ID.String()+"-snap")
 	if !fileutil.Exist(rc.snapdir) {
 		if err := os.Mkdir(rc.snapdir, 0750); err != nil {
 			log.Fatalf("raftexample: cannot create dir for snapshot (%v)", err)
@@ -389,7 +394,7 @@ func (rc *raftNode) startRaft() {
 	rc.snapshotter = snap.New(rc.logger, rc.snapdir)
 
 	// Creating waldir
-	rc.waldir = filepath.Join(config.ApplicationWorkingDir(), "service-" + member.ID.String())
+	rc.waldir = filepath.Join(config.ApplicationWorkingDir(), "service-"+member.ID.String())
 
 	hasWAL := wal.Exist(rc.waldir)
 
@@ -464,8 +469,8 @@ func (rc *raftNode) startNode(name string, cl *membership.RaftCluster, ids []typ
 		ElectionTick:    10,
 		HeartbeatTick:   1,
 		Storage:         s,
-		MaxSizePerMsg:             1024 * 1024,
-		MaxInflightMsgs:           256,
+		MaxSizePerMsg:   1024 * 1024,
+		MaxInflightMsgs: 256,
 	}
 
 	if len(peers) > 1 {
@@ -618,7 +623,7 @@ func (rc *raftNode) serveRegistry() {
 		} else if res.Action == "delete" {
 			for _, n := range res.Service.Nodes {
 				rc.node.ProposeConfChange(context.TODO(), &raftpb.ConfChange{
-					Type: raftpb.ConfChangeRemoveNode,
+					Type:    raftpb.ConfChangeRemoveNode,
 					Context: []byte(n.Id),
 				})
 			}
@@ -707,7 +712,7 @@ func (rc *raftNode) serveChannels() {
 }
 
 func (rc *raftNode) serveRaft() {
-	url, err := url.Parse(fmt.Sprintf("http://:%d", 21000 + rc.id))
+	url, err := url.Parse(fmt.Sprintf("http://:%d", 21000+rc.id))
 	if err != nil {
 		log.Fatalf("raftexample: Failed parsing URL (%v)", err)
 	}
@@ -729,7 +734,7 @@ func (rc *raftNode) serveRaft() {
 func (rc *raftNode) Process(ctx context.Context, m raftpb.Message) error {
 	return rc.node.Step(ctx, m)
 }
-func (rc *raftNode) IsIDRemoved(id uint64) bool  {
+func (rc *raftNode) IsIDRemoved(id uint64) bool {
 	return false
 }
 func (rc *raftNode) ReportUnreachable(id uint64) {
@@ -807,8 +812,8 @@ func createConfigChangeEnts(lg *zap.Logger, ids []uint64, self uint64, term, ind
 		//	lg.Panic("failed to marshal member", zap.Error(err))
 		//}
 		cc := &raftpb.ConfChange{
-			Type:    raftpb.ConfChangeAddNode,
-			NodeID:  self,
+			Type:   raftpb.ConfChangeAddNode,
+			NodeID: self,
 			// Context: []byte(fmt.Sprintf("http://%s:%d", "", n.Port+1000)),
 		}
 		e := raftpb.Entry{
@@ -854,4 +859,3 @@ func NewClusterFromService(lg *zap.Logger, service string) *membership.RaftClust
 
 	return membership.NewClusterFromMembers(lg, "cells", types.ID(0), m)
 }
-
