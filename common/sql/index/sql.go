@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 package index
 
 import (
@@ -50,7 +51,6 @@ import (
 
 var (
 	queries   = map[string]interface{}{}
-	mu        atomic.Value
 	inserting atomic.Value
 	cond      *sync.Cond
 
@@ -143,8 +143,8 @@ func init() {
 		totalMPathTo := len(mpathTo[0]) + len(mpathTo[1]) + len(mpathTo[2]) + len(mpathTo[3])
 
 		var (
-			quoMPathTo int = totalMPathTo / indexLen
-			modMPathTo int = totalMPathTo % indexLen
+			quoMPathTo = totalMPathTo / indexLen
+			modMPathTo = totalMPathTo % indexLen
 			mpathSub   []string
 		)
 
@@ -378,7 +378,7 @@ func (dao *IndexSQL) Init(options configx.Values) error {
 }
 
 // CleanResourcesOnDeletion revert the creation of the table for a datasource
-func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
+func (dao *IndexSQL) CleanResourcesOnDeletion() (string, error) {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),
@@ -388,10 +388,10 @@ func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 
 	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Down, dao.Prefix()+"_idx_")
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	return nil, "Removed tables for index"
+	return "Removed tables for index", nil
 }
 
 // AddNode to the underlying SQL DB.
@@ -532,7 +532,7 @@ func (dao *IndexSQL) SetNode(node *mtree.TreeNode) error {
 	return err
 }
 
-// SetNode in replacement of previous node
+// SetNodeMeta in replacement of previous node
 func (dao *IndexSQL) SetNodeMeta(node *mtree.TreeNode) error {
 
 	dao.Lock()
@@ -1373,18 +1373,6 @@ func (dao *IndexSQL) GetSQLDAO() sql.DAO {
 	return dao
 }
 
-func (dao *IndexSQL) lock() {
-	if current, ok := mu.Load().(*sync.Mutex); ok {
-		current.Lock()
-	}
-}
-
-func (dao *IndexSQL) unlock() {
-	if current, ok := mu.Load().(*sync.Mutex); ok {
-		current.Unlock()
-	}
-}
-
 // NewBatchSend Creation of the channels
 func NewBatchSend() *BatchSend {
 	b := new(BatchSend)
@@ -1427,8 +1415,7 @@ func getMPathEquals(mpath []byte) (string, []interface{}) {
 	var args []interface{}
 
 	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
+		cnt := (len(mpath) - 1) / indexLen
 		res = append(res, fmt.Sprintf(`mpath%d LIKE ?`, cnt+1))
 		args = append(args, mpath[(cnt*indexLen):])
 

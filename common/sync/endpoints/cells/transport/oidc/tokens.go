@@ -97,7 +97,7 @@ func RetrieveToken(sdkConfig *transport.SdkConfig) (string, error) {
 	if sdkConfig.IdToken != "" {
 		// We passed a pre-fetched valid token
 		expTime := time.Unix(int64(sdkConfig.TokenExpiresAt), 0)
-		store.Store(sdkConfig, sdkConfig.IdToken, expTime.Sub(time.Now()))
+		store.Store(sdkConfig, sdkConfig.IdToken, time.Until(expTime))
 		return sdkConfig.IdToken, nil
 	}
 

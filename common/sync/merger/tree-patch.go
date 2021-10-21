@@ -308,7 +308,7 @@ func (t *TreePatch) MarshalJSON() ([]byte, error) {
 
 func (t *TreePatch) sortedKeys(events map[string]Operation) []string {
 	var keys []string
-	for k, _ := range events {
+	for k := range events {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)

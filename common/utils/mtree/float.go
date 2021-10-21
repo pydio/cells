@@ -24,9 +24,6 @@ import (
 	"math/big"
 )
 
-// Gob codec version. Permits backward-compatible changes to the encoding.
-const floatGobVersion byte = 1
-
 // Float type
 type Float struct {
 	*big.Float

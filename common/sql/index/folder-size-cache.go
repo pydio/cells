@@ -17,11 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 package index
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/pydio/cells/common/proto/tree"
@@ -47,18 +47,6 @@ func init() {
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level >= ? AND leaf=1`, sub), args
 	}
-}
-
-func parents(p string) []string {
-	var s []string
-	paths := strings.Split(p, "/")
-	current := ""
-	for _, p := range paths {
-		current = current + "/" + p
-		s = append(s, current)
-	}
-
-	return s
 }
 
 // NewFolderSizeCacheDAO provides a middleware implementation of the index sql dao that removes duplicate entries of the .pydio file that have the same etag at the same level
@@ -153,7 +141,7 @@ func (dao *FolderSizeCacheSQL) Path(strpath string, create bool, reqNode ...*tre
 	return mpath, nodes, err
 }
 
-// Add a node in the tree
+// AddNode adds a node in the tree.
 func (dao *FolderSizeCacheSQL) AddNode(node *mtree.TreeNode) error {
 	dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.AddNode(node)
@@ -165,7 +153,7 @@ func (dao *FolderSizeCacheSQL) SetNode(node *mtree.TreeNode) error {
 	return dao.DAO.SetNode(node)
 }
 
-// Remove a node from the tree
+// DelNode removes a node from the tree
 func (dao *FolderSizeCacheSQL) DelNode(node *mtree.TreeNode) error {
 	dao.invalidateMPathHierarchy(node.MPath, -1)
 	return dao.DAO.DelNode(node)

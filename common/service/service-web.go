@@ -21,6 +21,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -269,11 +270,11 @@ func operationToRoute(rootPath string, swaggerTags []string, path string, operat
 			shortPath = pathFilter(shortPath)
 		}
 
-		log.Logger(nil).Debug("Registering path " + shortPath + " to handler method " + operation.ID)
+		log.Logger(context.Background()).Debug("Registering path " + shortPath + " to handler method " + operation.ID)
 		return shortPath, casted
 	}
 
-	log.Logger(nil).Debug("Cannot find method " + operation.ID + " on handler, ignoring GET for path " + path)
+	log.Logger(context.Background()).Debug("Cannot find method " + operation.ID + " on handler, ignoring GET for path " + path)
 	return "", nil
 }
 
@@ -342,7 +343,7 @@ func SwaggerSpec() *loads.Document {
 	})
 
 	if swaggerMergedDocument == nil {
-		log.Logger(nil).Fatal("Could not find any valid json spec for swagger")
+		log.Logger(context.Background()).Fatal("Could not find any valid json spec for swagger")
 	}
 
 	return swaggerMergedDocument

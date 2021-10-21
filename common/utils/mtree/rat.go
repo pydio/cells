@@ -24,15 +24,12 @@ import (
 	"math/big"
 )
 
-// Float type
+// Rat is a float type
 type Rat struct {
 	*big.Rat
 }
 
 var (
-	int0 = big.NewInt(0)
-	int1 = big.NewInt(1)
-	rat0 = Rat{big.NewRat(0, 1)}
 	rat1 = Rat{big.NewRat(1, 1)}
 )
 

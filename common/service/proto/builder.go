@@ -22,15 +22,17 @@ package service
 
 import "github.com/pydio/cells/common"
 
-// Helper for building ResourcePolicies lists
+// ResourcePoliciesBuilder is a helper for building ResourcePolicies lists
 type ResourcePoliciesBuilder struct {
 	policies []*ResourcePolicy
 }
 
+// NewResourcePoliciesBuilder creates a ResourcePoliciesBuilder
 func NewResourcePoliciesBuilder() *ResourcePoliciesBuilder {
 	return &ResourcePoliciesBuilder{}
 }
 
+// WithUserRead appends a read policy for this user:login
 func (r *ResourcePoliciesBuilder) WithUserRead(login string) *ResourcePoliciesBuilder {
 	r.policies = append(r.policies, &ResourcePolicy{
 		Action:  ResourcePolicyAction_READ,
@@ -40,6 +42,7 @@ func (r *ResourcePoliciesBuilder) WithUserRead(login string) *ResourcePoliciesBu
 	return r
 }
 
+// WithProfileRead appends a read policy for profile:profileName
 func (r *ResourcePoliciesBuilder) WithProfileRead(profile string) *ResourcePoliciesBuilder {
 	r.policies = append(r.policies, &ResourcePolicy{
 		Action:  ResourcePolicyAction_READ,
@@ -49,6 +52,7 @@ func (r *ResourcePoliciesBuilder) WithProfileRead(profile string) *ResourcePolic
 	return r
 }
 
+// WithUserWrite appends a write policy for user:login
 func (r *ResourcePoliciesBuilder) WithUserWrite(login string) *ResourcePoliciesBuilder {
 	r.policies = append(r.policies, &ResourcePolicy{
 		Action:  ResourcePolicyAction_WRITE,
@@ -58,6 +62,7 @@ func (r *ResourcePoliciesBuilder) WithUserWrite(login string) *ResourcePoliciesB
 	return r
 }
 
+// WithProfileWrite appends a write policy for profile:profileName
 func (r *ResourcePoliciesBuilder) WithProfileWrite(profile string) *ResourcePoliciesBuilder {
 	r.policies = append(r.policies, &ResourcePolicy{
 		Action:  ResourcePolicyAction_WRITE,
@@ -67,6 +72,7 @@ func (r *ResourcePoliciesBuilder) WithProfileWrite(profile string) *ResourcePoli
 	return r
 }
 
+// WithOwner appends an owner policy with user uuid
 func (r *ResourcePoliciesBuilder) WithOwner(userUuid string) *ResourcePoliciesBuilder {
 	r.policies = append(r.policies, &ResourcePolicy{
 		Action:  ResourcePolicyAction_OWNER,
@@ -76,21 +82,25 @@ func (r *ResourcePoliciesBuilder) WithOwner(userUuid string) *ResourcePoliciesBu
 	return r
 }
 
+// WithStandardUserPolicies is a shortcut for WithProfileWrite(profile:admin).WithProfileRead(profile:standard).WithUserWrite(userLogin)
 func (r *ResourcePoliciesBuilder) WithStandardUserPolicies(userLogin string) *ResourcePoliciesBuilder {
 	r.WithProfileWrite(common.PydioProfileAdmin).WithProfileRead(common.PydioProfileStandard).WithUserWrite(userLogin)
 	return r
 }
 
+// WithResourcePolicy appends arbitrary policy
 func (r *ResourcePoliciesBuilder) WithResourcePolicy(policy *ResourcePolicy) *ResourcePoliciesBuilder {
 	r.policies = append(r.policies, policy)
 	return r
 }
 
+// Reset clears internal buffer
 func (r *ResourcePoliciesBuilder) Reset() *ResourcePoliciesBuilder {
 	r.policies = []*ResourcePolicy{}
 	return r
 }
 
+// Policies returns internal buffer
 func (r *ResourcePoliciesBuilder) Policies() []*ResourcePolicy {
 	return r.policies
 }

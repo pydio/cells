@@ -73,7 +73,7 @@ func WithUserNameMetadata(ctx context.Context, userName string) context.Context 
 	md := make(map[string]string)
 	if meta, ok := metadata.FromContext(ctx); ok {
 		for k, v := range meta {
-			if strings.ToLower(k) == strings.ToLower(common.PydioContextUserKey) {
+			if strings.EqualFold(k, common.PydioContextUserKey) {
 				continue
 			}
 			md[k] = v
@@ -115,8 +115,8 @@ func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context
 	if mm, ok := metadata.FromContext(ctx); ok {
 		for k, v := range mm {
 			ignore := false
-			for nk, _ := range meta {
-				if strings.ToLower(nk) == strings.ToLower(k) {
+			for nk := range meta {
+				if strings.EqualFold(nk, k) {
 					ignore = true
 					break
 				}

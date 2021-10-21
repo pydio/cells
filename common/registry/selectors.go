@@ -63,7 +63,7 @@ func PeerClientSelector(srvName string, targetPeer string) selector.SelectOption
 	})
 }
 
-// PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
+// FixedInstanceSelector creates a Selector Filter to restrict call to a given PeerAddress
 func FixedInstanceSelector(srvName string, targetAddress string) selector.SelectOption {
 	return selector.WithFilter(func(in []*registry.Service) (out []*registry.Service) {
 		for _, current := range in {

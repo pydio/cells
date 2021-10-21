@@ -47,7 +47,7 @@ type TickerSchedule struct {
 	interval time.Duration
 }
 
-// ParseSchedule parses the given Iso 8601 string and stores corresponding values.
+// ParseIsoSchedule parses the given Iso 8601 string and stores corresponding values.
 func (s *TickerSchedule) ParseIsoSchedule() error {
 
 	if s.iso8601Schedule == "" {

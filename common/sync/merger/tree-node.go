@@ -192,7 +192,7 @@ func (t *TreeNode) SortedChildren() []*TreeNode {
 	return t.sorted
 }
 
-// PrintOut sends to fmt.Println a tree version of this node
+// PrintTree sends to fmt.Println a tree version of this node
 func (t *TreeNode) PrintTree() string {
 	level := t.GetLevel()
 	op := ""
@@ -293,7 +293,7 @@ func (t *TreeNode) getRoot() *TreeNode {
 func (t *TreeNode) createNodeDeep(p string) *TreeNode {
 	crtParent := t
 	split := strings.Split(p, "/")
-	for i, _ := range split {
+	for i := range split {
 		childPath := strings.Join(split[:i+1], "/")
 		if c, o := crtParent.children[childPath]; o {
 			crtParent = c

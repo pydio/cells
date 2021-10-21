@@ -24,17 +24,9 @@ import (
 	"hash/fnv"
 	"math/big"
 	"strconv"
-	"sync"
 )
 
-var (
-	mpathCache = make(map[*MPath]string)
-
-	mpathMutex = &sync.RWMutex{}
-)
-
-type MPathProvider interface {
-}
+type MPathProvider interface{}
 
 // MPath type struct
 type MPath []uint64

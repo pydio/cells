@@ -45,8 +45,7 @@ func initAclCache() {
 		}
 		switch event.Type {
 		case idm.ChangeEventType_CREATE, idm.ChangeEventType_UPDATE, idm.ChangeEventType_DELETE:
-			//fmt.Println("Clearing cache on IdmEvent")
-			for k, _ := range aclCache.Items() {
+			for k := range aclCache.Items() {
 				aclCache.Delete(k)
 			}
 		}

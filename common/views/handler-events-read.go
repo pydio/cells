@@ -163,15 +163,10 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 	if e != nil {
 		return
 	}
-	defer stream.Close()
-	for {
-		r, e := stream.Recv()
-		if e != nil {
-			break
-		}
+	if r, e := stream.Recv(); e == nil {
 		doc = r.Document
-		break
 	}
+	stream.Close()
 
 	if doc == nil {
 		// SEARCH WITH PRELOG_USER
@@ -181,15 +176,10 @@ func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc
 		if e != nil {
 			return
 		}
-		defer stream2.Close()
-		for {
-			r, e := stream2.Recv()
-			if e != nil {
-				break
-			}
+		if r, e := stream2.Recv(); e == nil {
 			doc = r.Document
-			break
 		}
+		stream2.Close()
 	}
 
 	if doc != nil {

@@ -116,7 +116,7 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNodes ...*tre
 		policyContext := make(map[string]string)
 		PolicyContextFromMetadata(policyContext, ctx)
 		var subjects []string
-		for k, _ := range f.PolicyIds {
+		for k := range f.PolicyIds {
 			subjects = append(subjects, fmt.Sprintf("policy:%s", k))
 		}
 		if len(ctxNodes) == 0 {
@@ -150,7 +150,7 @@ func (f Bitmask) HasPolicyExplicitDeny(ctx context.Context, flag BitmaskFlag, ct
 		policyContext := make(map[string]string)
 		PolicyContextFromMetadata(policyContext, ctx)
 		var subjects []string
-		for k, _ := range f.PolicyIds {
+		for k := range f.PolicyIds {
 			subjects = append(subjects, fmt.Sprintf("policy:%s", k))
 		}
 		if len(ctxNodes) == 0 {

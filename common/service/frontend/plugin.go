@@ -157,9 +157,7 @@ func (plugin *Cplugin) ListDependencies() (ids []string) {
 		return
 	}
 	if plugin.Cdependencies.CactivePlugin != nil {
-		for _, id := range strings.Split(plugin.Cdependencies.CactivePlugin.AttrpluginName, "|") {
-			ids = append(ids, id)
-		}
+		ids = append(ids, strings.Split(plugin.Cdependencies.CactivePlugin.AttrpluginName, "|")...)
 	}
 	return
 }

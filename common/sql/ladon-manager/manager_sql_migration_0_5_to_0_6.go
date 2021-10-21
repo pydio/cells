@@ -27,7 +27,6 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/ory/ladon"
 	. "github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 	"github.com/pkg/errors"
@@ -38,11 +37,11 @@ type SQLManagerMigrateFromMajor0Minor6ToMajor0Minor7 struct {
 	SQLManager *SQLManager
 }
 
-func (s *SQLManagerMigrateFromMajor0Minor6ToMajor0Minor7) GetManager() ladon.Manager {
+func (s *SQLManagerMigrateFromMajor0Minor6ToMajor0Minor7) GetManager() Manager {
 	return s.SQLManager
 }
 
-// Get retrieves a policy.
+// Migrate retrieves a policy.
 func (s *SQLManagerMigrateFromMajor0Minor6ToMajor0Minor7) Migrate() error {
 	rows, err := s.DB.Query(s.DB.Rebind("SELECT id, description, effect, conditions FROM ladon_policy"))
 	if err != nil {
@@ -104,7 +103,7 @@ func getLinkedSQL(db *sqlx.DB, table, policy string) ([]string, error) {
 	urns := []string{}
 	rows, err := db.Query(db.Rebind(fmt.Sprintf("SELECT template FROM %s WHERE policy=?", table)), policy)
 	if err == sql.ErrNoRows {
-		return nil, errors.Wrap(ladon.ErrNotFound, "")
+		return nil, errors.Wrap(ErrNotFound, "")
 	} else if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -156,11 +155,11 @@ func (s *SQLManagerMigrateFromMajor0Minor6ToMajor0Minor7) Create(policy Policy) 
 
 func createLinkSQL(db *sqlx.DB, tx *sql.Tx, table string, p Policy, templates []string) error {
 	for _, template := range templates {
-		reg, err := compiler.CompileRegex(template, p.GetStartDelimiter(), p.GetEndDelimiter())
+		reg, _ := compiler.CompileRegex(template, p.GetStartDelimiter(), p.GetEndDelimiter())
 
 		// Execute SQL statement
 		query := db.Rebind(fmt.Sprintf("INSERT INTO %s (policy, template, compiled) VALUES (?, ?, ?)", table))
-		if _, err = tx.Exec(query, p.GetID(), template, reg.String()); err != nil {
+		if _, err := tx.Exec(query, p.GetID(), template, reg.String()); err != nil {
 			if rb := tx.Rollback(); rb != nil {
 				return errors.WithStack(rb)
 			}

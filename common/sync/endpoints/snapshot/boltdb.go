@@ -90,7 +90,7 @@ func NewBoltSnapshot(folderPath, name string) (*BoltSnapshot, error) {
 
 func (s *BoltSnapshot) sortByKey(data map[string]*tree.Node) (output []*tree.Node) {
 	var kk []string
-	for k, _ := range data {
+	for k := range data {
 		kk = append(kk, k)
 	}
 	sort.Strings(kk)

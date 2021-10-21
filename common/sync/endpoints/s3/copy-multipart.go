@@ -43,7 +43,7 @@ const minPartSize = 1024 * 1024 * 64
 // maxPartsCount - maximum number of parts for a single multipart session.
 const maxPartsCount = 10000
 
-// Max CopyObjectSize is 5GB => if greater, we have to switch to multipart
+// MaxCopyObjectSize is 5GB => if greater, we have to switch to multipart
 const MaxCopyObjectSize = 1024 * 1024 * 1024 * 5
 
 func optimalPartInfo(objectSize int64) (totalPartsCount int, partSize int64, lastPartSize int64) {

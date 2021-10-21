@@ -47,8 +47,9 @@ func (b *I18nBundle) LoadPackrTranslationFiles(box packr.Box) {
 	files := box.List()
 	for _, f := range files {
 		if strings.HasSuffix(f, ".json") {
-			data := box.Bytes(f)
-			b.ParseTranslationFileBytes(f, data)
+			if data, e := box.Find(f); e == nil {
+				b.ParseTranslationFileBytes(f, data)
+			}
 		}
 	}
 

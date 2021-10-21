@@ -115,7 +115,7 @@ func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 			split := strings.Split(excluded, ":")
 			method := split[0]
 			uri := split[1]
-			if strings.ToLower(method) == strings.ToLower(r.Method) && strings.HasPrefix(r.RequestURI, uri) {
+			if strings.EqualFold(method, r.Method) && strings.HasPrefix(r.RequestURI, uri) {
 				log.Logger(r.Context()).Debug("Skipping session wrapper by exclusion:" + excluded)
 				h.ServeHTTP(w, r)
 				return

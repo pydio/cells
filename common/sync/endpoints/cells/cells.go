@@ -457,12 +457,8 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 	}
 }
 
-// GetWriteOn retrieves a WriteCloser wired to the S3 gateway to PUT a file.
+// GetWriterOn retrieves a WriteCloser wired to the S3 gateway to PUT a file.
 func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int64) (out io.WriteCloser, writeDone chan bool, writeErr chan error, err error) {
-	if targetSize == 0 {
-		//It is working indeed!
-		//return nil, writeDone, writeErr, fmt.Errorf("cannot create empty files")
-	}
 	writeDone = make(chan bool, 1)
 	writeErr = make(chan error, 1)
 	if path.Base(p) == common.PydioSyncHiddenFile {

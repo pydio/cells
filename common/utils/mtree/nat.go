@@ -39,7 +39,7 @@ const (
 	_M2 = _B2 - 1  // half digit mask
 )
 
-// An unsigned integer x of the form
+// Nat is an unsigned integer x of the form
 //
 //   x = x[n-1]*_B^(n-1) + x[n-2]*_B^(n-2) + ... + x[1]*_B + x[0]
 //
@@ -51,20 +51,6 @@ const (
 // always normalized before returning the final result. The normalized
 // representation of 0 is the empty or nil slice (length = 0).
 type Nat []big.Word
-
-var natOne = Nat{1}
-
-var natTwo = Nat{2}
-
-var (
-	natTen = Nat{10}
-)
-
-func (z Nat) clear() {
-	for i := range z {
-		z[i] = 0
-	}
-}
 
 func (z Nat) norm() Nat {
 	i := len(z)

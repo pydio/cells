@@ -49,7 +49,7 @@ func WithServiceName(ctx context.Context, serviceName string) context.Context {
 	return context.WithValue(ctx, serviceNameKey, serviceName)
 }
 
-// WithSessionID returns a context which knows its session ID
+// WithOperationID returns a context which knows its session ID
 func WithOperationID(ctx context.Context, operationID string, operationLabel ...string) context.Context {
 	c := context.WithValue(ctx, operationIDKey, operationID)
 	if len(operationLabel) > 0 {
@@ -76,7 +76,7 @@ func GetServiceName(ctx context.Context) string {
 	return ""
 }
 
-// GetRequestID returns the session id associated to this context
+// GetOperationID returns the session id associated to this context
 func GetOperationID(ctx context.Context) (string, string) {
 	if id, ok := ctx.Value(operationIDKey).(string); ok {
 		var label string
@@ -105,7 +105,7 @@ func GetConfig(ctx context.Context) configx.Values {
 	return nil
 }
 
-// GetConfig already unmarshalled in a specific format
+// ScanConfig already unmarshalled in a specific format
 func ScanConfig(ctx context.Context, target interface{}) error {
 	conf := GetConfig(ctx)
 	if conf == nil {

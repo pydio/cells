@@ -66,7 +66,7 @@ func (m *MemChecksumMapper) Purge(knownETags []string) int {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	count := 0
-	for e, _ := range m.data {
+	for e := range m.data {
 		found := false
 		for _, k := range knownETags {
 			if k == e {

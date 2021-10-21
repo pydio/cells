@@ -45,7 +45,6 @@ type Move struct {
 	target     string
 	depth      int
 	similarity int
-	sameBase   bool
 }
 
 func (m *Move) folderDepth() int {

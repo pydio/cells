@@ -43,7 +43,7 @@ type PoliciesCleaner struct {
 	LogCtx  context.Context
 }
 
-// Clean resources in the current DAO based on the delete events
+// Handle cleans resources in the current DAO based on the delete events
 func (c *PoliciesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 
 	if msg.Type != idm.ChangeEventType_DELETE {

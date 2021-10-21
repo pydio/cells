@@ -119,7 +119,7 @@ func (b *AbstractPatch) Done(info interface{}) {
 	}
 }
 
-// Set a global error status on this patch
+// SetError sets a global error status on this patch
 func (b *AbstractPatch) SetError(e error) {
 	b.patchError = e
 }

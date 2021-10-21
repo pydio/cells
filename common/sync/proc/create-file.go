@@ -39,7 +39,6 @@ import (
 type cancellableReaderWithProgress struct {
 	io.Reader
 	canceler  context.Context
-	cursor    int64
 	pg        chan int64
 	totalRead int64
 }

@@ -42,7 +42,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gyuho/goraph"
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
@@ -129,7 +128,6 @@ type service struct {
 	origCtx  context.Context
 
 	opts ServiceOptions
-	node goraph.Node
 
 	done chan (struct{})
 }
@@ -661,9 +659,7 @@ func (s *service) GetDependencies() []registry.Service {
 	var r []registry.Service
 
 	for _, d := range s.Options().Dependencies {
-		for _, rr := range s.Options().Registry.GetServicesByName(d.Name) {
-			r = append(r, rr)
-		}
+		r = append(r, s.Options().Registry.GetServicesByName(d.Name)...)
 	}
 
 	return r

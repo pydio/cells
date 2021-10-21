@@ -154,7 +154,7 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			// Additional read of bucket tagging if configured
 			if len(m.bucketMetas) > 0 && taggingError == nil {
 				if tags, err := c.Mc.GetBucketTagging(bucket.Name); err == nil {
-					if tags == nil || len(tags) == 0 {
+					if len(tags) == 0 {
 						log.Logger(context.Background()).Debug("No tags found on bucket " + bucket.Name)
 					} else {
 						for _, t := range tags {
@@ -203,7 +203,7 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 				if deleted := c.checksumMapper.Purge(eTags); deleted > 0 {
 					log.Logger(c.globalContext).Info(fmt.Sprintf("Purged %d eTag(s) from ChecksumMapper", deleted))
 				} else {
-					log.Logger(c.globalContext).Info(fmt.Sprintf("ChecksumMapper nothing to purge"))
+					log.Logger(c.globalContext).Info("ChecksumMapper nothing to purge")
 				}
 			}()
 		}
@@ -354,6 +354,7 @@ func (m *MultiBucketClient) MoveNode(ctx context.Context, oldPath string, newPat
 	_, b2, i2, _ := m.getClient(newPath)
 	if b2 != b {
 		err = errors.BadRequest("not.implemented", "cannot move objects across buckets for the moment")
+		return
 	}
 	return c.MoveNode(ctx, i, i2)
 }

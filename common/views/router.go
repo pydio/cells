@@ -183,14 +183,11 @@ func (v *Router) BranchInfoForNode(ctx context.Context, node *tree.Node) (branch
 	return
 }
 
-func (v *Router) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
-	outputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+func (v *Router) ExecuteWrapped(_ NodeFilter, _ NodeFilter, provider NodesCallback) error {
+	identity := func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 		return ctx, inputNode, nil
 	}
-	inputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
-		return ctx, inputNode, nil
-	}
-	return v.handlers[0].ExecuteWrapped(inputFilter, outputFilter, provider)
+	return v.handlers[0].ExecuteWrapped(identity, identity, provider)
 }
 
 func (v *Router) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
@@ -309,7 +306,7 @@ func (v *Router) GetExecutor() Handler {
 	return v.handlers[len(v.handlers)-1]
 }
 
-// Specific to Router
+// GetClientsPool is specific to Router
 func (v *Router) GetClientsPool() SourcesPool {
 	return v.pool
 }

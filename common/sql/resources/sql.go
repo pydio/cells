@@ -46,7 +46,7 @@ var (
 	}
 )
 
-// Implementation of the SQL interface.
+// ResourcesSQL implementats the SQL interface.
 type ResourcesSQL struct {
 	*sql.Handler
 
@@ -204,7 +204,7 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 
 }
 
-// DeletePoliciesForResource removes all policies for a given resource
+// DeletePoliciesBySubject removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
 	// Delete cache items that would contain this subject

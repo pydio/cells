@@ -68,7 +68,7 @@ func (c *Command) Subscribe() (chan SyncCmd, chan bool) {
 func (c *Command) Stop() {
 	close(c.done)
 	c.Lock()
-	for ch, _ := range c.listeners {
+	for ch := range c.listeners {
 		close(ch)
 	}
 	c.Unlock()
@@ -81,7 +81,7 @@ func (c *Command) start() {
 		select {
 		case cmd := <-c.input:
 			c.Lock()
-			for sub, _ := range c.listeners {
+			for sub := range c.listeners {
 				sub <- cmd
 			}
 			c.Unlock()

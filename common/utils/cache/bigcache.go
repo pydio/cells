@@ -65,7 +65,7 @@ func NewInstrumentedCache(serviceName string, cacheConfig ...bigcache.Config) *I
 	return i
 }
 
-// InstrumentCache wraps BigCache with metrics
+// InstrumentedCache wraps BigCache with metrics
 type InstrumentedCache struct {
 	bigcache.BigCache
 	scope  tally.Scope

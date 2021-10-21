@@ -181,7 +181,7 @@ func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
 func (u *User) LoadWorkspaces(ctx context.Context, accessList *permissions.AccessList) error {
 
 	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
-	for wsId, _ := range workspacesAccesses {
+	for wsId := range workspacesAccesses {
 		if wsId == "settings" || wsId == "homepage" {
 			slug := "settings"
 			if wsId == "homepage" {

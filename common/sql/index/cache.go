@@ -123,15 +123,15 @@ func (d *daocache) resync() {
 	defer d.mutex.Unlock()
 	t1 := time.Now()
 	defer func() {
-		fmt.Println("Finished resync", time.Now().Sub(t1))
+		fmt.Println("Finished resync", time.Since(t1))
 	}()
-	for k, _ := range d.cache {
+	for k := range d.cache {
 		delete(d.cache, k)
 	}
-	for k, _ := range d.childCache {
+	for k := range d.childCache {
 		delete(d.childCache, k)
 	}
-	for k, _ := range d.nameCache {
+	for k := range d.nameCache {
 		delete(d.nameCache, k)
 	}
 	d.cache = make(map[string]*mtree.TreeNode)
@@ -346,7 +346,7 @@ func (d *daocache) AddNodeStream(max int) (chan *mtree.TreeNode, chan error) {
 
 	go func() {
 		defer close(e)
-		for _ = range c {
+		for range c {
 			e <- errors.New("AddNodeStream should not be used directly when using the cache")
 		}
 	}()
@@ -440,6 +440,7 @@ func (d *daocache) SetNodes(etag string, size int64) commonsql.BatchSender {
 }
 
 // Getters
+
 func (d *daocache) GetNode(path mtree.MPath) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
@@ -462,30 +463,7 @@ func (d *daocache) GetNodeByUUID(uuid string) (*mtree.TreeNode, error) {
 	return d.DAO.GetNodeByUUID(uuid)
 }
 
-func testEq(a, b []string) bool {
-
-	if a == nil && b == nil {
-		return true
-	}
-
-	if a == nil || b == nil {
-		return false
-	}
-
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
-// GetNodeByPath
+// GetNodeByPath finds a node by its path
 func (d *daocache) GetNodeByPath(path []string) (*mtree.TreeNode, error) {
 	d.mutex.RLock()
 	defer d.mutex.RUnlock()
@@ -684,7 +662,7 @@ func (d *daocache) GetNodeTree(path mtree.MPath) chan interface{} {
 
 		// Looping
 		var keys []string
-		for k, _ := range d.cache {
+		for k := range d.cache {
 			if childRegexp.Match([]byte(k)) {
 				keys = append(keys, k)
 			}
@@ -716,7 +694,7 @@ func (d *daocache) ResyncDirtyEtags(rootNode *mtree.TreeNode) error {
 
 	return err
 }
-func (d *daocache) CleanResourcesOnDeletion() (error, string) {
+func (d *daocache) CleanResourcesOnDeletion() (string, error) {
 	return d.DAO.CleanResourcesOnDeletion()
 }
 

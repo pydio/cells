@@ -47,7 +47,7 @@ func (v *VersionHandler) getVersionClient() tree.NodeVersionerClient {
 	return v.versionClient
 }
 
-// Create list of nodes if the Versions are required
+// ListNodes creates a list of nodes if the Versions are required
 func (v *VersionHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	ctx, err := v.wrapContext(ctx)
 	if err != nil {
@@ -97,6 +97,7 @@ func (v *VersionHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 
 }
 
+// ReadNode retrieves information about a specific version
 func (v *VersionHandler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 
 	if vId := req.Node.GetStringMeta("versionId"); vId != "" {

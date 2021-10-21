@@ -36,14 +36,14 @@ func (b byId) Len() int           { return len(b) }
 func (b byId) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b byId) Less(i, j int) bool { return b[i].Less(b[j]) }
 
-// Avoids pulling in the packr library for everyone, mimicks the bits of
+// PackrBox avoids pulling in the packr library for everyone, mimicks the bits of
 // packr.Box that we need.
 type PackrBox interface {
 	List() []string
 	Bytes(name string) []byte
 }
 
-// Migrations from a packr box.
+// PackrMigrationSource is a set of migrations loaded from a packr box.
 type PackrMigrationSource struct {
 	Box PackrBox
 

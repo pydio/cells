@@ -68,24 +68,16 @@ func (f *EchoFilter) Pipe(in chan model.EventInfo) (out chan model.EventInfo) {
 
 	go func() {
 		defer close(out)
-		for {
-			select {
-			case event, ok := <-in:
-				if !ok {
-					// return on close
-					return
-				}
-				if event.OperationId != "" {
-					out <- event
-					continue
-				}
-				f.Lock()
-				e := f.filterEvent(event)
-				out <- e
-				f.Unlock()
+		for event := range in {
+			if event.OperationId != "" {
+				out <- event
+				continue
 			}
+			f.Lock()
+			e := f.filterEvent(event)
+			out <- e
+			f.Unlock()
 		}
-
 	}()
 
 	return out
@@ -93,20 +85,14 @@ func (f *EchoFilter) Pipe(in chan model.EventInfo) (out chan model.EventInfo) {
 
 func (f *EchoFilter) listenLocks() {
 
-	for {
-		select {
-		case lock, ok := <-f.locksChan:
-			if !ok {
-				return
-			}
-			f.Lock()
-			if lock.Type == model.LockEventLock {
-				f.lockFileTo(lock.Source, lock.Path, lock.OperationId)
-			} else {
-				f.unlockFile(lock.Source, lock.Path)
-			}
-			f.Unlock()
+	for lock := range f.locksChan {
+		f.Lock()
+		if lock.Type == model.LockEventLock {
+			f.lockFileTo(lock.Source, lock.Path, lock.OperationId)
+		} else {
+			f.unlockFile(lock.Source, lock.Path)
 		}
+		f.Unlock()
 	}
 
 }

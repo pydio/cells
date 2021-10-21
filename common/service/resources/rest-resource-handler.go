@@ -34,10 +34,10 @@ import (
 	"github.com/pydio/cells/common/service/proto"
 )
 
-// Signature for a function that can load policies from a given resource
+// PoliciesLoaderFunc is a signature for a function that can load policies from a given resource
 type PoliciesLoaderFunc func(ctx context.Context, resourceId string, resourceClient interface{}) (policies []*service.ResourcePolicy, e error)
 
-// "Abstract" class that can be implemented by REST handlers
+// ResourceProviderHandler abstracts class that can be implemented by REST handlers
 // to add Policies checking capabilities
 type ResourceProviderHandler struct {
 	ResourceName   string

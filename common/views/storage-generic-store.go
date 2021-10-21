@@ -63,13 +63,10 @@ func GetGenericStoreClientConfig(storeNamespace string) (dataSource string, buck
 	switch storeNamespace {
 	case common.PydioDocstoreBinariesNamespace:
 		configKey = "pydio.docstore-binaries"
-		break
 	case common.PydioThumbstoreNamespace:
 		configKey = "pydio.thumbs_store"
-		break
 	default:
 		configKey = "pydio." + storeNamespace
-		break
 	}
 
 	c := config.Get("services", configKey)

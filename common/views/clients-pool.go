@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
@@ -65,9 +64,8 @@ type ClientsPool struct {
 	treeClient      tree.NodeProviderClient
 	treeClientWrite tree.NodeReceiverClient
 
-	genericClient client.Client
-	watcher       microregistry.Watcher
-	confWatcher   configx.Receiver
+	watcher     microregistry.Watcher
+	confWatcher configx.Receiver
 }
 
 // NewSource instantiates a LoadedSource with a minio client

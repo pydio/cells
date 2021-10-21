@@ -134,9 +134,7 @@ func (h *HandlerMock) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest
 func (h *HandlerMock) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
 	log.Logger(ctx).Info("[MOCK] Delete Node" + in.Node.Path)
 	h.Nodes["in"] = in.Node
-	if _, ok := h.Nodes[in.Node.Path]; ok {
-		delete(h.Nodes, in.Node.Path)
-	}
+	delete(h.Nodes, in.Node.Path)
 	h.Context = ctx
 	return nil, nil
 }
@@ -153,10 +151,6 @@ func (h *HandlerMock) GetObject(ctx context.Context, node *tree.Node, requestDat
 			if err != nil {
 				return nil, err
 			}
-		}
-
-		if requestData.Length > 0 {
-			// maybe the file object should be wrapped to control read limit
 		}
 		return file, nil
 	}

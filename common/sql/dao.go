@@ -141,7 +141,7 @@ func (h *Handler) DB() *sql.DB {
 	return h.GetConn().(*sql.DB)
 }
 
-// Version
+// Version returns mysql version
 func (h *Handler) Version() (string, error) {
 	// Here we check the version of mysql and the default charset
 	var version string
@@ -237,7 +237,7 @@ func (h *Handler) GetStmt(key string, args ...interface{}) (Stmt, error) {
 	return nil, fmt.Errorf("cannot find statement for key %s", key)
 }
 
-// GetStmt returns a list of all statements used by the dao
+// GetStmtWithArgs returns a list of all statements used by the dao
 func (h *Handler) GetStmtWithArgs(key string, params ...interface{}) (Stmt, []interface{}, error) {
 	if v, ok := h.funcsWithArgs[key]; ok {
 		var sParams []string

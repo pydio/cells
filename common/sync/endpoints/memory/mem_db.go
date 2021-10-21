@@ -61,29 +61,30 @@ func NewMemDB() *MemDB {
 	return db
 }
 
-func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
+func (db *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "memdb://" + c.testPathURI,
+		URI: "memdb://" + db.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
-		Ignores:               c.ignores,
+		Ignores:               db.ignores,
 	}
 
 }
 
 // AddIgnore register a filename to be ignored (for tests only)
-func (c *MemDB) AddIgnore(s string) {
-	c.ignores = append(c.ignores, s)
+func (db *MemDB) AddIgnore(s string) {
+	db.ignores = append(db.ignores, s)
 }
 
-func (c *MemDB) SetTestPathURI(s string) {
-	c.testPathURI = s
+func (db *MemDB) SetTestPathURI(s string) {
+	db.testPathURI = s
 }
 
 /*************************/
 /* Event Emitter 	 */
 /*************************/
+
 func (db *MemDB) RegisterEventChannel(out chan DBEvent) {
 	db.eventChannels = append(db.eventChannels, out)
 }
@@ -97,6 +98,7 @@ func (db *MemDB) sendEvent(event DBEvent) {
 /*************************/
 /* Path Sync Target 	 */
 /*************************/
+
 func (db *MemDB) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {
 
 	for _, node := range db.Nodes {
@@ -151,6 +153,7 @@ func (db *MemDB) MoveNode(ctx context.Context, oldPath string, newPath string) (
 /*************************/
 /* Path Sync Source 	 */
 /*************************/
+
 func (db *MemDB) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 	for _, node := range db.Nodes {
 		if root != "/" && !strings.HasPrefix(node.Path, root) {
@@ -229,8 +232,9 @@ func (db *MemDB) Watch(recursivePath string) (*model.WatchObject, error) {
 }
 
 /*************************/
-/* Other Methods 	 */
+/* Other Methods 		 */
 /*************************/
+
 func (db *MemDB) removeNodeNoEvent(path string) (removed *tree.Node) {
 	var newNodes []*tree.Node
 	for _, node := range db.Nodes {

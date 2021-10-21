@@ -66,10 +66,9 @@ func (l *ChangesWrappingStreamer) Recv() (*tree.NodeChangeEvent, error) {
 }
 
 type wrappingStreamer struct {
-	w       *io.PipeWriter
-	r       *io.PipeReader
-	closed  bool
-	recvErr error
+	w      *io.PipeWriter
+	r      *io.PipeReader
+	closed bool
 }
 
 func newWrappingStreamer() *wrappingStreamer {
@@ -89,12 +88,10 @@ func (l *wrappingStreamer) Send(in interface{}) error {
 		msg.Data = &tree.WrappingStreamerResponse_ListNodesResponse{
 			ListNodesResponse: v,
 		}
-		break
 	case *tree.NodeChangeEvent:
 		msg.Data = &tree.WrappingStreamerResponse_NodeChangeEvent{
 			NodeChangeEvent: v,
 		}
-		break
 	case error:
 		msg.Error = v.Error()
 	default:

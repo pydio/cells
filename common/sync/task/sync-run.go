@@ -152,9 +152,8 @@ func (s *Sync) runBi(ctx context.Context, bb *merger.BidirectionalPatch, dryRun 
 	var leftPatches, rightPatches map[string]merger.Patch
 
 	var roots []string
-	for _, r := range s.Roots {
-		roots = append(roots, r)
-	}
+	roots = append(roots, s.Roots...)
+
 	if len(roots) == 0 {
 		roots = append(roots, "/")
 	}
@@ -314,7 +313,7 @@ func (s *Sync) monitorDiff(ctx context.Context, diff merger.Diff, rootsInfo map[
 				tString := strings.Join(totalStrings, ", ")
 				log.Logger(ctx).Info(fmt.Sprintf("Finished analyze : %d nodes (%s)", total, tString), zap.Any("i", total))
 				if s.statuses != nil {
-					for u, _ := range rootsInfo {
+					for u := range rootsInfo {
 						s.statuses <- model.NewProcessingStatus("").SetEndpoint(u).SetProgress(0)
 					}
 					s.statuses <- model.NewProcessingStatus(fmt.Sprintf("Analyzed %d nodes (%s)", total, tString))

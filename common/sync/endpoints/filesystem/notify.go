@@ -70,7 +70,8 @@ func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClien
 		var lastSize int64
 		var lastTime time.Time
 		bounceTime := 500 * time.Millisecond
-		maxTicker := time.Tick(2 * time.Minute)
+		maxTicker := time.NewTicker(2 * time.Minute)
+		defer maxTicker.Stop()
 		for {
 			select {
 			case ev := <-d.Input:
@@ -101,7 +102,7 @@ func NewFSEventDebouncer(out chan model.EventInfo, errors chan error, c *FSClien
 					d.out <- eventInfo
 				}
 				return
-			case <-maxTicker:
+			case <-maxTicker.C:
 				if eventInfo.Path != "" {
 					d.out <- eventInfo
 				}

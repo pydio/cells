@@ -58,7 +58,6 @@ type Sync struct {
 	processor       *proc.ConnectedProcessor
 	patchListener   merger.PatchListener
 
-	watch        bool
 	watchersChan []chan bool
 	watchConn    chan *model.EndpointStatus
 	statuses     chan model.Status
@@ -216,14 +215,8 @@ func (s *Sync) SetupEventsChan(statusChan chan model.Status, batchDone chan inte
 		// Forward internal events to sync event
 		s.watchConn = make(chan *model.EndpointStatus)
 		go func() {
-			for {
-				select {
-				case e, ok := <-s.watchConn:
-					if !ok {
-						return
-					}
-					events <- e
-				}
+			for e := range s.watchConn {
+				events <- e
 			}
 		}()
 	}
@@ -353,9 +346,7 @@ func (s *Sync) walkToJSON(ctx context.Context, source model.PathSyncSource, json
 func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *model.EndpointRootStat, e error) {
 	stat = &model.EndpointRootStat{}
 	var roots []string
-	for _, r := range s.Roots {
-		roots = append(roots, r)
-	}
+	roots = append(roots, s.Roots...)
 	if len(roots) == 0 {
 		roots = append(roots, "/")
 	}

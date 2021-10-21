@@ -149,9 +149,6 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 // and the current metadata contained in context.
 func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool SourcesPool, create bool, retry ...bool) (*tree.Node, error) {
 
-	//	log.Logger(ctx).Error("RESOLVE IN CONTEXT - CONTEXT IS", zap.Any("ctx", ctx))
-
-	resolved := &tree.Node{}
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))

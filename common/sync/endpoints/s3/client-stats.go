@@ -54,10 +54,9 @@ func (b *statBatcher) flush() {
 		return
 	}
 
-	process := make([]*input, len(b.pending))
 	results := make([]*tree.Node, len(b.pending))
 
-	process = append(b.pending)
+	process := b.pending
 	b.pending = b.pending[0:0]
 	wg := &sync.WaitGroup{}
 	wg.Add(len(process))
@@ -74,7 +73,7 @@ func (b *statBatcher) flush() {
 		}(i, in)
 	}
 	wg.Wait()
-	log.Logger(b.c.globalContext).Debug("Finished sending Loadnodes in parallel", zap.Duration("d", time.Now().Sub(t)))
+	log.Logger(b.c.globalContext).Debug("Finished sending Loadnodes in parallel", zap.Duration("d", time.Since(t)))
 	for i, n := range results {
 		if n == nil {
 			continue

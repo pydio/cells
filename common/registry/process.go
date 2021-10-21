@@ -77,23 +77,64 @@ func NewProcess(node *registry.Node) *Process {
 	return process
 }
 
-func (p *pydioregistry) GetProcess(node *registry.Node) *Process {
+// GetProcesses implements registry GetProcesses method, by creating a copy of the
+// internal processes list
+func (c *pydioregistry) GetProcesses() map[string]*Process {
+	c.processeslock.RLock()
+	defer c.processeslock.RUnlock()
+	pp := make(map[string]*Process, len(c.processes))
+	for k, v := range c.processes {
+		pp[k] = v
+	}
+	return pp
+}
+
+func (c *pydioregistry) GetProcess(node *registry.Node) *Process {
 	pid, ok := node.Metadata[serviceMetaPID]
 	if !ok {
 		return nil
 	}
 
-	p.processeslock.Lock()
-	defer p.processeslock.Unlock()
-	if proc, ok := p.processes[pid]; ok {
+	c.processeslock.Lock()
+	defer c.processeslock.Unlock()
+	if proc, ok := c.processes[pid]; ok {
 		return proc
 	}
 
 	proc := NewProcess(node)
 
-	p.processes[pid] = proc
+	c.processes[pid] = proc
 
 	return proc
+}
+
+func (c *pydioregistry) GetCurrentProcess() *Process {
+	c.processeslock.RLock()
+	defer c.processeslock.RUnlock()
+
+	pid := fmt.Sprintf("%d", os.Getpid())
+	process, ok := c.processes[pid]
+	if !ok {
+		return nil
+	}
+
+	return process
+}
+
+func (c *pydioregistry) GetCurrentChildrenProcesses() []*Process {
+	c.processeslock.RLock()
+	defer c.processeslock.RUnlock()
+
+	pid := fmt.Sprintf("%d", os.Getpid())
+	var processes []*Process
+
+	for _, v := range c.processes {
+		if v.ParentId == pid {
+			processes = append(processes, v)
+		}
+	}
+
+	return processes
 }
 
 func (p *Process) Add(serviceName string) {
@@ -108,18 +149,6 @@ func (p *Process) Delete(serviceName string) {
 	delete(p.Services, serviceName)
 }
 
-// GetProcesses implements registry GetProcesses method, by creating a copy of the
-// internal processes list
-func (p *pydioregistry) GetProcesses() map[string]*Process {
-	p.processeslock.RLock()
-	defer p.processeslock.RUnlock()
-	pp := make(map[string]*Process, len(p.processes))
-	for k, v := range p.processes {
-		pp[k] = v
-	}
-	return pp
-}
-
 func GetProcesses() map[string]*Process {
 	return Default.GetProcesses()
 }
@@ -130,33 +159,4 @@ func GetProcess(node *registry.Node) *Process {
 
 func GetCurrentProcess() *Process {
 	return Default.GetCurrentProcess()
-}
-
-func (p *pydioregistry) GetCurrentProcess() *Process {
-	p.processeslock.RLock()
-	defer p.processeslock.RUnlock()
-
-	pid := fmt.Sprintf("%d", os.Getpid())
-	process, ok := p.processes[pid]
-	if !ok {
-		return nil
-	}
-
-	return process
-}
-
-func (p *pydioregistry) GetCurrentChildrenProcesses() []*Process {
-	p.processeslock.RLock()
-	defer p.processeslock.RUnlock()
-
-	pid := fmt.Sprintf("%d", os.Getpid())
-	var processes []*Process
-
-	for _, v := range p.processes {
-		if v.ParentId == pid {
-			processes = append(processes, v)
-		}
-	}
-
-	return processes
 }

@@ -36,14 +36,14 @@ import (
 	"github.com/pydio/cells/common/sync/model"
 )
 
-// Conflict represent a conflict between two nodes at the same path
+// DiffConflict represents a conflict between two nodes at the same path
 type DiffConflict struct {
 	Type      ConflictType
 	NodeLeft  *tree.Node
 	NodeRight *tree.Node
 }
 
-// Diff represent basic differences between two sources
+// TreeDiff represent basic differences between two sources
 // It can be then transformed to Patch, depending on the sync being
 // unidirectional (transform to Creates and Deletes) or bidirectional (transform only to Creates)
 type TreeDiff struct {
@@ -106,11 +106,11 @@ func (diff *TreeDiff) Compute(root string, lock chan bool, rootStats map[string]
 			start := time.Now()
 			h := ""
 			uri := diff.left.GetEndpointInfo().URI
-			if k == "right" {
+			if logId == "right" {
 				uri = diff.right.GetEndpointInfo().URI
 			}
 			defer func() {
-				s := model.NewProcessingStatus(fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Now().Sub(start), h)).SetEndpoint(uri)
+				s := model.NewProcessingStatus(fmt.Sprintf("[%s] Snapshot loaded in %v - Root Hash is %s", logId, time.Since(start), h)).SetEndpoint(uri)
 				diff.Status(s)
 				wg.Done()
 			}()
@@ -479,6 +479,7 @@ func (diff *TreeDiff) solveConflicts(ctx context.Context) {
 			}
 		} else if c.Type == ConflictFileContent {
 			// What can we do?
+			log.Logger(ctx).Debug("Got a ConflictFileContent case in TreeDiff.solveConflict")
 		}
 
 		if !solved {
@@ -487,7 +488,6 @@ func (diff *TreeDiff) solveConflicts(ctx context.Context) {
 	}
 
 	diff.conflicts = remaining
-	return
 }
 
 // conflictsByType filters a slice of conflicts for a given type

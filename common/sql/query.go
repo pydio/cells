@@ -69,9 +69,8 @@ func (q query) String() string {
 
 		if ptypes.Is(subQ, sub) {
 
-			if err := ptypes.UnmarshalAny(subQ, sub); err != nil {
-				// TODO something
-			}
+			// TODO something if Unmarshal fails!
+			ptypes.UnmarshalAny(subQ, sub)
 
 			subQueryString := NewDAOQuery(sub, q.converters...).String()
 
@@ -132,7 +131,7 @@ func GetQueryValueFor(field string, values ...string) string {
 	return ""
 }
 
-// JoinConditionsWithParenthesis joins conditions using parenthesis if there are many,
+// JoinWheresWithParenthesis joins conditions using parenthesis if there are many,
 // or no parenthesis if there is just one, and prepend the WHERE keyword to the string
 func JoinWheresWithParenthesis(wheres []string, join string) string {
 

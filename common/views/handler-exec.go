@@ -55,7 +55,7 @@ type Executor struct {
 	AbstractHandler
 }
 
-func (a *Executor) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
+func (e *Executor) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
 
 	return provider(inputFilter, outputFilter)
 

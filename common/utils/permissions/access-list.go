@@ -158,7 +158,7 @@ func (a *AccessList) GetAccessibleWorkspaces(ctx context.Context) map[string]str
 	results := make(map[string]string)
 	for wsId, wsNodes := range accessListWsNodes {
 		rights := &right{}
-		for nodeId, _ := range wsNodes {
+		for nodeId := range wsNodes {
 			if a.CanRead(ctx, &tree.Node{Uuid: nodeId}) {
 				rights.Read = true
 			}
@@ -271,7 +271,7 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 			if _, has := a.Workspaces[wsId]; !has {
 				continue
 			}
-			for rootId, _ := range wsRoots {
+			for rootId := range wsRoots {
 				if rootId == uuid {
 					foundWorkspaces[wsId] = true
 					workspacesRoots[wsId] = rootId
@@ -279,7 +279,7 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 			}
 		}
 	}
-	for workspaceId, _ := range foundWorkspaces {
+	for workspaceId := range foundWorkspaces {
 		workspaces = append(workspaces, a.Workspaces[workspaceId])
 	}
 	return workspaces, workspacesRoots
@@ -316,7 +316,7 @@ func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPath
 }
 
 func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
-	for id, _ := range a.NodesAcls {
+	for id := range a.NodesAcls {
 		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
 			a.ReplicateBitmask(id, res.Uuid)
 		}
@@ -428,7 +428,7 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 	}
 	for workspaceId, workspaceRootNodes := range detectedWorkspaces {
 		wsRoots := make(map[string]Bitmask)
-		for nodeId, _ := range workspaceRootNodes {
+		for nodeId := range workspaceRootNodes {
 			mask := flattenedNodes[nodeId]
 			if !mask.HasFlag(ctx, FlagDeny) {
 				wsRoots[nodeId] = mask

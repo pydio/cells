@@ -182,7 +182,7 @@ func SpanHandlerWrapper(fn server.HandlerFunc) server.HandlerFunc {
 	}
 }
 
-// NewDAOSubscriberWrapper wraps a db connection for each subscriber
+// SpanSubscriberWrapper wraps a db connection for each subscriber
 func SpanSubscriberWrapper(subscriberFunc server.SubscriberFunc) server.SubscriberFunc {
 	return func(ctx context.Context, msg server.Publication) error {
 		ctx = childOrNewSpan(ctx)
@@ -191,7 +191,7 @@ func SpanSubscriberWrapper(subscriberFunc server.SubscriberFunc) server.Subscrib
 	}
 }
 
-// Extract data from request and put it in context Metadata field
+// HttpSpanHandlerWrapper extracts data from request and put it in context Metadata field
 func HttpSpanHandlerWrapper(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(childOrNewSpan(r.Context()))

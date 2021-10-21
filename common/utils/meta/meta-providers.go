@@ -122,7 +122,7 @@ func enrichNodesMetaFromProviders(ctx context.Context, streamers []tree.NodeProv
 				}
 				node.MetaStore["pydio:meta-loaded-"+name] = "true" // JSON
 			}
-			profiles[name] = append(profiles[name], time.Now().Sub(start))
+			profiles[name] = append(profiles[name], time.Since(start))
 
 		}
 	}

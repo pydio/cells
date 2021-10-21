@@ -37,11 +37,11 @@ func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {
 
 	n := time.Now()
 	defer func() {
-		duration := time.Now().Sub(n)
+		duration := time.Since(n)
 		log.Logger(ctx).Info("Filtering TreePatch took "+duration.String(), zap.Duration("duration", duration), t.zapSource(), t.zapTarget())
 	}()
 	track := func(s string, t time.Time) time.Time {
-		log.Logger(ctx).Debug(s, zap.Duration("time", time.Now().Sub(t)))
+		log.Logger(ctx).Debug(s, zap.Duration("time", time.Since(t)))
 		return time.Now()
 	}
 
@@ -103,9 +103,7 @@ func (t *TreePatch) filterCreateFiles(ctx context.Context) {
 		node, err := createEvent.NodeFromSource(ctx)
 		if err != nil {
 			delete(t.createFiles, createEvent.GetRefPath())
-			if _, exists := t.deletes[createEvent.GetRefPath()]; exists {
-				delete(t.deletes, createEvent.GetRefPath())
-			}
+			delete(t.deletes, createEvent.GetRefPath())
 			continue
 		}
 		if node.Uuid == "" && !model.IsFolderHiddenFile(node.Path) {
@@ -131,9 +129,7 @@ func (t *TreePatch) filterCreateFolders(ctx context.Context) {
 	for _, createOp := range t.createFolders {
 		if _, err := createOp.NodeFromSource(ctx); err != nil {
 			delete(t.createFolders, createOp.GetRefPath())
-			if _, exists := t.deletes[createOp.GetRefPath()]; exists {
-				delete(t.deletes, createOp.GetRefPath())
-			}
+			delete(t.deletes, createOp.GetRefPath())
 			continue
 		}
 		if refresher != nil && existingFolders != nil {
@@ -323,7 +319,6 @@ func (t *TreePatch) rescanFoldersIfRequired(ctx context.Context, ignores ...glob
 				}
 				t.Enqueue(NewOperation(opType, scanEvent, node))
 			}
-			return
 		}
 		t.Source().Walk(visit, op.GetRefPath(), true)
 		log.Logger(ctx).Info("Finished rescanning folder")

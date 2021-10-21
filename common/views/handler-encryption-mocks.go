@@ -35,9 +35,7 @@ import (
 )
 
 const (
-	aesGCMTagSize   = 16
-	blockHeaderSize = 12
-	nodeKeySize     = 32
+	aesGCMTagSize = 16
 )
 
 type mockSetNodeInfoStream struct {
@@ -95,7 +93,6 @@ func (sc *mockSetNodeInfoStream) exchange() {
 			nodeBlocks = append(nodeBlocks, req.SetBlock.Block)
 			sc.blocks[req.SetBlock.NodeUuid] = nodeBlocks
 		case "close":
-			break
 		}
 
 		rsp := &encryption.SetNodeInfoResponse{}
@@ -143,7 +140,7 @@ func (sc *mockSendBlockStreamClient) SendMsg(msg interface{}) error {
 }
 
 func (sc *mockSendBlockStreamClient) RecvMsg(msgi interface{}) error {
-	_ = <-sc.inStream
+	<-sc.inStream
 	return nil
 }
 

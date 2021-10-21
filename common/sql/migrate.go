@@ -47,36 +47,20 @@ func newTxError(migration *migrate.PlannedMigration, err error) error {
 	}
 }
 
-// Set the name of the table used to store migration info.
-//
-// Should be called before any other call such as (Exec, ExecMax, ...).
-func SetTable(name string) {
-	if name != "" {
-		tableName = name
-	}
-}
-
-// SetSchema sets the name of a schema that the migration table be referenced.
-func SetSchema(name string) {
-	if name != "" {
-		schemaName = name
-	}
-}
-
 type migrationById []*migrate.Migration
 
 func (b migrationById) Len() int           { return len(b) }
 func (b migrationById) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b migrationById) Less(i, j int) bool { return b[i].Less(b[j]) }
 
-// Execute a set of migrations
+// ExecMigration Execute a set of migrations
 //
 // Returns the number of applied migrations.
 func ExecMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.MigrationDirection, prefix string) (int, error) {
 	return ExecMax(db, dialect, m, dir, 0, prefix)
 }
 
-// Execute a set of migrations
+// ExecMax execute a set of migrations
 //
 // Will apply at most `max` migrations. Pass 0 for no limit (or use Exec).
 //
@@ -166,7 +150,7 @@ func prefixedIdToNumber(id, prefix string) (numberId, newPrefix string, e error)
 	return
 }
 
-// Plan a migration.
+// PlanMigration plans a migration.
 func PlanMigration(db *sql.DB, dialect string, m migrate.MigrationSource, dir migrate.MigrationDirection, max int, prefix string) ([]*migrate.PlannedMigration, *gorp.DbMap, error) {
 	dbMap, err := getMigrationDbMap(db, dialect)
 	if err != nil {

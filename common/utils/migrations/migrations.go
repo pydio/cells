@@ -39,7 +39,7 @@ func FirstRun() *version.Version {
 	return obj
 }
 
-// ApplyMigrations browse migrations upward on downward and apply them sequentially. It returns a version to be
+// Apply browses migrations upward on downward and apply them sequentially. It returns a version to be
 // saved as the current valid version of the service, or nil if no changes were necessary. In specific case where
 // current version is 0.0.0 (first run), it only applies first run migration (if any) and returns target version.
 func Apply(ctx context.Context, current *version.Version, target *version.Version, migrations []*Migration) (*version.Version, error) {

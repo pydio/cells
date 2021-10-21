@@ -399,10 +399,8 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 	var err error
 	branchInfo, ok := GetBranchInfo(ctx, "in")
 	if !ok || branchInfo.EncryptionMode != object.EncryptionMode_MASTER {
-		if _, ok := requestData.Metadata[common.XAmzMetaClearSize]; ok {
-			// Not necessary for non-encrypted data source
-			delete(requestData.Metadata, common.XAmzMetaClearSize)
-		}
+		// Not necessary for non-encrypted data source
+		delete(requestData.Metadata, common.XAmzMetaClearSize)
 		return e.next.MultipartCreate(ctx, target, requestData)
 	}
 
@@ -450,13 +448,13 @@ func (e *EncryptionHandler) MultipartCreate(ctx context.Context, target *tree.No
 		ctx:      ctx,
 	}
 
-	info, err := e.getNodeInfoForWrite(ctx, clone)
+	_, err = e.getNodeInfoForWrite(ctx, clone)
 	if err != nil {
 		if errors.Parse(err.Error()).Code != 404 {
 			return "", err
 		}
 
-		info, err = e.createNodeInfo(ctx, clone)
+		info, err := e.createNodeInfo(ctx, clone)
 		if err != nil {
 			log.Logger(ctx).Error("views.handler.encryption.MultiPartCreate: failed to create node info", zap.Error(err))
 			return "", err
@@ -617,14 +615,6 @@ func (e *EncryptionHandler) getNodeInfoForWrite(ctx context.Context, node *tree.
 		return nil, err
 	}
 	return rsp.NodeInfo, nil
-}
-
-func (e *EncryptionHandler) getNodeInfo(ctx context.Context, request *encryption.GetNodeInfoRequest) (*encryption.GetNodeInfoResponse, error) {
-	nodeEncryptionClient := e.nodeKeyManagerClient
-	if nodeEncryptionClient == nil {
-		nodeEncryptionClient = encryption.NewNodeKeyManagerClient(common.ServiceGrpcNamespace_+common.ServiceEncKey, defaults.NewClient())
-	}
-	return nodeEncryptionClient.GetNodeInfo(ctx, request)
 }
 
 func (e *EncryptionHandler) createNodeInfo(ctx context.Context, node *tree.Node) (*encryption.NodeInfo, error) {

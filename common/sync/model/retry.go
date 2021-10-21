@@ -32,19 +32,21 @@ func Retry(f func() error, seconds ...time.Duration) error {
 	if e := f(); e == nil {
 		return nil
 	}
-	tick := time.Tick(1 * time.Second)
+	tickerTime := 1 * time.Second
 	timeout := time.After(30 * time.Second)
 	if len(seconds) == 2 {
-		tick = time.Tick(seconds[0])
+		tickerTime = seconds[0]
 		timeout = time.After(seconds[1])
 	} else if len(seconds) == 1 {
-		tick = time.Tick(seconds[0])
+		tickerTime = seconds[0]
 	}
+	ticker := time.NewTicker(tickerTime)
+	defer ticker.Stop()
 
 	var lastErr error
 	for {
 		select {
-		case <-tick:
+		case <-ticker.C:
 			if lastErr = f(); lastErr == nil {
 				return nil
 			}
@@ -65,19 +67,21 @@ func RetryWithCtx(ctx context.Context, f func(retry int) error, seconds ...time.
 	if e := f(i); e == nil {
 		return nil
 	}
-	tick := time.Tick(1 * time.Second)
 	timeout := time.After(30 * time.Second)
+	tickerTime := 1 * time.Second
 	if len(seconds) == 2 {
-		tick = time.Tick(seconds[0])
+		tickerTime = seconds[0]
 		timeout = time.After(seconds[1])
 	} else if len(seconds) == 1 {
-		tick = time.Tick(seconds[0])
+		tickerTime = seconds[0]
 	}
+	ticker := time.NewTicker(tickerTime)
+	defer ticker.Stop()
 
 	var lastErr error
 	for {
 		select {
-		case <-tick:
+		case <-ticker.C:
 			if lastErr = f(i); lastErr == nil {
 				return nil
 			}

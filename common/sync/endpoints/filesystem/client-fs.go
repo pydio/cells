@@ -287,7 +287,7 @@ func (c *FSClient) Walk(walkFunc model.WalkNodesFunc, root string, recursive boo
 	}
 }
 
-// Watches for all fs events on an input path.
+// Watch watches all fs events on an input path.
 func (c *FSClient) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	eventChan := make(chan model.EventInfo)
@@ -417,7 +417,7 @@ func (c *FSClient) DeleteNode(ctx context.Context, path string) (err error) {
 	return err
 }
 
-// Move file or folder around.
+// MoveNode move file or folder around.
 func (c *FSClient) MoveNode(ctx context.Context, oldPath string, newPath string) (err error) {
 
 	oldInitial := oldPath
@@ -542,15 +542,6 @@ func (c *FSClient) moveRecursively(oldPath string, newPath string) (err error) {
 	//rename(oldPath,)
 	return nil
 
-}
-
-// Expects already denormalized form
-func (c *FSClient) getNodeIdentifier(path string, leaf bool) (uid string, e error) {
-	if leaf {
-		return c.getFileHash(path)
-	} else {
-		return c.readOrCreateFolderId(path)
-	}
 }
 
 // Expects already denormalized form

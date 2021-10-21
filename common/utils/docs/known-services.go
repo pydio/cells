@@ -20,7 +20,7 @@
 
 package docs
 
-// List of known services, to enrich their description. It is public on purpose.
+// KnownServices is a list of known services, to enrich their description. It is exported on purpose.
 var KnownServices = map[string]*Service{
 	"TokenService": {
 		Title: "Token Service",

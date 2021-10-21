@@ -282,7 +282,7 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 
 	t := time.Now()
 	defer func() {
-		log.Logger(c.globalContext).Info("S3 Walk Operation + Stats took", zap.Duration("d", time.Now().Sub(t)))
+		log.Logger(c.globalContext).Info("S3 Walk Operation + Stats took", zap.Duration("d", time.Since(t)))
 	}()
 	var eTags []string
 	collect := (root == "" || root == "/") && recursive && c.checksumMapper != nil && c.purgeMapperAfterWalk
@@ -396,10 +396,6 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 // Will try to create PydioSyncHiddenFile to avoid missing empty folders
 func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknFc func(path string, info *S3FileInfo, err error) error, currentDir string, lastModified time.Time, skipLast bool) {
 
-	// Do not create hidden files in BrowseOnly mode
-	if c.options.BrowseOnly {
-		//return
-	}
 	parts := strings.Split(currentDir, "/")
 	max := len(parts)
 	if skipLast {

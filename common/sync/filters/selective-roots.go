@@ -34,7 +34,7 @@ type SelectiveRootsFilter struct {
 	out   chan model.EventInfo
 }
 
-// NewSelectiveRoots creates a new SelectiveRootsFilter and starts listening to events
+// NewSelectiveRootsFilter creates a new SelectiveRootsFilter and starts listening to events
 func NewSelectiveRootsFilter(roots []string) *SelectiveRootsFilter {
 	s := &SelectiveRootsFilter{
 		done: make(chan bool),
@@ -76,7 +76,6 @@ func (s *SelectiveRootsFilter) start() {
 				if !s.isOutside(ev.Path) {
 					s.out <- ev
 				}
-				break
 			case model.EventSureMove:
 				srcOut := s.isOutside(ev.MoveSource.Path)
 				targetOut := s.isOutside(ev.MoveTarget.Path)

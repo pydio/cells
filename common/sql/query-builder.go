@@ -42,7 +42,6 @@ type ExpressionConverter interface {
 }
 
 type queryBuilder struct {
-	ex         goqu.Ex
 	enquirer   Enquirer
 	converters []ExpressionConverter
 	wheres     []goqu.Expression
@@ -95,8 +94,7 @@ func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
 // QueryStringFromExpression finally builds a full SELECT from a Goqu Expression
 func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex goqu.Expression, resourceExpression goqu.Expression, limit int64) (string, []interface{}, error) {
 
-	var db *goqu.Database
-	db = goqu.New(driver, nil)
+	db := goqu.New(driver, nil)
 
 	if resourceExpression != nil {
 		if ex != nil {
@@ -125,11 +123,10 @@ func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex g
 
 }
 
-// QueryStringFromExpression finally builds a full SELECT from a Goqu Expression
+// CountStringFromExpression finally builds a full SELECT count(*) from a Goqu Expression
 func CountStringFromExpression(tableName string, columnCount string, driver string, e Enquirer, ex goqu.Expression, resourceExpression goqu.Expression) (string, []interface{}, error) {
 
-	var db *goqu.Database
-	db = goqu.New(driver, nil)
+	db := goqu.New(driver, nil)
 
 	if resourceExpression != nil {
 		if ex != nil {
@@ -155,8 +152,7 @@ func DeleteStringFromExpression(tableName string, driver string, ex goqu.Express
 		return "", nil, fmt.Errorf("empty condition for delete, query is too broad")
 	}
 
-	var db *goqu.Database
-	db = goqu.New(driver, nil)
+	db := goqu.New(driver, nil)
 	sql, args, e := db.From(tableName).Prepared(true).Where(ex).ToDeleteSql()
 	return sql, args, e
 

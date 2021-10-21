@@ -51,7 +51,6 @@ func (km *KeyMutex) Lock(key string) {
 		km.c.Wait()
 	}
 	km.s[key] = struct{}{}
-	return
 }
 
 func (km *KeyMutex) locked(key string) bool {

@@ -25,6 +25,7 @@ import (
 	"os"
 )
 
+// SafeRenameFile makes a copy/delete operation to avoid cross-volumes errors
 func SafeRenameFile(src, dst string) error {
 	if err := CopyFile(src, dst); err != nil {
 		return err
@@ -32,7 +33,7 @@ func SafeRenameFile(src, dst string) error {
 	return os.Remove(src)
 }
 
-// credit https://gist.github.com/r0l1/92462b38df26839a3ca324697c8cba04
+// CopyFile credits https://gist.github.com/r0l1/92462b38df26839a3ca324697c8cba04
 func CopyFile(src, dst string) (err error) {
 	in, err := os.Open(src)
 	if err != nil {

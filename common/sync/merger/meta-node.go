@@ -68,5 +68,4 @@ func addMetadataAsChildNodes(n *TreeNode, metaGlobs []glob.Glob) {
 			}
 		}
 	}
-	return
 }

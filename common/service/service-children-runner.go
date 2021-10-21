@@ -88,7 +88,6 @@ func NewChildrenRunner(parentName string, childPrefix string) *ChildrenRunner {
 type ChildrenRunner struct {
 	mutex             *sync.RWMutex
 	services          map[string]*exec.Cmd
-	parentService     micro.Service
 	parentName        string
 	childPrefix       string
 	beforeDeleteClean bool
@@ -100,11 +99,8 @@ type ChildrenRunner struct {
 func (c *ChildrenRunner) OnDeleteConfig(callback func(context.Context, string)) {
 	c.afterDeleteChan = make(chan string)
 	go func() {
-		for {
-			select {
-			case deleted := <-c.afterDeleteChan:
-				callback(c.initialCtx, deleted)
-			}
+		for deleted := range c.afterDeleteChan {
+			callback(c.initialCtx, deleted)
 		}
 	}()
 }

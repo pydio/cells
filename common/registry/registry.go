@@ -87,8 +87,6 @@ type pydioregistry struct {
 
 	opts  Options
 	flags pflag.FlagSet
-
-	results chan *registry.Result
 }
 
 // Init the default registry
@@ -204,7 +202,7 @@ func GetClient(name string) (string, client.Client) {
 	return common.ServiceGrpcNamespace_ + name, defaults.NewClient()
 }
 
-// GetShortRequestTime returns a 1s RequestTimeout option
+// ShortRequestTimeout returns a 1s RequestTimeout option
 func ShortRequestTimeout() client.CallOption {
 	return client.WithRequestTimeout(1 * time.Second)
 }

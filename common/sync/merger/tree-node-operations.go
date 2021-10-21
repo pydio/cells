@@ -71,7 +71,7 @@ func (t *TreeNode) QueueOperation(op Operation) {
 	n := op.GetNode()
 	p := n.Path
 	split := strings.Split(p, "/")
-	for i, _ := range split {
+	for i := range split {
 		childPath := strings.Join(split[:i+1], "/")
 		if i == len(split)-1 {
 			var last *TreeNode

@@ -47,7 +47,6 @@ type Client struct {
 	writerClient    tree.NodeReceiverClient
 	sessionClient   tree.SessionIndexerClient
 	internalSession *tree.IndexationSession
-	streamer        *Streamer
 	dsName          string
 }
 

@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 )
 
-// NamespaceProvider list all namespaces info from services declared ServiceMetaNsProvider
+// NamespacesProvider lists all namespaces info from services declared ServiceMetaNsProvider
 // It watches events to maintain the list
 type NamespacesProvider struct {
 	sync.RWMutex // this handles a lock for the namespaces field

@@ -66,16 +66,10 @@ func (pr *ConnectedProcessor) Stop() {
 // ProcessPatches listens to PatchChan for processing
 func (pr *ConnectedProcessor) ProcessPatches() {
 
-	for {
-		select {
-		case patch, open := <-pr.PatchChan:
-			if !open {
-				pr.Logger().Info("Stop processing patches")
-				return
-			}
-			pr.Process(patch, pr.Cmd)
-		}
+	for patch := range pr.PatchChan {
+		pr.Process(patch, pr.Cmd)
 	}
+	pr.Logger().Info("Stop processing patches")
 
 }
 

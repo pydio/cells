@@ -119,7 +119,7 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	if ms == nil {
 		return
 	}
-	for k, _ := range ms {
+	for k := range ms {
 		policyContext[PolicyNodeMeta_+k] = node.GetStringMeta(k)
 	}
 }

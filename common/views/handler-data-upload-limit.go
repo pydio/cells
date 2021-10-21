@@ -44,7 +44,7 @@ type UploadLimitFilter struct {
 	AbstractHandler
 }
 
-// Check Upload Limits (size, extension) defined in the frontend on PutObject operation
+// PutObject checks Upload Limits (size, extension) defined in the frontend on PutObject operation
 func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *models.PutRequestData) (int64, error) {
 
 	size, exts, err := a.getUploadLimits(ctx)
@@ -72,7 +72,7 @@ func (a *UploadLimitFilter) PutObject(ctx context.Context, node *tree.Node, read
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-// Check Upload Limits (size, extension) defined in the frontend on MultipartPutObjectPart
+// MultipartPutObjectPart checks Upload Limits (size, extension) defined in the frontend on MultipartPutObjectPart
 func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *models.PutRequestData) (minio.ObjectPart, error) {
 
 	size, exts, err := a.getUploadLimits(ctx)
@@ -86,7 +86,7 @@ func (a *UploadLimitFilter) MultipartPutObjectPart(ctx context.Context, target *
 		nodeExt := path.Ext(target.GetPath())
 		allowed := false
 		for _, e := range exts {
-			if strings.ToLower(e) == strings.ToLower(nodeExt) {
+			if strings.EqualFold(e, nodeExt) {
 				allowed = true
 				break
 			}

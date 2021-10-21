@@ -150,9 +150,7 @@ func (s *SynchronousCacheHandler) cacheAdd(ctx context.Context, node *tree.Node)
 		json.Unmarshal(diffDat, &diff)
 	}
 	diff.Adds[node.GetPath()] = struct{}{}
-	if _, previouslyDeleted := diff.Deletes[node.GetPath()]; previouslyDeleted {
-		delete(diff.Deletes, node.GetPath())
-	}
+	delete(diff.Deletes, node.GetPath())
 	diffDat, _ := json.Marshal(diff)
 	syncCache.Set(cacheDiffPrefix+dir, diffDat)
 }
@@ -171,9 +169,7 @@ func (s *SynchronousCacheHandler) cacheDel(ctx context.Context, node *tree.Node)
 	// Register as deleted
 	diff.Deletes[p] = struct{}{}
 	// Remove from cache if just previously added
-	if _, previouslyAdded := diff.Adds[p]; previouslyAdded {
-		delete(diff.Adds, p)
-	}
+	delete(diff.Adds, p)
 	if _, e := syncCache.Get(cacheNodePrefix + dir); e == nil {
 		syncCache.Delete(cacheNodePrefix + dir)
 	}
@@ -252,9 +248,7 @@ func (s *SynchronousCacheHandler) ListNodes(ctx context.Context, in *tree.ListNo
 				if _, deleted := diff.Deletes[delCheck]; deleted {
 					continue
 				}
-				if _, added := diff.Adds[resp.GetNode().GetPath()]; added {
-					delete(diff.Adds, resp.GetNode().GetPath())
-				}
+				delete(diff.Adds, resp.GetNode().GetPath())
 				wrap.Send(resp)
 			}
 			for key := range diff.Adds {

@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/utils/permissions"
 )
 
-// Extended Router used mainly to filter events sent from inside to outside the application
+// RouterEventFilter is an extended Router used mainly to filter events sent from inside to outside the application
 type RouterEventFilter struct {
 	Router
 	RootNodesCache *cache.Cache
@@ -109,8 +109,6 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, accessList 
 			})
 			log.Logger(ctx).Debug("Router Filtered node", zap.String("rootPath", parent.Path), zap.String("workspace", workspace.Label), zap.String("from", node.Path), zap.String("to", newNode.Path))
 			return newNode, true
-		} else {
-
 		}
 	}
 	return nil, false

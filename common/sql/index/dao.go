@@ -63,7 +63,7 @@ type DAO interface {
 	MoveNodeTree(nodeFrom *mtree.TreeNode, nodeTo *mtree.TreeNode) error
 
 	ResyncDirtyEtags(rootNode *mtree.TreeNode) error
-	CleanResourcesOnDeletion() (error, string)
+	CleanResourcesOnDeletion() (string, error)
 	LostAndFounds() ([]LostAndFound, error)
 	FixLostAndFound(lost LostAndFound) error
 	FixRandHash2(excludes ...LostAndFound) (int64, error)

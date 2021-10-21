@@ -35,8 +35,7 @@ type RegistryModifier func(ctx context.Context, status RequestStatus, registry *
 // based on the current status
 type PluginModifier func(ctx context.Context, status RequestStatus, plugin Plugin) error
 
-// PluginModifier is a func type for dynamically filtering the content of a plugin (e.g enabled/disabled),
-// based on the current status
+// BootConfModifier is a func type for dynamically filtering the content of the bootconf
 type BootConfModifier func(bootConf *BootConf) error
 
 type EnrollMiddlewareFunc func(req *restful.Request, rsp *restful.Response, inputRequest *rest.FrontEnrollAuthRequest) bool
@@ -91,12 +90,12 @@ func ApplyPluginModifiers(ctx context.Context, status RequestStatus, plugin Plug
 
 }
 
-// RegisterPluginModifier appends a BootConfModifier to the list
+// RegisterBootConfModifier appends a BootConfModifier to the list
 func RegisterBootConfModifier(modifier BootConfModifier) {
 	bootConfModifiers = append(bootConfModifiers, modifier)
 }
 
-// ApplyPluginModifiers is called to apply all registered modifiers on the boot configuration
+// ApplyBootConfModifiers is called to apply all registered modifiers on the boot configuration
 func ApplyBootConfModifiers(bootConf *BootConf) error {
 
 	for _, m := range bootConfModifiers {
@@ -134,6 +133,7 @@ func ApplyEnrollMiddlewares(endpoint string, req *restful.Request, rsp *restful.
 	return false
 }
 
+// WrapAuthMiddleware registers an additional auth middleware
 func WrapAuthMiddleware(middleware func(middleware AuthMiddleware) AuthMiddleware) {
 	if authMiddlewares == nil {
 		// First register, create a noop middleware
@@ -144,6 +144,7 @@ func WrapAuthMiddleware(middleware func(middleware AuthMiddleware) AuthMiddlewar
 	authMiddlewares = middleware(authMiddlewares)
 }
 
+// ApplyAuthMiddlewares applies registered middlewares
 func ApplyAuthMiddlewares(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
 	return authMiddlewares(req, rsp, in, out, session)
 }

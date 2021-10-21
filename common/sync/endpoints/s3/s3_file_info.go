@@ -33,7 +33,7 @@ type S3FileInfo struct {
 	isDir  bool
 }
 
-// base name of the file
+// Name is the base name of the file
 func (s *S3FileInfo) Name() string {
 	if s.isDir {
 		return path.Base(s.Object.Key)
@@ -42,12 +42,12 @@ func (s *S3FileInfo) Name() string {
 	}
 }
 
-// length in bytes for regular files; system-dependent for others
+// Size gets length in bytes for regular files; system-dependent for others
 func (s *S3FileInfo) Size() int64 {
 	return s.Object.Size
 }
 
-// file mode bits
+// Mode returns file mode bits
 func (s *S3FileInfo) Mode() os.FileMode {
 	if s.isDir {
 		return os.ModePerm & os.ModeDir
@@ -57,17 +57,17 @@ func (s *S3FileInfo) Mode() os.FileMode {
 
 }
 
-// modification time
+// ModTime retuns modification time
 func (s *S3FileInfo) ModTime() time.Time {
 	return s.Object.LastModified
 }
 
-// abbreviation for Mode().IsDir()
+// IsDir is an abbreviation for Mode().IsDir()
 func (s *S3FileInfo) IsDir() bool {
 	return s.isDir
 }
 
-// underlying data source (can return nil)
+// Sys returns underlying data source (can return nil)
 func (s *S3FileInfo) Sys() interface{} {
 	return s.Object
 }

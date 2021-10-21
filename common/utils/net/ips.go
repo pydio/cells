@@ -68,7 +68,7 @@ func GetExternalIP() (net.IP, error) {
 	return nil, errors.New("are you connected to the network?")
 }
 
-// GetExternalIP retrieves the preferred outbound ip of this machine
+// GetAvailableIPs retrieves all outbound ips of this machine
 // by scanning the network interfaces of this (virtual) machine
 func GetAvailableIPs() (ips []net.IP, e error) {
 	ifaces, err := net.Interfaces()
@@ -108,7 +108,7 @@ func GetAvailableIPs() (ips []net.IP, e error) {
 	return
 }
 
-// GetOutboundIP restrieves the preferred outbound ip of this machine
+// GetOutboundIP retrieves the preferred outbound ip of this machine
 // by simply connecting to a well known ip of the internet.
 func GetOutboundIP() (net.IP, error) {
 	conn, err := net.DialTimeout("udp", "8.8.8.8:80", 500*time.Millisecond)

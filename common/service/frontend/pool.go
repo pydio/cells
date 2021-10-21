@@ -80,7 +80,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	}
 
 	p.Messages = make(map[string]I18nMessages)
-	for lang, _ := range i18n.AvailableLanguages {
+	for lang := range i18n.AvailableLanguages {
 		p.Messages[lang] = p.I18nMessages(lang)
 		log.Logger(context.Background()).Debug("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
@@ -306,8 +306,7 @@ func (p *PluginsPool) I18nMessages(lang string) I18nMessages {
 		c := plugin.GetClientSettings()
 		if c != nil && c.Cresources != nil && len(c.Cresources.Ci18n) > 0 {
 			for _, tag := range c.Cresources.Ci18n {
-				var pa string
-				pa = strings.TrimPrefix(tag.Attrremote, "plug/")
+				pa := strings.TrimPrefix(tag.Attrremote, "plug/")
 				ns := tag.Attrnamespace
 				msgs := p.parseI18nFolder(ns, lang, defaultLang, pa)
 				for k, v := range msgs {
