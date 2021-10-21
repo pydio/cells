@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -600,7 +600,7 @@ func TestIndexLongNode(t *testing.T) {
 		for i := 0; i < 255; i++ {
 			name := fmt.Sprintf("test%d", i)
 			path = path + fmt.Sprintf("/%d", i)
-			node := &tree.Node{Path: path, Uuid: name, Etag: name, Type: tree.NodeType_COLLECTION }
+			node := &tree.Node{Path: path, Uuid: name, Etag: name, Type: tree.NodeType_COLLECTION}
 
 			_, err := send(s, "CreateNode", &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
 			So(err, ShouldBeNil)
@@ -613,11 +613,11 @@ func TestIndexLongNode(t *testing.T) {
 		So(respBefore, ShouldNotBeNil)
 
 		t.Log("Move")
-		node := &tree.Node{Path: "/test.xml", Uuid: "testxml", Etag: "testxml", Type:  tree.NodeType_LEAF}
+		node := &tree.Node{Path: "/test.xml", Uuid: "testxml", Etag: "testxml", Type: tree.NodeType_LEAF}
 		_, err := send(s, "CreateNode", &tree.CreateNodeRequest{Node: node, UpdateIfExists: true})
 		So(err, ShouldBeNil)
 
-		target := &tree.Node{Path: path + "/test.xml", Uuid: "testxml", Etag: "testxml", Type:  tree.NodeType_LEAF}
+		target := &tree.Node{Path: path + "/test.xml", Uuid: "testxml", Etag: "testxml", Type: tree.NodeType_LEAF}
 
 		resp, err := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node, To: target})
 		So(err, ShouldBeNil)
@@ -628,12 +628,12 @@ func TestIndexLongNode(t *testing.T) {
 		So(errAfter, ShouldBeNil)
 		So(respAfter, ShouldNotBeNil)
 
-		node2 := &tree.Node{Path: "/0", Uuid: "test1", Etag: "test0", Type: tree.NodeType_COLLECTION }
-		target2 := &tree.Node{Path: "/0b", Uuid: "test1b", Etag: "test1b", Type: tree.NodeType_COLLECTION }
+		node2 := &tree.Node{Path: "/0", Uuid: "test1", Etag: "test0", Type: tree.NodeType_COLLECTION}
+		target2 := &tree.Node{Path: "/0b", Uuid: "test1b", Etag: "test1b", Type: tree.NodeType_COLLECTION}
 		_, errCreate := send(s, "CreateNode", &tree.CreateNodeRequest{Node: target2, UpdateIfExists: true})
 		So(errCreate, ShouldBeNil)
 
-		target3 := &tree.Node{Path: "/0b/0", Type: tree.NodeType_COLLECTION }
+		target3 := &tree.Node{Path: "/0b/0", Type: tree.NodeType_COLLECTION}
 
 		resp2, err2 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node2, To: target3})
 		So(err2, ShouldBeNil)
@@ -643,7 +643,7 @@ func TestIndexLongNode(t *testing.T) {
 		So(err3, ShouldBeNil)
 		So(resp3.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
 
-		target4 := &tree.Node{Path: "/0c", Type: tree.NodeType_COLLECTION }
+		target4 := &tree.Node{Path: "/0c", Type: tree.NodeType_COLLECTION}
 		resp4, err4 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node2, To: target4})
 		So(err4, ShouldBeNil)
 		So(resp4.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
@@ -652,7 +652,7 @@ func TestIndexLongNode(t *testing.T) {
 		So(err4b, ShouldBeNil)
 		So(resp4b.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)
 
-		target5 := &tree.Node{Path: "/0d/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0", Type: tree.NodeType_COLLECTION }
+		target5 := &tree.Node{Path: "/0d/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0", Type: tree.NodeType_COLLECTION}
 		resp5, err5 := send(s, "UpdateNode", &tree.UpdateNodeRequest{From: node2, To: target5})
 		So(err5, ShouldBeNil)
 		So(resp5.(*tree.UpdateNodeResponse).Success, ShouldBeTrue)

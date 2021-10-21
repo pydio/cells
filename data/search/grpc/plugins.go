@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -25,8 +25,9 @@ package grpc
 
 import (
 	"context"
-	servicecontext "github.com/pydio/cells/common/service/context"
 	"path/filepath"
+
+	servicecontext "github.com/pydio/cells/common/service/context"
 
 	"github.com/micro/go-micro"
 
