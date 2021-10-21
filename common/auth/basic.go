@@ -60,7 +60,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 
 			ctx := r.Context()
 
-			if valid, vOk := b.cache[user]; vOk && time.Now().Sub(valid.Connexion) <= b.TTL && valid.Hash == pass {
+			if valid, vOk := b.cache[user]; vOk && time.Since(valid.Connexion) <= b.TTL && valid.Hash == pass {
 
 				md := map[string]string{}
 				if meta, ok := metadata.FromContext(ctx); ok {

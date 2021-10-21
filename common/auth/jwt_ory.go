@@ -353,7 +353,7 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 	return hydra.Exchange(ctx, code)
 }
 
-func (c *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
+func (p *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
 	v := url.Values{}
 	for _, opt := range opts {
 		opt.setValue(v)
@@ -371,14 +371,14 @@ func (c *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionI
 	return nil
 }
 
-func (c *oryprovider) Verify(ctx context.Context, accessToken string) (IDToken, error) {
+func (p *oryprovider) Verify(ctx context.Context, accessToken string) (IDToken, error) {
 
 	session := oauth2.NewSession("")
 
 	ctx2, cancel := context.WithTimeout(ctx, 50*time.Second)
 	defer cancel()
 
-	tokenType, ar, err := c.oauth2Provider.IntrospectToken(ctx2, accessToken, fosite.AccessToken, session)
+	tokenType, ar, err := p.oauth2Provider.IntrospectToken(ctx2, accessToken, fosite.AccessToken, session)
 	if err != nil {
 		return nil, err
 	}

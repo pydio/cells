@@ -45,14 +45,12 @@ type Value interface {
 	Scanner
 }
 
-// KVStore
 type KVStore interface {
 	Get() Value
 	Set(value interface{}) error
 	Del() error
 }
 
-// Entrypoint
 type Entrypoint interface {
 	KVStore
 	Val(path ...string) Values
@@ -241,7 +239,7 @@ func (v *config) Del() error {
 	return v.Set(nil)
 }
 
-// values cannot retrieve lower values as it is final
+// Val values cannot retrieve lower values as it is final
 func (v *config) Val(s ...string) Values {
 	keys := StringToKeys(s...)
 

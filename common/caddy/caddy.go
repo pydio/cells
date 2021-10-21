@@ -94,7 +94,6 @@ func watchRestart() {
 
 // Caddy contains the templates and functions for building a dynamic caddyfile
 type Caddy struct {
-	serverType    string
 	caddyfile     string
 	caddytemplate *template.Template
 	player        TemplateFunc

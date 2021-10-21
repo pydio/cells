@@ -31,18 +31,11 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/etl"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-type syncShareLoadedUser struct {
-	accessList *permissions.AccessList
-	user       *idm.User
-	ctx        context.Context
-}
+type syncShareLoadedUser struct{}
 
 type SyncSharesAction struct {
 	etlAction
@@ -56,19 +49,18 @@ type SyncSharesAction struct {
 
 	// Internals
 	loadedUsers map[string]*syncShareLoadedUser
-	router      *views.Router
-	slugs       map[string]string
 }
 
 var (
 	SyncSharesActionName = "actions.etl.shares"
 )
 
-// Unique identifier
+// GetName returns the unique identifier of this action.
 func (c *SyncSharesAction) GetName() string {
 	return SyncSharesActionName
 }
 
+// GetDescription returns action description
 func (c *SyncSharesAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncSharesActionName,
@@ -82,11 +74,12 @@ func (c *SyncSharesAction) GetDescription(lang ...string) actions.ActionDescript
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *SyncSharesAction) GetParametersForm() *forms.Form {
 	return nil
 }
 
-// Pass parameters
+// Init passes relevant parameters.
 func (c *SyncSharesAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	if err := c.ParseStores(action.Parameters); err != nil {
 		return err

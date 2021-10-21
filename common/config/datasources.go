@@ -96,7 +96,7 @@ func SourceNamesFromDataConfigs(values configx.Values) []string {
 	return SourceNamesFiltered(names)
 }
 
-// SourceNamesForDataServices excludes the timestamp key from a slice of source names
+// SourceNamesFiltered excludes the timestamp key from a slice of source names
 func SourceNamesFiltered(names []string) []string {
 	var res []string
 	for _, name := range names {
@@ -110,7 +110,7 @@ func SourceNamesFiltered(names []string) []string {
 // SourceNamesToConfig saves index and sync sources to configs
 func SourceNamesToConfig(sources map[string]*object.DataSource) {
 	var sourcesJsonKey []string
-	for name, _ := range sources {
+	for name := range sources {
 		sourcesJsonKey = append(sourcesJsonKey, name)
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
@@ -130,7 +130,7 @@ func TouchSourceNamesForDataServices(dataSrvType string) {
 // MinioConfigNamesToConfig saves objects sources to config
 func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
 	var sourcesJSONKey []string
-	for name, _ := range sources {
+	for name := range sources {
 		sourcesJSONKey = append(sourcesJSONKey, name)
 	}
 	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
@@ -138,7 +138,7 @@ func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
 	Set(sourcesJSONKey, configx.FormatPath("services", common.ServiceGrpcNamespace_+common.ServiceDataObjects, "sources"))
 }
 
-// IndexServiceTableNames
+// IndexServiceTableNames returns table names for indexes
 func IndexServiceTableNames(dsName string) map[string]string {
 	dsName = strings.Replace(dsName, "-", "_", -1)
 	if len(dsName) > 51 {
@@ -154,7 +154,7 @@ func IndexServiceTableNames(dsName string) map[string]string {
 // UnusedMinioServers searches for existing minio configs that are not used anywhere in datasources
 func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[string]*object.DataSource) []string {
 	var unused []string
-	for name, _ := range minios {
+	for name := range minios {
 		used := false
 		for _, source := range sources {
 			if source.ObjectsServiceName == name {

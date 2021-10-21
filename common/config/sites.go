@@ -57,7 +57,7 @@ func GetDefaultSiteURL(sites ...*install.ProxyConfig) string {
 	return ""
 }
 
-// GetSitesAllowedHostnames returns a map of hostname => url for all sites.
+// GetSitesAllowedURLs returns a map of hostname => url for all sites.
 // TODO : this function could switch to a list of specific authorized hostnames
 func GetSitesAllowedURLs() map[string]*url.URL {
 	ss, _ := LoadSites()

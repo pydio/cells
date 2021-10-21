@@ -86,7 +86,7 @@ func InitConfiguration(values configx.Values) {
 func OnConfigurationInit(f func(scanner common.Scanner)) {
 	onConfigurationInits = append(onConfigurationInits, f)
 
-	if confInit == true {
+	if confInit {
 		confMutex.Lock()
 		defer confMutex.Unlock()
 		for _, provider := range confMap {

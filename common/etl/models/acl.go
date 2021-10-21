@@ -41,7 +41,7 @@ func (a *ACL) IsDeletable(m map[string]string) bool {
 	return false
 }
 
-// test if two user can be mergeable whose the same login name and auth source
+// IsMergeable tests if two user can be mergeable whose the same login name and auth source
 func (a *ACL) IsMergeable(o Differ) bool {
 	other := o.(*ACL)
 

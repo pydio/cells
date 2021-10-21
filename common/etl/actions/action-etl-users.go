@@ -40,10 +40,15 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
+var (
+	SyncUsersActionName = "actions.etl.users"
+)
+
 type SyncUsersAction struct {
 	etlAction
 }
 
+// GetDescription returns action description
 func (c *SyncUsersAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncUsersActionName,
@@ -56,6 +61,7 @@ func (c *SyncUsersAction) GetDescription(lang ...string) actions.ActionDescripti
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *SyncUsersAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -88,16 +94,6 @@ func (c *SyncUsersAction) GetParametersForm() *forms.Form {
 		},
 	}}
 }
-
-type ConnectorConfigs struct {
-	ldapStore    models.ReadableStore
-	mappingRules []auth.MappingRule
-	mergeOptions map[string]string
-}
-
-var (
-	SyncUsersActionName = "actions.etl.users"
-)
 
 // GetName returns the Unique Identifier of this task.
 func (c *SyncUsersAction) GetName() string {
@@ -247,7 +243,7 @@ func (c *SyncUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 
 		// Add a small timer to insure success message is displayed last
 		<-time.After(2 * time.Second)
-		msg = fmt.Sprintf("Synchronisation complete")
+		msg = "Synchronisation complete"
 		log.TasksLogger(ctx).Info(msg)
 		log.Auditer(ctx).Info("Synchronization with external directory complete")
 		channels.StatusMsg <- msg

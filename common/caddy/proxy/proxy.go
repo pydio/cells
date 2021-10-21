@@ -88,7 +88,7 @@ type registryUpstream struct {
 	hosts map[string]*proxy.UpstreamHost
 }
 
-// NewStaticUpstreams parses the configuration input and sets up
+// NewRegistryUpstreams parses the configuration input and sets up
 // static upstreams for the proxy middleware. The host string parameter,
 // if not empty, is used for setting the upstream Host header for the
 // health checks if the upstream header config requires it.

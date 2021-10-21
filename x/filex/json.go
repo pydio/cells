@@ -1,7 +1,6 @@
 package filex
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -25,7 +24,7 @@ func Save(filename string, data interface{}) error {
 	}
 	defer f.Close()
 
-	if _, err := f.WriteString(fmt.Sprintf("%s", b)); err != nil {
+	if _, err := f.WriteString(string(b)); err != nil {
 		return err
 	}
 

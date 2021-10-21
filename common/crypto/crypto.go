@@ -34,7 +34,6 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"math/big"
 	"strings"
@@ -205,25 +204,6 @@ func pkcs7Pad(data []byte, blocklen int) ([]byte, error) {
 
 	pad := bytes.Repeat([]byte{byte(padlen)}, padlen)
 	return append(data, pad...), nil
-}
-
-func pkcs7Unpad(data []byte, blocklen int) ([]byte, error) {
-	if len(data)%blocklen != 0 || len(data) == 0 {
-		return nil, fmt.Errorf("invalid data len %d", len(data))
-	}
-	padlen := int(data[len(data)-1])
-	if padlen > blocklen || padlen == 0 {
-		return nil, fmt.Errorf("invalid padding")
-	}
-	// check padding
-	pad := data[len(data)-padlen:]
-	for i := 0; i < padlen; i++ {
-		if pad[i] != byte(padlen) {
-			return nil, fmt.Errorf("invalid padding")
-		}
-	}
-
-	return data[:len(data)-padlen], nil
 }
 
 func Md5(data []byte) []byte {

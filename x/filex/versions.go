@@ -15,7 +15,7 @@ var (
 	versionsBucket = []byte("versions")
 )
 
-// Structure for encapsulating a new version of configs with additional metadata
+// Version is a structure for encapsulating a new version of configs with additional metadata
 type Version struct {
 	Id   uint64
 	Date time.Time
@@ -24,19 +24,19 @@ type Version struct {
 	Data interface{}
 }
 
-// Interface for storing and listing configs versions
+// VersionsStore is the interface for storing and listing configs versions
 type VersionsStore interface {
 	Put(version *Version) error
 	List(offset uint64, limit uint64) ([]*Version, error)
 	Retrieve(id uint64) (*Version, error)
 }
 
-// BoltDB implementation of the Store interface
+// BoltStore is a BoltDB implementation of the Store interface
 type BoltStore struct {
 	FileName string
 }
 
-// Open a new store
+// NewStore opens a new store
 func NewStore(configDir string) VersionsStore {
 	filename := filepath.Join(configDir, "configs-versions.db")
 	return &BoltStore{
@@ -87,7 +87,7 @@ func (b *BoltStore) Put(version *Version) error {
 
 }
 
-// Put lists all version starting at a given id
+// List lists all version starting at a given id
 func (b *BoltStore) List(offset uint64, limit uint64) (result []*Version, err error) {
 
 	db, er := b.GetConnection()

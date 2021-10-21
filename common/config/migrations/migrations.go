@@ -40,10 +40,6 @@ type migrationFunc func(configx.Values) error
 
 var (
 	configMigrations []*migrationConfig
-
-	configKeysDeletes = []string{
-		"services/pydio.grpc.auth/dex",
-	}
 )
 
 func add(target *version.Version, m migrationConfigFunc) {

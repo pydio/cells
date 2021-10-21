@@ -68,6 +68,7 @@ var (
 	MigrateGlobalMetaName = "actions.etl.p8-global-meta"
 )
 
+// GetDescription returns action description
 func (c *MigrateGlobalMetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              MigrateGlobalMetaName,
@@ -81,15 +82,17 @@ func (c *MigrateGlobalMetaAction) GetDescription(lang ...string) actions.ActionD
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *MigrateGlobalMetaAction) GetParametersForm() *forms.Form {
 	return nil
 }
 
-// Unique identifier
+// GetName returns the unique identifier of this action.
 func (c *MigrateGlobalMetaAction) GetName() string {
 	return MigrateGlobalMetaName
 }
 
+// GetRouter returns an initialized router
 func (c *MigrateGlobalMetaAction) GetRouter() *views.Router {
 	if c.router == nil {
 		c.router = views.NewStandardRouter(views.RouterOptions{})
@@ -97,7 +100,7 @@ func (c *MigrateGlobalMetaAction) GetRouter() *views.Router {
 	return c.router
 }
 
-// Pass parameters
+// Init passes relevant parameters.
 func (c *MigrateGlobalMetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	var ok bool
 	if paramUrl, ok := action.Parameters["url"]; !ok {
@@ -198,7 +201,7 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 						progress <- etl.MergeOperation{Description: desc}
 					}
 				}
-				for bmUser, _ := range nodeMetas.Bookmark {
+				for bmUser := range nodeMetas.Bookmark {
 					desc := fmt.Sprintf("Should set bookmark for user %s on node %s", bmUser, r.Node.Path)
 					builder := service.NewResourcePoliciesBuilder()
 					builder = builder.WithUserWrite(user)

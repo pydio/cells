@@ -60,7 +60,7 @@ type BlockHandler interface {
 	Close() error
 }
 
-// EncryptedBlockHeaderOption
+// EncryptedBlockHeaderOption describes header
 type EncryptedBlockHeaderOption struct {
 	id    uint8
 	value []byte
@@ -168,7 +168,7 @@ func (op *EncryptedBlockHeaderOption) Write(writer io.Writer) (int, error) {
 	return written, nil
 }
 
-// EncryptedBlockHeaderOptions
+// Options EncryptedBlockHeaderOptions
 type Options struct {
 	Position int16
 	PartId   int16
@@ -254,7 +254,7 @@ func (opts *Options) Read(reader io.Reader) (int, error) {
 func (opts *Options) Write(writer io.Writer) (int, error) {
 	totalWritten := 0
 	list := opts.getHeaderOptions()
-	if list != nil && len(list) > 0 {
+	if len(list) > 0 {
 		list[len(list)-1].SetIsTheLast(true)
 		for _, op := range list {
 			n, err := op.Write(writer)
@@ -267,7 +267,7 @@ func (opts *Options) Write(writer io.Writer) (int, error) {
 	return totalWritten, nil
 }
 
-// EncryptionBlockHeader
+// EncryptedBlockHeader describes headers
 type EncryptedBlockHeader struct {
 	Options    *Options
 	Nonce      []byte
@@ -370,7 +370,7 @@ func (h *EncryptedBlockHeader) String() string {
 	return sb.String()
 }
 
-// EncryptedBlock
+// EncryptedBlock describes block
 type EncryptedBlock struct {
 	Header     *EncryptedBlockHeader
 	HeaderSize uint32
@@ -446,7 +446,7 @@ func (b *EncryptedBlock) Read(reader io.Reader) (int, error) {
 	return totalRead, nil
 }
 
-// AESGCMEncryptionMaterials
+// AESGCMEncryptionMaterials implements AES-GCM encryption
 type AESGCMEncryptionMaterials struct {
 	stream                io.Reader
 	eof                   bool
@@ -462,7 +462,7 @@ type AESGCMEncryptionMaterials struct {
 	encInfo               *encryption.NodeInfo
 	encryptedBlockHandler BlockHandler
 	mode                  int
-	lastBlockRange        *encryption.Block
+	//lastBlockRange        *encryption.Block
 }
 
 func (m *AESGCMEncryptionMaterials) Close() error {
@@ -689,7 +689,7 @@ func readMax(reader io.Reader, buff []byte) (int, error) {
 	return totalRead, nil
 }
 
-// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM.
+// NewAESGCMMaterials creates an encryption materials that use AES GCM.
 func NewAESGCMMaterials(info *encryption.NodeInfo, blockHandler BlockHandler) *AESGCMEncryptionMaterials {
 	m := new(AESGCMEncryptionMaterials)
 	m.encInfo = info
@@ -893,7 +893,7 @@ func (m *legacyReadMaterials) decryptRead(b []byte) (int, error) {
 	return totalPlainBytesRead, nil
 }
 
-// NewRangeAESGCMMaterials creates an encryption materials that use AES GCM
+// NewLegacyAESGCMMaterials creates an encryption materials that uses legacy material
 func NewLegacyAESGCMMaterials(info *encryption.NodeInfo) *legacyReadMaterials {
 	m := new(legacyReadMaterials)
 	m.rangeSet = false

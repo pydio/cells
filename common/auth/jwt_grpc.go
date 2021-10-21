@@ -35,7 +35,6 @@ import (
 )
 
 type grpcVerifier struct {
-	pType   ProviderType
 	service string
 }
 

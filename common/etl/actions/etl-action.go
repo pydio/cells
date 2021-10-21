@@ -35,10 +35,12 @@ type etlAction struct {
 	rightType string
 }
 
+// ProvidesProgress implements ProgressProvider interface
 func (c *etlAction) ProvidesProgress() bool {
 	return true
 }
 
+// ParseStores interpret parameters as sync stores
 func (c *etlAction) ParseStores(params map[string]string) error {
 	c.params = params
 	if r, o := params["left"]; o {

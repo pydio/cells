@@ -45,9 +45,6 @@ type remote struct {
 	config  configx.Values
 
 	watchers []*receiver
-
-	ctx    context.Context
-	stream proto.ConfigClient
 }
 
 func New(service, id string) configx.Entrypoint {
@@ -213,7 +210,6 @@ func (r *receiver) Stop() {
 	default:
 		close(r.exit)
 	}
-	return
 }
 
 type wrappedConfig struct {

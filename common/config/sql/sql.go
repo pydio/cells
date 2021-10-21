@@ -204,7 +204,6 @@ func (r *receiver) Stop() {
 	default:
 		close(r.exit)
 	}
-	return
 }
 
 type wrappedConfig struct {

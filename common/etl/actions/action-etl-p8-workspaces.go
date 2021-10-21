@@ -49,11 +49,12 @@ var (
 	SyncWorkspacesActionName = "actions.etl.p8-workspaces"
 )
 
-// Unique identifier
+// GetName returns the unique identifier of this action.
 func (c *SyncWorkspacesAction) GetName() string {
 	return SyncWorkspacesActionName
 }
 
+// GetDescription returns action description
 func (c *SyncWorkspacesAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncWorkspacesActionName,
@@ -67,6 +68,7 @@ func (c *SyncWorkspacesAction) GetDescription(lang ...string) actions.ActionDesc
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *SyncWorkspacesAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -100,7 +102,7 @@ func (c *SyncWorkspacesAction) GetParametersForm() *forms.Form {
 	}}
 }
 
-// Pass parameters
+// Init passes relevant parameters.
 func (c *SyncWorkspacesAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	if err := c.ParseStores(action.Parameters); err != nil {
 		return err
@@ -264,7 +266,7 @@ func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[st
 	merger.Save(ctx, aclsDiff, progress)
 }
 
-// Run the actual action code
+// Run the actual action code.
 func (c *SyncWorkspacesAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	channels.StatusMsg <- "Initializing workspaces list for diff/merge..."

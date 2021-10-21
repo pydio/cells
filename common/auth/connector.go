@@ -103,14 +103,6 @@ func GetConnectors() []ConnectorConfig {
 	return connectors
 }
 
-type connType struct {
-	opener func(proto.Message) (Opener, error)
-}
-
-func (c *connType) Opener() func(proto.Message) (Opener, error) {
-	return c.opener
-}
-
 type conn struct {
 	id            string
 	name          string

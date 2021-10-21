@@ -43,7 +43,7 @@ func (u *User) Equal(other *idm.User) bool {
 	return result
 }
 
-// test if two user can be mergeable whose the same login name and auth source
+// IsMergeable test if two user can be mergeable whose the same login name and auth source
 func (u *User) IsMergeable(other *idm.User) bool {
 	result := (u.Login == other.Login) && !u.IsGroup && !other.IsGroup
 	result = result && (u.Attributes[idm.UserAttrOrigin] == other.Attributes[idm.UserAttrOrigin])
@@ -116,9 +116,7 @@ func clone(idmUser *idm.User) *idm.User {
 	ret.Login = idmUser.Login
 	ret.Uuid = idmUser.Uuid
 	ret.Policies = idmUser.Policies
-	for _, role := range idmUser.Roles {
-		ret.Roles = append(ret.Roles, role)
-	}
+	ret.Roles = append(ret.Roles, idmUser.Roles...)
 	ret.Attributes = make(map[string]string)
 	for key, value := range idmUser.Attributes {
 		ret.Attributes[key] = value

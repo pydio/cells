@@ -116,7 +116,7 @@ func fieldForValue(prefix, name string, kind reflect.Kind, vType reflect.Type, p
 			// Enum?
 			msi := proto.EnumValueMap(prop.Enum)
 			var mss []map[string]string
-			for k, _ := range msi {
+			for k := range msi {
 				kV := make(map[string]string, 1)
 				kV[k] = prefix + "." + name + "." + k
 				mss = append(mss, kV)

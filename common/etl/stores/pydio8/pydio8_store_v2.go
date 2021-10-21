@@ -157,7 +157,8 @@ func (o *GetPeopleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 	return nil
 }
 
-// ROLE client rewrite
+//  ROLE client rewrite
+
 func (a *Client) GetRoles(params *provisioning.GetRolesParams) (*GetRolesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
@@ -183,7 +184,7 @@ func (a *Client) GetRoles(params *provisioning.GetRolesParams) (*GetRolesOK, err
 
 }
 
-// GetRolesReader is a Reader for the GetRoles structure.
+// GetPeopleReader is a Reader for the GetPeople structure.
 type GetPeopleReader struct {
 	formats strfmt.Registry
 }
@@ -205,15 +206,12 @@ func (o *GetPeopleReader) ReadResponse(response runtime.ClientResponse, consumer
 	}
 }
 
-// NewGetRolesOK creates a GetRolesOK with default headers values
+// NewGetPeopleOK creates a GetPeopleOK with default headers values
 func NewGetPeopleOK() *GetPeopleOK {
 	return &GetPeopleOK{}
 }
 
-/*GetRolesOK handles this case with default header values.
-
-A list of roles represented as standard nodes
-*/
+//GetPeopleOK handles this case with default header values.
 type GetPeopleOK struct {
 	Payload *models.NodeList
 }

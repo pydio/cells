@@ -106,7 +106,7 @@ func NewPydio8UserStore(c *sdkconfig.SdkConfig) *Pydio8Store {
 	}
 }
 
-// ListUsers from the pydio 8 api
+// ListConfig from the pydio 8 api
 func (s *Pydio8Store) ListConfig(ctx context.Context, params map[string]interface{}) (*source.ChangeSet, error) {
 	return &source.ChangeSet{}, nil
 }
@@ -198,7 +198,7 @@ func (s *Pydio8Store) getRoles(ctx context.Context, teams bool, userStore models
 	return roles, nil
 }
 
-// Return a list of user with
+// ListRoles return a list of roles
 func (s *Pydio8Store) ListRoles(ctx context.Context, userStore models.ReadableStore, params map[string]interface{}) ([]*idm.Role, error) {
 
 	var teams bool

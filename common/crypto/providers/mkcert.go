@@ -56,7 +56,7 @@ type MkCert struct {
 	caCert *x509.Certificate
 	caKey  crypto.PrivateKey
 
-	filenamePrefix string
+	//filenamePrefix string
 }
 
 // NewMkCert creates a new MkCert instance
@@ -84,7 +84,7 @@ func (m *MkCert) GeneratedResources() (certFile, keyFile, caFile, caKeyFile stri
 	return m.certFile, m.keyFile, m.caFile, m.caKeyFile
 }
 
-// MakeCerts triggers the certificate generation process, using a list of known hosts
+// MakeCert triggers the certificate generation process, using a list of known hosts
 func (m *MkCert) MakeCert(hosts []string, prefix string) error {
 	if err := m.loadCA(); err != nil {
 		return err

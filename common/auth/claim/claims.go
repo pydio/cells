@@ -54,7 +54,7 @@ type Claims struct {
 	Scopes         []string    `json:"scopes" mapstructure:"scopes"`
 }
 
-// Decode Subject field of the claims
+// DecodeSubject decodes subject field of the claims
 func (c *Claims) DecodeSubject() (*IDTokenSubject, error) {
 	sub := c.Subject
 	data, err := base64.RawURLEncoding.DecodeString(sub)

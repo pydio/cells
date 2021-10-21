@@ -425,19 +425,6 @@ func addProvider(p Provider) {
 	sortProviders()
 }
 
-func delProviders(f func(p Provider) bool) {
-	b := providers[:0]
-
-	for _, p := range providers {
-		if !f(p) {
-			b = append(b, p)
-		}
-	}
-
-	providers = b
-	sortProviders()
-}
-
 func sortProviders() {
 	sort.Slice(providers, func(i, j int) bool {
 		return providers[i].GetType() < providers[j].GetType()

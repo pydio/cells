@@ -55,15 +55,17 @@ type MigratePydioMetaAction struct {
 	router      *views.Router
 }
 
-func (c *MigratePydioMetaAction) ProvidesProgress() bool {
-	return true
-}
-
 var (
 	MigratePydioMetaActionName = "actions.etl.p8-legacy-meta"
 	phpMetaFileName            = ".ajxp_meta"
 )
 
+// ProvidesProgress implements ProgressProvider interface
+func (c *MigratePydioMetaAction) ProvidesProgress() bool {
+	return true
+}
+
+// GetDescription returns action description
 func (c *MigratePydioMetaAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              MigratePydioMetaActionName,
@@ -77,15 +79,17 @@ func (c *MigratePydioMetaAction) GetDescription(lang ...string) actions.ActionDe
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *MigratePydioMetaAction) GetParametersForm() *forms.Form {
 	return nil
 }
 
-// Unique identifier
+// GetName returns the unique identifier of this action.
 func (c *MigratePydioMetaAction) GetName() string {
 	return MigratePydioMetaActionName
 }
 
+// GetRouter returns an initialized router
 func (c *MigratePydioMetaAction) GetRouter() *views.Router {
 	if c.router == nil {
 		c.router = views.NewStandardRouter(views.RouterOptions{})
@@ -93,12 +97,7 @@ func (c *MigratePydioMetaAction) GetRouter() *views.Router {
 	return c.router
 }
 
-func (c *MigratePydioMetaAction) isTemplatePath(rootUuid string) bool {
-	manager := views.GetVirtualNodesManager()
-	_, ok := manager.ByUuid(rootUuid)
-	return ok
-}
-
+// Init passes relevant parameters.
 func (c *MigratePydioMetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	if mappingJson, ok := action.Parameters["metaMapping"]; !ok {
 		return fmt.Errorf("task must take a mapping parameter")

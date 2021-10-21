@@ -37,6 +37,7 @@ type SyncConfigAction struct {
 	etlAction
 }
 
+// GetDescription returns action description
 func (c *SyncConfigAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              SyncConfigActionName,
@@ -50,6 +51,7 @@ func (c *SyncConfigAction) GetDescription(lang ...string) actions.ActionDescript
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *SyncConfigAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{

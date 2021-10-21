@@ -130,7 +130,7 @@ type Form struct {
 	I18NBundle *i18n2.I18nBundle
 }
 
-// Return List of serializable fields
+// Serialize returns a list of serializable fields
 func (f *Form) Serialize(languages ...string) interface{} {
 	sForm := &SerialForm{}
 	var T i18n.TranslateFunc

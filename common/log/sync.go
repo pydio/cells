@@ -104,12 +104,12 @@ func (syncer *LogSyncer) logSyncerWatch() {
 
 // Write implements the io.Writer interface to be used as a Syncer by zap logging.
 // We must copy the []byte as a underlying buffer can mess up things if logs are called very quickly.
-func (l *LogSyncer) Write(p []byte) (n int, err error) {
+func (syncer *LogSyncer) Write(p []byte) (n int, err error) {
 
 	clone := make([]byte, len(p))
 	written := copy(clone, p)
 	select {
-	case l.logSyncerMessages <- &log.Log{
+	case syncer.logSyncerMessages <- &log.Log{
 		Nano:    int32(time.Now().Nanosecond()),
 		Message: clone,
 	}:

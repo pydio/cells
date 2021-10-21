@@ -77,6 +77,7 @@ func NewAPIStore() *ApiStore {
 }
 
 // Configuration
+
 func (apiStore *ApiStore) ListConfig(ctx context.Context, params map[string]interface{}) (*source.ChangeSet, error) {
 	return &source.ChangeSet{
 		Data: config.Get("services").Bytes(),
@@ -106,9 +107,9 @@ func (apiStore *ApiStore) PutConfig(ctx context.Context, changeset *source.Chang
 
 // Writable user store
 // sql, pydio, api
+
 func (apiStore *ApiStore) CreateUser(ctx context.Context, identity *idm.User) (*idm.User, error) {
 	userClient := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
-	builder := service.NewResourcePoliciesBuilder()
 
 	if identity.Attributes == nil {
 		identity.Attributes = make(map[string]string)
@@ -121,7 +122,7 @@ func (apiStore *ApiStore) CreateUser(ctx context.Context, identity *idm.User) (*
 
 	if resp, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: identity}); e == nil {
 
-		builder = service.NewResourcePoliciesBuilder()
+		builder := service.NewResourcePoliciesBuilder()
 		builder = builder.WithOwner(resp.User.Uuid)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 		builder = builder.WithUserRead(identity.Login)
@@ -162,6 +163,7 @@ func (apiStore *ApiStore) DeleteUser(ctx context.Context, identity *idm.User) er
 }
 
 // Readable user store
+
 func (apiStore *ApiStore) GetUser(ctx context.Context, id string) (*idm.User, error) {
 
 	userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
@@ -247,17 +249,15 @@ func (apiStore *ApiStore) ListUsers(ctx context.Context, params map[string]inter
 }
 
 // Groups
-func (apiStore *ApiStore) PutGroup(ctx context.Context, identity *idm.User) error {
 
-	// Add default policy to allow user edit his/her profile
-	builder := service.NewResourcePoliciesBuilder()
+func (apiStore *ApiStore) PutGroup(ctx context.Context, identity *idm.User) error {
 
 	// Changing the group path to go around a small oddity of the grpc user service
 	identity.GroupPath = strings.TrimSuffix(identity.GroupPath, "/") + "/" + identity.GroupLabel
 
 	userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
 	if resp, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: (*idm.User)(identity)}); e == nil {
-		builder = service.NewResourcePoliciesBuilder()
+		builder := service.NewResourcePoliciesBuilder()
 		builder = builder.WithOwner(resp.User.Uuid)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
 		builder = builder.WithUserRead(identity.Login)
@@ -329,6 +329,7 @@ func (apiStore *ApiStore) ListGroups(ctx context.Context, params map[string]inte
 }
 
 // ACL
+
 func (apiStore *ApiStore) PutACL(ctx context.Context, acl *idm.ACL) error {
 
 	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
@@ -377,6 +378,7 @@ func (apiStore *ApiStore) ListACLs(ctx context.Context, params map[string]interf
 }
 
 // ROLES
+
 func (apiStore *ApiStore) PutRole(ctx context.Context, identity *idm.Role) (*idm.Role, error) {
 	if identity.Label == "" {
 		identity.Label = identity.Uuid
@@ -454,6 +456,7 @@ func (apiStore *ApiStore) ListRoles(ctx context.Context, userStore models.Readab
 }
 
 // SHARES
+
 func (apiStore *ApiStore) ListShares(ctx context.Context, params map[string]interface{}) ([]*models.SyncShare, error) {
 	return []*models.SyncShare{}, nil
 }
@@ -544,7 +547,7 @@ func (apiStore *ApiStore) ReadNode(ctx context.Context, wsUuid string, wsPath st
 
 }
 
-// CreateShareLink creates a public link to a shared item.
+// createShareLink creates a public link to a shared item.
 func (apiStore *ApiStore) createShareLink(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, password string, passwordHashed bool) error {
 
 	var workspace *idm.Workspace

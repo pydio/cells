@@ -40,7 +40,7 @@ func Register(store Store) {
 	std = store
 }
 
-// Register local
+// RegisterLocal registers local store
 func RegisterLocal(store Store) {
 	local = store
 }

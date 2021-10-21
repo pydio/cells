@@ -77,7 +77,7 @@ func LoadReadableStore(name string, options *Options) (models.ReadableStore, err
 	return nil, fmt.Errorf("cannot find readable store " + name)
 }
 
-// GetWritableStore finds a writable store by its name
+// LoadWritableStore finds a writable store by its name
 func LoadWritableStore(name string, options *Options) (models.WritableStore, error) {
 	if loader, ok := r[name]; ok {
 		i, e := loader(options)
