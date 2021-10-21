@@ -208,7 +208,7 @@ func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 			}
 			sessRoom.uuid = foundRoom.Uuid
 			c.heartbeat(userName, foundRoom)
-			session = c.storeSessionRoom(session, sessRoom)
+			c.storeSessionRoom(session, sessRoom)
 			// Update Room Users
 			if save := c.appendUserToRoom(foundRoom, userName); save {
 				chatClient := c.getChatClient()
@@ -226,7 +226,7 @@ func (c *ChatHandler) initHandlers(serviceCtx context.Context) {
 					c.getChatClient().PutRoom(ctx, &chat.PutRoomRequest{Room: foundRoom})
 					log.Logger(serviceCtx).Debug("LEAVE", zap.Any("msg", chatMsg), zap.Any("r", foundRoom))
 				}
-				session = c.removeSessionRoom(session, foundRoom.Uuid)
+				c.removeSessionRoom(session, foundRoom.Uuid)
 			}
 
 		case chat.WsMessageType_HISTORY:

@@ -72,9 +72,7 @@ func (c *ChatHandler) heartbeat(username string, room *chat.ChatRoom) {
 	}
 	go func() {
 		defer func() {
-			if r := recover(); r != nil {
-				// avoid send on close channel if ever it happens
-			}
+			recover()
 		}()
 		heartbeater.ping <- room
 	}()

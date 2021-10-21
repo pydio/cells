@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/pydio/cells/common/caddy"
@@ -15,13 +14,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-)
-
-var (
-	servicesPrefix = []string{
-		common.ServiceGatewayNamespace_,
-		common.ServiceWebNamespace_,
-	}
 )
 
 type watcher struct {
@@ -88,61 +80,4 @@ func (w *watcher) subscribeToConfigs(path ...string) error {
 		}
 	}()
 	return nil
-}
-
-// restartOnStarted checks if service/peer is not already registered and states if we should restart Caddy
-func (w *watcher) restartOnStarted(serviceName, peerAddress string) bool {
-	if !w.isWatchable(serviceName) {
-		return false
-	}
-	w.servicesLock.Lock()
-	defer w.servicesLock.Unlock()
-	var knownPeers map[string]bool
-	if pp, ok := w.services[serviceName]; ok {
-		knownPeers = pp
-	} else {
-		knownPeers = make(map[string]bool)
-	}
-	if _, found := knownPeers[peerAddress]; found {
-		// Already known, ignore
-		return false
-	}
-	// Register peer and trigger restart
-	knownPeers[peerAddress] = true
-	w.services[serviceName] = knownPeers
-
-	return true
-}
-
-// restartOnStopped checks if service/peer was already registered and states if we should restart Caddy
-func (w *watcher) restartOnStopped(serviceName, peerAddress string) bool {
-	if !w.isWatchable(serviceName) {
-		return false
-	}
-	w.servicesLock.Lock()
-	defer w.servicesLock.Unlock()
-	var knownPeers map[string]bool
-	if pp, ok := w.services[serviceName]; ok {
-		knownPeers = pp
-		if _, found := knownPeers[peerAddress]; found {
-			delete(knownPeers, peerAddress)
-			if len(knownPeers) > 0 {
-				w.services[serviceName] = knownPeers
-			} else {
-				delete(w.services, serviceName)
-			}
-			return true
-		}
-	}
-	return false
-}
-
-// isWatchable check if events must be checked on this service based on prefixes
-func (w *watcher) isWatchable(serviceName string) bool {
-	for _, prefix := range servicesPrefix {
-		if strings.HasPrefix(serviceName, prefix) {
-			return true
-		}
-	}
-	return false
 }

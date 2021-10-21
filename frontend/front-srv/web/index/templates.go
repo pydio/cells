@@ -26,7 +26,7 @@ func FilterTplConf(i *TplConf) *TplConf {
 	return i
 }
 
-// Data struct for main index page template
+// TplConf is a data struct for main index page template
 type TplConf struct {
 	ApplicationTitle string
 	Favicon          string

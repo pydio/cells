@@ -34,7 +34,7 @@ const (
 	MsgError       MessageType = "error"
 )
 
-// Should pass JWT instead of username
+// Message passes JWT
 type Message struct {
 	Type  MessageType `json:"@type"`
 	JWT   string      `json:"jwt"`

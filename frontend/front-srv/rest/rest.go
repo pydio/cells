@@ -233,9 +233,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	// Legacy code
-	if _, ok := session.Values["jwt"]; ok {
-		delete(session.Values, "jwt")
-	}
+	delete(session.Values, "jwt")
 
 	if isMinisite {
 		session.Values["minisite"] = true
@@ -273,7 +271,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	rsp.WriteEntity(response)
 }
 
-// FrontendSessionDel logs out user by clearing the associated cookie session.
+// FrontSessionDel logs out user by clearing the associated cookie session.
 func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Response) {
 
 	sessionName := "pydio"
@@ -297,7 +295,7 @@ func (a *FrontendHandler) FrontSessionDel(req *restful.Request, rsp *restful.Res
 	rsp.WriteEntity(nil)
 }
 
-// Generic endpoint that can be handled by specific 2FA plugins
+// FrontEnrollAuth is a generic endpoint that can be handled by specific 2FA plugins
 func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Response) {
 	frontend.ApplyEnrollMiddlewares("FrontEnrollAuth", req, rsp)
 }

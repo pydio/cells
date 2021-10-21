@@ -425,7 +425,7 @@ func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 		return nil, err
 	}
 	if common.LogLevel == zap.DebugLevel {
-		fmt.Println(string(buf.Bytes()))
+		fmt.Println(buf.String())
 	}
 
 	return buf, nil

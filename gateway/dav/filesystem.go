@@ -23,7 +23,6 @@ package dav
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -55,7 +54,6 @@ type FileSystem struct {
 
 type FileInfo struct {
 	node *tree.Node
-	ctx  context.Context
 }
 
 type File struct {
@@ -552,13 +550,6 @@ func (f *File) Stat() (os.FileInfo, error) {
 // sum256 calculates sha256 sum for an input byte array.
 func sum256(data []byte) []byte {
 	hash := sha256.New()
-	hash.Write(data)
-	return hash.Sum(nil)
-}
-
-// sumMD5 calculates sumMD5 sum for an input byte array.
-func sumMD5(data []byte) []byte {
-	hash := md5.New()
 	hash.Write(data)
 	return hash.Sum(nil)
 }

@@ -110,7 +110,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			Context:  policyContext,
 		}
 
-		if resp, err := cli.IsAllowed(ctx, policyRequest); err != nil || resp.Allowed == false {
+		if resp, err := cli.IsAllowed(ctx, policyRequest); err != nil || !resp.Allowed {
 			log.Auditer(ctx).Error(
 				"Policy denied login to ["+user.Login+"]",
 				log.GetAuditId(common.AuditLoginPolicyDenial),
