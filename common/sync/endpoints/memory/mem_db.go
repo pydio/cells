@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -64,7 +64,7 @@ func NewMemDB() *MemDB {
 func (c *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI:                   "memdb://" + c.testPathURI,
+		URI: "memdb://" + c.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
 		Ignores:               c.ignores,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// ## Events-related services.
+// Package broker provides events-related services.
 //
 // Services under this folder are all subscribing to the global application event broker to manage
 // events in an asynchronous way.

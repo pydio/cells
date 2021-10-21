@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -30,15 +30,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/blevesearch/bleve/mapping"
-
-	"go.uber.org/zap"
-
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/scorch"
 	"github.com/blevesearch/bleve/index/store/boltdb"
+	"github.com/blevesearch/bleve/mapping"
 	"github.com/pborman/uuid"
 	"github.com/rs/xid"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/proto/log"
 )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -25,17 +25,16 @@ import (
 	"context"
 	"path"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
-
 	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/broker/log"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/log"
 	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/service"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 func init() {

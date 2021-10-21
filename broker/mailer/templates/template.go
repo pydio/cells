@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"github.com/matcornic/hermes"
+
 	"github.com/pydio/cells/broker/mailer/lang"
 	"github.com/pydio/cells/common/proto/mailer"
 )

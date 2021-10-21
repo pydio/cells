@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -24,8 +24,6 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	bolt "github.com/etcd-io/bbolt"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
@@ -33,8 +31,8 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/proto/chat"
-
 	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type boltdbimpl struct {

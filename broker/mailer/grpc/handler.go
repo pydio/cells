@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -24,8 +24,6 @@ import (
 	"context"
 	"fmt"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/matcornic/hermes"
 	"github.com/micro/go-micro/errors"
@@ -35,12 +33,11 @@ import (
 	"github.com/pydio/cells/broker/mailer/templates"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-
-	// "github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/mailer"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type Handler struct {

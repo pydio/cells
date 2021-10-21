@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  */
 
 // Package index provides a GRPC client for storing information into any tree.NodeProviderClient/tree.NodeReceiverClient
-// service. Typically the index service associated to each datasource.
+// service. Typically, the index service associated to each datasource.
 package index
 
 import (
@@ -95,8 +95,8 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	return nil
 }
 
-func (i *Client) Watch(recursivePath string) (*model.WatchObject, error) {
-	return nil, errors.New("Watch Not Implemented")
+func (i *Client) Watch(_ string) (*model.WatchObject, error) {
+	return nil, errors.New("watch not implemented")
 }
 
 func (i *Client) LoadNode(ctx context.Context, path string, extendedStats ...bool) (node *tree.Node, err error) {

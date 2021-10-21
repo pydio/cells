@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -28,13 +28,12 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
-
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/mailer"
 	servicecontext "github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/x/configx"
@@ -52,7 +51,7 @@ type Sender interface {
 	Check(ctx context.Context) error
 }
 
-func GetQueue(ctx context.Context, t string, conf configx.Values) Queue {
+func GetQueue(ctx context.Context, t string, _ configx.Values) Queue {
 	switch t {
 	case "memory":
 		return newInMemoryQueue()

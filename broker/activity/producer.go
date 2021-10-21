@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -23,10 +23,9 @@ package activity
 import (
 	"time"
 
-	"github.com/pydio/cells/common"
-
 	"github.com/golang/protobuf/ptypes/timestamp"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"

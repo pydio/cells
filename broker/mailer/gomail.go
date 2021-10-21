@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 	}
 
 	// TO
-	to := []string{}
+	var to []string
 	for _, u := range email.To {
 		if u.Address != "" {
 			to = append(to, u.Address)
@@ -55,7 +55,7 @@ func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 	}
 	m.SetHeader("To", to...)
 	// CC
-	cc := []string{}
+	var cc []string
 	for _, u := range email.Cc {
 		cc = append(to, u.Address)
 	}

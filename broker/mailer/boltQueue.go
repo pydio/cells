@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -28,11 +28,10 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	bolt "github.com/etcd-io/bbolt"
 
 	"github.com/pydio/cells/common/proto/mailer"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 const (
