@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,9 +22,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pydio/cells/common"
 	"math"
 	"os"
+
+	"github.com/pydio/cells/common"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"

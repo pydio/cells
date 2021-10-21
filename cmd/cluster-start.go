@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -22,13 +22,14 @@ package cmd
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/registry"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"time"
 )
 
 // clusterStartCmd connects a node to a cluster.
@@ -68,9 +69,9 @@ DESCRIPTION
 
 		// starting the microservice
 		services := []string{
-			common.ServiceStorageNamespace_+common.ServiceConfig,
-			common.ServiceGrpcNamespace_+common.ServiceRegistry,
-			common.ServiceGrpcNamespace_+common.ServiceBroker,
+			common.ServiceStorageNamespace_ + common.ServiceConfig,
+			common.ServiceGrpcNamespace_ + common.ServiceRegistry,
+			common.ServiceGrpcNamespace_ + common.ServiceBroker,
 		}
 
 		plugins.Init(ctx, "cluster")
