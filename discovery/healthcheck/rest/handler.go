@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -23,11 +23,11 @@ package rest
 import (
 	"crypto/subtle"
 	"fmt"
-	"github.com/pydio/cells/x/configx"
 	"net/http"
 	"time"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/x/configx"
 )
 
 func auth(c configx.Values, realm string, inner http.Handler) http.Handler {
@@ -45,7 +45,6 @@ func auth(c configx.Values, realm string, inner http.Handler) http.Handler {
 			}
 		}
 
-		// TODO - add basic auth
 		inner.ServeHTTP(w, r)
 	})
 }
@@ -63,6 +62,6 @@ func logger(inner http.Handler, name string) http.Handler {
 				r.RequestURI,
 				name,
 				time.Since(start),
-				))
+			))
 	})
 }
