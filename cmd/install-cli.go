@@ -68,7 +68,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, e
 	}
 
-	e = lib.Install(context.Background(), cliConfig, lib.INSTALL_DB, func(event *lib.InstallProgressEvent) {
+	e = lib.Install(context.Background(), cliConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
 		fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
 	})
 	if e != nil {
@@ -96,7 +96,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 	}
 
 	fmt.Println("\n\033[1m## Applying configuration\033[0m")
-	e = lib.Install(context.Background(), cliConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+	e = lib.Install(context.Background(), cliConfig, lib.InstallAll, func(event *lib.InstallProgressEvent) {
 		fmt.Println(p.Styler(p.FGFaint)("... " + event.Message))
 	})
 	if e != nil {

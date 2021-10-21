@@ -144,7 +144,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				}
 				if hasProtectedPort {
 					task.StatusMessage += "--------- \n"
-					task.StatusMessage += fmt.Sprintf("WARNING: you are using a reserved port on one your binding url.\n")
+					task.StatusMessage += "WARNING: you are using a reserved port on one your binding url.\n"
 					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
 					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
 				}

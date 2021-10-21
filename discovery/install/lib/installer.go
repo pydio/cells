@@ -36,11 +36,11 @@ import (
 )
 
 const (
-	INSTALL_ALL = 1 << iota
-	INSTALL_DB
-	INSTALL_DS
-	INSTALL_CONFIG
-	INSTALL_FRONTEND
+	InstallAll = 1 << iota
+	InstallDb
+	InstallDs
+	InstallConfig
+	InstallFrontend
 )
 
 type InstallProgressEvent struct {
@@ -53,7 +53,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 	//log.Logger(ctx).Info("Starting installation now")
 	publisher(&InstallProgressEvent{Message: "Starting installation now", Progress: 0})
 
-	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DB) != 0 {
+	if (flags&InstallAll) != 0 || (flags&InstallDb) != 0 {
 		if err := actionDatabaseAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while adding database", zap.Error(err))
 			return err
@@ -61,7 +61,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 		publisher(&InstallProgressEvent{Message: "Created main database", Progress: 30})
 	}
 
-	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_DS) != 0 {
+	if (flags&InstallAll) != 0 || (flags&InstallDs) != 0 {
 		if err := actionDatasourceAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
 			return err
@@ -69,7 +69,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 		publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 60})
 	}
 
-	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_CONFIG) != 0 {
+	if (flags&InstallAll) != 0 || (flags&InstallConfig) != 0 {
 		if err := actionConfigsSet(c); err != nil {
 			log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
 			return err
@@ -77,7 +77,7 @@ func Install(ctx context.Context, c *install.InstallConfig, flags byte, publishe
 		publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 80})
 	}
 
-	if (flags&INSTALL_ALL) != 0 || (flags&INSTALL_FRONTEND) != 0 {
+	if (flags&InstallAll) != 0 || (flags&InstallFrontend) != 0 {
 		if err := actionFrontendsAdd(c); err != nil {
 			log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
 			return err
@@ -121,7 +121,6 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		result.Success = true
 		data, _ := json.Marshal(jData)
 		result.JsonResult = string(data)
-		break
 
 	case "S3_KEYS":
 		endpoint := "s3.amazonaws.com"
@@ -164,7 +163,6 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		result.Success = true
 		dd, _ := json.Marshal(data)
 		result.JsonResult = string(dd)
-		break
 
 	case "S3_BUCKETS":
 		endpoint := "s3.amazonaws.com"
@@ -225,7 +223,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		result.Success = false
 		data, _ := json.Marshal(map[string]string{"error": "unsupported check type " + name})
 		result.JsonResult = string(data)
-		break
+
 	}
 
 	return result

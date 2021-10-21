@@ -375,7 +375,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	dir, err := assets.GetAssets("../discovery/install/assets/src")
 	if err != nil {
 		dir = filepath.Join(config.ApplicationWorkingDir(), "static", "install")
-		if err, _, _ := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
+		if _, _, err := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
 			cmd.Println("Could not restore install package", err)
 			os.Exit(0)
 		}

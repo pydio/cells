@@ -112,7 +112,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	if installConfig.DbUseDefaults {
 		reloadDbDefaults(installConfig)
 	}
-	if er := lib.Install(ctx, installConfig, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+	if er := lib.Install(ctx, installConfig, lib.InstallAll, func(event *lib.InstallProgressEvent) {
 		h.eventManager.Publish("install", event)
 	}); er != nil {
 		h.eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
@@ -133,7 +133,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	}()
 }
 
-// InstallEvents
+// InstallEvents returns events
 func (h *Handler) InstallEvents(req *restful.Request, rsp *restful.Response) {
 	h.eventManager.SubscriptionHandler(rsp.ResponseWriter, req.Request)
 }

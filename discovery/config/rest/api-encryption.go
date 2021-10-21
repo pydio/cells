@@ -32,6 +32,7 @@ import (
 /****************************
     MASTER KEYS MANAGEMENT
 *****************************/
+
 // ListEncryptionKeys simply forwards to underlying key service
 func (s *Handler) ListEncryptionKeys(req *restful.Request, resp *restful.Response) {
 	var request encryption.AdminListKeysRequest

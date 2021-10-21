@@ -55,10 +55,10 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	chatDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceChat)
 
 	// Easy finding usage of srvUrl
-	if err := config.SetDatabase(common.ServiceGrpcNamespace_ + common.ServiceActivity, "boltdb", filepath.Join(acDir, "activities.db")); err != nil {
+	if err := config.SetDatabase(common.ServiceGrpcNamespace_+common.ServiceActivity, "boltdb", filepath.Join(acDir, "activities.db")); err != nil {
 		return err
 	}
-	if err := config.SetDatabase(common.ServiceGrpcNamespace_ + common.ServiceChat, "boltdb", filepath.Join(acDir, "chat.db")); err != nil {
+	if err := config.SetDatabase(common.ServiceGrpcNamespace_+common.ServiceChat, "boltdb", filepath.Join(acDir, "chat.db")); err != nil {
 		return err
 	}
 
@@ -86,16 +86,4 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	}
 
 	return nil
-}
-
-func stringSliceEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
 }

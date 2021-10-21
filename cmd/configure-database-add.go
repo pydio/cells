@@ -49,7 +49,7 @@ DESCRIPTION
 		}
 
 		cmd.Println("\033[1m## Performing Installation\033[0m")
-		if err := lib.Install(context.Background(), installConfig, lib.INSTALL_DB, func(event *lib.InstallProgressEvent) {
+		if err := lib.Install(context.Background(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
 			cmd.Println(promptui.IconGood + " " + event.Message)
 		}); err != nil {
 			cmd.Println(err)

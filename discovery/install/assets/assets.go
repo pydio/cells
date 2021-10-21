@@ -65,10 +65,10 @@ func GetAssets(path string) (string, error) {
 
 // RestoreAssets copies the files from the binary to a hard location on the disk
 // It returns an error, or the total number of files and the total size of all files written
-func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...string) (error, int, int64) {
+func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...string) (int, int64, error) {
 
 	if err := os.MkdirAll(dir, os.FileMode(0755)); err != nil {
-		return err, 0, 0
+		return 0, 0, err
 	}
 
 	index := 0
@@ -98,19 +98,19 @@ func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...strin
 
 		f, err := box.Open(n)
 		if err != nil {
-			return err, index, totalSize
+			return index, totalSize, err
 		}
 
 		info, err := f.Stat()
 		if err != nil {
 			f.Close()
-			return err, index, totalSize
+			return index, totalSize, err
 		}
 
 		if info.IsDir() {
 			if err := os.MkdirAll(_filePath(dir, n), os.FileMode(0755)); err != nil {
 				f.Close()
-				return err, index, totalSize
+				return index, totalSize, err
 			}
 			index++
 			updatePg(index)
@@ -119,18 +119,18 @@ func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...strin
 
 		if err := os.MkdirAll(_filePath(dir, filepath.Dir(n)), os.FileMode(0755)); err != nil {
 			f.Close()
-			return err, index, totalSize
+			return index, totalSize, err
 		}
 		target, err := os.OpenFile(_filePath(dir, n), os.O_CREATE|os.O_WRONLY, os.FileMode(0755))
 		if err != nil {
 			f.Close()
-			return err, index, totalSize
+			return index, totalSize, err
 		}
 		written, err := io.Copy(target, f)
 		target.Close()
 		f.Close()
 		if err != nil {
-			return err, index, totalSize
+			return index, totalSize, err
 		}
 		index++
 		totalSize += written
@@ -139,7 +139,7 @@ func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...strin
 
 	log.Printf("Extracted %d files for a total size of %d", index, totalSize)
 
-	return nil, index, totalSize
+	return index, totalSize, nil
 }
 
 func _filePath(dir, name string) string {

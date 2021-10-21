@@ -41,9 +41,7 @@ type routes []route
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range myRoutes {
-		var handler http.Handler
-		handler = route.handlerFunc
-
+		handler := route.handlerFunc
 		router.
 			Methods(route.method).
 			Path(route.pattern).

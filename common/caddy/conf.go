@@ -146,7 +146,7 @@ func GetMaintenanceRoot() (string, error) {
 	dir, err := assets.GetAssets("./maintenance/src")
 	if err != nil {
 		dir = filepath.Join(config.ApplicationWorkingDir(), "static", "maintenance")
-		if err, _, _ := assets.RestoreAssets(dir, maintenance.PydioMaintenanceBox, nil); err != nil {
+		if _, _, err := assets.RestoreAssets(dir, maintenance.PydioMaintenanceBox, nil); err != nil {
 			return "", errors.Wrap(err, "could not restore maintenance package")
 		}
 	}

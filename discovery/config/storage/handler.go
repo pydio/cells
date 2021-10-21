@@ -35,8 +35,8 @@ import (
 )
 
 var (
-	NotImplemented = errors.New("service not implemented")
-	NotFound       = errors.New("not found")
+	errNotImplemented = errors.New("service not implemented")
+	errNotFound       = errors.New("not found")
 )
 
 type Handler struct {
@@ -91,13 +91,13 @@ func (h *Handler) Delete(ctx context.Context, request *proto.DeleteRequest, resp
 }
 
 func (h *Handler) Search(ctx context.Context, request *proto.SearchRequest, response *proto.SearchResponse) error {
-	return NotImplemented
+	return errNotImplemented
 }
 
 func (h *Handler) Read(ctx context.Context, request *proto.ReadRequest, response *proto.ReadResponse) error {
 	val, ok := h.store.Lookup(request.Path)
 	if !ok {
-		return NotFound
+		return errNotFound
 	}
 
 	hasher := md5.New()
@@ -119,9 +119,9 @@ func (h *Handler) Read(ctx context.Context, request *proto.ReadRequest, response
 }
 
 func (h *Handler) AuditLog(ctx context.Context, request *proto.AuditLogRequest, response *proto.AuditLogResponse) error {
-	return NotImplemented
+	return errNotImplemented
 }
 
 func (h *Handler) Watch(ctx context.Context, request *proto.WatchRequest, stream proto.Config_WatchStream) error {
-	return NotImplemented
+	return errNotImplemented
 }

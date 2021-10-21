@@ -206,13 +206,3 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 
 	return conf, nil
 }
-
-func validateDir(val interface{}) error {
-	if path, ok := val.(string); ok {
-		if err := os.MkdirAll(path, 0755); err != nil {
-			return fmt.Errorf("Cannot access dir")
-		}
-	}
-
-	return nil
-}

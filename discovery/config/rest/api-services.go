@@ -46,7 +46,8 @@ import (
 /*********************
 SERVICES MANAGEMENT
 *********************/
-// List all services with their status
+
+// ListServices lists all services with their status
 func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 	all, err := registry.ListServices(true)
 	if err != nil {
@@ -99,7 +100,7 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 	resp.WriteEntity(output)
 }
 
-// List all Peers (servers) on which any pydio service is running
+// ListPeersAddresses lists all Peers (servers) on which any pydio service is running
 func (h *Handler) ListPeersAddresses(req *restful.Request, resp *restful.Response) {
 
 	response := &rest.ListPeersAddressesResponse{}

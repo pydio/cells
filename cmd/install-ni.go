@@ -215,7 +215,7 @@ func installFromConf() (*install.InstallConfig, error) {
 		<-time.After(10 * time.Second)
 	}
 
-	err = lib.Install(context.Background(), iConf, lib.INSTALL_ALL, func(event *lib.InstallProgressEvent) {
+	err = lib.Install(context.Background(), iConf, lib.InstallAll, func(event *lib.InstallProgressEvent) {
 		fmt.Println(event.Message)
 	})
 	if err != nil {

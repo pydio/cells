@@ -40,6 +40,7 @@ import (
 /*********************
 GENERIC GET/PUT CALLS
 *********************/
+
 func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -65,7 +66,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
 		var original map[string]interface{}
-		if o := config.Get(path...).Map(); o != nil && len(o) > 0 {
+		if o := config.Get(path...).Map(); len(o) > 0 {
 			original = o
 			config.Del(path...)
 		}

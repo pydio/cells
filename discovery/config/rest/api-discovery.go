@@ -68,7 +68,7 @@ func withScheme(u *url.URL, s string) *url.URL {
 	return &u2
 }
 
-// Publish a list of available endpoints
+// EndpointsDiscovery publishes a list of available endpoints
 func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Response) {
 	var t time.Time
 	var e error
@@ -193,7 +193,6 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		return
 	}
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))
-	return
 
 }
 
@@ -391,6 +390,7 @@ func (s *Handler) SchedulerActionFormDiscovery(req *restful.Request, rsp *restfu
 	}
 	if form == nil {
 		service.RestError404(req, rsp, fmt.Errorf("cannot find form"))
+		return
 	}
 	form.I18NBundle = lang.Bundle()
 	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Get())...))

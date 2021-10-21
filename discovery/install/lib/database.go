@@ -47,7 +47,7 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 
 	var err error
 
-	conf := mysql.NewConfig()
+	var conf *mysql.Config
 
 	switch c.GetDbConnectionType() {
 	case "tcp":
