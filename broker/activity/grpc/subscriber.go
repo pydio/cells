@@ -371,7 +371,7 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 
 	// Load Roles
 	var rUuids []string
-	for k, _ := range roles {
+	for k := range roles {
 		rUuids = append(rUuids, k)
 	}
 	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: rUuids})
@@ -390,14 +390,14 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 
 	// Load Users (from logins and from roleIds)
 	var queries []*any.Any
-	for k, _ := range users {
-		q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: k})
-		queries = append(queries, q)
+	for k := range users {
+		q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: k})
+		queries = append(queries, q1)
 	}
 	for _, role := range roles {
 		if role.UserRole {
-			q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: role.Uuid})
-			queries = append(queries, q)
+			q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: role.Uuid})
+			queries = append(queries, q2)
 		}
 	}
 	stream2, er := e.getUserClient().SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{
@@ -422,9 +422,9 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 
 	// Load Workspaces
 	var queriesW []*any.Any
-	for k, _ := range workspaces {
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: k})
-		queriesW = append(queriesW, q)
+	for k := range workspaces {
+		q3, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: k})
+		queriesW = append(queriesW, q3)
 	}
 	stream3, er := e.getWorkspaceClient().SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: queriesW}})
 	if er != nil {

@@ -25,13 +25,13 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/search/query"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/log"
 	servicecontext "github.com/pydio/cells/common/service/context"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 // IndexableLog extends default log.LogMessage struct to add index specific methods
@@ -60,8 +60,7 @@ func BlevePutLog(idx bleve.Index, line map[string]string) error {
 
 func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}, logger func(string)) error {
 
-	var q query.Query
-	q = bleve.NewMatchAllQuery()
+	q := bleve.NewMatchAllQuery()
 	req := bleve.NewSearchRequest(q)
 	req.Size = 5000
 	page := 0
@@ -266,10 +265,8 @@ func MarshallLogMsg(line *log.Log) (*IndexableLog, error) {
 		case common.KeySchedulerActionPath:
 			msg.SchedulerTaskActionPath = val
 		case "msg", "error":
-			break
 		default:
 			zaps[k] = v
-			break
 		}
 	}
 

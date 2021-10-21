@@ -103,7 +103,7 @@ func TestInsertActivity(t *testing.T) {
 		err := dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
 		So(err, ShouldBeNil)
 
-		results := []*activity.Object{}
+		var results []*activity.Object
 		resChan := make(chan *activity.Object)
 		doneChan := make(chan bool)
 
@@ -198,11 +198,13 @@ func TestMultipleInsert(t *testing.T) {
 		}
 
 		err := dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
+		So(err, ShouldBeNil)
 		err = dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
+		So(err, ShouldBeNil)
 		err = dao.PostActivity(activity.OwnerType_NODE, "NODE-UUID", BoxOutbox, ac, nil)
 		So(err, ShouldBeNil)
 
-		results := []*activity.Object{}
+		var results []*activity.Object
 		resChan := make(chan *activity.Object)
 		doneChan := make(chan bool)
 
@@ -255,7 +257,7 @@ func TestCursor(t *testing.T) {
 			So(err, ShouldBeNil)
 		}
 
-		results := []*activity.Object{}
+		var results []*activity.Object
 		resChan := make(chan *activity.Object)
 		doneChan := make(chan bool)
 

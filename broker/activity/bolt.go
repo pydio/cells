@@ -30,23 +30,19 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-
-	"github.com/micro/go-micro/client"
-	"github.com/pydio/cells/common"
-
-	json "github.com/pydio/cells/x/jsonx"
-
 	bolt "github.com/etcd-io/bbolt"
+	"github.com/micro/go-micro/client"
+
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/x/configx"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type boltdbimpl struct {
 	boltdb.DAO
-
 	InboxMaxSize int64
-	db           *bolt.DB
 }
 
 // Init the storage
@@ -320,7 +316,7 @@ func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName BoxName) uint64 
 	return 0
 }
 
-// Store last key read to a "Last" inbox (read, sent)
+// StoreLastUserInbox stores last key read to a "Last" inbox (read, sent)
 func (dao *boltdbimpl) StoreLastUserInbox(userId string, boxName BoxName, last []byte, activityId string) error {
 
 	if last == nil && activityId != "" {
@@ -362,7 +358,7 @@ func (dao *boltdbimpl) CountUnreadForUser(userId string) int {
 	return unread
 }
 
-// Should be wired to "USER_DELETE" and "NODE_DELETE" events
+// Delete should be wired to "USER_DELETE" and "NODE_DELETE" events
 // to remove (or archive?) deprecated queues
 func (dao *boltdbimpl) Delete(ownerType activity.OwnerType, ownerId string) error {
 

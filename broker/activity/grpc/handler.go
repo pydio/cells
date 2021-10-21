@@ -27,23 +27,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-
 	"github.com/micro/go-micro/errors"
-
-	activity "github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/common/log"
-	proto "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/service/context"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
+
+	"github.com/pydio/cells/broker/activity"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
+	proto "github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/service/context"
 )
 
-type Handler struct {
-	db activity.DAO
-}
+type Handler struct{}
 
 func (h *Handler) PostActivity(ctx context.Context, stream proto.ActivityService_PostActivityStream) error {
 	dao := servicecontext.GetDAO(ctx).(activity.DAO)
@@ -115,8 +112,6 @@ func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamAct
 								//fmt.Println("set valid")
 								valid[oName] = true
 							}
-						} else {
-							//fmt.Println("error while reading :" + e.Error())
 						}
 					}
 				}
@@ -169,7 +164,7 @@ func (h *Handler) SearchSubscriptions(ctx context.Context, request *proto.Search
 	var userId string
 	var objectType = proto.OwnerType_NODE
 	if len(request.ObjectIds) == 0 {
-		return fmt.Errorf("Please provide one or more objectId")
+		return fmt.Errorf("please provide one or more object id")
 	}
 	if len(request.UserIds) > 0 {
 		userId = request.UserIds[0]

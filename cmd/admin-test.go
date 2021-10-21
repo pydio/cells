@@ -1,3 +1,5 @@
+// +build dev
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -17,8 +19,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-// +build dev
 
 package cmd
 
