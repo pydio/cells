@@ -21,15 +21,30 @@
 package rest
 
 import (
+	"crypto/subtle"
 	"fmt"
+	"github.com/pydio/cells/x/configx"
 	"net/http"
 	"time"
 
 	"github.com/pydio/cells/common/log"
 )
 
-func auth(inner http.Handler) http.Handler {
+func auth(c configx.Values, realm string, inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		uname := c.Val("username").String()
+		pwd := c.Val("password").String()
+
+		if uname != "" && pwd != "" {
+			user, pass, ok := r.BasicAuth()
+			if !ok || subtle.ConstantTimeCompare([]byte(user), []byte(uname)) != 1 || subtle.ConstantTimeCompare([]byte(pass), []byte(pwd)) != 1 {
+				w.Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
+				w.WriteHeader(401)
+				w.Write([]byte("Unauthorised.\n"))
+				return
+			}
+		}
+
 		// TODO - add basic auth
 		inner.ServeHTTP(w, r)
 	})
@@ -48,6 +63,6 @@ func logger(inner http.Handler, name string) http.Handler {
 				r.RequestURI,
 				name,
 				time.Since(start),
-			))
+				))
 	})
 }

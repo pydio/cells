@@ -22,13 +22,15 @@ package rest
 
 import (
 	"fmt"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"net"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/golang/protobuf/jsonpb"
 
 	"github.com/gorilla/mux"
 	"github.com/pydio/cells/common/proto/ctl"
@@ -53,7 +55,7 @@ func NewRouter() *mux.Router {
 		var handler http.Handler
 		handler = route.handlerFunc
 		handler = logger(handler, route.name)
-		handler = auth(handler)
+		handler = auth(config.Get("services", common.ServiceGrpcNamespace_+common.ServiceHealthCheck), "Please enter your username and password", handler)
 
 		router.
 			Methods(route.method).
@@ -215,7 +217,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	output.Total = int32(len(output.Services))
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(output)
+	(&jsonpb.Marshaler{}).Marshal(w, output)
 }
 
 // serviceToRest transforms a service object to a proto message.
@@ -232,8 +234,10 @@ func serviceToRest(srv registry.Service, running bool) *ctl.Service {
 	}
 	for _, node := range srv.RunningNodes() {
 		// Double check that node is really running
-		if _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", node.Address, node.Port)); err != nil {
-			continue
+		if node.Port > 0 {
+			if _, err := net.Dial("tcp", fmt.Sprintf("%s:%d", node.Address, node.Port)); err != nil {
+				continue
+			}
 		}
 		p := int32(node.Port)
 		a := node.Address
