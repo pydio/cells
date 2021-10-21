@@ -22,22 +22,19 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"path"
 	"strings"
 	"time"
 
-	"github.com/manifoldco/promptui"
-
 	"github.com/dustin/go-humanize"
-
+	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
-
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
-	// service "github.com/pydio/cells/common/service/proto"
 )
 
 var (
@@ -53,7 +50,19 @@ var lsCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
   
-  List Nodes by querying the tree microservice.
+  List Nodes by querying the tree microservice. Paths are computed starting from the root, their first segment is always
+  a datasource name.
+
+EXAMPLE
+
+  List all files at the root of the "Common Files" workspace
+
+  $ ` + os.Args[0] + ` admin files ls --path pydiods1 --uuid
+	+--------+---------------+--------------------------------------+--------+-----------------+
+	|  TYPE  |     PATH      |                 UUID                 |  SIZE  |    MODIFIED     |
+	+--------+---------------+--------------------------------------+--------+-----------------+
+	| Folder | Shared Folder | dcabadd0-7d32-4e45-9d1f-a927d3d0c174 | 147 MB | 21 Oct 21 08:58 |
+	+--------+---------------+--------------------------------------+--------+-----------------+
 
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {

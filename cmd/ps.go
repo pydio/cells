@@ -22,18 +22,15 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/spf13/viper"
-
-	//"net"
 	"os"
 	"regexp"
+	"strings"
 	"text/tabwriter"
 	"text/template"
 
-	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
@@ -222,7 +219,7 @@ EXAMPLE
 }
 
 func init() {
-	psCmd.Flags().BoolVarP(&showDescription, "verbose", "v", false, "Show services description")
+	psCmd.Flags().BoolVarP(&showDescription, "verbose", "v", false, "Show additional information")
 	psCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
 	psCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
 
@@ -245,8 +242,10 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 				}
 
 				var nodes []string
-				for _, node := range s.RunningNodes() {
-					nodes = append(nodes, fmt.Sprintf("%s:%d (exp: %s)", node.Address, node.Port, node.Metadata["expiry"]))
+				if showDescription {
+					for _, node := range s.RunningNodes() {
+						nodes = append(nodes, fmt.Sprintf("%s:%d (exp: %s)", node.Address, node.Port, node.Metadata["expiry"]))
+					}
 				}
 
 				tags[tag].Services[name] = &runningService{name: name, nodes: strings.Join(nodes, ",")}

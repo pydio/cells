@@ -27,11 +27,11 @@ import (
 	"os"
 
 	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -61,7 +61,7 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ %s user set-profile -u 'USER_LOGIN' --profile '%s'
+  $ %s admin user set-profile -u 'USER_LOGIN' --profile '%s'
 
 `,
 		common.PydioProfileAdmin,

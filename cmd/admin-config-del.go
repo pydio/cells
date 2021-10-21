@@ -48,7 +48,7 @@ SYNTAX
 EXAMPLE
 
   Delete the port entry for the micro.web service (rest api)
-  $ ` + os.Args[0] + ` config delete micro.web port
+  $ ` + os.Args[0] + ` admin config delete micro.web port
 
 `,
 	Args: func(cmd *cobra.Command, args []string) error {

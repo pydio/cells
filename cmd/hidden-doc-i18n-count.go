@@ -28,11 +28,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/spf13/cobra"
 
 	i18n2 "github.com/pydio/cells/common/utils/i18n"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 type singleCounter struct {
@@ -82,7 +81,7 @@ sent to the front end resides in the i18n/conf sub folder.
 
 Use the --project-paths/-p flag to give path to at least one project root folder.
 
-$` + os.Args[0] + ` i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise -p $GOPATH/src/github.com/pydio/cells
+$` + os.Args[0] + ` doc i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise -p $GOPATH/src/github.com/pydio/cells
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

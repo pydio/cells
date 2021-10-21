@@ -48,10 +48,10 @@ DESCRIPTION
 EXAMPLES
 
   1. Search a specific user
-  $ ` + os.Args[0] + ` user search --login "user"
+  $ ` + os.Args[0] + ` admin user search --login "user"
 
   2. List all users (default --login is "*") 
-  $ ` + os.Args[0] + ` user search
+  $ ` + os.Args[0] + ` admin user search
 
 `,
 

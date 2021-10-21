@@ -46,7 +46,7 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ ` + os.Args[0] + ` user delete -u '<user login>'
+  $ ` + os.Args[0] + ` admin user delete -u '<user login>'
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		if len(userLogin) == 0 {

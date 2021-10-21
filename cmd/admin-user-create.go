@@ -25,6 +25,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
@@ -45,23 +48,28 @@ var userCreateCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Create a user
+  Create a new user.
 
-  Please, note that the login is case sensitive: 
-  you can create 2 distinct users with login  'User' and 'user'. 
+  Please, note that the login is case sensitive. You can create 2 distinct users with login  'User' and 'user'. 
+  You can also create a user in a given group by entering a full path (see examples below). 
 
-  You can also create a user in a given group by entering a full path
-  (see examples below). 
+  If not provided with the -p flag, password is prompted by the command line.
 
 EXAMPLES
 
-  $ ` + os.Args[0] + ` user create -u '/group/user' -p 'a password'
-  $ ` + os.Args[0] + ` user create -u 'user' -p 'a password'
+  1. Create a user with a password
+  $ ` + os.Args[0] + ` admin user create -u 'user' -p 'a password'
+
+  2. Create a user with a prompt for password
+  $ ` + os.Args[0] + ` admin user create -u 'user'
+
+  3. Create a user inside a group
+  $ ` + os.Args[0] + ` admin user create -u "/group/user" -p "new-password"
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		if userCreateLogin == "" || userCreatePassword == "" {
-			return fmt.Errorf("Missing arguments")
+		if userCreateLogin == "" {
+			return fmt.Errorf("Provide at least a user login")
 		}
 
 		return nil
@@ -69,14 +77,24 @@ EXAMPLES
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
+		if userCreatePassword == "" {
+			prompt := promptui.Prompt{Label: "Please provide a password", Mask: '*', Validate: notEmpty}
+			pwd, e := prompt.Run()
+			if e != nil {
+				cmd.Println(e)
+				return
+			}
+			userCreatePassword = pwd
+		}
+
 		// Create user
 		r := service.ResourcePolicyAction_READ
 		w := service.ResourcePolicyAction_WRITE
 		allow := service.ResourcePolicy_allow
 		policies := []*service.ResourcePolicy{
-			&service.ResourcePolicy{Action: r, Effect: allow, Subject: "profile:standard"},
-			&service.ResourcePolicy{Action: w, Effect: allow, Subject: "user:" + userCreateLogin},
-			&service.ResourcePolicy{Action: w, Effect: allow, Subject: "profile:admin"},
+			{Action: r, Effect: allow, Subject: "profile:standard"},
+			{Action: w, Effect: allow, Subject: "user:" + userCreateLogin},
+			{Action: w, Effect: allow, Subject: "profile:admin"},
 		}
 
 		newUser := &idm.User{
@@ -87,12 +105,34 @@ EXAMPLES
 		}
 
 		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+		sQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: userCreateLogin})
+		st, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*any.Any{sQ}}})
+		if e != nil {
+			cmd.Println(promptui.IconBad + e.Error())
+			return
+		}
+		exists := false
+		defer st.Close()
+		for {
+			_, e := st.Recv()
+			if e != nil {
+				break
+			}
+			exists = true
+		}
+		if exists {
+			cmd.Println(promptui.IconBad + " User with login " + userCreateLogin + " already exists!")
+			return
+		}
+
 		response, err := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: newUser})
 		if err != nil {
 			cmd.Println(err.Error())
 			return
 		}
 		u := response.GetUser()
+
+		cmd.Println("Successfully inserted user " + userCreateLogin)
 
 		// Create corresponding role with correct policies
 		newRole := idm.Role{
@@ -109,6 +149,9 @@ EXAMPLES
 			cmd.Println(err.Error())
 			return
 		}
+
+		cmd.Println("Successfully inserted associated role with UUID " + newRole.Uuid)
+
 	},
 }
 

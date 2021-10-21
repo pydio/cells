@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-
 	"github.com/micro/go-micro/broker"
-	"github.com/pydio/cells/common"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/common"
 )
 
 func init() {

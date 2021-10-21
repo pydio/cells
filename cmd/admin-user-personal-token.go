@@ -41,11 +41,11 @@ DESCRIPTION
 EXAMPLES
 
   Generate a token that lasts 24 hours for user admin
-  $ ` + os.Args[0] + ` user token -u admin -e 24h
+  $ ` + os.Args[0] + ` admin user token -u admin -e 24h
 
   Generate a token that lasts by default 10mn, but which expiration is refreshed to the next 10mn each time 
   token is used.
-  $ ` + os.Args[0] + ` user token -u admin -a 10m
+  $ ` + os.Args[0] + ` admin user token -u admin -a 10m
 
 TOKEN USAGE
 
@@ -62,7 +62,8 @@ TOKEN SCOPE
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if tokUserLogin == "" && tokExpireTime == "" && tokAutoRefresh == "" {
+		if tokUserLogin == "" || (tokExpireTime == "" && tokAutoRefresh == "") {
+			cmd.Println("Missing Arguments")
 			cmd.Help()
 			return
 		}
@@ -125,8 +126,8 @@ TOKEN SCOPE
 func init() {
 	UserCmd.AddCommand(pTokCmd)
 	pTokCmd.Flags().StringVarP(&tokUserLogin, "user", "u", "", "User login (mandatory)")
-	pTokCmd.Flags().StringVarP(&tokExpireTime, "expire", "e", "", "Expire after duration, format is 20u where u is a unit: s (second), (minute), h (hour), d(day).")
-	pTokCmd.Flags().StringVarP(&tokAutoRefresh, "auto", "a", "", "Auto-refresh (number of seconds, see help)")
+	pTokCmd.Flags().StringVarP(&tokExpireTime, "expire", "e", "", "Expire after duration. Format is 20u where u is a unit: s (second), (minute), h (hour), d(day).")
+	pTokCmd.Flags().StringVarP(&tokAutoRefresh, "auto", "a", "", "Auto-refresh expiration when token is used. Format is 20u where u is a unit: s (second), (minute), h (hour), d(day).")
 	pTokCmd.Flags().StringSliceVarP(&tokScopes, "scope", "s", []string{}, "Optional scopes")
 	pTokCmd.Flags().BoolVarP(&tokCreationQuiet, "quiet", "q", false, "Only return the newly created token value (typically useful in automation scripts with a short expiry time)")
 }

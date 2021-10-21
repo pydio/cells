@@ -26,10 +26,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -47,7 +48,7 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ %s user unlock -u LOGIN
+  $ %s admin user unlock -u LOGIN
 
 `, os.Args[0]),
 	PreRunE: func(cmd *cobra.Command, args []string) error {

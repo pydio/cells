@@ -27,11 +27,11 @@ import (
 	"os"
 
 	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -50,7 +50,7 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ %s user set-pwd -u 'USER_LOGIN' -p 'NEW_PASSWORD'
+  $ %s admin user set-pwd -u 'USER_LOGIN' -p 'NEW_PASSWORD'
 `,
 		os.Args[0],
 	),

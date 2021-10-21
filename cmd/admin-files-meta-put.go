@@ -25,10 +25,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/pydio/cells/common"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -48,7 +49,7 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ ` + os.Args[0] + ` files meta-put --uuid=NODE_UUID --key=metaname --value='{"key":"value"}'
+  $ ` + os.Args[0] + ` admin files meta-put --uuid=NODE_UUID --key=metaname --value='{"key":"value"}'
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -77,7 +78,7 @@ EXAMPLE
 }
 
 func init() {
-	metaPutCmd.Flags().StringVarP(&metaPutUUID, "uuid", "u", "", "Uuid of the node to update (use 'pydioctl data list' or 'pydioctl data read')")
+	metaPutCmd.Flags().StringVarP(&metaPutUUID, "uuid", "u", "", "Uuid of the node to update")
 	metaPutCmd.Flags().StringVarP(&metaPutKey, "key", "k", "", "Name of the metadata")
 	metaPutCmd.Flags().StringVarP(&metaPutVal, "val", "v", "", "*JSON-encoded* string representing the value. Strings must be quoted, eg. '\"custom-value\"'")
 

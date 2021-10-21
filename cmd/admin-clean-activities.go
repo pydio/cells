@@ -25,21 +25,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/common/boltdb"
-	activity2 "github.com/pydio/cells/common/proto/activity"
-
-	"github.com/pborman/uuid"
-
 	pu "github.com/manifoldco/promptui"
+	"github.com/pborman/uuid"
 	"github.com/spf13/cobra"
 
+	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/boltdb"
 	defaults "github.com/pydio/cells/common/micro"
+	activity2 "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/jobs"
 )
 
@@ -69,6 +68,13 @@ DESCRIPTION
   or "nodes" (files/folders activities shown in the right panel when selecting a node).
 
   As they can grow indefinitely, this command can help for housekeeping and maintaining the activities database small.
+
+EXAMPLES
+
+  Purge users notifications, keeping at least 5 and maximum 20 items per user: 
+
+  $ ` + os.Args[0] + ` admin clean activities --type users --box inbox -a admin --min 5 --max 20
+
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -78,7 +84,7 @@ DESCRIPTION
 			return
 		}
 		if purgeActivityAdminUser == "" {
-			fmt.Println(pu.IconBad + " Please provide --admin_user (-a) flag with an adminitrative user login.")
+			fmt.Println(pu.IconBad + " Please provide --admin_user (-a) flag with an administrative user login.")
 			cmd.Help()
 			return
 		}

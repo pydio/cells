@@ -35,8 +35,32 @@ var (
 
 var dataSourceMigrateCmd = &cobra.Command{
 	Use:   "migrate",
-	Short: "Migrate a structured datasource into flat format",
-	Long:  "This command migrates the content of a bucket from legacy to flat storage format.",
+	Short: "Migrate a datasource format (flat or structured)",
+	Long: `
+DESCRIPTION
+
+  Migrate the content of a bucket between structured and flat. It can be used in both directions. It must be run with in 
+  a specific context: datasource services must be running **expect** for the sync services. You can start Cells in this 
+  specific mode by using the following command: ` + os.Args[0] + ` start -x pydio.grpc.data.sync
+
+  The command executes the following actions:
+  - List datasources showing their current formats. When picking a datasource, it is assumed it will be migrated to the 
+    opposite format
+  - Detect datasource bucket name and expect to find an second bucket named "bucket-flat" or "bucket-structured" 
+    (depending on the target format).
+  - Copy all files inside the new bucket, with their new name
+  - If everything is ok, patch index database to add or remove .pydio hidden files (depending on target format)
+  - Finally, update the datasource configuration in the configs.
+
+  Use --dry-run parameter to display only the list of rename operations that will be performed, without touching DB or 
+  configuration.
+
+  By default, files are copied inside the new bucket and are left untouched inside the original one in case something 
+  goes wrong. That means that your storage must have enough room for duplicating all data. If it's not the case, you can 
+  pass the --move-files flag to delete original file after copy. You can also force the copy to be performed in-place by 
+  manually editing target bucket name to its original value.
+
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		if !migrateForce {

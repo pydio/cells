@@ -26,7 +26,6 @@ import (
 	"os"
 
 	"github.com/manifoldco/promptui"
-
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
@@ -50,22 +49,22 @@ DESCRIPTION
 
 EXAMPLE
 
-  $ ` + os.Args[0] + ` files meta-read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
+  $ ` + os.Args[0] + ` admin files meta-read --uuid=244f072d-d9a1-11e7-950b-685b35ac60e5
   Will result : 
-	+-------------------------------+---------------------------------------------------------------------------------------------------------------+
-	|             NAME              |                                                     VALUE                                                     |
-	+-------------------------------+---------------------------------------------------------------------------------------------------------------+
-	| pydio:meta-data-source-name   | "pydiods1"                                                                                                    |
-	| ImageDimensions               | {"Height":200,"Width":200}                                                                                    |
-	| is_image                      | true                                                                                                          |
-	| readable_dimension            | "200px X 200px"                                                                                               |
-	| pydio:meta-data-source-path   | "download.png"                                                                                                |
-	| pydio:meta-object-service-url | "127.0.0.1:9001/pydiods1"                                                                                     |
-	| ImageThumbnails               | {"Processing":false,"thumbnails":[{"format":"jpg","size":256,"url":""},{"format":"jpg","size":512,"url":""}]} |
-	| image_width                   |                                                                                                           200 |
-	| name                          | "download.png"                                                                                                |
-	| image_height                  |                                                                                                           200 |
-	+-------------------------------+---------------------------------------------------------------------------------------------------------------+
+	+-------------------------------+--------------------------------------------------------------------------+
+	|             NAME              |                                                     VALUE                |
+	+-------------------------------+--------------------------------------------------------------------------+
+	| pydio:meta-data-source-name   | "pydiods1"                                                               |
+	| ImageDimensions               | {"Height":200,"Width":200}                                               |
+	| is_image                      | true                                                                     |
+	| readable_dimension            | "200px X 200px"                                                          |
+	| pydio:meta-data-source-path   | "download.png"                                                           |
+	| pydio:meta-object-service-url | "127.0.0.1:9001/pydiods1"                                                |
+	| ImageThumbnails               | {"Processing":false,"thumbnails":[{"format":"jpg","size":256,"url":""}]} |
+	| image_width                   | 200                                                                      |
+	| name                          | "download.png"                                                           |
+	| image_height                  | 200                                                                      |
+	+-------------------------------+--------------------------------------------------------------------------+
 
 `,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
