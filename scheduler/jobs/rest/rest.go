@@ -259,13 +259,11 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		archiveName := jsonParams["archiveName"].(string)
 		format := jsonParams["format"].(string)
 		jobUuid, err = compress(ctx, nodes, archiveName, format, languages...)
-		break
 	case "extract":
 		node := jsonParams["node"].(string)
 		target := jsonParams["target"].(string)
 		format := jsonParams["format"].(string)
 		jobUuid, err = extract(ctx, node, target, format, languages...)
-		break
 	case "remote-download":
 		// Reparse json to expected structure
 		type params struct {
@@ -282,7 +280,6 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		uuids, e := wgetTasks(ctx, target, urls, languages...)
 		jobUuid = strings.Join(uuids, ",")
 		err = e
-		break
 	case "copy", "move":
 		var nodes []string
 		for _, i := range jsonParams["nodes"].([]interface{}) {
@@ -298,14 +295,13 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 			move = true
 		}
 		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, languages...)
-		break
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)
 		jobUuid, err = syncDatasource(ctx, dsName, languages...)
-		break
 	case "import-p8":
 		jobUuid, err = p8migration(ctx, request.JsonParameters)
-		break
+	default:
+		service.RestError500(req, rsp, fmt.Errorf("unknown job name"))
 	}
 
 	if err != nil {
@@ -320,7 +316,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 }
 
-// Syslog retrieves the technical logs items matched by the query and export them in JSON, XLSX or CSV format
+// ListTasksLogs retrieves the logs attached to a specific task
 func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response) {
 
 	var input log2.ListLogRequest

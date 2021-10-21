@@ -49,8 +49,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 		loginCI:       s.loginCI,
 	}
 
-	var db *goqu.Database
-	db = goqu.New(s.Driver(), s.DB())
+	db := goqu.New(s.Driver(), s.DB())
 	var wheres []goqu.Expression
 
 	if query.GetResourcePolicyQuery() != nil {
@@ -328,10 +327,8 @@ func nodeToUser(t *mtree.TreeNode) *idm.User {
 		u.Roles = []*idm.Role{}
 		return u
 	}
-	if gRoles != nil {
-		for _, rId := range gRoles {
-			u.Roles = append(u.Roles, &idm.Role{Uuid: rId, GroupRole: true})
-		}
+	for _, rId := range gRoles {
+		u.Roles = append(u.Roles, &idm.Role{Uuid: rId, GroupRole: true})
 	}
 	return u
 }

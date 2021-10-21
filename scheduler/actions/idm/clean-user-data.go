@@ -25,6 +25,7 @@ type CleanUserDataAction struct {
 	targetParent string
 }
 
+// GetDescription returns action description
 func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:               cleanUserDataName,
@@ -39,6 +40,7 @@ func (c *CleanUserDataAction) GetDescription(lang ...string) actions.ActionDescr
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -56,10 +58,12 @@ func (c *CleanUserDataAction) GetParametersForm() *forms.Form {
 	}}
 }
 
+// GetName provides unique identifier
 func (c *CleanUserDataAction) GetName() string {
 	return cleanUserDataName
 }
 
+// Init passes parameters
 func (c *CleanUserDataAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	if tp, o := action.Parameters["targetParent"]; o {
 		c.targetParent = tp
@@ -67,14 +71,16 @@ func (c *CleanUserDataAction) Init(job *jobs.Job, cl client.Client, action *jobs
 	return nil
 }
 
+//ProvidesProgress implements interface
 func (c *CleanUserDataAction) ProvidesProgress() bool {
 	return true
 }
 
+// Run perform actual action code
 func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	users := input.GetUsers()
-	if users == nil || len(users) == 0 {
+	if len(users) == 0 {
 		return input.WithIgnore(), nil
 	}
 	u := users[0]

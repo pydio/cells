@@ -85,6 +85,7 @@ type ThumbnailExtractor struct {
 	Client     client.Client
 }
 
+// GetDescription returns action description
 func (t *ThumbnailExtractor) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                thumbnailsActionName,
@@ -99,6 +100,7 @@ func (t *ThumbnailExtractor) GetDescription(_ ...string) actions.ActionDescripti
 	}
 }
 
+// GetParametersForm returns a UX form
 func (t *ThumbnailExtractor) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{

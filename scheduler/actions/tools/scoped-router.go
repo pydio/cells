@@ -15,10 +15,12 @@ type ScopedRouterConsumer struct {
 	presetClient views.Handler
 }
 
+// PresetHandler sets a ready to use views.Handler
 func (s *ScopedRouterConsumer) PresetHandler(h views.Handler) {
 	s.presetClient = h
 }
 
+// ParseScope checks if parameters have scope=owner value
 func (s *ScopedRouterConsumer) ParseScope(owner string, params map[string]string) {
 	s.owner = owner
 	if sc, ok := params["scope"]; ok && sc == "owner" {
@@ -26,6 +28,7 @@ func (s *ScopedRouterConsumer) ParseScope(owner string, params map[string]string
 	}
 }
 
+// GetHandler lazy initialize an views.Handler depending on the scope
 func (s *ScopedRouterConsumer) GetHandler(ctx context.Context) (context.Context, views.Handler, error) {
 	if s.presetClient != nil {
 		return ctx, s.presetClient, nil

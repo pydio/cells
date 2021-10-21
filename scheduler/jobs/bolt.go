@@ -77,8 +77,8 @@ func NewBoltStore(fileName string) (*BoltStore, error) {
 
 }
 
-func (b *BoltStore) Close() {
-	b.db.Close()
+func (s *BoltStore) Close() {
+	s.db.Close()
 }
 
 func (s *BoltStore) PutJob(job *jobs.Job) error {

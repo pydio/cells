@@ -46,7 +46,7 @@ var (
 	}
 )
 
-// Detect datasources created during install and create workspaces on them
+// FirstRun detects datasources created during install and create workspaces on them
 func FirstRun(ctx context.Context) error {
 
 	<-time.After(8 * time.Second)

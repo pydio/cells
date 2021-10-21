@@ -61,7 +61,7 @@ func (a *DeleteUsersAction) GetName() string {
 	return DeleteUsersActionName
 }
 
-// Implement TaskUpdaterDelegateAction as the target
+// SetTask implements TaskUpdaterDelegateAction as the target
 // service will update the task status on its side.
 func (a *DeleteUsersAction) SetTask(task *jobs.Task) {
 	a.task = task

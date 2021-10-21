@@ -57,6 +57,7 @@ type WGetAction struct {
 	targetPath string
 }
 
+// GetDescription returns action description
 func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              wgetActionName,
@@ -69,6 +70,7 @@ func (w *WGetAction) GetDescription(lang ...string) actions.ActionDescription {
 	}
 }
 
+// GetParametersForm returns a UX form
 func (w *WGetAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -153,7 +155,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	if er != nil {
 		return input.WithError(er), err
 	}
-	last := time.Now().Sub(start)
+	last := time.Since(start)
 	jsonBody, _ := json.Marshal(map[string]interface{}{
 		"Size": written,
 		"Time": last,

@@ -80,6 +80,7 @@ func (j *JobsHandler) Close() {
 //////////////////
 // JOBS STORE
 /////////////////
+
 func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest, response *proto.PutJobResponse) error {
 	err := j.store.PutJob(request.Job)
 	log.Logger(ctx).Debug("Scheduler PutJob", zap.Any("job", request.Job))
@@ -209,6 +210,7 @@ func (j *JobsHandler) ListJobs(ctx context.Context, request *proto.ListJobsReque
 //////////////////
 // TASKS STORE
 /////////////////
+
 func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest, response *proto.PutTaskResponse) error {
 
 	job, e := j.store.GetJob(request.Task.JobID, 0)
@@ -475,7 +477,7 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, duration ...time.Dura
 			if len(duration) > 0 && t.StartTime > 0 {
 				check := duration[0]
 				startTime := time.Unix(int64(t.StartTime), 0)
-				if time.Now().Sub(startTime) > check {
+				if time.Since(startTime) > check {
 					fixedTasks = append(fixedTasks, t)
 				}
 			} else {

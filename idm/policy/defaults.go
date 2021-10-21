@@ -67,7 +67,7 @@ var (
 					ID:          "frontend-state",
 					Description: "PolicyGroup.PublicAccess.Rule3",
 					Subjects:    []string{"profile:anon"},
-					Resources:   []string{
+					Resources: []string{
 						"rest:/frontend/binaries/GLOBAL/<.*>",
 						"rest:/frontend/bootconf",
 						"rest:/frontend/messages/<.*>",
@@ -76,8 +76,8 @@ var (
 						"rest:/frontend/auth/state",
 						"rest:/frontend/login/connectors",
 					},
-					Actions:     []string{"GET"},
-					Effect:      ladon.AllowAccess,
+					Actions: []string{"GET"},
+					Effect:  ladon.AllowAccess,
 				}),
 				converter.LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-auth",
@@ -576,7 +576,7 @@ func Upgrade122(ctx context.Context) error {
 	return nil
 }
 
-// Upgrade120 performs upgrade on policies starting at v1.2.0
+// Upgrade142 performs upgrade on policies starting at v1.4.2
 func Upgrade142(ctx context.Context) error {
 	dao := servicecontext.GetDAO(ctx).(DAO)
 	if dao == nil {

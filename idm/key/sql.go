@@ -21,8 +21,6 @@
 package key
 
 import (
-	"sync/atomic"
-
 	"github.com/gogo/protobuf/proto"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common/proto/encryption"
@@ -33,15 +31,13 @@ import (
 )
 
 var (
-	tableName = "idm_user_keys"
-	queries   = map[string]string{
+	queries = map[string]string{
 		"insert": `INSERT INTO idm_user_keys VALUES (?,?,?,?,?,?);`,
 		"update": `UPDATE idm_user_keys SET key_data=?,key_info=? WHERE owner=? AND key_id=?;`,
 		"get":    `SELECT * FROM idm_user_keys WHERE owner=? AND key_id=?;`,
 		"list":   `SELECT * FROM idm_user_keys WHERE owner=?;`,
 		"delete": `DELETE FROM idm_user_keys WHERE owner=? AND key_id=?;`,
 	}
-	mu atomic.Value
 )
 
 type sqlimpl struct {
@@ -129,7 +125,7 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 			return nil, err
 		}
 
-		if bytes != nil && len(bytes) > 0 {
+		if len(bytes) > 0 {
 			proto.Unmarshal(bytes, k.Info)
 		}
 		return &k, rows.Err()

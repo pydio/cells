@@ -205,9 +205,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 			&autoApplies,
 			&role.ForceOverride,
 		)
-		for _, a := range strings.Split(autoApplies, ",") {
-			role.AutoApplies = append(role.AutoApplies, a)
-		}
+		role.AutoApplies = append(role.AutoApplies, strings.Split(autoApplies, ",")...)
 		if policies, e := s.GetPoliciesForResource(role.Uuid); e == nil {
 			role.Policies = policies
 		} else {

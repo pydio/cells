@@ -42,6 +42,7 @@ type PruneJobsAction struct {
 	maxTasksParam string
 }
 
+// GetDescription returns action description
 func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              pruneJobsActionName,
@@ -55,6 +56,7 @@ func (c *PruneJobsAction) GetDescription(lang ...string) actions.ActionDescripti
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *PruneJobsAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{

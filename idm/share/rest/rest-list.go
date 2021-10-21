@@ -184,7 +184,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 
 }
 
-// LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
+// LoadAdminRootNodes find actual nodes in the tree, and enrich their metadata if they appear
 // in many workspaces for the current user.
 func (h *SharesHandler) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
 

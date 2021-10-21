@@ -48,6 +48,7 @@ type RpcAction struct {
 	Timeout     string
 }
 
+// GetDescription returns action description
 func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              rpcActionName,
@@ -60,6 +61,7 @@ func (c *RpcAction) GetDescription(lang ...string) actions.ActionDescription {
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *RpcAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -104,12 +106,12 @@ func (c *RpcAction) GetParametersForm() *forms.Form {
 	}}
 }
 
-// Unique identifier
+// GetName provides unique identifier
 func (c *RpcAction) GetName() string {
 	return rpcActionName
 }
 
-// Pass parameters
+// Init passes parameters
 func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	c.Client = cl
 	c.ServiceName = action.Parameters["service"]
@@ -128,7 +130,7 @@ func (c *RpcAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) e
 	return nil
 }
 
-// Run the actual action code
+// Run perform actual action code
 func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	var jsonParams interface{}

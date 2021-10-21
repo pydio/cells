@@ -84,7 +84,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		}
 
 		var shares []*idm.Workspace
-		for wsId, _ := range nodeAcls {
+		for wsId := range nodeAcls {
 			roomQuery, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 				Uuid:  wsId,
 				Scope: idm.WorkspaceScope_ROOM,

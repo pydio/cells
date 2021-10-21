@@ -3,7 +3,6 @@ package jobs
 import (
 	"context"
 	"path/filepath"
-	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -15,7 +14,6 @@ import (
 )
 
 var (
-	once   = &sync.Once{}
 	logger *zap.Logger
 )
 

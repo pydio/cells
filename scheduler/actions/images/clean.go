@@ -44,6 +44,7 @@ type CleanThumbsTask struct {
 	Client client.Client
 }
 
+// GetDescription returns action description
 func (c *CleanThumbsTask) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              cleanThumbTaskName,
@@ -56,6 +57,7 @@ func (c *CleanThumbsTask) GetDescription(lang ...string) actions.ActionDescripti
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *CleanThumbsTask) GetParametersForm() *forms.Form {
 	return nil
 }

@@ -51,7 +51,7 @@ func (a *Handler) Filter() func(string) string {
 	return nil
 }
 
-// Put an acl in storage
+// PutAcl puts an acl in storage.
 func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -81,7 +81,7 @@ func (a *Handler) PutAcl(req *restful.Request, rsp *restful.Response) {
 
 }
 
-// Delete an acl from storage
+// DeleteAcl deletes an acl from storage
 func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -133,7 +133,7 @@ func (a *Handler) DeleteAcl(req *restful.Request, rsp *restful.Response) {
 
 }
 
-// Search uses a stream to search in the acls
+// SearchAcls uses a stream to search in the acls
 func (a *Handler) SearchAcls(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()

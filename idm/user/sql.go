@@ -418,7 +418,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	object := results[0]
 	user = object.(*idm.User)
 	if s.loginCI {
-		if strings.ToLower(user.Login) != strings.ToLower(userName) {
+		if strings.EqualFold(user.Login, userName) {
 			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 		}
 	} else {
@@ -750,8 +750,7 @@ func getMPathEquals(mpath []byte) string {
 	var res []string
 
 	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
+		cnt := (len(mpath) - 1) / indexLen
 		res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 
 		if idx := cnt * indexLen; idx == 0 {
@@ -772,9 +771,7 @@ func getMPathLike(mpath []byte) string {
 
 	done := false
 	for {
-		var cnt int
-		cnt = (len(mpath) - 1) / indexLen
-
+		cnt := (len(mpath) - 1) / indexLen
 		if !done {
 			res = append(res, fmt.Sprintf(`mpath%d LIKE "%s"`, cnt+1, mpath[(cnt*indexLen):]))
 			done = true

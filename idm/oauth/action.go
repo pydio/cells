@@ -48,6 +48,7 @@ func init() {
 	})
 }
 
+// InsertPruningJob adds a job to scheduler
 func InsertPruningJob(ctx context.Context) error {
 
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
@@ -103,12 +104,12 @@ func (c *PruneTokensAction) GetParametersForm() *forms.Form {
 	return nil
 }
 
-// Unique identifier
+// GetName Unique identifier
 func (c *PruneTokensAction) GetName() string {
 	return pruneTokensActionName
 }
 
-// Pass parameters
+// Init pass parameters
 func (c *PruneTokensAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	return nil
 }

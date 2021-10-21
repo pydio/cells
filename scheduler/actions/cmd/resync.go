@@ -37,6 +37,10 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
+var (
+	resyncActionName = "actions.cmd.resync"
+)
+
 type ResyncAction struct {
 	ServiceName string
 	Path        string
@@ -44,6 +48,7 @@ type ResyncAction struct {
 	CrtTask     *jobs.Task
 }
 
+// GetDescription returns action description
 func (c *ResyncAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              resyncActionName,
@@ -56,6 +61,7 @@ func (c *ResyncAction) GetDescription(lang ...string) actions.ActionDescription 
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *ResyncAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -92,22 +98,18 @@ func (c *ResyncAction) GetParametersForm() *forms.Form {
 	}}
 }
 
-var (
-	resyncActionName = "actions.cmd.resync"
-)
-
-// Unique identifier
+// GetName provides unique identifier
 func (c *ResyncAction) GetName() string {
 	return resyncActionName
 }
 
-// Implement TaskUpdaterDelegateAction as the target
+// SetTask implements TaskUpdaterDelegateAction as the target
 // service will update the task status on its side.
 func (c *ResyncAction) SetTask(task *jobs.Task) {
 	c.CrtTask = task
 }
 
-// Pass parameters
+// Init passes parameters
 func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	if c.ServiceName == "" {
@@ -124,7 +126,7 @@ func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action
 	return nil
 }
 
-// Run the actual action code
+// Run perform actual action code
 func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)

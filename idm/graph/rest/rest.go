@@ -35,12 +35,9 @@ import (
 	"github.com/pydio/cells/common/service"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
 )
 
-type GraphHandler struct {
-	router *views.Router
-}
+type GraphHandler struct{}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (h *GraphHandler) SwaggerTags() []string {
@@ -52,14 +49,7 @@ func (h *GraphHandler) Filter() func(string) string {
 	return nil
 }
 
-func (h *GraphHandler) getRouter() *views.Router {
-	if h.router == nil {
-		h.router = views.NewStandardRouter(views.RouterOptions{WatchRegistry: true})
-	}
-	return h.router
-}
-
-// Alias for requests without roleID
+// UserState is an alias for requests without roleID
 func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -82,7 +72,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 		SubQueries: []*any.Any{},
 		Operation:  service2.OperationType_OR,
 	}
-	for wsId, _ := range state.WorkspacesAccesses {
+	for wsId := range state.WorkspacesAccesses {
 		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 			Uuid: wsId,
 		})
@@ -103,7 +93,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 			}
 			if resp.Workspace != nil {
 				respWs := resp.Workspace
-				for nodeId, _ := range accessListWsNodes[respWs.UUID] {
+				for nodeId := range accessListWsNodes[respWs.UUID] {
 					respWs.RootUUIDs = append(respWs.RootUUIDs, nodeId)
 				}
 				state.Workspaces = append(state.Workspaces, respWs)
@@ -114,7 +104,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 
 }
 
-// Compute workspaces shared in common, and teams belonging.
+// Relation computes workspaces shared in common, and teams belonging.
 func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	userName := req.PathParameter("UserId")
 	ctx := req.Request.Context()
@@ -135,12 +125,12 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	contextWorkspaces := contextAccessList.GetAccessibleWorkspaces(ctx)
 	targetWorkspaces := targetUserAccessList.GetAccessibleWorkspaces(ctx)
 	commonWorkspaces := map[string]string{}
-	for uWs, _ := range contextWorkspaces {
+	for uWs := range contextWorkspaces {
 		if _, has := targetWorkspaces[uWs]; has {
 			commonWorkspaces[uWs] = uWs
 		}
 	}
-	for tWs, _ := range targetWorkspaces {
+	for tWs := range targetWorkspaces {
 		if _, has := targetWorkspaces[tWs]; has {
 			commonWorkspaces[tWs] = tWs
 		}
@@ -153,7 +143,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 		Operation:  service2.OperationType_OR,
 	}
 	// Cell Workspaces accessible by both users
-	for wsId, _ := range commonWorkspaces {
+	for wsId := range commonWorkspaces {
 		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 			Uuid:  wsId,
 			Scope: idm.WorkspaceScope_ROOM,

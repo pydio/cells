@@ -238,14 +238,14 @@ func (s *RoleHandler) PoliciesForRole(ctx context.Context, resourceId string, re
 	searchQuery := &serviceproto.Query{SubQueries: []*any.Any{query}}
 
 	cli := resourceClient.(idm.RoleServiceClient)
-	resources, e := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: searchQuery})
+	st, e := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: searchQuery})
 	if e != nil {
 		return policies, e
 	}
-	defer resources.Close()
+	defer st.Close()
 	var role *idm.Role
 	for {
-		resp, err := resources.Recv()
+		resp, err := st.Recv()
 		if err != nil {
 			break
 		}

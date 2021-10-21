@@ -71,14 +71,14 @@ func LoadDetectedRootNodes(ctx context.Context, detectedRoots []string) (rootNod
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
 // or just verify that the root nodes are not empty.
-func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (error, *tree.Node, bool) {
+func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (*tree.Node, bool, error) {
 
 	var createdNode *tree.Node
 	router := views.NewStandardRouter(views.RouterOptions{})
 	for i, n := range shareRequest.Room.RootNodes {
 		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
 		if e != nil {
-			return e, nil, false
+			return nil, false, e
 		}
 		// If the virtual root is responded, it may miss the UUID ! Set up manually here
 		if r.Node.Uuid == "" {
@@ -93,7 +93,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 		if root, exists := manager.ByUuid("cells"); exists {
 			parentNode, err := manager.ResolveInContext(ctx, root, internalRouter.GetClientsPool(), true)
 			if err != nil {
-				return err, nil, false
+				return nil, false, err
 			}
 			index := 0
 			labelSlug := slug.Make(shareRequest.Room.Label)
@@ -111,7 +111,7 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 			})
 			if err != nil {
 				log.Logger(ctx).Error("share/cells : create empty root", zap.Error(err))
-				return err, nil, false
+				return nil, false, err
 			}
 			// Update node meta
 			createResp.Node.SetMeta("CellNode", true)
@@ -120,11 +120,11 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 			shareRequest.Room.RootNodes = append(shareRequest.Room.RootNodes, createResp.Node)
 			createdNode = createResp.Node
 		} else {
-			return errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node"), nil, false
+			return nil, false, errors.InternalServerError(common.ServiceShare, "Wrong configuration, missing rooms virtual node")
 		}
 	}
 	if len(shareRequest.Room.RootNodes) == 0 {
-		return errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest"), nil, false
+		return nil, false, errors.BadRequest(common.ServiceShare, "Wrong configuration, missing RootNodes in CellRequest")
 	}
 
 	// First check of incoming ACLs
@@ -138,13 +138,13 @@ func ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (err
 		for _, a := range shareRequest.Room.GetACLs() {
 			for _, action := range a.GetActions() {
 				if action.Name == permissions.AclWrite.Name {
-					return errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell."), nil, true
+					return nil, true, errors.Forbidden(common.ServiceShare, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell.")
 				}
 			}
 		}
 	}
 	log.Logger(ctx).Debug("ParseRootNodes", log.DangerouslyZapSmallSlice("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
-	return nil, createdNode, hasReadonly
+	return createdNode, hasReadonly, nil
 
 }
 

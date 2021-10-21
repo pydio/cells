@@ -106,7 +106,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Init Root Nodes and check permissions
-	err, createdCellNode, readonly := share.ParseRootNodes(ctx, &shareRequest)
+	createdCellNode, readonly, err := share.ParseRootNodes(ctx, &shareRequest)
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return

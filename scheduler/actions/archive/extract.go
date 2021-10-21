@@ -50,6 +50,7 @@ type ExtractAction struct {
 	targetName string
 }
 
+// GetDescription returns action description
 func (ex *ExtractAction) GetDescription(_ ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                extractActionName,
@@ -64,6 +65,7 @@ func (ex *ExtractAction) GetDescription(_ ...string) actions.ActionDescription {
 	}
 }
 
+// GetParametersForm returns a UX form
 func (ex *ExtractAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -165,13 +167,10 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 	switch format {
 	case "zip":
 		err = reader.ExtractAllZip(ctx, archiveNode, targetNode, channels.StatusMsg)
-		break
 	case "tar":
 		err = reader.ExtractAllTar(ctx, false, archiveNode, targetNode, channels.StatusMsg)
-		break
 	case "tar.gz":
 		err = reader.ExtractAllTar(ctx, true, archiveNode, targetNode, channels.StatusMsg)
-		break
 	default:
 		err = errors.BadRequest(common.ServiceJobs, "Unsupported archive format:"+format)
 	}

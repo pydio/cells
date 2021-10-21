@@ -8,7 +8,6 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
@@ -73,34 +72,6 @@ func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUI
 		}
 	}
 	return nil
-}
-
-// LoadRootNodesForWorkspace loads all root nodes for this workspace
-func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *idm.Workspace) error {
-
-	acls, err := permissions.GetACLsForWorkspace(ctx, []string{ws.UUID}, &idm.ACLAction{Name: permissions.AclWsrootActionName})
-	if err != nil {
-		return err
-	}
-	ws.RootNodes = make(map[string]*tree.Node)
-	if len(acls) == 0 {
-		return nil
-	}
-	treeClient := tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
-	for _, a := range acls {
-		r, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: a.NodeID}})
-		if e == nil && r != nil {
-			ws.RootNodes[a.NodeID] = r.Node.WithoutReservedMetas()
-		} else {
-			// May be a virtual node
-			if node, ok := views.GetVirtualNodesManager().ByUuid(a.NodeID); ok {
-				ws.RootNodes[a.NodeID] = node
-			}
-		}
-	}
-
-	return nil
-
 }
 
 func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
@@ -406,30 +377,4 @@ func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *i
 
 	return nil
 
-}
-
-func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.Workspace) error {
-
-	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
-
-	if ctx.Value(claim.ContextKey) != nil {
-		claims := ctx.Value(claim.ContextKey).(claim.Claims)
-		userId := claims.Subject
-		for _, node := range workspace.RootNodes {
-			// Create ACLs for user id
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
-				WorkspaceID: workspace.UUID,
-				RoleID:      userId,
-				NodeID:      node.Uuid,
-				Action:      permissions.AclRead,
-			}})
-			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
-				WorkspaceID: workspace.UUID,
-				RoleID:      userId,
-				NodeID:      node.Uuid,
-				Action:      permissions.AclWrite,
-			}})
-		}
-	}
-	return nil
 }

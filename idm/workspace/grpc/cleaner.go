@@ -90,17 +90,27 @@ func NewWsCleaner(h *Handler, ctx context.Context) *WsCleaner {
 	}
 	// Start listening to ws
 	go func() {
-		for {
-			select {
-			case wsId := <-listener:
-				if err := w.deleteEmptyWs(wsId); err != nil {
-					log.Logger(context.Background()).Info("Error while trying to delete workspace without ACLs (" + wsId + ")")
-				}
-				lock.Lock()
-				delete(w.batches, wsId)
-				lock.Unlock()
+		for wsId := range listener {
+			if err := w.deleteEmptyWs(wsId); err != nil {
+				log.Logger(context.Background()).Info("Error while trying to delete workspace without ACLs (" + wsId + ")")
 			}
+			lock.Lock()
+			delete(w.batches, wsId)
+			lock.Unlock()
 		}
+		/*
+			for {
+				select {
+				case wsId := <-listener:
+					if err := w.deleteEmptyWs(wsId); err != nil {
+						log.Logger(context.Background()).Info("Error while trying to delete workspace without ACLs (" + wsId + ")")
+					}
+					lock.Lock()
+					delete(w.batches, wsId)
+					lock.Unlock()
+				}
+			}
+		*/
 	}()
 	return w
 }

@@ -53,6 +53,7 @@ type FakeUsersAction struct {
 	number string
 }
 
+// GetDescription returns action description
 func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:              fakeUserCreationActionName,
@@ -66,6 +67,7 @@ func (f *FakeUsersAction) GetDescription(lang ...string) actions.ActionDescripti
 	}
 }
 
+// GetParametersForm returns a UX form
 func (f *FakeUsersAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{
@@ -98,12 +100,12 @@ func (f *FakeUsersAction) GetName() string {
 	return fakeUserCreationActionName
 }
 
-// Implement ControllableAction
+// CanPause implements ControllableAction
 func (f *FakeUsersAction) CanPause() bool {
 	return false
 }
 
-// Implement ControllableAction
+// CanStop implements ControllableAction
 func (f *FakeUsersAction) CanStop() bool {
 	return false
 }

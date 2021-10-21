@@ -66,6 +66,7 @@ func (c *CompressAction) SetNodeFilterAsWalkFilter(f *jobs.NodesSelector) {
 	c.filter = f
 }
 
+// GetDescription returns action description
 func (c *CompressAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                compressActionName,
@@ -80,6 +81,7 @@ func (c *CompressAction) GetDescription(lang ...string) actions.ActionDescriptio
 	}
 }
 
+// GetParametersForm returns a UX form
 func (c *CompressAction) GetParametersForm() *forms.Form {
 	return &forms.Form{Groups: []*forms.Group{
 		{

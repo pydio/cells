@@ -26,7 +26,7 @@ import (
 	"github.com/pydio/cells/idm/user"
 )
 
-// rolesCleaner listen for roles deletion and clear the users accordingly
+// RolesCleaner listen for roles deletion and clear the users accordingly
 type RolesCleaner struct {
 	Dao user.DAO
 }

@@ -120,7 +120,7 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 	return nil
 }
 
-// Will check for namespace policies before updating / deleting
+// UpdateUserMeta will check for namespace policies before updating / deleting
 func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Response) {
 
 	var input idm.UpdateUserMetaRequest
@@ -232,6 +232,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 
 }
 
+// SearchUserMeta performs a search on user metadata
 func (s *UserMetaHandler) SearchUserMeta(req *restful.Request, rsp *restful.Response) {
 
 	var input idm.SearchUserMetaRequest

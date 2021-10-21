@@ -152,17 +152,12 @@ func (s *Subscriber) Stop() {
 
 // listenToQueue starts a go routine that listens to the Event Bus
 func (s *Subscriber) listenToQueue() {
-
 	go func() {
-		for {
-			select {
-			case runnable := <-s.queue:
-				dispatcher := s.getDispatcherForJob(runnable.Task.Job)
-				dispatcher.jobQueue <- runnable
-			}
+		for runnable := range s.queue {
+			dispatcher := s.getDispatcherForJob(runnable.Task.Job)
+			dispatcher.jobQueue <- runnable
 		}
 	}()
-
 }
 
 // taskChannelSubscription uses PubSub library to receive update messages from tasks
@@ -198,9 +193,7 @@ func (s *Subscriber) jobsChangeEvent(_ context.Context, msg *jobs.JobChangeEvent
 	defer s.Unlock()
 	// Update config
 	if msg.JobRemoved != "" {
-		if _, ok := s.definitions[msg.JobRemoved]; ok {
-			delete(s.definitions, msg.JobRemoved)
-		}
+		delete(s.definitions, msg.JobRemoved)
 		if dispatcher, ok := s.dispatchers[msg.JobRemoved]; ok {
 			dispatcher.Stop()
 			delete(s.dispatchers, msg.JobRemoved)

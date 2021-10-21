@@ -58,6 +58,7 @@ type ExifProcessor struct {
 	metaClient tree.NodeReceiverClient
 }
 
+// GetDescription returns action description
 func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                exifTaskName,
@@ -72,6 +73,7 @@ func (e *ExifProcessor) GetDescription(lang ...string) actions.ActionDescription
 	}
 }
 
+// GetParametersForm returns a UX form
 func (e *ExifProcessor) GetParametersForm() *forms.Form {
 	return nil
 }

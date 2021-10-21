@@ -60,8 +60,7 @@ var (
 	autoAppliesCache *cache.Cache
 )
 
-// ByAge implements sort.Interface for []Person based on
-// the Age field.
+// ByOverride implements sort.Interface for []Role based on the ForceOverride field.
 type ByOverride []*idm.Role
 
 func (a ByOverride) Len() int           { return len(a) }
@@ -78,11 +77,11 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest, resp *
 	}
 
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
-	user, err := dao.Bind(req.UserName, req.Password)
+	u, err := dao.Bind(req.UserName, req.Password)
 	if err != nil {
 		return err
 	}
-	resp.User = user
+	resp.User = u
 	resp.User.Password = ""
 
 	return nil

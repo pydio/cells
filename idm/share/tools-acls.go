@@ -154,7 +154,7 @@ func LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl,
 	log.Logger(ctx).Debug("LoadCellAclsObjects, will search for users ?", zap.Any("acls", roomAcls), zap.Any("users", loadUsers))
 	if len(loadUsers) > 0 {
 		var subQueries []*any.Any
-		for roleId, _ := range loadUsers {
+		for roleId := range loadUsers {
 			userQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: roleId})
 			subQueries = append(subQueries, userQ)
 		}
@@ -178,9 +178,7 @@ func LoadCellAclsObjects(ctx context.Context, roomAcls map[string]*rest.CellAcl,
 			} else {
 				// Remove some unnecessary fields
 				object.Roles = []*idm.Role{}
-				if _, has := object.Attributes["preferences"]; has {
-					delete(object.Attributes, "preferences")
-				}
+				delete(object.Attributes, "preferences")
 				roomAcls[object.Uuid].User = object.WithPublicData(ctx, checker.IsContextEditable(ctx, object.Uuid, object.Policies))
 			}
 		}
@@ -256,7 +254,7 @@ func DiffReadRoles(ctx context.Context, initial []*idm.ACL, newOnes []*idm.ACL) 
 		return
 	}
 	diff := func(lefts map[string]bool, rights map[string]bool) (result []string) {
-		for left, _ := range lefts {
+		for left := range lefts {
 			if _, has := rights[left]; !has {
 				result = append(result, left)
 			}
@@ -311,8 +309,8 @@ func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell
 					return nil, er
 				}
 				targetAcls = append(targetAcls, &idm.ACL{
-					NodeID: node.Uuid,
-					RoleID: acl.RoleId,
+					NodeID:      node.Uuid,
+					RoleID:      acl.RoleId,
 					WorkspaceID: workspaceId,
 					Action: &idm.ACLAction{
 						Name:  permissions.AclPolicy.Name,
@@ -332,8 +330,8 @@ func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell
 					return nil, er
 				}
 				targetAcls = append(targetAcls, &idm.ACL{
-					NodeID: node.Uuid,
-					RoleID: userId,
+					NodeID:      node.Uuid,
+					RoleID:      userId,
 					WorkspaceID: workspaceId,
 					Action: &idm.ACLAction{
 						Name:  permissions.AclPolicy.Name,
