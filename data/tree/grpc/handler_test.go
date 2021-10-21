@@ -30,9 +30,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func createMocks() (dataSources map[string]DataSource, meta tree.NodeProviderClient) {
-
-	meta = &tree.NodeProviderMock{}
+func createMocks() (dataSources map[string]DataSource) {
 
 	dataSources = make(map[string]DataSource, 3)
 
@@ -52,18 +50,17 @@ func createMocks() (dataSources map[string]DataSource, meta tree.NodeProviderCli
 		writer: &tree.NodeReceiverMock{},
 	}
 
-	return dataSources, meta
+	return dataSources
 
 }
 
 func TestReadNode(t *testing.T) {
 
 	// Create tree server with fake datasources
-	dataSources, meta := createMocks()
+	dataSources := createMocks()
 
 	ts := &TreeServer{
 		DataSources: dataSources,
-		meta:        meta,
 	}
 	ctx := context.Background()
 
@@ -95,11 +92,10 @@ func TestReadNode(t *testing.T) {
 func TestListNodes(t *testing.T) {
 
 	// Create tree server with fake datasources
-	dataSources, meta := createMocks()
+	dataSources := createMocks()
 
 	ts := &TreeServer{
 		DataSources: dataSources,
-		meta:        meta,
 	}
 
 	ctx := context.Background()
@@ -148,11 +144,10 @@ func TestListNodes(t *testing.T) {
 func TestRootNodeOperations(t *testing.T) {
 
 	// Create tree server with fake datasources
-	dataSources, meta := createMocks()
+	dataSources := createMocks()
 
 	ts := &TreeServer{
 		DataSources: dataSources,
-		meta:        meta,
 	}
 
 	ctx := context.Background()

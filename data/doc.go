@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// ## Data Management services.
+// Package data provides Data Management services.
 //
 // Services under this folder are related to managing the data itself.
 package data

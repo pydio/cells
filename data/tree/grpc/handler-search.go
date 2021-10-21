@@ -31,17 +31,17 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-// StreamConvert wraps a Searcher_SearchStream into a NodesProvider_ListNodesStream
+// StreamConverter wraps a Searcher_SearchStream into a NodesProvider_ListNodesStream
 type StreamConverter struct {
 	ctx     context.Context
 	wrapped tree.Searcher_SearchStream
 }
 
 func (sc *StreamConverter) SendMsg(i interface{}) error {
-	return sc.SendMsg(i)
+	return sc.wrapped.SendMsg(i)
 }
 func (sc *StreamConverter) RecvMsg(i interface{}) error {
-	return sc.RecvMsg(i)
+	return sc.wrapped.RecvMsg(i)
 }
 func (sc *StreamConverter) Close() error {
 	return sc.wrapped.Close()

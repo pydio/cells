@@ -70,10 +70,10 @@ func NewBoltStore(fileName string, deleteOnClose ...bool) (*BoltStore, error) {
 
 }
 
-func (b *BoltStore) Close() error {
-	err := b.db.Close()
-	if b.DeleteOnClose {
-		os.Remove(b.DbPath)
+func (s *BoltStore) Close() error {
+	err := s.db.Close()
+	if s.DeleteOnClose {
+		os.Remove(s.DbPath)
 	}
 	return err
 }

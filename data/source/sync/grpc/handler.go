@@ -81,9 +81,8 @@ type Handler struct {
 	SyncConfig   *object.DataSource
 	ObjectConfig *object.MinioConfig
 
-	watcher    configx.Receiver
-	reloadChan chan bool
-	stop       chan bool
+	watcher configx.Receiver
+	stop    chan bool
 }
 
 func NewHandler(ctx context.Context, datasource string) (*Handler, error) {
@@ -607,7 +606,7 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 	}
 }
 
-// Implements the S3Endpoint Interface by using the real object configs + the local datasource configs for bucket and base folder
+// GetDataSourceConfig implements the S3Endpoint Interface by using the real object configs + the local datasource configs for bucket and base folder.
 func (s *Handler) GetDataSourceConfig(ctx context.Context, request *object.GetDataSourceConfigRequest, response *object.GetDataSourceConfigResponse) error {
 
 	s.SyncConfig.ObjectsHost = s.ObjectConfig.RunningHost
@@ -631,7 +630,7 @@ func (s *Handler) CleanResourcesBeforeDelete(ctx context.Context, request *objec
 
 	if dao := servicecontext.GetDAO(ctx); dao != nil {
 		if d, o := dao.(sync.DAO); o {
-			if e, m := d.CleanResourcesOnDeletion(); e != nil {
+			if m, e := d.CleanResourcesOnDeletion(); e != nil {
 				ee = append(ee, e.Error())
 			} else {
 				mm = append(mm, m)

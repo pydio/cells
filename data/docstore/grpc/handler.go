@@ -40,6 +40,9 @@ type Handler struct {
 func (h *Handler) Close() error {
 	var err error
 	err = h.Db.Close()
+	if err != nil {
+		fmt.Println("[error] Could not close docstore database")
+	}
 	err = h.Indexer.Close()
 	return err
 }

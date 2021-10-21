@@ -88,7 +88,7 @@ func (b *Batch) Flush(index bleve.Index) error {
 		}
 		delete(b.inserts, uuid)
 	}
-	for uuid, _ := range b.deletes {
+	for uuid := range b.deletes {
 		batch.Delete(uuid)
 		delete(b.deletes, uuid)
 	}

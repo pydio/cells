@@ -78,7 +78,7 @@ func (h *sqlImpl) Init(options configx.Values) error {
 	return nil
 }
 
-func (h *sqlImpl) CleanResourcesOnDeletion() (error, string) {
+func (h *sqlImpl) CleanResourcesOnDeletion() (string, error) {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../source/sync/migrations"),
@@ -88,10 +88,10 @@ func (h *sqlImpl) CleanResourcesOnDeletion() (error, string) {
 
 	_, err := sql.ExecMigration(h.DB(), h.Driver(), migrations, migrate.Down, h.Prefix())
 	if err != nil {
-		return err, ""
+		return "", err
 	}
 
-	return nil, "Removed tables for checksums"
+	return "Removed tables for checksums", nil
 
 }
 

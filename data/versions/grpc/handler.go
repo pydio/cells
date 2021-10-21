@@ -89,7 +89,6 @@ func (h *Handler) ListVersions(ctx context.Context, request *tree.ListVersionsRe
 			resp := &tree.ListVersionsResponse{Version: l}
 			e := versionsStream.Send(resp)
 			log.Logger(ctx).Debug("[VERSION] Sending version ", zap.Any("resp", resp), zap.Error(e))
-			break
 		case <-done:
 			return nil
 		}

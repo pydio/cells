@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package meta provides a GRPC access to the underlying persistence layer for files metadata
+// Package grpc provides a GRPC access to the underlying persistence layer for files metadata
 package grpc
 
 import (

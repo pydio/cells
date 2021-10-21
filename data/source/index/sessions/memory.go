@@ -82,12 +82,8 @@ func (s *SessionMemoryStore) ReadSession(sessionUuid string) (*tree.IndexationSe
 func (s *SessionMemoryStore) DeleteSession(session *tree.IndexationSession) error {
 	s.Lock()
 	defer s.Unlock()
-	if _, ok := s.sessions[session.Uuid]; ok {
-		delete(s.sessions, session.Uuid)
-	}
-	if _, ok := s.eventsQueue[session.Uuid]; ok {
-		delete(s.eventsQueue, session.Uuid)
-	}
+	delete(s.sessions, session.Uuid)
+	delete(s.eventsQueue, session.Uuid)
 	return nil
 }
 

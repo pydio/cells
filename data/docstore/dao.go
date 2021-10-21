@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Docstore provides an indexed JSON document store.
+// Package docstore provides an indexed JSON document store.
 //
 // It is used by various services to store their data instead of implementing yet-another persistence layer.
 // It uses a combination of Bolt for storage and Bleve for indexation.

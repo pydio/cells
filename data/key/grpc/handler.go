@@ -273,7 +273,7 @@ func (km *NodeKeyManagerHandler) SetNodeInfo(ctx context.Context, stream encrypt
 		case "close":
 			sessionOpened = false
 			if rangedBlocks != nil {
-				err = dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
+				dao.SaveEncryptedBlockInfo(nodeUuid, rangedBlocks)
 				rangedBlocks = nil
 			}
 		}

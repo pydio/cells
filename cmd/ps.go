@@ -120,26 +120,17 @@ EXAMPLE
 			runningServices = append(runningServices, srv.Name)
 		}
 
+		iR := regexp.MustCompile(common.ServiceInstall)
+		hR := regexp.MustCompile(common.ServiceHealthCheck)
+
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
-			re := regexp.MustCompile(common.ServiceInstall)
-
-			if re.MatchString(s.Name()) {
-				return true
-			}
-
-			return false
+			return iR.MatchString(s.Name())
 		})
 
 		// Removing healthcheck services
 		registry.Default.Filter(func(s registry.Service) bool {
-			re := regexp.MustCompile(common.ServiceHealthCheck)
-
-			if re.MatchString(s.Name()) {
-				return true
-			}
-
-			return false
+			return hR.MatchString(s.Name())
 		})
 
 		// Filtering services by tags

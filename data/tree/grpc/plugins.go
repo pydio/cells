@@ -49,7 +49,6 @@ func init() {
 				dataSources := map[string]DataSource{}
 				treeServer := &TreeServer{
 					DataSources: dataSources,
-					meta:        tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient()),
 				}
 
 				eventSubscriber := NewEventSubscriber(treeServer, defaults.NewClient())

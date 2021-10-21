@@ -83,7 +83,6 @@ type DataSource struct {
 type TreeServer struct {
 	sync.Mutex
 	DataSources map[string]DataSource
-	meta        tree.NodeProviderClient
 	listeners   []*changesListener
 }
 
@@ -150,18 +149,6 @@ func (s *TreeServer) updateDataSourceNode(node *tree.Node, dataSourceName string
 /* =============================================================================
  *  Server public Methods
  * ============================================================================ */
-
-func (s *TreeServer) enrichNodeWithMeta(ctx context.Context, node *tree.Node) {
-
-	metaResponse, metaErr := s.meta.ReadNode(ctx, &tree.ReadNodeRequest{
-		Node: node,
-	})
-
-	if metaErr == nil {
-		node.MetaStore = metaResponse.Node.MetaStore
-	}
-
-}
 
 // CreateNode implementation for the TreeServer
 func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
@@ -619,12 +606,14 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 			newEvent.Target = nil
 		}
 
-		if newEvent.Target != nil {
-			//newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
-		}
-		if newEvent.Source != nil {
-			//newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
-		}
+		/*
+			if newEvent.Target != nil {
+				//newEvent.Target.Path = strings.TrimPrefix(newEvent.Target.Path, filterPath)
+			}
+			if newEvent.Source != nil {
+				//newEvent.Source.Path = strings.TrimPrefix(newEvent.Source.Path, filterPath)
+			}
+		*/
 		if newEvent.Metadata != nil {
 			// Do not forward this metadata to clients
 			delete(newEvent.Metadata, common.XPydioSessionUuid)

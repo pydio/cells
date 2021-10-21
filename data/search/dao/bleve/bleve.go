@@ -93,11 +93,9 @@ type BleveServer struct {
 	basenameAnalyzer string
 	contentAnalyzer  string
 
-	batch   *bleve.Batch
 	inserts chan *tree.IndexableNode
 	deletes chan string
 	done    chan bool
-	closed  chan bool
 
 	nsProvider *meta.NamespacesProvider
 }
@@ -475,7 +473,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		s.nsProvider = meta.NewNamespacesProvider()
 	}
 	nss := s.nsProvider.Namespaces()
-	for metaName, _ := range s.nsProvider.IncludedIndexes() {
+	for metaName := range s.nsProvider.IncludedIndexes() {
 		def, _ := nss[metaName].UnmarshallDefinition()
 		if def != nil && (def.GetType() == "integer" || def.GetType() == "boolean" || def.GetType() == "date") {
 			continue
@@ -577,7 +575,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 				node.MTime = mtime.Unix()
 			}
 		}
-		for k, _ := range hit.Locations {
+		for k := range hit.Locations {
 			if k == "TextContent" {
 				node.SetMeta("document_content_hit", true)
 				contentFacet.Count++

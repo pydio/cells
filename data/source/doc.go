@@ -18,5 +18,5 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Folder source contains the three services composing a datasource : objects, index and sync
+// Package source contains the three services composing a datasource : objects, index and sync
 package source

@@ -66,13 +66,8 @@ EXAMPLE
 		}
 
 		for _, user := range users {
-
-			if _, ok := user.Attributes["locks"]; ok {
-				delete(user.Attributes, "locks")
-			}
-			if _, ok := user.Attributes["failedConnections"]; ok {
-				delete(user.Attributes, "failedConnections")
-			}
+			delete(user.Attributes, "locks")
+			delete(user.Attributes, "failedConnections")
 			if _, err := client.CreateUser(context.Background(), &idm.CreateUserRequest{
 				User: user,
 			}); err != nil {

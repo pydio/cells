@@ -28,8 +28,6 @@ import (
 	"strings"
 	"time"
 
-	index2 "github.com/pydio/cells/common/sql/index"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
@@ -498,7 +496,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		return errors.NotFound(name, "Could not retrieve node %s", req.From.Path)
 	}
 
-	if cache, o := dao.(index2.CacheDAO); o {
+	if cache, o := dao.(cindex.CacheDAO); o {
 
 		pathTo, nodeTo, err = cache.PathCreateNoAdd(reqToPath)
 
@@ -812,9 +810,4 @@ func track(ctx context.Context, fn string, start time.Time, req interface{}, res
 
 func safePath(str string) string {
 	return fmt.Sprintf("/%s", strings.TrimLeft(str, "/"))
-}
-
-func dirWithInternalSeparator(filePath string) string {
-	segments := strings.Split(filePath, "/")
-	return strings.Join(segments[:len(segments)-1], "/")
 }

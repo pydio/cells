@@ -45,12 +45,12 @@ type Handler struct {
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
-func (a *Handler) SwaggerTags() []string {
+func (s *Handler) SwaggerTags() []string {
 	return []string{"SearchService"}
 }
 
 // Filter returns a function to filter the swagger path
-func (a *Handler) Filter() func(string) string {
+func (s *Handler) Filter() func(string) string {
 	return nil
 }
 

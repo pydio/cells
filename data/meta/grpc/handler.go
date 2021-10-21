@@ -97,7 +97,6 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			To:     e.Target,
 			Silent: e.Silent,
 		}, &tree.UpdateNodeResponse{})
-		break
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		log.Logger(ctx).Debug("Received Update event", zap.Any("event", e))
 
@@ -109,7 +108,6 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			// UpdateNode will trigger an UPDATE_META, forward UPDATE_PATH event as well
 			client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, e))
 		}
-		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		log.Logger(ctx).Debug("Received Update meta", zap.Any("event", e))
 
@@ -118,12 +116,10 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 			To:     e.Target,
 			Silent: e.Silent,
 		}, &tree.UpdateNodeResponse{})
-		break
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// Simply forward to TopicMetaChange
 		log.Logger(ctx).Debug("Received Update content, forwarding to TopicMetaChange", zap.Any("event", e))
 		client.Publish(ctx, client.NewPublication(common.TopicMetaChanges, e))
-		break
 	case tree.NodeChangeEvent_DELETE:
 		// Lets delete all metadata
 		log.Logger(ctx).Debug("Received Delete content", zap.Any("event", e))
@@ -197,7 +193,7 @@ func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	return nil
 }
 
-// ReadNode implementation as a bidirectional stream
+// ReadNodeStream implements ReadNode as a bidirectional stream
 func (s *MetaServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 
 	defer streamer.Close()

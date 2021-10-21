@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package meta provides storage for files and folders metadata.
+// Package sync provides service for synchronizing objects to indexes
 package sync
 
 import (
@@ -31,7 +31,7 @@ type DAO interface {
 	dao.DAO
 	s3.ChecksumMapper
 
-	CleanResourcesOnDeletion() (error, string)
+	CleanResourcesOnDeletion() (string, error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {

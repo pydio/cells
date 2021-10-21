@@ -348,9 +348,8 @@ func (h *sqlimpl) GetAllNodeKey(nodeUuid string) (QueryResultCursor, error) {
 // dbRowScanner
 type dbRowScanner func(rows *sqldb.Rows) (interface{}, error)
 
-// DBCursor
+// DBCursor wraps sql scanner
 type DBCursor struct {
-	err  error
 	scan dbRowScanner
 	rows *sqldb.Rows
 }
@@ -383,17 +382,6 @@ func scanBlock(rows *sqldb.Rows) (interface{}, error) {
 		log.Logger(context.Background()).Error("failed to read node block entry in sql result")
 	}
 	return b, err
-}
-
-// scanNode
-func scanNode(rows *sqldb.Rows) (interface{}, error) {
-	n := new(encryption.Node)
-	var legacy int
-
-	err := rows.Scan(&n.NodeId, &legacy)
-	n.Legacy = legacy == 1
-
-	return n, err
 }
 
 // scanNodeKey

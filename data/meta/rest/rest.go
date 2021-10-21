@@ -189,7 +189,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			if !bulkRequest.Versions {
 				metaLoader.LoadMetas(ctx, r.Node)
 			}
-			eTimes = append(eTimes, time.Now().Sub(s))
+			eTimes = append(eTimes, time.Since(s))
 			if strings.HasPrefix(path.Base(r.Node.GetPath()), ".") {
 				continue
 			}

@@ -91,7 +91,6 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target, false, excludes)
-		break
 	case tree.NodeChangeEvent_UPDATE_PATH:
 		// Let's extract the basic information from the tree and store it
 		if tree.IgnoreNodeForOutput(ctx, e.Target) {
@@ -101,28 +100,24 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 		if !e.Target.IsLeaf() {
 			go s.ReindexFolder(ctx, e.Target, excludes)
 		}
-		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		// Let's extract the basic information from the tree and store it
 		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target, false, excludes)
-		break
 	case tree.NodeChangeEvent_UPDATE_USER_META:
 		// Let's extract the basic information from the tree and store it
 		if e.Target.Path != "" && tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target, true, excludes)
-		break
 	case tree.NodeChangeEvent_UPDATE_CONTENT:
 		// We may have to store the metadata again
 		if tree.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target, false, excludes)
-		break
 	case tree.NodeChangeEvent_DELETE:
 		// Lets delete all metadata
 		if tree.IgnoreNodeForOutput(ctx, e.Source) {
