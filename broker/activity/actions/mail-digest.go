@@ -53,6 +53,7 @@ type MailDigestAction struct {
 	dryMail        string
 }
 
+// GetDescription returns the action description
 func (m *MailDigestAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
 		ID:                digestActionName,
@@ -67,6 +68,7 @@ func (m *MailDigestAction) GetDescription(lang ...string) actions.ActionDescript
 	}
 }
 
+// GetParametersForm returns an UX Form
 func (m *MailDigestAction) GetParametersForm() *forms.Form {
 	return nil
 }
