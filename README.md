@@ -11,7 +11,7 @@
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
 
 <p align="center"> 
-  <img src="https://github.com/pydio/cells-dist/raw/master/resources/v1.4.0/homepage.png" width="600" style="border: 3px solid #e0e0e0; border-radius: 5px;"/>
+  <img src="https://raw.githubusercontent.com/pydio/cells-dist/master/resources/v3.0.0/home.png" width="600" style="border: 3px solid #e0e0e0; border-radius: 5px;"/>
 </p>
 
 ## Getting Started
