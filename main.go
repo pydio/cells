@@ -29,6 +29,7 @@ import (
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"
 	_ "github.com/pydio/cells/discovery/config/storage"
+	_ "github.com/pydio/cells/discovery/healthcheck/rest"
 	_ "github.com/pydio/cells/discovery/install/rest"
 	_ "github.com/pydio/cells/discovery/registry"
 	_ "github.com/pydio/cells/discovery/update/grpc"
@@ -44,8 +45,6 @@ import (
 	_ "github.com/pydio/cells/frontend/front-srv/rest"
 	_ "github.com/pydio/cells/frontend/front-srv/web"
 
-	//	_ "github.com/pydio/cells/data/changes/grpc"
-	//	_ "github.com/pydio/cells/data/changes/rest"
 	_ "github.com/pydio/cells/data/docstore/grpc"
 	_ "github.com/pydio/cells/data/key/grpc"
 	_ "github.com/pydio/cells/data/meta/grpc"
@@ -58,10 +57,6 @@ import (
 	_ "github.com/pydio/cells/data/tree/grpc"
 	_ "github.com/pydio/cells/data/tree/rest"
 	_ "github.com/pydio/cells/data/versions/grpc"
-
-	_ "github.com/pydio/cells/discovery/config/grpc"
-	_ "github.com/pydio/cells/discovery/config/rest"
-	_ "github.com/pydio/cells/discovery/healthcheck/rest"
 
 	_ "github.com/pydio/cells/gateway/data"
 	_ "github.com/pydio/cells/gateway/dav"
