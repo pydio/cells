@@ -125,7 +125,7 @@ func TestNewBleveEngine(t *testing.T) {
 }
 
 func TestSizeRotation(t *testing.T) {
-	BlockingInserts = true
+	blockingInserts = true
 	Convey("Test Rotation", t, func() {
 		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
 		os.MkdirAll(filepath.Dir(p), 0777)

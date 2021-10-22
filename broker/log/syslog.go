@@ -48,7 +48,7 @@ const (
 )
 
 var (
-	BlockingInserts = false
+	blockingInserts = false
 )
 
 // SyslogServer is the syslog specific implementation of the Log server
@@ -77,10 +77,18 @@ func NewSyslogServer(indexPath string, mappingName string, rotationSize int64) (
 	server := &SyslogServer{
 		rotationSize: rotationSize,
 	}
+	if blockingInserts {
+		server.inserts = make(chan interface{})
+	} else {
+		server.inserts = make(chan interface{}, BufferedChanSize)
+	}
 	er := server.Open(indexPath, mappingName)
 	return server, er
 }
 
+// Open lists all existing indexes and creates a writeable index on the active one
+// and a composed index for searching. It calls watchInserts() to start watching for
+// new logs
 func (s *SyslogServer) Open(indexPath string, mappingName string) error {
 	s.indexPath = indexPath
 	s.mappingName = mappingName
@@ -107,11 +115,6 @@ func (s *SyslogServer) Open(indexPath string, mappingName string) error {
 		}
 		s.SearchIndex.Add(s.indexes...)
 		s.cursor = len(s.indexes) - 1
-	}
-	if BlockingInserts {
-		s.inserts = make(chan interface{})
-	} else {
-		s.inserts = make(chan interface{}, BufferedChanSize)
 	}
 	s.insertsDone = make(chan bool)
 	s.opened = true
@@ -266,7 +269,7 @@ func (s *SyslogServer) flush() {
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *SyslogServer) PutLog(line *log.Log) error {
-	if BlockingInserts {
+	if blockingInserts {
 		s.inserts <- line
 	} else {
 		select {
