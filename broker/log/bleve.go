@@ -102,21 +102,22 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	} else {
 		qs := bleve.NewQueryStringQuery(str)
 		q = qs
+		// For +Msg field, transform MatchPhraseQuery to Wildcard query
 		if parsed, e := qs.Parse(); e == nil {
 			var changed bool
 			if bQ, o := parsed.(*query.BooleanQuery); o {
 				if cj, o2 := bQ.Must.(*query.ConjunctionQuery); o2 {
 					for i, m := range cj.Conjuncts {
-						if mp, o3 := m.(*query.MatchPhraseQuery); o3 {
+						if mp, o3 := m.(*query.MatchPhraseQuery); o3 && mp.Field() == "Msg" {
 							phrase := mp.MatchPhrase
 							if strings.Contains(phrase, " ") {
 								match := query.NewMatchQuery(mp.MatchPhrase)
-								match.SetField(match.FieldVal)
+								match.SetField(mp.Field())
 								match.SetBoost(mp.Boost())
 								cj.Conjuncts[i] = match
 							} else {
-								match := query.NewWildcardQuery("*" + mp.MatchPhrase + "*")
-								match.SetField(match.FieldVal)
+								match := query.NewWildcardQuery("*" + strings.ToLower(mp.MatchPhrase) + "*")
+								match.SetField(mp.Field())
 								match.SetBoost(mp.Boost())
 								cj.Conjuncts[i] = match
 							}
