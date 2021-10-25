@@ -2088,7 +2088,7 @@
     "other": "Herramientas que permiten a la aplicación enviar correos electrónicos"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "Opciones del Motor de Búsqueda"
   },
   "plugtype.desc.meta": {
     "other": "Características adicionales para ser añadidas a los workspaces"
@@ -2154,7 +2154,7 @@
     "other": "Gestores de Correo"
   },
   "plugtype.title.search-engine": {
-    "other": "Search Engine"
+    "other": "Motor de Búsqueda"
   },
   "plugtype.title.meta": {
     "other": "Meta Aspectos del workspace"
@@ -2349,25 +2349,25 @@
     "other": "Por favor, utilice imágenes de menos de 5MB"
   },
   "searchengine.searching": {
-    "other": "Searching..."
+    "other": "Buscando..."
   },
   "searchengine.main.placeholder": {
-    "other": "Search..."
+    "other": "Buscar..."
   },
   "searchengine.topbar.title": {
-    "other": "Search: "
+    "other": "Buscar: "
   },
   "searchengine.scope.title": {
-    "other": "Search In..."
+    "other": "Buscar en..."
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Advanced Filters"
+    "other": "Filtros Avanzados"
   },
   "searchengine.results.foundN": {
-    "other": "%1 results found"
+    "other": "%1 resultado(s) encontrado"
   },
   "searchengine.results.withMore": {
-    "other": "Showing %1, load more..."
+    "other": "Mostrando %1, ver más..."
   },
   "searchengine.query.action.save": {
     "other": "Guardar"
@@ -2379,24 +2379,24 @@
     "other": "Suprimir"
   },
   "searchengine.query.save-label": {
-    "other": "Enter a label"
+    "other": "Introducir una etiqueta"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Name/Content"
+    "other": "Nombre/Contenido"
   },
   "chat.load-older": {
-    "other": "Older entries"
+    "other": "Entradas más antiguas"
   },
   "workspace.quota-usage": {
-    "other": "Quota Usage"
+    "other": "Uso de Cuota"
   },
   "action.delete.permanently": {
-    "other": "Delete permanently"
+    "other": "Eliminar permanentemente"
   },
   "action.delete.permanently.warning": {
-    "other": "warning, you cannot undo this operation!"
+    "other": "¡advertencia, no se puede deshacer esta operación!"
   },
   "action.goto.label": {
-    "other": "Go To Folder"
+    "other": "Ir a la Carpeta"
   }
 }

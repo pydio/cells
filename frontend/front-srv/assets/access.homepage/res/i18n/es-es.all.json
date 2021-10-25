@@ -180,7 +180,7 @@
     "other": "Carpeta"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "Filtrar Resultados..."
   },
   "search.facet.type": {
     "other": "Tipo"
@@ -195,7 +195,7 @@
     "other": "Modificado"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "Encontrado en"
   },
   "search.facet.metadata": {
     "other": "Metadatos"
@@ -210,33 +210,33 @@
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "de 1MB a 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "de 10MB a 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "Hace un momento"
   },
   "facet.label.date.today": {
     "other": "Hoy"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "Últimos 7 días"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "Últimos 30 días"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "Más de 30 días"
   },
   "facet.label.found.contents": {
     "other": "Contenidos"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "Nombre del archivo"
   }
 }

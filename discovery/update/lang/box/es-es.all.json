@@ -45,9 +45,9 @@
     "other": "Contraseña para la identificación del servidor proxy"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "Deshabilitar comprobaciones de actualización"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "Si su servidor no tiene acceso al exterior, no intente conectar con el servidor de actualización."
   }
 }

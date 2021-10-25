@@ -3,10 +3,10 @@
     "other": "Caminho"
   },
   "Default download format": {
-    "other": "Formato de download padrão"
+    "other": "Formato de descarregamento de ficheiros por omissão"
   },
   "When downloading a folder or a multiple selection, automatically create an archive using this format": {
-    "other": "Quando estiver baixando uma pasta ou uma seleção múltipla, crie um arquivo automaticamente usando este formato"
+    "other": "Quando estiver a descarregar uma pasta ou uma selecção múltipla de ficheiros, o sistema irá criar automaticamente um ficheiro usando este formato"
   },
   "Path to the folder on the server": {
     "other": "Caminho para a pasta no servidor"
@@ -21,15 +21,15 @@
     "other": "Caminho absoluto para um ou mais nós raiz"
   },
   "#Items per page": {
-    "other": "Itens por página"
+    "other": "Nº. de itens por página"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Uma vez no modo de paginação, selecione o número de itens a serem exibidos por página."
+    "other": "Uma vez no modo de paginação, este é o número de itens a ser exibido por página."
   },
   "Delete Permanently": {
-    "other": "Excluir permanentemente"
+    "other": "Apagar permanentemente"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Ativar opção para ignorar a lixeira ao apagar"
+    "other": "Activar esta opção para ignorar o caixote do lixo ao apagar"
   }
 }

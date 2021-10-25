@@ -60,37 +60,37 @@
     "other": "Subiendo archivos al servidor..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Creando Carpetas"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Creando una carpeta"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Creando %s carpetas"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Preparando archivos para subirlos"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Analizando %s elementos..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Analizando un elemento"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Por favor, espere..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Listo para subir"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Subida en pausa"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Subiendo archivo"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Subiendo %s%"
   },
   "no-folders-support": {
     "other": "Parece que su navegador no soporta la función \"soltar carpetas\""
@@ -153,12 +153,12 @@
     "other": "No se puede pausar la transferencia de este fragmento"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "interrumpido por el usuario"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "no tiene permisos para subir este archivo aquí"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "cuota alcanzada, no se puede subir más"
   }
 }

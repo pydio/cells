@@ -195,7 +195,7 @@
     "other": "Estándar (listado de archivos con cabecera de aplicación)"
   },
   "154": {
-    "other": "Images Gallery (best for photos)"
+    "other": "Galería de imágenes (mejor para fotos)"
   },
   "155": {
     "other": "Incrustado (pequeña cabecera, para widgets)"
@@ -909,9 +909,9 @@
     "other": "Hay cambios sin guardar, ¿seguro que quiere cerrar?"
   },
   "sharelist.quick-filter": {
-    "other": "Quick filter..."
+    "other": "Filtro rápido..."
   },
   "composite.deleteAll": {
-    "other": "Disable all shares"
+    "other": "Desactivar todos los elementos compartidos"
   }
 }

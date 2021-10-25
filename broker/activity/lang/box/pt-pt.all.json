@@ -1,12 +1,12 @@
 {
   "AccessedBy": {
-    "other": "{{.Actor}} acessado"
+    "other": "Acedido por {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "{{.Object}} acessado"
+    "other": "Acedeu a {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} foi acessado por {{.Actor}}"
+    "other": "{{.Object}} foi acedido por {{.Actor}}"
   },
   "Cell": {
     "other": "Célula"
@@ -21,19 +21,19 @@
     "other": "{{.Object}} foi criado por {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Excluído por {{.Actor}}"
+    "other": "Apagado por {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "{{.Object}} excluído"
+    "other": "{{.Object}} apagado"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} foi excluído por {{.Actor}}"
+    "other": "{{.Object}} foi apagado por {{.Actor}}"
   },
   "SharedWs": {
-    "other": "{{.Object}} compartilhado"
+    "other": "{{.Object}} partilhado"
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}} compartilhou {{.Object}} com você"
+    "other": "{{.Actor}} partilhou {{.Object}} consigo"
   },
   "DigestTitle": {
     "other": "Este é seu Resumo Diário do Pydio"
@@ -60,7 +60,7 @@
     "other": "Metadados modificados em {{.Object}}"
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}} metadados modificados em {{.Object}}"
+    "other": "{{.Actor}} modificou metadados em {{.Object}}"
   },
   "CommentedBy": {
     "other": "Comentado por {{.Actor}}"

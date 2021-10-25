@@ -102,34 +102,34 @@
     "other": "Workspaces & Celdas"
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "Trabajos en segundo plano"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "Trabajos en ejecución"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "Problema de conexión"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "Websocket parece estar desconectado, por favor asegúrese de que el servidor está activo y la conexión websocket está funcionando."
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "Autentificación exitosa"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "Error de Autenticación"
   },
   "oauth.authentication.code": {
-    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "Se ha autenticado correctamente. Por favor, copie y pegue el código en su terminal de línea de comandos"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "Copiar código al portapaples"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "El código se ha copiado al portapapeles, puede pegarlo en la línea de comandos."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "No se pudo copiar al portapapeles."
   },
   "list.display-mode.list": {
     "other": "Lista"
@@ -141,27 +141,27 @@
     "other": "Miniaturas"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "Icono Grande"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "Icono Pequeño"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "Galería de imágenes"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "Extensiones de archivos"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "Mostrar extensiones"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "Anclar marcadores arriba"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "Seleccionar un archivo para mostrar información"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "Todos los archivos"
   }
 }
