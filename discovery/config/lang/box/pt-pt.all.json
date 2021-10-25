@@ -24,7 +24,7 @@
     "other": "Valor"
   },
   "aclSingleQuery.Actions": {
-    "other": "Ações"
+    "other": "Acções"
   },
   "aclSingleQuery.NodeIDs": {
     "other": "Identificadores de nós"
@@ -36,7 +36,7 @@
     "other": "Identificadores dos papéis"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Identificadores das Áreas de Trabalho"
+    "other": "Identificadores das áreas de trabalho"
   },
   "aclSingleQuery.not": {
     "other": "não"
@@ -45,31 +45,31 @@
     "other": "Pesquisar no erro (com expressão regular)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Concluído"
+    "other": "Concluído com sucesso"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "JSON contem a chave..."
+    "other": "JSON contém a chave..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Pesquisar no corpo do Json (regexp)"
+    "other": "Pesquisar no corpo do JSON (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "O tamanho do corpo de Json é maior que"
+    "other": "O tamanho do corpo do JSON é maior que"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "O tamanho do corpo Json é menor que"
+    "other": "O tamanho do corpo do JSON é menor que"
   },
   "actionOutputSingleQuery.Not": {
     "other": "Não"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Pesquisar no corpo de texto (regexp)"
+    "other": "Pesquisar no corpo da cadeia de caracteres (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "O tamanho do corpo da string é maior que"
+    "other": "O tamanho do corpo da cadeia de caracteres é maior que"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "O tamanho do corpo da string é menor que"
+    "other": "O tamanho do corpo da cadeia de caracteres é menor que"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
     "other": "Tempo da tarefa maior que"
@@ -78,7 +78,7 @@
     "other": "Tempo da tarefa menor que"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Condição Livre"
+    "other": "Condição livre"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -93,34 +93,34 @@
     "other": "igual a"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Correspondências"
+    "other": "Ocorrências"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "corresponde"
+    "other": "ocorrências"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CondiçãoCIDR"
+    "other": "Condição CIDR"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Assunto igual"
+    "other": "Assunto igual a"
   },
   "contextMetaCondition.ResourceContainsCondition": {
     "other": "Recurso contém"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "Texto igual"
+    "other": "Texto igual a"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "Correspondências de texto"
+    "other": "Ocorrências na cadeia de caracteres"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "ParesDeString igual"
+    "other": "Os pares de cadeias de caracteres são iguais a"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "A string não corresponde"
+    "other": "Não foram encontradas ocorrências para a cadeia de caracteres"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Período da data"
+    "other": "Período"
   },
   "contextMetaCondition.OfficeHoursCondition": {
     "other": "Horário de expediente"

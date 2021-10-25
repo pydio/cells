@@ -93,10 +93,10 @@
     "other": "ID del Rol"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "ID de rol (dejar vacío para auto-generación)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "El identificador ya existe"
   },
   "32": {
     "other": "Etiqueta del Rol"

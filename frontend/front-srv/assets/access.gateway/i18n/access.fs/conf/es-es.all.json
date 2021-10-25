@@ -27,9 +27,9 @@
     "other": "Una vez en modo de paginación, número de items a mostrar por página."
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "Eliminar permanentemente"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "Habilitar la opción de no enviar a la papelera de reciclaje al eliminar"
   }
 }

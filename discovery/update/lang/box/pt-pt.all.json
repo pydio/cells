@@ -1,53 +1,53 @@
 {
   "Update.Config.Title": {
-    "other": "Configuração atualizada"
+    "other": "Actualizar configuração"
   },
   "Update.Config.Url.Label": {
-    "other": "Actualizar Servidores"
+    "other": "Actualizar Servidor"
   },
   "Update.Config.Url.Description": {
-    "other": "URL http para atualização do servidor"
+    "other": "URL HTTP para o servidor das actualizações"
   },
   "Update.Config.PublicKey.Label": {
     "other": "Chave pública"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Chave Oficial usada para verificar assinaturas de binários."
+    "other": "Chave oficial usada para verificar as assinaturas dos ficheiros binários."
   },
   "Update.Config.Channel.Label": {
-    "other": "Atualizar Canal"
+    "other": "Actualizar canal"
   },
   "Update.Config.Channel.Description": {
-    "other": "Canal usado para solicitar atualizações. Marque 'Estável' se você não tiver certeza."
+    "other": "Canal usado para solicitar actualizações. Mantenha-se em «Estável» se não tiver a certeza."
   },
   "Update.Config.Channel.ValueStable": {
     "other": "Estável"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Desenvolva (por sua conta e risco)"
+    "other": "Versão de desenvolvimento (por sua conta e risco)"
   },
   "Update.Config.ProxyHost.Label": {
-    "other": "Proxy"
+    "other": "Opções do proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host do servidor Proxy se necessário para conexões de saída"
+    "other": "Nome do servidor de proxy, se este for necessário para conexões de saída"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Usuário proxy"
+    "other": "Nome do utilizador para o proxy"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "Usuário para autenticação do servidor proxy"
+    "other": "Nome do utilizador necessário para a autenticação no servidor de proxy"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Senha do Proxy"
+    "other": "Senha para o proxy"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Senha para autenticação no servidor Proxy"
+    "other": "Senha necessária para a autenticação no servidor de proxy"
   },
   "Update.Config.Disable.Label": {
-    "other": "Desativar verificações de atualização"
+    "other": "Desactivar a verificação de actualizações"
   },
   "Update.Config.Disable.Description": {
-    "other": "Se o seu servidor não tem acesso ao mundo exterior, tente atualizar o site."
+    "other": "Se o seu servidor não tem acesso ao mundo exterior, não tente contactar o servidor de actualizações."
   }
 }

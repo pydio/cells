@@ -1,63 +1,63 @@
 {
   "39": {
-    "other": "Abaixo está uma lista dos espaços de trabalho que você pode acessar. Estes podem ser pessoais ou compartilhados com/por outros usuários."
+    "other": "Abaixo está uma lista dos espaços de trabalho a que tem acesso. Estes podem ser pessoais ou compartilhados com/por outros utilizadores."
   },
   "40": {
     "other": "Bem-vindo, %s! "
   },
   "41": {
-    "other": "Usar este espaço de trabalho como padrão"
+    "other": "Usar este espaço de trabalho por omissão"
   },
   "42": {
     "other": "Entrar"
   },
   "43": {
-    "other": "Meu Perfil"
+    "other": "O meu perfil"
   },
   "43t": {
     "other": "Todos os meus dados pessoais"
   },
   "44": {
-    "other": "Minha Conta"
+    "other": "A minha conta"
   },
   "45": {
     "other": "Dados pessoais"
   },
   "46": {
-    "other": "Catálogo de endereços"
+    "other": "Livro de endereços"
   },
   "47": {
-    "other": "Usuários e equipes criados por você"
+    "other": "Utilizadores e equipas criados por si"
   },
   "48": {
-    "other": "Meus Usuários"
+    "other": "Os meus utilizadores"
   },
   "49": {
-    "other": "Usuários externos criados por criou"
+    "other": "Utilizadores externos criados por si"
   },
   "50": {
-    "other": "Minhas Equipes"
+    "other": "As minhas equipas"
   },
   "51": {
-    "other": "Equipes de usuários, usados como atalhos ao compartilhar"
+    "other": "Equipas de utilizadores, usados como atalhos na partilha"
   },
   "52": {
-    "other": "Tem certeza de que deseja apagar esta equipe? Nenhum usuário será removido."
+    "other": "Tem certeza de que deseja apagar esta equipa? Não será removido nenhum utilizador."
   },
   "53": {
     "other": "Primeiros passos"
   },
   "54": {
-    "other": "Primeiros passos com APPLICATION_TITLE com os seguintes videos"
+    "other": "Dê os primeiros passos na utilização do APPLICATION_TITLE seguindo vídeos de auto-aprendizagem"
   },
   "55": {
-    "other": "Novo no APPLICATION_TITLE? <a>Assista nossos tutorials</a>!"
+    "other": "Não conhece ainda o APPLICATION_TITLE? <a>Assista aos nossos tutoriais</a>!"
   },
   "56": {
-    "other": "Conhecendo APPLICATION_TITLE agora? Assista estes vídeos!"
+    "other": "Está a começar com o APPLICATION_TITLE? Assista a estes vídeos!"
   },
   "57": {
-    "other": "Faça o Download APPLICATION_TITLE para..."
+    "other": "Descarregue o APPLICATION_TITLE para..."
   },
   "58": {
     "other": "Android"
@@ -66,34 +66,34 @@
     "other": "iPhone/iPad"
   },
   "60": {
-    "other": "Mac OS"
+    "other": "macOS"
   },
   "61": {
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] O que é um espaço de trabalho?</h2>\n            Este vídeo explica o que são espaços de trabalho em APPLICATION_TITLE\n            <ul>\n                <li>Porque são os espaços de trabalho centrais a APPLICATION_TITLE?</li>\n                <li>O que são espaços de trabalho de uma perspetiva técnica?</li>\n                <li>Como permitem que organize seus dados?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] O que é um espaço de trabalho?</h2>\n            Este vídeo explica o que são os espaços de trabalho do APPLICATION_TITLE\n            <ul>\n                <li>Porque são os espaços de trabalho fundamentais ao APPLICATION_TITLE?</li>\n                <li>O que são espaços de trabalho de uma perspectiva técnica?</li>\n                <li>Como podem ajudar a organizar os seus dados?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2> [Como] Carregar arquivos para APPLICATION_TITLE </h2>\n             Comece com APPLICATION_TITLE e veja como fazer upload de arquivos\n             <ul>\n                 <li> Arraste e solte arquivos em APPLICATION_TITLE </li>\n                 <li> Crie uma nova pasta </li>\n                 <li> Renomear arquivos e pastas </li>\n                 <li> Baixe arquivos para o seu computador </li>\n             </ul>"
+    "other": "<h2> [How-to] Carregar ficheiros para o APPLICATION_TITLE </h2>\n             Comece com APPLICATION_TITLE e aprenda a carregar ficheiros\n             <ul>\n                 <li> Arraste e solte ficheiros no APPLICATION_TITLE </li>\n                 <li> Crie uma nova pasta</li>\n                 <li> Renomeie ficheiros e pastas</li>\n                 <li> Descarregue ficheiros para o seu computador</li>\n             </ul>            "
   },
   "64": {
-    "other": "<h2>[Como] Pesquisar, navegar e gerenciar seus arquivos</h2>\n             Este vídeo mostra várias dicas para gerenciar com eficiência seus arquivos em APPLICATION_TITLE\n             <ul>\n                 <li>Barra de pesquisa entre espaços de trabalho</li>\n                 <li>Modos de exibição de conteúdo, atalhos de teclado</li>\n                 <li>Classificar arquivos</li>\n                 <li>Metadados, favoritos</li>\n             </ul>"
+    "other": "<h2>[How-to] Pesquisar, navegar e gerir os seus ficheiros</h2>\n             Este vídeo mostra várias dicas para gerir com eficiência os seus ficheiros no APPLICATION_TITLE\n             <ul>\n                 <li>Barra da pesquisa entre espaços de trabalho</li>\n                 <li>Modos de exibição de conteúdo, atalhos de teclado</li>\n                 <li>Ordenar ficheiros</li>\n                 <li>Metadados, favoritos</li>\n             </ul>            "
   },
   "65": {
-    "other": "Aprenda mais no canal do APPLICATION_TITLE!"
+    "other": "Descubra mais no canal do APPLICATION_TITLE!"
   },
   "66": {
-    "other": "<h2> [Como fazer] Usando APPLICATION_TITLE no dispositivo iOS </h2>\n                             Este vídeo explica como usar o aplicativo APPLICATION_TITLE (disponível na App Store). O processo também é bastante semelhante no Android.\n<ul> <li> Configure a conexão do servidor </li>\n<li> Navegando pelos arquivos </li>\n<li> Manter os arquivos offline e interagir com aplicativos externos </li>\n<li> Protegendo o aplicativo com um código PIN </li>\n<li> Usando favoritos e mecanismo de pesquisa </li> </ul>"
+    "other": "<h2> [How-to] Como usar APPLICATION_TITLE num dispositivo iOS </h2>\n                             Este vídeo explica como usar a aplicação APPLICATION_TITLE (disponível na App Store). O processo também é bastante semelhante no Android.\n<ul> <li> Configure a conexão ao servidor</li>\n<li> Navegando pelos ficheiros </li>\n<li> Manter ficheiros offline e interagir com aplicações externas</li>\n<li> Protegendo a aplicação com um código PIN</li>\n<li> Usando favoritos e o motor de pesquisa</li> </ul>"
   },
   "67": {
-    "other": "Se você não é %s, %logout."
+    "other": "Se não é %s, %logout."
   },
   "68": {
-    "other": "Baixar cliente de sincronização para Windows"
+    "other": "Descarregar o cliente de sincronização para Windows"
   },
   "69": {
-    "other": "Baixar cliente de sincronização para Mac OSX"
+    "other": "Descarregar o cliente de sincronização para macOS"
   },
   "70": {
     "other": "Aplicação nativa para dispositivos iOS"
@@ -105,13 +105,13 @@
     "other": "QRCode do servidor"
   },
   "73": {
-    "other": "Conecte suas aplicações móveis facilmente"
+    "other": "Conecte facilmente as suas aplicações móveis"
   },
   "74": {
-    "other": "Escanear este QRCode para configurar facilmente seu aplicativo móvel"
+    "other": "Capture este QRCode para configurar facilmente o seu aplicativo móvel"
   },
   "75": {
-    "other": "Pesquisar todos os arquivos..."
+    "other": "Pesquisar todos os ficheiros..."
   },
   "76": {
     "other": "Aceder %1 através do menu superior direito"
@@ -120,16 +120,16 @@
     "other": "painel de administração"
   },
   "78": {
-    "other": "Selecione o espaço de trabalho de destino"
+    "other": "Seleccione o espaço de trabalho de destino"
   },
   "79": {
-    "other": "<h2> [Instruções] Compartilhando arquivos e pastas </h2>\n             Este tutorial mostra como compartilhar arquivos e pastas, interna ou externamente\n             <ul>\n                 <li> Criação de links de compartilhamento para pessoas externas </li>\n                 <li> Compartilhamento de arquivos e pastas com colaboradores internos </li>\n                 <li> Compartilhando uma pasta como área de trabalho </li>\n                 <li> Opções de layout de pastas compartilhadas </li>\n                 <li> Criação de uma pasta cega </li>\n                 <li> Gerenciamento de usuários e direitos de compartilhamento </li>\n             </ul>"
+    "other": "<h2>[How-to] Como partilhar ficheiros e pastas </h2>\n             Este tutorial mostra como partilhar ficheiros e pastas, interna ou externamente\n             <ul>\n                 <li>Criação de links de partilha com pessoas externas</li>\n                 <li>Partilha de ficheiros e pastas com colaboradores internos</li>\n                 <li>Partilhar uma pasta como sendo uma área de trabalho</li>\n                 <li>Opções de layout de pastas compartilhadas</li>\n                 <li>Criação de uma pasta para largar documentos no interior</li>\n                 <li>Gestão de utilizadores e permissões de partilha</li>\n             </ul>            "
   },
   "80": {
-    "other": "<h2> [Instruções] Compartilhamento: recursos de segurança </h2>\n             Este vídeo apresenta várias configurações de compartilhamento que ajudam a proteger seus compartilhamentos\n             <ul>\n                 <li> Proteção por senha </li>\n                 <li> Data de expiração </li>\n                 <li> Limite o número de downloads </li>\n             </ul>"
+    "other": "<h2> [How-to] Partilha : características de segurança</h2>\n             Este vídeo apresenta várias configurações de partilha que ajudam a proteger as suas partilhas\n             <ul>\n                 <li>Protecção por senha</li>\n                 <li>Data de expiração</li>\n                 <li>Limite o número de descarregamentos autorizados</li>\n             </ul>            "
   },
   "81": {
-    "other": "<h2> [Como fazer] Personalize seus links de compartilhamento </h2>\n             Veja como você pode personalizar o URL de seus links de compartilhamento para torná-los mais amigáveis."
+    "other": "<h2>[How-to] Personalize os seus links de partilha</h2>\n             Veja como pode personalizar o URL dos seus links de partilha para torná-los mais amigáveis.            "
   },
   "82": {
     "other": "<h2> [Como fazer] Direitos personalizados de links compartilhados </h2>\n             Este vídeo mostra como gerenciar as permissões associadas aos seus compartilhamentos\n             <ul>\n                 <li> Visualização </li>\n                 <li> Download </li>\n                 <li> Carregar / editar </li>\n             </ul>"

@@ -168,13 +168,13 @@
     "other": "Importar en Cells enlaces públicos Pydio 8 y carpetas compartidas. Los enlaces públicos se crearán con el mismo identificador y propiedades (contraseña, expiración, etc...). Las carpetas compartidas como Workspaces en Pydio 8 se asociarán a las nuevas Cells."
   },
   "step.shares.legend.warning": {
-    "other": "Please note that share import is a uni-directionnal synchronization : performing this step many times will create duplicates. If you plan to perform migration multiple times, you should first import shares for a limited number of testing users."
+    "other": "Tenga en cuenta que la importación de elementos compartidos es una sincronización unidireccional : llevar a cabo esta acción creará duplicados muchas veces. Si prevé realizar la migración múltiples veces, primero debe realizar esta importación para un número limitado de usuarios de prueba."
   },
   "step.shares.restrict.type": {
     "other": "1. Restringir el tipo de elemento compartido que se va a importar (seleccionar al menos uno):"
   },
   "step.shares.restrict.user": {
-    "other": "2. For testing purpose, you can limit import to one or more specific users (comma-separated list)"
+    "other": "2. Para hacer una prueba, puede limitar la importación a uno o más usuarios específicos (lista separada por comas)"
   },
   "step.shares.restrict.user.login": {
     "other": "Inicio de sesión del propietario"

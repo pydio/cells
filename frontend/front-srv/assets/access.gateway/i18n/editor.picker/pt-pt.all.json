@@ -1,21 +1,21 @@
 {
   "1": {
-    "other": "Escolher outro..."
+    "other": "Escolha outro..."
   },
   "2": {
-    "other": "Escolher outro editor"
+    "other": "Escolha outro editor"
   },
   "3": {
-    "other": "Selecione outro editor para abrir este arquivo"
+    "other": "Seleccione outro editor para abrir este ficheiro"
   },
   "4": {
-    "other": "Aviso, estes editores não declararam suportar este tipo de arquivo, o comportamento dos mesmos pode ser imprevisível!"
+    "other": "Aviso: estes editores não declararam suportar este tipo de ficheiro, pelo que o comportamento dos mesmos pode ser imprevisível!"
   },
   "5": {
     "other": "Apagar associações"
   },
   "drop.cell.picker": {
-    "other": "Escolha a ação para %s..."
+    "other": "Escolha a acção para %s..."
   },
   "drop.cell.share.legend": {
     "other": "Adicionar novo item a esta célula"
@@ -24,24 +24,24 @@
     "other": "Dentro de %s"
   },
   "drop.cell.file.share": {
-    "other": "Compartilhar arquivo"
+    "other": "Partilhar ficheiro"
   },
   "drop.cell.folder.share": {
-    "other": "Compartilhar pasta"
+    "other": "Partilhar pasta/directoria"
   },
   "drop.cell.file.move": {
-    "other": "Mover arquivo"
+    "other": "Mover ficheiro"
   },
   "drop.cell.folder.move": {
-    "other": "Mover Pasta"
+    "other": "Mover pasta"
   },
   "drop.cell.file.copy": {
-    "other": "Copiar arquivo"
+    "other": "Copiar ficheiro"
   },
   "drop.cell.folder.copy": {
     "other": "Copiar pasta"
   },
   "download.as.pdf": {
-    "other": "Baixar como PDF"
+    "other": "Descarregar como PDF"
   }
 }

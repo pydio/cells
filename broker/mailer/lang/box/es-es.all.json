@@ -162,16 +162,16 @@
     "other": "Motor utilizado para enviar emails"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "Deshabilitado (no habilitar correos electrónicos)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (habilitar correos electrónicos pero no enviar nada)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "Escribir correos electrónicos con fines de depuración"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "Carpeta de destino para correos electrónicos"
   },
   "Mail.Config.Smtp.Label": {
     "other": "Servidor SMTP"
@@ -207,10 +207,10 @@
     "other": "Desahabilitar verificación de certificado si el certificado de servidor SMTP está autofirmado"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "Nombre Local de Dialer"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "El dialer SMTP envía 'localhost' en el comando EHLO por defecto, utilizar este campo para establecer un nombre local personalizado"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "Servicio de SendGrid"
