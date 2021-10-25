@@ -335,6 +335,9 @@ func initLogLevel() {
 	common.LogToFile = viper.GetBool("log_to_file")
 
 	// Backward compatibility
+	if os.Getenv("PYDIO_LOGS_LEVEL") != "" {
+		logLevel = os.Getenv("PYDIO_LOGS_LEVEL")
+	}
 	if logLevel == "production" {
 		logLevel = "info"
 		logJson = true
