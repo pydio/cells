@@ -2,29 +2,29 @@
 
 *Pydio Cells is a free and open source project and we are very glad to welcome your contribution. To make the process as seamless as possible, we recommend you read this contribution guide*.
 
-FYI, we use Github only for "qualified bugs" : bugs that are easily reproduced, validated by a Pydio Team member. Our preferred communication channel is our Forum. Please do not ask question in github issues, nor in Twitter or other social feed.
+FYI, we use GitHub only for "qualified bugs" : bugs that are easily reproduced, validated by a Pydio Team member. Our preferred communication channel is our Forum. Please do not ask question in GitHub issues, nor in Twitter or other social feed.
 
 So, what should I do in case of:
 
-- **Install or upgrade issue?**  Search the [F.A.Q](https://pydio.com/en/docs/faq)  or [READ THE DOCS](https://pydio.com/en/docs)  
+- **Install or upgrade issue?**  Search the [F.A.Q.](https://pydio.com/en/docs/faq) or [READ THE DOCS](https://pydio.com/en/docs)
 - **No answer yet?** Search the [FORUM](https://forum.pydio.com)
 - **Still stuck?** It's time to ask the community via the [FORUM](https://forum.pydio.com)
 
 *And only if you're invited to*:
 
-- **Post a github issue**: make sure to put as much detail as possible (see below).
+- **Post a GitHub issue**: make sure to put as much detail as possible (see below).
 - or **submit a pull request**.
 
 ## Report an issue
 
-If you report an issue (either on the forum or upon request by submitting a github issue), make sure to put as much detail as possible:
+If you report an issue (either on the forum or upon request by submitting a GitHub issue), make sure to put as much detail as possible:
 
 - Hardware and OS info and versions
 - Pydio Cells version
 - Switch to debug mode by starting Pydio Cells with `$ ./cells --log debug start` and attach relevant log to your request
 - Describe steps and provide files to help us reproduce the bug
-- Attach any screenshot that might be relevant 
-- If you are referring to a discussion on the Forum, add the link. 
+- Attach any screenshot that might be relevant
+- If you are referring to a discussion on the Forum, add the link.
 
 _Remember: the more info you give, the more easily we can reproduce the bug, the quicker we can fix it._
 
@@ -64,8 +64,8 @@ log.Logger(context.Background()).Debug...
 ```
 
 - Error should always use the Error level: `log.Logger(ctx).Error(...)`
-- In Go, it is idiomatic to start error message with a lower case.  
-  For instance rather use `log.Logger(ctx).Error("unable to save file")`  
+- In Go, it is idiomatic to start error message with a lower case.
+  For instance rather use `log.Logger(ctx).Error("unable to save file")`
   than `log.Logger(ctx).Error("Unable to save file")`
 
 ### Comments
@@ -89,13 +89,13 @@ Before submitting a Pull Request, please sign the [Contributor License Agreement
 
 ### Setup your Pydio Cells Github Repository
 
-Fork [Pydio Cells](https://github.com/pydio/cells/fork) source repository to your own personal repository. Copy the URL of your fork.
+Fork the [Pydio Cells](https://github.com/pydio/cells/fork) source repository to your own personal repository. Copy the URL of your fork.
 
 ```sh
 mkdir -p $GOPATH/src/github.com/pydio
 cd $GOPATH/src/github.com/pydio
 git clone <the URL you just copied>
-cd pydio
+cd cells
 ```
 
 ### Set up git remote as ``upstream``
@@ -109,11 +109,13 @@ git merge upstream/master
 
 ### Create your feature branch
 
-Before making code changes, make sure you create a separate branch for these changes
+Before making code changes, make sure you create a separate branch for these changes:
 
 ```sh
 git checkout -b my-new-feature
 ```
+
+If you're using Go 1.16 or later, don't forget to [set the environment variable `GO111MODULE` to `auto`](README.md#note-on-the-third-party-libraries) before attempting your first compilation!
 
 ### Test Pydio Cells changes
 
@@ -125,7 +127,7 @@ After your code changes, make sure
 
 ### Commit changes
 
-After verification, commit your changes. This is a [great post](https://chris.beams.io/posts/git-commit/) on how to write useful commit messages
+After verification, commit your changes. This is a [great post](https://chris.beams.io/posts/git-commit/) on how to write useful commit messages.
 
 ```sh
 git commit -am 'Add a cool feature'
@@ -141,10 +143,10 @@ git push origin my-new-feature
 
 ### Create a Pull Request
 
-Pull requests can be created via GitHub. Refer to [this document](https://help.github.com/articles/creating-a-pull-request/) for detailed steps on how to create a pull request. After a Pull Request gets peer reviewed and approved, it will be merged.
+Pull Requests can be created via GitHub. Refer to [this document](https://help.github.com/articles/creating-a-pull-request/) for detailed steps on how to create a pull request. After a Pull Request gets peer reviewed and approved, it will be merged.
 
 ## Attribution
 
-The Pull Request HowTo is adapted from minio's great [Contributing Page][minioContributing].
+The Pull Request How-To is adapted from minio's great [Contributing Page][minioContributing].
 
 [minioContributing]: https://github.com/minio/minio/blob/master/CONTRIBUTING.md
