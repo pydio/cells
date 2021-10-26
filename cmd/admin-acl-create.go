@@ -38,7 +38,7 @@ var createAclCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
   
-  Create an Access Control in the dedicated microservice
+  Create an Access Control in the dedicated microservice.
   Use this command to manually grant a permission on a given node for a given role.
 `,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -42,41 +42,41 @@ var sitesCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
   
-  Manage how Cells is binding to the local host's network interfaces addresses and accepting traffic coming from external URLs.
-  This is the main tool for listing, editing, adding and removing sites. Additional sub-commands allow you to directly create/delete sites.
+  Manage how Cells is binding to the localhost's network interface addresses and accepting traffic coming from external URLs.
+  This is the main tool for listing, editing, adding and removing sites. Additional sub-commands allow you to directly create or delete sites.
   
   Each site has following parameters:
-   1. <Bind Addresse(s)>: one or more <ip/hostname:port> to bind Cells to local host's network interfaces addresses. 
+   1. <Bind Addresse(s)>: one or more <ip/hostname:port> to bind Cells to localhost's network interface addresses. 
    2. <TLS Settings>: TLS configuration for HTTPS support.
    3. <External URL>: Accept traffic coming from this url and redirect to one of the bind address.
-      Typically if the app is behind a reverse-proxy or inside a container with ports mapping.
+      Typically if the app is behind a reverse proxy or inside a container with ports mapping.
    4. <Maintenance Mode> [On|Off]: expose a maintenance page on this endpoint, although Cells is running.
 
 EXAMPLES 
 
   1. Default value (used when no sites is configured)
     - Bind Address: 0.0.0.0:8080
-    - TLS : SelfSigned
+    - TLS: SelfSigned
     - External URL: [left empty]
   
   2. Provided certificate
     - Bind Address: 0.0.0.0:8080
-    - TLS : Your own key/cert pair
+    - TLS: Your own key/cert pair
     - External URL: https://share.mydomain.tld
   
-  3. Auto-ssl using Let's Encrypt 
+  3. Auto-TLS using Let's Encrypt 
     - Bind Address: share.mydomain.tld:443
-    - TLS : LetsEncrypt
+    - TLS: LetsEncrypt
     - External URL: https://share.mydomain.tld
   
-  4. Self Signed
+  4. Self-signed
     - Bind Address: IP:1515         # internal port
-    - TLS : SelfSigned
+    - TLS: Self-signed
     - External URL: https://IP:8080   # external port mapped by docker
   
   5. HTTP only
     - Bind Address: localhost:8080
-    - TLS : Disabled
+    - TLS: Disabled
     - External URL: http://localhost:8080  # Non-secured local installation
 
 `,

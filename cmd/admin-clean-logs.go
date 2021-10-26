@@ -50,8 +50,8 @@ DESCRIPTION
 
   Appart from rotated log files, logs are indexed inside an on-file database for high-performance analysis and search. 
   These indexes are rotated (50MB size by default) and you can use this command to remove the oldest index files. 
-  Most recent index will be always kept.
-  Specify the size threshold using bytes unit : 50MB, 5mb, 1GB, etc...
+  The most recent index will always be kept.
+  Specify the size threshold using bytes unit: 50MB, 5mb, 1GB, etc...
 
 EXAMPLES
 

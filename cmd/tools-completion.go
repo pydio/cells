@@ -69,7 +69,7 @@ var completionCmd = &cobra.Command{
 DESCRIPTION
 
   Install completion helper for Pydio Cells.
-  This command installs an additional plugin to provide suggestions when working with the Cells and hitting the 'tab' key.
+  This command installs an additional plugin to provide suggestions when working with the Cells CLI and hitting the 'tab' key.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

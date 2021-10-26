@@ -41,7 +41,7 @@ var searchAclCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  List ACLs currently stored in the acl microservice.
+  List ACLs currently stored in the ACL microservice.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

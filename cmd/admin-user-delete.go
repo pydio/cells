@@ -38,7 +38,7 @@ var userDeleteCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Delete a user
+  Delete a user.
 
   *WARNING* Policy checks are not yet implemented for the CLI. 
   You might corrupt your existing user and group repository,  

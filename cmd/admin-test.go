@@ -27,9 +27,10 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
+	"github.com/spf13/cobra"
+
 	defaults "github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/test"
-	"github.com/spf13/cobra"
 )
 
 var (

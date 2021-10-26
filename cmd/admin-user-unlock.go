@@ -43,7 +43,7 @@ var userUnlockCmd = &cobra.Command{
 	Long: fmt.Sprintf(`
 DESCRIPTION
 
-  Remove user locks.
+  Unlock a given user.
   This may be handy if admin is locked out of the interface.
 
 EXAMPLE

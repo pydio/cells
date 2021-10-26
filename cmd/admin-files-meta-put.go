@@ -40,12 +40,12 @@ var (
 
 var metaPutCmd = &cobra.Command{
 	Use:   "meta-put",
-	Short: "Create or update a metadata entry for a node.",
+	Short: "Create or update a metadata entry for a node",
 	Long: `
 DESCRIPTION
 
   Create or update a metadata entry for a node.
-  For a given node Uuid, metadata are key/values of string/json-encoded strings.
+  For a given node UUID, metadata are key/values of string/json-encoded strings.
 
 EXAMPLE
 

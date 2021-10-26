@@ -30,7 +30,6 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/broker"
-
 	"github.com/spf13/cobra"
 )
 

@@ -48,7 +48,7 @@ var DataSourceCmd = &cobra.Command{
 		cmd.Help()
 	},
 	Short: "Datasource management commands",
-	Long:  "Collection of tools for manipulating datasources",
+	Long:  "Collection of tools for manipulating datasources.",
 }
 
 func init() {

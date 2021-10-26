@@ -23,8 +23,9 @@ package cmd
 import (
 	"log"
 
-	"github.com/pydio/go/docs"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/go/docs"
 
 	"github.com/pydio/cells/common"
 )

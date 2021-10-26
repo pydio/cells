@@ -48,7 +48,7 @@ DESCRIPTION
 
 EXAMPLES
 
-  To trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource : 
+  To trigger the re-indexation of "pydiods1" datasource, target the "sync" service associated to the datasource: 
 
   $ ` + os.Args[0] + ` admin datasource resync --datasource=pydiods1
 

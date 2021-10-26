@@ -38,11 +38,11 @@ func init() {
 var sitesCaddy = &cobra.Command{
 	Use:    "caddy",
 	Hidden: true,
-	Short:  "Dump content of the caddy file currently served by pydio.gateway.proxy",
+	Short:  "Dump content of the Caddyfile currently served by pydio.gateway.proxy",
 	Long: `
 DESCRIPTION
 
-  Send an event to pydio.gateway.proxy to make it dump the caddy configuration in the logs.
+  Send an event to pydio.gateway.proxy to make it dump the Caddy configuration in the logs.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -37,7 +37,7 @@ var delConfigCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Delete a configuration item. It will be removed both from the pydio.json file and from the database.
+  Delete a configuration item. It will be removed from both the pydio.json file and the database.
 
 SYNTAX
 

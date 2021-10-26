@@ -42,7 +42,7 @@ DESCRIPTION
 
 SYNTAX
 
-  Configuration items are represented by three parameters passed as arguments :
+  Configuration items are represented by three parameters passed as arguments:
   - serviceName: name of the corresponding service
   - configName: name of the parameter
   - configValue: json-encoded value of the parameter you want to set/change

@@ -51,13 +51,13 @@ var userSetProfileCmd = &cobra.Command{
 	Long: fmt.Sprintf(`
 DESCRIPTION
 
-  Set a user profile
+  Set a user profile.
 
   Valid profiles are one of: %s, %s, %s or %s.
   Installation specific profiles are not yet supported by this CLI.
 
-  *WARNING*: please remember that user with admin profile have 
-  full control over your app via the web front end. So think twice beforew 
+  *WARNING*: please remember that user with admin profile have full control over your app via the web front end: 
+  think twice before giving this profile to an existing user.
 
 EXAMPLE
 

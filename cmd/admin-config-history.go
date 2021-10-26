@@ -26,8 +26,6 @@ import (
 	"strconv"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -36,6 +34,7 @@ import (
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/x/filex"
+	json "github.com/pydio/cells/x/jsonx"
 )
 
 var (

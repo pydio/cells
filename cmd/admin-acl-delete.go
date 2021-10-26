@@ -40,8 +40,8 @@ var deleteAclCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
   
-  Remove one or more ACLs by querying the ACL api.
-  Flags allow you to query the grpc service and delete the resulting ACLs.
+  Remove one or more ACLs by querying the ACL API.
+  Flags allow you to query the gRPC service and delete the resulting ACLs.
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {

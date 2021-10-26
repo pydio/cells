@@ -50,7 +50,7 @@ DESCRIPTION
 
   Create a new user.
 
-  Please, note that the login is case sensitive. You can create 2 distinct users with login  'User' and 'user'. 
+  Please, note that the login is case sensitive. You can create 2 distinct users with login 'User' and 'user'. 
   You can also create a user in a given group by entering a full path (see examples below). 
 
   If not provided with the -p flag, password is prompted by the command line.

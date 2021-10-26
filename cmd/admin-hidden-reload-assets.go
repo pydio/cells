@@ -35,7 +35,7 @@ var reloadAssetsCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  [For development only] Clear in-memory assets and refresh all, including i18n json files.
+  [For development only] Clear in-memory assets and refresh all, including the i18n JSON files.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Println("Sending a reload command on ReloadAssets topic")

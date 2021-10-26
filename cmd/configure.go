@@ -153,7 +153,7 @@ ENVIRONMENT
   is equivalent to 
   $ export CELLS_BIND=":9876"; ` + os.Args[0] + ` configure
 
-  For backward compatibility reasons, the --cli, --yaml and --json  flags do not respect the above rule (this might evolve in the 3.x version).
+  For backward compatibility reasons, the --cli, --yaml and --json flags do not respect the above rule (this might evolve in a future version).
   They are respectively equivalent to CELLS_INSTALL_CLI, CELLS_INSTALL_YAML and CELLS_INSTALL_JSON ENV vars.
 
  `,

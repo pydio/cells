@@ -64,12 +64,12 @@ EXAMPLES
   $ ` + os.Args[0] + ` admin user token -u admin -e 24h
 
   Generate a token that lasts by default 10mn, but which expiration is refreshed to the next 10mn each time 
-  token is used.
+  the token is used.
   $ ` + os.Args[0] + ` admin user token -u admin -a 10m
 
 TOKEN USAGE
 
-  These token can be used in replacement of an OAuth2-based access token : they can replace the "Bearer" access 
+  These token can be used in replacement of an OAuth2-based access token: they can replace the "Bearer" access 
   token when calling any REST API. They can also be used as the password (in conjunction with username) for all 
   basic-auth based APIs (e.g. webDAV).
 

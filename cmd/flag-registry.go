@@ -23,15 +23,15 @@ package cmd
 import (
 	"net/url"
 
-	"github.com/pydio/cells/common/micro/transport/grpc"
-	"github.com/pydio/cells/common/utils/net"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro/broker"
 	"github.com/pydio/cells/common/micro/registry"
+	"github.com/pydio/cells/common/micro/transport/grpc"
 	cells_registry "github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/utils/net"
 )
 
 // addRegistryFlags registers necessary flags to connect to the registry

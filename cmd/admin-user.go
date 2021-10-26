@@ -41,7 +41,7 @@ var UserCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Manage users from command line by calling the dedicated services.
+  Manage users from the command line by calling the dedicated services.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

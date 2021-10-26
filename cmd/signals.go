@@ -33,12 +33,11 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/broker"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/registry"
-
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/registry"
 )
 
 func handleSignals() {

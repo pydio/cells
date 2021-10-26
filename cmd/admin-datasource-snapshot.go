@@ -51,20 +51,20 @@ DESCRIPTION
 
   For flat format datasources, files are stored horizontally with UUID as their names inside the storage. 
   The associated tree structure (files and folders) is maintained in the Cells database only.
-  For best restore/backup operations, it can be useful to regularly dump a snapshot of this tree structure inside a 
-  particular file inside the storage, which can be used later on to reload data on a clean installation.
+  For backup/restore operations, it can be useful to regularly dump a snapshot of this tree structure inside a 
+  particular file inside the storage, which can be later used  to reload data on a clean installation.
 
   This command allows to dump/load the index on-file.
 
 EXAMPLES
 
-  1. Dump database index inside a snapshot.db file inside the datasource storage :
+  1. Dump database index inside a snapshot.db file inside the datasource storage:
   $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=dump --basename=snapshot.db
 
-  2. Reload database index from a snapshot.db file located inside the datasource storage :
+  2. Reload database index from a snapshot.db file located inside the datasource storage:
   $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=load --basename=snapshot.db
 
-  3. Remove a known snapshot.db file from datasource storage :
+  3. Remove a known snapshot.db file from datasource storage:
   $ ` + os.Args[0] + ` admin datasource snapshot --datasource=pydiods1 --operation=delete --basename=snapshot.db
 
 `,

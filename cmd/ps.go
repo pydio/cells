@@ -82,7 +82,7 @@ var psCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  List all available services and their statuses
+  List all available services and their statuses.
 
   Use this command to list all running services on this machine.
   Services fall into main categories (GENERIC, GRPC, REST, API) and are then organized by tags (broker, data, idm, etc.)

@@ -28,7 +28,6 @@ var DocCmd = &cobra.Command{
 	Use:    "doc",
 	Hidden: true,
 	Short:  "Manage documentation about Cells and this CLI tool",
-	Long:   ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

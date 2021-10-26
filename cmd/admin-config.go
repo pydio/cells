@@ -32,7 +32,7 @@ var ConfigCmd = &cobra.Command{
 	Long: `
 DESCRIPTION
 
-  Set of commands providing programmatic access to stored configuration
+  Set of commands providing programmatic access to stored configuration.
 
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {

@@ -46,7 +46,7 @@ DESCRIPTION
   ACLs are managed in a dedicated microservice.
 
   It is simpler to manage them in the frontend, but you can use this command to create/delete/search ACLs directly.
-  ACLs are used to grant permissions to a given node Uuid for a given Role.
+  ACLs are used to grant permissions to a given node (retrieved by UUID) for a given Role.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

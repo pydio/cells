@@ -33,7 +33,6 @@ import (
 	"github.com/pydio/cells/common/config/micro/memory"
 	"github.com/pydio/cells/common/config/migrations"
 	"github.com/pydio/cells/x/filex"
-	//. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestConfigUpgrade(t *testing.T) {

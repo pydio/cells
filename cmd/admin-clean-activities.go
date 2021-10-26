@@ -58,7 +58,7 @@ var (
 
 var cleanActivities = &cobra.Command{
 	Use:   "activities",
-	Short: "Purge users or files activities based on various criteria",
+	Short: "Purge user or file activities based on various criteria",
 	Long: `
 DESCRIPTION
 
