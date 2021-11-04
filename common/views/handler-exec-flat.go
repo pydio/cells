@@ -105,11 +105,14 @@ func (f *FlatStorageHandler) CopyObject(ctx context.Context, from *tree.Node, to
 		} else {
 			// Insert in tree as temporary
 			temporary := to.Clone()
-			//temporary.Uuid = uuid.New()
 			if dir, o := requestData.Metadata[common.XAmzMetaDirective]; o && dir == "COPY" { // MOVE CASE = Copy original metadata
 				temporary.Uuid = from.Uuid
 			} else if temporary.Uuid == "" || temporary.Uuid == from.Uuid {
 				temporary.Uuid = uuid.New()
+				// Copy - Uuid maybe specified by a previous handler
+				if metaUuid, ok := requestData.Metadata[common.XAmzMetaNodeUuid]; ok && metaUuid != "" {
+					temporary.Uuid = metaUuid
+				}
 			}
 			temporary.Type = tree.NodeType_LEAF
 			temporary.Etag = common.NodeFlagEtagTemporary
