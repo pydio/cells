@@ -67,12 +67,16 @@ func (s SiteConf) Redirects() map[string]string {
 		} else {
 			host = bind
 		}
+		targetHost := host
+		if host == "0.0.0.0" {
+			targetHost = "{host}"
+		}
 		if port == "" {
-			rr["http://"+host] = "https://" + host
+			rr["http://"+host] = "https://" + targetHost
 		} else if port == "80" {
 			continue
 		} else {
-			rr["http://"+host] = "https://" + host + ":" + port
+			rr["http://"+host] = "https://" + targetHost + ":" + port
 		}
 	}
 
