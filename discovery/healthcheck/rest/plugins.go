@@ -23,8 +23,8 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/spf13/viper"
 
@@ -36,8 +36,8 @@ import (
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 
-		port := fmt.Sprintf("%v", viper.Get("healthcheck"))
-		if port == "0" {
+		port := viper.GetInt("healthcheck")
+		if port == 0 {
 			return
 		}
 
@@ -45,7 +45,7 @@ func init() {
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceHealthCheck),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
-			service.Port(port),
+			service.Port(strconv.Itoa(port)),
 			service.Description("Healthcheck for services"),
 			service.WithHTTP(func() http.Handler {
 				return NewRouter()
