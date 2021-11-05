@@ -249,8 +249,19 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		return nil, createdNodes, er
 	}
 
-	if len(created) == 0 && node.Etag != "" {
+	var needsUpdate bool
+	if !user.IsGroup && len(created) == 0 && node.Etag != "" {
+		// This is an explicit password update
 		log.Logger(context.Background()).Debug("User update w/ password")
+		needsUpdate = true
+	} else if !user.IsGroup && len(created) > 0 && user.Password == "" {
+		// User has been created with an empty password! Generate a random strong one now
+		log.Logger(context.Background()).Warn("Generating random password for new user")
+		needsUpdate = true
+		node.Etag = hasher.CreateHash(string(auth.RandStringBytes(20)))
+	}
+
+	if needsUpdate {
 		updateNode := mtree.NewTreeNode()
 		updateNode.SetMPath(mPath...)
 		if err := s.IndexSQL.DelNode(updateNode); err != nil {

@@ -111,7 +111,7 @@ func (p PydioPW) CheckDBKDF2PydioPwd(password string, hashedPw string, legacySal
 }
 
 func (p PydioPW) CreateHash(password string) (base64Pw string) {
-	salt := randStringBytes(p.PBKDF2_SALT_BYTE_SIZE)
+	salt := RandStringBytes(p.PBKDF2_SALT_BYTE_SIZE)
 	hashedPw, _ := p.pbkdf2CreateHash([]byte(password), salt, p.PBKDF2_ITERATIONS, p.PBKDF2_HASH_BYTE_SIZE, p.PBKDF2_HASH_ALGORITHM)
 	return strings.ToLower(p.PBKDF2_HASH_ALGORITHM) + ":" + strconv.Itoa(p.PBKDF2_ITERATIONS) + ":" + base64.StdEncoding.EncodeToString(salt) + ":" + base64.StdEncoding.EncodeToString(hashedPw)
 }
@@ -120,7 +120,7 @@ func (p PydioPW) CreateHash(password string) (base64Pw string) {
 // Use stronger random []byte
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func randStringBytes(n int) []byte {
+func RandStringBytes(n int) []byte {
 	rand.Seed(time.Now().UTC().UnixNano())
 	b := make([]byte, n)
 	for i := range b {
