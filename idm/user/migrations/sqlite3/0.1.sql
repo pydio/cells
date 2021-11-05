@@ -8,8 +8,9 @@ CREATE TABLE IF NOT EXISTS idm_user_attributes (
 );
 
 CREATE TABLE IF NOT EXISTS idm_user_roles (
-    uuid         VARCHAR(128) NOT NULL,
-    role       VARCHAR(255) NOT NULL,
+    uuid        VARCHAR(128) NOT NULL,
+    role        VARCHAR(255) NOT NULL,
+    weight      INT DEFAULT 0,
 
     PRIMARY KEY (uuid, role)
 );

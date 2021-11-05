@@ -60,8 +60,8 @@ var (
 		"GetAttributes":    `select name, value from idm_user_attributes where uuid = ?`,
 		"DeleteAttribute":  `delete from idm_user_attributes where uuid = ? and name = ?`,
 		"DeleteAttributes": `delete from idm_user_attributes where uuid = ?`,
-		"AddRole":          `replace into idm_user_roles (uuid, role) values (?, ?)`,
-		"GetRoles":         `select role from idm_user_roles where uuid = ?`,
+		"AddRole":          `replace into idm_user_roles (uuid, role, weight) values (?, ?, ?)`,
+		"GetRoles":         `select role from idm_user_roles where uuid = ? order by weight ASC`,
 		"DeleteUserRoles":  `delete from idm_user_roles where uuid = ?`,
 		"DeleteRoleById":   `delete from idm_user_roles where role = ?`,
 		"TouchUser":        `update idm_user_idx_tree set mtime = ? where uuid = ?`,
@@ -366,6 +366,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			uProf = p
 		}
 		defer stmt.Close()
+		var weight int
 		for _, role := range user.Roles {
 			if role.UserRole || role.GroupRole || s.skipRoleAsAutoApplies(uProf, role) {
 				continue
@@ -373,9 +374,11 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			if _, errTx = stmt.Exec(
 				user.Uuid,
 				role.Uuid,
+				weight,
 			); errTx != nil {
 				return nil, createdNodes, errTx
 			}
+			weight++
 		}
 	} else {
 		return nil, createdNodes, fmt.Errorf("empty statement")
