@@ -67,6 +67,7 @@ type DAO interface {
 	LostAndFounds() ([]LostAndFound, error)
 	FixLostAndFound(lost LostAndFound) error
 	FixRandHash2(excludes ...LostAndFound) (int64, error)
+	Flatten() (string, error)
 
 	GetSQLDAO() sql.DAO
 }

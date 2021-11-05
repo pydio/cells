@@ -29,6 +29,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pydio/cells/common/proto/sync"
+
+	"github.com/micro/go-micro/client"
+
 	"github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
 	"github.com/pborman/uuid"
@@ -124,7 +128,7 @@ DESCRIPTION
 		}
 
 		// Prepare Clients
-		rootNode, idxClient, idxWrite, mc, e := migratePrepareClients(authCtx, source)
+		rootNode, idxClient, mc, e := migratePrepareClients(source)
 		if e != nil {
 			migrateLogger("[ERROR] "+e.Error(), true)
 			return e
@@ -182,20 +186,30 @@ DESCRIPTION
 			p := promptui.Prompt{Label: "All objects were successfully copied, do you wish to clean the index table now", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
 				if tgtFmt == "flat" {
-					for _, n := range hiddenNodes {
-						_, er := idxWrite.DeleteNode(authCtx, &tree.DeleteNodeRequest{Node: n})
-						if er != nil {
-							migrateLogger(fmt.Sprintf("[ERROR] while removing %s from index: %+v", n.GetPath(), er), true)
-							return er
-						} else {
-							migrateLogger("Removed "+n.GetPath()+" from index table", true)
-						}
+					resyncClient := sync.NewSyncEndpointClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
+					resp, e := resyncClient.TriggerResync(authCtx, &sync.ResyncRequest{Path: "flatten"})
+					if e != nil {
+						migrateLogger(fmt.Sprintf("[ERROR] while cleaning index from '.pydio' entries: %+v", e), true)
+						return e
+					} else {
+						migrateLogger("Cleaned index with result: "+resp.GetJsonDiff(), true)
 					}
 				} else {
+					streamClient := tree.NewNodeReceiverStreamClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
+					streamer, e := streamClient.CreateNodeStream(authCtx, client.WithRequestTimeout(60*time.Minute))
+					if e != nil {
+						migrateLogger(fmt.Sprintf("[ERROR] Cannot open stream to index service %s", e.Error()), true)
+						return e
+					}
+					defer streamer.Close()
 					for _, n := range hiddenNodes {
-						_, er := idxWrite.CreateNode(authCtx, &tree.CreateNodeRequest{Node: n, UpdateIfExists: true})
+						er := streamer.Send(&tree.CreateNodeRequest{Node: n, UpdateIfExists: true})
 						if er != nil {
-							e := fmt.Errorf("error while creating %s inside index: %+v", n.GetPath(), er)
+							e := fmt.Errorf("error while sending %s to index: %+v", n.GetPath(), er)
+							migrateLogger("[ERROR] "+e.Error(), true)
+							return e
+						} else if _, re := streamer.Recv(); re != nil {
+							e := fmt.Errorf("error while creating %s inside index: %+v", n.GetPath(), re)
 							migrateLogger("[ERROR] "+e.Error(), true)
 							return e
 						} else {
@@ -268,10 +282,9 @@ func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtB
 	return
 }
 
-func migratePrepareClients(ctx context.Context, source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, idxW tree.NodeReceiverClient, mc *minio.Core, e error) {
+func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc *minio.Core, e error) {
 
 	idx = tree.NewNodeProviderClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
-	idxW = tree.NewNodeReceiverClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
 	r, er := idx.ReadNode(authCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}})
 	if er != nil {
 		e = er

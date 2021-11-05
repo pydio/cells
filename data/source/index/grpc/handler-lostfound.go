@@ -42,8 +42,20 @@ var (
 )
 
 // TriggerResync on index performs a Lost+Found request to auto-heal indexation errors, whenever possible
-func (s *TreeServer) TriggerResync(ctx context.Context, _ *sync.ResyncRequest, resp *sync.ResyncResponse) error {
+func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequest, resp *sync.ResyncResponse) error {
 	dao := getDAO(ctx, "")
+
+	if request.GetPath() == "flatten" {
+		msg, err := dao.Flatten()
+		if err != nil {
+			resp.JsonDiff = err.Error()
+		} else {
+			resp.Success = true
+			resp.JsonDiff = msg
+		}
+		return err
+	}
+
 	duplicates, err := dao.LostAndFounds()
 	if err != nil {
 		return err

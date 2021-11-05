@@ -35,6 +35,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/pydio/cells/common"
+
 	gocache "github.com/patrickmn/go-cache"
 	"github.com/pborman/uuid"
 	"github.com/pydio/packr"
@@ -329,6 +331,10 @@ func init() {
 			SELECT SUBSTR(`+dao.Concat("mpath1", "mpath2", "mpath3", "mpath4")+", "+fmt.Sprintf("%d", len(mpathes[0])+2)+`)
 			FROM %%PREFIX%%_idx_tree
 			WHERE %s AND level = ?`, sub), args
+	}
+
+	queries["cleanSyncHiddenFiles"] = func(dao sql.DAO, args ...interface{}) string {
+		return `DELETE FROM %%PREFIX%%_idx_tree WHERE name='` + common.PydioSyncHiddenFile + `' AND leaf=1`
 	}
 }
 
@@ -1371,6 +1377,24 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (m
 
 func (dao *IndexSQL) GetSQLDAO() sql.DAO {
 	return dao
+}
+
+// Flatten removes all .pydio from index, at once
+func (dao *IndexSQL) Flatten() (string, error) {
+	dao.Lock()
+	defer dao.Unlock()
+	s, e := dao.GetStmt("cleanSyncHiddenFiles")
+	if e != nil {
+		return "", e
+	}
+	if res, e := s.Exec(); e != nil {
+		return "", e
+	} else if ra, er := res.RowsAffected(); er == nil {
+		return fmt.Sprintf("Removed %d entries", ra), nil
+	} else {
+		return "Flattened index (cannot read Rows Affected)", nil
+	}
+
 }
 
 // NewBatchSend Creation of the channels

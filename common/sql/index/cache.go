@@ -705,3 +705,7 @@ func (d *daocache) LostAndFounds() ([]LostAndFound, error) {
 func (d *daocache) FixLostAndFound(lost LostAndFound) error {
 	return d.DAO.FixLostAndFound(lost)
 }
+
+func (d *daocache) Flatten() (string, error) {
+	return d.DAO.Flatten()
+}
