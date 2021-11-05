@@ -482,7 +482,7 @@ func (l *pydioObjects) PutObjectPart(ctx context.Context, bucket string, object 
 		MultipartUploadID: uploadID,
 	})
 	if err != nil {
-		return pi, err
+		return pi, pydioToMinioError(err, bucket, object)
 	}
 
 	return minio.PartInfo{
