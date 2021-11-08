@@ -45,9 +45,9 @@
     "other": "代理服务器标识密码"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "禁用更新检查"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "如果您的服务器无法访问外部网络，请不要尝试联系更新站点。"
   }
 }

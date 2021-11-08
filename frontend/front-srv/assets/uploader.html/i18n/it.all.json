@@ -60,37 +60,37 @@
     "other": "Caricamento dei file sul server..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "Creazione Cartelle"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "Creazione di una cartella"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "Creazione di %s cartelle"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "Preparazione dei file da caricare"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "Analisi di %s elementi..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "Analisi di un elemento"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "Attendere prego..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "Pronto per l'upload"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "Upload in pausa"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "Upload dei file"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "Upload %s"
   },
   "no-folders-support": {
     "other": "Sembra che il tuo browser non supporti il rilascio delle cartelle"
@@ -153,12 +153,12 @@
     "other": "Impossibile mettere in pausa il trasferimento del segmento"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "interrotto dall'utente"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "non sei autorizzato a caricare file"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "quota raggiunta, impossibile caricare altro"
   }
 }

@@ -39,25 +39,25 @@
     "other": "数据源 %s"
   },
   "ds.format-picker.title": {
-    "other": "Create DataSource"
+    "other": "创建数据源"
   },
   "ds.format-picker.legend": {
     "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
   },
   "ds.format-picker.submit": {
-    "other": "Start"
+    "other": "开始"
   },
   "ds.format-picker.flat.title": {
-    "other": "Flat Storage"
+    "other": "平面存储"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
+    "other": "性能最佳，文件作为二进制存储器存储。文件和文件夹结构只保存在内部索引中。"
   },
   "ds.format-picker.structured.title": {
-    "other": "Import Existing Data"
+    "other": "导入已有数据"
   },
   "ds.format-picker.structured.legend": {
-    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
+    "other": "文件和文件夹按原样存储，实时同步反映内部索引中的存储结构。"
   },
   "ds.format-picker.internal.title": {
     "other": "Cells Internals"
@@ -93,10 +93,10 @@
     "other": "加密密钥"
   },
   "ds.editor.enc.key.clear": {
-    "other": "No Encryption"
+    "other": "未加密"
   },
   "ds.editor.enc.key.create": {
-    "other": "Set up encryption with a new key..."
+    "other": "用新密钥设置加密..."
   },
   "ds.editor.enc.validate": {
     "other": "我明白了"
@@ -144,7 +144,7 @@
     "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
   },
   "ds.editor.storage.legend.fs.path": {
-    "other": "Make sure that last folder is lowercase and that its parent is writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
+    "other": "请确保最后一个文件夹名是小写的，其父文件夹是可写的。 如果您现有的文件夹是大写，您可以使用别名链接来处理此限制。"
   },
   "ds.editor.storage.legend.s3": {
     "other": "浏览Amazon S3存储库或兼容的 S3 存储库的数据。"
@@ -168,16 +168,16 @@
     "other": "如果您不允许程序写入任何隐藏文件并使用ETags作为校验（这对于存储桶中有大量的存在数据来说非常必要），请设置为只读模式。请注意，任何在该数据源中创建的工作区都被设置为只读，文件将无法移动。"
   },
   "ds.editor.storage.flatStorage": {
-    "other": "Keep data structure on storage"
+    "other": "保持存储上的数据结构"
   },
   "ds.editor.storage.legend.flatStorage": {
-    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
+    "other": "平面(无结构)存储性能最好。 只有当您明确要在实际存储中生成文件和文件夹(或者说对应到原有的文件夹结构)时，才使用结构化存储。 创建数据源后无法更改此项。"
   },
   "ds.editor.storage.skipResync": {
-    "other": "Skip full resynchronisation at restart"
+    "other": "重启时跳过完全重新同步"
   },
   "ds.editor.storage.legend.skipResync": {
-    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
+    "other": "对于庞大的数据源，您可能想要在重启时避免完全重新同步。"
   },
   "ds.editor.storage.checksumMapper": {
     "other": "本地存储校验(不修改对象)"
@@ -222,7 +222,7 @@
     "other": "请确保选择一个二级文件夹。对象存储将从父文件夹开始。"
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Folder is exposed as an S3 bucket and must comply to DNS names (lowercase, no space or special characters)."
+    "other": "文件夹暴露为S3 bucket，必须符合DNS名称(小写，没有空格或特殊字符)。"
   },
   "ds.editor.selector.folder": {
     "other": "本地目录"
@@ -240,31 +240,31 @@
     "other": "Peer"
   },
   "ds.editor.selector.peer.invalid": {
-    "other": "invalid"
+    "other": "无效"
   },
   "ds.editor.selector.mkdir": {
-    "other": "Create Folder"
+    "other": "创建文件夹"
   },
   "ds.editor.selector.mkdir.legend": {
     "other": "在 %s 下创建一个新文件夹"
   },
   "ds.editor.selector.mkdir.field": {
-    "other": "Folder name"
+    "other": "文件夹名"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is MacOSX"
+    "other": "操作系统是 MacOSX"
   },
   "ds.editor.storage.azure.api": {
-    "other": "Azure Account Name"
+    "other": "Azure账户名称"
   },
   "ds.editor.storage.azure.secret": {
-    "other": "Azure Secret Key"
+    "other": "Azure密钥"
   },
   "ds.editor.storage.azure.bucket": {
     "other": "存储空间名"
   },
   "ds.editor.storage.gcs.credentials": {
-    "other": "Paste content of GCS JSON credentials file"
+    "other": "粘贴GCS JSON 凭据文件的内容"
   },
   "ds.editor.storage.gcs.bucket": {
     "other": "存储空间名"
@@ -282,25 +282,25 @@
     "other": "S3兼容存储"
   },
   "ds.editor.storage.s3.endpoint": {
-    "other": "Custom Endpoint URL"
+    "other": "自定义终点URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "Leave empty for Amazon S3"
+    "other": "Amazon S3 则留空"
   },
   "ds.editor.storage.s3.region": {
     "other": "S3 Api 地域"
   },
   "ds.editor.storage.s3.path": {
-    "other": "Internal Path"
+    "other": "内部路径"
   },
   "ds.editor.storage.s3.secret": {
     "other": "S3 Api Secret"
   },
   "ds.editor.storage.buckets.legend": {
-    "other": "Select one or more buckets"
+    "other": "选择一个或多个bucet"
   },
   "ds.editor.storage.buckets.reload": {
-    "other": "Reload buckets"
+    "other": "重新加载buckets"
   },
   "ds.editor.storage.buckets.regexp": {
     "other": "使用正则表达式"
@@ -309,13 +309,13 @@
     "other": "正则表达式"
   },
   "ds.editor.storage.buckets.cont.nokeys": {
-    "other": "Setup storage to load buckets"
+    "other": "设置存储以加载bucket"
   },
   "ds.editor.storage.buckets.cont.loading": {
     "other": "Loading accessible buckets"
   },
   "ds.editor.storage.buckets.cont.empty": {
-    "other": "No buckets found"
+    "other": "未找到bucket"
   },
   "ds.editor.storage.s3.legend.tags": {
     "other": "Synchronize S3 tags from buckets or objects (use  a comma-separated list of patterns to match). Please note that this will perform additional requests to storage and may slow down sync process. Original tags will be mapped to pydio:s3-bucket-tag-NAME and pydio:s3-object-tag-NAME internally."
@@ -324,19 +324,19 @@
     "other": "Buckets Tags (multiple buckets enabled)"
   },
   "ds.editor.storage.s3.objectsTags": {
-    "other": "Objects Tags"
+    "other": "对象标签"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
     "other": "Path prefix inside the bucket (used as a folder)"
   },
   "ds.editor.title": {
-    "other": "DataSource %s"
+    "other": "数据源 %s"
   },
   "ds.editor.versioning": {
-    "other": "Versioning Policy"
+    "other": "版本策略"
   },
   "ds.editor.versioning.disabled": {
-    "other": "Do not enable versioning"
+    "other": "不启用版本控制"
   },
   "ds.editor.tab.button-back": {
     "other": "后退"
@@ -357,13 +357,13 @@
     "other": "存储类型"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Data Lifecycle"
+    "other": "数据生命周期"
   },
   "ds.editor.tab.advanced": {
-    "other": "Advanced Options"
+    "other": "高级选项"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
+    "other": "如果此存储先前被用作平坦的数据源，请从现有的快照文件初始化(必须在存储中)"
   },
   "ds.encryption": {
     "other": "已加密"
@@ -543,22 +543,22 @@
     "other": "全文搜索"
   },
   "logs.tz.tooltip": {
-    "other": "Show local/server timezone"
+    "other": "显示本地/服务器时区"
   },
   "logs.tz.local": {
-    "other": "Local Timezone"
+    "other": "本地时区"
   },
   "logs.tz.server": {
-    "other": "Server Timezone"
+    "other": "服务器时区"
   },
   "logs.toggleTheme": {
-    "other": "Light/Dark Theme"
+    "other": "亮/暗主题"
   },
   "logs.sys.note": {
     "other": "请注意："
   },
   "logs.sys.note.content": {
-    "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
+    "other": "空日志条目可能是服务器没有在生产模式下运行。 请确保通过通过 --log=production 参数或设置环境变量 PYDIO_LOGS_LEVEL=production来设置此日志级别。"
   },
   "logs.3": {
     "other": "过滤日志"
@@ -603,7 +603,7 @@
     "other": "活动"
   },
   "menu.10": {
-    "other": "Extensions for sending files through the Web UI"
+    "other": "通过 Web 界面发送文件的扩展"
   },
   "menu.11": {
     "other": "身份验证"
@@ -612,7 +612,7 @@
     "other": "身份验证"
   },
   "menu.12": {
-    "other": "Configs Backends"
+    "other": "配置后台"
   },
   "menu.13": {
     "other": "日志"
@@ -621,7 +621,7 @@
     "other": "通知"
   },
   "menu.15": {
-    "other": "How users get notifications from various parts of the application."
+    "other": "用户如何从应用程序的各个部分获取通知。"
   },
   "menu.16": {
     "other": "Pydio Booster"
@@ -786,49 +786,49 @@
     "other": "日期"
   },
   "metadata.type.date.format.date-time": {
-    "other": "Date & Time"
+    "other": "日期和时间"
   },
   "metadata.type.date.format.time": {
-    "other": "Time"
+    "other": "时间"
   },
   "metadata.type.date.display": {
     "other": "显示"
   },
   "metadata.type.date.display.normal": {
-    "other": "Normal"
+    "other": "正常"
   },
   "metadata.type.date.display.relative": {
-    "other": "Relative (xx days ago...)"
+    "other": "相对(xx 天前...)"
   },
   "metadata.type.reaction": {
-    "other": "Reaction"
+    "other": "反应"
   },
   "metadata.type.integer.format": {
     "other": "格式"
   },
   "metadata.type.integer.format.general": {
-    "other": "General"
+    "other": "A. 概况"
   },
   "metadata.type.integer.format.bytesize": {
-    "other": "Byte Size"
+    "other": "字节大小"
   },
   "metadata.type.integer.format.percentage": {
-    "other": "Percentage"
+    "other": "百分比"
   },
   "metadata.type.integer.format.progress": {
-    "other": "Progress"
+    "other": "进度"
   },
   "metadata.toggle.list-visibility": {
     "other": "Show value in files list"
   },
   "perfs.booster.description": {
-    "other": "Checks that Pydio Booster is started and enables WebSocket communication"
+    "other": "检查 Pydio Booster 是否已运行并启用 WebSocket 通信"
   },
   "perfs.booster.error": {
-    "other": "Pydio Booster Error, see dedicated panel"
+    "other": "Pydio Booster 错误，请查看专用面板"
   },
   "perfs.booster.help": {
-    "other": "Pydio Booster provides an easy-to-deploy additional tool to add WebSocket support and Upload/Download accelators in Pydio."
+    "other": "Pydio Booster 提供了一个易于部署的附加工具，用于添加 WebSocket 支持以及Pydio 上传/下载加密器。"
   },
   "perfs.booster.title": {
     "other": "Pydio Booster"
@@ -882,55 +882,55 @@
     "other": "A high server load may indicate that your server is missing CPU or RAM given your usage of Pydio."
   },
   "perfs.load.title": {
-    "other": "Server Load"
+    "other": "服务器负载"
   },
   "perfs.mailer.description": {
-    "other": "Checks that mailer is using the Queue feature"
+    "other": "检查邮件程序正在使用队列功能"
   },
   "perfs.mailer.error": {
-    "other": "Mailer is not configured to defer emails sending."
+    "other": "邮件发送器未配置为延迟发送电子邮件。"
   },
   "perfs.mailer.help": {
     "other": "Using the mail queue avoids sending every emails directly during every actions and requests, but store them in a separate database and process the queue separately."
   },
   "perfs.mailer.title": {
-    "other": "Mailer Queue"
+    "other": "邮件队列"
   },
   "perfs.more": {
     "other": "更多信息"
   },
   "perfs.opcache.description": {
-    "other": "Checks that a PHP Opcode cache is active"
+    "other": "检查PHP Opcode 缓存是否激活"
   },
   "perfs.opcache.error": {
-    "other": "Could not detect any php extension from APC, APCu, Opcache or XCache."
+    "other": "未检测到 APC、APCu、Opcache 或 XCache 的任何php 扩展。"
   },
   "perfs.opcache.help": {
     "other": "Pydio is a rich PHP framework that requires loading a lot of files in memory. Make sure to enable a PHP Opcache like APC/u, Opcache or XCache."
   },
   "perfs.opcache.title": {
-    "other": "Opcode Cache Extension"
+    "other": "Opcode 缓存扩展"
   },
   "perfs.score": {
-    "other": "Performance Score"
+    "other": "性能得分"
   },
   "perfs.tests": {
-    "other": "Performances Tests"
+    "other": "性能测试"
   },
   "perfs.title": {
-    "other": "System Performances"
+    "other": "系统性能"
   },
   "perfs.widget": {
-    "other": "Add widget to dashboard"
+    "other": "添加部件到仪表板"
   },
   "plugins.1": {
     "other": "通用设置"
   },
   "plugins.2": {
-    "other": "Master Driver"
+    "other": "主驱动"
   },
   "plugins.3": {
-    "other": "Secondary Driver"
+    "other": "副驱动"
   },
   "plugins.4": {
     "other": "Editor plugins are the previewers/editors associated to any file types in the application.\n                    These plugins are handle specifically in the GUI (extensions) and can declare the mimetypes they support.\n                    The order parameter also allows to define a priority for the 'open with...' action."
@@ -954,7 +954,7 @@
     "other": "说明"
   },
   "plugins.list.action.edit": {
-    "other": "Edit plugin parameters"
+    "other": "编辑插件参数"
   },
   "plugins.documentation": {
     "other": "文档"
@@ -963,43 +963,43 @@
     "other": "创建"
   },
   "policies.policy.description": {
-    "other": "Policy Description"
+    "other": "策略描述"
   },
   "policies.policy.name": {
     "other": "策略名称"
   },
   "policies.policy.rules": {
-    "other": "# Rules"
+    "other": "# 规则"
   },
   "policies.policy.display": {
-    "other": "Show policy rules"
+    "other": "显示策略规则"
   },
   "policies.policy.edit": {
-    "other": "Edit policy rules"
+    "other": "编辑政策规则"
   },
   "policies.policy.editLabels": {
-    "other": "Edit Labels"
+    "other": "编辑标签"
   },
   "policies.policy.saveLabels": {
     "other": "保存更改"
   },
   "policies.policy.delete": {
-    "other": "Delete policy"
+    "other": "删除策略"
   },
   "policies.policy.delete.confirm": {
     "other": "您确定要删除此策略吗？请确保它不会破坏应用程序的安全性！"
   },
   "policies.policy.new": {
-    "other": "+ New Policy"
+    "other": "+ 新策略"
   },
   "policies.policy.type": {
-    "other": "Policy Type"
+    "other": "策略类型"
   },
   "policies.rule.create": {
-    "other": "Add new rule"
+    "other": "添加新规则"
   },
   "policies.rule.delete": {
-    "other": "Delete Rule"
+    "other": "删除规则"
   },
   "policies.rule.delete.confirm": {
     "other": "您确定要删除此安全规则吗？这可能会破坏应用程序的安全模型！"
@@ -1026,7 +1026,7 @@
     "other": "父目录"
   },
   "react.10": {
-    "other": "Inherit Permissions"
+    "other": "继承权限"
   },
   "react.11": {
     "other": "Empty Permissions"
@@ -1170,10 +1170,10 @@
     "other": "Set parameters on this group to apply them all groups and users."
   },
   "user.9": {
-    "other": "Last connected"
+    "other": "上次连接"
   },
   "user.moveto.hint": {
-    "other": "Select destination group, leave '/' for root group."
+    "other": "选择目标组， '/' 为 root 组。"
   },
   "user.filter.tooltip": {
     "other": "过滤用户列表..."
@@ -1194,16 +1194,16 @@
     "other": "显示匿名信息"
   },
   "versions.editor.delete": {
-    "other": "Delete Policy"
+    "other": "删除策略"
   },
   "versions.editor.delete.confirm": {
     "other": "您确定要删除此策略吗？此操作不可撤销！"
   },
   "versions.editor.error.lastdelete": {
-    "other": "The last period is configured to delete all versions, you cannot add a new one!"
+    "other": "上一次配置了删除所有版本，您不能添加新版本！"
   },
   "versions.editor.title": {
-    "other": "Policy %s"
+    "other": "策略 %s"
   },
   "versions.period.keep-all": {
     "other": "保持所有"
@@ -1212,25 +1212,25 @@
     "other": "总是保留所有版本"
   },
   "versions.period.keep-n": {
-    "other": "Keep %s versions"
+    "other": "保留 %s 个版本"
   },
   "versions.period.keep-n-after": {
-    "other": "Keep %1 versions after %2"
+    "other": "保留 %2 之后的 %1 个版本"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versions"
+    "other": "最多 %s 个版本"
   },
   "versions.period.remove-all": {
     "other": "全部删除"
   },
   "versions.period.remove-all-after": {
-    "other": "Remove all after %s"
+    "other": "在 %s 之后移除所有"
   },
   "versions.period.retentions-n": {
     "other": "%s 保留期"
   },
   "virtual.create": {
-    "other": "+ Template Path"
+    "other": "+ 模板路径"
   },
   "virtual.create.button": {
     "other": "创建"
@@ -1239,13 +1239,13 @@
     "other": "标签"
   },
   "virtual.col.id": {
-    "other": "Template ID"
+    "other": "模板 ID"
   },
   "virtual.col.code": {
-    "other": "Template Code"
+    "other": "模板代码"
   },
   "virtual.label.new": {
-    "other": "Label for template"
+    "other": "模板标签"
   },
   "virtual.legend.1": {
     "other": "模板路径是根据上下文动态计算的。它们可以用作工作空间的根目录来代替固定的数据源路径。 他们被默认用来创建个人文件工作区，指向每个用户不同的文件夹，并计算用户资料库文件夹的位置。"
@@ -1257,64 +1257,64 @@
     "other": "模板路径"
   },
   "virtual.save": {
-    "other": "Save template"
+    "other": "保存模板"
   },
   "virtual.delete": {
-    "other": "Delete template"
+    "other": "删除模板"
   },
   "virtual.delete.confirm": {
-    "other": "Are you sure you wish to delete this template path? Operation is not reversible!"
+    "other": "您确定要删除此模板路径吗？操作不可逆！"
   },
   "virtual.code": {
-    "other": "Template code"
+    "other": "模板代码"
   },
   "virtual.code.display": {
-    "other": "Display code"
+    "other": "显示代码"
   },
   "virtual.code.edit": {
-    "other": "Edit code"
+    "other": "编辑代码"
   },
   "virtual.card.title": {
-    "other": "Dynamically computed path"
+    "other": "动态计算路径"
   },
   "virtual.card.cleanOnDelete": {
-    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
+    "other": "用户删除后将数据重命名为 {deleted-NAME-UUID}。"
   },
   "ws.1": {
-    "other": "Manage DataSources"
+    "other": "管理数据源"
   },
   "ws.10": {
-    "other": "Select a DataSource"
+    "other": "选择数据源"
   },
   "ws.11": {
-    "other": "Workspace based on ..."
+    "other": "工作区基于..."
   },
   "ws.12": {
-    "other": "Template %s"
+    "other": "模板 %s"
   },
   "ws.13": {
-    "other": "Template Options"
+    "other": "模板选项"
   },
   "ws.14": {
-    "other": "Set Generic Options"
+    "other": "设置通用选项"
   },
   "ws.15": {
-    "other": "Workspace Options"
+    "other": "工作区选项"
   },
   "ws.16": {
-    "other": "Choose Storage Driver"
+    "other": "选择存储驱动程序"
   },
   "ws.17": {
-    "other": "Select Storage Type"
+    "other": "选择存储类型"
   },
   "ws.18": {
-    "other": "Loading drivers"
+    "other": "正在加载驱动程序"
   },
   "ws.19": {
-    "other": "Save to add features"
+    "other": "保存以添加功能"
   },
   "ws.2": {
-    "other": "Close DataSources"
+    "other": "关闭数据源"
   },
   "ws.20": {
     "other": "创建"
@@ -1329,19 +1329,19 @@
     "other": "删除工作区"
   },
   "ws.24": {
-    "other": "Children Workspaces"
+    "other": "子工作区"
   },
   "ws.25": {
-    "other": "Shares"
+    "other": "共享"
   },
   "ws.26": {
-    "other": "Folders Permissions"
+    "other": "文件夹权限"
   },
   "ws.27": {
-    "other": "Additional Features"
+    "other": "附加功能"
   },
   "ws.28": {
-    "other": "Summary"
+    "other": "概要"
   },
   "ws.29": {
     "other": "参数"
@@ -1356,43 +1356,43 @@
     "other": "通用设置"
   },
   "ws.31": {
-    "other": "Remove Feature"
+    "other": "删除功能"
   },
   "ws.32": {
-    "other": "Add a feature..."
+    "other": "添加功能..."
   },
   "ws.33": {
-    "other": "Recent Activity"
+    "other": "最近活动"
   },
   "ws.34": {
-    "other": "Last events on this workspace"
+    "other": "此工作区上的最近事件"
   },
   "ws.35": {
-    "other": "Accessible to %i users"
+    "other": "%i 个用户可访问"
   },
   "ws.36": {
-    "other": "+ %i files or folders shared"
+    "other": "已共享 %i 个文件或文件夹"
   },
   "ws.37": {
-    "other": "Workspaces using this template"
+    "other": "使用此模板的工作区"
   },
   "ws.38": {
-    "other": "Shared Items in this workspace"
+    "other": "在此工作区中共享的项目"
   },
   "ws.39": {
     "other": "所有者"
   },
   "ws.4": {
-    "other": "+ datasource"
+    "other": "+ 数据源"
   },
   "ws.40": {
-    "other": "Share Type"
+    "other": "共享类型"
   },
   "ws.41": {
-    "other": "Path"
+    "other": "路径"
   },
   "ws.42": {
-    "other": "Folder Level Permissions"
+    "other": "文件夹级别权限"
   },
   "ws.43": {
     "other": "Specify here the default access permissions to this workspace folders.\n                                To enable the permissions management at a sub-level, select the 'CHILDREN' on a given folder.\n                                This will set the current folder as readonly by default, and you will be able to open accesses\n                                selectively to any of its children folders."
@@ -1521,7 +1521,7 @@
     "other": "Workspace Roots"
   },
   "ws.board.syncable": {
-    "other": "Sync"
+    "other": "同步"
   },
   "ws.complete.datasources": {
     "other": "DataSources and Folders"
@@ -1584,31 +1584,31 @@
     "other": "Workspace Layout"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "默认"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Easy Transfer Layout (enterprise only)"
+    "other": "简易传输布局(仅限企业)"
   },
   "ws.editor.other.skiprecycle": {
-    "other": "Skip Recycle Bin"
+    "other": "跳过回收站"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
+    "other": "禁用此工作区回收站：所有文件将被永久删除。 这不适用于在此工作区内创建的资料库，文件总是会被移动到工作区，以避免人为错误。"
   },
   "ws.editor.other.sync": {
-    "other": "Allow desktop synchronisation"
+    "other": "允许桌面同步"
   },
   "ws.editor.other.sync.legend": {
     "other": "Desktop synchronisation allows users to synchronize their files offline on their computer. Warning, this feature is currently supported for personal files only, as shared workspaces may create conflicts if many users synchronize docs in the same folder. For personal files, you can also enable/disable this feature on a per-role basis using Security Policies."
   },
   "ws.editor.other.sync-personal": {
-    "other": "(personal workspaces only)"
+    "other": "(仅限个人工作区)"
   },
   "ws.editor.sync.warning": {
     "other": "警告！"
   },
   "ws.editor.sync.warning.validate": {
-    "other": "I understand"
+    "other": "我明白"
   },
   "ws.editor.sync.warning.enable": {
     "other": "Enabling sync on shared workspaces may have unexpected results if many users are syncing and editing files together. Please note that THIS FEATURE IS CURRENTLY NOT SUPPORTED by our professional services. Please use this feature at your own risk!"
@@ -1623,13 +1623,13 @@
     "other": "No Quota set"
   },
   "ws.editor.path.folder": {
-    "other": "Folder Path"
+    "other": "文件夹路径"
   },
   "ws.editor.path.template": {
-    "other": "Template Path"
+    "other": "模板路径"
   },
   "ws.editor.slug.legend": {
-    "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+    "other": "使用了技术化名称，例如URL，自动计算但您可以自定义。"
   },
   "services.filter.nofilter": {
     "other": "所有服务"
@@ -1644,46 +1644,46 @@
     "other": "选择节点"
   },
   "services.toggle.details": {
-    "other": "Show Details"
+    "other": "显示详情"
   },
   "services.empty.loading": {
-    "other": "Loading services status"
+    "other": "正在加载服务状态"
   },
   "services.empty.noservice": {
-    "other": "No service"
+    "other": "无服务"
   },
   "services.column.name": {
-    "other": "Service Name"
+    "other": "服务名称"
   },
   "services.column.description": {
     "other": "说明"
   },
   "services.column.version": {
-    "other": "Version"
+    "other": "版本"
   },
   "services.column.tag": {
-    "other": "Tag"
+    "other": "标签"
   },
   "services.column.peers": {
     "other": "Peers"
   },
   "services.tag.gateway.title": {
-    "other": "Gateways"
+    "other": "网关"
   },
   "services.tag.gateway.description": {
     "other": "World-facing services for accessing the platform"
   },
   "services.tag.datasource.title": {
-    "other": "Data Sources"
+    "other": "数据源"
   },
   "services.tag.datasource.description": {
     "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
   },
   "services.tag.data.title": {
-    "other": "Data"
+    "other": "数据"
   },
   "services.tag.data.description": {
-    "other": "Services handling data and metadata."
+    "other": "服务处理数据和元数据。"
   },
   "services.tag.idm.title": {
     "other": "身份管理"
@@ -1710,7 +1710,7 @@
     "other": "Web services for user interfaces in the browser"
   },
   "services.tag.discovery.title": {
-    "other": "Discovery"
+    "other": "发现"
   },
   "services.tag.discovery.description": {
     "other": "Basic configurations and services registries called by all other services."
@@ -1719,10 +1719,10 @@
     "other": "Running on %s"
   },
   "services.service.datasource.sync": {
-    "other": "Sync"
+    "other": "同步"
   },
   "services.service.datasource.objects": {
-    "other": "Objects"
+    "other": "对象"
   },
   "services.service.datasource.objects.legend": {
     "other": "S3 layer to serve data as object storage"
@@ -1731,7 +1731,7 @@
     "other": "Datasource is synchronizing data from objects layer to index DB."
   },
   "services.service.datasource.index": {
-    "other": "Indexation"
+    "other": "索引"
   },
   "scheduler.title": {
     "other": "定时任务"
@@ -1746,13 +1746,13 @@
     "other": "这些任务是应用程序内默认注册的。 他们通常负责在后台提取节点的某些信息，或进行某些清理操作。"
   },
   "scheduler.inactives.title": {
-    "other": "Inactive Jobs"
+    "other": "非活动作业"
   },
   "scheduler.inactives.legend": {
     "other": "These jobs are inactive, click on a job to enable it."
   },
   "scheduler.system.empty": {
-    "other": "No jobs scheduled."
+    "other": "没有预定作业。"
   },
   "scheduler.users.title": {
     "other": "用户任务"
@@ -1761,16 +1761,16 @@
     "other": "这些任务是动态创建的并会被用户活动触发。"
   },
   "scheduler.users.empty": {
-    "other": "No jobs launched by users"
+    "other": "没有用户启动的作业"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Custom Job"
+    "other": "+ 自定义作业"
   },
   "scheduler.cellsflows.cta.text": {
     "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
-    "other": "Find out more"
+    "other": "了解更多"
   },
   "scheduler.cellsflows.dialog.text": {
     "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
@@ -1893,97 +1893,97 @@
     "other": "信息"
   },
   "scheduler.tasks.running": {
-    "other": "Running Tasks"
+    "other": "运行中任务"
   },
   "scheduler.tasks.history": {
-    "other": "Tasks History"
+    "other": "任务历史"
   },
   "scheduler.tasks.history.empty": {
-    "other": "No tasks have run yet"
+    "other": "尚未运行任何任务"
   },
   "scheduler.tasks.history.more": {
-    "other": "%s other tasks not shown..."
+    "other": "%s 其它任务未显示..."
   },
   "scheduler.tasks.running.empty": {
-    "other": "No tasks currently running"
+    "other": "当前没有任务运行"
   },
   "scheduler.tasks.bulk.delete": {
-    "other": "Delete Tasks"
+    "other": "删除任务"
   },
   "scheduler.tasks.bulk.enable": {
-    "other": "Enable Multiple"
+    "other": "启用多个"
   },
   "scheduler.tasks.bulk.disable": {
-    "other": "Disable Multiple"
+    "other": "禁用多个"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "全部清除"
   },
   "scheduler.tasks.activity.title": {
-    "other": "Task Activity"
+    "other": "任务活动"
   },
   "scheduler.tasks.activity.loading": {
-    "other": "Loading activity..."
+    "other": "正在加载活动..."
   },
   "scheduler.tasks.activity.empty": {
-    "other": "No logs found"
+    "other": "未找到日志"
   },
   "scheduler.schedule.monthly": {
-    "other": "Every %1 of each month at %2"
+    "other": "每个月的 %1 在 %2"
   },
   "scheduler.schedule.monthly.short": {
-    "other": "Every %1 of each month"
+    "other": "每个月的 %1"
   },
   "scheduler.schedule.weekly": {
-    "other": "Every %1 at %2"
+    "other": "每 %1 在 %2"
   },
   "scheduler.schedule.weekly.short": {
-    "other": "Every %1"
+    "other": "每 %1"
   },
   "scheduler.schedule.daily": {
-    "other": "Every day at %1"
+    "other": "每天在 %1"
   },
   "scheduler.schedule.daily.short": {
-    "other": "At %1"
+    "other": "在 %1"
   },
   "scheduler.schedule.timely": {
-    "other": "Every %1"
+    "other": "每 %1"
   },
   "scheduler.schedule.title": {
-    "other": "Job Schedule"
+    "other": "作业计划"
   },
   "scheduler.schedule.type": {
-    "other": "Scheduling Type"
+    "other": "计划类型"
   },
   "scheduler.schedule.type.manual": {
-    "other": "Manual"
+    "other": "手动模式"
   },
   "scheduler.schedule.type.monthly": {
-    "other": "Monthly"
+    "other": "每月"
   },
   "scheduler.schedule.type.weekly": {
-    "other": "Weekly"
+    "other": "每周"
   },
   "scheduler.schedule.type.daily": {
-    "other": "Daily"
+    "other": "每天"
   },
   "scheduler.schedule.type.timely": {
-    "other": "Every..."
+    "other": "全部..."
   },
   "scheduler.schedule.detail.monthday": {
-    "other": "Day of the month"
+    "other": "几号(月份)"
   },
   "scheduler.schedule.detail.weekday": {
-    "other": "Day of the week"
+    "other": "周几"
   },
   "scheduler.schedule.detail.daytime": {
-    "other": "Time of the day"
+    "other": "时间"
   },
   "scheduler.schedule.detail.minutes": {
     "other": "Period in minutes"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Job Parameters"
+    "other": "作业参数"
   },
   "scheduler.job-parameters.button": {
     "other": "参数"
@@ -1995,19 +1995,19 @@
     "other": "以下是Pydio Cell中所有可用的 API。 要使用这些API，您首先必须通过OpenIDConnect 服务的验证才能获得一个有效的JWT。 查看在线管理员指南了解更多信息。"
   },
   "mailer.test.title": {
-    "other": "Send a test email"
+    "other": "发送测试邮件"
   },
   "mailer.test.legend": {
     "other": "请确保在发送测试邮件之前保存您的配置更改。"
   },
   "mailer.test.loading": {
-    "other": "Loading Mailer Library..."
+    "other": "正在加载邮件库..."
   },
   "sites.title": {
-    "other": "Sites"
+    "other": "站点"
   },
   "sites.externals": {
-    "other": "External URLs"
+    "other": "外部网址"
   },
   "sites.details": {
     "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
@@ -2019,43 +2019,43 @@
     "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "URL used to build links in emails"
+    "other": "用于邮件中生成链接的 URL"
   },
   "sites.links.url": {
-    "other": "URL used to build public links"
+    "other": "用于生成公共链接的 URL"
   },
   "sites.no-defaults": {
-    "other": "No defaults set"
+    "other": "没有默认设置"
   },
   "sites.enter-to-save": {
-    "other": "(hit enter to save)"
+    "other": "(点击回车保存)"
   },
   "sites.detected.sites": {
-    "other": "Sites currently detected"
+    "other": "目前检测到的站点"
   },
   "sites.configs.command": {
-    "other": "Use './cells config sites' command to edit sites."
+    "other": "使用“/cells config sites”命令来编辑站点。"
   },
   "sites.column.bind": {
-    "other": "Bind"
+    "other": "绑定"
   },
   "sites.column.tls": {
     "other": "TLS"
   },
   "sites.column.external": {
-    "other": "Reverse Proxy"
+    "other": "反向代理"
   },
   "sites.configs.tls.letsencrypt": {
     "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Self Signed"
+    "other": "自签名"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificate"
+    "other": "证书"
   },
   "sites.configs.tls.notls": {
-    "other": "No TLS"
+    "other": "无 TLS"
   },
   "sites.configs.tls.notls-reverse": {
     "other": "No TLS behind proxy"
