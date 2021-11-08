@@ -162,16 +162,16 @@
     "other": "用于实际发送电子邮件的引擎"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "已禁用 (不启用电子邮件)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "否(启用电子邮件，但不发送任何东西)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "写入邮件到文件来进行调试"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "用来写入邮件的目标文件夹"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP 服务器"

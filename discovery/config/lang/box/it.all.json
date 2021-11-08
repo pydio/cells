@@ -27,58 +27,58 @@
     "other": "Azioni"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "Identificatori del Nodo"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "Identificatori del Ruolo"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "Identificatori del Workspace"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "Cerca sulle stringhe di errore (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "Operazione riuscita"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Il body Json ha la chiave..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Cerca nel body Json (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Le dimensioni del body Json sono maggiori di"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Le dimensioni del body Json sono minori di"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "Cerca nel body della Stringa (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "Le dimensioni del body della Stringa sono maggiori di"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "Le dimensioni del body della Stringa sono minori di"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "Tempo del task maggiore di"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "Tempo del task minore di"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "Condizioni Libere"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -87,148 +87,148 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "Uguale a"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "uguale a"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "Corrisponde"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "corrisponde"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "Condizione CIDR"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "Oggetto uguale a"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "La risorsa contiene"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "Stringa uguale a"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "La stringa corrisponde"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "StringPairs uguale a"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "La stringa non corrisponde"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "Periodo della data"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "Orario d'ufficio"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "Data dopo"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "Tipo di contenuto"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "Stringa dei Cookie"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "Protocollo HTTP"
   },
   "contextMetaField.RemoteAddress": {
     "other": "Indirizzo Remoto"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "Richiedi Hostname"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "Richiedi Metodo"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "Richiedi URI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "Ora del server"
   },
   "contextMetaField.UserAgent": {
     "other": "User Agent"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "Condizione"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "Nome del campo"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "Contiene AutoApply"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "È Ruolo di Gruppo"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "È Squadra"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "È Ruolo Utente"
   },
   "roleSingleQuery.Label": {
     "other": "Etichetta Workspace"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "treeQuery.Content": {
     "other": "Contenuti"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "Data della modifica (usare il confronto)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "Estensione File"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "Nome file"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "Nome del file o contenuto"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "Stringa di ricerca simile a Bleve"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "Query di Geolocalizzazione"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "Modificato prima"
   },
   "treeQuery.MaxSize": {
     "other": "MaxSize"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "Modificato da"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "Dimensioni maggiori di"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "Profondità del Percorso"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "Prefisso del Percorso"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "Percorso Assoluto"
   },
   "treeQuery.Type": {
     "other": "Tipo"
@@ -240,76 +240,76 @@
     "other": "File"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "Qualsiasi"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "UUID del Nodo"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "Ha qualsiasi valore"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Nome Attributo"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Valore Attributo"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "Connesso Da"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "Percorso Completo"
   },
   "userSingleQuery.GroupPath": {
     "other": "Percorso del Gruppo"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "Contiene il Profilo"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "Contiene il Ruolo"
   },
   "userSingleQuery.Login": {
     "other": "Nome Utente"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "Tipo di Oggetto"
   },
   "userSingleQuery.NodeType.GROUP": {
     "other": "Gruppo"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "Qualsiasi"
   },
   "userSingleQuery.NodeType.USER": {
     "other": "Utente"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "userSingleQuery.Password": {
     "other": "Password"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "Ricorsivo"
   },
   "userSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "Nome Attributo"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "Valore Attributo"
   },
   "workspaceSingleQuery.Description": {
     "other": "Descrizione"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "Contiene un Attributo"
   },
   "workspaceSingleQuery.Label": {
     "other": "Etichetta Workspace"
@@ -318,7 +318,7 @@
     "other": "Ultimo aggiornamento"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "workspaceSingleQuery.Scope": {
     "other": "Scopo"
@@ -336,19 +336,19 @@
     "other": "Etichetta Workspace"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "no"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "Tipo di Workspace"
   },
   "workspaceSingleQuery.scope.ADMIN": {
     "other": "Workspace"
   },
   "workspaceSingleQuery.scope.ANY": {
-    "other": "Any"
+    "other": "Qualsiasi"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "Link Pubblico"
   },
   "workspaceSingleQuery.scope.ROOM": {
     "other": "Cell"
@@ -363,19 +363,19 @@
     "other": "Nome"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "È disabilitato"
   },
   "dataSourceSingleQuery.StorageType": {
     "other": "Tipo di archiviazione"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "Remoto"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "Qualsiasi"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "Locale"
   },
   "dataSourceSingleQuery.PeerAddress": {
     "other": "Indirizzo Peer"
@@ -384,28 +384,28 @@
     "other": "Flat Storage"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "Salta la sincronizzazione al riavvio"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "È Versionato"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "È Criptato"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "Modalità di Cifratura"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "Chiave Utente"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
-    "other": "User-pwd"
+    "other": "Password Utente"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
     "other": "Svuota la coda"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "Chiave Principale"
   },
   "dataSourceSingleQuery.EncryptionKey": {
     "other": "Chiave di crittografia"
@@ -414,19 +414,19 @@
     "other": "Politiche di Versioning"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "Chiave di Configurazione"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "Valore di Configurazione"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
     "other": "Object Service"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "No"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "Trigger Pianificato"
   },
   "triggerFilterQuery.IsManual": {
     "other": "Attivazione Manuale"

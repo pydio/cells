@@ -15,7 +15,7 @@
     "other": "{{.Configs.Title}} 비밀번호 재설정 요청"
   },
   "Mail.ResetPassword.Intros": {
-    "other": "{{.Configs.Title}} 계정의 비밀번호 재설정을 요청 하였습니다."
+    "other": "{{.Configs.Title}} 계정의 비밀번호 재설정을 요청하였습니다."
   },
   "Mail.ResetPassword.Outros": {
     "other": "만약 본인이 요청한 것이 아니라면 무시하시면 됩니다. 계속 이러한 이메일을 받으실 경우, 보안 문제일수 있으므로 관리자에게 알려주세요."
@@ -33,67 +33,67 @@
     "other": "비밀번호 재설정 요청에 따라, {{.Configs.Title}} 계정의 비밀번호가 성공적으로 재설정되었습니다."
   },
   "Mail.ResetPasswordDone.Outros": {
-    "other": "본인이 요청한 것이 아니라면 보안 문제일수 있으므로 관리자에게 알려주세요."
+    "other": "본인이 요청한 것이 아니라면 보안 문제일 수 있으므로 관리자에게 알려주세요."
   },
   "Mail.Digest.Subject": {
     "other": "{{.Configs.Title}} 알림"
   },
   "Mail.Digest.Intros": {
-    "other": "아래는 {{.Configs.Title}} 에서 받은 알림의 요약입니다."
+    "other": "아래는 {{.Configs.Title}}에서 받은 알림의 요약입니다."
   },
   "Mail.DM.Subject": {
-    "other": "{{.TplData.From}} 님이 메시지를 보냈습니다!"
+    "other": "{{.TplData.From}}님이 메시지를 보냈습니다!"
   },
   "Mail.DM.Intros": {
-    "other": "{{.TplData.From}} 님이 {{.Configs.Title}} 앱을 통해 메시지를 보냄: {{.TplData.Message}}"
+    "other": "{{.TplData.From}}님이 {{.Configs.Title}} 앱을 통해 메시지를 보냄: {{.TplData.Message}}"
   },
   "Mail.Welcome.Subject": {
-    "other": "{{.Configs.Title}} 에 오신걸 환영합니다"
+    "other": "{{.Configs.Title}}에 오신걸 환영합니다"
   },
   "Mail.Welcome.Intros": {
     "other": "{{.Configs.Title}} 의 계정이 생성되었습니다.\n계정 이름: {{.TplData.Login}}\n{{if .TplData.Password}}비밀번호: {{.TplData.Password}}\n첫 로그인에 비밀번호를 변경하실 수 있습니다.{{end}}"
   },
   "Mail.Welcome.LinkInstructions": {
-    "other": "클릭하여 로그인하기"
+    "other": "여기를 클릭하여 로그인"
   },
   "Mail.Welcome.LinkLabel": {
-    "other": "{{.Configs.Title}}로 로그인하기"
+    "other": "{{.Configs.Title}}에 로그인하기"
   },
   "Mail.Welcome.Outros": {
     "other": "{{.Configs.Title}} 파일 공유 플랫폼은 당신의 팀과 효율적으로 협업하기 위해 사용되고 있습니다. 한 배에 타신걸 환영합니다!"
   },
   "Mail.Invite.Subject": {
-    "other": "{{.TplData.Inviter}} 님이 당신을 {{.Configs.Title}} 에 초대하셨습니다."
+    "other": "{{.TplData.Inviter}}님이 당신을 {{.Configs.Title}}에 초대하셨습니다."
   },
   "Mail.Invite.Intros": {
-    "other": "{{.TplData.Inviter}} 님에 의해 {{.Configs.Title}} 계정이 생성되었습니다.\n계정 이름: {{.TplData.Login}}\n{{if .TplData.Password}}비밀번호: {{.TplData.Password}}\n첫 로그인에 비밀번호를 변경하실 수 있습니다.{{end}}"
+    "other": "{{.TplData.Inviter}}님에 의해 {{.Configs.Title}} 계정이 생성되었습니다.\n계정 이름: {{.TplData.Login}}\n{{if .TplData.Password}}비밀번호: {{.TplData.Password}}\n첫 로그인에 비밀번호를 변경하실 수 있습니다.{{end}}"
   },
   "Mail.Invite.LinkInstructions": {
-    "other": "클릭하여 로그인하기"
+    "other": "여기를 클릭하여 로그인"
   },
   "Mail.Invite.LinkLabel": {
-    "other": "{{.Configs.Title}} 에 로그인"
+    "other": "{{.Configs.Title}}에 로그인하기"
   },
   "Mail.Invite.Outros": {
     "other": "{{.Configs.Title}} 파일 공유 플랫폼은 {{.TplData.Inviter}} 팀과 효율적으로 협업하기 위해 사용되고 있습니다. 한 배에 타신걸 환영합니다!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} 님이 당신을 {{.TplData.Cell}} Cell 에 초대하셨습니다"
+    "other": "{{.TplData.Inviter}}님이 당신을 {{.TplData.Cell}} Cell 에 초대하셨습니다"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} 님이 {{.Configs.Title}} 에서 당신을 {{.TplData.Cell}} Cell에 추가하셨습니다! 이제 파일과 폴더를 함께 공유하며 효율적으로 협업할 수 있습니다."
+    "other": "{{.TplData.Inviter}}님이 {{.Configs.Title}}에서 당신을 {{.TplData.Cell}} Cell에 추가하셨습니다! 이제 파일과 폴더를 함께 공유하며 효율적으로 협업할 수 있습니다."
   },
   "Mail.Cell.LinkInstructions": {
     "other": "눌러서 Cell 열기"
   },
   "Mail.Cell.LinkLabel": {
-    "other": "{{.TplData.Cell}} Cell 열기"
+    "other": "{{.TplData.Cell}} 열기"
   },
   "Mail.PublicFile.Subject": {
-    "other": "{{.TplData.Inviter}} 님이 당신과 파일을 공유하고 있습니다"
+    "other": "{{.TplData.Inviter}}님이 당신과 파일을 공유하고 있습니다"
   },
   "Mail.PublicFile.Intros": {
-    "other": "{{.TplData.Inviter}} 님이 당신과 파일을 공유하고 있습니다\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}} 이 링크는 {{.TplData.Expire}} 에 만료됩니다.{{end}}\n\n{{if .TplData.MaxDownloads}}다운로드 허용 횟수 :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}}님이 당신과 파일을 공유하고 있습니다\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}} 이 링크는 {{.TplData.Expire}}에 만료됩니다.{{end}}\n\n{{if .TplData.MaxDownloads}}다운로드 허용 횟수 :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFile.LinkLabel": {
     "other": "{{.TplData.FileName}} 열기"
@@ -105,10 +105,10 @@
     "other": "{{.Configs.Title}} 파일 공유 플랫폼은 {{.TplData.Inviter}} 팀과 효율적으로 협업하기 위해 사용되고 있습니다."
   },
   "Mail.PublicFolder.Subject": {
-    "other": "{{.TplData.Inviter}} 님이 당신과 폴더를 공유하고 있습니다"
+    "other": "{{.TplData.Inviter}}님이 당신과 폴더를 공유하고 있습니다"
   },
   "Mail.PublicFolder.Intros": {
-    "other": "{{.TplData.Inviter}} 님이 당신과 폴더를 공유하고 있습니다\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}} 이 링크는 {{.TplData.Expire}} 에 만료됩니다.{{end}}\n\n{{if .TplData.MaxDownloads}}다운로드 허용 횟수 :{{.TplData.MaxDownloads}}{{end}}"
+    "other": "{{.TplData.Inviter}}님이 당신과 폴더를 공유하고 있습니다\n\n '{{.TplData.Message}}' \n\n {{if .TplData.Expire}} 이 링크는 {{.TplData.Expire}}에 만료됩니다.{{end}}\n\n{{if .TplData.MaxDownloads}}다운로드 허용 횟수 :{{.TplData.MaxDownloads}}{{end}}"
   },
   "Mail.PublicFolder.LinkLabel": {
     "other": "{{.TplData.FolderName}} 열기"
@@ -120,7 +120,7 @@
     "other": "{{.Configs.Title}} 파일 공유 플랫폼은 {{.TplData.Inviter}} 팀과 효율적으로 협업하기 위해 사용되고 있습니다."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} 님이 당신에게 테스트 이메일을 보내고 있습니다"
+    "other": "{{.Configs.Title}}님이 당신에게 테스트 이메일을 보내고 있습니다"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
@@ -129,7 +129,7 @@
     "other": "Cells 열기"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "눌러서 프런트엔드 열기"
+    "other": "눌러서 Frontend 열기"
   },
   "Mail.AdminTestMail.Outros": {
     "other": "{{.Configs.Title}} 파일 공유 플랫폼은 팀과 효율적으로 협업하기 위해 사용되고 있습니다."
@@ -159,19 +159,19 @@
     "other": "메일러 엔진"
   },
   "Mail.Config.Mailer.Description": {
-    "other": "이메일을 보낼때 사용되는 엔진"
+    "other": "이메일을 보낼 때 사용되는 엔진"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "비활성화됨(이메일을 활성화하지 않음)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (이메일을 활성화하지만 아무것도 보내지 않음)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "디버깅을 위해 파일에 이메일 작성"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "메일 작성을 위한 대상 폴더"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP 서버"
@@ -207,10 +207,10 @@
     "other": "SMTP 서버의 인증서가 자체 서명일 경우 인증서 검증을 비활성화하세요"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "STMP 클라이언트 로컬 이름"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "STMP 클라이언트가 기본적으로 EHLO 명령에 'localhost'를 보냅니다, 이 필드를 이용해 커스텀 로컬 이름을 설정하십시오."
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid 서비스"
@@ -219,7 +219,7 @@
     "other": "Api 키"
   },
   "Mail.Config.SendGrid.ApiKey.Description": {
-    "other": "SendGrid 에서 서비스에 연결하기 위해 받은 API 키"
+    "other": "SendGrid 에서 서비스에 연결하기 위해 받은 Api 키"
   },
   "Mail.Config.Sendmail.Label": {
     "other": "Sendmail"
@@ -240,7 +240,7 @@
     "other": "보내는 사람 이름 기본값"
   },
   "Mail.Config.FromName.Description": {
-    "other": "이메일을 보낼때 사용할 보내는 사람 이름의 기본값"
+    "other": "이메일을 보낼 때 사용할 보내는 사람 이름의 기본값입니다."
   },
   "Mail.Config.FromCtl.Label": {
     "other": "사용할 보내는/받는 사람 주소와 이름"

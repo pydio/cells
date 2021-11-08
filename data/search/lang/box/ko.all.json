@@ -1,6 +1,6 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "색인 내용"
   },
   "Search.Config.IndexContent.Description": {
     "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."

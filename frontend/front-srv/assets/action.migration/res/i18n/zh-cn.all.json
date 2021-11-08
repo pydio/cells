@@ -81,7 +81,7 @@
     "other": "资料库命名空间 (点击编辑)"
   },
   "step.meta.map.ws": {
-    "other": "Workspace %s"
+    "other": "工作区 %s"
   },
   "step.meta.map.values": {
     "other": " (Values %s)"
@@ -276,7 +276,7 @@
     "other": "Files Metadata"
   },
   "dash.feature.shares": {
-    "other": "Shares"
+    "other": "共享"
   },
   "dash.job.new": {
     "other": "New import job"
