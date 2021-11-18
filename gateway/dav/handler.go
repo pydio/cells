@@ -89,7 +89,7 @@ func newHandler(ctx context.Context, router *views.Router) http.Handler {
 			default:
 				if err == nil {
 					log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
-				} else {
+				} else if !(r.Method == "PROPFIND" && strings.Contains(err.Error(), "file does not exist")) {
 					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
 				}
 			}

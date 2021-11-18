@@ -36,6 +36,7 @@ import (
 	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -563,7 +564,7 @@ func clearName(name string) (string, error) {
 	if !strings.HasPrefix(name, "/") {
 		return "", os.ErrInvalid
 	}
-
+	name = string(norm.NFC.Bytes([]byte(name)))
 	return name, nil
 }
 
