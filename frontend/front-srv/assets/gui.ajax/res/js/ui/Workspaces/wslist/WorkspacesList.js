@@ -203,9 +203,7 @@ class WorkspacesList extends React.Component{
     }
 
     stateFromPydio(pydio){
-        const workspaces = pydio.user ? pydio.user.getRepositoriesList() : [];
-        const wsList = [];
-        workspaces.forEach(o => wsList.push(o));
+        const workspaces = pydio.user ? pydio.user.getRepositoriesList() : new Map();
         return {
             merge: pydio.getPluginConfigs('core.pydio').get('MERGE_WORKSPACES_AND_CELLS'),
             random: Math.random(),
@@ -233,26 +231,7 @@ class WorkspacesList extends React.Component{
         const {pydio, className, muiTheme, sectionTitleStyle, searchView, values, setValues, searchLoading, facets, activeFacets, toggleFacet} = this.props;
 
         // Split Workspaces from Cells
-        let wsList = [];
-        workspaces.forEach(o => wsList.push(o));
-        wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
-        wsList.sort((oA, oB) => {
-            if(oA.getRepositoryType() === "workspace-personal") {
-                return -1
-            }
-            if(oB.getRepositoryType() === "workspace-personal") {
-                return 1
-            }
-            const res = oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
-            if (res === 0) {
-                return oA.getSlug().localeCompare(oB.getSlug());
-            } else {
-                return res;
-            }
-        });
-        let entries = wsList.filter(ws => !ws.getOwner());
-        let sharedEntries = wsList.filter(ws => ws.getOwner());
-
+        const {workspaces: entries, cells: sharedEntries} = sortWorkspaces(workspaces);
 
         const messages = pydio.MessageHash;
 
@@ -394,6 +373,7 @@ class WorkspacesList extends React.Component{
             </div>
         );
     }
+
 }
 
 WorkspacesList.PropTypes =   {
@@ -411,4 +391,28 @@ WorkspacesList.PropTypes =   {
 WorkspacesList = withVerticalScroll(WorkspacesList);
 WorkspacesList = muiThemeable()(WorkspacesList);
 
-export {WorkspacesList as default}
+const sortWorkspaces = (wssMap) => {
+    let wsList = [];
+    wssMap.forEach(o => wsList.push(o))
+    wsList = wsList.filter(ws => !Repository.isInternal(ws.getId()));
+    wsList.sort((oA, oB) => {
+        if(oA.getRepositoryType() === "workspace-personal") {
+            return -1
+        }
+        if(oB.getRepositoryType() === "workspace-personal") {
+            return 1
+        }
+        const res = oA.getLabel().localeCompare(oB.getLabel(), undefined, {numeric: true});
+        if (res === 0) {
+            return oA.getSlug().localeCompare(oB.getSlug());
+        } else {
+            return res;
+        }
+    });
+    return {
+        workspaces: wsList.filter(ws => !ws.getOwner()),
+        cells: wsList.filter(ws => ws.getOwner()),
+    }
+}
+
+export {WorkspacesList as default, sortWorkspaces}

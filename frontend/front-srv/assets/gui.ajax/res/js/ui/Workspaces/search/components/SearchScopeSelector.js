@@ -22,7 +22,8 @@ import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
 import Pydio from 'pydio'
-import {MenuItem, DropDownMenu} from 'material-ui';
+import {MenuItem, Divider} from 'material-ui';
+import {sortWorkspaces} from "../../wslist/WorkspacesList";
 const {ModernSelectField} = Pydio.requireLib('hoc');
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
@@ -40,16 +41,21 @@ class SearchScopeSelector extends Component {
 
     render(){
         const {getMessage, pydio:{user}} = this.props;
-        const items = [
+        let items = [
             <MenuItem value={'all'} primaryText={getMessage(610)}/>
         ];
         if(user) {
-            user.getRepositoriesList().forEach(ws => {
-                if(ws.getId() === 'home' || ws.getId() === 'settings'){
-                    return;
-                }
-                items.push(<MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>)
-            })
+            const {workspaces, cells} = sortWorkspaces(user.getRepositoriesList());
+            const wsEntries = workspaces.map(ws => <MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>);
+            const cellsEntries = cells.map(ws => <MenuItem value={ws.getSlug() + '/'} primaryText={ws.getLabel()}/>);
+            if(wsEntries.length || cellsEntries.length) {
+                items.push(<Divider/>)
+            }
+            items = [...items, ...wsEntries];
+            if(wsEntries.length && cellsEntries.length) {
+                items.push(<Divider/>)
+            }
+            items = [...items, ...cellsEntries];
         }
 
         return (
