@@ -167,6 +167,8 @@ func Start() error {
 		return err
 	}
 
+	<-time.After(10 * time.Second)
+
 	mainCaddy.instance = instance
 	return nil
 }
@@ -205,6 +207,8 @@ func StartWithFastRestart() (chan bool, error) {
 func restart() error {
 
 	if mainCaddy.instance == nil {
+		log.Logger(context.Background()).Warn("Caddy Instance not ready yet - Resend restart event")
+		Restart()
 		return fmt.Errorf("instance not started")
 	}
 
