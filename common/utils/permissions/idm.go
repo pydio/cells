@@ -376,13 +376,12 @@ func AccessListForLockedNodes(ctx context.Context, resolver VirtualPathResolver)
 	acls, _ := GetACLsForActions(ctx, AclLock)
 
 	accessList.Append(acls)
-	accessList.NodesAcls = make(map[string]Bitmask)
 
 	b := Bitmask{}
 	b.AddFlag(FlagLock)
 
 	for _, acl := range acls {
-		accessList.NodesAcls[acl.NodeID] = b
+		accessList.SetNodeBitmask(acl.NodeID, b)
 	}
 
 	accessList.LoadNodePathsAcls(ctx, resolver)

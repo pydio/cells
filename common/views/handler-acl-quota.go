@@ -259,7 +259,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 			if n, o := vResolver(parentContext, &tree.Node{Uuid: realId}); o {
 				realId = n.Uuid
 			}
-			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, permissions.FlagRead) && !aclNodeMask.HasFlag(ctx, permissions.FlagDeny) {
+			if aclNodeMask, has := ownerAcls.GetNodeBitmask(originalRoot); has && aclNodeMask.HasFlag(ctx, permissions.FlagRead) && !aclNodeMask.HasFlag(ctx, permissions.FlagDeny) {
 				ownerWsRoots[realId] = ws
 			}
 		}

@@ -74,18 +74,19 @@ func init() {
 // ACLs are merged using a Bitmask form to ease flags detections and comparisons.
 type AccessList struct {
 	Workspaces         map[string]*idm.Workspace
-	Acls               []*idm.ACL
-	NodesAcls          map[string]Bitmask
-	WorkspacesNodes    map[string]map[string]Bitmask
+	acls               []*idm.ACL
+	workspacesNodes    map[string]map[string]Bitmask
 	OrderedRoles       []*idm.Role
 	FrontPluginsValues []*idm.ACL
 
-	nodesPathsAcls map[string]Bitmask
-
-	hasClaimsScopes bool
 	claimsScopes    map[string]Bitmask
+	hasClaimsScopes bool
 
-	replicationMutex sync.Mutex
+	uuidACLsMux sync.RWMutex
+	uuidACLs    map[string]Bitmask
+
+	pathsACLsMux sync.RWMutex
+	pathsACLs    map[string]Bitmask
 }
 
 // NewAccessList creates a new AccessList.
@@ -95,14 +96,14 @@ func NewAccessList(orderedRoles []*idm.Role, Acls ...[]*idm.ACL) *AccessList {
 		OrderedRoles: orderedRoles,
 	}
 	for _, lists := range Acls {
-		acl.Acls = append(acl.Acls, lists...)
+		acl.acls = append(acl.acls, lists...)
 	}
 	return acl
 }
 
 // Append appends an additional list of ACLs.
 func (a *AccessList) Append(acls []*idm.ACL) {
-	a.Acls = append(a.Acls, acls...)
+	a.acls = append(a.acls, acls...)
 }
 
 // AppendClaimsScopes appends some specific permissions passed through claims.
@@ -114,7 +115,7 @@ func (a *AccessList) AppendClaimsScopes(ss []string) {
 
 // HasPolicyBasedAcls checks if there are policy based acls.
 func (a *AccessList) HasPolicyBasedAcls() bool {
-	for _, acl := range a.Acls {
+	for _, acl := range a.acls {
 		if acl.Action.Name == AclPolicy.Name {
 			return true
 		}
@@ -124,29 +125,47 @@ func (a *AccessList) HasPolicyBasedAcls() bool {
 
 // Flatten performs actual flatten.
 func (a *AccessList) Flatten(ctx context.Context) {
-	nodes, workspaces := a.flattenNodes(ctx, a.Acls)
-	a.NodesAcls = nodes
-	a.WorkspacesNodes = workspaces
+	nodes, workspaces := a.flattenNodes(ctx, a.acls)
+	a.uuidACLsMux.Lock()
+	a.uuidACLs = nodes
+	a.uuidACLsMux.Unlock()
+	a.workspacesNodes = workspaces
 }
 
 // GetWorkspacesNodes gets detected workspace root nodes that are then
 // used to populate the Workspace keys.
 func (a *AccessList) GetWorkspacesNodes() map[string]map[string]Bitmask {
-	return a.WorkspacesNodes
+	return a.workspacesNodes
 }
 
-// GetNodesBitmasks returns internal bitmask
-func (a *AccessList) GetNodesBitmasks() map[string]Bitmask {
-	return a.NodesAcls
+// GetNodeBitmask finds a bitmask by node Id
+func (a *AccessList) GetNodeBitmask(nodeId string) (Bitmask, bool) {
+	a.uuidACLsMux.RLock()
+	defer a.uuidACLsMux.RUnlock()
+
+	if b, o := a.uuidACLs[nodeId]; o {
+		return b, o
+	}
+	return Bitmask{}, false
+}
+
+// SetNodeBitmask sets a bitmask for nodeId.
+func (a *AccessList) SetNodeBitmask(nodeId string, b Bitmask) {
+	a.uuidACLsMux.Lock()
+	if a.uuidACLs == nil {
+		a.uuidACLs = map[string]Bitmask{}
+	}
+	a.uuidACLs[nodeId] = b
+	a.uuidACLsMux.Unlock()
 }
 
 // ReplicateBitmask copies a bitmask value from one position to another
 func (a *AccessList) ReplicateBitmask(fromUuid, toUuid string) bool {
 	// Protect this method from concurrency
-	a.replicationMutex.Lock()
-	defer a.replicationMutex.Unlock()
-	if b, o := a.NodesAcls[fromUuid]; o {
-		a.NodesAcls[toUuid] = b
+	a.uuidACLsMux.Lock()
+	defer a.uuidACLsMux.Unlock()
+	if b, o := a.uuidACLs[fromUuid]; o {
+		a.uuidACLs[toUuid] = b
 		return true
 	}
 	return false
@@ -222,7 +241,7 @@ func (a *AccessList) CanWriteWithResolver(ctx context.Context, resolver VirtualP
 
 // CanReadPath checks if a node has READ access based on its Path
 func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
-	if a.nodesPathsAcls == nil {
+	if a.pathsACLs == nil {
 		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
 			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
 			return false
@@ -234,7 +253,7 @@ func (a *AccessList) CanReadPath(ctx context.Context, resolver VirtualPathResolv
 
 // CanWritePath checks if a node has WRITE access based on its path.
 func (a *AccessList) CanWritePath(ctx context.Context, resolver VirtualPathResolver, nodes ...*tree.Node) bool {
-	if a.nodesPathsAcls == nil {
+	if a.pathsACLs == nil {
 		if e := a.LoadNodePathsAcls(ctx, resolver); e != nil {
 			log.Logger(ctx).Error("Could not load NodePathsAcls", zap.Error(e))
 			return false
@@ -288,7 +307,12 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 
 // LoadNodePathsAcls retrieve each nodes by UUID, to which an ACL is attached
 func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPathResolver) error {
-	a.nodesPathsAcls = make(map[string]Bitmask, len(a.NodesAcls))
+
+	a.uuidACLsMux.RLock()
+	size := len(a.uuidACLs)
+	a.uuidACLsMux.RUnlock()
+
+	a.pathsACLs = make(map[string]Bitmask, size)
 	cli := tree.NewNodeProviderStreamerClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
 	st, e := cli.ReadNodeStream(ctx)
 	if e != nil {
@@ -296,10 +320,12 @@ func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPath
 	}
 	defer st.Close()
 	// Retrieving path foreach ids
-	for nodeID, b := range a.NodesAcls {
+	a.uuidACLsMux.RLock()
+	a.pathsACLsMux.Lock()
+	for nodeID, b := range a.uuidACLs {
 		if n, ok := resolver(ctx, &tree.Node{Uuid: nodeID}); ok {
 			log.Logger(ctx).Debug("Acl.LoadNodePathsAcls : Loading resolved node", n.Zap())
-			a.nodesPathsAcls[strings.TrimSuffix(n.Path, "/")] = b
+			a.pathsACLs[strings.TrimSuffix(n.Path, "/")] = b
 			continue
 		}
 		err := st.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeID}})
@@ -310,17 +336,21 @@ func (a *AccessList) LoadNodePathsAcls(ctx context.Context, resolver VirtualPath
 		if err != nil || resp.Node == nil {
 			continue
 		}
-		a.nodesPathsAcls[strings.TrimSuffix(resp.Node.Path, "/")] = b
+		a.pathsACLs[strings.TrimSuffix(resp.Node.Path, "/")] = b
 	}
+	a.uuidACLsMux.RUnlock()
+	a.pathsACLsMux.Unlock()
 	return nil
 }
 
 func (a *AccessList) replicateMasksResolved(ctx context.Context, resolver VirtualPathResolver) {
-	for id := range a.NodesAcls {
+	a.uuidACLsMux.Lock()
+	for id, bm := range a.uuidACLs {
 		if res, o := resolver(ctx, &tree.Node{Uuid: id}); o {
-			a.ReplicateBitmask(id, res.Uuid)
+			a.uuidACLs[res.Uuid] = bm
 		}
 	}
+	a.uuidACLsMux.Unlock()
 }
 
 // FlattenedFrontValues generates a configx.Values with frontend actions/parameters configs
@@ -451,48 +481,58 @@ func (a *AccessList) parentMaskOrDeny(ctx context.Context, byPath bool, nodes ..
 	for _, node := range nodes {
 		var checkOn map[string]Bitmask
 		var checkKey string
+		var mux *sync.RWMutex
 		if byPath {
-			checkOn = a.nodesPathsAcls
+			mux = &a.pathsACLsMux
+			checkOn = a.pathsACLs
 			checkKey = strings.Trim(node.Path, "/")
 		} else {
-			checkOn = a.NodesAcls
+			mux = &a.uuidACLsMux
+			checkOn = a.uuidACLs
 			checkKey = node.Uuid
 		}
+		mux.RLock()
 		if bitmask, ok := checkOn[checkKey]; ok {
 			if firstParent.BitmaskFlag == BitmaskFlag(0) {
 				firstParent = bitmask
 			}
 			if bitmask.HasFlag(ctx, FlagDeny, node) {
+				mux.RUnlock()
 				return true, Bitmask{BitmaskFlag: FlagDeny}
 			}
 		}
+		mux.RUnlock()
 	}
 	return hasParentDeny, firstParent
 }
 
 // firstMaskForParents just climbs up the tree and gets the first non empty mask found.
 func (a *AccessList) firstMaskForParents(ctx context.Context, nodes ...*tree.Node) (Bitmask, *tree.Node) {
+	a.uuidACLsMux.RLock()
 	for _, node := range nodes {
-		if bitmask, ok := a.NodesAcls[node.Uuid]; ok {
+		if bitmask, ok := a.uuidACLs[node.Uuid]; ok {
 			return bitmask, node
 		}
 	}
+	a.uuidACLsMux.RUnlock()
 	return Bitmask{}, nil
 }
 
 // firstMaskForChildren look through all the access list pathes to get the first mask available for the node given in argument
 func (a *AccessList) firstMaskForChildren(ctx context.Context, node *tree.Node) Bitmask {
-	keys := make([]string, 0, len(a.nodesPathsAcls))
-	for k := range a.nodesPathsAcls {
+	a.pathsACLsMux.RLock()
+	keys := make([]string, 0, len(a.pathsACLs))
+	for k := range a.pathsACLs {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
 	for _, p := range keys {
 		if strings.HasPrefix(p, strings.TrimRight(node.Path, "/")+"/") {
-			return a.nodesPathsAcls[p]
+			return a.pathsACLs[p]
 		}
 	}
+	a.pathsACLsMux.RUnlock()
 	return Bitmask{}
 }
 

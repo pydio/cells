@@ -153,7 +153,7 @@ func TestNewAccessList(t *testing.T) {
 		list := NewAccessList(roles, []*idm.ACL{})
 		list.Append(acls)
 		So(list.OrderedRoles, ShouldResemble, roles)
-		So(list.Acls, ShouldResemble, acls)
+		So(list.acls, ShouldResemble, acls)
 	})
 }
 
@@ -163,10 +163,10 @@ func TestAccessList_Flatten(t *testing.T) {
 		list := NewAccessList(roles)
 		list.Append(acls)
 		list.Flatten(ctx)
-		So(list.NodesAcls, ShouldHaveLength, 4)
+		So(list.uuidACLs, ShouldHaveLength, 4)
 
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.nodesPathsAcls = list.NodesAcls
+		list.pathsACLs = list.uuidACLs
 		list.Workspaces = map[string]*idm.Workspace{
 			"ws1": {UUID: "ws1"},
 			"ws2": {UUID: "ws2"},
@@ -237,7 +237,7 @@ func TestAclPolicies(t *testing.T) {
 		list.Append(policyAcls)
 		list.Flatten(ctx)
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.nodesPathsAcls = list.NodesAcls
+		list.pathsACLs = list.uuidACLs
 
 		So(list.HasPolicyBasedAcls(), ShouldBeTrue)
 
