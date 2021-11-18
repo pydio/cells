@@ -28,7 +28,7 @@ class Policy extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {policy: props.policy};
+        this.state = {policy: props.policy, pName: null, pDesc: null};
     }
 
     componentWillReceiveProps(next){
@@ -55,10 +55,10 @@ class Policy extends React.Component{
 
     saveLabels(){
         const {pName, pDesc, policy} = this.state;
-        if(pName){
+        if(pName !== null){
             policy.Name = pName;
         }
-        if(pDesc) {
+        if(pDesc !== null) {
             policy.Description = pDesc;
         }
         this.setState({pName: null, pDesc: null});
@@ -150,7 +150,8 @@ class Policy extends React.Component{
         let labelsBlock;
         if(!readonly) {
             const {showLabels, pName, pDesc} = this.state;
-            const labelsModified = (pName && pName !== policy.Name) || (pDesc && pDesc !== policy.Description);
+            const labelsModified = (pName !== null && pName !== policy.Name) || (pDesc !== null && pDesc !== policy.Description);
+            const emptyLabel = pName === "" ;
             labelsBlock = (
                 <div style={{marginTop: 10, paddingTop: 10}}>
                     <div style={{display:'flex', alignItems:'center'}}>
@@ -166,7 +167,7 @@ class Policy extends React.Component{
                         </div>
                         <div style={{width: 80}}>
                             <IconButton
-                                disabled={!labelsModified}
+                                disabled={!labelsModified || emptyLabel}
                                 iconClassName={"mdi mdi-content-save"}
                                 tooltip={m('policy.saveLabels')}
                                 tooltipPosition={"top-center"}
