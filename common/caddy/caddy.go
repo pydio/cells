@@ -167,8 +167,6 @@ func Start() error {
 		return err
 	}
 
-	<-time.After(10 * time.Second)
-
 	mainCaddy.instance = instance
 	return nil
 }
