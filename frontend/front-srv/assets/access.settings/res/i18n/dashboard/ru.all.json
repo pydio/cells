@@ -84,7 +84,7 @@
     "other": "Если вы не знаете как начать, то Руководство Администратора поможет вам!"
   },
   "welc.intro": {
-    "other": "77/5000\nЭто ваша панель управления Pydio. Используя левое меню вы можете создать <a class=\"doc-link\" data-path=\"/data/workspaces\">рабочие пространства</a> и <a class=\"doc-link\" data-path=\"/idm/users\">пользователей</a>,\n                            проверьте все <a class=\"doc-link\" data-path=\"/admin/logs\">события</a> что произошли, и управляйте <a class=\"doc-link\" data-path=\"/parameters/core\">настройками</a> и <a class=\"doc-link\" data-path=\"/plugins/manager\">плагинами</a>."
+    "other": "Это ваша панель управления Pydio. Используя левое меню вы можете создать <a class=\"doc-link\" data-path=\"/data/workspaces\">рабочие пространства</a> и <a class=\"doc-link\" data-path=\"/idm/users\">пользователей</a>,\n                            проверьте все <a class=\"doc-link\" data-path=\"/admin/logs\">события</a> что произошли, и управляйте <a class=\"doc-link\" data-path=\"/parameters/core\">настройками</a> и <a class=\"doc-link\" data-path=\"/plugins/manager\">плагинами</a>."
   },
   "welc.import": {
     "other": "Если у вас установлено Pydio 8, имейте в виду, что <u>Pydio 8 будет поддерживаться до конца 2019</u>. Вы можете использовать <a class=\"doc-link\" data-path=\"/data/migration\">инструмент импорта</a> для переноса всех данных в Pydio Cells."
@@ -93,6 +93,6 @@
     "other": "Место для администрирования и мониторинга активности вашей платформы"
   },
   "welc.title": {
-    "other": "Добро пожаловать в Pydio Cells v2"
+    "other": "Добро пожаловать в Pydio Cells v3"
   }
 }
