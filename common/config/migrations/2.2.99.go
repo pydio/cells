@@ -60,13 +60,18 @@ func updateVersionsStore(conf configx.Values) error {
 	dsCopy.Name = newDsName
 	dsCopy.ObjectsBucket = bucket
 	dsCopy.FlatStorage = true
+	if dsCopy.StorageConfiguration == nil {
+		dsCopy.StorageConfiguration = map[string]string{}
+	}
 	dsCopy.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyInitFromBucket] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyNormalize] = "false"
 	dsCopy.VersioningPolicyName = ""
 	dsCopy.EncryptionKey = ""
-	if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
-		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
+	if dsObject.StorageConfiguration != nil {
+		if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
+			dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
+		}
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
@@ -109,13 +114,18 @@ func updateThumbsStore(conf configx.Values) error {
 	dsCopy.Name = newDsName
 	dsCopy.ObjectsBucket = bucket
 	dsCopy.FlatStorage = true
+	if dsCopy.StorageConfiguration == nil {
+		dsCopy.StorageConfiguration = map[string]string{}
+	}
 	dsCopy.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyInitFromBucket] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyNormalize] = "false"
 	dsCopy.VersioningPolicyName = ""
 	dsCopy.EncryptionKey = ""
-	if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
-		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
+	if dsObject.StorageConfiguration != nil {
+		if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
+			dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
+		}
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
