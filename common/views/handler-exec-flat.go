@@ -78,8 +78,11 @@ func (f *FlatStorageHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 		return f.clientsPool.GetTreeClientWrite().DeleteNode(ctx, in)
 	}
 	resp, e := f.next.DeleteNode(ctx, in, opts...)
-	if isFlat && e == nil && resp.Success {
+	if isFlat && (e == nil && resp.Success) {
 		// Update index directly
+		return f.clientsPool.GetTreeClientWrite().DeleteNode(ctx, in)
+	} else if isFlat && e != nil && errors.Parse(e.Error()).Code == 404 {
+		log.Logger(ctx).Warn("Deletion : node not found in storage, removing from index", in.Node.Zap())
 		return f.clientsPool.GetTreeClientWrite().DeleteNode(ctx, in)
 	}
 	return resp, e
