@@ -84,15 +84,8 @@ type Service interface {
 
 func buildForkStartParams(serviceName string) []string {
 
-	//r := viper.GetString("registry")
-	//if r == "memory" {
-	r := fmt.Sprintf("grpc://:%d", viper.GetInt("port_registry"))
-	//}
-
-	//b := viper.GetString("broker")
-	//if b == "memory" {
-	b := fmt.Sprintf("grpc://:%d", viper.GetInt("port_broker"))
-	//}
+	r := fmt.Sprintf("grpc://%s:%d", os.Getenv("CELLS_DEFAULT_REGISTRY_HOST"), viper.GetInt("port_registry"))
+	b := fmt.Sprintf("grpc://%s:%d", os.Getenv("CELLS_DEFAULT_BROKER_HOST"), viper.GetInt("port_broker"))
 
 	params := []string{
 		"start",
