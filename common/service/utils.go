@@ -27,20 +27,21 @@ import (
 	micro "github.com/micro/go-micro"
 )
 
-// Retry function
+// 重试
+//  第一个时间设置为重试  第二个时间设置为超时， 否则用默认的
 func Retry(f func() error, seconds ...time.Duration) error {
 
 	if err := f(); err == nil {
 		return nil
 	}
 
-	tick := time.Tick(1 * time.Second)
-	timeout := time.After(30 * time.Second)
+	tick := time.Tick(1 * time.Second)      // 默认 1 秒重试
+	timeout := time.After(30 * time.Second) // 默认 30 秒超时
 	if len(seconds) == 2 {
-		tick = time.Tick(seconds[0])
-		timeout = time.After(seconds[1])
+		tick = time.Tick(seconds[0])     // 第一个时间设置为重试
+		timeout = time.After(seconds[1]) // 第二个时间设置为超时
 	} else if len(seconds) == 1 {
-		tick = time.Tick(seconds[0])
+		tick = time.Tick(seconds[0]) // 第一个时间设置为重试
 	}
 
 	for {
@@ -69,6 +70,7 @@ func Retry(f func() error, seconds ...time.Duration) error {
 // 	m.Init(micro.Metadata(meta))
 // }
 
+// 设置 go-micro 的 metadata
 func AddMicroMeta(m micro.Service, k, v string) {
 	current := m.Options().Server.Options().Metadata
 

@@ -222,8 +222,8 @@ func init() {
 
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// 添加所有子命令到 root command。设置 flags。
+// 这个方法被 main.main() 调用。它只需要发生一次 rootCmd。
 func Execute() {
 
 	// Check PrivateIP and setup Advertise

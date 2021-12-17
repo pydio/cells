@@ -22,33 +22,33 @@ type dependency struct {
 	Tag  []string
 }
 
-// ServiceOptions stores all options for a pydio service
+// ServiceOptions 存储 pydio service 的所有 option
 type ServiceOptions struct {
 	Name string // 作为 micro 的 Name。micro 服务名
 	Tags []string
 
-	Version     string
-	Description string
+	Version     string // 版本
+	Description string // 描述
 	Source      string
 
-	Context context.Context
+	Context context.Context    // 上下文
 	Cancel  context.CancelFunc // 服务停止的时候执行
 
 	DAO        func(dao.DAO) dao.DAO
 	Prefix     interface{}
 	Migrations []*Migration
 
-	Port      string
+	Port      string // 端口
 	TLSConfig *tls.Config
 
 	Micro Runnable
 	Web   web.Service
 
-	Dependencies []*dependency
+	Dependencies []*dependency // 依赖哪些服务
 
 	// Starting options
-	AutoStart   bool
-	AutoRestart bool
+	AutoStart   bool // 是否自动启动
+	AutoRestart bool // 是否自动重启
 	Fork        bool
 	Unique      bool
 	Cluster     registry.Cluster
@@ -127,7 +127,7 @@ func Tag(t ...string) ServiceOption {
 	}
 }
 
-// Description option for a service
+// 服务的描述
 func Description(d string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Description = d

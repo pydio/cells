@@ -24,7 +24,7 @@ import (
 	"github.com/pydio/cells/common/dao"
 )
 
-// WithStorage adds a storage handler to the current service
+// 为当前服务添加一个存储 handler
 func WithStorage(d func(dao.DAO) dao.DAO, prefix ...interface{}) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.DAO = d

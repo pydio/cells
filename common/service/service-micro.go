@@ -70,7 +70,7 @@ func Micro(m micro.Service) ServiceOption {
 	}
 }
 
-// WithMicro adds a micro service handler to the current service
+// 添加一个 go-micro service handler 当前服务
 func WithMicro(f func(micro.Service) error) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()

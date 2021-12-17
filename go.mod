@@ -35,6 +35,9 @@ require (
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/micro/go-log v0.1.0
 	github.com/micro/go-micro v1.18.0
+	github.com/micro/go-plugins/broker/nats v0.0.0-20200119172437-4fe21aa238fd
+	github.com/micro/go-plugins/registry/nats v0.0.0-20200119172437-4fe21aa238fd
+	github.com/micro/go-plugins/transport/grpc v0.0.0-20200119172437-4fe21aa238fd
 	github.com/micro/go-web v1.0.0 // indirect
 	github.com/micro/protobuf v0.0.0-20180321161605-ebd3be6d4fdb
 	github.com/micro/util v0.2.0
@@ -43,6 +46,7 @@ require (
 	github.com/mitchellh/hashstructure v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.0
 	github.com/mwitkow/go-proto-validators v0.3.2
+	github.com/nats-io/gnatsd v1.4.1
 	github.com/nats-io/jwt v1.2.2 // indirect
 	github.com/nats-io/nats.go v1.10.0 // indirect
 	github.com/nicksnyder/go-i18n v1.10.1
