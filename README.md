@@ -45,7 +45,7 @@ make dev
 
 为了让环境运行，你必须：
 
-- 在选定的DB服务器中创建数据库
+- 在选定的 DB 服务器中创建数据库
 - 运行 Pydio Cells 安装程序，它将指导您完成必要的步骤：更多信息，请参考 [official documentation](https://pydio.com/en/docs/cells/v2/cells-installation)。
 
 ```sh
