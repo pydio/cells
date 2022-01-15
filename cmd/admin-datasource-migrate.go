@@ -312,10 +312,22 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 
 func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeProviderClient, src, tgt, tgtFmt string) (out []*tree.Node, ee error) {
 
-	str, e := idx.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
+	str, e := idx.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true}, client.WithRequestTimeout(1*time.Hour))
 	if e != nil {
 		return out, e
 	}
+	var allNodes []*tree.Node
+	for {
+		r, e := str.Recv()
+		if e != nil {
+			break
+		}
+		allNodes = append(allNodes, r.GetNode())
+	}
+	str.Close()
+
+	migrateLogger(fmt.Sprintf("[INFO] Retrieved %d nodes from Index", len(allNodes)), true)
+
 	opts := minio.StatObjectOptions{}
 	mm := map[string]string{}
 	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
@@ -324,14 +336,13 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 			opts.Set(k, v)
 		}
 	}
-	defer str.Close()
-	for {
-		r, e := str.Recv()
-		if e != nil {
-			break
+	t1 := time.Now()
+	for idx, n := range allNodes {
+		if (idx > 0 && idx%1000 == 0) || idx == len(allNodes)-1 {
+			t2 := time.Now().Sub(t1)
+			migrateLogger(fmt.Sprintf("[INFO] Processed %d/%d in %v", idx, len(allNodes), t2), true)
+			t1 = time.Now()
 		}
-		n := r.GetNode()
-
 		srcPath := n.GetPath()
 		tgtPath := n.GetUuid()
 		isPydio := path.Base(n.GetPath()) == common.PydioSyncHiddenFile
