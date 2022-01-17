@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -48,11 +49,12 @@ import (
 )
 
 var (
-	migrateForce  bool
-	migrateDry    bool
-	migrateMove   bool
-	authCtx       = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
-	migrateLogger = func(s string, print bool) {
+	migrateForce      bool
+	migrateDry        bool
+	migrateMove       bool
+	migrateResumeCopy bool
+	authCtx           = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
+	migrateLogger     = func(s string, print bool) {
 		fmt.Println(s)
 	}
 )
@@ -256,6 +258,7 @@ func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtB
 			opts = append(opts, ds.Name+" ("+format+")")
 		}
 	}
+	sort.Strings(opts)
 	p2 := &promptui.Select{Label: "Select datasource you wish to migrate", Items: opts}
 	var val string
 	if _, val, e = p2.Run(); e != nil {
@@ -336,11 +339,14 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 			opts.Set(k, v)
 		}
 	}
+	t0 := time.Now()
 	t1 := time.Now()
+	var totalBytes int64
 	for idx, n := range allNodes {
 		if (idx > 0 && idx%1000 == 0) || idx == len(allNodes)-1 {
 			t2 := time.Now().Sub(t1)
 			migrateLogger(fmt.Sprintf("[INFO] Processed %d/%d in %v", idx, len(allNodes), t2), true)
+			migrateLogger(fmt.Sprintf("[INFO] Total Copied %s in %v", humanize.Bytes(uint64(totalBytes)), time.Now().Sub(t0)), true)
 			t1 = time.Now()
 		}
 		srcPath := n.GetPath()
@@ -351,7 +357,7 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 			tgtPath = strings.TrimLeft(n.GetPath(), "/")
 		}
 		if !isPydio && n.IsLeaf() {
-			_, e := mc.StatObject(src, srcPath, opts)
+			srcInfo, e := mc.StatObject(src, srcPath, opts)
 			if e != nil {
 				migrateLogger("[ERROR] Cannot stat object "+srcPath+": "+e.Error(), true)
 				return out, e
@@ -360,6 +366,14 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 				fmt.Println("[DRY-RUN] Should copy " + path.Join(src, srcPath) + " to " + path.Join(tgt, tgtPath))
 				continue
 			}
+			if migrateResumeCopy {
+				// Stat target to avoid copying twice
+				if tgtInfo, e := mc.StatObject(tgt, tgtPath, opts); e == nil && tgtInfo.Size == srcInfo.Size {
+					migrateLogger(" - Ignoring file "+path.Join(src, srcPath)+" as it already exists inside target", true)
+					continue
+				}
+			}
+			totalBytes += srcInfo.Size
 			_, e = mc.CopyObject(src, srcPath, tgt, tgtPath, mm)
 			if e != nil {
 				migrateLogger("[ERROR] While copying "+path.Join(src, srcPath)+" to "+path.Join(tgt, tgtPath)+":"+e.Error(), true)
@@ -407,5 +421,6 @@ func init() {
 	dataSourceMigrateCmd.Flags().BoolVarP(&migrateForce, "force", "f", false, "Skip initial warning")
 	dataSourceMigrateCmd.Flags().BoolVarP(&migrateDry, "dry-run", "d", false, "Do not apply any changes")
 	dataSourceMigrateCmd.Flags().BoolVarP(&migrateMove, "move-files", "m", false, "Delete original files after copying to new bucket")
+	dataSourceMigrateCmd.Flags().BoolVarP(&migrateResumeCopy, "resume-copy", "r", false, "Resume copying data if it was interrupted, by adding check on target to avoid copying twice")
 	DataSourceCmd.AddCommand(dataSourceMigrateCmd)
 }
