@@ -63,7 +63,7 @@ func (a *AclContentLockFilter) CopyObject(ctx context.Context, from *tree.Node, 
 func (a *AclContentLockFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 	var lockErr error
 	switch operation.GetType() {
-	case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
+	case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT, tree.NodeChangeEvent_UPDATE_META:
 		lockErr = permissions.CheckContentLock(targetCtx, operation.GetTarget())
 	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
 		lockErr = permissions.CheckContentLock(srcCtx, operation.GetSource())

@@ -150,7 +150,7 @@ func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tr
 // WrappedCanApply will perform checks on quota to make sure an operation is authorized
 func (a *AclQuotaFilter) WrappedCanApply(srcCtx context.Context, targetCtx context.Context, operation *tree.NodeChangeEvent) error {
 	switch operation.GetType() {
-	case tree.NodeChangeEvent_CREATE:
+	case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
 		targetNode := operation.GetTarget()
 		if bI, ok := GetBranchInfo(targetCtx, "in"); ok && !bI.IsInternal() {
 			if maxQuota, currentUsage, err := a.ComputeQuota(targetCtx, &bI.Workspace); err != nil {

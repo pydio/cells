@@ -294,7 +294,7 @@ func (a *AclFilterHandler) WrappedCanApply(srcCtx context.Context, targetCtx con
 
 		rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "in", true, false, true, permissions.FlagUpload)
 
-	case tree.NodeChangeEvent_CREATE:
+	case tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_META:
 
 		rwErr = a.checkPerm(targetCtx, operation.GetTarget(), "in", true, false, true)
 
