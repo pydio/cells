@@ -26,10 +26,10 @@ var (
 			header_upstream X-Forwarded-Proto {scheme}
         }
 {{if .Enabled}}
-        proxy /loleaflet/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/loleaflet {
+        proxy /{{.LeafletURI}}/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/{{.LeafletURI}} {
             transparent
             insecure_skip_verify
-            without /loleaflet/
+            without /{{.LeafletURI}}/
         }
 
         proxy /hosting/discovery {{.Collabora.Scheme}}://{{.Collabora.Host}}/hosting/discovery {
@@ -38,21 +38,23 @@ var (
             without /hosting/discovery
         }
 
-        proxy /lool/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/lool/ {
+        proxy /{{.WebsocketURI}}/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/{{.WebsocketURI}}/ {
             transparent
             insecure_skip_verify
             websocket
-            without /lool/
+            without /{{.WebsocketURI}}/
         }
 {{end}}
     `
 )
 
 type EditorLibreOffice struct {
-	Enabled   bool
-	WOPI      string
-	Collabora *url.URL
-	Site      caddy.SiteConf
+	Enabled      bool
+	WOPI         string
+	Collabora    *url.URL
+	Site         caddy.SiteConf
+	LeafletURI   string
+	WebsocketURI string
 }
 
 func init() {
@@ -62,8 +64,10 @@ func init() {
 			[]string{"frontend", "plugin", "editor.libreoffice"},
 			"/wopi/",
 			"/loleaflet/",
+			"/browser/",
 			"/hosting/discovery",
 			"/lool/",
+			"/cool/",
 		)
 
 		tmpl, err := template.New("caddyfile").Funcs(caddy.FuncMap).Parse(editorLibreOfficeTemplateStr)
@@ -84,12 +88,19 @@ func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 		data.Site = site[0]
 	}
 
-	if enabled, u, err := getCollaboraConfig(); err != nil {
+	if enabled, u, version, err := getCollaboraConfig(); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))
 		return nil, err
 	} else {
 		data.Enabled = enabled
 		data.Collabora = u
+		if version == "v6" {
+			data.LeafletURI = "leaflet"
+			data.WebsocketURI = "lool"
+		} else {
+			data.LeafletURI = "browser"
+			data.WebsocketURI = "cool"
+		}
 	}
 
 	buf := bytes.NewBuffer([]byte{})
@@ -100,13 +111,14 @@ func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-func getCollaboraConfig() (bool, *url.URL, error) {
+func getCollaboraConfig() (bool, *url.URL, string, error) {
 
 	pconf := config.Get("frontend", "plugin", "editor.libreoffice")
 	enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
 	tls := pconf.Val("LIBREOFFICE_SSL").Default(true).Bool()
 	host := pconf.Val("LIBREOFFICE_HOST").Default("localhost").String()
 	port := pconf.Val("LIBREOFFICE_PORT").Default("9980").String()
+	version := pconf.Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
 
 	scheme := "http"
 	if tls {
@@ -115,8 +127,8 @@ func getCollaboraConfig() (bool, *url.URL, error) {
 
 	u, err := url.Parse(fmt.Sprintf("%s://%s:%s", scheme, host, port))
 	if err != nil {
-		return false, nil, err
+		return false, nil, "", err
 	}
 
-	return enabled, u, nil
+	return enabled, u, version, nil
 }
