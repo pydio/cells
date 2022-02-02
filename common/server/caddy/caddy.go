@@ -59,10 +59,10 @@ const (
 		}
 		request_header X-Maintenance-Redirect "true"
 		redir @rmatcher /maintenance.html
-		{{end}}
+		{{end}}	
 
 		# Special rewrite for s3 list buckets (always sent on root path)
-		# rewrite @list_buckets /io{path}
+		rewrite @list_buckets /io{path}
 
 		# Apply mux
 		mux

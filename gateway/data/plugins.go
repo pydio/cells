@@ -28,6 +28,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 
 	minio "github.com/minio/minio/cmd"
 	"go.uber.org/zap"
@@ -61,6 +62,16 @@ func (l *logger) Audit(entry interface{}) {
 	log.Auditer(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
 }
 
+func patchListBucketRequest(route string, request *http.Request) {
+	if request.RequestURI == route || request.RequestURI == route+"/" {
+		request.RequestURI = "/"
+		request.URL.Path = "/"
+	} else if strings.HasPrefix(request.RequestURI, route+"/probe-bucket-sign*") {
+		request.RequestURI = strings.TrimPrefix(request.RequestURI, route)
+		request.URL.Path = request.RequestURI
+	}
+}
+
 func init() {
 
 	plugins.Register("main", func(ctx context.Context) {
@@ -79,9 +90,11 @@ func init() {
 				u, _ := url.Parse(fmt.Sprintf("http://localhost:%d", port))
 				proxy := httputil.NewSingleHostReverseProxy(u)
 				mux.HandleFunc("/io/", func(writer http.ResponseWriter, request *http.Request) {
+					patchListBucketRequest("/io", request)
 					proxy.ServeHTTP(writer, request)
 				})
 				mux.HandleFunc("/data/", func(writer http.ResponseWriter, request *http.Request) {
+					patchListBucketRequest("/data", request)
 					proxy.ServeHTTP(writer, request)
 				})
 
