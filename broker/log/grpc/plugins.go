@@ -25,16 +25,15 @@ import (
 	"context"
 	"path"
 
-	"github.com/micro/go-micro"
+	"github.com/pydio/cells/v4/broker/log"
+	"github.com/pydio/cells/v4/common/config"
+	proto "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/broker/log"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/plugins"
-	proto "github.com/pydio/cells/common/proto/log"
-	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -45,13 +44,15 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
 			service.Unique(true),
-			service.WithMicro(func(m micro.Service) error {
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+				conf := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceLog)
+
 				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceLog)
 				if e != nil {
 					return e
 				}
 				rotationSize := log.DefaultRotationSize
-				if r := servicecontext.GetConfig(m.Options().Context).Val("bleveRotationSize").Int(); r > 0 {
+				if r := conf.Val("bleveRotationSize").Int(); r > 0 {
 					rotationSize = int64(r)
 				}
 				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", rotationSize)
@@ -60,16 +61,16 @@ func init() {
 				}
 
 				handler := &Handler{
-					Repo: repo,
+					Repo:        repo,
+					HandlerName: common.ServiceGrpcNamespace_ + common.ServiceLog,
 				}
+				proto.RegisterLogRecorderEnhancedServer(server, handler)
+				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 
-				proto.RegisterLogRecorderHandler(m.Options().Server, handler)
-				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
-
-				m.Init(micro.BeforeStop(func() error {
+				go func() {
+					<-c.Done()
 					repo.Close()
-					return nil
-				}))
+				}()
 
 				return nil
 			}),

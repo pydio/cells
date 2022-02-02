@@ -23,21 +23,18 @@ package log
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strings"
 	"time"
 
-	micro "github.com/micro/go-log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/pydio/cells/common"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 // WriteSyncer implements zapcore.WriteSyncer
@@ -46,13 +43,15 @@ type WriteSyncer interface {
 	Sync() error
 }
 
-type LogContextWrapper func(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger
+type LogContextWrapper func(ctx context.Context, logger ZapLogger, fields ...zapcore.Field) ZapLogger
 
 var (
 	mainLogger     = newLogger()
 	auditLogger    = newLogger()
 	tasksLogger    = newLogger()
-	contextWrapper = basicContextWrapper
+	contextWrapper = BasicContextWrapper
+
+	mainLogSyncerClient *LogSyncer
 
 	StdOut *os.File
 
@@ -60,7 +59,8 @@ var (
 	customSyncers  []zapcore.WriteSyncer
 	// Parse log lines like below:
 	// ::1 - - [18/Apr/2018:15:10:58 +0200] "GET /graph/state/workspaces HTTP/1.1" 200 2837 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36"
-	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
+	// combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
+	// caddyInternals = regexp.MustCompile("^(?P<log_date>[^\t]+)\t(?P<log_level>WARN|INFO)\t(?P<log_name>[^\t]+)\t(?P<log_message>[^\t]+)(\t)?(?P<log_fields>[^\t]+)$")
 )
 
 // Init for the log package - called by the main
@@ -72,17 +72,17 @@ func Init(logDir string, ww ...LogContextWrapper) {
 		var logger *zap.Logger
 
 		serverCore := zapcore.NewNopCore()
-		if !skipServerSync {
+		if !skipServerSync && mainLogSyncerClient != nil {
 			// Create core for internal indexing service
 			// It forwards logs to the pydio.grpc.logs service to store them
 			// Format is always JSON + ProductionEncoderConfig
 			srvConfig := zap.NewProductionEncoderConfig()
 			srvConfig.EncodeTime = RFC3369TimeEncoder
-			serverSync := zapcore.AddSync(NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceLog))
+			serverSync := zapcore.AddSync(mainLogSyncerClient)
 			serverCore = zapcore.NewCore(
 				zapcore.NewJSONEncoder(srvConfig),
 				serverSync,
-				common.LogLevel,
+				getCoreLevel(),
 			)
 		}
 
@@ -109,7 +109,7 @@ func Init(logDir string, ww ...LogContextWrapper) {
 			core := zapcore.NewCore(
 				zapcore.NewJSONEncoder(cfg),
 				syncer,
-				common.LogLevel,
+				getCoreLevel(),
 			)
 			core = zapcore.NewTee(core, serverCore)
 			logger = zap.New(core)
@@ -121,10 +121,10 @@ func Init(logDir string, ww ...LogContextWrapper) {
 			core := zapcore.NewCore(
 				newColorConsoleEncoder(cfg),
 				syncer,
-				common.LogLevel,
+				getCoreLevel(),
 			)
 			core = zapcore.NewTee(core, serverCore)
-			if common.LogLevel == zap.DebugLevel {
+			if getCoreLevel() == zap.DebugLevel {
 				logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
 			} else {
 				logger = zap.New(core)
@@ -132,9 +132,7 @@ func Init(logDir string, ww ...LogContextWrapper) {
 
 		}
 
-		nop := zap.NewNop()
 		_, _ = zap.RedirectStdLogAt(logger, zap.DebugLevel)
-		micro.SetLogger(micrologger{nop})
 
 		// Catch StdOut
 		if !common.LogCaptureStdOut {
@@ -148,26 +146,33 @@ func Init(logDir string, ww ...LogContextWrapper) {
 				scanner := bufio.NewScanner(r)
 				for scanner.Scan() {
 					line := scanner.Text()
-					if parsed := combinedRegexp.FindStringSubmatch(line); len(parsed) > 0 {
-						var fields []zapcore.Field
-						for i, exp := range combinedRegexp.SubexpNames() {
-							if exp == "" || exp == "user" || exp == "other" || exp == "time_local" {
-								continue
+					/*
+						if parsed := combinedRegexp.FindStringSubmatch(line); len(parsed) > 0 {
+							var fields []zapcore.Field
+							for i, exp := range combinedRegexp.SubexpNames() {
+								if exp == "" || exp == "user" || exp == "other" || exp == "time_local" {
+									continue
+								}
+								fields = append(fields, zap.String(exp, parsed[i]))
 							}
-							fields = append(fields, zap.String(exp, parsed[i]))
+							logger.Named(common.ServiceMicroApi).Debug("Rest Api Call", fields...)
+						} else if strings.Contains(line, "[DEV NOTICE]") {
+							logger.Named(common.ServiceGatewayProxy).Debug(line)
+						} else {
+							// Log the stdout line to my event logger
+							logger.Info(line)
 						}
-						logger.Named(common.ServiceMicroApi).Debug("Rest Api Call", fields...)
-					} else if strings.Contains(line, "[DEV NOTICE]") {
-						logger.Named(common.ServiceGatewayProxy).Debug(line)
-					} else {
-						// Log the stdout line to my event logger
-						logger.Info(line)
-					}
+					*/
+					logger.Info(line)
 				}
 			}()
 		}
 
 		return logger
+	}, func(ctx context.Context) {
+		if !skipServerSync {
+			mainLogSyncerClient = NewLogSyncer(ctx, common.ServiceLog)
+		}
 	})
 	if len(ww) > 0 {
 		contextWrapper = ww[0]
@@ -187,51 +192,56 @@ func SetSkipServerSync() {
 	skipServerSync = true
 }
 
+// initLogger sets the initializer and eventually registers a GlobalConnConsumer function.
+func initLogger(l *logger, f func() *zap.Logger, globalConnInit func(ctx context.Context)) {
+	l.set(f)
+	if globalConnInit != nil {
+		plugins.RegisterGlobalConnConsumer("main", func(ctx context.Context) {
+			globalConnInit(ctx)
+			l.forceReset()
+		})
+	}
+}
+
 // SetLoggerInit defines what function to use to init the logger
-func SetLoggerInit(f func() *zap.Logger) {
-	mainLogger.set(f)
+func SetLoggerInit(f func() *zap.Logger, globalConnInit func(ctx context.Context)) {
+	initLogger(mainLogger, f, globalConnInit)
 }
 
 // Logger returns a zap logger with as much context as possible.
-func Logger(ctx context.Context) *zap.Logger {
+func Logger(ctx context.Context) ZapLogger {
+	l := servicecontext.GetLogger(ctx)
+	if l != nil {
+		if lg, ok := l.(ZapLogger); ok {
+			return lg
+		}
+	}
 	return contextWrapper(ctx, mainLogger.get())
 }
 
 // SetAuditerInit defines what function to use to init the auditer
-func SetAuditerInit(f func() *zap.Logger) {
-	auditLogger.set(f)
+func SetAuditerInit(f func() *zap.Logger, globalConnInit func(ctx context.Context)) {
+	initLogger(auditLogger, f, globalConnInit)
 }
 
 // Auditer returns a zap logger with as much context as possible
-func Auditer(ctx context.Context) *zap.Logger {
+func Auditer(ctx context.Context) ZapLogger {
 	return contextWrapper(ctx, auditLogger.get(), zap.String("LogType", "audit"))
 }
 
 // SetTasksLoggerInit defines what function to use to init the tasks logger
-func SetTasksLoggerInit(f func() *zap.Logger) {
-	tasksLogger.set(f)
+func SetTasksLoggerInit(f func() *zap.Logger, globalConnInit func(ctx context.Context)) {
+	initLogger(tasksLogger, f, globalConnInit)
 }
 
 // TasksLogger returns a zap logger with as much context as possible.
-func TasksLogger(ctx context.Context) *zap.Logger {
+func TasksLogger(ctx context.Context) ZapLogger {
 	return contextWrapper(ctx, tasksLogger.get(), zap.String("LogType", "tasks"))
 }
 
 // GetAuditId simply returns a zap field that contains this message id to ease audit log analysis.
 func GetAuditId(msgId string) zapcore.Field {
 	return zap.String(common.KeyMsgId, msgId)
-}
-
-type micrologger struct {
-	*zap.Logger
-}
-
-func (m micrologger) Log(v ...interface{}) {
-	m.Info(fmt.Sprint(v...))
-}
-
-func (m micrologger) Logf(f string, v ...interface{}) {
-	m.Info(fmt.Sprintf(f, v...))
 }
 
 // RFC3369TimeEncoder serializes a time.Time to an RFC3339-formatted string
@@ -257,14 +267,4 @@ func Fatal(msg string, fields ...zapcore.Field) {
 
 func Info(msg string, fields ...zapcore.Field) {
 	mainLogger.Info(msg, fields...)
-}
-
-func basicContextWrapper(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger {
-	if ctx == nil {
-		return logger
-	}
-	if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-		logger = logger.Named(serviceName)
-	}
-	return logger
 }

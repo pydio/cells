@@ -25,13 +25,13 @@ import (
 	"math"
 	"os"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/v4/common/config"
 )
 
 var importConfigCmd = &cobra.Command{

@@ -23,11 +23,12 @@ package jobs
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
@@ -36,11 +37,11 @@ func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (Action
 	triggerEvent := &JobTriggerEvent{}
 	nodeEvent := &tree.NodeChangeEvent{}
 	idmEvent := &idm.ChangeEvent{}
-	if e := ptypes.UnmarshalAny(input.Event, triggerEvent); e == nil {
+	if e := anypb.UnmarshalTo(input.Event, triggerEvent, proto.UnmarshalOptions{}); e == nil {
 		event = triggerEvent
-	} else if e := ptypes.UnmarshalAny(input.Event, nodeEvent); e == nil {
+	} else if e := anypb.UnmarshalTo(input.Event, nodeEvent, proto.UnmarshalOptions{}); e == nil {
 		event = nodeEvent
-	} else if e := ptypes.UnmarshalAny(input.Event, idmEvent); e == nil {
+	} else if e := anypb.UnmarshalTo(input.Event, idmEvent, proto.UnmarshalOptions{}); e == nil {
 		event = idmEvent
 	} else {
 		// Cannot recognize event type
@@ -50,7 +51,7 @@ func (m *TriggerFilter) Filter(ctx context.Context, input ActionMessage) (Action
 	var bb []bool
 	for _, q := range m.Query.SubQueries {
 		tQ := &TriggerFilterQuery{}
-		if e := ptypes.UnmarshalAny(q, tQ); e == nil {
+		if e := anypb.UnmarshalTo(q, tQ, proto.UnmarshalOptions{}); e == nil {
 			bb = append(bb, m.evaluateOne(tQ, event))
 		}
 	}

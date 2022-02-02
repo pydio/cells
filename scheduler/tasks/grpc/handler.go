@@ -23,18 +23,23 @@ package grpc
 import (
 	"context"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/scheduler/tasks"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/tasks"
 )
 
 // Handler implements the TaskService API
-type Handler struct{}
+type Handler struct {
+	jobs.UnimplementedTaskServiceServer
+}
+
+func (h *Handler) Name() string {
+	return ServiceName
+}
 
 // Control publishes the passed command
-func (h *Handler) Control(ctx context.Context, command *jobs.CtrlCommand, response *jobs.CtrlCommandResponse) error {
+func (h *Handler) Control(ctx context.Context, command *jobs.CtrlCommand) (*jobs.CtrlCommandResponse, error) {
 
 	tasks.PubSub.Pub(command, tasks.PubSubTopicControl)
-	response.Msg = "Published"
+	return &jobs.CtrlCommandResponse{Msg: "Published"}, nil
 
-	return nil
 }

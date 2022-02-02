@@ -22,12 +22,15 @@ package test
 
 import (
 	"context"
+	"fmt"
+	"time"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/test"
-	"github.com/pydio/cells/common/service"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/test"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 var name = common.ServiceTestNamespace_ + "objects"
@@ -42,9 +45,14 @@ func init() {
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataObjects, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDataSync, []string{}),
 			service.Description("Test Objects Service conformance"),
-			service.WithMicro(func(m micro.Service) error {
-				test.RegisterTesterHandler(m.Server(), NewHandler())
-
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				h := NewHandler()
+				test.RegisterTesterEnhancedServer(server, h)
+				go func() {
+					<-time.After(10 * time.Second)
+					resp, e := h.TestNodesClient(ctx)
+					fmt.Println("Test Result", resp, e)
+				}()
 				return nil
 			}),
 		)

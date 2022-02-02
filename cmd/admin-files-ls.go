@@ -32,9 +32,9 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 var (
@@ -66,7 +66,7 @@ EXAMPLE
 
  `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+		client := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 
 		// List all children and move them all
 		streamer, err := client.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: lsPath}, Recursive: lsRecursive})
@@ -83,7 +83,6 @@ EXAMPLE
 		}
 		table.SetHeader(hh)
 		res := 0
-		defer streamer.Close()
 		for {
 			resp, err := streamer.Recv()
 			if err != nil {

@@ -23,8 +23,8 @@ package models
 import (
 	"context"
 
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
 )
 
 type SyncShare struct {

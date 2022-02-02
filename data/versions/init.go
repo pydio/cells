@@ -25,24 +25,22 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/x/configx"
-
-	"github.com/pydio/cells/common/views"
-
-	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/scheduler/actions"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-var policiesCache *cache.Cache
+var policiesCache cache.Short
 
 func init() {
 
@@ -66,7 +64,7 @@ func init() {
 func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy {
 
 	if policiesCache == nil {
-		policiesCache = cache.New(1*time.Hour, 1*time.Hour)
+		policiesCache = cache.NewShort(cache.WithEviction(1*time.Hour), cache.WithCleanWindow(1*time.Hour))
 	}
 
 	dataSourceName := node.GetStringMeta(common.MetaNamespaceDatasourceName)
@@ -79,7 +77,7 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 		return v.(*tree.VersioningPolicy)
 	}
 
-	dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+	dc := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 	r, e := dc.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdVersioningPolicies,
 		DocumentID: policyName,
@@ -91,7 +89,7 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 	var p *tree.VersioningPolicy
 	if er := json.Unmarshal([]byte(r.Document.Data), &p); er == nil {
 		log.Logger(ctx).Debug("[VERSION] found policy for node", zap.Any("p", p))
-		policiesCache.Set(policyName, p, cache.DefaultExpiration)
+		policiesCache.Set(policyName, p)
 		return p
 	}
 
@@ -100,17 +98,17 @@ func PolicyForNode(ctx context.Context, node *tree.Node) *tree.VersioningPolicy 
 
 // DataSourceForPolicy finds the LoadedSource for a given VersioningPolicy - Uses "DS: default"+"Bucket: versions" for
 // backward compatibility.
-func DataSourceForPolicy(ctx context.Context, policy *tree.VersioningPolicy) (views.LoadedSource, error) {
+func DataSourceForPolicy(ctx context.Context, policy *tree.VersioningPolicy) (nodes.LoadedSource, error) {
 	if policy.VersionsDataSourceName == "default" {
-		return getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
+		return getRouter(ctx).GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
 	}
-	if ls, err := getRouter().GetClientsPool().GetDataSourceInfo(policy.VersionsDataSourceName); err == nil {
+	if ls, err := getRouter(ctx).GetClientsPool().GetDataSourceInfo(policy.VersionsDataSourceName); err == nil {
 		if policy.VersionsDataSourceBucket != "" {
 			ls.ObjectsBucket = policy.VersionsDataSourceBucket
 		}
 		return ls, nil
 	} else {
-		return views.LoadedSource{}, err
+		return nodes.LoadedSource{}, err
 	}
 }
 

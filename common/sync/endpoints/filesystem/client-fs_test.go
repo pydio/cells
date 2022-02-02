@@ -31,14 +31,14 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/rjeczalik/notify"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/afero"
 
-	servicescommon "github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	servicescommon "github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 func EmptyMockedClient() *FSClient {
@@ -99,7 +99,7 @@ func TestLoadNode(t *testing.T) {
 		s, e := c.LoadNode(fsTestCtx, "/test")
 		So(s, ShouldBeNil)
 		So(e, ShouldNotBeNil)
-		So(errors.Parse(e.Error()).Code, ShouldEqual, 404)
+		So(errors.FromError(e).Code, ShouldEqual, 404)
 
 	})
 

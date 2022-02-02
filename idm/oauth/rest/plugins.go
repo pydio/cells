@@ -24,9 +24,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -39,8 +39,8 @@ func init() {
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMailer, []string{}),
-			service.WithWeb(func() service.WebHandler {
-				return new(TokenHandler)
+			service.WithWeb(func(runtimeCtx context.Context) service.WebHandler {
+				return &TokenHandler{RuntimeCtx: runtimeCtx}
 			}),
 		)
 	})

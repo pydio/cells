@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package rest;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+import "cells-idm.proto";
+
+message UserStateRequest {
+    string Segment = 1;
+}
+
+message UserStateResponse {
+    repeated idm.Workspace Workspaces = 1;
+    map<string,string> WorkspacesAccesses = 2;
+}
+
+message RelationRequest {
+    string UserId = 1;
+}
+
+message RelationResponse {
+    repeated idm.Workspace SharedCells = 1;
+    repeated idm.Role BelongsToTeams = 3;
+}

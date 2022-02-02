@@ -21,27 +21,32 @@
 package grpc
 
 import (
-	"context"
 	"strings"
 
-	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
+	"golang.org/x/net/context"
 
-	activity "github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	activity2 "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	activity "github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	activity2 "github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 type MetaProvider struct {
+	tree.UnimplementedNodeProviderStreamerServer
+	RuntimeCtx context.Context
+	dao        activity.DAO
 }
 
-func (m *MetaProvider) ReadNodeStream(ctx context.Context, streamer tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+func (m *MetaProvider) Name() string {
+	return Name
+}
 
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
+	ctx := streamer.Context()
 	// Extract current user Id from X-Pydio-User key
 	var userId string
 	if meta, ok := metadata.FromContext(ctx); ok {
@@ -54,7 +59,7 @@ func (m *MetaProvider) ReadNodeStream(ctx context.Context, streamer tree.NodePro
 		}
 	}
 
-	defer streamer.Close()
+	//defer streamer.Close()
 
 	for {
 		request, err := streamer.Recv()
@@ -66,12 +71,12 @@ func (m *MetaProvider) ReadNodeStream(ctx context.Context, streamer tree.NodePro
 		}
 		node := request.Node
 		if userId != "" { // No user found, just skip
-			if subs, err := dao.ListSubscriptions(activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
+			if subs, err := m.dao.ListSubscriptions(activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
 				for _, sub := range subs {
 					if sub.UserId == userId && len(sub.Events) > 0 {
 						events := strings.Join(sub.Events, ",")
 						log.Logger(ctx).Debug("ReadNodeStream - Adding meta", zap.String("user_subscriptions", events))
-						node.SetMeta("user_subscriptions", events)
+						node.MustSetMeta(common.MetaFlagUserSubscriptions, events)
 					}
 				}
 			} else {

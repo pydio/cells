@@ -1,5 +1,0 @@
-# Basic no-TLS config for the embedded gateway
-proxyconfig:
-  binds: 
-    - localhost:80
-  reverseproxyurl: http://localhost

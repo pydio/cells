@@ -26,8 +26,8 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/pydio/cells/common/utils/migrations"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/migrations"
 )
 
 type migrationConfig struct {

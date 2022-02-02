@@ -24,39 +24,38 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/idm/workspace"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/idm/workspace"
+)
+
+const (
+	ServiceName = common.ServiceGrpcNamespace_ + common.ServiceWorkspace
 )
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceWorkspace),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
 			service.WithStorage(workspace.NewDAO, "idm_workspace"),
-			service.WithMicro(func(m micro.Service) error {
-				ctx := m.Options().Context
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
-				h := new(Handler)
-				idm.RegisterWorkspaceServiceHandler(m.Options().Server, h)
+				h := NewHandler(ctx, servicecontext.GetDAO(ctx).(workspace.DAO))
+				idm.RegisterWorkspaceServiceEnhancedServer(server, h)
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				wsCleaner := NewWsCleaner(h, ctx)
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, wsCleaner)); err != nil {
-					return err
-				}
-
-				// Register a cleaner on DeleteRole events to purge policies automatically
+				wsCleaner := NewWsCleaner(ctx, h)
 				cleaner := &resources.PoliciesCleaner{
 					Dao: servicecontext.GetDAO(ctx),
 					Options: resources.PoliciesCleanerOptions{
@@ -65,10 +64,16 @@ func init() {
 					},
 					LogCtx: ctx,
 				}
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, cleaner)); err != nil {
-					return err
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						_ = wsCleaner.Handle(ct, ev)
+						return cleaner.Handle(ct, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
 				}
-
 				return nil
 			}),
 		)

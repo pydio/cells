@@ -24,15 +24,14 @@ import (
 	"context"
 	"log"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 var searchAclCmd = &cobra.Command{
@@ -45,7 +44,7 @@ DESCRIPTION
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+		client := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 
 		var aclActions []*idm.ACLAction
 		for _, action := range actions {
@@ -55,7 +54,7 @@ DESCRIPTION
 			})
 		}
 
-		query, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		query, _ := anypb.New(&idm.ACLSingleQuery{
 			Actions:      aclActions,
 			RoleIDs:      roleIDs,
 			WorkspaceIDs: workspaceIDs,
@@ -69,15 +68,13 @@ DESCRIPTION
 
 		stream, err := client.SearchACL(context.Background(), &idm.SearchACLRequest{
 			Query: &service.Query{
-				SubQueries: []*any.Any{query},
+				SubQueries: []*anypb.Any{query},
 			},
 		})
 
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		defer stream.Close()
 
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
 		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})

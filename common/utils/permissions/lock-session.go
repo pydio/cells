@@ -24,17 +24,15 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common/proto/tree"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/registry"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type SessionLocker interface {
@@ -70,7 +68,7 @@ func (l *LockSession) AddChildTarget(parentUUID, targetChildName string) {
 // Lock sets an expirable lock ACL on the NodeUUID with SessionUUID as value
 func (l *LockSession) Lock(ctx context.Context) error {
 
-	aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 
 	if l.nodeUUID != "" {
 		lock := &idm.ACLAction{Name: AclLock.Name, Value: l.sessionUUID}
@@ -99,7 +97,7 @@ func (l *LockSession) Lock(ctx context.Context) error {
 // UpdateExpiration set a new expiration date on the current lock
 func (l *LockSession) UpdateExpiration(ctx context.Context, expireAfter time.Duration) error {
 
-	aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 	if l.nodeUUID != "" {
 		searchLock := &idm.ACLAction{Name: AclLock.Name, Value: l.sessionUUID}
 		if err := l.updateExpiration(ctx, aclClient, l.nodeUUID, searchLock, expireAfter); err != nil {
@@ -119,7 +117,7 @@ func (l *LockSession) UpdateExpiration(ctx context.Context, expireAfter time.Dur
 // Unlock manually removes the ACL
 func (l *LockSession) Unlock(ctx context.Context) error {
 
-	aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 	err1 := l.remove(ctx, aclClient, &idm.ACLAction{Name: AclLock.Name, Value: l.sessionUUID})
 	err2 := l.remove(ctx, aclClient, &idm.ACLAction{Name: AclChildLock.Name + ":*", Value: l.sessionUUID})
 	if err1 != nil {
@@ -145,13 +143,13 @@ func (l *LockSession) create(ctx context.Context, cli idm.ACLServiceClient, node
 
 func (l *LockSession) remove(ctx context.Context, cli idm.ACLServiceClient, action *idm.ACLAction) error {
 
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{action},
 	})
 
 	_, err := cli.DeleteACL(ctx, &idm.DeleteACLRequest{
 		Query: &service.Query{
-			SubQueries: []*any.Any{q},
+			SubQueries: []*anypb.Any{q},
 		},
 	})
 	return err
@@ -160,14 +158,14 @@ func (l *LockSession) remove(ctx context.Context, cli idm.ACLServiceClient, acti
 
 func (l *LockSession) updateExpiration(ctx context.Context, cli idm.ACLServiceClient, nodeUUID string, action *idm.ACLAction, expireAfter time.Duration) error {
 
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{action},
 		NodeIDs: []string{nodeUUID},
 	})
 
 	_, err := cli.ExpireACL(ctx, &idm.ExpireACLRequest{
 		Query: &service.Query{
-			SubQueries: []*any.Any{q},
+			SubQueries: []*anypb.Any{q},
 		},
 		Timestamp: time.Now().Add(expireAfter).Unix(),
 	})
@@ -175,13 +173,13 @@ func (l *LockSession) updateExpiration(ctx context.Context, cli idm.ACLServiceCl
 }
 
 func HasChildLocks(ctx context.Context, node *tree.Node) bool {
-	aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{{Name: AclChildLock.Name + ":*"}},
 		NodeIDs: []string{node.GetUuid()},
 	})
-	if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); e == nil {
-		defer st.Close()
+	if st, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); e == nil {
+		defer st.CloseSend()
 		for {
 			_, er := st.Recv()
 			if er != nil {

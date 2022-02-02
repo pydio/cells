@@ -23,6 +23,9 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import LinkModel from './LinkModel'
+import ShareHelper from "../main/ShareHelper";
+import PublicLinkTemplate from "./PublicLinkTemplate";
+import ShareContextConsumer from "../ShareContextConsumer";
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 class LabelPanel extends React.Component {
@@ -30,7 +33,7 @@ class LabelPanel extends React.Component {
 
     render(){
 
-        const {pydio, linkModel} = this.props;
+        const {pydio, model, linkModel, style, showLayout} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
         const link = linkModel.getLink();
         const updateLabel = (e,v) => {
@@ -42,17 +45,32 @@ class LabelPanel extends React.Component {
             link.Description = v;
             linkModel.updateLink(link);
         };
+        let templatePane;
+        const layoutData = ShareHelper.compileLayoutData(pydio, model);
+        if(showLayout && layoutData.length > 1){
+            templatePane = <PublicLinkTemplate
+                linkModel={linkModel}
+                pydio={pydio}
+                layoutData={layoutData}
+                hideTitle={true}
+                readonly={model.getNode().isLeaf()}
+            />;
+        }
 
         return (
-            <div>
-                <ModernTextField floatingLabelText={m(265)} value={link.Label} onChange={updateLabel} fullWidth={true}/>
-                <ModernTextField floatingLabelText={m(266)} value={link.Description} onChange={updateDescription} fullWidth={true}/>
+            <div style={style}>
+                <ModernTextField variant={"v2"} floatingLabelText={m(265)} value={link.Label} onChange={updateLabel} fullWidth={true}/>
+                <ModernTextField variant={"v2"} floatingLabelText={m(266)} value={link.Description} onChange={updateDescription} fullWidth={true}/>
+                {templatePane}
             </div>
         );
 
     }
 
 }
+
+
+LabelPanel = ShareContextConsumer(LabelPanel);
 
 LabelPanel.PropTypes = {
 

@@ -24,13 +24,12 @@ import (
 	"context"
 	"fmt"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
-
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/idm/meta"
-	"github.com/pydio/cells/idm/meta/namespace"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/idm/meta"
+	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
 // Cleaner cleans bookmarks on user deletion

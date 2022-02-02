@@ -24,11 +24,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pydio/cells/common/service/proto"
-	"gopkg.in/doug-martin/goqu.v4"
-	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
+	goqu "github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 // Expressioner ...
@@ -38,7 +39,7 @@ type Expressioner interface {
 
 // ExpressionConverter ...
 type ExpressionConverter interface {
-	Convert(sub *any.Any, driver string) (goqu.Expression, bool)
+	Convert(sub *anypb.Any, driver string) (goqu.Expression, bool)
 }
 
 type queryBuilder struct {
@@ -62,9 +63,8 @@ func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
 
 		sub := new(service.Query)
 
-		if ptypes.Is(subQ, sub) {
+		if e := anypb.UnmarshalTo(subQ, sub, proto.UnmarshalOptions{}); e == nil {
 
-			ptypes.UnmarshalAny(subQ, sub)
 			expression := NewQueryBuilder(sub, qb.converters...).Expression(driver)
 			if expression != nil {
 				qb.wheres = append(qb.wheres, expression)
@@ -118,7 +118,7 @@ func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex g
 		dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
 	}
 
-	queryString, args, err := dataset.ToSql()
+	queryString, args, err := dataset.ToSQL()
 	return queryString, args, err
 
 }
@@ -140,7 +140,7 @@ func CountStringFromExpression(tableName string, columnCount string, driver stri
 		dataset = dataset.Where(ex)
 	}
 
-	queryString, args, err := dataset.ToSql()
+	queryString, args, err := dataset.ToSQL()
 	return queryString, args, err
 
 }
@@ -153,7 +153,7 @@ func DeleteStringFromExpression(tableName string, driver string, ex goqu.Express
 	}
 
 	db := goqu.New(driver, nil)
-	sql, args, e := db.From(tableName).Prepared(true).Where(ex).ToDeleteSql()
+	sql, args, e := db.From(tableName).Prepared(true).Where(ex).Delete().ToSQL()
 	return sql, args, e
 
 }

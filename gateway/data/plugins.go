@@ -24,19 +24,25 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 
-	"github.com/micro/go-micro/server"
+	minio "github.com/minio/minio/cmd"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/net"
-	minio "github.com/pydio/minio-srv/cmd"
-	"github.com/pydio/minio-srv/cmd/gateway/pydio"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/server"
+	serverhttp "github.com/pydio/cells/v4/common/server/http"
+	"github.com/pydio/cells/v4/common/server/middleware"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/net"
+	_ "github.com/pydio/cells/v4/gateway/data/gw"
+	pydio "github.com/pydio/cells/v4/gateway/data/gw"
+	"github.com/pydio/cells/v4/gateway/data/hooks"
 )
 
 type logger struct {
@@ -58,29 +64,43 @@ func (l *logger) Audit(entry interface{}) {
 func init() {
 
 	plugins.Register("main", func(ctx context.Context) {
+
 		port := net.GetAvailablePort()
+
 		service.NewService(
 			service.Name(common.ServiceGatewayData),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			// service.RouterDependencies(),
 			service.Description("S3 Gateway to tree service"),
-			service.Port(fmt.Sprintf("%d", port)),
-			service.WithGeneric(func(opts ...server.Option) server.Server {
+			//service.Port(fmt.Sprintf("%d", port)),
+			service.WithHTTP(func(c context.Context, mux server.HttpMux) error {
+
+				u, _ := url.Parse(fmt.Sprintf("http://localhost:%d", port))
+				proxy := httputil.NewSingleHostReverseProxy(u)
+				mux.HandleFunc("/io/", func(writer http.ResponseWriter, request *http.Request) {
+					proxy.ServeHTTP(writer, request)
+				})
+				mux.HandleFunc("/data/", func(writer http.ResponseWriter, request *http.Request) {
+					proxy.ServeHTTP(writer, request)
+				})
+
 				var certFile, keyFile string
-				if config.Get("cert", "http", "ssl").Bool() {
-					certFile = config.Get("cert", "http", "certFile").String()
-					keyFile = config.Get("cert", "http", "keyFile").String()
-				}
+				/*
+					if config.Get("cert", "http", "ssl").Bool() {
+						certFile = config.Get("cert", "http", "certFile").String()
+						keyFile = config.Get("cert", "http", "keyFile").String()
+					}
+				*/
 
 				srv := &gatewayDataServer{
-					ctx:      ctx,
 					port:     port,
 					certFile: certFile,
 					keyFile:  keyFile,
 				}
+				go srv.Start(c)
 
-				return service.NewGenericServer(srv, opts...)
+				return nil
 			}),
 		)
 	})
@@ -94,15 +114,27 @@ type gatewayDataServer struct {
 	keyFile  string
 }
 
-func (g *gatewayDataServer) Start() error {
+func (g *gatewayDataServer) Start(ctx context.Context) error {
 	os.Setenv("MINIO_BROWSER", "off")
-	gw := &pydio.Pydio{}
-	console := &logger{ctx: g.ctx}
-	ctx, cancel := context.WithCancel(g.ctx)
-	g.cancel = cancel
+	os.Setenv("MINIO_ROOT_USER", common.S3GatewayRootUser)
+	os.Setenv("MINIO_ROOT_PASSWORD", common.S3GatewayRootPassword)
 
-	go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", g.port), "gateway", "gatewaysecret", console, g.certFile, g.keyFile)
+	minio.HookRegisterGlobalHandler(serverhttp.ContextMiddlewareHandler(middleware.ClientConnIncomingContext(ctx)))
+	minio.HookRegisterGlobalHandler(serverhttp.ContextMiddlewareHandler(middleware.RegistryIncomingContext(ctx)))
+	minio.HookRegisterGlobalHandler(hooks.GetPydioAuthHandlerFunc("gateway"))
+	pydio.PydioGateway = &pydio.Pydio{
+		RuntimeCtx: ctx,
+	}
 
+	params := []string{"minio", "gateway", "pydio", "--address", fmt.Sprintf(":%d", g.port), "--quiet"}
+	minio.Main(params)
+	/*
+		console := &logger{ctx: g.ctx}
+		ctx, cancel := context.WithCancel(g.ctx)
+		g.cancel = cancel
+		gw := &pydio.Pydio{}
+		go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", g.port), "gateway", "gatewaysecret", console, g.certFile, g.keyFile)
+	*/
 	return nil
 }
 

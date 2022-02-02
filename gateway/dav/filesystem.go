@@ -32,17 +32,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
-	"golang.org/x/text/unicode/norm"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 // FileSystem is the pydio specific implementation of the generic webdav.FileSystem interface
@@ -50,7 +48,7 @@ import (
 type FileSystem struct {
 	mu     sync.Mutex
 	Debug  bool
-	Router *views.Router
+	Router nodes.Client
 }
 
 type FileInfo struct {
@@ -75,7 +73,7 @@ func (fi *FileInfo) Name() string {
 	if fi.node.Path != "" {
 		return path.Base(fi.node.Path)
 	}
-	return fi.node.GetStringMeta("name")
+	return fi.node.GetStringMeta(common.MetaNamespaceNodeName)
 }
 
 func (fi *FileInfo) Size() int64 { return fi.node.Size }
@@ -244,7 +242,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 
 	log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
 
-	partsInfo := make(map[int]minio.ObjectPart)
+	partsInfo := make(map[int]models.MultipartObjectPart)
 
 	// Write by part
 	var written int64
@@ -317,7 +315,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 
 	// Complete multipart write
-	completeParts := make([]minio.CompletePart, len(partsInfo))
+	completeParts := make([]models.MultipartObjectPart, len(partsInfo))
 	// Loop over total uploaded parts to save them in completeParts array before completing the multipart request.
 	for j := 1; j <= len(partsInfo); j++ {
 		part, ok := partsInfo[j]
@@ -327,9 +325,9 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 					log.Logger(f.ctx).Error("Error while deleting temporary node")
 				}
 			}
-			return written, minio.ErrInvalidArgument(fmt.Sprintf("Missing part number %d", j))
+			return written, fmt.Errorf("multipart - missing part number %d", j)
 		}
-		completeParts[j-1] = minio.CompletePart{
+		completeParts[j-1] = models.MultipartObjectPart{
 			ETag:       part.ETag,
 			PartNumber: part.PartNumber,
 		}
@@ -480,7 +478,7 @@ func (f *File) Readdir(count int) ([]os.FileInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer nodesClient.Close()
+		defer nodesClient.CloseSend()
 
 		f.children = []os.FileInfo{}
 		for {
@@ -564,7 +562,7 @@ func clearName(name string) (string, error) {
 	if !strings.HasPrefix(name, "/") {
 		return "", os.ErrInvalid
 	}
-	name = string(norm.NFC.Bytes([]byte(name)))
+
 	return name, nil
 }
 
@@ -594,7 +592,7 @@ func (fs *FileSystem) stat(ctx context.Context, name string) (os.FileInfo, error
 		Path: name,
 	}})
 	if err != nil {
-		if errors.Parse(err.Error()).Code != 404 && !strings.Contains(err.Error(), " NotFound ") {
+		if errors.FromError(err).Code != 404 && !strings.Contains(err.Error(), " NotFound ") {
 			log.Logger(ctx).Error("ReadNode Error", zap.Error(err))
 		}
 		return nil, err

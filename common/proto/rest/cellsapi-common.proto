@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package rest;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+// Generic Message
+message DeleteResponse {
+    // If delete was successfull
+    bool Success = 1;
+    // Number of records deleted during operation
+    int64 NumRows = 2;
+}
+
+// Generic error message
+message Error{
+    // Unique ID of the error
+    string Code = 2;
+    // Human-readable, short label
+    string Title = 3;
+    // Human-readable, longer description
+    string Detail = 4;
+    // Cells service name or other quickly useful info
+    string Source = 5;
+    // Additional Metadata
+    map<string,string> Meta = 6;
+}

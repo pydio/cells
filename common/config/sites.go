@@ -23,11 +23,11 @@ package config
 import (
 	"net/url"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 
-	"github.com/pkg/errors"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (

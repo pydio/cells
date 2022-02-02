@@ -22,14 +22,21 @@ package templates
 
 import (
 	"bytes"
+	"embed"
 	"io"
+	"io/ioutil"
 	"path"
 	"sort"
 	"strings"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/packr"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/statics"
+)
+
+var (
+	//go:embed embed/*
+	assets embed.FS
 )
 
 func init() {
@@ -37,17 +44,17 @@ func init() {
 }
 
 type Embedded struct {
-	box packr.Box
+	box statics.FS
 }
 
 type EmbeddedNode struct {
-	box packr.Box
+	box statics.FS
 	rest.Template
 }
 
 func NewEmbedded() DAO {
 	e := &Embedded{}
-	e.box = packr.NewBox("../../data/templates/embed")
+	e.box = statics.AsFS(assets, "embed")
 	return e
 }
 
@@ -107,7 +114,12 @@ func (en *EmbeddedNode) IsLeaf() bool {
 }
 
 func (en *EmbeddedNode) Read() (io.Reader, int64, error) {
-	data := en.box.Bytes(en.Template.Node.EmbedPath)
+	file, e := en.box.Open(en.Template.Node.EmbedPath)
+	if e != nil {
+		return nil, 0, e
+	}
+	data, _ := ioutil.ReadAll(file)
+	file.Close()
 	r := bytes.NewReader(data)
 	return r, int64(len(data)), nil
 }

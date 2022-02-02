@@ -31,7 +31,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/pydio/cells/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/proto/encryption"
 )
 
 // defaultBlockSize minimal size of block files are chunk into

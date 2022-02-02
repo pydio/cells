@@ -24,18 +24,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/metadata"
-	"github.com/pydio/cells/common/registry"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 func (m *IdmSelector) MultipleSelection() bool {
@@ -43,7 +41,7 @@ func (m *IdmSelector) MultipleSelection() bool {
 }
 
 // Select IDM Objects by a given query
-func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 
 	defer func() {
 		done <- true
@@ -53,19 +51,19 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 	if m.Query != nil {
 		query = m.cloneEvaluated(ctx, input, m.Query)
 	} else if m.All {
-		query = &service.Query{SubQueries: []*any.Any{}}
+		query = &service.Query{SubQueries: []*anypb.Any{}}
 	}
 	if query == nil {
 		return nil
 	}
 	switch m.Type {
 	case IdmSelectorType_User:
-		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, cl)
+		userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 		s, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: query})
 		if e != nil {
 			return e
 		}
-		defer s.Close()
+		defer s.CloseSend()
 		for {
 			resp, e := s.Recv()
 			if e != nil {
@@ -77,11 +75,11 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 			objects <- resp.User
 		}
 	case IdmSelectorType_Role:
-		roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, cl)
+		roleClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 		if s, e := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
 			return e
 		} else {
-			defer s.Close()
+			defer s.CloseSend()
 			for {
 				resp, er := s.Recv()
 				if er != nil {
@@ -94,11 +92,11 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 			}
 		}
 	case IdmSelectorType_Workspace:
-		wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, cl)
+		wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 		if s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
 			return e
 		} else {
-			defer s.Close()
+			defer s.CloseSend()
 			for {
 				resp, er := s.Recv()
 				if er != nil {
@@ -111,11 +109,11 @@ func (m *IdmSelector) Select(cl client.Client, ctx context.Context, input Action
 			}
 		}
 	case IdmSelectorType_Acl:
-		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, cl)
+		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 		if s, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
 			return e
 		} else {
-			defer s.Close()
+			defer s.CloseSend()
 			for {
 				resp, er := s.Recv()
 				if er != nil {
@@ -150,9 +148,9 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		if len(input.Users) == 0 {
 			return input, nil, false // break!
 		}
-		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
+		if er := multi.Parse(m.Query, func(o *anypb.Any) (service.Matcher, error) {
 			target := &idm.UserSingleQuery{}
-			if e := ptypes.UnmarshalAny(o, target); e != nil {
+			if e := anypb.UnmarshalTo(o, target, proto.UnmarshalOptions{}); e != nil {
 				return nil, e
 			}
 			return m.evaluate(ctx, input, target), nil
@@ -181,9 +179,9 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		if len(input.Roles) == 0 {
 			return input, nil, false
 		}
-		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
+		if er := multi.Parse(m.Query, func(o *anypb.Any) (service.Matcher, error) {
 			target := &idm.RoleSingleQuery{}
-			if e := ptypes.UnmarshalAny(o, target); e != nil {
+			if e := anypb.UnmarshalTo(o, target, proto.UnmarshalOptions{}); e != nil {
 				return nil, e
 			}
 			return m.evaluate(ctx, input, target), nil
@@ -218,9 +216,9 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 				return input, nil, false
 			}
 		}
-		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
+		if er := multi.Parse(m.Query, func(o *anypb.Any) (service.Matcher, error) {
 			target := &idm.WorkspaceSingleQuery{}
-			if e := ptypes.UnmarshalAny(o, target); e != nil {
+			if e := anypb.UnmarshalTo(o, target, proto.UnmarshalOptions{}); e != nil {
 				return nil, e
 			}
 			return m.evaluate(ctx, input, target), nil
@@ -249,9 +247,9 @@ func (m *IdmSelector) Filter(ctx context.Context, input ActionMessage) (ActionMe
 		if len(input.Acls) == 0 {
 			return input, nil, false
 		}
-		if er := multi.Parse(m.Query, func(o *any.Any) (service.Matcher, error) {
+		if er := multi.Parse(m.Query, func(o *anypb.Any) (service.Matcher, error) {
 			target := &idm.ACLSingleQuery{}
-			if e := ptypes.UnmarshalAny(o, target); e != nil {
+			if e := anypb.UnmarshalTo(o, target, proto.UnmarshalOptions{}); e != nil {
 				return nil, e
 			}
 			return m.evaluate(ctx, input, target), nil
@@ -293,14 +291,14 @@ func (m *IdmSelector) cloneEvaluated(ctx context.Context, input ActionMessage, q
 		r := &idm.RoleSingleQuery{}
 		ws := &idm.WorkspaceSingleQuery{}
 		a := &idm.ACLSingleQuery{}
-		if e := ptypes.UnmarshalAny(sub, ws); e == nil {
-			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, ws).(*idm.WorkspaceSingleQuery))
-		} else if e := ptypes.UnmarshalAny(sub, r); e == nil {
-			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, r).(*idm.RoleSingleQuery))
-		} else if e := ptypes.UnmarshalAny(sub, u); e == nil {
-			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, u).(*idm.UserSingleQuery))
-		} else if e := ptypes.UnmarshalAny(sub, a); e == nil {
-			q.SubQueries[i], _ = ptypes.MarshalAny(m.evaluate(ctx, input, a).(*idm.ACLSingleQuery))
+		if e := anypb.UnmarshalTo(sub, ws, proto.UnmarshalOptions{}); e == nil {
+			q.SubQueries[i], _ = anypb.New(m.evaluate(ctx, input, ws).(*idm.WorkspaceSingleQuery))
+		} else if e := anypb.UnmarshalTo(sub, r, proto.UnmarshalOptions{}); e == nil {
+			q.SubQueries[i], _ = anypb.New(m.evaluate(ctx, input, r).(*idm.RoleSingleQuery))
+		} else if e := anypb.UnmarshalTo(sub, u, proto.UnmarshalOptions{}); e == nil {
+			q.SubQueries[i], _ = anypb.New(m.evaluate(ctx, input, u).(*idm.UserSingleQuery))
+		} else if e := anypb.UnmarshalTo(sub, a, proto.UnmarshalOptions{}); e == nil {
+			q.SubQueries[i], _ = anypb.New(m.evaluate(ctx, input, a).(*idm.ACLSingleQuery))
 		}
 	}
 	return q
@@ -352,13 +350,13 @@ func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Works
 	if !o {
 		return nil, false
 	}
-	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: wsUuid})
-	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: wsUuid})
+	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		return nil, false
 	}
-	defer r.Close()
+	defer r.CloseSend()
 	for {
 		resp, er := r.Recv()
 		if er != nil {

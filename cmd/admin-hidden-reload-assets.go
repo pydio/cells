@@ -21,10 +21,13 @@
 package cmd
 
 import (
-	"github.com/micro/go-micro/broker"
-	"github.com/spf13/cobra"
+	"context"
 
-	"github.com/pydio/cells/common"
+	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/types/known/emptypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 )
 
 // docDepsCmd shows dependencies between services.
@@ -39,7 +42,7 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Println("Sending a reload command on ReloadAssets topic")
-		broker.Publish(common.TopicReloadAssets, &broker.Message{Body: []byte("reload")})
+		broker.MustPublish(context.Background(), common.TopicReloadAssets, &emptypb.Empty{})
 	},
 }
 

@@ -60,37 +60,37 @@
     "other": "正在向服务器上传文件..."
   },
   "task.status.folders": {
-    "other": "创建文件夹"
+    "other": "Creating Folders"
   },
   "task.message.folder-one": {
-    "other": "创建一个文件夹"
+    "other": "Creating one folder"
   },
   "task.message.folder-many": {
-    "other": "正在创建 %s 个文件夹"
+    "other": "Creating %s folders"
   },
   "task.status.analyse": {
-    "other": "准备上传文件"
+    "other": "Preparing files for upload"
   },
   "task.message.analyse-many": {
-    "other": "正在分析 %s 项..."
+    "other": "Analyzing %s items..."
   },
   "task.message.analyse-one": {
-    "other": "分析一个项目"
+    "other": "Analyzing one item"
   },
   "task.message.analyse-wait": {
-    "other": "请稍等……"
+    "other": "Please wait..."
   },
   "task.status.ready": {
-    "other": "准备上传"
+    "other": "Ready to upload"
   },
   "task.status.paused": {
-    "other": "上传已暂停"
+    "other": "Upload paused"
   },
   "task.status.upload": {
-    "other": "正在上传文件"
+    "other": "Uploading files"
   },
   "task.message.upload-progress": {
-    "other": "上传中 %s%"
+    "other": "Uploading %s%"
   },
   "no-folders-support": {
     "other": "您的浏览器似乎不支持拖放文件夹"
@@ -153,12 +153,12 @@
     "other": "无法暂停片块传输"
   },
   "status.error.aborted": {
-    "other": "用户中断"
+    "other": "interrupted by user"
   },
   "status.error.403": {
-    "other": "您无权上传到这里"
+    "other": "you are not allowed to upload here"
   },
   "status.error.422": {
-    "other": "配额已达，无法上传更多"
+    "other": "quota reached, cannot upload more"
   }
 }

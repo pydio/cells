@@ -27,12 +27,16 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pydio/minio-go"
+	"github.com/pydio/cells/v4/common"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport/oidc"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+
+	minio "github.com/minio/minio-go/v7"
+
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/oidc"
 )
 
 type S3Client struct {
@@ -45,11 +49,11 @@ func NewS3Client(config *transport.SdkConfig) *S3Client {
 		config: config,
 		s3config: &transport.S3Config{
 			Bucket:                 "data",
-			ApiKey:                 "gateway",
-			ApiSecret:              "gatewaysecret",
+			ApiKey:                 common.S3GatewayRootUser,
+			ApiSecret:              common.S3GatewayRootPassword,
+			Region:                 common.S3GatewayDefaultRegion,
 			UsePydioSpecificHeader: false,
 			IsDebug:                false,
-			Region:                 "us-east-1",
 			Endpoint:               config.Url,
 		},
 	}
@@ -61,10 +65,6 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 		return nil, err
 	}
 	u, _ := url.Parse(g.s3config.Endpoint)
-	mc, e := minio.NewCore(u.Host, jwt, g.s3config.ApiSecret, u.Scheme == "https")
-	if e != nil {
-		return nil, e
-	}
 	t := http.DefaultTransport
 	if g.config.SkipVerify {
 		t = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
@@ -72,8 +72,16 @@ func (g *S3Client) GetObject(ctx context.Context, node *tree.Node, requestData *
 	if g.config.CustomHeaders != nil && len(g.config.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{rt: t, Headers: g.config.CustomHeaders}
 	}
-	mc.SetCustomTransport(t)
-	r, _, e := mc.GetObject(g.s3config.Bucket, node.Path, minio.GetObjectOptions{})
+	opts := &minio.Options{
+		Creds:     credentials.NewStaticV4(jwt, g.s3config.ApiSecret, ""),
+		Secure:    u.Scheme == "https",
+		Transport: t,
+	}
+	mc, e := minio.NewCore(u.Host, opts)
+	if e != nil {
+		return nil, e
+	}
+	r, _, _, e := mc.GetObject(ctx, g.s3config.Bucket, node.Path, minio.GetObjectOptions{})
 	return r, e
 }
 
@@ -84,10 +92,6 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 		return 0, err
 	}
 	u, _ := url.Parse(g.s3config.Endpoint)
-	mc, e := minio.NewCore(u.Host, jwt, g.s3config.ApiSecret, u.Scheme == "https")
-	if e != nil {
-		return 0, e
-	}
 	t := http.DefaultTransport
 	if g.config.SkipVerify {
 		t = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
@@ -95,10 +99,23 @@ func (g *S3Client) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 	if g.config.CustomHeaders != nil && len(g.config.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{rt: t, Headers: g.config.CustomHeaders}
 	}
-	mc.SetCustomTransport(t)
-	return mc.PutObjectWithContext(ctx, g.s3config.Bucket, node.Path, reader, requestData.Size, minio.PutObjectOptions{
+	opts := &minio.Options{
+		Creds:     credentials.NewStaticV4(jwt, g.s3config.ApiSecret, ""),
+		Secure:    u.Scheme == "https",
+		Transport: t,
+	}
+	mc, e := minio.NewCore(u.Host, opts)
+	if e != nil {
+		return 0, e
+	}
+	if ui, e := mc.PutObject(ctx, g.s3config.Bucket, node.Path, reader, requestData.Size, "", "", minio.PutObjectOptions{
 		UserMetadata: requestData.Metadata,
-	})
+	}); e == nil {
+		return ui.Size, nil
+	} else {
+		return 0, e
+	}
+
 }
 
 func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *models.CopyRequestData) (int64, error) {
@@ -106,10 +123,7 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	if err != nil {
 		return 0, err
 	}
-	mc, e := minio.New(g.s3config.Endpoint, g.s3config.ApiKey, jwt, false)
-	if e != nil {
-		return 0, e
-	}
+	u, _ := url.Parse(g.s3config.Endpoint)
 	t := http.DefaultTransport
 	if g.config.SkipVerify {
 		t = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
@@ -117,13 +131,28 @@ func (g *S3Client) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 	if g.config.CustomHeaders != nil && len(g.config.CustomHeaders) > 0 {
 		t = &customHeaderRoundTripper{rt: t, Headers: g.config.CustomHeaders}
 	}
-	mc.SetCustomTransport(t)
-	dst, e := minio.NewDestinationInfo(g.s3config.Bucket, to.Path, nil, requestData.Metadata)
+	opts := &minio.Options{
+		Creds:     credentials.NewStaticV4(jwt, g.s3config.ApiSecret, ""),
+		Secure:    u.Scheme == "https",
+		Transport: t,
+	}
+	mc, e := minio.NewCore(u.Host, opts)
 	if e != nil {
 		return 0, e
 	}
-	src := minio.NewSourceInfo(g.s3config.Bucket, from.Path, nil)
-	return 0, mc.CopyObject(dst, src)
+
+	dst := minio.PutObjectOptions{
+		UserMetadata: requestData.Metadata,
+	}
+	src := minio.CopySrcOptions{
+		Bucket: g.s3config.Bucket,
+		Object: from.Path,
+	}
+	oi, er := mc.CopyObject(ctx, g.s3config.Bucket, from.Path, g.s3config.Bucket, to.Path, nil, src, dst)
+	if er != nil {
+		return 0, er
+	}
+	return oi.Size, nil
 }
 
 type customHeaderRoundTripper struct {

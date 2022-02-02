@@ -34,23 +34,21 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/client"
 	"github.com/pkg/errors"
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
-	"github.com/pydio/cells/scheduler/actions"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 const (
@@ -79,10 +77,9 @@ type ThumbnailsMeta struct {
 }
 
 type ThumbnailExtractor struct {
-	//Router     views.Handler
+	common.RuntimeHolder
 	thumbSizes map[string]int
 	metaClient tree.NodeReceiverClient
-	Client     client.Client
 }
 
 // GetDescription returns action description
@@ -125,7 +122,7 @@ func (t *ThumbnailExtractor) GetName() string {
 }
 
 // Init passes parameters to the action.
-func (t *ThumbnailExtractor) Init(_ *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (t *ThumbnailExtractor) Init(job *jobs.Job, action *jobs.Action) error {
 	if action.Parameters != nil {
 		t.thumbSizes = make(map[string]int)
 		if params, ok := action.Parameters["ThumbSizes"]; ok {
@@ -139,8 +136,9 @@ func (t *ThumbnailExtractor) Init(_ *jobs.Job, cl client.Client, action *jobs.Ac
 	} else {
 		t.thumbSizes = map[string]int{"sm": 300}
 	}
-	t.metaClient = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
-	t.Client = cl
+	if !nodes.IsUnitTestEnv {
+		t.metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(t.GetRuntimeContext(), common.ServiceMeta))
+	}
 	return nil
 }
 
@@ -191,9 +189,9 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		reader, err = os.Open(localPath)
 		errPath = localPath
 	} else {
-		// TODO : tmp security until Router is transmitting nodes immutably
+		// Security in case Router is not transmitting nodes immutably
 		routerNode := proto.Clone(node).(*tree.Node)
-		reader, err = getRouter().GetObject(ctx, routerNode, &models.GetRequestData{Length: -1})
+		reader, err = getRouter(t.GetRuntimeContext()).GetObject(ctx, routerNode, &models.GetRequestData{Length: -1})
 		errPath = routerNode.Path
 	}
 	if err != nil {
@@ -213,18 +211,18 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	width := bounds.Max.X
 	height := bounds.Max.Y
 	// Send update event right now
-	node.SetMeta(MetadataImageDimensions, struct {
+	node.MustSetMeta(MetadataImageDimensions, struct {
 		Width  int
 		Height int
 	}{
 		Width:  width,
 		Height: height,
 	})
-	node.SetMeta(MetadataCompatIsImage, true)
-	node.SetMeta(MetadataThumbnails, &ThumbnailsMeta{Processing: true})
-	node.SetMeta(MetadataCompatImageHeight, height)
-	node.SetMeta(MetadataCompatImageWidth, width)
-	node.SetMeta(MetadataCompatImageReadableDimensions, fmt.Sprintf("%dpx X %dpx", width, height))
+	node.MustSetMeta(MetadataCompatIsImage, true)
+	node.MustSetMeta(MetadataThumbnails, &ThumbnailsMeta{Processing: true})
+	node.MustSetMeta(MetadataCompatImageHeight, height)
+	node.MustSetMeta(MetadataCompatImageWidth, width)
+	node.MustSetMeta(MetadataCompatImageReadableDimensions, fmt.Sprintf("%dpx X %dpx", width, height))
 
 	if _, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); err != nil {
 		return errors.Wrap(err, errPath)
@@ -244,7 +242,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
 		if err != nil {
 			// Remove processing state from Metadata
-			node.SetMeta(MetadataThumbnails, nil)
+			node.MustSetMeta(MetadataThumbnails, nil)
 			t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 			return errors.Wrap(err, errPath)
 		}
@@ -264,12 +262,12 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	displayMemStat(ctx, "AFTER TRIGGERING GC")
 
 	if (meta != &ThumbnailsMeta{}) {
-		node.SetMeta(MetadataThumbnails, meta)
+		node.MustSetMeta(MetadataThumbnails, meta)
 	} else {
-		node.SetMeta(MetadataThumbnails, nil)
+		node.MustSetMeta(MetadataThumbnails, nil)
 	}
 
-	log.Logger(ctx).Info("Thumbs Generated for", zap.String(common.KeyNodePath, errPath), zap.Any("meta", meta))
+	log.TasksLogger(ctx).Info("Thumbs Generated for", zap.String(common.KeyNodePath, errPath), zap.Any("meta", meta))
 	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 	if err != nil {
 		err = errors.Wrap(err, errPath)
@@ -283,7 +281,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	localTest := false
 	localFolder := ""
 
-	var thumbsClient *minio.Core
+	var thumbsClient nodes.StorageClient
 	var thumbsBucket string
 	objectName := fmt.Sprintf("%s-%d.jpg", node.Uuid, targetSize)
 
@@ -295,20 +293,13 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	if !localTest {
 
 		var e error
-		thumbsClient, thumbsBucket, e = views.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace, t.Client)
+		thumbsClient, thumbsBucket, e = nodes.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace)
 		if e != nil {
 			logger.Error("Cannot find client for thumbstore", zap.Error(e))
 			return false, e
 		}
-
-		opts := minio.StatObjectOptions{}
-		if meta, mOk := context2.MinioMetaFromContext(ctx); mOk {
-			for k, v := range meta {
-				opts.Set(k, v)
-			}
-		}
 		// First Check if thumb already exists with same original etag
-		oi, check := thumbsClient.StatObject(thumbsBucket, objectName, opts)
+		oi, check := thumbsClient.StatObject(ctx, thumbsBucket, objectName, nil)
 		logger.Debug("Object Info", zap.Any("object", oi), zap.Error(check))
 		if check == nil {
 			foundOriginal := oi.Metadata.Get("X-Amz-Meta-Original-Etag")
@@ -355,12 +346,12 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		}
 		logger.Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize))
 		displayMemStat(ctx, "BEFORE PUT OBJECT WITH CONTEXT")
-		tCtx, tNode, e := getThumbLocation(ctx, objectName)
+		tCtx, tNode, e := getThumbLocation(t.GetRuntimeContext(), ctx, objectName)
 		if e != nil {
 			return false, e
 		}
 		tNode.Size = int64(buf.Len())
-		written, err := getRouter().PutObject(tCtx, tNode, buf, &models.PutRequestData{
+		written, err := getRouter(t.GetRuntimeContext()).PutObject(tCtx, tNode, buf, &models.PutRequestData{
 			Size:     tNode.Size,
 			Metadata: requestMeta,
 		})
@@ -386,7 +377,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 
 func getNodeLocalPath(node *tree.Node) string {
 	if localFolder := node.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
-		baseName := node.GetStringMeta("name")
+		baseName := node.GetStringMeta(common.MetaNamespaceNodeName)
 		targetFileName := filepath.Join(localFolder, baseName)
 		return targetFileName
 	}

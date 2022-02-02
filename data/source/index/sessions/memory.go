@@ -23,13 +23,14 @@ package sessions
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/proto"
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/data/source/index"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/data/source/index"
 )
 
 var benchmarks bool
@@ -40,7 +41,7 @@ func init() {
 
 type StoredEvent struct {
 	Topic     string
-	Msg       interface{}
+	Msg       proto.Message
 	EventTime time.Time
 }
 
@@ -96,7 +97,7 @@ type MemoryBatcher struct {
 	store *SessionMemoryStore
 }
 
-func (b *MemoryBatcher) Notify(topic string, msg interface{}) {
+func (b *MemoryBatcher) Notify(topic string, msg proto.Message) {
 	b.store.Lock()
 	defer b.store.Unlock()
 
@@ -113,12 +114,11 @@ func (b *MemoryBatcher) Flush(ctx context.Context, dao index.DAO) {
 	b.store.Lock()
 	defer b.store.Unlock()
 
-	cl := defaults.NewClient()
 	count := 0
 	if queue, exists := b.store.eventsQueue[b.uuid]; exists {
 		for _, stored := range queue {
 			// Notify stored event now
-			cl.Publish(ctx, cl.NewPublication(stored.Topic, stored.Msg))
+			broker.MustPublish(ctx, stored.Topic, stored.Msg)
 			count++
 			if count%1000 == 0 {
 				// Let's micro pause every 1000 events to reduce pressure

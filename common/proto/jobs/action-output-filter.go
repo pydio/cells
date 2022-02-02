@@ -26,15 +26,12 @@ import (
 	"regexp"
 	"strconv"
 
-	json "github.com/pydio/cells/x/jsonx"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/golang/protobuf/ptypes/any"
-
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/pydio/cells/common/log"
-
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/service"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type MessageMatcher struct {
@@ -57,9 +54,9 @@ func (n *ActionOutputFilter) Filter(ctx context.Context, input ActionMessage) (A
 	}
 
 	multi := &service.MultiMatcher{}
-	if er := multi.Parse(n.Query, func(o *any.Any) (service.Matcher, error) {
+	if er := multi.Parse(n.Query, func(o *anypb.Any) (service.Matcher, error) {
 		target := &ActionOutputSingleQuery{}
-		if e := ptypes.UnmarshalAny(o, target); e != nil {
+		if e := anypb.UnmarshalTo(o, target, proto.UnmarshalOptions{}); e != nil {
 			return nil, e
 		}
 		return &MessageMatcher{ActionOutputSingleQuery: n.cloneEval(ctx, input, target)}, nil

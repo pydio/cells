@@ -25,18 +25,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	service2 "github.com/pydio/cells/common/service"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -48,8 +48,6 @@ var (
 
 // FirstRun detects datasources created during install and create workspaces on them
 func FirstRun(ctx context.Context) error {
-
-	<-time.After(8 * time.Second)
 
 	var hasPersonal bool
 	var commonDS string
@@ -69,28 +67,32 @@ func FirstRun(ctx context.Context) error {
 		return nil
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 
 	if hasPersonal {
 		log.Logger(ctx).Info("Creating a Personal workspace")
 		ws := &idm.Workspace{
-			UUID:        uuid.NewUUID().String(),
+			UUID:        uuid.New(),
 			Label:       "Personal Files",
 			Description: "User personal data",
 			Slug:        "personal-files",
 		}
-		createWs(ctx, wsClient, ws, "my-files", "my-files")
+		if er := createWs(ctx, wsClient, ws, "my-files", "my-files"); er != nil {
+			return er
+		}
 	}
 
 	if commonDS != "" {
 		log.Logger(ctx).Info("Creating a Common Files workspace on " + commonDS)
 		ws := &idm.Workspace{
-			UUID:        uuid.NewUUID().String(),
+			UUID:        uuid.New(),
 			Label:       "Common Files",
 			Description: "Data shared by all users",
 			Slug:        "common-files",
 		}
-		createWs(ctx, wsClient, ws, "DATASOURCE:"+commonDS, commonDS)
+		if er := createWs(ctx, wsClient, ws, "DATASOURCE:"+commonDS, commonDS); er != nil {
+			return er
+		}
 
 	}
 
@@ -103,15 +105,14 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	ws.Policies = initialPolicies
 
 	// First check if it does not already exists, for one reason or another
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Slug: ws.Slug,
 	})
 	rC, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{
-		SubQueries: []*any.Any{q},
+		SubQueries: []*anypb.Any{q},
 		Limit:      1,
 	}})
 	if e == nil {
-		defer rC.Close()
 		for {
 			resp, er := rC.Recv()
 			if er != nil {
@@ -134,9 +135,9 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 		{NodeID: rootUuid, Action: &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: rootPath}, WorkspaceID: ws.UUID},
 		{NodeID: rootUuid, Action: permissions.AclRecycleRoot, WorkspaceID: ws.UUID},
 	}
-	service2.Retry(ctx, func() error {
+	return std.Retry(ctx, func() error {
 		log.Logger(ctx).Info("Settings ACLS for workspace")
-		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 		for _, acl := range acls {
 			_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 			if e != nil {
@@ -146,5 +147,4 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 		return nil
 	}, 9*time.Second, 30*time.Second)
 
-	return nil
 }

@@ -25,6 +25,7 @@ import (
 	"context"
 	"crypto/md5"
 	databasesql "database/sql"
+	"embed"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -35,23 +36,25 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/pydio/cells/common"
-
-	gocache "github.com/patrickmn/go-cache"
-	"github.com/pborman/uuid"
-	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils/mtree"
-	"github.com/pydio/cells/x/configx"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sql"
+	cache2 "github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries   = map[string]interface{}{}
 	inserting atomic.Value
 	cond      *sync.Cond
@@ -348,17 +351,17 @@ type IndexSQL struct {
 
 	rootNodeId string
 
-	shortCache     *gocache.Cache
+	shortCache     cache2.Short
 	shortCacheLock sync.Mutex
 }
 
 // Init handles the db version migration and prepare the statements
 func (dao *IndexSQL) Init(options configx.Values) error {
 
-	dao.shortCache = gocache.New(5*time.Second, 10*time.Second)
+	dao.shortCache = cache2.NewShort(cache2.WithEviction(5*time.Second), cache2.WithCleanWindow(10*time.Second))
 
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../../common/sql/index/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         "./" + dao.Driver(),
 		TablePrefix: dao.Prefix() + "_idx",
 	}
@@ -386,8 +389,8 @@ func (dao *IndexSQL) Init(options configx.Values) error {
 // CleanResourcesOnDeletion revert the creation of the table for a datasource
 func (dao *IndexSQL) CleanResourcesOnDeletion() (string, error) {
 
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../../common/sql/index/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         "./" + dao.Driver(),
 		TablePrefix: dao.Prefix() + "_idx",
 	}
@@ -909,7 +912,7 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath mtree.MPath) (avail
 
 	dao.shortCacheLock.Lock()
 	defer func() {
-		dao.shortCache.Set(append(reqPath, available).String(), true, gocache.DefaultExpiration)
+		dao.shortCache.Set(append(reqPath, available).String(), true)
 		dao.shortCacheLock.Unlock()
 	}()
 	// All is just [0], return 1 or next ones

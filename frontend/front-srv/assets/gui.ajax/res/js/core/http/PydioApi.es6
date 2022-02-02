@@ -272,9 +272,10 @@ class PydioApi{
      * @param onComplete
      * @param onError
      * @param onProgress
+     * @param userMeta optional usermeta-xxx values
      * @return {Promise<any>}
      */
-    uploadPresigned(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=()=>{}){
+    uploadPresigned(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=()=>{}, userMeta=undefined){
         let targetPath = path;
         if (path.normalize){
             targetPath = path.normalize('NFC');
@@ -289,6 +290,9 @@ class PydioApi{
             Key: targetPath,
             ContentType: 'application/octet-stream'
         };
+        if(userMeta){
+            params.Metadata = {...userMeta}
+        }
         this.getPydioObject().notify('longtask_starting');
         const onCompleteWrapped = (xhr) => {
             this.getPydioObject().notify('longtask_finished');
@@ -310,13 +314,17 @@ class PydioApi{
                 });
                 const s3 = new AWS.S3({endpoint:url});
                 const signed = s3.getSignedUrl('putObject', params);
-                const xhr = this.uploadFile(file, '', '', onCompleteWrapped, onErrorWrapped, onProgress, signed, {method: 'PUT', customHeaders: {'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream'}});
+                let metaHeaders = {};
+                if(userMeta){
+                    Object.keys(userMeta).forEach(k => {metaHeaders['X-Amz-Meta-' + k] = userMeta[k]})
+                }
+                const xhr = this.uploadFile(file, '', '', onCompleteWrapped, onErrorWrapped, onProgress, signed, {method: 'PUT', customHeaders: {'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream', ...metaHeaders}});
                 resolve(xhr);
             });
         });
     }
 
-    uploadMultipart(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=() => {}) {
+    uploadMultipart(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=() => {}, userMeta = {}) {
         let targetPath = path;
         if (path.normalize){
             targetPath = path.normalize('NFC');
@@ -331,7 +339,7 @@ class PydioApi{
             Key: targetPath,
             ContentType: 'application/octet-stream',
             // This may be needed for encrypted datasource
-            Metadata:{'pydio-clear-size':'' + file.size},
+            Metadata:{'pydio-clear-size':'' + file.size, ...userMeta},
         };
         this.getPydioObject().notify('longtask_starting');
         return new Promise(resolve => {

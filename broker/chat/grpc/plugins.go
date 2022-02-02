@@ -24,27 +24,29 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/broker/chat"
-	"github.com/pydio/cells/common"
-	proto "github.com/pydio/cells/common/proto/chat"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/broker/chat"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	proto "github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
+
+var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceChat
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceChat),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
 			service.WithStorage(chat.NewDAO, "broker_chat"),
 			service.Unique(true),
-			service.WithMicro(func(m micro.Service) error {
-				proto.RegisterChatServiceHandler(m.Options().Server, new(ChatHandler))
-
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+				proto.RegisterChatServiceEnhancedServer(server, &ChatHandler{RuntimeCtx: c, dao: servicecontext.GetDAO(c).(chat.DAO)})
 				return nil
 			}),
 		)

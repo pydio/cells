@@ -24,17 +24,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/registry"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql/index"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/sql/index"
 )
 
 var (
@@ -42,9 +42,10 @@ var (
 )
 
 // TriggerResync on index performs a Lost+Found request to auto-heal indexation errors, whenever possible
-func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequest, resp *sync.ResyncResponse) error {
-	dao := getDAO(ctx, "")
+func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
+	dao := s.getDAO("")
 
+	resp := &sync.ResyncResponse{}
 	if request.GetPath() == "flatten" {
 		msg, err := dao.Flatten()
 		if err != nil {
@@ -53,12 +54,12 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 			resp.Success = true
 			resp.JsonDiff = msg
 		}
-		return err
+		return resp, err
 	}
 
 	duplicates, err := dao.LostAndFounds()
 	if err != nil {
-		return err
+		return resp, err
 	}
 	var excludeFromRehash []index.LostAndFound
 	if len(duplicates) > 0 {
@@ -67,7 +68,7 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 
 		marked, conflicts, err := s.checkACLs(ctx, duplicates)
 		if err != nil {
-			return err
+			return resp, err
 		}
 		for _, d := range marked {
 			e := dao.FixLostAndFound(d)
@@ -94,26 +95,26 @@ func (s *TreeServer) TriggerResync(ctx context.Context, request *sync.ResyncRequ
 		log.TasksLogger(ctx).Info(msg)
 	}
 
-	return e
+	return resp, e
 }
 
 // checkACLs checks all nodes UUIDs against ACLs to make sure that we do not delete a node that has an ACL on it
 func (s *TreeServer) checkACLs(ctx context.Context, ll []index.LostAndFound) (marked []index.LostAndFound, conflicts []index.LostAndFound, e error) {
 
 	if aclClient == nil {
-		aclClient = idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
+		aclClient = idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 	}
 	var uuids []string
 	for _, l := range ll {
 		uuids = append(uuids, l.GetUUIDs()...)
 	}
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{NodeIDs: uuids})
-	st, er := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	q, _ := anypb.New(&idm.ACLSingleQuery{NodeIDs: uuids})
+	st, er := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if er != nil {
 		e = er
 		return
 	}
-	defer st.Close()
+	defer st.CloseSend()
 	founds := make(map[string]struct{})
 	for {
 		resp, e := st.Recv()

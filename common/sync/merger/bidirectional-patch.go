@@ -27,15 +27,14 @@ import (
 	"path"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 const OpNone OperationType = 100

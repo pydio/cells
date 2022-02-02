@@ -27,7 +27,7 @@
             let dataModel;
             if(window.actionArguments && window.actionArguments.length){
                 dataModel = window.actionArguments[0];
-            }else if(window.actionManager){
+            }else if(window.actionManager){
                 dataModel = window.actionManager.getDataModel();
             }
             pydio.UI.openComponentInModal('ShareDialog', 'MainPanel', {pydio:pydio, readonly:true, selection:dataModel});

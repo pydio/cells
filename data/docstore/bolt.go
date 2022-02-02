@@ -22,25 +22,56 @@ package docstore
 
 import (
 	"context"
+	"fmt"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"os"
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	bolt "github.com/etcd-io/bbolt"
-	"github.com/micro/go-micro/errors"
+	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/service/errors"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
 	// Jobs Configurations
 	storeBucketString = "store-"
 )
+
+type boltImpl struct {
+	boltdb.DAO
+	*BoltStore
+	*BleveServer
+}
+
+// Close combines calls to bolt.Close and bleve.Close
+func (b *boltImpl) Close() error {
+	var errs []string
+	if er := b.BoltStore.Close(); er != nil {
+		errs = append(errs, er.Error())
+	}
+	if er := b.BleveServer.Close(); er != nil {
+		errs = append(errs, er.Error())
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf(strings.Join(errs, " - "))
+	}
+	return nil
+}
+
+// DeleteDocument combines calls to bolt.DeleteDocument and bleve.DeleteDocument
+func (b *boltImpl) DeleteDocument(storeID string, docID string) error {
+	e := b.BoltStore.DeleteDocument(storeID, docID)
+	if e != nil {
+		return e
+	}
+	return b.BleveServer.DeleteDocument(storeID, docID)
+}
 
 type BoltStore struct {
 	// Internal DB
@@ -154,17 +185,15 @@ func (s *BoltStore) DeleteDocument(storeID string, docID string) error {
 
 }
 
-func (s *BoltStore) ListDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, chan bool, error) {
+func (s *BoltStore) ListDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
 
 	res := make(chan *docstore.Document)
-	done := make(chan bool, 1)
 
 	go func() {
 
 		s.db.View(func(tx *bolt.Tx) error {
 			defer func() {
-				done <- true
-				close(done)
+				close(res)
 			}()
 			bucket, e := s.GetStore(tx, storeID, "read")
 			if e != nil {
@@ -188,7 +217,7 @@ func (s *BoltStore) ListDocuments(storeID string, query *docstore.DocumentQuery)
 
 	}()
 
-	return res, done, nil
+	return res, nil
 }
 
 // ListStores list all buckets

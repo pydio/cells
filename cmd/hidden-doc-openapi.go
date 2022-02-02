@@ -25,8 +25,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/utils/docs"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/utils/docs"
 )
 
 var openApiTargetFolder string

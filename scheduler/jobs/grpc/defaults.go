@@ -21,13 +21,13 @@
 package grpc
 
 import (
-	"github.com/golang/protobuf/ptypes/any"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func getDefaultJobs() []*jobs.Job {
@@ -35,7 +35,7 @@ func getDefaultJobs() []*jobs.Job {
 	triggerCreate := &jobs.TriggerFilter{
 		Label:       "Create/Update",
 		Description: "Trigger on image creation or modification",
-		Query: &service.Query{SubQueries: []*any.Any{jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
+		Query: &service.Query{SubQueries: []*anypb.Any{jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
 			EventNames: []string{
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
@@ -46,7 +46,7 @@ func getDefaultJobs() []*jobs.Job {
 	triggerDelete := &jobs.TriggerFilter{
 		Label:       "Delete",
 		Description: "Trigger on image deletion",
-		Query: &service.Query{SubQueries: []*any.Any{jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
+		Query: &service.Query{SubQueries: []*anypb.Any{jobs.MustMarshalAny(&jobs.TriggerFilterQuery{
 			EventNames: []string{
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_DELETE),
 			},
@@ -68,7 +68,7 @@ func getDefaultJobs() []*jobs.Job {
 		NodeEventFilter: &jobs.NodesSelector{
 			Label: "Images Only",
 			Query: &service.Query{
-				SubQueries: []*any.Any{jobs.MustMarshalAny(&tree.Query{
+				SubQueries: []*anypb.Any{jobs.MustMarshalAny(&tree.Query{
 					Extension: "jpg,png,jpeg,gif,bmp,tiff",
 					MinSize:   1,
 				})},
@@ -86,7 +86,7 @@ func getDefaultJobs() []*jobs.Job {
 				NodesFilter: &jobs.NodesSelector{
 					Label: "Jpg only",
 					Query: &service.Query{
-						SubQueries: []*any.Any{jobs.MustMarshalAny(&tree.Query{
+						SubQueries: []*anypb.Any{jobs.MustMarshalAny(&tree.Query{
 							Extension: "jpg,jpeg",
 						})},
 					},
@@ -128,7 +128,7 @@ func getDefaultJobs() []*jobs.Job {
 		IdmFilter: &jobs.IdmSelector{
 			Type: jobs.IdmSelectorType_User,
 			Query: &service.Query{
-				SubQueries: []*any.Any{jobs.MustMarshalAny(&idm.UserSingleQuery{
+				SubQueries: []*anypb.Any{jobs.MustMarshalAny(&idm.UserSingleQuery{
 					NodeType: idm.NodeType_USER,
 				})},
 			},

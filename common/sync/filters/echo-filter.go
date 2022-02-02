@@ -26,8 +26,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 // EchoFilter tries to detect events that are linked to an operation that has

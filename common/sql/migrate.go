@@ -31,7 +31,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 
 	"github.com/rubenv/sql-migrate"
 	"gopkg.in/gorp.v1"

@@ -23,8 +23,8 @@ package tree
 import (
 	"testing"
 
-	"github.com/golang/protobuf/proto"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/proto"
 )
 
 func TestTreeProtoMessage(t *testing.T) {

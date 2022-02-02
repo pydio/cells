@@ -1,13 +1,14 @@
 -- +migrate Up
 
 CREATE TABLE IF NOT EXISTS enc_node_blocks (
-    node_id VARCHAR(255) NOT NULL PRIMARY KEY,
+    node_id VARCHAR(255) NOT NULL,
     part_id INT,
     block_position INT,
     block_data_size INT,
     block_header_size INT,
     nonce BLOB,
-    owner varchar(255)
+    owner varchar(255),
+    id integer primary key autoincrement
 );
 
 DROP TABLE enc_nodes;

@@ -125,6 +125,10 @@ class UserAvatar extends React.Component{
             labelMaxChars, labelClassName, avatarClassName, displayLabel, displayLocalLabel, displayLabelChevron, labelChevronStyle,
             displayAvatar, useDefaultAvatar, richCard, muiTheme, noActionsPanel} = this.props;
 
+        if(!userId) {
+            return <div>ERROR : empty userId ! </div>
+        }
+
         let {label} = this.state;
         let labelTitle;
         let userTypeLabel;

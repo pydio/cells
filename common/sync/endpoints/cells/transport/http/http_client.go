@@ -24,7 +24,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
 )
 
 // GetHttpClient provides an option to rather use an http client that ignore SSL certificate issues.

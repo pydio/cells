@@ -24,10 +24,10 @@ package index
 import (
 	"fmt"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
 // DAO interface

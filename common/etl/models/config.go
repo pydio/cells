@@ -22,13 +22,12 @@ package models
 
 import (
 	"errors"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"reflect"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/imdario/mergo"
-	"github.com/pydio/cells/common/config/source"
+	"github.com/pydio/cells/v4/common/config/source"
 )
 
 var (

@@ -32,11 +32,11 @@ import (
 	"github.com/gorilla/sessions"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 var (

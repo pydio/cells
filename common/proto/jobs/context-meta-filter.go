@@ -24,19 +24,20 @@ import (
 	"context"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/micro/go-micro/metadata"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/policy/converter"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
 func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
@@ -79,7 +80,7 @@ func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input Actio
 	warden := &ladon.Ladon{Manager: memory.NewMemoryManager()}
 	for _, q := range m.Query.SubQueries {
 		var c ContextMetaSingleQuery
-		if e := ptypes.UnmarshalAny(q, &c); e == nil {
+		if e := anypb.UnmarshalTo(q, &c, proto.UnmarshalOptions{}); e == nil {
 			idPol := &idm.Policy{
 				Id:        uuid.New(),
 				Subjects:  []string{"ctx"},

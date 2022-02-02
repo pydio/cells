@@ -25,29 +25,24 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 	"time"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
-
-	"github.com/pydio/cells/common/caddy"
-
-	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/front"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/frontend/front-srv/web/index"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/front"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/caddy/hooks"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/frontend/front-srv/web/index"
 )
 
 var (
@@ -64,9 +59,9 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("Grpc service for internal requests about frontend manifest"),
-			service.WithMicro(func(m micro.Service) error {
-				mH := &index.ManifestHandler{}
-				front.RegisterManifestServiceHandler(m.Server(), mH)
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				mH := &index.ManifestHandler{HandlerName: common.ServiceGrpcNamespace_ + common.ServiceFrontStatics}
+				front.RegisterManifestServiceServer(server, mH)
 				return nil
 			}),
 		)
@@ -81,45 +76,45 @@ func init() {
 					Up:            DropLegacyStatics,
 				},
 			}),
-			service.WithHTTP(func() http.Handler {
-				httpFs := frontend.GetPluginsFS()
+			service.AfterStart(func(ctx context.Context) error {
+				return nil
+				// TODO V4 - Is this finally required ?
+				return hooks.Restart()
+			}),
+			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+				httpFs := http.FS(frontend.GetPluginsFS())
+
 				fs := gzipped.FileServer(httpFs)
+				wrap := func(handler http.Handler) http.Handler {
+					return http.TimeoutHandler(handler, 15*time.Second, "There was a timeout while serving the frontend resources...")
+				}
+				wfs := wrap(fs)
 
-				router := mux.NewRouter()
-
-				router.Handle("/index.json", fs)
-				router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
-				indexHandler := index.NewIndexHandler()
-				router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+				mux.Handle("/index.json", wfs)
+				mux.Handle("/plug/", http.StripPrefix("/plug/", wfs))
+				indexHandler := wrap(index.NewIndexHandler(ctx))
+				mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
 					w.Header().Set("Content-Type", "text/plain")
 					w.Write([]byte(RobotsString))
 				})
-				router.Handle("/gui", indexHandler)
-				router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
-				router.Handle(path.Join(config.GetPublicBaseUri(), "{link}"), index.NewPublicHandler())
+				mux.Handle("/", indexHandler)
+				mux.Handle("/gui", indexHandler)
+				mux.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
 
-				routerWithTimeout := http.TimeoutHandler(
-					router,
-					15*time.Second,
-					"There was a timeout while serving the request...",
-				)
+				// /public endpoint : special handler for index, redirect to /plug/ for the rest
+				mux.Handle(config.GetPublicBaseUri()+"/", wrap(index.NewPublicHandler()))
+				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", wfs))
 
 				// Adding subscriber
-				if _, err := defaults.Broker().Subscribe(common.TopicReloadAssets, func(p broker.Publication) error {
-					// Reload FS
-					log.Logger(servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceFrontStatics)).Info("Reloading frontend plugins from file system")
+				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(message broker.Message) error {
+					log.Logger(ctx).Info("Reloading frontend plugins from file system")
 					frontend.HotReload()
-					httpFs = frontend.GetPluginsFS()
+					httpFs = http.FS(frontend.GetPluginsFS())
 					return nil
-				}); err != nil {
-					return nil
-				}
+				})
 
-				return routerWithTimeout
-			}),
-			service.AfterStart(func(_ service.Service) error {
-				return caddy.Restart()
+				return nil
 			}),
 		)
 	})

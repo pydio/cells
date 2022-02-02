@@ -17,9 +17,51 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
 import PathUtils from 'pydio/util/path'
+
+const callback = (node, newValue) => {
+    const pydio = Pydio.getInstance()
+    if(!node) {
+        node = pydio.getUserSelection().getUniqueNode();
+    }
+    if(newValue.indexOf('/') !== -1) {
+        throw new Error(pydio.MessageHash['filename.forbidden.slash']);
+    }
+    const slug = pydio.user.getActiveRepositoryObject().getSlug();
+    const path = slug + node.getPath();
+    const target = PathUtils.getDirname(path) + '/' + newValue;
+    const jobParams =  {
+        nodes: [path],
+        target: target,
+        targetParent: false
+    };
+    PydioApi.getRestClient().userJob('move', jobParams).then(r => {
+        const m = pydio.MessageHash['rename.processing'].replace('%1', node.getLabel()).replace('%2', newValue);
+        pydio.UI.displayMessage('SUCCESS', m);
+        node.getMetadata().set('pending_operation', m);
+        node.getMetadata().set('pending_operation_uuid', r.JobUuid);
+        node.notify('meta_replaced', node);
+        pydio.getContextHolder().setSelectedNodes([]);
+    }).catch((err) => {
+        const msg = err.Detail || err.message || err;
+        pydio.UI.displayMessage('ERROR', msg);
+    });
+};
+
+const renameFunction = ()  => {
+    const pydio = Pydio.getInstance();
+    const n = pydio.getUserSelection().getSelectedNodes()[0];
+    if(n){
+        let res = n.notify("node_action", {type:"prompt-rename", callback:(value)=>{callback(n, value);}});
+        if((!res || res[0] !== true) && n.getParent()){
+            n.getParent().notify("child_node_action", {type:"prompt-rename", child:n, callback:(value)=>{callback(n, value);}});
+        }
+    }
+}
+
+export {callback, renameFunction}
 
 export default function (pydio) {
 

@@ -25,12 +25,11 @@ package actions
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common"
 	"time"
 
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 )
 
 type Concrete func() ConcreteAction
@@ -77,11 +76,11 @@ type ActionDescription struct {
 
 // ConcreteAction is the base interface for pydio actions. All actions must implement this interface.
 type ConcreteAction interface {
-
+	common.RuntimeProvider
 	// GetName returns a unique identifier
 	GetName() string
 	// Init initialize parameters
-	Init(job *jobs.Job, cl client.Client, action *jobs.Action) error
+	Init(job *jobs.Job, action *jobs.Action) error
 	// Run performs the actual action code
 	Run(ctx context.Context, channels *RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error)
 }

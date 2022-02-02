@@ -28,9 +28,9 @@ import (
 
 	"github.com/gobwas/glob"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 type ConflictType int

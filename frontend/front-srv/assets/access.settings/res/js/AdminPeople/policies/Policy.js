@@ -28,7 +28,7 @@ class Policy extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {policy: props.policy, pName: null, pDesc: null};
+        this.state = {policy: props.policy};
     }
 
     componentWillReceiveProps(next){
@@ -55,10 +55,10 @@ class Policy extends React.Component{
 
     saveLabels(){
         const {pName, pDesc, policy} = this.state;
-        if(pName !== null){
+        if(pName){
             policy.Name = pName;
         }
-        if(pDesc !== null) {
+        if(pDesc) {
             policy.Description = pDesc;
         }
         this.setState({pName: null, pDesc: null});
@@ -150,8 +150,7 @@ class Policy extends React.Component{
         let labelsBlock;
         if(!readonly) {
             const {showLabels, pName, pDesc} = this.state;
-            const labelsModified = (pName !== null && pName !== policy.Name) || (pDesc !== null && pDesc !== policy.Description);
-            const saveDisabled = !labelsModified || pName === "";
+            const labelsModified = (pName && pName !== policy.Name) || (pDesc && pDesc !== policy.Description);
             labelsBlock = (
                 <div style={{marginTop: 10, paddingTop: 10}}>
                     <div style={{display:'flex', alignItems:'center'}}>
@@ -160,21 +159,21 @@ class Policy extends React.Component{
                     </div>
                     <div style={{display: showLabels?'flex':'none'}}>
                         <div style={{marginRight:6, flex: 1}}>
-                            <ModernTextField value={pName === null ? policy.Name : pName} fullWidth={true} onChange={(e, v)=>{this.setState({pName:v})}}/>
+                            <ModernTextField value={pName || policy.Name} fullWidth={true} onChange={(e,v)=>{this.setState({pName:v})}}/>
                         </div>
                         <div style={{marginLeft:6, flex: 1}}>
-                            <ModernTextField value={pDesc === null ? policy.Description : pDesc} fullWidth={true} onChange={(e, v)=>{this.setState({pDesc:v})}}/>
+                            <ModernTextField value={pDesc || policy.Description} fullWidth={true} onChange={(e,v)=>{this.setState({pDesc:v})}}/>
                         </div>
                         <div style={{width: 80}}>
                             <IconButton
-                                disabled={saveDisabled}
+                                disabled={!labelsModified}
                                 iconClassName={"mdi mdi-content-save"}
                                 tooltip={m('policy.saveLabels')}
                                 tooltipPosition={"top-center"}
                                 onClick={()=>{
                                     this.saveLabels();
                                 }}
-                                iconStyle={{fontSize:20, color:'rgba(0,0,0,'+(saveDisabled ? '.10' : '.43')+')'}}
+                                iconStyle={{fontSize:20, color:'rgba(0,0,0,'+(labelsModified?'.43':'.10')+')'}}
                                 style={{padding:14}}
                             />
                         </div>

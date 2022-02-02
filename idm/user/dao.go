@@ -24,12 +24,12 @@
 package user
 
 import (
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/sql/resources"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/index"
+	"github.com/pydio/cells/v4/common/sql/resources"
 )
 
 // DAO interface

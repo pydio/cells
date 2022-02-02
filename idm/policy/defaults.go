@@ -28,12 +28,12 @@ import (
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/policy/conditions"
-	"github.com/pydio/cells/idm/policy/converter"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/idm/policy/conditions"
+	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
 var (

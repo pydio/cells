@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS idm_policy_rel (
     policy_id VARCHAR(255) NOT NULL,
     PRIMARY KEY(id),
 
-    FOREIGN KEY idm_policy_f1 (group_uuid) REFERENCES idm_policy_group(uuid),
-    FOREIGN KEY idm_policy_f2 (policy_id) REFERENCES ladon_policy(id),
+    CONSTRAINT idm_policy_f1 FOREIGN KEY (group_uuid) REFERENCES idm_policy_group(uuid),
+    CONSTRAINT idm_policy_f2 FOREIGN KEY (policy_id) REFERENCES ladon_policy(id),
     CONSTRAINT idm_policy_u1 UNIQUE(group_uuid, policy_id)
 );
 

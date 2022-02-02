@@ -17,13 +17,14 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+
 package grpc
 
 import (
 	"context"
 
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/idm/user"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/idm/user"
 )
 
 // RolesCleaner listen for roles deletion and clear the users accordingly

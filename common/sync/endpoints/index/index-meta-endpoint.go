@@ -23,41 +23,44 @@ package index
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 // ClientWithMeta is a wrapper for index client that implements the MetadataReceiver interface
 type ClientWithMeta struct {
 	Client
 	metaClient tree.NodeReceiverClient
+	runtimeCtx context.Context
 }
 
 // NewClientWithMeta creates a new client supporting metadata load
-func NewClientWithMeta(dsName string, reader tree.NodeProviderClient, writer tree.NodeReceiverClient, sessionClient tree.SessionIndexerClient) *ClientWithMeta {
-	m := &ClientWithMeta{}
+func NewClientWithMeta(ctx context.Context, dsName string, reader tree.NodeProviderClient, writer tree.NodeReceiverClient, sessionClient tree.SessionIndexerClient) *ClientWithMeta {
+	m := &ClientWithMeta{
+		runtimeCtx: ctx,
+	}
 	c := NewClient(dsName, reader, writer, sessionClient)
 	m.Client = *c
-	m.metaClient = tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
+	m.metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
 	return m
 }
 
 // Walk wraps the initial Walk function to load metadata on the fly
 func (m *ClientWithMeta) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) (err error) {
 
-	metaClient := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceMeta))
+	metaClient := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(m.runtimeCtx, common.ServiceMeta))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	metaStreamer, e := metaClient.ReadNodeStream(ctx)
 	if e != nil {
 		return e
 	}
-	defer metaStreamer.Close()
+	defer metaStreamer.CloseSend()
 	walkWrapped := func(path string, node *tree.Node, err error) {
 		if err == nil {
 			metaStreamer.Send(&tree.ReadNodeRequest{Node: node})

@@ -23,12 +23,12 @@ package activity
 import (
 	"time"
 
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func AclActivity(author string, workspace *idm.Workspace, permission string) (ac *activity.Object) {
@@ -48,7 +48,7 @@ func AclActivity(author string, workspace *idm.Workspace, permission string) (ac
 		Name: author,
 		Id:   author,
 	}
-	ac.Updated = &timestamp.Timestamp{
+	ac.Updated = &timestamppb.Timestamp{
 		Seconds: time.Now().Unix(),
 	}
 	return
@@ -164,7 +164,7 @@ func DocumentActivity(author string, event *tree.NodeChangeEvent) (ac *activity.
 		Id:   author,
 	}
 
-	ac.Updated = &timestamp.Timestamp{
+	ac.Updated = &timestamppb.Timestamp{
 		Seconds: time.Now().Unix(),
 	}
 

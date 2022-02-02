@@ -25,20 +25,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
-
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
-
 	// Run tests against SQLite
+	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
-	_ "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -76,7 +74,7 @@ func TestCrud(t *testing.T) {
 				Label: "",
 			})
 			So(err, ShouldNotBeNil)
-			So(errors.Parse(err.Error()).Code, ShouldEqual, 400)
+			So(errors.FromError(err).Code, ShouldEqual, 400)
 		}
 		{
 			r, _, err := mockDAO.Add(&idm.Role{
@@ -91,8 +89,8 @@ func TestCrud(t *testing.T) {
 
 	Convey("Get Role", t, func() {
 
-		roleUuid := uuid.NewUUID().String()
-		gRoleUuid := uuid.NewUUID().String()
+		roleUuid := uuid.New()
+		gRoleUuid := uuid.New()
 		roleTime := int32(time.Now().Unix())
 		_, _, err := mockDAO.Add(&idm.Role{
 			Uuid:        roleUuid,
@@ -109,7 +107,7 @@ func TestCrud(t *testing.T) {
 		})
 		So(err2, ShouldBeNil)
 		_, _, err3 := mockDAO.Add(&idm.Role{
-			Uuid:        uuid.NewUUID().String(),
+			Uuid:        uuid.New(),
 			Label:       "User Role",
 			LastUpdated: roleTime,
 			UserRole:    true,
@@ -127,9 +125,9 @@ func TestCrud(t *testing.T) {
 		singleQ := &idm.RoleSingleQuery{
 			Uuid: []string{roleUuid},
 		}
-		singleQA, _ := ptypes.MarshalAny(singleQ)
+		singleQA, _ := anypb.New(singleQ)
 		query := &service.Query{
-			SubQueries: []*any.Any{singleQA},
+			SubQueries: []*anypb.Any{singleQA},
 		}
 		var roles []*idm.Role
 		e := mockDAO.Search(query, &roles)
@@ -175,11 +173,11 @@ func TestCrud(t *testing.T) {
 		}
 
 		{
-			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 				IsGroupRole: true,
 			})
 			query := &service.Query{
-				SubQueries: []*any.Any{singleQA},
+				SubQueries: []*anypb.Any{singleQA},
 			}
 			c, e := mockDAO.Count(query)
 			So(e, ShouldBeNil)
@@ -187,12 +185,12 @@ func TestCrud(t *testing.T) {
 		}
 
 		{
-			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 				IsGroupRole: true,
 				Not:         true,
 			})
 			query := &service.Query{
-				SubQueries: []*any.Any{singleQA},
+				SubQueries: []*anypb.Any{singleQA},
 			}
 			c, e := mockDAO.Count(query)
 			So(e, ShouldBeNil)
@@ -200,11 +198,11 @@ func TestCrud(t *testing.T) {
 		}
 
 		{
-			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 				IsUserRole: true,
 			})
 			query := &service.Query{
-				SubQueries: []*any.Any{singleQA},
+				SubQueries: []*anypb.Any{singleQA},
 			}
 			c, e := mockDAO.Count(query)
 			So(e, ShouldBeNil)
@@ -212,12 +210,12 @@ func TestCrud(t *testing.T) {
 		}
 
 		{
-			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 				IsUserRole: true,
 				Not:        true,
 			})
 			query := &service.Query{
-				SubQueries: []*any.Any{singleQA},
+				SubQueries: []*anypb.Any{singleQA},
 			}
 			c, e := mockDAO.Count(query)
 			So(e, ShouldBeNil)
@@ -225,11 +223,11 @@ func TestCrud(t *testing.T) {
 		}
 
 		{
-			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 				Uuid: []string{ownedUUID},
 			})
 			query := &service.Query{
-				SubQueries: []*any.Any{singleQA},
+				SubQueries: []*anypb.Any{singleQA},
 			}
 			roles = []*idm.Role{}
 			e := mockDAO.Search(query, &roles)
@@ -239,9 +237,9 @@ func TestCrud(t *testing.T) {
 		}
 
 		// {
-		// 	singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{})
+		// 	singleQA, _ := anypb.New(&idm.RoleSingleQuery{})
 		// 	query := &service.Query{
-		// 		SubQueries: []*any.Any{singleQA},
+		// 		SubQueries: []*anypb.Any{singleQA},
 		// 	}
 		// 	c, e := mockDAO.Count(query)
 		// 	So(e, ShouldBeNil)
@@ -249,9 +247,9 @@ func TestCrud(t *testing.T) {
 		// }
 
 		// {
-		// 	singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{})
+		// 	singleQA, _ := anypb.New(&idm.RoleSingleQuery{})
 		// 	query := &service.Query{
-		// 		SubQueries: []*any.Any{singleQA},
+		// 		SubQueries: []*anypb.Any{singleQA},
 		// 	}
 		// 	c, e := mockDAO.Count(query)
 		// 	So(e, ShouldBeNil)
@@ -259,11 +257,11 @@ func TestCrud(t *testing.T) {
 		// }
 
 		// {
-		// 	singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+		// 	singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 		// 		Not: true,
 		// 	})
 		// 	query := &service.Query{
-		// 		SubQueries: []*any.Any{singleQA},
+		// 		SubQueries: []*anypb.Any{singleQA},
 		// 	}
 		// 	c, e := mockDAO.Count(query)
 		// 	So(e, ShouldBeNil)
@@ -271,11 +269,11 @@ func TestCrud(t *testing.T) {
 		// }
 
 		{
-			singleQA, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+			singleQA, _ := anypb.New(&idm.RoleSingleQuery{
 				Label: "New*",
 			})
 			query := &service.Query{
-				SubQueries: []*any.Any{singleQA},
+				SubQueries: []*anypb.Any{singleQA},
 			}
 			c, e := mockDAO.Count(query)
 			So(e, ShouldBeNil)
@@ -305,13 +303,13 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ1.Uuid = []string{"role1"}
 		singleQ2.Uuid = []string{"role2"}
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		var singleQueries []*any.Any
+		var singleQueries []*anypb.Any
 		singleQueries = append(singleQueries, singleQ1Any)
 		singleQueries = append(singleQueries, singleQ2Any)
 
@@ -336,32 +334,32 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ2.Uuid = []string{"role2"}
 		singleQ3.Uuid = []string{"role3_1", "role3_2", "role3_3"}
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		singleQ3Any, err := ptypes.MarshalAny(singleQ3)
+		singleQ3Any, err := anypb.New(singleQ3)
 		So(err, ShouldBeNil)
 
 		subQuery1 := &service.Query{
-			SubQueries: []*any.Any{singleQ1Any, singleQ2Any},
+			SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
 			Operation:  service.OperationType_OR,
 		}
 
 		subQuery2 := &service.Query{
-			SubQueries: []*any.Any{singleQ3Any},
+			SubQueries: []*anypb.Any{singleQ3Any},
 		}
 
-		subQuery1Any, err := ptypes.MarshalAny(subQuery1)
+		subQuery1Any, err := anypb.New(subQuery1)
 		So(err, ShouldBeNil)
 
-		subQuery2Any, err := ptypes.MarshalAny(subQuery2)
+		subQuery2Any, err := anypb.New(subQuery2)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{
+			SubQueries: []*anypb.Any{
 				subQuery1Any,
 				subQuery2Any,
 			},

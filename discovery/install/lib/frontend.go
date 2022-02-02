@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
 )
 
 // Frontends
@@ -70,18 +70,26 @@ func actionFrontendsAdd(c *install.InstallConfig) error {
 
 	if conf.Login != "" && conf.Password != "" && conf.Confirm == conf.Password {
 		sEnc := base64.StdEncoding.EncodeToString([]byte(conf.Login + "||||" + conf.Password))
-		config.Set(sEnc, "defaults", "root")
+		if err := config.Set(sEnc, "defaults", "root"); err != nil {
+			return err
+		}
 	}
 
 	if c.FrontendApplicationTitle != "" {
-		config.Set(c.FrontendApplicationTitle, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
+		if err := config.Set(c.FrontendApplicationTitle, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE"); err != nil {
+			return err
+		}
 	}
 
 	if c.FrontendDefaultLanguage != "" {
-		config.Set(c.FrontendDefaultLanguage, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE")
+		if err := config.Set(c.FrontendDefaultLanguage, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE"); err != nil {
+			return err
+		}
 	}
 
-	config.Save("cli", "Set default admin user and frontend configs")
+	if err := config.Save("cli", "Set default admin user and frontend configs"); err != nil {
+		return err
+	}
 
 	// Creating log dir
 	config.ApplicationWorkingDir(config.ApplicationDirLogs)

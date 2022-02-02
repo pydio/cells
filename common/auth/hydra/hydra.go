@@ -24,10 +24,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/auth"
 	"golang.org/x/oauth2"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/auth"
 )
 
 type ConsentResponse struct {
@@ -57,7 +58,7 @@ type TokenResponse struct {
 }
 
 func GetLogin(ctx context.Context, challenge string) (*auth.GetLoginResponse, error) {
-	c := auth.NewLoginProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewLoginProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.GetLogin(ctx, &auth.GetLoginRequest{
 		Challenge: challenge,
 	})
@@ -69,7 +70,7 @@ func GetLogin(ctx context.Context, challenge string) (*auth.GetLoginResponse, er
 }
 
 func CreateLogin(ctx context.Context, clientID string, scopes, audiences []string) (*auth.ID, error) {
-	c := auth.NewLoginProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewLoginProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.CreateLogin(ctx, &auth.CreateLoginRequest{
 		ClientID:  clientID,
 		Scopes:    scopes,
@@ -83,7 +84,7 @@ func CreateLogin(ctx context.Context, clientID string, scopes, audiences []strin
 }
 
 func AcceptLogin(ctx context.Context, challenge string, subject string) (*RedirectResponse, error) {
-	c := auth.NewLoginProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewLoginProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	_, err := c.AcceptLogin(ctx, &auth.AcceptLoginRequest{
 		Challenge: challenge,
 		Subject:   subject,
@@ -102,7 +103,7 @@ func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error)
 		return nil, err
 	}
 
-	c := auth.NewConsentProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewConsentProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.CreateConsent(ctx, &auth.CreateConsentRequest{
 		LoginChallenge: login.Challenge,
 	})
@@ -114,7 +115,7 @@ func CreateConsent(ctx context.Context, loginChallenge string) (*auth.ID, error)
 }
 
 func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []string, accessToken, idToken map[string]string) (*RedirectResponse, error) {
-	c := auth.NewConsentProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewConsentProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	_, err := c.AcceptConsent(ctx, &auth.AcceptConsentRequest{
 		Challenge:   challenge,
 		Scopes:      scopes,
@@ -130,7 +131,7 @@ func AcceptConsent(ctx context.Context, challenge string, scopes, audiences []st
 }
 
 func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID, error) {
-	c := auth.NewLogoutProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewLogoutProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.CreateLogout(ctx, &auth.CreateLogoutRequest{
 		RequestURL: url,
 		Subject:    subject,
@@ -144,7 +145,7 @@ func CreateLogout(ctx context.Context, url, subject, sessionID string) (*auth.ID
 }
 
 func AcceptLogout(ctx context.Context, challenge string, accessToken string, refreshToken string) error {
-	c := auth.NewLogoutProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewLogoutProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	_, err := c.AcceptLogout(ctx, &auth.AcceptLogoutRequest{
 		Challenge:    challenge,
 		AccessToken:  accessToken,
@@ -157,12 +158,14 @@ func AcceptLogout(ctx context.Context, challenge string, accessToken string, ref
 	return nil
 }
 
-func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI string) (string, error) {
-	c := auth.NewAuthCodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI, codeChallenge, codeChallengeMethod string) (string, error) {
+	c := auth.NewAuthCodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.CreateAuthCode(ctx, &auth.CreateAuthCodeRequest{
-		Consent:     consent,
-		ClientID:    clientID,
-		RedirectURI: redirectURI,
+		Consent:             consent,
+		ClientID:            clientID,
+		RedirectURI:         redirectURI,
+		CodeChallenge:       codeChallenge,
+		CodeChallengeMethod: codeChallengeMethod,
 	})
 	if err != nil {
 		return "", err
@@ -172,7 +175,7 @@ func CreateAuthCode(ctx context.Context, consent *auth.ID, clientID, redirectURI
 }
 
 func PasswordCredentialsToken(ctx context.Context, username, password string) (*oauth2.Token, error) {
-	c := auth.NewPasswordCredentialsTokenClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewPasswordCredentialsTokenClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.PasswordCredentialsToken(ctx, &auth.PasswordCredentialsTokenRequest{
 		Username: username,
 		Password: password,
@@ -195,11 +198,12 @@ func PasswordCredentialsToken(ctx context.Context, username, password string) (*
 	return token, nil
 }
 
-func Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+func Exchange(ctx context.Context, code string, verifier string) (*oauth2.Token, error) {
 
-	c := auth.NewAuthCodeExchangerClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewAuthCodeExchangerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.Exchange(ctx, &auth.ExchangeRequest{
-		Code: code,
+		Code:         code,
+		CodeVerifier: verifier,
 	})
 	if err != nil {
 		return nil, err
@@ -220,7 +224,7 @@ func Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 }
 
 func Refresh(ctx context.Context, refreshToken string) (*TokenResponse, error) {
-	c := auth.NewAuthTokenRefresherClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	c := auth.NewAuthTokenRefresherClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	resp, err := c.Refresh(ctx, &auth.RefreshTokenRequest{
 		RefreshToken: refreshToken,
 	})

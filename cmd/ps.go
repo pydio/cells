@@ -22,28 +22,21 @@ package cmd
 
 import (
 	"fmt"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"os"
-	"regexp"
 	"strings"
 	"text/tabwriter"
 	"text/template"
 
-	"github.com/micro/go-micro"
+	"github.com/pydio/cells/v4/common/registry"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
 )
 
 var (
-	showDescription   bool
-	filterListTags    []string
-	filterListExclude []string
-	runningServices   []string
+	showDescription bool
+	runningServices []string
 
 	tmpl = `
 	{{- block "keys" .}}
@@ -76,13 +69,14 @@ type Tags struct {
 	Tags     map[string]*Tags
 }
 
+// psCmd represents the ps command
 var psCmd = &cobra.Command{
 	Use:   "ps",
 	Short: "List all available services and their statuses",
 	Long: `
 DESCRIPTION
 
-  List all available services and their statuses.
+  List all available services and their statuses
 
   Use this command to list all running services on this machine.
   Services fall into main categories (GENERIC, GRPC, REST, API) and are then organized by tags (broker, data, idm, etc.)
@@ -102,128 +96,60 @@ EXAMPLE
 	- pydio.rest.mailer     [X]
 
 `,
-	PreRun: func(cmd *cobra.Command, args []string) {
-
-		viper.SetDefault("registry", "grpc://:8000")
-
+	PreRunE: func(cmd *cobra.Command, args []string) error {
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		// Initialise the default registry
-		handleRegistry()
-
-		plugins.Init(cmd.Context(), "main")
-
-		// If we have an error (registry not running) the running list simply is empty
-		services, _ := defaults.Registry().ListServices()
-
-		for _, srv := range services {
-			runningServices = append(runningServices, srv.Name)
-		}
-
-		iR := regexp.MustCompile(common.ServiceInstall)
-		hR := regexp.MustCompile(common.ServiceHealthCheck)
-
-		// Removing install services
-		registry.Default.Filter(func(s registry.Service) bool {
-			return iR.MatchString(s.Name())
-		})
-
-		// Removing healthcheck services
-		registry.Default.Filter(func(s registry.Service) bool {
-			return hR.MatchString(s.Name())
-		})
-
-		// Filtering services by tags
-		registry.Default.Filter(func(s registry.Service) bool {
-			for _, t := range filterListTags {
-				for _, st := range s.Tags() {
-					if t == st {
-						return false
-					}
-				}
-			}
-
-			return len(filterListTags) > 0
-		})
-
-		// Filtering services by args
-		registry.Default.Filter(func(s registry.Service) bool {
-			for _, arg := range args {
-				reArg := regexp.MustCompile(arg)
-				if reArg.MatchString(s.Name()) {
-					return false
-				}
-			}
-			return len(args) > 0
-		})
-
-		// Adding child services by regexp
-		registry.Default.Filter(func(s registry.Service) bool {
-			reg := regexp.MustCompile(`^` + s.Name() + `\..*`)
-			if reg == nil {
-				return false
-			}
-
-			found := false
-			for _, arg := range args {
-				if reg.MatchString(arg) {
-					found = true
-				}
-			}
-
-			if len(args) == 0 || found {
-				// Adding all running services that match the service regexp
-				for _, r := range runningServices {
-					if reg.MatchString(r) {
-						service.NewService(
-							service.Name(r),
-							service.Tag(s.Tags()...),
-							service.WithMicro(func(m micro.Service) error { return nil }),
-						)
-					}
-				}
-			}
-
-			return false
-		})
-
-		// Re-building allServices list
-		if s, err := registry.Default.ListServices(); err != nil {
-			cmd.Print("Could not retrieve list of services")
-			os.Exit(0)
-		} else {
-			allServices = s
-		}
+		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		if err != nil {
+			return err
+		}
+
 		t, _ := template.New("t1").Parse(tmpl)
 
 		tags := []*Tags{
-			{"GENERIC SERVICES", nil, getTagsPerType(func(s registry.Service) bool { return s.IsGeneric() })},
-			{"GRPC SERVICES", nil, getTagsPerType(func(s registry.Service) bool { return s.IsGRPC() })},
-			{"REST SERVICES", nil, getTagsPerType(func(s registry.Service) bool { return s.IsREST() })},
+			{"GENERIC SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.IsGeneric() })},
+			{"GRPC SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.IsGRPC() })},
+			{"REST SERVICES", nil, getTagsPerType(reg, func(s registry.Service) bool { return s.IsREST() })},
 		}
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 8, 8, 8, ' ', 0)
 		t.Execute(w, tags)
+
+		return nil
 	},
 }
 
 func init() {
-	psCmd.Flags().BoolVarP(&showDescription, "verbose", "v", false, "Show additional information")
-	psCmd.Flags().StringArrayVarP(&filterListTags, "tags", "t", []string{}, "Filter by tags")
-	psCmd.Flags().StringArrayVarP(&filterListExclude, "exclude", "x", []string{}, "Filter")
 
-	addNatsFlags(psCmd.Flags())
-	addNatsStreamingFlags(psCmd.Flags())
-	addRegistryFlags(psCmd.Flags())
+	addExternalCmdRegistryFlags(psCmd.Flags())
 
 	RootCmd.AddCommand(psCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// psCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// psCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
+func getTagsPerType(reg registry.Registry, f func(s registry.Service) bool) map[string]*Tags {
 	tags := make(map[string]*Tags)
-	for _, s := range allServices {
+
+	allServices, err := reg.List(registry.WithType(pb.ItemType_SERVICE))
+	if err != nil {
+		return tags
+	}
+
+	for _, i := range allServices {
+		s := i.(registry.Service)
+
 		name := s.Name()
 
 		if f(s) {
@@ -234,8 +160,8 @@ func getTagsPerType(f func(s registry.Service) bool) map[string]*Tags {
 
 				var nodes []string
 				if showDescription {
-					for _, node := range s.RunningNodes() {
-						nodes = append(nodes, fmt.Sprintf("%s:%d (exp: %s)", node.Address, node.Port, node.Metadata["expiry"]))
+					for _, node := range s.Nodes() {
+						nodes = append(nodes, fmt.Sprintf("%s (exp: %s)", node.Address(), node.Metadata()["expiry"]))
 					}
 				}
 

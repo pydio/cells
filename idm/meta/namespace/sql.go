@@ -21,16 +21,22 @@
 package namespace
 
 import (
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/packr"
+	"embed"
+
 	migrate "github.com/rubenv/sql-migrate"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"Add":    `insert into idm_usr_meta_ns (namespace, label, ns_order, indexable, definition) values (?,?,?,?,?)`,
 		"Delete": `delete from idm_usr_meta_ns where namespace=?`,
@@ -58,8 +64,8 @@ func (dao *sqlimpl) Init(options configx.Values) error {
 	}
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../../idm/meta/namespace/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         dao.Driver(),
 		TablePrefix: dao.Prefix() + "_ns",
 	}

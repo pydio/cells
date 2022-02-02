@@ -23,9 +23,9 @@ package jobs
 import (
 	"time"
 
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func (a *ActionMessage) AppendOutput(output *ActionOutput) {

@@ -22,25 +22,29 @@ package acl
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"time"
 
+	goqu "github.com/doug-martin/goqu/v9"
 	"github.com/go-sql-driver/mysql"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
-	goqu "gopkg.in/doug-martin/goqu.v4"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"AddACL":                  `insert into idm_acls (action_name, action_value, role_id, workspace_id, node_id) values (?, ?, ?, ?, ?)`,
 		"AddACLNode":              `insert into idm_acl_nodes (uuid) values (?)`,
@@ -67,8 +71,8 @@ func (dao *sqlimpl) Init(options configx.Values) error {
 	dao.DAO.Init(options)
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../idm/acl/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         dao.Driver(),
 		TablePrefix: dao.Prefix(),
 	}
@@ -260,11 +264,9 @@ func (dao *sqlimpl) SetExpiry(query sql.Enquirer, t time.Time) (int64, error) {
 
 	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())
 
-	dataset := db.From("idm_acls").Where(whereExpression).Update(
-		goqu.Record{"expires_at": t},
-	)
+	dataset := db.From("idm_acls").Where(whereExpression).Update().Set(goqu.Record{"expires_at": t})
 
-	res, err := dataset.Exec()
+	res, err := dataset.Executor().Exec()
 	if err != nil {
 		return 0, err
 	}
@@ -438,11 +440,11 @@ func (dao *sqlimpl) addRole(uuid string) (string, error) {
 
 type queryConverter idm.ACLSingleQuery
 
-func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
+func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression, bool) {
 
 	q := new(idm.ACLSingleQuery)
 
-	if err := ptypes.UnmarshalAny(val, q); err != nil {
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
 		return nil, false
 	}
 
@@ -452,7 +454,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 	if len(q.RoleIDs) > 0 {
 		dataset := db.From("idm_acl_roles").Select("id")
 		dataset = dataset.Where(sql.GetExpressionForString(false, "uuid", q.RoleIDs...))
-		str, _, err := dataset.ToSql()
+		str, _, err := dataset.ToSQL()
 		if err != nil {
 			return nil, true
 		}
@@ -462,7 +464,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 	if len(q.WorkspaceIDs) > 0 {
 		dataset := db.From("idm_acl_workspaces").Select("id")
 		dataset = dataset.Where(sql.GetExpressionForString(false, "name", q.WorkspaceIDs...))
-		str, _, err := dataset.ToSql()
+		str, _, err := dataset.ToSQL()
 		if err != nil {
 			return nil, true
 		}
@@ -473,7 +475,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 
 		dataset := db.From("idm_acl_nodes").Select("id")
 		dataset = dataset.Where(sql.GetExpressionForString(false, "uuid", q.NodeIDs...))
-		str, _, err := dataset.ToSql()
+		str, _, err := dataset.ToSQL()
 		if err != nil {
 			return nil, true
 		}

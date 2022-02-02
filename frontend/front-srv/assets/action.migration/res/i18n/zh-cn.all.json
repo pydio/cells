@@ -81,7 +81,7 @@
     "other": "资料库命名空间 (点击编辑)"
   },
   "step.meta.map.ws": {
-    "other": "工作区 %s"
+    "other": "Workspace %s"
   },
   "step.meta.map.values": {
     "other": " (Values %s)"
@@ -237,7 +237,7 @@
     "other": "Cells节点"
   },
   "step.mapper.notplpath.primary": {
-    "other": "无"
+    "other": "None"
   },
   "step.mapper.notplpath.secondary": {
     "other": "No template path required"
@@ -276,7 +276,7 @@
     "other": "Files Metadata"
   },
   "dash.feature.shares": {
-    "other": "共享"
+    "other": "Shares"
   },
   "dash.job.new": {
     "other": "New import job"

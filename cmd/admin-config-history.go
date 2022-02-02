@@ -32,9 +32,9 @@ import (
 	"github.com/yudai/gojsondiff"
 	"github.com/yudai/gojsondiff/formatter"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/x/filex"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/utils/filex"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (

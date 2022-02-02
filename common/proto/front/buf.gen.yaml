@@ -1,0 +1,10 @@
+version: v1
+plugins:
+  - name: go
+    out: .
+  - name: go-grpc
+    out: .
+  - name: go-enhanced-grpc
+    out: .
+  - name: govalidators
+    out: .

@@ -25,8 +25,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/cells/x/filex"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
 type versionStore struct {

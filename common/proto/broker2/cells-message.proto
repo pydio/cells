@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package broker;
+
+option go_package="github.com/pydio/cells/v4/common/proto/broker2";
+
+import "google/protobuf/any.proto";

@@ -1,0 +1,24 @@
+syntax="proto3";
+
+package sync;
+
+option go_package="github.com/pydio/cells/v4/common/proto/sync";
+
+import "cells-jobs.proto";
+
+
+service SyncEndpoint{
+    rpc TriggerResync(ResyncRequest) returns (ResyncResponse){};
+}
+
+message ResyncRequest{
+    string Path = 1;
+    bool DryRun = 2;
+    jobs.Task Task = 3;
+}
+
+message ResyncResponse{
+    bool Success = 1;
+    string JsonDiff = 2;
+    jobs.Task Task = 3;
+}

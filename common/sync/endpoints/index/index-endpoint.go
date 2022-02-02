@@ -30,16 +30,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints/memory"
-	"github.com/pydio/cells/common/sync/model"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type Client struct {
@@ -53,7 +53,7 @@ type Client struct {
 func (i *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "index://" + i.dsName,
+		URI:                   "index://" + i.dsName,
 		RequiresFoldersRescan: false,
 		RequiresNormalization: false,
 	}
@@ -76,7 +76,7 @@ func (i *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 	if e != nil {
 		return e
 	}
-	defer responseClient.Close()
+	defer responseClient.CloseSend()
 	for {
 		response, rErr := responseClient.Recv()
 		if rErr == io.EOF || rErr == io.ErrUnexpectedEOF || (rErr == nil && response == nil) {
@@ -121,7 +121,7 @@ func (i *Client) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.No
 
 	log.Logger(ctx).Debug("LoadNode ByUuid " + uuid)
 	if i.indexationSession() != "" {
-		ctx = context2.WithMetadata(ctx, map[string]string{"x-indexation-session": i.indexationSession()})
+		ctx = metadata.NewContext(ctx, map[string]string{"x-indexation-session": i.indexationSession()})
 	}
 	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node: &tree.Node{

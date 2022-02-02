@@ -28,31 +28,33 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/etl/models"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	models2 "github.com/pydio/cells/common/views/models"
-	"github.com/pydio/cells/scheduler/actions"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/etl/models"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/nodes/acl"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	models2 "github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 type MigratePydioMetaAction struct {
+	common.RuntimeHolder
 	metaMapping map[string]string
 	cellAdmin   string
-	router      *views.Router
+	router      nodes.Client
 }
 
 var (
@@ -90,15 +92,15 @@ func (c *MigratePydioMetaAction) GetName() string {
 }
 
 // GetRouter returns an initialized router
-func (c *MigratePydioMetaAction) GetRouter() *views.Router {
+func (c *MigratePydioMetaAction) GetRouter() nodes.Client {
 	if c.router == nil {
-		c.router = views.NewStandardRouter(views.RouterOptions{})
+		c.router = compose.PathClient(nodes.WithContext(c.GetRuntimeContext()))
 	}
 	return c.router
 }
 
 // Init passes relevant parameters.
-func (c *MigratePydioMetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *MigratePydioMetaAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if mappingJson, ok := action.Parameters["metaMapping"]; !ok {
 		return fmt.Errorf("task must take a mapping parameter")
 	} else if e := json.Unmarshal([]byte(mappingJson), &c.metaMapping); e != nil {
@@ -127,12 +129,12 @@ func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.Runn
 
 	output := input
 	// Browse all workspaces
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Scope: idm.WorkspaceScope_ADMIN,
 	})
-	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
+	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceWorkspace))
 	s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
-		Query: &service.Query{SubQueries: []*any.Any{q}},
+		Query: &service.Query{SubQueries: []*anypb.Any{q}},
 	})
 	if e != nil {
 		return input.WithError(e), e
@@ -142,7 +144,6 @@ func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.Runn
 
 	adminCtx, _ := ComputeContextForUser(ctx, c.cellAdmin, nil)
 
-	defer s.Close()
 	for {
 		r, e := s.Recv()
 		if e != nil {
@@ -168,26 +169,25 @@ func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.Runn
 	}
 
 	// For those with Template Path, impersonate each user
-	uClient := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
-	qU, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+	uClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceUser))
+	qU, _ := anypb.New(&idm.UserSingleQuery{
 		NodeType: idm.NodeType_USER,
 	})
-	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+	q2, _ := anypb.New(&idm.UserSingleQuery{
 		AttributeName:  idm.UserAttrProfile,
 		AttributeValue: common.PydioProfileShared,
 		Not:            true,
 	})
-	q3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+	q3, _ := anypb.New(&idm.UserSingleQuery{
 		Login: common.PydioS3AnonUsername,
 		Not:   true,
 	})
 	st, e := uClient.SearchUser(ctx, &idm.SearchUserRequest{
-		Query: &service.Query{SubQueries: []*any.Any{qU, q2, q3}, Operation: service.OperationType_AND},
+		Query: &service.Query{SubQueries: []*anypb.Any{qU, q2, q3}, Operation: service.OperationType_AND},
 	})
 	if e != nil {
 		return input.WithError(e), e
 	}
-	defer st.Close()
 	for {
 		r, e := st.Recv()
 		if e != nil {
@@ -215,12 +215,11 @@ func (c *MigratePydioMetaAction) Run(ctx context.Context, channels *actions.Runn
 func (c *MigratePydioMetaAction) BrowseNodesForMeta(ctx context.Context, slug string, channels *actions.RunnableChannels) []error {
 	router := c.GetRouter()
 	log.TasksLogger(ctx).Info("Browsing Workspace " + slug + " looking for legacy metadata files")
-	metaClient := tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
+	metaClient := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceMeta))
 	s, e := router.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: slug}, Recursive: true, FilterType: tree.NodeType_LEAF})
 	if e != nil {
 		return []error{e}
 	}
-	defer s.Close()
 	var metas []*tree.Node
 	var errors []error
 	for {
@@ -267,7 +266,7 @@ func (c *MigratePydioMetaAction) BrowseNodesForMeta(ctx context.Context, slug st
 				i := 0
 				for k, v := range userMeta.Meta {
 					if ns, ok := c.metaMapping[k]; ok {
-						target.SetMeta(ns, v)
+						target.MustSetMeta(ns, v)
 						i++
 					} else {
 						log.Logger(ctx).Debug("Ignoring meta: no associated namespace found for "+k, zap.Any("mapping", c.metaMapping), metaNode.Zap(), zap.Any("metadata", userMeta.Meta))
@@ -281,7 +280,7 @@ func (c *MigratePydioMetaAction) BrowseNodesForMeta(ctx context.Context, slug st
 						log.TasksLogger(ctx).Info("Metadata found for node : ", metaNode.Zap(), resp.Node.Zap(), zap.Any("metadata", userMeta.Meta))
 					}
 				}
-				// TODO Uncomment to Delete original file - NO DON'T IF WE ARE LOOKING DIRECTLY AT THE P8 STORAGE! Should be a separate task
+				// We do not delete original metadata file if we are looking directly at the P8 storage
 				// router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: metaNode})
 			}
 		}
@@ -305,7 +304,7 @@ func (c *MigratePydioMetaAction) WorkspaceHasTemplatePath(ctx context.Context, w
 		r, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: a.NodeID}})
 		if e == nil && r != nil {
 			return false, nil
-		} else if _, ok := views.GetVirtualNodesManager().ByUuid(a.NodeID); ok {
+		} else if _, ok := abstract.GetVirtualNodesManager(c.GetRuntimeContext()).ByUuid(a.NodeID); ok {
 			return true, nil
 		} else {
 			return false, fmt.Errorf("cannot find root nodes")
@@ -323,15 +322,14 @@ func ComputeContextForUser(ctx context.Context, name string, user *idm.User) (co
 			return nil, e
 		}
 		userCtx = context.WithValue(ctx, common.PydioContextUserKey, name)
-		userCtx = context.WithValue(userCtx, views.CtxUserAccessListKey{}, accessList)
+		userCtx = acl.WithPresetACL(userCtx, accessList)
 	} else {
 		accessList, e := permissions.AccessListFromRoles(ctx, user.Roles, false, true)
 		if e != nil {
 			return nil, e
 		}
 		userCtx = context.WithValue(ctx, common.PydioContextUserKey, user.Login)
-		userCtx = context.WithValue(userCtx, views.CtxUserAccessListKey{}, accessList)
+		userCtx = acl.WithPresetACL(userCtx, accessList)
 	}
-	userCtx = context.WithValue(userCtx, views.CtxKeepAccessListKey{}, true)
 	return userCtx, nil
 }

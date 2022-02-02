@@ -57,7 +57,7 @@ class ListEntry extends React.Component {
 
         const {node, showSelector, selected, selectorDisabled, firstLine,
             secondLine, thirdLine, style, actions, iconCell, mainIcon, className,
-            canDrop, isOver, connectDragSource, connectDropTarget, selectedAsBorder} = this.props
+            canDrop, isOver, nativeIsOver, connectDragSource, connectDropTarget, selectedAsBorder} = this.props
 
         let mainClasses = ['material-list-entry', 'material-list-entry-' + (thirdLine?3:secondLine?2:1) + '-lines'];
         if(className) {
@@ -81,7 +81,7 @@ class ListEntry extends React.Component {
             icon = <FontIcon className={"mui-font-icon " + this.props.mainIcon} style={style}/>;
         }
 
-        if(canDrop && isOver){
+        if( canDrop && isOver || nativeIsOver){
             mainClasses.push('droppable-active');
         }
 
@@ -90,6 +90,9 @@ class ListEntry extends React.Component {
             mainClasses.push('ajxp_node_' + (node.isLeaf()?'leaf':'collection'));
             if(node.getAjxpMime()){
                 mainClasses.push('ajxp_mime_' + node.getAjxpMime())
+            }
+            if(node.getMetadata().has('local:entry-classes')){
+                mainClasses.push(...node.getMetadata().get('local:entry-classes'))
             }
         }
 

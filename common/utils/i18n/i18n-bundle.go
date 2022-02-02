@@ -21,18 +21,20 @@
 package i18n
 
 import (
+	"io/ioutil"
 	"strings"
 
 	"github.com/nicksnyder/go-i18n/i18n"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/pydio/packr"
+
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 type I18nBundle struct {
 	bundle.Bundle
 }
 
-func NewI18nBundle(box packr.Box) *I18nBundle {
+func NewI18nBundle(box statics.FS) *I18nBundle {
 	b := bundle.New()
 	B := &I18nBundle{}
 	B.Bundle = *b
@@ -42,12 +44,14 @@ func NewI18nBundle(box packr.Box) *I18nBundle {
 
 // LoadPackrTranslationFiles loads goi18n translation
 // files from packr boxes
-func (b *I18nBundle) LoadPackrTranslationFiles(box packr.Box) {
+func (b *I18nBundle) LoadPackrTranslationFiles(box statics.FS) {
 
 	files := box.List()
 	for _, f := range files {
 		if strings.HasSuffix(f, ".json") {
-			if data, e := box.Find(f); e == nil {
+			if file, e := box.Open(f); e == nil {
+				data, _ := ioutil.ReadAll(file)
+				file.Close()
 				b.ParseTranslationFileBytes(f, data)
 			}
 		}

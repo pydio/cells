@@ -22,8 +22,8 @@
 package meta
 
 import (
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 type DAO interface {

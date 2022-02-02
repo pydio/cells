@@ -24,13 +24,11 @@ import (
 	"context"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/micro/go-micro/metadata"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 const (

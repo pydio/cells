@@ -24,6 +24,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -32,15 +33,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 )
 
-func handleSignals() {
+var (
+	profiling bool
+	profile   io.WriteCloser
+)
+
+func handleSignals(args []string) {
 	c := make(chan os.Signal, 1)
 
 	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
@@ -53,29 +57,21 @@ func handleSignals() {
 			switch sig {
 			case syscall.SIGTERM:
 				fallthrough
+			case syscall.SIGKILL:
+				fallthrough
 			case syscall.SIGINT:
-				// Start services that have not been deregistered via flags and filtering.
-				for _, service := range allServices {
-					service.Stop()
-				}
-
 				// Stopping the main context will trigger the stop of all services
 				log.Info("Cancelling main context")
 				cancel()
-
-				log.Info("Disconnecting broker")
-				// Disconnecting the broker so that we are not flooded with messages
-				broker.Disconnect()
 			case syscall.SIGUSR1, syscall.SIGUSR2:
 
 				if !profiling {
 
-					serviceMeta := registry.BuildServiceMeta()
-					startTags := strings.ReplaceAll(serviceMeta["start"], ",", "-")
-					startTags = strings.ReplaceAll(startTags, ":", "-")
-					if startTags == "" {
-						startTags = "main-process"
+					startTags := "main-process"
+					if len(args) > 0 {
+						startTags = strings.Join(args, "-")
 					}
+
 					targetDir := filepath.Join(config.ApplicationWorkingDir(config.ApplicationDirLogs), "profiles", startTags)
 					os.MkdirAll(targetDir, 0755)
 					tStamp := time.Now().Format("2006-01-02T15:04:05")
@@ -126,17 +122,17 @@ func handleSignals() {
 
 			case syscall.SIGHUP:
 				// Stop all services
-				for _, service := range allServices {
-					if service.RequiresFork() && !IsFork {
-						// Stopping here would kill the command and prevent proper de-registering of service
-						// Signal will be passed along and the fork will stop by itself.
-						continue
-					}
-
-					service.Stop()
-
-					service.Start(ctx)
-				}
+				//for _, service := range allServices {
+				//	if service.RequiresFork() && !IsFork {
+				//		// Stopping here would kill the command and prevent proper de-registering of service
+				//		// Signal will be passed along and the fork will stop by itself.
+				//		continue
+				//	}
+				//
+				//	service.Stop()
+				//
+				//	service.Start(ctx)
+				//}
 			}
 		}
 	}()

@@ -23,26 +23,24 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/idm/share"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
@@ -53,7 +51,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		service.RestError500(req, rsp, e)
 		return
 	}
-	if err := h.docStoreStatus(); err != nil {
+	if err := h.docStoreStatus(req.Request.Context()); err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
@@ -80,17 +78,17 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		}
 	}
 
-	var qs []*any.Any
+	var qs []*anypb.Any
 	if request.ShareType == rest.ListSharedResourcesRequest_CELLS || request.ShareType == rest.ListSharedResourcesRequest_ANY {
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Scope: idm.WorkspaceScope_ROOM})
+		q, _ := anypb.New(&idm.WorkspaceSingleQuery{Scope: idm.WorkspaceScope_ROOM})
 		qs = append(qs, q)
 	}
 	if request.ShareType == rest.ListSharedResourcesRequest_LINKS || request.ShareType == rest.ListSharedResourcesRequest_ANY {
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Scope: idm.WorkspaceScope_LINK})
+		q, _ := anypb.New(&idm.WorkspaceSingleQuery{Scope: idm.WorkspaceScope_LINK})
 		qs = append(qs, q)
 	}
 
-	cl := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
+	cl := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceWorkspace))
 	streamer, err := cl.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 		Query: &service2.Query{
 			SubQueries: qs,
@@ -104,7 +102,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	response := &rest.ListSharedResourcesResponse{}
 	workspaces := map[string]*idm.Workspace{}
 	var workspaceIds []string
@@ -150,7 +148,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	if request.Subject != "" {
 		rootNodes = h.LoadAdminRootNodes(ctx, detectedRoots)
 	} else {
-		rootNodes = share.LoadDetectedRootNodes(ctx, detectedRoots)
+		rootNodes = h.sc.LoadDetectedRootNodes(ctx, detectedRoots)
 	}
 
 	// Build resources
@@ -189,17 +187,14 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 func (h *SharesHandler) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
 
 	rootNodes = make(map[string]*tree.Node)
-	router := views.NewUuidRouter(views.RouterOptions{AdminView: true})
-	metaClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
+	router := compose.NewClient(compose.UuidComposer(nodes.WithContext(h.ctx), nodes.AsAdmin())...)
+	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceMeta))
 	for _, rootId := range detectedRoots {
 		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
 		if resp, err := router.ReadNode(ctx, request); err == nil {
 			node := resp.Node
-			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil {
-				var isRoomNode bool
-				if metaResp.GetNode().GetMeta("CellNode", &isRoomNode); err == nil && isRoomNode {
-					node.SetMeta("CellNode", true)
-				}
+			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil && metaResp.GetNode().GetMetaBool(common.MetaFlagCellNode) {
+				node.MustSetMeta(common.MetaFlagCellNode, true)
 			}
 			rootNodes[node.GetUuid()] = node.WithoutReservedMetas()
 		} else {

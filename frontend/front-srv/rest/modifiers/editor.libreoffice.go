@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package modifiers
 
 import (
@@ -9,11 +29,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/caddy"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
 )
 
 var (
@@ -26,10 +45,10 @@ var (
 			header_upstream X-Forwarded-Proto {scheme}
         }
 {{if .Enabled}}
-        proxy /{{.LeafletURI}}/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/{{.LeafletURI}} {
+        proxy /loleaflet/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/loleaflet {
             transparent
             insecure_skip_verify
-            without /{{.LeafletURI}}/
+            without /loleaflet/
         }
 
         proxy /hosting/discovery {{.Collabora.Scheme}}://{{.Collabora.Host}}/hosting/discovery {
@@ -38,69 +57,61 @@ var (
             without /hosting/discovery
         }
 
-        proxy /{{.WebsocketURI}}/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/{{.WebsocketURI}}/ {
+        proxy /lool/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/lool/ {
             transparent
             insecure_skip_verify
             websocket
-            without /{{.WebsocketURI}}/
+            without /lool/
         }
 {{end}}
     `
 )
 
 type EditorLibreOffice struct {
-	Enabled      bool
-	WOPI         string
-	Collabora    *url.URL
-	Site         caddy.SiteConf
-	LeafletURI   string
-	WebsocketURI string
+	Enabled   bool
+	WOPI      string
+	Collabora *url.URL
+	Site      interface{}
 }
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
-		caddy.RegisterPluginTemplate(
-			play,
-			[]string{"frontend", "plugin", "editor.libreoffice"},
-			"/wopi/",
-			"/loleaflet/",
-			"/browser/",
-			"/hosting/discovery",
-			"/lool/",
-			"/cool/",
-		)
+		/*
+			// TODO V4
+			hooks.RegisterPluginTemplate(
+				play,
+				[]string{"frontend", "plugin", "editor.libreoffice"},
+				"/wopi/",
+				"/loleaflet/",
+				"/hosting/discovery",
+				"/lool/",
+			)
 
-		tmpl, err := template.New("caddyfile").Funcs(caddy.FuncMap).Parse(editorLibreOfficeTemplateStr)
-		if err != nil {
-			log.Fatal("Could not read template ", zap.Error(err))
-		}
+			tmpl, err := template.New("caddyfile").Parse(editorLibreOfficeTemplateStr)
+			if err != nil {
+				log.Fatal("Could not read template ", zap.Error(err))
+			}
 
-		editorLibreOfficeTemplate = tmpl
+			editorLibreOfficeTemplate = tmpl
+		*/
 	})
 }
 
-func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
+func play(sites ...interface{}) (*bytes.Buffer, error) {
 
 	data := &EditorLibreOffice{
 		WOPI: common.ServiceGatewayWopi,
 	}
-	if len(site) > 0 {
-		data.Site = site[0]
+	if len(sites) > 0 {
+		data.Site = sites[0]
 	}
 
-	if enabled, u, version, err := getCollaboraConfig(); err != nil {
+	if enabled, u, err := getCollaboraConfig(); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))
 		return nil, err
 	} else {
 		data.Enabled = enabled
 		data.Collabora = u
-		if version == "v6" {
-			data.LeafletURI = "leaflet"
-			data.WebsocketURI = "lool"
-		} else {
-			data.LeafletURI = "browser"
-			data.WebsocketURI = "cool"
-		}
 	}
 
 	buf := bytes.NewBuffer([]byte{})
@@ -111,14 +122,13 @@ func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-func getCollaboraConfig() (bool, *url.URL, string, error) {
+func getCollaboraConfig() (bool, *url.URL, error) {
 
 	pconf := config.Get("frontend", "plugin", "editor.libreoffice")
 	enabled := pconf.Val(config.KeyFrontPluginEnabled).Default(false).Bool()
 	tls := pconf.Val("LIBREOFFICE_SSL").Default(true).Bool()
 	host := pconf.Val("LIBREOFFICE_HOST").Default("localhost").String()
 	port := pconf.Val("LIBREOFFICE_PORT").Default("9980").String()
-	version := pconf.Val("LIBREOFFICE_CODE_VERSION").Default("v6").String()
 
 	scheme := "http"
 	if tls {
@@ -127,8 +137,8 @@ func getCollaboraConfig() (bool, *url.URL, string, error) {
 
 	u, err := url.Parse(fmt.Sprintf("%s://%s:%s", scheme, host, port))
 	if err != nil {
-		return false, nil, "", err
+		return false, nil, err
 	}
 
-	return enabled, u, version, nil
+	return enabled, u, nil
 }

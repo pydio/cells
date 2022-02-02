@@ -1,3 +1,4 @@
+//go:build dev
 // +build dev
 
 /*
@@ -29,8 +30,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/test"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/test"
 )
 
 var (
@@ -48,7 +49,7 @@ var testCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
-		c := test.NewTesterClient(conformanceTestServiceName, defaults.NewClient())
+		c := test.NewTesterClient(grpc.GetClientConnFromCtx(ctx, conformanceTestServiceName))
 		fmt.Println("")
 		if response, e := c.Run(context.Background(), &test.RunTestsRequest{}); e != nil {
 			fmt.Println("Error while running tests, did you start the server?", e)

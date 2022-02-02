@@ -30,8 +30,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	i18n2 "github.com/pydio/cells/common/utils/i18n"
-	json "github.com/pydio/cells/x/jsonx"
+	i18n2 "github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type singleCounter struct {
@@ -99,7 +99,6 @@ $` + os.Args[0] + ` doc i18n count -p $GOPATH/src/github.com/pydio/cells-enterpr
 
 			counters[dir] = newProjectCounter(dir)
 
-			// TODO enhance filtering out skipped folders
 			vendorDir := "vendor"
 			nodeModules := "node_modules"
 

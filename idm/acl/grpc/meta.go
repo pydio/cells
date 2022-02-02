@@ -21,28 +21,23 @@
 package grpc
 
 import (
-	"context"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/acl"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // ReadNodeStream implements method to be a MetaProvider
-func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
-	dao := servicecontext.GetDAO(ctx).(acl.DAO)
-	workspaceClient := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
-	defer stream.Close()
+	ctx := stream.Context()
+	workspaceClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 
 	for {
 		req, er := stream.Recv()
@@ -55,7 +50,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		node := req.Node
 
 		acls := new([]interface{})
-		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		q, _ := anypb.New(&idm.ACLSingleQuery{
 			NodeIDs: []string{node.Uuid},
 			Actions: []*idm.ACLAction{
 				{Name: "content_lock"},
@@ -64,7 +59,9 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 				permissions.AclPolicy,
 			},
 		})
-		dao.Search(&service.Query{SubQueries: []*any.Any{q}}, acls)
+		if e := h.dao.Search(&service.Query{SubQueries: []*anypb.Any{q}}, acls); e != nil {
+			return e
+		}
 		var contentLock string
 		nodeAcls := map[string][]*idm.ACL{}
 		for _, in := range *acls {
@@ -80,29 +77,28 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		}
 
 		if contentLock != "" {
-			node.SetMeta("content_lock", contentLock)
+			node.MustSetMeta(common.MetaFlagContentLock, contentLock)
 		}
 
 		var shares []*idm.Workspace
 		for wsId := range nodeAcls {
-			roomQuery, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+			roomQuery, _ := anypb.New(&idm.WorkspaceSingleQuery{
 				Uuid:  wsId,
 				Scope: idm.WorkspaceScope_ROOM,
 			})
-			linkQuery, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+			linkQuery, _ := anypb.New(&idm.WorkspaceSingleQuery{
 				Uuid:  wsId,
 				Scope: idm.WorkspaceScope_LINK,
 			})
 			subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, &rest.ResourcePolicyQuery{Type: rest.ResourcePolicyQuery_CONTEXT})
 			wsClient, err := workspaceClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 				Query: &service.Query{
-					SubQueries:          []*any.Any{roomQuery, linkQuery},
+					SubQueries:          []*anypb.Any{roomQuery, linkQuery},
 					ResourcePolicyQuery: &service.ResourcePolicyQuery{Subjects: subjects},
 					Operation:           service.OperationType_OR,
 				},
 			})
 			if err == nil {
-				defer wsClient.Close()
 				for {
 					wsResp, er := wsClient.Recv()
 					if er != nil {
@@ -117,10 +113,12 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		}
 
 		if len(shares) > 0 {
-			node.SetMeta("workspaces_shares", shares)
+			node.MustSetMeta(common.MetaFlagWorkspacesShares, shares)
 		}
 
-		stream.Send(&tree.ReadNodeResponse{Node: node})
+		if e := stream.Send(&tree.ReadNodeResponse{Node: node}); e != nil {
+			return e
+		}
 	}
 
 	return nil

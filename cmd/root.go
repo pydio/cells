@@ -18,67 +18,52 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package cmd implements commands for running pydio services
 package cmd
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	log2 "log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/micro/go-micro/server"
-	web "github.com/micro/go-web"
+	"github.com/pydio/cells/v4/common/config/memory"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	clientv3 "go.etcd.io/etcd/client/v3"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/config/micro"
-	"github.com/pydio/cells/common/config/micro/file"
-	"github.com/pydio/cells/common/config/micro/vault"
-	"github.com/pydio/cells/common/config/migrations"
-	"github.com/pydio/cells/common/config/remote"
-	"github.com/pydio/cells/common/config/sql"
-	"github.com/pydio/cells/common/log"
-	context_wrapper "github.com/pydio/cells/common/log/context-wrapper"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/utils/net"
-	"github.com/pydio/cells/x/filex"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/migrations"
+	"github.com/pydio/cells/v4/common/log"
+	context_wrapper "github.com/pydio/cells/v4/common/log/context-wrapper"
+	log2 "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/utils/filex"
 
-	// All registries
-
-	//
-	microconfig "github.com/pydio/go-os/config"
+	// "github.com/pydio/cells/v4/common/config/remote"
+	"github.com/pydio/cells/v4/common/config/etcd"
+	"github.com/pydio/cells/v4/common/config/file"
 )
 
 var (
-	ctx         context.Context
-	cancel      context.CancelFunc
-	allServices []registry.Service
+	ctx    context.Context
+	cancel context.CancelFunc
 
-	profiling bool
-	profile   *os.File
+	cfgFile string
 
-	IsFork       bool
-	EnvPrefixOld = "pydio"
-	EnvPrefixNew = "cells"
+	keyring crypto.Keyring
 
 	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
-
-	initStartingToolsOnce = &sync.Once{}
-
-	skipUpgrade = false
 )
-
-const startTagUnique = "unique"
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -129,22 +114,23 @@ LOGS LEVEL
    - The --log=production flag still works and is equivalent to "--log=info --log_json=true --log_to_file=true"
       
 `,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		// Special case
-		if cmd.Long == StartCmd.Long {
-			common.LogCaptureStdOut = true
-		}
+}
 
-		// These commands do not need to init the configuration
-		for _, skip := range infoCommands {
-			if cmd.Name() == skip {
-				return
-			}
-		}
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	ctx, cancel = context.WithCancel(context.Background())
+	if err := RootCmd.ExecuteContext(ctx); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func init() {
+	// Here you will define your flags and configuration settings.
+	// Cobra supports persistent flags, which, if defined here,
+	// will be global for your application.
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.test.yaml)")
 }
 
 func skipCoreInit() bool {
@@ -169,140 +155,113 @@ func initConfig() (new bool) {
 		return
 	}
 
-	versionsStore := filex.NewStore(config.PydioConfigDir)
-
-	var localConfig config.Store
-	var vaultConfig config.Store
-	var defaultConfig config.Store
-	var versionsConfig config.Store
-
-	switch viper.GetString("config") {
-	case "mysql":
-		localSource := file.NewSource(
-			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-		)
-
-		localConfig = config.New(
-			micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(localSource),
-					microconfig.PollInterval(10*time.Second),
-				),
-			),
-		)
-
-		config.Register(localConfig)
-		config.RegisterLocal(localConfig)
-
-		// Pre-check that pydio.json is properly configured
-		if a, _ := config.GetDatabase("default"); a == "" {
-			return
+	// Keyring store
+	keyringPath := filepath.Join(config.PydioConfigDir, "cells-vault-key")
+	keyringStore, err := file.New(keyringPath, true)
+	if err != nil {
+		// Keyring Config is likely the old style - switching it
+		b, err := filex.Read(keyringPath)
+		if err != nil {
+			log.Fatal("could not start keyring store")
 		}
 
-		driver, dsn := config.GetDatabase("default")
-		vaultConfig = config.New(sql.New(driver, dsn, "vault"))
-		defaultConfig = config.New(sql.New(driver, dsn, "default"))
-		versionsConfig = config.New(sql.New(driver, dsn, "versions"))
+		mem := memory.New(configx.WithJSON())
+		keyring := crypto.NewConfigKeyring(mem)
+		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, strings.TrimSuffix(string(b), "\n")); err != nil {
+			log.Fatal("could not start keyring store")
+		}
 
-		versionsStore, _ = config.NewConfigStore(versionsConfig)
+		if err := filex.Save(keyringPath, mem.Get().Bytes()); err != nil {
+			log.Fatal("could not start keyring store")
+		}
 
-		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
-		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
+		store, err := file.New(keyringPath, true)
+		if err != nil {
+			log.Fatal("could not start keyring store")
+		}
 
-	case "remote":
-		localSource := file.NewSource(
-			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-		)
-
-		localConfig = config.New(
-			micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(localSource),
-					microconfig.PollInterval(10*time.Second),
-				),
-			),
-		)
-
-		config.RegisterLocal(localConfig)
-
-		vaultConfig = config.New(
-			remote.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "vault"),
-		)
-		defaultConfig = config.New(
-			remote.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "config"),
-		)
-	case "raft":
-		localSource := file.NewSource(
-			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-		)
-
-		localConfig = config.New(
-			micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(localSource),
-					microconfig.PollInterval(10*time.Second),
-				),
-			),
-		)
-
-		config.RegisterLocal(localConfig)
-
-		vaultConfig = config.New(
-			remote.New(common.ServiceStorageNamespace_+common.ServiceConfig, "vault"),
-		)
-		defaultConfig = config.New(
-			remote.New(common.ServiceStorageNamespace_+common.ServiceConfig, "config"),
-		)
-	default:
-		source := file.NewSource(
-			microconfig.SourceName(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)),
-		)
-
-		vaultConfig = config.New(
-			micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(
-						vault.NewVaultSource(
-							filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
-							filepath.Join(config.PydioConfigDir, "cells-vault-key"),
-							true,
-						),
-					),
-					microconfig.PollInterval(10*time.Second),
-				),
-			))
-
-		defaultConfig = config.New(
-			micro.New(
-				microconfig.NewConfig(
-					microconfig.WithSource(source),
-					microconfig.PollInterval(10*time.Second),
-				),
-			),
-		)
-
-		defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
-		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
-
-		localConfig = defaultConfig
-
-		config.RegisterLocal(localConfig)
+		keyringStore = store
 	}
 
-	config.Register(defaultConfig)
-	config.RegisterVault(vaultConfig)
+	// Keyring start and creation of the master password
+	keyring = crypto.NewConfigKeyring(keyringStore, crypto.WithAutoCreate(true))
+
+	password, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
+	if err != nil {
+		log.Fatal("could not get master password")
+	}
+
+	e := encrypter{key: crypto.KeyFromPassword([]byte(password), 32)}
+
+	// Versions store
+	versionsStore := filex.NewStore(config.PydioConfigDir)
+
 	config.RegisterVersionStore(versionsStore)
 
-	if skipUpgrade {
-		return
+	// Local configuration file
+	lc, err := file.New(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), true, configx.WithMarshaller(jsonIndent{}))
+	if err != nil {
+		log.Fatal("could not start local file", zap.Error(err))
 	}
 
-	if defaultConfig.Val("version").String() == "" && defaultConfig.Val("defaults/database").String() == "" {
+	config.RegisterLocal(lc)
+
+	switch viper.GetString("config") {
+	case "etcd":
+		conn, err := clientv3.New(clientv3.Config{
+			Endpoints:   []string{"http://192.168.1.92:2379"},
+			DialTimeout: 2 * time.Second,
+		})
+		if err != nil {
+			log.Fatal("could not start etcd", zap.Error(err))
+		}
+
+		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault"))
+		config.Register(etcd.NewSource(context.Background(), conn, "config"))
+	//case "mysql":
+	//	// Pre-check that pydio.json is properly configured
+	//	if a, _ := config.GetDatabase("default"); a == "" {
+	//		return
+	//	}
+	//
+	//	driver, dsn := config.GetDatabase("default")
+	//	vaultConfig := sql.New(driver, dsn, "vault")
+	//	defaultConfig := sql.New(driver, dsn, "default")
+	//	versionsConfig := sql.New(driver, dsn, "versions")
+	//
+	//	versionsStore, _ = config.NewConfigStore(versionsConfig)
+	//
+	//	defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+	//	defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
+	//case "remote":
+	//	config.RegisterVault(service.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "vault"))
+	//	config.Register(service.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "config"))
+	default:
+		vaultConfig, err := file.New(
+			filepath.Join(config.PydioConfigDir, "pydio-vault.json"),
+			true,
+			configx.WithMarshaller(jsonIndent{}),
+			configx.WithEncrypt(e),
+			configx.WithDecrypt(e),
+		)
+		if err != nil {
+			log.Fatal("could not start vault store")
+		}
+
+		defaultConfig := config.NewVersionStore(versionsStore, lc)
+		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
+
+		config.Register(defaultConfig)
+		config.RegisterLocal(defaultConfig)
+		config.RegisterVault(vaultConfig)
+	}
+
+	if config.Get("version").String() == "" && config.Get("defaults/database").String() == "" {
 		new = true
 
 		var data interface{}
 		if err := json.Unmarshal([]byte(config.SampleConfig), &data); err == nil {
-			if err := defaultConfig.Val().Set(data); err == nil {
+			if err := config.Get().Set(data); err == nil {
 				versionsStore.Put(&filex.Version{
 					User: "cli",
 					Date: time.Now(),
@@ -314,7 +273,7 @@ func initConfig() (new bool) {
 	}
 
 	// Need to do something for the versions
-	if save, err := migrations.UpgradeConfigsIfRequired(defaultConfig.Val(), common.Version()); err == nil && save {
+	if save, err := migrations.UpgradeConfigsIfRequired(config.Get(), common.Version()); err == nil && save {
 		if err := config.Save(common.PydioSystemUsername, "Configs upgrades applied"); err != nil {
 			log.Fatal("Could not save config migrations", zap.Error(err))
 		}
@@ -331,6 +290,10 @@ func initLogLevel() {
 
 	// Init log level
 	logLevel := viper.GetString("log")
+	// TODO V4
+	//logLevel = "debug"
+	//log.SetSkipServerSync()
+
 	logJson := viper.GetBool("log_json")
 	common.LogToFile = viper.GetBool("log_to_file")
 
@@ -371,66 +334,47 @@ func initLogLevel() {
 	log.Logger(context.Background())
 }
 
-func initAdvertiseIP() {
-	ok, advertise, err := net.DetectHasPrivateIP()
+func initLogLevelListener(ctx context.Context) {
+	_, er := broker.Subscribe(ctx, common.TopicLogLevelEvent, func(message broker.Message) error {
+		event := &log2.LogLevelEvent{}
+		if _, e := message.Unmarshal(event); e == nil {
+			log.SetDynamicDebugLevels(event.GetResetInfo(), event.GetLevelDebug(), event.GetServices()...)
+		} else {
+			return e
+		}
+		return nil
+	})
+	if er != nil {
+		fmt.Println("Cannot subscribe to broker for TopicLogLevelEvent", er.Error())
+	}
+}
+
+type jsonIndent struct {
+}
+
+func (j jsonIndent) Marshal(v interface{}) ([]byte, error) {
+	return json.MarshalIndent(v, "", "  ")
+}
+
+// Encryption with key
+type encrypter struct {
+	key []byte
+}
+
+func (e encrypter) Encrypt(b []byte) (string, error) {
+	sealed, err := crypto.Seal(e.key, b)
 	if err != nil {
-		log2.Fatal(err.Error())
+		return "", err
 	}
-	if !ok {
-
-		net.DefaultAdvertiseAddress = advertise
-		web.DefaultAddress = advertise + ":0"
-		server.DefaultAddress = advertise + ":0"
-		if advertise != "127.0.0.1" {
-			fmt.Println("Warning: no private IP detected for binding broker. Will bind to " + net.DefaultAdvertiseAddress + ", which may give public access to the broker.")
-		}
+	return base64.StdEncoding.EncodeToString(sealed), nil
+}
+func (e encrypter) Decrypt(s string) ([]byte, error) {
+	if s == "" {
+		return []byte{}, nil
 	}
-}
-
-// initEnvPrefixes looks up for legacy ENV and replace them
-func initEnvPrefixes() {
-	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
-	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
-	for _, pair := range os.Environ() {
-		if strings.HasPrefix(pair, prefOld) {
-			parts := strings.Split(pair, "=")
-			if len(parts) == 2 && parts[1] != "" {
-				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
-			}
-		} else if strings.HasPrefix(pair, "CELLS_LOGS_LEVEL") {
-			parts := strings.Split(pair, "=")
-			if len(parts) == 2 && parts[1] != "" {
-				os.Setenv("CELLS_LOG", parts[1])
-			}
-		}
-	}
-}
-
-func init() {
-	initEnvPrefixes()
-	viper.SetEnvPrefix(EnvPrefixNew)
-	viper.AutomaticEnv()
-
-	flags := RootCmd.PersistentFlags()
-
-	flags.String("config", "local", "Config")
-	flags.MarkHidden("config")
-
-	bindViperFlags(flags, map[string]string{})
-
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	// Check PrivateIP and setup Advertise
-	initAdvertiseIP()
-
-	ctx, cancel = context.WithCancel(context.Background())
-	defer cancel()
-
-	if err := RootCmd.ExecuteContext(ctx); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if data, err := base64.StdEncoding.DecodeString(s); err != nil {
+		return []byte{}, err
+	} else {
+		return crypto.Open(e.key, data[:12], data[12:])
 	}
 }

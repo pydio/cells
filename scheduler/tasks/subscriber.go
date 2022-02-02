@@ -23,29 +23,29 @@ package tasks
 import (
 	"context"
 	"fmt"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/cskr/pubsub"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/metadata"
-	"github.com/micro/go-micro/server"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/cache"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 const (
@@ -63,7 +63,6 @@ var (
 type Subscriber struct {
 	sync.RWMutex
 	rootCtx     context.Context
-	client      client.Client
 	definitions map[string]*jobs.Job
 	batcher     *cache.EventsBatcher
 	queue       chan Runnable
@@ -72,10 +71,10 @@ type Subscriber struct {
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
 // by maintaining a map of dispatcher, one for each job definition.
-func NewSubscriber(parentContext context.Context, client client.Client, srv server.Server) *Subscriber {
+// Todo v4 : make sure everything is properly closed on ctx.Done() signal
+func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s := &Subscriber{
-		client:      client,
 		definitions: make(map[string]*jobs.Job),
 		queue:       make(chan Runnable),
 		dispatchers: make(map[string]*Dispatcher),
@@ -90,20 +89,48 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 	})
 
 	// Use a "Queue" mechanism to make sure events are distributed across tasks instances
-	opts := func(o *server.SubscriberOptions) {
-		o.Queue = "tasks"
-	}
-	srv.Subscribe(srv.NewSubscriber(common.TopicJobConfigEvent, s.jobsChangeEvent, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TopicTreeChanges, s.nodeEvent, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TopicMetaChanges, func(ctx context.Context, e *tree.NodeChangeEvent) error {
-		if e.Type == tree.NodeChangeEvent_UPDATE_META || e.Type == tree.NodeChangeEvent_UPDATE_USER_META {
-			return s.nodeEvent(ctx, e)
-		} else {
-			return nil
+	opt := broker.Queue("tasks")
+
+	// srv.Subscribe(srv.NewSubscriber(common.TopicJobConfigEvent, s.jobsChangeEvent, opts))
+	_ = broker.SubscribeCancellable(parentContext, common.TopicJobConfigEvent, func(message broker.Message) error {
+		js := &jobs.JobChangeEvent{}
+		if ctx, e := message.Unmarshal(js); e == nil {
+			return s.jobsChangeEvent(ctx, js)
 		}
-	}, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TopicTimerEvent, s.timerEvent, opts))
-	srv.Subscribe(srv.NewSubscriber(common.TopicIdmEvent, s.idmEvent, opts))
+		return nil
+	}, opt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicTreeChanges, func(message broker.Message) error {
+		target := &tree.NodeChangeEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil {
+			return s.nodeEvent(ctx, target)
+		}
+		return nil
+	}, opt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicMetaChanges, func(message broker.Message) error {
+		target := &tree.NodeChangeEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil && (target.Type == tree.NodeChangeEvent_UPDATE_META || target.Type == tree.NodeChangeEvent_UPDATE_USER_META) {
+			return s.nodeEvent(ctx, target)
+		}
+		return nil
+	}, opt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicTimerEvent, func(message broker.Message) error {
+		target := &jobs.JobTriggerEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil {
+			return s.timerEvent(ctx, target)
+		}
+		return nil
+	}, opt)
+
+	_ = broker.SubscribeCancellable(parentContext, common.TopicIdmEvent, func(message broker.Message) error {
+		target := &idm.ChangeEvent{}
+		if ctx, e := message.Unmarshal(target); e == nil {
+			return s.idmEvent(ctx, target)
+		}
+		return nil
+	}, opt)
 
 	s.listenToQueue()
 	s.taskChannelSubscription()
@@ -112,16 +139,16 @@ func NewSubscriber(parentContext context.Context, client client.Client, srv serv
 }
 
 // Init subscriber with current list of jobs from Jobs service
-func (s *Subscriber) Init() error {
+func (s *Subscriber) Init() {
 
-	go service.Retry(context.Background(), func() error {
+	go std.Retry(context.Background(), func() error {
 		// Load Jobs Definitions
-		jobClients := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, s.client)
+		jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
 		streamer, e := jobClients.ListJobs(s.rootCtx, &jobs.ListJobsRequest{})
 		if e != nil {
 			return e
 		}
-		defer streamer.Close()
+		defer streamer.CloseSend()
 
 		s.Lock()
 		defer s.Unlock()
@@ -142,7 +169,6 @@ func (s *Subscriber) Init() error {
 		return nil
 	}, 3*time.Second, 20*time.Second)
 
-	return nil
 }
 
 // Stop closes internal EventsBatcher
@@ -219,13 +245,15 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 	// Add System User if necessary
 	if addSystemUser {
 		if u, _ := permissions.FindUserNameInContext(ctx); u == "" {
-			ctx = metadata.NewContext(ctx, metadata.Metadata{common.PydioContextUserKey: common.PydioSystemUsername})
+			ctx = metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 			ctx = context.WithValue(ctx, common.PydioContextUserKey, common.PydioSystemUsername)
 		}
 	}
 
 	// Add service info
 	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.rootCtx))
+	ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.rootCtx))
+	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(s.rootCtx))
 
 	// Inject evaluated job parameters
 	if len(job.Parameters) > 0 {
@@ -256,7 +284,7 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 	j, ok := s.definitions[jobId]
 	if !ok {
 		// Try to load definition directly for JobsService
-		jobClients := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, s.client)
+		jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
 		resp, e := jobClients.GetJob(ctx, &jobs.GetJobRequest{JobID: jobId})
 		if e != nil || resp.Job == nil {
 			return nil
@@ -277,7 +305,8 @@ func (s *Subscriber) timerEvent(ctx context.Context, event *jobs.JobTriggerEvent
 		log.Logger(ctx).Info("Run Job " + jobId + " on timer event " + event.Schedule.String())
 	}
 	task := NewTaskFromEvent(ctx, j, event)
-	go task.EnqueueRunnables(s.client, s.queue)
+	task.SetRuntimeContext(s.rootCtx)
+	go task.EnqueueRunnables(s.queue)
 
 	return nil
 }
@@ -348,7 +377,8 @@ func (s *Subscriber) processNodeEvent(ctx context.Context, event *tree.NodeChang
 
 		log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eventMatch)
 		task := NewTaskFromEvent(tCtx, jobData, event)
-		go task.EnqueueRunnables(s.client, s.queue)
+		task.SetRuntimeContext(s.rootCtx)
+		go task.EnqueueRunnables(s.queue)
 	}
 
 }
@@ -379,7 +409,8 @@ func (s *Subscriber) idmEvent(ctx context.Context, event *idm.ChangeEvent) error
 				}
 				log.Logger(tCtx).Debug("Run Job " + jobId + " on event " + eName)
 				task := NewTaskFromEvent(tCtx, jobData, event)
-				go task.EnqueueRunnables(s.client, s.queue)
+				task.SetRuntimeContext(s.rootCtx)
+				go task.EnqueueRunnables(s.queue)
 			}
 		}
 	}
@@ -427,7 +458,7 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 	}
 	if dsName := refNode.GetStringMeta(common.MetaNamespaceDatasourceName); dsName != "" {
 		var ds *object.DataSource
-		e := service.Retry(ctx, func() error {
+		e := std.Retry(ctx, func() error {
 			var er error
 			ds, er = config.GetSourceInfoByName(dsName)
 			return er
@@ -447,7 +478,7 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 
 // contextJobSameUuid checks if JobUuid can already be found in context and detects if it is the same
 func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool {
-	if mm, o := context2.ContextMetadata(ctx); o {
+	if mm, o := metadata.FromContext(ctx); o {
 		if knownJob, ok := mm[strings.ToLower(servicecontext.ContextMetaJobUuid)]; ok && knownJob == jobId {
 			return true
 		}
@@ -462,7 +493,7 @@ func createMessageFromEvent(event interface{}) jobs.ActionMessage {
 	initialInput := jobs.ActionMessage{}
 
 	if nodeChange, ok := event.(*tree.NodeChangeEvent); ok {
-		any, _ := ptypes.MarshalAny(nodeChange)
+		any, _ := anypb.New(nodeChange)
 		initialInput.Event = any
 		if nodeChange.Target != nil {
 
@@ -476,12 +507,12 @@ func createMessageFromEvent(event interface{}) jobs.ActionMessage {
 
 	} else if triggerEvent, ok := event.(*jobs.JobTriggerEvent); ok {
 
-		any, _ := ptypes.MarshalAny(triggerEvent)
+		any, _ := anypb.New(triggerEvent)
 		initialInput.Event = any
 
 	} else if idmEvent, ok := event.(*idm.ChangeEvent); ok {
 
-		any, _ := ptypes.MarshalAny(idmEvent)
+		any, _ := anypb.New(idmEvent)
 		initialInput.Event = any
 		if idmEvent.User != nil {
 			initialInput = initialInput.WithUser(idmEvent.User)
@@ -531,7 +562,7 @@ func logStartMessageFromEvent(ctx context.Context, task *Task, event interface{}
 	if user != "" && user != common.PydioSystemUsername {
 		msg += " (triggered by user " + user + ")"
 	}
-	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{
+	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{
 		servicecontext.ContextMetaJobUuid:        task.Job.ID,
 		servicecontext.ContextMetaTaskUuid:       task.GetRunUUID(),
 		servicecontext.ContextMetaTaskActionPath: "ROOT",

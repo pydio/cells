@@ -24,12 +24,12 @@ package sync
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 var (
@@ -44,7 +44,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
-			service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
+			service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
 		)
 	})
 }
@@ -55,10 +55,9 @@ func onDataSourceDelete(ctx context.Context, deletedSource string) {
 	// TODO - find a way to delete datasources - surely a config watch
 
 	log.Logger(ctx).Info("Sync = Send Event Server-wide for " + deletedSource)
-	cl := defaults.NewClient()
-	cl.Publish(ctx, cl.NewPublication(common.TopicDatasourceEvent, &object.DataSourceEvent{
+	broker.MustPublish(ctx, common.TopicDatasourceEvent, &object.DataSourceEvent{
 		Type: object.DataSourceEvent_DELETE,
 		Name: deletedSource,
-	}))
+	})
 
 }

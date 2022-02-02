@@ -22,9 +22,10 @@
 package chat
 
 import (
-	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/chat"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/proto/chat"
 )
 
 type DAO interface {
@@ -43,6 +44,8 @@ func NewDAO(o dao.DAO) dao.DAO {
 	switch v := o.(type) {
 	case boltdb.DAO:
 		return &boltdbimpl{DAO: v, HistorySize: 1000}
+	case mongodb.DAO:
+		return &mongoImpl{DAO: v}
 	}
 	return nil
 }

@@ -21,13 +21,37 @@
 package grpc
 
 import (
-	"context"
-
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
+// CreateNodeStream implementation for the TreeServer.
+func (s *TreeServer) CreateNodeStream(stream tree.NodeReceiverStream_CreateNodeStreamServer) error {
+	var (
+		err error
+		req *tree.CreateNodeRequest
+	)
+	for {
+		req, err = stream.Recv()
+		if err != nil {
+			break
+		}
+
+		rsp, err := s.CreateNode(stream.Context(), req)
+		if err != nil {
+			break
+		}
+
+		err = stream.Send(rsp)
+		if err != nil {
+			break
+		}
+	}
+
+	return err
+}
+
 // UpdateNodeStream implements the streaming version of UpdateNode for the TreeServer
-func (s *TreeServer) UpdateNodeStream(ctx context.Context, stream tree.NodeReceiverStream_UpdateNodeStreamStream) error {
+func (s *TreeServer) UpdateNodeStream(stream tree.NodeReceiverStream_UpdateNodeStreamServer) error {
 	var (
 		err error
 		req *tree.UpdateNodeRequest
@@ -38,8 +62,7 @@ func (s *TreeServer) UpdateNodeStream(ctx context.Context, stream tree.NodeRecei
 			break
 		}
 
-		rsp := &tree.UpdateNodeResponse{}
-		err = s.UpdateNode(ctx, req, rsp)
+		rsp, err := s.UpdateNode(stream.Context(), req)
 		if err != nil {
 			break
 		}
@@ -50,12 +73,11 @@ func (s *TreeServer) UpdateNodeStream(ctx context.Context, stream tree.NodeRecei
 		}
 	}
 
-	stream.Close()
 	return err
 }
 
 // DeleteNodeStream implements the streaming version of DeleteNode for the TreeServer
-func (s *TreeServer) DeleteNodeStream(ctx context.Context, stream tree.NodeReceiverStream_DeleteNodeStreamStream) error {
+func (s *TreeServer) DeleteNodeStream(stream tree.NodeReceiverStream_DeleteNodeStreamServer) error {
 	var (
 		err error
 		req *tree.DeleteNodeRequest
@@ -66,8 +88,7 @@ func (s *TreeServer) DeleteNodeStream(ctx context.Context, stream tree.NodeRecei
 			break
 		}
 
-		rsp := &tree.DeleteNodeResponse{}
-		err = s.DeleteNode(ctx, req, rsp)
+		rsp, err := s.DeleteNode(stream.Context(), req)
 		if err != nil {
 			break
 		}
@@ -78,12 +99,11 @@ func (s *TreeServer) DeleteNodeStream(ctx context.Context, stream tree.NodeRecei
 		}
 	}
 
-	stream.Close()
 	return err
 }
 
 // ReadNodeStream implements the streaming version of ReadNode for the TreeServer
-func (s *TreeServer) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+func (s *TreeServer) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	var (
 		err error
@@ -95,8 +115,7 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, stream tree.NodeProvide
 			break
 		}
 
-		rsp := &tree.ReadNodeResponse{}
-		err = s.ReadNode(ctx, req, rsp)
+		rsp, err := s.ReadNode(stream.Context(), req)
 		if err != nil {
 			err = stream.SendMsg(err)
 		} else {
@@ -107,7 +126,5 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, stream tree.NodeProvide
 		}
 	}
 
-	stream.Close()
 	return err
-
 }

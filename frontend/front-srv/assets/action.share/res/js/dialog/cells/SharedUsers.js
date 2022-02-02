@@ -74,7 +74,7 @@ class SharedUsers extends React.Component {
     };
 
     render() {
-        const {cellAcls, pydio} = this.props;
+        const {cellAcls, pydio, completerStyle} = this.props;
         const authConfigs = pydio.getPluginConfigs('core.auth');
         let index = 0;
         let userEntries = [];
@@ -98,7 +98,7 @@ class SharedUsers extends React.Component {
         let actionLinks = [];
         const aclsLength = Object.keys(this.props.cellAcls).length;
         if(aclsLength && !this.props.isReadonly() && !this.props.readonly){
-            actionLinks.push(<ActionButton key="clear" callback={this.clearAllUsers} tooltipPosition={"top-center"} mdiIcon="delete" messageId="180"/>)
+            actionLinks.push(<ActionButton key="clear" callback={this.clearAllUsers} tooltipPosition={"top-center"} mdiIcon="account-minus" messageId="180"/>)
         }
         if(aclsLength && this.props.sendInvitations){
             actionLinks.push(<ActionButton key="invite" callback={this.sendInvitationToAllUsers} tooltipPosition={"top-center"} mdiIcon="email-outline" messageId="45"/>)
@@ -106,18 +106,21 @@ class SharedUsers extends React.Component {
         if(this.props.saveSelectionAsTeam && aclsLength > 1 && !this.props.isReadonly() && !this.props.readonly){
             actionLinks.push(<ActionButton key="team" callback={this.props.saveSelectionAsTeam} mdiIcon="account-multiple-plus" tooltipPosition={"top-center"}  messageId="509" messageCoreNamespace={true}/>)
         }
+        if(this.props.withActionLinks) {
+            actionLinks = this.props.withActionLinks(actionLinks);
+        }
         let rwHeader, usersInput;
         if(userEntries.length){
             rwHeader = (
                 <div style={{display:'flex', marginBottom: -8, marginTop: -8, color:'rgba(0,0,0,.33)', fontSize:12}}>
                     <div style={{flex: 1}}/>
                     <div style={{width: 43, textAlign:'center'}}>
-                        <span style={{borderBottom: '2px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('361', '')}</span>
+                        <span style={{borderBottom: '0px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('361', '')}</span>
                     </div>
                     <div style={{width: 43, textAlign:'center'}}>
-                        <span style={{borderBottom: '2px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('181')}</span>
+                        <span style={{borderBottom: '0px solid rgba(0,0,0,0.13)'}}>{this.props.getMessage('181')}</span>
                     </div>
-                    <div style={{width: 52}}/>
+                    <div style={{width: 6}}/>
                 </div>
             );
         }
@@ -149,14 +152,14 @@ class SharedUsers extends React.Component {
 
         return (
             <div>
-                <div style={userEntries.length? {margin: '-20px 8px 16px'} : {marginTop: -20}}>{usersInput}</div>
+                <div style={completerStyle || {margin: '0 8px 16px'}}>{usersInput}</div>
                 {rwHeader}
                 <div>{userEntries}</div>
                 {!userEntries.length &&
-                    <div style={{color: 'rgba(0,0,0,0.43)'}}>{this.props.getMessage('182')}</div>
+                    <div style={{color: 'rgba(0,0,0,0.43)', fontWeight: 500, margin: '0 10px'}}>{this.props.getMessage('182')}</div>
                 }
                 {userEntries.length > 0 &&
-                    <div style={{textAlign:'center'}}>{actionLinks}</div>
+                    <div style={{textAlign:'center', marginTop: 10, marginBottom: 10}}>{actionLinks}</div>
                 }
             </div>
         );

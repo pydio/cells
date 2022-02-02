@@ -24,8 +24,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/metadata"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 // EventType represents the type of the event occurred.

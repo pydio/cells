@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	"github.com/imdario/mergo"
-	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
 type User struct {

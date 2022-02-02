@@ -182,7 +182,6 @@ class ShareView extends React.Component {
                                 appearsIn
                             }
                         }).filter(props => {
-                            console.log(filter);
                             return !filter || props.primaryText.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
                         }).map(props => {
                             const {appearsIn, icon} = props;

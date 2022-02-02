@@ -24,9 +24,9 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-version"
-
-	"github.com/pydio/cells/x/configx"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 func TestMigration2_2_0(t *testing.T) {

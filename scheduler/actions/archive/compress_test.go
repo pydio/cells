@@ -25,8 +25,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 )
 
 func TestCompressAction_GetName(t *testing.T) {
@@ -45,14 +45,14 @@ func TestCompressAction_Init(t *testing.T) {
 
 		// Signals the environment that we are unit testing,
 		// so that we do not try to initialise the client pool.
-		views.IsUnitTestEnv = true
+		nodes.IsUnitTestEnv = true
 
 		// Test default parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(action.Format, ShouldEqual, "zip")
 
 		// Valid Cmd
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"format": "tar.gz",
 				"target": "path",

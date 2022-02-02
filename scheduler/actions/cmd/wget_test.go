@@ -26,13 +26,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func TestWGetAction_GetName(t *testing.T) {
@@ -49,11 +49,11 @@ func TestWGetAction_Init(t *testing.T) {
 		action := &WGetAction{}
 		job := &jobs.Job{}
 		// Missing Parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldNotBeNil)
 
 		// Invalid URL should trigger a parse error
-		action.Init(job, nil, &jobs.Action{
+		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "htétp://",
 			},
@@ -64,7 +64,7 @@ func TestWGetAction_Init(t *testing.T) {
 		So(e, ShouldNotBeNil)
 
 		// Valid URL
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "http://google.com",
 			},
@@ -81,21 +81,21 @@ func TestWGetAction_Run(t *testing.T) {
 
 		action := &WGetAction{}
 		job := &jobs.Job{}
-		action.Init(job, nil, &jobs.Action{
+		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"url": "http://pydio.com/sites/default/files/Create%20a%20cell_4.png",
 			},
 		})
 
 		tmpDir := os.TempDir()
-		uuidNode := uuid.NewUUID().String()
+		uuidNode := uuid.New()
 
 		node := &tree.Node{
 			Path: "path/to/local/Architecture.jpg",
 			Type: tree.NodeType_LEAF,
 			Uuid: uuidNode,
 		}
-		node.SetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
+		node.MustSetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
 
 		status := make(chan string)
 		progress := make(chan float32)

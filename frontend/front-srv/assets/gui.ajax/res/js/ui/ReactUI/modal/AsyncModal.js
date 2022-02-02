@@ -36,7 +36,7 @@ let AsyncModal = createReactClass({
     displayName: 'AsyncModal',
 
     propTypes: {
-        size:       PropTypes.oneOf(['xxs', 'xs', 'sm', 'md', 'lg', 'xl']),
+        size:       PropTypes.oneOf(['xxs', 'xs', 'sm', 'md', 'md+', 'lg', 'xl']),
         padding:    PropTypes.bool,
         bgBlur:     PropTypes.bool
     },
@@ -46,6 +46,7 @@ let AsyncModal = createReactClass({
         'xs': {width: 210},
         'sm': {width: 320},
         'md': {width: 420},
+        'md+': {width: 520},
         'lg': {width: 720},
         'xl': {width: '80%'}
     },
@@ -89,15 +90,16 @@ let AsyncModal = createReactClass({
     },
 
     getInitialState:function(){
+        const {open, size, padding} = this.props;
         return {
             async: true,
             componentData: null,
-            open: !!this.props.open,
+            open: !!open,
             actions: [],
             title: null,
-            size: this.props.size || 'md',
-            dialogWidth: this.props.size ? this.sizes[this.props.size].width : 420,
-            padding: !!this.props.padding,
+            size: size || 'md',
+            dialogWidth: size ? this.sizes[size].width : 420,
+            padding: !!padding,
             blur: false
         }
     },

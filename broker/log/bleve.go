@@ -25,13 +25,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/search/query"
+	bleve "github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/search/query"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/log"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/log"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 // IndexableLog extends default log.LogMessage struct to add index specific methods
@@ -274,7 +274,11 @@ func MarshallLogMsg(line *log.Log) (*IndexableLog, error) {
 	// Concatenate msg and error in the full text msg field.
 	text := ""
 	if m, ok := data["msg"]; ok {
-		text = m.(string)
+		if t, o := m.(string); o {
+			text = t
+		} else {
+			fmt.Println("Error while unmarshaling log data, data['msg'] not a string", m)
+		}
 	}
 	if m, ok := data["error"]; ok {
 		text += " - " + m.(string)

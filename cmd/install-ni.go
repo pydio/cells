@@ -33,11 +33,11 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/discovery/install/lib"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
 type NiInstallConfig struct {
@@ -123,13 +123,13 @@ func proxyConfigFromArgs() (*install.ProxyConfig, error) {
 
 	}
 
-	if niExtUrl != "" {
+	/* TODO if niExtUrl != "" {
 		extURL, err := guessSchemeAndParseBaseURL(niExtUrl, true)
 		if err != nil {
 			return nil, fmt.Errorf("could not parse provided URL %s: %s", niExtUrl, err.Error())
 		}
 		proxyConfig.ReverseProxyURL = extURL.String()
-	}
+	}*/
 
 	return proxyConfig, nil
 }

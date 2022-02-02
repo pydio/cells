@@ -24,9 +24,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -37,8 +37,10 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("RESTful Gateway to search in the log repositories"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceLog, []string{}),
-			service.WithWeb(func() service.WebHandler {
-				return new(Handler)
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return &Handler{
+					RuntimeCtx: c,
+				}
 			}),
 		)
 	})

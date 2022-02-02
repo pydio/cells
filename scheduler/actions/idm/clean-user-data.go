@@ -5,16 +5,21 @@ import (
 	"path"
 	"time"
 
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/v4/common"
 
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/utils/std"
+
+	"github.com/pydio/cells/v4/common/nodes/abstract"
+
+	"github.com/pydio/cells/v4/common/nodes/compose"
+
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -22,6 +27,7 @@ var (
 )
 
 type CleanUserDataAction struct {
+	common.RuntimeHolder
 	targetParent string
 }
 
@@ -64,7 +70,7 @@ func (c *CleanUserDataAction) GetName() string {
 }
 
 // Init passes parameters
-func (c *CleanUserDataAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *CleanUserDataAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if tp, o := action.Parameters["targetParent"]; o {
 		c.targetParent = tp
 	}
@@ -111,11 +117,15 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		tp = jobs.EvaluateFieldStr(ctx, input, tp)
 	}
 
-	router := views.NewStandardRouter(views.RouterOptions{AdminView: true, SynchronousTasks: true})
+	router := compose.PathClient(
+		nodes.WithContext(c.GetRuntimeContext()),
+		nodes.AsAdmin(),
+		nodes.WithSynchronousTasks(),
+	)
 	clientsPool := router.GetClientsPool()
 	var cleaned bool
 	// For the moment, just rename personal folder to user UUID to collision with new user with same Login
-	vNodesManager := views.GetVirtualNodesManager()
+	vNodesManager := abstract.GetVirtualNodesManager(c.GetRuntimeContext())
 	for _, vNode := range vNodesManager.ListNodes() {
 		onDelete, ok := vNode.MetaStore["onDelete"]
 		if !ok || onDelete != "rename-uuid" {
@@ -140,7 +150,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 				targetParentNode = tpEx.GetNode()
 			} else if _, e := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: targetParent}); e == nil {
 				// Wait for indexation
-				service.Retry(ctx, func() error {
+				std.Retry(ctx, func() error {
 					tpEx, er := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: targetParent})
 					if er == nil {
 						targetParentNode = tpEx.GetNode()
@@ -161,7 +171,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 		log.TasksLogger(ctx).Info("Moving personal folder for deleted user to " + targetNode.Path)
 		cleaned = true
 		// Make a Copy then Delete, to make sure UUID are changed and references are cleared
-		if e := views.CopyMoveNodes(ctx, router, realNode, targetNode, false, false, status, progress); e != nil {
+		if e := nodes.CopyMoveNodes(ctx, router, realNode, targetNode, false, false, status, progress); e != nil {
 			done <- true
 			return input.WithError(e), e
 		}

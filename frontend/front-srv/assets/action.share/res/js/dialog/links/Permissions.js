@@ -113,26 +113,23 @@ class PublicLinkPermissions extends React.Component {
         }
         */
         return (
-            <div style={{padding:'10px 16px', ...this.props.style}}>
-                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{this.props.getMessage('70r')}</div>
-                <div style={{margin:'10px 0 20px'}}>
-                    {perms.map(function(p){
-                        return (
-                            <Checkbox
-                                key={p.NAME}
-                                disabled={p.DISABLED || this.props.isReadonly() || !linkModel.isEditable()}
-                                type="checkbox"
-                                name={p.NAME}
-                                label={p.LABEL}
-                                onCheck={this.changePermission}
-                                checked={linkModel.hasPermission(p.NAME)}
-                                labelStyle={{whiteSpace:'nowrap'}}
-                                style={{margin:'10px 0'}}
-                            />
-                        );
-                    }.bind(this))}
-                    {previewWarning}
-                </div>
+            <div>
+                {perms.map(function(p){
+                    return (
+                        <Checkbox
+                            key={p.NAME}
+                            disabled={p.DISABLED || this.props.isReadonly() || !linkModel.isEditable()}
+                            type="checkbox"
+                            name={p.NAME}
+                            label={p.LABEL}
+                            onCheck={this.changePermission}
+                            checked={linkModel.hasPermission(p.NAME)}
+                            labelStyle={{whiteSpace:'nowrap'}}
+                            style={{margin:'10px 0'}}
+                        />
+                    );
+                }.bind(this))}
+                {previewWarning}
             </div>
         );
     }

@@ -1,3 +1,7 @@
+//go:build ignore
+// +build ignore
+
+// TODO V4
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -22,11 +26,11 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/v4/common/registry"
 )
 
 // docDepsCmd shows dependencies between services.

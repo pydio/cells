@@ -26,15 +26,15 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func init() {
 	// Ignore client pool for unit tests
-	views.IsUnitTestEnv = true
+	nodes.IsUnitTestEnv = true
 }
 
 func TestCopyMoveAction_GetName(t *testing.T) {
@@ -49,11 +49,11 @@ func TestCopyMoveAction_Init(t *testing.T) {
 		action := &CopyMoveAction{}
 		job := &jobs.Job{}
 		// Test action without parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldNotBeNil)
 
 		// Test action without empty target parameters
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"paramName": "paramValue",
 			},
@@ -61,7 +61,7 @@ func TestCopyMoveAction_Init(t *testing.T) {
 		So(e, ShouldNotBeNil)
 
 		// Test action with parameters
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"target": "target/path",
 				"type":   "move",
@@ -82,7 +82,7 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 
 		action := &CopyMoveAction{}
 		job := &jobs.Job{}
-		action.Init(job, nil, &jobs.Action{
+		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"target": "target/path/moved",
 				"type":   "copy",
@@ -94,7 +94,7 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 			Type:      tree.NodeType_LEAF,
 			MetaStore: map[string]string{"name": `"original"`},
 		}
-		mock := &views.HandlerMock{
+		mock := &nodes.HandlerMock{
 			Nodes: map[string]*tree.Node{"path/to/original": originalNode},
 		}
 		action.PresetHandler(mock)
@@ -137,7 +137,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 			Type:      tree.NodeType_LEAF,
 			MetaStore: map[string]string{"name": `"original"`},
 		}
-		mock := &views.HandlerMock{
+		mock := &nodes.HandlerMock{
 			Nodes: map[string]*tree.Node{
 				"path":             {Path: "path", Type: tree.NodeType_COLLECTION},
 				"path/to":          {Path: "path/to", Type: tree.NodeType_COLLECTION},
@@ -146,7 +146,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 		}
 		action.PresetHandler(mock)
 
-		action.Init(job, nil, &jobs.Action{
+		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"target": "path/to/original",
 				"type":   "copy",
@@ -189,11 +189,11 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 			Type:      tree.NodeType_LEAF,
 			MetaStore: map[string]string{"name": `"original"`},
 		}
-		mock := &views.HandlerMock{
+		mock := &nodes.HandlerMock{
 			Nodes: map[string]*tree.Node{"path/to/original": originalNode},
 		}
 		action.PresetHandler(mock)
-		action.Init(job, nil, &jobs.Action{
+		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"target": "target/path/moved",
 				"type":   "move",

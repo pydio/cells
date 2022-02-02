@@ -26,22 +26,20 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/micro/go-micro/metadata"
-
-	"github.com/pydio/cells/common/proto/idm"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/idm/meta"
-	"github.com/pydio/cells/x/configx"
-
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/idm/meta"
 	// Test against sqlite
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
-	wg  sync.WaitGroup
-	ctx context.Context
+	wg      sync.WaitGroup
+	ctx     context.Context
+	mockDAO meta.DAO
 )
 
 func TestMain(m *testing.M) {
@@ -53,14 +51,14 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	mockDAO := meta.NewDAO(sqlDAO)
-	if err := mockDAO.Init(options); err != nil {
+	inDao := meta.NewDAO(sqlDAO)
+	mockDAO = inDao.(meta.DAO)
+	if err := inDao.Init(options); err != nil {
 		fmt.Print("Could not start test ", err)
 		return
 	}
 
 	ctx = context.Background()
-	ctx = servicecontext.WithDAO(ctx, mockDAO)
 	ctx = metadata.NewContext(ctx, map[string]string{})
 
 	m.Run()
@@ -69,11 +67,10 @@ func TestMain(m *testing.M) {
 
 func TestRole(t *testing.T) {
 
-	h := &Handler{}
+	h := &Handler{dao: mockDAO}
 
 	Convey("Test DAO", t, func() {
-		dao := servicecontext.GetDAO(ctx).(meta.DAO)
-		nsDao := dao.GetNamespaceDao()
+		nsDao := mockDAO.GetNamespaceDao()
 		So(nsDao, ShouldNotBeNil)
 	})
 
@@ -83,8 +80,7 @@ func TestRole(t *testing.T) {
 			Namespace: "namespace",
 			Label:     "label",
 		}}
-		resp := &idm.UpdateUserMetaNamespaceResponse{}
-		err := h.UpdateUserMetaNamespace(ctx, &idm.UpdateUserMetaNamespaceRequest{Namespaces: namespaces, Operation: idm.UpdateUserMetaNamespaceRequest_PUT}, resp)
+		_, err := h.UpdateUserMetaNamespace(ctx, &idm.UpdateUserMetaNamespaceRequest{Namespaces: namespaces, Operation: idm.UpdateUserMetaNamespaceRequest_PUT})
 		So(err, ShouldBeNil)
 
 	})

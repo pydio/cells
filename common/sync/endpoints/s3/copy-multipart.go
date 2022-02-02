@@ -28,12 +28,11 @@ import (
 	"sort"
 	"sync"
 
-	context2 "github.com/pydio/cells/common/utils/context"
-
-	"github.com/pydio/minio-go"
+	minio "github.com/minio/minio-go/v7"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 // minPartSize - minimum part size 64MiB per object after which
@@ -60,13 +59,13 @@ func optimalPartInfo(objectSize int64) (totalPartsCount int, partSize int64, las
 	return totalPartsCount, partSize, lastPartSize
 }
 
-func CopyObjectMultipart(ctx context.Context, client *minio.Core, srcObject minio.ObjectInfo, srcBucket, srcPath, destBucket, destPath string, metadata map[string]string, progress io.Reader) error {
+func CopyObjectMultipart(ctx context.Context, client *minio.Core, srcObject minio.ObjectInfo, srcBucket, srcPath, destBucket, destPath string, meta map[string]string, progress io.Reader) error {
 	log.Logger(ctx).Debug("Entering MultipartUpload for COPY")
-	if metadata != nil {
-		ctx = context2.WithAdditionalMetadata(ctx, metadata)
+	if meta != nil {
+		ctx = metadata.WithAdditionalMetadata(ctx, meta)
 	}
 	// We have to use multipart copy
-	uploadID, err := client.NewMultipartUploadWithContext(ctx, destBucket, destPath, minio.PutObjectOptions{UserMetadata: metadata})
+	uploadID, err := client.NewMultipartUpload(ctx, destBucket, destPath, minio.PutObjectOptions{UserMetadata: meta})
 	if err != nil {
 		log.Logger(ctx).Error("New Multipart Error", zap.Error(err))
 		return err
@@ -94,7 +93,7 @@ func CopyObjectMultipart(ctx context.Context, client *minio.Core, srcObject mini
 			}
 			startOffset := int64(index) * partSize
 			log.Logger(ctx).Debug("COPY PART", zap.Int("part", index), zap.Int64("offset", startOffset), zap.Int64("length", length))
-			p, er := client.CopyObjectPartWithContext(ctx, srcBucket, srcPath, destBucket, destPath, uploadID, index+1, startOffset, length, nil)
+			p, er := client.CopyObjectPart(ctx, srcBucket, srcPath, destBucket, destPath, uploadID, index+1, startOffset, length, nil)
 			if er != nil {
 				log.Logger(ctx).Error("CopyObjectPart Error - other parts will be ignored", zap.Error(err))
 				copyErr = er
@@ -106,7 +105,7 @@ func CopyObjectMultipart(ctx context.Context, client *minio.Core, srcObject mini
 	}
 	wg.Wait()
 	if copyErr != nil {
-		client.AbortMultipartUploadWithContext(ctx, destBucket, destPath, uploadID)
+		client.AbortMultipartUpload(ctx, destBucket, destPath, uploadID)
 		return copyErr
 	}
 	// Resort parts in correct order
@@ -114,7 +113,7 @@ func CopyObjectMultipart(ctx context.Context, client *minio.Core, srcObject mini
 		return parts[i].PartNumber < parts[j].PartNumber
 	})
 	log.Logger(ctx).Debug("Finishing Multipart")
-	_, er := client.CompleteMultipartUploadWithContext(ctx, destBucket, destPath, uploadID, parts)
+	_, er := client.CompleteMultipartUpload(ctx, destBucket, destPath, uploadID, parts, minio.PutObjectOptions{})
 	if er != nil {
 		log.Logger(ctx).Error("CompleteMultipart Error", zap.Error(err))
 	}

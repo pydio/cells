@@ -24,12 +24,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/utils/mtree"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/index"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
 var (

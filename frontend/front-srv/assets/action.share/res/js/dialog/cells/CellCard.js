@@ -148,6 +148,7 @@ class CellCard extends React.Component{
                     otherActions={bmButton}
                     onDeleteAction={deleteAction}
                     onEditAction={editAction}
+                    editColor={"#009688"}
                     headerSmall={mode === 'infoPanel'}
                     moreMenuItems={moreMenuItems}
                 >

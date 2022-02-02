@@ -25,18 +25,19 @@ import (
 	"fmt"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
+	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	service2 "github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/role"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/idm/role"
 )
 
 type insertRole struct {
@@ -72,9 +73,6 @@ var (
 )
 
 func InitRoles(ctx context.Context) error {
-
-	<-time.After(3 * time.Second)
-
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").Default("en-us").String()
 	langJ, _ := json.Marshal(lang)
 	scopeAll := permissions.FrontWsScopeAll
@@ -163,17 +161,25 @@ func InitRoles(ctx context.Context) error {
 		} else {
 			break
 		}
-		e = service2.Retry(ctx, func() error {
-			aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
-			for _, acl := range insert.Acls {
-				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
-				if e != nil {
-					return e
+		rolesAcls := insert.Acls
+		roleName := insert.Role.Label
+		go func() {
+			er := std.Retry(ctx, func() error {
+				aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+				for _, acl := range rolesAcls {
+					_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
+					if e != nil {
+						return e
+					}
 				}
+				return nil
+			}, 15*time.Second, 3*time.Minute)
+			if er != nil {
+				log.Logger(ctx).Error("Failed inserting ACLs for role "+roleName, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Inserted ACLs for role " + roleName)
 			}
-			log.Logger(ctx).Info(fmt.Sprintf(" - ACLS set for role %s", insert.Role.Label))
-			return nil
-		}, 8*time.Second, 50*time.Second)
+		}()
 	}
 
 	return e
@@ -181,7 +187,6 @@ func InitRoles(ctx context.Context) error {
 
 func UpgradeTo12(ctx context.Context) error {
 
-	<-time.After(3 * time.Second)
 	scopeShared := permissions.FrontWsScopeShared
 
 	insertRoles := []*insertRole{
@@ -226,8 +231,8 @@ func UpgradeTo12(ctx context.Context) error {
 		} else {
 			break
 		}
-		e = service2.Retry(ctx, func() error {
-			aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+		e = std.Retry(ctx, func() error {
+			aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 			for _, acl := range insert.Acls {
 				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
 				if e != nil {

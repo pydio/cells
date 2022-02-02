@@ -25,12 +25,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 type AbstractPatch struct {

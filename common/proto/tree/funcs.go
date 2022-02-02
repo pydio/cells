@@ -25,7 +25,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
 )
 
 // IgnoreNodeForOutput checks wether a node shall be ignored for

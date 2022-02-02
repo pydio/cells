@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package rest;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+import "cells-activitystream.proto";
+import "cells-log.proto";
+
+// Collection of Activities
+message ActivitiesCollection {
+    repeated activity.Object activities = 1;
+}
+
+message SubscriptionsCollection{
+    repeated activity.Subscription subscriptions = 1;
+}
+
+// Collection of serialized log messages
+message LogCollection {
+    repeated log.Log lines = 1;
+}
+
+// Collection of serialized log messages
+message LogMessageCollection {
+    repeated log.LogMessage Logs = 1;
+}
+
+// Collection of serialized aggregated result of time range request 
+// with a cursor to ease navigation implementation
+message TimeRangeResultCollection{
+    repeated log.TimeRangeResult Results = 1;
+    repeated log.TimeRangeCursor Links = 2; 
+}
+

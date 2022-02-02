@@ -23,8 +23,6 @@ package jobs
 import (
 	"context"
 	"strconv"
-
-	"github.com/micro/go-micro/client"
 )
 
 var (
@@ -36,7 +34,7 @@ type FieldEvaluator interface {
 }
 
 type InputSelector interface {
-	Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error
+	Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error
 	MultipleSelection() bool
 }
 

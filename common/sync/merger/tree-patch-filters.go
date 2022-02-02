@@ -25,12 +25,12 @@ import (
 	"time"
 
 	"github.com/gobwas/glob"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 func (t *TreePatch) Filter(ctx context.Context, ignores ...glob.Glob) {

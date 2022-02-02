@@ -37,7 +37,7 @@ class PublicLinkTemplate extends React.Component{
 
     render(){
         let crtLabel;
-        const {linkModel} = this.props;
+        const {linkModel, hideTitle} = this.props;
         let selected = linkModel.getLink().ViewTemplateName;
         const menuItems=this.props.layoutData.map(function(l){
             if(selected && l.LAYOUT_ELEMENT === selected) {
@@ -51,8 +51,9 @@ class PublicLinkTemplate extends React.Component{
         });
         return (
             <div style={this.props.style}>
-                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{this.props.getMessage('151')}</div>
+                {!hideTitle && <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{this.props.getMessage('151')}</div>}
                 <ModernSelectField
+                    variant={"v2"}
                     fullWidth={true}
                     value={selected}
                     onChange={this.onDropDownChange.bind(this)}

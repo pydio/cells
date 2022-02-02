@@ -25,10 +25,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/micro/go-micro/metadata"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 func NewBasicAuthenticator(realm string, ttl time.Duration) *BasicAuthenticator {

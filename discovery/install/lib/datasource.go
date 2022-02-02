@@ -27,13 +27,13 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/dchest/uniuri"
-	"github.com/gogo/protobuf/proto"
-	"github.com/pborman/uuid"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 // actionDatasourceAdd created default datasources at install
@@ -164,8 +164,8 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 	conf.Name = c.GetDsName()
 	conf.StorageType = object.StorageType_LOCAL
 	port, _ := strconv.ParseInt(c.GetDsPort(), 10, 32)
-	conf.ApiKey = uniuri.New()
-	conf.ApiSecret = uniuri.NewLen(24)
+	conf.ApiKey = std.Randkey(16)
+	conf.ApiSecret = std.Randkey(24)
 	conf.ObjectsPort = int32(port)
 	conf.Watch = false
 	folder := c.DsFolder

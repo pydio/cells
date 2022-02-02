@@ -30,7 +30,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pydio/cells/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/proto/encryption"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

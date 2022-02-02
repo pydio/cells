@@ -57,14 +57,21 @@ class StatusItem extends Observable {
         return this._parent;
     }
     getLabel(){
-        if(this._label.normalize){
+        if(this._label && this._label.normalize){
             return this._label.normalize('NFC')
         } else {
             return this._label;
         }
     }
+    updateTargetNode(targetNode) {
+        this._targetNode = targetNode;
+    }
+    getTargetNode() {
+        return this._targetNode;
+    }
     updateLabel(label){
         this._label = label;
+        this.notify('update_label', label)
     }
     getFullPath(){
         return this._parent.getFullPath() + '/' + this.getLabel();
@@ -128,6 +135,7 @@ class StatusItem extends Observable {
             this.children.pg[child.getId()] = progress;
             this.recomputeProgress();
         });
+        this.notify('child_added')
     }
 
     recomputeProgress(){

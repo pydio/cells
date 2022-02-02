@@ -21,9 +21,9 @@
 package grpc
 
 import (
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/data/versions/lang"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/data/versions/lang"
 )
 
 var ExposedConfigs = &forms.Form{

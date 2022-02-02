@@ -24,19 +24,23 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/go-micro"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/idm/policy"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/idm/policy"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
+
+const ServiceName = common.ServiceGrpcNamespace_ + common.ServicePolicy
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServicePolicy),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
@@ -83,9 +87,9 @@ func init() {
 					Up:            policy.Upgrade227,
 				},
 			}),
-			service.WithMicro(func(m micro.Service) error {
-				handler := new(Handler)
-				idm.RegisterPolicyEngineServiceHandler(m.Options().Server, handler)
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(policy.DAO))
+				idm.RegisterPolicyEngineServiceEnhancedServer(server, handler)
 				return nil
 			}),
 		)

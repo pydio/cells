@@ -24,10 +24,13 @@ package servicecontext
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/crypto"
+
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type contextType int
@@ -38,10 +41,14 @@ const (
 	operationLabelKey
 	daoKey
 	configKey
+	keyringKey
+	loggerKey
+	registryKey
+	serversKey
 
 	ContextMetaJobUuid        = "X-Pydio-Job-Uuid"
 	ContextMetaTaskUuid       = "X-Pydio-Task-Uuid"
-	ContextMetaTaskActionPath = "X-Pydio-Task-ActionPath"
+	ContextMetaTaskActionPath = "X-Pydio-Task-Action-Path"
 )
 
 // WithServiceName returns a context which knows its service name
@@ -63,9 +70,23 @@ func WithDAO(ctx context.Context, dao dao.DAO) context.Context {
 	return context.WithValue(ctx, daoKey, dao)
 }
 
+// WithLogger links a logger to the context
+func WithLogger(ctx context.Context, logger interface{}) context.Context {
+	return context.WithValue(ctx, loggerKey, logger)
+}
+
 // WithConfig links a config to the context
 func WithConfig(ctx context.Context, config configx.Values) context.Context {
 	return context.WithValue(ctx, configKey, config)
+}
+
+func WithKeyring(ctx context.Context, keyring crypto.Keyring) context.Context {
+	return context.WithValue(ctx, keyringKey, keyring)
+}
+
+// WithRegistry links a registry to the context
+func WithRegistry(ctx context.Context, reg registry.Registry) context.Context {
+	return context.WithValue(ctx, registryKey, reg)
 }
 
 // GetServiceName returns the service name associated to this context
@@ -97,10 +118,30 @@ func GetDAO(ctx context.Context) dao.DAO {
 	return nil
 }
 
+func GetLogger(ctx context.Context) interface{} {
+	return ctx.Value(loggerKey)
+}
+
 // GetConfig returns the config from the context in argument
 func GetConfig(ctx context.Context) configx.Values {
 	if conf, ok := ctx.Value(configKey).(configx.Values); ok {
 		return conf
+	}
+	return nil
+}
+
+// GetRegistry returns the registry from the context in argument
+func GetRegistry(ctx context.Context) registry.Registry {
+	if conf, ok := ctx.Value(registryKey).(registry.Registry); ok {
+		return conf
+	}
+	return nil
+}
+
+// GetKeyring returns the keyring from the context in argument
+func GetKeyring(ctx context.Context) crypto.Keyring {
+	if keyring, ok := ctx.Value(keyringKey).(crypto.Keyring); ok {
+		return keyring
 	}
 	return nil
 }

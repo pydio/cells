@@ -19,7 +19,7 @@
  */
 
 
-const {Component} = require('react');
+const {Component, createRef} = require('react');
 
 import ContextMenuModel from 'pydio/model/context-menu'
 import Utils from './Utils'
@@ -36,22 +36,26 @@ const dims = {
 
 class ContextMenu extends Component{
 
+    constructor(props) {
+        super(props);
+        this.menu = createRef();
+    }
 
     modelOpen(node){
         let position = ContextMenuModel.getInstance().getPosition();
-        let items;
-        if(node){
-            let dm = pydio.getContextHolder();
-            if(dm.getSelectedNodes().indexOf(node) !== -1){
-                this.openMenu('selectionContext', position);
-            }else{
-                pydio.observeOnce("actions_refreshed", function(dataModel){
-                    this.openMenu('selectionContext', position);
-                }.bind(this));
-                dm.setSelectedNodes([node]);
-            }
-        }else{
+        const {pydio} = this.props;
+        if(!node){
             this.openMenu('genericContext', position);
+            return;
+        }
+        const dm = pydio.getContextHolder();
+        if (dm.getSelectedNodes().indexOf(node) === -1) {
+            pydio.observeOnce("actions_refreshed", function (dataModel) {
+                this.openMenu('selectionContext', position);
+            }.bind(this));
+            dm.setSelectedNodes([node]);
+        } else {
+            this.openMenu('selectionContext', position);
         }
     }
 
@@ -59,20 +63,20 @@ class ContextMenu extends Component{
         let items = this.computeMenuItems(context);
         this._items = items;
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-        if(!mobile){
-            position = this.computeVisiblePosition(position, items);
-            this.refs['menu'].showMenu({
-                top: position.y,
-                left: position.x
-            }, items);
-        }else{
-            this.refs['menu'].showMenu({
+        if (mobile) {
+            this.menu.current.showMenu({
                 bottom: 0,
                 left: 0,
                 right: 0,
                 height: 200,
                 zIndex: 10000,
                 overflowY: 'auto'
+            }, items);
+        } else {
+            position = this.computeVisiblePosition(position, items);
+            this.menu.current.showMenu({
+                top: position.y,
+                left: position.x
             }, items);
         }
     }
@@ -85,8 +89,11 @@ class ContextMenu extends Component{
     computeVisiblePosition(position, items){
         let menuHeight  = dims.MENU_VERTICAL_PADDING * 2;
         items.map(function(it){
-            if(it.separator) menuHeight += dims.MENU_SEP_HEIGHT;
-            else menuHeight += dims.MENU_ITEM_HEIGHT;
+            if(it.separator) {
+                menuHeight += dims.MENU_SEP_HEIGHT;
+            } else {
+                menuHeight += dims.MENU_ITEM_HEIGHT;
+            }
         });
         let menuWidth   = dims.MENU_WIDTH;
         let windowW     = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -117,7 +124,7 @@ class ContextMenu extends Component{
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
         return (
             <PopupMenu
-                ref="menu"
+                ref={this.menu}
                 menuItems={this._items || []}
                 onMenuClosed={this.props.onMenuClosed}
                 menuProps={mobile ? {width:600, autoWidth:false, desktop: false} : {}}

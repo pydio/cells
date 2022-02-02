@@ -21,7 +21,7 @@
 package tasks
 
 import (
-	"github.com/pydio/cells/common/service/metrics"
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 const (

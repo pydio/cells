@@ -24,29 +24,40 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/encryption"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/data/key"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/data/key"
 )
+
+var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceEncKey
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceEncKey),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Encryption Keys server"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceMeta, []string{}),
 			service.WithStorage(key.NewDAO, "data_key"),
-			service.WithMicro(func(m micro.Service) error {
-				h := &NodeKeyManagerHandler{}
-				encryption.RegisterNodeKeyManagerHandler(m.Options().Server, h)
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicTreeChanges, h.HandleTreeChanges)); err != nil {
-					return err
+			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
+				h := &NodeKeyManagerHandler{dao: servicecontext.GetDAO(c).(key.DAO)}
+				encryption.RegisterNodeKeyManagerEnhancedServer(srv, h)
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						return h.HandleTreeChanges(ctx, msg)
+					}
+					return nil
+				}); e != nil {
+					return e
 				}
 				return nil
 			}),

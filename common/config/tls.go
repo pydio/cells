@@ -25,17 +25,12 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"sync"
 
-	"github.com/mholt/caddy/caddytls"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
-	DefaultCaUrl        = "https://acme-v02.api.letsencrypt.org/directory"
-	DefaultCaStagingUrl = "https://acme-staging-v02.api.letsencrypt.org/directory"
-
 	tlsClientMutex  = &sync.Mutex{}
 	tlsClientConfig = make(map[string]*tls.Config)
 
@@ -136,28 +131,29 @@ func getTLSServerConfig(t string) {
 			InsecureSkipVerify: true,
 		}
 	} else if caUrl != "" {
+		// TODO - FILE STORAGE NOT IMPLEMENTED
 		// Auto-cert (let's encrypt)
-		u, _ := url.Parse(Get(configx.FormatPath("defaults", "url")).String())
-		p, e := url.Parse(caUrl)
-		if e != nil {
-			fmt.Println("[TLS] Cannot parse caUrl")
-			return
-		}
-		store, e := caddytls.NewFileStorage(p)
-		if e != nil {
-			fmt.Println("[TLS] Cannot load TLS File Storage")
-			return
-		}
-		data, err := store.LoadSite(u.Hostname())
-		if err != nil {
-			fmt.Printf("[TLS] Cannot load site %s from TLS File Storage\n", u.Hostname())
-			return
-		}
-		if cert, e := tls.X509KeyPair(data.Cert, data.Key); e == nil {
-			tlsServerConfig[t] = &tls.Config{Certificates: []tls.Certificate{cert}}
-		} else {
-			fmt.Println("[TLS] Cannot load certificates loaded from TLS File Storage")
-		}
+		// u, _ := url.Parse(Get(configx.FormatPath("defaults", "url")).String())
+		// p, e := url.Parse(caUrl)
+		// if e != nil {
+		// 	fmt.Println("[TLS] Cannot parse caUrl")
+		// 	return
+		// }
+		// store, e := caddytls.NewFileStorage(p)
+		// if e != nil {
+		// 	fmt.Println("[TLS] Cannot load TLS File Storage")
+		//	return
+		//}
+		//data, err := store.LoadSite(u.Hostname())
+		//if err != nil {
+		//	fmt.Printf("[TLS] Cannot load site %s from TLS File Storage\n", u.Hostname())
+		//	return
+		//}
+		//if cert, e := tls.X509KeyPair(data.Cert, data.Key); e == nil {
+		//	tlsServerConfig[t] = &tls.Config{Certificates: []tls.Certificate{cert}}
+		//} else {
+		//	fmt.Println("[TLS] Cannot load certificates loaded from TLS File Storage")
+		//}
 	}
 
 }

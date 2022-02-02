@@ -24,14 +24,14 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-version"
-	"github.com/pborman/uuid"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 func init() {
@@ -60,18 +60,13 @@ func updateVersionsStore(conf configx.Values) error {
 	dsCopy.Name = newDsName
 	dsCopy.ObjectsBucket = bucket
 	dsCopy.FlatStorage = true
-	if dsCopy.StorageConfiguration == nil {
-		dsCopy.StorageConfiguration = map[string]string{}
-	}
 	dsCopy.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyInitFromBucket] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyNormalize] = "false"
 	dsCopy.VersioningPolicyName = ""
 	dsCopy.EncryptionKey = ""
-	if dsObject.StorageConfiguration != nil {
-		if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
-			dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
-		}
+	if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
+		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{
@@ -114,18 +109,13 @@ func updateThumbsStore(conf configx.Values) error {
 	dsCopy.Name = newDsName
 	dsCopy.ObjectsBucket = bucket
 	dsCopy.FlatStorage = true
-	if dsCopy.StorageConfiguration == nil {
-		dsCopy.StorageConfiguration = map[string]string{}
-	}
 	dsCopy.StorageConfiguration[object.StorageKeyCellsInternal] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyInitFromBucket] = "true"
 	dsCopy.StorageConfiguration[object.StorageKeyNormalize] = "false"
 	dsCopy.VersioningPolicyName = ""
 	dsCopy.EncryptionKey = ""
-	if dsObject.StorageConfiguration != nil {
-		if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
-			dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
-		}
+	if f, o := dsObject.StorageConfiguration[object.StorageKeyFolder]; o {
+		dsCopy.StorageConfiguration[object.StorageKeyFolder] = path.Join(path.Dir(f), bucket)
 	}
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+newDsName).Set(dsCopy)
 	conf.Val("services", common.ServiceGrpcNamespace_+common.ServiceDataIndex_+newDsName).Set(map[string]interface{}{

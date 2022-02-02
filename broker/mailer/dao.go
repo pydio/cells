@@ -26,45 +26,19 @@ package mailer
 
 import (
 	"context"
-	"path/filepath"
-
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/mailer"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
-
-type Queue interface {
-	Push(email *mailer.Mail) error
-	Consume(func(email *mailer.Mail) error) error
-	Close() error
-}
 
 type Sender interface {
 	Configure(ctx context.Context, conf configx.Values) error
 	Send(email *mailer.Mail) error
 	Check(ctx context.Context) error
-}
-
-func GetQueue(ctx context.Context, t string, _ configx.Values) Queue {
-	switch t {
-	case "memory":
-		return newInMemoryQueue()
-	case "boltdb":
-		dataDir, _ := config.ServiceDataDir(servicecontext.GetServiceName(ctx))
-		queue, e := NewBoltQueue(filepath.Join(dataDir, "queue.db"), false)
-		if e != nil {
-			return nil
-		} else {
-			return queue
-		}
-	}
-	return nil
 }
 
 func GetSender(ctx context.Context, t string, conf configx.Values) (Sender, error) {

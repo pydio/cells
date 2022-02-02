@@ -36,6 +36,7 @@ import ResourcesManager from 'pydio/http/resources-manager'
 const {FoldersTree, DND, ChatIcon} = Pydio.requireLib('components');
 import MetaNodeProvider from 'pydio/model/meta-node-provider'
 import WorkspaceCard from "./WorkspaceCard";
+import ContextMenuModel from 'pydio/model/context-menu'
 
 const { Types, collectDrop, nodeDropTarget } = DND;
 
@@ -234,6 +235,14 @@ class WorkspaceEntry extends React.Component {
         return {};
     };
 
+    onContextMenu(event, menuNode) {
+
+        event.preventDefault()
+        event.stopPropagation()
+        this.workspacePopover(event, menuNode);
+
+    }
+
     workspacePopoverNode = (workspace, menuNode = undefined) => {
         if(menuNode){
             return Promise.resolve(menuNode)
@@ -257,7 +266,6 @@ class WorkspaceEntry extends React.Component {
         const {target} = event;
         const offsetTop  = target.getBoundingClientRect().top;
         const viewportH = DOMUtils.getViewportHeight();
-        const viewportW = DOMUtils.getViewportWidth();
         const popoverTop = (viewportH - offsetTop < 250);
         this.workspacePopoverNode(workspace, menuNode).then(n => {
             if(workspace.getOwner()){
@@ -433,6 +441,7 @@ class WorkspaceEntry extends React.Component {
                 onClick={this.onClick.bind(this)}
                 onMouseOver={onHover}
                 onMouseOut={onOut}
+                onContextMenu={(event) => this.onContextMenu(event, popoverNode)}
                 style={style}
             >
                 {entryIcon}

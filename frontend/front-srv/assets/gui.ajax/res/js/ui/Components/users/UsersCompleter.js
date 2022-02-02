@@ -27,6 +27,7 @@ import AddressBook from './addressbook/AddressBook'
 import {TextField, AutoComplete, MenuItem, RefreshIndicator, Popover, FontIcon} from 'material-ui'
 import FuncUtils from 'pydio/util/func'
 import UserCreationForm from './UserCreationForm'
+const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc')
 
 /**
  * Ready to use autocomplete field that will load users/groups/roles from
@@ -310,7 +311,7 @@ class UsersLoader extends React.Component {
         return (
             <div style={containerStyle} ref={(el)=>{this._popoverAnchor = el;}}>
                 {!createUser &&
-                    <AutoComplete
+                    <ModernAutoComplete
                         filter={AutoComplete.noFilter}
                         dataSource={dataSource}
                         searchText={this.state.searchText}
@@ -318,6 +319,7 @@ class UsersLoader extends React.Component {
                         className={this.props.className}
                         openOnFocus={true}
                         floatingLabelText={this.props.fieldLabel}
+                        floatingLabelFixed={true}
                         underlineShow={!this.props.underlineHide}
                         fullWidth={true}
                         onNewRequest={this.onCompleterRequest}
@@ -335,7 +337,7 @@ class UsersLoader extends React.Component {
                     />
                 }
                 {!createUser &&
-                    <div style={{position:'absolute', right:4, bottom: 14, height: 20, width: 20}}>
+                    <div style={{position:'absolute', right:this.props.showAddressBook?44:10, bottom: 14, height: 20, width: 20}}>
                         <RefreshIndicator
                             size={20}
                             left={0}

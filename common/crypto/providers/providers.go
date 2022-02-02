@@ -24,7 +24,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/v4/common/proto/install"
 )
 
 type CertProvider interface {

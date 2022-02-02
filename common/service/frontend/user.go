@@ -25,19 +25,18 @@ import (
 	"encoding/base64"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 type User struct {
@@ -339,7 +338,7 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 	}
 
 	// Used to detect "personal files"-like workspace
-	vNodeManager := views.GetVirtualNodesManager()
+	vNodeManager := abstract.GetVirtualNodesManager(status.RuntimeCtx)
 
 	for _, ws := range u.Workspaces {
 		repo := &Crepo{

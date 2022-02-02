@@ -9,23 +9,20 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/gorilla/mux"
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/idm"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/frontend"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/frontend"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type PublicHandler struct {
@@ -61,7 +58,7 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 	// Load link data
 	linkData, e := h.loadLink(ctx, linkId)
 	if e != nil {
-		parsed := errors.Parse(e.Error())
+		parsed := errors.FromError(e)
 		if parsed.Code == 500 && parsed.Id == "go.micro.client" && parsed.Detail == "none available" {
 			tplConf.ErrorMessage = "Service is temporarily unavailable, please retry later."
 			return 503, tplConf
@@ -83,19 +80,19 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 		return 404, tplConf
 	}
 
-	cl := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+	cl := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Uuid: linkData.RepositoryId,
 	})
 	s, e := cl.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{
-		SubQueries: []*any.Any{q},
+		SubQueries: []*anypb.Any{q},
 	}})
 	if e != nil {
 		tplConf.ErrorMessage = "An unexpected error happened while loading this link"
 		log.Logger(ctx).Error("Error while loading public link, cannot load workspace", zap.Error(e))
 		return 500, tplConf
 	}
-	defer s.Close()
+	defer s.CloseSend()
 	var wsExists bool
 	for {
 		r, er := s.Recv()
@@ -161,7 +158,8 @@ func (h *PublicHandler) computeTplConf(req *http.Request, linkId string) (status
 // ServeHTTP serve Public link
 func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	link := mux.Vars(r)["link"]
+	link := strings.TrimSpace(strings.TrimPrefix(r.RequestURI, config.GetPublicBaseUri()+"/"))
+	link = strings.Trim(link, "/")
 	status, tplConf := h.computeTplConf(r, link)
 	if status != 200 {
 		w.WriteHeader(status)
@@ -189,7 +187,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Load link from Docstore
 func (h *PublicHandler) loadLink(ctx context.Context, linkUuid string) (*docstore.ShareDocument, error) {
 
-	store := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+	store := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 	resp, e := store.GetDocument(ctx, &docstore.GetDocumentRequest{DocumentID: linkUuid, StoreID: common.DocStoreIdShares})
 	if e != nil {
 		return nil, fmt.Errorf("cannot find document")

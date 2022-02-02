@@ -24,17 +24,22 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/v4/common/forms"
 )
 
 func GenerateProtoToForm(prefix string, msg interface{}, makeSwitch bool, i18nKeys ...map[string]string) *forms.Form {
 	s := reflect.ValueOf(msg).Elem()
-	var structProperties *proto.StructProperties
-	if _, ok := msg.(proto.Message); ok {
-		structProperties = proto.GetProperties(s.Type())
+
+	isProto := false
+	var fieldsDescriptors protoreflect.FieldDescriptors
+	if pMess, ok := msg.(proto.Message); ok {
+		isProto = true
+		fieldsDescriptors = pMess.ProtoReflect().Descriptor().Fields()
 	}
+
 	g := &forms.Group{}
 
 	sw := &forms.SwitchField{
@@ -47,6 +52,9 @@ func GenerateProtoToForm(prefix string, msg interface{}, makeSwitch bool, i18nKe
 		value := s.Field(i)
 		valueField := s.Type().Field(i)
 		var fieldName = valueField.Name
+		if isProto && (fieldName == "sizeCache" || fieldName == "state" || fieldName == "unknownFields") {
+			continue
+		}
 		if jsonTag := valueField.Tag.Get("json"); jsonTag != "" && jsonTag != "-" {
 			// check for possible comma as in "...,omitempty"
 			var commaIdx int
@@ -55,11 +63,11 @@ func GenerateProtoToForm(prefix string, msg interface{}, makeSwitch bool, i18nKe
 			}
 			fieldName = jsonTag[:commaIdx]
 		}
-		var pp *proto.Properties
-		if structProperties != nil {
-			pp = structProperties.Prop[i]
+		var fd protoreflect.FieldDescriptor
+		if isProto {
+			fd = fieldsDescriptors.ByTextName(fieldName)
 		}
-		if field := fieldForValue(prefix, fieldName, value.Kind(), value.Type(), pp, i18nKeys...); field != nil {
+		if field := fieldForValue(prefix, fieldName, value.Kind(), value.Type(), fd, i18nKeys...); field != nil {
 			if f, ok := field.(*forms.ReplicableFields); ok && makeSwitch {
 				f.Mandatory = true
 				field = f
@@ -86,7 +94,7 @@ func GenerateProtoToForm(prefix string, msg interface{}, makeSwitch bool, i18nKe
 	return f
 }
 
-func fieldForValue(prefix, name string, kind reflect.Kind, vType reflect.Type, prop *proto.Properties, i18nKeys ...map[string]string) forms.Field {
+func fieldForValue(prefix, name string, kind reflect.Kind, vType reflect.Type, fd protoreflect.FieldDescriptor, i18nKeys ...map[string]string) forms.Field {
 
 	if len(i18nKeys) > 0 {
 		i18nKeys[0][prefix+"."+name] = name
@@ -112,37 +120,39 @@ func fieldForValue(prefix, name string, kind reflect.Kind, vType reflect.Type, p
 			Label: prefix + "." + name,
 		}
 	case reflect.Int32:
-		if prop != nil && prop.Enum != "" {
-			// Enum?
-			msi := proto.EnumValueMap(prop.Enum)
-			var mss []map[string]string
-			for k := range msi {
-				kV := make(map[string]string, 1)
-				kV[k] = prefix + "." + name + "." + k
-				mss = append(mss, kV)
-				if len(i18nKeys) > 0 {
-					i18nKeys[0][prefix+"."+name+"."+k] = k
+		if fd != nil {
+			if eDesc := fd.Enum(); eDesc != nil {
+				var mss []map[string]string
+				eValues := eDesc.Values()
+				for k := 0; k < eValues.Len(); k++ {
+					eVal := string(eValues.Get(k).Name())
+
+					kV := make(map[string]string, 1)
+					kV[eVal] = prefix + "." + name + "." + eVal
+					mss = append(mss, kV)
+					if len(i18nKeys) > 0 {
+						i18nKeys[0][prefix+"."+name+"."+eVal] = eVal
+					}
 				}
+				selector := &forms.FormField{
+					Name:             name,
+					Type:             "select",
+					Label:            prefix + "." + name,
+					ChoicePresetList: mss,
+				}
+				return selector
 			}
-			selector := &forms.FormField{
-				Name:             name,
-				Type:             "select",
-				Label:            prefix + "." + name,
-				ChoicePresetList: mss,
-			}
-			return selector
-		} else {
-			return &forms.FormField{
-				Name:  name,
-				Type:  "integer",
-				Label: prefix + "." + name,
-			}
+		}
+		return &forms.FormField{
+			Name:  name,
+			Type:  "integer",
+			Label: prefix + "." + name,
 		}
 	case reflect.Slice:
 		//fmt.Println("Slice of", value.Type().Elem().Kind())
 		sKind := vType.Elem().Kind()
 		replicable := &forms.ReplicableFields{Id: name, Title: name + "[]"}
-		if field := fieldForValue(prefix, name, sKind, vType, prop, i18nKeys...); field != nil {
+		if field := fieldForValue(prefix, name, sKind, vType, fd, i18nKeys...); field != nil {
 			replicable.Fields = append(replicable.Fields, field)
 			return replicable
 		}

@@ -24,14 +24,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/common/config/micro"
-	"github.com/pydio/cells/common/config/micro/memory"
-	"github.com/pydio/cells/x/configx"
-	"github.com/pydio/go-os/config"
+	"github.com/google/go-cmp/cmp"
+
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
-	std   Store = New(micro.New(config.NewConfig(config.WithSource(memory.NewSource(memory.WithJSON([]byte{}))))))
+	std   Store
 	local Store = std
 )
 
@@ -48,11 +47,12 @@ func RegisterLocal(store Store) {
 // Store defines the functionality a config must provide
 type Store interface {
 	configx.Entrypoint
-
 	configx.Watcher
+	Saver
+}
 
-	// Save with context
-	Save(string, string) error // Should we not do it in a function ?
+type Saver interface {
+	Save(string, string) error
 }
 
 // New creates a configuration provider with in-memory access
@@ -66,7 +66,7 @@ func New(store configx.Entrypoint) Store {
 	// we initialise the store and save it in memory for easy access
 	if v != nil {
 		im := configx.New(configx.WithJSON())
-		im.Set(v)
+		im.Set(v.Bytes())
 		ret.im = im
 	} else {
 		im := configx.New(configx.WithJSON())
@@ -112,6 +112,38 @@ func Save(ctxUser string, ctxMessage string) error {
 // Watch for config changes for a specific path or underneath
 func Watch(path ...string) (configx.Receiver, error) {
 	return std.Watch(path...)
+}
+
+func WatchMap(path ...string) (chan configx.KV, error) {
+	var snap map[string]interface{}
+	if err := Get(path...).Scan(&snap); err != nil {
+		return nil, err
+	}
+	watcher, err := Watch(path...)
+	if err != nil {
+		return nil, err
+	}
+
+	ch := make(chan configx.KV)
+	go func() {
+		for {
+			r, _ := watcher.Next()
+
+			m := r.Map()
+			for k, v := range m {
+				oldV, ok := snap[k]
+				if ok && !cmp.Equal(oldV, v) {
+					ch <- configx.KV{
+						Key:   k,
+						Value: v,
+					}
+					snap[k] = m[k]
+				}
+			}
+		}
+	}()
+
+	return ch, nil
 }
 
 // Get access to the underlying structure at a certain path

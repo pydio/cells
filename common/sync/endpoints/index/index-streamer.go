@@ -26,11 +26,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type Streamer struct {
@@ -91,7 +92,7 @@ func (i *Streamer) Stop() {
 func (i *Streamer) StartReader(ctx context.Context) error {
 
 	//fmt.Println("Starting Reader for service " + i.serviceName)
-	reader := tree.NewNodeProviderStreamerClient(i.serviceName, defaults.NewClient())
+	reader := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, i.serviceName))
 	streamer, err := reader.ReadNodeStream(ctx)
 	if err != nil {
 		fmt.Println("Error starting for service "+i.serviceName, err)
@@ -108,7 +109,7 @@ func (i *Streamer) StartReader(ctx context.Context) error {
 				if e != nil {
 					log.Logger(ctx).Error("error in ReadStream - restart a new Reader", zap.Error(e))
 					// Error sending request, break, reconnect and requeue delete request
-					streamer.Close()
+					streamer.CloseSend()
 					<-time.After(2 * time.Second)
 					if e := i.StartReader(ctx); e == nil {
 						i.readInput <- readRequest
@@ -128,7 +129,7 @@ func (i *Streamer) StartReader(ctx context.Context) error {
 
 				}
 			case <-i.done:
-				streamer.Close()
+				streamer.CloseSend()
 				return
 			}
 		}
@@ -140,7 +141,7 @@ func (i *Streamer) StartReader(ctx context.Context) error {
 func (i *Streamer) StartDeleter(ctx context.Context) error {
 
 	//fmt.Println("Starting Deleter for service " + i.serviceName)
-	delClient := tree.NewNodeReceiverStreamClient(i.serviceName, defaults.NewClient())
+	delClient := tree.NewNodeReceiverStreamClient(grpc.GetClientConnFromCtx(ctx, i.serviceName))
 	streamer, err := delClient.DeleteNodeStream(ctx)
 	if err != nil {
 		fmt.Println("Error starting Deleter for service "+i.serviceName, err)
@@ -156,7 +157,7 @@ func (i *Streamer) StartDeleter(ctx context.Context) error {
 				e := streamer.Send(delRequest)
 				if e != nil {
 					// Error sending request, break, reconnect and requeue delete request
-					streamer.Close()
+					streamer.CloseSend()
 					<-time.After(2 * time.Second)
 					if e := i.StartDeleter(ctx); e == nil {
 						i.delInput <- delRequest
@@ -171,7 +172,7 @@ func (i *Streamer) StartDeleter(ctx context.Context) error {
 
 				}
 			case <-i.done:
-				streamer.Close()
+				streamer.CloseSend()
 				return
 			}
 		}
@@ -183,7 +184,7 @@ func (i *Streamer) StartDeleter(ctx context.Context) error {
 func (i *Streamer) StartCreator(ctx context.Context) error {
 
 	//fmt.Println("Starting Creator for service " + i.serviceName)
-	createClient := tree.NewNodeReceiverStreamClient(i.serviceName, defaults.NewClient())
+	createClient := tree.NewNodeReceiverStreamClient(grpc.GetClientConnFromCtx(ctx, i.serviceName))
 	streamer, err := createClient.CreateNodeStream(ctx)
 	if err != nil {
 		//fmt.Println("Error starting for service " + i.serviceName, err)
@@ -201,7 +202,7 @@ func (i *Streamer) StartCreator(ctx context.Context) error {
 				if e != nil {
 					log.Logger(ctx).Error("error in stream", zap.Error(e))
 					// Error sending request, break, reconnect and requeue createete request
-					streamer.Close()
+					streamer.CloseSend()
 					<-time.After(2 * time.Second)
 					if e := i.StartCreator(ctx); e == nil {
 						i.createInput <- createRequest
@@ -215,7 +216,7 @@ func (i *Streamer) StartCreator(ctx context.Context) error {
 					}
 				}
 			case <-i.done:
-				streamer.Close()
+				streamer.CloseSend()
 				return
 			}
 		}
@@ -227,7 +228,7 @@ func (i *Streamer) StartCreator(ctx context.Context) error {
 func (i *Streamer) StartUpdater(ctx context.Context) error {
 
 	//fmt.Println("Starting Updater for service " + i.serviceName)
-	updateClient := tree.NewNodeReceiverStreamClient(i.serviceName, defaults.NewClient())
+	updateClient := tree.NewNodeReceiverStreamClient(grpc.GetClientConnFromCtx(ctx, i.serviceName))
 	streamer, err := updateClient.UpdateNodeStream(ctx)
 	if err != nil {
 		//fmt.Println("Error starting for service " + i.serviceName, err)
@@ -243,7 +244,7 @@ func (i *Streamer) StartUpdater(ctx context.Context) error {
 				e := streamer.Send(updateRequest)
 				if e != nil {
 					// Error sending request, break, reconnect and requeue updateete request
-					streamer.Close()
+					streamer.CloseSend()
 					<-time.After(2 * time.Second)
 					if e := i.StartUpdater(ctx); e == nil {
 						i.updateInput <- updateRequest
@@ -258,7 +259,7 @@ func (i *Streamer) StartUpdater(ctx context.Context) error {
 
 				}
 			case <-i.done:
-				streamer.Close()
+				streamer.CloseSend()
 				return
 			}
 		}

@@ -28,8 +28,8 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 // Validate tries to match the status of the target to verify that all operations are correctly applied.

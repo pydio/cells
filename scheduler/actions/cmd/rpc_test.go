@@ -24,12 +24,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func TestRpcAction_GetName(t *testing.T) {
@@ -46,11 +44,11 @@ func TestRpcAction_Init(t *testing.T) {
 		action := &RpcAction{}
 		job := &jobs.Job{}
 		// Missing Parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldNotBeNil)
 
 		// Valid Cmd
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"service": "pydio.service.test",
 				"method":  "MethodName",
@@ -71,7 +69,7 @@ func TestRpcAction_Run(t *testing.T) {
 
 		action := &RpcAction{}
 		job := &jobs.Job{}
-		action.Init(job, client.DefaultClient, &jobs.Action{
+		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"service": "pydio.service.test",
 				"method":  "MethodName",
@@ -87,7 +85,7 @@ func TestRpcAction_Run(t *testing.T) {
 		output := outputMessage.GetLastOutput()
 		So(output.ErrorString, ShouldEqual, err.Error())
 		// It's a test, so normally there is no service available, or nats is even not started
-		So(errors.Parse(err.Error()).Code, ShouldEqual, 500)
+		So(output.ErrorString, ShouldEqual, "cannot find corresponding service/method for MethodName")
 
 	})
 

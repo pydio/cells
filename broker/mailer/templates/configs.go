@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/matcornic/hermes"
+	hermes "github.com/matcornic/hermes/v2"
 
-	"github.com/pydio/cells/broker/mailer/lang"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/v4/broker/mailer/lang"
+	"github.com/pydio/cells/v4/common/config"
 )
 
 var templateFilters []FilterFunc

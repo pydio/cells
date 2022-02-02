@@ -24,15 +24,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints/index"
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/sync/task"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/endpoints/index"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/sync/task"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 // FlatScanEmpty uses s3 client to feed index from bucket (basic mono-directional sync)

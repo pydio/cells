@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/common/service/metrics"
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 var (

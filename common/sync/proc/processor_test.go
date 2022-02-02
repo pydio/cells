@@ -25,13 +25,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/merger"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 var (

@@ -23,7 +23,7 @@ package templates
 import (
 	"io"
 
-	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/rest"
 )
 
 type DAO interface {

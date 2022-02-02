@@ -25,15 +25,15 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/scheduler/actions"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -41,6 +41,7 @@ var (
 )
 
 type MetaAction struct {
+	common.RuntimeHolder
 	Client   tree.NodeReceiverClient
 	MetaJSON string
 }
@@ -83,9 +84,11 @@ func (c *MetaAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *MetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *MetaAction) Init(job *jobs.Job, action *jobs.Action) error {
 
-	c.Client = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
+	if !nodes.IsUnitTestEnv {
+		c.Client = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceMeta))
+	}
 	c.MetaJSON = action.Parameters["metaJSON"]
 
 	return nil
@@ -106,7 +109,7 @@ func (c *MetaAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	}
 	for _, n := range input.Nodes {
 		for k, v := range mm {
-			n.SetMeta(k, v)
+			n.MustSetMeta(k, v)
 		}
 		_, err := c.Client.UpdateNode(ctx, &tree.UpdateNodeRequest{From: n, To: n})
 		if err != nil {

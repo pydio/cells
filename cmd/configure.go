@@ -21,7 +21,6 @@
 package cmd
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/url"
@@ -33,44 +32,48 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/micro/go-micro/broker"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/caddy"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/metrics"
-	"github.com/pydio/cells/common/utils/net"
-	"github.com/pydio/cells/discovery/install/assets"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/server/caddy"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/metrics"
+	unet "github.com/pydio/cells/v4/common/utils/net"
+	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v4/discovery/install/assets"
 )
 
+/*
 const (
 	caddyfile = `
+{
+  auto_https disable_redirects
+}
+
 {{range .Sites}}
 {{range .Binds}}{{.}} {{end}} {
-	root "{{$.WebRoot}}"
-	proxy /install {{urls $.Micro}}
+	root * "{{$.WebRoot}}"
+	file_server
+
+	route /* {
+		mux
+		request_header Host {host}
+		request_header X-Real-IP {remote}
+	}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 }
-{{if .SSLRedirect}}
-{{range $k,$v := .Redirects}}
-{{$k}} {
-	redir {{$v}}
-}
-{{end}}
-{{end}}
-
 {{end}}
 	 `
-)
+)*/
 
 var (
 	DefaultStartCmd *cobra.Command
@@ -81,11 +84,10 @@ func init() {
 }
 
 var (
-	caddyconf = struct {
+	/*caddyconf = struct {
 		Sites   []caddy.SiteConf
 		WebRoot string
-		Micro   string
-	}{}
+	}{}*/
 
 	niBindUrl          string
 	niExtUrl           string
@@ -171,8 +173,6 @@ ENVIRONMENT
 			return err
 		}
 
-		initConfig()
-
 		replaceKeys := map[string]string{
 			"yaml": "install_yaml",
 			"json": "install_json",
@@ -186,6 +186,8 @@ ENVIRONMENT
 			}
 			viper.BindPFlag(key, flag)
 		})
+
+		initConfig()
 
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
 		niBindUrl = viper.GetString("bind")
@@ -213,7 +215,7 @@ ENVIRONMENT
 		cmd.Println("")
 
 		var proxyConf *install.ProxyConfig
-		var err error
+		/*var err error
 
 		// Do this in a better way
 		micro := config.Get("ports", common.ServiceMicroApi).Int()
@@ -222,7 +224,7 @@ ENVIRONMENT
 			config.Set(micro, "ports", common.ServiceMicroApi)
 			err = config.Save("cli", "Install / Setting default Ports")
 			fatalIfError(cmd, err)
-		}
+		}*/
 
 		if niYamlFile != "" || niJsonFile != "" || niBindUrl != "" {
 
@@ -332,13 +334,13 @@ func checkDefaultBusy(cmd *cobra.Command, proxyConf *install.ProxyConfig, pickOn
 	if e != nil {
 		return proxyConf, "", e
 	}
-	if e := net.CheckPortAvailability(u.Port()); e != nil {
+	if e := unet.CheckPortAvailability(u.Port()); e != nil {
 		if !pickOne {
 			// Just inform that port is busy
 			return proxyConf, u.Port(), nil
 		}
 		// Port is busy, pick another one!
-		newPort := net.GetAvailableHttpAltPort()
+		newPort := unet.GetAvailableHttpAltPort()
 		newConf := *proxyConf
 		newConf.Binds[0] = fmt.Sprintf("%s:%d", u.Hostname(), newPort)
 		proxyConf = &newConf
@@ -357,90 +359,95 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	ctx, cancel := context.WithCancel(cmd.Context())
 	defer cancel()
 
-	initStartingToolsOnce.Do(func() {
-		initLogLevel()
+	// initStartingToolsOnce.Do(func() {
+	initLogLevel()
 
-		metrics.Init()
+	metrics.Init()
 
-		// Initialise the default registry
-		handleRegistry()
+	// Initialise the default registry
+	// handleRegistry()
 
-		// Initialise the default broker
-		handleBroker()
+	// Initialise the default broker
+	// handleBroker()
 
-		// Initialise the default transport
-		handleTransport()
+	// Initialise the default transport
+	// handleTransport()
 
-		// Making sure we capture the signals
-		handleSignals()
-	})
+	// Making sure we capture the signals
+	// handleSignals()
+	// })
 
-	plugins.Init(ctx, "install")
-
-	initServices()
+	// initServices()
 
 	// Installing the JS data
-	dir, err := assets.GetAssets("../discovery/install/assets/src")
+	dir, err := statics.GetAssets("../discovery/install/assets/src")
 	if err != nil {
 		dir = filepath.Join(config.ApplicationWorkingDir(), "static", "install")
-		if _, _, err := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
+		if _, _, err := statics.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
 			cmd.Println("Could not restore install package", err)
 			os.Exit(0)
 		}
 	}
 
-	// starting the microservice
-	micro := registry.Default.GetServiceByName(common.ServiceMicroApi)
-	micro.Start(ctx)
-
-	// starting the installation REST service
-	regService := registry.Default.GetServiceByName(common.ServiceInstall)
-
-	// Starting service install
-	regService.Start(ctx)
-
-	// Creating temporary caddy file
-	sites, err := config.LoadSites()
+	reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
 	if err != nil {
-		cmd.Println("Could not start with fast restart:", err)
-		os.Exit(1)
+		return
 	}
-	var er error
-	caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
-	if er != nil {
-		cmd.Println("Could not convert sites to caddy confs", er)
-	}
-	caddyconf.WebRoot = dir
-	caddyconf.Micro = common.ServiceMicroApi
 
-	caddy.Enable(caddyfile, play)
+	ctx = servercontext.WithRegistry(ctx, reg)
+	ctx = servicecontext.WithRegistry(ctx, reg)
 
-	restartDone, err := caddy.StartWithFastRestart()
+	srvHTTP, err := caddy.New(ctx, dir)
 	if err != nil {
-		cmd.Println("Could not start with fast restart:", err)
-		os.Exit(1)
+		panic(err)
 	}
+
+	// broker.Connect()
+
+	plugins.Init(ctx, "install")
+
+	/*
+		// Creating temporary caddy file
+		sites, err := config.LoadSites()
+		if err != nil {
+			cmd.Println("Could not start with fast restart:", err)
+			os.Exit(1)
+		}
+		var er error
+		caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
+		if er != nil {
+			cmd.Println("Could not convert sites to caddy confs", er)
+		}
+		caddyconf.WebRoot = dir
+
+		caddy.Enable(caddyfile, play)
+
+		restartDone, err := caddy.StartWithFastRestart()
+		if err != nil {
+			cmd.Println("Could not start with fast restart:", err)
+			os.Exit(1)
+		}*/
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetBinds()[0]))
 	cmd.Println("")
 
-	subscriber, err := broker.Subscribe(common.TopicProxyRestarted, func(p broker.Publication) error {
-
-		url := proxyConf.ReverseProxyURL
-		if url == "" {
-			url = proxyConf.GetDefaultBindURL()
-		}
-
-		cmd.Println("")
-		cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(url) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
-		cmd.Println("")
-
-		open(url)
-
-		return nil
-	})
+	//unSubscriber, err := broker.Subscribe(common.TopicProxyRestarted, func(p broker.Message) error {
+	//
+	//	url := proxyConf.ReverseProxyURL
+	//	if url == "" {
+	//		url = proxyConf.GetDefaultBindURL()
+	//	}
+	//
+	//	cmd.Println("")
+	//	cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(url) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
+	//	cmd.Println("")
+	//
+	//	open(url)
+	//
+	//	return nil
+	//})
 
 	if err != nil {
 		cmd.Print("Could not subscribe to broker: ", err)
@@ -450,13 +457,21 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	instanceDone := make(chan struct{}, 1)
 
 	go func() {
-		<-restartDone
-		instance := caddy.GetInstance()
-		instance.Wait()
-		instanceDone <- struct{}{}
+		if err := srvHTTP.Serve(); err != nil {
+			fmt.Println(err)
+		}
 	}()
 
-	defer subscriber.Unsubscribe()
+	go func() {
+		// <-restartDone
+		/* TODO v4 instance := caddy.GetInstance()
+		instance.Wait()
+		instanceDone <- struct{}{}
+		*/
+
+	}()
+
+	// defer unSubscriber()
 
 	select {
 	case <-instanceDone:
@@ -468,7 +483,8 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 /* HELPERS */
 
-func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
+/*
+func play(site ...interface{}) (*bytes.Buffer, error) {
 	template := caddy.Get().GetTemplate()
 
 	buf := bytes.NewBuffer([]byte{})
@@ -477,7 +493,7 @@ func play(site ...caddy.SiteConf) (*bytes.Buffer, error) {
 	}
 
 	return buf, nil
-}
+}*/
 
 // open opens the specified URL in the default browser of the user.
 func open(url string) error {
@@ -512,6 +528,8 @@ func fatalIfError(cmd *cobra.Command, err error) {
 
 func init() {
 	flags := ConfigureCmd.Flags()
+
+	flags.String("http.address", ":8002", "HTTP Server Address")
 
 	flags.String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.String("external", "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")

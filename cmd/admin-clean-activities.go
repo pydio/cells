@@ -31,15 +31,15 @@ import (
 	"time"
 
 	pu "github.com/manifoldco/promptui"
-	"github.com/pborman/uuid"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/boltdb"
-	defaults "github.com/pydio/cells/common/micro"
-	activity2 "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	activity2 "github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -158,7 +158,7 @@ EXAMPLES
 		} else {
 			requestData, _ := json.Marshal(requestParameters)
 
-			jobClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
+			jobClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 			job := &jobs.Job{
 				ID:             uuid.New(),
 				Owner:          purgeActivityAdminUser,

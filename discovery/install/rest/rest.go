@@ -21,17 +21,19 @@
 package rest
 
 import (
+	"fmt"
+	"github.com/pydio/cells/v4/common/config"
 	"time"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful/v3"
 	"github.com/jcuga/golongpoll"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/caddy"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/discovery/install/lib"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/server/caddy/hooks"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
 // Handler to the REST requests.
@@ -126,9 +128,11 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteEntity(response)
 	}
 
+	fmt.Println(config.Get())
+
 	go func() {
 		<-time.After(3 * time.Second)
-		caddy.Stop()
+		hooks.Stop()
 		h.eventManager.Shutdown()
 	}()
 }

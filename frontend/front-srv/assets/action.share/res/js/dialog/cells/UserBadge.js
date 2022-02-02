@@ -46,9 +46,10 @@ class UserBadge extends Component{
         const iconStyle = {fontSize: 18};
         return(
             <IconMenu
-                iconButtonElement={<IconButton style={{padding: 16}} iconStyle={iconStyle} iconClassName="mdi mdi-dots-vertical"/>}
+                iconButtonElement={<IconButton style={{width:30,height:30, padding: 5}} iconStyle={iconStyle} iconClassName="mdi mdi-dots-vertical"/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                desktop={true}
             >
                 {menuItems}
             </IconMenu>
@@ -73,12 +74,13 @@ class UserBadge extends Component{
             avatar = <span className="avatar mdi mdi-account" style={{backgroundColor:avatarColor}}/>;
         }
         const menu = this.renderMenu();
+        const {boxes} = this.props;
         return (
             <div className={"share-dialog user-badge user-type-" + this.props.type}>
                 {avatar}
                 <span className="user-badge-label">{this.props.label}</span>
-                {this.props.children}
                 {menu}
+                {boxes}
             </div>
         );
     }

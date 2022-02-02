@@ -27,46 +27,45 @@ import (
 	"io"
 	"time"
 
-	"github.com/pydio/cells/common/sync/model"
+	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/notification"
+	"github.com/minio/minio-go/v7/pkg/tags"
 
-	"github.com/pydio/cells/common"
-
-	"github.com/pydio/minio-go"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 type MockableMinio interface {
-	StatObject(bucket string, path string, opts minio.StatObjectOptions) (minio.ObjectInfo, error)
-	RemoveObject(bucket string, path string) error
-	PutObject(bucket string, path string, reader io.Reader, size int64, opts minio.PutObjectOptions) (n int64, err error)
-	GetObject(bucket string, path string, opts minio.GetObjectOptions) (object *minio.Object, err error)
-	ListObjectsV2(bucketName, objectPrefix string, recursive bool, doneCh <-chan struct{}) <-chan minio.ObjectInfo
-	CopyObject(dest minio.DestinationInfo, source minio.SourceInfo) error
-	ListenBucketNotification(bucketName, prefix, suffix string, events []string, doneCh <-chan struct{}) <-chan minio.NotificationInfo
-	ListBuckets() ([]minio.BucketInfo, error)
-	ListBucketsWithContext(ctx context.Context) ([]minio.BucketInfo, error)
-	BucketExists(string) (bool, error)
-	GetBucketTagging(string) ([]minio.Tag, error)
+	ListBuckets(ctx context.Context) ([]minio.BucketInfo, error)
+	BucketExists(context.Context, string) (bool, error)
+	GetBucketTagging(context.Context, string) (*tags.Tags, error)
+
+	StatObject(ctx context.Context, bucket string, path string, opts minio.StatObjectOptions) (minio.ObjectInfo, error)
+	GetObject(ctx context.Context, bucket string, path string, opts minio.GetObjectOptions) (object *minio.Object, err error)
+	ListObjects(ctx context.Context, bucketName string, opts minio.ListObjectsOptions) <-chan minio.ObjectInfo
+
+	RemoveObject(ctx context.Context, bucketName, objectName string, opts minio.RemoveObjectOptions) error
+
+	PutObject(ctx context.Context, bucket string, path string, reader io.Reader, size int64, opts minio.PutObjectOptions) (ui minio.UploadInfo, err error)
+	CopyObject(ctx context.Context, dst minio.CopyDestOptions, src minio.CopySrcOptions) (minio.UploadInfo, error)
+	ListenBucketNotification(ctx context.Context, bucketName, prefix, suffix string, events []string) <-chan notification.Info
 }
 
 type MinioClientMock struct {
 	objects    map[string]minio.ObjectInfo
 	buckets    []minio.BucketInfo
-	bucketTags map[string][]minio.Tag
+	bucketTags map[string]*tags.Tags
 }
 
-func (c *MinioClientMock) ListBuckets() (bb []minio.BucketInfo, e error) {
+func (c *MinioClientMock) ListBuckets(_ context.Context) (bb []minio.BucketInfo, e error) {
 	return c.buckets, nil
 }
 
-func (c *MinioClientMock) ListBucketsWithContext(ctx context.Context) (bb []minio.BucketInfo, e error) {
-	return c.buckets, nil
-}
-
-func (c *MinioClientMock) BucketExists(string) (bool, error) {
+func (c *MinioClientMock) BucketExists(context.Context, string) (bool, error) {
 	return true, nil
 }
 
-func (c *MinioClientMock) StatObject(bucket string, path string, opts minio.StatObjectOptions) (minio.ObjectInfo, error) {
+func (c *MinioClientMock) StatObject(_ context.Context, bucket string, path string, opts minio.StatObjectOptions) (minio.ObjectInfo, error) {
 	obj, ok := c.objects[path]
 	if ok {
 		return obj, nil
@@ -75,25 +74,26 @@ func (c *MinioClientMock) StatObject(bucket string, path string, opts minio.Stat
 	}
 }
 
-func (c *MinioClientMock) RemoveObject(bucket string, path string) error {
+func (c *MinioClientMock) RemoveObject(ctx context.Context, bucketName, objectName string, opts minio.RemoveObjectOptions) error {
 	return nil
 }
 
-func (c *MinioClientMock) PutObject(bucket string, path string, reader io.Reader, size int64, opts minio.PutObjectOptions) (n int64, err error) {
+func (c *MinioClientMock) PutObject(_ context.Context, bucket string, path string, reader io.Reader, size int64, opts minio.PutObjectOptions) (ui minio.UploadInfo, err error) {
 	buf := &bytes.Buffer{}
 	nRead, err := io.Copy(buf, reader)
 	if err != nil {
-		return 0, err
+		return ui, err
 	}
-	return nRead, nil
+	ui.Size = nRead
+	return
 }
 
-func (c *MinioClientMock) GetObject(bucket string, path string, opts minio.GetObjectOptions) (object *minio.Object, err error) {
+func (c *MinioClientMock) GetObject(_ context.Context, bucket string, path string, opts minio.GetObjectOptions) (object *minio.Object, err error) {
 	object = &minio.Object{}
 	return object, errors.New("Object is not mockable, cannot emulate GetObject")
 }
 
-func (c *MinioClientMock) ListObjectsV2(bucketName, objectPrefix string, recursive bool, doneCh <-chan struct{}) <-chan minio.ObjectInfo {
+func (c *MinioClientMock) ListObjects(ctx context.Context, bucketName string, opts minio.ListObjectsOptions) <-chan minio.ObjectInfo {
 	out := make(chan minio.ObjectInfo, 1)
 	go func() {
 		defer close(out)
@@ -104,23 +104,23 @@ func (c *MinioClientMock) ListObjectsV2(bucketName, objectPrefix string, recursi
 	return out
 }
 
-func (c *MinioClientMock) CopyObject(dest minio.DestinationInfo, source minio.SourceInfo) error {
-	return nil
+func (c *MinioClientMock) CopyObject(ctx context.Context, dst minio.CopyDestOptions, src minio.CopySrcOptions) (u minio.UploadInfo, e error) {
+	return
 }
 
-func (c *MinioClientMock) ListenBucketNotification(bucketName, prefix, suffix string, events []string, doneCh <-chan struct{}) <-chan minio.NotificationInfo {
-	out := make(chan minio.NotificationInfo)
+func (c *MinioClientMock) ListenBucketNotification(ctx context.Context, bucketName, prefix, suffix string, events []string) <-chan notification.Info {
+	out := make(chan notification.Info)
 	return out
 }
 
-func (c *MinioClientMock) GetBucketTagging(bucketName string) ([]minio.Tag, error) {
+func (c *MinioClientMock) GetBucketTagging(_ context.Context, bucketName string) (tt *tags.Tags, e error) {
 	if c.bucketTags == nil {
-		return []minio.Tag{}, nil
+		return
 	}
-	if tt, o := c.bucketTags[bucketName]; o {
-		return tt, nil
+	if bTags, o := c.bucketTags[bucketName]; o {
+		return bTags, nil
 	}
-	return []minio.Tag{}, nil
+	return
 }
 
 func NewS3Mock(bucketName ...string) *Client {
@@ -131,7 +131,7 @@ func NewS3Mock(bucketName ...string) *Client {
 			{Name: "cell3", CreationDate: time.Now()},
 			{Name: "other", CreationDate: time.Now()},
 		},
-		bucketTags: make(map[string][]minio.Tag),
+		bucketTags: make(map[string]*tags.Tags),
 		objects:    make(map[string]minio.ObjectInfo),
 	}
 	mock.objects["file"] = minio.ObjectInfo{
@@ -141,23 +141,20 @@ func NewS3Mock(bucketName ...string) *Client {
 	mock.objects["folder/"+common.PydioSyncHiddenFile] = minio.ObjectInfo{
 		Key: "folder/" + common.PydioSyncHiddenFile,
 	}
-	mock.bucketTags["cell1"] = append(mock.bucketTags["cell1"], minio.Tag{
-		Key:   "TagName",
-		Value: "TagValue",
-	})
-	mock.bucketTags["cell1"] = append(mock.bucketTags["cell1"], minio.Tag{
-		Key:   "OtherTagName",
-		Value: "OtherTagValue",
-	})
+	mock.bucketTags["cell1"], _ = tags.NewTags(map[string]string{
+		"TagName":      "TagValue",
+		"OtherTagName": "OtherTagValue",
+	}, false)
 	bName := "bucket"
 	if len(bucketName) > 0 {
 		bName = bucketName[0]
 	}
 	client := &Client{
-		Mc:       mock,
-		Bucket:   bName,
-		RootPath: "",
-		options:  model.EndpointOptions{BrowseOnly: true},
+		globalContext: context.Background(),
+		Mc:            mock,
+		Bucket:        bName,
+		RootPath:      "",
+		options:       model.EndpointOptions{BrowseOnly: true},
 	}
 	return client
 }

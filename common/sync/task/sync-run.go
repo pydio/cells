@@ -29,9 +29,9 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/sync/merger"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 func (s *Sync) run(ctx context.Context, dryRun bool, force bool) (model.Stater, error) {

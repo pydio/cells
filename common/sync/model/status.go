@@ -24,9 +24,8 @@ import (
 	"fmt"
 	"math"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type TaskStatus int

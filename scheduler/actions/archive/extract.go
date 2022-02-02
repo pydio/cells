@@ -27,17 +27,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
-	"github.com/pydio/cells/scheduler/actions/tools"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/archive"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v4/scheduler/actions/tools"
 )
 
 var (
@@ -105,7 +103,7 @@ func (ex *ExtractAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (ex *ExtractAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
+func (ex *ExtractAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if format, ok := action.Parameters["format"]; ok {
 		ex.format = format
 	}
@@ -160,7 +158,7 @@ func (ex *ExtractAction) Run(ctx context.Context, channels *actions.RunnableChan
 		return input.WithError(e), e
 	}
 
-	reader := &views.ArchiveReader{
+	reader := &archive.Reader{
 		Router: handler,
 	}
 	var err error

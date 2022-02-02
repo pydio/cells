@@ -24,15 +24,12 @@ import (
 	"context"
 	"fmt"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/forms"
-
-	"github.com/micro/go-micro/client"
-	"github.com/pydio/cells/common/etl"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/etl"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 type syncShareLoadedUser struct{}
@@ -80,7 +77,7 @@ func (c *SyncSharesAction) GetParametersForm() *forms.Form {
 }
 
 // Init passes relevant parameters.
-func (c *SyncSharesAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *SyncSharesAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if err := c.ParseStores(action.Parameters); err != nil {
 		return err
 	}

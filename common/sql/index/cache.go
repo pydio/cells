@@ -32,15 +32,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	commonsql "github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils/mtree"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -275,7 +275,7 @@ func (d *daocache) path(strpath string, create bool, noAdd bool, reqNode ...*tre
 		node := NewNode(source, mpath, names)
 
 		if node.Uuid == "" {
-			node.Uuid = uuid.NewUUID().String()
+			node.Uuid = uuid.New()
 		}
 
 		if node.Etag == "" {

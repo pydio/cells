@@ -25,20 +25,20 @@ import (
 	"context"
 	"path"
 
-	"github.com/pydio/cells/common/proto/sync"
-
-	micro "github.com/micro/go-micro"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/broker/log"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	log3 "github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
-	proto "github.com/pydio/cells/common/proto/jobs"
-	log2 "github.com/pydio/cells/common/proto/log"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/scheduler/jobs"
+	"github.com/pydio/cells/v4/broker/log"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	log3 "github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	proto "github.com/pydio/cells/v4/common/proto/jobs"
+	log2 "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/scheduler/jobs"
 )
 
 var (
@@ -47,15 +47,18 @@ var (
 	Migration230 = false
 )
 
+const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceJobs
+
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceJobs),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
 			service.Unique(true),
 			service.Fork(true),
+			service.WithStorage(jobs.NewDAO, "jobs"),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),
@@ -82,90 +85,82 @@ func init() {
 					},
 				},
 			}),
-			service.WithMicro(func(m micro.Service) error {
-				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceJobs)
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+
+				serviceDir, e := config.ServiceDataDir(ServiceName)
 				if e != nil {
 					return e
 				}
-				store, err := jobs.NewBoltStore(path.Join(serviceDir, "jobs.db"))
-				if err != nil {
-					return err
-				}
+				store := servicecontext.GetDAO(c).(jobs.DAO)
+
 				logStore, err := log.NewSyslogServer(path.Join(serviceDir, "tasklogs.bleve"), "tasksLog", -1)
 				if err != nil {
 					return err
 				}
-				handler := NewJobsHandler(store, logStore)
-				proto.RegisterJobServiceHandler(m.Options().Server, handler)
-				log2.RegisterLogRecorderHandler(m.Options().Server, handler)
-				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
+				handler := NewJobsHandler(c, store, logStore)
+				proto.RegisterJobServiceEnhancedServer(server, handler)
+				log2.RegisterLogRecorderEnhancedServer(server, handler)
+				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 
-				m.Init(
-					micro.BeforeStop(func() error {
-						handler.Close()
-						logStore.Close()
-						store.Close()
-						return nil
-					}),
-					micro.AfterStart(func() error {
-						for _, j := range getDefaultJobs() {
-							if e := handler.GetJob(m.Options().Context, &proto.GetJobRequest{JobID: j.ID}, &proto.GetJobResponse{}); e != nil {
-								handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
-							}
-							// Force re-adding thumbs job
-							if Migration230 && j.ID == "thumbs-job" {
-								handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
-							}
-						}
-						// Clean tasks stuck in "Running" status
-						handler.CleanStuckTasks(m.Options().Context)
-						if Migration140 {
-							response := &proto.DeleteTasksResponse{}
-							if e = handler.DeleteTasks(m.Options().Context, &proto.DeleteTasksRequest{
-								JobId:      "users-activity-digest",
-								Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-								PruneLimit: 1,
-							}, response); e == nil {
-								log3.Logger(m.Options().Context).Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Any("number", len(response.Deleted)))
-							} else {
-								log3.Logger(m.Options().Context).Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
-							}
-							if e = handler.DeleteTasks(m.Options().Context, &proto.DeleteTasksRequest{
-								JobId:      "resync-changes-job",
-								Status:     []proto.TaskStatus{proto.TaskStatus_Any},
-								PruneLimit: 1,
-							}, response); e == nil {
-								log3.Logger(m.Options().Context).Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Any("number", len(response.Deleted)))
-							} else {
-								log3.Logger(m.Options().Context).Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
-							}
-						}
-						if Migration150 {
-							// Remove archive-changes-job
-							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "archive-changes-job"}, &proto.DeleteJobResponse{}); e != nil {
-								log3.Logger(m.Options().Context).Error("Could not remove archive-changes-job", zap.Error(e))
-							} else {
-								log3.Logger(m.Options().Context).Info("[Migration] Removed archive-changes-job")
-							}
-							// Remove resync-changes-job
-							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "resync-changes-job"}, &proto.DeleteJobResponse{}); e != nil {
-								log3.Logger(m.Options().Context).Error("Could not remove resync-changes-job", zap.Error(e))
-							} else {
-								log3.Logger(m.Options().Context).Info("[Migration] Removed resync-changes-job")
-							}
-						}
-						if Migration230 {
-							// Remove clean thumbs job and re-insert thumbs job
-							if e := handler.DeleteJob(m.Options().Context, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}, &proto.DeleteJobResponse{}); e != nil {
-								log3.Logger(m.Options().Context).Error("Could not remove clean-thumbs-job", zap.Error(e))
-							} else {
-								log3.Logger(m.Options().Context).Info("[Migration] Removed clean-thumbs-job")
-							}
-						}
-						return nil
-					}),
-				)
+				for _, j := range getDefaultJobs() {
+					if _, e := handler.GetJob(c, &proto.GetJobRequest{JobID: j.ID}); e != nil {
+						handler.PutJob(c, &proto.PutJobRequest{Job: j})
+					}
+					// Force re-adding thumbs job
+					if Migration230 && j.ID == "thumbs-job" {
+						handler.PutJob(c, &proto.PutJobRequest{Job: j})
+					}
+				}
+				// Clean tasks stuck in "Running" status
+				handler.CleanStuckTasks(c)
+				if Migration140 {
+					if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
+						JobId:      "users-activity-digest",
+						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+						PruneLimit: 1,
+					}); e == nil {
+						log3.Logger(c).Info("Migration 1.4.0: removed tasks on job users-activity-digest that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
+					} else {
+						log3.Logger(c).Error("Error while trying to prune tasks for job users-activity-digest", zap.Error(e))
+					}
+					if resp, e := handler.DeleteTasks(c, &proto.DeleteTasksRequest{
+						JobId:      "resync-changes-job",
+						Status:     []proto.TaskStatus{proto.TaskStatus_Any},
+						PruneLimit: 1,
+					}); e == nil {
+						log3.Logger(c).Info("Migration 1.4.0: removed tasks on job resync-changes-job that could fill up the scheduler", zap.Any("number", len(resp.Deleted)))
+					} else {
+						log3.Logger(c).Error("Error while trying to prune tasks for job resync-changes-job", zap.Error(e))
+					}
+				}
+				if Migration150 {
+					// Remove archive-changes-job
+					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "archive-changes-job"}); e != nil {
+						log3.Logger(c).Error("Could not remove archive-changes-job", zap.Error(e))
+					} else {
+						log3.Logger(c).Info("[Migration] Removed archive-changes-job")
+					}
+					// Remove resync-changes-job
+					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "resync-changes-job"}); e != nil {
+						log3.Logger(c).Error("Could not remove resync-changes-job", zap.Error(e))
+					} else {
+						log3.Logger(c).Info("[Migration] Removed resync-changes-job")
+					}
+				}
+				if Migration230 {
+					// Remove clean thumbs job and re-insert thumbs job
+					if _, e := handler.DeleteJob(c, &proto.DeleteJobRequest{JobID: "clean-thumbs-job"}); e != nil {
+						log3.Logger(c).Error("Could not remove clean-thumbs-job", zap.Error(e))
+					} else {
+						log3.Logger(c).Info("[Migration] Removed clean-thumbs-job")
+					}
+				}
 
+				go func() {
+					<-c.Done()
+					handler.Close()
+					logStore.Close()
+				}()
 				return nil
 			}),
 		)

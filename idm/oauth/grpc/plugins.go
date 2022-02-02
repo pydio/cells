@@ -25,26 +25,27 @@ import (
 	"context"
 	"log"
 
-	"github.com/micro/go-micro"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/plugins"
-	proto "github.com/pydio/cells/common/proto/auth"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/idm/oauth"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/plugins"
+	auth2 "github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/idm/oauth"
+)
+
+var (
+	Name = common.ServiceGrpcNamespace_ + common.ServiceOAuth
 )
 
 func init() {
-
 	plugins.Register("main", func(ctx context.Context) {
 
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceOAuth),
+			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
@@ -55,25 +56,30 @@ func init() {
 					Up:            oauth.InsertPruningJob,
 				},
 			}),
-			service.WithMicro(func(m micro.Service) error {
-				h := &Handler{}
-				proto.RegisterLoginProviderHandler(m.Options().Server, h)
-				proto.RegisterConsentProviderHandler(m.Options().Server, h)
-				proto.RegisterLogoutProviderHandler(m.Options().Server, h)
-				proto.RegisterAuthCodeProviderHandler(m.Options().Server, h)
-				proto.RegisterAuthCodeExchangerHandler(m.Options().Server, h)
-				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, h)
-				proto.RegisterAuthTokenRefresherHandler(m.Options().Server, h)
-				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, h)
-				proto.RegisterAuthTokenPrunerHandler(m.Options().Server, h)
-				proto.RegisterPasswordCredentialsTokenHandler(m.Options().Server, h)
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				h := &Handler{name: Name}
 
-				return nil
+				auth2.RegisterAuthTokenVerifierEnhancedServer(server, h)
+				auth2.RegisterLoginProviderEnhancedServer(server, h)
+				auth2.RegisterConsentProviderEnhancedServer(server, h)
+				auth2.RegisterLogoutProviderEnhancedServer(server, h)
+				auth2.RegisterAuthCodeProviderEnhancedServer(server, h)
+				auth2.RegisterAuthCodeExchangerEnhancedServer(server, h)
+				auth2.RegisterAuthTokenRefresherEnhancedServer(server, h)
+				auth2.RegisterAuthTokenRevokerEnhancedServer(server, h)
+				auth2.RegisterAuthTokenPrunerEnhancedServer(server, h)
+				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
+
+				// Registry
+				return auth.InitRegistry(Name)
 			}),
-			service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
-				auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
-			}),
-			service.BeforeStart(initialize),
+			/*
+				// TODO V4
+				service.WatchPath("services/"+common.ServiceWebNamespace_+common.ServiceOAuth, func(_ service.Service, c configx.Values) {
+					auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
+				}),
+				service.BeforeStart(initialize),
+			*/
 		)
 
 		service.NewService(
@@ -82,11 +88,14 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
 			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
-			service.WithMicro(func(m micro.Service) error {
-				pat := &PatHandler{}
-				proto.RegisterPersonalAccessTokenServiceHandler(m.Options().Server, pat)
-				proto.RegisterAuthTokenVerifierHandler(m.Options().Server, pat)
-				proto.RegisterAuthTokenPrunerHandler(m.Options().Server, pat)
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				pat := &PatHandler{
+					name: common.ServiceGrpcNamespace_ + common.ServiceToken,
+					dao:  servicecontext.GetDAO(ctx).(oauth.DAO),
+				}
+				auth2.RegisterPersonalAccessTokenServiceEnhancedServer(server, pat)
+				auth2.RegisterAuthTokenVerifierEnhancedServer(server, pat)
+				auth2.RegisterAuthTokenPrunerEnhancedServer(server, pat)
 				return nil
 			}),
 		)
@@ -117,16 +126,19 @@ func init() {
 		auth.RegisterGRPCProvider(auth.ProviderTypeGrpc, common.ServiceGrpcNamespace_+common.ServiceOAuth)
 		auth.RegisterGRPCProvider(auth.ProviderTypePAT, common.ServiceGrpcNamespace_+common.ServiceToken)
 	})
+
 }
 
 func initialize(s service.Service) error {
+	/*
+		ctx := s.Options().Context
 
-	ctx := s.Options().Context
+		dao := servicecontext.GetDAO(ctx).(sql.DAO)
 
-	dao := servicecontext.GetDAO(ctx).(sql.DAO)
-
-	// Registry
-	auth.InitRegistry(dao)
+		// Registry
+		auth.InitRegistry(dao)
+	*/
 
 	return nil
+
 }

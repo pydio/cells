@@ -24,20 +24,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service"
-	serviceproto "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/service/resources"
+	restful "github.com/emicklei/go-restful/v3"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	serviceproto "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/resources"
 )
 
 // NewRoleHandler creates and configure a new RoleHandler
@@ -69,20 +69,20 @@ func (s *RoleHandler) GetRole(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	uuid := req.PathParameter("Uuid")
 	log.Logger(ctx).Debug("Received Role.Get API request for uuid " + uuid)
-	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+	query, _ := anypb.New(&idm.RoleSingleQuery{
 		Uuid: []string{uuid},
 	})
-	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{
 		Query: &serviceproto.Query{
-			SubQueries: []*any.Any{query},
+			SubQueries: []*anypb.Any{query},
 		},
 	})
 	if err != nil {
 		// Handle error
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	found := false
 	for {
 		resp, e := streamer.Recv()
@@ -123,7 +123,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 		Operation: inputQuery.Operation,
 	}
 	for _, q := range inputQuery.Queries {
-		anyfied, _ := ptypes.MarshalAny(q)
+		anyfied, _ := anypb.New(q)
 		query.SubQueries = append(query.SubQueries, anyfied)
 	}
 	var er error
@@ -132,7 +132,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 		service.RestError403(req, rsp, er)
 		return
 	}
-	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	request := &idm.SearchRoleRequest{Query: query}
 	cr, e := cl.CountRole(ctx, request)
 	if e != nil {
@@ -145,7 +145,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	result := new(rest.RolesCollection)
 	result.Total = cr.GetCount()
 	for {
@@ -170,18 +170,18 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 	uuid := req.PathParameter("Uuid")
 	log.Logger(ctx).Debug("Received Role.Delete API request", zap.String("name", uuid))
 
-	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	if checkError := s.IsAllowed(ctx, uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil {
 		service.RestError403(req, rsp, checkError)
 		return
 	}
 
 	// Now delete role
-	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+	query, _ := anypb.New(&idm.RoleSingleQuery{
 		Uuid: []string{uuid},
 	})
 	_, e := cl.DeleteRole(ctx, &idm.DeleteRoleRequest{
-		Query: &serviceproto.Query{SubQueries: []*any.Any{query}},
+		Query: &serviceproto.Query{SubQueries: []*anypb.Any{query}},
 	})
 	if e != nil {
 		service.RestError500(req, rsp, e)
@@ -206,10 +206,10 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	ctx := req.Request.Context()
-	cl := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+	cl := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	log.Logger(ctx).Debug("Received Role.Set", zap.Any("r", inputRole))
 
-	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && errors.Parse(checkError.Error()).Code != 404 {
+	if checkError := s.IsAllowed(ctx, inputRole.Uuid, serviceproto.ResourcePolicyAction_WRITE, cl); checkError != nil && errors.FromError(checkError).Code != 404 {
 		service.RestError403(req, rsp, checkError)
 		return
 	}
@@ -232,17 +232,17 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 // PoliciesForRole retrieves Policies bound to a role given its UUID
 func (s *RoleHandler) PoliciesForRole(ctx context.Context, resourceId string, resourceClient interface{}) (policies []*serviceproto.ResourcePolicy, e error) {
 
-	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+	query, _ := anypb.New(&idm.RoleSingleQuery{
 		Uuid: []string{resourceId},
 	})
-	searchQuery := &serviceproto.Query{SubQueries: []*any.Any{query}}
+	searchQuery := &serviceproto.Query{SubQueries: []*anypb.Any{query}}
 
 	cli := resourceClient.(idm.RoleServiceClient)
 	st, e := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: searchQuery})
 	if e != nil {
 		return policies, e
 	}
-	defer st.Close()
+	defer st.CloseSend()
 	var role *idm.Role
 	for {
 		resp, err := st.Recv()

@@ -21,12 +21,11 @@
 package mailer
 
 import (
-	"encoding/xml"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/proto/mailer"
 )
 
 func TestBuildFromWelcomeTemplate(t *testing.T) {
@@ -43,14 +42,10 @@ func TestBuildFromWelcomeTemplate(t *testing.T) {
 		ContentPlain: "This is a test",
 	}
 
-	if err := buildFromWelcomeTemplate(email, email.To[0]); err != nil {
-		t.Errorf("Failed to build template %s", err.Error())
-	}
-
-	var content interface{}
 	convey.Convey("Build html template", t, func() {
-		err := xml.Unmarshal([]byte(email.ContentHtml), &content)
+		err := buildFromWelcomeTemplate(email, email.To[0])
 		convey.So(err, convey.ShouldBeNil)
+		convey.So(email.ContentHtml, convey.ShouldNotBeEmpty)
 	})
 
 	/*

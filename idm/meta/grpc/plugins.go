@@ -23,20 +23,21 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/go-sql-driver/mysql"
+	"google.golang.org/grpc"
 
-	"github.com/micro/go-micro"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service2 "github.com/pydio/cells/common/service/proto"
-	meta2 "github.com/pydio/cells/common/utils/meta"
-	"github.com/pydio/cells/idm/meta"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
+	meta2 "github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/idm/meta"
 )
 
 var (
@@ -49,7 +50,10 @@ func init() {
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
+			service.Metadata(meta2.ServiceMetaProvider, "stream"),
+			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Description("User-defined Metadata"),
+
 			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
 			service.Unique(true),
 			service.Migrations([]*service.Migration{
@@ -58,25 +62,24 @@ func init() {
 					Up:            defaultMetas,
 				},
 			}),
-			service.WithMicro(func(m micro.Service) error {
-				ctx := m.Options().Context
-				server := NewHandler()
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
-				service.AddMicroMeta(m, meta2.ServiceMetaProvider, "stream")
-				service.AddMicroMeta(m, meta2.ServiceMetaNsProvider, "list")
-
-				m.Init(micro.BeforeStop(func() error {
-					server.Stop()
-					return nil
-				}))
-				idm.RegisterUserMetaServiceHandler(m.Options().Server, server)
-				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, server)
+				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(meta.DAO))
+				idm.RegisterUserMetaServiceEnhancedServer(server, handler)
+				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
 				// Clean role on user deletion
 				cleaner := NewCleaner(servicecontext.GetDAO(ctx))
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, cleaner)); err != nil {
-					return err
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						return cleaner.Handle(ct, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
 				}
+
 				return nil
 			}),
 		)

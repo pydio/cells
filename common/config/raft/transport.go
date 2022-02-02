@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -23,7 +25,7 @@ package raft
 import (
 	"fmt"
 
-	"go.etcd.io/etcd/raft/raftpb"
+	"go.etcd.io/etcd/raft/v3/raftpb"
 )
 
 type transport struct {

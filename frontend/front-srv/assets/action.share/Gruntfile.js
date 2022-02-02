@@ -44,7 +44,18 @@ module.exports = function(grunt) {
                 }
             }
         },
-
+        less: {
+            development: {
+                options: {
+                    plugins: [
+                        new (require('less-plugin-autoprefix'))({browsers: ["last 2 versions, > 10%"]})
+                    ]
+                },
+                files: {
+                    "res/react-share-form.css": "res/react-share-form.less",
+                }
+            }
+        },
         compress: {
             options: {
                 mode: 'gzip',
@@ -68,9 +79,10 @@ module.exports = function(grunt) {
         watch: {
             js: {
                 files: [
-                    "res/js/**/*"
+                    "res/js/**/*",
+                    "res/*.less"
                 ],
-                tasks: ['babel', 'browserify', 'uglify', 'compress'],
+                tasks: ['babel', 'browserify', 'uglify', 'less', 'compress'],
                 options: {
                     spawn: false
                 }
@@ -82,5 +94,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.registerTask('default', ['babel', 'browserify', 'uglify', 'compress']);
+    grunt.loadNpmTasks('assemble-less');
+    grunt.registerTask('default', ['babel', 'browserify', 'uglify', 'less', 'compress']);
 };

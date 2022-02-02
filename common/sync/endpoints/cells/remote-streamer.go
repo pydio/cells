@@ -26,14 +26,13 @@ import (
 	"math"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 // BulkLoadNodes streams ReadNode requests from server
@@ -42,11 +41,13 @@ func (c *Remote) BulkLoadNodes(ctx context.Context, nodes map[string]string) (ma
 	if err != nil {
 		return nil, err
 	}
-	streamer, err := cli.ReadNodeStream(newCtx, client.WithRequestTimeout(5*time.Minute))
+	sendCtx, can := context.WithTimeout(newCtx, 5*time.Minute)
+	defer can()
+	streamer, err := cli.ReadNodeStream(sendCtx)
 	if err != nil {
 		return nil, err
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	results := make(map[string]interface{}, len(nodes))
 	for path, nodePath := range nodes {
 		if e := streamer.Send(&tree.ReadNodeRequest{
@@ -100,7 +101,9 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	if err != nil {
 		return err
 	}
-	streamer, err := cli.CreateNodeStream(c.getContext(ctx), client.WithRequestTimeout(5*time.Minute))
+	sendCtx, can := context.WithTimeout(c.getContext(ctx), 5*time.Minute)
+	defer can()
+	streamer, err := cli.CreateNodeStream(sendCtx)
 	if err != nil {
 		return err
 	}
@@ -113,7 +116,7 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 	// do not close stream deferred as it is recursive
 	for _, create := range creates {
 		if e := streamer.Send(create); e != nil {
-			streamer.Close()
+			streamer.CloseSend()
 			return e
 		}
 		if resp, e := streamer.Recv(); e == nil {
@@ -123,11 +126,11 @@ func (c *Remote) FlushSession(ctx context.Context, sessionUuid string) error {
 				c.RecentMkDirs = append(c.RecentMkDirs, resp.Node)
 			}
 		} else {
-			streamer.Close()
+			streamer.CloseSend()
 			return e
 		}
 	}
-	streamer.Close()
+	streamer.CloseSend()
 	if len(c.sessionsCreates) > 0 {
 		<-time.After(500 * time.Millisecond)
 		log.Logger(ctx).Info(fmt.Sprintf("[Remote Streamer] Flushing creates session, there are %d left to apply", len(c.sessionsCreates)))

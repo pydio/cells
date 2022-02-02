@@ -26,18 +26,17 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/idm"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service "github.com/pydio/cells/common/service/proto"
-	commonsql "github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/idm/role"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	commonsql "github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/idm/role"
 )
 
 var (
@@ -47,26 +46,6 @@ var (
 )
 
 func TestMain(m *testing.M) {
-
-	// var err error
-
-	// db, err := sql.Open("sqlite3", "file::memory:?mode=memory&cache=shared")
-	// if err != nil {
-	// 	log.Fatal("Could not start test ", err)
-	// 	return
-	// }
-	// mockDB := &commonsql.SQLConn{DB: db}
-
-	// options := config.NewMap()
-	// options.Set("database", mockDB)
-	// options.Set("exclusive", true)
-	// options.Set("prepare", true)
-
-	// roleDAO = role.NewSQLite()
-	// if err := roleDAO.Init(options); err != nil {
-	// 	log.Fatal("Could not start test ", err)
-	// 	return
-	// }
 
 	// Instantiate and initialise the role DAO Mock
 	sqlDao := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
@@ -81,8 +60,7 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	ctx = servicecontext.WithDAO(context.Background(), roleDAO.(dao.DAO))
-
+	ctx = context.Background()
 	m.Run()
 	wg.Wait()
 }
@@ -90,10 +68,10 @@ func TestMain(m *testing.M) {
 func TestRole(t *testing.T) {
 
 	s := new(Handler)
+	s.dao = roleDAO
 
 	Convey("Create Roles", t, func() {
-		resp := new(idm.CreateRoleResponse)
-		err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role1", Label: "Role 1"}}, resp)
+		resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role1", Label: "Role 1"}})
 
 		So(err, ShouldBeNil)
 		So(resp.GetRole().GetUuid(), ShouldEqual, "role1")
@@ -101,57 +79,55 @@ func TestRole(t *testing.T) {
 	})
 
 	Convey("Create Roles", t, func() {
-		resp := new(idm.CreateRoleResponse)
-		err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role2", Label: "Role 2"}}, resp)
+		resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role2", Label: "Role 2"}})
 
 		So(err, ShouldBeNil)
 		So(resp.GetRole().GetUuid(), ShouldEqual, "role2")
 	})
 
 	Convey("Create Role with Comma", t, func() {
-		resp := new(idm.CreateRoleResponse)
-		err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "dn=toto,dn=zz", Label: "Role Fail"}}, resp)
+		_, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "dn=toto,dn=zz", Label: "Role Fail"}})
 		So(err, ShouldNotBeNil)
 	})
 
 	Convey("Get Role", t, func() {
-		mock := &roleStreamMock{}
-		err := s.StreamRole(ctx, mock)
+		mock := &roleStreamMock{ctx: ctx}
+		err := s.StreamRole(mock)
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 0)
 	})
 
 	Convey("Search Role", t, func() {
-		mock := &roleStreamMock{}
-		err := s.SearchRole(ctx, &idm.SearchRoleRequest{}, mock)
+		mock := &roleStreamMock{ctx: ctx}
+		err := s.SearchRole(&idm.SearchRoleRequest{}, mock)
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 2)
 	})
 
 	Convey("Delete Role", t, func() {
-		err := s.DeleteRole(ctx, &idm.DeleteRoleRequest{}, &idm.DeleteRoleResponse{})
+		_, err := s.DeleteRole(ctx, &idm.DeleteRoleRequest{})
 		So(err, ShouldNotBeNil)
 	})
 
 	Convey("Delete Role", t, func() {
 		singleQ1 := new(idm.RoleSingleQuery)
 		singleQ1.Uuid = []string{"role1"}
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
 		query := &service.Query{
-			SubQueries: []*any.Any{singleQ1Any},
+			SubQueries: []*anypb.Any{singleQ1Any},
 		}
 
-		err = s.DeleteRole(ctx, &idm.DeleteRoleRequest{Query: query}, &idm.DeleteRoleResponse{})
+		_, err = s.DeleteRole(ctx, &idm.DeleteRoleRequest{Query: query})
 		So(err, ShouldBeNil)
 	})
 
 	Convey("Search Role", t, func() {
-		mock := &roleStreamMock{}
-		err := s.SearchRole(ctx, &idm.SearchRoleRequest{}, mock)
+		mock := &roleStreamMock{ctx: ctx}
+		err := s.SearchRole(&idm.SearchRoleRequest{}, mock)
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 1)
@@ -160,11 +136,10 @@ func TestRole(t *testing.T) {
 
 func TestRoleWithRules(t *testing.T) {
 
-	s := new(Handler)
+	s := &Handler{dao: roleDAO}
 	Convey("Create Roles with Resource Rule", t, func() {
 
-		resp := new(idm.CreateRoleResponse)
-		err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role-res", Label: "Role 1"}}, resp)
+		resp, err := s.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{Uuid: "role-res", Label: "Role 1"}})
 
 		So(err, ShouldBeNil)
 		So(resp.GetRole().GetUuid(), ShouldEqual, "role-res")
@@ -179,11 +154,11 @@ func TestRoleWithRules(t *testing.T) {
 
 	Convey("Find Roles with Resource", t, func() {
 
-		singleQ, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: []string{"role-res"}})
+		singleQ, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{"role-res"}})
 
 		// Search with wrong context
 		simpleQuery := &service.Query{
-			SubQueries: []*any.Any{singleQ},
+			SubQueries: []*anypb.Any{singleQ},
 			Offset:     0,
 			Limit:      10,
 			ResourcePolicyQuery: &service.ResourcePolicyQuery{
@@ -191,8 +166,8 @@ func TestRoleWithRules(t *testing.T) {
 			},
 		}
 
-		mock := &roleStreamMock{}
-		err := s.SearchRole(ctx, &idm.SearchRoleRequest{
+		mock := &roleStreamMock{ctx: ctx}
+		err := s.SearchRole(&idm.SearchRoleRequest{
 			Query: simpleQuery,
 		}, mock)
 
@@ -201,8 +176,8 @@ func TestRoleWithRules(t *testing.T) {
 
 		// Search with "ANY"
 		simpleQuery.ResourcePolicyQuery.Subjects = []string{}
-		mock = &roleStreamMock{}
-		err = s.SearchRole(ctx, &idm.SearchRoleRequest{
+		mock = &roleStreamMock{ctx: ctx}
+		err = s.SearchRole(&idm.SearchRoleRequest{
 			Query: simpleQuery,
 		}, mock)
 
@@ -218,8 +193,8 @@ func TestRoleWithRules(t *testing.T) {
 			"role:role2",
 		}
 
-		mock = &roleStreamMock{}
-		err = s.SearchRole(ctx, &idm.SearchRoleRequest{
+		mock = &roleStreamMock{ctx: ctx}
+		err = s.SearchRole(&idm.SearchRoleRequest{
 			Query: simpleQuery,
 		}, mock)
 
@@ -235,7 +210,24 @@ func TestRoleWithRules(t *testing.T) {
 // =================================================
 
 type roleStreamMock struct {
+	ctx            context.Context
 	InternalBuffer []*idm.Role
+}
+
+func (x *roleStreamMock) SetHeader(md metadata.MD) error {
+	panic("implement me")
+}
+
+func (x *roleStreamMock) SendHeader(md metadata.MD) error {
+	panic("implement me")
+}
+
+func (x *roleStreamMock) SetTrailer(md metadata.MD) {
+	panic("implement me")
+}
+
+func (x *roleStreamMock) Context() context.Context {
+	return x.ctx
 }
 
 func (x *roleStreamMock) Close() error {

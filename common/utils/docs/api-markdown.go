@@ -31,7 +31,7 @@ import (
 	"text/template"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var tocTemplate = `

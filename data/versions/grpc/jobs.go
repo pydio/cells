@@ -21,16 +21,16 @@
 package grpc
 
 import (
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/data/versions/lang"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/data/versions/lang"
 )
 
 func getVersioningJob() *jobs.Job {
@@ -79,7 +79,7 @@ func getVersioningJob() *jobs.Job {
 			Description: "Excluded non versioned DataSources",
 			Type:        jobs.DataSourceSelectorType_DataSource,
 			Query: &service.Query{
-				SubQueries: []*any.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
+				SubQueries: []*anypb.Any{jobs.MustMarshalAny(&object.DataSourceSingleQuery{
 					IsVersioned: true,
 				})},
 			},

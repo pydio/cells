@@ -26,7 +26,7 @@ import Panel from '../links/Panel'
 import SecureOptions from '../links/SecureOptions'
 import ShareHelper from '../main/ShareHelper'
 import Mailer from './Mailer'
-import CellsList from './CellsList'
+import NewCellsList from './NewCellsList'
 import Clipboard from 'clipboard'
 import PublicLinkTemplate from '../links/PublicLinkTemplate'
 import VisibilityPanel from '../links/VisibilityPanel'
@@ -173,76 +173,53 @@ class CompositeCard extends React.Component {
             if(model.getLinks().length){
                 publicLinkModel = model.getLinks()[0];
             }
-            let header;
-            if(publicLinkModel && publicLinkModel.getLinkUuid() && publicLinkModel.isEditable()) {
-                header = (
-                    <div>
-                        <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
-                        <LabelPanel pydio={pydio} linkModel={publicLinkModel}/>
-                    </div>
-                )
-            } else {
-                header = (
-                    <div style={{fontSize: 24, padding: '26px 10px 0 ', lineHeight: '26px'}}>
-                        <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
-                        {m(256).replace('%s', node.getLabel())}
-                    </div>
-                );
 
+            const header = (
+                <div style={{fontSize: 20, padding: 10}}>
+                    <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
+                    {node && m(256).replace('%s', node.getLabel())}
+                </div>
+            );
+
+            let tabs = {left:[], right:[]};
+            let hasCells = false;
+            if(model.getCells().filter(c => c.getUuid()).length){
+                hasCells = true;
             }
-            let tabs = {left:[], right:[], leftStyle:{padding:0}};
             tabs.right.push({
-                Label:m(250),
+                Label:m(254) + (hasCells?' (active)':''),
                 Value:"cells",
+                Icon:'mdi mdi-account-multiple',
                 Component:(
-                    <CellsList pydio={pydio} compositeModel={model} usersInvitations={this.usersInvitations.bind(this)} style={editorOneColumn?{padding:10}:{}}/>
+                    <NewCellsList pydio={pydio} compositeModel={model} usersInvitations={this.usersInvitations.bind(this)}/>
                 )
             });
             const links = model.getLinks();
             if (publicLinkModel){
+
+                const additionalPanes = [];
+                let active = false
+                if(publicLinkModel.getLinkUuid()){
+                    // LABEL PANEL
+                    active = true
+                    additionalPanes.push({title:m('151'), content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model}/>});
+                    if(links[0].isEditable()){
+                        additionalPanes.push({title:m('253'),content:<VisibilityPanel pydio={pydio} linkModel={links[0]}/>});
+                    }
+                }
+
                 tabs.left.push({
-                    Label:m(251),
+                    Label:m(121) + (active?' (active)':''),
                     Value:'public-link',
+                    Icon:'mdi mdi-link',
                     Component:(<Panel
                         pydio={pydio}
                         compositeModel={model}
                         linkModel={links[0]}
                         showMailer={ShareHelper.mailerSupported(pydio) ? this.linkInvitation.bind(this) : null}
+                        additionalPanes={additionalPanes}
                     />)
                 });
-                if(publicLinkModel.getLinkUuid()){
-
-                    const layoutData = ShareHelper.compileLayoutData(pydio, model);
-                    let templatePane;
-                    if(layoutData.length > 1){
-                        templatePane = <PublicLinkTemplate
-                            linkModel={publicLinkModel}
-                            pydio={pydio}
-                            layoutData={layoutData}
-                            style={{padding: '10px 16px'}}
-                            readonly={model.getNode().isLeaf()}
-                        />;
-                    }
-                    tabs.left.push({
-                        Label:m(252),
-                        Value:'link-secure',
-                        Component:(
-                            <div>
-                                <SecureOptions pydio={pydio} linkModel={links[0]} />
-                                {templatePane && <Divider/>}
-                                {templatePane}
-                            </div>
-                        )
-                    });
-                    if(links[0].isEditable()){
-                        tabs.left.push({
-                            Label:m(253),
-                            Value:'link-visibility',
-                            Component:( <VisibilityPanel pydio={pydio} linkModel={links[0]}/> ),
-                            AlwaysLast: true
-                        })
-                    }
-                }
             }
 
             return (
@@ -255,7 +232,7 @@ class CompositeCard extends React.Component {
                     onCloseAction={() => this.confirmAndDismiss()}
                     onRevertAction={()=>{model.revertChanges()}}
                     editorOneColumn={editorOneColumn}
-                    style={{width:'100%', height: null, flex: 1, minHeight:550, color: 'rgba(0,0,0,.83)', fontSize: 13}}
+                    style={{width:'100%', height: null, flex: 1, minHeight:350, color: 'rgba(0,0,0,.83)', fontSize: 13}}
                 />
             );
 
@@ -266,11 +243,6 @@ class CompositeCard extends React.Component {
             model.getCells().map(cell => {
                 cells.push(cell.getLabel());
             });
-            if(cells.length){
-                lines.push(
-                    <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(254)} data={cells.join(', ')}/>
-                );
-            }
             const links = model.getLinks();
             if (links.length){
                 const ln = links[0];
@@ -300,6 +272,11 @@ class CompositeCard extends React.Component {
                         }/>
                     )
                 }
+            }
+            if(cells.length){
+                lines.push(
+                    <GenericLine iconClassName="mdi mdi-account-multiple" legend={m(254)} data={cells.join(', ')}/>
+                );
             }
             return (
                 <GenericCard

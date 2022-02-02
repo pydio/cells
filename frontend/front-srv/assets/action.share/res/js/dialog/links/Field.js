@@ -1,15 +1,3 @@
-import React from 'react';
-import ShareContextConsumer from '../ShareContextConsumer'
-import TargetedUsers from './TargetedUsers'
-import {TextField, Paper} from 'material-ui'
-import QRCode from 'qrcode.react'
-import Clipboard from 'clipboard'
-import ActionButton from '../main/ActionButton'
-import PathUtils from 'pydio/util/path'
-import LangUtils from 'pydio/util/lang'
-import {muiThemeable} from 'material-ui/styles'
-import ShareHelper from '../main/ShareHelper'
-
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29,9 +17,20 @@ import ShareHelper from '../main/ShareHelper'
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import PropTypes from 'prop-types';
-
+import React from 'react';
 import Pydio from 'pydio'
+import PropTypes from 'prop-types';
+import ShareContextConsumer from '../ShareContextConsumer'
+import TargetedUsers from './TargetedUsers'
+import {TextField, Paper} from 'material-ui'
+import QRCode from 'qrcode.react'
+import Clipboard from 'clipboard'
+import ActionButton from '../main/ActionButton'
+import PathUtils from 'pydio/util/path'
+import LangUtils from 'pydio/util/lang'
+import {muiThemeable} from 'material-ui/styles'
+import ShareHelper from '../main/ShareHelper'
+const {ModernStyles} = Pydio.requireLib('hoc')
 const {Tooltip} = Pydio.requireLib("boot");
 
 import LinkModel from './LinkModel'
@@ -131,7 +130,7 @@ class PublicLinkField extends React.Component {
         if(this.state.editLink && editAllowed){
             return (
                 <div>
-                    <div style={{display:'flex', alignItems:'center', backgroundColor: '#f5f5f5', padding: '0 6px', margin: '0 -6px', borderRadius: 2}}>
+                    <div style={{display:'flex', alignItems:'center', backgroundColor: 'rgb(246, 246, 248)', padding: 6, borderRadius: 2}}>
                         <span style={{fontSize:16, color:'rgba(0,0,0,0.4)', display: 'inline-block', maxWidth: 160, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{PathUtils.getDirname(publicLink) + '/ '}</span>
                         <TextField style={{flex:1, marginRight: 10, marginLeft: 10}} onChange={this.changeLink} value={this.state.customLink !== undefined ? this.state.customLink : linkModel.getLink().LinkHash}/>
                         <ActionButton mdiIcon="check" callback={this.toggleEditMode} />
@@ -173,6 +172,9 @@ class PublicLinkField extends React.Component {
             if(ShareHelper.qrcodeEnabled()){
                 actionLinks.push(<ActionButton key="qrcode" callback={this.toggleQRCode} mdiIcon="qrcode" messageId={'94'}/>);
             }
+            if(this.props.onDisableLink) {
+                actionLinks.push(<ActionButton key="delete" destructive={true} callback={() => this.props.onDisableLink()} mdiIcon="link-off" messageId="45"/>);
+            }
             if(actionLinks.length){
                 actionLinks = (
                     <div style={{display:'flex', margin:'20px 0 10px'}}><span style={{flex:1}}/>{actionLinks}<span style={{flex:1}}/></div>
@@ -187,18 +189,17 @@ class PublicLinkField extends React.Component {
             }
             return (
                 <Paper zDepth={0} rounded={false} className="public-link-container">
-                    <div style={{display:'flex', alignItems:'center'}}>
+                    <div style={{marginTop:-8}}>
                         <TextField
+                            floatingLabelText={"Copy this link for public access"}
+                            floatingLabelFixed={true}
                             type="text"
                             name="Link"
                             ref="public-link-field"
                             value={publicLink}
                             onFocus={e => {e.target.select()}}
                             fullWidth={true}
-                            style={{height: 40}}
-                            inputStyle={{textAlign: 'center', backgroundColor:'#f5f5f5', borderRadius: 2, padding: '0 5px'}}
-                            underlineStyle={{borderColor: '#f5f5f5', textDecoration:linkModel.isExpired()?'line-through':null}}
-                            underlineFocusStyle={{bottom: 0}}
+                            {...ModernStyles.textFieldV2}
                         />
                     </div>
                     {false && this.props.linkData.target_users && <TargetedUsers {...this.props}/>}

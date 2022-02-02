@@ -31,6 +31,10 @@ const {ValidPassword} = Pydio.requireLib('form');
 const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
 
 const globStyles = {
+    iconButton:{
+        style:{width:40, height: 40, padding: 6},
+        iconStyle:{color: 'rgba(0,0,0,.5)', fontSize: 20}
+    },
     leftIcon: {
         margin:'0 16px 0 4px',
         color: '#757575'
@@ -124,52 +128,58 @@ class PublicLinkSecureOptions extends React.Component {
         const auth = ShareHelper.getAuthorizations();
         let passwordField, resetPassword, updatePassword;
         if(link.PasswordRequired){
-            resetPassword = (
-                <FlatButton
-                    disabled={this.props.isReadonly() || !linkModel.isEditable() || auth.password_mandatory}
-                    secondary={true}
-                    onClick={this.resetPassword}
-                    label={this.props.getMessage('174')}
-                />
-            );
-            updatePassword = (
-                <div>
-                    <FlatButton
-                        disabled={this.props.isReadonly() || !linkModel.isEditable()}
-                        secondary={true}
-                        onClick={(e)=> {this.setState({pwPop:true, pwAnchor:e.currentTarget})}}
-                        label={this.props.getMessage('181')}
+            if (!this.props.isReadonly() && linkModel.isEditable() && !auth.password_mandatory) {
+                resetPassword = (
+                    <IconButton
+                        iconClassName={"mdi mdi-close-circle"}
+                        onClick={this.resetPassword}
+                        tooltip={this.props.getMessage('174')}
+                        {...globStyles.iconButton}
                     />
-                    <Popover
-                        open={this.state.pwPop}
-                        anchorEl={this.state.pwAnchor}
-                        anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
-                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                        onRequestClose={() => {this.setState({pwPop: false})}}
-                    >
-                        <div style={{width: 280, padding: 8}}>
-                            <ValidPassword
-                                name={"update"}
-                                ref={"pwdUpdate"}
-                                attributes={{label:this.props.getMessage('23')}}
-                                value={this.state.updatingPassword ? this.state.updatingPassword : ""}
-                                onChange={(v) => {this.setUpdatingPassword(v)}}
-                                onValidStatusChange={(s) => this.setState({updatingPasswordDiffer: !s})}
-                            />
-                            <div style={{paddingTop:20, textAlign:'right'}}>
-                                <FlatButton label={Pydio.getMessages()['54']} onClick={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
-                                <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onClick={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid || this.state.updatingPasswordDiffer}/>
+                );
+            }
+            if(!this.props.isReadonly() && linkModel.isEditable()){
+                updatePassword = (
+                    <div>
+                        <IconButton
+                            iconClassName={"mdi mdi-pencil"}
+                            onClick={(e)=> {this.setState({pwPop:true, pwAnchor:e.currentTarget})}}
+                            tooltip={this.props.getMessage('181')}
+                            {...globStyles.iconButton}
+                        />
+                        <Popover
+                            open={this.state.pwPop}
+                            anchorEl={this.state.pwAnchor}
+                            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                            targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                            onRequestClose={() => {this.setState({pwPop: false})}}
+                        >
+                            <div style={{width: 380, padding: 8}}>
+                                <ValidPassword
+                                    name={"update"}
+                                    ref={"pwdUpdate"}
+                                    attributes={{label:this.props.getMessage('23')}}
+                                    value={this.state.updatingPassword ? this.state.updatingPassword : ""}
+                                    onChange={(v) => {this.setUpdatingPassword(v)}}
+                                    onValidStatusChange={(s) => this.setState({updatingPasswordDiffer: !s})}
+                                    variant={"v2"}
+                                />
+                                <div style={{paddingTop:20, textAlign:'right'}}>
+                                    <FlatButton label={Pydio.getMessages()['54']} onClick={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
+                                    <FlatButton style={{minWidth:60}} label={Pydio.getMessages()['48']} onClick={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid || this.state.updatingPasswordDiffer}/>
+                                </div>
                             </div>
-                        </div>
-                    </Popover>
-                </div>
-            );
+                        </Popover>
+                    </div>
+                );
+            }
             passwordField = (
                 <ModernTextField
                     floatingLabelText={this.props.getMessage('23')}
                     disabled={true}
                     value={'********'}
                     fullWidth={true}
+                    variant={"v2"}
                 />
             );
         }else if(!this.props.isReadonly() &&  linkModel.isEditable()){
@@ -180,21 +190,19 @@ class PublicLinkSecureOptions extends React.Component {
                     attributes={{label:this.props.getMessage('23')}}
                     value={this.state.invalidPassword? this.state.invalidPassword : linkModel.updatePassword}
                     onChange={this.updatePassword.bind(this)}
-                    onValidStatusChange={(v) => {console.log(v); this.setState({validPasswordStatus:v})}}
+                    onValidStatusChange={(v) => {this.setState({validPasswordStatus:v})}}
+                    variant={"v2"}
                 />
             );
         }
         if(passwordField){
             return (
-                <div className="password-container" style={{display:'flex', alignItems:'center'}}>
-                    <FontIcon className="mdi mdi-file-lock" style={globStyles.leftIcon}/>
-                    <div style={{width:resetPassword ? '40%' : '100%', display:'inline-block'}}>
+                <div className="password-container" style={{display:'flex', alignItems:'baseline', width:'100%', position:'relative'}}>
+                    <div style={{width:'100%', display:'inline-block'}}>
                         {passwordField}
                     </div>
-                    {resetPassword &&
-                        <div style={{width: '60%', display: 'flex'}}>
-                            {resetPassword} {updatePassword}
-                    </div>
+                    {(resetPassword || updatePassword) &&
+                        <div style={{position:'absolute', right: 0, bottom: 0, display: 'flex'}}>{updatePassword}{resetPassword}</div>
                     }
                 </div>
             );
@@ -221,7 +229,7 @@ class PublicLinkSecureOptions extends React.Component {
         let dlLimitValue = parseInt(link.MaxDownloads);
         const expirationDateValue = parseInt(link.AccessEnd);
 
-        let calIcon = <FontIcon className="mdi mdi-calendar-clock" style={globStyles.leftIcon}/>;
+        let calIcon;
         let expDate, maxDate, dlCounterString, dateExpired = false, dlExpired = false;
         const today = new Date();
 
@@ -240,7 +248,14 @@ class PublicLinkSecureOptions extends React.Component {
             }
             expDate = new Date(expirationDateValue * 1000);
             if(!parseInt(auth.max_expiration)){
-                calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onClick={this.resetExpiration.bind(this)}/>;
+                calIcon = (
+                    <IconButton
+                        iconStyle={globStyles.iconButton.iconStyle}
+                        style={{...globStyles.iconButton.style, position:'absolute', right: 0, bottom: 0, zIndex: 1}}
+                        iconClassName="mdi mdi-close-circle"
+                        onClick={this.resetExpiration.bind(this)}
+                    />)
+                ;
             }
         }
         if(dlLimitValue){
@@ -255,12 +270,9 @@ class PublicLinkSecureOptions extends React.Component {
             dlCounterString = <span className="dlCounterString">{dlCounter+ '/'+ dlLimitValue} {resetLink}</span>;
         }
         return (
-            <div style={{padding:10, ...this.props.style}}>
-                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{this.props.getMessage('24')}</div>
-                <div style={{paddingRight: 10}}>
+            <div>
                 {passContainer}
-                <div style={{flex:1, display:'flex', alignItems:'baseline', position:'relative'}} className={dateExpired?'limit-block-expired':null}>
-                    {calIcon}
+                <div style={{display:'flex', alignItems:'baseline', position:'relative'}} className={dateExpired?'limit-block-expired':null}>
                     <DatePicker
                         ref="expirationDate"
                         key="start"
@@ -271,16 +283,17 @@ class PublicLinkSecureOptions extends React.Component {
                         disabled={this.props.isReadonly() || !linkModel.isEditable()}
                         onChange={this.onDateChange}
                         showYearSelector={true}
-                        hintText={this.props.getMessage(dateExpired?'21b':'21')}
+                        floatingLabelText={this.props.getMessage(dateExpired?'21b':'21')}
                         mode="landscape"
                         formatDate={this.formatDate}
-                        style={{flex: 1}}
                         fullWidth={true}
-                        {...ModernStyles.textField}
+                        {...ModernStyles.textFieldV2}
+                        style={{flex: 1}}
+                        textFieldStyle={{...ModernStyles.textFieldV2.style, flex: 1}}
                     />
+                    {calIcon}
                 </div>
-                <div style={{flex:1, alignItems:'baseline', display:crtLinkDLAllowed?'flex':'none', position:'relative'}} className={dlExpired?'limit-block-expired':null}>
-                    <FontIcon className="mdi mdi-download" style={globStyles.leftIcon}/>
+                <div style={{alignItems:'baseline', display:crtLinkDLAllowed?'flex':'none', position:'relative'}} className={dlExpired?'limit-block-expired':null}>
                     <ModernTextField
                         type="number"
                         disabled={this.props.isReadonly() || !linkModel.isEditable()}
@@ -289,9 +302,9 @@ class PublicLinkSecureOptions extends React.Component {
                         onChange={this.updateDLExpirationField}
                         fullWidth={true}
                         style={{flex: 1}}
+                        variant={"v2"}
                     />
                     <span style={{position: 'absolute', right: 10, top: 14, fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)'}}>{dlCounterString}</span>
-                </div>
                 </div>
             </div>
         );

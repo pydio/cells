@@ -22,7 +22,7 @@
 package config
 
 import (
-	"github.com/pydio/cells/x/filex"
+	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
 var (

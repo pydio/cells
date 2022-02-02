@@ -25,9 +25,9 @@ import (
 
 	"github.com/ory/hydra/x"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
 )
 
 type DexClient struct {
@@ -40,6 +40,18 @@ type DexClient struct {
 	OfflineSessionsSliding bool
 }
 
+func addBoltDbEntry(sName string, db ...string) error {
+	bDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
+	if e != nil {
+		return e
+	}
+	dbName := sName + ".db"
+	if len(db) > 0 {
+		dbName = db[0]
+	}
+	return config.SetDatabase(common.ServiceGrpcNamespace_+sName, "boltdb", filepath.Join(bDir, dbName))
+}
+
 func actionConfigsSet(c *install.InstallConfig) error {
 	save := false
 
@@ -50,26 +62,26 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		return err
 	}
 
-	// Adding the config for activities and chat
-	acDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceActivity)
-	chatDir, _ := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceChat)
-
-	// Easy finding usage of srvUrl
-	if err := config.SetDatabase(common.ServiceGrpcNamespace_+common.ServiceActivity, "boltdb", filepath.Join(acDir, "activities.db")); err != nil {
-		return err
+	if e := addBoltDbEntry(common.ServiceActivity, "activities.db"); e != nil {
+		return e
 	}
-	if err := config.SetDatabase(common.ServiceGrpcNamespace_+common.ServiceChat, "boltdb", filepath.Join(acDir, "chat.db")); err != nil {
-		return err
+	if e := addBoltDbEntry(common.ServiceChat); e != nil {
+		return e
+	}
+	if e := addBoltDbEntry(common.ServiceDocStore); e != nil {
+		return e
+	}
+	if e := addBoltDbEntry(common.ServiceVersions); e != nil {
+		return e
+	}
+	if e := addBoltDbEntry(common.ServiceJobs); e != nil {
+		return e
 	}
 
 	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{
-		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceActivity + "/driver": "boltdb",
-		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceActivity + "/dsn":    filepath.Join(acDir, "activities.db"),
-		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceChat + "/driver":     "boltdb",
-		"databases/" + common.ServiceGrpcNamespace_ + common.ServiceChat + "/dsn":        filepath.Join(chatDir, "chat.db"),
-		"services/" + oauthWeb + "/insecureRedirects":                                    []string{"#insecure_binds...#/auth/callback"},
-		"services/" + oauthWeb + "/secret":                                               string(secret),
+		"services/" + oauthWeb + "/insecureRedirects": []string{"#insecure_binds...#/auth/callback"},
+		"services/" + oauthWeb + "/secret":            string(secret),
 	}
 
 	for path, def := range configKeys {

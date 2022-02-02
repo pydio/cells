@@ -22,6 +22,7 @@
 package update
 
 import (
+	"bytes"
 	"context"
 	"crypto"
 	"crypto/rsa"
@@ -29,6 +30,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -39,23 +41,22 @@ import (
 	"sort"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/golang/protobuf/jsonpb"
 	"github.com/hashicorp/go-version"
 	update2 "github.com/inconshreveable/go-update"
 	"github.com/kardianos/osext"
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/update"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/filesystem"
-	"github.com/pydio/cells/common/utils/net"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/update"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
@@ -101,10 +102,8 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 
 	log.Logger(ctx).Debug("Posting Request for update", zap.Any("request", request))
 
-	marshaller := jsonpb.Marshaler{}
-	jsonReq, _ := marshaller.MarshalToString(request)
-
-	postRequest, err := http.NewRequest("POST", strings.TrimRight(parsed.String(), "/")+"/", strings.NewReader(string(jsonReq)))
+	jsonReq, _ := protojson.Marshal(request)
+	postRequest, err := http.NewRequest("POST", strings.TrimRight(parsed.String(), "/")+"/", bytes.NewReader(jsonReq))
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +132,8 @@ func LoadUpdates(ctx context.Context, conf configx.Values, request *update.Updat
 		return nil, rErr
 	}
 	var updateResponse update.UpdateResponse
-	if e := jsonpb.Unmarshal(response.Body, &updateResponse); e != nil {
+	bb, _ := io.ReadAll(response.Body)
+	if e := protojson.Unmarshal(bb, &updateResponse); e != nil {
 		return nil, e
 	}
 

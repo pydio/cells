@@ -31,19 +31,19 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
-	"github.com/pydio/cells/scheduler/actions"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -52,7 +52,8 @@ var (
 
 // WGetAction performs a wget command with the provided URL
 type WGetAction struct {
-	Router     *views.Router
+	common.RuntimeHolder
+	Router     nodes.Client
 	SourceUrl  string
 	targetPath string
 }
@@ -102,7 +103,7 @@ func (w *WGetAction) GetName() string {
 }
 
 // Init passes parameters
-func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (w *WGetAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if action.Parameters["targetPath"] != "" {
 		w.targetPath = action.Parameters["targetPath"]
 	}
@@ -111,7 +112,7 @@ func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 	} else {
 		return errors.BadRequest(common.ServiceTasks, "missing parameter url in Action")
 	}
-	w.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true})
+	w.Router = compose.PathClientAdmin(nodes.WithContext(w.GetRuntimeContext()))
 	return nil
 }
 

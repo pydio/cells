@@ -25,8 +25,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/log"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/log"
 )
 
 type LogSyncer struct {
@@ -55,7 +55,7 @@ func NewLogSyncer(ctx context.Context, serviceName string) *LogSyncer {
 func (syncer *LogSyncer) logSyncerClientReconnect() {
 	atomic.StoreInt32(&syncer.reconnecting, 1)
 
-	c := log.NewLogRecorderClient(syncer.serverServiceName, defaults.NewClient())
+	c := log.NewLogRecorderClient(grpc.GetClientConnFromCtx(syncer.ctx, syncer.serverServiceName))
 
 	cli, err := c.PutLog(syncer.ctx)
 	if err != nil {
@@ -89,7 +89,7 @@ func (syncer *LogSyncer) logSyncerWatch() {
 
 		err := syncer.cli.Send(m)
 		if err != nil {
-			syncer.cli.Close()
+			// syncer.cli.Close()
 			syncer.cli = nil
 
 			syncer.buf = append(syncer.buf, m)

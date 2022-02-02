@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // ConfigCmd represents the config command
@@ -37,14 +36,6 @@ DESCRIPTION
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		bindViperFlags(cmd.Flags(), map[string]string{})
-
-		viper.SetDefault("registry", "grpc://:8000")
-		viper.SetDefault("broker", "grpc://:8003")
-
-		// Initialise the default registry
-		handleRegistry()
-
-		initConfig()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

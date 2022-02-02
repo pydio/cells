@@ -1,3 +1,5 @@
+// +build ignore
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -27,10 +29,10 @@ import (
 	"log"
 	"sync"
 
-	"github.com/pydio/cells/x/configx"
+	"go.etcd.io/etcd/raft/v3/raftpb"
+	"go.etcd.io/etcd/server/v3/etcdserver/api/snap"
 
-	"go.etcd.io/etcd/etcdserver/api/snap"
-	"go.etcd.io/etcd/raft/raftpb"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // a key-value store backed by raft

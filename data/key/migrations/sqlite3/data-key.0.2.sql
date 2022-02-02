@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS enc_node_keys (
     owner_id VARCHAR(255) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     key_data BLOB,
+    id integer primary key autoincrement,
     FOREIGN KEY (node_id) REFERENCES enc_nodes(node_id) ON DELETE CASCADE
 );
 

@@ -25,21 +25,20 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/common"
-	context2 "github.com/pydio/cells/common/utils/context"
-
-	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 const (
@@ -57,10 +56,10 @@ const (
 const LimiterRate = 30
 const LimiterBurst = 20
 
-func updateSessionFromClaims(session *melody.Session, claims claim.Claims, pool views.SourcesPool) {
+func updateSessionFromClaims(ctx context.Context, session *melody.Session, claims claim.Claims, pool nodes.SourcesPool) {
 
-	ctx := context.WithValue(context.Background(), claim.ContextKey, claims)
-	vNodeResolver := views.GetVirtualNodesManager().GetResolver(pool, true)
+	ctx = context.WithValue(ctx, claim.ContextKey, claims)
+	vNodeResolver := abstract.GetVirtualNodesManager(ctx).GetResolver(pool, true)
 	accessList, err := permissions.AccessListFromContextClaims(ctx)
 	if err != nil {
 		log.Logger(ctx).Error("Error while setting workspaces in session", zap.Error(err))
@@ -110,15 +109,19 @@ func ClearSession(session *melody.Session) {
 
 }
 
-func prepareRemoteContext(session *melody.Session) (context.Context, error) {
+func prepareRemoteContext(parent context.Context, session *melody.Session) (context.Context, error) {
 	claims, o1 := session.Get(SessionClaimsKey)
 	if !o1 {
 		return nil, fmt.Errorf("unexpected error: websocket session has no claims")
 	}
-	metaCtx := auth.ContextFromClaims(context.Background(), claims.(claim.Claims))
+	metaCtx := auth.ContextFromClaims(parent, claims.(claim.Claims))
 	metaCtx = servicecontext.WithServiceName(metaCtx, common.ServiceGatewayNamespace_+common.ServiceWebSocket)
 	if md, o := session.Get(SessionMetaContext); o {
-		metaCtx = context2.WithAdditionalMetadata(metaCtx, md.(metadata.Metadata))
+		if meta, ok := md.(metadata.Metadata); ok {
+			metaCtx = metadata.WithAdditionalMetadata(metaCtx, meta)
+		} else {
+			log.Logger(metaCtx).Error("Cannot cast meta to metadata.Metadata")
+		}
 	}
 	return metaCtx, nil
 }

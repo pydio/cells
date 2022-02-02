@@ -24,37 +24,34 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"os"
 	"path"
-	"sort"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/proto/sync"
-
-	"github.com/micro/go-micro/client"
-
 	"github.com/dustin/go-humanize"
 	"github.com/manifoldco/promptui"
-	"github.com/pborman/uuid"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/minio-go"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
-	migrateForce      bool
-	migrateDry        bool
-	migrateMove       bool
-	migrateResumeCopy bool
-	authCtx           = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
-	migrateLogger     = func(s string, print bool) {
+	migrateForce  bool
+	migrateDry    bool
+	migrateMove   bool
+	authCtx       = context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
+	migrateLogger = func(s string, print bool) {
 		fmt.Println(s)
 	}
 )
@@ -123,11 +120,14 @@ DESCRIPTION
 			return e
 		}
 
-		running, _ := registry.GetRunningService(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name)
-		if len(running) > 0 {
-			migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
-			return e
-		}
+		/*
+			// TODO V4
+			running, _ := registry.GetRunningService(common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + source.Name)
+			if len(running) > 0 {
+				migrateLogger("[ERROR] Datasource "+source.Name+" sync appears to be running. Can you please restart cells without an active sync ? `./cells start -x pydio.grpc.data.sync`", true)
+				return e
+			}
+		*/
 
 		// Prepare Clients
 		rootNode, idxClient, mc, e := migratePrepareClients(source)
@@ -137,7 +137,7 @@ DESCRIPTION
 		}
 
 		// Check source and target buckets
-		bb, e := mc.ListBucketsWithContext(authCtx)
+		bb, e := mc.ListBuckets(authCtx)
 		if e != nil {
 			return fmt.Errorf("cannot list bucket %+v", e)
 		}
@@ -188,7 +188,7 @@ DESCRIPTION
 			p := promptui.Prompt{Label: "All objects were successfully copied, do you wish to clean the index table now", IsConfirm: true, Default: "y"}
 			if _, e := p.Run(); e == nil {
 				if tgtFmt == "flat" {
-					resyncClient := sync.NewSyncEndpointClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
+					resyncClient := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+source.Name))
 					resp, e := resyncClient.TriggerResync(authCtx, &sync.ResyncRequest{Path: "flatten"})
 					if e != nil {
 						migrateLogger(fmt.Sprintf("[ERROR] while cleaning index from '.pydio' entries: %+v", e), true)
@@ -197,13 +197,12 @@ DESCRIPTION
 						migrateLogger("Cleaned index with result: "+resp.GetJsonDiff(), true)
 					}
 				} else {
-					streamClient := tree.NewNodeReceiverStreamClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
-					streamer, e := streamClient.CreateNodeStream(authCtx, client.WithRequestTimeout(60*time.Minute))
+					streamClient := tree.NewNodeReceiverStreamClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+source.Name, grpc.WithCallTimeout(60*time.Minute)))
+					streamer, e := streamClient.CreateNodeStream(authCtx)
 					if e != nil {
 						migrateLogger(fmt.Sprintf("[ERROR] Cannot open stream to index service %s", e.Error()), true)
 						return e
 					}
-					defer streamer.Close()
 					for _, n := range hiddenNodes {
 						er := streamer.Send(&tree.CreateNodeRequest{Node: n, UpdateIfExists: true})
 						if er != nil {
@@ -258,7 +257,6 @@ func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtB
 			opts = append(opts, ds.Name+" ("+format+")")
 		}
 	}
-	sort.Strings(opts)
 	p2 := &promptui.Select{Label: "Select datasource you wish to migrate", Items: opts}
 	var val string
 	if _, val, e = p2.Run(); e != nil {
@@ -285,16 +283,16 @@ func migratePickDS() (source *object.DataSource, srcFmt, tgtFmt, srcBucket, tgtB
 	return
 }
 
-func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc *minio.Core, e error) {
+func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx tree.NodeProviderClient, mc nodes.StorageClient, e error) {
 
-	idx = tree.NewNodeProviderClient(registry.GetClient(common.ServiceDataIndex_ + source.Name))
+	idx = tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+source.Name))
 	r, er := idx.ReadNode(authCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}})
 	if er != nil {
 		e = er
 		return
 	}
 	rootNode = r.GetNode()
-	objCli := object.NewObjectsEndpointClient(registry.GetClient(common.ServiceDataObjects_ + source.ObjectsServiceName))
+	objCli := object.NewObjectsEndpointClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+source.ObjectsServiceName))
 	or, er := objCli.GetMinioConfig(authCtx, &object.GetMinioConfigRequest{})
 	if er != nil {
 		e = er
@@ -305,7 +303,12 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 	if s := config.GetSecret(conf.ApiSecret).String(); s != "" {
 		apiSecret = s
 	}
-	mc, e = minio.NewCore(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort), conf.ApiKey, apiSecret, conf.RunningSecure)
+	cfData := configx.New()
+	cfData.Val("endpoint").Set(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort))
+	cfData.Val("key").Set(conf.ApiKey)
+	cfData.Val("secret").Set(apiSecret)
+	cfData.Val("secure").Set(conf.RunningSecure)
+	mc, e = nodes.NewStorageClient(cfData) // minio.NewCore(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort), conf.ApiKey, apiSecret, conf.RunningSecure)
 	if e != nil {
 		return
 	}
@@ -313,42 +316,25 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 	return
 }
 
-func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeProviderClient, src, tgt, tgtFmt string) (out []*tree.Node, ee error) {
+func migratePerformMigration(ctx context.Context, mc nodes.StorageClient, idx tree.NodeProviderClient, src, tgt, tgtFmt string) (out []*tree.Node, ee error) {
 
-	str, e := idx.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true}, client.WithRequestTimeout(1*time.Hour))
+	str, e := idx.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
 	if e != nil {
 		return out, e
 	}
-	var allNodes []*tree.Node
+	mm := map[string]string{}
+	if meta, ok := metadata.MinioMetaFromContext(ctx); ok {
+		for k, v := range meta {
+			mm[k] = v
+		}
+	}
 	for {
 		r, e := str.Recv()
 		if e != nil {
 			break
 		}
-		allNodes = append(allNodes, r.GetNode())
-	}
-	str.Close()
+		n := r.GetNode()
 
-	migrateLogger(fmt.Sprintf("[INFO] Retrieved %d nodes from Index", len(allNodes)), true)
-
-	opts := minio.StatObjectOptions{}
-	mm := map[string]string{}
-	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
-		for k, v := range meta {
-			mm[k] = v
-			opts.Set(k, v)
-		}
-	}
-	t0 := time.Now()
-	t1 := time.Now()
-	var totalBytes int64
-	for idx, n := range allNodes {
-		if (idx > 0 && idx%1000 == 0) || idx == len(allNodes)-1 {
-			t2 := time.Now().Sub(t1)
-			migrateLogger(fmt.Sprintf("[INFO] Processed %d/%d in %v", idx, len(allNodes), t2), true)
-			migrateLogger(fmt.Sprintf("[INFO] Total Copied %s in %v", humanize.Bytes(uint64(totalBytes)), time.Now().Sub(t0)), true)
-			t1 = time.Now()
-		}
 		srcPath := n.GetPath()
 		tgtPath := n.GetUuid()
 		isPydio := path.Base(n.GetPath()) == common.PydioSyncHiddenFile
@@ -357,7 +343,7 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 			tgtPath = strings.TrimLeft(n.GetPath(), "/")
 		}
 		if !isPydio && n.IsLeaf() {
-			srcInfo, e := mc.StatObject(src, srcPath, opts)
+			_, e := mc.StatObject(ctx, src, srcPath, mm)
 			if e != nil {
 				migrateLogger("[ERROR] Cannot stat object "+srcPath+": "+e.Error(), true)
 				return out, e
@@ -366,22 +352,14 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 				fmt.Println("[DRY-RUN] Should copy " + path.Join(src, srcPath) + " to " + path.Join(tgt, tgtPath))
 				continue
 			}
-			if migrateResumeCopy {
-				// Stat target to avoid copying twice
-				if tgtInfo, e := mc.StatObject(tgt, tgtPath, opts); e == nil && tgtInfo.Size == srcInfo.Size {
-					migrateLogger(" - Ignoring file "+path.Join(src, srcPath)+" as it already exists inside target", true)
-					continue
-				}
-			}
-			totalBytes += srcInfo.Size
-			_, e = mc.CopyObject(src, srcPath, tgt, tgtPath, mm)
+			_, e = mc.CopyObject(ctx, src, srcPath, tgt, tgtPath, mm, nil, nil)
 			if e != nil {
 				migrateLogger("[ERROR] While copying "+path.Join(src, srcPath)+" to "+path.Join(tgt, tgtPath)+":"+e.Error(), true)
 				return out, e
 			}
 			migrateLogger(" - Copied "+path.Join(src, srcPath)+" to "+path.Join(tgt, tgtPath), true)
 			if migrateMove {
-				if er := mc.RemoveObjectWithContext(ctx, src, srcPath); er != nil {
+				if er := mc.RemoveObject(ctx, src, srcPath); er != nil {
 					return out, fmt.Errorf("cannot remove original file %+v", er)
 				} else {
 					migrateLogger("Removed original file "+srcPath, false)
@@ -397,7 +375,7 @@ func migratePerformMigration(ctx context.Context, mc *minio.Core, idx tree.NodeP
 				fmt.Println("[DRY-RUN] Should create " + hiddenPath)
 				continue
 			}
-			_, e := mc.PutObjectWithContext(ctx, tgt, hiddenPath, strings.NewReader(n.GetUuid()), int64(len(n.GetUuid())), minio.PutObjectOptions{})
+			_, e := mc.PutObject(ctx, tgt, hiddenPath, strings.NewReader(n.GetUuid()), int64(len(n.GetUuid())), models.PutMeta{})
 			if e != nil {
 				return out, fmt.Errorf("cannot re-create hidden %s (%s)", hiddenPath, e.Error())
 			} else {
@@ -421,6 +399,5 @@ func init() {
 	dataSourceMigrateCmd.Flags().BoolVarP(&migrateForce, "force", "f", false, "Skip initial warning")
 	dataSourceMigrateCmd.Flags().BoolVarP(&migrateDry, "dry-run", "d", false, "Do not apply any changes")
 	dataSourceMigrateCmd.Flags().BoolVarP(&migrateMove, "move-files", "m", false, "Delete original files after copying to new bucket")
-	dataSourceMigrateCmd.Flags().BoolVarP(&migrateResumeCopy, "resume-copy", "r", false, "Resume copying data if it was interrupted, by adding check on target to avoid copying twice")
 	DataSourceCmd.AddCommand(dataSourceMigrateCmd)
 }

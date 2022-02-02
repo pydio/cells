@@ -27,19 +27,18 @@ import (
 	"context"
 	"path/filepath"
 
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"google.golang.org/grpc"
 
-	"github.com/micro/go-micro"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/data/search/dao/bleve"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/data/search/dao/bleve"
 )
 
 var (
@@ -56,53 +55,54 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
-			service.RouterDependencies(),
-			service.AutoRestart(true),
-			service.Fork(true),
-			service.WithMicro(func(m micro.Service) error {
+			// service.Fork(true),
+			/*
+				service.RouterDependencies(),
+				service.AutoRestart(true),
+			*/
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
-				ctx := m.Options().Context
-				cfg := servicecontext.GetConfig(ctx)
-
+				cfg := config.Get("services", Name)
 				indexContent := cfg.Val("indexContent").Bool()
 				if indexContent {
-					log.Logger(m.Options().Context).Info("Enabling content indexation in search engine")
+					log.Logger(c).Info("Enabling content indexation in search engine")
 				} else {
-					log.Logger(m.Options().Context).Info("disabling content indexation in search engine")
+					log.Logger(c).Info("disabling content indexation in search engine")
 				}
 
 				dir, _ := config.ServiceDataDir(Name)
-				bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")
-				bleveConfs := make(map[string]interface{})
-				bleveConfs["basenameAnalyzer"] = cfg.Val("basenameAnalyzer").String()
-				bleveConfs["contentAnalyzer"] = cfg.Val("contentAnalyzer").String()
+				bleve.IndexPath = filepath.Join(dir, "searchengine.bleve")
+				bleveCfg := make(map[string]interface{})
+				bleveCfg["basenameAnalyzer"] = cfg.Val("basenameAnalyzer").String()
+				bleveCfg["contentAnalyzer"] = cfg.Val("contentAnalyzer").String()
 
-				bleveEngine, err := bleve.NewBleveEngine(indexContent, bleveConfs)
+				nsProvider := meta.NewNsProvider(c)
+
+				bleveEngine, err := bleve.NewEngine(c, nsProvider, indexContent, bleveCfg)
 				if err != nil {
 					return err
 				}
 
-				server := &SearchServer{
+				searcher := &SearchServer{
+					RuntimeCtx:       c,
 					Engine:           bleveEngine,
-					TreeClient:       tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient()),
+					NsProvider:       nsProvider,
 					ReIndexThrottler: make(chan struct{}, 5),
 				}
 
-				tree.RegisterSearcherHandler(m.Options().Server, server)
-				sync.RegisterSyncEndpointHandler(m.Options().Server, server)
+				tree.RegisterSearcherEnhancedServer(server, searcher)
+				sync.RegisterSyncEndpointEnhancedServer(server, searcher)
 
-				m.Init(
-					micro.BeforeStop(bleveEngine.Close),
-				)
-
-				// Register Subscribers
-				if err := m.Options().Server.Subscribe(
-					m.Options().Server.NewSubscriber(
-						common.TopicMetaChanges,
-						server.CreateNodeChangeSubscriber(),
-					),
-				); err != nil {
-					return err
+				subscriber := searcher.Subscriber()
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ct, e := message.Unmarshal(msg); e == nil {
+						return subscriber.Handle(ct, msg)
+					}
+					return nil
+				}); e != nil {
+					//_ = bleveEngine.Close()
+					return e
 				}
 
 				return nil

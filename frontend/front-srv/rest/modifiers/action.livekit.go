@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package modifiers
 
 import (
@@ -7,12 +27,8 @@ import (
 	"net/url"
 	"os"
 
-	"go.uber.org/zap"
-
-	"github.com/pydio/cells/common/caddy"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/plugins"
 )
 
 var (
@@ -32,34 +48,38 @@ var (
 
 type actionLivekitData struct {
 	LivekitURL string
-	Site       caddy.SiteConf
+	Site       interface{}
 }
 
 func init() {
 	if os.Getenv("CELLS_ENABLE_LIVEKIT") != "" {
 		plugins.Register("main", func(ctx context.Context) {
-			caddy.RegisterPluginTemplate(
-				playLK,
-				[]string{"frontend", "plugin", "action.livekit"},
-				"/rtc",
-			)
+			/*
+				// TODO V4
+				hooks.RegisterPluginTemplate(
+					playLK,
+					[]string{"frontend", "plugin", "action.livekit"},
+					"/rtc",
+				)
 
-			tmpl, err := template.New("caddyfile").Funcs(caddy.FuncMap).Parse(actionLivekitTemplateStr)
-			if err != nil {
-				log.Fatal("Could not read template ", zap.Error(err))
-			}
+				tmpl, err := template.New("caddyfile").Parse(actionLivekitTemplateStr)
+				if err != nil {
+					log.Fatal("Could not read template ", zap.Error(err))
+				}
 
-			actionLivekitTemplate = tmpl
+				actionLivekitTemplate = tmpl
+
+			*/
 		})
 	}
 }
 
-func playLK(site ...caddy.SiteConf) (*bytes.Buffer, error) {
+func playLK(sites ...interface{}) (*bytes.Buffer, error) {
 
 	data := new(actionLivekitData)
 
-	if len(site) > 0 {
-		data.Site = site[0]
+	if len(sites) > 0 {
+		data.Site = sites[0]
 	}
 
 	enabled := config.Get("frontend", "plugin", "action.livekit", config.KeyFrontPluginEnabled).Bool()

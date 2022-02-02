@@ -24,7 +24,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // Vault returns the default vault
@@ -53,6 +53,9 @@ func NewVault(vaultStore, configStore Store) Store {
 
 // Save the config in the underlying storage
 func (v *vault) Save(ctxUser string, ctxMessage string) error {
+	if err := v.vault.Save(ctxUser, ctxMessage); err != nil {
+		return err
+	}
 	return v.config.Save(ctxUser, ctxMessage)
 }
 
@@ -107,18 +110,37 @@ func (v *vaultvalues) Set(val interface{}) error {
 		}
 
 		if strings.HasPrefix(p, v.path) {
+			// First removing keys that don't exist anymore
+			current := v.Values.Map()
+
 			// Need to loop through all below
 			switch m := val.(type) {
 			case map[string]string:
+				for k := range current {
+					if _, ok := m[k]; !ok {
+						if err := v.Values.Val(k).Del(); err != nil {
+							return err
+						}
+					}
+				}
+
 				for mm, vv := range m {
-					if err := (&vaultvalues{v.path + "/" + mm, v.Values.Val(mm), v.vault.Val()}).Set(vv); err != nil {
+					if err := (&vaultvalues{v.path + "/" + mm, v.Values.Val(mm), v.vault}).Set(vv); err != nil {
 						return err
 					}
 				}
 				return nil
 			case map[string]interface{}:
+				for k := range current {
+					if _, ok := m[k]; !ok {
+						if err := v.Values.Val(k).Del(); err != nil {
+							return err
+						}
+					}
+				}
+
 				for mm, vv := range m {
-					if err := (&vaultvalues{v.path + "/" + mm, v.Values.Val(mm), v.vault.Val()}).Set(vv); err != nil {
+					if err := (&vaultvalues{v.path + "/" + mm, v.Values.Val(mm), v.vault}).Set(vv); err != nil {
 						return err
 					}
 				}
@@ -202,16 +224,21 @@ func (v *vaultvalues) MarshalJSON() ([]byte, error) {
 func (v *vaultvalues) set(val interface{}) error {
 	uuid := v.Values.String()
 
-	// Get the current value and do nothing it it hasn't change
-	current := v.vault.Val(uuid).Default("").String()
+	// Get the current value and do nothing if it hasn't change
+	current := v.vault.Val(uuid)
 
-	if current == val.(string) || uuid == val.(string) {
+	if current.String() == val.(string) || uuid == val.(string) {
 		// already set
 		return nil
 	}
 
-	if err := v.vault.Val(uuid).Del(); err != nil {
-		return err
+	// Removing old value if it was set
+	if uuid != "" {
+		if current.String() != "" {
+			if err := current.Del(); err != nil {
+				return err
+			}
+		}
 	}
 
 	uuid = NewKeyForSecret()

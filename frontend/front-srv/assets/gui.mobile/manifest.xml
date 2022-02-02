@@ -54,7 +54,7 @@
 				<property name="fixedThumbSize" value="40"/>
 				<columns switchGridMode="filelist">
 					<column messageId="1" attributeName="ajxp_label" fixedWidth="60%"/>
-					<column messageId="2" attributeName="filesize" fixedWidth="40%"/>
+					<column messageId="2" attributeName="bytesize" fixedWidth="40%"/>
 				</columns>
 			</component_config>
 		</client_configs>

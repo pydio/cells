@@ -24,15 +24,15 @@ import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 import PydioApi from 'pydio/http/api'
 import Configs from './Configs'
-import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
 
 class UploadItem extends StatusItem {
 
-    constructor(file, targetNode, relativePath = null, parent = null){
+    constructor(file, targetNode, relativePath = null, parent = null, userMeta = undefined){
         super('file', targetNode, parent);
         this._file = file;
         this._status = 'new';
+        this._userMeta = userMeta;
         if(relativePath){
             this._label = PathUtils.getBasename(relativePath);
         } else {
@@ -217,11 +217,11 @@ class UploadItem extends StatusItem {
         }
         // For encrypted datasource, do not use multipart!
         if (this.getSize() < PydioApi.getMultipartThreshold()) {
-            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
+            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback, this._userMeta).then(xhr => {
                 this.xhr = xhr;
             });
         } else {
-            PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(managed => {
+            PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback, this._userMeta).then(managed => {
                 this.xhr = managed;
             });
         }

@@ -21,8 +21,8 @@
 package config
 
 import (
-	"github.com/pborman/uuid"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 )
 
 var (
-	stdvault Store
+	stdvault Store = std
 )
 
 // RegisterVaultKey adds a key to the configuration so that the value
@@ -53,11 +53,14 @@ func GetSecret(uuid string) configx.Values {
 }
 
 // SetSecret set the value for a uuid in the vault
+// TODO error handling ?
 func SetSecret(uuid string, val string) {
 	stdvault.Val(uuid).Set(val)
+	stdvault.Save("system ", "saving "+uuid)
 }
 
 // DelSecret deletes the value of a uuid in the vault
 func DelSecret(uuid string) {
 	stdvault.Val(uuid).Del()
+	stdvault.Save("system", "deleting "+uuid)
 }

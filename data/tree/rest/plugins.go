@@ -23,9 +23,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -35,9 +35,11 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("RESTful Gateway to tree service"),
-			service.RouterDependencies(),
-			service.WithWeb(func() service.WebHandler {
-				return new(Handler)
+			//service.RouterDependencies(),
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				h := &Handler{}
+				h.RuntimeCtx = c
+				return h
 			}),
 		)
 	})

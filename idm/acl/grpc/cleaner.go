@@ -25,14 +25,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/protobuf/ptypes"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/cache"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 type WsRolesCleaner struct {
@@ -43,27 +42,28 @@ func (c *WsRolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error
 	if msg.Type != idm.ChangeEventType_DELETE {
 		return nil
 	}
-	var queries []*any.Any
+	var queries []*anypb.Any
 	if msg.Workspace != nil {
 		// Delete ACL for this workspace
-		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		q, _ := anypb.New(&idm.ACLSingleQuery{
 			WorkspaceIDs: []string{msg.Workspace.UUID},
 		})
 		queries = append(queries, q)
 	}
 	if msg.Role != nil {
 		// Delete ACL for this role
-		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		q, _ := anypb.New(&idm.ACLSingleQuery{
 			RoleIDs: []string{msg.Role.Uuid},
 		})
 		queries = append(queries, q)
 	}
 	if len(queries) > 0 {
-		return c.Handler.DeleteACL(ctx, &idm.DeleteACLRequest{
+		_, e := c.Handler.DeleteACL(ctx, &idm.DeleteACLRequest{
 			Query: &service.Query{
 				SubQueries: queries,
 			},
-		}, &idm.DeleteACLResponse{})
+		})
+		return e
 	}
 	return nil
 }
@@ -97,14 +97,14 @@ func (c *nodesCleaner) process(ctx context.Context, events ...*tree.NodeChangeEv
 		uu = append(uu, e.Source.Uuid)
 	}
 	log.Logger(ctx).Debug(fmt.Sprintf("Marking %d nodes ACL as expired", len(uu)))
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: uu,
 	})
-	c.handler.ExpireACL(ctx, &idm.ExpireACLRequest{
+	_, _ = c.handler.ExpireACL(ctx, &idm.ExpireACLRequest{
 		Query: &service.Query{
-			SubQueries: []*any.Any{q},
+			SubQueries: []*anypb.Any{q},
 		},
 		Timestamp: time.Now().Unix(),
-	}, &idm.ExpireACLResponse{})
+	})
 
 }

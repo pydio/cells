@@ -86,23 +86,29 @@ export default class Registry{
         this._globalLoading = true;
         PydioApi.getRestClient().getOrUpdateJwt()
             .then(jwt => {
+                const hh = {
+                    "Authorization": 'Bearer ' + jwt
+                }
+                if(Parameters.has('MINISITE')) {
+                    hh['X-Pydio-Minisite'] = Parameters.get('MINISITE');
+                }
                 return fetch(url + '?' + qs.stringify(params), {
                     method:'GET',
                     credentials:'same-origin',
-                    headers: {
-                        "Authorization": 'Bearer ' + jwt,
-                        "X-Pydio-Minisite": Parameters.get('MINISITE'),
-                    },
+                    headers: hh,
                 })
             })
             .catch(() => {
-                return fetch(url, {
+                const params = {
                     method:'GET',
                     credentials:'same-origin',
-                    headers: {
-                        "X-Pydio-Minisite": Parameters.get('MINISITE'),
-                    },
-                })
+                };
+                if (Parameters.has('MINISITE')) {
+                    params.headers = {
+                        "X-Pydio-Minisite": Parameters.get('MINISITE')
+                    };
+                }
+                return fetch(url, params)
             })
             .then((response) => response.text())
             .then((txt) => {

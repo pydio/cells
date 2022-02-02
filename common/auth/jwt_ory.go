@@ -22,10 +22,10 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"net/url"
 	"time"
-
-	json "github.com/pydio/cells/x/jsonx"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/token/jwt"
@@ -34,10 +34,11 @@ import (
 	"go.uber.org/zap"
 	goauth "golang.org/x/oauth2"
 
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/auth/hydra"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/auth/hydra"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type oryprovider struct {
@@ -112,12 +113,12 @@ func (p *oryprovider) LoginChallengeCode(ctx context.Context, claims claim.Claim
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return "", err
 	}
 
-	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL)
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, requestURLValues.Get("code_challenge"), requestURLValues.Get("code_challenge_method"))
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
 		return "", err
@@ -226,12 +227,12 @@ func (p *oryprovider) PasswordCredentialsCode(ctx context.Context, userName stri
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return "", err
 	}
 
-	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL)
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, requestURLValues.Get("code_challenge"), requestURLValues.Get("code_challenge_method"))
 	if err != nil {
 		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(err))
 		return "", err
@@ -267,7 +268,8 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 		attempt++
 
-		loginctx, _ := context.WithTimeout(ctx, 5*time.Second)
+		loginctx, can := context.WithTimeout(ctx, 5*time.Second)
+		defer can()
 		identity, valid, err = cc.Login(loginctx, Scopes{}, userName, password)
 
 		// Error means the user is unknwown to the system, we continue to the next round
@@ -338,19 +340,28 @@ func (p *oryprovider) PasswordCredentialsToken(ctx context.Context, userName str
 
 	requestURLValues := requestURL.Query()
 
-	redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+	redirectURL, err := GetRedirectURIFromRequestValues(requestURLValues)
 	if err != nil {
 		return nil, err
 	}
 
-	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL)
+	verifier := consent.Challenge + consent.Challenge // Must be > 43 characters
+	hash := sha256.New()
+	if _, err := hash.Write([]byte(verifier)); err != nil {
+		return nil, err
+	}
+	codeChallenge := base64.RawURLEncoding.EncodeToString(hash.Sum([]byte{}))
+
+	codeChallengeMethod := "S256"
+
+	code, err := hydra.CreateAuthCode(ctx, consent, login.GetClientID(), redirectURL, codeChallenge, codeChallengeMethod)
 	if err != nil {
 		e := fosite.ErrorToRFC6749Error(err)
 		log.Logger(ctx).Error("Failed to create auth code ", zap.Error(e))
 		return nil, err
 	}
 
-	return hydra.Exchange(ctx, code)
+	return hydra.Exchange(ctx, code, verifier)
 }
 
 func (p *oryprovider) Logout(ctx context.Context, requestUrl, username, sessionID string, opts ...TokenOption) error {
@@ -406,4 +417,22 @@ func (t *orytoken) Claims(v interface{}) error {
 
 func (t *orytoken) ScopedClaims(claims *claim.Claims) error {
 	return nil
+}
+
+// GetRedirectURIFromRequestValues extracts the redirect_uri from values but does not do any sort of validation.
+//
+// Considered specifications
+// * https://tools.ietf.org/html/rfc6749#section-3.1
+//   The endpoint URI MAY include an
+//   "application/x-www-form-urlencoded" formatted (per Appendix B) query
+//   component ([RFC3986] Section 3.4), which MUST be retained when adding
+//   additional query parameters.
+func GetRedirectURIFromRequestValues(values url.Values) (string, error) {
+	// rfc6749 3.1.   Authorization Endpoint
+	// The endpoint URI MAY include an "application/x-www-form-urlencoded" formatted (per Appendix B) query component
+	redirectURI, err := url.QueryUnescape(values.Get("redirect_uri"))
+	if err != nil {
+		return "", errors.WithStack(fosite.ErrInvalidRequest.WithHint(`The "redirect_uri" parameter is malformed or missing.`).WithDebug(err.Error()))
+	}
+	return redirectURI, nil
 }

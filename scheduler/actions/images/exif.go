@@ -28,24 +28,25 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"github.com/rwcarlsen/goexif/exif"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views/models"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 const (
 	MetadataExif              = "ImageExif"
-	MetadataGeolocation       = "GeoLocation"
 	MetadataCompatOrientation = "image_exif_orientation"
 )
 
@@ -54,7 +55,7 @@ var (
 )
 
 type ExifProcessor struct {
-	//Router     views.Handler
+	common.RuntimeHolder
 	metaClient tree.NodeReceiverClient
 }
 
@@ -84,9 +85,11 @@ func (e *ExifProcessor) GetName() string {
 }
 
 // Init passes parameters to the action
-func (e *ExifProcessor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (e *ExifProcessor) Init(job *jobs.Job, action *jobs.Action) error {
 	//e.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
-	e.metaClient = tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, cl)
+	if !nodes.IsUnitTestEnv {
+		e.metaClient = tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(e.GetRuntimeContext(), common.ServiceMeta))
+	}
 	return nil
 }
 
@@ -110,12 +113,12 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	output := input
-	node.SetMeta(MetadataExif, exifData)
+	node.MustSetMeta(MetadataExif, exifData)
 	orientation, oe := exifData.Get(exif.Orientation)
 	if oe == nil {
 		t := orientation.String()
 		if t != "" {
-			node.SetMeta(MetadataCompatOrientation, t)
+			node.MustSetMeta(MetadataCompatOrientation, t)
 		}
 	}
 	lat, long, err := exifData.LatLong()
@@ -152,7 +155,7 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 				geoLocation["GPS_altitude"] = fmt.Sprintf("%d", a0.Num())
 			}
 		}
-		node.SetMeta(MetadataGeolocation, geoLocation)
+		node.MustSetMeta(common.MetaNamespaceGeoLocation, geoLocation)
 	}
 
 	e.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
@@ -177,11 +180,11 @@ func (e *ExifProcessor) ExtractExif(ctx context.Context, node *tree.Node) (*exif
 
 	var rer error
 	if localFolder := node.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder); localFolder != "" {
-		baseName := node.GetStringMeta("name")
+		baseName := node.GetStringMeta(common.MetaNamespaceNodeName)
 		targetFileName := filepath.Join(localFolder, baseName)
 		reader, rer = os.Open(targetFileName)
 	} else {
-		reader, rer = getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &models.GetRequestData{Length: -1})
+		reader, rer = getRouter(e.GetRuntimeContext()).GetObject(ctx, proto.Clone(node).(*tree.Node), &models.GetRequestData{Length: -1})
 	}
 
 	//reader, rer := node.ReadFile(ctx)

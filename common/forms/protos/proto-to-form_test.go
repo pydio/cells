@@ -26,19 +26,15 @@ import (
 	"sort"
 	"testing"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/ory/ladon"
-
-	servicecontext "github.com/pydio/cells/common/service/context"
-
-	"github.com/pydio/cells/common/proto/jobs"
-
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 func TestGenerateProtoToForm(t *testing.T) {
@@ -77,6 +73,15 @@ func TestGenerateProtoToForm(t *testing.T) {
 		So(f.Groups[0].Fields, ShouldNotBeEmpty)
 		f = GenerateProtoToForm("treeQuery", &tree.Query{}, false)
 		So(f.Groups[0].Fields, ShouldNotBeEmpty)
+
+		for _, fac := range ladon.ConditionFactories {
+			condition := fac()
+			if condition.GetName() == "conditionCIDRCondition" {
+				tF := GenerateProtoToForm("condition"+condition.GetName(), condition, false)
+				So(tF.Groups[0].Fields, ShouldNotBeEmpty)
+			}
+		}
+
 	})
 }
 

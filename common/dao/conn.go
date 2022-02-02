@@ -21,6 +21,7 @@
 package dao
 
 import (
+	"context"
 	"fmt"
 	"sync"
 )
@@ -47,6 +48,10 @@ type closer interface {
 	Close() error
 }
 
+type disconnecter interface {
+	Disconnect(ctx context.Context) error
+}
+
 func NewConn(d string, dsn string) (Conn, error) {
 	return getConn(d, dsn)
 }
@@ -64,6 +69,8 @@ func addConn(d string, dsn string) (Conn, error) {
 		drv = new(sqlite)
 	case "boltdb":
 		drv = new(boltdb)
+	case "mongodb":
+		drv = new(mongodb)
 	default:
 		return nil, fmt.Errorf("wrong driver")
 	}
@@ -113,6 +120,10 @@ func closeConn(conn Conn) error {
 		if c.d.GetConn() == conn {
 			if cl, ok := conn.(closer); ok {
 				if err := cl.Close(); err != nil {
+					return err
+				}
+			} else if di, ok := conn.(disconnecter); ok {
+				if err := di.Disconnect(context.Background()); err != nil {
 					return err
 				}
 			}

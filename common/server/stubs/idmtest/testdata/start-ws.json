@@ -1,0 +1,81 @@
+{
+  "Workspaces": [
+    {
+      "UUID": "5139c0ec-4d00-11ec-80b1-acde48001122",
+      "Label": "Personal Files",
+      "Description": "User personal data",
+      "Slug": "personal-files",
+      "Scope": "ADMIN",
+      "LastUpdated": 1637742430,
+      "Policies": [
+        {
+          "id": "1",
+          "Resource": "5139c0ec-4d00-11ec-80b1-acde48001122",
+          "Action": "READ",
+          "Subject": "profile:standard",
+          "Effect": "allow"
+        },
+        {
+          "id": "2",
+          "Resource": "5139c0ec-4d00-11ec-80b1-acde48001122",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "Attributes": "{\"DEFAULT_RIGHTS\":\"rw\"}",
+      "RootNodes": {
+        "my-files": {
+          "Uuid": "my-files",
+          "Path": "my-files",
+          "Type": "COLLECTION",
+          "MetaStore": {
+            "contentType": "text/javascript",
+            "name": "my-files",
+            "onDelete": "rename-uuid",
+            "resolution": "// Default node used for storing personal users data in separate folders. \n// Use Ctrl+Space to see the objects available for completion.\nPath = DataSources.personal + \"/\" + User.Name;"
+          }
+        }
+      },
+      "PoliciesContextEditable": true
+    },
+    {
+      "UUID": "515c7754-4d00-11ec-80b1-acde48001122",
+      "Label": "Common Files",
+      "Description": "Data shared by all users",
+      "Slug": "common-files",
+      "Scope": "ADMIN",
+      "LastUpdated": 1637742430,
+      "Policies": [
+        {
+          "id": "3",
+          "Resource": "515c7754-4d00-11ec-80b1-acde48001122",
+          "Action": "READ",
+          "Subject": "profile:standard",
+          "Effect": "allow"
+        },
+        {
+          "id": "4",
+          "Resource": "515c7754-4d00-11ec-80b1-acde48001122",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "Attributes": "{\"DEFAULT_RIGHTS\":\"rw\"}",
+      "RootNodes": {
+        "DATASOURCE:pydiods1": {
+          "Uuid": "DATASOURCE:pydiods1",
+          "Path": "pydiods1/",
+          "Type": "COLLECTION",
+          "MTime": "1637742380",
+          "MetaStore": {
+            "name": "\"\""
+          }
+        }
+      },
+      "PoliciesContextEditable": true
+    }
+  ],
+  "Total": 2
+}

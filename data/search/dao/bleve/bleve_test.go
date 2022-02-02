@@ -32,13 +32,15 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
+func getTmpIndex(createNodes bool) (s *Server, dir string) {
 	tmpDir, _ := ioutil.TempDir("", "bleve")
-	BleveIndexPath = filepath.Join(tmpDir, "pydio")
-	server, _ := NewBleveEngine(false, nil)
+	IndexPath = filepath.Join(tmpDir, "pydio")
+	server, _ := NewEngine(context.Background(), meta.NewNsProvider(context.Background()), false, nil)
 
 	if createNodes {
 
@@ -51,9 +53,9 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 			Type:  1,
 			Size:  24,
 		}
-		node.SetMeta("name", "node.txt")
-		node.SetMeta("FreeMeta", "FreeMetaValue")
-		node.SetMeta("GeoLocation", map[string]float64{
+		node.MustSetMeta("name", "node.txt")
+		node.MustSetMeta("FreeMeta", "FreeMetaValue")
+		node.MustSetMeta(common.MetaNamespaceGeoLocation, map[string]float64{
 			"lat": 47.10358888888889,
 			"lon": 8.372777777777777,
 		})
@@ -70,7 +72,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 			Type:  2,
 			Size:  36,
 		}
-		node2.SetMeta("name", "folder")
+		node2.MustSetMeta("name", "folder")
 
 		e = server.IndexNode(ctx, node2, false, nil)
 		if e != nil {
@@ -83,7 +85,7 @@ func getTmpIndex(createNodes bool) (s *BleveServer, dir string) {
 	return server, tmpDir
 }
 
-func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([]*tree.Node, error) {
+func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tree.Node, error) {
 
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
@@ -119,18 +121,18 @@ func search(ctx context.Context, index *BleveServer, queryObject *tree.Query) ([
 func TestNewBleveEngine(t *testing.T) {
 
 	tmpDir, _ := ioutil.TempDir("", "bleve")
-	BleveIndexPath = filepath.Join(tmpDir, "pydio")
+	IndexPath = filepath.Join(tmpDir, "pydio")
 	defer os.RemoveAll(tmpDir)
 
 	Convey("Test create bleve engine then reopen it", t, func() {
-		server, err := NewBleveEngine(false, nil)
+		server, err := NewEngine(context.Background(), meta.NewNsProvider(context.Background()), false, nil)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
 		e := server.Close()
 		So(e, ShouldBeNil)
 
-		server, err = NewBleveEngine(false, nil)
+		server, err = NewEngine(context.Background(), meta.NewNsProvider(context.Background()), false, nil)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
@@ -152,9 +154,9 @@ func TestMakeIndexableNode(t *testing.T) {
 			Type:      1,
 			MetaStore: make(map[string]string),
 		}
-		node.SetMeta("name", "node.txt")
+		node.MustSetMeta(common.MetaNamespaceNodeName, "node.txt")
 
-		b := NewBatch(BatchOptions{})
+		b := NewBatch(context.Background(), meta.NewNsProvider(context.Background()), BatchOptions{})
 		indexNode := &tree.IndexableNode{Node: *node}
 		e := b.LoadIndexableNode(indexNode, nil)
 		So(e, ShouldBeNil)

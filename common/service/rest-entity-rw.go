@@ -21,10 +21,12 @@
 package service
 
 import (
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	"io"
+
+	restful "github.com/emicklei/go-restful/v3"
 	validator "github.com/mwitkow/go-proto-validators"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 // ProtoEntityReaderWriter can read and write values using an encoding such as JSON,XML.
@@ -35,7 +37,11 @@ type ProtoEntityReaderWriter struct {
 // The Request may have a decompressing reader. Depends on Content-Encoding.
 func (e *ProtoEntityReaderWriter) Read(req *restful.Request, v interface{}) error {
 	pb := v.(proto.Message)
-	if e := jsonpb.Unmarshal(req.Request.Body, pb); e != nil {
+	bb, ee := io.ReadAll(req.Request.Body)
+	if ee != nil {
+		return ee
+	}
+	if e := protojson.Unmarshal(bb, pb); e != nil {
 		return e
 	}
 	if valid, ok := pb.(validator.Validator); ok {
@@ -57,9 +63,11 @@ func (e *ProtoEntityReaderWriter) Write(resp *restful.Response, status int, v in
 
 	resp.Header().Set(restful.HEADER_ContentType, "application/json")
 	resp.WriteHeader(status)
-	encoder := &jsonpb.Marshaler{
-		EnumsAsInts: false,
+	bb, ee := protojson.Marshal(v.(proto.Message))
+	if ee != nil {
+		return ee
 	}
-	return encoder.Marshal(resp, v.(proto.Message))
+	_, er := resp.Write(bb)
+	return er
 
 }

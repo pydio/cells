@@ -26,7 +26,8 @@ import (
 )
 
 var (
-	initializers = make(map[string][]func(ctx context.Context))
+	initializers  = make(map[string][]func(ctx context.Context))
+	connConsumers = make(map[string][]func(ctx context.Context))
 )
 
 func Register(typ string, y ...func(ctx context.Context)) {
@@ -37,6 +38,18 @@ func Register(typ string, y ...func(ctx context.Context)) {
 
 func Init(ctx context.Context, typ string) {
 	for _, init := range initializers[typ] {
+		init(ctx)
+	}
+}
+
+func RegisterGlobalConnConsumer(typ string, y ...func(ctx context.Context)) {
+	for _, t := range strings.Split(typ, ",") {
+		connConsumers[t] = append(connConsumers[t], y...)
+	}
+}
+
+func InitGlobalConnConsumers(ctx context.Context, typ string) {
+	for _, init := range connConsumers[typ] {
 		init(ctx)
 	}
 }

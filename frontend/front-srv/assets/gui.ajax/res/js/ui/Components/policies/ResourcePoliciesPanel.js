@@ -407,7 +407,7 @@ class ResourcePoliciesPanel extends React.Component{
                 // select an arbitrary resource
                 blocks.push(<div style={styles.subheader}>{mess['visibility.panel.setvisible']}</div>);
                 blocks.push(
-                    <div style={{margin:'-30px 10px 0'}}>
+                    <div style={{margin:'-10px 10px 0'}}>
                         <UsersCompleter
                             className="share-form-users"
                             fieldLabel={mess['visibility.panel.pickuser']}

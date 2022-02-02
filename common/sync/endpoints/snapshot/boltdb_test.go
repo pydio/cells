@@ -29,14 +29,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/common/sync/endpoints/memory"
-
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 func basicDiff(l, r model.PathSyncSource) error {
@@ -148,7 +147,7 @@ func TestSnapshot(t *testing.T) {
 		t, e0 := snapshot.LoadNode(ctx, "a/a1")
 		So(t, ShouldBeNil)
 		So(e0, ShouldNotBeNil)
-		So(errors.Parse(e0.Error()).Code, ShouldEqual, 404)
+		So(errors.FromError(e0).Code, ShouldEqual, 404)
 
 		snapshot.MoveNode(ctx, "b", "b-renamed")
 		test, e := snapshot.LoadNode(ctx, "b/b/b/b/b/b/b/b/b/b/b/b/b/b/leaf")

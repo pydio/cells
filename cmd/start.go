@@ -22,22 +22,30 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
-	"time"
+	"log"
+	"sync"
 
-	"github.com/pydio/cells/common"
-
-	microregistry "github.com/micro/go-micro/registry"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/metrics"
-	"github.com/pydio/cells/x/filex"
+	"github.com/pydio/cells/v4/common/broker"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/runtime"
+	"github.com/pydio/cells/v4/common/plugins"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/server/caddy"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/server/fork"
+	"github.com/pydio/cells/v4/common/server/generic"
+	servergrpc "github.com/pydio/cells/v4/common/server/grpc"
+	"github.com/pydio/cells/v4/common/server/http"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
@@ -48,282 +56,315 @@ var (
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start one or more services",
-	Long: `
-DESCRIPTION
+	Short: "A brief description of your command",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
 
-  Start one or more services on this machine. 
-  $ ` + os.Args[0] + ` start [flags] args...
-
-  No arguments will start all services available (see 'ps' command).  
-   - Select specific services with regular expressions in the additional arguments. 
-   - The -t/--tags flag may limit to only a certain category of services (see usage below)
-   - The -x/--exclude flag may exclude one or more services
-  All these may be used in conjunction (-t, -x, regexp arguments).
-
-REQUIREMENTS
-  
-  Ulimit: set a number of allowed open files greater or equal to 2048.
-  For production use, a minimum of 8192 is recommended (see ulimit -n).
-
-  Setcap: if you intend to bind the server to standard http ports (80, 443), 
-  you must grant necessary permissions on cells binary with this command:
-  $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>    
-
-EXAMPLES
-
-  1. Start all Cells services
-  $ ` + os.Args[0] + ` start
-
-  2. Start all services whose name starts with pydio.grpc
-  $ ` + os.Args[0] + ` start pydio.grpc
-
-  3. Start only services for scheduler
-  $ ` + os.Args[0] + ` start --tag=scheduler
-
-  4. Start whole plateform except the roles service
-  $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.role
-
-ENVIRONMENT
-
-  1. Flag mapping
-
-  All the command flags documented below are mapped to their associated ENV var, using upper case and CELLS_ prefix.
-  For example :
-  $ ` + os.Args[0] + ` start --grpc_external 54545
-  is equivalent to 
-  $ export CELLS_GRPC_EXTERNAL=54545; ` + os.Args[0] + ` start
-
-  2. Working Directories 
-
-  - CELLS_WORKING_DIR: replace the whole standard application dir
-  - CELLS_DATA_DIR: replace the location for storing default datasources (default CELLS_WORKING_DIR/data)
-  - CELLS_LOG_DIR: replace the location for storing logs (default CELLS_WORKING_DIR/logs)
-  - CELLS_SERVICES_DIR: replace location for services-specific data (default CELLS_WORKING_DIR/services)
-
-  3. Timeouts, limits, proxies
-
-  - CELLS_SQL_DEFAULT_CONN, CELLS_SQL_LONG_CONN: timeouts used for SQL queries. Use a golang duration (10s, 1m, etc). Defaults are respectively 30 seconds and 10 minutes.
-  - CELLS_CACHES_HARD_LIMIT: maximum memory limit used by internal caches (in MB, default is 8). This is a per/cache limit, not global.
-  - CELLS_UPDATE_HTTP_PROXY: if your server uses a client proxy to access outside world, this can be set to query update server.
-  - HTTP_PROXY, HTTPS_PROXY, NO_PROXY: golang-specific environment variables to configure a client proxy for all external http calls.
-
-  4. Development variables
-
-  - CELLS_ENABLE_WIP_LANGUAGES: show partially translated languages in the UX language picker. 
-  - CELLS_ENABLE_LIVEKIT: enable experimental support for video calls in the chat window, using a livekit-server.
-  - CELLS_ENABLE_FORMS_DEVEL: display a basic UX form with all possible fields types in the UX (for React developers)
-  - CELLS_DEFAULT_DS_STRUCT: if true, create default datasources using structured format instead of flat
-
-`,
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-
-		if !IsFork {
-			if err := checkFdlimit(); err != nil {
-				return err
-			}
-			if dc := os.Getenv("CELLS_SQL_DEFAULT_CONN"); dc != "" {
-				if ddc, e := time.ParseDuration(dc); e == nil {
-					fmt.Println("[ENV] Overriding DefaultConnectionTimeout with env value", ddc)
-				}
-			}
-			if dc := os.Getenv("CELLS_SQL_LONG_CONN"); dc != "" {
-				if ddc, e := time.ParseDuration(dc); e == nil {
-					fmt.Println("[ENV] Overriding LongConnectionTimeout with env value", ddc)
-				}
-			}
-		}
+		viper.Set("args", args)
 
 		bindViperFlags(cmd.Flags(), map[string]string{
-			//	"log":  "logs_level",
+			// "log":  "logs_level",
 			"fork": "is_fork",
 		})
 
-		if !config.RuntimeIsRemote() {
-			if !filex.Exists(filepath.Join(config.PydioConfigDir, config.PydioConfigFile)) {
-				return triggerInstall(
-					"We cannot find a configuration file ... "+config.ApplicationWorkingDir()+"/pydio.json",
-					"Do you want to create one now",
-					cmd, args)
-			}
+		initLogLevel()
 
-			if initConfig() {
-				return triggerInstall(
-					"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
-					"Do you want to reset the initial configuration", cmd, args)
-			}
-		}
+		initConfig()
 
-		initStartingToolsOnce.Do(func() {
-			initLogLevel()
-
-			metrics.Init()
-
-			// Initialise the default registry
-			handleRegistry()
-
-			// Initialise the default broker
-			handleBroker()
-
-			// Initialise the default transport
-			handleTransport()
-
-			// Making sure we capture the signals
-			handleSignals()
-		})
-
-		if config.RuntimeIsRemote() {
-			// For a remote server, we are waiting for the registry to be set to initiate config
-			initConfig()
-		}
-
-		// Pre-check that pydio.json is properly configured
-		if v := config.Get("version").String(); v == "" {
-			return triggerInstall(
-				"Oops, the configuration is not right ... "+config.ApplicationWorkingDir()+"/pydio.json",
-				"Do you want to reset the initial configuration", cmd, args)
-		}
-
-		plugins.Init(cmd.Context(), "main")
-
-		// Filtering out services by exclusion
-		registry.Default.Filter(func(s registry.Service) bool {
-			for _, exclude := range FilterStartExclude {
-				re := regexp.MustCompile(exclude)
-
-				if strings.HasPrefix(s.Name(), exclude) || re.MatchString(s.Name()) {
-					return true
-				}
-			}
-
-			return false
-		})
-
-		// Filtering services by tags
-		registry.Default.Filter(func(s registry.Service) bool {
-			// Unique exclude must be done here
-			for _, exclude := range FilterStartExclude {
-				if exclude == startTagUnique && s.MustBeUnique() {
-					return true
-				}
-			}
-			for _, t := range FilterStartTags {
-				if t == startTagUnique && s.MustBeUnique() {
-					registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
-					return false
-				} else {
-					for _, st := range s.Tags() {
-						if t == st {
-							registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
-							return false
-						}
-					}
-				}
-			}
-
-			return len(FilterStartTags) > 0
-		})
-
-		// Filtering services by args
-		registry.Default.Filter(func(s registry.Service) bool {
-			for _, arg := range args {
-				reArg := regexp.MustCompile(arg)
-				if reArg.MatchString(s.Name()) {
-					registry.ProcessStartTags = append(registry.ProcessStartTags, "s:"+s.Name())
-					return false
-				}
-				if s.MatchesRegexp(arg) {
-					registry.ProcessStartTags = append(registry.ProcessStartTags, "s:"+s.Name())
-					return false
-				}
-			}
-			return len(args) > 0
-		})
-
-		// Filtering services that have a regexp when there is no argument to the command
-		registry.Default.Filter(func(s registry.Service) bool {
-			if len(args) == 0 && s.Regexp() != nil {
-				return true
-			}
-			return false
-		})
-
-		// Re-gather exclude flag (it is applied in root.go PersistentPreRun) for startTag
-		for _, x := range FilterStartExclude {
-			registry.ProcessStartTags = append(registry.ProcessStartTags, "x:"+x)
-		}
-
-		// Re-building allServices list
-		if s, err := registry.Default.ListServices(); err != nil {
-			return fmt.Errorf("Could not retrieve list of services")
-		} else {
-			allServices = s
-		}
-
-		if replaced := config.EnvOverrideDefaultBind(); replaced {
-			// Bind sites are replaced by flags/env values - warn that it will take precedence
-			if ss, e := config.LoadSites(true); e == nil && len(ss) > 0 && !IsFork {
-				fmt.Println("*****************************************************************")
-				fmt.Println("*  Dynamic bind flag detected, overriding any configured sites  *")
-				fmt.Println("*****************************************************************")
-			}
-		}
-
-		initServices()
+		// Making sure we capture the signals
+		handleSignals(args)
 
 		return nil
 	},
-
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// Start services that have not been deregistered via flags and filtering.
-		for _, service := range allServices {
-			if !IsFork && service.RequiresFork() {
-				if !service.AutoStart() {
-					continue
-				}
-				go service.ForkStart(cmd.Context())
-			} else {
-				go service.Start(cmd.Context())
+		ctx := cmd.Context()
+
+		pluginsReg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
+		if err != nil {
+			return err
+		}
+		//pluginsRegStore, err := file.New("/tmp/registry.json", true, configregistry.WithJSONItem())
+		//if err != nil {
+		//	return err
+		//}
+		//pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
+
+		//etcdconn, err := clientv3.New(clientv3.Config{
+		//	Endpoints:   []string{"http://192.168.1.92:2379"},
+		//	DialTimeout: 2 * time.Second,
+		//})
+		//if err != nil {
+		//	log.Fatal("could not start etcd", zap.Error(err))
+		//}
+		//
+		//regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
+		//reg := configregistry.NewConfigRegistry(regStore)
+		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		if err != nil {
+			return err
+		}
+
+		// Create a main client connection
+		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
+		if err != nil {
+			return err
+		}
+
+		ctx = servercontext.WithRegistry(ctx, reg)
+		ctx = servicecontext.WithRegistry(ctx, pluginsReg)
+		ctx = clientcontext.WithClientConn(ctx, conn)
+
+		broker.Register(broker.NewBroker(viper.GetString("broker"), broker.WithContext(ctx)))
+		plugins.InitGlobalConnConsumers(ctx, "main")
+		initLogLevelListener(ctx)
+
+		//localEndpointURI := "192.168.1.5:5454"
+		//reporterURI := "http://localhost:9411/api/v2/spans"
+		//serviceName := "server"
+		//localEndpoint, err := openzipkin.NewEndpoint(serviceName, localEndpointURI)
+		//if err != nil {
+		//	log.Fatalf("Failed to create Zipkin localEndpoint with URI %q error: %v", localEndpointURI, err)
+		//}
+		//
+		//reporter := zipkinHTTP.NewReporter(reporterURI)
+		//ze := zipkin.NewExporter(reporter, localEndpoint)
+		//
+		//// And now finally register it as a Trace Exporter
+		//trace.RegisterExporter(ze)
+
+		/*
+			watcher, err := reg.Watch()
+			if err != nil {
+				return err
 			}
 
-			select {
-			case <-microregistry.DefaultRegistry.Options().Context.Done():
-				return nil
-			case <-cmd.Context().Done():
-				return nil
-			default:
+			go func() {
+				for {
+					w, err := watcher.Next()
+					if err != nil {
+						fmt.Println("And the error is ? ", err)
+					}
+
+					if w.Action() == "start_request" {
+						fmt.Println("Received start request for ? ", w.Item().Name())
+						var node registry.Node
+
+						if w.Item().As(&node) {
+							serverType, ok := node.Metadata()["type"]
+							if !ok {
+								continue
+							}
+
+							fmt.Println("Starting ", node.Name())
+							switch serverType {
+							case "grpc":
+								grpc.New(ctx)
+							}
+						}
+
+						var sss registry.Service
+						if w.Item().As(&sss) {
+							ss, err := pluginsReg.Get(sss.Name(), registry.WithType(pb.ItemType_SERVICE))
+							if err != nil {
+								fmt.Println(err)
+								continue
+							}
+
+							var s service.Service
+							if ss.As(&s) {
+								opts := s.Options()
+
+								opts.Context = ctx
+
+								s.Start()
+							}
+						}
+					}
+				}
+			}()
+
+
+
+			srvGRPC := grpc.New(ctx)
+			var srvHTTP server.Server
+			if !runtime.IsFork() {
+				if h, err := caddy.New(ctx, ""); err != nil {
+					return err
+				} else {
+					srvHTTP = h
+				}
+			} else {
+				srvHTTP = http.New(ctx)
+			}
+			if err != nil {
+				return err
+			}
+			srvGeneric := generic.New(ctx)
+
+		*/
+
+		//ctx = servicecontext.WithServer(ctx, "grpc", srvGRPC)
+		//ctx = servicecontext.WithServer(ctx, "http", srvHTTP)
+		//ctx = servicecontext.WithServer(ctx, "generic", srvGeneric)
+
+		plugins.Init(ctx, "main")
+
+		services, err := pluginsReg.List(registry.WithType(pb.ItemType_SERVICE))
+		if err != nil {
+			return err
+		}
+
+		var (
+			srvGRPC    server.Server
+			srvHTTP    server.Server
+			srvGeneric server.Server
+			srvs       []server.Server
+		)
+
+		runtime.BuildProcessStartTag()
+
+		for _, ss := range services {
+			var s service.Service
+			if !ss.As(&s) {
 				continue
 			}
-		}
-
-		for {
-			select {
-			case <-microregistry.DefaultRegistry.Options().Context.Done():
-				return nil
-			case <-cmd.Context().Done():
-				return nil
+			if !runtime.IsRequired(s.Name(), s.Options().Tags...) {
+				continue
 			}
-		}
-	},
+			opts := s.Options()
 
-	PostRunE: func(cmd *cobra.Command, args []string) error {
-		reg := registry.GetCurrentProcess()
-		if reg == nil {
-			return nil
-		}
+			opts.Context = servicecontext.WithRegistry(opts.Context, reg)
+			opts.Context = servicecontext.WithKeyring(opts.Context, keyring)
 
-	loop:
-		for {
-			select {
-			case <-time.After(30 * time.Second):
-				break loop
-			default:
-				if reg != nil && len(reg.Services) > 0 {
-					time.Sleep(1 * time.Second)
+			if opts.Fork && !runtime.IsFork() {
+				if !opts.AutoStart {
 					continue
 				}
 
-				break loop
+				srvFork := fork.NewServer(opts.Context)
+				var srvForkAs *fork.ForkServer
+				if srvFork.As(&srvForkAs) {
+					srvForkAs.RegisterForkParam(opts.Name)
+				}
+
+				srvs = append(srvs, srvFork)
+
+				opts.Server = srvFork
+
+				continue
+			}
+
+			if opts.Server != nil {
+
+				srvs = append(srvs, opts.Server)
+
+			} else if opts.ServerProvider != nil {
+
+				serv, er := opts.ServerProvider(ctx)
+				if er != nil {
+					log.Fatal(er)
+				}
+				opts.Server = serv
+				srvs = append(srvs, opts.Server)
+
+			} else {
+				if s.IsGRPC() {
+
+					if srvGRPC == nil {
+						srvGRPC = servergrpc.New(ctx)
+						srvs = append(srvs, srvGRPC)
+					}
+					opts.Server = srvGRPC
+
+				}
+				if s.IsREST() {
+
+					if srvHTTP == nil {
+						if runtime.IsFork() {
+							srvHTTP = http.New(ctx)
+						} else {
+							if s, e := caddy.New(opts.Context, ""); e != nil {
+								log.Fatal(e)
+							} else {
+								srvHTTP = s
+							}
+						}
+						srvs = append(srvs, srvHTTP)
+					}
+					opts.Server = srvHTTP
+
+				}
+				if s.IsGeneric() {
+
+					if srvGeneric == nil {
+						srvGeneric = generic.New(ctx)
+						srvs = append(srvs, srvGeneric)
+					}
+					opts.Server = srvGeneric
+
+				}
+			}
+
+			opts.Server.BeforeServe(s.Start)
+			opts.Server.AfterServe(func() error {
+				// Register service again to update nodes information
+				if err := reg.Register(s); err != nil {
+					return err
+				}
+				return nil
+			})
+			opts.Server.BeforeStop(s.Stop)
+
+		}
+
+		// var g errgroup.Group
+
+		go func() {
+			ch, err := config.WatchMap("services")
+			if err != nil {
+				return
+			}
+
+			for kv := range ch {
+				s, err := reg.Get(kv.Key)
+				if err != nil {
+					continue
+				}
+				var rs service.Service
+				if s.As(&rs) && rs.Options().AutoRestart {
+					rs.Stop()
+
+					rs.Start()
+				}
+			}
+		}()
+
+		wg := &sync.WaitGroup{}
+		for _, srv := range srvs {
+			// g.Go(srv.Serve)
+			wg.Add(1)
+			go func(srv server.Server) {
+				defer wg.Done()
+				if err := srv.Serve(); err != nil {
+					fmt.Println(err)
+				}
+
+				return
+			}(srv)
+		}
+		wg.Wait()
+
+		select {
+		case <-cmd.Context().Done():
+		}
+
+		for _, srv := range srvs {
+			if err := srv.Stop(); err != nil {
+				fmt.Println("Error stopping server ", err)
 			}
 		}
 
@@ -336,39 +377,24 @@ func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
-	// Registry / Broker Flags
-	addNatsFlags(StartCmd.Flags())
-	addNatsStreamingFlags(StartCmd.Flags())
+	StartCmd.Flags().String("grpc.address", ":8001", "gRPC Server Address")
+	StartCmd.Flags().String("http.address", ":8002", "HTTP Server Address")
+
+	StartCmd.Flags().Bool("fork", false, "Used internally by application when forking processes")
+
 	addRegistryFlags(StartCmd.Flags())
 
-	// Grpc Gateway Flags
-	StartCmd.Flags().String("grpc_external", "", "External port exposed for gRPC (may be fixed if no SSL is configured or a reverse proxy is used)")
-	StartCmd.Flags().String("grpc_cert", "", "Certificates used for communication via grpc")
-	StartCmd.Flags().String("grpc_key", "", "Certificates used for communication via grpc")
+	StartCmd.Flags().MarkHidden("fork")
+	StartCmd.Flags().MarkHidden("registry")
+	StartCmd.Flags().MarkHidden("broker")
 
 	// Other internal flags
 	StartCmd.Flags().String("log", "info", "Sets the log level: 'debug', 'info', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
-	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
-	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
-	StartCmd.Flags().BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
-	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
-	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
-	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
-
-	// Additional Flags
-	StartCmd.Flags().String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	StartCmd.Flags().String("external", "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
-	StartCmd.Flags().Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
-	StartCmd.Flags().String("tls_cert_file", "", "TLS cert file path")
-	StartCmd.Flags().String("tls_key_file", "", "TLS key file path")
-	StartCmd.Flags().String("le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
-	StartCmd.Flags().Bool("le_agree", false, "Accept Let's Encrypt EULA")
-	StartCmd.Flags().Bool("le_staging", false, "Rather use staging CA entry point")
-	StartCmd.Flags().MarkHidden("le_staging")
-
-	StartCmd.Flags().MarkHidden("fork")
-	StartCmd.Flags().MarkHidden("broker")
-	StartCmd.Flags().MarkHidden("registry")
+	//StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
+	//StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
+	//StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
+	//StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
+	//StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
 
 	RootCmd.AddCommand(StartCmd)
 }

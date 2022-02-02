@@ -25,13 +25,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
+	"github.com/pydio/cells/v4/common/service/errors"
 
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 // PoliciesLoaderFunc is a signature for a function that can load policies from a given resource

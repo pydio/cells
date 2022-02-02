@@ -25,23 +25,27 @@ import (
 	"context"
 	"strings"
 
-	"github.com/emicklei/go-restful"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+
+	restful "github.com/emicklei/go-restful/v3"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/acl"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 type Handler struct {
-	router *views.Router
-	client tree.SearcherClient
+	runtimeCtx context.Context
+	router     nodes.Client
+	client     tree.SearcherClient
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
@@ -54,16 +58,19 @@ func (s *Handler) Filter() func(string) string {
 	return nil
 }
 
-func (s *Handler) getRouter() *views.Router {
+func (s *Handler) getRouter() nodes.Client {
 	if s.router == nil {
-		s.router = views.NewStandardRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: false})
+		s.router = compose.PathClient(
+			nodes.WithContext(s.runtimeCtx),
+			nodes.WithRegistryWatch(servicecontext.GetRegistry(s.runtimeCtx)),
+		)
 	}
 	return s.router
 }
 
 func (s *Handler) getClient() tree.SearcherClient {
 	if s.client == nil {
-		s.client = tree.NewSearcherClient(common.ServiceGrpcNamespace_+common.ServiceSearch, defaults.NewClient())
+		s.client = tree.NewSearcherClient(grpc.GetClientConnFromCtx(s.runtimeCtx, common.ServiceSearch))
 	}
 	return s.client
 }
@@ -85,7 +92,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	router := s.getRouter()
 
-	var nodes []*tree.Node
+	var nn []*tree.Node
 	var facets []*tree.SearchFacet
 	prefixes := []string{}
 	nodesPrefixes := map[string]string{}
@@ -99,24 +106,27 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
-	cl := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceTree))
+	cl := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 	nodeStreamer, e := cl.ReadNodeStream(ctx)
 	if e == nil {
-		defer nodeStreamer.Close()
+		defer nodeStreamer.CloseSend()
 	}
 
-	err := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	err := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 
 		var userWorkspaces map[string]*idm.Workspace
+		// Fill a context with current user info
+		// (Let inputFilter apply the various necessary middlewares).
+		loaderCtx, _, _ := inputFilter(ctx, &tree.Node{Path: ""}, "tmp")
+		if accessList, ok := acl.FromContext(loaderCtx); ok {
+			userWorkspaces = accessList.Workspaces
+		}
+
 		if len(passedPrefix) > 0 {
 			// Passed prefix
 			prefixes = append(prefixes, passedPrefix)
 
 		} else {
-			// Fill a context with current user info
-			// (Let inputFilter apply the various necessary middlewares).
-			loaderCtx, _, _ := inputFilter(ctx, &tree.Node{Path: ""}, "tmp")
-			userWorkspaces = views.UserWorkspacesFromContext(loaderCtx)
 			for _, w := range userWorkspaces {
 				if len(passedWorkspaceSlug) > 0 && w.Slug != passedWorkspaceSlug {
 					continue
@@ -133,7 +143,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		query.PathPrefix = []string{}
 
 		var e error
-		ctx = context.WithValue(ctx, views.CtxKeepAccessListKey{}, true)
+		ctx = acl.WithPresetACL(loaderCtx, nil) // Just set the key, acl is already set
 		for _, p := range prefixes {
 			rootNode := &tree.Node{Path: p}
 			ctx, rootNode, e = inputFilter(ctx, rootNode, "search-"+p)
@@ -150,7 +160,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			return err
 		}
 
-		defer sClient.Close()
+		defer sClient.CloseSend()
 
 		for {
 			resp, rErr := sClient.Recv()
@@ -185,13 +195,13 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 					if userWorkspaces != nil {
 						for _, w := range userWorkspaces {
 							if strings.HasPrefix(filtered.Path, w.Slug+"/") {
-								filtered.SetMeta("repository_id", w.UUID)
-								filtered.SetMeta("repository_display", w.Label)
+								filtered.MustSetMeta(common.MetaFlagWorkspaceRepoId, w.UUID)
+								filtered.MustSetMeta(common.MetaFlagWorkspaceRepoDisplay, w.Label)
 							}
 						}
 					}
 					//metaLoader.LoadMetas(ctx, filtered)
-					nodes = append(nodes, filtered.WithoutReservedMetas())
+					nn = append(nn, filtered.WithoutReservedMetas())
 				}
 			}
 		}
@@ -206,9 +216,9 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	}
 
 	result := &rest.SearchResults{
-		Results: nodes,
+		Results: nn,
 		Facets:  facets,
-		Total:   int32(len(nodes)),
+		Total:   int32(len(nn)),
 	}
 	rsp.WriteEntity(result)
 

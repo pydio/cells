@@ -1,39 +1,54 @@
+/*
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package modifiers
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/pydio/cells/common/utils/i18n"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	service "github.com/pydio/cells/common/service/proto"
-
-	"github.com/pydio/cells/common/registry"
-
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // LoginSuccessWrapper wraps functionalities after user was successfully logged in
 func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
-	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
+	return func(req *restful.Request, rsp *restful.Response, in *frontend.FrontSessionWithRuntimeCtx, out *rest.FrontSessionResponse, session *sessions.Session) error {
 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" && a != "authorization_code" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
@@ -90,14 +105,14 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 		if user.Attributes != nil {
 			if _, ok := user.Attributes["failedConnections"]; ok {
 				log.Logger(ctx).Info("[WrapWithUserLocks] Resetting user failedConnections", user.ZapLogin())
-				userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+				userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(in.RuntimeCtx, common.ServiceUser))
 				delete(user.Attributes, "failedConnections")
 				userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 			}
 		}
 
 		// Checking policies
-		cli := idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
+		cli := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(in.RuntimeCtx, common.ServicePolicy))
 		policyContext := make(map[string]string)
 		permissions.PolicyContextFromMetadata(policyContext, ctx)
 		subjects := permissions.PolicyRequestSubjectsFromUser(user)
@@ -124,16 +139,18 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 
 		if lang, ok := in.AuthInfo["lang"]; ok {
 			if _, o := i18n.AvailableLanguages[lang]; o {
-				aclClient := idm.NewACLServiceClient(registry.GetClient(common.ServiceAcl))
+				aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(in.RuntimeCtx, common.ServiceAcl))
 				// Remove previous value if any
-				delQ, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{RoleIDs: []string{user.GetUuid()}, Actions: []*idm.ACLAction{{Name: "parameter:core.conf:lang"}}, WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"}})
-				aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*any.Any{delQ}}}, client.WithRequestTimeout(500*time.Millisecond))
+				delQ, _ := anypb.New(&idm.ACLSingleQuery{RoleIDs: []string{user.GetUuid()}, Actions: []*idm.ACLAction{{Name: "parameter:core.conf:lang"}}, WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"}})
+				send, can := context.WithTimeout(ctx, 500*time.Millisecond)
+				defer can()
+				aclClient.DeleteACL(send, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{delQ}}})
 				// Insert new ACL with language value
-				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+				_, e := aclClient.CreateACL(send, &idm.CreateACLRequest{ACL: &idm.ACL{
 					Action:      &idm.ACLAction{Name: "parameter:core.conf:lang", Value: lang},
 					RoleID:      user.GetUuid(),
 					WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
-				}}, client.WithRequestTimeout(500*time.Millisecond))
+				}})
 				if e != nil {
 					log.Logger(ctx).Error("Cannot update language for user", user.ZapLogin(), zap.String("lang", lang), zap.Error(e))
 				} else {
@@ -142,10 +159,10 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 			}
 		}
 
-		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_LOGIN,
 			User: user,
-		}))
+		})
 
 		return nil
 	}
@@ -153,7 +170,7 @@ func LoginSuccessWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddle
 
 // LoginFailedWrapper wraps functionalities after user failed to log in
 func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
-	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
+	return func(req *restful.Request, rsp *restful.Response, in *frontend.FrontSessionWithRuntimeCtx, out *rest.FrontSessionResponse, session *sessions.Session) error {
 		if a, ok := in.AuthInfo["type"]; !ok || a != "credentials" && a != "external" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
@@ -225,7 +242,7 @@ func LoginFailedWrapper(middleware frontend.AuthMiddleware) frontend.AuthMiddlew
 		}
 
 		log.Logger(ctx).Debug(fmt.Sprintf("[WrapWithUserLocks] Updating failed connection number for user [%s]", user.GetLogin()), user.ZapLogin())
-		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+		userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(in.RuntimeCtx, common.ServiceUser))
 		if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: user}); e != nil {
 			log.Logger(ctx).Error("could not store failedConnection for user", zap.Error(e))
 		}

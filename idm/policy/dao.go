@@ -26,9 +26,9 @@ import (
 
 	"github.com/ory/ladon"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 type DAO interface {

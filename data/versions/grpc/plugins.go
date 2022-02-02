@@ -23,24 +23,23 @@ package grpc
 
 import (
 	"context"
-	"path"
 	"time"
 
-	"github.com/pydio/cells/common/registry"
+	"google.golang.org/grpc"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/data/versions"
+	"github.com/pydio/cells/v4/common"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/data/versions"
 )
 
 var (
@@ -57,47 +56,46 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Versioning service"),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
-			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
+			//service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
+			//service.Dependency(common.ServiceGrpcNamespace_+common.ServiceDocStore, []string{}),
+			//service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
 					Up:            InitDefaults,
 				},
 			}),
-			service.Unique(true),
-			service.WithMicro(func(m micro.Service) error {
+			service.WithStorage(versions.NewDAO, "versions"),
+			//service.Unique(true),
+			service.AfterServe(func(ctx context.Context) error {
+				return std.Retry(ctx, func() error {
+					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+					to, cancel := context.WithTimeout(ctx, grpc2.CallTimeoutShort)
+					defer cancel()
+					// Migration from old prune-versions-job : delete if exists, replaced by composed job
+					var reinsert bool
+					if _, e := jobsClient.GetJob(to, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
+						_, _ = jobsClient.DeleteJob(to, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
+						reinsert = true
+					}
+					vJob := getVersioningJob()
+					if _, err := jobsClient.GetJob(to, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
+						log.Logger(ctx).Info("Inserting versioning job")
+						_, er := jobsClient.PutJob(to, &jobs.PutJobRequest{Job: vJob})
+						return er
+					}
+					return nil
+				}, 5*time.Second, 20*time.Second)
+			}),
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
-				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceVersions)
-				if e != nil {
-					return e
-				}
-				store, err := versions.NewBoltStore(path.Join(serviceDir, "versions.db"))
-				if err != nil {
-					return err
-				}
-
+				dao := servicecontext.GetDAO(ctx).(versions.DAO)
 				engine := &Handler{
-					db: store,
+					srvName: Name,
+					db:      dao,
 				}
 
-				tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
-
-				jobsClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
-				to := registry.ShortRequestTimeout()
-				ctx := m.Options().Context
-				// Migration from old prune-versions-job : delete if exists, replaced by composed job
-				var reinsert bool
-				if _, e := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
-					jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
-					reinsert = true
-				}
-				vJob := getVersioningJob()
-				if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: vJob.ID}, to); err != nil || reinsert {
-					log.Logger(ctx).Info("Inserting versioning job")
-					jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: vJob}, to)
-				}
+				tree.RegisterNodeVersionerEnhancedServer(server, engine)
 
 				return nil
 			}),
@@ -149,9 +147,12 @@ func InitDefaults(ctx context.Context) error {
 		NodeDeletedStrategy:    tree.VersioningNodeDeletedStrategy_KeepLast,
 	})
 
-	return service.Retry(ctx, func() error {
+	return std.Retry(ctx, func() error {
 
-		dc := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+		ctx, can := context.WithTimeout(ctx, grpc2.CallTimeoutShort)
+		defer can()
+
+		dc := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
 			StoreID:    common.DocStoreIdVersioningPolicies,
 			DocumentID: "default-policy",

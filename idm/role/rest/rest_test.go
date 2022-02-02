@@ -24,21 +24,19 @@ import (
 	"fmt"
 	"testing"
 
-	json "github.com/pydio/cells/x/jsonx"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/golang/protobuf/ptypes"
-	ptypes_any "github.com/golang/protobuf/ptypes/any"
-
-	"github.com/pydio/cells/common/proto/idm"
-	serviceproto "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	serviceproto "github.com/pydio/cells/v4/common/proto/service"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 // Simple dummy tests to play with gRPC format that is used for role queries
 func TestRole(t *testing.T) {
 	uuid := "MyRoleId"
 	// Simply creates a deleteRoleRequest in protobuf JSON serialised format
-	query, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: []string{uuid}})
-	r := idm.DeleteRoleRequest{Query: &serviceproto.Query{SubQueries: []*ptypes_any.Any{query}}}
+	query, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{uuid}})
+	r := idm.DeleteRoleRequest{Query: &serviceproto.Query{SubQueries: []*anypb.Any{query}}}
 	r1, err := json.Marshal(r)
 	if err != nil {
 		fmt.Println(err)
@@ -50,8 +48,8 @@ func TestRole(t *testing.T) {
 	initialStr := `{"Uuid": ["MyRoleId"]}`
 	var q idm.RoleSingleQuery
 	err = json.Unmarshal([]byte(initialStr), &q)
-	query2, _ := ptypes.MarshalAny(&q)
-	rr := idm.DeleteRoleRequest{Query: &serviceproto.Query{SubQueries: []*ptypes_any.Any{query2}}}
+	query2, _ := anypb.New(&q)
+	rr := idm.DeleteRoleRequest{Query: &serviceproto.Query{SubQueries: []*anypb.Any{query2}}}
 	r2, err := json.Marshal(rr)
 	if err != nil {
 		fmt.Println(err)

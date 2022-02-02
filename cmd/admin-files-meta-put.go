@@ -25,11 +25,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 var (
@@ -60,7 +61,7 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
+		client := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
 
 		_, err := client.UpdateNode(context.Background(), &tree.UpdateNodeRequest{
 			To: &tree.Node{

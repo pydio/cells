@@ -32,15 +32,15 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/tree"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 var (

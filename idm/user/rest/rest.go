@@ -27,29 +27,27 @@ import (
 	"strings"
 	"time"
 
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"github.com/patrickmn/go-cache"
-	"github.com/pborman/uuid"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/front"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/user/grpc"
+	"github.com/pydio/cells/v4/common"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/front"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/idm/user/grpc"
 )
 
 var profilesLevel = map[string]int{
@@ -57,15 +55,17 @@ var profilesLevel = map[string]int{
 	common.PydioProfileShared:   1,
 	common.PydioProfileStandard: 2,
 	common.PydioProfileAdmin:    3,
-	"": 4,
+	"":                          4,
 }
 
 type UserHandler struct {
+	RuntimeCtx context.Context
 	resources.ResourceProviderHandler
 }
 
-func NewUserHandler() *UserHandler {
+func NewUserHandler(ctx context.Context) *UserHandler {
 	h := &UserHandler{}
+	h.RuntimeCtx = ctx
 	h.PoliciesLoader = h.PoliciesForUserId
 	h.ServiceName = common.ServiceUser
 	h.ResourceName = "user"
@@ -94,16 +94,16 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	qLogin, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: login})
+	qLogin, _ := anypb.New(&idm.UserSingleQuery{Login: login})
 	query := &service2.Query{
 		Limit:      1,
 		Offset:     0,
-		SubQueries: []*any.Any{qLogin},
+		SubQueries: []*anypb.Any{qLogin},
 	}
 	query.ResourcePolicyQuery, _ = s.RestToServiceResourcePolicy(ctx, nil)
 	var result *idm.User
 
-	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
 		Query: query,
 	})
@@ -112,7 +112,7 @@ func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
@@ -161,23 +161,23 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	for _, q := range userReq.Queries {
-		anyfied, _ := ptypes.MarshalAny(q)
+		anyfied, _ := anypb.New(q)
 		if q.Login != "" && strings.HasSuffix(q.Login, "*") {
 			// This is a wildcard on line, transform this query to a search on login OR displayName
-			attQuery, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			attQuery, _ := anypb.New(&idm.UserSingleQuery{
 				AttributeName:  "displayName",
 				AttributeValue: q.Login,
 			})
-			wildQuery, _ := ptypes.MarshalAny(&service2.Query{
+			wildQuery, _ := anypb.New(&service2.Query{
 				Operation:  service2.OperationType_OR,
-				SubQueries: []*any.Any{anyfied, attQuery},
+				SubQueries: []*anypb.Any{anyfied, attQuery},
 			})
 			query.SubQueries = append(query.SubQueries, wildQuery)
 		} else {
 			query.SubQueries = append(query.SubQueries, anyfied)
 		}
 	}
-	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 	resp, err := cli.CountUser(ctx, &idm.SearchUserRequest{
 		Query: query,
 	})
@@ -200,7 +200,6 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			service.RestError500(req, rsp, err)
 			return
 		}
-		defer streamer.Close()
 		for {
 			resp, e := streamer.Recv()
 			if e != nil {
@@ -252,9 +251,9 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		log.Logger(req.Request.Context()).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login), zap.String("request", req.Request.RequestURI))
 		singleQ.Login = login
 	}
-	query, _ := ptypes.MarshalAny(singleQ)
-	mainQuery := &service2.Query{SubQueries: []*any.Any{query}}
-	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	query, _ := anypb.New(singleQ)
+	mainQuery := &service2.Query{SubQueries: []*anypb.Any{query}}
+	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 
 	// Search first to check policies
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
@@ -262,7 +261,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	defer stream.Close()
+	defer stream.CloseSend()
 	for {
 		response, e := stream.Recv()
 		if e != nil {
@@ -305,7 +304,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 			},
 		}
 
-		cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+		cli := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		if er != nil {
 			service.RestError500(req, rsp, er)
@@ -345,7 +344,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 	log.Logger(req.Request.Context()).Debug("Received User.Put API request", inputUser.ZapLogin())
 	var update *idm.User
 	if inputUser.Uuid != "" {
@@ -372,7 +371,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			return
 		}
 		// Check ADD/REMOVE Roles Policies
-		roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+		roleCli := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
 		rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 		removes := s.diffRoles(update.Roles, inputUser.Roles)
 		log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
@@ -396,7 +395,12 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// Load current ACLs for personal role
 		for _, r := range update.Roles {
 			if r.UserRole {
-				existingAcls = permissions.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
+				var er error
+				existingAcls, er = permissions.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
+				if er != nil {
+					service.RestError500(req, rsp, er)
+					return
+				}
 			}
 		}
 		// Put back the pydio: attributes
@@ -462,7 +466,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			continue
 		}
 		if strings.HasPrefix(k, "parameter:") {
-			if !allowedAclKey(k, true) {
+			if !allowedAclKey(ctx, k, true) {
 				continue
 			}
 			var acl = &idm.ACL{
@@ -509,7 +513,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				},
 			}
 		}
-		roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+		roleCli := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
 		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{Role: newRole})
 		if er != nil {
 			service.RestError500(req, rsp, er)
@@ -554,11 +558,11 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	u := response.User
 
 	if len(acls) > 0 {
-		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+		aclClient := idm.NewACLServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceAcl))
 		if len(deleteAclActions) > 0 {
 			delQuery := &service2.Query{Operation: service2.OperationType_OR}
 			for _, action := range deleteAclActions {
-				q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+				q, _ := anypb.New(&idm.ACLSingleQuery{
 					RoleIDs:      []string{u.Uuid},
 					Actions:      []*idm.ACLAction{{Name: action}},
 					WorkspaceIDs: []string{permissions.FrontWsScopeAll},
@@ -582,16 +586,16 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Reload user fully
-	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: u.Uuid})
+	q, _ := anypb.New(&idm.UserSingleQuery{Uuid: u.Uuid})
 	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
-		Query: &service2.Query{SubQueries: []*any.Any{q}},
+		Query: &service2.Query{SubQueries: []*anypb.Any{q}},
 	})
 	if err != nil {
 		// Handle error
 		service.RestError500(req, rsp, err)
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
@@ -620,7 +624,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if l, o := u.Attributes["parameter:core.conf:lang"]; o {
 			lang = strings.Trim(l, `"`)
 		}
-		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
+		mailCli := mailer.NewMailerServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceMailer))
 		email := &mailer.Mail{
 			To: []*mailer.User{{
 				Uuid:     u.Uuid,
@@ -667,7 +671,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, errors.BadRequest(common.ServiceUser, "Please provide a user ID"))
 		return
 	}
-	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	cli := idm.NewUserServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceUser))
 	var update *idm.User
 	var exists bool
 	if update, exists = s.userById(ctx, inputUser.Uuid, cli); !exists {
@@ -676,7 +680,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Check ADD/REMOVE Roles Policies
-	roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+	roleCli := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
 	rolesToCheck := s.diffRoles(inputUser.Roles, update.Roles)
 	removes := s.diffRoles(update.Roles, inputUser.Roles)
 	log.Logger(ctx).Debug("ADD/REMOVE ROLES", log.DangerouslyZapSmallSlice("add", rolesToCheck), log.DangerouslyZapSmallSlice("remove", removes), log.DangerouslyZapSmallSlice("new", inputUser.Roles), log.DangerouslyZapSmallSlice("existings", update.Roles))
@@ -736,12 +740,12 @@ func (s *UserHandler) checkCanAssignRoles(ctx context.Context, roles []*idm.Role
 	for _, role := range roles {
 		uuids = append(uuids, role.Uuid)
 	}
-	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: uuids})
-	streamer, e := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service2.Query{SubQueries: []*any.Any{q}}})
+	q, _ := anypb.New(&idm.RoleSingleQuery{Uuid: uuids})
+	streamer, e := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service2.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		return e
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	for {
 		rsp, e := streamer.Recv()
 		if e != nil {
@@ -786,19 +790,19 @@ func (s *UserHandler) diffRoles(as []*idm.Role, bs []*idm.Role) (diff []*idm.Rol
 // Loads an existing user by her UUID.
 func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserServiceClient) (user *idm.User, exists bool) {
 
-	subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+	subQ, _ := anypb.New(&idm.UserSingleQuery{
 		Uuid: userId,
 	})
 
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
 		Query: &service2.Query{
-			SubQueries: []*any.Any{subQ},
+			SubQueries: []*anypb.Any{subQ},
 		},
 	})
 	if err != nil {
 		return
 	}
-	defer stream.Close()
+	defer stream.CloseSend()
 	for {
 		rsp, e := stream.Recv()
 		if e != nil {
@@ -838,9 +842,10 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 	if len(roles) == 0 {
 		return
 	}
-	for _, acl := range permissions.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"}) {
+	aa, _ := permissions.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"})
+	for _, acl := range aa {
 		for _, user := range users {
-			if allowedAclKey(acl.Action.Name, user.PoliciesContextEditable) && user.Uuid == acl.RoleID {
+			if allowedAclKey(ctx, acl.Action.Name, user.PoliciesContextEditable) && user.Uuid == acl.RoleID {
 				user.Attributes[acl.Action.Name] = acl.Action.Value
 			}
 		}
@@ -848,18 +853,18 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
-var cachedParams *cache.Cache
+var cachedParams cache.Short
 
-func allowedAclKey(k string, contextEditable bool) bool {
+func allowedAclKey(ctx context.Context, k string, contextEditable bool) bool {
 	var params []*front.ExposedParameter
 	if cachedParams == nil {
-		cachedParams = cache.New(20*time.Second, 1*time.Minute)
+		cachedParams = cache.NewShort(cache.WithEviction(20*time.Second), cache.WithCleanWindow(1*time.Minute))
 	}
 	if pp, ok := cachedParams.Get("params"); ok {
 		params = pp.([]*front.ExposedParameter)
 	} else {
-		mC := front.NewManifestServiceClient(registry.GetClient(common.ServiceFrontStatics))
-		resp, e := mC.ExposedParameters(context.Background(), &front.ExposedParametersRequest{
+		mC := front.NewManifestServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceFrontStatics))
+		resp, e := mC.ExposedParameters(ctx, &front.ExposedParametersRequest{
 			Scope:   "user",
 			Exposed: true,
 		})
@@ -868,7 +873,7 @@ func allowedAclKey(k string, contextEditable bool) bool {
 			return false
 		}
 		params = resp.Parameters
-		cachedParams.Set("params", resp.Parameters, cache.DefaultExpiration)
+		cachedParams.Set("params", resp.Parameters)
 	}
 
 	// Find params that contain user scope but not only that scope

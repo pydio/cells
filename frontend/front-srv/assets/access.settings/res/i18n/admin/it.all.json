@@ -39,10 +39,10 @@
     "other": "DataSource %s"
   },
   "ds.format-picker.title": {
-    "other": "Crea DataSource"
+    "other": "Create DataSource"
   },
   "ds.format-picker.legend": {
-    "other": "I DataSource sono punti di mount che consentono di associare lo storage all'applicazione. Prima è necessario selezionare il modo in cui i dati sono organizzati all'interno dello storage."
+    "other": "DataSources are mount points allowing you to attach actual storage to the application. First select the way data is organized inside storage."
   },
   "ds.format-picker.submit": {
     "other": "Inizio"
@@ -51,19 +51,19 @@
     "other": "Flat Storage"
   },
   "ds.format-picker.flat.legend": {
-    "other": "Per migliorare le prestazioni, i file sono memorizzati come binari all'interno dello storage. La struttura dei file e delle cartelle è mantenuta solo nell'indice interno."
+    "other": "Best for performances, files are stored as binaries inside the storage. Files and folders structure is kept in internal index only."
   },
   "ds.format-picker.structured.title": {
-    "other": "Importa i Dati Esistenti"
+    "other": "Import Existing Data"
   },
   "ds.format-picker.structured.legend": {
-    "other": "I file e le cartelle sono memorizzati così come sono, la sincronizzazione in tempo reale riflette la struttura dello storage negli indici interni."
+    "other": "Files and folders are stored as-is, real-time synchronisation reflects storage structure inside internal indexes."
   },
   "ds.format-picker.internal.title": {
-    "other": "Interno delle Cell"
+    "other": "Cells Internals"
   },
   "ds.format-picker.internal.legend": {
-    "other": "Usato per memorizzare i binari interni (ad esempio le versioni dei file, le miniature). Funzionalità limitate, i dati non sono indicizzati nei motori di ricerca."
+    "other": "Used to store internal binaries (e.g. files versions, thumbnails). Limited features, data is not indexed in search engines."
   },
   "ds.editor.delete.warning": {
     "other": "Sei sicuro di voler eliminare questo datasource? L'operazione è irreversibile, e puoi perdere tutti i dati collegati a questi nodi!"
@@ -87,16 +87,16 @@
     "other": "Dovete essere consapevoli anche del fatto che potrebbe essere necessaria più potenza di elaborazione per la codifica/decodifica in tempo reale dei dati."
   },
   "ds.editor.enc.dialog.enable.create": {
-    "other": "Imposta un identificatore per la nuova chiave"
+    "other": "Set an identifier for the new key"
   },
   "ds.editor.enc.key": {
     "other": "Chiave di crittografia"
   },
   "ds.editor.enc.key.clear": {
-    "other": "Nessuna Crittografia"
+    "other": "No Encryption"
   },
   "ds.editor.enc.key.create": {
-    "other": "Imposta la crittografia con una nuova chiave..."
+    "other": "Set up encryption with a new key..."
   },
   "ds.editor.enc.validate": {
     "other": "Capisco"
@@ -138,13 +138,13 @@
     "other": "Usa la chiave API / Api Secret per autenticarti, lascia vuoto l'URL dell'endpoint per AmazonS3 o usa il tuo URL di archiviazione per le altre soluzioni on premise."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Consulta i dati da un file system locale o collegato alla rete."
+    "other": "Browse data from a local or network-attached file system."
   },
   "ds.editor.storage.legend.fs.peer": {
-    "other": "Limitando il datasource a un indirizzo peer si avvia il servizio solo su un nodo specifico. Usando il valore \"Any\" il servizio verrà avviato su tutti i nodi dove Cell è in esecuzione, il che può essere comodo se un filesystem condiviso è montato su tutti i nodi nella stessa posizione, o se il vostro nodo può cambiare il suo IP al riavvio. Per evitare conflitti, è meglio usare ANY per tutti i datasource o selezionare nodi specifici per tutti i datasource."
+    "other": "Restricting datasource to a peer address will start the service only a specific node. Using \"Any\" value will start service on all nodes where Cells is running, which can be handy if a shared filesystem is mounted on all nodes at the same location, or if your node may change its IP on restart. To avoid conflicts, it is better to either use ANY for all datasources or select specific nodes for all datasources."
   },
   "ds.editor.storage.legend.fs.path": {
-    "other": "Assicurati che l'ultima cartella sia minuscola e che il livello superiore sia scrivibile. Se la tua attuale cartella è maiuscola, puoi usare i collegamenti simbolici per aggirare questa limitazione."
+    "other": "Make sure that last folder is lowercase and that its parent is writeable. If your existing folder is uppercase, you can use symbolic links to work around this limitation."
   },
   "ds.editor.storage.legend.s3": {
     "other": "Sfoglia i dati da un bucket Amazon S3 o da un archivio compatibile con S3."
@@ -168,16 +168,16 @@
     "other": "Utilizzare la modalità di sola lettura se si richiede a Cells di non scrivere mai alcun file nascosto e di utilizzare eTag nativi come checksum (questo può essere necessario per i bucket con una grande quantità di dati esistenti). Tuttavia, si prega di notare che qualsiasi workspace creato su questo datasource dovrebbe essere impostato come Sola Lettura, poiché la funzione di spostamento non può funzionare correttamente."
   },
   "ds.editor.storage.flatStorage": {
-    "other": "Mantieni la struttura dei dati nello storage"
+    "other": "Keep data structure on storage"
   },
   "ds.editor.storage.legend.flatStorage": {
-    "other": "Lo storage flat (non strutturato) è il migliore per le prestazioni. Usate lo storage strutturato solo se volete essere sicuri di vedere i file e le cartelle riprodotti all'interno dello storage vero e proprio (o la mappatura su una cartella con dati preesistenti). Questo NON può essere modificato dopo la creazione del datasource."
+    "other": "Flat (unstructured) storage is best for performances. Use structured storage only if you want to make sure to see the files and folders reproduced inside the actual storage (or mapping to a folder with pre-existing data). This CANNOT be changed after datasource creation."
   },
   "ds.editor.storage.skipResync": {
-    "other": "Salta la risincronizzazione completa al riavvio"
+    "other": "Skip full resynchronisation at restart"
   },
   "ds.editor.storage.legend.skipResync": {
-    "other": "Per i datasource di grandi dimensioni, si consiglia di evitare la risincronizzazione completa al momento del riavvio."
+    "other": "For huge datasources, you may want to avoid full resynchronisation at restart time."
   },
   "ds.editor.storage.checksumMapper": {
     "other": "Memorizza localmente i checksum (non modificare gli oggetti)"
@@ -327,7 +327,7 @@
     "other": "Tag degli Oggetti"
   },
   "ds.editor.storage.s3.bucketPathPrefix": {
-    "other": "Prefisso del percorso all'interno del bucket (usato come cartella)"
+    "other": "Path prefix inside the bucket (used as a folder)"
   },
   "ds.editor.title": {
     "other": "DataSource %s"
@@ -357,13 +357,13 @@
     "other": "Tipo di archiviazione"
   },
   "ds.editor.tab.lifecycle": {
-    "other": "Ciclo di Vita dei Dati"
+    "other": "Data Lifecycle"
   },
   "ds.editor.tab.advanced": {
-    "other": "Opzioni Avanzate"
+    "other": "Advanced Options"
   },
   "ds.editor.initFlatFromSnapshot": {
-    "other": "Se questo storage è stato usato in precedenza come datasource flat, inizializzatelo da un file di snapshot esistente ( si deve trovare all'interno dello storage)"
+    "other": "If this storage was previously used as a flat datasource, initialize it from an existing snapshot file (must be found inside the storage)"
   },
   "ds.encryption": {
     "other": "Criptato"
@@ -483,10 +483,10 @@
     "other": "Versionamento"
   },
   "ds.syncStatus": {
-    "other": "Ultima Sincronizzazione"
+    "other": "Last Sync"
   },
   "ds.emptyState": {
-    "other": "Non è stato ancora creato nessun datasource"
+    "other": "No datasources created yet"
   },
   "ds.versioning.description": {
     "other": "Descrizione"
@@ -531,7 +531,7 @@
     "other": "A"
   },
   "logs.filter.period.time": {
-    "other": "A..."
+    "other": "At..."
   },
   "logs.filter.login": {
     "other": "Nome Utente"
@@ -543,16 +543,16 @@
     "other": "Ricerca testuale completa"
   },
   "logs.tz.tooltip": {
-    "other": "Mostra fuso orario locale/server"
+    "other": "Show local/server timezone"
   },
   "logs.tz.local": {
-    "other": "Fuso Orario Locale"
+    "other": "Local Timezone"
   },
   "logs.tz.server": {
-    "other": "Fuso Orario del Server"
+    "other": "Server Timezone"
   },
   "logs.toggleTheme": {
-    "other": "Tema Chiaro/Scuro"
+    "other": "Light/Dark Theme"
   },
   "logs.sys.note": {
     "other": "Notare che:"
@@ -702,7 +702,7 @@
     "other": "Valore"
   },
   "metadata.editor.selection.steps": {
-    "other": "Mostra come fasi"
+    "other": "Show as steps"
   },
   "metadata.editor.tags.cleared": {
     "other": "Tag cancellati per i namespace %s"
@@ -750,34 +750,34 @@
     "other": "Tipo"
   },
   "metadata.type.string": {
-    "other": "Testo Breve"
+    "other": "Short Text"
   },
   "metadata.type.textarea": {
-    "other": "Paragrafo"
+    "other": "Paragraph"
   },
   "metadata.type.integer": {
-    "other": "Numero"
+    "other": "Number"
   },
   "metadata.type.boolean": {
-    "other": "Valore Vero/Falso"
+    "other": "True/False value"
   },
   "metadata.type.date": {
-    "other": "Data o Ora"
+    "other": "Date or Time"
   },
   "metadata.type.stars_rate": {
     "other": "Votazione Stelle"
   },
   "metadata.type.css_label": {
-    "other": "Colore Etichette"
+    "other": "Color Labels"
   },
   "metadata.type.tags": {
-    "other": "Tag Estensibili"
+    "other": "Extensible Tags"
   },
   "metadata.type.choice": {
-    "other": "Seleziona dai valori"
+    "other": "Select from values"
   },
   "metadata.type.json": {
-    "other": "JSON (formato interno)"
+    "other": "JSON (internal format)"
   },
   "metadata.type.date.format": {
     "other": "Comprimi in"
@@ -786,40 +786,40 @@
     "other": "Data"
   },
   "metadata.type.date.format.date-time": {
-    "other": "Data e Ora"
+    "other": "Date & Time"
   },
   "metadata.type.date.format.time": {
-    "other": "Ora"
+    "other": "Time"
   },
   "metadata.type.date.display": {
     "other": "Visualizzazione"
   },
   "metadata.type.date.display.normal": {
-    "other": "Normale"
+    "other": "Normal"
   },
   "metadata.type.date.display.relative": {
-    "other": "Relativo (xx giorni fa...)"
+    "other": "Relative (xx days ago...)"
   },
   "metadata.type.reaction": {
-    "other": "Reazione"
+    "other": "Reaction"
   },
   "metadata.type.integer.format": {
     "other": "Comprimi in"
   },
   "metadata.type.integer.format.general": {
-    "other": "Generale"
+    "other": "General"
   },
   "metadata.type.integer.format.bytesize": {
     "other": "Byte Size"
   },
   "metadata.type.integer.format.percentage": {
-    "other": "Percentuale"
+    "other": "Percentage"
   },
   "metadata.type.integer.format.progress": {
-    "other": "Avanzamento"
+    "other": "Progress"
   },
   "metadata.toggle.list-visibility": {
-    "other": "Mostra il valore nella lista dei file"
+    "other": "Show value in files list"
   },
   "perfs.booster.description": {
     "other": "Controlla che Pydio Booster sia avviato e abiliti la comunicazione WebSocket"
@@ -1173,7 +1173,7 @@
     "other": "Ultima conessione"
   },
   "user.moveto.hint": {
-    "other": "Seleziona il gruppo di destinazione, lascia '/' per il gruppo root."
+    "other": "Select destination group, leave '/' for root group."
   },
   "user.filter.tooltip": {
     "other": "Filtra elenco utenti..."
@@ -1275,10 +1275,10 @@
     "other": "Modifica codice"
   },
   "virtual.card.title": {
-    "other": "Percorso calcolato dinamicamente"
+    "other": "Dynamically computed path"
   },
   "virtual.card.cleanOnDelete": {
-    "other": "Dopo l'eliminazione dell'utente, rinominare i dati in {deleted-NAME-UUID}."
+    "other": "Upon user deletion, rename data to {deleted-NAME-UUID}."
   },
   "ws.1": {
     "other": "Gestisci i DataSource"
@@ -1350,7 +1350,7 @@
     "other": "+ workspace"
   },
   "ws.filter.workspaces": {
-    "other": "Filtra Workspace..."
+    "other": "Filter workspaces..."
   },
   "ws.30": {
     "other": "Opzioni generali"
@@ -1590,10 +1590,10 @@
     "other": "Layout facile per il trasferimento (solo aziende)"
   },
   "ws.editor.other.skiprecycle": {
-    "other": "Salta il Cestino"
+    "other": "Skip Recycle Bin"
   },
   "ws.editor.other.skiprecycle.legend": {
-    "other": "Disabilita il cestino su questo workspace: tutti i file saranno cancellati in modo permanente. Questo non si applica alle Cells create all'interno di questo spazio di lavoro, i file saranno sempre spostati nel cestino del workspace per evitare errori umani."
+    "other": "Disable recycle bin on this workspace: all files will be permanently deleted. This does not apply to Cells created inside this workspace, files will always be moved to workspace recycle to avoid human errors."
   },
   "ws.editor.other.sync": {
     "other": "Consenti la sincronizzazione dei desktop"
@@ -1647,10 +1647,10 @@
     "other": "Mostra i dettagli"
   },
   "services.empty.loading": {
-    "other": "Stato dei servizi di caricamento"
+    "other": "Loading services status"
   },
   "services.empty.noservice": {
-    "other": "Neessun servizio"
+    "other": "No service"
   },
   "services.column.name": {
     "other": "Nome del Servizio"
@@ -1746,10 +1746,10 @@
     "other": "Questi job sono predefiniti all'interno dell'applicazione. Sono generalmente incaricati di estrarre informazioni dal nodo in background o di eseguire alcune operazioni di pulizia."
   },
   "scheduler.inactives.title": {
-    "other": "Job Non Attivi"
+    "other": "Inactive Jobs"
   },
   "scheduler.inactives.legend": {
-    "other": "Questi job non sono attivi, fai clic su un job per attivarlo."
+    "other": "These jobs are inactive, click on a job to enable it."
   },
   "scheduler.system.empty": {
     "other": "Nessun job pianificato."
@@ -1764,16 +1764,16 @@
     "other": "Nessun job lanciato dagli utenti"
   },
   "scheduler.cellsflows.cta.button": {
-    "other": "+ Job Personalizzato"
+    "other": "+ Custom Job"
   },
   "scheduler.cellsflows.cta.text": {
-    "other": "Avete bisogno di creare il vostro job? Scopri come Cells Flows semplifica l'automazione dei tuoi compiti manuali ripetitivi in Cells."
+    "other": "Do you need to create your own job? Discover how Cells Flows makes it easy to automate your repetitive manual tasks in Cells."
   },
   "scheduler.cellsflows.dialog.button": {
-    "other": "Per saperne di più"
+    "other": "Find out more"
   },
   "scheduler.cellsflows.dialog.text": {
-    "other": "Dalla creazione dei tuoi flussi di lavoro alla pianificazione delle attività o all'integrazione con strumenti di terze parti, i nostri componenti personalizzabili ti aiutano a rispondere agli eventi e ad agire automaticamente."
+    "other": "From creating your own workflows to scheduling tasks or integrating with third-party tools, our customizable components help you to respond events and take action automatically."
   },
   "scheduler.job.label": {
     "other": "Etichetta"
@@ -1983,7 +1983,7 @@
     "other": "Periodo in minuti"
   },
   "scheduler.job-parameters.dialog": {
-    "other": "Parametri Job"
+    "other": "Job Parameters"
   },
   "scheduler.job-parameters.button": {
     "other": "Parametri"
@@ -2004,40 +2004,40 @@
     "other": "Caricamento della Library del Mailer..."
   },
   "sites.title": {
-    "other": "Siti"
+    "other": "Sites"
   },
   "sites.externals": {
-    "other": "URL Esterno"
+    "other": "External URLs"
   },
   "sites.details": {
-    "other": "<div>\nI siti definiscono come Cells si legano alle interfacce di rete e come vengono esposte al mondo esterno.\nUtilizzare ‘<i>./cells configure sites</i>’ per gestire i siti dalla riga di comando.\n<br/><br/>\nCiascun sito ha i seguenti parametri:\n\n<ol>\n<li>1. <u>Collegamenti</u>: uno o più [ip/hostname:port] a cui agganciare il webserver interno.</li>\n<li>2. <u>Impostazioni TLS</u>: configurazione TLS per il supporto HTTPS.</li>\n<li>3. <u>URL Esterna</u>: l'URL che comunicate ai vostri utenti finali. Può differire dal collegamento, tipicamente se l'app è dietro un reverse-proxy o all'interno di un contenitore con mappatura delle porte.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: visualizza una pagina di manutenzione su questo endpoint, anche se Cells è in esecuzione.</li>\n</ol></div>"
+    "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>Note aggiuntive</i>\n<ol>\n<li>1. Quando non ci sono siti definiti, Cells usa una configurazione predefinita (https://0.0.0.0:8080 con auto-firma).</li>\n<li>2. I siti possono essere sovrascritti al runtime utilizzando la variabile di ambiente «--bind» o «CELLS_BIND».\n</li>\n</ol></div>"
+    "other": "<div><i>Additional notes</i>\n<ol>\n<li>1. When there are no sites defined, Cells use a default configuration (https://0.0.0.0:8080 with self-signed).</li>\n<li>2. Sites can be overridden at runtime by using ‘--bind’ flag or ‘CELLS_BIND’ environment variable.\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
-    "other": "<div>\nCells utilizza il suo URL pubblico rilevato in alcune funzioni. Cercherà di utilizzare il valore più appropriato in base alla configurazione. <br/><br/>Per esempio:\n<ul>\n<li>&bull; Se un viene definito un unico sito con un URL esterno, quello probabilmente è corretto.</li>\n<li>&bull; Quando vengono definiti più siti, potresti voler forzare un URL univoco che verrà utilizzato per tutte le comunicazioni esterne.</li>\n<li>&bull; Se non viene rilevato alcun URL esterno, esso ricadrà sull'indirizzo del collegamento interno. In quel caso, probabilmente non si desidera inviare un IP privato (o 0.0.0.0:port…) al mondo esterno.</li>\n</ul>\n\n<br/>\nI campi sottostanti mostrano i valori rilevati. Seleziona per modificare o digitare un valore personalizzato e premi Invio per salvare.\n</div>"
+    "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
   },
   "sites.mailer.url": {
-    "other": "URL utilizzato per creare link nelle email"
+    "other": "URL used to build links in emails"
   },
   "sites.links.url": {
-    "other": "URL utilizzato per creare link pubblici"
+    "other": "URL used to build public links"
   },
   "sites.no-defaults": {
-    "other": "Nessun valore predefinito impostato"
+    "other": "No defaults set"
   },
   "sites.enter-to-save": {
-    "other": "(premi invio per salvare)"
+    "other": "(hit enter to save)"
   },
   "sites.detected.sites": {
-    "other": "Siti attualmente rilevati"
+    "other": "Sites currently detected"
   },
   "sites.configs.command": {
-    "other": "Usa il comando './cell config sites' per modificare i siti."
+    "other": "Use './cells config sites' command to edit sites."
   },
   "sites.column.bind": {
-    "other": "Associa"
+    "other": "Bind"
   },
   "sites.column.tls": {
     "other": "TLS"
@@ -2046,18 +2046,18 @@
     "other": "Reverse Proxy"
   },
   "sites.configs.tls.letsencrypt": {
-    "other": "Crittografiamo"
+    "other": "Let's Encrypt"
   },
   "sites.configs.tls.self": {
-    "other": "Auto Firma"
+    "other": "Self Signed"
   },
   "sites.configs.tls.certificate": {
-    "other": "Certificato"
+    "other": "Certificate"
   },
   "sites.configs.tls.notls": {
-    "other": "Nessun TLS"
+    "other": "No TLS"
   },
   "sites.configs.tls.notls-reverse": {
-    "other": "Nessun TLS dietro il proxy"
+    "other": "No TLS behind proxy"
   }
 }

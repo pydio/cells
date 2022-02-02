@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package registry;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/registry";
+
+service Registry {
+  rpc Start(Item) returns (EmptyResponse) {};
+  rpc Stop(Item) returns (EmptyResponse) {};
+  rpc Get(GetRequest) returns (GetResponse) {};
+  rpc Register(Item) returns (EmptyResponse) {};
+  rpc Deregister(Item) returns (EmptyResponse) {};
+  rpc List(ListRequest) returns (ListResponse) {};
+  rpc Watch(WatchRequest) returns (stream Result) {};
+}
+
+enum ItemType {
+  ALL = 0;
+  SERVICE = 1;
+  NODE = 2;
+}
+
+message Item {
+  oneof item {
+    Service service = 1;
+    Node node = 2;
+  }
+}
+
+// Service represents a go-micro service
+message Service {
+  string id = 1;
+  string name = 2;
+  string version = 3;
+  map<string,string> metadata = 4;
+  repeated Node nodes = 5;
+  Options options = 6;
+}
+
+// Node represents the node the service is on
+message Node {
+  string id = 1;
+  string name = 2;
+  string address = 3;
+  int64 port = 4;
+  map<string,string> metadata = 5;
+  repeated string endpoints = 6;
+}
+
+// Endpoint is a endpoint provided by a service
+message Endpoint {
+  string name = 1;
+  Value request = 2;
+  Value response = 3;
+  map<string, string> metadata = 4;
+}
+
+// Value is an opaque value for a request or response
+message Value {
+  string name = 1;
+  string type = 2;
+  repeated Value values = 3;
+}
+
+// Options are registry options
+message Options {
+  int64 ttl = 1;
+  ItemType type = 2;
+}
+
+// Result is returns by the watcher
+message Result {
+  string action = 1; // create, update, delete
+  Item item = 2;
+  int64 timestamp = 3; // unix timestamp
+}
+
+message EmptyResponse {}
+
+message StartRequest {
+  Item item = 1;
+}
+
+message StopRequest {
+  Item item = 1;
+}
+
+message GetRequest {
+  string name = 1;
+  Options options = 2;
+}
+
+message GetResponse {
+  Item item = 1;
+}
+
+message ListRequest {
+  Options options = 1;
+}
+
+message ListResponse {
+  repeated Item items = 1;
+}
+
+message WatchRequest {
+  string name = 1;
+  Options options = 2;
+}
+
+// EventType defines the type of event
+enum EventType {
+  Create = 0;
+  Delete = 1;
+  Update = 2;
+}
+
+// Event is registry event
+message Event {
+  // Event Id
+  string id = 1;
+  // type of event
+  EventType type = 2;
+  // unix timestamp of event
+  int64 timestamp = 3;
+  // item entry
+  Item item = 4;
+}

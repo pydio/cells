@@ -27,32 +27,29 @@ import (
 	"path"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/forms"
-
-	"github.com/pydio/cells/common/etl/stores/pydio8"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
 	"github.com/pydio/pydio-sdk-go/config"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/etl"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/etl"
+	"github.com/pydio/cells/v4/common/etl/stores/pydio8"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 type MigrateGlobalMetaAction struct {
+	common.RuntimeHolder
 	remoteUrl        *url.URL
 	remoteUser       string
 	remotePassword   string
@@ -60,7 +57,7 @@ type MigrateGlobalMetaAction struct {
 	mapping          map[string]string
 
 	cellAdmin string
-	router    *views.Router
+	router    nodes.Client
 	slugs     map[string]string
 }
 
@@ -93,15 +90,15 @@ func (c *MigrateGlobalMetaAction) GetName() string {
 }
 
 // GetRouter returns an initialized router
-func (c *MigrateGlobalMetaAction) GetRouter() *views.Router {
+func (c *MigrateGlobalMetaAction) GetRouter() nodes.Client {
 	if c.router == nil {
-		c.router = views.NewStandardRouter(views.RouterOptions{})
+		c.router = compose.PathClient(nodes.WithContext(c.GetRuntimeContext()))
 	}
 	return c.router
 }
 
 // Init passes relevant parameters.
-func (c *MigrateGlobalMetaAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *MigrateGlobalMetaAction) Init(job *jobs.Job, action *jobs.Action) error {
 	var ok bool
 	if paramUrl, ok := action.Parameters["url"]; !ok {
 		return fmt.Errorf("task sync user must take a url parameter")
@@ -149,8 +146,8 @@ func (c *MigrateGlobalMetaAction) loadMeta(ctx context.Context, conf *config.Sdk
 		log.TasksLogger(ctx).Error("Cannot load access list for user", zap.Any("login", c.cellAdmin), zap.Error(e))
 		return e
 	}
-	subClient := activity.NewActivityServiceClient(registry.GetClient(common.ServiceActivity))
-	metaClient := idm.NewUserMetaServiceClient(registry.GetClient(common.ServiceUserMeta))
+	subClient := activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceActivity))
+	metaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
 	log.TasksLogger(ctx).Info("Global Meta", zap.Any("data length", len(data)))
 	for wsId, users := range data {
 		slug := c.FindSlug(ctx, wsId)
@@ -311,14 +308,13 @@ func (c *MigrateGlobalMetaAction) FindSlug(ctx context.Context, p8WsId string) s
 		return ""
 	}
 
-	wsClient := idm.NewWorkspaceServiceClient(registry.GetClient(common.ServiceWorkspace))
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{Uuid: mapped})
-	s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: mapped})
+	s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		c.slugs[p8WsId] = ""
 		return ""
 	}
-	defer s.Close()
 	for {
 		r, e := s.Recv()
 		if e != nil {

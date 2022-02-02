@@ -21,7 +21,7 @@
 // Package tree provides default implementation for tree related tasks.
 package tree
 
-import "github.com/pydio/cells/scheduler/actions"
+import "github.com/pydio/cells/v4/scheduler/actions"
 
 func init() {
 

@@ -31,7 +31,45 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import ShareHelper from '../main/ShareHelper'
+import PublicLinkSecureOptions from "./SecureOptions";
 const {ValidPassword} = Pydio.requireLib('form');
+const {ModernStyles} = Pydio.requireLib('hoc');
+
+class PaneToggler extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {active:!!props.active}
+    }
+    render() {
+        const {title, children} = this.props;
+        const {active} = this.state;
+        let styles = {
+            title: {
+                cursor: 'pointer',
+                fontSize: 15,
+                padding: 16,
+                paddingBottom: active?8: 16,
+                display:'flex',
+                alignItems:'center'
+            },
+            content:{
+                padding: '0 16px 8px'
+            },
+            chevron:{
+                fontSize: 24,
+                color:'rgba(0,0,0,.3)'
+            }
+        }
+        return (
+            <React.Fragment>
+                <div style={{...styles.title}} onClick={() => {this.setState({active:!active})}}>
+                    <span style={{flex: 1}}>{title}</span><span className={"mdi mdi-chevron-"+(active?'down':'right')} style={styles.chevron}/>
+                </div>
+                {active && <div style={{...styles.content}}>{children}</div>}
+            </React.Fragment>
+        )
+    }
+}
 
 class PublicLinkPanel extends React.Component {
     static propTypes = {
@@ -94,33 +132,55 @@ class PublicLinkPanel extends React.Component {
 
     render() {
 
-        const {linkModel, pydio, compositeModel} = this.props;
+        const {linkModel, pydio, compositeModel, toggleOnly, additionalPanes} = this.props;
         const {showTemporaryPassword, temporaryPassword, saving} = this.state;
         const authorizations = ShareHelper.getAuthorizations();
         const nodeLeaf = compositeModel.getNode().isLeaf();
         const canEnable = (nodeLeaf && authorizations.file_public_link) || (!nodeLeaf && authorizations.folder_public_link);
+        const dividerStyle={backgroundColor:'#eee'}
 
         let publicLinkPanes, publicLinkField;
+        let linkEnabled;
         if(linkModel.getLinkUuid()) {
+            let disableLink;
+            if(!(this.props.isReadonly() || saving || !linkModel.isEditable() || (!linkModel.getLinkUuid() && !canEnable))){
+                disableLink = () => this.toggleLink();
+            }
             publicLinkField = (<PublicLinkField
                 pydio={pydio}
                 linkModel={linkModel}
                 showMailer={this.props.showMailer}
                 editAllowed={authorizations.editable_hash && linkModel.isEditable()}
+                onDisableLink={disableLink}
                 key="public-link"
             />);
             publicLinkPanes = [
-                <Divider/>,
-                <PublicLinkPermissions
-                    compositeModel={compositeModel}
-                    linkModel={linkModel}
-                    pydio={pydio}
-                    key="public-perm"
-                />,
+                <Divider style={dividerStyle}/>,
+                <PaneToggler title={this.props.getMessage('70r')}>
+                    <PublicLinkPermissions
+                        compositeModel={compositeModel}
+                        linkModel={linkModel}
+                        pydio={pydio}
+                        key="public-perm"
+                    />
+                </PaneToggler>
             ];
             if(linkModel.getLink().TargetUsers) {
-                publicLinkPanes.push(<Divider/>);
+                publicLinkPanes.push(<Divider style={dividerStyle}/>);
                 publicLinkPanes.push(<TargetedUsers linkModel={linkModel} pydio={pydio}/>);
+            }
+            publicLinkPanes.push(<Divider style={dividerStyle}/>)
+            publicLinkPanes.push(
+                <PaneToggler title={this.props.getMessage('24')}>
+                    <PublicLinkSecureOptions pydio={pydio} linkModel={linkModel}/>
+                </PaneToggler>
+            )
+
+            if(additionalPanes) {
+                additionalPanes.forEach(pane => {
+                    publicLinkPanes.push(<Divider style={dividerStyle}/>)
+                    publicLinkPanes.push(<PaneToggler title={pane.title}>{pane.content}</PaneToggler>);
+                })
             }
 
         }else if(showTemporaryPassword) {
@@ -133,6 +193,7 @@ class PublicLinkPanel extends React.Component {
                             value={temporaryPassword}
                             onChange={this.updateTemporaryPassword.bind(this)}
                             onValidStatusChange={(s) => this.setState({temporaryPasswordState: s})}
+                            variant={"v2"}
                         />
                     </div>
                     <div style={{textAlign: 'center', marginTop: 20}}>
@@ -151,19 +212,24 @@ class PublicLinkPanel extends React.Component {
                 <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)', paddingBottom: 16, paddingTop: 16}}>{this.props.getMessage('190')}</div>
             );
         }
+
+
         return (
             <div style={this.props.style}>
-                <div style={{padding:'15px 10px 11px', backgroundColor:'#f5f5f5', borderBottom:'1px solid #e0e0e0', fontSize: 15}}>
+                {!(linkModel.getLinkUuid() || showTemporaryPassword) &&
+                    <div style={{padding: 16}}>
                     <Toggle
-                        disabled={this.props.isReadonly() || saving|| !linkModel.isEditable() || (!linkModel.getLinkUuid() && !canEnable)}
+                        disabled={this.props.isReadonly() || saving || !linkModel.isEditable() || (!linkModel.getLinkUuid() && !canEnable)}
                         onToggle={this.toggleLink}
                         toggled={linkModel.getLinkUuid() || showTemporaryPassword}
                         label={this.props.getMessage('189')}
+                        {...ModernStyles.toggleFieldV2}
                     />
-                </div>
+                    </div>
+                }
                 {saving && <div style={{width: '100%', height: 300, display:'flex', alignItems:'center', justifyContent:'center'}}><CircularProgress/></div>}
-                {!saving && <div style={{padding:20}}>{publicLinkField}</div>}
-                {!saving && publicLinkPanes}
+                {!toggleOnly && !saving && <div style={{padding:16}}>{publicLinkField}</div>}
+                {!toggleOnly && !saving && publicLinkPanes}
             </div>
         );
     }

@@ -8,22 +8,31 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common"
+	config2 "github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
 )
 
 var (
-	logger *zap.Logger
+	logger    *zap.Logger
+	logSyncer *log.LogSyncer
 )
 
 func init() {
-	log.SetTasksLoggerInit(initTasksLogger)
+	log.SetTasksLoggerInit(initTasksLogger, func(ctx context.Context) {
+		logSyncer = log.NewLogSyncer(ctx, common.ServiceJobs)
+	})
 }
 
 func initTasksLogger() *zap.Logger {
-	// Logger that forwards the messages to a bleve DB via gRPC
-	serverSync := zapcore.AddSync(log.NewLogSyncer(context.Background(), common.ServiceGrpcNamespace_+common.ServiceJobs))
+
+	var syncers []zapcore.WriteSyncer
+
+	if logSyncer != nil {
+		// Logger that forwards the messages to a bleve DB via gRPC
+		serverSync := zapcore.AddSync(logSyncer)
+		syncers = append(syncers, serverSync)
+	}
 
 	logDir := config2.ApplicationWorkingDir(config2.ApplicationDirLogs)
 
@@ -35,11 +44,9 @@ func initTasksLogger() *zap.Logger {
 		MaxAge:     28, // days
 	})
 
-	w := zapcore.NewMultiWriteSyncer(
-		serverSync,
-		rotaterSync,
-	)
+	syncers = append(syncers, rotaterSync)
 
+	w := zapcore.NewMultiWriteSyncer(syncers...)
 	config := zap.NewProductionEncoderConfig()
 
 	// This is important: rather use a standard format that is correctly handled by our gRPC layer as string

@@ -25,19 +25,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/common/config"
-
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/etl"
-	"github.com/pydio/cells/common/etl/models"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/etl"
+	"github.com/pydio/cells/v4/common/etl/models"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -101,7 +99,7 @@ func (c *SyncUsersAction) GetName() string {
 }
 
 // Init parses and validates parameters
-func (c *SyncUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *SyncUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 	// Making sure oauth configs are up-to-date on this node
 	auth.InitConfiguration(config.Get("services", common.ServiceWebNamespace_+common.ServiceOAuth))
 	return c.ParseStores(action.Parameters)

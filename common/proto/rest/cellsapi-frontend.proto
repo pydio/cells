@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package rest;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+import "cells-auth.proto";
+
+message SettingsMenuRequest{}
+
+message SettingsEntryMeta{
+    string IconClass = 1 [json_name="icon_class"];
+    string Component = 2 [json_name="component"];
+    string Props = 3 [json_name="props"];
+    bool Advanced = 4 [json_name="advanced"];
+    repeated string Indexed = 5 [json_name="indexed"];
+}
+
+message SettingsEntry {
+    string Key = 1;
+    string Label = 2 [json_name="LABEL"];
+    string Description = 3 [json_name="DESCRIPTION"];
+    string Manager = 4 [json_name="MANAGER"];
+    string Alias = 5 [json_name="ALIAS"];
+    SettingsEntryMeta Metadata = 6 [json_name="METADATA"];
+    map<string,SettingsAccess> Accesses = 7;
+    string Feature = 8;
+}
+
+message SettingsAccess {
+    string Label = 1;
+    string Description = 3;
+    repeated SettingsAccessRestPolicy Policies = 2;
+}
+
+message SettingsAccessRestPolicy {
+    string Action = 2;
+    string Resource = 3;
+}
+
+message SettingsSection {
+    string Key = 1;
+    string Label = 2 [json_name="LABEL"];
+    string Description = 3 [json_name="DESCRIPTION"];
+    repeated SettingsEntry Children = 4 [json_name="CHILDREN"];
+}
+
+message SettingsMenuResponse{
+    SettingsEntryMeta RootMetadata = 1 [json_name="__metadata__"];
+    repeated SettingsSection Sections = 2;
+}
+
+message FrontStateRequest {}
+message FrontStateResponse {}
+
+message FrontPluginsRequest {
+    string Lang = 1;
+}
+message FrontPluginsResponse {}
+
+message FrontMessagesRequest{
+    string Lang = 1;
+}
+message FrontMessagesResponse{
+    map<string,string> Messages = 1;
+}
+
+
+message FrontSessionGetRequest {}
+
+message FrontSessionGetResponse {
+    auth.Token Token = 1;
+}
+
+message FrontSessionRequest{
+    // Time reference for computing jwt expiry
+    int32 ClientTime = 1;
+    // Data sent back by specific auth steps
+    map<string,string> AuthInfo = 2;
+    // Kill session now
+    bool Logout = 3;
+}
+message FrontSessionResponse {
+    // Legacy information (now in token)
+    string JWT = 1;
+    int32 ExpireTime = 2;
+    // Trigger a specific Auth step
+    string Trigger = 3;
+    // Additional data for the trigger
+    map<string,string> TriggerInfo = 4;
+    auth.Token Token = 5;
+    string RedirectTo = 6;
+    string Error = 7;
+}
+
+message FrontSessionDelRequest {}
+
+message FrontSessionDelResponse {}
+
+message FrontAuthRequest {
+    string RequestID = 1;
+}
+message FrontAuthResponse {}
+
+message FrontEnrollAuthRequest{
+    string EnrollType = 1;
+    map<string,string> EnrollInfo = 2;
+}
+
+message FrontEnrollAuthResponse {
+    // Any parameters can be returned
+    map<string,string> Info = 1;
+}
+
+// Download binary
+message FrontBinaryRequest {
+    // Currently supported values are USER and GLOBAL
+    string BinaryType = 1;
+    // Id of the binary
+    string Uuid = 2;
+}
+// Not used, endpoint returns octet-stream
+message FrontBinaryResponse {}
+
+message FrontBootConfRequest {}
+message FrontBootConfResponse {
+    map<string, string> JsonData = 1;
+}

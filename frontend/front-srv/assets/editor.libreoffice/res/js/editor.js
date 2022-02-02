@@ -46,17 +46,16 @@ export default class Editor extends React.Component {
         if (this.props.isActive) {
             editorModify({fixedToolbar: true})
         }
-        const pydio = Pydio.getInstance();
-        const configs = pydio.getPluginConfigs("editor.libreoffice")
+        Pydio.getInstance().notify('longtask_starting');
 
-        pydio.notify('longtask_starting');
-        const iframeUrl = configs.get("LIBREOFFICE_CODE_VERSION") === "v21" ? "/browser/dist/cool.html" : "/loleaflet/dist/loleaflet.html";
-        const frontUrl = pydio.getFrontendUrl();
+        const iframeUrl = "/loleaflet/dist/loleaflet.html";
+        const frontUrl = Pydio.getInstance().getFrontendUrl();
         const protocol = frontUrl.protocol === 'https:' ? 'wss:' : 'ws:';
-
         const webSocketUrl = `${protocol}//${frontUrl.host}`; //host.replace(/^http/gi, 'ws');
+
         // Check current action state for permission
         const {node} = this.props;
+        const pydio = Pydio.getInstance();
         const readonly = node.hasMetadataInBranch("node_readonly", "true") || (node.getMetadata().get("content_lock") && node.getMetadata().get("content_lock") !== pydio.user.id);
         const permission = readonly ? "readonly" : "edit"
         const uri = "/wopi/files/" + node.getMetadata().get("uuid");

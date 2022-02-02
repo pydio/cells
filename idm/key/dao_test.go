@@ -31,11 +31,11 @@ import (
 	// Perform test against SQLite
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/crypto"
-	"github.com/pydio/cells/common/proto/encryption"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var mockDAO DAO

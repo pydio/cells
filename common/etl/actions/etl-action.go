@@ -24,12 +24,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/common/etl"
-	"github.com/pydio/cells/common/etl/stores"
-	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/etl"
+	"github.com/pydio/cells/v4/common/etl/stores"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 )
 
 type etlAction struct {
+	common.RuntimeHolder
 	params    map[string]string
 	leftType  string
 	rightType string
@@ -61,7 +63,7 @@ func (c *etlAction) ParseStores(params map[string]string) error {
 }
 
 func (c *etlAction) initMerger(ctx context.Context, input jobs.ActionMessage) (*etl.Merger, error) {
-	options := stores.CreateOptions(ctx, c.params, input)
+	options := stores.CreateOptions(c.GetRuntimeContext(), ctx, c.params, input)
 	left, err := stores.LoadReadableStore(c.leftType, options)
 	if err != nil {
 		return nil, err

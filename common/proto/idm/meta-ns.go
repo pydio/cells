@@ -20,7 +20,9 @@
 
 package idm
 
-import json "github.com/pydio/cells/x/jsonx"
+import (
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+)
 
 type MetaNamespaceDefinition interface {
 	GetType() string

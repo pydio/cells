@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap/zapcore"
 
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 const (
@@ -49,23 +49,35 @@ const (
 	StorageKeyInitFromSnapshot = "initFromSnapshot"
 )
 
-// Builds the url used for clients
-func (d *DataSource) BuildUrl() string {
-	return fmt.Sprintf("%s:%d", d.ObjectsHost, d.ObjectsPort)
+func (d *DataSource) ClientConfig() configx.Values {
+	cfg := configx.New()
+	_ = cfg.Val("type").Set("mc")
+	_ = cfg.Val("endpoint").Set(d.BuildUrl())
+	_ = cfg.Val("key").Set(d.GetApiKey())
+	_ = cfg.Val("secret").Set(d.GetApiSecret())
+	_ = cfg.Val("secure").Set(d.GetObjectsSecure())
+	return cfg
 }
 
-// Creates a Minio.Core client from the datasource parameters
-func (d *DataSource) CreateClient() (*minio.Core, error) {
-	return minio.NewCore(d.BuildUrl(), d.GetApiKey(), d.GetApiSecret(), d.GetObjectsSecure())
-
+// BuildUrl constructs the url used for clients.
+func (d *DataSource) BuildUrl() string {
+	host := d.ObjectsHost
+	if d.ObjectsHost == "" {
+		host = "localhost"
+	}
+	return fmt.Sprintf("%s:%d", host, d.ObjectsPort)
 }
 
 // BuildUrl builds the url used for clients
 func (d *MinioConfig) BuildUrl() string {
-	return fmt.Sprintf("%s:%d", d.RunningHost, d.RunningPort)
+	host := d.RunningHost
+	if d.RunningHost == "" {
+		host = "localhost"
+	}
+	return fmt.Sprintf("%s:%d", host, d.RunningPort)
 }
 
-// IsInternal is a short hand to check StorageConfiguration["cellsInternal"] key
+// IsInternal is a shorthand to check StorageConfiguration["cellsInternal"] key
 func (d *DataSource) IsInternal() bool {
 	if d.StorageConfiguration != nil {
 		_, i := d.StorageConfiguration[StorageKeyCellsInternal]
@@ -75,6 +87,7 @@ func (d *DataSource) IsInternal() bool {
 }
 
 /* LOGGING SUPPORT */
+
 // MarshalLogObject implements custom marshalling for datasource, to avoid logging ApiKey
 func (d *DataSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	if d == nil {

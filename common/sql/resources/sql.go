@@ -22,21 +22,24 @@ package resources
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"time"
 
-	"github.com/patrickmn/go-cache"
-
-	"github.com/pydio/packr"
+	goqu "github.com/doug-martin/goqu/v9"
 	migrate "github.com/rubenv/sql-migrate"
 
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
-	"gopkg.in/doug-martin/goqu.v4"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
+	//go:embed migrations/*
+	migrations embed.FS
+
 	queries = map[string]string{
 		"AddRuleForResource":              "insert into %%PREFIX%%_policies (resource, action, subject, effect, conditions) values (?, ?, ?, ?, ?)",
 		"SelectRulesForResource":          "select * from %%PREFIX%%_policies where resource=?",
@@ -51,16 +54,16 @@ type ResourcesSQL struct {
 	*sql.Handler
 
 	LeftIdentifier string
-	cache          *cache.Cache
+	cache          cache.Short
 }
 
 // Init performs necessary up migration.
 func (s *ResourcesSQL) Init(options configx.Values) error {
 
-	s.cache = cache.New(30*time.Second, 2*time.Minute)
+	s.cache = cache.NewShort(cache.WithEviction(30*time.Second), cache.WithCleanWindow(2*time.Minute))
 
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../../common/sql/resources/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrations, "migrations"),
 		Dir:         "./" + s.Driver(),
 		TablePrefix: s.Prefix() + "_policies",
 	}
@@ -184,7 +187,7 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 		res = append(res, rule)
 	}
 
-	s.cache.Set(resourceId, res, cache.DefaultExpiration)
+	s.cache.Set(resourceId, res)
 
 	return res, nil
 }
@@ -208,16 +211,16 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
 	// Delete cache items that would contain this subject
-	for k, i := range s.cache.Items() {
-		if rules, ok := i.Object.([]*service.ResourcePolicy); ok {
+	s.cache.Iterate(func(key string, val interface{}) {
+		if rules, ok := val.([]*service.ResourcePolicy); ok {
 			for _, pol := range rules {
 				if pol.Subject == subject {
-					s.cache.Delete(k)
+					s.cache.Delete(key)
 					break
 				}
 			}
 		}
-	}
+	})
 
 	prepared, er := s.GetStmt("DeleteRulesForSubject")
 	if er != nil {
@@ -263,7 +266,7 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 			Prepared(true).
 			Select(goqu.L("1")).
 			Where(goqu.And(join, actionQ)).
-			ToSql()
+			ToSQL()
 
 		if e != nil {
 			return nil, e
@@ -290,7 +293,7 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 			Prepared(true).
 			Select(goqu.L("1")).
 			Where(goqu.And(ands...)).
-			ToSql()
+			ToSQL()
 
 		if e != nil {
 			return nil, e

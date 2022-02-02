@@ -21,16 +21,18 @@
 package rest
 
 import (
-	"github.com/emicklei/go-restful"
+	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/idm/policy/lang"
+	restful "github.com/emicklei/go-restful/v3"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/idm/policy/lang"
 )
 
 type PolicyHandler struct{}
@@ -45,8 +47,8 @@ func (h *PolicyHandler) Filter() func(string) string {
 	return nil
 }
 
-func (h *PolicyHandler) getClient() idm.PolicyEngineServiceClient {
-	return idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
+func (h *PolicyHandler) getClient(ctx context.Context) idm.PolicyEngineServiceClient {
+	return idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServicePolicy))
 }
 
 // ListPolicies lists Policy Groups
@@ -55,7 +57,7 @@ func (h *PolicyHandler) ListPolicies(req *restful.Request, rsp *restful.Response
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Received Policy.List API request")
 
-	response, err := h.getClient().ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
+	response, err := h.getClient(ctx).ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return

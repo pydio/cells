@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {RaisedButton, FlatButton, IconButton, Divider} from 'material-ui'
+import {Paper, RaisedButton, FlatButton, IconButton, Divider} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 
 class EditorTab extends React.Component{
@@ -30,9 +30,19 @@ class EditorTab extends React.Component{
             <div style={{display:'flex', ...style}}>
                 {tabs.map(t => {
                     const isActive = t.Value === active;
-                    return <FlatButton label={t.Label} onClick={()=>{onChange(t.Value)}} primary={isActive} style={isActive?{borderBottom: '2px solid ' + primary1Color}:{borderBottom:0}}/>
+                    let label = t.Label;
+                    if(t.Icon){
+                        label = <span><span className={t.Icon} style={{marginLeft: -5}}/> {t.Label}</span>
+                    }
+                    return (
+                        <FlatButton
+                            label={label}
+                            onClick={()=>{onChange(t.Value)}}
+                            primary={isActive}
+                            style={{flex: 1, height:46, lineHeight:'46px', borderBottom: isActive?'3px solid ' + primary1Color:0}}
+                            labelStyle={{textTransform:'none', fontSize: 15, color:isActive?primary1Color:'rgba(0,0,0,.3)'}}
+                        />)
                 })}
-                <span style={{flex: 1}}/>
             </div>
         );
     }
@@ -77,34 +87,37 @@ class GenericEditor extends React.Component {
     render(){
 
         const {tabs, header, onSaveAction, onCloseAction, onRevertAction, saveEnabled, style, pydio, editorOneColumn} = this.props;
-        const {left, right} = this.state;
+        let {left, right} = this.state;
 
         if(editorOneColumn){
 
             let merged = [...tabs.left, ...tabs.right];
             const hasLast = merged.filter(tab => tab.AlwaysLast);
             if(hasLast.length){
-                merged = [...merged.filter(tab => !tab.AlwaysLast), hasLast[0]];
+                merged = [...merged.filter(tab => !tab.AlwaysLast), ...hasLast];
+            }
+            if(merged.length && merged.filter(tab => tab.Value === left).length === 0){
+                left = merged[0].Value;
             }
 
             return (
                 <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
-                    <div style={{display:'flex', flexDirection:'column'}}>
-                        <div style={{backgroundColor: '#EEEEEE',display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
-                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
-                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
-                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginLeft: 10}}/>
-                        </div>
-                        <div style={{flex: 1, padding: '10px 20px'}}>{header}</div>
+                    <div style={{display:'flex', alignItems:'center'}}>
+                        <div style={{flex: 1, padding: 10}}>{header}</div>
+                        <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginRight: 10}}/>
                     </div>
                     <div style={{display:'flex'}}>
-                        <EditorTab tabs={merged} active={left} style={{flex: 1}} onChange={(value)=>{this.setState({left:value})}}/>
+                        <EditorTab tabs={merged} active={left} style={{flex: 1, padding:'0 16px'}} onChange={(value)=>{this.setState({left:value})}}/>
                     </div>
-                    <Divider/>
-                    <div style={{display:'flex', flex: 1}}>
-                        <div style={{overflowY:'auto', width:'100%', height: '100%', padding: 10, ...tabs.leftStyle}}>
+                    <Divider style={{flexShrink:0, backgroundColor:'#e0e0e0'}}/>
+                    <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
+                        <div style={{overflowY:'auto', width:'100%', height: '100%', ...tabs.leftStyle}}>
                             <EditorTabContent tabs={merged} active={left}/>
                         </div>
+                    </div>
+                    <div style={{borderTop: '1px solid #eeeeee', padding:10, display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
+                        <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
+                        <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
                     </div>
                 </div>
             );
@@ -112,28 +125,33 @@ class GenericEditor extends React.Component {
 
         } else {
 
+            if(tabs.left && tabs.left.length && tabs.left.filter(tab => tab.Value === left).length === 0){
+                left = tabs.left[0].Value;
+            }
+            if(tabs.right && tabs.right.length && tabs.right.filter(tab => tab.Value === left).length === 0){
+                right = tabs.right[0].Value;
+            }
+
             return (
-                <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
-                    <div style={{display:'flex', padding: '10px 20px 20px'}}>
-                        <div style={{flex: 1, paddingRight: 20}}>{header}</div>
-                        <div style={{paddingTop: 18}}>
-                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
-                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
-                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginLeft: 10}}/>
-                        </div>
+                <div style={{backgroundColor:'#fafafa', display:'flex', flexDirection:'column', height: '100%', ...style}}>
+                    <div style={{display:'flex', alignItems:'center', padding: 10, paddingBottom: 0}}>
+                        <div style={{flex: 1, alignItems:'center', paddingRight: 20}}>{header}</div>
+                        <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onClick={onSaveAction}/>
+                        <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onClick={onRevertAction} style={{marginLeft: 10}}/>
+                        <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={onCloseAction} style={{marginLeft: 10}}/>
                     </div>
                     <div style={{display:'flex'}}>
-                        <EditorTab tabs={tabs.left} active={left} style={{flex: 1}} onChange={(value)=>{this.setState({left:value})}}/>
-                        <EditorTab tabs={tabs.right} active={right} style={{flex: 1}}  onChange={(value)=>{this.setState({right:value})}}/>
+                        <EditorTab tabs={tabs.left} active={left} style={{flex: 1, margin:'0 16px'}} onChange={(value)=>{this.setState({left:value})}}/>
+                        <EditorTab tabs={tabs.right} active={right} style={{flex: 1, margin:'0 16px'}}  onChange={(value)=>{this.setState({right:value})}}/>
                     </div>
-                    <Divider/>
-                    <div style={{display:'flex', flex: 1}}>
-                        <div style={{overflowY:'auto', width:'50%', borderRight: '1px solid #e0e0e0', padding: 10, ...tabs.leftStyle}}>
+                    <Divider style={{flexShrink:0, display:'none'}}/>
+                    <div style={{display:'flex', flex: 1, overflow:'hidden', padding:'0 5px 5px'}}>
+                        <Paper zDepth={1} style={{overflowY:'auto', width:'50%', margin:'0 5px 5px', border:'1px solid #e0e0e0', borderRadius: 5, ...tabs.leftStyle}}>
                             <EditorTabContent tabs={tabs.left} active={left}/>
-                        </div>
-                        <div style={{overflowY:'auto', width:'50%', padding: 10, ...tabs.rightStyle}}>
+                        </Paper>
+                        <Paper zDepth={1} style={{overflowY:'auto', width:'50%', margin:'0 5px 5px', border:'1px solid #e0e0e0', borderRadius: 5, ...tabs.rightStyle}}>
                             <EditorTabContent tabs={tabs.right} active={right}/>
-                        </div>
+                        </Paper>
                     </div>
                 </div>
             );

@@ -27,15 +27,15 @@ import (
 	"time"
 
 	"github.com/cskr/pubsub"
-	"github.com/micro/protobuf/ptypes"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
 
 	// registered default scheduler actions
-	"github.com/pydio/cells/common/service/context"
-	_ "github.com/pydio/cells/scheduler/actions/scheduler"
+	"github.com/pydio/cells/v4/common/service/context"
+	_ "github.com/pydio/cells/v4/scheduler/actions/scheduler"
 )
 
 func TestMain(m *testing.M) {
@@ -49,7 +49,7 @@ func TestNewTaskFromEvent(t *testing.T) {
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
 		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
-		ev, _ := ptypes.MarshalAny(event)
+		ev, _ := anypb.New(event)
 		msg := jobs.ActionMessage{
 			Event: ev,
 		}
@@ -116,7 +116,7 @@ func TestTaskLogs(t *testing.T) {
 	Convey("Test task Append Log", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		ev, _ := ptypes.MarshalAny(&jobs.JobTriggerEvent{JobID: "ajob"})
+		ev, _ := anypb.New(&jobs.JobTriggerEvent{JobID: "ajob"})
 		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task, ShouldNotBeNil)
 
@@ -169,7 +169,7 @@ func TestTaskEvents(t *testing.T) {
 	Convey("Test task Events", t, func() {
 
 		event := &jobs.JobTriggerEvent{JobID: "ajob"}
-		ev, _ := ptypes.MarshalAny(event)
+		ev, _ := anypb.New(event)
 		task := NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event)
 		So(task.initialMessage.Event, ShouldResemble, ev)
 
@@ -177,7 +177,7 @@ func TestTaskEvents(t *testing.T) {
 			Type:   tree.NodeChangeEvent_CREATE,
 			Target: &tree.Node{Path: "create"},
 		}
-		_, _ = ptypes.MarshalAny(event2)
+		_, _ = anypb.New(event2)
 		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event2)
 		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
 		So(task.initialMessage.Nodes[0], ShouldResemble, &tree.Node{Path: "create"})
@@ -186,7 +186,7 @@ func TestTaskEvents(t *testing.T) {
 			Type:   tree.NodeChangeEvent_DELETE,
 			Source: &tree.Node{Path: "delete"},
 		}
-		_, _ = ptypes.MarshalAny(event3)
+		_, _ = anypb.New(event3)
 		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event3)
 		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
 		So(task.initialMessage.Nodes[0], ShouldResemble, &tree.Node{Path: "delete"})
@@ -222,7 +222,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 			},
 		}, event)
 
-		task.EnqueueRunnables(nil, output)
+		task.EnqueueRunnables(output)
 		read := <-output
 		So(read, ShouldNotBeNil)
 		So(read.Action, ShouldResemble, jobs.Action{ID: "actions.test.fake"})
@@ -251,7 +251,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 			},
 		}, event)
 
-		task.EnqueueRunnables(nil, output)
+		task.EnqueueRunnables(output)
 		read := <-output
 		So(read, ShouldNotBeNil)
 		So(read.Action, ShouldResemble, jobs.Action{ID: "unknown action"})

@@ -22,11 +22,8 @@
 package claim
 
 import (
-	"encoding/base64"
 	"strings"
 	"time"
-
-	"github.com/golang/protobuf/proto"
 )
 
 const (
@@ -54,22 +51,6 @@ type Claims struct {
 	Scopes         []string    `json:"scopes" mapstructure:"scopes"`
 }
 
-// DecodeSubject decodes subject field of the claims
-func (c *Claims) DecodeSubject() (*IDTokenSubject, error) {
-	sub := c.Subject
-	data, err := base64.RawURLEncoding.DecodeString(sub)
-	if err != nil {
-		return nil, err
-	}
-
-	var subject IDTokenSubject
-	if err := proto.Unmarshal(data, &subject); err != nil {
-		return nil, err
-	} else {
-		return &subject, nil
-	}
-}
-
 func (c *Claims) GetClientApp() string {
 	switch v := c.ClientApp.(type) {
 	case string:
@@ -79,35 +60,4 @@ func (c *Claims) GetClientApp() string {
 	default:
 		return "unknown client app"
 	}
-}
-
-// IDTokenSubject is the representation of the format of subject we are using
-type IDTokenSubject struct {
-	// UserId specific to cells
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId" json:"user_id,omitempty"`
-	// ConnId defines the connector chosen to login
-	ConnId string `protobuf:"bytes,2,opt,name=conn_id,json=connId" json:"conn_id,omitempty"`
-}
-
-// Reset the value to empty
-func (s *IDTokenSubject) Reset() { *s = IDTokenSubject{} }
-
-// String representation
-func (s *IDTokenSubject) String() string { return proto.CompactTextString(s) }
-
-// ProtoMessage is used by the proto.Message interface
-func (*IDTokenSubject) ProtoMessage() {}
-
-// Encode the content of the ID Token Subject
-func (s *IDTokenSubject) Encode() ([]byte, error) {
-
-	data, err := proto.Marshal(s)
-	if err != nil {
-		return nil, err
-	}
-
-	buf := make([]byte, base64.RawURLEncoding.EncodedLen(len(data)))
-	base64.RawURLEncoding.Encode(buf, data)
-
-	return buf, nil
 }

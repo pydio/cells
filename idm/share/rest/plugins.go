@@ -24,10 +24,10 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/idm/share"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/idm/share"
 )
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("REST access to shared rooms"),
-			service.RouterDependencies(),
+			//service.RouterDependencies(),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
@@ -48,12 +48,13 @@ func init() {
 				{
 					TargetVersion: service.ValidVersion("1.6.2"),
 					Up: func(ctx context.Context) error {
-						return share.ClearLostHiddenUsers(ctx)
+						sc := share.NewClient(ctx)
+						return sc.ClearLostHiddenUsers(ctx)
 					},
 				},
 			}),
-			service.WithWeb(func() service.WebHandler {
-				return NewSharesHandler()
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return NewSharesHandler(c)
 			}),
 		)
 	})

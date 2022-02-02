@@ -26,22 +26,30 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/metadata"
-	"github.com/pborman/uuid"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/metadata"
 
-	"github.com/pydio/cells/common"
-	microgrpc "github.com/pydio/cells/common/micro/client/grpc"
-	"github.com/pydio/cells/common/proto/tree"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport/mc"
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport/oidc"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/mc"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/oidc"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+)
+
+var (
+	memCerts          map[string]*x509.CertPool
+	detectedGrpcPorts map[string]string
 )
 
 // RemoteConfig is a dependency-free struct similar to SdkConfig
@@ -102,8 +110,8 @@ func NewRemote(config RemoteConfig, root string, options Options) *Remote {
 		config: sdkConfig,
 	}
 	c.Factory = &remoteClientFactory{
-		config:   sdkConfig,
-		registry: NewDynamicRegistry(sdkConfig),
+		config: sdkConfig,
+		//registry: NewDynamicRegistry(sdkConfig),
 	}
 	c.Source = c
 	logCtx := context.Background()
@@ -123,7 +131,7 @@ func (c *Remote) RefreshRemoteConfig(config RemoteConfig) {
 // GetEndpointInfo returns Endpoint information in standard format.
 func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: fmt.Sprintf("%s/%s", c.config.Url, c.Root),
+		URI:                   fmt.Sprintf("%s/%s", c.config.Url, c.Root),
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,
@@ -134,8 +142,8 @@ func (c *Remote) GetEndpointInfo() model.EndpointInfo {
 
 // remoteClientFactory implements the clientProviderFactory interface
 type remoteClientFactory struct {
-	config   *transport.SdkConfig
-	registry *DynamicRegistry
+	config *transport.SdkConfig
+	conn   grpc.ClientConnInterface
 }
 
 func (f *remoteClientFactory) GetNodeProviderClient(ctx context.Context) (context.Context, tree.NodeProviderClient, error) {
@@ -143,7 +151,7 @@ func (f *remoteClientFactory) GetNodeProviderClient(ctx context.Context) (contex
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeProviderClient(RemoteCellsServiceName, cli), nil
+	return ctx, tree.NewNodeProviderClient(cli), nil
 }
 
 func (f *remoteClientFactory) GetNodeReceiverClient(ctx context.Context) (context.Context, tree.NodeReceiverClient, error) {
@@ -151,7 +159,7 @@ func (f *remoteClientFactory) GetNodeReceiverClient(ctx context.Context) (contex
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeReceiverClient(RemoteCellsServiceName, cli), nil
+	return ctx, tree.NewNodeReceiverClient(cli), nil
 }
 
 func (f *remoteClientFactory) GetNodeChangesStreamClient(ctx context.Context) (context.Context, tree.NodeChangesStreamerClient, error) {
@@ -159,7 +167,7 @@ func (f *remoteClientFactory) GetNodeChangesStreamClient(ctx context.Context) (c
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeChangesStreamerClient(RemoteCellsServiceName, cli), nil
+	return ctx, tree.NewNodeChangesStreamerClient(cli), nil
 }
 
 func (f *remoteClientFactory) GetNodeReceiverStreamClient(ctx context.Context) (context.Context, tree.NodeReceiverStreamClient, error) {
@@ -167,7 +175,7 @@ func (f *remoteClientFactory) GetNodeReceiverStreamClient(ctx context.Context) (
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeReceiverStreamClient(RemoteCellsServiceName, cli), nil
+	return ctx, tree.NewNodeReceiverStreamClient(cli), nil
 }
 
 func (f *remoteClientFactory) GetNodeProviderStreamClient(ctx context.Context) (context.Context, tree.NodeProviderStreamerClient, error) {
@@ -175,7 +183,7 @@ func (f *remoteClientFactory) GetNodeProviderStreamClient(ctx context.Context) (
 	if e != nil {
 		return nil, nil, e
 	}
-	return ctx, tree.NewNodeProviderStreamerClient(RemoteCellsServiceName, cli), nil
+	return ctx, tree.NewNodeProviderStreamerClient(cli), nil
 }
 
 func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Context, ObjectsClient, error) {
@@ -183,46 +191,71 @@ func (f *remoteClientFactory) GetObjectsClient(ctx context.Context) (context.Con
 
 }
 
-func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, client.Client, error) {
+func (f *remoteClientFactory) bearerContext(ctx context.Context) (context.Context, error) {
 	jwt, err := oidc.RetrieveToken(f.config)
 	if err != nil {
-		return nil, nil, err
+		return ctx, err
 	}
-	opts := []client.Option{
-		client.Registry(f.registry.Micro),
-		client.Wrap(func(i client.Client) client.Client {
-			return &RegistryRefreshClient{w: i, r: f.registry}
-		}),
-	}
-	u, _ := url.Parse(f.config.Url)
-	if u.Scheme == "https" {
-		if pool, err := f.serverCerts(); err == nil {
-			opts = append(opts, microgrpc.AuthTLS(&tls.Config{
-				InsecureSkipVerify: f.config.SkipVerify,
-				RootCAs:            pool,
-			}))
-		}
-	}
-
-	microClient := microgrpc.NewClient(opts...)
-	var md metadata.Metadata
-	if m, ok := metadata.FromContext(ctx); ok {
-		md = m
-	} else {
-		md = metadata.Metadata{}
-	}
-	md["x-pydio-bearer"] = jwt
+	md := metadata.MD{}
+	md.Set("x-pydio-bearer", jwt)
 	if f.config.CustomHeaders != nil {
 		if ua, ok := f.config.CustomHeaders["User-Agent"]; ok {
-			md["x-pydio-grpc-user-agent"] = ua
+			md.Set("x-pydio-grpc-user-agent", ua)
 		}
 	}
-	ctx = metadata.NewContext(ctx, md)
-	return ctx, microClient, nil
-
+	return metadata.NewOutgoingContext(ctx, md), nil
 }
 
-var memCerts map[string]*x509.CertPool
+func (f *remoteClientFactory) getClient(ctx context.Context) (context.Context, grpc.ClientConnInterface, error) {
+
+	if f.conn != nil {
+		return ctx, f.conn, nil
+	}
+
+	var options []grpc.DialOption
+
+	// Detect Port - THIS SHOULD BE IN A RESOLVER
+	host, port, useTls, err := f.detectGrpcPort(f.config, true)
+	if err != nil {
+		return ctx, nil, err
+	}
+
+	// Create Connexion
+	if useTls {
+		tlsConf := &tls.Config{InsecureSkipVerify: f.config.SkipVerify}
+		if pool, err := f.serverCerts(); err == nil {
+			tlsConf.RootCAs = pool
+		} else {
+			fmt.Println("Error while reading server certs", err)
+		}
+		options = append(options, grpc.WithTransportCredentials(credentials.NewTLS(tlsConf)))
+	} else {
+		options = append(options, grpc.WithInsecure())
+	}
+
+	options = append(options, grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		ctx, er := f.bearerContext(ctx)
+		if er != nil {
+			return er
+		}
+		return invoker(ctx, method, req, reply, cc, opts...)
+	}))
+
+	options = append(options, grpc.WithStreamInterceptor(func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		ctx, er := f.bearerContext(ctx)
+		if er != nil {
+			return nil, er
+		}
+		return streamer(ctx, desc, cc, method, opts...)
+	}))
+
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", host, port), options...)
+	if err == nil {
+		f.conn = conn
+	}
+	return ctx, conn, err
+
+}
 
 // serverCerts loads certificates from https served server to be set inside the client
 func (f *remoteClientFactory) serverCerts() (*x509.CertPool, error) {
@@ -258,4 +291,73 @@ func (f *remoteClientFactory) serverCerts() (*x509.CertPool, error) {
 	}
 	memCerts[f.config.Url] = pool
 	return pool, nil
+}
+
+// detectGrpcPort contacts the discovery service to find the grpc port
+func (f *remoteClientFactory) detectGrpcPort(config *transport.SdkConfig, reload bool) (host string, port string, useTls bool, err error) {
+
+	u, e := url.Parse(config.Url)
+	if e != nil {
+		err = errors.Wrap(model.NewConfigError(e), "cannot parse url")
+		return
+	}
+	var mainPort string
+	if strings.Contains(u.Host, ":") {
+		host, mainPort, err = net.SplitHostPort(u.Host)
+		if err != nil {
+			return "", "", false, errors.Wrap(model.NewConfigError(err), "cannot split host/port")
+		}
+	} else {
+		host = u.Host
+	}
+	useTls = u.Scheme == "https"
+
+	var ok bool
+	if detectedGrpcPorts == nil {
+		detectedGrpcPorts = make(map[string]string)
+	}
+	if port, ok = detectedGrpcPorts[host]; !ok || reload {
+		httpClient := http.DefaultClient
+		if config.SkipVerify {
+			httpClient = &http.Client{
+				Transport: &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				},
+			}
+		}
+		resp, e := httpClient.Get(fmt.Sprintf("%s/a/config/discovery", config.Url))
+		if e != nil {
+			err = errors.Wrap(e, "cannot connect to discovery endpoint")
+			return
+		} else if resp.StatusCode != 200 {
+			err = errors.New("cannot connect to discovery endpoint")
+			return
+		}
+		var data map[string]interface{}
+		var found bool
+		decoder := jsonx.NewDecoder(resp.Body)
+		if e := decoder.Decode(&data); e == nil {
+			if ep, ok := data["Endpoints"]; ok {
+				if endpoints, ok := ep.(map[string]interface{}); ok {
+					if p, ok := endpoints["grpc"]; ok {
+						port = strings.Split(p.(string), ",")[0]
+						detectedGrpcPorts[host] = port
+						found = true
+					}
+				}
+			}
+		}
+		if !found {
+			// If no port is declared, we consider gRPC should be accessible on the main port
+			if mainPort == "" {
+				port = "443"
+			} else {
+				port = mainPort
+			}
+			detectedGrpcPorts[host] = port
+			return
+		}
+	}
+	return
+
 }

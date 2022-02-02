@@ -27,19 +27,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -47,8 +46,9 @@ var (
 )
 
 type OnDeleteVersionsAction struct {
-	Handler    views.Handler
-	Pool       views.SourcesPool
+	common.RuntimeHolder
+	Handler    nodes.Handler
+	Pool       nodes.SourcesPool
 	rootFolder string
 }
 
@@ -89,11 +89,10 @@ func (c *OnDeleteVersionsAction) GetName() string {
 }
 
 // Init passes the parameters to a newly created PruneVersionsAction.
-func (c *OnDeleteVersionsAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *OnDeleteVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
 
-	router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
-	c.Pool = router.GetClientsPool()
-	c.Handler = router
+	c.Handler = getRouter(c.GetRuntimeContext())
+	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool()
 	var ok bool
 	if c.rootFolder, ok = action.Parameters["rootFolder"]; !ok {
 		c.rootFolder = "$DELETED"
@@ -116,7 +115,7 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	if policy == nil {
 		return input.WithIgnore(), nil
 	}
-	ds, e := DataSourceForPolicy(ctx, policy)
+	ds, e := DataSourceForPolicy(c.GetRuntimeContext(), policy)
 	if e != nil {
 		return input.WithError(e), e
 	}
@@ -128,7 +127,7 @@ func (c *OnDeleteVersionsAction) Run(ctx context.Context, channels *actions.Runn
 	prefix := strings.TrimSuffix(base, ext)
 	parentCreated := false
 
-	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
+	versionClient := tree.NewNodeVersionerClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceVersions))
 
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{UniqueNode: node}); err == nil {
 		deleteStrategy := policy.GetNodeDeletedStrategy()

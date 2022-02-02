@@ -115,18 +115,21 @@ class SharedUserEntry extends React.Component {
             style = {...style, marginRight: 48}
         }
 
+        const boxes= (
+            <span style={style}>
+                    <Checkbox disabled={disabled} checked={read} onCheck={(e, v) => {this.onUpdateRight('read', v)}}/>
+                    <Checkbox disabled={disabled} checked={write} onCheck={(e, v) => {this.onUpdateRight('write', v)}}/>
+            </span>
+        )
+
         return (
             <UserBadge
                 label={label}
                 avatar={avatar}
                 type={type}
                 menus={menuItems}
-            >
-                <span style={style}>
-                    <Checkbox disabled={disabled} checked={read} onCheck={(e, v) => {this.onUpdateRight('read', v)}}/>
-                    <Checkbox disabled={disabled} checked={write} onCheck={(e, v) => {this.onUpdateRight('write', v)}}/>
-                </span>
-            </UserBadge>
+                boxes={boxes}
+            />
         );
     }
 }

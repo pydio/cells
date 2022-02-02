@@ -29,26 +29,26 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/registry"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro"
-
-	"github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	proto "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	serviceproto "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/cache"
-	"github.com/pydio/cells/common/utils/meta"
+	"github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/plugins"
+	proto "github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	serviceproto "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -64,6 +64,7 @@ func init() {
 			service.Description("Activity Service is collecting activity for users and nodes"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTree, []string{}),
+			service.Metadata(meta.ServiceMetaProvider, "stream"),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -72,54 +73,62 @@ func init() {
 			}),
 			service.WithStorage(activity.NewDAO, "broker_activity"),
 			service.Unique(true),
-			service.WithMicro(func(m micro.Service) error {
-				service.AddMicroMeta(m, meta.ServiceMetaProvider, "stream")
+			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 
-				dao := servicecontext.GetDAO(m.Options().Context).(activity.DAO)
+				dao := servicecontext.GetDAO(c).(activity.DAO)
 				// Register Subscribers
-				subscriber := NewEventsSubscriber(dao)
-				s := m.Options().Server
-				batcher := cache.NewEventsBatcher(m.Options().Context, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
-					subscriber.HandleNodeChange(ctx, msg[0])
+				subscriber := NewEventsSubscriber(c, dao)
+				// Start batcher - it is stopped by c.Done()
+				batcher := cache.NewEventsBatcher(c, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
+					if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
+						log.Logger(c).Warn("Error while handling event", zap.Error(e))
+					}
 				})
-				m.Init(micro.BeforeStop(func() error {
-					batcher.Stop()
+
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
+							return nil
+						}
+						if msg.Source != nil && msg.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
+							return nil
+						}
+						if msg.Optimistic {
+							return nil
+						}
+						batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
+					}
 					return nil
-				}))
-				if err := s.Subscribe(s.NewSubscriber(common.TopicTreeChanges, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
-					// Always ignore events on Temporary nodes and internal nodes
-					if msg.Target != nil && (msg.Target.Etag == common.NodeFlagEtagTemporary || msg.Target.HasMetaKey(common.MetaNamespaceDatasourceInternal)) {
-						return nil
-					}
-					if msg.Source != nil && msg.Source.HasMetaKey(common.MetaNamespaceDatasourceInternal) {
-						return nil
-					}
-					if msg.Optimistic {
-						return nil
-					}
-					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
-					return nil
-				})); err != nil {
-					return err
-				}
-				if err := s.Subscribe(s.NewSubscriber(common.TopicMetaChanges, func(ctx context.Context, msg *tree.NodeChangeEvent) error {
-					if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
-						return nil
-					}
-					batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
-					return nil
-				})); err != nil {
-					return err
+				}); e != nil {
+					return e
 				}
 
-				if err := s.Subscribe(s.NewSubscriber(common.TopicIdmEvent, func(ctx context.Context, msg *idm.ChangeEvent) error {
-					return subscriber.HandleIdmChange(ctx, msg)
-				})); err != nil {
-					return err
+				if e := broker.SubscribeCancellable(c, common.TopicMetaChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						if msg.Optimistic || msg.Type != tree.NodeChangeEvent_UPDATE_USER_META {
+							return nil
+						}
+						batcher.Events <- &cache.EventWithContext{NodeChangeEvent: msg, Ctx: ctx}
+					}
+					return nil
+				}); e != nil {
+					return e
 				}
 
-				proto.RegisterActivityServiceHandler(m.Options().Server, new(Handler))
-				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, new(MetaProvider))
+				if e := broker.SubscribeCancellable(c, common.TopicIdmEvent, func(message broker.Message) error {
+					msg := &idm.ChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						return subscriber.HandleIdmChange(ctx, msg)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
+
+				proto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: dao})
+				tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: dao})
 
 				return nil
 			}),
@@ -131,8 +140,8 @@ func RegisterDigestJob(ctx context.Context) error {
 
 	log.Logger(ctx).Info("Registering default job for creating activities digests")
 	// Build queries for standard users
-	q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{NodeType: idm.NodeType_USER})
-	q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeAnyValue: true, Not: true})
+	q1, _ := anypb.New(&idm.UserSingleQuery{NodeType: idm.NodeType_USER})
+	q2, _ := anypb.New(&idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeAnyValue: true, Not: true})
 	job := &jobs.Job{
 		ID:             "users-activity-digest",
 		Label:          "Users activities digest",
@@ -148,7 +157,7 @@ func RegisterDigestJob(ctx context.Context) error {
 				UsersSelector: &jobs.UsersSelector{
 					Label: "All users except hidden",
 					Query: &serviceproto.Query{
-						SubQueries: []*any.Any{q1, q2},
+						SubQueries: []*anypb.Any{q1, q2},
 						Operation:  serviceproto.OperationType_AND,
 					},
 				},
@@ -156,9 +165,9 @@ func RegisterDigestJob(ctx context.Context) error {
 		},
 	}
 
-	return service.Retry(ctx, func() error {
-		cliJob := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
-		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job}, registry.ShortRequestTimeout())
+	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs, grpc2.WithCallTimeout(grpc2.CallTimeoutShort)))
+	return std.Retry(ctx, func() error {
+		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return e
 	}, 5*time.Second, 20*time.Second)
 

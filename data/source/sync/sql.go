@@ -23,18 +23,21 @@ package sync
 import (
 	"context"
 	sql2 "database/sql"
+	"embed"
 
-	"github.com/pydio/cells/common/log"
+	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/packr"
-	migrate "github.com/rubenv/sql-migrate"
-
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"insertOne": `INSERT INTO %%PREFIX%%_checksums (etag,csum) VALUES (?,?)`,
 		"selectAll": `SELECT etag FROM %%PREFIX%%_checksums`,
@@ -55,8 +58,8 @@ func (h *sqlImpl) Init(options configx.Values) error {
 	h.DAO.Init(options)
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../source/sync/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         h.Driver(),
 		TablePrefix: h.Prefix(),
 	}
@@ -80,8 +83,8 @@ func (h *sqlImpl) Init(options configx.Values) error {
 
 func (h *sqlImpl) CleanResourcesOnDeletion() (string, error) {
 
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../source/sync/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         h.Driver(),
 		TablePrefix: h.Prefix(),
 	}

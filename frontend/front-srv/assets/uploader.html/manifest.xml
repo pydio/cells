@@ -13,15 +13,6 @@
             <i18n remote="plug/uploader.html/i18n" namespace="html_uploader"/>
         </resources>
     </client_settings>
-	<registry_contributions>
-		<actions>
-			<action name="get_drop_bg" skipSecureToken="true">
-				<processing>
-					<serverCallback methodName="getDropBg"/>
-				</processing>
-			</action>
-		</actions>
-	</registry_contributions>
     <dependencies>
         <!-- Stream Wrapper Access -->
         <activePlugin pluginName="access.gateway|access.homepage"/>

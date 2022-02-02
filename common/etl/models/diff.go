@@ -21,8 +21,8 @@
 package models
 
 import (
-	"github.com/pydio/cells/common/config/source"
-	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/v4/common/config/source"
+	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
 type ConfigDiff struct {

@@ -24,17 +24,17 @@ import (
 	"context"
 	"encoding/binary"
 	"os"
-	"time"
 
-	bolt "github.com/etcd-io/bbolt"
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/protobuf/proto"
+	bolt "go.etcd.io/bbolt"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 var (
@@ -42,30 +42,23 @@ var (
 )
 
 type BoltStore struct {
-	// Internal DB
-	db *bolt.DB
+	boltdb.DAO
 	// For Testing purpose : delete file after closing
 	DeleteOnClose bool
 	// Path to the DB file
 	DbPath string
 }
 
-func NewBoltStore(fileName string, deleteOnClose ...bool) (*BoltStore, error) {
+func NewBoltStore(dao boltdb.DAO, fileName string, deleteOnClose ...bool) (*BoltStore, error) {
 
 	bs := &BoltStore{
+		DAO:    dao,
 		DbPath: fileName,
 	}
 	if len(deleteOnClose) > 0 && deleteOnClose[0] {
 		bs.DeleteOnClose = true
 	}
-	options := bolt.DefaultOptions
-	options.Timeout = 5 * time.Second
-	db, err := bolt.Open(fileName, 0644, options)
-	if err != nil {
-		return nil, err
-	}
-	bs.db = db
-	e2 := db.Update(func(tx *bolt.Tx) error {
+	e2 := bs.DB().Update(func(tx *bolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
 	})
@@ -74,7 +67,7 @@ func NewBoltStore(fileName string, deleteOnClose ...bool) (*BoltStore, error) {
 }
 
 func (b *BoltStore) Close() error {
-	err := b.db.Close()
+	err := b.DB().Close()
 	if b.DeleteOnClose {
 		os.Remove(b.DbPath)
 	}
@@ -84,7 +77,7 @@ func (b *BoltStore) Close() error {
 // GetLastVersion retrieves the last version registered for this node.
 func (b *BoltStore) GetLastVersion(nodeUuid string) (log *tree.ChangeLog, err error) {
 
-	err = b.db.View(func(tx *bolt.Tx) error {
+	err = b.DB().View(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -117,7 +110,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan boo
 
 	go func() {
 
-		e := b.db.View(func(tx *bolt.Tx) error {
+		e := b.DB().View(func(tx *bolt.Tx) error {
 
 			defer func() {
 				done <- true
@@ -157,7 +150,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan boo
 // StoreVersion stores a version in the node bucket.
 func (b *BoltStore) StoreVersion(nodeUuid string, log *tree.ChangeLog) error {
 
-	return b.db.Update(func(tx *bolt.Tx) error {
+	return b.DB().Update(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -185,7 +178,7 @@ func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeL
 
 	version := &tree.ChangeLog{}
 
-	b.db.View(func(tx *bolt.Tx) error {
+	b.DB().View(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -213,7 +206,7 @@ func (b *BoltStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeL
 // DeleteVersionsForNode deletes whole node bucket at once.
 func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error {
 
-	return b.db.Update(func(tx *bolt.Tx) error {
+	return b.DB().Update(func(tx *bolt.Tx) error {
 
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -248,7 +241,7 @@ func (b *BoltStore) DeleteVersionsForNode(nodeUuid string, versions ...*tree.Cha
 
 // DeleteVersionsForNodes delete versions in a batch
 func (b *BoltStore) DeleteVersionsForNodes(nodeUuid []string) error {
-	er := b.db.Batch(func(tx *bolt.Tx) error {
+	er := b.DB().Batch(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 		for _, uuid := range nodeUuid {
 			bucket.DeleteBucket([]byte(uuid))
@@ -266,7 +259,7 @@ func (b *BoltStore) ListAllVersionedNodesUuids() (chan string, chan bool, chan e
 
 	go func() {
 
-		e := b.db.View(func(tx *bolt.Tx) error {
+		e := b.DB().View(func(tx *bolt.Tx) error {
 
 			defer func() {
 				done <- true

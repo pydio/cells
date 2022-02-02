@@ -29,13 +29,12 @@ import (
 	"path"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/v4/common/service/frontend"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/pydio-sdk-go/config"
 )
 

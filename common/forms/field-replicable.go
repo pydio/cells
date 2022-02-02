@@ -20,7 +20,10 @@
 
 package forms
 
-import "github.com/nicksnyder/go-i18n/i18n"
+import (
+	"fmt"
+	"github.com/nicksnyder/go-i18n/i18n"
+)
 
 type ReplicableFields struct {
 	Id          string
@@ -49,4 +52,41 @@ func (r *ReplicableFields) Serialize(T i18n.TranslateFunc) (params []*SerialForm
 	}
 
 	return params
+}
+
+// Tuple is a simple name+optional struct, used by ParseReplicableTuples
+type Tuple struct {
+	Name     string
+	Optional bool
+}
+
+// ParseReplicableTuples can be used to parse flattened values for replicable fields
+func ParseReplicableTuples(params map[string]string, keys ...Tuple) []map[string]string {
+	var out []map[string]string
+	i := 0
+	for {
+		tuple := make(map[string]string, len(keys))
+		var complete = true
+		for _, t := range keys {
+			testKey := t.Name
+			if i > 0 {
+				testKey = fmt.Sprintf("%s_%d", t.Name, i)
+			}
+			if v, ok := params[testKey]; ok {
+				tuple[t.Name] = v
+			} else if t.Optional {
+				tuple[t.Name] = ""
+			} else {
+				complete = false
+				break
+			}
+		}
+		if complete {
+			out = append(out, tuple)
+			i++
+		} else {
+			break
+		}
+	}
+	return out
 }

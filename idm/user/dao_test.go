@@ -1,29 +1,45 @@
+/*
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package user
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"sync"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
-
+	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
 	// SQLite is used for the tests.
 	_ "github.com/mattn/go-sqlite3"
-	_ "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
-	ctx     context.Context
 	mockDAO DAO
 
 	wg sync.WaitGroup
@@ -70,13 +86,13 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ2.Login = "user2"
 		singleQ2.Password = "passwordUser2"
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		var singleQueries []*any.Any
+		var singleQueries []*anypb.Any
 		singleQueries = append(singleQueries, singleQ1Any)
 		singleQueries = append(singleQueries, singleQ2Any)
 
@@ -109,13 +125,13 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ2.AttributeAnyValue = true
 		//		singleQ2.Not = true
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		var singleQueries []*any.Any
+		var singleQueries []*anypb.Any
 		singleQueries = append(singleQueries, singleQ1Any)
 		singleQueries = append(singleQueries, singleQ2Any)
 
@@ -190,14 +206,14 @@ func TestQueryBuilder(t *testing.T) {
 			u, e := mockDAO.Bind("usernameXX", "xxxxxxx")
 			So(u, ShouldBeNil)
 			So(e, ShouldNotBeNil)
-			So(errors.Parse(e.Error()).Code, ShouldEqual, 404)
+			So(errors.FromError(e).Code, ShouldEqual, 404)
 		}
 
 		{
 			u, e := mockDAO.Bind("username", "xxxxxxxYY")
 			So(u, ShouldBeNil)
 			So(e, ShouldNotBeNil)
-			So(errors.Parse(e.Error()).Code, ShouldEqual, 403)
+			So(errors.FromError(e).Code, ShouldEqual, 403)
 		}
 
 		{
@@ -205,9 +221,9 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				Login: "user1",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 0)
 		}
@@ -217,9 +233,9 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				Login: "username",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
@@ -230,9 +246,9 @@ func TestQueryBuilder(t *testing.T) {
 				Login:    "username",
 				NodeType: idm.NodeType_USER,
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
@@ -243,9 +259,9 @@ func TestQueryBuilder(t *testing.T) {
 				Login:    "username",
 				NodeType: idm.NodeType_GROUP,
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 0)
 		}
@@ -255,9 +271,9 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				GroupPath: "/path/to/group",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}
@@ -277,9 +293,9 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				FullPath: "/path/to/group",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 			object := (*users)[0]
@@ -296,9 +312,9 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				FullPath: "/path/to/anotherGroup",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 			object := (*users)[0]
@@ -317,20 +333,20 @@ func TestQueryBuilder(t *testing.T) {
 				AttributeName:  "displayName",
 				AttributeValue: "John*",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 			userQuery2 := &idm.UserSingleQuery{
 				AttributeName:  "active",
 				AttributeValue: "true",
 			}
-			userQueryAny2, _ := ptypes.MarshalAny(userQuery2)
+			userQueryAny2, _ := anypb.New(userQuery2)
 			userQuery3 := &idm.UserSingleQuery{
 				AttributeName:  idm.UserAttrHidden,
 				AttributeValue: "false",
 			}
-			userQueryAny3, _ := ptypes.MarshalAny(userQuery3)
+			userQueryAny3, _ := anypb.New(userQuery3)
 
 			total, e1 := mockDAO.Count(&service.Query{
-				SubQueries: []*any.Any{
+				SubQueries: []*anypb.Any{
 					userQueryAny,
 					userQueryAny2,
 					userQueryAny3,
@@ -341,7 +357,7 @@ func TestQueryBuilder(t *testing.T) {
 			So(total, ShouldEqual, 1)
 
 			e := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{
+				SubQueries: []*anypb.Any{
 					userQueryAny,
 					userQueryAny2,
 					userQueryAny3,
@@ -374,13 +390,13 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				HasRole: "1",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 2)
 
-			total, e2 := mockDAO.Count(&service.Query{SubQueries: []*any.Any{userQueryAny}})
+			total, e2 := mockDAO.Count(&service.Query{SubQueries: []*anypb.Any{userQueryAny}})
 			So(e2, ShouldBeNil)
 			So(total, ShouldEqual, 2)
 
@@ -391,16 +407,16 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				HasRole: "1",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
 			userQuery2 := &idm.UserSingleQuery{
 				HasRole: "2",
 				Not:     true,
 			}
-			userQueryAny2, _ := ptypes.MarshalAny(userQuery2)
+			userQueryAny2, _ := anypb.New(userQuery2)
 
 			e := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{
+				SubQueries: []*anypb.Any{
 					userQueryAny,
 					userQueryAny2,
 				},
@@ -417,12 +433,12 @@ func TestQueryBuilder(t *testing.T) {
 
 		{
 			users := new([]interface{})
-			userQueryAny, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/",
 				Recursive: true,
 			})
 			e := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{userQueryAny},
+				SubQueries: []*anypb.Any{userQueryAny},
 			}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 6)
@@ -446,8 +462,8 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				Login: "username",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
-			mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			userQueryAny, _ := anypb.New(userQuery)
+			mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			u := (*users)[0].(*idm.User)
 			So(u, ShouldNotBeNil)
 			// Change groupPath
@@ -460,21 +476,21 @@ func TestQueryBuilder(t *testing.T) {
 			So(addedUser.(*idm.User).Login, ShouldEqual, "username")
 
 			users2 := new([]interface{})
-			userQueryAny2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/anotherGroup",
 			})
 			e2 := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{userQueryAny2},
+				SubQueries: []*anypb.Any{userQueryAny2},
 			}, users2)
 			So(e2, ShouldBeNil)
 			So(users2, ShouldHaveLength, 1)
 
 			users3 := new([]interface{})
-			userQueryAny3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/group",
 			})
 			e3 := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{userQueryAny3},
+				SubQueries: []*anypb.Any{userQueryAny3},
 			}, users3)
 			So(e3, ShouldBeNil)
 			So(users3, ShouldHaveLength, 1)
@@ -486,8 +502,8 @@ func TestQueryBuilder(t *testing.T) {
 			userQuery := &idm.UserSingleQuery{
 				FullPath: "/path/to/anotherGroup",
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
-			mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			userQueryAny, _ := anypb.New(userQuery)
+			mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			u := (*users)[0].(*idm.User)
 			So(u, ShouldNotBeNil)
 			// Change groupPath
@@ -499,21 +515,21 @@ func TestQueryBuilder(t *testing.T) {
 			So(addedGroup.(*idm.User).GroupPath, ShouldEqual, "/anotherGroup")
 
 			users2 := new([]interface{})
-			userQueryAny2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny2, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/anotherGroup",
 			})
 			e2 := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{userQueryAny2},
+				SubQueries: []*anypb.Any{userQueryAny2},
 			}, users2)
 			So(e2, ShouldBeNil)
 			So(users2, ShouldHaveLength, 0)
 
 			users3 := new([]interface{})
-			userQueryAny3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/anotherGroup",
 			})
 			e3 := mockDAO.Search(&service.Query{
-				SubQueries: []*any.Any{userQueryAny3},
+				SubQueries: []*anypb.Any{userQueryAny3},
 			}, users3)
 			So(e3, ShouldBeNil)
 			So(users3, ShouldHaveLength, 1)
@@ -526,9 +542,9 @@ func TestQueryBuilder(t *testing.T) {
 				GroupPath: "/",
 				Recursive: false,
 			}
-			userQueryAny, _ := ptypes.MarshalAny(userQuery)
+			userQueryAny, _ := anypb.New(userQuery)
 
-			e := mockDAO.Search(&service.Query{SubQueries: []*any.Any{userQueryAny}}, users)
+			e := mockDAO.Search(&service.Query{SubQueries: []*anypb.Any{userQueryAny}}, users)
 			So(e, ShouldBeNil)
 			for _, u := range *users {
 				log.Print(u)
@@ -538,10 +554,10 @@ func TestQueryBuilder(t *testing.T) {
 
 		{
 			// Delete a group
-			userQueryAny3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/anotherGroup",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}}, make(chan *idm.User, 100))
+			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 2)
 		}
@@ -554,11 +570,11 @@ func TestQueryBuilder(t *testing.T) {
 
 		{
 			// Delete a user
-			userQueryAny3, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			userQueryAny3, _ := anypb.New(&idm.UserSingleQuery{
 				GroupPath: "/path/to/group/",
 				Login:     "admin",
 			})
-			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*any.Any{userQueryAny3}}, make(chan *idm.User, 100))
+			num, e3 := mockDAO.Del(&service.Query{SubQueries: []*anypb.Any{userQueryAny3}}, make(chan *idm.User, 100))
 			So(e3, ShouldBeNil)
 			So(num, ShouldEqual, 1)
 		}
@@ -573,34 +589,34 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ2.Login = "user2"
 		singleQ3.Login = "user3"
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		singleQ3Any, err := ptypes.MarshalAny(singleQ3)
+		singleQ3Any, err := anypb.New(singleQ3)
 		So(err, ShouldBeNil)
 
 		subQuery1 := &service.Query{
-			SubQueries: []*any.Any{singleQ1Any, singleQ2Any},
+			SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
 			Operation:  service.OperationType_OR,
 		}
 
 		subQuery2 := &service.Query{
-			SubQueries: []*any.Any{singleQ3Any},
+			SubQueries: []*anypb.Any{singleQ3Any},
 		}
 
-		subQuery1Any, err := ptypes.MarshalAny(subQuery1)
+		subQuery1Any, err := anypb.New(subQuery1)
 		So(err, ShouldBeNil)
-		test := ptypes.Is(subQuery1Any, new(service.Query))
+		test := subQuery1Any.MessageIs(new(service.Query))
 		So(test, ShouldBeTrue)
 
-		subQuery2Any, err := ptypes.MarshalAny(subQuery2)
+		subQuery2Any, err := anypb.New(subQuery2)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{
+			SubQueries: []*anypb.Any{
 				subQuery1Any,
 				subQuery2Any,
 			},

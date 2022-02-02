@@ -23,32 +23,44 @@ package grpc
 import (
 	"context"
 	"fmt"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"strings"
 
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/cache"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/idm/meta"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/idm/meta"
 )
 
 // Handler definition.
 type Handler struct {
-	searchCache *cache.InstrumentedCache
+	idm.UnimplementedUserMetaServiceServer
+	tree.UnimplementedNodeProviderStreamerServer
+
+	searchCache cache.Sharded
+	dao         meta.DAO
 }
 
-func NewHandler() *Handler {
-	h := &Handler{}
-	h.searchCache = cache.NewInstrumentedCache(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)
+func NewHandler(ctx context.Context, dao meta.DAO) *Handler {
+	h := &Handler{dao: dao}
+	h.searchCache = cache.NewSharded(common.ServiceGrpcNamespace_ + common.ServiceUserMeta)
+	go func() {
+		<-ctx.Done()
+		h.Stop()
+	}()
 	return h
+}
+
+func (h *Handler) Name() string {
+	return Name
 }
 
 func (h *Handler) Stop() {
@@ -56,10 +68,10 @@ func (h *Handler) Stop() {
 }
 
 // UpdateUserMeta adds, updates or deletes user meta.
-func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest, response *idm.UpdateUserMetaResponse) error {
+func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest) (*idm.UpdateUserMetaResponse, error) {
 
-	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-	namespaces, _ := dao.GetNamespaceDao().List()
+	response := &idm.UpdateUserMetaResponse{}
+	namespaces, _ := h.dao.GetNamespaceDao().List()
 	nodes := make(map[string]*tree.Node)
 	sources := make(map[string]*tree.Node)
 	for _, metaData := range request.MetaDatas {
@@ -69,21 +81,21 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			// Check JsonValue is valid json
 			var data interface{}
 			if er := json.Unmarshal([]byte(metaData.GetJsonValue()), &data); er != nil {
-				return fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
+				return nil, fmt.Errorf("make sure to use JSON format for metadata: %s", er.Error())
 			}
 			// ADD / UPDATE
-			if newMeta, prev, err := dao.Set(metaData); err == nil {
+			if newMeta, prev, err := h.dao.Set(metaData); err == nil {
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 				prevValue = prev
 			} else {
-				return err
+				return nil, err
 			}
 		} else {
 			// DELETE
-			if prev, err := dao.Del(metaData); err == nil {
+			if prev, err := h.dao.Del(metaData); err == nil {
 				prevValue = prev
 			} else {
-				return err
+				return nil, err
 			}
 		}
 		var src *tree.Node
@@ -105,7 +117,9 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 	}
 
 	go func() {
-		bgCtx := context2.NewBackgroundWithMetaCopy(ctx)
+		bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
+		bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
+		bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for nodeId, source := range sources {
@@ -115,7 +129,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 			if resolved, ok := nodes[nodeId]; ok {
 				target = resolved
 			}
-			metas, e := dao.Search([]string{}, []string{target.Uuid}, "", "", &service.ResourcePolicyQuery{
+			metas, e := h.dao.Search([]string{}, []string{target.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
 			if e != nil {
@@ -126,40 +140,42 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 					target.MetaStore[val.Namespace] = val.JsonValue
 				}
 			}
-			client.Publish(bgCtx, client.NewPublication(common.TopicMetaChanges, &tree.NodeChangeEvent{
+			broker.MustPublish(bgCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
 				Type:   tree.NodeChangeEvent_UPDATE_USER_META,
 				Source: source,
 				Target: target,
-			}))
+			})
 		}
 	}()
 
-	return nil
+	return response, nil
 
 }
 
 // SearchUserMeta retrieves meta based on various criteria.
-func (h *Handler) SearchUserMeta(ctx context.Context, request *idm.SearchUserMetaRequest, stream idm.UserMetaService_SearchUserMetaStream) error {
+func (h *Handler) SearchUserMeta(request *idm.SearchUserMetaRequest, stream idm.UserMetaService_SearchUserMetaServer) error {
 
-	defer stream.Close()
-	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-	results, err := dao.Search(request.MetaUuids, request.NodeUuids, request.Namespace, request.ResourceSubjectOwner, request.ResourceQuery)
+	results, err := h.dao.Search(request.MetaUuids, request.NodeUuids, request.Namespace, request.ResourceSubjectOwner, request.ResourceQuery)
 	if err != nil {
 		return err
 	}
 	for _, result := range results {
-		stream.Send(&idm.SearchUserMetaResponse{UserMeta: result})
+		if e := stream.Send(&idm.SearchUserMetaResponse{UserMeta: result}); e != nil {
+			return e
+		}
 	}
 	return nil
 
 }
 
 // ReadNodeStream Implements ReadNodeStream to be a meta provider.
-func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
+func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
-	defer stream.Close()
-	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-	bgCtx := context2.NewBackgroundWithMetaCopy(ctx)
+	ctx := stream.Context()
+
+	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
+	bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
+	bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
 	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e
@@ -179,7 +195,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 		if r, ok := h.resultsFromCache(node.Uuid, subjects); ok {
 			results = r
 		} else {
-			results, err = dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
+			results, err = h.dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
 				Subjects: subjects,
 			})
 			log.Logger(ctx).Debug(fmt.Sprintf("Got %d results for node", len(results)), node.ZapUuid())
@@ -199,41 +215,41 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 }
 
 // UpdateUserMetaNamespace Update/Delete a namespace.
-func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.UpdateUserMetaNamespaceRequest, response *idm.UpdateUserMetaNamespaceResponse) error {
+func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.UpdateUserMetaNamespaceRequest) (*idm.UpdateUserMetaNamespaceResponse, error) {
 
-	dao := servicecontext.GetDAO(ctx).(meta.DAO).GetNamespaceDao()
+	response := &idm.UpdateUserMetaNamespaceResponse{}
+	dao := h.dao.GetNamespaceDao()
 	for _, metaNameSpace := range request.Namespaces {
 		if err := dao.Del(metaNameSpace); err != nil {
-			return err
+			return nil, err
 		} else {
-			client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+			broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 				Type:          idm.ChangeEventType_DELETE,
 				MetaNamespace: metaNameSpace,
-			}))
+			})
 		}
 	}
 	if request.Operation == idm.UpdateUserMetaNamespaceRequest_PUT {
 		for _, metaNameSpace := range request.Namespaces {
 			if err := dao.Add(metaNameSpace); err != nil {
-				return err
+				return nil, err
 			} else {
-				client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+				broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 					Type:          idm.ChangeEventType_CREATE,
 					MetaNamespace: metaNameSpace,
-				}))
+				})
 			}
 			response.Namespaces = append(response.Namespaces, metaNameSpace)
 		}
 	}
-	return nil
+	return response, nil
 
 }
 
 // ListUserMetaNamespace List all namespaces from underlying DAO.
-func (h *Handler) ListUserMetaNamespace(ctx context.Context, request *idm.ListUserMetaNamespaceRequest, stream idm.UserMetaService_ListUserMetaNamespaceStream) error {
+func (h *Handler) ListUserMetaNamespace(request *idm.ListUserMetaNamespaceRequest, stream idm.UserMetaService_ListUserMetaNamespaceServer) error {
 
-	defer stream.Close()
-	dao := servicecontext.GetDAO(ctx).(meta.DAO).GetNamespaceDao()
+	dao := h.dao.GetNamespaceDao()
 	if results, err := dao.List(); err == nil {
 		for _, result := range results {
 			stream.Send(&idm.ListUserMetaNamespaceResponse{UserMetaNamespace: result})
@@ -272,23 +288,11 @@ func (h *Handler) clearCacheForNode(nodeId string) {
 	if h.searchCache == nil {
 		return
 	}
-	it := h.searchCache.Iterator()
-	var clears []string
-	for {
-		if !it.SetNext() {
-			break
+	if clears, e := h.searchCache.KeysByPrefix(nodeId + "-"); e == nil {
+		for _, k := range clears {
+			//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
+			_ = h.searchCache.Delete(k)
 		}
-		info, e := it.Value()
-		if e != nil {
-			break
-		}
-		if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
-			clears = append(clears, info.Key())
-		}
-	}
-	for _, k := range clears {
-		//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
-		h.searchCache.Delete(k)
 	}
 
 }

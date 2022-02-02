@@ -3,13 +3,13 @@
     "other": "用于接收通知的地址"
   },
   "All roles": {
-    "other": "所有角色"
+    "other": "All roles"
   },
   "Allow Group Listing": {
-    "other": "允许群组列表"
+    "other": "Allow Group Listing"
   },
   "Allow Role Listing": {
-    "other": "允许角色列表"
+    "other": "Allow Role Listing"
   },
   "Allow the users to create a new user when sharing a folder": {
     "other": "允许用户在共享文件夹时创建新用户"
@@ -21,31 +21,31 @@
     "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
   },
   "Always Override": {
-    "other": "总是覆盖"
+    "other": "Always Override"
   },
   "Always override other roles, included group roles.": {
     "other": "Always override other roles, included group roles."
   },
   "Avatar": {
-    "other": "头像"
+    "other": "Avatar"
   },
   "Choose the configuration plugin": {
     "other": "选择配置插件"
   },
   "Configuration Store Instance": {
-    "other": "配置存储实例"
+    "other": "Configuration Store Instance"
   },
   "Configurations Management": {
-    "other": "配置管理"
+    "other": "Configurations Management"
   },
   "Core SQL Connexion": {
-    "other": "核心SQL连接"
+    "other": "Core SQL Connection"
   },
   "Country": {
     "other": "国家/地区"
   },
   "Create external users": {
-    "other": "创建外部用户"
+    "other": "Create external users"
   },
   "Default Workspace": {
     "other": "默认工作区"
@@ -54,7 +54,7 @@
     "other": "登录后显示的默认工作区。“主页”是带有活动和搜索引擎的欢迎页面。"
   },
   "Display roles and/or groups": {
-    "other": "显示角色和/或群组"
+    "other": "Display roles and/or groups"
   },
   "Do not display real login in parenthesis": {
     "other": "Do not display real login in parenthesis"
@@ -66,22 +66,22 @@
     "other": "电子邮件"
   },
   "Excluded Roles": {
-    "other": "排除角色"
+    "other": "Excluded Roles"
   },
   "External Users Creation": {
-    "other": "外部用户创建"
+    "other": "External Users Creation"
   },
   "External users parameters": {
-    "other": "外部用户参数"
+    "other": "External users parameters"
   },
   "Full name displayed to others": {
     "other": "显示给他人看的全名"
   },
   "Generic Conf Features": {
-    "other": "通用配置功能"
+    "other": "Generic Conf Features"
   },
   "Hide real login": {
-    "other": "隐藏真实登录名"
+    "other": "Hide real login"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
     "other": "If previous option is set to True, directly display a full list of users from all groups"
@@ -96,10 +96,10 @@
     "other": "Image displayed next to the user name"
   },
   "Included Roles": {
-    "other": "包含角色"
+    "other": "Included Roles"
   },
   "Instance": {
-    "other": "实例"
+    "other": "Instance"
   },
   "Internal / External Users": {
     "other": "Internal / External Users"
@@ -108,13 +108,13 @@
     "other": "语言"
   },
   "Let user create repositories": {
-    "other": "允许用户创建工作区"
+    "other": "Let user create workspaces"
   },
   "Let user create repositories from templates": {
-    "other": "允许用户从模板创建资源库"
+    "other": "Let user create repositories from templates"
   },
   "List Roles By": {
-    "other": "列出角色由"
+    "other": "List Roles By"
   },
   "List existing from all groups": {
     "other": "List existing from all groups"
@@ -138,25 +138,25 @@
     "other": "组名"
   },
   "Preferences Saving": {
-    "other": "首选项保存"
+    "other": "Preferences Saving"
   },
   "Remember guest preferences": {
-    "other": "记住访客首选项"
+    "other": "Remember guest preferences"
   },
   "Role Label": {
     "other": "角色标签"
   },
   "Role/Group Listing": {
-    "other": "角色/群组列表"
+    "other": "Role/Group Listing"
   },
   "Roles / Groups Directory Listing": {
-    "other": "角色/群组目录列表"
+    "other": "Roles / Groups Directory Listing"
   },
   "SQL Connexion": {
     "other": "SQL连接"
   },
   "See existing users": {
-    "other": "查看现有用户"
+    "other": "See existing users"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
     "other": "Sets how the application core data (users,roles,etc) is stored."
@@ -165,7 +165,7 @@
     "other": "Share with existing users from all groups"
   },
   "Shared users limit": {
-    "other": "共享用户限制"
+    "other": "Shared users limit"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
     "other": "Simple SQL Connection definition that can be used by other sql-based plugins"

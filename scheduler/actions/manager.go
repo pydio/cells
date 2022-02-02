@@ -24,11 +24,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 var (
@@ -102,13 +101,15 @@ func (m *ActionsManager) LoadActionForm(actionID string) (*forms.Form, error) {
 	return nil, errors.NotFound("action.not.found", "cannot find action with ID %s", actionID)
 }
 
-type ignoredAction struct{}
+type ignoredAction struct {
+	common.RuntimeHolder
+}
 
 func (i *ignoredAction) GetName() string {
 	return IgnoredActionName
 }
 
-func (i *ignoredAction) Init(_ *jobs.Job, _ client.Client, _ *jobs.Action) error {
+func (i *ignoredAction) Init(job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 

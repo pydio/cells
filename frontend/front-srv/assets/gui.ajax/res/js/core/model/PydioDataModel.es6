@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from '../Pydio'
 import Observable from '../lang/Observable'
 import Logger from '../lang/Logger'
 import AjxpNode from './AjxpNode'
@@ -253,13 +254,17 @@ export default class PydioDataModel extends Observable{
     publish(eventName, optionalData){
         let args = [];
         if(this._globalEvents){
-            if(window.pydio){
+            if(Pydio.getInstance()){
                 args.push(eventName);
-                if(optionalData) args.push(optionalData);
-                window.pydio.fire.apply(window.pydio,args);
+                if(optionalData) {
+                    args.push(optionalData);
+                }
+                Pydio.getInstance().fire.apply(Pydio.getInstance(),args);
             }else if(document.fire) {
                 args.push("pydio:"+eventName);
-                if(optionalData) args.push(optionalData);
+                if(optionalData) {
+                    args.push(optionalData);
+                }
                 document.fire.apply(document, args);
             }
                 if(optionalData){
@@ -408,8 +413,8 @@ export default class PydioDataModel extends Observable{
      * @param setSelectedAfterUpdate bool
      */
     updateNode(node, setSelectedAfterUpdate=false){
-        var original = node.getMetadata().get("original_path");
-        var fake, n;
+        const original = node.getMetadata().get("original_path");
+        let fake, n;
         if(original && original !== node.getPath()
             && PathUtils.getDirname(original) !== PathUtils.getDirname(node.getPath())){
             // Node was really moved to another folder
@@ -485,40 +490,44 @@ export default class PydioDataModel extends Observable{
 
 	/**
 	 * Set an array of nodes as the current selection
-	 * @param ajxpDataNodes AjxpNode[] The nodes to select
+	 * @param nodes AjxpNode[] The nodes to select
 	 * @param source String The source of this selection action
 	 */
-	setSelectedNodes (ajxpDataNodes, source){
-        if(this._selectedNodes.length === ajxpDataNodes.length){
-            if(ajxpDataNodes.length === 0) {
+	setSelectedNodes (nodes, source){
+        const filtered = nodes.filter(n => !n.getMetadata().has('local:notSelectable'));
+        if(nodes.length && !filtered.length) {
+            return
+        }
+        nodes = filtered;
+        if(this._selectedNodes.length === nodes.length){
+            if(nodes.length === 0) {
                 return;
             }
-            var equal = true;
-            for(var k=0;k<ajxpDataNodes.length;k++){
-                equal = equal && ajxpDataNodes[k] === this._selectedNodes[k];
-            }
-            if(equal){
-                window.pydio.fire("selection_reloaded", this);
+            if (nodes.map((n, i) => this._selectedNodes[i] !== n).length === 0){
+                Pydio.getInstance().fire("selection_reloaded", this);
                 return;
             }
         }
-		if(!source){
-			this._selectionSource = {};
-		}else{
-			this._selectionSource = source;
-		}
-		this._selectedNodes = ajxpDataNodes;
-		this._bEmpty = ((ajxpDataNodes && ajxpDataNodes.length)?false:true);
+		if (source) {
+            this._selectionSource = source;
+        } else {
+            this._selectionSource = {};
+        }
+		this._selectedNodes = nodes;
+		this._bEmpty = !(nodes && nodes.length);
 		this._bFile = this._bDir = this._isRecycle = false;
 		if(!this._bEmpty)
 		{
-			for(var i=0; i<ajxpDataNodes.length; i++)
-			{
-				var selectedNode = ajxpDataNodes[i];
-				if(selectedNode.isLeaf()) this._bFile = true;
-				else this._bDir = true;
-				if(selectedNode.isRecycle()) this._isRecycle = true;
-			}
+            nodes.forEach(node => {
+                if(node.isLeaf()) {
+                    this._bFile = true;
+                } else {
+                    this._bDir = true;
+                }
+                if(node.isRecycle()) {
+                    this._isRecycle = true;
+                }
+            })
 		}
 		this.publish("selection_changed", this);
 	}

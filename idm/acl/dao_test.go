@@ -25,17 +25,15 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
-
+	"google.golang.org/protobuf/types/known/anypb"
 	// Run tests against SQLite
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -73,13 +71,13 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ1.RoleIDs = []string{"role1"}
 		singleQ2.RoleIDs = []string{"role2"}
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		var singleQueries []*any.Any
+		var singleQueries []*anypb.Any
 		singleQueries = append(singleQueries, singleQ1Any)
 		singleQueries = append(singleQueries, singleQ2Any)
 
@@ -103,32 +101,32 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ2.RoleIDs = []string{"role2"}
 		singleQ3.RoleIDs = []string{"role3_1", "role3_2", "role3_3"}
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		singleQ3Any, err := ptypes.MarshalAny(singleQ3)
+		singleQ3Any, err := anypb.New(singleQ3)
 		So(err, ShouldBeNil)
 
 		subQuery1 := &service.Query{
-			SubQueries: []*any.Any{singleQ1Any, singleQ2Any},
+			SubQueries: []*anypb.Any{singleQ1Any, singleQ2Any},
 			Operation:  service.OperationType_OR,
 		}
 
 		subQuery2 := &service.Query{
-			SubQueries: []*any.Any{singleQ3Any},
+			SubQueries: []*anypb.Any{singleQ3Any},
 		}
 
-		subQuery1Any, err := ptypes.MarshalAny(subQuery1)
+		subQuery1Any, err := anypb.New(subQuery1)
 		So(err, ShouldBeNil)
 
-		subQuery2Any, err := ptypes.MarshalAny(subQuery2)
+		subQuery2Any, err := anypb.New(subQuery2)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{
+			SubQueries: []*anypb.Any{
 				subQuery1Any,
 				subQuery2Any,
 			},
@@ -148,11 +146,11 @@ func TestQueryBuilder(t *testing.T) {
 
 		singleQ1.Actions = []*idm.ACLAction{&idm.ACLAction{Name: "read", Value: "read_val"}, &idm.ACLAction{Name: "write", Value: "write_val"}}
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{
+			SubQueries: []*anypb.Any{
 				singleQ1Any,
 			},
 			Offset:    0,
@@ -173,17 +171,17 @@ func TestQueryBuilder(t *testing.T) {
 		singleQ2.RoleIDs = []string{"role1", "role2"}
 		singleQ3.NodeIDs = []string{"node1"}
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
+		singleQ1Any, err := anypb.New(singleQ1)
 		So(err, ShouldBeNil)
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
+		singleQ2Any, err := anypb.New(singleQ2)
 		So(err, ShouldBeNil)
 
-		singleQ3Any, err := ptypes.MarshalAny(singleQ3)
+		singleQ3Any, err := anypb.New(singleQ3)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{
+			SubQueries: []*anypb.Any{
 				singleQ1Any, singleQ2Any, singleQ3Any,
 			},
 			Offset:    0,

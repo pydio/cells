@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 )
 
 type ReconnectingClient struct {
@@ -38,18 +38,15 @@ func (s *ReconnectingClient) Stop() {
 func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 
 	go func() {
-		taskClient := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
-		ctx, cancel := context.WithTimeout(s.parentCtx, 5*time.Minute)
-		defer cancel()
-
-		streamer, e := taskClient.PutTaskStream(ctx, client.WithRequestTimeout(5*time.Minute))
+		taskClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.parentCtx, common.ServiceJobs, grpc.WithCallTimeout(5*time.Minute)))
+		streamer, e := taskClient.PutTaskStream(s.parentCtx)
 		if e != nil {
 			log.Logger(s.parentCtx).Error("Streamer PutTaskStream", zap.Error(e))
 			<-time.After(10 * time.Second)
 			s.chanToStream(ch)
 			return
 		}
-		defer streamer.Close()
+		defer streamer.CloseSend()
 		if len(requeue) > 0 {
 			streamer.Send(&jobs.PutTaskRequest{Task: requeue[0]})
 			streamer.Recv()

@@ -23,21 +23,26 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/idm/role"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/idm/role"
 )
+
+const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceRole
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceRole),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Roles Service"),
@@ -52,17 +57,31 @@ func init() {
 				},
 			}),
 			service.WithStorage(role.NewDAO, "idm_role"),
-			service.WithMicro(func(m micro.Service) error {
-				ctx := m.Options().Context
-				server := new(Handler)
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
-				idm.RegisterRoleServiceHandler(m.Options().Server, server)
+				dao := servicecontext.GetDAO(ctx)
+				if dao == nil {
+					return fmt.Errorf("cannot find DAO in init context")
+				}
+				rDao, ok := dao.(role.DAO)
+				if !ok {
+					return fmt.Errorf("cannot convert DAO to role.DAO")
+				}
+				handler := NewHandler(ctx, rDao)
+				idm.RegisterRoleServiceEnhancedServer(server, handler)
 
 				// Clean role on user deletion
-				cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, cleaner)); err != nil {
-					return err
+				cleaner := NewCleaner(ctx, handler)
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ic := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ic); e == nil {
+						return cleaner.Handle(ct, ic)
+					}
+					return nil
+				}); e != nil {
+					return e
 				}
+
 				return nil
 			}),
 		)

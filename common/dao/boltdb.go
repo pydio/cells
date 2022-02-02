@@ -21,7 +21,7 @@
 package dao
 
 import (
-	bolt "github.com/etcd-io/bbolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 type boltdb struct {

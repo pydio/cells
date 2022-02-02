@@ -22,10 +22,14 @@
 package versions
 
 import (
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type DAO interface {
+	dao.DAO
 	GetLastVersion(nodeUuid string) (*tree.ChangeLog, error)
 	GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan bool)
 	GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error)
@@ -33,4 +37,16 @@ type DAO interface {
 	DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error
 	DeleteVersionsForNodes(nodeUuid []string) error
 	ListAllVersionedNodesUuids() (chan string, chan bool, chan error)
+}
+
+func NewDAO(dao dao.DAO) dao.DAO {
+	switch v := dao.(type) {
+	case boltdb.DAO:
+		bStore, _ := NewBoltStore(v, v.DB().Path(), false)
+		return bStore
+	case mongodb.DAO:
+		mStore := &mongoStore{DAO: v}
+		return mStore
+	}
+	return nil
 }

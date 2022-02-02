@@ -24,19 +24,45 @@ import (
 	"sync"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
+
+type ZapLogger interface {
+	Named(s string) ZapLogger
+	WithOptions(opts ...zap.Option) ZapLogger
+	With(fields ...zap.Field) ZapLogger
+	
+	Debug(msg string, fields ...zap.Field)
+	Info(msg string, fields ...zap.Field)
+	Warn(msg string, fields ...zap.Field)
+	Error(msg string, fields ...zap.Field)
+	DPanic(msg string, fields ...zap.Field)
+	Panic(msg string, fields ...zap.Field)
+	Fatal(msg string, fields ...zap.Field)
+
+	Sugar() *zap.SugaredLogger
+	Check(lvl zapcore.Level, msg string) *zapcore.CheckedEntry
+	Sync() error
+	Core() zapcore.Core
+}
 
 type logger struct {
 	*zap.Logger
 
 	init func() *zap.Logger
 	once *sync.Once
+
+	namedMu sync.Mutex
+	named   map[string]ZapLogger
+
+	fields []zap.Field
 }
 
 func newLogger() *logger {
 	return &logger{
 		Logger: zap.New(nil),
 		once:   &sync.Once{},
+		named:  make(map[string]ZapLogger),
 	}
 }
 
@@ -47,14 +73,56 @@ func (l *logger) set(init func() *zap.Logger) {
 
 func (l *logger) forceReset() {
 	l.once = &sync.Once{}
+	// Clear subloggers
+	l.namedMu.Lock()
+	l.named = make(map[string]ZapLogger)
+	l.namedMu.Unlock()
 }
 
-func (l *logger) get() *zap.Logger {
+func (l *logger) get() ZapLogger {
 	l.once.Do(func() {
 		if l.init != nil {
 			l.Logger = l.init()
 		}
 	})
 
-	return l.Logger
+	return l
+}
+
+func (l *logger) Named(s string) ZapLogger {
+	l.namedMu.Lock()
+	defer l.namedMu.Unlock()
+	if n, ok := l.named[s]; ok {
+		return n
+	}
+	core := l.Logger.Named(s)
+	if mustIncrease(s) {
+		core = core.WithOptions(zap.IncreaseLevel(zap.InfoLevel))
+	}
+	n := &logger{Logger: core}
+	l.named[s] = n
+	return n
+}
+
+func (l *logger) With(fields ...zap.Field) ZapLogger {
+	return &logger{
+		Logger: l.Logger,
+		fields: fields,
+	}
+}
+
+func (l *logger) Info(msg string, fields ...zap.Field) {
+	l.Logger.Info(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) Debug(msg string, fields ...zap.Field) {
+	l.Logger.Debug(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) Warn(msg string, fields ...zap.Field) {
+	l.Logger.Warn(msg, append(fields, l.fields...)...)
+}
+
+func (l *logger) WithOptions(opts ...zap.Option) ZapLogger {
+	return &logger{Logger: l.Logger.WithOptions(opts...)}
 }

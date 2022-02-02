@@ -28,9 +28,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/proto/activity"
 )
 
 var testEnv bool
@@ -65,7 +66,7 @@ type DAO interface {
 	ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error
 
 	// StoreLastUserInbox stores the last read uint ID for a given box.
-	StoreLastUserInbox(userId string, boxName BoxName, last []byte, activityId string) error
+	StoreLastUserInbox(userId string, boxName BoxName, activityId string) error
 
 	// Delete should be wired to "USER_DELETE" and "NODE_DELETE" events
 	// to remove (or archive?) deprecated queues
@@ -97,6 +98,9 @@ func NewDAO(o dao.DAO) dao.DAO {
 		} else {
 			return WithCache(bi)
 		}
+	case mongodb.DAO:
+		mi := &mongoimpl{DAO: v}
+		return mi
 	}
 	return nil
 }

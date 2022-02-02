@@ -24,21 +24,20 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 func TestIdmSelector_Filter1(t *testing.T) {
 
 	Convey("Test user single query", t, func() {
-		q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: "test"})
+		q, _ := anypb.New(&idm.UserSingleQuery{Login: "test"})
 		m := &IdmSelector{
 			Type:  IdmSelectorType_User,
-			Query: &service.Query{SubQueries: []*any.Any{q}},
+			Query: &service.Query{SubQueries: []*anypb.Any{q}},
 		}
 		ctx := context.Background()
 		// Simple test
@@ -63,12 +62,12 @@ func TestIdmSelector_Filter1(t *testing.T) {
 func TestIdmSelector_Filter2(t *testing.T) {
 
 	Convey("Test user two single queries", t, func() {
-		q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: "test"})
-		q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{HasProfile: "standard"})
+		q1, _ := anypb.New(&idm.UserSingleQuery{Login: "test"})
+		q2, _ := anypb.New(&idm.UserSingleQuery{HasProfile: "standard"})
 		m := &IdmSelector{
 			Type: IdmSelectorType_User,
 			Query: &service.Query{
-				SubQueries: []*any.Any{q1, q2},
+				SubQueries: []*anypb.Any{q1, q2},
 				Operation:  service.OperationType_AND,
 			},
 		}
@@ -91,15 +90,15 @@ func TestIdmSelector_Filter2(t *testing.T) {
 func TestIdmSelector_Filter3(t *testing.T) {
 
 	Convey("Test user complex query", t, func() {
-		q1, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: "test"})
-		q2, _ := ptypes.MarshalAny(&idm.UserSingleQuery{HasProfile: "standard"})
-		subQ, _ := ptypes.MarshalAny(&service.Query{
-			SubQueries: []*any.Any{q1, q2},
+		q1, _ := anypb.New(&idm.UserSingleQuery{Login: "test"})
+		q2, _ := anypb.New(&idm.UserSingleQuery{HasProfile: "standard"})
+		subQ, _ := anypb.New(&service.Query{
+			SubQueries: []*anypb.Any{q1, q2},
 			Operation:  service.OperationType_AND,
 		})
 		m := &IdmSelector{
 			Type:  IdmSelectorType_User,
-			Query: &service.Query{SubQueries: []*any.Any{subQ}},
+			Query: &service.Query{SubQueries: []*anypb.Any{subQ}},
 		}
 		ctx := context.Background()
 		// Simple test

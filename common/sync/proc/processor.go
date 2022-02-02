@@ -28,16 +28,16 @@ import (
 	"time"
 
 	"github.com/gobwas/glob"
-	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/merger"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 // ProcessFunc is a generic function signature for applying an operation
@@ -410,6 +410,6 @@ func (pr *Processor) dataForOperation(p merger.Patch, op merger.Operation) (cb P
 }
 
 // Logger is a shortcut for log.Logger(pr.globalContext) function
-func (pr *Processor) Logger() *zap.Logger {
+func (pr *Processor) Logger() log.ZapLogger {
 	return log.Logger(pr.GlobalContext)
 }

@@ -24,17 +24,16 @@ import (
 	"context"
 	"sync"
 
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx context.Context, output, failedFilter chan ActionMessage, done chan bool) {
+func (a *Action) ToMessages(startMessage ActionMessage, ctx context.Context, output, failedFilter chan ActionMessage, done chan bool) {
 
 	startMessage, excluded, pass := a.ApplyFilters(ctx, startMessage)
 	if !pass {
@@ -50,7 +49,7 @@ func (a *Action) ToMessages(startMessage ActionMessage, c client.Client, ctx con
 		failedFilter <- *excluded
 	}
 	if a.HasSelectors() {
-		a.ResolveSelectors(startMessage, c, ctx, output, done)
+		a.ResolveSelectors(startMessage, ctx, output, done)
 	} else {
 		output <- startMessage
 		done <- true
@@ -126,13 +125,13 @@ func (a *Action) ApplyFilters(ctx context.Context, input ActionMessage) (output 
 	return
 }
 
-func (a *Action) ResolveSelectors(startMessage ActionMessage, cl client.Client, ctx context.Context, output chan ActionMessage, done chan bool) {
+func (a *Action) ResolveSelectors(startMessage ActionMessage, ctx context.Context, output chan ActionMessage, done chan bool) {
 
-	a.FanToNext(cl, ctx, 0, startMessage, output, done)
+	a.FanToNext(ctx, 0, startMessage, output, done)
 
 }
 
-func (a *Action) FanToNext(cl client.Client, ctx context.Context, index int, input ActionMessage, output chan ActionMessage, done chan bool) {
+func (a *Action) FanToNext(ctx context.Context, index int, input ActionMessage, output chan ActionMessage, done chan bool) {
 
 	selectors := a.getSelectors()
 	if index < len(selectors)-1 {
@@ -143,7 +142,7 @@ func (a *Action) FanToNext(cl client.Client, ctx context.Context, index int, inp
 			for {
 				select {
 				case message := <-nextOut:
-					go a.FanToNext(cl, ctx, index+1, message, output, done)
+					go a.FanToNext(ctx, index+1, message, output, done)
 				case <-nextDone:
 					close(nextOut)
 					close(nextDone)
@@ -152,21 +151,21 @@ func (a *Action) FanToNext(cl client.Client, ctx context.Context, index int, inp
 			}
 		}()
 		if selectors[index].MultipleSelection() {
-			go a.CollectSelector(cl, ctx, selectors[index], input, nextOut, nextDone)
+			go a.CollectSelector(ctx, selectors[index], input, nextOut, nextDone)
 		} else {
-			go a.FanOutSelector(cl, ctx, selectors[index], input, nextOut, nextDone)
+			go a.FanOutSelector(ctx, selectors[index], input, nextOut, nextDone)
 		}
 	} else {
 		if selectors[index].MultipleSelection() {
-			a.CollectSelector(cl, ctx, selectors[index], input, output, done)
+			a.CollectSelector(ctx, selectors[index], input, output, done)
 		} else {
-			a.FanOutSelector(cl, ctx, selectors[index], input, output, done)
+			a.FanOutSelector(ctx, selectors[index], input, output, done)
 		}
 	}
 
 }
 
-func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
+func (a *Action) FanOutSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
 
 	// If multiple selectors, we have to apply them sequentially
 	wire := make(chan interface{})
@@ -203,11 +202,11 @@ func (a *Action) FanOutSelector(cl client.Client, ctx context.Context, selector 
 			}
 		}
 	}()
-	go selector.Select(cl, ctx, input, wire, selectDone)
+	go selector.Select(ctx, input, wire, selectDone)
 
 }
 
-func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
+func (a *Action) CollectSelector(ctx context.Context, selector InputSelector, input ActionMessage, output chan ActionMessage, done chan bool) {
 
 	// If multiple selectors, we have to apply them sequentially
 	var nodes []*tree.Node
@@ -246,7 +245,7 @@ func (a *Action) CollectSelector(cl client.Client, ctx context.Context, selector
 			}
 		}
 	}()
-	go selector.Select(cl, ctx, input, wire, selectDone)
+	go selector.Select(ctx, input, wire, selectDone)
 	wg.Wait()
 
 	input = input.WithNodes(nodes...)

@@ -32,10 +32,10 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/update"
-	update2 "github.com/pydio/cells/discovery/update"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/update"
+	update2 "github.com/pydio/cells/v4/discovery/update"
 )
 
 var updateToVersion string

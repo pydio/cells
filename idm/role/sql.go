@@ -21,26 +21,30 @@
 package role
 
 import (
+	"embed"
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
-	"github.com/pydio/packr"
+	goqu "github.com/doug-martin/goqu/v9"
 	migrate "github.com/rubenv/sql-migrate"
-	"gopkg.in/doug-martin/goqu.v4"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"AddRole":    `insert into idm_roles (uuid, label, team_role, group_role, user_role, last_updated, auto_applies, override) values (?,?,?,?,?,?,?,?)`,
 		"UpdateRole": `update idm_roles set label=?, team_role=?, group_role=?, user_role=?, last_updated=?, auto_applies=?, override=? where uuid= ?`,
@@ -70,8 +74,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	}
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../idm/role/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
@@ -108,7 +112,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 			update = true
 		}
 	} else {
-		role.Uuid = uuid.NewUUID().String()
+		role.Uuid = uuid.New()
 	}
 	if role.Label == "" {
 		return nil, false, errors.BadRequest(common.ServiceRole, "Role cannot have an empty label")
@@ -261,10 +265,10 @@ func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bo
 
 type queryBuilder idm.RoleSingleQuery
 
-func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
+func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, bool) {
 
 	q := new(idm.RoleSingleQuery)
-	if err := ptypes.UnmarshalAny(val, q); err != nil {
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
 		return nil, false
 	}
 	var expressions []goqu.Expression

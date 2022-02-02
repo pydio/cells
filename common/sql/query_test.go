@@ -23,29 +23,28 @@ package sql
 import (
 	"testing"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 type fakeConverter struct{}
 
-func (*fakeConverter) Convert(any *any.Any) (string, bool) {
+func (*fakeConverter) Convert(any *anypb.Any) (string, bool) {
 	return "CONVERTED", true
 }
 
 func TestQuery_String(t *testing.T) {
 
-	marshalled1 := &any.Any{}
-	marshalled2 := &any.Any{}
-	marshalled3 := &any.Any{}
+	marshalled1 := &anypb.Any{}
+	marshalled2 := &anypb.Any{}
+	marshalled3 := &anypb.Any{}
 
 	Convey("Simplest Case", t, func() {
 
 		enquirer := &service.Query{
-			SubQueries: []*any.Any{marshalled1},
+			SubQueries: []*anypb.Any{marshalled1},
 			Operation:  service.OperationType_AND,
 		}
 
@@ -59,7 +58,7 @@ func TestQuery_String(t *testing.T) {
 	Convey("Multiple Case AND", t, func() {
 
 		enquirer := &service.Query{
-			SubQueries: []*any.Any{marshalled1, marshalled2},
+			SubQueries: []*anypb.Any{marshalled1, marshalled2},
 			Operation:  service.OperationType_AND,
 		}
 
@@ -73,7 +72,7 @@ func TestQuery_String(t *testing.T) {
 	Convey("Multiple Case OR", t, func() {
 
 		enquirer := &service.Query{
-			SubQueries: []*any.Any{marshalled1, marshalled2},
+			SubQueries: []*anypb.Any{marshalled1, marshalled2},
 			Operation:  service.OperationType_OR,
 		}
 
@@ -87,13 +86,13 @@ func TestQuery_String(t *testing.T) {
 	Convey("Nested Cases OR", t, func() {
 
 		enquirerNested := &service.Query{
-			SubQueries: []*any.Any{marshalled1, marshalled2},
+			SubQueries: []*anypb.Any{marshalled1, marshalled2},
 			Operation:  service.OperationType_AND,
 		}
-		subQ, _ := ptypes.MarshalAny(enquirerNested)
+		subQ, _ := anypb.New(enquirerNested)
 
 		enquirer := &service.Query{
-			SubQueries: []*any.Any{subQ, marshalled3},
+			SubQueries: []*anypb.Any{subQ, marshalled3},
 			Operation:  service.OperationType_OR,
 		}
 
@@ -107,13 +106,13 @@ func TestQuery_String(t *testing.T) {
 	Convey("Nested Cases AND", t, func() {
 
 		enquirerNested := &service.Query{
-			SubQueries: []*any.Any{marshalled1, marshalled2},
+			SubQueries: []*anypb.Any{marshalled1, marshalled2},
 			Operation:  service.OperationType_OR,
 		}
-		subQ, _ := ptypes.MarshalAny(enquirerNested)
+		subQ, _ := anypb.New(enquirerNested)
 
 		enquirer := &service.Query{
-			SubQueries: []*any.Any{subQ, marshalled3},
+			SubQueries: []*anypb.Any{subQ, marshalled3},
 			Operation:  service.OperationType_AND,
 		}
 

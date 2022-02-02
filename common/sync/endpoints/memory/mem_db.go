@@ -29,12 +29,11 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type DBEvent struct {
@@ -64,7 +63,7 @@ func NewMemDB() *MemDB {
 func (db *MemDB) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "memdb://" + db.testPathURI,
+		URI:                   "memdb://" + db.testPathURI,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: false,
 		Ignores:               db.ignores,

@@ -26,7 +26,7 @@ import (
 	"fmt"
 	"syscall"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
 )
 
 // checkFdlimit issues a warning if the OS limit for

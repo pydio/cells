@@ -23,14 +23,15 @@ package timer
 import (
 	"context"
 
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/utils/schedule"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/utils/schedule"
 )
 
 // EventProducer gathers all Tickers in a pool and provides a single entry point
@@ -65,8 +66,10 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 				if e.TestChan != nil {
 					e.TestChan <- event
 				} else {
-					client.Publish(e.Context, client.NewPublication(common.TopicTimerEvent, event))
+					broker.MustPublish(e.Context, common.TopicTimerEvent, event)
 				}
+			case <-rootCtx.Done():
+				e.StopAll()
 			case <-e.StopChan:
 				return
 			}
@@ -80,7 +83,7 @@ func NewEventProducer(rootCtx context.Context) *EventProducer {
 func (e *EventProducer) Start() error {
 
 	// Load all schedules
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(e.Context, common.ServiceJobs))
 	streamer, err := cli.ListJobs(e.Context, &jobs.ListJobsRequest{TimersOnly: true})
 	if err != nil {
 		return err

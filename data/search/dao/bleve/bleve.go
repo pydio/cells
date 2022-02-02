@@ -28,51 +28,52 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/common/utils/meta"
+	"github.com/pydio/cells/v4/common"
 
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/analysis/analyzer/standard"
-	"github.com/blevesearch/bleve/analysis/lang/en"
-	"github.com/blevesearch/bleve/index/scorch"
-	"github.com/blevesearch/bleve/index/store/boltdb"
-	"github.com/blevesearch/bleve/registry"
-	"github.com/blevesearch/bleve/search/query"
+	bleve "github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
+	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
+	"github.com/blevesearch/bleve/v2/analysis/lang/en"
+	"github.com/blevesearch/bleve/v2/index/scorch"
+	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
+	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/blevesearch/bleve/v2/search/query"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/tree"
 
-	_ "github.com/blevesearch/bleve/analysis/lang/ar"
-	_ "github.com/blevesearch/bleve/analysis/lang/bg"
-	_ "github.com/blevesearch/bleve/analysis/lang/ca"
-	_ "github.com/blevesearch/bleve/analysis/lang/cjk"
-	_ "github.com/blevesearch/bleve/analysis/lang/ckb"
-	_ "github.com/blevesearch/bleve/analysis/lang/cs"
-	_ "github.com/blevesearch/bleve/analysis/lang/da"
-	_ "github.com/blevesearch/bleve/analysis/lang/de"
-	_ "github.com/blevesearch/bleve/analysis/lang/el"
-	_ "github.com/blevesearch/bleve/analysis/lang/es"
-	_ "github.com/blevesearch/bleve/analysis/lang/eu"
-	_ "github.com/blevesearch/bleve/analysis/lang/fa"
-	_ "github.com/blevesearch/bleve/analysis/lang/fi"
-	_ "github.com/blevesearch/bleve/analysis/lang/fr"
-	_ "github.com/blevesearch/bleve/analysis/lang/ga"
-	_ "github.com/blevesearch/bleve/analysis/lang/gl"
-	_ "github.com/blevesearch/bleve/analysis/lang/hi"
-	_ "github.com/blevesearch/bleve/analysis/lang/hu"
-	_ "github.com/blevesearch/bleve/analysis/lang/hy"
-	_ "github.com/blevesearch/bleve/analysis/lang/id"
-	_ "github.com/blevesearch/bleve/analysis/lang/in"
-	_ "github.com/blevesearch/bleve/analysis/lang/it"
-	_ "github.com/blevesearch/bleve/analysis/lang/nl"
-	_ "github.com/blevesearch/bleve/analysis/lang/no"
-	_ "github.com/blevesearch/bleve/analysis/lang/pt"
-	_ "github.com/blevesearch/bleve/analysis/lang/ro"
-	_ "github.com/blevesearch/bleve/analysis/lang/ru"
-	_ "github.com/blevesearch/bleve/analysis/lang/sv"
-	_ "github.com/blevesearch/bleve/analysis/lang/tr"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/ar"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/bg"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/ca"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/cjk"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/ckb"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/cs"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/da"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/de"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/el"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/es"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/eu"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/fa"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/fi"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/fr"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/ga"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/gl"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/hi"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/hu"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/hy"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/id"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/in"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/it"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/nl"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/no"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/pt"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/ro"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/ru"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/sv"
+	_ "github.com/blevesearch/bleve/v2/analysis/lang/tr"
 )
 
 const (
@@ -81,12 +82,13 @@ const (
 )
 
 var (
-	BleveIndexPath = ""
-	BatchSize      = 2000
+	IndexPath = ""
+	BatchSize = 2000
 )
 
-type BleveServer struct {
-	Router       views.Handler
+type Server struct {
+	Ctx          context.Context
+	Router       nodes.Handler
 	Engine       bleve.Index
 	IndexContent bool
 
@@ -97,30 +99,31 @@ type BleveServer struct {
 	deletes chan string
 	done    chan bool
 
-	nsProvider *meta.NamespacesProvider
+	nsProvider *meta.NsProvider
 }
 
-func NewBleveEngine(indexContent bool, configs map[string]interface{}) (*BleveServer, error) {
+func NewEngine(ctx context.Context, nsProvider *meta.NsProvider, indexContent bool, configs map[string]interface{}) (*Server, error) {
 
-	if BleveIndexPath == "" {
-		return nil, fmt.Errorf("please setup BleveIndexPath before opening engine")
+	if IndexPath == "" {
+		return nil, fmt.Errorf("please setup IndexPath before opening engine")
 	}
 	bnA, cA, er := extractConfigs(configs)
 	if er != nil {
 		return nil, er
 	}
-	_, e := os.Stat(BleveIndexPath)
+	_, e := os.Stat(IndexPath)
 	var index bleve.Index
 	var err error
 	if e == nil {
-		index, err = bleve.Open(BleveIndexPath)
+		index, err = bleve.Open(IndexPath)
 	} else {
-		index, err = createIndex(BleveIndexPath, bnA, cA)
+		index, err = createIndex(IndexPath, bnA, cA)
 	}
 	if err != nil {
 		return nil, err
 	}
-	server := &BleveServer{
+	server := &Server{
+		Ctx:              ctx,
 		Engine:           index,
 		IndexContent:     indexContent,
 		basenameAnalyzer: bnA,
@@ -128,13 +131,14 @@ func NewBleveEngine(indexContent bool, configs map[string]interface{}) (*BleveSe
 		inserts:          make(chan *tree.IndexableNode),
 		deletes:          make(chan string),
 		done:             make(chan bool, 1),
+		nsProvider:       nsProvider,
 	}
 	go server.watchOperations()
 	return server, nil
 }
 
-func (s *BleveServer) watchOperations() {
-	batch := NewBatch(BatchOptions{IndexContent: s.IndexContent})
+func (s *Server) watchOperations() {
+	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{IndexContent: s.IndexContent})
 	for {
 		select {
 		case n := <-s.inserts:
@@ -149,6 +153,11 @@ func (s *BleveServer) watchOperations() {
 			}
 		case <-time.After(3 * time.Second):
 			batch.Flush(s.Engine)
+		case <-s.Ctx.Done():
+			batch.Flush(s.Engine)
+			s.Engine.Close()
+			close(s.done)
+			return
 		case <-s.done:
 			batch.Flush(s.Engine)
 			s.Engine.Close()
@@ -201,7 +210,7 @@ func createIndex(indexPath string, bnAna, cAna string) (bleve.Index, error) {
 
 }
 
-func (s *BleveServer) Close() error {
+func (s *Server) Close() error {
 	close(s.done)
 	return nil
 }
@@ -246,7 +255,7 @@ func extractConfigs(conf map[string]interface{}) (basenameAnalyzer, contentAnaly
 	return
 }
 
-func (s *BleveServer) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
+func (s *Server) IndexNode(c context.Context, n *tree.Node, reloadCore bool, excludes map[string]struct{}) error {
 
 	if n.GetUuid() == "" {
 		return fmt.Errorf("missing uuid")
@@ -265,21 +274,21 @@ func (s *BleveServer) IndexNode(c context.Context, n *tree.Node, reloadCore bool
 	return nil
 }
 
-func (s *BleveServer) DeleteNode(c context.Context, n *tree.Node) error {
+func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
 
 	s.deletes <- n.GetUuid()
 	return nil
 
 }
 
-func (s *BleveServer) ClearIndex(ctx context.Context) error {
+func (s *Server) ClearIndex(ctx context.Context) error {
 	s.done <- true
 	// Make sure it's properly closed...
 	<-time.After(1 * time.Second)
-	if e := os.RemoveAll(BleveIndexPath); e != nil {
+	if e := os.RemoveAll(IndexPath); e != nil {
 		return e
 	}
-	index, e := createIndex(BleveIndexPath, s.basenameAnalyzer, s.contentAnalyzer)
+	index, e := createIndex(IndexPath, s.basenameAnalyzer, s.contentAnalyzer)
 	if e != nil {
 		return e
 	}
@@ -288,7 +297,7 @@ func (s *BleveServer) ClearIndex(ctx context.Context) error {
 	return nil
 }
 
-func (s *BleveServer) makeBaseNameField(term string, boost float64) query.Query {
+func (s *Server) makeBaseNameField(term string, boost float64) query.Query {
 	if s.basenameAnalyzer == defaultBasenameAnalyzer && !strings.Contains(term, " ") {
 		term = strings.Trim(strings.ToLower(term), "* ")
 		wCard := bleve.NewWildcardQuery("*" + term + "*")
@@ -308,14 +317,14 @@ func (s *BleveServer) makeBaseNameField(term string, boost float64) query.Query 
 	}
 }
 
-func (s *BleveServer) makeContentField(term string) query.Query {
+func (s *Server) makeContentField(term string) query.Query {
 	cQuery := bleve.NewMatchQuery(term)
 	cQuery.Analyzer = s.contentAnalyzer
 	cQuery.SetField("TextContent")
 	return cQuery
 }
 
-func (s *BleveServer) makeDateTimeFacet(field string) *bleve.FacetRequest {
+func (s *Server) makeDateTimeFacet(field string) *bleve.FacetRequest {
 	dateFacet := bleve.NewFacetRequest(field, 5)
 	now := time.Now()
 	last5 := now.Add(-5 * time.Minute)
@@ -328,7 +337,7 @@ func (s *BleveServer) makeDateTimeFacet(field string) *bleve.FacetRequest {
 	return dateFacet
 }
 
-func (s *BleveServer) makeDateTimeFacetAsNum(field string) *bleve.FacetRequest {
+func (s *Server) makeDateTimeFacetAsNum(field string) *bleve.FacetRequest {
 	dateFacet := bleve.NewFacetRequest(field, 5)
 	now := time.Now()
 	last5 := now.Add(-5 * time.Minute)
@@ -346,7 +355,7 @@ func (s *BleveServer) makeDateTimeFacetAsNum(field string) *bleve.FacetRequest {
 	return dateFacet
 }
 
-func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
+func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {
 
 	boolean := bleve.NewBooleanQuery()
 	if term := queryObject.GetFileNameOrContent(); term != "" {
@@ -469,9 +478,6 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	dateFacet := s.makeDateTimeFacet("ModifTime")
 	searchRequest.AddFacet("Date", dateFacet)
 
-	if s.nsProvider == nil {
-		s.nsProvider = meta.NewNamespacesProvider()
-	}
 	nss := s.nsProvider.Namespaces()
 	for metaName := range s.nsProvider.IncludedIndexes() {
 		def, _ := nss[metaName].UnmarshallDefinition()
@@ -497,12 +503,14 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 	}
 	log.Logger(c).Debug("SearchObjects", zap.Any("total results", searchResult.Total))
 	for _, f := range searchResult.Facets {
-		for _, t := range f.Terms {
-			if t.Term != "" {
-				facets <- &tree.SearchFacet{
-					FieldName: f.Field,
-					Label:     t.Term,
-					Count:     int32(t.Count),
+		if f.Terms != nil {
+			for _, t := range f.Terms.Terms() {
+				if t.Term != "" {
+					facets <- &tree.SearchFacet{
+						FieldName: f.Field,
+						Label:     t.Term,
+						Count:     int32(t.Count),
+					}
 				}
 			}
 		}
@@ -557,7 +565,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 			node.Path = p.(string)
 		}
 		if b, ok := hit.Fields["Basename"]; ok {
-			node.SetMeta("name", b.(string))
+			node.MustSetMeta(common.MetaNamespaceNodeName, b.(string))
 		}
 		if t, ok := hit.Fields["NodeType"]; ok {
 			if t.(string) == "file" {
@@ -577,7 +585,7 @@ func (s *BleveServer) SearchNodes(c context.Context, queryObject *tree.Query, fr
 		}
 		for k := range hit.Locations {
 			if k == "TextContent" {
-				node.SetMeta("document_content_hit", true)
+				node.MustSetMeta(common.MetaFlagDocumentContentHit, true)
 				contentFacet.Count++
 			} else if k == "Basename" {
 				basenameFacet.Count++

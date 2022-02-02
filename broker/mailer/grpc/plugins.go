@@ -25,18 +25,19 @@ import (
 	"context"
 	"time"
 
-	"github.com/micro/go-micro"
-	"go.uber.org/zap"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -63,9 +64,9 @@ func init() {
 					Up:            RegisterQueueJob,
 				},
 			}),
-			service.WithMicro(func(m micro.Service) error {
-				ctx := m.Options().Context
-				conf := servicecontext.GetConfig(ctx)
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+
+				conf := config.Get("services", Name)
 				handler, err := NewHandler(ctx, conf)
 				if err != nil {
 					log.Logger(ctx).Error("Init handler", zap.Error(err))
@@ -73,16 +74,15 @@ func init() {
 				}
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
 
-				mailer.RegisterMailerServiceHandler(m.Options().Server, handler)
+				mailer.RegisterMailerServiceEnhancedServer(server, handler)
 
-				m.Init(
-					micro.BeforeStop(func() error {
-						if handler.queue != nil {
-							return handler.queue.Close()
-						}
-						return nil
-					}),
-				)
+				go func() {
+					<-c.Done()
+					if handler.queue != nil {
+						handler.queue.Close()
+					}
+				}()
+
 				return nil
 			}),
 		)
@@ -113,8 +113,8 @@ func RegisterQueueJob(ctx context.Context) error {
 			},
 		},
 	}
-	return service.Retry(ctx, func() error {
-		cliJob := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
+	return std.Retry(ctx, func() error {
+		cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 		return e
 	}, 5*time.Second, 20*time.Second)

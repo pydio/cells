@@ -20,7 +20,7 @@
 
 package models
 
-import "github.com/pydio/cells/common/proto/idm"
+import "github.com/pydio/cells/v4/common/proto/idm"
 
 type Role idm.Role
 

@@ -23,13 +23,14 @@ package sessions
 
 import (
 	"context"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/data/source/index"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/data/source/index"
 )
 
 type SessionBatcher interface {
-	Notify(topic string, msg interface{})
+	Notify(topic string, msg proto.Message)
 	Flush(ctx context.Context, dao index.DAO)
 }
 

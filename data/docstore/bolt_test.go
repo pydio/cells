@@ -22,23 +22,25 @@ package docstore
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/docstore"
 )
 
 func TestNewBoltStore(t *testing.T) {
 
 	Convey("Test NewBoltStore", t, func() {
 
-		p := newPath("bolt-test1.db")
+		p := filepath.Join(os.TempDir(), "docstore-test-bolt.db")
 		bs, e := NewBoltStore(p, true)
 		So(e, ShouldBeNil)
 		So(bs, ShouldNotBeNil)
 
-		bs.PutDocument("mystore", &docstore.Document{ID: "1", Data: "Data"})
+		er := bs.PutDocument("mystore", &docstore.Document{ID: "1", Data: "Data"})
+		So(er, ShouldBeNil)
 		stores, e := bs.ListStores()
 		So(e, ShouldBeNil)
 		So(stores, ShouldHaveLength, 1)

@@ -28,24 +28,26 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/emicklei/go-restful"
-	"github.com/micro/go-micro/client"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/meta"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type Handler struct {
-	router *views.Router
+	RuntimeCtx context.Context
+	router     nodes.Client
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
@@ -163,7 +165,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 	for _, folderNode := range folderNodes {
 		var childrenCount, total, childrenLoaded int32
-		if e := folderNode.GetMeta("ChildrenCount", &childrenCount); e == nil && childrenCount > 0 {
+		if e := folderNode.GetMeta(common.MetaFlagChildrenCount, &childrenCount); e == nil && childrenCount > 0 {
 			total = childrenCount
 		}
 		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{
@@ -179,7 +181,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		for {
 			r, er := streamer.Recv()
 			if er != nil {
-				streamer.Close()
+				streamer.CloseSend()
 				break
 			}
 			if r == nil {
@@ -203,21 +205,21 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		}
 		avg := time.Duration(float64(t.Nanoseconds()) / l)
 		log.Logger(ctx).Debug("EnrichMetaProvider", zap.Duration("Average time spent to load node additional metadata", avg))
-		streamer.Close()
+		streamer.CloseSend()
 
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
 
 			if resp, e := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
-				er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+				er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 					c, n, e := inputFilter(ctx, resp.Node, "in")
 					if e != nil {
 						return e
 					}
-					client.Publish(c, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
+					broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
 						Type:   tree.NodeChangeEvent_READ,
 						Target: n,
-					}))
+					})
 					return nil
 				})
 				if er != nil {
@@ -275,14 +277,14 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 		var mm map[string]interface{}
 		e := json.Unmarshal([]byte(m.JsonMeta), &mm)
 		if e == nil {
-			node.SetMeta(ns, mm)
+			node.MustSetMeta(ns, mm)
 		}
 	}
 	ctx := req.Request.Context()
-	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
+		cli := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			log.Logger(ctx).Error("Failed to change the meta data", zap.Error(er))
 			return er
@@ -313,14 +315,14 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 		return
 	}
 	for _, ns := range nsRequest.Namespace {
-		node.SetMeta(ns, "")
+		node.MustSetMeta(ns, "")
 	}
 
 	ctx := req.Request.Context()
-	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	er := h.GetRouter().WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
-		cli := tree.NewNodeReceiverClient(registry.GetClient(common.ServiceMeta))
+		cli := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
 			return er
 		}
@@ -334,9 +336,9 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 
 }
 
-func (h *Handler) GetRouter() *views.Router {
+func (h *Handler) GetRouter() nodes.Client {
 	if h.router == nil {
-		h.router = views.NewStandardRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
+		h.router = compose.NewClient(compose.PathComposer(nodes.WithContext(h.RuntimeCtx), nodes.WithAuditEventsLogging(), nodes.WithRegistryWatch(servicecontext.GetRegistry(h.RuntimeCtx)))...)
 	}
 	return h.router
 }

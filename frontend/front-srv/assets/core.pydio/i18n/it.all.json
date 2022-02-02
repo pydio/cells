@@ -2088,7 +2088,7 @@
     "other": "Strumenti per consentire all'applicazione di inviare email"
   },
   "plugtype.desc.search-engine": {
-    "other": "Opzioni del motore di ricerca"
+    "other": "Search Engine options"
   },
   "plugtype.desc.meta": {
     "other": "Caratteristiche addizionali che saranno aggiunte ai workspace"
@@ -2154,7 +2154,7 @@
     "other": "Mailer"
   },
   "plugtype.title.search-engine": {
-    "other": "Motore di ricerca"
+    "other": "Search Engine"
   },
   "plugtype.title.meta": {
     "other": "Meta Aspetti del Workspace"
@@ -2349,25 +2349,25 @@
     "other": "Per favore usa immagini più piccole di 5MB"
   },
   "searchengine.searching": {
-    "other": "Ricerca in corso..."
+    "other": "Searching..."
   },
   "searchengine.main.placeholder": {
-    "other": "Ricerca..."
+    "other": "Search..."
   },
   "searchengine.topbar.title": {
-    "other": "Ricerca: "
+    "other": "Search: "
   },
   "searchengine.scope.title": {
-    "other": "Cerca in..."
+    "other": "Search In..."
   },
   "searchengine.advanced-filter.tooltip": {
-    "other": "Filtri Avanzati"
+    "other": "Advanced Filters"
   },
   "searchengine.results.foundN": {
-    "other": "%1 risultati trovati"
+    "other": "%1 results found"
   },
   "searchengine.results.withMore": {
-    "other": "Mostro %1, carica altri..."
+    "other": "Showing %1, load more..."
   },
   "searchengine.query.action.save": {
     "other": "Salva"
@@ -2379,24 +2379,24 @@
     "other": "Elimina"
   },
   "searchengine.query.save-label": {
-    "other": "Inserisci un'etichetta"
+    "other": "Enter a label"
   },
   "searchengine.field.basenameOrContent": {
-    "other": "Nome/Contenuto"
+    "other": "Name/Content"
   },
   "chat.load-older": {
-    "other": "Voci più vecchie"
+    "other": "Older entries"
   },
   "workspace.quota-usage": {
-    "other": "Utilizzo della Quota"
+    "other": "Quota Usage"
   },
   "action.delete.permanently": {
-    "other": "Elimina definitivamente"
+    "other": "Delete permanently"
   },
   "action.delete.permanently.warning": {
-    "other": "attenzione, non puoi annullare questa operazione!"
+    "other": "warning, you cannot undo this operation!"
   },
   "action.goto.label": {
-    "other": "Vai alla Cartella"
+    "other": "Go To Folder"
   }
 }

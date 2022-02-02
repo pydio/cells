@@ -25,13 +25,13 @@ import (
 	"io"
 	"strings"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/sync/merger"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 // cancellableReaderWithProgress wraps calls to io.Reader sending a progress of total bytes read

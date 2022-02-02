@@ -3,7 +3,7 @@
     "other": "每页显示"
   },
   "16X16 Icon for representing the template": {
-    "other": "代表模板的 16X16 图标"
+    "other": "16X16 Icon for representing the template"
   },
   "A user-defined description of the content of this workspace": {
     "other": "A user-defined description of the content of this workspace"
@@ -39,22 +39,22 @@
     "other": "允许组管理员从此模板创建存储库。"
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "允许非管理员用户从此模板创建一个工作区。"
+    "other": "Allow non-admin users to create a workspace from this template."
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "允许用户在共享文件夹时选择已有用户"
+    "other": "Allow the users to pick an existing user when sharing a folder"
   },
   "Allow to group admins": {
-    "other": "允许管理员群组"
+    "other": "Allow to group admins"
   },
   "Allow to user": {
-    "other": "允许用户"
+    "other": "Allow to user"
   },
   "App Title": {
     "other": "应用程序标题"
   },
   "Ascending": {
-    "other": "升序"
+    "other": "Ascending"
   },
   "Auth Driver Commons": {
     "other": "Auth Driver Commons"
@@ -66,13 +66,13 @@
     "other": "自动创建用户"
   },
   "Auto apply role": {
-    "other": "自动应用角色"
+    "other": "Auto apply role"
   },
   "Big Icon": {
     "other": "大图标"
   },
   "Big Icon for representing the template": {
-    "other": "代表模板的大图标"
+    "other": "Big Icon for representing the template"
   },
   "Browser Access": {
     "other": "浏览器访问"
@@ -99,10 +99,10 @@
     "other": "以逗号分隔的要隐藏的特定文件夹列表"
   },
   "Command Line": {
-    "other": "命令行"
+    "other": "Command Line"
   },
   "Command-line Active": {
-    "other": "命令行激活"
+    "other": "Command-line Active"
   },
   "Command-line PHP": {
     "other": "命令行PHP"
@@ -111,7 +111,7 @@
     "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
   },
   "Compression Features": {
-    "other": "压缩功能"
+    "other": "Compression Features"
   },
   "Core Connexion": {
     "other": "Core Connexion"
@@ -147,7 +147,7 @@
     "other": "默认权限"
   },
   "Default field to sort on": {
-    "other": "开启默认字段排序"
+    "other": "Default field to sort on"
   },
   "Default language when a user does not have set his/her own.": {
     "other": "用户没有设置自己的语言时的默认语言。"
@@ -156,13 +156,13 @@
     "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
   },
   "Default sorting direction": {
-    "other": "默认排序方向"
+    "other": "Default sorting direction"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
     "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
   },
   "Descending": {
-    "other": "降序"
+    "other": "Descending"
   },
   "Description": {
     "other": "说明"
@@ -204,13 +204,13 @@
     "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
   },
   "Enable for all users": {
-    "other": "启用所有用户"
+    "other": "Enable for all users"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "启用webDAV支持。请阅读文档以安全使用此功能。"
+    "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
   },
   "Existing users": {
-    "other": "现有用户"
+    "other": "Existing users"
   },
   "Explicitly disable WebDAV access for this repository.": {
     "other": "Explicitly disable WebDAV access for this repository."
@@ -219,16 +219,16 @@
     "other": "文件"
   },
   "File Type": {
-    "other": "文件类型"
+    "other": "File Type"
   },
   "File size": {
     "other": "文件大小"
   },
   "Filename length": {
-    "other": "文件名长度"
+    "other": "Filename length"
   },
   "Filesystem Commons": {
-    "other": "文件系统共享"
+    "other": "Filesystem Commons"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
     "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
@@ -237,37 +237,37 @@
     "other": "For multiple authentication, apply this role to users authenticated via this driver"
   },
   "Force Basic Auth": {
-    "other": "强制基本认证"
+    "other": "Force Basic Auth"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
     "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
   },
   "Group Path": {
-    "other": "组路径"
+    "other": "Group Path"
   },
   "Gzip Download": {
-    "other": "Gzip 下载"
+    "other": "Gzip Download"
   },
   "Gzip Limit": {
-    "other": "Gzip 限制"
+    "other": "Gzip Limit"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
     "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
   },
   "Hide extensions": {
-    "other": "隐藏扩展名"
+    "other": "Hide extensions"
   },
   "Hide files": {
-    "other": "隐藏文件"
+    "other": "Hide files"
   },
   "Hide folders": {
-    "other": "隐藏文件夹"
+    "other": "Hide folders"
   },
   "Hide recycle bin": {
     "other": "Hide recycle bin"
   },
   "Host": {
-    "other": "主机"
+    "other": "Host"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
     "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
@@ -312,7 +312,7 @@
     "other": "其他"
   },
   "Modification date": {
-    "other": "修改日期"
+    "other": "Modification date"
   },
   "Name": {
     "other": "组名"
@@ -345,43 +345,43 @@
     "other": "Pydio 主选项"
   },
   "Read Only": {
-    "other": "只读"
+    "other": "Read Only"
   },
   "Read and Write": {
-    "other": "读写"
+    "other": "Read and Write"
   },
   "Recycle Bin Folder": {
-    "other": "回收站文件夹"
+    "other": "Recycle Bin Folder"
   },
   "Redirect URL": {
-    "other": "重定向网址"
+    "other": "Redirect URL"
   },
   "Remote Sorting": {
-    "other": "远程排序"
+    "other": "Remote Sorting"
   },
   "Remote Sorting Default Direction": {
-    "other": "远程排序默认方向"
+    "other": "Remote Sorting Default Direction"
   },
   "Remote Sorting Default Field": {
-    "other": "远程排序默认字段"
+    "other": "Remote Sorting Default Field"
   },
   "Repository Commons": {
-    "other": "仓库共享"
+    "other": "Repository Commons"
   },
   "Repository Slug": {
     "other": "Repository Slug"
   },
   "Scope": {
-    "other": "范围"
+    "other": "Scope"
   },
   "Server URL": {
-    "other": "服务器 URL"
+    "other": "Server URL"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
     "other": "Server URL used to build share links and notifications. It will be detected if empty."
   },
   "Session credentials": {
-    "other": "会话凭据"
+    "other": "Session credentials"
   },
   "Set this repository group owner : only users of this group will see it": {
     "other": "Set this repository group owner : only users of this group will see it"
@@ -390,31 +390,31 @@
     "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
   },
   "Shares Host": {
-    "other": "共享主机"
+    "other": "Shares Host"
   },
   "Shares URI": {
-    "other": "共享 URI"
+    "other": "Shares URI"
   },
   "Sharing": {
-    "other": "分享中"
+    "other": "Sharing"
   },
   "Show files beginning with a .": {
-    "other": "显示以 . 开头的文件。"
+    "other": "Show files beginning with a ."
   },
   "Show hidden files": {
-    "other": "显示隐藏文件"
+    "other": "Show hidden files"
   },
   "Skip auto-update admin rights": {
-    "other": "跳过自动更新管理员权限"
+    "other": "Skip auto-update admin rights"
   },
   "Small Icon": {
-    "other": "小图标"
+    "other": "Small Icon"
   },
   "Template Options": {
-    "other": "模板选项"
+    "other": "Template Options"
   },
   "Temporary Folder": {
-    "other": "临时文件夹"
+    "other": "Temporary Folder"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
     "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
@@ -423,10 +423,10 @@
     "other": "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "此权限模式(空、读或读写) 将应用于此工作区的用户创建。"
+    "other": "This right pattern (empty, r, or rw) will be applied at user creation for this workspace."
   },
   "Token URL": {
-    "other": "令牌网址"
+    "other": "Token URL"
   },
   "Transmit Clear Pass": {
     "other": "Transmit Clear Pass"
@@ -438,66 +438,66 @@
     "other": "URI where to serve the public links"
   },
   "Use COM class": {
-    "other": "使用 COM 类"
+    "other": "Use COM class"
   },
   "Use MySQLi": {
-    "other": "使用 MySQLi"
+    "other": "Use MySQLi"
   },
   "Use PHP MySQLi extension": {
-    "other": "使用 PHP MySQLi 扩展"
+    "other": "Use PHP MySQLi extension"
   },
   "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions.": {
-    "other": "通过命令行使用 Pydio 框架，允许 CRONTAB 作业或背景动作。"
+    "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
   },
   "User": {
     "other": "用户"
   },
   "User Credentials": {
-    "other": "用户证书"
+    "other": "User Credentials"
   },
   "User name": {
-    "other": "用户名"
+    "other": "User name"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "用户名 - 每个用户可自行修改(见用户“个人数据”选项卡)"
+    "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
   },
   "User password": {
-    "other": "用户密码"
+    "other": "User password"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "用户密码 - 每个用户可自行修改。"
+    "other": "User password - Can be overriden on a per-user basis."
   },
   "WebDAV Server": {
-    "other": "WebDAV 服务器"
+    "other": "WebDAV Server"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
-    "other": "当文件夹包含多于此数量的项目时，将切换到分页模式显示，以提高性能。"
+    "other": "When a folder will contain more items than this number, display will switch to pagination mode, for better performances."
   },
   "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems.": {
-    "other": "如果设置为 true，用户对象将会在验证成功时自动创建。用于远程身份验证系统。"
+    "other": "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems."
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
-    "other": "密码是否会在客户端和服务器之间传输或编码"
+    "other": "Whether the password will be transmitted clear or encoded between the client and the server"
   },
   "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.": {
-    "other": "是否显示回收站文件夹。与以下选项不同，文件夹将被隐藏但仍可写。"
+    "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
   },
   "Write Only (upload)": {
-    "other": "只写(上传)"
+    "other": "Write Only (upload)"
   },
   "Your application title": {
     "other": "此标题将作为窗口标题出现在初始化界面中。"
   },
   "Zip Creation": {
-    "other": "Zip 创建"
+    "other": "Zip Creation"
   },
   "Zip Encoding": {
-    "other": "Zip 编码"
+    "other": "Zip Encoding"
   },
   "Merge Workspaces and Cells": {
-    "other": "合并工作区和资料库"
+    "other": "Merge Workspaces and Cells"
   },
   "Do not display workspaces and cells separately": {
-    "other": "不单独显示工作区和资料库"
+    "other": "Do not display workspaces and cells separately"
   }
 }

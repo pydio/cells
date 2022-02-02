@@ -27,15 +27,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/utils/net"
-
-	"github.com/dchest/uniuri"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/net"
+	standard "github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -253,8 +250,8 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 
 		} else {
 			if newSource.ApiKey == "" {
-				newSource.ApiKey = uniuri.New()
-				newSource.ApiSecret = uniuri.NewLen(24)
+				newSource.ApiKey = standard.Randkey(16)
+				newSource.ApiSecret = standard.Randkey(24)
 			}
 			// Replace credentials by a secret Key
 			secretId := NewKeyForSecret()
@@ -285,8 +282,8 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			config.PeerAddress = peerAddress
 		} else {
 			if newSource.ApiKey == "" {
-				newSource.ApiKey = uniuri.New()
-				newSource.ApiSecret = uniuri.NewLen(24)
+				newSource.ApiKey = standard.Randkey(16)
+				newSource.ApiSecret = standard.Randkey(24)
 			}
 			config = &object.MinioConfig{
 				Name:        createConfigName(existingConfigs, object.StorageType_LOCAL),

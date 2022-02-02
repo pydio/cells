@@ -28,20 +28,17 @@ import (
 	"net/http"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/dchest/uniuri"
-	"github.com/gosimple/slug"
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/service"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/slug"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -49,6 +46,7 @@ var (
 )
 
 type FakeUsersAction struct {
+	common.RuntimeHolder
 	prefix string
 	number string
 }
@@ -116,7 +114,7 @@ func (f *FakeUsersAction) ProvidesProgress() bool {
 }
 
 // Init passes parameters to the action
-func (f *FakeUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (f *FakeUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 	f.prefix = "user-"
 	if prefix, ok := action.Parameters["prefix"]; ok {
 		f.prefix = prefix
@@ -147,8 +145,8 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	outputMessage := input
 	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
 
-	userServiceClient := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
-	rolesServiceClient := idm.NewRoleServiceClient(registry.GetClient(common.ServiceRole))
+	userServiceClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(f.GetRuntimeContext(), common.ServiceUser))
+	rolesServiceClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(f.GetRuntimeContext(), common.ServiceRole))
 	builder := service.NewResourcePoliciesBuilder()
 
 	groupPaths := []string{"/"}
@@ -210,7 +208,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	}
 	if len(values) == 0 {
 		for i := int64(0); i < number; i++ {
-			s := uniuri.NewLen(4)
+			s := std.Randkey(4)
 			login := fmt.Sprintf("%s-%s-%d", prefix, s, i+1)
 			values = append(values, Value{
 				Login:  login,

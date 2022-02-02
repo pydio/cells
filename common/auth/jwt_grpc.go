@@ -22,20 +22,23 @@ package auth
 
 import (
 	"context"
+	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/ory/fosite/token/jwt"
 	"golang.org/x/oauth2"
 
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/auth/hydra"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/auth"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/auth/hydra"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/auth"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type grpcVerifier struct {
-	service string
+	RuntimeCtx context.Context
+	service    string
 }
 
 func (p *grpcVerifier) GetType() ProviderType {
@@ -44,7 +47,7 @@ func (p *grpcVerifier) GetType() ProviderType {
 
 func (p *grpcVerifier) Verify(ctx context.Context, rawIDToken string) (IDToken, error) {
 
-	cli := auth.NewAuthTokenVerifierClient(p.service, defaults.NewClient())
+	cli := auth.NewAuthTokenVerifierClient(grpc.GetClientConnFromCtx(ctx, strings.TrimPrefix(p.service, common.ServiceGrpcNamespace_)))
 
 	resp, err := cli.Verify(ctx, &auth.VerifyTokenRequest{
 		Token: rawIDToken,
@@ -74,8 +77,8 @@ func (p *grpcProvider) PasswordCredentialsToken(ctx context.Context, userName st
 	return hydra.PasswordCredentialsToken(ctx, userName, password)
 }
 
-func (p *grpcProvider) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
-	return hydra.Exchange(ctx, code)
+func (p *grpcProvider) Exchange(ctx context.Context, code, codeVerifier string) (*oauth2.Token, error) {
+	return hydra.Exchange(ctx, code, codeVerifier)
 }
 
 type grpcToken struct {

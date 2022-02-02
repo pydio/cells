@@ -1,6 +1,0 @@
-{
-    "ProxyConfig": {
-        "Binds": ["localhost:8080"],
-        "ReverseProxyURL": "http://localhost:8080"
-    }
-}

@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // AdminCmd groups the data manipulation commands
@@ -42,18 +41,6 @@ DESCRIPTION
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
-		viper.SetDefault("registry", "grpc://:8000")
-		viper.SetDefault("broker", "grpc://:8003")
-
-		// Initialise the default registry
-		handleRegistry()
-
-		// Initialise the default broker
-		handleBroker()
-
-		// Initialise the default transport
-		handleTransport()
-
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -63,8 +50,6 @@ DESCRIPTION
 
 func init() {
 	// Registry / Broker Flags
-	addNatsFlags(AdminCmd.PersistentFlags())
-	addNatsStreamingFlags(AdminCmd.PersistentFlags())
-	addRegistryFlags(AdminCmd.PersistentFlags())
+	addExternalCmdRegistryFlags(AdminCmd.PersistentFlags())
 	RootCmd.AddCommand(AdminCmd)
 }

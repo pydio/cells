@@ -27,21 +27,19 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pydio/cells/scheduler/actions/tools"
-
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
-	"github.com/pydio/cells/scheduler/lang"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v4/scheduler/actions/tools"
+	"github.com/pydio/cells/v4/scheduler/lang"
 )
 
 var (
@@ -100,7 +98,7 @@ func (c *DeleteAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *DeleteAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
+func (c *DeleteAction) Init(job *jobs.Job, action *jobs.Action) error {
 
 	if co, ok := action.Parameters["childrenOnly"]; ok {
 		c.childrenOnlyParam = co
@@ -149,7 +147,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 
 	var isFlat bool
 	var firstLevelFolders []*tree.Node
-	if router, ok := cli.(*views.Router); ok {
+	if router, ok := cli.(nodes.Client); ok {
 		if b, err := router.BranchInfoForNode(ctx, sourceNode); err == nil {
 			isFlat = b.FlatStorage
 		} else {
@@ -171,7 +169,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		if e != nil {
 			return input.WithError(e), e
 		}
-		defer list.Close()
+		defer list.CloseSend()
 		for {
 			resp, e := list.Recv()
 			if e != nil {

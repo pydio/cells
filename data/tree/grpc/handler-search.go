@@ -25,16 +25,34 @@ import (
 	"fmt"
 	"strings"
 
+	"google.golang.org/grpc/metadata"
+
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 // StreamConverter wraps a Searcher_SearchStream into a NodesProvider_ListNodesStream
 type StreamConverter struct {
 	ctx     context.Context
-	wrapped tree.Searcher_SearchStream
+	wrapped tree.Searcher_SearchServer
+}
+
+func (sc *StreamConverter) SetHeader(md metadata.MD) error {
+	return sc.wrapped.SetHeader(md)
+}
+
+func (sc *StreamConverter) SendHeader(md metadata.MD) error {
+	return sc.wrapped.SendHeader(md)
+}
+
+func (sc *StreamConverter) SetTrailer(md metadata.MD) {
+	sc.wrapped.SetTrailer(md)
+}
+
+func (sc *StreamConverter) Context() context.Context {
+	return sc.wrapped.Context()
 }
 
 func (sc *StreamConverter) SendMsg(i interface{}) error {
@@ -43,15 +61,14 @@ func (sc *StreamConverter) SendMsg(i interface{}) error {
 func (sc *StreamConverter) RecvMsg(i interface{}) error {
 	return sc.wrapped.RecvMsg(i)
 }
-func (sc *StreamConverter) Close() error {
-	return sc.wrapped.Close()
-}
+
 func (sc *StreamConverter) Send(response *tree.ListNodesResponse) error {
 	return sc.wrapped.Send(&tree.SearchResponse{Node: response.GetNode()})
 }
 
 // Search implements the SearchServer handler method. It will transform a tree.SearchRequest into an underlying ListNode query
-func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, stream tree.Searcher_SearchStream) error {
+func (s *TreeServer) Search(request *tree.SearchRequest, stream tree.Searcher_SearchServer) error {
+	ctx := stream.Context()
 	q := request.GetQuery()
 	if q == nil {
 		return fmt.Errorf("request.Query should not be nil")
@@ -85,7 +102,7 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		if q.MaxDate > 0 {
 			dateParts = append(dateParts, fmt.Sprintf("<=%d", q.MaxDate))
 		}
-		listReq.Node.SetMeta(tree.MetaFilterTime, dateParts)
+		listReq.Node.MustSetMeta(tree.MetaFilterTime, dateParts)
 	}
 	// Filter Size
 	if q.MaxSize > 0 || q.MinSize > 0 {
@@ -96,7 +113,7 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 		if q.MaxSize > 0 {
 			sizeParts = append(sizeParts, fmt.Sprintf("<=%d", q.MaxSize))
 		}
-		listReq.Node.SetMeta(tree.MetaFilterTime, sizeParts)
+		listReq.Node.MustSetMeta(tree.MetaFilterTime, sizeParts)
 	}
 	// Grep Filename
 	if q.FileName != "" {
@@ -118,9 +135,9 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 			g = "(?i)" + g // Make case insensitive
 		}
 		if q.Not {
-			listReq.Node.SetMeta(tree.MetaFilterNoGrep, g)
+			listReq.Node.MustSetMeta(tree.MetaFilterNoGrep, g)
 		} else {
-			listReq.Node.SetMeta(tree.MetaFilterGrep, g)
+			listReq.Node.MustSetMeta(tree.MetaFilterGrep, g)
 		}
 	} else if q.Extension != "" {
 		ext := strings.Split(q.Extension, "|")
@@ -129,13 +146,13 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 			greps = append(greps, "(?i)"+x+"$")
 		}
 		if q.Not {
-			listReq.Node.SetMeta(tree.MetaFilterNoGrep, strings.Join(greps, "|"))
+			listReq.Node.MustSetMeta(tree.MetaFilterNoGrep, strings.Join(greps, "|"))
 		} else {
-			listReq.Node.SetMeta(tree.MetaFilterGrep, strings.Join(greps, "|"))
+			listReq.Node.MustSetMeta(tree.MetaFilterGrep, strings.Join(greps, "|"))
 		}
 	}
 	if q.PathDepth > 0 {
-		listReq.Node.SetMeta(tree.MetaFilterDepth, q.PathDepth)
+		listReq.Node.MustSetMeta(tree.MetaFilterDepth, q.PathDepth)
 	}
 
 	for _, p := range q.PathPrefix {
@@ -145,7 +162,7 @@ func (s *TreeServer) Search(ctx context.Context, request *tree.SearchRequest, st
 			wrapped: stream,
 		}
 		log.Logger(ctx).Debug("Tree.Search - sending ListNodeRequest", zap.Any("req", listReq))
-		e := s.ListNodes(ctx, listReq, streamer)
+		e := s.ListNodes(listReq, streamer)
 		if e != nil {
 			return e
 		}

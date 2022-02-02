@@ -21,30 +21,30 @@
 package auth
 
 import (
+	"bufio"
 	"context"
+	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/client"
-	"github.com/ory/hydra/consent"
 	"github.com/ory/hydra/driver"
-	"github.com/ory/hydra/jwk"
-	"github.com/ory/hydra/oauth2"
-	"github.com/ory/hydra/x"
+	"github.com/ory/x/logrusx"
 	"github.com/ory/x/sqlcon"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/install"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 var (
@@ -53,82 +53,141 @@ var (
 
 	syncLock = &sync.Mutex{}
 
+	logrusLogger *logrus.Logger
+	logrusOnce   = &sync.Once{}
+
 	onRegistryInits []func()
 )
 
-func InitRegistry(dao sql.DAO) {
+func InitRegistry(dbServiceName string) (e error) {
+
+	logCtx := servicecontext.WithServiceName(context.Background(), dbServiceName)
+	logger := log.Logger(logCtx)
+
 	once.Do(func() {
-
-		db := sqlx.NewDb(dao.DB(), dao.Driver())
-		l := logrus.New()
-		l.SetLevel(logrus.PanicLevel)
-
-		reg = driver.NewRegistrySQL().WithConfig(defaultConf).WithLogger(l)
-		r := reg.(*driver.RegistrySQL).WithDB(db)
-		if err := r.Init(); err != nil {
-			log.Error("Error registering oauth registry", zap.Error(err))
+		reg, e = createSqlRegistryForConf(dbServiceName, defaultConf)
+		if e != nil {
+			logger.Error("Cannot init registryFromDSN", zap.Error(e))
 		}
+		p := reg.Persister()
+		conn := p.Connection(context.Background())
 
-		sql.LockMigratePackage()
-		defer func() {
-			sql.UnlockMigratePackage()
-		}()
-		if _, err := r.ClientManager().(*client.SQLManager).CreateSchemas(dao.Driver()); err != nil {
-			log.Warn("Failed to create client schemas", zap.Error(err))
+		if e = conn.Open(); e != nil {
+			logger.Error("Could not open the database connection", zap.Error(e))
 			return
 		}
 
-		km := r.KeyManager().(*jwk.SQLManager)
-		if _, err := km.CreateSchemas(dao.Driver()); err != nil {
-			log.Warn("Failed to create key schemas", zap.Error(err))
+		// convert migration tables
+		if e = p.PrepareMigration(context.Background()); e != nil {
+			logger.Error("Could not convert the migration table", zap.Error(e))
 			return
-		} else {
-			if err := jwk.EnsureAsymmetricKeypairExists(context.Background(), r, new(jwk.RS256Generator), x.OpenIDConnectKeyName); err != nil {
-				log.Info("Could not ensure key exists, deleting...", zap.String("key", x.OpenIDConnectKeyName))
-				km.DeleteKeySet(context.Background(), x.OpenIDConnectKeyName)
+		}
+
+		status, err := p.MigrationStatus(context.Background())
+		if err != nil {
+			e = err
+			logger.Error("Could not get the migration status", zap.Error(err))
+			return
+		}
+		if status.HasPending() {
+			// apply migrations
+			logger.Info("Applying migrations for oauth if required")
+			if err := p.MigrateUp(context.Background()); err != nil {
+				e = err
+				logger.Error("Could not apply migrations", zap.Error(err))
+				return
 			}
-
-			if err := jwk.EnsureAsymmetricKeypairExists(context.Background(), r, new(jwk.RS256Generator), x.OAuth2JWTKeyName); err != nil {
-				log.Info("Could not ensure key exists, deleting...", zap.String("key", x.OAuth2JWTKeyName))
-				km.DeleteKeySet(context.Background(), x.OAuth2JWTKeyName)
-			}
+			logger.Info("Finished")
 		}
-
-		if _, err := r.ConsentManager().(*consent.SQLManager).CreateSchemas(dao.Driver()); err != nil {
-			log.Warn("Failed to create consent schemas", zap.Error(err))
-			return
-		}
-
-		store := oauth2.NewFositeSQLStore(db, r, defaultConf)
-		if _, err := store.CreateSchemas(dao.Driver()); err != nil {
-			log.Warn("Failed to create fosite sql store schemas", zap.Error(err))
-		}
-
-		RegisterOryProvider(r.OAuth2Provider())
+		RegisterOryProvider(reg.WithConfig(defaultConf.GetProvider()).OAuth2Provider())
 	})
 
-	if err := syncClients(context.Background(), reg.ClientManager(), defaultConf.Clients()); err != nil {
-		log.Warn("Failed to sync clients", zap.Error(err))
+	if e != nil {
+		return
+	}
+
+	if e = syncClients(context.Background(), reg.ClientManager(), defaultConf.Clients()); e != nil {
+		logger.Warn("Failed to sync clients", zap.Error(e))
 		return
 	}
 
 	for _, onRegistryInit := range onRegistryInits {
 		onRegistryInit()
 	}
+
+	return nil
 }
 
 func OnRegistryInit(f func()) {
 	onRegistryInits = append(onRegistryInits, f)
 }
 
+func getLogrusLogger(serviceName string) *logrus.Logger {
+	logrusOnce.Do(func() {
+		logCtx := servicecontext.WithServiceName(context.Background(), serviceName)
+		r, w, _ := os.Pipe()
+		go func() {
+			scanner := bufio.NewScanner(r)
+			for scanner.Scan() {
+				line := scanner.Text()
+				var logged map[string]interface{}
+				level := "info"
+				message := line
+				if e := json.Unmarshal([]byte(line), &logged); e == nil {
+					if l, o := logged["level"]; o {
+						level = l.(string)
+					}
+					if m, o := logged["msg"]; o {
+						message = m.(string)
+					}
+				}
+				// Special case
+				if strings.Contains(message, "No tracer configured") {
+					level = "debug"
+				}
+				switch level {
+				case "debug":
+					log.Logger(logCtx).Debug(message)
+				case "warn":
+					log.Logger(logCtx).Warn(message)
+				case "info":
+					log.Logger(logCtx).Info(message)
+				default:
+					log.Logger(logCtx).Info(message)
+				}
+			}
+		}()
+		logrusLogger = logrus.New()
+		logrusLogger.SetOutput(w)
+	})
+	return logrusLogger
+}
+
+func createSqlRegistryForConf(serviceName string, conf ConfigurationProvider) (driver.Registry, error) {
+
+	lx := logrusx.New(
+		serviceName,
+		"1",
+		logrusx.UseLogger(getLogrusLogger(serviceName)),
+		logrusx.ForceLevel(logrus.DebugLevel),
+		logrusx.ForceFormat("json"),
+	)
+	cfg := conf.GetProvider()
+	dbDriver, dbDSN := config.GetDatabase(serviceName)
+	_ = cfg.Set("dsn", fmt.Sprintf("%s://%s", dbDriver, dbDSN))
+	reg, e := driver.NewRegistryFromDSN(context.Background(), cfg, lx)
+	if e != nil {
+		return nil, e
+	}
+	return reg.WithConfig(conf.GetProvider()), nil
+}
+
 func GetRegistry() driver.Registry {
 	return reg
 }
 
-func DuplicateRegistryForConf(c ConfigurationProvider) driver.Registry {
-	l := logrus.New()
-	l.SetLevel(logrus.PanicLevel)
-	return driver.NewRegistrySQL().WithConfig(c).WithLogger(l)
+func DuplicateRegistryForConf(refService string, c ConfigurationProvider) (driver.Registry, error) {
+	return createSqlRegistryForConf(refService, c)
 }
 
 func GetRegistrySQL() *driver.RegistrySQL {
@@ -154,9 +213,13 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 		return err
 	}
 
-	old, err := s.GetClients(ctx, n, 0)
-	if err != nil {
-		return err
+	var old []client.Client
+	if n > 0 {
+		if o, err := s.GetClients(ctx, client.Filter{Offset: 0, Limit: n}); err != nil {
+			return err
+		} else {
+			old = o
+		}
 	}
 	sites, _ := config.LoadSites()
 
@@ -173,6 +236,9 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 		}
 
 		cli.RedirectURIs = redirectURIs
+		if cli.Secret == "" {
+			cli.TokenEndpointAuthMethod = "none"
+		}
 
 		if errors.Cause(err) == sqlcon.ErrNoRows {
 			// Let's create it
@@ -185,7 +251,14 @@ func syncClients(ctx context.Context, s client.Storage, c common.Scanner) error 
 			}
 		}
 
-		delete(old, cli.GetID())
+		var cleanOld []client.Client
+		for _, o := range old {
+			if o.GetID() == cli.GetID() {
+				continue
+			}
+			cleanOld = append(cleanOld, o)
+		}
+		old = cleanOld
 	}
 
 	for _, cli := range old {

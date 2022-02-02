@@ -25,15 +25,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/protobuf/ptypes"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 type AclBatcher struct {
@@ -71,14 +71,14 @@ func (a *AclBatcher) Start() {
 // WsCleaner subscribe to ACL:Delete events to clean workspaces
 // that do not have any ACLs anymore
 type WsCleaner struct {
-	Handler  *Handler
+	Handler  idm.WorkspaceServiceServer
 	batches  map[string]*AclBatcher
 	listener chan string
 	lock     *sync.Mutex
 	ctx      context.Context
 }
 
-func NewWsCleaner(h *Handler, ctx context.Context) *WsCleaner {
+func NewWsCleaner(ctx context.Context, h idm.WorkspaceServiceServer) *WsCleaner {
 	listener := make(chan string, 1)
 	lock := &sync.Mutex{}
 	w := &WsCleaner{
@@ -92,25 +92,12 @@ func NewWsCleaner(h *Handler, ctx context.Context) *WsCleaner {
 	go func() {
 		for wsId := range listener {
 			if err := w.deleteEmptyWs(wsId); err != nil {
-				log.Logger(context.Background()).Info("Error while trying to delete workspace without ACLs (" + wsId + ")")
+				log.Logger(w.ctx).Info("Error while trying to delete workspace without ACLs (" + wsId + ")")
 			}
 			lock.Lock()
 			delete(w.batches, wsId)
 			lock.Unlock()
 		}
-		/*
-			for {
-				select {
-				case wsId := <-listener:
-					if err := w.deleteEmptyWs(wsId); err != nil {
-						log.Logger(context.Background()).Info("Error while trying to delete workspace without ACLs (" + wsId + ")")
-					}
-					lock.Lock()
-					delete(w.batches, wsId)
-					lock.Unlock()
-				}
-			}
-		*/
 	}()
 	return w
 }
@@ -140,17 +127,17 @@ func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 	ctx := context.Background()
 
 	// Check if there are still some ACLs for this workspace
-	cl := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(c.ctx, common.ServiceAcl))
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{workspaceId},
 	})
 	streamer, e := cl.SearchACL(ctx, &idm.SearchACLRequest{
-		Query: &service.Query{SubQueries: []*any.Any{q}},
+		Query: &service.Query{SubQueries: []*anypb.Any{q}},
 	})
 	if e != nil {
 		return e
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	hasAcl := false
 	for {
 		resp, e := streamer.Recv()
@@ -163,12 +150,12 @@ func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 		}
 	}
 	if !hasAcl {
-		q2, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		q2, _ := anypb.New(&idm.WorkspaceSingleQuery{
 			Uuid: workspaceId,
 		})
-		e := c.Handler.DeleteWorkspace(c.ctx, &idm.DeleteWorkspaceRequest{
-			Query: &service.Query{SubQueries: []*any.Any{q2}},
-		}, &idm.DeleteWorkspaceResponse{})
+		_, e := c.Handler.DeleteWorkspace(c.ctx, &idm.DeleteWorkspaceRequest{
+			Query: &service.Query{SubQueries: []*anypb.Any{q2}},
+		})
 		if e == nil {
 			log.Logger(c.ctx).Info("Deleted workspace based on ACL Delete events", zap.String("wsId", workspaceId))
 		}

@@ -29,8 +29,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/mailer"
 )
 
 const (

@@ -24,32 +24,33 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	service2 "github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/service/resources"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/service"
+	service2 "github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 // WorkspaceHandler defines the specific handler struc for workspace management.
 type WorkspaceHandler struct {
+	runtimeCtx context.Context
 	resources.ResourceProviderHandler
 }
 
 // NewWorkspaceHandler simply creates and configures a handler.
-func NewWorkspaceHandler() *WorkspaceHandler {
+func NewWorkspaceHandler(ctx context.Context) *WorkspaceHandler {
 	h := new(WorkspaceHandler)
+	h.runtimeCtx = ctx
 	h.ServiceName = common.ServiceWorkspace
 	h.ResourceName = "workspace"
 	h.PoliciesLoader = h.loadPoliciesForResource
@@ -78,7 +79,7 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	}
 	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", inputWorkspace))
 
-	cli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 	update := false
 	if ws, _ := h.workspaceById(ctx, inputWorkspace.UUID, cli); ws != nil {
 		update = true
@@ -150,14 +151,14 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 	singleQ := &idm.WorkspaceSingleQuery{}
 	singleQ.Slug = slug
 
-	query, _ := ptypes.MarshalAny(singleQ)
-	serviceQuery := &service.Query{SubQueries: []*any.Any{query}}
+	query, _ := anypb.New(singleQ)
+	serviceQuery := &service.Query{SubQueries: []*anypb.Any{query}}
 
 	ctx := req.Request.Context()
-	cli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 
 	if stream, e := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: serviceQuery}); e == nil {
-		defer stream.Close()
+		defer stream.CloseSend()
 		for {
 			resp, err := stream.Recv()
 			if err != nil {
@@ -209,7 +210,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 	}
 
 	for _, q := range restRequest.Queries {
-		anyfied, _ := ptypes.MarshalAny(q)
+		anyfied, _ := anypb.New(q)
 		query.SubQueries = append(query.SubQueries, anyfied)
 	}
 
@@ -220,7 +221,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		return
 	}
 
-	cli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	cli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 
 	streamer, err := cli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
 		Query: query,
@@ -229,7 +230,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		service2.RestError500(req, rsp, err)
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	collection := &rest.WorkspaceCollection{}
 	var uuids []string
 	wss := make(map[string]*idm.Workspace)
@@ -274,12 +275,12 @@ func (h *WorkspaceHandler) workspaceById(ctx context.Context, wsId string, clien
 	if wsId == "" {
 		return nil, nil
 	}
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Uuid: wsId,
 	})
-	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); err == nil {
+	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); err == nil {
 
-		defer client.Close()
+		defer client.CloseSend()
 		for {
 			resp, e := client.Recv()
 			if e != nil {
@@ -316,12 +317,12 @@ func (h *WorkspaceHandler) deduplicateSlug(ctx context.Context, workspace *idm.W
 
 func (h *WorkspaceHandler) workspaceBySlug(ctx context.Context, slug string, client idm.WorkspaceServiceClient) (*idm.Workspace, error) {
 
-	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+	q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 		Slug: slug,
 	})
-	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); err == nil {
+	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}}); err == nil {
 
-		defer client.Close()
+		defer client.CloseSend()
 		for {
 			resp, e := client.Recv()
 			if e != nil {

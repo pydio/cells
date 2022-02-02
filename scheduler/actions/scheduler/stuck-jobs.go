@@ -24,14 +24,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -39,6 +38,7 @@ var (
 )
 
 type PruneJobsAction struct {
+	common.RuntimeHolder
 	maxTasksParam string
 }
 
@@ -81,7 +81,7 @@ func (c *PruneJobsAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *PruneJobsAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *PruneJobsAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if n, o := action.Parameters["number"]; o {
 		c.maxTasksParam = n
 	} else {
@@ -97,7 +97,7 @@ func (c *PruneJobsAction) Run(ctx context.Context, channels *actions.RunnableCha
 	if e != nil {
 		return input.WithError(e), e
 	}
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceJobs))
 	// Fix Stuck Tasks
 	resp, e := cli.DetectStuckTasks(ctx, &jobs.DetectStuckTasksRequest{
 		Since: 60 * 60 * 6,

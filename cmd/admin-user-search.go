@@ -24,15 +24,14 @@ import (
 	"context"
 	"os"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/olekukonko/tablewriter"
-	defaults "github.com/pydio/cells/common/micro"
-	service "github.com/pydio/cells/common/service/proto"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
 )
 
 var userSearchLogin string
@@ -56,13 +55,13 @@ EXAMPLES
 `,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 
 		if userSearchLogin == "*" {
 			userSearchLogin = ""
 		}
 
-		query, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+		query, _ := anypb.New(&idm.UserSingleQuery{
 			Login: userSearchLogin,
 		})
 
@@ -71,14 +70,12 @@ EXAMPLES
 
 		stream, err := client.SearchUser(context.Background(), &idm.SearchUserRequest{
 			Query: &service.Query{
-				SubQueries: []*any.Any{query},
+				SubQueries: []*anypb.Any{query},
 			},
 		})
 		if err != nil {
 			return err
 		}
-
-		defer stream.Close()
 
 		for {
 			response, err := stream.Recv()

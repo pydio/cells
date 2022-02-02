@@ -32,26 +32,40 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/tree"
 
-	"github.com/micro/go-micro/metadata"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/test"
-	"github.com/pydio/minio-go"
+	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/notification"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/nodes/objects/mc"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/test"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-type Handler struct{}
-type runImpl func(ctx context.Context, req *test.RunTestsRequest, conf *object.DataSource) (*test.TestResult, error)
+type Handler struct {
+	test.UnimplementedTesterServer
+}
+type runImpl func(ctx context.Context, oc nodes.StorageClient, req *test.RunTestsRequest, conf *object.DataSource) (*test.TestResult, error)
 
 func NewHandler() *Handler {
 	return &Handler{}
 }
 
+func (h *Handler) Name() string {
+	return name
+}
+
 // Run runs the defined tests
-func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest, resp *test.RunTestsResponse) error {
+func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest) (*test.RunTestsResponse, error) {
 
 	log.Logger(ctx).Info("-- Running Conformance Tests on " + name)
 
@@ -59,11 +73,23 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest, resp *test
 	var dsConf *object.DataSource
 	srvName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + "cellsdata"
 	if e := config.Get("services", srvName).Scan(&dsConf); e != nil {
-		return fmt.Errorf("cannot read config for " + srvName)
+		return nil, fmt.Errorf("cannot read config for " + srvName)
 	}
-	h.doRun(ctx, req, resp, dsConf, h.TestAuthorization)
-	h.doRun(ctx, req, resp, dsConf, h.TestEtags)
-	h.doRun(ctx, req, resp, dsConf, h.TestEvents)
+	dsConf.ApiKey = "mycustomapikey"
+	dsConf.ApiSecret = "mycustomapisecret"
+	dsConf.ObjectsHost = "127.0.0.1"
+	dsConf.ObjectsPort = 9000
+	oc, e := nodes.NewStorageClient(dsConf.ClientConfig())
+	if e != nil {
+		return nil, fmt.Errorf("cannot initialize client: %v", e)
+	}
+
+	resp := &test.RunTestsResponse{}
+	h.doRun(ctx, req, resp, oc, dsConf, h.TestEvents)
+	//h.doRun(ctx, req, resp, oc, dsConf, h.TestAuthorization)
+	//h.doRun(ctx, req, resp, oc, dsConf, h.TestEtags)
+
+	return resp, nil
 
 	// Try same tests on a gateway
 	var gatewayConf *object.DataSource
@@ -73,15 +99,15 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest, resp *test
 		res.Log("[SKIPPED] Cannot read config for " + gatewayName + " - Please create an S3 datasource named gateways3")
 		resp.Results = append(resp.Results, res)
 	} else {
-		h.doRun(ctx, req, resp, gatewayConf, h.TestEtags)
-		h.doRun(ctx, req, resp, gatewayConf, h.TestEvents)
+		h.doRun(ctx, req, resp, oc, gatewayConf, h.TestEtags)
+		h.doRun(ctx, req, resp, oc, gatewayConf, h.TestEvents)
 	}
 
-	return nil
+	return resp, nil
 }
 
-func (h *Handler) doRun(ctx context.Context, req *test.RunTestsRequest, resp *test.RunTestsResponse, conf *object.DataSource, method runImpl) {
-	r, e := method(ctx, req, conf)
+func (h *Handler) doRun(ctx context.Context, req *test.RunTestsRequest, resp *test.RunTestsResponse, oc nodes.StorageClient, conf *object.DataSource, method runImpl) {
+	r, e := method(ctx, oc, req, conf)
 	if e != nil {
 		r.Fail(e.Error())
 	}
@@ -89,30 +115,28 @@ func (h *Handler) doRun(ctx context.Context, req *test.RunTestsRequest, resp *te
 }
 
 // TestAuthorization checks that S3 server requires X-Pydio-User Header to be set
-func (h *Handler) TestAuthorization(ctx context.Context, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
+func (h *Handler) TestAuthorization(ctx context.Context, oc nodes.StorageClient, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
+
+	emptyContext := context.Background()
+	authCtx := context.WithValue(emptyContext, common.PydioContextUserKey, common.PydioSystemUsername)
+	authCtx = metadata.NewContext(authCtx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 
 	result := test.NewTestResult("Test Authorization Header is required")
-	// Hook to event listener
-	core, er := minio.NewCore(fmt.Sprintf("localhost:%d", dsConf.ObjectsPort), dsConf.ApiKey, dsConf.ApiSecret, false)
-	if er != nil {
-		return result, er
-	}
 	key := uuid.New() + ".txt"
 	content := uuid.New()
-	_, e := core.PutObject(dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), "", "", map[string]string{}, nil)
+	_, e := oc.PutObject(emptyContext, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), models.PutMeta{})
 	if e == nil {
-		core.RemoveObject(dsConf.ObjectsBucket, key)
-		return result, fmt.Errorf("PutObject should have returned a 401 Error without a X-Pydio-User Header")
+		_ = oc.RemoveObject(emptyContext, dsConf.ObjectsBucket, key)
+		result.Log("PutObject should have returned a 401 Error without a X-Pydio-User Header")
 	} else {
 		result.Log("PutObject without X-Pydio-User header returned error", e)
 	}
 
-	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
-	_, e = core.PutObjectWithContext(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
+	_, e = oc.PutObject(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), models.PutMeta{})
 	if e != nil {
 		return result, fmt.Errorf("PutObject error (with X-Pydio-User Header): " + e.Error())
 	}
-	e = core.RemoveObjectWithContext(authCtx, dsConf.ObjectsBucket, key)
+	e = oc.RemoveObject(authCtx, dsConf.ObjectsBucket, key)
 	if e != nil {
 		return result, fmt.Errorf("PutObject with X-Pydio-User header passed but RemoteObjectWithContext failed")
 	}
@@ -122,17 +146,12 @@ func (h *Handler) TestAuthorization(ctx context.Context, req *test.RunTestsReque
 }
 
 // TestEtags checks various cases regarding dynamic etag computing when it is empty
-func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
+func (h *Handler) TestEtags(ctx context.Context, oc nodes.StorageClient, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
 
 	result := test.NewTestResult("Dynamic Etag Computation")
 
 	// Load File Info going through Object Service
-	core, er := minio.NewCore(fmt.Sprintf("localhost:%d", dsConf.ObjectsPort), dsConf.ApiKey, dsConf.ApiSecret, false)
-	if er != nil {
-		return result, er
-	}
-	opts := minio.StatObjectOptions{}
-	opts.Set(common.PydioContextUserKey, common.PydioSystemUsername)
+	opts := map[string]string{common.PydioContextUserKey: common.PydioSystemUsername}
 	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
 
 	var localFolder string
@@ -153,7 +172,7 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 			result.Log("Created random data directly on local FS in " + filePath)
 		}
 
-		info, e := core.StatObject(dsConf.ObjectsBucket, fileBaseName, opts)
+		info, e := oc.StatObject(authCtx, dsConf.ObjectsBucket, fileBaseName, opts)
 		if e != nil {
 			return result, e
 		}
@@ -167,37 +186,37 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 			if out == info.ETag {
 				result.Log("Etag is correct!")
 			} else {
-				result.Fail("No Etag was computed but value is not the one expected", info)
+				result.Fail("Etag was computed but value is not the one expected", info)
 			}
 		}
 	}
 
 	// Try multipart upload should have correct value as well
 	uploadFile := uuid.New() + ".txt"
-	contentPart1 := randString(5 * 1024 * 1024)
-	contentPart2 := randString(5 * 1024 * 1024)
-	uId, e := core.NewMultipartUploadWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, minio.PutObjectOptions{})
-	var parts []minio.CompletePart
-	if p1, e := core.PutObjectPartWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 1, strings.NewReader(contentPart1), int64(len(contentPart1)), "", "", nil); e == nil {
-		parts = append(parts, minio.CompletePart{PartNumber: 1, ETag: p1.ETag})
+	contentPart1 := std.Randkey(5 * 1024 * 1024)
+	contentPart2 := std.Randkey(5 * 1024 * 1024)
+	uId, e := oc.NewMultipartUpload(authCtx, dsConf.ObjectsBucket, uploadFile, models.PutMeta{})
+	var parts []models.MultipartObjectPart
+	if p1, e := oc.PutObjectPart(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 1, strings.NewReader(contentPart1), int64(len(contentPart1)), "", ""); e == nil {
+		parts = append(parts, models.MultipartObjectPart{PartNumber: 1, ETag: p1.ETag})
 	} else {
 		return result, e
 	}
-	if p2, e := core.PutObjectPartWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 2, strings.NewReader(contentPart2), int64(len(contentPart2)), "", "", nil); e == nil {
-		parts = append(parts, minio.CompletePart{PartNumber: 2, ETag: p2.ETag})
+	if p2, e := oc.PutObjectPart(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 2, strings.NewReader(contentPart2), int64(len(contentPart2)), "", ""); e == nil {
+		parts = append(parts, models.MultipartObjectPart{PartNumber: 2, ETag: p2.ETag})
 	} else {
 		return result, e
 	}
-	if _, e := core.CompleteMultipartUploadWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, parts); e != nil {
+	if _, e := oc.CompleteMultipartUpload(authCtx, dsConf.ObjectsBucket, uploadFile, uId, parts); e != nil {
 		return result, e
 	}
 	result.Log("Created multipart upload with 2 parts of 5MB (" + uploadFile + ")")
 	// Register a defer for removing this object
 	defer func() {
-		core.RemoveObjectWithContext(authCtx, dsConf.ObjectsBucket, uploadFile)
+		oc.RemoveObject(authCtx, dsConf.ObjectsBucket, uploadFile)
 	}()
 
-	info2, e := core.StatObject(dsConf.ObjectsBucket, uploadFile, opts)
+	info2, e := oc.StatObject(authCtx, dsConf.ObjectsBucket, uploadFile, opts)
 	if e != nil {
 		return result, e
 	}
@@ -229,26 +248,27 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 }
 
 // TestEvents checks that metadata sent using the client is propagated to the corresponding s3 event
-func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
+func (h *Handler) TestEvents(ctx context.Context, oc nodes.StorageClient, req *test.RunTestsRequest, dsConf *object.DataSource) (*test.TestResult, error) {
+
+	min, ok := oc.(*mc.Client)
+	if !ok {
+		return nil, fmt.Errorf("Client is not a MinioClient")
+	}
 
 	result := test.NewTestResult("Events Metadata Propagation")
 
-	// Hook to event listener
-	core, er := minio.NewCore(fmt.Sprintf("localhost:%d", dsConf.ObjectsPort), dsConf.ApiKey, dsConf.ApiSecret, false)
-	if er != nil {
-		return result, er
-	}
-
 	opts := minio.StatObjectOptions{}
 	opts.Set(common.PydioContextUserKey, common.PydioSystemUsername)
+	//authCtx := context.WithValue(context.Background(), common.PydioContextUserKey, common.PydioSystemUsername)
 	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+	listenCtx, cancel := context.WithCancel(authCtx)
+	defer cancel()
 
 	result.Log("Setting up events listener")
-	done := make(chan struct{})
-	eventChan := core.ListenBucketNotificationWithContext(authCtx, dsConf.ObjectsBucket, "", "", []string{string(minio.ObjectCreatedAll)}, done)
+	eventChan := min.ListenBucketNotification(listenCtx, dsConf.ObjectsBucket, "", "", []string{string(notification.ObjectCreatedAll)})
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	var receivedInfo minio.NotificationInfo
+	var receivedInfo notification.Info
 	go func() {
 		defer wg.Done()
 		for {
@@ -265,16 +285,16 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 	key := uuid.New() + ".txt"
 	content := uuid.New()
 	<-time.After(3 * time.Second)
-	_, e := core.PutObjectWithContext(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
+	_, e := oc.PutObject(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), models.PutMeta{})
 	if e != nil {
 		return result, e
 	}
 
 	result.Log("PutObject Passed")
-	defer core.RemoveObjectWithContext(authCtx, dsConf.ObjectsBucket, key)
+	defer oc.RemoveObject(authCtx, dsConf.ObjectsBucket, key)
 
 	wg.Wait()
-	close(done)
+	cancel()
 
 	fmt.Println("Finished listening, checking event info: ", receivedInfo)
 	result.Log("Finished listening, checking event info: ", receivedInfo)
@@ -301,4 +321,16 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 
 	return result, nil
 
+}
+
+func (h *Handler) TestNodesClient(ctx context.Context) (*test.TestResult, error) {
+	res := &test.TestResult{}
+
+	cl := compose.PathClient(nodes.AsAdmin())
+	err := cl.ListNodesWithCallback(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "pydiods1"}}, func(ctx context.Context, node *tree.Node, err error) error {
+		res.Log("Got node", node.Zap())
+		return nil
+	}, false)
+
+	return res, err
 }

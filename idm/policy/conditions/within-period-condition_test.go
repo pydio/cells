@@ -28,7 +28,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context"
 )
 
 func TestWithinPeriodCondition(t *testing.T) {

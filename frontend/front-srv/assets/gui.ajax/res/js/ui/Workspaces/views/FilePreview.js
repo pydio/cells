@@ -27,6 +27,43 @@ import {CircularProgress} from 'material-ui';
 import Color from 'color'
 import FuncUtils from 'pydio/util/func'
 
+class CircularWithValue extends PureComponent {
+    render() {
+        const {size, value, thickness, color, bgColor, trackColor, fontSize, rootStyle, onClick} = this.props;
+        const styles = {
+            track: {
+                position:'relative',
+                height: size,
+                width: size,
+                backgroundColor:trackColor,
+                borderRadius: '50%',
+                cursor:onClick?'pointer':'default',
+                ...rootStyle
+            },
+            label: {
+                color,
+                fontSize,
+                fontWeight: 500,
+                height:size-(thickness*2),
+                width: size-(thickness*2),
+                backgroundColor:bgColor,
+                position:'absolute',
+                top:thickness,
+                left: thickness,
+                lineHeight:(size-(thickness*2))+'px',
+                borderRadius:'50%',
+                textAlign:'center',
+            }
+        }
+        return (
+            <div style={styles.track} onClick={onClick}>
+                <div style={styles.label}>{value}%</div>
+                <CircularProgress size={size} thickness={thickness} mode={"determinate"} value={value} style={{position:'absolute', top: 0, left: 0}}/>
+            </div>
+        )
+    }
+}
+
 class FilePreview extends PureComponent {
     static get propTypes() {
         return {
@@ -70,7 +107,7 @@ class FilePreview extends PureComponent {
             ...mimeFontStyle
         };
 
-        return {rootStyle: rootStyle, mimeFontStyle: mimefontStyle};
+        return {rootStyle: rootStyle, mimeFontStyle: mimefontStyle, progressColor: muiTheme.palette.primary1Color};
     }
 
     insertPreviewNode(previewNode) {
@@ -148,14 +185,33 @@ class FilePreview extends PureComponent {
     }
 
     render() {
-        const {rootStyle, mimeFontStyle} = this.getStyles();
+        const {rootStyle, mimeFontStyle, progressColor} = this.getStyles();
 
-        const {node, mimeClassName, processing} = this.props;
+        const {node, mimeClassName, processing, uploading, uploadprogress, displayLarge} = this.props;
         const {EditorClass} = this.state;
 
         let element, additionalClass = '';
 
-        if (processing) {
+        if(uploading) {
+            if(displayLarge){
+                rootStyle.display = 'flex';
+                rootStyle.alignItems = 'center';
+                rootStyle.justifyContent= 'center';
+            }
+            element = <CircularWithValue
+                size={displayLarge?48:28}
+                thickness={displayLarge?4:2}
+                value={uploadprogress}
+                rootStyle={displayLarge?{}:{margin: 6}}
+                fontSize={displayLarge?12:9}
+                color={progressColor}
+                bgColor={rootStyle.backgroundColor}
+                trackColor={'white'}
+                onClick={()=>{
+                    Pydio.getInstance().Controller.fireAction("upload");
+                }}
+            />
+        }else if (processing) {
             if (rootStyle.height > 150) {
                 element = <CircularProgress size={30} thickness={2}/>
                 rootStyle.alignItems = 'center';

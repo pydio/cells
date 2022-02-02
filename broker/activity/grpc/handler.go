@@ -27,24 +27,31 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
 
-	"github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	proto "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	proto "github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
-type Handler struct{}
+type Handler struct {
+	proto.UnimplementedActivityServiceServer
+	RuntimeCtx context.Context
+	dao        activity.DAO
+}
 
-func (h *Handler) PostActivity(ctx context.Context, stream proto.ActivityService_PostActivityStream) error {
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
-	defer stream.Close()
+func (h *Handler) Name() string {
+	return Name
+}
+
+func (h *Handler) PostActivity(stream proto.ActivityService_PostActivityServer) error {
+	ctx := stream.Context()
 	for {
 		request, e := stream.Recv()
 		if e == io.EOF {
@@ -60,26 +67,24 @@ func (h *Handler) PostActivity(ctx context.Context, stream proto.ActivityService
 		case "outbox":
 			boxName = activity.BoxOutbox
 		default:
-			return fmt.Errorf("unrecongnized box name")
+			return fmt.Errorf("unrecognized box name")
 		}
-		if e := dao.PostActivity(request.OwnerType, request.OwnerId, boxName, request.Activity, ctx); e != nil {
+		if e := h.dao.PostActivity(request.OwnerType, request.OwnerId, boxName, request.Activity, ctx); e != nil {
 			return e
 		}
 	}
 }
 
-func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamActivitiesRequest, stream proto.ActivityService_StreamActivitiesStream) error {
+func (h *Handler) StreamActivities(request *proto.StreamActivitiesRequest, stream proto.ActivityService_StreamActivitiesServer) error {
 
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
-	defer stream.Close()
-
+	ctx := stream.Context()
 	log.Logger(ctx).Debug("Should get activities", zap.Any("r", request))
-	treeStreamer := tree.NewNodeProviderStreamerClient(registry.GetClient(common.ServiceTree))
+	treeStreamer := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(h.RuntimeCtx, common.ServiceTree))
 	sClient, e := treeStreamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
 	}
-	defer sClient.Close()
+	defer sClient.CloseSend()
 	replace := make(map[string]string)
 	valid := make(map[string]bool)
 
@@ -130,36 +135,32 @@ func (h *Handler) StreamActivities(ctx context.Context, request *proto.StreamAct
 	}
 
 	if request.Context == proto.StreamContext_NODE_ID {
-		dao.ActivitiesFor(proto.OwnerType_NODE, request.ContextData, boxName, "", request.Offset, request.Limit, result, done)
+		h.dao.ActivitiesFor(proto.OwnerType_NODE, request.ContextData, boxName, "", request.Offset, request.Limit, result, done)
 		wg.Wait()
 	} else if request.Context == proto.StreamContext_USER_ID {
 		var refBoxOffset activity.BoxName
 		if request.AsDigest {
 			refBoxOffset = activity.BoxLastSent
 		}
-		dao.ActivitiesFor(proto.OwnerType_USER, request.ContextData, boxName, refBoxOffset, request.Offset, request.Limit, result, done)
+		h.dao.ActivitiesFor(proto.OwnerType_USER, request.ContextData, boxName, refBoxOffset, request.Offset, request.Limit, result, done)
 		wg.Wait()
 	}
 
 	return nil
 }
 
-func (h *Handler) Subscribe(ctx context.Context, request *proto.SubscribeRequest, resp *proto.SubscribeResponse) (err error) {
+func (h *Handler) Subscribe(ctx context.Context, request *proto.SubscribeRequest) (*proto.SubscribeResponse, error) {
 
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
-
-	subscription := request.Subscription
-
-	resp.Subscription = subscription
-	return dao.UpdateSubscription(subscription)
+	if e := h.dao.UpdateSubscription(request.Subscription); e != nil {
+		return nil, e
+	}
+	return &proto.SubscribeResponse{
+		Subscription: request.Subscription,
+	}, nil
 
 }
 
-func (h *Handler) SearchSubscriptions(ctx context.Context, request *proto.SearchSubscriptionsRequest, stream proto.ActivityService_SearchSubscriptionsStream) error {
-
-	defer stream.Close()
-
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+func (h *Handler) SearchSubscriptions(request *proto.SearchSubscriptionsRequest, stream proto.ActivityService_SearchSubscriptionsServer) error {
 
 	var userId string
 	var objectType = proto.OwnerType_NODE
@@ -169,7 +170,7 @@ func (h *Handler) SearchSubscriptions(ctx context.Context, request *proto.Search
 	if len(request.UserIds) > 0 {
 		userId = request.UserIds[0]
 	}
-	users, err := dao.ListSubscriptions(objectType, request.ObjectIds)
+	users, err := h.dao.ListSubscriptions(objectType, request.ObjectIds)
 	if err != nil {
 		return err
 	}
@@ -187,19 +188,16 @@ func (h *Handler) SearchSubscriptions(ctx context.Context, request *proto.Search
 	return nil
 }
 
-func (h *Handler) UnreadActivitiesNumber(ctx context.Context, request *proto.UnreadActivitiesRequest, response *proto.UnreadActivitiesResponse) error {
+func (h *Handler) UnreadActivitiesNumber(ctx context.Context, request *proto.UnreadActivitiesRequest) (*proto.UnreadActivitiesResponse, error) {
 
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+	number := h.dao.CountUnreadForUser(request.UserId)
+	return &proto.UnreadActivitiesResponse{
+		Number: int32(number),
+	}, nil
 
-	number := dao.CountUnreadForUser(request.UserId)
-	response.Number = int32(number)
-
-	return nil
 }
 
-func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLastActivityRequest, response *proto.UserLastActivityResponse) error {
-
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLastActivityRequest) (*proto.UserLastActivityResponse, error) {
 
 	var boxName activity.BoxName
 	if request.BoxName == "lastread" {
@@ -207,36 +205,37 @@ func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLa
 	} else if request.BoxName == "lastsent" {
 		boxName = activity.BoxLastSent
 	} else {
-		return fmt.Errorf("Invalid box name")
+		return nil, fmt.Errorf("invalid box name")
 	}
 
-	if err := dao.StoreLastUserInbox(request.UserId, boxName, nil, request.ActivityId); err == nil {
-		response.Success = true
-		return nil
+	if err := h.dao.StoreLastUserInbox(request.UserId, boxName, request.ActivityId); err == nil {
+		return &proto.UserLastActivityResponse{Success: true}, nil
 	} else {
-		return err
+		return nil, err
 	}
 
 }
 
-func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActivitiesRequest, response *proto.PurgeActivitiesResponse) error {
+func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActivitiesRequest) (*proto.PurgeActivitiesResponse, error) {
 
 	if request.BoxName != string(activity.BoxInbox) && request.BoxName != string(activity.BoxOutbox) {
-		return errors.BadRequest("invalid.parameter", "Please provide one of inbox|outbox box name")
+		return nil, errors.BadRequest("invalid.parameter", "Please provide one of inbox|outbox box name")
 	}
 	count := int32(0)
 	logger := func(s string) {
 		count++
 		log.TasksLogger(ctx).Info(s)
 	}
-	dao := servicecontext.GetDAO(ctx).(activity.DAO)
+
 	var updated time.Time
 	if request.UpdatedBeforeTimestamp > 0 {
 		updated = time.Unix(int64(request.UpdatedBeforeTimestamp), 0)
 	}
-	dao.Purge(logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated, request.CompactDB, request.ClearBackups)
-	response.Success = true
-	response.DeletedCount = count
-	return nil
+
+	e := h.dao.Purge(logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated, request.CompactDB, request.ClearBackups)
+	return &proto.PurgeActivitiesResponse{
+		Success:      true,
+		DeletedCount: count,
+	}, e
 
 }

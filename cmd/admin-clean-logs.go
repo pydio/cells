@@ -28,13 +28,12 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/micro/go-micro/client"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/sync"
-	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 var (
@@ -75,16 +74,16 @@ EXAMPLES
 			return
 		}
 
-		syncService = "pydio.grpc." + cleanLogsService
+		syncService := "pydio.grpc." + cleanLogsService
 		byteSize := fmt.Sprintf("%d", b)
 
 		cmd.Printf("Sending resync command to service %s with parameter TRUNCATE/%s\n", syncService, byteSize)
 
-		cli := sync.NewSyncEndpointClient(syncService, defaults.NewClient())
+		cli := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(ctx, cleanLogsService))
 		c, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
 		defer cancel()
-		c = context2.WithUserNameMetadata(c, common.PydioSystemUsername)
-		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "TRUNCATE/" + byteSize}, client.WithRetries(1))
+		c = metadata.WithUserNameMetadata(c, common.PydioSystemUsername)
+		resp, err := cli.TriggerResync(c, &sync.ResyncRequest{Path: "TRUNCATE/" + byteSize} /*, client.WithRetries(1)*/)
 		if err != nil {
 			cmd.Println("Truncate Failed: " + err.Error())
 			return

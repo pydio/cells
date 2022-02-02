@@ -1,3 +1,6 @@
+//go:build ignore
+// +build ignore
+
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -24,10 +27,11 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/storage"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/utils/configx"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/storage"
 )
 
 type conf struct {
@@ -75,7 +79,7 @@ func (c *conf) Val(path ...string) configx.Values {
 }
 
 func NewConfig() configx.Entrypoint {
-	cli := storage.NewStorageEndpointClient(common.ServiceStorageNamespace_+common.ServiceConfig, defaults.NewClient())
+	cli := storage.NewStorageEndpointClient(grpc.GetClientConnFromCtx(ctx, common.ServiceConfig))
 	return &conf{
 		cli: cli,
 	}

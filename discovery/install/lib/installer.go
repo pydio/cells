@@ -25,14 +25,14 @@ import (
 	"context"
 	"net/url"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pborman/uuid"
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/install"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -136,7 +136,14 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 				}
 			}
 		}
-		mc, e := minio.NewCore(endpoint, c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), secure)
+
+		cfData := configx.New()
+		cfData.Val("type").Set("mc")
+		cfData.Val("endpoint").Set(endpoint)
+		cfData.Val("key").Set(c.GetDsS3ApiKey())
+		cfData.Val("secret").Set(c.GetDsS3ApiSecret())
+		cfData.Val("secure").Set(secure)
+		mc, e := nodes.NewStorageClient(cfData)
 		if e != nil {
 			wrapError(e)
 			break
@@ -144,7 +151,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		// Check if buckets can be created
 		data := make(map[string]interface{})
 		var buckets []string
-		if bb, er := mc.ListBuckets(); er != nil {
+		if bb, er := mc.ListBuckets(ctx); er != nil {
 			wrapError(er)
 			break
 		} else {
@@ -154,8 +161,8 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		}
 		data["buckets"] = buckets
 		testBC := uuid.New()
-		if er := mc.MakeBucket(testBC, c.GetDsS3CustomRegion()); er == nil {
-			mc.RemoveBucket(testBC)
+		if er := mc.MakeBucket(ctx, testBC, c.GetDsS3CustomRegion()); er == nil {
+			mc.RemoveBucket(ctx, testBC)
 			data["canCreate"] = true
 		} else {
 			data["canCreate"] = false
@@ -178,7 +185,14 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 				}
 			}
 		}
-		mc, e := minio.NewCore(endpoint, c.GetDsS3ApiKey(), c.GetDsS3ApiSecret(), secure)
+
+		cfData := configx.New()
+		cfData.Val("type").Set("mc")
+		cfData.Val("endpoint").Set(endpoint)
+		cfData.Val("key").Set(c.GetDsS3ApiKey())
+		cfData.Val("secret").Set(c.GetDsS3ApiSecret())
+		cfData.Val("secure").Set(secure)
+		mc, e := nodes.NewStorageClient(cfData)
 		if e != nil {
 			wrapError(e)
 			break
@@ -186,7 +200,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		// Check if buckets can be created
 		data := make(map[string]interface{})
 		buckets := make(map[string]struct{})
-		if bb, er := mc.ListBuckets(); er != nil {
+		if bb, er := mc.ListBuckets(ctx); er != nil {
 			wrapError(er)
 			break
 		} else {
@@ -207,7 +221,7 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 			if _, ok := buckets[check]; ok { // already exists
 				continue
 			}
-			if e := mc.MakeBucket(check, c.GetDsS3CustomRegion()); e != nil {
+			if e := mc.MakeBucket(ctx, check, c.GetDsS3CustomRegion()); e != nil {
 				wrapError(e)
 				break
 			} else {

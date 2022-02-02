@@ -25,19 +25,18 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/pborman/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/micro/broker"
-	"github.com/pydio/cells/common/micro/registry"
-	"github.com/pydio/cells/common/micro/transport/grpc"
-	"github.com/pydio/cells/common/proto/tree"
-	registry2 "github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sync/endpoints/cells"
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	//	"github.com/pydio/cells/v4/common/micro/registry"
+	//	"github.com/pydio/cells/v4/common/micro/transport/grpc"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 var (
@@ -58,10 +57,13 @@ type Local struct {
 func NewLocal(root string, options cells.Options) *Local {
 	if options.LocalInitRegistry {
 		localRouterOnce.Do(func() {
-			registry.EnableService("127.0.0.1", "8000")
-			broker.EnableService("127.0.0.1", "8003")
-			grpc.Enable()
-			registry2.Init()
+			/*
+				// TODO V4
+				registry.EnableService("127.0.0.1", "8000")
+				broker.EnableService("127.0.0.1", "8003")
+				grpc.Enable()
+				registry2.Init()
+			*/
 		})
 	}
 	l := &Local{
@@ -72,11 +74,11 @@ func NewLocal(root string, options cells.Options) *Local {
 		},
 	}
 	l.Factory = &localRouterFactory{
-		router: views.NewStandardRouter(views.RouterOptions{
-			WatchRegistry:    true,
-			AdminView:        true,
-			SynchronousTasks: true,
-		}),
+		router: compose.PathClient(
+			nodes.WithRegistryWatch(),
+			nodes.AsAdmin(),
+			nodes.WithSynchronousTasks(),
+		),
 	}
 	l.Source = l
 	l.GlobalCtx = servicecontext.WithServiceName(context.Background(), "endpoint.cells.local")
@@ -86,7 +88,7 @@ func NewLocal(root string, options cells.Options) *Local {
 // GetEndpointInfo returns info about this endpoint
 func (l *Local) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "router:///" + l.Root,
+		URI:                   "router:///" + l.Root,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 		IsAsynchronous:        true,
@@ -96,7 +98,7 @@ func (l *Local) GetEndpointInfo() model.EndpointInfo {
 
 // localRouterFactory implements the clientProviderFactory interface
 type localRouterFactory struct {
-	router views.Handler
+	router nodes.Handler
 }
 
 // GetNodeProviderClient returns a usable context and the internal Router

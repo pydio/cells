@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/proto/auth"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 // MemDAO is a dev-util for storing tokens in memory

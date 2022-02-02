@@ -80,6 +80,8 @@ export default class extends React.Component {
             </div>
         );
         const tabs = {
+            leftStyle:{padding:10},
+            rightStyle:{padding:10},
             left: [
                 {
                     Label:m(54),

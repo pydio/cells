@@ -24,15 +24,15 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	bolt "github.com/etcd-io/bbolt"
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
+	bolt "go.etcd.io/bbolt"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/proto/chat"
-	"github.com/pydio/cells/x/configx"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/proto/chat"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type boltdbimpl struct {
@@ -136,7 +136,7 @@ func (h *boltdbimpl) PutRoom(room *chat.ChatRoom) (*chat.ChatRoom, error) {
 			return err
 		}
 		if room.Uuid == "" {
-			room.Uuid = uuid.NewUUID().String()
+			room.Uuid = uuid.New()
 		}
 		serialized, _ := json.Marshal(room)
 		return bucket.Put([]byte(room.Uuid), serialized)
@@ -159,8 +159,11 @@ func (h *boltdbimpl) DeleteRoom(room *chat.ChatRoom) (bool, error) {
 		if err != nil {
 			return err
 		}
-		return bucket.Delete([]byte(room.Uuid))
-
+		e := bucket.Delete([]byte(room.Uuid))
+		if e == nil {
+			success = true
+		}
+		return e
 	})
 
 	return success, err
@@ -322,7 +325,7 @@ func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages [
 func (h *boltdbimpl) PostMessage(msg *chat.ChatMessage) (*chat.ChatMessage, error) {
 
 	if msg.Uuid == "" {
-		msg.Uuid = uuid.NewUUID().String()
+		msg.Uuid = uuid.New()
 	}
 
 	err := h.DB().Update(func(tx *bolt.Tx) error {

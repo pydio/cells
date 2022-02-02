@@ -22,21 +22,25 @@ package docstore
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/index/scorch"
-	"github.com/blevesearch/bleve/index/store/boltdb"
+	bleve "github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/index/scorch"
+	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/docstore"
+	boltdb2 "github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type BleveServer struct {
+	boltdb2.DAO
+	// Internal Bolt
+	*BoltStore
 	// Internal Bleve database
 	Engine bleve.Index
 	// For Testing purpose : delete file after closing
@@ -45,7 +49,7 @@ type BleveServer struct {
 	IndexPath string
 }
 
-func NewBleveEngine(bleveIndexPath string, deleteOnClose ...bool) (*BleveServer, error) {
+func NewBleveEngine(store *BoltStore, bleveIndexPath string, deleteOnClose ...bool) (*BleveServer, error) {
 
 	_, e := os.Stat(bleveIndexPath)
 	var index bleve.Index
@@ -63,6 +67,7 @@ func NewBleveEngine(bleveIndexPath string, deleteOnClose ...bool) (*BleveServer,
 		del = true
 	}
 	return &BleveServer{
+		BoltStore:     store,
 		Engine:        index,
 		IndexPath:     bleveIndexPath,
 		DeleteOnClose: del,
@@ -70,17 +75,26 @@ func NewBleveEngine(bleveIndexPath string, deleteOnClose ...bool) (*BleveServer,
 
 }
 
-func (s *BleveServer) Close() error {
+func (s *BleveServer) CloseDAO() error {
 
 	err := s.Engine.Close()
-	if s.DeleteOnClose {
-		err = os.RemoveAll(s.IndexPath)
+	if err != nil {
+		return err
 	}
-	return err
+	if s.DeleteOnClose {
+		if err = os.RemoveAll(s.IndexPath); err != nil {
+			return err
+		}
+	}
+	return s.BoltStore.Close()
 
 }
 
-func (s *BleveServer) IndexDocument(storeID string, doc *docstore.Document) error {
+func (s *BleveServer) PutDocument(storeID string, doc *docstore.Document) error {
+
+	if er := s.BoltStore.PutDocument(storeID, doc); er != nil {
+		return er
+	}
 
 	if doc.IndexableMeta == "" {
 		return nil
@@ -105,7 +119,27 @@ func (s *BleveServer) IndexDocument(storeID string, doc *docstore.Document) erro
 
 func (s *BleveServer) DeleteDocument(storeID string, docID string) error {
 
+	if er := s.BoltStore.DeleteDocument(storeID, docID); er != nil {
+		return er
+	}
+
 	return s.Engine.Delete(docID)
+
+}
+
+func (s *BleveServer) DeleteDocuments(storeID string, query *docstore.DocumentQuery) (int, error) {
+	var count int
+	dd, _, e := s.search(storeID, query, false)
+	if e != nil {
+		return 0, e
+	}
+	for _, d := range dd {
+		if e := s.DeleteDocument(storeID, d); e != nil {
+			return 0, e
+		}
+		count++
+	}
+	return count, nil
 
 }
 
@@ -122,7 +156,47 @@ func (s *BleveServer) Reset() error {
 
 }
 
-func (s *BleveServer) SearchDocuments(storeID string, query *docstore.DocumentQuery, countOnly bool) ([]string, int64, error) {
+func (s *BleveServer) CountDocuments(storeId string, query *docstore.DocumentQuery) (int, error) {
+	if query == nil || query.MetaQuery == "" {
+		return 0, fmt.Errorf("Provide a query for count")
+	}
+	docIds, _, err := s.search(storeId, query, true)
+	if err != nil {
+		return 0, err
+	}
+	return len(docIds), nil
+
+}
+
+func (s *BleveServer) QueryDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error) {
+
+	if query != nil && query.MetaQuery != "" {
+
+		docIds, _, err := s.search(storeID, query, false)
+		if err != nil {
+			return nil, err
+		}
+		res := make(chan *docstore.Document)
+		go func() {
+			for _, docId := range docIds {
+				if doc, e := s.BoltStore.GetDocument(storeID, docId); e == nil && doc != nil {
+					doc.ID = docId
+					res <- doc
+				}
+			}
+			close(res)
+		}()
+		return res, nil
+
+	} else {
+
+		return s.BoltStore.ListDocuments(storeID, query)
+
+	}
+
+}
+
+func (s *BleveServer) search(storeID string, query *docstore.DocumentQuery, countOnly bool) ([]string, int64, error) {
 
 	parts := strings.Split(query.MetaQuery, " ")
 	for i, p := range parts {
@@ -158,12 +232,12 @@ func (s *BleveServer) SearchDocuments(storeID string, query *docstore.DocumentQu
 	}
 	for _, hit := range searchResult.Hits {
 		doc, docErr := s.Engine.Document(hit.ID)
-		if docErr != nil || doc == nil || doc.ID == "" {
+		if docErr != nil || doc == nil || doc.ID() == "" {
 			log.Logger(context.Background()).Debug("Skipping Document", zap.Any("doc", doc), zap.Error(docErr))
 			continue
 		}
 		log.Logger(context.Background()).Debug("Sending Document", zap.Any("doc", doc))
-		docs = append(docs, doc.ID)
+		docs = append(docs, doc.ID())
 	}
 
 	return docs, int64(searchResult.Total), nil

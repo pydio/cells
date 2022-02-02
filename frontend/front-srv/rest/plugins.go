@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -24,21 +24,19 @@ package rest
 import (
 	"context"
 	"encoding/gob"
+	"github.com/pydio/cells/v4/frontend/front-srv/rest/modifiers"
 	"os"
 
-	"github.com/pydio/cells/common/config"
-
-	"github.com/pydio/packr"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/frontend/front-srv"
 )
 
 var BasePluginsBox = frontend.PluginBox{
-	Box: packr.NewBox("../../../frontend/front-srv/assets"),
+	Box: front_srv.FrontendAssets,
 	Exposes: []string{
 		"access.gateway",
 		"access.homepage",
@@ -104,19 +102,17 @@ func init() {
 		frontend.WrapAuthMiddleware(modifiers.LoginSuccessWrapper)
 		frontend.WrapAuthMiddleware(modifiers.LoginFailedWrapper)
 
-		s := service.NewService(
+		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceFrontend),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagFrontend),
 			service.Description("REST service for serving specific requests directly to frontend"),
 			service.PluginBoxes(BasePluginsBox),
-			service.WithWeb(func() service.WebHandler {
-				return NewFrontendHandler()
+			service.WithWebSession("POST:/frontend/binaries"),
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return NewFrontendHandler(c)
 			}),
 		)
-		// Make sure to have the WebSession wrapper happen before the policies
-		// Exclude POST binaries for using Cookies as it's the only one subject to possible CSRF
-		s.Init(service.WithWebSession("POST:/frontend/binaries"))
 	})
 
 	if os.Getenv("CELLS_ENABLE_FORMS_DEVEL") == "1" {

@@ -21,7 +21,7 @@
 package tasks
 
 import (
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 )
 
 // Worker represents the worker that executes the jobs.

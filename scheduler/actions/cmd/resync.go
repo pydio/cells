@@ -22,19 +22,20 @@ package cmd
 
 import (
 	"context"
+	"strings"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
+	"github.com/pydio/cells/v4/common/service/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -42,6 +43,7 @@ var (
 )
 
 type ResyncAction struct {
+	common.RuntimeHolder
 	ServiceName string
 	Path        string
 	DryRun      bool
@@ -110,7 +112,7 @@ func (c *ResyncAction) SetTask(task *jobs.Task) {
 }
 
 // Init passes parameters
-func (c *ResyncAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *ResyncAction) Init(job *jobs.Job, action *jobs.Action) error {
 	c.ServiceName = action.Parameters["service"]
 	if c.ServiceName == "" {
 		return errors.BadRequest(common.ServiceJobs, "Missing parameters for Sync Action")
@@ -131,7 +133,9 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 
 	ctx, _ = context.WithTimeout(ctx, 1*time.Hour)
 	srvName := jobs.EvaluateFieldStr(ctx, input, c.ServiceName)
-	syncClient := sync.NewSyncEndpointClient(jobs.EvaluateFieldStr(ctx, input, srvName), defaults.NewClient())
+	// V4: strip grpc prefix
+	srvName = strings.TrimPrefix(srvName, common.ServiceGrpcNamespace_)
+	syncClient := sync.NewSyncEndpointClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), srvName))
 	log.TasksLogger(ctx).Info("Sending Resync command to " + srvName)
 	_, e := syncClient.TriggerResync(ctx, &sync.ResyncRequest{
 		Path:   jobs.EvaluateFieldStr(ctx, input, c.Path),

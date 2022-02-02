@@ -25,12 +25,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pydio/cells/common"
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/hashicorp/go-version"
-	"github.com/pydio/cells/common/caddy"
-	"github.com/pydio/cells/x/configx"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 func init() {
@@ -178,7 +177,7 @@ func updateSites(config configx.Values) error {
 				site.Val("TLSConfig", "LetsEncrypt").Set(map[string]interface{}{
 					"Email":      proxy.Val("email").String(),
 					"AcceptEULA": true,
-					"StagingCA":  caUrl == caddy.DefaultCaStagingUrl,
+					"StagingCA":  caUrl == common.DefaultCaStagingUrl,
 				})
 			} else {
 				// Manual certificates

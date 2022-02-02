@@ -25,15 +25,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pydio/cells/v4/common/registry"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
 )
 
 var (
@@ -74,15 +77,21 @@ EXAMPLES
 
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
+
+		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		if err != nil {
+			return err
+		}
+
+		ctx = servercontext.WithRegistry(ctx, reg)
 
 		if userCreatePassword == "" {
 			prompt := promptui.Prompt{Label: "Please provide a password", Mask: '*', Validate: notEmpty}
 			pwd, e := prompt.Run()
 			if e != nil {
-				cmd.Println(e)
-				return
+				return e
 			}
 			userCreatePassword = pwd
 		}
@@ -104,15 +113,13 @@ EXAMPLES
 			Attributes: map[string]string{"profile": common.PydioProfileStandard},
 		}
 
-		userClient := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
-		sQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: userCreateLogin})
-		st, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*any.Any{sQ}}})
+		userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
+		sQ, _ := anypb.New(&idm.UserSingleQuery{Login: userCreateLogin})
+		st, e := userClient.SearchUser(ctx, &idm.SearchUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{sQ}}})
 		if e != nil {
-			cmd.Println(promptui.IconBad + e.Error())
-			return
+			return e
 		}
 		exists := false
-		defer st.Close()
 		for {
 			_, e := st.Recv()
 			if e != nil {
@@ -122,13 +129,13 @@ EXAMPLES
 		}
 		if exists {
 			cmd.Println(promptui.IconBad + " User with login " + userCreateLogin + " already exists!")
-			return
+			return nil
 		}
 
 		response, err := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: newUser})
 		if err != nil {
 			cmd.Println(err.Error())
-			return
+			return nil
 		}
 		u := response.GetUser()
 
@@ -142,16 +149,16 @@ EXAMPLES
 			Label:    "User " + u.Login + " role",
 		}
 
-		roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+		roleClient := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 		if _, err := roleClient.CreateRole(context.Background(), &idm.CreateRoleRequest{
 			Role: &newRole,
 		}); err != nil {
 			cmd.Println(err.Error())
-			return
+			return nil
 		}
 
 		cmd.Println("Successfully inserted associated role with UUID " + newRole.Uuid)
-
+		return nil
 	},
 }
 

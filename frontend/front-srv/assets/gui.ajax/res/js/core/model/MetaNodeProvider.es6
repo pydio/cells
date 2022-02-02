@@ -42,6 +42,17 @@ export default class MetaNodeProvider{
             this.initProvider(properties);
         }
     }
+
+    static loadersHooks = new Map()
+
+    static RegisterLoaderHook(name, hook) {
+        MetaNodeProvider.loadersHooks.set(name, hook)
+        if(Pydio.getInstance().getContextHolder().getContextNode().isLoaded()) {
+            console.debug('Apply hook after registration on already-loaded context node')
+            hook(Pydio.getInstance().getContextHolder().getContextNode())
+        }
+    }
+
     /**
      * Initialize properties
      * @param properties Object
@@ -151,6 +162,13 @@ export default class MetaNodeProvider{
             if(nodeCallback !== null){
                 nodeCallback(node);
             }
+            MetaNodeProvider.loadersHooks.forEach(hook => {
+                try {
+                    hook(node, this.properties)
+                }catch(e){
+                    console.error("Error while applying hook", e)
+                }
+            });
         }).catch(e => {
             Pydio.endLoading();
             console.log(e);

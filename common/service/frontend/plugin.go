@@ -28,9 +28,9 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type Plugin interface {

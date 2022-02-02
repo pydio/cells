@@ -23,37 +23,37 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/nodes"
 	"path"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	serviceproto "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/idm/meta/namespace"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	serviceproto "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/service/resources"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
 const MetaTagsDocStoreId = "user_meta_tags"
 
-func NewUserMetaHandler() *UserMetaHandler {
+func NewUserMetaHandler(ctx context.Context) *UserMetaHandler {
 	handler := new(UserMetaHandler)
+	handler.ctx = ctx
 	handler.ServiceName = common.ServiceUserMeta
 	handler.ResourceName = "userMeta"
 	handler.PoliciesLoader = handler.PoliciesForMeta
@@ -61,6 +61,7 @@ func NewUserMetaHandler() *UserMetaHandler {
 }
 
 type UserMetaHandler struct {
+	ctx context.Context
 	resources.ResourceProviderHandler
 }
 
@@ -78,17 +79,17 @@ func (s *UserMetaHandler) Filter() func(string) string {
 func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error {
 	log.Logger(ctx).Debug("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
 	nodeUuid := meta.NodeUuid
-	aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: []string{nodeUuid},
 		Actions: []*idm.ACLAction{{Name: permissions.AclContentLock.Name}},
 	})
 	userName, _ := permissions.FindUserNameInContext(ctx)
-	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}})
+	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &serviceproto.Query{SubQueries: []*anypb.Any{q}}})
 	if err != nil {
 		return err
 	}
-	defer stream.Close()
+	defer stream.CloseSend()
 	for {
 		rsp, e := stream.Recv()
 		if e != nil {
@@ -112,7 +113,7 @@ func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, op
 			return e
 		}
 	} else {
-		req := &idm.DeleteACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}}
+		req := &idm.DeleteACLRequest{Query: &serviceproto.Query{SubQueries: []*anypb.Any{q}}}
 		if _, e := aclClient.DeleteACL(ctx, req); e != nil {
 			return e
 		}
@@ -129,14 +130,14 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return
 	}
 	ctx := req.Request.Context()
-	userMetaClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
+	userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(s.ctx, common.ServiceUserMeta))
 	nsList, e := s.ListAllNamespaces(ctx, userMetaClient)
 	if e != nil {
 		service.RestError500(req, rsp, e)
 		return
 	}
 	var loadUuids []string
-	router := views.NewUuidRouter(views.RouterOptions{})
+	router := compose.NewClient(compose.UuidComposer(nodes.WithContext(s.ctx))...)
 
 	// First check if the namespaces are globally accessible
 	for _, meta := range input.MetaDatas {
@@ -148,7 +149,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			return
 		}
 		if meta.Namespace != namespace.ReservedNamespaceBookmark {
-			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_META, Target: resp.Node}); er != nil {
+			if _, er := router.CanApply(ctx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_CONTENT, Target: resp.Node}); er != nil {
 				service.RestError403(req, rsp, er)
 				return
 			}
@@ -209,7 +210,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 			service.RestError500(req, rsp, e)
 			return
 		}
-		defer stream.Close()
+		defer stream.CloseSend()
 		for {
 			resp, er := stream.Recv()
 			if er != nil {
@@ -255,7 +256,7 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 	searchRequest := &idm.SearchUserMetaRequest{
 		Namespace: namespace.ReservedNamespaceBookmark,
 	}
-	router := views.NewUuidRouter(views.RouterOptions{})
+	router := compose.NewClient(compose.UuidComposer(nodes.WithContext(s.ctx))...)
 	ctx := req.Request.Context()
 	output, e := s.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {
@@ -302,7 +303,7 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 		}
 	}
 
-	nsClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
+	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
 	response, err := nsClient.UpdateUserMetaNamespace(ctx, &input)
 	if err != nil {
 		service.RestError500(req, rsp, err)
@@ -314,9 +315,11 @@ func (s *UserMetaHandler) UpdateUserMetaNamespace(req *restful.Request, rsp *res
 
 func (s *UserMetaHandler) ListUserMetaNamespace(req *restful.Request, rsp *restful.Response) {
 
-	nsClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
+	ctx := req.Request.Context()
+
+	nsClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
 	output := &rest.UserMetaNamespaceCollection{}
-	if ns, err := s.ListAllNamespaces(req.Request.Context(), nsClient); err == nil {
+	if ns, err := s.ListAllNamespaces(ctx, nsClient); err == nil {
 		for _, n := range ns {
 			if n.Namespace == namespace.ReservedNamespaceBookmark {
 				continue
@@ -352,7 +355,7 @@ func (s *UserMetaHandler) PutUserMetaTag(req *restful.Request, rsp *restful.Resp
 }
 
 func (s *UserMetaHandler) listTagsForNamespace(ctx context.Context, namespace string) ([]string, *docstore.Document) {
-	docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+	docClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 	var tags []string
 	var doc *docstore.Document
 	r, e := docClient.GetDocument(ctx, &docstore.GetDocumentRequest{
@@ -389,7 +392,7 @@ func (s *UserMetaHandler) putTagsIfNecessary(ctx context.Context, namespace stri
 	if changes {
 		// Now store back
 		jsonData, _ := json.Marshal(currentTags)
-		docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+		docClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 		if storeDocument != nil {
 			storeDocument.Data = string(jsonData)
 		} else {
@@ -416,7 +419,7 @@ func (s *UserMetaHandler) DeleteUserMetaTags(req *restful.Request, rsp *restful.
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("Delete tags for namespace "+ns, zap.String("tag", tag))
 	if tag == "*" {
-		docClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+		docClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 		if _, e := docClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
 			StoreID:    MetaTagsDocStoreId,
 			DocumentID: ns,
@@ -442,13 +445,13 @@ func (s *UserMetaHandler) PerformSearchMetaRequest(ctx context.Context, request 
 		Subjects: subjects,
 	}
 
-	userMetaClient := idm.NewUserMetaServiceClient(common.ServiceGrpcNamespace_+common.ServiceUserMeta, defaults.NewClient())
+	userMetaClient := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUserMeta))
 	stream, er := userMetaClient.SearchUserMeta(ctx, request)
 	if er != nil {
 		return nil, e
 	}
 	output := &rest.UserMetaCollection{}
-	defer stream.Close()
+	defer stream.CloseSend()
 	for {
 		resp, e := stream.Recv()
 		if e != nil {
@@ -471,7 +474,7 @@ func (s *UserMetaHandler) ListAllNamespaces(ctx context.Context, client idm.User
 		return nil, e
 	}
 	result := make(map[string]*idm.UserMetaNamespace)
-	defer stream.Close()
+	defer stream.CloseSend()
 	for {
 		resp, err := stream.Recv()
 		if err != nil {

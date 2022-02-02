@@ -21,16 +21,18 @@
 package rest
 
 import (
-	"github.com/emicklei/go-restful"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/log"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
+	"context"
+	restful "github.com/emicklei/go-restful/v3"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service"
 )
 
-type Handler struct{}
+type Handler struct {
+	RuntimeCtx context.Context
+}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (h *Handler) SwaggerTags() []string {
@@ -52,14 +54,14 @@ func (h *Handler) Syslog(req *restful.Request, rsp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 
-	c := log.NewLogRecorderClient(registry.GetClient(common.ServiceLog))
+	c := log.NewLogRecorderClient(grpc.GetClientConnFromCtx(h.RuntimeCtx, common.ServiceLog))
 
 	res, err := c.ListLogs(ctx, &input)
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-	defer res.Close()
+	defer res.CloseSend()
 
 	logColl := &rest.LogMessageCollection{}
 	for {

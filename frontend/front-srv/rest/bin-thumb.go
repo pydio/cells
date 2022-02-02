@@ -12,14 +12,14 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
-func readBinary(ctx context.Context, router *views.Router, node *tree.Node, output io.Writer, headers http.Header, extension string, resize ...int) error {
+func readBinary(ctx context.Context, router nodes.Client, node *tree.Node, output io.Writer, headers http.Header, extension string, resize ...int) error {
 
 	headers.Add("Content-Security-Policy", "script-src 'none'")
 	headers.Add("X-Content-Security-Policy", "sandbox")

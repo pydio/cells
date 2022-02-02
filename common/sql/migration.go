@@ -23,9 +23,12 @@ package sql
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"path"
 	"sort"
 	"strings"
+
+	"github.com/pydio/cells/v4/common/utils/statics"
 
 	migrate "github.com/rubenv/sql-migrate"
 )
@@ -36,16 +39,9 @@ func (b byId) Len() int           { return len(b) }
 func (b byId) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b byId) Less(i, j int) bool { return b[i].Less(b[j]) }
 
-// PackrBox avoids pulling in the packr library for everyone, mimicks the bits of
-// packr.Box that we need.
-type PackrBox interface {
-	List() []string
-	Bytes(name string) []byte
-}
-
-// PackrMigrationSource is a set of migrations loaded from a packr box.
-type PackrMigrationSource struct {
-	Box PackrBox
+// FSMigrationSource is a set of migrations loaded from a packr box.
+type FSMigrationSource struct {
+	Box statics.FS
 
 	// Path in the box to use.
 	Dir string
@@ -53,9 +49,9 @@ type PackrMigrationSource struct {
 	TablePrefix string
 }
 
-var _ migrate.MigrationSource = (*PackrMigrationSource)(nil)
+var _ migrate.MigrationSource = (*FSMigrationSource)(nil)
 
-func (p PackrMigrationSource) FindMigrations() ([]*migrate.Migration, error) {
+func (p FSMigrationSource) FindMigrations() ([]*migrate.Migration, error) {
 	migrations := make([]*migrate.Migration, 0)
 	items := p.Box.List()
 
@@ -80,9 +76,14 @@ func (p PackrMigrationSource) FindMigrations() ([]*migrate.Migration, error) {
 		name = p.TablePrefix + "_" + name
 
 		if strings.HasSuffix(name, ".sql") {
-			file := p.Box.Bytes(item)
 
-			content := bytes.Replace(file, []byte("%%PREFIX%%"), []byte(p.TablePrefix), -1)
+			file, e := p.Box.Open(item)
+			if e != nil {
+				return nil, e
+			}
+			data, _ := ioutil.ReadAll(file)
+			file.Close()
+			content := bytes.Replace(data, []byte("%%PREFIX%%"), []byte(p.TablePrefix), -1)
 
 			migration, err := migrate.ParseMigration(name, bytes.NewReader(content))
 			if err != nil {

@@ -21,7 +21,7 @@
 package config
 
 import (
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // GetDatabase retrieves the database data from the config

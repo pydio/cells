@@ -26,11 +26,12 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 // init auto registers image-related tasks.
@@ -53,20 +54,24 @@ func init() {
 }
 
 var (
-	router *views.Router
+	router nodes.Client
 )
 
 // getRouter provides a singleton-initialized StandardRouter in AdminView.
-func getRouter() *views.Router {
+func getRouter(runtime context.Context) nodes.Client {
 	if router == nil {
-		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+		router = compose.PathClient(
+			nodes.WithContext(runtime),
+			nodes.AsAdmin(),
+			nodes.WithRegistryWatch(),
+		)
 	}
 	return router
 }
 
 // getThumbLocation returns a node with the correct ds name for pydio thumbs store.
-func getThumbLocation(ctx context.Context, keyName string) (c context.Context, n *tree.Node, e error) {
-	source, er := getRouter().GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
+func getThumbLocation(rCtx, ctx context.Context, keyName string) (c context.Context, n *tree.Node, e error) {
+	source, er := getRouter(rCtx).GetClientsPool().GetDataSourceInfo(common.PydioThumbstoreNamespace)
 	if er != nil {
 		e = er
 		return
@@ -76,6 +81,6 @@ func getThumbLocation(ctx context.Context, keyName string) (c context.Context, n
 		Path:  path.Join(source.Name, keyName),
 		MTime: time.Now().Unix(),
 	}
-	c = context2.WithUserNameMetadata(ctx, common.PydioSystemUsername)
+	c = metadata.WithUserNameMetadata(ctx, common.PydioSystemUsername)
 	return
 }

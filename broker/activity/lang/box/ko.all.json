@@ -1,30 +1,30 @@
 {
   "AccessedBy": {
-    "other": "{{.Actor}}님이 접근하였습니다."
+    "other": "{{.Actor}}님이 접근 하였습니다."
   },
   "AccessedObject": {
-    "other": "{{.Object}}에 접근하였습니다."
+    "other": "{{.Object}}에 액세스 하였습니다."
   },
   "AccessedObjectBy": {
-    "other": "{{.Actor}}님이 {{.Object}}에 접근했습니다."
+    "other": "{{.Actor}}님이 {{.Object}}에 액세스 했습니다."
   },
   "Cell": {
     "other": "공유 폴더"
   },
   "CreatedBy": {
-    "other": "{{.Actor}}가 제작하였습니다."
+    "other": "{{.Actor}}가 제공 하였습니다."
   },
   "CreatedObject": {
-    "other": "{{.Object}}을(를) 생성하였습니다."
+    "other": "{{.Object}}을(를) 생성 하였습니다."
   },
   "CreatedObjectBy": {
     "other": "{{.Actor}}님이 {{.Object}}을(를) 삭제 하였습니다."
   },
   "DeletedBy": {
-    "other": "{{.Actor}}님에 의해 삭제되었습니다."
+    "other": "{{.Actor}}님에 의해 삭제 되었습니다."
   },
   "DeletedObject": {
-    "other": "{{.Object}}가 삭제되었습니다."
+    "other": "{{.Object}}가 삭제 되었습니다."
   },
   "DeletedObjectBy": {
     "other": "{{.Actor}}님이 {{.Object}}을(를) 삭제 하였습니다."
@@ -33,7 +33,7 @@
     "other": "{{.Object}}을(를) 공유 합니다."
   },
   "SharedWsWithYou": {
-    "other": "{{.Actor}}님이 {{.Object}}을(를) 공유합니다."
+    "other": "{{.Actor}}님이 {{.Object}}을(를) 공유 합니다."
   },
   "DigestTitle": {
     "other": "일일 요약 보고서"
@@ -45,13 +45,13 @@
     "other": "폴더"
   },
   "ModifiedBy": {
-    "other": "{{.Actor}}님이 수정하였습니다."
+    "other": "{{.Actor}}가 수정 하였습니다."
   },
   "ModifiedObject": {
     "other": "{{.Object}}가 수정되었습니다."
   },
   "ModifiedObjectBy": {
-    "other": "{{.Actor}}님이 {{.Object}}을(를) 수정하였습니다."
+    "other": "{{.Actor}}님이 {{.Object}}을(를) 수정 하였습니다."
   },
   "MetaModifiedBy": {
     "other": "{{.Actor}}님이 속성을 수정하였습니다."
@@ -60,10 +60,10 @@
     "other": "{{.Object}}의 속성이 수정되었습니다."
   },
   "MetaModifiedObjectBy": {
-    "other": "{{.Actor}}님이 {{.Object}}의 속성을 수정하였습니다."
+    "other": "{{.Actor}}님이 {{.Object}}의 속성을 수정 하였습니다."
   },
   "CommentedBy": {
-    "other": "{{.Actor}}님이 댓글을 남겼습니다."
+    "other": "{{.Actor}}가 댓글을 남겼습니다."
   },
   "CommentedObject": {
     "other": "{{.Object}}에 댓글을 남겼습니다."
@@ -72,7 +72,7 @@
     "other": "{{.Actor}}님이 {{.Object}}에 새로운 댓글을 남겼습니다."
   },
   "MovedBy": {
-    "other": "{{.Actor}}가 이동시켰습니다."
+    "other": "{{.Actor}}가 이동 시켰습니다."
   },
   "MovedObject": {
     "other": "{{.Object}}가 이동되었습니다."

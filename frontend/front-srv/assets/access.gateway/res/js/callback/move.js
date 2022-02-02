@@ -28,6 +28,12 @@ export default function (pydio) {
 
     const comparePaths = (source, target) => {
         const otherRepo = target.getMetadata().has('repository_id');
+        if(target.getMetadata().has('local:dropFunc')){
+            if(target.getMetadata().has('local:canDropFunc')){
+                target.getMetadata().get('local:canDropFunc')(source, target)
+            }
+            return
+        }
         if(target.isLeaf() || target.getPath() === source.getPath() || (!otherRepo && LangUtils.trimRight(target.getPath(), "/") ===  PathUtils.getDirname(source.getPath()))) {
             throw new Error('Cannot drop on leaf or on same path');
         } else if (target.getMetadata().has("virtual_root")) {
@@ -74,6 +80,10 @@ export default function (pydio) {
                         });
                         return;
                     }
+                } else if(dndActionParameter.getTarget().getMetadata().has('local:dropFunc')){
+
+                    dndActionParameter.getTarget().getMetadata().get('local:dropFunc')('dnd', dndActionParameter.getSource(), dndActionParameter.getTarget())
+                    return;
                 }
                 const moveFunction = require('./applyCopyOrMove')(pydio);
                 const sourceNode = dndActionParameter.getSource();

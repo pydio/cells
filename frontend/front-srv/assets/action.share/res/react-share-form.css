@@ -1,16 +1,9 @@
-div.form-react_share_form div.dialogTitle {
-  display: none;
-}
-div.form-react_share_form div.dialogContent .ie_material_checkbox_fix {
-  -ms-overflow-x: hidden !important;
-  -ms-overflow-y: hidden !important;
-}
 div.user-badge.share-dialog {
-  border-bottom: 1px solid #e2e2e2;
+  border-bottom: 1px solid #e0e0e0;
   clear: both;
   font-size: 16px;
-  margin-left: 50px;
-  margin-right: 11px;
+  margin-left: 10px;
+  margin-right: 10px;
   padding-top: 1px;
   display: flex;
   flex-direction: row;
@@ -34,15 +27,15 @@ div.user-badge.share-dialog span.icon-ellipsis-vertical.mui-font-icon {
 }
 div.user-badge.share-dialog span.avatar {
   background-color: #4aceb0;
-  border-radius: 30px;
+  border-radius: 50%;
   color: white;
   display: inline-block;
   font-size: 17px;
-  height: 32px;
-  margin: 5px 14px 7px -44px;
-  padding: 6px;
+  height: 24px;
+  width: 24px;
+  margin: 5px 14px 7px 7px;
+  padding: 3px;
   text-align: center;
-  width: 32px;
 }
 div.user-badge.share-dialog.user-type-group span.avatar {
   background-color: #47b092;
@@ -53,15 +46,15 @@ div.user-badge.share-dialog.user-type-remote_user span.avatar {
 }
 div.user-badge.share-dialog img {
   background-color: #4aceb0;
-  border-radius: 30px;
+  border-radius: 50%;
   color: white;
   display: inline-block;
   font-size: 17px;
-  height: 32px;
+  height: 24px;
   margin: 5px 14px 7px -44px;
   padding: 6px;
   text-align: center;
-  width: 32px;
+  width: 24px;
 }
 div.user-badge.share-dialog div.user-badge-menu-box {
   font-size: 13px;
@@ -90,414 +83,6 @@ div.user-badge.share-dialog span.user-badge-rights-container {
 div.user-badge.share-dialog span.user-badge-rights-container input[name="write"] {
   margin-left: 28px;
 }
-div#react_share_form,
-div.react_share_form {
-  font-size: 13px;
-}
-div#react_share_form label.mui-switch-label,
-div.react_share_form label.mui-switch-label {
-  white-space: nowrap;
-}
-div#react_share_form .mui-checkbox .mui-checkbox-icon,
-div.react_share_form .mui-checkbox .mui-checkbox-icon {
-  margin-right: 6px;
-}
-div#react_share_form div.headerPanel,
-div.react_share_form div.headerPanel {
-  /*    background-color: @color0 !important;*/
-}
-div#react_share_form div.headerPanel > div,
-div.react_share_form div.headerPanel > div {
-  color: white;
-  font-size: 24px;
-  line-height: 27px;
-  padding: 20px 16px 14px;
-  word-break: break-all;
-}
-div#react_share_form .shared-users-rights-header,
-div.react_share_form .shared-users-rights-header {
-  color: #ADADAD;
-  padding-right: 50px;
-  text-align: right;
-  margin-top: 10px;
-}
-div#react_share_form .shared-users-rights-header span,
-div.react_share_form .shared-users-rights-header span {
-  display: inline-block;
-  font-size: 10px;
-  margin: 0 6px;
-  width: 37px;
-  text-transform: uppercase;
-}
-div#react_share_form .suggest-search.icon-search,
-div.react_share_form .suggest-search.icon-search,
-div#react_share_form .suggest-search.icon-refresh,
-div.react_share_form .suggest-search.icon-refresh {
-  color: #C1C1C1;
-  font-size: 18px;
-  position: absolute;
-  right: 15px;
-  top: 2px;
-}
-div#react_share_form .suggest-search.icon-refresh,
-div.react_share_form .suggest-search.icon-refresh {
-  top: 12px;
-}
-div#react_share_form div.share-form-users .react-autosuggest input#users-autosuggest,
-div.react_share_form div.share-form-users .react-autosuggest input#users-autosuggest {
-  font-size: 16px;
-  padding-bottom: 8px !important;
-  padding-left: 0 !important;
-  margin-top: 11px;
-  width: 340px;
-  border-bottom: 1px solid #E0E0E0;
-}
-div#react_share_form div.share-form-users .react-autosuggest input#users-autosuggest ::-webkit-input-placeholder,
-div.react_share_form div.share-form-users .react-autosuggest input#users-autosuggest ::-webkit-input-placeholder,
-div#react_share_form div.share-form-users .react-autosuggest input#users-autosuggest ::-moz-placeholder,
-div.react_share_form div.share-form-users .react-autosuggest input#users-autosuggest ::-moz-placeholder {
-  color: rgba(0, 0, 0, 0.3);
-}
-div#react_share_form div.share-form-users .react-autosuggest .react-autosuggest__suggestions,
-div.react_share_form div.share-form-users .react-autosuggest .react-autosuggest__suggestions {
-  width: 340px;
-}
-div#react_share_form div.share-form-users .suggest-search.icon-search,
-div.react_share_form div.share-form-users .suggest-search.icon-search {
-  top: 12px;
-}
-div#react_share_form .additional-actions-links,
-div.react_share_form .additional-actions-links {
-  text-align: right;
-  margin-top: 6px;
-  padding-right: 15px;
-}
-div#react_share_form .additional-actions-links a,
-div.react_share_form .additional-actions-links a {
-  color: #c1c1c1;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-block;
-  margin-left: 10px;
-}
-div#react_share_form .additional-actions-links a.qrcode-active,
-div.react_share_form .additional-actions-links a.qrcode-active {
-  color: #333333;
-}
-div#react_share_form .qrCode,
-div.react_share_form .qrCode {
-  text-align: center;
-}
-div#react_share_form .qrCode canvas,
-div.react_share_form .qrCode canvas {
-  margin-top: 10px;
-}
-div#react_share_form .form-legend,
-div.react_share_form .form-legend {
-  color: #bbb;
-  margin-top: -5px !important;
-  font-size: 11px;
-}
-div#react_share_form div.mui-drop-down-menu.full-width,
-div.react_share_form div.mui-drop-down-menu.full-width {
-  width: 100%;
-  margin-left: 0;
-  height: 43px;
-}
-div#react_share_form div.mui-drop-down-menu.full-width .mui-menu-control .mui-menu-label,
-div.react_share_form div.mui-drop-down-menu.full-width .mui-menu-control .mui-menu-label {
-  font-size: 16px;
-  white-space: nowrap;
-  width: 95%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-left: 0;
-}
-div#react_share_form div.mui-drop-down-menu.full-width .mui-menu-drop-down-icon,
-div.react_share_form div.mui-drop-down-menu.full-width .mui-menu-drop-down-icon {
-  right: 0;
-}
-div#react_share_form div.mui-drop-down-menu.full-width .mui-menu-control-underline,
-div.react_share_form div.mui-drop-down-menu.full-width .mui-menu-control-underline {
-  margin: 0;
-}
-div#react_share_form .public-link-container .public-link,
-div.react_share_form .public-link-container .public-link {
-  font-size: 18px;
-}
-div#react_share_form .public-link-container .public-link input,
-div.react_share_form .public-link-container .public-link input {
-  text-align: center;
-  color: #43987c;
-}
-div#react_share_form .public-link-container .public-link.link-expired input,
-div.react_share_form .public-link-container .public-link.link-expired input {
-  color: #aaa;
-  text-decoration: line-through;
-}
-div#react_share_form .public-link-container.edit-link > span,
-div.react_share_form .public-link-container.edit-link > span {
-  font-size: 20px;
-  text-align: right;
-  display: inline-block;
-  width: 160px;
-  color: #43987c;
-}
-div#react_share_form .public-link-container.edit-link .mui-raised-button,
-div.react_share_form .public-link-container.edit-link .mui-raised-button {
-  margin-left: 10px;
-}
-div#react_share_form .public-link-container.edit-link .mui-text-field,
-div.react_share_form .public-link-container.edit-link .mui-text-field {
-  font-size: 20px;
-  width: 100px;
-}
-div#react_share_form .public-link-container .copy-link-button,
-div.react_share_form .public-link-container .copy-link-button {
-  font-size: 24px;
-  cursor: pointer;
-  display: block;
-  padding: 4px 7px;
-  font-size: 16px !important;
-  position: absolute;
-  top: 10px;
-  right: 0;
-  background-color: white;
-}
-div#react_share_form .public-link-container .copy-link-button:hover,
-div.react_share_form .public-link-container .copy-link-button:hover {
-  color: #47b092;
-}
-div#react_share_form .public-link-container .section-legend,
-div.react_share_form .public-link-container .section-legend {
-  margin-top: 10px;
-}
-div#react_share_form .public-link-container .additional-actions-links,
-div.react_share_form .public-link-container .additional-actions-links {
-  text-align: center;
-}
-div#react_share_form .password-container,
-div.react_share_form .password-container,
-div#react_share_form .expires,
-div.react_share_form .expires {
-  margin-top: -10px;
-}
-div#react_share_form .password-container .mui-text-field,
-div.react_share_form .password-container .mui-text-field,
-div#react_share_form .expires .mui-text-field,
-div.react_share_form .expires .mui-text-field {
-  width: 154px;
-}
-div#react_share_form .password-container label,
-div.react_share_form .password-container label,
-div#react_share_form .expires label,
-div.react_share_form .expires label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 154px;
-}
-div#react_share_form .password-container .calLabelHasValue,
-div.react_share_form .password-container .calLabelHasValue,
-div#react_share_form .expires .calLabelHasValue,
-div.react_share_form .expires .calLabelHasValue {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: scale(0.75) translate3d(35px, 27px, 0);
-  transform-origin: left top;
-  color: rgba(0, 0, 0, 0.5);
-  font-size: 16px;
-}
-div#react_share_form .password-container .limit-block-expired label,
-div.react_share_form .password-container .limit-block-expired label,
-div#react_share_form .expires .limit-block-expired label,
-div.react_share_form .expires .limit-block-expired label,
-div#react_share_form .password-container .limit-block-expired .calLabelHasValue,
-div.react_share_form .password-container .limit-block-expired .calLabelHasValue,
-div#react_share_form .expires .limit-block-expired .calLabelHasValue,
-div.react_share_form .expires .limit-block-expired .calLabelHasValue {
-  color: #d40000 !important;
-}
-div#react_share_form .password-container .mui-date-picker,
-div.react_share_form .password-container .mui-date-picker,
-div#react_share_form .expires .mui-date-picker,
-div.react_share_form .expires .mui-date-picker {
-  display: inline-block;
-  margin-top: 22px;
-}
-div#react_share_form .password-container .ajxp_icon_span,
-div.react_share_form .password-container .ajxp_icon_span,
-div#react_share_form .expires .ajxp_icon_span,
-div.react_share_form .expires .ajxp_icon_span {
-  float: left;
-  font-size: 20px;
-  color: rgba(0, 0, 0, 0.53);
-  margin-right: 9px;
-  margin-left: 3px;
-}
-div#react_share_form .password-container .ajxp_icon_span.mdi-file-lock,
-div.react_share_form .password-container .ajxp_icon_span.mdi-file-lock,
-div#react_share_form .expires .ajxp_icon_span.mdi-file-lock,
-div.react_share_form .expires .ajxp_icon_span.mdi-file-lock {
-  margin-top: 40px;
-}
-div#react_share_form .password-container .ajxp_icon_span.mdi-calendar-clock,
-div.react_share_form .password-container .ajxp_icon_span.mdi-calendar-clock,
-div#react_share_form .expires .ajxp_icon_span.mdi-calendar-clock,
-div.react_share_form .expires .ajxp_icon_span.mdi-calendar-clock {
-  margin-top: 27px;
-}
-div#react_share_form .password-container .ajxp_icon_span.mdi-download,
-div.react_share_form .password-container .ajxp_icon_span.mdi-download,
-div#react_share_form .expires .ajxp_icon_span.mdi-download,
-div.react_share_form .expires .ajxp_icon_span.mdi-download {
-  margin-top: 34px;
-}
-div#react_share_form .password-container span.dlCounterString,
-div.react_share_form .password-container span.dlCounterString,
-div#react_share_form .expires span.dlCounterString,
-div.react_share_form .expires span.dlCounterString {
-  position: absolute;
-  right: 17px;
-  bottom: 11px;
-  color: #2f8c77;
-  font-size: 13px;
-  font-weight: 500;
-}
-div#react_share_form .label-desc-edit .mui-text-field,
-div.react_share_form .label-desc-edit .mui-text-field {
-  width: 100%;
-  margin-top: -10px;
-}
-div#react_share_form h3,
-div.react_share_form h3 {
-  font-size: 18px;
-}
-div#react_share_form h4,
-div.react_share_form h4 {
-  padding-top: 10px;
-  font-weight: 500;
-  font-size: 13px;
-  margin-bottom: 0;
-}
-div#react_share_form .ownership-form .mui-text-field,
-div.react_share_form .ownership-form .mui-text-field {
-  margin-top: -20px;
-  width: 230px;
-  margin-right: 10px;
-}
-div#react_share_form .ownership-form .mui-text-field .mui-text-field-floating-label,
-div.react_share_form .ownership-form .mui-text-field .mui-text-field-floating-label {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-div#react_share_form div.remote-users-add,
-div.react_share_form div.remote-users-add {
-  display: flex;
-  margin-top: -20px;
-}
-div#react_share_form div.remote-users-add div.host,
-div.react_share_form div.remote-users-add div.host {
-  width: 66%;
-  margin-right: 6px;
-}
-div#react_share_form div.remote-users-add div.user,
-div.react_share_form div.remote-users-add div.user {
-  margin-top: 1px;
-  width: 40%;
-  background-color: transparent;
-}
-div#react_share_form div.remote-users-add button.mui-icon-button,
-div.react_share_form div.remote-users-add button.mui-icon-button {
-  margin-top: 26px;
-  color: #438db3;
-}
-div#react_share_form div.remote-users-add button.mui-icon-button.mui-is-disabled,
-div.react_share_form div.remote-users-add button.mui-icon-button.mui-is-disabled {
-  color: #eee;
-}
-div#react_share_form a.revert-button,
-div.react_share_form a.revert-button {
-  color: #bbb;
-  display: inline-block;
-  margin-right: 5px;
-  cursor: pointer;
-}
-div.react-autosuggest {
-  padding-left: 1px;
-}
-div.react-autosuggest li.react-autosuggest__suggestion {
-  display: block;
-}
-div.react-autosuggest .react-autosuggest__suggestion--focused {
-  background-color: aliceblue;
-}
-div.react-autosuggest input.react-autosuggest__input {
-  width: 370px;
-}
-div.react-autosuggest .react-autosuggest__suggestions {
-  background-color: white;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.63);
-  display: block;
-  margin-top: 1px;
-  max-height: 300px;
-  overflow-y: auto;
-  position: absolute;
-  width: 370px;
-  z-index: 20;
-}
-.list-force-hide div.react-autosuggest .react-autosuggest__suggestions {
-  display: none !important;
-}
-div.react-autosuggest input#users-autosuggest {
-  font-size: 18px;
-  padding-bottom: 9px !important;
-  padding-left: 4px !important;
-}
-div#ajxp_shared_info_panel input.share_info_panel_link {
-  box-sizing: border-box;
-  width: 100%;
-}
-div#ajxp_shared_info_panel .copy-button {
-  position: absolute;
-  right: 1px;
-  top: 1px;
-  cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.87);
-  padding: 7px;
-  font-size: 13px;
-  height: 12px;
-  border-radius: 0 2px 2px 0;
-}
-div#ajxp_shared_info_panel .copy-message {
-  padding-top: 5px;
-  text-align: center;
-  font-size: 13px;
-}
-div#ajxp_shared_info_panel .uUserEntry {
-  display: flex;
-  padding: 3px 0;
-  color: black;
-}
-div#ajxp_shared_info_panel .uUserEntry:last-of-type {
-  border-bottom: 0;
-}
-div#ajxp_shared_info_panel .uUserEntry .uLabel {
-  flex: 5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-div#ajxp_shared_info_panel .uUserEntry .uRight,
-div#ajxp_shared_info_panel .uUserEntry .uStatus {
-  /*display: none;*/
-  font-size: 0.8em;
-  color: #6D6D6D;
-}
-div#ajxp_shared_info_panel .uUserEntry:hover .uRight,
-div#ajxp_shared_info_panel .uUserEntry:hover .uStatus {
-  display: inline;
+div#share-form-users {
+  margin-top: 0 !important;
 }

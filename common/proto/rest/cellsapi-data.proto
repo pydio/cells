@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package rest;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+import "cells-tree.proto";
+import "cells-docstore.proto";
+
+message SearchResults{
+    repeated tree.Node Results = 1;
+    repeated tree.SearchFacet Facets = 3;
+    int32 Total = 2;
+}
+
+// Generic container for responses sending pagination information
+message Pagination {
+    // Current Limit parameter, either passed by request or default value
+    int32 Limit = 1;
+    // Current Offset value
+    int32 CurrentOffset = 2;
+    // Total number of records
+    int32 Total = 3;
+    // Current number of Page
+    int32 CurrentPage = 4;
+    // Number of detected pages
+    int32 TotalPages = 5;
+
+    // Offset value for next page if there is one
+    int32 NextOffset = 6;
+    // Offset value for previous page, if there is one
+    int32 PrevOffset = 7;
+}
+
+message Metadata {
+    string Namespace = 1;
+    string JsonMeta = 2;
+}
+
+message MetaCollection {
+    string NodePath = 1;
+    repeated Metadata Metadatas = 2;
+}
+
+message MetaNamespaceRequest{
+    // Path to the requested node
+    string NodePath = 1;
+    // List of namespaces to load
+    repeated string Namespace = 2;
+}
+
+message GetBulkMetaRequest{
+    // List of node paths to query (use paths ending with /* to load the children)
+    repeated string NodePaths = 1;
+    // Whether to query all services for the metadata they can contribute to enrich the node
+    bool AllMetaProviders = 3;
+    // Load Versions of the given node
+    bool Versions = 4;
+    // Start listing at a given position
+    int32 Offset = 5;
+    // Limit number of results
+    int32 Limit = 6;
+}
+
+message BulkMetaResponse{
+    repeated tree.Node Nodes = 1;
+    Pagination Pagination = 5;
+}
+
+message HeadNodeRequest {
+    // The node to state
+    string Node = 1;
+}
+
+message HeadNodeResponse {
+    tree.Node Node = 1;
+}
+
+message CreateNodesRequest {
+    // A list of nodes that must be created
+    repeated tree.Node Nodes = 1;
+    // If nodes are created inside non-existing folders, whether the parents should be created automatically or not
+    bool Recursive = 2;
+    // Use a template to create this node
+    string TemplateUUID = 3;
+}
+
+message CreateSelectionRequest {
+    // Create a temporary selection out of this list of nodes
+    repeated tree.Node Nodes = 1;
+    // Associated target action for this selection
+    string TargetAction = 2;
+    // Whether to save the selection or just get a temporary Uuid in return
+    bool Persist = 3;
+}
+
+message CreateSelectionResponse {
+    string SelectionUUID = 1;
+    repeated tree.Node Nodes = 2;
+}
+
+message NodesCollection {
+    tree.Node Parent = 1;
+    repeated tree.Node Children = 2;
+}
+
+message DeleteNodesRequest {
+    // List of nodes to delete
+    repeated tree.Node Nodes = 1;
+    // Whether to delete all the children if node is a folder
+    bool Recursive = 2;
+    // Force permanent deletion even if a recycle bin is defined
+    bool RemovePermanently = 3;
+}
+
+message BackgroundJobResult {
+    string Uuid = 1;
+    string Label = 2;
+    string NodeUuid = 3;
+}
+
+message DeleteNodesResponse {
+    repeated BackgroundJobResult DeleteJobs = 1;
+}
+
+message RestoreNodesRequest {
+    // Restore this node from the recycle bin to its original location
+    repeated tree.Node Nodes = 1;
+}
+
+message RestoreNodesResponse {
+    repeated BackgroundJobResult RestoreJobs = 1;
+}
+
+message ListDocstoreRequest {
+    // Id of the Store to list
+    string StoreID = 1;
+    // Bleve-query for searching the store
+    docstore.DocumentQuery Query = 2;
+    // Return only the number of results, no actual documents
+    bool CountOnly = 3;
+}
+
+message DocstoreCollection {
+    repeated docstore.Document Docs = 1;
+    int64 Total = 2;
+}

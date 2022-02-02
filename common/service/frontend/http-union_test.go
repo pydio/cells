@@ -21,25 +21,32 @@
 package frontend
 
 import (
+	"embed"
 	"io/ioutil"
 	"testing"
 
-	"github.com/pydio/packr"
+	"github.com/pydio/cells/v4/common/utils/statics"
+
 	. "github.com/smartystreets/goconvey/convey"
+)
+
+var (
+	//go:embed tests/assets1
+	testAssets1 embed.FS
+	//go:embed tests/assets2
+	testAssets2 embed.FS
 )
 
 func TestUnionHttpFs(t *testing.T) {
 
-	Convey("Test PackrFS", t, func() {
+	Convey("Test EmbedFS", t, func() {
 
-		box := packr.NewBox("./tests/assets1")
-		box2 := packr.NewBox("./tests/assets2")
 		fs := NewUnionHttpFs(PluginBox{
 			Exposes: []string{"a", "b"},
-			Box:     box,
+			Box:     statics.AsFS(testAssets1, "tests/assets1"),
 		}, PluginBox{
 			Exposes: []string{"c"},
-			Box:     box2,
+			Box:     statics.AsFS(testAssets2, "tests/assets2"),
 		})
 		So(fs, ShouldNotBeNil)
 
@@ -69,4 +76,5 @@ func TestUnionHttpFs(t *testing.T) {
 		So(string(indexData), ShouldEqual, `["a","b","c"]`)
 
 	})
+
 }

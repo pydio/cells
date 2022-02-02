@@ -26,12 +26,16 @@ import (
 	"log"
 	"os"
 
+	"github.com/pydio/cells/v4/common/registry"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
 )
 
 var (
@@ -99,8 +103,17 @@ EXAMPLE
 
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
+
+		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		if err != nil {
+			return err
+		}
+
+		ctx = servercontext.WithRegistry(ctx, reg)
+
+		client := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 
 		users, err := searchUser(context.Background(), client, userProfileLogin)
 		if err != nil {
@@ -121,6 +134,8 @@ EXAMPLE
 				fmt.Printf("user %s profile was successfully updated\n", user.Login)
 			}
 		}
+
+		return nil
 	},
 }
 

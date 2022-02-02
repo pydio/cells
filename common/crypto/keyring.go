@@ -28,6 +28,58 @@ import (
 	"github.com/zalando/go-keyring"
 )
 
+type Keyring interface{
+	Get(string, string) (string, error)
+	Set(string, string, string) error
+	Delete(string, string) error
+}
+
+type KeyringOptions struct {
+	Auto bool
+}
+
+type KeyringOption func(*KeyringOptions)
+
+func WithAutoCreate(b bool) KeyringOption {
+	return func(o *KeyringOptions) {
+		o.Auto = b
+	}
+}
+
+type autoCreateKeyring struct {
+	Keyring
+}
+
+func NewAutoKeyring(base Keyring) Keyring {
+	return &autoCreateKeyring{base}
+}
+
+func (k *autoCreateKeyring) Get(service string, user string) (string, error) {
+	password, err := k.Keyring.Get(service, user)
+	if err != nil && err != ErrNotFound {
+		return "", errors.New("failed to read from keyring")
+	}
+
+	empty := len(password) == 0
+	if !empty {
+		return password, nil
+	}
+
+	b, err := RandomBytes(50)
+	if err != nil {
+		return "", err
+	}
+
+	password = base64.StdEncoding.EncodeToString(b)
+
+	err = k.Keyring.Set(service, user, password)
+	if err != nil {
+		return "", errors.New("failed to read from keyring. Make sure you have the system keyring installed")
+	}
+
+	return password, nil
+}
+
 // GetKeyringPassword retrieves a password from the keyring.
 // If no key matches "service" and "user" and if createIfNotExist
 // flag is set, a new key is generated and returned.

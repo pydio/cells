@@ -1,8 +1,0 @@
-{
-  "protocol":"http",
-  "url":"192.168.0.1:8080",
-  "path":"/pydio",
-  "user":"admin",
-  "password":"the pwd of the admin user",
-  "skipVerify": false
-}

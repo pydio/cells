@@ -26,17 +26,16 @@ import (
 	"path"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/protobuf/ptypes"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/proto"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 type FreeStringEvaluator func(ctx context.Context, query string, node *tree.Node) bool
@@ -65,7 +64,7 @@ func (n *NodesSelector) MultipleSelection() bool {
 	return n.Collect
 }
 
-func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (n *NodesSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
@@ -82,7 +81,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 			return nil
 		}
 
-		if e := ptypes.UnmarshalAny(selector.Query.SubQueries[0], q); e != nil {
+		if e := anypb.UnmarshalTo(selector.Query.SubQueries[0], q, proto.UnmarshalOptions{}); e != nil {
 			log.Logger(ctx).Error("Could not parse input query", zap.Error(e))
 			return e
 		}
@@ -92,7 +91,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		}
 		// If paths are preset, just load nodes and do not go further
 		if len(q.Paths) > 0 {
-			sCli := tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
+			sCli := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 			for _, p := range q.Paths {
 				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: p}}); e == nil {
 					objects <- r.GetNode()
@@ -102,7 +101,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 		}
 		// If UUIDs are preset, just load nodes and do not go further
 		if len(q.UUIDs) > 0 {
-			sCli := tree.NewNodeProviderClient(registry.GetClient(common.ServiceTree))
+			sCli := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 			for _, uuid := range q.UUIDs {
 				if r, e := sCli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: uuid}}); e == nil {
 					objects <- r.GetNode()
@@ -132,7 +131,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 					From:    cursor,
 					Size:    size,
 				}
-				res, loadMore, err := n.performListing(ctx, cl, common.ServiceSearch, req, filter, objects)
+				res, loadMore, err := n.performListing(ctx, common.ServiceSearch, req, filter, objects)
 				if err != nil {
 					return err
 				}
@@ -150,7 +149,7 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 				Query:   q,
 				Details: true,
 			}
-			total, _, e = n.performListing(ctx, cl, common.ServiceTree, req, filter, objects)
+			total, _, e = n.performListing(ctx, common.ServiceTree, req, filter, objects)
 			if e != nil {
 				return e
 			}
@@ -160,15 +159,15 @@ func (n *NodesSelector) Select(cl client.Client, ctx context.Context, input Acti
 	return nil
 }
 
-func (n *NodesSelector) performListing(ctx context.Context, cl client.Client, serviceName string, req *tree.SearchRequest, filter func(n *tree.Node) bool, objects chan interface{}) (int, bool, error) {
-	treeClient := tree.NewSearcherClient(common.ServiceGrpcNamespace_+serviceName, cl)
+func (n *NodesSelector) performListing(ctx context.Context, serviceName string, req *tree.SearchRequest, filter func(n *tree.Node) bool, objects chan interface{}) (int, bool, error) {
+	treeClient := tree.NewSearcherClient(grpc.GetClientConnFromCtx(ctx, serviceName))
 	sStream, eR := treeClient.Search(ctx, req)
 	if eR != nil {
 		return 0, false, eR
 	}
 	var received int32
 	var count int
-	defer sStream.Close()
+	defer sStream.CloseSend()
 	for {
 		resp, rE := sStream.Recv()
 		if rE != nil {
@@ -204,9 +203,9 @@ func (n *NodesSelector) Filter(ctx context.Context, input ActionMessage) (Action
 	var multi *service.MultiMatcher
 	if selector.Query != nil && len(selector.Query.SubQueries) > 0 {
 		multi = &service.MultiMatcher{}
-		if er := multi.Parse(selector.Query, func(o *any.Any) (service.Matcher, error) {
+		if er := multi.Parse(selector.Query, func(o *anypb.Any) (service.Matcher, error) {
 			target := &tree.Query{}
-			if e := ptypes.UnmarshalAny(o, target); e != nil {
+			if e := anypb.UnmarshalTo(o, target, proto.UnmarshalOptions{}); e != nil {
 				return nil, e
 			}
 			return &NodeMatcher{Query: target}, nil
@@ -255,7 +254,7 @@ func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage)
 	if c.Query != nil && len(c.Query.SubQueries) > 0 {
 		for i, q := range c.Query.SubQueries {
 			singleQuery := &tree.Query{}
-			if e := ptypes.UnmarshalAny(q, singleQuery); e != nil {
+			if e := anypb.UnmarshalTo(q, singleQuery, proto.UnmarshalOptions{}); e != nil {
 				continue
 			}
 			singleQuery.Content = EvaluateFieldStr(ctx, input, singleQuery.Content)
@@ -267,7 +266,7 @@ func (n *NodesSelector) evaluatedClone(ctx context.Context, input ActionMessage)
 			singleQuery.PathPrefix = EvaluateFieldStrSlice(ctx, input, singleQuery.PathPrefix)
 			singleQuery.Paths = EvaluateFieldStrSlice(ctx, input, singleQuery.Paths)
 			singleQuery.UUIDs = EvaluateFieldStrSlice(ctx, input, singleQuery.UUIDs)
-			c.Query.SubQueries[i], _ = ptypes.MarshalAny(singleQuery)
+			c.Query.SubQueries[i], _ = anypb.New(singleQuery)
 		}
 	}
 	return c
@@ -345,7 +344,7 @@ func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
 
 	if len(q.FileName) != 0 {
 		// Basic search: can have wildcard on left, right, or none (exact search)
-		nodeName := node.GetStringMeta("name")
+		nodeName := node.GetStringMeta(common.MetaNamespaceNodeName)
 		if len(nodeName) == 0 {
 			nodeName = path.Base(node.Path)
 		}
@@ -376,7 +375,7 @@ func evaluateSingleQuery(q *tree.Query, node *tree.Node) (result bool) {
 	if len(q.Extension) > 0 {
 		// Can be "ext1,ext2,ext3"
 		exts := strings.Split(q.Extension, ",")
-		nodeName := node.GetStringMeta("name")
+		nodeName := node.GetStringMeta(common.MetaNamespaceNodeName)
 		if len(nodeName) == 0 {
 			nodeName = path.Base(node.Path)
 		}

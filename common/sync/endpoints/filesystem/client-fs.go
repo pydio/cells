@@ -37,20 +37,20 @@ import (
 	"sync"
 
 	"github.com/karrick/godirwalk"
-	errors2 "github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
 	"github.com/rjeczalik/notify"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/merger"
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/sync/proc"
-	"github.com/pydio/cells/common/utils/filesystem"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	errors2 "github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/sync/proc"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -233,7 +233,7 @@ func (c *FSClient) SetRefHashStore(source model.PathSyncSource) {
 func (c *FSClient) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "fs://" + c.uriPath,
+		URI:                   "fs://" + c.uriPath,
 		RequiresFoldersRescan: true,
 		RequiresNormalization: runtime.GOOS == "darwin",
 		//		Ignores:               []string{common.PydioSyncHiddenFile},
@@ -671,10 +671,10 @@ func (c *FSClient) loadNodeExtendedStats(ctx context.Context, node *tree.Node) e
 	}
 	if totalSize > 0 {
 		node.Size = totalSize
-		node.SetMeta("RecursiveChildrenSize", totalSize)
+		node.MustSetMeta(model.MetaRecursiveChildrenSize, totalSize)
 	}
-	node.SetMeta("RecursiveChildrenFiles", files)
-	node.SetMeta("RecursiveChildrenFolders", folders)
+	node.MustSetMeta(model.MetaRecursiveChildrenFiles, files)
+	node.MustSetMeta(model.MetaRecursiveChildrenFolders, folders)
 	return nil
 }
 

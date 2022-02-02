@@ -38,6 +38,7 @@ func init() {
 	}
 }
 
+// TODO v4 - Replug in root/start command initAdvertiseIP ?
 func DetectHasPrivateIP() (bool, string, error) {
 
 	addrs, err := net.InterfaceAddrs()

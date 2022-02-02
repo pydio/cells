@@ -25,16 +25,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // CheckOIDCPolicies builds a local policies checker by loading "oidc"-resource policies and putting them in
@@ -123,7 +123,7 @@ func SubjectsForResourcePolicyQuery(ctx context.Context, q *rest.ResourcePolicyQ
 					subjects = append(subjects, "role:"+r.Uuid)
 				}
 			} else {
-				if errors.Parse(e.Error()).Code != 404 {
+				if errors.FromError(e).Code != 404 {
 					log.Logger(ctx).Warn("[policies] Cannot find user '"+uName+"' although in context", zap.Error(e))
 				}
 			}

@@ -30,10 +30,10 @@
     "other": "riprova con un nuovo valore"
   },
   "database.useDefaultsSet": {
-    "other": "Un database predefinito è già configurato, basta fare clic accanto per convalidare la connessione."
+    "other": "A default database is already configured, just click next to validate connection."
   },
   "database.forceConfigure": {
-    "other": "Configura un altro database."
+    "other": "Configure another database."
   },
   "admin.stepLabel": {
     "other": "Utente Amministratore"
@@ -195,19 +195,19 @@
     "other": "FS locale (memorizza tutti i dati su questo server)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3 compatibile (memorizza all'interno dei bucket S3)"
+    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
   },
   "form.dsS3Custom.label": {
-    "other": "Endpoint di archiviazione compatibile S3"
+    "other": "S3-Compatible storage endpoint"
   },
   "form.dsS3Custom.legend": {
-    "other": "Lascia vuoto per Amazon"
+    "other": "Leave empty for Amazon"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "Regione personalizzata S3"
+    "other": "S3 Custom region"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Lasciare vuoto per default (us-east-1)"
+    "other": "Leave empty for default (us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "Chiave Api S3"

@@ -24,16 +24,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common/proto/service"
 )
 
 // Enquirer interface
 type Enquirer interface {
-	GetSubQueries() []*any.Any
+	GetSubQueries() []*anypb.Any
 	GetOperation() service.OperationType
 	GetOffset() int64
 	GetLimit() int64
@@ -46,11 +46,11 @@ type Enquirer interface {
 // Query redefinition for the DAO
 type query struct {
 	enquirer   Enquirer
-	converters []common.Converter
+	converters []service.Converter
 }
 
 // NewDAOQuery adds database functionality to a Query proto message
-func NewDAOQuery(enquirer Enquirer, converters ...common.Converter) fmt.Stringer {
+func NewDAOQuery(enquirer Enquirer, converters ...service.Converter) fmt.Stringer {
 	return query{
 		enquirer,
 		converters,
@@ -67,14 +67,11 @@ func (q query) String() string {
 
 		sub := new(service.Query)
 
-		if ptypes.Is(subQ, sub) {
-
-			// TODO something if Unmarshal fails!
-			ptypes.UnmarshalAny(subQ, sub)
+		if e := anypb.UnmarshalTo(subQ, sub, proto.UnmarshalOptions{}); e == nil {
 
 			subQueryString := NewDAOQuery(sub, q.converters...).String()
-
 			wheres = append(wheres, subQueryString)
+
 		} else {
 			for _, converter := range q.converters {
 				if str, ok := converter.Convert(subQ); ok {

@@ -22,24 +22,28 @@ package meta
 
 import (
 	"context"
+	"embed"
 	"time"
 
-	"github.com/pborman/uuid"
-	"github.com/pydio/packr"
+	goqu "github.com/doug-martin/goqu/v9"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/idm/meta/namespace"
-	"github.com/pydio/cells/x/configx"
-	"gopkg.in/doug-martin/goqu.v4"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/idm/meta/namespace"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"AddMeta":      `insert into idm_usr_meta (uuid, node_uuid, namespace, owner, timestamp, format, data) values (?, ?,?,?,?,?,?)`,
 		"UpdateMeta":   `update idm_usr_meta set node_uuid=?, namespace=?, owner=?, timestamp=?, format=?, data=? WHERE uuid=?`,
@@ -76,8 +80,8 @@ func (dao *sqlimpl) Init(options configx.Values) error {
 	}
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../idm/meta/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         dao.Driver(),
 		TablePrefix: dao.Prefix(),
 	}
@@ -130,7 +134,7 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, string, error) {
 			previousValue = ""
 		}
 	} else {
-		metaId = uuid.NewUUID().String()
+		metaId = uuid.New()
 	}
 
 	if update {

@@ -23,10 +23,12 @@ package docs
 import (
 	"strings"
 
+	"github.com/pydio/cells/v4/common"
+
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func loadJsonSpec() map[string][]Op {
@@ -52,7 +54,7 @@ func parseOperation(document *loads.Document, uri, opType string, o *spec.Operat
 	var parameters []*Parameter
 	op := Op{
 		Type:        opType,
-		Path:        "/a" + uri,
+		Path:        common.DefaultRouteREST + uri,
 		Description: o.Summary,
 	}
 	for _, param := range o.Parameters {

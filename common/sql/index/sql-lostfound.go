@@ -25,9 +25,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 func init() {

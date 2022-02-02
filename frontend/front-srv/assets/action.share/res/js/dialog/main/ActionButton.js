@@ -31,31 +31,37 @@ class ActionButton extends Component{
     render(){
 
         const {palette} = this.props.muiTheme;
+        const {destructive} = this.props;
+        const color = destructive ? '#d32f2f' : palette.primary1Color;
 
         const style = {
             root: {
                 borderRadius: '50%',
-                border: '1px solid ' + palette.primary1Color,
+                border: '1px solid ' + color,
                 backgroundColor: 'transparent',
                 width: 36, height: 36,
-                padding: 8,
+                padding: '8px 6px',
                 margin: '0 6px',
                 zIndex: 0
             },
             icon: {
-                color: palette.primary1Color,
+                color: color,
                 fontSize: 20,
                 lineHeight: '20px'
             }
         };
+        let {tooltip, messageId, getMessage, messageCoreNamespace} = this.props;
+        if(messageId && getMessage){
+            tooltip = this.props.getMessage(messageId, messageCoreNamespace||undefined);
+        }
 
         return (
             <IconButton
                 style={style.root}
                 iconStyle={style.icon}
                 onClick={this.props.callback || this.props.onClick}
-                iconClassName={"mdi mdi-" + this.props.mdiIcon}
-                tooltip={this.props.getMessage(this.props.messageId, this.props.messageCoreNamespace?'': undefined)}
+                iconClassName={this.props.mdiIcon ? "mdi mdi-" + this.props.mdiIcon : this.props.iconClassName}
+                tooltip={tooltip}
                 tooltipPosition={this.props.tooltipPosition}
             />
         );

@@ -30,14 +30,14 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	bolt "github.com/etcd-io/bbolt"
-	"github.com/micro/go-micro/client"
+	bolt "go.etcd.io/bbolt"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/boltdb"
-	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/x/configx"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type boltdbimpl struct {
@@ -125,12 +125,12 @@ func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
 				return err
 			}
 			if a.publishCtx != nil {
-				client.Publish(a.publishCtx, client.NewPublication(common.TopicActivityEvent, &activity.PostActivityEvent{
+				broker.MustPublish(a.publishCtx, common.TopicActivityEvent, &activity.PostActivityEvent{
 					OwnerType: a.ownerType,
 					OwnerId:   a.ownerId,
 					BoxName:   string(a.boxName),
 					Activity:  object,
-				}))
+				})
 			}
 		}
 		return nil
@@ -156,12 +156,12 @@ func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string
 
 	})
 	if err == nil && publishCtx != nil {
-		client.Publish(publishCtx, client.NewPublication(common.TopicActivityEvent, &activity.PostActivityEvent{
+		broker.MustPublish(publishCtx, common.TopicActivityEvent, &activity.PostActivityEvent{
 			OwnerType: ownerType,
 			OwnerId:   ownerId,
 			BoxName:   string(boxName),
 			Activity:  object,
-		}))
+		})
 	}
 	return err
 
@@ -200,7 +200,7 @@ func (dao *boltdbimpl) ListSubscriptions(objectType activity.OwnerType, objectId
 			if bucket == nil {
 				continue
 			}
-			bucket.ForEach(func(k, v []byte) error {
+			er := bucket.ForEach(func(k, v []byte) error {
 				uId := string(k)
 				if _, exists := userIds[uId]; exists {
 					return nil // Already listed
@@ -219,6 +219,9 @@ func (dao *boltdbimpl) ListSubscriptions(objectType activity.OwnerType, objectId
 				userIds[uId] = true
 				return nil
 			})
+			if er != nil {
+				// Oops, something went wrong here!
+			}
 		}
 
 		return nil
@@ -291,7 +294,7 @@ func (dao *boltdbimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId strin
 	if refBoxOffset != BoxLastSent && ownerType == activity.OwnerType_USER && boxName == BoxInbox && len(lastRead) > 0 {
 		// Store last read in dedicated box
 		go func() {
-			dao.StoreLastUserInbox(ownerId, BoxLastRead, lastRead, "")
+			dao.storeLastUserInbox(ownerId, BoxLastRead, lastRead)
 		}()
 	}
 
@@ -316,15 +319,17 @@ func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName BoxName) uint64 
 	return 0
 }
 
+func (dao *boltdbimpl) StoreLastUserInbox(userId string, boxName BoxName, activityId string) error {
+
+	id := strings.TrimPrefix(activityId, "/activity-")
+	uintId, _ := strconv.ParseUint(id, 10, 64)
+	last := dao.uintToBytes(uintId)
+
+	return dao.storeLastUserInbox(userId, boxName, last)
+}
+
 // StoreLastUserInbox stores last key read to a "Last" inbox (read, sent)
-func (dao *boltdbimpl) StoreLastUserInbox(userId string, boxName BoxName, last []byte, activityId string) error {
-
-	if last == nil && activityId != "" {
-		id := strings.TrimPrefix(activityId, "/activity-")
-		uintId, _ := strconv.ParseUint(id, 10, 64)
-		last = dao.uintToBytes(uintId)
-	}
-
+func (dao *boltdbimpl) storeLastUserInbox(userId string, boxName BoxName, last []byte) error {
 	return dao.DB().Update(func(tx *bolt.Tx) error {
 		bucket, err := dao.getBucket(tx, true, activity.OwnerType_USER, userId, boxName)
 		if err != nil {

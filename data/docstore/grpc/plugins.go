@@ -23,87 +23,77 @@ package grpc
 
 import (
 	"context"
-	"path"
-
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/micro/go-micro"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
-	proto "github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/data/docstore"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	proto "github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/data/docstore"
 )
+
+var Name = common.ServiceGrpcNamespace_ + common.ServiceDocStore
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceDocStore),
+			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
 			service.Unique(true),
-			service.WithMicro(func(m micro.Service) error {
+			service.WithStorage(docstore.NewDAO, "docstore"),
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
-				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceDocStore)
-				if e != nil {
-					return e
-				}
-
-				store, err := docstore.NewBoltStore(path.Join(serviceDir, "docstore.db"))
-				if err != nil {
-					return err
-				}
-
-				indexer, err := docstore.NewBleveEngine(path.Join(serviceDir, "docstore.bleve"))
-				if err != nil {
-					return err
-				}
-
-				handler := &Handler{
-					Db:      store,
-					Indexer: indexer,
-				}
+				dao := servicecontext.GetDAO(c).(docstore.DAO)
+				handler := &Handler{DAO: dao}
 
 				for id, json := range defaults() {
-					if doc, e := store.GetDocument(common.DocStoreIdVirtualNodes, id); e == nil && doc != nil {
+					if doc, e := dao.GetDocument(common.DocStoreIdVirtualNodes, id); e == nil && doc != nil {
 						var reStore bool
 						if id == "my-files" {
 							// Check if my-files is up-to-date
 							var vNode tree.Node
-							if e := jsonpb.UnmarshalString(doc.Data, &vNode); e == nil {
+							if e := protojson.Unmarshal([]byte(doc.Data), &vNode); e == nil {
 								if _, ok := vNode.MetaStore["onDelete"]; !ok {
-									log.Logger(m.Options().Context).Info("Upgrading my-files template path for onDelete policy")
+									log.Logger(c).Info("Upgrading my-files template path for onDelete policy")
 									vNode.MetaStore["onDelete"] = "rename-uuid"
-									m := &jsonpb.Marshaler{}
-									json, _ = m.MarshalToString(&vNode)
+									bb, _ := protojson.Marshal(&vNode)
+									json = string(bb)
 									reStore = true
 								}
 							} else {
-								log.Logger(m.Options().Context).Info("Cannot unmarshall", zap.Error(e))
+								log.Logger(c).Warn("Cannot unmarshall", zap.Error(e))
 							}
 						}
 						if !reStore {
 							continue
 						}
 					}
-					handler.PutDocument(context.Background(),
+					_, e := handler.PutDocument(context.Background(),
 						&proto.PutDocumentRequest{StoreID: common.DocStoreIdVirtualNodes, DocumentID: id, Document: &proto.Document{
 							ID:    id,
 							Owner: common.PydioSystemUsername,
 							Data:  json,
-						}}, &proto.PutDocumentResponse{})
+						}})
+					if e != nil {
+						log.Logger(c).Warn("Cannot insert initial docs", zap.Error(e))
+					}
 				}
 
-				m.Init(micro.BeforeStop(handler.Close))
+				proto.RegisterDocStoreEnhancedServer(server, handler)
+				sync.RegisterSyncEndpointEnhancedServer(server, handler)
 
-				proto.RegisterDocStoreHandler(m.Options().Server, handler)
-				sync.RegisterSyncEndpointHandler(m.Options().Server, handler)
+				go func() {
+					<-c.Done()
+					handler.Close()
+				}()
 
 				return nil
 			}),

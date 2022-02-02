@@ -23,7 +23,7 @@ package policy
 import (
 	"github.com/ory/ladon"
 
-	"github.com/pydio/cells/idm/policy/conditions"
+	"github.com/pydio/cells/v4/idm/policy/conditions"
 )
 
 func init() {

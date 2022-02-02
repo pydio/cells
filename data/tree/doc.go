@@ -18,5 +18,5 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Tree service dynamically aggregates the datasources nodes streams
+// Package tree dynamically aggregates the datasources nodes streams
 package tree

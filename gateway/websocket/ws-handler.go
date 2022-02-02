@@ -28,30 +28,31 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/protobuf/jsonpb"
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
 	"github.com/pydio/melody"
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
+	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 type WebsocketHandler struct {
+	runtimeCtx  context.Context
 	Websocket   *melody.Melody
-	EventRouter *views.RouterEventFilter
+	EventRouter *compose.Reverse
 
 	batcherLock   *sync.Mutex
 	batchers      map[string]*NodeEventsBatcher
@@ -62,6 +63,7 @@ type WebsocketHandler struct {
 
 func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
 	w := &WebsocketHandler{
+		runtimeCtx:    serviceCtx,
 		batchers:      make(map[string]*NodeEventsBatcher),
 		dispatcher:    make(chan *NodeChangeEventWithInfo),
 		done:          make(chan string),
@@ -84,14 +86,14 @@ func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
 	return w
 }
 
-func (w *WebsocketHandler) InitHandlers(serviceCtx context.Context) {
+func (w *WebsocketHandler) InitHandlers(ctx context.Context) {
 
 	w.Websocket = melody.New()
 	w.Websocket.Config.MaxMessageSize = 2048
 
 	w.Websocket.HandleError(func(session *melody.Session, i error) {
 		if !strings.Contains(i.Error(), "close 1000 (normal)") {
-			log.Logger(serviceCtx).Debug("HandleError", zap.Error(i))
+			log.Logger(ctx).Debug("HandleError", zap.Error(i))
 		}
 		ClearSession(session)
 	})
@@ -114,18 +116,17 @@ func (w *WebsocketHandler) InitHandlers(serviceCtx context.Context) {
 
 			if msg.JWT == "" {
 				session.CloseWithMsg(NewErrorMessageString("empty jwt"))
-				log.Logger(serviceCtx).Debug("empty jwt")
+				log.Logger(ctx).Debug("empty jwt")
 				return
 			}
-			ctx := context.Background()
 			verifier := auth.DefaultJWTVerifier()
-			_, claims, e := verifier.Verify(ctx, msg.JWT)
-			if e != nil {
-				log.Logger(serviceCtx).Error("invalid jwt received from websocket connection")
+			_, claims, er := verifier.Verify(ctx, msg.JWT)
+			if er != nil {
+				log.Logger(ctx).Error("invalid jwt received from websocket connection", zap.Any("original", msg))
 				session.CloseWithMsg(NewErrorMessage(e))
 				return
 			}
-			updateSessionFromClaims(session, claims, w.EventRouter.GetClientsPool())
+			updateSessionFromClaims(ctx, session, claims, w.EventRouter.GetClientsPool())
 
 		case MsgUnsubscribe:
 
@@ -191,8 +192,6 @@ func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tre
 // the event or not.
 func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *NodeChangeEventWithInfo) error {
 
-	jsonMarshaler := &jsonpb.Marshaler{}
-
 	if event.Silent && !w.silentDropper.Allow() {
 		//log.Logger(ctx).Warn("Dropping Silent Event")
 		return nil
@@ -250,7 +249,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			hasData bool
 		)
 
-		metaCtx, err := prepareRemoteContext(session)
+		metaCtx, err := prepareRemoteContext(w.runtimeCtx, session)
 		if err != nil {
 			log.Logger(ctx).Warn("WebSocket error", zap.Error(err))
 			return false
@@ -277,12 +276,12 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			if t1 || t2 {
 				eType := event.Type
 				if nTarget != nil {
-					nTarget.SetMeta("EventWorkspaceId", workspace.UUID)
+					nTarget.MustSetMeta(common.MetaFlagWorkspaceEventId, workspace.UUID)
 					nTarget = nTarget.WithoutReservedMetas()
 					log.Logger(ctx).Debug("Broadcasting event to this session for workspace", zap.Any("type", event.Type), zap.String("wsId", wsId), zap.Any("path", event.Target.Path))
 				}
 				if nSource != nil {
-					nSource.SetMeta("EventWorkspaceId", workspace.UUID)
+					nSource.MustSetMeta(common.MetaFlagWorkspaceEventId, workspace.UUID)
 					nSource = nSource.WithoutReservedMetas()
 				}
 				// Eventually update event type if one node is out of scope
@@ -294,12 +293,11 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 					}
 				}
 
-				s, _ := jsonMarshaler.MarshalToString(&tree.NodeChangeEvent{
+				data, _ := protojson.Marshal(&tree.NodeChangeEvent{
 					Type:   eType,
 					Target: nTarget,
 					Source: nSource,
 				})
-				data := []byte(s)
 
 				session.Write(data)
 				hasData = true
@@ -319,9 +317,8 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 	}
 
 	taskOwner := event.TaskUpdated.TriggerOwner
-	marshaller := jsonpb.Marshaler{}
-	message, _ := marshaller.MarshalToString(event)
-	return w.Websocket.BroadcastFilter([]byte(message), func(session *melody.Session) bool {
+	message, _ := protojson.Marshal(event)
+	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
 		var isAdmin, o bool
 		var v interface{}
 		if v, o = session.Get(SessionProfileKey); o && v == common.PydioProfileAdmin {
@@ -346,10 +343,9 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 // This triggers a registry reload in the UX (and eventually a change of permissions)
 func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *idm.ChangeEvent) error {
 
-	marshaller := jsonpb.Marshaler{}
 	event.JsonType = "idm"
-	message, _ := marshaller.MarshalToString(event)
-	return w.Websocket.BroadcastFilter([]byte(message), func(session *melody.Session) bool {
+	message, _ := protojson.Marshal(event)
+	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
 
 		var checkRoleId string
 		var checkUserId string
@@ -411,7 +407,6 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 	if event.BoxName != "inbox" && event.OwnerType != activity.OwnerType_USER {
 		return nil
 	}
-	marshaller := jsonpb.Marshaler{}
 	event.JsonType = "activity"
 	if event.Activity.Object != nil {
 		event.Activity.Object.Name = path.Base(event.Activity.Object.Name)
@@ -422,8 +417,8 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 	if event.Activity.Target != nil {
 		event.Activity.Target.Name = path.Base(event.Activity.Target.Name)
 	}
-	message, _ := marshaller.MarshalToString(event)
-	return w.Websocket.BroadcastFilter([]byte(message), func(session *melody.Session) bool {
+	message, _ := protojson.Marshal(event)
+	return w.Websocket.BroadcastFilter(message, func(session *melody.Session) bool {
 		if val, ok := session.Get(SessionUsernameKey); ok && val != nil {
 			return event.OwnerId == val.(string) && event.Activity.Actor.Id != val.(string)
 		}

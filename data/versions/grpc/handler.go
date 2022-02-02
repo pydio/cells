@@ -26,25 +26,31 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/broker/activity/render"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	activity2 "github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/data/versions"
+	"github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/broker/activity/render"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	activity2 "github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/data/versions"
 )
 
 type Handler struct {
-	db versions.DAO
+	tree.UnimplementedNodeVersionerServer
+	db      versions.DAO
+	srvName string
+}
+
+func (h *Handler) Name() string {
+	return h.srvName
 }
 
 func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.ChangeLog) string {
@@ -63,7 +69,7 @@ func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.Cha
 func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.NodeChangeEvent) *tree.ChangeLog {
 
 	c := &tree.ChangeLog{}
-	c.Uuid = uuid.NewUUID().String()
+	c.Uuid = uuid.New()
 	c.Data = []byte(node.Etag)
 	c.MTime = node.MTime
 	c.Size = node.Size
@@ -73,11 +79,11 @@ func NewChangeLogFromNode(ctx context.Context, node *tree.Node, event *tree.Node
 
 }
 
-func (h *Handler) ListVersions(ctx context.Context, request *tree.ListVersionsRequest, versionsStream tree.NodeVersioner_ListVersionsStream) error {
+func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream tree.NodeVersioner_ListVersionsServer) error {
 
+	ctx := versionsStream.Context()
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
 	logs, done := h.db.GetVersions(request.Node.Uuid)
-	defer versionsStream.Close()
 
 	for {
 		select {
@@ -96,41 +102,43 @@ func (h *Handler) ListVersions(ctx context.Context, request *tree.ListVersionsRe
 
 }
 
-func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequest, resp *tree.HeadVersionResponse) error {
+func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequest) (*tree.HeadVersionResponse, error) {
 
 	v, e := h.db.GetVersion(request.Node.Uuid, request.VersionId)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	if (v != &tree.ChangeLog{}) {
 		if v.GetLocation() == nil {
 			v.Location = versions.DefaultLocation(request.Node.Uuid, v.Uuid)
 		}
-		resp.Version = v
+		return &tree.HeadVersionResponse{Version: v}, nil
 	}
-	return nil
+	return nil, errors.NotFound("version.not.found", "version not found")
 }
 
-func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest, resp *tree.CreateVersionResponse) error {
+func (h *Handler) CreateVersion(ctx context.Context, request *tree.CreateVersionRequest) (*tree.CreateVersionResponse, error) {
 
 	log.Logger(ctx).Debug("[VERSION] GetLastVersion for node " + request.Node.Uuid)
 	last, err := h.db.GetLastVersion(request.Node.Uuid)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	log.Logger(ctx).Debug("[VERSION] GetLastVersion for node ", zap.Any("last", last), zap.Any("request", request))
+	resp := &tree.CreateVersionResponse{}
 	if last == nil || string(last.Data) != request.Node.Etag {
 		resp.Version = NewChangeLogFromNode(ctx, request.Node, request.TriggerEvent)
 	}
-	return nil
+	return resp, nil
 }
 
-func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRequest, resp *tree.StoreVersionResponse) error {
+func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRequest) (*tree.StoreVersionResponse, error) {
 
+	resp := &tree.StoreVersionResponse{}
 	p := versions.PolicyForNode(ctx, request.Node)
 	if p == nil {
 		log.Logger(ctx).Info("Ignoring StoreVersion for this node")
-		return nil
+		return resp, nil
 	}
 	log.Logger(ctx).Info("Storing Version for node ", request.Node.ZapUuid())
 	err := h.db.StoreVersion(request.Node.Uuid, request.Version)
@@ -157,7 +165,7 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	if len(toRemove) > 0 {
 		log.Logger(ctx).Debug("[VERSION] Pruning should remove", zap.Int("number", len(toRemove)))
 		if err := h.db.DeleteVersionsForNode(request.Node.Uuid, toRemove...); err != nil {
-			return err
+			return nil, err
 		}
 		resp.PruneVersions = toRemove
 	}
@@ -167,12 +175,12 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 		}
 	}
 
-	return err
+	return resp, err
 }
 
-func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersionsRequest, resp *tree.PruneVersionsResponse) error {
+func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersionsRequest) (*tree.PruneVersionsResponse, error) {
 
-	cl := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+	cl := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 
 	var idsToDelete []string
 
@@ -182,9 +190,9 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		existingIds := make(map[string]struct{})
 		streamer, sErr := cl.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}, Recursive: true})
 		if sErr != nil {
-			return sErr
+			return nil, sErr
 		}
-		defer streamer.Close()
+		defer streamer.CloseSend()
 		for {
 			r, e := streamer.Recv()
 			if e != nil {
@@ -214,7 +222,7 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 		err := runner()
 		wg.Wait()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 	} else if request.UniqueNode != nil {
@@ -223,10 +231,11 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	} else {
 
-		return errors.BadRequest(common.ServiceVersions, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
+		return nil, errors.BadRequest(common.ServiceVersions, "Please provide at least a node Uuid or set the flag AllDeletedNodes to true")
 
 	}
 
+	resp := &tree.PruneVersionsResponse{}
 	for _, i := range idsToDelete {
 
 		allLogs, done := h.db.GetVersions(i)
@@ -250,10 +259,10 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 	}
 
 	if e := h.db.DeleteVersionsForNodes(idsToDelete); e != nil {
-		return e
+		return nil, e
 	}
 
 	log.Logger(ctx).Debug("Responding to Prune with versions", zap.Int("versions", len(resp.DeletedVersions)))
 
-	return nil
+	return resp, nil
 }

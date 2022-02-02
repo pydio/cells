@@ -34,17 +34,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/log"
+	"go.etcd.io/bbolt"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pborman/uuid"
-
-	"github.com/etcd-io/bbolt"
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -401,16 +399,16 @@ func (s *BoltSnapshot) LoadNode(ctx context.Context, path string, extendedStats 
 				folders += 1
 			}
 		}, path, true)
-		node.SetMeta("RecursiveChildrenSize", size)
-		node.SetMeta("RecursiveChildrenFiles", files)
-		node.SetMeta("RecursiveChildrenFolders", folders)
+		node.MustSetMeta(model.MetaRecursiveChildrenSize, size)
+		node.MustSetMeta(model.MetaRecursiveChildrenFiles, files)
+		node.MustSetMeta(model.MetaRecursiveChildrenFolders, folders)
 	}
 	return
 }
 
 func (s *BoltSnapshot) GetEndpointInfo() model.EndpointInfo {
 	return model.EndpointInfo{
-		URI: "snapshot://" + s.name,
+		URI:                   "snapshot://" + s.name,
 		RequiresNormalization: false,
 		RequiresFoldersRescan: false,
 	}

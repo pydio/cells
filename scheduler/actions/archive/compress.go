@@ -27,18 +27,17 @@ import (
 	"path"
 	"strings"
 
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
-	"github.com/pydio/cells/scheduler/actions"
-	"github.com/pydio/cells/scheduler/actions/tools"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/archive"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/actions"
+	"github.com/pydio/cells/v4/scheduler/actions/tools"
 )
 
 var (
@@ -120,7 +119,7 @@ func (c *CompressAction) GetName() string {
 }
 
 // Init passes parameters to the action
-func (c *CompressAction) Init(job *jobs.Job, _ client.Client, action *jobs.Action) error {
+func (c *CompressAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if format, ok := action.Parameters["format"]; ok {
 		c.Format = format
 	} else {
@@ -139,7 +138,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil
 	}
-	nodes := input.Nodes
+	nn := input.Nodes
 	log.Logger(ctx).Debug("Compress to : " + c.Format)
 
 	c2, handler, e := c.GetHandler(ctx)
@@ -148,7 +147,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	ctx = c2
 	// Assume Target is root node sibling
-	compressor := &views.ArchiveWriter{
+	compressor := &archive.Writer{
 		Router: handler,
 	}
 	if c.filter != nil {
@@ -160,10 +159,10 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 	}
 
-	dir := path.Dir(nodes[0].Path)
+	dir := path.Dir(nn[0].Path)
 	base := "Archive"
-	if len(nodes) == 1 {
-		base = path.Base(nodes[0].Path)
+	if len(nn) == 1 {
+		base = path.Base(nn[0].Path)
 	}
 	if c.TargetName != "" {
 		dir, base = path.Split(jobs.EvaluateFieldStr(ctx, input, c.TargetName))

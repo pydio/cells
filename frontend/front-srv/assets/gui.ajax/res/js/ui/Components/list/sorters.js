@@ -20,6 +20,13 @@
 
 
 export function sortNodesNatural(nodeA, nodeB) {
+    // local:pinSort should be pinned to top
+    if(nodeA.getMetadata().has('local:pinSort') && !nodeB.getMetadata().has('local:pinSort')){
+        return -1;
+    }
+    if(nodeB.getMetadata().has('local:pinSort') && !nodeA.getMetadata().has('local:pinSort')){
+        return 1;
+    }
     // Recycle always last
     if(nodeA.isRecycle()) {
         return 1;
@@ -41,6 +48,13 @@ export function sortNodesNatural(nodeA, nodeB) {
 export function nodesSorterByAttribute(attribute, sortType, direction) {
 
     return function (nodeA, nodeB) {
+        // local:pinSort should be pinned to top
+        if(nodeA.getMetadata().has('local:pinSort') && !nodeB.getMetadata().has('local:pinSort')){
+            return -1;
+        }
+        if(nodeB.getMetadata().has('local:pinSort') && !nodeA.getMetadata().has('local:pinSort')){
+            return 1;
+        }
         let res;
         if(sortType === 'number'){
             let aMeta = nodeA.getMetadata().get(attribute) || 0;

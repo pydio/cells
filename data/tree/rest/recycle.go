@@ -24,17 +24,17 @@ import (
 	"context"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 type deleteJobs struct {
@@ -53,7 +53,7 @@ func newDeleteJobs() *deleteJobs {
 func sourceInRecycle(ctx context.Context, source *tree.Node, ancestors []*tree.Node) bool {
 
 	for _, n := range ancestors {
-		if n.GetStringMeta("name") == common.RecycleBinName {
+		if n.GetStringMeta(common.MetaNamespaceNodeName) == common.RecycleBinName {
 			return true
 		}
 	}
@@ -71,20 +71,20 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 		}
 		ids = append(ids, n.Uuid)
 	}
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: ids,
 		Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 	})
 	recycleAcls := map[string]bool{}
-	cl := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 	s, e := cl.SearchACL(ctx, &idm.SearchACLRequest{
-		Query: &service.Query{SubQueries: []*any.Any{q}},
+		Query: &service.Query{SubQueries: []*anypb.Any{q}},
 	})
 	if e != nil {
 		err = e
 		return
 	}
-	defer s.Close()
+	defer s.CloseSend()
 	for {
 		r, e := s.Recv()
 		if e != nil {
@@ -101,7 +101,7 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 
 	if recycle == nil {
 		l := len(ancestors)
-		// TODO - for now we just check if it starts with a DATASOURCE:personal
+		// TODO - for now we just check if it starts with a DATASOURCE:personalXXX
 		// But we would need a process that could reverse lookup the template.js
 		if l > 3 && strings.HasPrefix(ancestors[l-2].Uuid, "DATASOURCE:personal") {
 			personalFolder := ancestors[l-3]

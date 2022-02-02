@@ -22,39 +22,41 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
 	"time"
 
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/mtree"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
-	rest_meta "github.com/pydio/cells/data/meta/rest"
-	"github.com/pydio/cells/data/templates"
-	"github.com/pydio/cells/scheduler/lang"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/acl"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	rest_meta "github.com/pydio/cells/v4/data/meta/rest"
+	"github.com/pydio/cells/v4/data/templates"
+	"github.com/pydio/cells/v4/scheduler/lang"
 )
 
 type Handler struct {
@@ -65,9 +67,13 @@ var (
 	providerClient tree.NodeProviderClient
 )
 
-func getClient() tree.NodeProviderClient {
+func getClient(ctx context.Context) tree.NodeProviderClient {
 	if providerClient == nil {
-		providerClient = views.NewStandardRouter(views.RouterOptions{AdminView: true, BrowseVirtualNodes: true, AuditEvent: false})
+		providerClient = compose.PathClient(
+			nodes.WithContext(ctx),
+			nodes.AsAdmin(),
+			nodes.WithVirtualNodesBrowsing(),
+		)
 	}
 	return providerClient
 }
@@ -154,9 +160,9 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				service.RestError500(req, resp, e)
 				if session != "" {
 					// Make sure to close the session
-					client.Publish(ctx, client.NewPublication(common.TopicIndexEvent, &tree.IndexEvent{
+					broker.MustPublish(ctx, common.TopicIndexEvent, &tree.IndexEvent{
 						SessionForceClose: session,
-					}))
+					})
 				}
 				return
 			}
@@ -180,8 +186,8 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 
 			} else {
 				contents := " " // Use simple space for empty files
-				if n.GetStringMeta("Contents") != "" {
-					contents = n.GetStringMeta("Contents")
+				if n.GetStringMeta(common.MetaNamespaceContents) != "" {
+					contents = n.GetStringMeta(common.MetaNamespaceContents)
 				}
 				length = int64(len(contents))
 				reader = strings.NewReader(contents)
@@ -200,7 +206,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 		pref := mtree.CommonPrefix('/', folderPaths...)
 		if _, ok := folderChecks[pref]; ok {
 			// Check root folder
-			service.Retry(ctx, func() error {
+			std.Retry(ctx, func() error {
 				_, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: pref}})
 				if e != nil {
 					return e
@@ -209,12 +215,12 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				return nil
 			})
 		}
-		e := service.Retry(ctx, func() error {
+		e := std.Retry(ctx, func() error {
 			s, e := router.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: pref}, Recursive: true})
 			if e != nil {
 				return e
 			}
-			defer s.Close()
+			defer s.CloseSend()
 			for {
 				r, er := s.Recv()
 				if er != nil {
@@ -261,7 +267,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	router := h.GetRouter()
 
 	deleteJobs := newDeleteJobs()
-	metaClient := tree.NewNodeReceiverClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
+	metaClient := tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
 
 	for _, node := range input.Nodes {
 		if read, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node}); er != nil {
@@ -270,13 +276,13 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		} else {
 			node = read.Node
 		}
-		e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+		e := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 			ctx, filtered, _ := inputFilter(ctx, node, "in")
-			_, ancestors, e := views.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
+			_, ancestors, e := nodes.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
 			if e != nil {
 				return e
 			}
-			bi, ok := views.GetBranchInfo(ctx, "in")
+			bi, ok := nodes.GetBranchInfo(ctx, "in")
 			if !ok {
 				return fmt.Errorf("cannot find branch info for this node")
 			}
@@ -309,7 +315,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				log.Logger(ctx).Info(fmt.Sprintf("Deletion: moving [%s] to recycle bin %s", node.GetPath(), rPath))
 				// If moving to recycle, save current path as metadata for later restore operation
 				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
-				metaNode.SetMeta(common.MetaNamespaceRecycleRestore, ancestors[0].Path)
+				metaNode.MustSetMeta(common.MetaNamespaceRecycleRestore, ancestors[0].Path)
 				if _, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode, Silent: true}); e != nil {
 					log.Logger(ctx).Error("Could not store recycle_restore metadata for node", zap.Error(e))
 				}
@@ -322,7 +328,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				srcCtx, srcNode, _ := inputFilter(ctx, node, "from")
 				_, recycleOut, _ := outputFilter(ctx, deleteJobs.RecyclesNodes[rPath], "to")
 				targetCtx, recycleIn, _ := inputFilter(ctx, recycleOut, "to")
-				recycleIn.SetMeta(common.RecycleBinName, "true")
+				recycleIn.MustSetMeta(common.RecycleBinName, "true")
 				if er := router.WrappedCanApply(srcCtx, targetCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_UPDATE_PATH, Source: srcNode, Target: recycleIn}); er != nil {
 					return er
 				}
@@ -345,9 +351,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	moveLabel := T("Jobs.User.MoveRecycle")
-	fullPathRouter := views.NewStandardRouter(views.RouterOptions{AdminView: true})
+	fullPathRouter := compose.PathClientAdmin(nodes.WithContext(h.RuntimeCtx))
 	for recyclePath, selectedPaths := range deleteJobs.RecycleMoves {
 
 		// Create recycle bins now, to make sure user is notified correctly
@@ -362,7 +368,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 		}
 
 		jobUuid := "copy-move-" + uuid.New()
-		q, _ := ptypes.MarshalAny(&tree.Query{
+		q, _ := anypb.New(&tree.Query{
 			Paths: selectedPaths,
 		})
 
@@ -386,7 +392,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 						"create":       "true",
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Query: &service2.Query{SubQueries: []*any.Any{q}},
+						Query: &service2.Query{SubQueries: []*anypb.Any{q}},
 					},
 				},
 			},
@@ -460,7 +466,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 	ctx := req.Request.Context()
 	username, _ := permissions.FindUserNameInContext(ctx)
 	selectionUuid := uuid.New()
-	dcClient := docstore.NewDocStoreClient(common.ServiceGrpcNamespace_+common.ServiceDocStore, defaults.NewClient())
+	dcClient := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 	data, _ := json.Marshal(input.Nodes)
 	if _, e := dcClient.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID:    common.DocStoreIdSelections,
@@ -504,10 +510,10 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	moveLabel := T("Jobs.User.DirMove")
 
 	router := h.GetRouter()
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	restoreTargets := make(map[string]struct{}, len(input.Nodes))
 
-	e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	e := router.WrapCallback(func(inputFilter nodes.FilterFunc, outputFilter nodes.FilterFunc) error {
 		for _, n := range input.Nodes {
 			ctx, filtered, _ := inputFilter(ctx, n, "in")
 			r, e := router.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: filtered})
@@ -530,17 +536,17 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 				moveLabel = T("Jobs.User.DirMove")
 			}
 			targetNode := &tree.Node{Path: originalFullPath}
-			_, ancestors, e := views.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(), true)
+			_, ancestors, e := nodes.AncestorsListFromContext(ctx, targetNode, "in", router.GetClientsPool(), true)
 			if e != nil {
 				return e
 			}
-			accessList := ctx.Value(views.CtxUserAccessListKey{}).(*permissions.AccessList)
+			accessList := acl.MustFromContext(ctx)
 			if !accessList.CanWrite(ctx, ancestors...) {
 				return errors.Forbidden("node.not.writeable", "Original location is not writable")
 			}
 			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
 			jobUuid := "copy-move-" + uuid.New()
-			q, _ := ptypes.MarshalAny(&tree.Query{
+			q, _ := anypb.New(&tree.Query{
 				Paths: []string{currentFullPath},
 			})
 			job := &jobs.Job{
@@ -562,7 +568,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 							"create":    "true",
 						},
 						NodesSelector: &jobs.NodesSelector{
-							Query: &service2.Query{SubQueries: []*any.Any{q}},
+							Query: &service2.Query{SubQueries: []*anypb.Any{q}},
 						},
 					},
 				},
@@ -597,7 +603,7 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	parentResp, err := getClient().ReadNode(req.Request.Context(), &tree.ReadNodeRequest{
+	parentResp, err := getClient(h.RuntimeCtx).ReadNode(req.Request.Context(), &tree.ReadNodeRequest{
 		Node:        input.Node,
 		WithCommits: input.WithCommits,
 	})
@@ -606,12 +612,12 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	streamer, err := getClient().ListNodes(req.Request.Context(), &input)
+	streamer, err := getClient(h.RuntimeCtx).ListNodes(req.Request.Context(), &input)
 	if err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	output := &rest.NodesCollection{
 		Parent: parentResp.Node.WithoutReservedMetas(),
 	}
@@ -638,7 +644,7 @@ func (h *Handler) StatAdminTree(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	response, err := getClient().ReadNode(req.Request.Context(), &input)
+	response, err := getClient(h.RuntimeCtx).ReadNode(req.Request.Context(), &input)
 	if err != nil {
 		service.RestError500(req, resp, err)
 		return

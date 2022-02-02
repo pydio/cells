@@ -25,26 +25,29 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/micro/go-micro/client"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
-	"github.com/pydio/cells/data/versions/lang"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/data/versions/lang"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
-type VersionAction struct{}
+type VersionAction struct {
+	common.RuntimeHolder
+}
 
 func (c *VersionAction) GetDescription(lang ...string) actions.ActionDescription {
 	return actions.ActionDescription{
@@ -66,12 +69,12 @@ func (c *VersionAction) GetParametersForm() *forms.Form {
 
 var (
 	versionActionName = "actions.versioning.create"
-	router            *views.Router
+	router            nodes.Client
 )
 
-func getRouter() *views.Router {
+func getRouter(runtime context.Context) nodes.Client {
 	if router == nil {
-		router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+		router = compose.PathClient(nodes.WithContext(runtime), nodes.AsAdmin(), nodes.WithRegistryWatch())
 	}
 	return router
 }
@@ -82,7 +85,7 @@ func (c *VersionAction) GetName() string {
 }
 
 // Init sets this VersionAction parameters.
-func (c *VersionAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *VersionAction) Init(job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 
@@ -104,17 +107,17 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	// TODO: find clients from pool so that they are considered the same by the CopyObject request
-	source, e := DataSourceForPolicy(ctx, policy) //getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
+	source, e := DataSourceForPolicy(c.GetRuntimeContext(), policy) //getRouter().GetClientsPool().GetDataSourceInfo(common.PydioVersionsNamespace)
 	if e != nil {
 		return input.WithError(e), e
 	}
 
-	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
+	versionClient := tree.NewNodeVersionerClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceVersions))
 	request := &tree.CreateVersionRequest{Node: node}
-	var ce tree.NodeChangeEvent
 	if input.Event != nil {
-		if err := ptypes.UnmarshalAny(input.Event, &ce); err == nil {
-			request.TriggerEvent = &ce
+		ce := &tree.NodeChangeEvent{}
+		if err := anypb.UnmarshalTo(input.Event, ce, proto.UnmarshalOptions{}); err == nil {
+			request.TriggerEvent = ce
 		}
 	}
 	resp, err := versionClient.CreateVersion(ctx, request)
@@ -127,8 +130,8 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 
 	// Prepare ctx with info about the target branch
-	branchInfo := views.BranchInfo{LoadedSource: source}
-	ctx = views.WithBranchInfo(ctx, "to", branchInfo)
+	branchInfo := nodes.BranchInfo{LoadedSource: source}
+	ctx = nodes.WithBranchInfo(ctx, "to", branchInfo)
 
 	sourceNode := node.Clone()
 
@@ -142,7 +145,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		},
 	}
 
-	written, err := getRouter().CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
+	written, err := getRouter(c.GetRuntimeContext()).CopyObject(ctx, sourceNode, targetNode, &models.CopyRequestData{})
 	if err != nil {
 		err = errors.Wrap(err, fmt.Sprintf("Copying %s -> %s", sourceNode.GetPath(), targetNode.GetUuid()))
 		return input.WithError(err), err
@@ -161,9 +164,9 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 		}
 		log.TasksLogger(ctx).Info(T("Job.Version.StatusMeta", resp.Version))
 		output.AppendOutput(&jobs.ActionOutput{Success: true})
-		ctx = views.WithBranchInfo(ctx, "in", branchInfo)
+		ctx = nodes.WithBranchInfo(ctx, "in", branchInfo)
 		for _, version := range response.PruneVersions {
-			_, errDel := getRouter().DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
+			_, errDel := getRouter(c.GetRuntimeContext()).DeleteNode(ctx, &tree.DeleteNodeRequest{Node: version.GetLocation()})
 			if errDel != nil {
 				return input.WithError(errDel), errDel
 			}

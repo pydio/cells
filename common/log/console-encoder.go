@@ -26,8 +26,8 @@ import (
 	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 const (

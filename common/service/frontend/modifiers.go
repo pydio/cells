@@ -23,9 +23,10 @@ package frontend
 import (
 	"context"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
-	"github.com/pydio/cells/common/proto/rest"
+
+	"github.com/pydio/cells/v4/common/proto/rest"
 )
 
 // RegistryModifier is a func type for dynamically filtering output of the registry
@@ -45,7 +46,12 @@ type FrontMiddleware struct {
 	Middleware EnrollMiddlewareFunc
 }
 
-type AuthMiddleware func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error
+type FrontSessionWithRuntimeCtx struct {
+	*rest.FrontSessionRequest
+	RuntimeCtx context.Context
+}
+
+type AuthMiddleware func(req *restful.Request, rsp *restful.Response, in *FrontSessionWithRuntimeCtx, out *rest.FrontSessionResponse, session *sessions.Session) error
 
 var (
 	pluginsModifier   []PluginModifier
@@ -137,7 +143,7 @@ func ApplyEnrollMiddlewares(endpoint string, req *restful.Request, rsp *restful.
 func WrapAuthMiddleware(middleware func(middleware AuthMiddleware) AuthMiddleware) {
 	if authMiddlewares == nil {
 		// First register, create a noop middleware
-		authMiddlewares = func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
+		authMiddlewares = func(req *restful.Request, rsp *restful.Response, in *FrontSessionWithRuntimeCtx, out *rest.FrontSessionResponse, session *sessions.Session) error {
 			return nil
 		}
 	}
@@ -145,6 +151,6 @@ func WrapAuthMiddleware(middleware func(middleware AuthMiddleware) AuthMiddlewar
 }
 
 // ApplyAuthMiddlewares applies registered middlewares
-func ApplyAuthMiddlewares(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
+func ApplyAuthMiddlewares(req *restful.Request, rsp *restful.Response, in *FrontSessionWithRuntimeCtx, out *rest.FrontSessionResponse, session *sessions.Session) error {
 	return authMiddlewares(req, rsp, in, out, session)
 }

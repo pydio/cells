@@ -18,7 +18,5 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// ## Scheduler services.
-//
-// Background-task manager for the application.
+// Package scheduler implements a fully functional background-task manager for the application.
 package scheduler

@@ -24,9 +24,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Gateway to check for available updates"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUpdate, []string{}),
-			service.WithWeb(func() service.WebHandler {
+			service.WithWeb(func(c context.Context) service.WebHandler {
 				return new(Handler)
 			}),
 		)

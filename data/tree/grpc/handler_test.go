@@ -25,8 +25,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/pydio/cells/common/mocks"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/nodes/mocks"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -36,17 +36,17 @@ func createMocks() (dataSources map[string]DataSource) {
 
 	dataSources["ds1"] = DataSource{
 		Name:   "ds1",
-		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node1": tree.Node{Uuid: "node1-uuid", Path: "node1"}, "node12": tree.Node{Uuid: "node12-uuid", Path: "node12"}}},
+		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node1": {Uuid: "node1-uuid", Path: "node1"}, "node12": {Uuid: "node12-uuid", Path: "node12"}}},
 		writer: &tree.NodeReceiverMock{},
 	}
 	dataSources["ds2"] = DataSource{
 		Name:   "ds2",
-		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node2": tree.Node{Uuid: "node2-uuid", Path: "node2"}}},
+		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node2": {Uuid: "node2-uuid", Path: "node2"}}},
 		writer: &tree.NodeReceiverMock{},
 	}
 	dataSources["ds3"] = DataSource{
 		Name:   "ds3",
-		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node2": tree.Node{Uuid: "node2-uuid", Path: "node2"}}},
+		reader: &tree.NodeProviderMock{Nodes: map[string]tree.Node{"node2": {Uuid: "node2-uuid", Path: "node2"}}},
 		writer: &tree.NodeReceiverMock{},
 	}
 
@@ -66,21 +66,19 @@ func TestReadNode(t *testing.T) {
 
 	Convey("Search By Path", t, func() {
 
-		resp := &tree.ReadNodeResponse{}
-		err := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "ds1/node1"}}, resp)
+		resp, err := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "ds1/node1"}})
 		So(err, ShouldBeNil)
 
 		So(resp.Node.Path, ShouldEqual, "ds1/node1")
 
-		err1 := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "ds1/node2"}}, resp)
+		_, err1 := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "ds1/node2"}})
 		So(err1, ShouldNotBeNil)
 
 	})
 
 	Convey("Search By Uuid", t, func() {
 
-		resp := &tree.ReadNodeResponse{}
-		err := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: "node1-uuid"}}, resp)
+		resp, err := ts.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: "node1-uuid"}})
 
 		So(err, ShouldBeNil)
 		So(resp.Node.Path, ShouldEqual, "ds1/node1")
@@ -98,8 +96,6 @@ func TestListNodes(t *testing.T) {
 		DataSources: dataSources,
 	}
 
-	ctx := context.Background()
-
 	Convey("List datasources", t, func() {
 
 		stream := mocks.NewListNodeStreamer()
@@ -107,7 +103,7 @@ func TestListNodes(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			ts.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: ""}}, stream)
+			ts.ListNodes(&tree.ListNodesRequest{Node: &tree.Node{Path: ""}}, stream)
 		}()
 		nodes := stream.ReceiveAllNodes()
 		wg.Wait()
@@ -119,7 +115,7 @@ func TestListNodes(t *testing.T) {
 
 		stream := mocks.NewListNodeStreamer()
 
-		err := ts.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: ""}, Ancestors: true}, stream)
+		err := ts.ListNodes(&tree.ListNodesRequest{Node: &tree.Node{Path: ""}, Ancestors: true}, stream)
 		So(err, ShouldNotBeNil)
 
 	})
@@ -131,7 +127,7 @@ func TestListNodes(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			ts.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "ds1"}, Ancestors: true}, stream)
+			ts.ListNodes(&tree.ListNodesRequest{Node: &tree.Node{Path: "ds1"}, Ancestors: true}, stream)
 		}()
 		nodes := stream.ReceiveAllNodes()
 		wg.Wait()
@@ -154,36 +150,36 @@ func TestRootNodeOperations(t *testing.T) {
 
 	Convey("Create Node on Root", t, func() {
 
-		err := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/rootfolder"}}, &tree.CreateNodeResponse{})
+		_, err := ts.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{Path: "/rootfolder"}})
 		So(err, ShouldNotBeNil)
 
 	})
 
 	Convey("Update Node on Root", t, func() {
 
-		err := ts.UpdateNode(ctx, &tree.UpdateNodeRequest{
+		_, err := ts.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{Path: "/ds1/toto"},
 			To:   &tree.Node{Path: "/ds1"},
-		}, &tree.UpdateNodeResponse{})
+		})
 		So(err, ShouldNotBeNil)
 
 	})
 
 	Convey("Delete Node on Root", t, func() {
 
-		err := ts.DeleteNode(ctx, &tree.DeleteNodeRequest{
+		_, err := ts.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{Path: "/ds1"},
-		}, &tree.DeleteNodeResponse{})
+		})
 		So(err, ShouldNotBeNil)
 
 	})
 
 	Convey("Move Node Across DataSource (Not Impl)", t, func() {
 
-		err := ts.UpdateNode(ctx, &tree.UpdateNodeRequest{
+		_, err := ts.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{Path: "/ds1/toto"},
 			To:   &tree.Node{Path: "/ds2/toto"},
-		}, &tree.UpdateNodeResponse{})
+		})
 		So(err, ShouldNotBeNil)
 
 	})

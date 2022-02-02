@@ -24,18 +24,18 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/metadata"
-	"github.com/micro/go-micro/server"
-	"github.com/pborman/uuid"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type spanContextKey struct{}
 
 const (
-	SpanMetadataId           = "x-pydio-span-id"
-	SpanMetadataRootParentId = "x-pydio-span-root-id"
-	OperationMetadataId      = "x-pydio-operation-id"
+	SpanMetadataId           = "X-Pydio-Span-Id"
+	SpanMetadataRootParentId = "X-Pydio-Span-Root-Id"
+	OperationMetadataId      = "X-Pydio-Operation-Id"
 )
 
 type Span struct {
@@ -46,7 +46,7 @@ type Span struct {
 
 func NewSpan() *Span {
 	return &Span{
-		SpanId: uuid.NewUUID().String(),
+		SpanId: uuid.New(),
 	}
 }
 
@@ -56,24 +56,20 @@ func NewSpanFromParent(s *Span) *Span {
 		root = s.SpanId
 	}
 	return &Span{
-		SpanId:       uuid.NewUUID().String(),
+		SpanId:       uuid.New(),
 		ParentId:     s.SpanId,
 		RootParentId: root,
 	}
 }
 
 func WithSpan(ctx context.Context, s *Span) context.Context {
-	md := metadata.Metadata{}
-	if meta, ok := metadata.FromContext(ctx); ok {
-		for k, v := range meta {
-			md[k] = v
-		}
+	md := map[string]string{
+		SpanMetadataId: s.SpanId,
 	}
-	md[SpanMetadataId] = s.SpanId
 	if len(s.RootParentId) > 0 {
 		md[SpanMetadataRootParentId] = s.RootParentId
 	}
-	ctx = metadata.NewContext(ctx, md)
+	ctx = metadata.WithAdditionalMetadata(ctx, md)
 	return context.WithValue(ctx, spanContextKey{}, s)
 }
 
@@ -85,7 +81,7 @@ func SpanFromContext(ctx context.Context) (*Span, bool) {
 	}
 }
 
-func SpanFromHeader(md metadata.Metadata) (*Span, bool) {
+func SpanFromHeader(md map[string]string) (*Span, bool) {
 	if md == nil {
 		return nil, false
 	}
@@ -125,63 +121,46 @@ func ctxWithOpIdFromMeta(ctx context.Context) context.Context {
 	return ctx
 }
 
-type spanClientWrapper struct {
-	client.Client
-}
-
-func SpanClientWrapper(c client.Client) client.Client {
-	wrapped := &spanClientWrapper{}
-	wrapped.Client = c
-	return wrapped
-}
-
-func (c *spanClientWrapper) Call(ctx context.Context, req client.Request, rsp interface{}, opts ...client.CallOption) error {
-	//fmt.Println("Client Call", req.Method())
-	if _, ok := SpanFromContext(ctx); !ok {
-		s := NewSpan()
-		ctx = WithSpan(ctx, s)
-	}
-	if opID, _ := GetOperationID(ctx); opID != "" {
-		md := metadata.Metadata{}
-		if meta, ok := metadata.FromContext(ctx); ok {
-			for k, v := range meta {
-				md[k] = v
-			}
+// SpanUnaryClientInterceptor inserts specific meta in context (will be later to OutgoingContext meta)
+func SpanUnaryClientInterceptor() grpc.UnaryClientInterceptor {
+	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		//fmt.Println("Client Call", method)
+		if _, ok := SpanFromContext(ctx); !ok {
+			s := NewSpan()
+			ctx = WithSpan(ctx, s)
 		}
-		md[OperationMetadataId] = opID
-		ctx = metadata.NewContext(ctx, md)
-	}
-	return c.Client.Call(ctx, req, rsp, opts...)
-}
-
-func (c *spanClientWrapper) Stream(ctx context.Context, req client.Request, opts ...client.CallOption) (client.Streamer, error) {
-	//fmt.Println("Client Stream", req.Method())
-	if _, ok := SpanFromContext(ctx); !ok {
-		s := NewSpan()
-		ctx = WithSpan(ctx, s)
-	}
-	if opID, _ := GetOperationID(ctx); opID != "" {
-		md := metadata.Metadata{}
-		if meta, ok := metadata.FromContext(ctx); ok {
-			for k, v := range meta {
-				md[k] = v
-			}
+		if opID, _ := GetOperationID(ctx); opID != "" {
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{OperationMetadataId: opID})
 		}
-		md[OperationMetadataId] = opID
-		ctx = metadata.NewContext(ctx, md)
-	}
-	return c.Client.Stream(ctx, req, opts...)
-}
 
-func SpanHandlerWrapper(fn server.HandlerFunc) server.HandlerFunc {
-	return func(ctx context.Context, req server.Request, rsp interface{}) error {
-		// fmt.Println("Server", req.Method())
-		ctx = childOrNewSpan(ctx)
-		ctx = ctxWithOpIdFromMeta(ctx)
-		return fn(ctx, req, rsp)
+		return invoker(ctx, method, req, reply, cc, opts...)
 	}
 }
 
+// SpanStreamClientInterceptor inserts specific meta in context (will be later to OutgoingContext meta)
+func SpanStreamClientInterceptor() grpc.StreamClientInterceptor {
+	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		//fmt.Println("Client Stream", method)
+		if _, ok := SpanFromContext(ctx); !ok {
+			s := NewSpan()
+			ctx = WithSpan(ctx, s)
+		}
+		if opID, _ := GetOperationID(ctx); opID != "" {
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{OperationMetadataId: opID})
+		}
+
+		return streamer(ctx, desc, cc, method, opts...)
+	}
+}
+
+// SpanIncomingContext updates Spans Ids in context
+func SpanIncomingContext(ctx context.Context) (context.Context, bool, error) {
+	ctx = childOrNewSpan(ctx)
+	ctx = ctxWithOpIdFromMeta(ctx)
+	return ctx, true, nil
+}
+
+/*
 // SpanSubscriberWrapper wraps a db connection for each subscriber
 func SpanSubscriberWrapper(subscriberFunc server.SubscriberFunc) server.SubscriberFunc {
 	return func(ctx context.Context, msg server.Publication) error {
@@ -190,9 +169,10 @@ func SpanSubscriberWrapper(subscriberFunc server.SubscriberFunc) server.Subscrib
 		return subscriberFunc(ctx, msg)
 	}
 }
+*/
 
-// HttpSpanHandlerWrapper extracts data from request and put it in context Metadata field
-func HttpSpanHandlerWrapper(h http.Handler) http.Handler {
+// HttpWrapperSpan extracts data from request and put it in context Metadata field
+func HttpWrapperSpan(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(childOrNewSpan(r.Context()))
 		h.ServeHTTP(w, r)

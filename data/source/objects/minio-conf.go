@@ -24,13 +24,149 @@ import (
 	"os"
 	"path/filepath"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
+var legacyConfTemplate = `{
+  "version": "32",
+  "credential": {
+    "accessKey": "ACCESS_KEY",
+    "secretKey": "SECRET_KEY",
+    "expiration": "0001-01-01T00:00:00Z"
+  },
+  "region": "",
+  "browser": "on",
+  "logger": {
+    "console": {
+      "enable": false
+    },
+    "file": {
+      "enable": false,
+      "filename": ""
+    }
+  },
+  "notify": {
+    "amqp": {
+      "1": {
+        "enable": false,
+        "url": "",
+        "exchange": "",
+        "routingKey": "",
+        "exchangeType": "",
+        "deliveryMode": 0,
+        "mandatory": false,
+        "immediate": false,
+        "durable": false,
+        "internal": false,
+        "noWait": false,
+        "autoDeleted": false
+      }
+    },
+    "elasticsearch": {
+      "1": {
+        "enable": false,
+        "format": "",
+        "url": "",
+        "index": ""
+      }
+    },
+    "kafka": {
+      "1": {
+        "enable": false,
+        "brokers": null,
+        "topic": "",
+        "tls": {
+          "enable": false,
+          "skipVerify": false,
+          "clientAuth": 0
+        },
+        "sasl": {
+          "enable": false,
+          "username": "",
+          "password": ""
+        }
+      }
+    },
+    "mqtt": {
+      "1": {
+        "enable": false,
+        "broker": "",
+        "topic": "",
+        "qos": 0,
+        "clientId": "",
+        "username": "",
+        "password": "",
+        "reconnectInterval": 0,
+        "keepAliveInterval": 0
+      }
+    },
+    "mysql": {
+      "1": {
+        "enable": false,
+        "format": "",
+        "dsnString": "",
+        "table": "",
+        "host": "",
+        "port": "",
+        "user": "",
+        "password": "",
+        "database": ""
+      }
+    },
+    "nats": {
+      "1": {
+        "enable": false,
+        "address": "",
+        "subject": "",
+        "username": "",
+        "password": "",
+        "token": "",
+        "secure": false,
+        "pingInterval": 0,
+        "streaming": {
+          "enable": false,
+          "clusterID": "",
+          "clientID": "",
+          "async": false,
+          "maxPubAcksInflight": 0
+        }
+      }
+    },
+    "postgresql": {
+      "1": {
+        "enable": false,
+        "format": "",
+        "connectionString": "",
+        "table": "",
+        "host": "",
+        "port": "",
+        "user": "",
+        "password": "",
+        "database": ""
+      }
+    },
+    "redis": {
+      "1": {
+        "enable": false,
+        "format": "",
+        "address": "",
+        "password": "",
+        "key": ""
+      }
+    },
+    "webhook": {
+      "1": {
+        "enable": false,
+        "endpoint": ""
+      }
+    }
+  }
+}
+`
+
+// CreateMinioConfigFile generates a legacy config file
 func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string) (configDir string, err error) {
 
 	var e error
@@ -55,12 +191,19 @@ func CreateMinioConfigFile(serviceId string, accessKey string, secretKey string)
 		}
 	}
 
-	configuration := cmd.CreateEmptyMinioConfig()
-	configuration.Credential.AccessKey = accessKey
-	configuration.Credential.SecretKey = secretKey
+	var legacyConf map[string]interface{}
+	e = json.Unmarshal([]byte(legacyConfTemplate), &legacyConf)
+	if e != nil {
+		return "", e
+	}
+	legacyConf["credentials"] = map[string]string{
+		"accessKey":  accessKey,
+		"secretKey":  secretKey,
+		"expiration": "0001-01-01T00:00:00Z",
+	}
 
 	// Create basic config file
-	data, _ := json.Marshal(configuration)
+	data, _ := json.Marshal(legacyConf)
 	if file, e := os.OpenFile(gatewayFile, os.O_CREATE|os.O_WRONLY, 0755); e == nil {
 		defer file.Close()
 		file.Write(data)

@@ -29,7 +29,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
 )
 
 // CellsVersion contains version information for the current running binary

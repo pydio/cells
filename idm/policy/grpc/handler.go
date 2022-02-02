@@ -28,11 +28,10 @@ import (
 	"github.com/ory/ladon"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/idm/policy"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/idm/policy"
 )
 
 var (
@@ -41,11 +40,21 @@ var (
 )
 
 type Handler struct {
+	idm.UnimplementedPolicyEngineServiceServer
+	dao policy.DAO
 }
 
-func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest, response *idm.PolicyEngineResponse) error {
+func NewHandler(ctx context.Context, dao policy.DAO) idm.NamedPolicyEngineServiceServer {
+	return &Handler{dao: dao}
+}
 
-	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+func (h *Handler) Name() string {
+	return ServiceName
+}
+
+func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineRequest) (*idm.PolicyEngineResponse, error) {
+
+	response := &idm.PolicyEngineResponse{}
 
 	reqContext := make(map[string]interface{})
 	for k, v := range request.Context {
@@ -62,7 +71,7 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			Context:  reqContext,
 		}
 
-		if err := dao.IsAllowed(ladonRequest); err == nil {
+		if err := h.dao.IsAllowed(ladonRequest); err == nil {
 			// Explicit allow
 			allowed = true
 		} else if strings.Contains(err.Error(), "Request was denied by default") {
@@ -72,13 +81,13 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			// Explicitly Deny : break and return false, ignoring following policies
 			response.ExplicitDeny = true
 			// log.Logger(context.Background()).Error("IsAllowed: explicitly denied", zap.Any("ladonRequest", ladonRequest))
-			return nil
+			return response, nil
 		} else {
 			if strings.Contains(err.Error(), "connection refused") {
 				log.Logger(ctx).Error("Connection to DB error", zap.String("error", err.Error()))
 				err = fmt.Errorf("DAO error received")
 			}
-			return err
+			return response, err
 		}
 	}
 
@@ -88,21 +97,22 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 		response.DefaultDeny = true
 	}
 
-	return nil
+	return response, nil
 }
 
-func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyGroupsRequest, response *idm.ListPolicyGroupsResponse) error {
+func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyGroupsRequest) (*idm.ListPolicyGroupsResponse, error) {
+
+	response := &idm.ListPolicyGroupsResponse{}
 
 	if groupsCacheValid {
 		response.PolicyGroups = groupsCache
 		response.Total = int32(len(groupsCache))
-		return nil
+		return response, nil
 	}
 
-	dao := servicecontext.GetDAO(ctx).(policy.DAO)
-	groups, err := dao.ListPolicyGroups(ctx)
+	groups, err := h.dao.ListPolicyGroups(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	response.PolicyGroups = groups
 	response.Total = int32(len(groups))
@@ -110,18 +120,17 @@ func (h *Handler) ListPolicyGroups(ctx context.Context, request *idm.ListPolicyG
 	groupsCache = groups
 	groupsCacheValid = true
 
-	return nil
+	return response, nil
 }
 
-func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicyGroupRequest, response *idm.StorePolicyGroupResponse) error {
+func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicyGroupRequest) (*idm.StorePolicyGroupResponse, error) {
 
 	groupsCacheValid = false
+	response := &idm.StorePolicyGroupResponse{}
 
-	dao := servicecontext.GetDAO(ctx).(policy.DAO)
-
-	stored, err := dao.StorePolicyGroup(ctx, request.PolicyGroup)
+	stored, err := h.dao.StorePolicyGroup(ctx, request.PolicyGroup)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	response.PolicyGroup = stored
@@ -131,18 +140,17 @@ func (h *Handler) StorePolicyGroup(ctx context.Context, request *idm.StorePolicy
 		stored.ZapUuid(),
 	)
 
-	return nil
+	return response, nil
 }
 
-func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePolicyGroupRequest, response *idm.DeletePolicyGroupResponse) error {
+func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePolicyGroupRequest) (*idm.DeletePolicyGroupResponse, error) {
 
 	groupsCacheValid = false
+	response := &idm.DeletePolicyGroupResponse{}
 
-	dao := servicecontext.GetDAO(ctx).(policy.DAO)
-
-	err := dao.DeletePolicyGroup(ctx, request.PolicyGroup)
+	err := h.dao.DeletePolicyGroup(ctx, request.PolicyGroup)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	response.Success = true
@@ -152,5 +160,6 @@ func (h *Handler) DeletePolicyGroup(ctx context.Context, request *idm.DeletePoli
 		request.PolicyGroup.ZapUuid(),
 	)
 
-	return nil
+	return response, nil
+
 }

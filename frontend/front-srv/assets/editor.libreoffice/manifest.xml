@@ -5,7 +5,6 @@
         formId="libreoffice_box" label="CONF_MESSAGE[Collabora Online]" description="CONF_MESSAGE[Collabora Online Editor for office documents]">
 
     <server_settings>
-        <global_param name="LIBREOFFICE_CODE_VERSION" type="select" label="CONF_MESSAGE[Code Version]" description="CONF_MESSAGE[Some URLs differ between old versions (Version lower than 6) and more recent versions (Version greater than 21+)]" default="v6" mandatory="true" expose="true" choices="v6|6 and lower,v21|21 and upper"/>
         <global_param name="LIBREOFFICE_SSL" type="boolean" label="CONF_MESSAGE[Libre Office SSL]" description="CONF_MESSAGE[Libre Office uses ssl]" default="true" mandatory="true" expose="true"/>
         <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host for Libre Office]" default="localhost" mandatory="true" expose="true"/>
         <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Port for Libre Office]" default="9980" mandatory="true" expose="true"/>

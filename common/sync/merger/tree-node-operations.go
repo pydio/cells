@@ -24,8 +24,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 // OriginalPath rebuilds node Path climbing to the root

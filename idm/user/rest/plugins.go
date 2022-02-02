@@ -24,9 +24,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -38,8 +38,8 @@ func init() {
 			service.Description("RESTful Gateway to users service"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceUser, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceRole, []string{}),
-			service.WithWeb(func() service.WebHandler {
-				return NewUserHandler()
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return NewUserHandler(c)
 			}),
 		)
 	})

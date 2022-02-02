@@ -105,31 +105,31 @@
     "other": "Lavori in background"
   },
   "background.jobs.running": {
-    "other": "Processi in corso"
+    "other": "Jobs running"
   },
   "websocket.disconnected.title": {
-    "other": "Problemi di connessione"
+    "other": "Connection issue"
   },
   "websocket.disconnected.legend": {
-    "other": "Il Websocket sembra essere disconnesso, assicurati che il server sia attivo e che la connessione websocket funzioni."
+    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
   },
   "oauth.authentication.success": {
-    "other": "Autenticazione riuscita"
+    "other": "Authentication Success"
   },
   "oauth.authentication.failed": {
-    "other": "Autenticazione fallita"
+    "other": "Authentication Failed"
   },
   "oauth.authentication.code": {
-    "other": "Sei stato autenticato con successo. Copia e incolla il codice nel terminale a riga di comando"
+    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copia il codice negli appunti"
+    "other": "Copy code to your clipboard"
   },
   "oauth.authentication.code-copied": {
-    "other": "Il codice viene copiato negli appunti, è possibile incollarlo nella riga di comando."
+    "other": "Code is copied to your clipboard, you can paste it in the command line."
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Impossibile copiare negli appunti."
+    "other": "Could not copy to clipboard."
   },
   "list.display-mode.list": {
     "other": "Lista"
@@ -147,21 +147,21 @@
     "other": "Thumbs Small"
   },
   "list.display-mode.masonry": {
-    "other": "Galleria di immagini"
+    "other": "Image Gallery"
   },
   "list.extensions.action": {
-    "other": "Estensioni dei file"
+    "other": "Files extensions"
   },
   "list.extensions.show": {
-    "other": "Mostra le estensioni"
+    "other": "Show extensions"
   },
   "list.pin.bookmarks": {
-    "other": "Fissa i segnalibri in alto"
+    "other": "Pin bookmarks to top"
   },
   "infopanel.empty.select.file": {
-    "other": "Seleziona un file per visualizzare le informazioni"
+    "other": "Select a file to display informations"
   },
   "pinned-bookmarks.other": {
-    "other": "Tutti i file"
+    "other": "All files"
   }
 }

@@ -63,7 +63,7 @@ var myRoutes = routes{
 	route{
 		"Index",
 		"GET",
-		"/wopi/",
+		"/",
 		index,
 	},
 
@@ -76,21 +76,21 @@ var myRoutes = routes{
 	route{
 		"GetNodeInfos",
 		"GET",
-		"/wopi/files/{uuid}",
+		"/files/{uuid}",
 		getNodeInfos,
 	},
 
 	route{
 		"Download",
 		"GET",
-		"/wopi/files/{uuid}/contents",
+		"/files/{uuid}/contents",
 		download,
 	},
 
 	route{
 		"UploadStream",
 		"POST",
-		"/wopi/files/{uuid}/contents",
+		"/files/{uuid}/contents",
 		uploadStream,
 	},
 }

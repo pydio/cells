@@ -22,5 +22,6 @@ import Renderer from './Renderer'
 import UserMetaPanel from './UserMetaPanel'
 import InfoPanel from './InfoPanel'
 import UserMetaDialog from './UserMetaDialog'
+import MetaClient from "./MetaClient";
 
-export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel}
+export {Renderer, InfoPanel, Callbacks, UserMetaDialog, UserMetaPanel, MetaClient}

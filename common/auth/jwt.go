@@ -27,16 +27,16 @@ import (
 	"sort"
 	"strings"
 
-	errors2 "github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	errors2 "github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 type ProviderType int
@@ -60,7 +60,7 @@ type ContextVerifier interface {
 }
 
 type Exchanger interface {
-	Exchange(context.Context, string) (*oauth2.Token, error)
+	Exchange(context.Context, string, string) (*oauth2.Token, error)
 }
 
 // TokenOption is an AuthCodeOption is passed to Config.AuthCodeURL.
@@ -136,7 +136,7 @@ type JWTVerifier struct {
 // DefaultJWTVerifier creates a ready to use JWTVerifier
 func DefaultJWTVerifier() *JWTVerifier {
 	return &JWTVerifier{
-		types: []ProviderType{ProviderTypeGrpc, ProviderTypeOry, ProviderTypePAT},
+		types: []ProviderType{ProviderTypeOry, ProviderTypeGrpc, ProviderTypePAT},
 	}
 }
 
@@ -178,13 +178,13 @@ func (j *JWTVerifier) loadClaims(ctx context.Context, token IDToken, claims *cla
 	if claims.Subject != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, "", claims.Subject); err == nil {
 			user = u
-		} else if errors2.Parse(err.Error()).Code != 404 {
+		} else if errors2.FromError(err).Code != 404 {
 			return err
 		}
 	} else if claims.Name != "" {
 		if u, err := permissions.SearchUniqueUser(ctx, claims.Name, ""); err == nil {
 			user = u
-		} else if errors2.Parse(err.Error()).Code != 404 {
+		} else if errors2.FromError(err).Code != 404 {
 			return err
 		}
 	}
@@ -247,7 +247,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 			break
 		}
 
-		log.Logger(ctx).Debug("jwt rawIdToken verify: failed", zap.Error(err))
+		log.Logger(ctx).Debug("jwt rawIdToken verify: failed, trying next", zap.Error(err))
 	}
 
 	if (idToken == nil || err != nil) && !isRetry {
@@ -262,7 +262,7 @@ func (j *JWTVerifier) verifyTokenWithRetry(ctx context.Context, rawIDToken strin
 }
 
 // Exchange retrieves an oauth2 Token from a code.
-func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
+func (j *JWTVerifier) Exchange(ctx context.Context, code, codeVerifier string) (*oauth2.Token, error) {
 	var oauth2Token *oauth2.Token
 	var err error
 
@@ -273,7 +273,7 @@ func (j *JWTVerifier) Exchange(ctx context.Context, code string) (*oauth2.Token,
 		}
 
 		// Verify state and errors.
-		oauth2Token, err = exch.Exchange(ctx, code)
+		oauth2Token, err = exch.Exchange(ctx, code, codeVerifier)
 		if err == nil {
 			break
 		}
@@ -416,7 +416,7 @@ func WithImpersonate(ctx context.Context, user *idm.User) context.Context {
 			c.DisplayName = dn
 		}
 	}
-	ctx = context2.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
+	ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: user.Login})
 	return context.WithValue(ctx, claim.ContextKey, c)
 }
 

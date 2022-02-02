@@ -23,13 +23,12 @@ package jobs
 import (
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
 )
 
 /* job.go file enriches default genrated proto structs with some custom pydio methods to ease development */
@@ -127,13 +126,13 @@ func (task *Task) WithoutLogs() *Task {
 }
 
 // MustMarshalAny is an util function to avoid error check
-func MustMarshalAny(pb proto.Message) *any.Any {
-	mm, _ := ptypes.MarshalAny(pb)
+func MustMarshalAny(pb proto.Message) *anypb.Any {
+	mm, _ := anypb.New(pb)
 	return mm
 }
 
 // MustMarshalAnyMultiple is an util function to avoid error check
-func MustMarshalAnyMultiple(pbs ...proto.Message) (out []*any.Any) {
+func MustMarshalAnyMultiple(pbs ...proto.Message) (out []*anypb.Any) {
 	for _, pb := range pbs {
 		out = append(out, MustMarshalAny(pb))
 	}

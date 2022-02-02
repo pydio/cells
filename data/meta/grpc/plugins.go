@@ -24,47 +24,50 @@ package grpc
 import (
 	"context"
 
-	micro "github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/data/meta"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/data/meta"
+)
+
+var (
+	ServiceName = common.ServiceGrpcNamespace_ + common.ServiceMeta
 )
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceMeta),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Metadata server for tree nodes"),
-			service.WithStorage(meta.NewDAO, "data_meta"),
 			service.Unique(true),
-			service.WithMicro(func(m micro.Service) error {
+			service.WithStorage(meta.NewDAO, "data_meta"),
+			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
-				ctx := m.Options().Context
+				engine := NewMetaServer(c, servicecontext.GetDAO(c).(meta.DAO))
 
-				engine := NewMetaServer()
-				m.Init(micro.BeforeStop(func() error {
-					engine.Stop()
-					return nil
-				}))
-
-				tree.RegisterNodeProviderHandler(m.Options().Server, engine)
-				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
-				tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
-				tree.RegisterSearcherHandler(m.Options().Server, engine)
+				tree.RegisterNodeProviderEnhancedServer(server, engine)
+				tree.RegisterNodeProviderStreamerEnhancedServer(server, engine)
+				tree.RegisterNodeReceiverEnhancedServer(server, engine)
+				tree.RegisterSearcherEnhancedServer(server, engine)
 
 				// Register Subscribers
-				if err := m.Options().Server.Subscribe(
-					m.Options().Server.NewSubscriber(
-						common.TopicTreeChanges,
-						engine.CreateNodeChangeSubscriber(ctx),
-					),
-				); err != nil {
-					return err
+				sub := engine.Subscriber(c)
+				if e := broker.SubscribeCancellable(c, common.TopicTreeChanges, func(message broker.Message) error {
+					msg := &tree.NodeChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						return sub.Handle(ctx, msg)
+					}
+					return nil
+				}); e != nil {
+					engine.Stop()
+					return e
 				}
 
 				return nil

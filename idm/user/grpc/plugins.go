@@ -28,25 +28,29 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/errors"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/idm/user"
-	"github.com/pydio/cells/scheduler/actions"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/idm/user"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 const (
-	ENV_PYDIO_ADMIN_USER_LOGIN    = "PYDIO_ADMIN_USER_LOGIN"
-	ENV_PYDIO_ADMIN_USER_PASSWORD = "PYDIO_ADMIN_USER_PASSWORD"
+	EnvPydioAdminUserLogin    = "PYDIO_ADMIN_USER_LOGIN"
+	EnvPydioAdminUserPassword = "PYDIO_ADMIN_USER_PASSWORD"
+	ServiceName               = common.ServiceGrpcNamespace_ + common.ServiceUser
 )
 
 func init() {
@@ -57,7 +61,7 @@ func init() {
 
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceUser),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Users persistence layer"),
@@ -69,14 +73,21 @@ func init() {
 				},
 			}),
 			service.WithStorage(user.NewDAO, "idm_user"),
-			service.WithMicro(func(m micro.Service) error {
-				idm.RegisterUserServiceHandler(m.Options().Server, new(Handler))
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+
+				dao := servicecontext.GetDAO(ctx).(user.DAO)
+				idm.RegisterUserServiceEnhancedServer(server, NewHandler(ctx, dao))
 
 				// Register a cleaner for removing a workspace when there are no more ACLs on it.
-				dao := servicecontext.GetDAO(m.Options().Context).(user.DAO)
 				cleaner := &RolesCleaner{Dao: dao}
-				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TopicIdmEvent, cleaner)); err != nil {
-					return err
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						return cleaner.Handle(ct, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
 				}
 
 				return nil
@@ -90,9 +101,9 @@ func InitDefaults(ctx context.Context) error {
 	var login, pwd string
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 
-	if os.Getenv(ENV_PYDIO_ADMIN_USER_LOGIN) != "" && os.Getenv(ENV_PYDIO_ADMIN_USER_PASSWORD) != "" {
-		login = os.Getenv(ENV_PYDIO_ADMIN_USER_LOGIN)
-		pwd = os.Getenv(ENV_PYDIO_ADMIN_USER_PASSWORD)
+	if os.Getenv(EnvPydioAdminUserLogin) != "" && os.Getenv(EnvPydioAdminUserPassword) != "" {
+		login = os.Getenv(EnvPydioAdminUserLogin)
+		pwd = os.Getenv(EnvPydioAdminUserPassword)
 	}
 
 	if rootConfig := config.Get("defaults", "root").String(); rootConfig != "" {
@@ -124,8 +135,8 @@ func InitDefaults(ctx context.Context) error {
 				return err2
 			}
 			// Create user role
-			service.Retry(ctx, func() error {
-				roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+			std.Retry(ctx, func() error {
+				roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
 				_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 					Uuid:     newUser.Uuid,
 					Label:    newUser.Login + " role",
@@ -157,8 +168,8 @@ func InitDefaults(ctx context.Context) error {
 			return err2
 		}
 		// Create user role
-		service.Retry(ctx, func() error {
-			roleClient := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+		std.Retry(ctx, func() error {
+			roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
 			_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
 				Uuid:     newAnon.Uuid,
 				Label:    newAnon.Login + " role",
@@ -174,7 +185,7 @@ func InitDefaults(ctx context.Context) error {
 
 // CreateIfNotExists creates a user if DAO.Bind() call returns a 404 error.
 func CreateIfNotExists(ctx context.Context, dao user.DAO, user *idm.User) (*idm.User, error) {
-	if _, err := dao.Bind(user.Login, user.Password); err != nil && errors.Parse(err.Error()).Code != 404 {
+	if _, err := dao.Bind(user.Login, user.Password); err != nil && errors.FromError(err).Code != 404 {
 		return nil, err
 	} else if err == nil {
 		log.Logger(ctx).Info("Skipping user " + user.Login + ", already exists")

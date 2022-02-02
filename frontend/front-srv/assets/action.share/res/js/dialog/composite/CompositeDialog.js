@@ -36,7 +36,7 @@ let CompositeDialog = createReactClass({
             dialogTitle: '',
             dialogIsModal: true,
             dialogPadding: false,
-            dialogSize:'lg'
+            dialogSize:'md+'
         };
     },
 
@@ -69,6 +69,14 @@ let CompositeDialog = createReactClass({
         };
     },
 
+    shouldComponentUpdate(props, state){
+        const {selection} = this.props;
+        if(!selection.getUniqueNode()){
+            return false;
+        }
+        return true;
+    },
+
     render(){
         const {pydio, selection} = this.props;
         let node;
@@ -78,7 +86,7 @@ let CompositeDialog = createReactClass({
 
         return (
             <CompositeCard
-                editorOneColumn={this.props.editorOneColumn}
+                editorOneColumn={true}
                 pydio={pydio}
                 mode="edit"
                 node={node}

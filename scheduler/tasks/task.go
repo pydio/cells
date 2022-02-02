@@ -25,19 +25,20 @@ import (
 	"sync"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/protobuf/proto"
-	"github.com/pborman/uuid"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 type Task struct {
 	*jobs.Job
 	sync.RWMutex
+	common.RuntimeHolder
 	context        context.Context
 	initialMessage jobs.ActionMessage
 	lockedTask     *jobs.Task
@@ -195,9 +196,9 @@ func (t *Task) GlobalError(e error) {
 }
 
 // EnqueueRunnables appends chained actions to a running Runnable
-func (t *Task) EnqueueRunnables(c client.Client, output chan Runnable) {
+func (t *Task) EnqueueRunnables(output chan Runnable) {
 
-	r := RootRunnable(t.context, c, t)
+	r := RootRunnable(t.context, t)
 	r.Dispatch(r.ActionPath, t.initialMessage, t.Actions, output)
 
 }

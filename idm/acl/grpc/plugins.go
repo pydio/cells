@@ -24,21 +24,26 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/go-micro"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/meta"
-	"github.com/pydio/cells/idm/acl"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/idm/acl"
 )
+
+var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceAcl
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceAcl),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
@@ -49,29 +54,44 @@ func init() {
 					Up:            UpgradeTo120,
 				},
 			}),
-			service.WithMicro(func(m micro.Service) error {
-				service.AddMicroMeta(m, meta.ServiceMetaProvider, "stream")
+			service.Metadata(meta.ServiceMetaProvider, "stream"),
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
-				handler := new(Handler)
-				idm.RegisterACLServiceHandler(m.Server(), handler)
-				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
+				handler := NewHandler(ctx, servicecontext.GetDAO(ctx).(acl.DAO))
+				idm.RegisterACLServiceEnhancedServer(server, handler)
+				tree.RegisterNodeProviderStreamerEnhancedServer(server, handler)
 
 				// Clean acls on Ws or Roles deletion
-				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicIdmEvent, &WsRolesCleaner{handler}))
+				rCleaner := &WsRolesCleaner{Handler: handler}
+				if e := broker.SubscribeCancellable(ctx, common.TopicIdmEvent, func(message broker.Message) error {
+					ev := &idm.ChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						return rCleaner.Handle(ct, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
 
-				// Clean acls on Nodes deletion
-				m.Server().Subscribe(m.Server().NewSubscriber(common.TopicTreeChanges, newNodesCleaner(m.Options().Context, handler)))
+				nCleaner := newNodesCleaner(ctx, handler)
+				if e := broker.SubscribeCancellable(ctx, common.TopicTreeChanges, func(message broker.Message) error {
+					ev := &tree.NodeChangeEvent{}
+					if ct, e := message.Unmarshal(ev); e == nil {
+						return nCleaner.Handle(ct, ev)
+					}
+					return nil
+				}); e != nil {
+					return e
+				}
 
 				// For when it will be used: clean locks at startup
-				/*
-					dao := servicecontext.GetDAO(m.Options().Context).(acl.DAO)
-					if dao != nil {
-						q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{Actions: []*idm.ACLAction{{Name: permissions.AclLock.Name}}})
-						if num, _ := dao.Del(&service2.Query{SubQueries: []*any.Any{q}}); num > 0 {
-							log.Logger(m.Options().Context).Info(fmt.Sprintf("Cleaned %d locks in ACLs", num))
-						}
-					}
-				*/
+				//	dao := servicecontext.GetDAO(m.Options().Context).(acl.DAO)
+				//	if dao != nil {
+				//		q, _ := anypb.New(&idm.ACLSingleQuery{Actions: []*idm.ACLAction{{Name: permissions.AclLock.Name}}})
+				//		if num, _ := dao.Del(&service2.Query{SubQueries: []*anypb.Any{q}}); num > 0 {
+				//			log.Logger(m.Options().Context).Info(fmt.Sprintf("Cleaned %d locks in ACLs", num))
+				//		}
+				//	}
 
 				return nil
 			}),

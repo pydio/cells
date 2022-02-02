@@ -24,9 +24,13 @@ package filesystem
 
 import (
 	"context"
-
-	"github.com/pydio/cells/common/proto/tree"
 )
+
+type Volume struct {
+	Uuid string
+	Path string
+	Size int64
+}
 
 func CanonicalPath(path string) (string, error) {
 	return path, nil
@@ -36,7 +40,7 @@ func SetHidden(osPath string, hidden bool) error {
 	return nil
 }
 
-func BrowseVolumes(ctx context.Context) []*tree.Node {
+func BrowseVolumes(ctx context.Context) []*Volume {
 	return nil
 }
 

@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package install;
+
+option go_package="github.com/pydio/cells/v4/common/proto/install";
+
+message InstallConfig {
+    string internalUrl = 32;
+
+    string dbConnectionType = 1;
+    string dbTCPHostname = 2;
+    string dbTCPPort = 3;
+    string dbTCPName = 4;
+    string dbTCPUser = 5;
+    string dbTCPPassword = 6;
+    string dbSocketFile = 7;
+    string dbSocketName = 8;
+    string dbSocketUser = 9;
+    string dbSocketPassword = 10;
+    string dbManualDSN = 11;
+    bool   dbUseDefaults = 37;
+
+    string dsName = 12;
+    string dsPort = 13;
+    string dsType = 15;
+
+    string dsS3Custom = 16;
+    string dsS3CustomRegion = 17;
+    string dsS3ApiKey = 18;
+    string dsS3ApiSecret = 19;
+    string dsS3BucketDefault = 20;
+    string dsS3BucketPersonal = 21;
+    string dsS3BucketCells = 22;
+    string dsS3BucketBinaries = 23;
+    string dsS3BucketThumbs = 35;
+    string dsS3BucketVersions = 36;
+
+    string dsFolder = 14;
+    string frontendHosts = 24;
+    string frontendLogin = 25;
+    string frontendPassword = 26;
+    string frontendRepeatPassword = 27;
+    string frontendApplicationTitle = 28;
+    string frontendDefaultLanguage = 33;
+    bool   licenseRequired = 29;
+    string licenseString = 30;
+    repeated CheckResult CheckResults = 31;
+    // Additional proxy config (optional)
+    ProxyConfig ProxyConfig = 34;
+}
+
+// ProxyConfig gives necessary URL and TLS configurations to start proxy
+message ProxyConfig {
+    // A list of [host]:port to bind to
+    repeated string Binds = 1;
+    // Optional URL of reverse proxy exposing this site
+    string ReverseProxyURL = 3;
+    // TLS configuration used for this site
+    oneof TLSConfig {
+        TLSSelfSigned SelfSigned = 4;
+        TLSLetsEncrypt LetsEncrypt = 5;
+        TLSCertificate Certificate = 6;
+    }
+    // If TLS is set, whether to automatically redirect each http://host:port to https://host:port
+    bool SSLRedirect = 2;
+
+    // If set, this site will be in maintenance mode
+    bool Maintenance = 7;
+    // Append caddy directive to restrict maintenance mode
+    repeated string MaintenanceConditions = 8;
+}
+
+// TLSSelfSigned generates a selfsigned certificate
+message TLSSelfSigned {
+    repeated string Hostnames = 1;
+}
+
+// TLSLetsEncrypt set up proxy to automatically get a valid certificate from let's encrypt servers
+message TLSLetsEncrypt {
+    string Email = 1;
+    bool AcceptEULA = 2;
+    bool StagingCA = 3;
+}
+
+// TLSCertificate is a TLSConfig where user passes
+message TLSCertificate {
+    string CertFile = 1;
+    string KeyFile = 2;
+    string CellsRootCA = 3;
+}
+
+message CheckResult{
+    string Name = 1;
+    bool Success = 2;
+    string JsonResult = 3;
+}
+
+message PerformCheckRequest {
+    string Name = 1;
+    InstallConfig Config = 2;
+}
+
+message PerformCheckResponse {
+    CheckResult Result = 1;
+}
+
+message GetDefaultsRequest {
+}
+
+message GetDefaultsResponse {
+    InstallConfig config = 1;
+}
+
+message GetAgreementRequest {
+}
+
+message GetAgreementResponse {
+    string Text = 1;
+}
+
+message InstallRequest {
+    InstallConfig config = 1;
+}
+
+message InstallResponse {
+    bool success = 1;
+}
+
+message InstallEventsRequest {
+}
+
+message InstallEventsResponse {
+}
+
+service Install {
+    rpc GetDefaults(GetDefaultsRequest) returns (GetDefaultsResponse);
+    rpc Install(InstallRequest) returns (InstallResponse);
+    rpc PerformCheck(PerformCheckRequest) returns (PerformCheckResponse);
+}

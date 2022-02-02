@@ -195,7 +195,7 @@
     "other": "Standard (lista di file con l'intestazione dell'applicazione)"
   },
   "154": {
-    "other": "Galleria Immagini (migliore per le foto)"
+    "other": "Images Gallery (best for photos)"
   },
   "155": {
     "other": "Embedded (intestazione più piccola, per i widget)"
@@ -909,9 +909,9 @@
     "other": "Ci sono modifiche non salvate. Sicuro di voler uscire?"
   },
   "sharelist.quick-filter": {
-    "other": "Filtro rapido..."
+    "other": "Quick filter..."
   },
   "composite.deleteAll": {
-    "other": "Disabilita tutte le condivisioni"
+    "other": "Disable all shares"
   }
 }

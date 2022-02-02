@@ -25,22 +25,42 @@
 package docstore
 
 import (
-	"github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"path/filepath"
 )
 
-type Store interface {
+type DAO interface {
+	dao.DAO
 	PutDocument(storeID string, doc *docstore.Document) error
 	GetDocument(storeID string, docId string) (*docstore.Document, error)
 	DeleteDocument(storeID string, docID string) error
-	ListDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, chan bool, error)
+	DeleteDocuments(storeID string, query *docstore.DocumentQuery) (int, error)
+	QueryDocuments(storeID string, query *docstore.DocumentQuery) (chan *docstore.Document, error)
+	CountDocuments(storeID string, query *docstore.DocumentQuery) (int, error)
 	ListStores() ([]string, error)
-	Close() error
+	Reset() error
+	CloseDAO() error
 }
 
-type Indexer interface {
-	IndexDocument(storeID string, doc *docstore.Document) error
-	DeleteDocument(storeID string, docID string) error
-	SearchDocuments(storeID string, query *docstore.DocumentQuery, countOnly bool) ([]string, int64, error)
-	Reset() error
-	Close() error
+func NewDAO(dao dao.DAO) dao.DAO {
+	switch v := dao.(type) {
+	case boltdb.DAO:
+		bStore := &BoltStore{db: v.DB()}
+		dirname := filepath.Join(filepath.Dir(v.DB().Path()), "docstore.bleve")
+		bleve, er := NewBleveEngine(bStore, dirname, false)
+		if er != nil {
+			log.Fatal("Cannot open bleve engine for docstore")
+		}
+		bleve.DAO = v
+		return bleve
+	case mongodb.DAO:
+		return &mongoImpl{
+			DAO: v,
+		}
+	}
+	return nil
 }

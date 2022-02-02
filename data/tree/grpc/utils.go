@@ -25,13 +25,14 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/registry"
 )
 
 func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) {
@@ -40,9 +41,15 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 	initialLength := len(treeServer.DataSources)
 	treeServer.Unlock()
 
-	otherServices, err := registry.ListRunningServices()
+	var otherServices []registry.Service
+
+	reg := servicecontext.GetRegistry(ctx)
+	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE))
 	if err != nil {
 		return
+	}
+	for _, i := range items {
+		otherServices = append(otherServices, i.(registry.Service))
 	}
 
 	syncServices := filterServices(otherServices, func(v string) bool {
@@ -57,12 +64,12 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		if dataSourceName == "" {
 			continue
 		}
-		indexService := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + dataSourceName
+		indexService := common.ServiceDataIndex_ + dataSourceName
 
 		ds := DataSource{
 			Name:   dataSourceName,
-			writer: tree.NewNodeReceiverClient(indexService, defaults.NewClient()),
-			reader: tree.NewNodeProviderClient(indexService, defaults.NewClient()),
+			writer: tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, indexService)),
+			reader: tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, indexService)),
 		}
 
 		dataSources[dataSourceName] = ds
@@ -74,8 +81,8 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 	treeServer.Unlock()
 
 	// If registry event comes too soon, running services may not be loaded yet
-	if retry < 2 && initialLength == len(dataSources) {
-		<-time.After(2 * time.Second)
+	if retry < 4 && initialLength == len(dataSources) {
+		<-time.After(10 * time.Second)
 		updateServicesList(ctx, treeServer, retry+1)
 	}
 }
@@ -92,19 +99,27 @@ func filterServices(vs []registry.Service, f func(string) bool) []string {
 
 func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 
-	watcher, err := registry.Watch()
+	reg := servicecontext.GetRegistry(ctx)
+
+	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE))
 	if err != nil {
 		return
 	}
+
 	for {
-		result, err := watcher.Next()
-		if result != nil && err == nil {
-			srv := result.Service
-			if strings.Contains(srv.Name, common.ServiceDataSync_) {
-				updateServicesList(ctx, treeServer, 0)
-			}
-		} else if err != nil {
-			log.Logger(ctx).Error("Registry Watcher Error", zap.Error(err))
+		r, err := w.Next()
+		if err != nil {
+			return
 		}
+
+		var s registry.Service
+		if !r.Item().As(&s) {
+			continue
+		}
+		if !strings.Contains(s.Name(), common.ServiceDataSync_) {
+			continue
+		}
+		updateServicesList(ctx, treeServer, 0)
 	}
+
 }

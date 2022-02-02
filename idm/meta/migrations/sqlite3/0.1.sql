@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS idm_usr_meta (
     timestamp 		INT(11),
     format 			VARCHAR(50),
     data 			BLOB,
-    UNIQUE (uuid),
+    PRIMARY KEY (uuid),
     UNIQUE (namespace,node_uuid,owner)
 );
 

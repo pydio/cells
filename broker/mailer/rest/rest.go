@@ -24,20 +24,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"regexp"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 var (
@@ -55,7 +55,9 @@ func ValidateFormat(email string) error {
 
 // MailerHandler provides implementation of method interfaces
 // to communicate with the configured MTA for this instance
-type MailerHandler struct{}
+type MailerHandler struct {
+	RuntimeCtx context.Context
+}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (mh *MailerHandler) SwaggerTags() []string {
@@ -80,7 +82,7 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Sending Email", log.DangerouslyZapSmallSlice("to", message.To), zap.String("subject", message.Subject), zap.Any("templateData", message.TemplateData))
 
 	langs := i18n.UserLanguagesFromRestRequest(req, config.Get())
-	cli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
+	cli := mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(mh.RuntimeCtx, common.ServiceMailer))
 
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok {

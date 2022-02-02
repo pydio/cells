@@ -24,16 +24,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -41,7 +40,7 @@ var (
 )
 
 type CleanThumbsTask struct {
-	Client client.Client
+	common.RuntimeHolder
 }
 
 // GetDescription returns action description
@@ -68,8 +67,7 @@ func (c *CleanThumbsTask) GetName() string {
 }
 
 // Init passes parameters to the action.
-func (c *CleanThumbsTask) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
-	c.Client = cl
+func (c *CleanThumbsTask) Init(job *jobs.Job, action *jobs.Action) error {
 	return nil
 }
 
@@ -80,25 +78,25 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		return input.WithIgnore(), nil
 	}
 
-	thumbsClient, thumbsBucket, e := views.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace, c.Client)
+	thumbsClient, thumbsBucket, e := nodes.GetGenericStoreClient(ctx, common.PydioThumbstoreNamespace)
 	if e != nil {
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
 		return input.WithError(e), e
 	}
 	nodeUuid := input.Nodes[0].Uuid
 	// List all thumbs starting with node Uuid
-	listRes, err := thumbsClient.ListObjectsWithContext(ctx, thumbsBucket, nodeUuid+"-", "", "", 0)
+	listRes, err := thumbsClient.ListObjects(ctx, thumbsBucket, nodeUuid+"-", "", "", 0)
 	if err != nil {
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(err), zap.Any("context", ctx))
 		return input.WithError(err), err
 	}
 	for _, oi := range listRes.Contents {
-		tCtx, tNode, e := getThumbLocation(ctx, oi.Key)
+		tCtx, tNode, e := getThumbLocation(c.GetRuntimeContext(), ctx, oi.Key)
 		if e != nil {
 			log.Logger(ctx).Debug("Cannot get thumbnail location", zap.Error(e))
 			return input.WithError(e), e
 		}
-		if _, err := getRouter().DeleteNode(tCtx, &tree.DeleteNodeRequest{Node: tNode}); err != nil {
+		if _, err := getRouter(c.GetRuntimeContext()).DeleteNode(tCtx, &tree.DeleteNodeRequest{Node: tNode}); err != nil {
 			log.Logger(ctx).Debug("Cannot delete thumbnail", zap.Error(err))
 			return input.WithError(err), err
 		}

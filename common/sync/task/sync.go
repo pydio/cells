@@ -30,17 +30,17 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
 
 	"github.com/gobwas/glob"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/sync/filters"
-	"github.com/pydio/cells/common/sync/merger"
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/sync/proc"
+	"github.com/pydio/cells/v4/common/sync/filters"
+	"github.com/pydio/cells/v4/common/sync/merger"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/sync/proc"
 )
 
 type Sync struct {
@@ -355,20 +355,20 @@ func (s *Sync) statRoots(ctx context.Context, source model.Endpoint) (stat *mode
 		if err != nil {
 			return stat, errors.WithMessage(err, "Cannot Stat Root")
 		}
-		if node.HasMetaKey("RecursiveChildrenSize") {
+		if node.HasMetaKey(model.MetaRecursiveChildrenSize) {
 			stat.HasSizeInfo = true
 			var s int64
-			if e := node.GetMeta("RecursiveChildrenSize", &s); e == nil {
+			if e := node.GetMeta(model.MetaRecursiveChildrenSize, &s); e == nil {
 				stat.Size += s
 			}
 		}
-		if node.HasMetaKey("RecursiveChildrenFolders") && node.HasMetaKey("RecursiveChildrenFiles") {
+		if node.HasMetaKey(model.MetaRecursiveChildrenFolders) && node.HasMetaKey(model.MetaRecursiveChildrenFiles) {
 			stat.HasChildrenInfo = true
 			var folders, files int64
-			if e := node.GetMeta("RecursiveChildrenFolders", &folders); e == nil {
+			if e := node.GetMeta(model.MetaRecursiveChildrenFolders, &folders); e == nil {
 				stat.Folders += folders
 			}
-			if e := node.GetMeta("RecursiveChildrenFiles", &files); e == nil {
+			if e := node.GetMeta(model.MetaRecursiveChildrenFiles, &files); e == nil {
 				stat.Files += files
 			}
 		}

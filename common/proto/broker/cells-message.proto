@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package broker;
+
+option go_package="github.com/pydio/cells/v4/common/proto/broker";
+
+service Broker {
+    rpc Publish(stream PublishRequest) returns (Empty) {};
+    rpc Subscribe(stream SubscribeRequest) returns (stream SubscribeResponse) {};
+}
+
+message Empty {}
+
+message PublishRequest {
+    string topic = 1;
+    repeated Message messages = 2;
+}
+
+message SubscribeRequest {
+    string id = 1;
+    string topic = 2;
+    string queue = 3;
+}
+
+message SubscribeResponse {
+    string id = 1;
+    repeated Message messages = 2;
+}
+message Message {
+    map<string,string> header = 1;
+    bytes body = 2;
+}

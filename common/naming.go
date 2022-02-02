@@ -90,13 +90,14 @@ const (
 	ServiceVersions = "versions"
 	ServiceDocStore = "docstore"
 
-	ServiceData_        = "data."
-	ServiceDataIndex    = ServiceData_ + "index"
-	ServiceDataObjects  = ServiceData_ + "objects"
-	ServiceDataSync     = ServiceData_ + "sync"
-	ServiceDataIndex_   = ServiceDataIndex + "."
-	ServiceDataObjects_ = ServiceDataObjects + "."
-	ServiceDataSync_    = ServiceDataSync + "."
+	ServiceData_           = "data."
+	ServiceDataIndex       = ServiceData_ + "index"
+	ServiceDataObjects     = ServiceData_ + "objects"
+	ServiceDataObjectsPeer = ServiceData_ + "objects.peer"
+	ServiceDataSync        = ServiceData_ + "sync"
+	ServiceDataIndex_      = ServiceDataIndex + "."
+	ServiceDataObjects_    = ServiceDataObjects + "."
+	ServiceDataSync_       = ServiceDataSync + "."
 
 	ServiceGrpcNamespace_    = "pydio.grpc."
 	ServiceWebNamespace_     = "pydio.web."
@@ -104,6 +105,7 @@ const (
 	ServiceGatewayNamespace_ = "pydio.gateway."
 	ServiceTestNamespace_    = "pydio.test."
 	ServiceStorageNamespace_ = "pydio.storage."
+	ServiceGenericNamespace_ = "pydio.generic."
 
 	ServiceGatewayProxy     = ServiceGatewayNamespace_ + "proxy"
 	ServiceGatewayData      = ServiceGatewayNamespace_ + "data"
@@ -126,11 +128,12 @@ const (
 	EventHeaderServiceRegisterPeer    = "x-service-peer"
 	EventTypeDebugPrintInternals      = "debug"
 
-	TopicReloadAssets    = "topic.pydio.assets.reload"
-	TopicIndexChanges    = "topic.pydio.index.nodes.changes"
-	TopicTreeChanges     = "topic.pydio.tree.nodes.changes"
-	TopicMetaChanges     = "topic.pydio.meta.nodes.changes"
-	TopicTimerEvent      = "topic.pydio.meta.timer.event"
+	TopicReloadAssets = "topic.pydio.assets.reload"
+	TopicIndexChanges = "topic.pydio.index.nodes.changes"
+	TopicTreeChanges  = "topic.pydio.tree.nodes.changes"
+	TopicMetaChanges  = "topic.pydio.meta.nodes.changes"
+	TopicTimerEvent   = "topic.pydio.meta.timer.event"
+	// TODO V4 : why are they the same ??
 	TopicJobConfigEvent  = "topic.pydio.jobconfig.event"
 	TopicJobTaskEvent    = "topic.pydio.jobconfig.event"
 	TopicIdmEvent        = "topic.pydio.idm.event"
@@ -138,6 +141,7 @@ const (
 	TopicChatEvent       = "topic.pydio.chat.event"
 	TopicDatasourceEvent = "topic.pydio.datasource.event"
 	TopicIndexEvent      = "topic.pydio.index.event"
+	TopicLogLevelEvent   = "topic.pydio.log-level.event"
 )
 
 // Define constants for metadata and fixed datasources
@@ -149,6 +153,10 @@ const (
 	MetaNamespaceRecycleRestore      = "pydio:recycle_restore"
 	MetaNamespaceNodeName            = "name"
 	MetaNamespaceMime                = "mime"
+	MetaNamespaceVersionId           = "versionId"
+	MetaNamespaceVersionDesc         = "versionDescription"
+	MetaNamespaceGeoLocation         = "GeoLocation"
+	MetaNamespaceContents            = "Contents"
 	RecycleBinName                   = "recycle_bin"
 
 	PydioThumbstoreNamespace       = "pydio-thumbstore"
@@ -199,9 +207,25 @@ const (
 	MetaFlagVirtualRoot          = "virtual_root"
 	MetaFlagBucket               = "ds_bucket"
 	NodeFlagEtagTemporary        = "temporary"
+	MetaFlagCellNode             = "CellNode"
+	MetaFlagChildrenCount        = "ChildrenCount"
+	MetaFlagChildrenFolders      = "ChildrenFolders"
+	MetaFlagChildrenFiles        = "ChildrenFiles"
+	MetaFlagWorkspaceSkipRecycle = "ws_skip_recycle"
+	MetaFlagContentLock          = "content_lock"
+	MetaFlagWorkspacesShares     = "workspaces_shares"
+	MetaFlagUserSubscriptions    = "user_subscriptions"
+	MetaFlagDocumentContentHit   = "document_content_hit"
+	MetaFlagWorkspaceRepoId      = "repository_id"
+	MetaFlagWorkspaceRepoDisplay = "repository_display"
+	MetaFlagWorkspaceEventId     = "EventWorkspaceId"
 )
 
 var (
+	S3GatewayRootUser      = "gateway"
+	S3GatewayRootPassword  = "gatewaysecret"
+	S3GatewayDefaultRegion = "us-east-1"
+
 	XSpecialPydioHeaders = []string{
 		XPydioClientUuid,
 		XPydioSessionUuid,
@@ -246,6 +270,12 @@ var (
 	UpdateDefaultPublicKey = `-----BEGIN PUBLIC KEY-----\nMIIBCgKCAQEAwh/ofjZTITlQc4h/qDZMR3RquBxlG7UTunDKLG85JQwRtU7EL90v\nlWxamkpSQsaPeqho5Q6OGkhJvZkbWsLBJv6LZg+SBhk6ZSPxihD+Kfx8AwCcWZ46\nDTpKpw+mYnkNH1YEAedaSfJM8d1fyU1YZ+WM3P/j1wTnUGRgebK9y70dqZEo2dOK\nn98v3kBP7uEN9eP/wig63RdmChjCpPb5gK1/WKnY4NFLQ60rPAOBsXurxikc9N/3\nEvbIB/1vQNqm7yEwXk8LlOC6Fp8W/6A0DIxr2BnZAJntMuH2ulUfhJgw0yJalMNF\nDR0QNzGVktdLOEeSe8BSrASe9uZY2SDbTwIDAQAB\n-----END PUBLIC KEY-----`
 )
 
+// Let's Encrypt Default CA URLs
+var (
+	DefaultCaUrl        = "https://acme-v02.api.letsencrypt.org/directory"
+	DefaultCaStagingUrl = "https://acme-staging-v02.api.letsencrypt.org/directory"
+)
+
 // Logging Levels.
 var (
 	LogConfig           LogConfigType
@@ -265,15 +295,30 @@ var (
 	}
 )
 
+const (
+	DefaultRouteREST = "/a"
+)
+
 // Version returns the current code version as an object.
 func Version() *hashiversion.Version {
 	v, _ := hashiversion.NewVersion(version)
 	return v
 }
 
+// MustLogFileDefaultValue parses associated variable to boolean.
 func MustLogFileDefaultValue() bool {
 	if v, e := strconv.ParseBool(LogFileDefaultValue); e == nil {
 		return v
 	}
 	return true
+}
+
+// IsXSpecialPydioHeader checks if headerName is in XSpecialPydioHeaders slice.
+func IsXSpecialPydioHeader(headerName string) bool {
+	for _, hh := range XSpecialPydioHeaders {
+		if hh == headerName {
+			return true
+		}
+	}
+	return false
 }

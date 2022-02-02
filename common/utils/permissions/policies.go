@@ -23,24 +23,22 @@ package permissions
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"path"
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/idm/policy/converter"
-
 	"github.com/ory/ladon"
 	"github.com/ory/ladon/manager/memory"
-	"github.com/patrickmn/go-cache"
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
 
-	"github.com/micro/go-micro/metadata"
-
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
 const (
@@ -109,7 +107,7 @@ func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Cont
 
 // PolicyContextFromNode extracts metadata from the Node and enriches the passed policyContext.
 func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
-	policyContext[PolicyNodeMetaName] = node.GetStringMeta("name")
+	policyContext[PolicyNodeMetaName] = node.GetStringMeta(common.MetaNamespaceNodeName)
 	policyContext[PolicyNodeMetaPath] = node.Path
 	policyContext[PolicyNodeMetaType] = node.GetType().String()
 	policyContext[PolicyNodeMetaMTime] = fmt.Sprintf("%v", node.MTime)
@@ -124,11 +122,11 @@ func PolicyContextFromNode(policyContext map[string]string, node *tree.Node) {
 	}
 }
 
-var checkersCache = cache.New(1*time.Minute, 10*time.Minute)
+var checkersCache = cache.NewShort(cache.WithEviction(1*time.Minute), cache.WithCleanWindow(10*time.Minute))
 
 func loadPoliciesByResourcesType(ctx context.Context, resType string) ([]*idm.Policy, error) {
 
-	cli := idm.NewPolicyEngineServiceClient(common.ServiceGrpcNamespace_+common.ServicePolicy, defaults.NewClient())
+	cli := idm.NewPolicyEngineServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServicePolicy))
 	r, e := cli.ListPolicyGroups(ctx, &idm.ListPolicyGroupsRequest{})
 	if e != nil {
 		return nil, e
@@ -173,7 +171,7 @@ func CachedPoliciesChecker(ctx context.Context, resType string) (ladon.Warden, e
 		}
 	}
 
-	checkersCache.Set(resType, w, cache.DefaultExpiration)
+	checkersCache.Set(resType, w)
 	return w, nil
 }
 

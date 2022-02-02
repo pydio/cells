@@ -1,0 +1,228 @@
+{
+  "ACLs": [
+    {
+      "ID": "18",
+      "Action": {
+        "Name": "workspace-path",
+        "Value": "my-files"
+      },
+      "WorkspaceID": "5139c0ec-4d00-11ec-80b1-acde48001122",
+      "NodeID": "my-files"
+    },
+    {
+      "ID": "19",
+      "Action": {
+        "Name": "recycle_root",
+        "Value": "1"
+      },
+      "WorkspaceID": "5139c0ec-4d00-11ec-80b1-acde48001122",
+      "NodeID": "my-files"
+    },
+    {
+      "ID": "22",
+      "Action": {
+        "Name": "workspace-path",
+        "Value": "pydiods1"
+      },
+      "WorkspaceID": "515c7754-4d00-11ec-80b1-acde48001122",
+      "NodeID": "DATASOURCE:pydiods1"
+    },
+    {
+      "ID": "23",
+      "Action": {
+        "Name": "recycle_root",
+        "Value": "1"
+      },
+      "WorkspaceID": "515c7754-4d00-11ec-80b1-acde48001122",
+      "NodeID": "DATASOURCE:pydiods1"
+    },
+    {
+      "ID": "24",
+      "Action": {
+        "Name": "recycle_root",
+        "Value": "1"
+      },
+      "NodeID": "540f517d-0329-4efd-9e00-a9f2ad916884"
+    },
+    {
+      "ID": "4",
+      "Action": {
+        "Name": "read",
+        "Value": "1"
+      },
+      "RoleID": "ADMINS",
+      "WorkspaceID": "settings",
+      "NodeID": "settings-ROOT"
+    },
+    {
+      "ID": "5",
+      "Action": {
+        "Name": "write",
+        "Value": "1"
+      },
+      "RoleID": "ADMINS",
+      "WorkspaceID": "settings",
+      "NodeID": "settings-ROOT"
+    },
+    {
+      "ID": "6",
+      "Action": {
+        "Name": "deny",
+        "Value": "1"
+      },
+      "RoleID": "EXTERNAL_USERS",
+      "WorkspaceID": "homepage",
+      "NodeID": "homepage-ROOT"
+    },
+    {
+      "ID": "7",
+      "Action": {
+        "Name": "action:action.share:share",
+        "Value": "false"
+      },
+      "RoleID": "EXTERNAL_USERS",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_ALL"
+    },
+    {
+      "ID": "8",
+      "Action": {
+        "Name": "action:action.share:share-edit-shared",
+        "Value": "false"
+      },
+      "RoleID": "EXTERNAL_USERS",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_ALL"
+    },
+    {
+      "ID": "9",
+      "Action": {
+        "Name": "action:action.share:open_user_shares",
+        "Value": "false"
+      },
+      "RoleID": "EXTERNAL_USERS",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_ALL"
+    },
+    {
+      "ID": "10",
+      "Action": {
+        "Name": "action:action.user:open_address_book",
+        "Value": "false"
+      },
+      "RoleID": "EXTERNAL_USERS",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_ALL"
+    },
+    {
+      "ID": "11",
+      "Action": {
+        "Name": "parameter:core.auth:USER_CREATE_CELLS",
+        "Value": "false"
+      },
+      "RoleID": "EXTERNAL_USERS",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_ALL"
+    },
+    {
+      "ID": "12",
+      "Action": {
+        "Name": "action:action.share:share",
+        "Value": "false"
+      },
+      "RoleID": "MINISITE",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_SHARED"
+    },
+    {
+      "ID": "13",
+      "Action": {
+        "Name": "action:action.share:share-edit-shared",
+        "Value": "false"
+      },
+      "RoleID": "MINISITE",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_SHARED"
+    },
+    {
+      "ID": "14",
+      "Action": {
+        "Name": "action:access.gateway:download",
+        "Value": "false"
+      },
+      "RoleID": "MINISITE_NODOWNLOAD",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_SHARED"
+    },
+    {
+      "ID": "15",
+      "Action": {
+        "Name": "action:access.gateway:download_folder",
+        "Value": "false"
+      },
+      "RoleID": "MINISITE_NODOWNLOAD",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_SHARED"
+    },
+    {
+      "ID": "1",
+      "Action": {
+        "Name": "read",
+        "Value": "1"
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "homepage",
+      "NodeID": "homepage-ROOT"
+    },
+    {
+      "ID": "2",
+      "Action": {
+        "Name": "write",
+        "Value": "1"
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "homepage",
+      "NodeID": "homepage-ROOT"
+    },
+    {
+      "ID": "3",
+      "Action": {
+        "Name": "parameter:core.conf:lang",
+        "Value": "\"en-us\""
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "PYDIO_REPO_SCOPE_ALL"
+    },
+    {
+      "ID": "16",
+      "Action": {
+        "Name": "read",
+        "Value": "1"
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "5139c0ec-4d00-11ec-80b1-acde48001122",
+      "NodeID": "my-files"
+    },
+    {
+      "ID": "17",
+      "Action": {
+        "Name": "write",
+        "Value": "1"
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "5139c0ec-4d00-11ec-80b1-acde48001122",
+      "NodeID": "my-files"
+    },
+    {
+      "ID": "20",
+      "Action": {
+        "Name": "read",
+        "Value": "1"
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "515c7754-4d00-11ec-80b1-acde48001122",
+      "NodeID": "DATASOURCE:pydiods1"
+    },
+    {
+      "ID": "21",
+      "Action": {
+        "Name": "write",
+        "Value": "1"
+      },
+      "RoleID": "ROOT_GROUP",
+      "WorkspaceID": "515c7754-4d00-11ec-80b1-acde48001122",
+      "NodeID": "DATASOURCE:pydiods1"
+    }
+  ]
+}

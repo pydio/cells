@@ -23,9 +23,9 @@ package grpc
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/cache"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 // EventsSubscriber definition

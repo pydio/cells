@@ -33,7 +33,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pborman/uuid"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 func createFakeData() (out []string) {

@@ -25,18 +25,16 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/x/configx"
-
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
 	// Use SQLite backend for the tests
+	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	_ "github.com/mattn/go-sqlite3"
-	_ "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3"
+
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
@@ -112,12 +110,12 @@ func TestUniqueSlug(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(ws3.Slug, ShouldEqual, "my-slug-2")
 
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 			Uuid: "id2",
 		})
 		workspaces := new([]interface{})
 		mockDAO.Search(&service.Query{
-			SubQueries: []*any.Any{q},
+			SubQueries: []*anypb.Any{q},
 		}, workspaces)
 		So(workspaces, ShouldHaveLength, 1)
 		for _, w := range *workspaces {
@@ -179,11 +177,11 @@ func TestSearch(t *testing.T) {
 		// Asked for worspace - with ROOM Scope
 		singleq := new(idm.WorkspaceSingleQuery)
 		singleq.Scope = idm.WorkspaceScope_ROOM
-		a, err := ptypes.MarshalAny(singleq)
+		a, err := anypb.New(singleq)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{a},
+			SubQueries: []*anypb.Any{a},
 			Offset:     0,
 			Limit:      10,
 			Operation:  service.OperationType_AND,
@@ -215,9 +213,9 @@ func TestSearch(t *testing.T) {
 		singleq.Scope = idm.WorkspaceScope_ADMIN
 		singleq.Label = "*admin*"
 
-		a, err = ptypes.MarshalAny(singleq)
+		a, err = anypb.New(singleq)
 		So(err, ShouldBeNil)
-		composedQuery.SubQueries = []*any.Any{a}
+		composedQuery.SubQueries = []*anypb.Any{a}
 
 		result = []interface{}{}
 		err = wdao.Search(composedQuery, &result)

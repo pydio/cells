@@ -1,0 +1,568 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+import "cells-service.proto";
+import "cells-tree.proto";
+import "cells-idm.proto";
+import "cells-activitystream.proto";
+import "cells-object.proto";
+
+package jobs;
+
+option go_package="github.com/pydio/cells/v4/common/proto/jobs";
+///////////////////
+// JOB  SERVICE  //
+///////////////////
+message NodesSelector {
+    // Select all files - ignore any other condition
+    bool All = 1;
+    // Preset list of node pathes
+    repeated string Pathes = 2;
+    // Query to apply to select users (or filter a given node passed by event)
+    service.Query Query = 4;
+    // Whether to trigger one action per node or one action
+    // with all nodes as selection
+    bool Collect = 5;
+    // Selector custom label
+    string Label = 6;
+    // Selector additional description
+    string Description = 7;
+}
+
+// Possible values for IdmSelector.Type
+enum IdmSelectorType {
+    User = 0;
+    Role = 1;
+    Workspace = 2;
+    Acl = 3;
+}
+
+// Generic container for select/filter idm objects
+message IdmSelector {
+    // Type of objects to look for
+    IdmSelectorType Type = 1;
+    // Load all objects
+    bool All = 2;
+    // Serialized search query
+    service.Query Query = 3;
+    // Pass a slice of objects to one action, or trigger all actions in parallel
+    bool Collect = 4;
+    // Selector custom label
+    string Label = 5;
+    // Selector additional description
+    string Description = 6;
+}
+
+// Select or filter users - should be replaced by more generic IdmSelector
+message UsersSelector {
+    // Select all users
+    bool All = 1;
+    // Preset set of Users
+    repeated idm.User Users = 2;
+    // Filter users using this query
+    service.Query Query = 3;
+    // Wether to trigger one action per user or one action
+    // with all user as a selection
+    bool Collect = 5;
+    // Selector custom label
+    string Label = 6;
+    // Selector additional description
+    string Description = 7;
+}
+
+enum DataSourceSelectorType {
+    DataSource = 0;
+    Object = 1;
+}
+
+// Selector/Filter for DataSource objects
+message DataSourceSelector {
+    // Selector custom label
+    string Label = 1;
+    // Selector additional description
+    string Description = 2;
+    // Selector type, either DataSource or Object service
+    DataSourceSelectorType Type = 3;
+    // Select all
+    bool All = 4;
+    // Collect results
+    bool Collect = 5;
+    // Composition of DataSourceSingleQueries
+    service.Query Query = 6;
+}
+
+message TriggerFilterQuery {
+    bool IsSchedule = 1;
+    bool IsManual = 2;
+    repeated string EventNames = 3;
+}
+
+// Filter for events, can be applied on action branches
+message TriggerFilter {
+    // Filter custom label
+    string Label = 1;
+    // Filter additional description
+    string Description = 2;
+    // Filter type
+    service.Query Query = 3;
+}
+
+// ActionOutputFilter can be used to filter last message output
+message ActionOutputFilter {
+    // Query built from ActionOutputSingleQuery
+    service.Query Query = 1;
+    // Selector custom label
+    string Label = 2;
+    // Selector additional description
+    string Description = 3;
+}
+
+enum ContextMetaFilterType {
+    RequestMeta = 0;
+    ContextUser = 1;
+}
+// PolicyContextFilter can be used to filter request metadata
+message ContextMetaFilter {
+    // Type of context filter
+    ContextMetaFilterType Type = 1;
+    // Can be built with ContextMetaSingleQuery
+    service.Query Query = 2;
+    // Selector custom label
+    string Label = 3;
+    // Selector additional description
+    string Description = 4;
+}
+
+// ContextMetaSingleQuery uses idm.PolicyCondition
+message ContextMetaSingleQuery {
+    // Condition applies to FieldName
+    string FieldName = 1;
+    // PolicyCondition
+    idm.PolicyCondition Condition = 2;
+}
+
+message Schedule {
+    // ISO 8601 Description of the scheduling for instance "R2/2015-06-04T19:25:16.828696-07:00/PT4S"
+    // where first part is the number of repetitions (if 0, infinite repetition), 
+    // second part the starting date and last part, the duration between 2 occurrences.
+    string Iso8601Schedule = 1;
+    // Minimum time between two runs
+    string Iso8601MinDelta = 3;
+}
+
+message Action {
+    // String Identifier for specific action
+    string ID = 1;
+
+    // User-defined label for this action
+    string Label = 13;
+    // User-defined comment for this action
+    string Description = 14;
+
+    // Bypass this action (forward input to output and do nothing)
+    bool Bypass = 15;
+    // Stop full chain now : do not carry on executing next actions
+    bool BreakAfter = 16;
+
+    // Nodes Selector
+    NodesSelector NodesSelector = 2;
+    // Users Selector (deprecated in favor of IdmSelector)
+    UsersSelector UsersSelector = 3;
+    // Node Filter
+    NodesSelector NodesFilter = 4;
+    // User Filter (deprecated in favor of IdmSelector)
+    UsersSelector UsersFilter = 5;
+
+    // Idm objects collector
+    IdmSelector IdmSelector = 9;
+    // Idm objects filter
+    IdmSelector IdmFilter = 10;
+
+    // DataSource objects collector
+    DataSourceSelector DataSourceSelector = 17;
+    // DataSource objects filter
+    DataSourceSelector DataSourceFilter = 18;
+
+    // Previous action output filter
+    ActionOutputFilter ActionOutputFilter = 6;
+    // Metadata policy-based filter
+    ContextMetaFilter ContextMetaFilter = 11;
+    // Filter on specific triggers
+    TriggerFilter TriggerFilter = 19;
+
+    // Defined parameters for this action
+    map<string, string> Parameters = 7;
+    // Other actions to perform after this one is finished,
+    // using the Output of this action as Input for the next.
+    // If there are many, it is considered they can be triggered
+    // in parallel
+    repeated Action ChainedActions = 8;
+
+    // If any Filter is used, next actions can be triggered on Failure
+    // This adds ability to create conditional Yes/No branches
+    repeated Action FailedFilterActions = 12;
+}
+
+message Job {
+    // Unique ID for this Job
+    string ID = 1;
+    // Human-readable Label
+    string Label = 2;
+    // Who created this Job
+    string Owner = 3;
+    // Admin can temporarily disable this job
+    bool Inactive = 4;
+    // Job created by application or by administrator
+    bool Custom = 20;
+    // Optional list of languages detected in the context at launch time
+    repeated string Languages = 10;
+
+    // How the job will be triggered.
+    // One of these must be set (not exclusive)
+    // Listen to a given set of events
+    repeated string EventNames = 5;
+    // Schedule a periodic repetition
+    Schedule Schedule = 6;
+    // Start task as soon as job is inserted
+    bool AutoStart = 7;
+    // Remove job automatically once it is finished (success only)
+    bool AutoClean = 11;
+
+    // Chain of actions to perform
+    repeated Action Actions = 8;
+
+    // Task properties
+    int32 MaxConcurrency = 9;
+
+    // Do not send notification on task update
+    bool TasksSilentUpdate = 12;
+
+    // Filled with currently running tasks
+    repeated Task Tasks = 14;
+
+    // Filter out specific events
+    NodesSelector NodeEventFilter = 15;
+    // Deprecated in favor of more generic IdmSelector
+    UsersSelector UserEventFilter = 16;
+    // Idm objects filter
+    IdmSelector IdmFilter = 17;
+    // Event Context Filter
+    ContextMetaFilter ContextMetaFilter = 18;
+    // DataSource objects filter
+    DataSourceSelector DataSourceFilter = 21;
+
+    // Job-level parameters that can be passed to underlying actions
+    repeated JobParameter Parameters = 19;
+
+    // Additional dependencies that may be required when running the job
+    repeated google.protobuf.Any ResourcesDependencies = 22;
+}
+
+message JobParameter {
+    // Parameter name
+    string Name = 1;
+    // Additional description
+    string Description = 2;
+    // Value saved for this parameter
+    string Value = 4;
+    // If mandatory, job cannot start without a value
+    bool Mandatory = 3;
+    // Parameter type used in GUI forms
+    string Type = 5;
+    // Additional data used by GUI elements
+    string JsonChoices = 6;
+}
+
+// Events sent by the JobService when CRUD'ing a Job configuration
+message JobChangeEvent {
+    Job JobUpdated = 1;
+    string JobRemoved = 2;
+}
+
+message TaskChangeEvent {
+    Task TaskUpdated = 1;
+    Job Job = 2;
+}
+
+message PutJobRequest {
+    Job Job = 1;
+}
+
+message PutJobResponse {
+    Job Job = 1;
+}
+
+message GetJobRequest {
+    string JobID = 1;
+    TaskStatus LoadTasks = 2;
+}
+
+message GetJobResponse {
+    Job Job = 1;
+}
+
+message DeleteJobRequest {
+    string JobID = 1;
+    bool CleanableJobs = 2;
+}
+
+message DeleteJobResponse {
+    bool Success = 1;
+    int32 DeleteCount = 2;
+}
+
+message ListJobsRequest {
+    // Restrict to a specific owner (current user by default)
+    string Owner = 1;
+    // Filter with only event-based jobs
+    bool EventsOnly = 2;
+    // Filter with only timer-based jobs
+    bool TimersOnly = 3;
+    // Load tasks that correspond to the given TaskStatus
+    TaskStatus LoadTasks = 4;
+    // Load jobs by their ID
+    repeated string JobIDs = 5;
+    // Start listing at a given position
+    int32 TasksOffset = 6;
+    // Lmit the number of results
+    int32 TasksLimit = 7;
+}
+
+message ListJobsResponse {
+    Job Job = 1;
+}
+
+message ListTasksRequest {
+    // List tasks for the job with this Id
+    string JobID = 1;
+    // List only tasks with this Status
+    TaskStatus Status = 2;
+}
+
+message ListTasksResponse {
+    Task Task = 1;
+}
+
+message PutTaskRequest {
+    Task Task = 1;
+}
+
+message PutTaskResponse {
+    Task Task = 1;
+}
+
+message DeleteTasksRequest {
+    // Id of the job
+    string JobId = 1;
+    // Ids of tasks to delete
+    repeated string TaskID = 2;
+    // If no TaskID and/or no JobID are passed, delete tasks by status
+    repeated TaskStatus Status = 3;
+    // If deleting by status, optionally keep only a number of tasks
+    int32 PruneLimit = 4;
+}
+
+message DeleteTasksResponse {
+    repeated string Deleted = 1;
+}
+
+message DetectStuckTasksRequest {
+    int32 Since = 1;
+}
+
+message DetectStuckTasksResponse {
+    repeated string FixedTaskIds = 1;
+}
+
+// *****************************************************************************
+//  Services Jobs: Stores Jobs and associated tasks.
+// *****************************************************************************
+service JobService {
+    rpc PutJob(PutJobRequest) returns (PutJobResponse) {};
+    rpc GetJob(GetJobRequest) returns (GetJobResponse) {};
+    rpc DeleteJob(DeleteJobRequest) returns (DeleteJobResponse) {};
+    rpc ListJobs(ListJobsRequest) returns (stream ListJobsResponse){};
+
+    rpc PutTask(PutTaskRequest) returns (PutTaskResponse) {};
+    rpc PutTaskStream(stream PutTaskRequest) returns (stream PutTaskResponse) {};
+    rpc ListTasks(ListTasksRequest) returns (stream ListTasksResponse){};
+    rpc DeleteTasks(DeleteTasksRequest) returns (DeleteTasksResponse) {};
+
+    rpc DetectStuckTasks(DetectStuckTasksRequest) returns (DetectStuckTasksResponse);
+}
+
+
+///////////////////
+// TASK SERVICE  //
+///////////////////
+enum TaskStatus {
+    Unknown     = 0;
+    Idle        = 1;
+    Running     = 2;
+    Finished    = 3;
+    Interrupted = 4;
+    Paused      = 5;
+    Any         = 6;
+    Error       = 7;
+    Queued      = 8;
+}
+
+message Task {
+    string ID = 1;
+    string JobID = 2;
+    TaskStatus Status = 3;
+    string StatusMessage = 4;
+    string TriggerOwner = 5;
+
+    int32 StartTime = 6;
+    int32 EndTime = 7;
+
+    // Can be interrupted
+    bool CanStop = 8;
+    // Can be paused/resumed
+    bool CanPause = 9;
+    // Tasks publish a progress
+    bool HasProgress = 10;
+    // Float value of the progress between 0 and 1
+    float Progress = 11;
+
+    // Logs of all the actions performed
+    repeated ActionLog ActionsLogs = 12;
+}
+
+enum Command {
+    None    = 0;
+    Pause   = 1;
+    Resume  = 2;
+    Stop    = 3;
+    Delete  = 4;
+    RunOnce = 5;
+    Inactive= 6;
+    Active  = 7;
+}
+
+// Command sent to control a job or a task
+message CtrlCommand {
+    // Type of command to send (None, Pause, Resume, Stop, Delete, RunOnce, Inactive, Active)
+    Command Cmd = 1;
+    // Id of the job
+    string JobId = 2;
+    // Id of the associated task
+    string TaskId = 3;
+    // Owner of the job
+    string OwnerId = 4;
+    // Parameters used for RunOnce command
+    map<string,string> RunParameters = 5;
+}
+
+// Response to the CtrlCommand
+message CtrlCommandResponse {
+    string Msg = 1;
+}
+
+message ActionLog {
+    Action Action = 1;
+    ActionMessage InputMessage = 2;
+    ActionMessage OutputMessage = 3;
+}
+
+
+// Simple Event sent by the timer service to trigger a JobID at a given time
+// or to trigger a run now, with optional parameters
+message JobTriggerEvent {
+    // Id of the Job
+    string JobID = 1;
+    // Schedule
+    Schedule Schedule = 2;
+    // Start job now
+    bool RunNow = 3;
+    // Impose the task unique ID for this run
+    string RunTaskId = 4;
+    // Use specific parameters values for this run
+    map<string,string> RunParameters = 5;
+}
+
+// Standard output of an action. Success value is required
+// other are optional
+message ActionOutput {
+    // True if action succeeded
+    bool Success = 1;
+    // Arbitrary bytes sequence
+    bytes RawBody = 2;
+    // Arbitrary string
+    string StringBody = 3;
+    // Arbitrary JSON-encoded bytes
+    bytes JsonBody = 4;
+    // Error
+    string ErrorString = 5;
+    // If action was returned WithIgnore()
+    bool Ignored = 6;
+    // Time taken to run the action
+    int32 Time = 7;
+}
+
+// ActionOutputSingleQuery provides a unitary query to filter ActionOutput messages
+message ActionOutputSingleQuery {
+    // Check if ActionOutput has success
+    bool IsSuccess = 1;
+
+    // Occurrence of string in StringBody or JsonBody (as string)
+    string StringBodyRegexp = 2;
+    // StringBody or JsonBody size bigger than
+    int32 StringBodySizeGreaterThan = 3;
+    // StringBody or JsonBody size smaller than
+    int32 StringBodySizeSmallerThan = 4;
+
+    // Exact match of StringBody or JsonBody (as string)
+    string JsonBodyRegexp = 5;
+    // Check existence of key in json body
+    string JsonBodyHasKey = 6;
+    // StringBody or JsonBody size bigger than
+    int32 JsonBodySizeGreaterThan = 7;
+    // StringBody or JsonBody size smaller than
+    int32 JsonBodySizeSmallerThan = 8;
+
+    // Time taken greater than
+    int32 TaskTimeGt = 9;
+    // Time taken shorter than
+    int32 TaskTimeLt = 10;
+
+    // Check occurrence on error string
+    string ErrorStringRegexp = 11;
+
+    // FreeCondition can be built using templates or gval
+    string FreeCondition = 13;
+
+    // Invert condition
+    bool Not = 12;
+}
+
+
+// Message passed along from one action to another, main properties
+// are modified by the various actions.
+// OutputChain is being stacked up when passing through actions
+message ActionMessage {
+    // Initial event that triggered the Job
+    google.protobuf.Any Event = 1;
+    // One or more Node
+    repeated tree.Node Nodes = 2;
+    // One or more User
+    repeated idm.User Users = 3;
+    // One or more Role
+    repeated idm.Role Roles = 6;
+    // One or more Workspace
+    repeated idm.Workspace Workspaces = 7;
+    // One or more ACL
+    repeated idm.ACL Acls = 8;
+    // One or more Activity
+    repeated activity.Object Activities = 4;
+    // One or more DataSource
+    repeated object.DataSource DataSources = 9;
+    // Stack of ActionOutput messages appended by all previous actions
+    repeated ActionOutput OutputChain = 5;
+}
+
+service TaskService {
+    rpc Control(CtrlCommand) returns (CtrlCommandResponse) {};
+}

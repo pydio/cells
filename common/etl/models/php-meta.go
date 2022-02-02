@@ -23,9 +23,9 @@ package models
 import (
 	"fmt"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
+
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type phpMeta map[string]interface{}

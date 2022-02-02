@@ -24,21 +24,22 @@ import (
 	"context"
 	"strings"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	activity2 "github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/broker/activity/render"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
+	activity2 "github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/broker/activity/render"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 const (
@@ -46,6 +47,7 @@ const (
 )
 
 type MailDigestAction struct {
+	common.RuntimeHolder
 	mailerClient   mailer.MailerServiceClient
 	activityClient activity.ActivityServiceClient
 	userClient     idm.UserServiceClient
@@ -79,16 +81,16 @@ func (m *MailDigestAction) GetName() string {
 }
 
 // Init passes parameters to a newly created instance.
-func (m *MailDigestAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (m *MailDigestAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if dR, ok := action.Parameters["dryRun"]; ok && dR == "true" {
 		m.dryRun = true
 	}
 	if email, ok := action.Parameters["dryMail"]; ok && email != "" {
 		m.dryMail = email
 	}
-	m.mailerClient = mailer.NewMailerServiceClient(common.ServiceGrpcNamespace_+common.ServiceMailer, cl)
-	m.activityClient = activity.NewActivityServiceClient(common.ServiceGrpcNamespace_+common.ServiceActivity, cl)
-	m.userClient = idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, cl)
+	m.mailerClient = mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceMailer))
+	m.activityClient = activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceActivity))
+	m.userClient = idm.NewUserServiceClient(grpc.GetClientConnFromCtx(m.GetRuntimeContext(), common.ServiceUser))
 	return nil
 }
 
@@ -131,7 +133,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		output := input.WithError(e)
 		return output, e
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	var collection []*activity.Object
 	for {
 		resp, e := streamer.Recv()

@@ -26,14 +26,13 @@ import (
 	"os"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
+	restful "github.com/emicklei/go-restful/v3"
 
-	"github.com/emicklei/go-restful"
-
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 var (
@@ -178,7 +177,7 @@ func UserLanguage(ctx context.Context, user *idm.User, conf configx.Values) stri
 		return defaultLanguage
 	}
 	// from last to first, try to find the "parameter:core.conf:lang" action
-	langActions := permissions.GetACLsForRoles(ctx, user.Roles, &idm.ACLAction{Name: "parameter:core.conf:lang"})
+	langActions, _ := permissions.GetACLsForRoles(ctx, user.Roles, &idm.ACLAction{Name: "parameter:core.conf:lang"})
 	if len(langActions) == 0 {
 		return defaultLanguage
 	}

@@ -29,16 +29,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common"
-	servicecontext "github.com/pydio/cells/common/service/context"
-
 	"go.uber.org/zap"
 	"golang.org/x/net/webdav"
 
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 type ValidUser struct {
@@ -56,7 +55,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func newHandler(ctx context.Context, router *views.Router) http.Handler {
+func newHandler(ctx context.Context, router nodes.Client) http.Handler {
 
 	basicAuthenticator := auth.NewBasicAuthenticator("Cells DAV", time.Duration(10*time.Minute))
 
@@ -89,7 +88,7 @@ func newHandler(ctx context.Context, router *views.Router) http.Handler {
 			default:
 				if err == nil {
 					log.Logger(ctx).Debug("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path))
-				} else if !(r.Method == "PROPFIND" && strings.Contains(err.Error(), "file does not exist")) {
+				} else {
 					log.Logger(ctx).Error("|- DAV END", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.Error(err))
 				}
 			}

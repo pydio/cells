@@ -22,7 +22,7 @@
 package dao
 
 import (
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 // DAO interface definition

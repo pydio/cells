@@ -25,16 +25,11 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"sync"
-	"time"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -44,30 +39,32 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog tester"),
-			service.WithMicro(func(m micro.Service) error {
-				m.Init(micro.AfterStart(func() error {
-					<-time.After(10 * time.Second)
-					log.Logger(m.Options().Context).Warn("-- STARTING MASSIVE TEST SESSION")
-					k := 0
-					wg := sync.WaitGroup{}
-					for k < 500 {
-						wg.Add(1)
-						go func(k int) {
-							i := 0
-							for i < 500 {
-								log.Logger(m.Options().Context).Warn(fmt.Sprintf("LOG STRING %d-%d", k, i))
-								i++
-							}
-							defer wg.Done()
-						}(k)
-						k++
-					}
-					wg.Wait()
-					log.Logger(m.Options().Context).Warn("-- FINISHED MASSIVE TEST SESSION")
+			/*
+				service.WithMicro(func(m micro.Service) error {
+					m.Init(micro.AfterStart(func() error {
+						<-time.After(10 * time.Second)
+						log.Logger(m.Options().Context).Warn("-- STARTING MASSIVE TEST SESSION")
+						k := 0
+						wg := sync.WaitGroup{}
+						for k < 500 {
+							wg.Add(1)
+							go func(k int) {
+								i := 0
+								for i < 500 {
+									log.Logger(m.Options().Context).Warn(fmt.Sprintf("LOG STRING %d-%d", k, i))
+									i++
+								}
+								defer wg.Done()
+							}(k)
+							k++
+						}
+						wg.Wait()
+						log.Logger(m.Options().Context).Warn("-- FINISHED MASSIVE TEST SESSION")
+						return nil
+					}))
 					return nil
-				}))
-				return nil
-			}),
+				}),
+			*/
 		)
 	})
 }

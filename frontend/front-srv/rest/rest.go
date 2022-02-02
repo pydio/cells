@@ -25,6 +25,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/nodes"
 	"io"
 	"io/ioutil"
 	"os"
@@ -32,27 +33,28 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/emicklei/go-restful"
-	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/metadata"
-	"github.com/pborman/uuid"
+	restful "github.com/emicklei/go-restful/v3"
 	exifremove "github.com/scottleedavis/go-exif-remove"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	pauth "github.com/pydio/cells/common/proto/auth"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/frontend"
-	"github.com/pydio/cells/common/service/resources"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	pauth "github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/frontend"
+	"github.com/pydio/cells/v4/common/service/resources"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -64,11 +66,12 @@ var (
 )
 
 type FrontendHandler struct {
+	runtimeCtx context.Context
 	resources.ResourceProviderHandler
 }
 
-func NewFrontendHandler() *FrontendHandler {
-	f := &FrontendHandler{}
+func NewFrontendHandler(runtimeCtx context.Context) *FrontendHandler {
+	f := &FrontendHandler{runtimeCtx: runtimeCtx}
 	return f
 }
 
@@ -101,11 +104,17 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 
 	rolesConfigs := user.FlattenedRolesConfigs()
 
+	c := config.Get()
+	aclParameters := rolesConfigs.Val("parameters")
+	aclActions := rolesConfigs.Val("actions")
+	scopes := user.GetActiveScopes()
+
 	status := frontend.RequestStatus{
-		Config:        config.Get(),
-		AclParameters: rolesConfigs.Val("parameters"),
-		AclActions:    rolesConfigs.Val("actions"),
-		WsScopes:      user.GetActiveScopes(),
+		RuntimeCtx:    a.runtimeCtx,
+		Config:        c,
+		AclParameters: aclParameters,
+		AclActions:    aclActions,
+		WsScopes:      scopes,
 		User:          user,
 		NoClaims:      !user.Logged,
 		Lang:          lang,
@@ -147,7 +156,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 
 	if req.Request.Header.Get("x-pydio-plugins-reload") != "" {
 		frontend.HotReload()
-		defaults.Broker().Publish(common.TopicReloadAssets, &broker.Message{Body: []byte("reload")})
+		broker.MustPublish(context.Background(), common.TopicReloadAssets, &emptypb.Empty{})
 	}
 
 	pool, e := frontend.GetPluginsPool()
@@ -169,7 +178,7 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 		lang = "en-us"
 	}
 
-	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
+	plugins := pool.AllPluginsManifests(a.runtimeCtx, lang)
 	rsp.WriteAsXml(plugins)
 }
 
@@ -240,7 +249,11 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	response := &rest.FrontSessionResponse{}
-	if e := frontend.ApplyAuthMiddlewares(req, rsp, &loginRequest, response, session); e != nil {
+	inReq := &frontend.FrontSessionWithRuntimeCtx{
+		RuntimeCtx:          a.runtimeCtx,
+		FrontSessionRequest: &loginRequest,
+	}
+	if e := frontend.ApplyAuthMiddlewares(req, rsp, inReq, response, session); e != nil {
 		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 			log.Logger(ctx).Error("Error saving session", zap.Error(e))
 		}
@@ -336,7 +349,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 	binaryUuid := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
 
-	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+	router := compose.PathClient(nodes.WithContext(a.runtimeCtx))
 	var readNode *tree.Node
 	var extension string
 
@@ -409,7 +422,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 	ctxUser, ctxClaims := permissions.FindUserNameInContext(ctx)
 
 	log.Logger(ctx).Debug("Upload Binary", zap.String("type", binaryType), zap.Any("header", f2))
-	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+	router := compose.PathClient(nodes.WithContext(a.runtimeCtx))
 	ctx = ctxWithoutCookies(ctx)
 
 	defer f1.Close()
@@ -478,7 +491,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 			user.Attributes = map[string]string{}
 		}
 		user.Attributes["avatar"] = binaryId
-		cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+		cli := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 		_, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user})
 		if e != nil {
 			service.RestError404(req, rsp, e)
@@ -486,7 +499,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		}
 	} else if binaryType == "GLOBAL" {
 
-		router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+		router := compose.PathClient(nodes.WithContext(a.runtimeCtx))
 		node := &tree.Node{
 			Path: common.PydioDocstoreBinariesNamespace + "/global_binaries." + binaryId,
 		}

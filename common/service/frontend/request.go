@@ -21,12 +21,14 @@
 package frontend
 
 import (
+	"context"
 	"net/http"
 
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type RequestStatus struct {
+	RuntimeCtx    context.Context
 	Config        configx.Values
 	AclParameters configx.Values
 	AclActions    configx.Values

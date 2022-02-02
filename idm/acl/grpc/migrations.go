@@ -5,20 +5,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service2 "github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/acl"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/idm/acl"
 )
 
 // UpgradeTo120 looks for workspace roots and CellNode roots and set a "recycle_root" flag on them.
@@ -28,10 +27,10 @@ func UpgradeTo120(ctx context.Context) error {
 
 	// REMOVE pydiogateway ACLs
 	log.Logger(ctx).Info("ACLS: remove pydiogateway ACLs")
-	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	q1, _ := anypb.New(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{"pydiogateway"},
 	})
-	if num, e := dao.Del(&service.Query{SubQueries: []*any.Any{q1}}); e != nil {
+	if num, e := dao.Del(&service.Query{SubQueries: []*anypb.Any{q1}}); e != nil {
 		log.Logger(ctx).Error("Could not delete pydiogateway acls, please manually remove them from ACLs!", zap.Error(e))
 	} else {
 		log.Logger(ctx).Info("Removed pydiogateway acls", zap.Int64("numRows", num))
@@ -39,15 +38,15 @@ func UpgradeTo120(ctx context.Context) error {
 
 	// ADD recycle_root on workspaces
 	log.Logger(ctx).Info("Upgrading ACLs for recycle_root flags")
-	metaClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceMeta, defaults.NewClient())
-	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta))
+	q, _ := anypb.New(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{
 			{Name: permissions.AclWsrootActionName},
 		},
 	})
 	acls := new([]interface{})
 	dao.Search(&service.Query{
-		SubQueries: []*any.Any{q},
+		SubQueries: []*anypb.Any{q},
 	}, acls)
 	for _, in := range *acls {
 		val, ok := in.(*idm.ACL)
@@ -59,13 +58,10 @@ func UpgradeTo120(ctx context.Context) error {
 		if strings.HasPrefix(wsPath, "uuid:") {
 			// Load meta from node Uuid and check if it has a CellNode flag
 			nodeUuid := strings.TrimPrefix(wsPath, "uuid:")
-			service2.Retry(ctx, func() error {
+			std.Retry(ctx, func() error {
 				log.Logger(ctx).Info("Loading metadata for node to check if it's a CellNode root")
-				if r, e := metaClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}}); e == nil {
-					var cellNode bool
-					if er := r.Node.GetMeta("CellNode", &cellNode); er == nil && cellNode {
-						addRecycleAcl = true
-					}
+				if r, e := metaClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUuid}}); e == nil && r.Node.GetMetaBool(common.MetaFlagCellNode) {
+					addRecycleAcl = true
 				}
 				return nil
 			}, 4*time.Second)
@@ -86,14 +82,14 @@ func UpgradeTo120(ctx context.Context) error {
 		}
 	}
 
-	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 	// Special case for personal files: browse existing folders, assume they are users personal workspaces and add recycle root
-	service2.Retry(ctx, func() error {
+	std.Retry(ctx, func() error {
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "personal"}})
 		if e != nil {
 			return e
 		}
-		defer stream.Close()
+		defer stream.CloseSend()
 		for {
 			resp, er := stream.Recv()
 			if er != nil {

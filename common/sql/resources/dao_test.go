@@ -27,8 +27,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 func TestQueryResourceForAction(t *testing.T) {

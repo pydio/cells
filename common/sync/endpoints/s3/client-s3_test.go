@@ -26,11 +26,11 @@ import (
 	"sync"
 	"testing"
 
+	minio "github.com/minio/minio-go/v7"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/minio-go"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func TestStat(t *testing.T) {

@@ -21,12 +21,15 @@ import React from 'react';
  */
 
 import PropTypes from 'prop-types';
-
+import Pydio from 'pydio';
+import PydioApi from 'pydio/http/api';
 import Node from 'pydio/model/node'
 import InlineEditor from './InlineEditor'
 import {DragDropListEntry} from './ListEntry'
 import {FontIcon} from 'material-ui'
 import withNodeListenerEntry from './withNodeListenerEntry'
+const {NativeFileDropProvider} = Pydio.requireLib('hoc');
+
 
 /**
  * Callback based material list entry with custom icon render, firstLine, secondLine, etc.
@@ -35,7 +38,7 @@ class ConfigurableListEntry extends React.Component {
 
     render(){
         let {secondLine, thirdLine, style = {}, actions} = this.props;
-        const {renderIcon, node, renderFirstLine, renderSecondLine, renderThirdLine, renderActions} = this.props;
+        const {renderIcon, node, renderFirstLine, renderSecondLine, renderThirdLine, renderActions, isOver} = this.props;
         let icon, firstLine;
 
         if(renderIcon) {
@@ -73,6 +76,20 @@ class ConfigurableListEntry extends React.Component {
             actions = renderActions(node);
         }
 
+        let dlDrag;
+        if(node.isLeaf() && node.getMetadata().has("mime") && Pydio.getInstance().getController().getActionByName("download")){
+            const mime = node.getMetadata().get("mime");
+            dlDrag = (event => {
+                try{
+                    PydioApi.getClient().buildPresignedGetUrl(node).then((url) => {
+                        event.dataTransfer.setData('DownloadURL', mime + ':'+node.getLabel()+':'+url)
+                    })
+                } catch (e) {
+                    console.error("Cannot set dataTransfer", e)
+                }
+            })
+        }
+
         return (
             <DragDropListEntry
                 {...this.props}
@@ -82,6 +99,8 @@ class ConfigurableListEntry extends React.Component {
                 thirdLine={thirdLine}
                 actions={actions}
                 style={style}
+                nativeIsOver={isOver}
+                onDragStart={dlDrag}
             />
         );
 
@@ -100,4 +119,24 @@ ConfigurableListEntry.propTypes = {
 };
 
 ConfigurableListEntry = withNodeListenerEntry(ConfigurableListEntry)
-export default ConfigurableListEntry;
+
+const NativeDroppableConfigurableListEntry = NativeFileDropProvider(ConfigurableListEntry, (items, files, props) => {
+    const {pydio, UploaderModel} = global;
+
+    const ctxNode = props.node;
+    if(ctxNode.getMetadata().get('node_readonly') === 'true' || ctxNode.getMetadata().get('level_readonly') === 'true'){
+        pydio.UI.displayMessage('ERROR', 'You are not allowed to upload files here');
+        return;
+    }
+    const storeInstance = UploaderModel.Store.getInstance();
+
+    storeInstance.handleDropEventResults(items, files, ctxNode);
+
+    if(!storeInstance.getAutoStart() || pydio.Parameters.get('MINISITE')){
+        pydio.getController().fireAction('upload');
+    }
+
+})
+
+
+export {ConfigurableListEntry, NativeDroppableConfigurableListEntry};

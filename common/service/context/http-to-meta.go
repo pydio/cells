@@ -27,9 +27,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/micro/go-micro/metadata"
-
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 const (
@@ -52,7 +51,7 @@ const (
 // HttpRequestInfoToMetadata extracts as much HTTP metadata as possible and stores it in the context as metadata.
 func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
 
-	meta := metadata.Metadata{}
+	meta := map[string]string{}
 	if existing, ok := metadata.FromContext(ctx); ok {
 		if _, already := existing[HttpMetaExtracted]; already {
 			return ctx
@@ -66,7 +65,9 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	layout := "2006-01-02T15:04-0700"
 	t := time.Now()
 	meta[ServerTime] = t.Format(layout)
-	// We currently use server time instead of client time. TODO: Retrieve client time and locale and set it here.
+	//TODO: Retrieve client time and locale and set it here.
+	//Unfortunately this is not sent by HTTP Requests.
+	//We currently use server time instead of client time.
 	meta[ClientTime] = t.Format(layout)
 
 	meta[HttpMetaHost] = req.Host
@@ -118,8 +119,8 @@ func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.C
 	return metadata.NewContext(ctx, meta)
 }
 
-// HttpMetaExtractorWrapper extracts data from the request and puts it in a context Metadata field.
-func HttpMetaExtractorWrapper(h http.Handler) http.Handler {
+// HttpWrapperMeta extracts data from the request and puts it in a context Metadata field.
+func HttpWrapperMeta(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(HttpRequestInfoToMetadata(r.Context(), r))
 		h.ServeHTTP(w, r)
@@ -134,6 +135,8 @@ func HttpMetaFromGrpcContext(ctx context.Context, name string) (string, bool) {
 			return v, true
 		} else if vs, os := md[strings.ToLower(name)]; os {
 			return vs, true
+		} else if vc, oc := md[strings.Title(strings.ToLower(name))]; oc {
+			return vc, true
 		}
 	}
 	return "", false

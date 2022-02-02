@@ -24,17 +24,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 	"path"
 	"time"
 
-	"github.com/pborman/uuid"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 var (
@@ -53,7 +53,7 @@ DESCRIPTION
   Provide --number, --path and --user parameters to perform this action.
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		initServices()
+		//initServices()
 		<-time.After(2 * time.Second)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -61,7 +61,7 @@ DESCRIPTION
 			cmd.Help()
 			return
 		}
-		router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
+		router := compose.PathClientAdmin()
 		c := auth.WithImpersonate(context.Background(), &idm.User{Login: benchUser})
 		for i := 0; i < benchNumber; i++ {
 			u := uuid.New()

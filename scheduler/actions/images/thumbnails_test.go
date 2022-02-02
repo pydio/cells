@@ -28,14 +28,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func TestThumbnailExtractor_GetName(t *testing.T) {
@@ -51,12 +51,12 @@ func TestThumbnailExtractor_Init(t *testing.T) {
 		action := &ThumbnailExtractor{}
 		job := &jobs.Job{}
 		// Test action without parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldBeNil)
 		So(action.thumbSizes, ShouldResemble, map[string]int{"sm": 300})
 
 		// Test action with parameters
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"ThumbSizes": "256,512",
 			},
@@ -74,16 +74,16 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 		action := &ThumbnailExtractor{}
 		job := &jobs.Job{}
 		// Test action without parameters
-		e := action.Init(job, nil, &jobs.Action{
+		e := action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"ThumbSizes": `{"sm":256,"md":512}`,
 			},
 		})
 		So(e, ShouldBeNil)
-		action.metaClient = views.NewHandlerMock()
+		action.metaClient = nodes.NewHandlerMock()
 
 		tmpDir := os.TempDir()
-		uuidNode := uuid.NewUUID().String()
+		uuidNode := uuid.New()
 		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "scheduler", "actions", "images", "testdata")
 
 		data, err := ioutil.ReadFile(filepath.Join(testDir, "photo-hires.jpg"))
@@ -99,9 +99,9 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 			Type: tree.NodeType_LEAF,
 			Uuid: uuidNode,
 		}
-		node.SetMeta("name", uuidNode+".jpg")
-		node.SetMeta(common.MetaNamespaceDatasourceName, "dsname")
-		node.SetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
+		node.MustSetMeta(common.MetaNamespaceNodeName, uuidNode+".jpg")
+		node.MustSetMeta(common.MetaNamespaceDatasourceName, "dsname")
+		node.MustSetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
 
 		status := make(chan string)
 		progress := make(chan float32)

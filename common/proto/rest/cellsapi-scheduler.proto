@@ -1,0 +1,22 @@
+syntax="proto3";
+
+import "cells-jobs.proto";
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+package rest;
+
+message UserJobRequest {
+    // Name of the job to create in the user space
+    string JobName = 1;
+    // Json-encoded parameters for this job
+    string JsonParameters = 2;
+}
+
+message UserJobResponse {
+    string JobUuid = 1;
+}
+
+message UserJobsCollection{
+    repeated jobs.Job Jobs = 1;
+}

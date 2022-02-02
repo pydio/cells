@@ -27,7 +27,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/discovery/install/lib"
+	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
 // configDatabaseAddCmd adds database connection to the configuration.

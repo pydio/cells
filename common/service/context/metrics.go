@@ -24,40 +24,13 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/micro/go-micro"
-	"github.com/micro/go-micro/server"
-	"github.com/pydio/cells/common/service/metrics"
-	"github.com/uber-go/tally"
+	tally "github.com/uber-go/tally/v4"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
-func NewMetricsWrapper(service micro.Service) {
-
-	var options []micro.Option
-	ctx := service.Options().Context
-
-	name := GetServiceName(ctx)
-	options = append(options, micro.WrapHandler(wrapperByName(name)))
-	service.Init(options...)
-
-}
-
-func wrapperByName(name string) server.HandlerWrapper {
-
-	return func(fn server.HandlerFunc) server.HandlerFunc {
-		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			scope := metrics.GetMetricsForService(name)
-			if scope == tally.NoopScope {
-				return fn(ctx, req, rsp)
-			}
-			scope.Counter("grpc_calls").Inc(1)
-			tsw := scope.Timer("grpc_time").Start()
-			defer tsw.Stop()
-			return fn(ctx, req, rsp)
-		}
-	}
-}
-
-func NewMetricsHttpWrapper(h http.Handler) http.Handler {
+func HttpWrapperMetrics(ctx context.Context, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		scope := metrics.GetMetricsForService(GetServiceName(r.Context()))
 		if scope == tally.NoopScope {
@@ -68,7 +41,42 @@ func NewMetricsHttpWrapper(h http.Handler) http.Handler {
 		tsw := scope.Timer("rest_time").Start()
 		defer tsw.Stop()
 		h.ServeHTTP(w, r)
-
 	})
+}
 
+type ServiceRetriever interface {
+	ServiceName() string
+}
+
+func MetricsUnaryServerInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		// fmt.Println("Server", req.Method())
+		srv, ok := info.Server.(ServiceRetriever)
+		if ok {
+			scope := metrics.GetMetricsForService(srv.ServiceName())
+			if scope != tally.NoopScope {
+				scope.Counter("grpc_calls").Inc(1)
+				tsw := scope.Timer("grpc_time").Start()
+				defer tsw.Stop()
+			}
+		}
+
+		return handler(ctx, req)
+	}
+}
+
+func MetricsStreamServerInterceptor() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		// srv, ok := info.(ServiceRetriever)
+		// if ok {
+		// 	scope := metrics.GetMetricsForService(srv.ServiceName())
+		//	if scope != tally.NoopScope {
+		//		scope.Counter("grpc_calls").Inc(1)
+		//		tsw := scope.Timer("grpc_time").Start()
+		//		defer tsw.Stop()
+		//	}
+		//}
+
+		return handler(srv, stream)
+	}
 }

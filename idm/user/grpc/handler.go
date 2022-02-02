@@ -29,27 +29,25 @@ import (
 	"sync"
 	"time"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	service "github.com/pydio/cells/common/service/proto"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/idm/user"
-	"github.com/pydio/cells/scheduler/tasks"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/idm/user"
+	"github.com/pydio/cells/v4/scheduler/tasks"
 )
 
 var (
@@ -57,7 +55,7 @@ var (
 		{Subject: "profile:standard", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
 		{Subject: "profile:admin", Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
 	}
-	autoAppliesCache *cache.Cache
+	autoAppliesCache cache.Short
 )
 
 // ByOverride implements sort.Interface for []Role based on the ForceOverride field.
@@ -68,40 +66,46 @@ func (a ByOverride) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].ForceOverride }
 
 // Handler definition
-type Handler struct{}
+type Handler struct {
+	ctx context.Context
+	idm.UnimplementedUserServiceServer
+	dao user.DAO
+}
+
+func NewHandler(ctx context.Context, dao user.DAO) idm.NamedUserServiceServer {
+	return &Handler{ctx: ctx, dao: dao}
+}
+
+func (h *Handler) Name() string {
+	return ServiceName
+}
 
 // BindUser binds a user with login/password
-func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest, resp *idm.BindUserResponse) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
+func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest) (*idm.BindUserResponse, error) {
 
-	dao := servicecontext.GetDAO(ctx).(user.DAO)
-	u, err := dao.Bind(req.UserName, req.Password)
+	u, err := h.dao.Bind(req.UserName, req.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	resp.User = u
-	resp.User.Password = ""
+	u.Password = ""
+	resp := &idm.BindUserResponse{
+		User: u,
+	}
+	return resp, nil
 
-	return nil
 }
 
 // CreateUser adds or creates a user or a group in the underlying database.
-func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, resp *idm.CreateUserResponse) error {
-
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	dao := servicecontext.GetDAO(ctx).(user.DAO)
+func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest) (*idm.CreateUserResponse, error) {
 
 	passChange := req.User.Password
 	// Create or update user
-	newUser, createdNodes, err := dao.Add(req.User)
+	newUser, createdNodes, err := h.dao.Add(req.User)
 	if err != nil {
 		log.Logger(ctx).Error("cannot put user "+req.User.Login, req.User.ZapUuid(), zap.Error(err))
-		return err
+		return nil, err
 	}
+	resp := &idm.CreateUserResponse{}
 
 	out := newUser.(*idm.User)
 	if passChange != "" {
@@ -109,10 +113,10 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		ctxLogin, _ := permissions.FindUserNameInContext(ctx)
 		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
 			if req.User.OldPassword == out.Password {
-				return fmt.Errorf("new password is the same as the old password, please use a different one")
+				return nil, fmt.Errorf("new password is the same as the old password, please use a different one")
 			}
 			var locks, newLocks []string
-			json.Unmarshal([]byte(l), &locks)
+			_ = json.Unmarshal([]byte(l), &locks)
 			for _, lock := range locks {
 				if lock != "pass_change" {
 					newLocks = append(newLocks, lock)
@@ -120,7 +124,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 			}
 			marsh, _ := json.Marshal(newLocks)
 			out.Attributes["locks"] = string(marsh)
-			if _, _, e := dao.Add(out); e == nil {
+			if _, _, e := h.dao.Add(out); e == nil {
 				log.Logger(ctx).Info("user "+req.User.Login+" successfully updated his password", req.User.ZapUuid())
 			}
 		}
@@ -141,25 +145,25 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		req.User.Policies = userPolicies
 	}
 	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Int("p length", len(req.User.Policies)), zap.Int("createdNodes length", len(createdNodes)))
-	if err := dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
-		return err
+	if err := h.dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
+		return nil, err
 	}
 	for _, g := range createdNodes {
 		if g.Uuid != out.Uuid && g.Type == tree.NodeType_COLLECTION {
 			// Groups where created in the process, add default policies on them
 			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.Any("groupPath", g.Path))
-			if err := dao.AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
-				return err
+			if err := h.dao.AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
+				return nil, err
 			}
 		}
 	}
 
 	if len(createdNodes) == 0 {
 		// Propagate creation event
-		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_UPDATE,
 			User: out,
-		}))
+		})
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Updated group [%s]", out.GroupLabel),
@@ -175,10 +179,10 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		}
 	} else {
 		// Propagate creation event
-		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_CREATE,
 			User: out,
-		}))
+		})
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Created group [%s]", out.GroupPath),
@@ -198,14 +202,11 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 			)
 		}
 	}
-	return nil
+	return resp, nil
 }
 
 // DeleteUser from database
-func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, response *idm.DeleteUserResponse) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
+func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest) (*idm.DeleteUserResponse, error) {
 	usersChan := make(chan *idm.User)
 	done := make(chan bool)
 
@@ -213,8 +214,8 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 	var task *jobs.Task
 	var taskChan chan interface{}
 	uName, _ := permissions.FindUserNameInContext(ctx)
-	if tU, ok := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); ok {
-		jU, _ := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid)
+	if tU, ok := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); ok {
+		jU, _ := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid)
 		task = &jobs.Task{
 			JobID:        jU,
 			ID:           tU,
@@ -227,11 +228,10 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 		autoClient.StartListening(taskChan)
 		defer autoClient.Stop()
 	}
-	dao := servicecontext.GetDAO(ctx).(user.DAO)
 
-	i, err := dao.Count(req.Query, true)
+	i, err := h.dao.Count(req.Query, true)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	total := float32(i)
 	wg := &sync.WaitGroup{}
@@ -244,18 +244,18 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 			select {
 			case deleted := <-usersChan:
 				if deleted != nil {
-					dao.DeletePoliciesForResource(deleted.Uuid)
+					h.dao.DeletePoliciesForResource(deleted.Uuid)
 					if deleted.IsGroup {
-						dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
+						h.dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", deleted.Uuid))
 					} else {
-						dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
+						h.dao.DeletePoliciesBySubject(fmt.Sprintf("user:%s", deleted.Uuid))
 					}
 
 					// Propagate deletion event
-					client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+					broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 						Type: idm.ChangeEventType_DELETE,
 						User: deleted,
-					}))
+					})
 					var msg string
 					if deleted.IsGroup {
 						msg = fmt.Sprintf("Deleted group [%s]", path.Join(deleted.GroupPath, deleted.GroupLabel))
@@ -287,7 +287,7 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 		}
 	}()
 
-	numRows, err := dao.Del(req.Query, usersChan)
+	numRows, err := h.dao.Del(req.Query, usersChan)
 	close(done)
 	close(usersChan)
 	if err != nil {
@@ -297,30 +297,28 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 			task.Status = jobs.TaskStatus_Error
 			taskChan <- task
 		}
-		return err
+		return nil, err
 	}
 	wg.Wait()
 	if taskChan != nil {
 		close(taskChan)
 	}
-	response.RowsDeleted = numRows
-	return nil
+	return &idm.DeleteUserResponse{RowsDeleted: numRows}, nil
+
 }
 
 // SearchUser in database
-func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest, response idm.UserService_SearchUserStream) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	defer response.Close()
-	dao := servicecontext.GetDAO(ctx).(user.DAO)
+func (h *Handler) SearchUser(request *idm.SearchUserRequest, response idm.UserService_SearchUserServer) error {
+
+	ctx := response.Context()
+
 	autoApplies, er := h.loadAutoAppliesRoles(ctx)
 	if er != nil {
 		return er
 	}
 
 	usersGroups := new([]interface{})
-	if err := dao.Search(request.Query, usersGroups); err != nil {
+	if err := h.dao.Search(request.Query, usersGroups); err != nil {
 		return err
 	}
 
@@ -328,7 +326,7 @@ func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest
 	for _, in := range *usersGroups {
 		if usr, ok := in.(*idm.User); ok {
 			usr.Password = ""
-			if usr.Policies, e = dao.GetPoliciesForResource(usr.Uuid); e != nil {
+			if usr.Policies, e = h.dao.GetPoliciesForResource(usr.Uuid); e != nil {
 				log.Logger(ctx).Error("cannot load policies for user "+usr.Uuid, zap.Error(e))
 				continue
 			}
@@ -343,28 +341,20 @@ func (h *Handler) SearchUser(ctx context.Context, request *idm.SearchUserRequest
 }
 
 // CountUser in database
-func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest, response *idm.CountUserResponse) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	dao := servicecontext.GetDAO(ctx).(user.DAO)
+func (h *Handler) CountUser(ctx context.Context, request *idm.SearchUserRequest) (*idm.CountUserResponse, error) {
 
-	total, err := dao.Count(request.Query)
+	total, err := h.dao.Count(request.Query)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	response.Count = int32(total)
+	return &idm.CountUserResponse{Count: int32(total)}, nil
 
-	return nil
 }
 
 // StreamUser from database
-func (h *Handler) StreamUser(ctx context.Context, streamer idm.UserService_StreamUserStream) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	dao := servicecontext.GetDAO(ctx).(user.DAO)
-	defer streamer.Close()
+func (h *Handler) StreamUser(streamer idm.UserService_StreamUserServer) error {
+
+	ctx := streamer.Context()
 
 	autoApplies, e := h.loadAutoAppliesRoles(ctx)
 	if e != nil {
@@ -378,7 +368,7 @@ func (h *Handler) StreamUser(ctx context.Context, streamer idm.UserService_Strea
 		}
 
 		users := new([]interface{})
-		if err := dao.Search(incoming.Query, users); err != nil {
+		if err := h.dao.Search(incoming.Query, users); err != nil {
 			return err
 		}
 
@@ -463,13 +453,12 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 	}
 
 	autoApplies = make(map[string][]*idm.Role)
-	roleCli := idm.NewRoleServiceClient(registry.GetClient(common.ServiceRole))
-	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{HasAutoApply: true})
-	stream, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	roleCli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceRole))
+	q, _ := anypb.New(&idm.RoleSingleQuery{HasAutoApply: true})
+	stream, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		return autoApplies, e
 	}
-	defer stream.Close()
 	for {
 		resp, e := stream.Recv()
 		if e != nil {
@@ -489,9 +478,9 @@ func (h *Handler) loadAutoAppliesRoles(ctx context.Context) (autoApplies map[str
 
 	// Save to cache
 	if autoAppliesCache == nil {
-		autoAppliesCache = cache.New(10*time.Second, 20*time.Second)
+		autoAppliesCache = cache.NewShort(cache.WithEviction(10*time.Second), cache.WithCleanWindow(20*time.Second))
 	}
-	autoAppliesCache.Set("autoApplies", autoApplies, 0) // 0 means use cache default
+	autoAppliesCache.Set("autoApplies", autoApplies)
 
 	return
 }

@@ -28,16 +28,15 @@ import (
 	"path"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/jinzhu/copier"
 	"github.com/philopon/go-toposort"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type PluginsPool struct {
@@ -184,6 +183,7 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 		}
 	}
 	emptyStatus := RequestStatus{
+		RuntimeCtx:    ctx,
 		Config:        config.Get(),
 		Lang:          lang,
 		NoClaims:      true,
@@ -358,7 +358,6 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 }
 
 func (p *PluginsPool) ExposedParametersByScope(scopeName string, exposed bool) (params []*ExposedParam) {
-	// Todo : cache?
 
 	for _, plugin := range p.Plugins {
 		s := plugin.GetServerSettings()

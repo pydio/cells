@@ -23,33 +23,35 @@ package rest
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/nodes"
 	"time"
 
-	"github.com/emicklei/go-restful"
-	"github.com/micro/go-micro/errors"
-	"github.com/pborman/uuid"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/auth"
-	"github.com/pydio/cells/common/proto/docstore"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/idm/oauth/lang"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/proto/docstore"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/idm/oauth/lang"
 )
 
-type TokenHandler struct{}
+type TokenHandler struct {
+	RuntimeCtx context.Context
+}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (a *TokenHandler) SwaggerTags() []string {
@@ -74,7 +76,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 
 	revokeRequest := &auth.RevokeTokenRequest{}
 	revokeRequest.Token = &auth.Token{AccessToken: input.TokenId}
-	revokerClient := auth.NewAuthTokenRevokerClient(common.ServiceGrpcNamespace_+common.ServiceOAuth, defaults.NewClient())
+	revokerClient := auth.NewAuthTokenRevokerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceOAuth))
 	if _, err := revokerClient.Revoke(ctx, revokeRequest); err != nil {
 		service.RestError500(req, resp, err)
 		return
@@ -117,14 +119,14 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	T = lang.Bundle().GetTranslationFunc(uLang)
 
 	// Create token and store as document
-	token := uuid.NewUUID().String()
+	token := uuid.New()
 	expiration := time.Now().Add(20 * time.Minute).Unix()
 	keyData, _ := json.Marshal(&ResetToken{
 		UserLogin:  u.Login,
 		UserEmail:  u.Attributes["email"],
 		Expiration: int32(expiration),
 	})
-	cli := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
+	cli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 	_, err := cli.PutDocument(ctx, &docstore.PutDocumentRequest{
 		StoreID: common.DocStoreIdResetPassKeys,
 		Document: &docstore.Document{
@@ -143,7 +145,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	}
 
 	// Send email
-	mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
+	mailCli := mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMailer))
 	mailCli.SendMail(ctx, &mailer.SendMailRequest{
 		InQueue: false,
 		Mail: &mailer.Mail{
@@ -175,7 +177,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Get())...)
 	ctx := req.Request.Context()
 	token := input.ResetPasswordToken
-	cli := docstore.NewDocStoreClient(registry.GetClient(common.ServiceDocStore))
+	cli := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 	docResp, e := cli.GetDocument(ctx, &docstore.GetDocumentRequest{
 		StoreID:    common.DocStoreIdResetPassKeys,
 		DocumentID: token,
@@ -216,7 +218,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 	uLang := i18n.UserLanguage(ctx, u, config.Get())
 	T = lang.Bundle().GetTranslationFunc(uLang)
 	u.Password = input.NewPassword
-	userClient := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
+	userClient := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 	if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
 		service.RestError500(req, resp, fmt.Errorf(T("ResetPassword.Err.ResetFailed")))
 		return
@@ -224,7 +226,7 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 
 	go func() {
 		// Send email
-		mailCli := mailer.NewMailerServiceClient(registry.GetClient(common.ServiceMailer))
+		mailCli := mailer.NewMailerServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMailer))
 		mailCli.SendMail(ctx, &mailer.SendMailRequest{
 			InQueue: false,
 			Mail: &mailer.Mail{
@@ -256,7 +258,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 		return
 	}
 	ctx := req.Request.Context()
-	router := views.NewStandardRouter(views.RouterOptions{})
+	router := compose.PathClient(nodes.WithContext(a.RuntimeCtx))
 	readResp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: datRequest.Path}})
 	if e != nil {
 		service.RestErrorDetect(req, resp, e)
@@ -292,7 +294,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 }
 
 func (a *TokenHandler) GenerateAndWrite(ctx context.Context, genReq *auth.PatGenerateRequest, req *restful.Request, resp *restful.Response) {
-	cli := auth.NewPersonalAccessTokenServiceClient(registry.GetClient(common.ServiceToken))
+	cli := auth.NewPersonalAccessTokenServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceToken))
 	log.Logger(ctx).Debug("Sending generate request", zap.Any("req", genReq))
 	genResp, e := cli.Generate(ctx, genReq)
 	if e != nil {

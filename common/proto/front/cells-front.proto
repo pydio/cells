@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package="github.com/pydio/cells/v4/common/proto/front";
+
+service ManifestService {
+    rpc ExposedParameters (ExposedParametersRequest) returns (ExposedParametersResponse) {};
+}
+
+message ExposedParametersRequest {
+    string Scope = 1;
+    bool Exposed = 2;
+}
+
+message ExposedParameter {
+    string Name = 1;
+    string Scope = 2;
+    string PluginId = 3;
+}
+
+message ExposedParametersResponse {
+    repeated ExposedParameter Parameters = 1;
+}

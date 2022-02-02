@@ -24,53 +24,43 @@ package objects
 import (
 	"context"
 
-	"github.com/micro/go-micro"
+	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 var (
 	Name        = common.ServiceGrpcNamespace_ + common.ServiceDataObjects
+	BrowserName = common.ServiceGrpcNamespace_ + common.ServiceDataObjectsPeer
 	ChildPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataObjects_
 )
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
+			service.Name(BrowserName),
+			service.Context(ctx),
+			service.Tag(common.ServiceTagDatasource),
+			service.Description("Starter for different sources objects"),
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				conf := config.Get("services", BrowserName)
+				treeServer := NewTreeHandler(conf)
+				tree.RegisterNodeProviderEnhancedServer(server, treeServer)
+				tree.RegisterNodeReceiverEnhancedServer(server, treeServer)
+				return nil
+			}),
+		)
+		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for different sources objects"),
-			service.WithMicro(func(m micro.Service) error {
-				runner := service.NewChildrenRunner(Name, ChildPrefix)
-				var cancel context.CancelFunc
-				m.Init(
-					micro.AfterStart(func() error {
-						ctx := m.Options().Context
-						conf := servicecontext.GetConfig(ctx)
-						ctx, cancel = context.WithCancel(ctx)
-						treeServer := NewTreeHandler(conf)
-						runner.StartFromInitialConf(ctx, conf)
-						tree.RegisterNodeProviderHandler(m.Server(), treeServer)
-						tree.RegisterNodeReceiverHandler(m.Server(), treeServer)
-						runner.OnDeleteConfig(onDeleteObjectsConfig)
-						return nil
-					}),
-					micro.BeforeStop(func() error {
-						cancel()
-						return nil
-					}),
-				)
-
-				//tree.RegisterNodeProviderHandler(m.Server(), treeServer)
-
-				return runner.Watch(m.Options().Context)
-			}),
+			service.WithChildrenRunner(Name, ChildPrefix, true, onDeleteObjectsConfig),
 		)
 	})
 }

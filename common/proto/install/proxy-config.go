@@ -25,9 +25,8 @@ import (
 	"net/url"
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/utils/net"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 func (m *ProxyConfig) GetDefaultBindURL() string {

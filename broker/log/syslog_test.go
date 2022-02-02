@@ -27,12 +27,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pborman/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/log"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/log"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (

@@ -28,14 +28,14 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/filesystem"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
 
 func NewTreeHandler(conf configx.Values) *TreeHandler {
@@ -50,8 +50,14 @@ func NewTreeHandler(conf configx.Values) *TreeHandler {
 }
 
 type TreeHandler struct {
+	tree.UnimplementedNodeProviderServer
+	tree.UnimplementedNodeReceiverServer
 	FS         afero.Fs
 	hasRootRef bool
+}
+
+func (t *TreeHandler) Name() string {
+	return BrowserName
 }
 
 func (t *TreeHandler) SymlinkInfo(path string, info os.FileInfo) (bool, tree.NodeType, string) {
@@ -99,27 +105,32 @@ func (t *TreeHandler) FileInfoToNode(nodePath string, fileInfo os.FileInfo) *tre
 	return node
 }
 
-func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeRequest, response *tree.ReadNodeResponse) error {
+func (t *TreeHandler) ReadNode(ctx context.Context, request *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
+	response := &tree.ReadNodeResponse{}
 	p := filesystem.ToFilePath(request.Node.Path)
 	if fileInfo, e := t.FS.Stat(p); e != nil {
-		return e
+		return nil, e
 	} else {
 		response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
 	}
-	return nil
+	return response, nil
 }
 
-func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesStream) error {
+func (t *TreeHandler) ListNodes(request *tree.ListNodesRequest, stream tree.NodeProvider_ListNodesServer) error {
 
-	defer stream.Close()
-
+	ctx := stream.Context()
 	if !t.hasRootRef && runtime.GOOS == "windows" && (request.Node.Path == "" || request.Node.Path == "/") {
 		request.Node.Path = "/"
 		volumes := filesystem.BrowseVolumes(ctx)
 		var err error
 		for _, volume := range volumes {
 			err = stream.Send(&tree.ListNodesResponse{
-				Node: volume,
+				Node: &tree.Node{
+					Uuid: volume.Uuid,
+					Path: volume.Path,
+					Type: tree.NodeType_COLLECTION,
+					Size: volume.Size,
+				},
 			})
 			if err != nil {
 				log.Logger(ctx).Error("could not send node", zap.Error(err))
@@ -151,35 +162,35 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 	return nil
 }
 
-func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRequest, response *tree.CreateNodeResponse) error {
+func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
+	response := &tree.CreateNodeResponse{}
 	p := filesystem.ToFilePath(request.Node.Path)
 	if request.Node.IsLeaf() {
 		if file, e := t.FS.Create(p); e != nil {
-			return e
+			return nil, e
 		} else {
 			fileInfo, _ := file.Stat()
 			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
 		}
 	} else {
 		if e := t.FS.MkdirAll(p, 0755); e != nil {
-			return e
+			return nil, e
 		} else {
 			fileInfo, _ := t.FS.Stat(p)
 			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
 		}
 	}
-	return nil
+	return response, nil
 }
 
-func (t *TreeHandler) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest, response *tree.UpdateNodeResponse) error {
-	return errors.BadRequest("not.implemented", "")
+func (t *TreeHandler) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
+	return nil, errors.BadRequest("not.implemented", "")
 }
 
-func (t *TreeHandler) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest, response *tree.DeleteNodeResponse) error {
+func (t *TreeHandler) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {
 	p := filesystem.ToFilePath(request.Node.Path)
 	if e := t.FS.Remove(p); e != nil {
-		return e
+		return nil, e
 	}
-	response.Success = true
-	return nil
+	return &tree.DeleteNodeResponse{Success: true}, nil
 }

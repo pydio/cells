@@ -34,8 +34,8 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/utils/mtree"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
 func TestLogMassiveObject(t *testing.T) {

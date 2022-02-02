@@ -23,14 +23,13 @@ package scheduler
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common"
 	"time"
 
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -38,6 +37,7 @@ var (
 )
 
 type FakeAction struct {
+	common.RuntimeHolder
 	timer  string
 	ticker string
 }
@@ -105,7 +105,7 @@ func (f *FakeAction) ProvidesProgress() bool {
 }
 
 // Init passes parameters to the action
-func (f *FakeAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (f *FakeAction) Init(job *jobs.Job, action *jobs.Action) error {
 	f.timer = "10"
 	f.ticker = ""
 	if strTime, ok := action.Parameters["timer"]; ok {

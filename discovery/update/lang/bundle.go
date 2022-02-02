@@ -22,20 +22,23 @@
 package lang
 
 import (
+	"embed"
 	"sync"
 
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/packr"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
-	bundle *i18n.I18nBundle
-	o      = sync.Once{}
+	//go:embed box/*.json
+	content embed.FS
+	bundle  *i18n.I18nBundle
+	o       = sync.Once{}
 )
 
 func Bundle() *i18n.I18nBundle {
 	o.Do(func() {
-		bundle = i18n.NewI18nBundle(packr.NewBox("../../../discovery/update/lang/box"))
+		bundle = i18n.NewI18nBundle(statics.AsFS(content, "box"))
 	})
 	return bundle
 }

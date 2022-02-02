@@ -87,7 +87,8 @@ class GenericCard extends React.Component{
 
     render(){
 
-        const {title, popoverPanel, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems, children, muiTheme, style, headerSmall, editTooltip, deleteTooltip} = this.props;
+        const {title, popoverPanel, onDismissAction, onEditAction, onDeleteAction, otherActions, moreMenuItems,
+            children, muiTheme, style, headerSmall, editTooltip, deleteTooltip, editColor} = this.props;
 
         const {primary1Color} = muiTheme.palette;
 
@@ -133,7 +134,7 @@ class GenericCard extends React.Component{
         return (
             <Paper zDepth={0} style={{width: '100%', position:'relative', ...style}}>
                 {onEditAction && !headerSmall &&
-                    <FloatingActionButton onClick={onEditAction} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
+                    <FloatingActionButton onClick={onEditAction} backgroundColor={editColor} mini={true} style={{position:'absolute', top:styles.fabTop, left: 10}}>
                         <FontIcon className={"mdi mdi-pencil"} />
                     </FloatingActionButton>
                 }

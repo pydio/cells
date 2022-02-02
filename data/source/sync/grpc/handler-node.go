@@ -23,66 +23,71 @@ package grpc
 import (
 	"context"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 // CreateNode Forwards to Index
-func (s *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
+func (s *Handler) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
 
+	resp := &tree.CreateNodeResponse{}
 	e := s.s3client.(model.PathSyncTarget).CreateNode(ctx, req.Node, req.UpdateIfExists)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	resp.Node = req.Node
-	return nil
+	return resp, nil
 }
 
 // UpdateNode Forwards to S3
-func (s *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) error {
+func (s *Handler) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
 
+	resp := &tree.UpdateNodeResponse{}
 	e := s.s3client.(model.PathSyncTarget).MoveNode(ctx, req.From.Path, req.To.Path)
 	if e != nil {
 		resp.Success = false
-		return e
+		return resp, e
 	}
 	resp.Success = true
-	return nil
+	return resp, nil
 }
 
 // DeleteNode Forwards to S3
-func (s *Handler) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) error {
+func (s *Handler) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {
 
+	resp := &tree.DeleteNodeResponse{}
 	e := s.s3client.(model.PathSyncTarget).DeleteNode(ctx, req.Node.Path)
 	if e != nil {
 		resp.Success = false
-		return e
+		return resp, e
 	}
 	resp.Success = true
-	return nil
+	return resp, nil
 }
 
 // ReadNode Forwards to Index
-func (s *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
+func (s *Handler) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
 
+	resp := &tree.ReadNodeResponse{}
 	r, e := s.indexClientRead.ReadNode(ctx, req)
 	if e != nil {
-		return e
+		return nil, e
 	}
 	resp.Success = true
 	resp.Node = r.Node
-	return nil
+	return resp, nil
 
 }
 
 // ListNodes Forward to index
-func (s *Handler) ListNodes(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream) error {
+func (s *Handler) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer) error {
 
+	ctx := resp.Context()
 	client, e := s.indexClientRead.ListNodes(ctx, req)
 	if e != nil {
 		return e
 	}
-	defer client.Close()
+	defer client.CloseSend()
 	for {
 		nodeResp, re := client.Recv()
 		if nodeResp == nil {

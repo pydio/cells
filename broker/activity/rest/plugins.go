@@ -24,9 +24,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -37,8 +37,8 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("RESTful Gateway to Activity service"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceActivity, []string{}),
-			service.WithWeb(func() service.WebHandler {
-				return NewActivityHandler()
+			service.WithWeb(func(c context.Context) service.WebHandler {
+				return NewActivityHandler(c)
 			}),
 		)
 	})

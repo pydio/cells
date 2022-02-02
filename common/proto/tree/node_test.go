@@ -25,7 +25,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/v4/common"
 )
 
 func TestNodeMeta(t *testing.T) {
@@ -88,8 +88,7 @@ func TestNodeMeta(t *testing.T) {
 			TestString: "mystring",
 			TestInt:    256,
 		}
-		e := node.SetMeta("jsondata", inputStruct)
-		So(e, ShouldBeNil)
+		node.MustSetMeta("jsondata", inputStruct)
 
 		outputStuct := &struct {
 			TestString string  `json:"testString"`

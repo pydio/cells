@@ -27,7 +27,7 @@ class CellsMessageToolbar extends React.Component{
         super(props);
         const {pydio} = props;
         const node = pydio.getContextHolder().getContextNode();
-        if(node && node.getMetadata().has("virtual_root")){
+        if(node && (node.getMetadata().has("virtual_root") || node.getMetadata().has('local:renderListCustomMessage'))){
             this.state = {display:true}
         } else {
             this.state = {display:false}
@@ -38,7 +38,7 @@ class CellsMessageToolbar extends React.Component{
         const {pydio} = this.props;
         this._observer = () => {
             const node = pydio.getContextHolder().getContextNode();
-            if(node && node.getMetadata().has("virtual_root")){
+            if(node && (node.getMetadata().has("virtual_root") || node.getMetadata().has('local:renderListCustomMessage'))){
                 this.setState({display:true});
             } else {
                 this.setState({display:false});
@@ -63,6 +63,10 @@ class CellsMessageToolbar extends React.Component{
             return null;
         }
         const s = {padding: 16, color: '#9E9E9E', borderBottom: '1px solid #F5F5F5'};
+        const node = pydio.getContextHolder().getContextNode();
+        if(node.getMetadata().has('local:renderListCustomMessage')){
+            return node.getMetadata().get('local:renderListCustomMessage')(node, s);
+        }
         return <div style={s}>{pydio.MessageHash['638']}</div>
     }
 

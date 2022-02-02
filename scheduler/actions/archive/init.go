@@ -26,9 +26,9 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func init() {
@@ -45,7 +45,7 @@ func init() {
 
 }
 
-func computeTargetName(ctx context.Context, handler views.Handler, dirPath string, base string, extension ...string) string {
+func computeTargetName(ctx context.Context, handler nodes.Handler, dirPath string, base string, extension ...string) string {
 	ext := ""
 	if len(extension) > 0 {
 		ext = "." + extension[0]
@@ -54,7 +54,7 @@ func computeTargetName(ctx context.Context, handler views.Handler, dirPath strin
 	// List current siblings, do not use ReadNode as ReadNode(toto.zip) does exists
 	var children []string
 	if s, err := handler.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: dirPath}, Recursive: false}); err == nil {
-		defer s.Close()
+		defer s.CloseSend()
 		for {
 			r, e := s.Recv()
 			if e != nil {

@@ -18,13 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package acl provides persistence and access to Access Control List
+// Package oauth provides OAuth service
 package oauth
 
 import (
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/auth"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/sql"
 )
 
 // DAO interface

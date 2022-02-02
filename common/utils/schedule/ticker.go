@@ -85,7 +85,7 @@ func (s *TickerSchedule) ParseIsoSchedule() error {
 		if er != nil {
 			return err
 		}
-		s.interval = isoDuration.ToDuration()
+		s.interval = isoDuration.RelativeTo(time.Now())
 
 		if s.repeat > 0 {
 			// Compute endTime based on startTime + number of repetitions.

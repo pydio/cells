@@ -24,16 +24,15 @@ import (
 	"context"
 
 	"github.com/fatih/color"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 var (
@@ -56,15 +55,14 @@ DESCRIPTION
 
 		ctx := context.Background()
 
-		treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+		treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: patchRecycleRoot}})
 		if e != nil {
 			return e
 		}
 
-		aclClient := idm.NewACLServiceClient(common.ServiceGrpcNamespace_+common.ServiceAcl, defaults.NewClient())
+		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 
-		defer stream.Close()
 		for {
 			resp, er := stream.Recv()
 			if er != nil {
@@ -78,22 +76,20 @@ DESCRIPTION
 				Action: permissions.AclRecycleRoot,
 			}
 
-			query, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			query, _ := anypb.New(&idm.ACLSingleQuery{
 				Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 				NodeIDs: []string{resp.Node.Uuid},
 			})
 
 			streamSearch, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 				Query: &service.Query{
-					SubQueries: []*any.Any{query},
+					SubQueries: []*anypb.Any{query},
 				},
 			})
 
 			if err != nil {
 				return err
 			}
-
-			defer streamSearch.Close()
 
 			found := false
 			for {

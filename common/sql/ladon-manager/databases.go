@@ -136,6 +136,19 @@ var Migrations = map[string]Statements{
 						"DROP INDEX ladon_resource_compiled_idx",
 					},
 				},
+				{
+					Id: "4",
+					Up: []string{
+						"alter table ladon_policy_permission add id int auto_increment primary key",
+						"alter table ladon_policy_resource add id int auto_increment primary key",
+						"alter table ladon_policy_subject add id int auto_increment primary key",
+					},
+					Down: []string{
+						"alter table ladon_policy_permission drop column id",
+						"alter table ladon_policy_resource drop column id",
+						"alter table ladon_policy_subject drop column id",
+					},
+				},
 			},
 		},
 		QueryInsertPolicy:             `INSERT INTO ladon_policy(id, description, effect, conditions) SELECT $1::varchar, $2, $3, $4 WHERE NOT EXISTS (SELECT 1 FROM ladon_policy WHERE id = $1)`,
@@ -185,6 +198,19 @@ var Migrations = map[string]Statements{
 						"DROP INDEX ladon_subject_compiled_idx",
 						"DROP INDEX ladon_permission_compiled_idx",
 						"DROP INDEX ladon_resource_compiled_idx",
+					},
+				},
+				{
+					Id: "4",
+					Up: []string{
+						"alter table ladon_policy_permission add id int auto_increment primary key",
+						"alter table ladon_policy_resource add id int auto_increment primary key",
+						"alter table ladon_policy_subject add id int auto_increment primary key",
+					},
+					Down: []string{
+						"alter table ladon_policy_permission drop column id",
+						"alter table ladon_policy_resource drop column id",
+						"alter table ladon_policy_subject drop column id",
 					},
 				},
 			},

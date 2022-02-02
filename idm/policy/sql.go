@@ -22,22 +22,23 @@ package policy
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/ory/ladon"
-	"github.com/pborman/uuid"
-	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/ladon-manager"
-	"github.com/pydio/cells/idm/policy/converter"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/ladon-manager"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/idm/policy/converter"
 )
 
 type sqlimpl struct {
@@ -47,6 +48,9 @@ type sqlimpl struct {
 }
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"upsertPolicyGroup": `INSERT INTO idm_policy_group (uuid,name,description,owner_uuid,resource_group,last_updated) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE name=?,description=?,owner_uuid=?,resource_group=?,last_updated=?`,
 		"deletePolicyGroup": `DELETE FROM idm_policy_group WHERE uuid=?`,
@@ -65,7 +69,7 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	manag := ladon_manager.NewSQLManager(db, nil)
 
 	sql.LockMigratePackage()
-	if _, err := manag.CreateSchemas("", ""); err != nil {
+	if _, err := manag.CreateSchemas("", "ladon_migrations"); err != nil {
 		sql.UnlockMigratePackage()
 		return err
 	}
@@ -75,8 +79,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	s.SQLManager = *manag
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../idm/policy/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
@@ -104,7 +108,7 @@ func (s *sqlimpl) Init(options configx.Values) error {
 func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error) {
 
 	if group.Uuid == "" {
-		group.Uuid = uuid.NewUUID().String()
+		group.Uuid = uuid.New()
 	} else {
 		// Gather remove policies
 		var delPolicies []string
@@ -156,7 +160,7 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 	// Insert or update Policies first
 	for _, policy := range group.Policies {
 		if policy.Id == "" { // must be a new policy
-			policy.Id = uuid.NewUUID().String()
+			policy.Id = uuid.New()
 			err := s.Manager.Create(converter.ProtoToLadonPolicy(policy))
 			if err != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot create new ladon policy with description: %s", policy.Description), zap.Error(err))

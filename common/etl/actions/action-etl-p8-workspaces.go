@@ -23,22 +23,19 @@ package actions
 import (
 	"context"
 	"fmt"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/forms"
-
-	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/etl"
-	"github.com/pydio/cells/common/etl/models"
-	"github.com/pydio/cells/common/etl/stores"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/etl"
+	"github.com/pydio/cells/v4/common/etl/models"
+	"github.com/pydio/cells/v4/common/etl/stores"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 type SyncWorkspacesAction struct {
@@ -103,7 +100,7 @@ func (c *SyncWorkspacesAction) GetParametersForm() *forms.Form {
 }
 
 // Init passes relevant parameters.
-func (c *SyncWorkspacesAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *SyncWorkspacesAction) Init(job *jobs.Job, action *jobs.Action) error {
 	if err := c.ParseStores(action.Parameters); err != nil {
 		return err
 	}
@@ -115,7 +112,7 @@ func (c *SyncWorkspacesAction) Init(job *jobs.Job, cl client.Client, action *job
 
 func (c *SyncWorkspacesAction) migratePydio8(ctx context.Context, mapping map[string]string, progress chan etl.MergeOperation) {
 
-	options := stores.CreateOptions(ctx, c.params, jobs.ActionMessage{})
+	options := stores.CreateOptions(c.GetRuntimeContext(), ctx, c.params, jobs.ActionMessage{})
 	left, err := stores.LoadReadableStore(c.leftType, options)
 	if err != nil {
 		progress <- etl.MergeOperation{Error: err}

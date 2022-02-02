@@ -1,0 +1,25 @@
+syntax="proto3";
+
+package test;
+
+option go_package="github.com/pydio/cells/v4/common/proto/test";
+
+service Tester{
+    rpc Run(RunTestsRequest) returns (RunTestsResponse){};
+}
+
+message RunTestsRequest{
+    bool Dry = 1;
+    map<string, string> Data = 2;
+}
+
+message TestResult{
+    string Name = 1;
+    bool Pass = 2;
+    repeated string Messages = 3;
+}
+
+message RunTestsResponse{
+    bool Pass = 1;
+    repeated TestResult Results = 2;
+}

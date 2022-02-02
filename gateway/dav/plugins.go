@@ -23,18 +23,18 @@ package dav
 
 import (
 	"context"
-	"net/http"
 
-	"github.com/pydio/cells/common/plugins"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
-	davRouter *views.Router
+	davRouter nodes.Client
 )
 
 func init() {
@@ -43,20 +43,19 @@ func init() {
 			service.Name(common.ServiceGatewayDav),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
-			service.RouterDependencies(),
 			service.Description("DAV Gateway to tree service"),
-			service.WithHTTP(func() http.Handler {
-				davRouter = views.NewStandardRouter(views.RouterOptions{
-					WatchRegistry:    true,
-					AuditEvent:       true,
-					SynchronousCache: true,
-					SynchronousTasks: true,
-				})
-				// handler := newHandler(s.Options().Context, davRouter)
-				handler := newHandler(context.TODO(), davRouter)
-				handler = servicecontext.HttpMetaExtractorWrapper(handler)
-
-				return handler
+			service.WithHTTP(func(runtimeCtx context.Context, mux server.HttpMux) error {
+				davRouter = compose.PathClient(
+					nodes.WithContext(runtimeCtx),
+					nodes.WithRegistryWatch(),
+					nodes.WithAuditEventsLogging(),
+					nodes.WithSynchronousCaching(),
+					nodes.WithSynchronousTasks(),
+				)
+				handler := newHandler(runtimeCtx, davRouter)
+				handler = servicecontext.HttpWrapperMeta(runtimeCtx, handler)
+				mux.Handle("/dav/", handler)
+				return nil
 			}),
 		)
 	})

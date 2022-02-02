@@ -26,9 +26,11 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common"
+	"google.golang.org/grpc/metadata"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"google.golang.org/grpc"
 )
 
 type ErrorThrower func(string, string, ...interface{}) error
@@ -49,7 +51,27 @@ type StreamerMock struct {
 	ch chan Node
 }
 
-func NewStreamerMock(nodes map[string]Node) *StreamerMock {
+func (m *StreamerMock) Header() (metadata.MD, error) {
+	panic("implement me")
+}
+
+func (m *StreamerMock) Trailer() metadata.MD {
+	panic("implement me")
+}
+
+func (m *StreamerMock) CloseSend() error {
+	panic("implement me")
+}
+
+func (m *StreamerMock) SendMsg(msg interface{}) error {
+	panic("implement me")
+}
+
+func (m *StreamerMock) RecvMsg(msg interface{}) error {
+	panic("implement me")
+}
+
+func NewStreamerMock(nodes map[string]Node) grpc.ClientStream {
 	ch := make(chan Node)
 
 	go func() {
@@ -75,9 +97,6 @@ func NewStreamerMock(nodes map[string]Node) *StreamerMock {
 
 func (m *StreamerMock) Context() context.Context {
 	return context.Background()
-}
-func (m *StreamerMock) Request() client.Request {
-	return nil
 }
 func (m *StreamerMock) Send(v interface{}) error {
 	return nil
@@ -116,7 +135,7 @@ func NewNodeProviderMock(n map[string]Node) *NodeProviderMock {
 	}
 }
 
-func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, opts ...client.CallOption) (*ReadNodeResponse, error) {
+func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, opts ...grpc.CallOption) (*ReadNodeResponse, error) {
 	if in.Node.Path != "" {
 		if v, ok := m.Nodes[in.Node.Path]; ok {
 			resp := &ReadNodeResponse{
@@ -137,9 +156,9 @@ func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, op
 	return nil, errors.NotFound(common.ServiceDataIndex_, "Node not found")
 }
 
-func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...client.CallOption) (NodeProvider_ListNodesClient, error) {
+func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (NodeProvider_ListNodesClient, error) {
 	// Create fake stream
-	return &nodeProviderListNodesClient{stream: NewStreamerMock(m.Nodes)}, nil
+	return &nodeProviderListNodesClient{ClientStream: NewStreamerMock(m.Nodes)}, nil
 
 }
 
@@ -147,7 +166,7 @@ type NodeReceiverMock struct {
 	Nodes map[string]Node
 }
 
-func (m *NodeReceiverMock) CreateNode(ctx context.Context, in *CreateNodeRequest, opts ...client.CallOption) (*CreateNodeResponse, error) {
+func (m *NodeReceiverMock) CreateNode(ctx context.Context, in *CreateNodeRequest, opts ...grpc.CallOption) (*CreateNodeResponse, error) {
 	if m.Nodes == nil {
 		m.Nodes = make(map[string]Node)
 	}
@@ -156,25 +175,25 @@ func (m *NodeReceiverMock) CreateNode(ctx context.Context, in *CreateNodeRequest
 	return &CreateNodeResponse{Node: in.Node}, nil
 }
 
-func (m *NodeReceiverMock) UpdateNode(ctx context.Context, in *UpdateNodeRequest, opts ...client.CallOption) (*UpdateNodeResponse, error) {
+func (m *NodeReceiverMock) UpdateNode(ctx context.Context, in *UpdateNodeRequest, opts ...grpc.CallOption) (*UpdateNodeResponse, error) {
 	return &UpdateNodeResponse{Success: true}, nil
 }
 
-func (m *NodeReceiverMock) DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...client.CallOption) (*DeleteNodeResponse, error) {
+func (m *NodeReceiverMock) DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...grpc.CallOption) (*DeleteNodeResponse, error) {
 	return &DeleteNodeResponse{Success: true}, nil
 }
 
 type SessionIndexerMock struct {
 }
 
-func (s *SessionIndexerMock) OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...client.CallOption) (*OpenSessionResponse, error) {
+func (s *SessionIndexerMock) OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error) {
 	return &OpenSessionResponse{Session: in.GetSession()}, nil
 }
 
-func (s *SessionIndexerMock) FlushSession(ctx context.Context, in *FlushSessionRequest, opts ...client.CallOption) (*FlushSessionResponse, error) {
+func (s *SessionIndexerMock) FlushSession(ctx context.Context, in *FlushSessionRequest, opts ...grpc.CallOption) (*FlushSessionResponse, error) {
 	return &FlushSessionResponse{}, nil
 }
 
-func (s *SessionIndexerMock) CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...client.CallOption) (*CloseSessionResponse, error) {
+func (s *SessionIndexerMock) CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...grpc.CallOption) (*CloseSessionResponse, error) {
 	return &CloseSessionResponse{}, nil
 }

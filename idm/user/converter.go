@@ -26,19 +26,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"go.uber.org/zap"
-	"gopkg.in/doug-martin/goqu.v4"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/utils/mtree"
+	goqu "github.com/doug-martin/goqu/v9"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/index"
+	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
 func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includeParent bool, checkEmpty bool) (string, []interface{}, error) {
@@ -97,7 +98,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 	}
 
-	return dataset.ToSql()
+	return dataset.ToSQL()
 }
 
 type queryConverter struct {
@@ -106,14 +107,14 @@ type queryConverter struct {
 	loginCI       bool
 }
 
-func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
+func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression, bool) {
 
 	var expressions []goqu.Expression
 	var attributeOrLogin bool
 
 	q := new(idm.UserSingleQuery)
 
-	if err := ptypes.UnmarshalAny(val, q); err != nil {
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
 		log.Logger(context.Background()).Error("Cannot unmarshal", zap.Any("v", val), zap.Error(err))
 		return nil, false
 	}
@@ -223,7 +224,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			attWheres = append(attWheres, exprName)
 			attWheres = append(attWheres, exprValue)
 		}
-		attQ, _, _ := dataset.Where(attWheres...).ToSql()
+		attQ, _, _ := dataset.Where(attWheres...).ToSQL()
 		if q.Not {
 			attQ = "NOT EXISTS (" + attQ + ")"
 		} else {
@@ -245,7 +246,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			goqu.I("r.uuid").Eq(goqu.I("t.uuid")),
 			roleQuery,
 		}
-		attR, _, _ := datasetR.Where(attWheresR...).ToSql()
+		attR, _, _ := datasetR.Where(attWheresR...).ToSQL()
 		if q.Not {
 			attR = "NOT EXISTS (" + attR + ")"
 		} else {
@@ -296,7 +297,7 @@ func userToNode(u *idm.User) *tree.Node {
 			n.Etag = hasher.CreateHash(u.Password)
 		}
 	}
-	n.SetMeta("name", u.Login)
+	n.MustSetMeta(common.MetaNamespaceNodeName, u.Login)
 	return n
 
 }

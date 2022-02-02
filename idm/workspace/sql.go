@@ -21,25 +21,29 @@
 package workspace
 
 import (
+	"embed"
 	"fmt"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/packr"
+	goqu "github.com/doug-martin/goqu/v9"
 	migrate "github.com/rubenv/sql-migrate"
-	"gopkg.in/doug-martin/goqu.v4"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"AddWorkspace":            `replace into idm_workspaces (uuid, label, description, attributes, slug, scope, last_updated) values (?, ?, ?, ?, ?, ?, ?)`,
 		"GetWorkspace":            `select uuid from idm_workspaces where uuid = ?`,
@@ -67,8 +71,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 		return err
 	}
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../idm/workspace/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
@@ -207,10 +211,10 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 type queryBuilder idm.WorkspaceSingleQuery
 
-func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
+func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, bool) {
 
 	q := new(idm.WorkspaceSingleQuery)
-	if err := ptypes.UnmarshalAny(val, q); err != nil {
+	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
 		return nil, false
 	}
 

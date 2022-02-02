@@ -24,29 +24,35 @@ package grpc
 import (
 	"context"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/v4/common/crypto"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/encryption"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/idm/key"
+	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/idm/key"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
+
+const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUserKey
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceUserKey),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Encryption Keys server"),
 			service.WithStorage(key.NewDAO, "idm_key"),
-			service.WithMicro(func(m micro.Service) error {
-				h, err := NewUserKeyStore()
-				if err != nil {
-					return err
-				}
-				encryption.RegisterUserKeyStoreHandler(m.Options().Server, h)
+			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
+				dao := servicecontext.GetDAO(ctx).(key.DAO)
+				keyring := servicecontext.GetKeyring(ctx).(crypto.Keyring)
+
+				h := NewUserKeyStore(ctx, dao, keyring)
+				encryption.RegisterUserKeyStoreEnhancedServer(server, h)
+
 				return nil
 			}),
 		)

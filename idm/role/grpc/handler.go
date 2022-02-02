@@ -25,16 +25,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/idm/role"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/idm/role"
 )
 
 var (
@@ -45,18 +44,30 @@ var (
 )
 
 // Handler definition
-type Handler struct{}
+type Handler struct {
+	idm.UnimplementedRoleServiceServer
+	dao role.DAO
+}
+
+func NewHandler(ctx context.Context, dao role.DAO) idm.NamedRoleServiceServer {
+	return &Handler{dao: dao}
+}
+
+func (h *Handler) Name() string {
+	return ServiceName
+}
 
 // CreateRole adds a role and its policies in database
-func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, resp *idm.CreateRoleResponse) error {
-	dao := servicecontext.GetDAO(ctx).(role.DAO)
+func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest) (*idm.CreateRoleResponse, error) {
+	resp := &idm.CreateRoleResponse{}
+
 	if req.Role.Uuid != "" && strings.Contains(req.Role.Uuid, ",") {
-		return errors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
+		return nil, errors.BadRequest("forbidden.characters", "commas are not allowed in role uuid")
 	}
 
-	r, update, err := dao.Add(req.Role)
+	r, update, err := h.dao.Add(req.Role)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	resp.Role = r
 	if len(r.Policies) == 0 {
@@ -66,17 +77,17 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 			fmt.Printf("%d. %s - action: %s\n", i, pol.Subject, pol.Action)
 		}
 	} */
-	err = dao.AddPolicies(update, r.Uuid, r.Policies)
+	err = h.dao.AddPolicies(update, r.Uuid, r.Policies)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if update {
 		// Propagate event
-		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_UPDATE,
 			Role: r,
-		}))
+		})
 		log.Logger(ctx).Info(
 			fmt.Sprintf("Role [%s] has been updated", r.Label),
 			log.GetAuditId(common.AuditRoleUpdate),
@@ -88,10 +99,10 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 			r.ZapUuid(),
 		)
 	} else {
-		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_CREATE,
 			Role: r,
-		}))
+		})
 		log.Logger(ctx).Info(
 			fmt.Sprintf("Role [%s] has been created", r.Label),
 			log.GetAuditId(common.AuditRoleCreate),
@@ -104,93 +115,87 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 		)
 	}
 
-	return nil
+	return resp, nil
 }
 
 // DeleteRole from database
-func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest, response *idm.DeleteRoleResponse) error {
-	dao := servicecontext.GetDAO(ctx).(role.DAO)
+func (h *Handler) DeleteRole(ctx context.Context, req *idm.DeleteRoleRequest) (*idm.DeleteRoleResponse, error) {
 
 	if req.Query == nil {
-		return errors.BadRequest(common.ServiceRole, "cannot send a DeleteRole request with an empty query")
+		return nil, errors.BadRequest(common.ServiceRole, "cannot send a DeleteRole request with an empty query")
 	}
 
 	var roles []*idm.Role
-	if err := dao.Search(req.Query, &roles); err != nil {
-		return err
+	if err := h.dao.Search(req.Query, &roles); err != nil {
+		return nil, err
 	}
 
-	numRows, err := dao.Delete(req.Query)
-	response.RowsDeleted = numRows
+	numRows, err := h.dao.Delete(req.Query)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	response := &idm.DeleteRoleResponse{
+		RowsDeleted: numRows,
 	}
 
 	for _, r := range roles {
-		// FIXME errors where ignored until now. Should we stop and return an error
-		// or better handle the error?
-		err2 := dao.DeletePoliciesForResource(r.Uuid)
+		// Errors a ignored until now. Should we stop and return an error or better handle the error?
+		err2 := h.dao.DeletePoliciesForResource(r.Uuid)
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies for removed role "+r.Label, zap.Error(err2))
 			continue
 		}
-		err2 = dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", r.Uuid))
+		err2 = h.dao.DeletePoliciesBySubject(fmt.Sprintf("role:%s", r.Uuid))
 		if err2 != nil {
 			log.Logger(ctx).Error("could not delete policies by subject for removed role "+r.Label, zap.Error(err2))
 			continue
 		}
 
 		// propagate event
-		client.Publish(ctx, client.NewPublication(common.TopicIdmEvent, &idm.ChangeEvent{
+		broker.MustPublish(ctx, common.TopicIdmEvent, &idm.ChangeEvent{
 			Type: idm.ChangeEventType_DELETE,
 			Role: r,
-		}))
+		})
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Deleted role [%s]", r.Label),
 			log.GetAuditId(common.AuditRoleDelete),
 			r.ZapUuid(),
 		)
 	}
-	return nil
+	return response, nil
 }
 
 // SearchRole in database
-func (h *Handler) SearchRole(ctx context.Context, request *idm.SearchRoleRequest, response idm.RoleService_SearchRoleStream) error {
-	dao := servicecontext.GetDAO(ctx).(role.DAO)
+func (h *Handler) SearchRole(request *idm.SearchRoleRequest, response idm.RoleService_SearchRoleServer) error {
 
 	var roles []*idm.Role
 
-	defer response.Close()
-
-	if err := dao.Search(request.Query, &roles); err != nil {
+	if err := h.dao.Search(request.Query, &roles); err != nil {
 		return err
 	}
 
 	for _, r := range roles {
-		response.Send(&idm.SearchRoleResponse{Role: r})
+		if e := response.Send(&idm.SearchRoleResponse{Role: r}); e != nil {
+			return e
+		}
 	}
 
 	return nil
 }
 
 // CountRole in database
-func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest, response *idm.CountRoleResponse) error {
-	dao := servicecontext.GetDAO(ctx).(role.DAO)
+func (h *Handler) CountRole(ctx context.Context, request *idm.SearchRoleRequest) (*idm.CountRoleResponse, error) {
 
-	count, err := dao.Count(request.Query);
+	count, err := h.dao.Count(request.Query)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	response.Count = count
 
-	return nil
+	return &idm.CountRoleResponse{Count: count}, nil
 }
 
 // StreamRole from database
-func (h *Handler) StreamRole(ctx context.Context, streamer idm.RoleService_StreamRoleStream) error {
-	dao := servicecontext.GetDAO(ctx).(role.DAO)
-
-	defer streamer.Close()
+func (h *Handler) StreamRole(streamer idm.RoleService_StreamRoleServer) error {
 
 	for {
 		incoming, err := streamer.Recv()
@@ -199,15 +204,19 @@ func (h *Handler) StreamRole(ctx context.Context, streamer idm.RoleService_Strea
 		}
 
 		var roles []*idm.Role
-		if err := dao.Search(incoming.Query, &roles); err != nil {
+		if err := h.dao.Search(incoming.Query, &roles); err != nil {
 			return err
 		}
 
 		for _, r := range roles {
-			streamer.Send(&idm.SearchRoleResponse{Role: r})
+			if e := streamer.Send(&idm.SearchRoleResponse{Role: r}); e != nil {
+				return e
+			}
 		}
 
-		streamer.Send(nil)
+		if e := streamer.Send(nil); e != nil {
+			return e
+		}
 	}
 
 	return nil

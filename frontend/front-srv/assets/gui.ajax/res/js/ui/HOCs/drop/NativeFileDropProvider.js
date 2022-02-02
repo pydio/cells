@@ -52,6 +52,10 @@ export default function(PydioComponent, onDropFunction){
 
         drop: function (props, monitor) {
 
+            if(!monitor.isOver({shallow: true})){
+                return
+            }
+
             let dataTransfer = monitor.getItem().dataTransfer;
             let items;
             if (dataTransfer.items && dataTransfer.items.length && dataTransfer.items[0] && (dataTransfer.items[0].getAsEntry || dataTransfer.items[0].webkitGetAsEntry)) {
@@ -65,8 +69,9 @@ export default function(PydioComponent, onDropFunction){
     NativeFileDropProvider = DND.DropTarget(Backend.NativeTypes.FILE, fileTarget, function (connect, monitor) {
         return {
             connectDropTarget   : connect.dropTarget(),
+            canDrop             : monitor.canDrop(),
             isOver              : monitor.isOver(),
-            canDrop             : monitor.canDrop()
+            isOverCurrent       : monitor.isOver({shallow:true})
         };
     })(NativeFileDropProvider);
 

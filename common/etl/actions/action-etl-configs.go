@@ -23,14 +23,11 @@ package actions
 import (
 	"context"
 
-	"github.com/pydio/cells/common/forms"
-
-	"github.com/pydio/cells/common/etl"
-	"github.com/pydio/cells/common/log"
-
-	"github.com/micro/go-micro/client"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/etl"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 type SyncConfigAction struct {
@@ -83,7 +80,7 @@ func (c *SyncConfigAction) GetName() string {
 }
 
 // Init passes relevant parameters.
-func (c *SyncConfigAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *SyncConfigAction) Init(job *jobs.Job, action *jobs.Action) error {
 	return c.ParseStores(action.Parameters)
 }
 

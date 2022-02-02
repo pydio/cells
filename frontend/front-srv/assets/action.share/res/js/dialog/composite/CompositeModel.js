@@ -93,6 +93,10 @@ class CompositeModel extends Observable {
         cell.load(cellId).then(()=>{
             cell.addRootNode(this.node);
         });
+        const empties = this.cells.filter(c => !c.getUuid())
+        if(empties.length){
+            this.removeNewCell(empties[0])
+        }
         this.cells.push(cell);
     }
 
@@ -141,6 +145,9 @@ class CompositeModel extends Observable {
         if(this.edit && !this.links.length){
             this.links.push(this.emptyLink(node));
         }
+        if(this.edit && this.canCreateCells() && !this.cells.length){
+            this.createEmptyCell();
+        }
         if(observeReplace){
             this.node.observe('node_replaced', () => {
                 this.load(this.node, false);
@@ -155,6 +162,15 @@ class CompositeModel extends Observable {
         linkModel.load(linkUuid);
         this.links.push(linkModel);
         return linkModel;
+    }
+
+    canCreateCells(){
+        if(!this.node){
+            return false;
+        }
+        const auth = ShareHelper.getAuthorizations();
+        const nodeLeaf = this.node.isLeaf();
+        return (nodeLeaf && auth.file_workspaces) || (!nodeLeaf && auth.folder_workspaces);
     }
 
     save(){

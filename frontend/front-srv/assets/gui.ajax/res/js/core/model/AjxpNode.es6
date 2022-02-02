@@ -267,7 +267,14 @@ export default class AjxpNode extends Observable{
         this.fake = ajxpNode.fake;
         const meta = ajxpNode.getMetadata();
         if(metaMerge === "override") {
-            this._metadata = new Map();
+            const newMeta = new Map();
+            // Do not override local: metadata
+            this._metadata.forEach((v, k) =>{
+                if(k.indexOf('local:') === 0) {
+                    newMeta.set(k, v)
+                }
+            })
+            this._metadata = newMeta;
         }
         meta.forEach(function(value, key){
             if(metaMerge === "override"){
@@ -305,9 +312,13 @@ export default class AjxpNode extends Observable{
     /**
      * Sets the metadata as a bunch
      * @param data Map A Map
+     * @param notify bool Trigger a notification
      */
-    setMetadata(data){
+    setMetadata(data, notify = false){
         this._metadata = data;
+        if(notify){
+            this.notify("node_replaced", this);
+        }
     }
     /**
      * Gets the metadat

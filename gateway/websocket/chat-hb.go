@@ -5,7 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pydio/cells/common/proto/chat"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
+	"github.com/pydio/cells/v4/common/proto/chat"
 )
 
 var (
@@ -43,7 +46,7 @@ func init() {
 	hbbLocks = &sync.Mutex{}
 }
 
-func (c *ChatHandler) heartbeat(username string, room *chat.ChatRoom) {
+func (c *ChatHandler) heartbeat(ctx context.Context, username string, room *chat.ChatRoom) {
 	hbbLocks.Lock()
 	defer hbbLocks.Unlock()
 	var heartbeater *heartBeater
@@ -55,9 +58,10 @@ func (c *ChatHandler) heartbeat(username string, room *chat.ChatRoom) {
 				hbbLocks.Lock()
 				defer hbbLocks.Unlock()
 				for _, roomChat := range heartbeater.rooms {
-					if f, e := c.findOrCreateRoom(context.Background(), roomChat, false); e == nil && f != nil {
+					if f, e := c.findOrCreateRoom(ctx, roomChat, false); e == nil && f != nil {
 						if save := c.removeUserFromRoom(f, username); save {
-							c.getChatClient().PutRoom(context.Background(), &chat.PutRoomRequest{Room: f})
+							chatClient := chat.NewChatServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceChat))
+							chatClient.PutRoom(ctx, &chat.PutRoomRequest{Room: f})
 						}
 					}
 				}

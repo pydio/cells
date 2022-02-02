@@ -30,13 +30,12 @@ import (
 	"strings"
 
 	p "github.com/manifoldco/promptui"
-	_ "github.com/mholt/caddy/caddyhttp"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/discovery/install/lib"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
 type CellsCliPromptStep struct {
@@ -75,7 +74,7 @@ func cliInstall(cmd *cobra.Command, proxyConfig *install.ProxyConfig) (*install.
 		return nil, fmt.Errorf("could not perform installation: %s", e.Error())
 	}
 
-	initConfig()
+	// TODO initConfig()
 
 	fmt.Println("\n\033[1m## Administrative User Configuration\033[0m")
 	if e := promptFrontendAdmin(cliConfig, adminRequired); e != nil {

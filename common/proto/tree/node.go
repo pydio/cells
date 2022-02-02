@@ -26,15 +26,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pborman/uuid"
-
-	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/utils/std"
-	json "github.com/pydio/cells/x/jsonx"
+	"github.com/pydio/cells/v4/common"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/std"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 /* This file provides helpers and shortcuts to ease development of tree.node related features.
@@ -88,22 +87,38 @@ func (node *Node) GetMeta(namespace string, jsonStruc interface{}) error {
 	return json.Unmarshal([]byte(metaString), &jsonStruc)
 }
 
-// SetMeta sets a metadata by marshalling to JSON
-func (node *Node) SetMeta(namespace string, jsonMeta interface{}) (err error) {
+// GetMetaBool looks for a meta to be present and bool value. Returns false is meta is not set.
+func (node *Node) GetMetaBool(namespace string) bool {
+	metaString := node.getMetaString(namespace)
+	if metaString == "" {
+		return false
+	}
+	var test bool
+	if e := json.Unmarshal([]byte(metaString), &test); e == nil && test {
+		return true
+	}
+	return false
+}
+
+// MustSetMeta sets a metadata by marshalling to JSON. It does not return error but panics instead.
+func (node *Node) MustSetMeta(namespace string, jsonMeta interface{}) {
 	if node.MetaStore == nil {
 		node.MetaStore = make(map[string]string)
 	}
-	var bytes []byte
-	bytes, err = json.Marshal(jsonMeta)
+	bytes, err := json.Marshal(jsonMeta)
+	if err != nil {
+		panic(fmt.Sprintf("Error while marshaling meta to json: %v", err))
+	}
 	node.MetaStore[namespace] = string(bytes)
-	return err
 }
 
 // GetStringMeta easily returns the string value of the MetaData for this key
 // or an empty string if the MetaData for this key is not defined
 func (node *Node) GetStringMeta(namespace string) string {
 	var value string
-	node.GetMeta(namespace, &value)
+	if e := node.GetMeta(namespace, &value); e != nil {
+		return ""
+	}
 	return value
 }
 
@@ -134,8 +149,9 @@ func (node *Node) AllMetaDeserialized(excludes map[string]struct{}) map[string]i
 			}
 		}
 		var data interface{}
-		node.GetMeta(k, &data)
-		m[k] = data
+		if e := node.GetMeta(k, &data); e == nil {
+			m[k] = data
+		}
 	}
 	return m
 }
@@ -157,8 +173,8 @@ func (node *Node) LegacyMeta(meta map[string]interface{}) {
 	meta["bytesize"] = node.Size
 	meta["ajxp_modiftime"] = node.MTime
 	meta["etag"] = node.Etag
-	if _, basename := path.Split(node.Path); basename != node.GetStringMeta("name") {
-		meta["text"] = node.GetStringMeta("name")
+	if _, basename := path.Split(node.Path); basename != node.GetStringMeta(common.MetaNamespaceNodeName) {
+		meta["text"] = node.GetStringMeta(common.MetaNamespaceNodeName)
 	}
 }
 
@@ -184,7 +200,7 @@ func (node *Node) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		encoder.AddInt64("Size", node.GetSize())
 	}
 	if node.MetaStore != nil {
-		encoder.AddReflected("MetaStore", node.MetaStore)
+		_ = encoder.AddReflected("MetaStore", node.MetaStore)
 	}
 	return nil
 }
@@ -237,10 +253,10 @@ func (log *ChangeLog) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		encoder.AddInt64("Size", log.Size)
 	}
 	if log.Event != nil {
-		encoder.AddReflected("Event", log.Event)
+		_ = encoder.AddReflected("Event", log.Event)
 	}
 	if log.Location != nil {
-		encoder.AddReflected("Location", log.Location)
+		_ = encoder.AddReflected("Location", log.Location)
 	}
 	return nil
 }
@@ -280,7 +296,7 @@ func (policy *VersioningPolicy) MarshalLogObject(encoder zapcore.ObjectEncoder) 
 		encoder.AddInt64("MaxTotalSize", policy.MaxTotalSize)
 	}
 	if len(policy.KeepPeriods) > 0 {
-		encoder.AddReflected("Periods", policy.KeepPeriods)
+		_ = encoder.AddReflected("Periods", policy.KeepPeriods)
 	}
 	return nil
 }

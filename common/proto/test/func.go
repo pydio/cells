@@ -20,7 +20,9 @@
 
 package test
 
-import json "github.com/pydio/cells/x/jsonx"
+import (
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+)
 
 // NewTestResult creates a new TestResult
 func NewTestResult(testName string) *TestResult {

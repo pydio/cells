@@ -23,21 +23,25 @@ package grpc
 import (
 	"context"
 	"fmt"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"io"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/mocks"
-	"github.com/pydio/cells/common/proto/tree"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/utils/meta"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/nodes/mocks"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 // changesListener is an autoclosing pipe used for fanning out events
@@ -80,20 +84,44 @@ type DataSource struct {
 	reader tree.NodeProviderClient
 }
 
+func NewDataSource(name string, reader tree.NodeProviderClient, writer tree.NodeReceiverClient) DataSource {
+	return DataSource{
+		Name:   name,
+		reader: reader,
+		writer: writer,
+	}
+}
+
 type TreeServer struct {
+	tree.UnimplementedSearcherServer
+	tree.UnimplementedNodeReceiverServer
+	tree.UnimplementedNodeProviderServer
+	tree.UnimplementedNodeProviderStreamerServer
+	tree.UnimplementedNodeChangesStreamerServer
+
 	sync.Mutex
+
+	name      string
+	listeners []*changesListener
+
 	DataSources map[string]DataSource
-	listeners   []*changesListener
+	MainCtx     context.Context
+}
+
+func (s *TreeServer) Name() string {
+	return s.name
 }
 
 // ReadNodeStream Implement stream for readNode method
-func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProviderStreamer_ReadNodeStreamStream) error {
-	defer streamer.Close()
+func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeStreamServer) error {
 
 	// In some cases, initial ctx could be canceled _before_ this function is called
 	// We must make sure that metaStreamers are using a proper context at creation
 	// otherwise it can create a goroutine leak on linux.
-	metaStreamer := meta.NewStreamLoader(context2.NewBackgroundWithMetaCopy(ctx))
+	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
+	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(s.MainCtx))
+	ctx = servercontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
+	metaStreamer := meta.NewStreamLoader(ctx)
 	defer metaStreamer.Close()
 
 	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
@@ -105,9 +133,12 @@ func (s *TreeServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProvi
 		if err != nil {
 			return err
 		}
-		response := &tree.ReadNodeResponse{}
-		err = s.ReadNode(msCtx, request, response)
-		response.Success = err == nil
+		response, err := s.ReadNode(msCtx, request)
+		if err == nil {
+			response.Success = true
+		} else {
+			response = &tree.ReadNodeResponse{}
+		}
 		if e := streamer.Send(response); e != nil {
 			return e
 		}
@@ -140,7 +171,7 @@ func (s *TreeServer) updateDataSourceNode(node *tree.Node, dataSourceName string
 	newPath := dataSourceName + "/" + dsPath
 
 	node.Path = newPath
-	node.SetMeta(common.MetaNamespaceDatasourcePath, dsPath)
+	node.MustSetMeta(common.MetaNamespaceDatasourcePath, dsPath)
 	if node.Uuid == "ROOT" {
 		node.Uuid = "DATASOURCE:" + dataSourceName
 	}
@@ -151,15 +182,16 @@ func (s *TreeServer) updateDataSourceNode(node *tree.Node, dataSourceName string
  * ============================================================================ */
 
 // CreateNode implementation for the TreeServer
-func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) error {
+func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest) (*tree.CreateNodeResponse, error) {
 	log.Logger(ctx).Debug("Create Node", zap.String("UUID", req.Node.Uuid), zap.String("Path", req.Node.Path))
 	node := req.GetNode()
+	resp := &tree.CreateNodeResponse{}
 
 	defer track("CreateNode", ctx, time.Now(), req, resp)
 
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	if dsName == "" || dsPath == "" {
-		return errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
+		return nil, errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
 	}
 
 	if ds, ok := s.DataSources[dsName]; ok {
@@ -173,19 +205,19 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 		response, e := ds.writer.CreateNode(ctx, dsReq)
 		if e != nil {
-			return e
+			return nil, e
 		}
 		s.updateDataSourceNode(response.Node, dsName)
 		resp.Node = response.Node
 
-		return nil
+		return resp, nil
 	}
 
-	return errors.Forbidden(dsName, "Unknown data source")
+	return nil, errors.Forbidden(dsName, "Unknown data source")
 }
 
 // ReadNode implementation for the TreeServer
-func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
+func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
 
 	node := req.GetNode()
 	var metaStreamer meta.Loader
@@ -195,24 +227,24 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 		metaStreamer = meta.NewStreamLoader(ctx)
 		defer metaStreamer.Close()
 	}
-
+	resp := &tree.ReadNodeResponse{}
 	defer track("ReadNode", ctx, time.Now(), req, resp)
 
 	if node.GetPath() == "" && node.GetUuid() != "" {
 		respNode, err := s.lookUpByUuid(ctx, node.GetUuid(), req.WithCommits, req.WithExtendedStats)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		resp.Node = respNode
 		metaStreamer.LoadMetas(ctx, resp.Node)
-		return nil
+		return resp, nil
 	}
 
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 
 	if dsName == "" && dsPath == "" {
 		resp.Node = &tree.Node{Uuid: "ROOT", Path: "/"}
-		return nil
+		return resp, nil
 	}
 
 	if ds, ok := s.DataSources[dsName]; ok {
@@ -225,29 +257,35 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 		response, rErr := ds.reader.ReadNode(ctx, dsReq)
 		if rErr != nil {
-			return rErr
+			return nil, rErr
 		}
 
 		resp.Node = response.Node
 		s.updateDataSourceNode(resp.Node, dsName)
 		metaStreamer.LoadMetas(ctx, resp.Node)
 
-		return nil
+		return resp, nil
 	}
 
-	return errors.NotFound(node.GetPath(), "Not found")
+	return nil, errors.NotFound(node.GetPath(), "Not found")
 }
 
-func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream) error {
+func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer) error {
 
+	ctx := resp.Context()
 	defer track("ListNodes", ctx, time.Now(), req, resp)
-	metaStreamer := meta.NewStreamLoader(ctx)
+
+	/*mainCtx := s.MainCtx
+	mainCtx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(mainCtx))
+	mainCtx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(mainCtx))*/
+	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
+	metaStreamer := meta.NewStreamLoader(mainCtx)
+
 	defer metaStreamer.Close()
 
 	// Special case to get ancestors
 	if req.Ancestors {
 
-		defer resp.Close()
 		// FIRST FIND NODE & DS
 		var dsName, dsPath string
 		sendNode := req.Node
@@ -275,10 +313,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 			if dsName != "" && dsPath == "" {
 				sendNode.Uuid = "DATASOURCE:" + dsName
 			} else {
-				readResp := &tree.ReadNodeResponse{}
 				// Pass MetaStreamer to avoid spinning a new one
 				msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
-				if err := s.ReadNode(msCtx, &tree.ReadNodeRequest{Node: sendNode}, readResp); err != nil {
+				if readResp, err := s.ReadNode(msCtx, &tree.ReadNodeRequest{Node: sendNode}); err != nil {
 					return err
 				} else {
 					sendNode = readResp.Node
@@ -303,7 +340,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 				return errors.InternalServerError(common.ServiceTree, "Cannot send List request to underlying datasource %s", err.Error())
 			}
 
-			defer streamer.Close()
+			defer streamer.CloseSend()
 			for {
 				listResponse, err := streamer.Recv()
 				if listResponse == nil || err != nil {
@@ -340,10 +377,9 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 }
 
 // ListNodesWithLimit implementation for the TreeServer
-func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.Loader, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream, cursorIndex *int64, numberSent *int64) error {
+func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.Loader, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesServer, cursorIndex *int64, numberSent *int64) error {
 
 	defer track("ListNodesWithLimit", ctx, time.Now(), req, resp)
-	defer resp.Close()
 
 	node := req.GetNode()
 
@@ -379,7 +415,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				Uuid: "DATASOURCE:" + name,
 				Path: name,
 			}
-			outputNode.SetMeta("name", name)
+			outputNode.MustSetMeta(common.MetaNamespaceNodeName, name)
 			if size, er := s.dsSize(ctx, s.DataSources[name]); er == nil {
 				outputNode.Size = size
 			} else {
@@ -428,7 +464,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			log.Logger(ctx).Error("ListNodesWithLimit", zap.Error(err))
 			return err
 		}
-		defer stream.Close()
+		defer stream.CloseSend()
 
 		for {
 			clientResponse, err := stream.Recv()
@@ -477,7 +513,7 @@ func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
 	if er != nil {
 		return 0, er
 	}
-	defer st.Close()
+	defer st.CloseSend()
 	var size int64
 	for {
 		if r, e := st.Recv(); e != nil {
@@ -490,9 +526,9 @@ func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
 }
 
 // UpdateNode implementation for the TreeServer
-func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) error {
+func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest) (*tree.UpdateNodeResponse, error) {
 
-	defer track("UpdateNode", ctx, time.Now(), req, resp)
+	defer track("UpdateNode", ctx, time.Now(), req, nil)
 
 	from := req.GetFrom()
 	to := req.GetTo()
@@ -500,10 +536,10 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	dsNameFrom, dsPathFrom := s.treeNodeToDataSourcePath(from)
 	dsNameTo, dsPathTo := s.treeNodeToDataSourcePath(to)
 	if dsNameFrom == "" || dsNameTo == "" || dsPathFrom == "" || dsPathTo == "" {
-		return errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
+		return nil, errors.Forbidden(common.ServiceTree, "Cannot write to root node or to datasource node")
 	}
 	if dsNameFrom != dsNameTo {
-		return errors.Forbidden(common.ServiceTree, "Cannot move between two different datasources")
+		return nil, errors.Forbidden(common.ServiceTree, "Cannot move between two different datasources")
 	}
 
 	if ds, ok := s.DataSources[dsNameTo]; ok {
@@ -515,24 +551,22 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 		response, _ := ds.writer.UpdateNode(ctx, req)
 
-		resp.Success = response.Success
-		resp.Node = response.Node
-
-		return nil
+		return &tree.UpdateNodeResponse{Success: response.Success, Node: response.Node}, nil
 	}
 
-	return errors.Forbidden(common.ServiceTree, "Unknown data source")
+	return nil, errors.Forbidden(common.ServiceTree, "Unknown data source")
 }
 
 // DeleteNode implementation for the TreeServer
-func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) error {
+func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest) (*tree.DeleteNodeResponse, error) {
 
+	resp := &tree.DeleteNodeResponse{}
 	defer track("DeleteNode", ctx, time.Now(), req, resp)
 
 	node := req.GetNode()
 	dsName, dsPath := s.treeNodeToDataSourcePath(node)
 	if dsName == "" || dsPath == "" {
-		return errors.Forbidden(common.ServiceTree, "Cannot delete root node or datasource node")
+		return nil, errors.Forbidden(common.ServiceTree, "Cannot delete root node or datasource node")
 	}
 
 	if ds, ok := s.DataSources[dsName]; ok {
@@ -540,15 +574,15 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 		node.Path = dsPath
 
 		if response, e := ds.writer.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
-			return e
+			return nil, e
 		} else {
 			resp.Success = response.Success
 		}
 
-		return nil
+		return resp, nil
 	}
 
-	return errors.Forbidden(common.ServiceTree, "Unknown data source")
+	return nil, errors.Forbidden(common.ServiceTree, "Unknown data source")
 }
 
 func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
@@ -564,12 +598,11 @@ func (s *TreeServer) PublishChange(change *tree.NodeChangeEvent) {
 	}
 }
 
-func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesStream) error {
+func (s *TreeServer) StreamChanges(req *tree.StreamChangesRequest, streamer tree.NodeChangesStreamer_StreamChangesServer) error {
 
 	li := newListener()
 	s.listeners = append(s.listeners, li)
 	defer func() {
-		streamer.Close()
 		var cleared []*changesListener
 		for _, l := range s.listeners {
 			if l == li {
@@ -631,7 +664,7 @@ func (s *TreeServer) StreamChanges(ctx context.Context, req *tree.StreamChangesR
 			wg.Add(2)
 			go func() {
 				defer wg.Done()
-				s.ListNodes(ctx, &tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
+				s.ListNodes(&tree.ListNodesRequest{Node: scan, Recursive: true}, listNodeStreamer)
 			}()
 			go func() {
 				defer wg.Done()

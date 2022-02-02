@@ -32,6 +32,7 @@ import Session from './Session'
 import PydioApi from 'pydio/http/api'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk'
 
+import MetaNodeProvider from 'pydio/model/meta-node-provider'
 
 class Store extends Observable{
 
@@ -42,6 +43,13 @@ class Store extends Observable{
         this._blacklist = [".ds_store", ".pydio"];
 
         this._pauseRequired = false;
+
+        MetaNodeProvider.RegisterLoaderHook('uploads',  (node, options = null) => {
+            this._sessions.forEach(session => {
+                this.sessionToNodes(session, node)
+            })
+        })
+
     }
 
     // Required for backward compat
@@ -57,6 +65,96 @@ class Store extends Observable{
         }
     }
 
+    makeStatusString(item){
+        return Pydio.getMessages()['html_uploader.status.' + (item.getType()==='file'?'file':'dir')+'.' + item.getStatus()]
+    }
+
+    createNode(item, path){
+        const n = new TreeNode()
+        n.Path = LangUtils.trim(path, '/')
+        n.Type = item.getType() === 'file' ? 'LEAF' : 'COLLECTION'
+        if(item.getSize){
+            n.Size = item.getSize()
+        }
+        n.MTime = Math.round(new Date() / 1000);
+        n.MetaStore = {
+            'local:entryDescription':'"'+ this.makeStatusString(item) + '"',
+            'local:UploadStatus': '"' + item.getStatus()+'"',
+            'local:UploadProgress': item.getProgress() || 0
+        }
+        return MetaNodeProvider.parseTreeNode(n)
+    }
+
+    sessionToNodes(session, refNode = null) {
+        if(refNode === null){
+            refNode = session.getTargetNode();
+        }
+        const refRepoObject = Pydio.getInstance().user.getActiveRepositoryObject()
+        const refPath = refNode.getPath()
+        session.walk((item)=>{
+            const getRefPath = (item) => (refPath + '/' + item.getLabel()).replace('//', '/')
+
+            let childNodePath = getRefPath(item)
+
+            if (!refNode.findChildByPath(childNodePath) && item.getStatus() !== StatusItem.StatusLoaded && item.getStatus() !== StatusItem.StatusError){
+                //console.log('Adding childNode', childNodePath)
+                refNode.addChild(this.createNode(item, childNodePath))
+            }
+            item.observe('update_label', (label) => {
+                //console.log('label updated', label, item.getFullPath())
+                const updatedNode = this.createNode(item, getRefPath(item))
+                refNode.addChild(updatedNode);
+            })
+            item.observe('progress', (pg) => {
+                let realChild = refNode.findChildByPath(getRefPath(item))
+                if(!realChild){
+                    realChild = this.createNode(item, getRefPath(item));
+                    refNode.addChild(realChild)
+                }
+                if(item.getType() === 'file' && realChild.getMetadata().get("local:UploadProgress") !== pg){
+                    //console.log('Update progress', pg)
+                    realChild.getMetadata().set('local:entryDescription', this.makeStatusString(item))
+                    realChild.getMetadata().set("local:UploadStatus", item.getStatus());
+                    realChild.getMetadata().set("local:UploadProgress", pg);
+                    realChild.setMetadata(realChild.getMetadata(), true)
+                }
+            })
+            item.observe('status', (st) => {
+                const realChild = refNode.findChildByPath(getRefPath(item))
+                if(realChild){
+                    if(st === StatusItem.StatusLoaded){
+                        realChild.getMetadata().delete('local:entryDescription')
+                        realChild.getMetadata().delete('local:UploadStatus')
+                        realChild.getMetadata().delete('local:UploadProgress')
+                    } else {
+                        realChild.getMetadata().set('local:UploadStatus', st)
+                        realChild.getMetadata().set('local:entryDescription', this.makeStatusString(item))
+                    }
+                    realChild.setMetadata(realChild.getMetadata(), true)
+                }
+                if(item.getStatus() === StatusItem.StatusError){
+                    setTimeout(() => {
+                        const realChild = refNode.findChildByPath(getRefPath(item))
+                        //console.log('Loaded', childNode, realChild)
+                        if(realChild && realChild.getParent() && !realChild.getMetadata().has("uuid")){
+                            //console.log('Removing Temp childNode')
+                            realChild.getParent().removeChild(realChild);
+                        }
+                    }, 1500)
+                }
+            })
+        }, (item)=>{
+            const comparePath = LangUtils.trim(refRepoObject.getSlug() + refNode.getPath(), '/')
+            let itemDir = PathUtils.getDirname(item.getFullPath());
+            return (
+                refRepoObject.getId() === item.getRepositoryId()
+                && itemDir === comparePath
+                //&& item.getStatus() !== StatusItem.StatusLoaded
+                //&& item.getStatus() !== StatusItem.StatusError
+            )
+        })
+    }
+
     pushSession(session) {
         this._sessions.push(session);
         session.Task = Task.create(session);
@@ -67,8 +165,12 @@ class Store extends Observable{
             if(session.getChildren().length === 0) {
                 this.removeSession(session);
             }
+            this.sessionToNodes(session);
             this.notify('update');
         });
+        session.observe('child_added', ()=>{
+            this.sessionToNodes(session);
+        })
         this.notify('update');
         session.observe('status', (s) => {
             if(s === 'ready'){
@@ -349,7 +451,7 @@ class Store extends Observable{
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null, targetRepositoryId = null){
 
         const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-        const session = new Session(targetRepositoryId || Pydio.getInstance().user.activeRepository, targetNode);
+        const session = new Session(targetRepositoryId || Pydio.getInstance().user.activeRepository, targetNode);
         this.pushSession(session);
         const filter = (refPath) => {
             if(filterFunction && !filterFunction(refPath)){
@@ -358,21 +460,23 @@ class Store extends Observable{
             return this._blacklist.indexOf(PathUtils.getBasename(refPath).toLowerCase()) === -1;
         };
 
-        const enqueue = (item, isFolder=false) => {
-            if(filterFunction && !filterFunction(item)){
-                return;
-            }
-            if(accumulator){
-                accumulator.push(item)
-            } else if (isFolder) {
-                session.pushFolder(item);
-            } else {
-                session.pushFile(item);
-            }
-        };
+        if(targetNode && targetNode.isLeaf() && targetNode.getMetadata().has('local:dropFunc')){
+            const dropFunc = targetNode.getMetadata().get('local:dropFunc');
+            dropFunc('native', session, items, files, targetNode).then(() => {
+                session.prepare(overwriteStatus).then(()=>{
+                    this.notify('update')
+                }).catch((e) => {
+                    this.notify('update')
+                }) ;
+            }).catch((e) => {
+                this.removeSession(session);
+                console.error(e);
+            })
+            return;
+        }
 
         if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
-            let error = (global.console ? global.console.log : function(err){global.alert(err); }) ;
+            let error = (console ? console.log : function(err){alert(err); }) ;
             let length = items.length;
             const promises = [];
             for (let i = 0; i < length; i++) {
@@ -401,7 +505,6 @@ class Store extends Observable{
                 } else if (entry.isDirectory) {
 
                     entry.folderItem = new FolderItem(entry.fullPath, targetNode, session);
-                    //enqueue(f, true);
                     promises.push(this.recurseDirectory(entry, (fileEntry) => {
                         const relativePath = fileEntry.fullPath;
                         return new Promise((resolve, reject) => {

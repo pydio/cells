@@ -60,7 +60,7 @@ class CreateCellDialog extends React.Component {
     }
 
     componentDidMount() {
-        //this.refs.title.focus();
+        this.refs.title.focus();
         this.state.model.observe('update', ()=>{this.forceUpdate()});
     }
 
@@ -128,18 +128,7 @@ class CreateCellDialog extends React.Component {
             content = (
                 <div>
                     <div>{this.m(275)}</div>
-                    <ModernTextField
-                        focusOnMount={true}
-                        floatingLabelText={this.m(276)}
-                        value={model.getLabel()}
-                        onChange={(e,v)=>{model.setLabel(v)}}
-                        fullWidth={true}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && model.getLabel()) {
-                                this.submit()
-                            }
-                        }}
-                    />
+                    <ModernTextField ref={"title"} floatingLabelText={this.m(276)} value={model.getLabel()} onChange={(e,v)=>{model.setLabel(v)}} fullWidth={true}/>
                     <ModernTextField floatingLabelText={this.m(277)} value={model.getDescription()} onChange={(e,v)=>{model.setDescription(v)}} fullWidth={true}/>
                 </div>
             );

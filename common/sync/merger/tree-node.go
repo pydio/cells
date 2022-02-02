@@ -29,14 +29,13 @@ import (
 	"strings"
 	"sync"
 
-	json "github.com/pydio/cells/x/jsonx"
-
 	"github.com/gobwas/glob"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/sync/model"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 // TreeNode builds a Merkle Tree but with N children and the ability

@@ -28,17 +28,17 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pydio/cells/common/proto/sync"
+	"google.golang.org/grpc"
 
-	"github.com/micro/go-micro"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/data/source/index"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/data/source/index"
 )
 
 func init() {
@@ -49,37 +49,38 @@ func init() {
 
 		for _, source := range sources {
 
-			name := common.ServiceDataIndex_ + source
+			name := common.ServiceGrpcNamespace_ + common.ServiceDataIndex_ + source
+			sourceOpt := source
 
 			service.NewService(
-				service.Name(common.ServiceGrpcNamespace_+name),
+				service.Name(name),
 				service.Context(ctx),
+				//service.WithLogger(log.Logger(ctx)),
 				service.Tag(common.ServiceTagDatasource),
 				service.Description("Datasource indexation service"),
 				service.Source(source),
 				service.Fork(true),
 				service.AutoStart(false),
 				service.Unique(true),
-				service.WithStorage(index.NewDAO, func(s service.Service) string {
+				service.WithStorage(index.NewDAO, func(o *service.ServiceOptions) string {
 					// Returning a prefix for the dao
-					return strings.Replace(name, ".", "_", -1)
+					return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
 				}),
-				service.WithMicro(func(m micro.Service) error {
+				service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
 
-					server := m.Server()
-					sourceOpt := server.Options().Metadata["source"]
 					dsObject, e := config.GetSourceInfoByName(sourceOpt)
 					if e != nil {
 						return fmt.Errorf("cannot find datasource configuration for " + sourceOpt)
 					}
-					engine := NewTreeServer(dsObject)
-					tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
-					tree.RegisterNodeProviderHandler(m.Options().Server, engine)
-					tree.RegisterNodeReceiverStreamHandler(m.Options().Server, engine)
-					tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
-					tree.RegisterSessionIndexerHandler(m.Options().Server, engine)
-					object.RegisterResourceCleanerEndpointHandler(m.Options().Server, engine)
-					sync.RegisterSyncEndpointHandler(m.Options().Server, engine)
+					engine := NewTreeServer(dsObject, name, servicecontext.GetDAO(ctx).(index.DAO))
+					tree.RegisterNodeReceiverEnhancedServer(srv, engine)
+					tree.RegisterNodeProviderEnhancedServer(srv, engine)
+					tree.RegisterNodeReceiverStreamEnhancedServer(srv, engine)
+					tree.RegisterNodeProviderStreamerEnhancedServer(srv, engine)
+					tree.RegisterSessionIndexerEnhancedServer(srv, engine)
+
+					object.RegisterResourceCleanerEndpointEnhancedServer(srv, engine)
+					sync.RegisterSyncEndpointEnhancedServer(srv, engine)
 
 					return nil
 				}),

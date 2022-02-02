@@ -27,143 +27,138 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/crypto"
-	"github.com/pydio/cells/common/log"
-	enc "github.com/pydio/cells/common/proto/encryption"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/idm/key"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/log"
+	enc "github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/idm/key"
 )
 
-type userKeyStore struct{}
+type userKeyStore struct {
+	enc.UnimplementedUserKeyStoreServer
+	dao            key.DAO
+	masterPassword []byte
+}
 
 // NewUserKeyStore creates a master password based
-func NewUserKeyStore() (enc.UserKeyStoreHandler, error) {
-	return &userKeyStore{}, nil
+func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) enc.NamedUserKeyStoreServer {
+	masterPasswordStr, err := keyring.Get(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey)
+	if err != nil {
+		log.Fatal("could not get master password")
+	}
+
+	masterPassword, err := base64.StdEncoding.DecodeString(masterPasswordStr)
+	if err != nil {
+		log.Fatal("could not decode string password")
+	}
+
+	return &userKeyStore{
+		dao:            dao,
+		masterPassword: masterPassword,
+	}
 }
 
-func (ukm *userKeyStore) getDAO(ctx context.Context) (key.DAO, error) {
-	dao := servicecontext.GetDAO(ctx)
-	if dao == nil {
-		return nil, errors.InternalServerError(common.ServiceUserKey, "No DAO found Wrong initialization")
-	}
-
-	keyDao, ok := dao.(key.DAO)
-	if !ok {
-		return nil, errors.New(common.ServiceUserKey, "unsupported dao", 500)
-	}
-	return keyDao, nil
+func (ukm *userKeyStore) Name() string {
+	return ServiceName
 }
 
-func (ukm *userKeyStore) AddKey(ctx context.Context, req *enc.AddKeyRequest, rsp *enc.AddKeyResponse) error {
-	dao, err := ukm.getDAO(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = seal(req.Key, []byte(req.StrPassword))
-	if err != nil {
-		return err
-	}
-
-	return dao.SaveKey(req.Key)
+func (ukm *userKeyStore) getDAO() key.DAO {
+	return ukm.dao
 }
 
-func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest, rsp *enc.GetKeyResponse) error {
+func (ukm *userKeyStore) AddKey(ctx context.Context, req *enc.AddKeyRequest) (*enc.AddKeyResponse, error) {
 
-	dao, err := ukm.getDAO(ctx)
+	err := seal(req.Key, []byte(req.StrPassword))
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	return &enc.AddKeyResponse{}, ukm.dao.SaveKey(req.Key)
+}
+
+func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*enc.GetKeyResponse, error) {
+
+	rsp := &enc.GetKeyResponse{}
 
 	// TODO: Extract user / password info from Context
 	user := common.PydioSystemUsername
-	pwd := config.Vault().Val("masterPassword").Bytes()
+	pwd := ukm.masterPassword
 
-	rsp.Key, err = dao.GetKey(user, req.KeyID)
+	var err error
+	rsp.Key, err = ukm.dao.GetKey(user, req.KeyID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if rsp.Key == nil {
-		return nil
+		return nil, nil
 	}
-	return open(rsp.Key, pwd)
+	return rsp, open(rsp.Key, pwd)
 }
 
-func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKeysRequest, rsp *enc.AdminListKeysResponse) error {
+func (ukm *userKeyStore) AdminListKeys(ctx context.Context, req *enc.AdminListKeysRequest) (*enc.AdminListKeysResponse, error) {
 
-	keyDao, err := ukm.getDAO(ctx)
-	if err != nil {
-		return err
-	}
+	rsp := &enc.AdminListKeysResponse{}
+	var err error
 
-	rsp.Keys, err = keyDao.ListKeys(common.PydioSystemUsername)
-	return err
+	rsp.Keys, err = ukm.dao.ListKeys(common.PydioSystemUsername)
+	return rsp, err
 }
 
-func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreateKeyRequest, rsp *enc.AdminCreateKeyResponse) error {
+func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreateKeyRequest) (*enc.AdminCreateKeyResponse, error) {
 
-	keyDao, err := ukm.getDAO(ctx)
-	if err != nil {
-		return err
-	}
+	keyDao := ukm.getDAO()
+
+	rsp := &enc.AdminCreateKeyResponse{}
 
 	if _, err := keyDao.GetKey(common.PydioSystemUsername, req.KeyID); err != nil {
-		if errors.Parse(err.Error()).Code == 404 {
-			return createSystemKey(keyDao, req.KeyID, req.Label)
+		if errors.FromError(err).Code == 404 {
+			return rsp, createSystemKey(keyDao, ukm.masterPassword, req.KeyID, req.Label)
 		} else {
-			return err
+			return nil, err
 		}
 	} else {
-		return errors.BadRequest(common.ServiceEncKey, "Key already exists with this id!")
+		return nil, errors.BadRequest(common.ServiceEncKey, "Key already exists with this id!")
 	}
 }
 
-func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDeleteKeyRequest, rsp *enc.AdminDeleteKeyResponse) error {
+func (ukm *userKeyStore) AdminDeleteKey(ctx context.Context, req *enc.AdminDeleteKeyRequest) (*enc.AdminDeleteKeyResponse, error) {
 
-	dao, err := ukm.getDAO(ctx)
-	if err != nil {
-		return err
-	}
-	return dao.DeleteKey(common.PydioSystemUsername, req.KeyID)
+	return &enc.AdminDeleteKeyResponse{}, ukm.dao.DeleteKey(common.PydioSystemUsername, req.KeyID)
 }
 
-func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImportKeyRequest, rsp *enc.AdminImportKeyResponse) error {
+func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImportKeyRequest) (*enc.AdminImportKeyResponse, error) {
 
-	dao, err := ukm.getDAO(ctx)
-	if err != nil {
-		return err
-	}
+	var err error
 
 	log.Logger(ctx).Debug("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
-	k, err = dao.GetKey(common.PydioSystemUsername, req.Key.ID)
+	k, err = ukm.dao.GetKey(common.PydioSystemUsername, req.Key.ID)
 	if err != nil {
-		if errors.Parse(err.Error()).Code != 404 {
-			return err
+		if errors.FromError(err).Code != 404 {
+			return nil, err
 		}
 	} else if k != nil && !req.Override {
-		return errors.BadRequest(common.ServiceEncKey, fmt.Sprintf("Key already exists with [%s] id", req.Key.ID))
+		return nil, errors.BadRequest(common.ServiceEncKey, fmt.Sprintf("Key already exists with [%s] id", req.Key.ID))
 	}
 
 	log.Logger(ctx).Debug("Opening sealed key with imported password")
+	rsp := &enc.AdminImportKeyResponse{}
 	err = open(req.Key, []byte(req.StrPassword))
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.ServiceEncKey, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
+		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to decrypt %s for import, cause: %s", req.Key.ID, err.Error())
 	}
 
 	log.Logger(ctx).Debug("Sealing with master key")
-	err = sealWithMasterKey(req.Key)
+	err = seal(req.Key, ukm.masterPassword)
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.ServiceEncKey, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
+		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to encrypt %s.%s for export, cause: %s", common.PydioSystemUsername, req.Key.ID, err.Error())
 	}
 
 	if req.Key.CreationDate == 0 {
@@ -197,28 +192,28 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	})
 
 	log.Logger(ctx).Debug("Saving new key")
-	err = dao.SaveKey(req.Key)
+	err = ukm.dao.SaveKey(req.Key)
 	if err != nil {
 		rsp.Success = false
-		return errors.InternalServerError(common.ServiceEncKey, "failed to save imported key, cause: %s", err.Error())
+		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to save imported key, cause: %s", err.Error())
 	}
 
 	log.Logger(ctx).Debug("Returning response")
 	rsp.Success = true
-	return nil
+	return rsp, nil
 }
 
-func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExportKeyRequest, rsp *enc.AdminExportKeyResponse) error {
+func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExportKeyRequest) (*enc.AdminExportKeyResponse, error) {
 
 	//Get key from dao
-	dao, err := ukm.getDAO(ctx)
-	if err != nil {
-		return err
-	}
 
-	rsp.Key, err = dao.GetKey(common.PydioSystemUsername, req.KeyID)
+	var err error
+
+	rsp := &enc.AdminExportKeyResponse{}
+
+	rsp.Key, err = ukm.dao.GetKey(common.PydioSystemUsername, req.KeyID)
 	if err != nil {
-		return err
+		return rsp, err
 	}
 	log.Logger(ctx).Debug(fmt.Sprintf("Exporting key %s", rsp.Key.Content))
 
@@ -232,25 +227,25 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 	})
 
 	// We update the key
-	err = dao.SaveKey(rsp.Key)
+	err = ukm.dao.SaveKey(rsp.Key)
 	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
+		return rsp, errors.InternalServerError(common.ServiceEncKey, "failed to update key info, cause: %s", err.Error())
 	}
 
-	err = openWithMasterKey(rsp.Key)
+	err = open(rsp.Key, ukm.masterPassword)
 	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "unable to decrypt for %s with key %s, cause: %s", common.PydioSystemUsername, req.KeyID, err)
+		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to decrypt for %s with key %s, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
 
 	err = seal(rsp.Key, []byte(req.StrPassword))
 	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "unable to encrypt for %s with key %s for export, cause: %s", common.PydioSystemUsername, req.KeyID, err)
+		return rsp, errors.InternalServerError(common.ServiceEncKey, "unable to encrypt for %s with key %s for export, cause: %s", common.PydioSystemUsername, req.KeyID, err)
 	}
-	return nil
+	return rsp, nil
 }
 
 // Create a default key or create a system key with a given ID
-func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
+func createSystemKey(dao key.DAO, masterPassword []byte, keyID string, keyLabel string) error {
 	systemKey := &enc.Key{
 		ID:           keyID,
 		Owner:        common.PydioSystemUsername,
@@ -264,12 +259,7 @@ func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 		return err
 	}
 
-	masterPasswordBytes, err := getMasterPassword()
-	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "failed to get password. Make sure you have the system keyring installed. Cause: %s", err.Error())
-	}
-
-	masterKey := crypto.KeyFromPassword(masterPasswordBytes, 32)
+	masterKey := crypto.KeyFromPassword(masterPassword, 32)
 	encryptedKeyContentBytes, err := crypto.Seal(masterKey, keyContentBytes)
 	if err != nil {
 		return errors.InternalServerError(common.ServiceEncKey, "failed to encrypt the default key. Cause: %s", err.Error())
@@ -279,20 +269,8 @@ func createSystemKey(dao key.DAO, keyID string, keyLabel string) error {
 	return dao.SaveKey(systemKey)
 }
 
-func sealWithMasterKey(k *enc.Key) error {
-	masterPasswordBytes, err := getMasterPassword()
-	if len(masterPasswordBytes) == 0 {
-		return errors.InternalServerError(common.ServiceEncKey, "failed to get %s password, cause: %s", common.PydioSystemUsername, err.Error())
-	}
-	return seal(k, masterPasswordBytes)
-}
-
-func openWithMasterKey(k *enc.Key) error {
-	masterPasswordBytes, err := getMasterPassword()
-	if err != nil {
-		return errors.InternalServerError(common.ServiceEncKey, "failed to get %s password, cause: %s", common.PydioSystemUsername, err.Error())
-	}
-	return open(k, masterPasswordBytes)
+func openWithMasterKey(masterPassword []byte, k *enc.Key) error {
+	return open(k, masterPassword)
 }
 
 func seal(k *enc.Key, passwordBytes []byte) error {
@@ -329,14 +307,4 @@ func open(k *enc.Key, passwordBytes []byte) error {
 
 	k.Content = base64.StdEncoding.EncodeToString(keyPlainContentBytes)
 	return nil
-}
-
-func getMasterPassword() ([]byte, error) {
-	var masterPasswordBytes []byte
-	masterPassword := config.Vault().Val("masterPassword").String()
-	if masterPassword == "" {
-		return masterPasswordBytes, errors.InternalServerError("master.key.load", "cannot get master password")
-	}
-	masterPasswordBytes = []byte(masterPassword)
-	return masterPasswordBytes, nil
 }

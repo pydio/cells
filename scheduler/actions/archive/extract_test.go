@@ -25,7 +25,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 )
 
 func TestExtractAction_GetName(t *testing.T) {
@@ -42,10 +42,10 @@ func TestExtractAction_Init(t *testing.T) {
 		action := &ExtractAction{}
 		job := &jobs.Job{}
 		// No Parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 
 		// Valid Cmd
-		e = action.Init(job, nil, &jobs.Action{
+		e = action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
 				"format": "tar.gz",
 				"target": "path",

@@ -23,17 +23,17 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+	"time"
 
-	"github.com/micro/go-micro"
+	"github.com/pydio/cells/v4/common/config"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/service"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/net"
+	"google.golang.org/grpc"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
@@ -41,6 +41,7 @@ func init() {
 	plugins.Register("main", func(ctx context.Context) {
 
 		sources := config.SourceNamesForDataServices(common.ServiceDataObjects)
+		mm := config.ListMinioConfigsFromConfig()
 
 		for _, datasource := range sources {
 
@@ -53,41 +54,62 @@ func init() {
 				service.Fork(true),
 				service.Unique(true),
 				service.AutoStart(false),
-				service.WithMicro(func(m micro.Service) error {
-					s := m.Options().Server
-					serviceName := s.Options().Metadata["source"]
-
-					engine := &ObjectHandler{}
-
-					object.RegisterObjectsEndpointHandler(s, engine)
-
-					m.Init(
-						micro.AfterStart(func() error {
-							ctx := m.Options().Context
-							log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
-							var conf *object.MinioConfig
-							if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
-								return err
-							}
-
-							if ip, e := net.GetExternalIP(); e != nil {
-								conf.RunningHost = "127.0.0.1"
-							} else {
-								conf.RunningHost = ip.String()
-							}
-
-							conf.RunningSecure = false
-
-							engine.Config = conf
-							log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
-							go engine.StartMinioServer(ctx, serviceName)
-
-							return nil
-						}),
-					)
-
-					return nil
+				service.WithGRPC(func(c context.Context, server *grpc.Server) error {
+					mc, ok := mm[datasource]
+					if !ok {
+						return fmt.Errorf("cannot find minio config")
+					}
+					mc.RunningSecure = false
+					engine := &ObjectHandler{
+						handlerName: common.ServiceGrpcNamespace_ + common.ServiceDataObjects_ + datasource,
+						Config:      mc,
+						//MinioConsolePort: 9393,
+					}
+					object.RegisterObjectsEndpointEnhancedServer(server, engine)
+					var startErr error
+					go func() {
+						startErr = engine.StartMinioServer(c, datasource)
+					}()
+					<-time.After(1 * time.Second)
+					return startErr
 				}),
+				/*
+					service.WithMicro(func(m micro.Service) error {
+						s := m.Options().Server
+						serviceName := s.Options().Metadata["source"]
+
+						engine := &ObjectHandler{}
+
+						object.RegisterObjectsEndpointHandler(s, engine)
+
+						m.Init(
+							micro.AfterStart(func() error {
+								ctx := m.Options().Context
+								log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
+								var conf *object.MinioConfig
+								if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
+									return err
+								}
+
+								if ip, e := net.GetExternalIP(); e != nil {
+									conf.RunningHost = "127.0.0.1"
+								} else {
+									conf.RunningHost = ip.String()
+								}
+
+								conf.RunningSecure = false
+
+								engine.Config = conf
+								log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
+								go engine.StartMinioServer(ctx, serviceName)
+
+								return nil
+							}),
+						)
+
+						return nil
+					}),
+				*/
 			)
 		}
 	})

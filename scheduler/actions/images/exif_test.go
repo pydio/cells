@@ -28,20 +28,19 @@ import (
 	"path/filepath"
 	"testing"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	"github.com/pydio/cells/v4/scheduler/actions"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
 	// Ignore client pool for unit tests
-	views.IsUnitTestEnv = true
+	nodes.IsUnitTestEnv = true
 }
 
 func TestExifProcessor_GetName(t *testing.T) {
@@ -57,7 +56,7 @@ func TestExifProcessor_Init(t *testing.T) {
 
 		action := &ExifProcessor{}
 		job := &jobs.Job{}
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldBeNil)
 
 	})
@@ -70,13 +69,13 @@ func TestExifProcessor_Run(t *testing.T) {
 		action := &ExifProcessor{}
 		job := &jobs.Job{}
 		// Test action without parameters
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldBeNil)
-		action.metaClient = views.NewHandlerMock()
+		action.metaClient = nodes.NewHandlerMock()
 
 		tmpDir := os.TempDir()
-		uuidNode := uuid.NewUUID().String()
-		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "scheduler", "actions", "images", "testdata")
+		uuidNode := uuid.New()
+		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "v4", "scheduler", "actions", "images", "testdata")
 
 		data, err := ioutil.ReadFile(filepath.Join(testDir, "exif.jpg"))
 		So(err, ShouldBeNil)
@@ -91,9 +90,9 @@ func TestExifProcessor_Run(t *testing.T) {
 			Type: tree.NodeType_LEAF,
 			Uuid: uuidNode,
 		}
-		node.SetMeta("name", uuidNode+".jpg")
-		node.SetMeta(common.MetaNamespaceDatasourceName, "dsname")
-		node.SetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
+		node.MustSetMeta(common.MetaNamespaceNodeName, uuidNode+".jpg")
+		node.MustSetMeta(common.MetaNamespaceDatasourceName, "dsname")
+		node.MustSetMeta(common.MetaNamespaceNodeTestLocalFolder, tmpDir)
 
 		status := make(chan string)
 		progress := make(chan float32)

@@ -23,20 +23,20 @@ package grpc
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/service/resources"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service/resources"
 )
 
-func NewCleaner(handler *Handler, dao dao.DAO) *Cleaner {
+func NewCleaner(ctx context.Context, handler idm.RoleServiceServer) *Cleaner {
 	c := &Cleaner{}
-	c.Dao = dao
+	c.Dao = servicecontext.GetDAO(ctx)
+	c.LogCtx = ctx
 	c.handler = handler
 	c.Options = resources.PoliciesCleanerOptions{SubscribeUsers: true}
 	return c
@@ -44,7 +44,7 @@ func NewCleaner(handler *Handler, dao dao.DAO) *Cleaner {
 
 type Cleaner struct {
 	resources.PoliciesCleaner
-	handler *Handler
+	handler idm.RoleServiceServer
 }
 
 func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
@@ -52,12 +52,12 @@ func (c *Cleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 	if msg.Type != idm.ChangeEventType_DELETE || msg.User == nil {
 		return nil
 	}
-	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+	q, _ := anypb.New(&idm.RoleSingleQuery{
 		Uuid: []string{msg.User.Uuid},
 	})
-	if err := c.handler.DeleteRole(ctx, &idm.DeleteRoleRequest{
-		Query: &service.Query{SubQueries: []*any.Any{q}},
-	}, &idm.DeleteRoleResponse{}); err != nil {
+	if _, err := c.handler.DeleteRole(ctx, &idm.DeleteRoleRequest{
+		Query: &service.Query{SubQueries: []*anypb.Any{q}},
+	}); err != nil {
 		log.Logger(ctx).Error("Error while deleting role associated to user", zap.Error(err))
 		return err
 	}

@@ -1,5 +1,3 @@
-// +build ignore
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -29,15 +27,14 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/micro/go-micro/errors"
 	. "github.com/smartystreets/goconvey/convey"
 
-	common "github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/utils/cache"
-	"github.com/pydio/cells/data/meta"
-	"github.com/pydio/cells/x/configx"
+	common "github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/data/meta"
 )
 
 var (
@@ -62,43 +59,29 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func TestEmptyDao(t *testing.T) {
-
-	Convey("Test wrongly initialized server", t, func() {
-
-		s := &MetaServer{}
-		e := s.ReadNode(context.Background(), &common.ReadNodeRequest{}, &common.ReadNodeResponse{})
-		So(e, ShouldNotBeNil)
-
-		e2 := s.UpdateNode(context.Background(), &common.UpdateNodeRequest{}, &common.UpdateNodeResponse{})
-		So(e2, ShouldNotBeNil)
-	})
-}
-
 func TestMeta(t *testing.T) {
 
-	s := &MetaServer{}
+	s := &MetaServer{dao: mockDAO}
 	var e error
-	var ctx = servicecontext.WithDAO(context.Background(), mockDAO)
+	ctx := context.Background()
 
 	Convey("Simple GET from stubbed implementation", t, func() {
 
-		respObject := &common.ReadNodeResponse{}
+		//respObject := &common.ReadNodeResponse{}
 
-		e = s.ReadNode(ctx, &common.ReadNodeRequest{
+		_, e = s.ReadNode(ctx, &common.ReadNodeRequest{
 			Node: &common.Node{
 				Uuid: "test",
 			},
-		}, respObject)
+		})
 
 		// Should Be Not Found
-		So(errors.Parse(e.Error()).Code, ShouldEqual, 404)
+		So(errors.FromError(e).Code, ShouldEqual, 404)
 	})
 
 	Convey("Simple SET to stub implementation", t, func() {
 
-		respObject := &common.UpdateNodeResponse{}
-		e = s.UpdateNode(ctx, &common.UpdateNodeRequest{
+		respObject, e := s.UpdateNode(ctx, &common.UpdateNodeRequest{
 			From: &common.Node{
 				Uuid: "test",
 			},
@@ -108,17 +91,16 @@ func TestMeta(t *testing.T) {
 					"Namespace": "\"Serialized Metadata Value\"",
 				},
 			},
-		}, respObject)
+		})
 
 		So(e, ShouldBeNil)
 		So(respObject.Success, ShouldBeTrue)
 
-		resp := &common.ReadNodeResponse{}
-		e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
+		resp, e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
 			Node: &common.Node{
 				Uuid: "test",
 			},
-		}, resp)
+		})
 		So(e1, ShouldBeNil)
 		So(resp.Node.Uuid, ShouldEqual, "test")
 		So(resp.Node.MetaStore, ShouldNotBeNil)
@@ -130,8 +112,7 @@ func TestMeta(t *testing.T) {
 
 	Convey("Delete metadata by setting to empty map", t, func() {
 
-		respObject := &common.UpdateNodeResponse{}
-		e = s.UpdateNode(ctx, &common.UpdateNodeRequest{
+		respObject, e := s.UpdateNode(ctx, &common.UpdateNodeRequest{
 			From: &common.Node{
 				Uuid: "test",
 			},
@@ -141,7 +122,7 @@ func TestMeta(t *testing.T) {
 					"Namespace": "\"Serialized Metadata Value\"",
 				},
 			},
-		}, respObject)
+		})
 
 		So(e, ShouldBeNil)
 		So(respObject.Success, ShouldBeTrue)
@@ -151,16 +132,15 @@ func TestMeta(t *testing.T) {
 				Uuid:      "test",
 				MetaStore: map[string]string{},
 			},
-		}, &common.UpdateNodeResponse{})
+		})
 
-		resp := &common.ReadNodeResponse{}
-		e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
+		_, e1 := s.ReadNode(ctx, &common.ReadNodeRequest{
 			Node: &common.Node{
 				Uuid: "test",
 			},
-		}, resp)
+		})
 		So(e1, ShouldNotBeNil)
-		e2 := errors.Parse(e1.Error())
+		e2 := errors.FromError(e1)
 		So(e2.Code, ShouldEqual, 404)
 
 	})
@@ -169,13 +149,12 @@ func TestMeta(t *testing.T) {
 
 func TestSubscriber(t *testing.T) {
 
-	server := &MetaServer{}
-
-	var ctx = servicecontext.WithDAO(context.Background(), mockDAO)
+	server := &MetaServer{dao: mockDAO}
+	ctx := context.Background()
 
 	Convey("Test CreateSubscriber", t, func() {
 
-		sub := server.CreateNodeChangeSubscriber(ctx)
+		sub := server.Subscriber(ctx)
 		So(sub, ShouldNotBeNil)
 		So(sub.outputChannel, ShouldEqual, server.eventsChannel)
 
@@ -183,7 +162,7 @@ func TestSubscriber(t *testing.T) {
 
 	Convey("Test Create Event to Subscriber", t, func() {
 
-		sub := server.CreateNodeChangeSubscriber(ctx)
+		sub := server.Subscriber(ctx)
 		sub.outputChannel <- &cache.EventWithContext{
 			Ctx: ctx,
 			NodeChangeEvent: &common.NodeChangeEvent{
@@ -199,12 +178,11 @@ func TestSubscriber(t *testing.T) {
 		}
 
 		time.Sleep(100 * time.Millisecond)
-		respObject := &common.ReadNodeResponse{}
-		readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
+		respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
 			Node: &common.Node{
 				Uuid: "event-node-uid",
 			},
-		}, respObject)
+		})
 		So(readErr, ShouldBeNil)
 		So(respObject.Node.MetaStore, ShouldResemble, map[string]string{
 			"Meta1": "\"Test\"",
@@ -215,7 +193,7 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Update Event to Subscriber", t, func() {
 
 		ctx := ctx
-		sub := server.CreateNodeChangeSubscriber(ctx)
+		sub := server.Subscriber(ctx)
 		server.UpdateNode(ctx, &common.UpdateNodeRequest{
 			To: &common.Node{
 				Uuid: "event-node-uid",
@@ -223,7 +201,7 @@ func TestSubscriber(t *testing.T) {
 					"Meta1": "\"FirstValue\"",
 				},
 			},
-		}, &common.UpdateNodeResponse{})
+		})
 
 		sub.outputChannel <- &cache.EventWithContext{
 			Ctx: ctx,
@@ -241,12 +219,11 @@ func TestSubscriber(t *testing.T) {
 
 		time.Sleep(100 * time.Millisecond)
 
-		respObject := &common.ReadNodeResponse{}
-		readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
+		respObject, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
 			Node: &common.Node{
 				Uuid: "event-node-uid",
 			},
-		}, respObject)
+		})
 		So(readErr, ShouldBeNil)
 		So(respObject.Node.MetaStore, ShouldResemble, map[string]string{
 			"Meta1": "\"NewValue\"",
@@ -257,7 +234,7 @@ func TestSubscriber(t *testing.T) {
 	Convey("Test Delete Event to Subscriber", t, func() {
 
 		ctx := ctx
-		sub := server.CreateNodeChangeSubscriber(ctx)
+		sub := server.Subscriber(ctx)
 		server.UpdateNode(ctx, &common.UpdateNodeRequest{
 			To: &common.Node{
 				Uuid: "event-node-uid",
@@ -265,7 +242,7 @@ func TestSubscriber(t *testing.T) {
 					"Meta1": "\"FirstValue\"",
 				},
 			},
-		}, &common.UpdateNodeResponse{})
+		})
 
 		sub.outputChannel <- &cache.EventWithContext{
 			Ctx: ctx,
@@ -279,15 +256,14 @@ func TestSubscriber(t *testing.T) {
 
 		time.Sleep(100 * time.Millisecond)
 
-		respObject := &common.ReadNodeResponse{}
-		readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
+		_, readErr := server.ReadNode(ctx, &common.ReadNodeRequest{
 			Node: &common.Node{
 				Uuid: "event-node-uid",
 			},
-		}, respObject)
+		})
 
 		So(readErr, ShouldNotBeNil)
-		e2 := errors.Parse(readErr.Error())
+		e2 := errors.FromError(readErr)
 		So(e2.Code, ShouldEqual, 404)
 
 	})

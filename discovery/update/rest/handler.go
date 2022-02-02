@@ -23,11 +23,12 @@ package rest
 import (
 	"fmt"
 
-	"github.com/emicklei/go-restful"
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/update"
-	"github.com/pydio/cells/common/service"
+	restful "github.com/emicklei/go-restful/v3"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/update"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 type Handler struct{}
@@ -45,13 +46,14 @@ func (h *Handler) Filter() func(string) string {
 
 func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
 
+	ctx := req.Request.Context()
 	var updateRequest update.UpdateRequest
 	if e := req.ReadEntity(&updateRequest); e != nil {
 		service.RestError500(req, rsp, e)
 		return
 	}
-	cli := update.NewUpdateServiceClient(common.ServiceGrpcNamespace_+common.ServiceUpdate, defaults.NewClient())
-	response, err := cli.UpdateRequired(req.Request.Context(), &updateRequest)
+	cli := update.NewUpdateServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUpdate))
+	response, err := cli.UpdateRequired(ctx, &updateRequest)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 	} else {
@@ -62,6 +64,7 @@ func (h *Handler) UpdateRequired(req *restful.Request, rsp *restful.Response) {
 
 func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
 
+	ctx := req.Request.Context()
 	var applyRequest update.ApplyUpdateRequest
 	if e := req.ReadEntity(&applyRequest); e != nil {
 		service.RestError500(req, rsp, e)
@@ -72,8 +75,8 @@ func (h *Handler) ApplyUpdate(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	cli := update.NewUpdateServiceClient(common.ServiceGrpcNamespace_+common.ServiceUpdate, defaults.NewClient())
-	response, err := cli.ApplyUpdate(req.Request.Context(), &applyRequest)
+	cli := update.NewUpdateServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUpdate))
+	response, err := cli.ApplyUpdate(ctx, &applyRequest)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 	} else {

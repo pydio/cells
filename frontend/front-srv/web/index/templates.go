@@ -3,7 +3,7 @@ package index
 import (
 	"html/template"
 
-	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/i18n"
 )
 
 // TplConfFilterFunc takes a TplConf and modifies it

@@ -23,7 +23,7 @@ package idm
 import (
 	"strings"
 
-	json "github.com/pydio/cells/x/jsonx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 type WsAttributes struct {

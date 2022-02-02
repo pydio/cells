@@ -27,7 +27,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/v4/common/config"
 )
 
 // delConfigCmd deletes a configuration

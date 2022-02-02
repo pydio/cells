@@ -31,19 +31,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/endpoints/memory"
-	"github.com/pydio/cells/common/sync/model"
-	context2 "github.com/pydio/cells/common/utils/context"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/endpoints/memory"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 type ObjectsClient interface {
@@ -98,7 +96,7 @@ func (c *Abstract) PatchUpdateSnapshot(ctx context.Context, patch interface{}) {
 
 // Convert micro errors to user readable errors
 func (c *Abstract) parseMicroErrors(e error) error {
-	er := errors.Parse(e.Error())
+	er := errors.FromError(e)
 	if er.Code == 408 {
 		return fmt.Errorf("cannot connect (408 Timeout): the gRPC port may not be correctly opened in the server")
 	} else if strings.Contains(er.Detail, "connection refused") {
@@ -132,7 +130,7 @@ func (c *Abstract) LoadNode(ctx context.Context, path string, extendedStats ...b
 	out.Path = c.unrooted(resp.Node.Path)
 	if !resp.Node.IsLeaf() && resp.Node.Size > 0 {
 		// We know that index answers with total size of folder
-		resp.Node.SetMeta("RecursiveChildrenSize", resp.Node.Size)
+		resp.Node.MustSetMeta(model.MetaRecursiveChildrenSize, resp.Node.Size)
 	}
 	return out, nil
 }
@@ -146,14 +144,16 @@ func (c *Abstract) Walk(walknFc model.WalkNodesFunc, root string, recursive bool
 	if err != nil {
 		return err
 	}
-	s, e := cli.ListNodes(ctx, &tree.ListNodesRequest{
+	send, can := context.WithTimeout(ctx, 2*time.Minute)
+	defer can()
+	s, e := cli.ListNodes(send, &tree.ListNodesRequest{
 		Node:      &tree.Node{Path: c.rooted(root)},
 		Recursive: recursive,
-	}, client.WithRequestTimeout(2*time.Minute))
+	})
 	if e != nil {
 		return e
 	}
-	defer s.Close()
+	defer s.CloseSend()
 	for {
 		resp, e := s.Recv()
 		if e == io.EOF || e == io.ErrUnexpectedEOF || (e == nil && resp == nil) {
@@ -344,14 +344,16 @@ func (c *Abstract) receiveEvents(ctx context.Context, changes chan *tree.NodeCha
 		}
 		return
 	}
-	streamer, e := cli.StreamChanges(ctx, &tree.StreamChangesRequest{RootPath: c.Root}, client.WithRequestTimeout(10*time.Minute))
+	sendCtx, can := context.WithTimeout(ctx, 10*time.Minute)
+	defer can()
+	streamer, e := cli.StreamChanges(sendCtx, &tree.StreamChangesRequest{RootPath: c.Root})
 	if e != nil {
 		if !c.watchCtxCancelled {
 			finished <- e
 		}
 		return
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	if c.watchConn != nil {
 		c.watchConn <- model.WatchConnected
 	}
@@ -422,7 +424,7 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	}
 	read, e := cliRead.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: c.rooted(name)}})
 	if e != nil {
-		if errors.Parse(e.Error()).Code == 404 {
+		if errors.FromError(e).Code == 404 {
 			return nil
 		} else {
 			return e
@@ -432,7 +434,9 @@ func (c *Abstract) DeleteNode(ctx context.Context, name string) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = cliWrite.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: proto.Clone(read.Node).(*tree.Node)}, client.WithRequestTimeout(5*time.Minute))
+	sendCtx, can := context.WithTimeout(ctx, 5*time.Minute)
+	defer can()
+	_, err = cliWrite.DeleteNode(sendCtx, &tree.DeleteNodeRequest{Node: proto.Clone(read.Node).(*tree.Node)})
 	return
 }
 
@@ -447,7 +451,9 @@ func (c *Abstract) MoveNode(ct context.Context, oldPath string, newPath string) 
 		to := from.Clone()
 		to.Path = c.rooted(newPath)
 		from.Path = c.rooted(from.Path)
-		_, e := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: from, To: to}, client.WithRequestTimeout(5*time.Minute))
+		sendCtx, can := context.WithTimeout(ctx, 5*time.Minute)
+		defer can()
+		_, e := cli.UpdateNode(sendCtx, &tree.UpdateNodeRequest{From: from, To: to})
 		if e == nil && to.Type == tree.NodeType_COLLECTION {
 			c.readNodeBlocking(to)
 		}
@@ -529,7 +535,9 @@ func (c *Abstract) readNodeBlocking(n *tree.Node) {
 		if err != nil {
 			return err
 		}
-		_, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: n}, client.WithRequestTimeout(1*time.Second))
+		sendCtx, can := context.WithTimeout(ctx, 1*time.Second)
+		defer can()
+		_, e := cli.ReadNode(sendCtx, &tree.ReadNodeRequest{Node: n})
 		return e
 	}, 1*time.Second, 10*time.Second)
 }
@@ -575,7 +583,7 @@ func (c *Abstract) getContext(ctx ...context.Context) context.Context {
 	} else {
 		ct = context.Background()
 	}
-	ct = context2.WithAdditionalMetadata(ct, map[string]string{
+	ct = metadata.WithAdditionalMetadata(ct, map[string]string{
 		common.XPydioClientUuid: c.ClientUUID,
 	})
 	return ct

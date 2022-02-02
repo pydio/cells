@@ -23,40 +23,51 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/scheduler/timer"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/server/generic"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/scheduler/timer"
 )
 
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceTimer),
+			service.Name(common.ServiceGenericNamespace_+common.ServiceTimer),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTasks, []string{}),
 			service.Description("Triggers events based on a scheduler pattern"),
-			service.WithMicro(func(m micro.Service) error {
+			service.WithGeneric(func(c context.Context, server *generic.Server) error {
 
-				producer := timer.NewEventProducer(m.Options().Context)
+				producer := timer.NewEventProducer(c)
 				subscriber := &timer.JobsEventsSubscriber{
 					Producer: producer,
 				}
-				m.Options().Server.Subscribe(
-					m.Options().Server.NewSubscriber(
-						common.TopicJobConfigEvent,
-						subscriber,
-					),
-				)
+				if er := broker.SubscribeCancellable(c, common.TopicJobConfigEvent, func(message broker.Message) error {
+					msg := &jobs.JobChangeEvent{}
+					if ctx, e := message.Unmarshal(msg); e == nil {
+						return subscriber.Handle(ctx, msg)
+					}
+					return nil
+				}); er != nil {
+					return fmt.Errorf("cannot subscribe on JobConfigEvent topic %v", er)
+				}
 
-				producer.Start()
+				// TODO v4
+				go producer.Start()
 
+				//select {
+				//case <-c.Done():
+				//	fmt.Println("Handler is done")
+				//}
 				return nil
+
 			}),
 		)
 	})

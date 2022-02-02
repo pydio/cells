@@ -24,7 +24,7 @@ package mtree
 import (
 	"sync"
 
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 // TreeNode definition
@@ -54,7 +54,7 @@ func (t *TreeNode) SetMeta(name string, value interface{}) {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
-	t.Node.SetMeta(name, value)
+	t.Node.MustSetMeta(name, value)
 }
 
 // GetMeta gets a meta from a meta store using the lock

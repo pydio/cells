@@ -37,7 +37,7 @@ var Client = function (_ApiClient) {
             args[_key] = arguments[_key];
         }
 
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Client.__proto__ || Object.getPrototypeOf(Client)).call.apply(_ref, [this].concat(args))), _this), _this.basePath = '', _temp), _possibleConstructorReturn(_this, _ret);
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Client.__proto__ || Object.getPrototypeOf(Client)).call.apply(_ref, [this].concat(args))), _this), _this.basePath = '/a', _temp), _possibleConstructorReturn(_this, _ret);
     }
 
     _createClass(Client, [{
@@ -84,7 +84,7 @@ var Client = function (_ApiClient) {
         value: function pollDiscovery(reloadObserver) {
             var _this3 = this;
 
-            _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/a/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(function (response) {
+            _get(Client.prototype.__proto__ || Object.getPrototypeOf(Client.prototype), 'callApi', this).call(this, "/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(function (response) {
                 // A proper response means that server is ready - but gateway may be restarting!
                 setTimeout(reloadObserver, 6000);
             }).catch(function (reason) {

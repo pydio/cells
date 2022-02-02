@@ -30,15 +30,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/blevesearch/bleve"
-	"github.com/blevesearch/bleve/index/scorch"
-	"github.com/blevesearch/bleve/index/store/boltdb"
-	"github.com/blevesearch/bleve/mapping"
-	"github.com/pborman/uuid"
 	"github.com/rs/xid"
-	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/proto/log"
+	bleve "github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/index/scorch"
+	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
+	"github.com/blevesearch/bleve/v2/mapping"
+	log2 "github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 const (
@@ -298,7 +298,7 @@ func (s *SyslogServer) AggregatedLogs(_ string, _ string, _ int32) (chan log.Tim
 }
 
 // Resync creates a copy of current index. It has been originally used for switching analyze format from bleve to scorch.
-func (s *SyslogServer) Resync(logger *zap.Logger) error {
+func (s *SyslogServer) Resync(logger log2.ZapLogger) error {
 
 	copyDir := filepath.Join(filepath.Dir(s.indexPath), uuid.New())
 	e := os.Mkdir(copyDir, 0777)
@@ -348,7 +348,7 @@ func (s *SyslogServer) Resync(logger *zap.Logger) error {
 
 // Truncate gathers size of existing indexes, starting from last. When max is reached
 // it starts deleting all previous indexes.
-func (s *SyslogServer) Truncate(max int64, logger *zap.Logger) error {
+func (s *SyslogServer) Truncate(max int64, logger log2.ZapLogger) error {
 	logTaskInfo(logger, "Closing log server, waiting for five seconds", "info")
 	dir := filepath.Dir(s.indexPath)
 	s.Close()
@@ -376,7 +376,7 @@ func (s *SyslogServer) Truncate(max int64, logger *zap.Logger) error {
 	return nil
 }
 
-func logTaskInfo(l *zap.Logger, msg string, level string) {
+func logTaskInfo(l log2.ZapLogger, msg string, level string) {
 	if l == nil {
 		fmt.Println("[pydio.grpc.log] " + msg)
 	} else if level == "info" {

@@ -32,7 +32,7 @@ import (
 	. "github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 	"github.com/pkg/errors"
-	sql2 "github.com/pydio/cells/common/sql"
+	sql2 "github.com/pydio/cells/v4/common/sql"
 	"github.com/rubenv/sql-migrate"
 )
 
@@ -209,6 +209,14 @@ func (s *SQLManager) FindRequestCandidates(r *Request) (Policies, error) {
 	defer rows.Close()
 
 	return scanRows(rows)
+}
+
+func (s *SQLManager) FindPoliciesForResource(resource string) (Policies, error) {
+	return nil, fmt.Errorf("FindPoliciesForResource not implemented inside common/sql/ladon-manager/SQLManager as Ladon Manager interface")
+}
+
+func (s *SQLManager) FindPoliciesForSubject(subject string) (Policies, error) {
+	return nil, fmt.Errorf("FindPoliciesForSubject not implemented inside common/sql/ladon-manager/SQLManager as Ladon Manager interface")
 }
 
 func scanRows(rows *sql.Rows) (Policies, error) {

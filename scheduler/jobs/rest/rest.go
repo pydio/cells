@@ -21,44 +21,41 @@
 package rest
 
 import (
+	"context"
 	"fmt"
-
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/emicklei/go-restful"
-	"github.com/micro/go-micro/client"
-	"go.uber.org/zap"
-
 	"strings"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/jobs"
-	log2 "github.com/pydio/cells/common/proto/log"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/lang"
+	restful "github.com/emicklei/go-restful/v3"
+	"go.uber.org/zap"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	log2 "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/scheduler/lang"
 )
 
 var (
-	router *views.Router
+	router nodes.Client
 )
 
-func getRouter() *views.Router {
-	if router == nil {
-		router = views.NewStandardRouter(views.RouterOptions{WatchRegistry: true})
-	}
+func getRouter() nodes.Client {
 	return router
 }
 
 // JobsHandler implements methods accessed via the REST gateway to the job definition repository
-type JobsHandler struct{}
+type JobsHandler struct {
+	RuntimeContext context.Context
+}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (s *JobsHandler) SwaggerTags() []string {
@@ -80,7 +77,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		return
 	}
 	ctx := req.Request.Context()
-	cli := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	output := &rest.UserJobsCollection{}
 	var uName, profile string
 	if ctx.Value(claim.ContextKey) != nil {
@@ -102,7 +99,6 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-	defer streamer.Close()
 	for {
 		resp, e := streamer.Recv()
 		if e != nil {
@@ -130,7 +126,7 @@ func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) 
 			JobIDs:     hasRunning,
 		})
 		if err == nil {
-			defer stream2.Close()
+			defer stream2.CloseSend()
 			for {
 				resp, e := stream2.Recv()
 				if e != nil {
@@ -156,8 +152,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 	}
 	ctx := req.Request.Context()
 	if cmd.Cmd == jobs.Command_Delete {
-		sName, jC := registry.GetClient(common.ServiceJobs)
-		cli := jobs.NewJobServiceClient(sName, jC)
+		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		delRequest := &jobs.DeleteTasksRequest{
 			JobId:  cmd.JobId,
 			TaskID: []string{cmd.TaskId},
@@ -170,16 +165,16 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 
 	} else if cmd.Cmd == jobs.Command_RunOnce {
 
-		client.Publish(ctx, client.NewPublication(common.TopicTimerEvent, &jobs.JobTriggerEvent{
+		broker.MustPublish(ctx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
 			JobID:         cmd.JobId,
 			RunNow:        true,
 			RunTaskId:     cmd.TaskId,
 			RunParameters: cmd.RunParameters,
-		}))
+		})
 
 	} else if cmd.Cmd == jobs.Command_Active || cmd.Cmd == jobs.Command_Inactive {
 
-		cli := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient())
+		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		if jobResp, err := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: cmd.JobId}); err == nil {
 
 			job := jobResp.Job
@@ -199,7 +194,7 @@ func (s *JobsHandler) UserControlJob(req *restful.Request, rsp *restful.Response
 		}
 
 	} else {
-		cli := jobs.NewTaskServiceClient(common.ServiceGrpcNamespace_+common.ServiceTasks, defaults.NewClient())
+		cli := jobs.NewTaskServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTasks))
 		if response, err := cli.Control(ctx, &cmd); err == nil {
 			rsp.WriteEntity(response)
 		} else {
@@ -217,7 +212,7 @@ func (s *JobsHandler) UserDeleteTasks(req *restful.Request, rsp *restful.Respons
 		return
 	}
 
-	cli := jobs.NewJobServiceClient(registry.GetClient(common.ServiceJobs))
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(req.Request.Context(), common.ServiceJobs))
 	response, e := cli.DeleteTasks(req.Request.Context(), &request)
 	if e != nil {
 		service.RestErrorDetect(req, rsp, e)
@@ -326,14 +321,14 @@ func (s *JobsHandler) ListTasksLogs(req *restful.Request, rsp *restful.Response)
 	}
 	ctx := req.Request.Context()
 
-	c := log2.NewLogRecorderClient(registry.GetClient(common.ServiceJobs))
+	c := log2.NewLogRecorderClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 
 	res, err := c.ListLogs(ctx, &input)
 	if err != nil {
 		service.RestErrorDetect(req, rsp, err)
 		return
 	}
-	defer res.Close()
+	defer res.CloseSend()
 
 	logColl := &rest.LogMessageCollection{}
 	for {

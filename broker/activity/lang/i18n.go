@@ -22,21 +22,24 @@
 package lang
 
 import (
+	"embed"
 	"sync"
 
 	"github.com/nicksnyder/go-i18n/i18n"
-	i18n2 "github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/packr"
+	i18n2 "github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 var (
-	b *i18n2.I18nBundle
-	o = sync.Once{}
+	//go:embed box/*.json
+	content embed.FS
+	b       *i18n2.I18nBundle
+	o       = sync.Once{}
 )
 
 func T(lang ...string) i18n.TranslateFunc {
 	o.Do(func() {
-		b = i18n2.NewI18nBundle(packr.NewBox("../../../broker/activity/lang/box"))
+		b = i18n2.NewI18nBundle(statics.AsFS(content, "box"))
 	})
 	return b.GetTranslationFunc(lang...)
 }

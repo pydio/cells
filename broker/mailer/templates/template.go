@@ -28,10 +28,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/matcornic/hermes"
-
-	"github.com/pydio/cells/broker/mailer/lang"
-	"github.com/pydio/cells/common/proto/mailer"
+	hermes "github.com/matcornic/hermes/v2"
+	"github.com/pydio/cells/v4/broker/mailer/lang"
+	"github.com/pydio/cells/v4/common/proto/mailer"
 )
 
 func GetHermes(languages ...string) hermes.Hermes {

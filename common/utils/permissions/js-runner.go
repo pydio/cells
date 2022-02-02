@@ -29,7 +29,7 @@ import (
 	"github.com/robertkrimen/otto"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 )
 
 type JsUser struct {

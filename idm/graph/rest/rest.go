@@ -21,20 +21,19 @@
 package rest
 
 import (
-	"github.com/emicklei/go-restful"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	restful "github.com/emicklei/go-restful/v3"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service"
-	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 type GraphHandler struct{}
@@ -67,13 +66,13 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 	accessListWsNodes := accessList.GetWorkspacesNodes()
 	state.WorkspacesAccesses = accessList.GetAccessibleWorkspaces(ctx)
 
-	wsCli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	wsCli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 	query := &service2.Query{
-		SubQueries: []*any.Any{},
+		SubQueries: []*anypb.Any{},
 		Operation:  service2.OperationType_OR,
 	}
 	for wsId := range state.WorkspacesAccesses {
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 			Uuid: wsId,
 		})
 		query.SubQueries = append(query.SubQueries, q)
@@ -85,7 +84,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 			service.RestError500(req, rsp, e)
 			return
 		}
-		defer streamer.Close()
+		defer streamer.CloseSend()
 		for {
 			resp, e := streamer.Recv()
 			if resp == nil || e != nil {
@@ -137,14 +136,14 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Common Workspaces", zap.Any("common", commonWorkspaces), zap.Any("context", contextWorkspaces), zap.Any("target", targetWorkspaces))
 
-	wsCli := idm.NewWorkspaceServiceClient(common.ServiceGrpcNamespace_+common.ServiceWorkspace, defaults.NewClient())
+	wsCli := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 	query := &service2.Query{
-		SubQueries: []*any.Any{},
+		SubQueries: []*anypb.Any{},
 		Operation:  service2.OperationType_OR,
 	}
 	// Cell Workspaces accessible by both users
 	for wsId := range commonWorkspaces {
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		q, _ := anypb.New(&idm.WorkspaceSingleQuery{
 			Uuid:  wsId,
 			Scope: idm.WorkspaceScope_ROOM,
 		})
@@ -169,7 +168,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 			service.RestError500(req, rsp, e)
 			return
 		}
-		defer streamer.Close()
+		defer streamer.CloseSend()
 		for {
 			resp, e := streamer.Recv()
 			if resp == nil || e != nil {
@@ -180,19 +179,19 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Load the current user teams, to check if the current user is part of one of them
-	roleCli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
+	roleCli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
 	var uuids []string
 	for _, role := range targetUserAccessList.OrderedRoles {
 		uuids = append(uuids, role.Uuid)
 	}
-	roleQ, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{
+	roleQ, _ := anypb.New(&idm.RoleSingleQuery{
 		Uuid:   uuids,
 		IsTeam: true,
 	})
 	limitSubjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, &rest.ResourcePolicyQuery{Type: rest.ResourcePolicyQuery_CONTEXT})
 	rStreamer, e := roleCli.SearchRole(ctx, &idm.SearchRoleRequest{
 		Query: &service2.Query{
-			SubQueries: []*any.Any{roleQ},
+			SubQueries: []*anypb.Any{roleQ},
 			ResourcePolicyQuery: &service2.ResourcePolicyQuery{
 				Subjects: limitSubjects,
 			},
@@ -201,7 +200,7 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	if e != nil {
 		return
 	}
-	defer rStreamer.Close()
+	defer rStreamer.CloseSend()
 	for {
 		roleResp, er := rStreamer.Recv()
 		if er != nil {

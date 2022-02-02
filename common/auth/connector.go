@@ -24,11 +24,10 @@ import (
 	"context"
 	"net/http"
 
-	dlog "github.com/dexidp/dex/pkg/log"
-	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 )
 
 type ConnectorConfig interface {
@@ -43,7 +42,7 @@ type Connector interface{}
 type OpenerFunc func(proto.Message) (Opener, error)
 
 type Opener interface {
-	Open(string, dlog.Logger) (Connector, error)
+	Open(string, log.ZapLogger) (Connector, error)
 }
 
 var (

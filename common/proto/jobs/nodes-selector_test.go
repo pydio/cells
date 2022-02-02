@@ -24,13 +24,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/protobuf/ptypes"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/proto/jobs/bleveimpl"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/proto/jobs/bleveimpl"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func init() {
@@ -82,10 +81,10 @@ func TestNodesSelector_Filter(t *testing.T) {
 			MinSize:    500,
 			MaxSize:    10000,
 		}
-		marshalled, _ := ptypes.MarshalAny(q)
+		marshalled, _ := anypb.New(q)
 		n := &NodesSelector{
 			Query: &service.Query{
-				SubQueries: []*any.Any{marshalled},
+				SubQueries: []*anypb.Any{marshalled},
 			},
 		}
 		output, _, _ := n.Filter(bg, ActionMessage{Nodes: []*tree.Node{node}})
@@ -103,10 +102,10 @@ func TestNodesSelector_Filter(t *testing.T) {
 			MinSize:    500,
 			MaxSize:    10000,
 		}
-		marshalled, _ := ptypes.MarshalAny(q)
+		marshalled, _ := anypb.New(q)
 		n := &NodesSelector{
 			Query: &service.Query{
-				SubQueries: []*any.Any{marshalled},
+				SubQueries: []*anypb.Any{marshalled},
 			},
 		}
 
@@ -129,18 +128,18 @@ func TestNodesSelector_Filter(t *testing.T) {
 			FileName:  "file*",
 			Extension: "jpg,gif",
 		}
-		marshalled, _ := ptypes.MarshalAny(q)
+		marshalled, _ := anypb.New(q)
 		q2 := &tree.Query{
 			Type:       tree.NodeType_LEAF,
 			PathPrefix: []string{"/root"},
 			MinSize:    500,
 			MaxSize:    10000,
 		}
-		marshalled2, _ := ptypes.MarshalAny(q2)
+		marshalled2, _ := anypb.New(q2)
 
 		n := &NodesSelector{
 			Query: &service.Query{
-				SubQueries: []*any.Any{marshalled, marshalled2},
+				SubQueries: []*anypb.Any{marshalled, marshalled2},
 				Operation:  service.OperationType_AND,
 			},
 		}
@@ -154,9 +153,9 @@ func TestNodesSelector_Filter(t *testing.T) {
 			MinSize:    500,
 			MaxSize:    10000,
 		}
-		marshalled3, _ := ptypes.MarshalAny(q3)
+		marshalled3, _ := anypb.New(q3)
 
-		n.Query.SubQueries = []*any.Any{marshalled, marshalled3}
+		n.Query.SubQueries = []*anypb.Any{marshalled, marshalled3}
 		output, _, _ = n.Filter(bg, ActionMessage{Nodes: []*tree.Node{node}})
 		So(output.Nodes, ShouldBeEmpty)
 

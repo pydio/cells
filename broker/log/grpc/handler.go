@@ -28,32 +28,40 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/errors"
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/broker/log"
-	"github.com/pydio/cells/common"
-	log2 "github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/jobs"
-	proto "github.com/pydio/cells/common/proto/log"
-	"github.com/pydio/cells/common/proto/sync"
+	"github.com/pydio/cells/v4/broker/log"
+	"github.com/pydio/cells/v4/common"
+	log2 "github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	proto "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 // Handler is the gRPC interface for the log service.
 type Handler struct {
-	Repo log.MessageRepository
+	sync.UnimplementedSyncEndpointServer
+	proto.UnimplementedLogRecorderServer
+	RuntimeCtx  context.Context
+	Repo        log.MessageRepository
+	HandlerName string
+}
+
+func (h *Handler) Name() string {
+	return h.HandlerName
 }
 
 // PutLog retrieves the log messages from the proto stream and stores them in the index.
-func (h *Handler) PutLog(ctx context.Context, stream proto.LogRecorder_PutLogStream) error {
+func (h *Handler) PutLog(stream proto.LogRecorder_PutLogServer) error {
 
 	var logCount int32
 	for {
 		line, err := stream.Recv()
 		if err == io.EOF {
-			return stream.Close()
+			return nil
 		}
 
 		if err != nil {
@@ -66,7 +74,7 @@ func (h *Handler) PutLog(ctx context.Context, stream proto.LogRecorder_PutLogStr
 }
 
 // ListLogs is a simple gateway from protobuf to the indexer search engine.
-func (h *Handler) ListLogs(ctx context.Context, req *proto.ListLogRequest, stream proto.LogRecorder_ListLogsStream) error {
+func (h *Handler) ListLogs(req *proto.ListLogRequest, stream proto.LogRecorder_ListLogsServer) error {
 
 	q := req.GetQuery()
 	p := req.GetPage()
@@ -87,34 +95,37 @@ func (h *Handler) ListLogs(ctx context.Context, req *proto.ListLogRequest, strea
 	return nil
 }
 
-func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest, resp *proto.DeleteLogsResponse) error {
+// DeleteLogs removes logs based on a ListLogRequest
+func (h *Handler) DeleteLogs(ctx context.Context, req *proto.ListLogRequest) (*proto.DeleteLogsResponse, error) {
 
 	d, e := h.Repo.DeleteLogs(req.Query)
 	if e != nil {
-		return e
+		return nil, e
 	}
-	resp.Deleted = d
+	return &proto.DeleteLogsResponse{
+		Deleted: d,
+	}, nil
 
-	return nil
 }
 
 // AggregatedLogs retrieves aggregated figures from the indexer to generate charts and reports.
-func (h *Handler) AggregatedLogs(ctx context.Context, req *proto.TimeRangeRequest, stream proto.LogRecorder_AggregatedLogsStream) error {
-	return errors.NotImplemented("cannot aggregate syslogs")
+func (h *Handler) AggregatedLogs(req *proto.TimeRangeRequest, stream proto.LogRecorder_AggregatedLogsServer) error {
+	return errors.InternalServerError("not.implemented", "cannot aggregate syslogs")
 }
 
 // TriggerResync uses the request.Path as parameter. If nothing is passed, it reads all the logs from index and
 // reconstructs a new index entirely. If truncate/{int64} is passed, it truncates the log to the given size (or closer)
-func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest, response *sync.ResyncResponse) error {
+func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest) (*sync.ResyncResponse, error) {
 
-	var l *zap.Logger
+	var l log2.ZapLogger
 	var closeTask func(e error)
 	if request.Task != nil {
 		l = log2.TasksLogger(ctx)
 		theTask := request.Task
 		theTask.StartTime = int32(time.Now().Unix())
 		closeTask = func(e error) {
-			taskClient := jobs.NewJobServiceClient(common.ServiceGrpcNamespace_+common.ServiceJobs, defaults.NewClient(client.Retries(3)))
+			// TODO V4 : We passed a Retry Option Here
+			taskClient := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(h.RuntimeCtx, common.ServiceJobs))
 			theTask.EndTime = int32(time.Now().Unix())
 			if e != nil {
 				theTask.StatusMessage = "Error " + e.Error()
@@ -141,7 +152,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 			er = fmt.Errorf("wrong format for truncate (use bytesize)")
 		}
 		closeTask(er)
-		return er
+		return nil, er
 	}
 
 	go func() {
@@ -156,5 +167,5 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		closeTask(e)
 	}()
 
-	return nil
+	return &sync.ResyncResponse{}, nil
 }

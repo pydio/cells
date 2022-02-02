@@ -23,7 +23,7 @@ package images
 import (
 	"testing"
 
-	"github.com/pydio/cells/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/jobs"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -40,7 +40,7 @@ func TestCleanThumbsTask_Init(t *testing.T) {
 
 		action := &CleanThumbsTask{}
 		job := &jobs.Job{}
-		e := action.Init(job, nil, &jobs.Action{})
+		e := action.Init(job, &jobs.Action{})
 		So(e, ShouldBeNil)
 
 	})

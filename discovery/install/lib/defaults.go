@@ -23,11 +23,10 @@ package lib
 import (
 	"fmt"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils/net"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/install"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 var (

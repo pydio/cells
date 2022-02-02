@@ -24,33 +24,42 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/emicklei/go-restful"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+
+	"github.com/pydio/cells/v4/common/nodes/compose"
+
+	restful "github.com/emicklei/go-restful/v3"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	activity2 "github.com/pydio/cells/broker/activity"
-	"github.com/pydio/cells/broker/activity/render"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/activity"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/utils/i18n"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
+	activity2 "github.com/pydio/cells/v4/broker/activity"
+	"github.com/pydio/cells/v4/broker/activity/render"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/activity"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // ActivityHandler responds to activity REST requests
 type ActivityHandler struct {
-	router *views.RouterEventFilter
+	RuntimeCtx context.Context
+	router     *compose.Reverse
 }
 
-func NewActivityHandler() *ActivityHandler {
+func NewActivityHandler(ctx context.Context) *ActivityHandler {
 	return &ActivityHandler{
-		router: views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true}),
+		RuntimeCtx: ctx,
+		router: compose.ReverseClient(
+			nodes.WithContext(ctx),
+			nodes.WithRegistryWatch(servicecontext.GetRegistry(ctx)),
+		),
 	}
 }
 
@@ -66,7 +75,7 @@ func (a *ActivityHandler) Filter() func(string) string {
 
 // Internal function to retrieve activity GRPC client
 func (a *ActivityHandler) getClient() activity.ActivityServiceClient {
-	return activity.NewActivityServiceClient(registry.GetClient(common.ServiceActivity))
+	return activity.NewActivityServiceClient(grpc.GetClientConnFromCtx(a.RuntimeCtx, common.ServiceActivity))
 }
 
 // Stream returns a collection of activities
@@ -124,7 +133,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
 	serverLinks.URLS[render.ServerUrlTypeWorkspaces], _ = url.Parse("workspaces://")
 
-	defer streamer.Close()
+	defer streamer.CloseSend()
 
 	if inputReq.AsDigest {
 		// Get all collection, will be filtered by Digest() function
@@ -216,7 +225,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	collection := &rest.SubscriptionsCollection{
 		Subscriptions: []*activity.Subscription{},
 	}
-	defer streamer.Close()
+	defer streamer.CloseSend()
 	for {
 		resp, rE := streamer.Recv()
 		if rE != nil {

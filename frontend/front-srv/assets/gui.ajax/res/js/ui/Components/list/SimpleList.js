@@ -30,7 +30,7 @@ import {Toolbar, ToolbarGroup, FontIcon, Checkbox, RaisedButton, FlatButton} fro
 import {ListEntry} from './ListEntry'
 import TableListEntry from './TableListEntry'
 import TableListHeader from './TableListHeader'
-import ConfigurableListEntry from './ConfigurableListEntry'
+import {ConfigurableListEntry, NativeDroppableConfigurableListEntry} from './ConfigurableListEntry'
 import SortColumns from './SortColumns'
 import ListPaginator from './ListPaginator'
 import SimpleReactActionBar from '../views/SimpleReactActionBar'
@@ -825,12 +825,14 @@ let SimpleList = createReactClass({
                     }else{
                         data['tableKeys'] = tableKeys;
                     }
-                    components.push(React.createElement(TableListEntry, data));
+                    components.push(<TableListEntry {...data}/>);
 
                 }else{
-
-                    components.push(React.createElement(ConfigurableListEntry, data));
-
+                    if (!entry.node.isLeaf() || entry.node.getMetadata().has('local:dropFunc')){
+                        components.push(<NativeDroppableConfigurableListEntry {...data}/>);
+                    } else {
+                        components.push(<ConfigurableListEntry {...data}/>);
+                    }
                 }
             }
         }.bind(this));

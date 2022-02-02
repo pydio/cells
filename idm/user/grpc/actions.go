@@ -5,18 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pydio/cells/common/forms"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/client"
-
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -24,6 +21,7 @@ var (
 )
 
 type DeleteUsersAction struct {
+	common.RuntimeHolder
 	task   *jobs.Task
 	params map[string]string
 }
@@ -71,7 +69,7 @@ func (a *DeleteUsersAction) ProvidesProgress() bool {
 	return true
 }
 
-func (a *DeleteUsersAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (a *DeleteUsersAction) Init(job *jobs.Job, action *jobs.Action) error {
 	a.params = action.Parameters
 	return nil
 }
@@ -88,9 +86,9 @@ func (a *DeleteUsersAction) Run(ctx context.Context, channels *actions.RunnableC
 		e := fmt.Errorf("params must provide either login or groupPath")
 		return input.WithError(e), e
 	}
-	q, _ := ptypes.MarshalAny(singleQ)
-	uCl := idm.NewUserServiceClient(registry.GetClient(common.ServiceUser))
-	_, e := uCl.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}, client.WithRequestTimeout(30*time.Minute))
+	q, _ := anypb.New(singleQ)
+	uCl := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser, grpc.WithCallTimeout(30*time.Minute)))
+	_, e := uCl.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		input = input.WithError(e)
 	} else {

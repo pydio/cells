@@ -25,19 +25,20 @@ import (
 	"context"
 
 	"github.com/jcuga/golongpoll"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
-	plugins.Register("install",  func(ctx context.Context) {
+	plugins.Register("install", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceInstall),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("RESTful Installation server"),
-			service.WithWeb(func() service.WebHandler {
+			service.WithWeb(func(c context.Context) service.WebHandler {
 				eventManager, _ := golongpoll.StartLongpoll(golongpoll.Options{})
 				return &Handler{
 					eventManager,

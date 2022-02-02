@@ -23,16 +23,18 @@ package wopi
 
 import (
 	"context"
-	"net/http"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
-	viewsRouter *views.Router
+	client nodes.Client
 )
 
 func init() {
@@ -41,12 +43,17 @@ func init() {
 			service.Name(common.ServiceGatewayWopi),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
-			service.RouterDependencies(),
 			service.Description("WOPI REST Gateway to tree service"),
-			service.WithHTTP(func() http.Handler {
-				viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
-
-				return NewRouter()
+			//service.RouterDependencies(),
+			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+				client = compose.NewClient(compose.UuidComposer(
+					nodes.WithContext(ctx),
+					nodes.WithRegistryWatch(servicecontext.GetRegistry(ctx)),
+					nodes.WithAuditEventsLogging())...,
+				)
+				wopiRouter := NewRouter()
+				mux.Handle("/wopi/", wopiRouter)
+				return nil
 			}),
 		)
 	})

@@ -30,10 +30,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/utils/i18n"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/utils/i18n"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 type BackendConf struct {
@@ -138,7 +138,7 @@ func ComputeBootConf(pool *PluginsPool, showVersion ...bool) (*BootConf, error) 
 
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
-		ENDPOINT_REST_API:            "/a",
+		ENDPOINT_REST_API:            common.DefaultRouteREST,
 		ENDPOINT_S3_GATEWAY:          "/io",
 		ENDPOINT_WEBSOCKET:           "/ws/event",
 		PUBLIC_BASEURI:               config.GetPublicBaseUri(),

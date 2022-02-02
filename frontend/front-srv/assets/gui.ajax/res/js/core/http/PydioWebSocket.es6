@@ -191,6 +191,15 @@ class PydioWebSocket extends Observable {
                 } else {
                     target.getMetadata().set("original_path", target.getPath());
                 }
+                const targetExists = target.findInArbo(dm.getRootNode())
+                if(targetExists){
+                    // Merge local meta if there is
+                    targetExists.getMetadata().forEach((v, k) => {
+                        if(k.indexOf('local:') === 0) {
+                            target.getMetadata().set(k, v);
+                        }
+                    })
+                }
                 dm.updateNode(target, false);
                 break;
             case "DELETE":

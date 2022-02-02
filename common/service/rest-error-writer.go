@@ -23,27 +23,15 @@ package service
 import (
 	"strings"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful/v3"
 	"go.uber.org/zap"
 
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 type restErrorEmitter func(req *restful.Request, resp *restful.Response, err error)
-
-func isNetworkError(err error) bool {
-	s := err.Error()
-	parsed := errors.Parse(s)
-	return strings.Contains(s, "context deadline exceeded") ||
-		strings.Contains(s, "unexpected EOF") ||
-		strings.Contains(s, "context canceled") ||
-		strings.Contains(s, "can't assign requested address") ||
-		strings.Contains(s, "SubConns are in TransientFailure") ||
-		parsed.Id == "go.micro.client" && parsed.Code == 500 && parsed.Detail == "not found"
-
-}
 
 // RestError500 logs the error with context and write an Error 500 on the response.
 func RestError500(req *restful.Request, resp *restful.Response, err error) {
@@ -53,7 +41,7 @@ func RestError500(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+	if parsed := errors.FromError(err); parsed.Status != "" && parsed.Detail != "" {
 		e.Title = parsed.Detail
 		e.Detail = parsed.Status + ": " + parsed.Detail
 	}
@@ -62,7 +50,7 @@ func RestError500(req *restful.Request, resp *restful.Response, err error) {
 
 // RestError404 logs the error with context and writes an Error 404 on the response.
 func RestError404(req *restful.Request, resp *restful.Response, err error) {
-	if isNetworkError(err) {
+	if errors.IsNetworkError(err) {
 		RestError503(req, resp, err)
 		return
 	}
@@ -72,7 +60,7 @@ func RestError404(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+	if parsed := errors.FromError(err); parsed.Status != "" && parsed.Detail != "" {
 		e.Title = parsed.Detail
 		e.Detail = parsed.Status + ": " + parsed.Detail
 	}
@@ -81,7 +69,7 @@ func RestError404(req *restful.Request, resp *restful.Response, err error) {
 
 // RestError403 logs the error with context and write an Error 403 on the response.
 func RestError403(req *restful.Request, resp *restful.Response, err error) {
-	if isNetworkError(err) {
+	if errors.IsNetworkError(err) {
 		RestError503(req, resp, err)
 		return
 	}
@@ -91,7 +79,7 @@ func RestError403(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+	if parsed := errors.FromError(err); parsed.Status != "" && parsed.Detail != "" {
 		e.Title = parsed.Detail
 		e.Detail = parsed.Status + ": " + parsed.Detail
 	}
@@ -106,7 +94,7 @@ func RestError503(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	if parsed := errors.Parse(err.Error()); parsed.Code == 503 {
+	if parsed := errors.FromError(err); parsed.Code == 503 {
 		e.Title = "Service temporarily unavailable"
 		e.Detail = "Service temporarily unavailable"
 	}
@@ -121,7 +109,7 @@ func RestError423(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	if parsed := errors.Parse(err.Error()); parsed.Code == 423 {
+	if parsed := errors.FromError(err); parsed.Code == 423 {
 		e.Title = "This resource is currently locked, please retry later!"
 		e.Detail = "This resource is currently locked, please retry later!"
 	}
@@ -130,7 +118,7 @@ func RestError423(req *restful.Request, resp *restful.Response, err error) {
 
 // RestError401 logs the error with context and write an Error 401 on the response.
 func RestError401(req *restful.Request, resp *restful.Response, err error) {
-	if isNetworkError(err) {
+	if errors.IsNetworkError(err) {
 		RestError503(req, resp, err)
 		return
 	}
@@ -142,7 +130,7 @@ func RestError401(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+	if parsed := errors.FromError(err); parsed.Status != "" && parsed.Detail != "" {
 		e.Title = parsed.Detail
 		e.Detail = parsed.Status + ": " + parsed.Detail
 	}
@@ -151,7 +139,7 @@ func RestError401(req *restful.Request, resp *restful.Response, err error) {
 
 // RestErrorDetect parses the error and tries to detect the correct code.
 func RestErrorDetect(req *restful.Request, resp *restful.Response, err error, defaultCode ...int32) {
-	if isNetworkError(err) {
+	if errors.IsNetworkError(err) {
 		RestError503(req, resp, err)
 		return
 	}
@@ -163,7 +151,7 @@ func RestErrorDetect(req *restful.Request, resp *restful.Response, err error, de
 		423: RestError423,
 		503: RestError503,
 	}
-	parsed := errors.Parse(err.Error())
+	parsed := errors.FromError(err)
 	// Special case for underlying service not available
 	if parsed.Id == "go.micro.client" && parsed.Detail == "none available" {
 		parsed.Code = 503

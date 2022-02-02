@@ -21,7 +21,7 @@
 package frontend
 
 import (
-	"github.com/pydio/packr"
+	"io/fs"
 )
 
 var (
@@ -32,31 +32,19 @@ var (
 
 // PluginBox exposes web assets
 type PluginBox struct {
-	Box        packr.Box
+	Box        fs.FS
 	Exposes    []string
 	ExposeFunc func() []string
 }
 
 // RegisterPluginBoxes adds a PluginBox to registry
 func RegisterPluginBoxes(boxes ...PluginBox) {
-
-	if registry == nil {
-		registry = make([]PluginBox, len(boxes))
-	}
-
 	registry = append(registry, boxes...)
-
 }
 
 // GetRegisteredPluginBoxes lists all registered PluginBox
 func GetRegisteredPluginBoxes() []PluginBox {
-
-	if registry == nil {
-		return []PluginBox{}
-	}
-
 	return registry
-
 }
 
 // GetPluginsFS builds an HttpFs out of all the registered plugins boxes

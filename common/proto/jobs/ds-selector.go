@@ -23,12 +23,12 @@ package jobs
 import (
 	"context"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/micro/go-micro/client"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/object"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/proto/object"
+	service "github.com/pydio/cells/v4/common/proto/service"
 )
 
 func (m *DataSourceSelector) Filter(ctx context.Context, input ActionMessage) (ActionMessage, *ActionMessage, bool) {
@@ -50,7 +50,7 @@ func (m *DataSourceSelector) Filter(ctx context.Context, input ActionMessage) (A
 	return input, x, len(passed) > 0
 }
 
-func (m *DataSourceSelector) Select(cl client.Client, ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
+func (m *DataSourceSelector) Select(ctx context.Context, input ActionMessage, objects chan interface{}, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
@@ -79,7 +79,7 @@ func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query,
 	for _, q := range query.SubQueries {
 		msg := &object.DataSourceSingleQuery{}
 		subQ := &service.Query{}
-		if e := ptypes.UnmarshalAny(q, msg); e == nil {
+		if e := anypb.UnmarshalTo(q, msg, proto.UnmarshalOptions{}); e == nil {
 			// Evaluate fields
 			msg.Name = EvaluateFieldStr(ctx, input, msg.Name)
 			msg.ObjectServiceName = EvaluateFieldStr(ctx, input, msg.ObjectServiceName)
@@ -89,7 +89,7 @@ func (m *DataSourceSelector) evaluate(ctx context.Context, query *service.Query,
 			msg.EncryptionKey = EvaluateFieldStr(ctx, input, msg.EncryptionKey)
 			msg.VersioningPolicyName = EvaluateFieldStr(ctx, input, msg.VersioningPolicyName)
 			bb = append(bb, msg.Matches(dsObject))
-		} else if e := ptypes.UnmarshalAny(q, subQ); e == nil {
+		} else if e := anypb.UnmarshalTo(q, subQ, proto.UnmarshalOptions{}); e == nil {
 			bb = append(bb, m.evaluate(ctx, subQ, input, dsObject))
 		}
 	}

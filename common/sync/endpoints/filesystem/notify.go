@@ -28,25 +28,25 @@ import (
 
 	"github.com/rjeczalik/notify"
 
-	"github.com/pydio/cells/common/sync/model"
-	"github.com/pydio/cells/common/utils/filesystem"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/filesystem"
 )
 
 var (
-	// EventTypePut contains the notify events that will cause a put (writer)
+	// EventTypeAll contains the notify events that will cause a put (writer)
 	EventTypeAll = []notify.Event{notify.All}
 	// EventTypePut contains the notify events that will cause a put (writer)
 	EventTypePut = []notify.Event{notify.Create, notify.Write, notify.Rename}
-	// EventTypePut contains the notify events that will cause a put (writer)
+	// EventTypeCreate contains the notify events that will cause a put (writer)
 	EventTypeCreate = []notify.Event{notify.Create}
-	// EventTypePut contains the notify events that will cause a put (writer)
+	// EventTypeWrite contains the notify events that will cause a put (writer)
 	EventTypeWrite = []notify.Event{notify.Write}
-	// EventTypePut contains the notify events that will cause a put (writer)
+	// EventTypeRename contains the notify events that will cause a put (writer)
 	EventTypeRename = []notify.Event{notify.Rename}
 	// EventTypeDelete contains the notify events that will cause a delete (remove)
 	EventTypeDelete = []notify.Event{notify.Remove}
-	// EventTypeGet contains the notify events that will cause a get (read)
-	EventTypeGet = []notify.Event{} // On macOS, FreeBSD, Solaris this is not available.
+	// EventTypeGet contains all notify events
+	EventTypeGet []notify.Event // On macOS, FreeBSD, Solaris this is not available.
 
 )
 

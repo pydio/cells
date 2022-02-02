@@ -27,8 +27,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/utils/cache"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 func TestEventsSubscriber_Handle(t *testing.T) {
@@ -45,14 +45,11 @@ func TestEventsSubscriber_Handle(t *testing.T) {
 		var output *cache.EventWithContext
 		go func() {
 			defer wg.Done()
-			for {
-				select {
-				case e := <-out:
-					if e != nil {
-						output = e
-					} else {
-						return
-					}
+			for e := range out {
+				if e != nil {
+					output = e
+				} else {
+					return
 				}
 			}
 		}()

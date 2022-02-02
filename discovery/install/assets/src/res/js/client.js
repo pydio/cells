@@ -2,7 +2,7 @@ import ApiClient from './gen/ApiClient';
 
 // Override callApi Method
 class Client extends ApiClient{
-    basePath = '';
+    basePath = '/a';
     lastEventsTimestamp;
 
     pollEvents(observer, reloadObserver){
@@ -42,7 +42,7 @@ class Client extends ApiClient{
     }
 
     pollDiscovery(reloadObserver) {
-        super.callApi("/a/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(response => {
+        super.callApi("/config/discovery", "GET", [], [], [], [], [], [], ["application/json"], ["application/json"], Object).then(response => {
             // A proper response means that server is ready - but gateway may be restarting!
             setTimeout(reloadObserver, 6000);
         }).catch(reason => {

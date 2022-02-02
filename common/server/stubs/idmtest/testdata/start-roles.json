@@ -1,0 +1,197 @@
+{
+  "Roles": [
+    {
+      "Uuid": "0fe55566-8b44-4629-894e-51f2ecaead8d",
+      "Label": "admin role",
+      "UserRole": true,
+      "LastUpdated": 1637742385,
+      "AutoApplies": [
+        ""
+      ],
+      "Policies": [
+        {
+          "id": "11",
+          "Resource": "0fe55566-8b44-4629-894e-51f2ecaead8d",
+          "Action": "READ",
+          "Subject": "profile:standard",
+          "Effect": "allow"
+        },
+        {
+          "id": "12",
+          "Resource": "0fe55566-8b44-4629-894e-51f2ecaead8d",
+          "Action": "WRITE",
+          "Subject": "user:admin",
+          "Effect": "allow"
+        },
+        {
+          "id": "13",
+          "Resource": "0fe55566-8b44-4629-894e-51f2ecaead8d",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    },
+    {
+      "Uuid": "29d16656-79b1-42de-929b-6eaaf34b08f3",
+      "Label": "pydio.anon.user role",
+      "UserRole": true,
+      "LastUpdated": 1637742385,
+      "AutoApplies": [
+        ""
+      ],
+      "Policies": [
+        {
+          "id": "14",
+          "Resource": "29d16656-79b1-42de-929b-6eaaf34b08f3",
+          "Action": "READ",
+          "Subject": "user:pydio.anon.user",
+          "Effect": "allow"
+        },
+        {
+          "id": "15",
+          "Resource": "29d16656-79b1-42de-929b-6eaaf34b08f3",
+          "Action": "READ",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        },
+        {
+          "id": "16",
+          "Resource": "29d16656-79b1-42de-929b-6eaaf34b08f3",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    },
+    {
+      "Uuid": "ADMINS",
+      "Label": "Administrators",
+      "LastUpdated": 1637742353,
+      "AutoApplies": [
+        "admin"
+      ],
+      "Policies": [
+        {
+          "id": "3",
+          "Resource": "ADMINS",
+          "Action": "READ",
+          "Subject": "*",
+          "Effect": "allow"
+        },
+        {
+          "id": "4",
+          "Resource": "ADMINS",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    },
+    {
+      "Uuid": "EXTERNAL_USERS",
+      "Label": "External Users",
+      "LastUpdated": 1637742353,
+      "AutoApplies": [
+        "shared"
+      ],
+      "Policies": [
+        {
+          "id": "5",
+          "Resource": "EXTERNAL_USERS",
+          "Action": "READ",
+          "Subject": "*",
+          "Effect": "allow"
+        },
+        {
+          "id": "6",
+          "Resource": "EXTERNAL_USERS",
+          "Action": "WRITE",
+          "Subject": "profile:standard",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    },
+    {
+      "Uuid": "MINISITE",
+      "Label": "Minisite Permissions",
+      "LastUpdated": 1637742354,
+      "AutoApplies": [
+        ""
+      ],
+      "Policies": [
+        {
+          "id": "7",
+          "Resource": "MINISITE",
+          "Action": "READ",
+          "Subject": "*",
+          "Effect": "allow"
+        },
+        {
+          "id": "8",
+          "Resource": "MINISITE",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    },
+    {
+      "Uuid": "MINISITE_NODOWNLOAD",
+      "Label": "Minisite (Download Disabled)",
+      "LastUpdated": 1637742354,
+      "AutoApplies": [
+        ""
+      ],
+      "Policies": [
+        {
+          "id": "9",
+          "Resource": "MINISITE_NODOWNLOAD",
+          "Action": "READ",
+          "Subject": "*",
+          "Effect": "allow"
+        },
+        {
+          "id": "10",
+          "Resource": "MINISITE_NODOWNLOAD",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    },
+    {
+      "Uuid": "ROOT_GROUP",
+      "Label": "Root Group",
+      "GroupRole": true,
+      "LastUpdated": 1637742352,
+      "AutoApplies": [
+        ""
+      ],
+      "Policies": [
+        {
+          "id": "1",
+          "Resource": "ROOT_GROUP",
+          "Action": "READ",
+          "Subject": "*",
+          "Effect": "allow"
+        },
+        {
+          "id": "2",
+          "Resource": "ROOT_GROUP",
+          "Action": "WRITE",
+          "Subject": "profile:admin",
+          "Effect": "allow"
+        }
+      ],
+      "PoliciesContextEditable": true
+    }
+  ],
+  "Total": 7
+}

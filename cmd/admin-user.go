@@ -25,14 +25,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	service2 "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service2 "github.com/pydio/cells/v4/common/proto/service"
 )
 
 var UserCmd = &cobra.Command{
@@ -57,9 +56,9 @@ func init() {
 func searchUser(ctx context.Context, cli idm.UserServiceClient, login string) ([]*idm.User, error) {
 
 	singleQ := &idm.UserSingleQuery{Login: login}
-	query, _ := ptypes.MarshalAny(singleQ)
+	query, _ := anypb.New(singleQ)
 
-	mainQuery := &service2.Query{SubQueries: []*any.Any{query}}
+	mainQuery := &service2.Query{SubQueries: []*anypb.Any{query}}
 
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
 	if err != nil {
@@ -68,7 +67,6 @@ func searchUser(ctx context.Context, cli idm.UserServiceClient, login string) ([
 
 	users := []*idm.User{}
 
-	defer stream.Close()
 	for {
 		response, e := stream.Recv()
 		if e != nil {
@@ -103,17 +101,15 @@ func deleteUser(ctx context.Context, login string) error {
 		// log.Logger(ctx).Debug("Received User.Delete API request (LOGIN)", zap.String("login", login))
 		singleQ.Login = login
 	}
-	query, _ := ptypes.MarshalAny(singleQ)
-	mainQuery := &service2.Query{SubQueries: []*any.Any{query}}
-	cli := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	query, _ := anypb.New(singleQ)
+	mainQuery := &service2.Query{SubQueries: []*anypb.Any{query}}
+	cli := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 
 	stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{Query: mainQuery})
 	if err != nil {
 		return err
 	}
 	// Search first to check policies
-
-	defer stream.Close()
 	for {
 		response, e := stream.Recv()
 		if e != nil {

@@ -27,8 +27,8 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 var (
@@ -153,7 +153,7 @@ func TestNewAccessList(t *testing.T) {
 		list := NewAccessList(roles, []*idm.ACL{})
 		list.Append(acls)
 		So(list.OrderedRoles, ShouldResemble, roles)
-		So(list.acls, ShouldResemble, acls)
+		So(list.Acls, ShouldResemble, acls)
 	})
 }
 
@@ -163,10 +163,10 @@ func TestAccessList_Flatten(t *testing.T) {
 		list := NewAccessList(roles)
 		list.Append(acls)
 		list.Flatten(ctx)
-		So(list.uuidACLs, ShouldHaveLength, 4)
+		So(list.NodesAcls, ShouldHaveLength, 4)
 
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.pathsACLs = list.uuidACLs
+		list.nodesPathsAcls = list.NodesAcls
 		list.Workspaces = map[string]*idm.Workspace{
 			"ws1": {UUID: "ws1"},
 			"ws2": {UUID: "ws2"},
@@ -237,7 +237,7 @@ func TestAclPolicies(t *testing.T) {
 		list.Append(policyAcls)
 		list.Flatten(ctx)
 		// Path and UUID are the same, a trick to avoid triggering load of PathsAcls
-		list.pathsACLs = list.uuidACLs
+		list.nodesPathsAcls = list.NodesAcls
 
 		So(list.HasPolicyBasedAcls(), ShouldBeTrue)
 

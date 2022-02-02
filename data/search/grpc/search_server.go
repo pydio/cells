@@ -26,31 +26,39 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	protosync "github.com/pydio/cells/common/proto/sync"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/cache"
-	"github.com/pydio/cells/common/utils/meta"
-	"github.com/pydio/cells/data/search/dao"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	protosync "github.com/pydio/cells/v4/common/proto/sync"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/cache"
+	"github.com/pydio/cells/v4/data/search/dao"
 )
 
 // SearchServer implements GRPC server for index/search
 type SearchServer struct {
+	tree.UnimplementedSearcherServer
+	protosync.UnimplementedSyncEndpointServer
+	RuntimeCtx       context.Context
 	Engine           dao.SearchEngine
 	eventsChannel    chan *cache.EventWithContext
 	TreeClient       tree.NodeProviderClient
-	NsProvider       *meta.NamespacesProvider
+	NsProvider       *meta.NsProvider
 	ReIndexThrottler chan struct{}
 }
 
-// CreateNodeChangeSubscriber that will treat events for the meta server
-func (s *SearchServer) CreateNodeChangeSubscriber() *EventsSubscriber {
+func (s *SearchServer) Name() string {
+	return Name
+}
+
+// Subscriber create a handler that will treat events for the meta server
+func (s *SearchServer) Subscriber() *EventsSubscriber {
 
 	if s.eventsChannel == nil {
 		s.initEventsChannel()
@@ -72,17 +80,10 @@ func (s *SearchServer) initEventsChannel() {
 	}()
 }
 
-func (s *SearchServer) NamespacesProvider() *meta.NamespacesProvider {
-	if s.NsProvider == nil {
-		s.NsProvider = meta.NewNamespacesProvider()
-	}
-	return s.NsProvider
-}
-
 func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) {
 
 	log.Logger(ctx).Debug("processEvent", zap.Any("event", e))
-	excludes := s.NamespacesProvider().ExcludeIndexes()
+	excludes := s.NsProvider.ExcludeIndexes()
 
 	switch e.GetType() {
 	case tree.NodeChangeEvent_CREATE:
@@ -129,8 +130,9 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 	}
 }
 
-func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, streamer tree.Searcher_SearchStream) error {
+func (s *SearchServer) Search(req *tree.SearchRequest, streamer tree.Searcher_SearchServer) error {
 
+	ctx := streamer.Context()
 	resultsChan := make(chan *tree.Node)
 	facetsChan := make(chan *tree.SearchFacet)
 	doneChan := make(chan bool)
@@ -152,19 +154,19 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 					log.Logger(ctx).Debug("Search", zap.String("uuid", node.Uuid))
 
 					if req.Details {
-						response, e := s.TreeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
+						response, e := s.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{
 							Uuid: node.Uuid,
 						}})
 						if e == nil && response.GetNode() != nil {
 							streamer.Send(&tree.SearchResponse{Node: response.Node})
-						} else if e != nil && errors.Parse(e.Error()).Code == 404 {
+						} else if e != nil && errors.FromError(e).Code == 404 {
 
 							log.Logger(ctx).Error("Found node that does not exists, send event to make sure all is sync'ed.", zap.String("uuid", node.Uuid))
 
-							client.Publish(ctx, client.NewPublication(common.TopicTreeChanges, &tree.NodeChangeEvent{
+							broker.MustPublish(ctx, common.TopicTreeChanges, &tree.NodeChangeEvent{
 								Type:   tree.NodeChangeEvent_DELETE,
 								Source: node,
-							}))
+							})
 
 						}
 					} else {
@@ -187,14 +189,14 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 	return nil
 }
 
-func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
+func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncRequest) (*protosync.ResyncResponse, error) {
 
 	go func() {
 		bg := context.Background()
 		s.Engine.ClearIndex(bg)
-		excludes := s.NamespacesProvider().ExcludeIndexes()
+		excludes := s.NsProvider.ExcludeIndexes()
 
-		dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
+		dsStream, err := s.getTreeClient().ListNodes(bg, &tree.ListNodesRequest{
 			Node:      &tree.Node{Path: ""},
 			Recursive: true,
 		})
@@ -202,7 +204,7 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 			log.Logger(c).Error("Resync", zap.Error(err))
 			return
 		}
-		defer dsStream.Close()
+		defer dsStream.CloseSend()
 		var count int
 		for {
 			response, e := dsStream.Recv()
@@ -218,9 +220,8 @@ func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncReq
 
 	}()
 
-	resp.Success = true
+	return &protosync.ResyncResponse{Success: true}, nil
 
-	return nil
 }
 
 func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, excludes map[string]struct{}) {
@@ -230,7 +231,7 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 		<-s.ReIndexThrottler
 	}()
 	bg := context.Background()
-	dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
+	dsStream, err := s.getTreeClient().ListNodes(bg, &tree.ListNodesRequest{
 		Node:      node,
 		Recursive: true,
 	})
@@ -238,7 +239,7 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 		log.Logger(c).Error("ReindexFolder", zap.Error(err))
 		return
 	}
-	defer dsStream.Close()
+	defer dsStream.CloseSend()
 	var count int
 	for {
 		response, e := dsStream.Recv()
@@ -252,4 +253,11 @@ func (s *SearchServer) ReindexFolder(c context.Context, node *tree.Node, exclude
 	}
 	log.Logger(c).Info(fmt.Sprintf("Search Server re-indexed %d folders", count))
 
+}
+
+func (s *SearchServer) getTreeClient() tree.NodeProviderClient {
+	if s.TreeClient == nil {
+		s.TreeClient = tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(s.RuntimeCtx, common.ServiceTree))
+	}
+	return s.TreeClient
 }

@@ -26,10 +26,10 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 func TestMetaAction_GetName(t *testing.T) {
@@ -48,7 +48,7 @@ func TestMetaAction_Init(t *testing.T) {
 				"metaJSON": `{"key":"value"}`,
 			},
 		}
-		metaAction.Init(job, nil, action)
+		metaAction.Init(job, action)
 		So(metaAction.MetaJSON, ShouldEqual, `{"key":"value"}`)
 	})
 }
@@ -62,8 +62,8 @@ func TestMetaAction_Run(t *testing.T) {
 				"metaJSON": `{"key":"value"}`,
 			},
 		}
-		metaAction.Init(job, nil, action)
-		mock := views.NewHandlerMock()
+		metaAction.Init(job, action)
+		mock := nodes.NewHandlerMock()
 		metaAction.Client = mock
 		status := make(chan string)
 		progress := make(chan float32)

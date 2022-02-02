@@ -21,32 +21,88 @@
 package auth
 
 import (
+	"net/http"
 	"net/url"
 	"sync"
 	"time"
 
-	"github.com/ory/hydra/driver/configuration"
+	hconf "github.com/ory/hydra/driver/config"
 	"github.com/ory/hydra/x"
-	"github.com/ory/x/tracing"
+	hconfx "github.com/ory/x/configx"
+	"github.com/ory/x/logrusx"
 	"github.com/rs/cors"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 type ConfigurationProvider interface {
-	configuration.Provider
+	Set(key string, value interface{}) error
+	MustSet(key string, value interface{})
+	InsecureRedirects() []string
+	WellKnownKeys(include ...string) []string
+	IsUsingJWTAsAccessTokens() bool
+	AllowedTopLevelClaims() []string
+	SubjectTypesSupported() []string
+	DefaultClientScope() []string
+	DSN() string
+	EncryptSessionData() bool
+	ExcludeNotBeforeClaim() bool
+	DataSourcePlugin() string
+	BCryptCost() int
+	CookieSameSiteMode() http.SameSite
+	CookieSameSiteLegacyWorkaround() bool
+	ConsentRequestMaxAge() time.Duration
+	AccessTokenLifespan() time.Duration
+	RefreshTokenLifespan() time.Duration
+	IDTokenLifespan() time.Duration
+	AuthCodeLifespan() time.Duration
+	ScopeStrategy() string
+	// TODO v4 ? Tracing() *tracing.Config
+	GetCookieSecrets() [][]byte
+	GetRotatedSystemSecrets() [][]byte
+	GetSystemSecret() []byte
+	LogoutRedirectURL() *url.URL
+	LoginURL() *url.URL
+	LogoutURL() *url.URL
+	ConsentURL() *url.URL
+	ErrorURL() *url.URL
+	PublicURL() *url.URL
+	IssuerURL() *url.URL
+	OAuth2ClientRegistrationURL() *url.URL
+	OAuth2TokenURL() *url.URL
+	OAuth2AuthURL() *url.URL
+	JWKSURL() *url.URL
+	TokenRefreshHookURL() *url.URL
+	AccessTokenStrategy() string
+	SubjectIdentifierAlgorithmSalt() string
+	OIDCDiscoverySupportedClaims() []string
+	OIDCDiscoverySupportedScope() []string
+	OIDCDiscoveryUserinfoEndpoint() *url.URL
+	ShareOAuth2Debug() bool
+	OAuth2LegacyErrors() bool
+	PKCEEnforced() bool
+	EnforcePKCEForPublicClients() bool
+	CGroupsV1AutoMaxProcsEnabled() bool
+	GrantAllClientCredentialsScopesPerDefault() bool
+
+	GetProvider() *hconf.Provider
 	Clients() common.Scanner
 	Connectors() common.Scanner
 }
 
 type configurationProvider struct {
+	*hconf.Provider
 	// rootURL
 	r string
 
 	// values
 	v configx.Values
+}
+
+func (c *configurationProvider) GetProvider() *hconf.Provider {
+	return c.Provider
 }
 
 var (
@@ -64,7 +120,6 @@ func init() {
 }
 
 func InitConfiguration(values configx.Values) {
-
 	confMutex.Lock()
 	defer confMutex.Unlock()
 	initConnector := false
@@ -110,9 +165,33 @@ func GetConfigurationProvider(hostname ...string) ConfigurationProvider {
 }
 
 func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
+	// Todo V4 : Do we need more from the original conf ?
+	val := configx.New()
+	_ = val.Val(hconf.KeyGetSystemSecret).Set([]string{values.Val("secret").String()})
+	_ = val.Val(hconf.KeyPublicURL).Set(rootURL + "/oidc")
+	_ = val.Val(hconf.KeyIssuerURL).Set(rootURL + "/oidc")
+	_ = val.Val(hconf.KeyLoginURL).Set(rootURL + "/oauth2/login")
+	_ = val.Val(hconf.KeyLogoutURL).Set(rootURL + "/oauth2/logout")
+	_ = val.Val(hconf.KeyConsentURL).Set(rootURL + "/oauth2/consent")
+	_ = val.Val(hconf.KeyErrorURL).Set(rootURL + "/oauth2/fallbacks/error")
+	_ = val.Val(hconf.KeyLogoutRedirectURL).Set(rootURL + "/oauth2/logout/callback")
+
+	_ = val.Val(hconf.KeyLogLevel).Set("trace")
+	_ = val.Val("log.leak_sensitive_values").Set(true)
+
+	rr := values.Val("insecureRedirects").StringArray()
+	sites, _ := config.LoadSites()
+	var out []string
+	for _, r := range rr {
+		out = append(out, varsFromStr(r, sites)...)
+	}
+	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
+
+	provider, _ := hconf.New(logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
 	return &configurationProvider{
-		r: rootURL,
-		v: values,
+		Provider: provider,
+		r:        rootURL,
+		v:        values,
 	}
 }
 
@@ -236,9 +315,11 @@ func (v *configurationProvider) TracingProvider() string {
 	return ""
 }
 
+/*
 func (v *configurationProvider) TracingJaegerConfig() *tracing.JaegerConfig {
 	return &tracing.JaegerConfig{}
 }
+*/
 
 func (v *configurationProvider) GetCookieSecrets() [][]byte {
 	return [][]byte{
@@ -300,8 +381,10 @@ func (v *configurationProvider) IssuerURL() *url.URL {
 	return u
 }
 
-func (v *configurationProvider) OAuth2AuthURL() string {
-	return v.v.Val("urls", "oauth2AuthURL").Default("/oauth2/auth").String() // this should not have the host etc prepended...
+func (v *configurationProvider) OAuth2AuthURL() *url.URL {
+	us := v.v.Val("urls", "oauth2AuthURL").Default("/oauth2/auth").String() // this should not have the host etc prepended...
+	u, _ := url.Parse(us)
+	return u
 }
 
 func (v *configurationProvider) OAuth2ClientRegistrationURL() *url.URL {
@@ -314,6 +397,7 @@ func (v *configurationProvider) AllowTLSTerminationFrom() []string {
 }
 
 func (v *configurationProvider) AccessTokenStrategy() string {
+	v.Provider.AccessTokenStrategy()
 	return v.v.Val("accessTokenStrategy").Default("opaque").String()
 }
 
@@ -329,8 +413,11 @@ func (v *configurationProvider) OIDCDiscoverySupportedScope() []string {
 	return v.v.Val("oidc", "supportedScope").StringArray()
 }
 
-func (v *configurationProvider) OIDCDiscoveryUserinfoEndpoint() string {
-	return v.v.Val("oidc", "userInfoEndpoint").Default("/oauth2/userinfo").String()
+func (v *configurationProvider) OIDCDiscoveryUserinfoEndpoint() *url.URL {
+
+	us := v.v.Val("oidc", "userInfoEndpoint").Default("/oauth2/userinfo").String()
+	u, _ := url.Parse(us)
+	return u
 }
 
 func (v *configurationProvider) ShareOAuth2Debug() bool {

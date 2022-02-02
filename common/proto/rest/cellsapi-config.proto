@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+package rest;
+
+option go_package = "github.com/pydio/cells/v4/common/proto/rest";
+
+import "cells-tree.proto";
+import "cells-object.proto";
+import "cells-ctl.proto";
+import "cells-install.proto";
+
+// Configuration message. Data is an Json representation of any value
+message Configuration{
+    // Full slash-separated path to the config key
+    string FullPath = 1;
+    // JSON-encoded data to store
+    string Data = 2;
+}
+
+message ListDataSourceRequest{
+
+}
+
+// Collection of datasources
+message DataSourceCollection{
+    repeated object.DataSource DataSources = 1;
+    int32 Total = 2;
+}
+
+message DeleteDataSourceResponse{
+    bool Success = 1;
+}
+
+message ListPeersAddressesRequest {
+
+}
+
+message ListPeersAddressesResponse {
+    // List of peer addresses
+    repeated string PeerAddresses = 1;
+}
+
+message ListPeerFoldersRequest{
+    // Restrict listing to a given peer
+    string PeerAddress = 1;
+    // Path to the parent folder for listing
+    string Path = 2;
+}
+
+message CreatePeerFolderRequest{
+    // Restrict listing to a given peer
+    string PeerAddress = 1;
+    // Path to the folder to be created
+    string Path = 2;
+}
+
+message CreatePeerFolderResponse {
+    bool Success = 1;
+    tree.Node Node = 2;
+}
+
+message ListStorageBucketsRequest {
+    object.DataSource DataSource = 1;
+    string BucketsRegexp = 2;
+}
+
+message Process {
+    // Process ID
+    string ID = 1;
+    // Parent Process ID
+    string ParentID = 2;
+    // Port to access the metrics api
+    int32 MetricsPort = 3;
+    // Id of peer node
+    string PeerId = 4;
+    // Address of peer node
+    string PeerAddress = 5;
+    // Parameters used to start this process
+    string StartTag = 6;
+    // List of services running inside this process
+    repeated string Services = 7;
+}
+
+message ListProcessesRequest {
+    // Id of the peer node
+    string PeerId = 1;
+    // Look for a service name
+    string ServiceName = 2;
+}
+
+message ListProcessesResponse {
+    repeated Process Processes = 1;
+}
+
+message ListVersioningPolicyRequest{}
+
+message VersioningPolicyCollection{
+    repeated tree.VersioningPolicy Policies = 1;
+}
+
+message ListVirtualNodesRequest{}
+
+message ListServiceRequest{
+    // Filter services by a given status (ANY, STOPPED, STOPPING, RUNNING)
+    ctl.ServiceStatus StatusFilter = 1;
+}
+
+message ServiceCollection{
+    repeated ctl.Service Services = 1;
+    int32 Total = 2;
+}
+
+message ControlServiceRequest{
+    // Name of the service to stop
+    string ServiceName = 1;
+    // Name of the node
+    string NodeName = 2;
+    // Command to apply (START or STOP)
+    ctl.ServiceCommand Command = 3;
+}
+
+message DiscoveryRequest{
+    // Filter result to a specific endpoint type
+    string EndpointType = 1;
+}
+
+message DiscoveryResponse{
+    // Current Package Type, empty if user is not authenticated
+    string PackageType = 1;
+    // Current Package Label, empty if user is not authenticated
+    string PackageLabel = 2;
+    // Current Package Version, empty if user is not authenticated
+    string Version = 3;
+    // Build stamp of the binary build, empty if user is not authenticated
+    int32 BuildStamp = 4;
+    // Revision of the current binary build, empty if user is not authenticated
+    string BuildRevision = 5;
+    // List of endpoints and their corresponding URL access. Special case for grpc that just send back its port
+    map<string, string> Endpoints = 6;
+}
+
+message ConfigFormRequest{
+    // Retrieve a configuration form for a given service
+    string ServiceName = 1;
+}
+
+message OpenApiResponse{
+
+}
+
+message ActionDescription{
+    // Unique name of the action
+    string Name = 1;
+    // Mdi reference name for displaying icon
+    string Icon = 2;
+    // Human-readable label
+    string Label = 3;
+    // Long description and help text
+    string Description = 4;
+    // Template for building a short summary of the action configuration
+    string SummaryTemplate = 5;
+    // Whether this action has a form or not
+    bool HasForm = 6;
+    // JS module name to be used instead of loading standard form
+    string FormModule = 11;
+    // JSON props used to init the FormModule (optional)
+    string FormModuleProps = 12;
+    // User-defined category to organize actions list
+    string Category = 7;
+    // User-defined hexa or rgb color
+    string Tint = 8;
+    // Additional description for expected inputs
+    string InputDescription = 9;
+    // Additional description describing the action output
+    string OutputDescription = 10;
+    // If action is declared internal, it is hidden to avoid polluting the list.
+    bool IsInternal = 13;
+}
+
+message SchedulerActionsRequest{}
+message SchedulerActionsResponse{
+    // List of all registered actions
+    map<string, ActionDescription> Actions = 1;
+}
+
+message SchedulerActionFormRequest{
+    // Name of the action to load
+    string ActionName = 1;
+}
+
+message SchedulerActionFormResponse{}
+
+// Request used for ListSites api
+message ListSitesRequest {
+    string Filter = 1;
+}
+
+// Response with declared sites
+message ListSitesResponse {
+    repeated install.ProxyConfig Sites = 1;
+}
+

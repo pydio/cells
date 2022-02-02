@@ -22,32 +22,32 @@ package user
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/packr"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+	"google.golang.org/protobuf/types/known/anypb"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	service "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/sql/index"
-	"github.com/pydio/cells/common/sql/resources"
-	"github.com/pydio/cells/common/utils/mtree"
-	"github.com/pydio/cells/x/configx"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sql"
+	"github.com/pydio/cells/v4/common/sql/index"
+	"github.com/pydio/cells/v4/common/sql/resources"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/mtree"
+	"github.com/pydio/cells/v4/common/utils/statics"
 )
 
 const (
@@ -55,6 +55,9 @@ const (
 )
 
 var (
+	//go:embed migrations/*
+	migrationsFS embed.FS
+
 	queries = map[string]string{
 		"AddAttribute":     `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
 		"GetAttributes":    `select name, value from idm_user_attributes where uuid = ?`,
@@ -137,8 +140,8 @@ func (s *sqlimpl) Init(options configx.Values) error {
 	s.IndexSQL.FixRandHash2()
 
 	// Doing the database migrations
-	migrations := &sql.PackrMigrationSource{
-		Box:         packr.NewBox("../../idm/user/migrations"),
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
@@ -422,9 +425,9 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	q := &idm.UserSingleQuery{
 		Login: userName,
 	}
-	qA, _ := ptypes.MarshalAny(q)
+	qA, _ := anypb.New(q)
 	var results []interface{}
-	s.Search(&service.Query{SubQueries: []*any.Any{qA}}, &results)
+	s.Search(&service.Query{SubQueries: []*anypb.Any{qA}}, &results)
 	if len(results) == 0 {
 		// The error code is actually very important
 		return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)

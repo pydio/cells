@@ -24,13 +24,13 @@ import (
 	"context"
 	"net/http"
 
-	dlog "github.com/dexidp/dex/pkg/log"
-	"github.com/golang/protobuf/proto"
-	"github.com/micro/go-micro/errors"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/pydio/cells/common"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/service/errors"
 )
 
 var (
@@ -45,7 +45,7 @@ func init() {
 
 type pydioconfig struct{}
 
-func (c *pydioconfig) Open(string, dlog.Logger) (Connector, error) {
+func (c *pydioconfig) Open(string, log.ZapLogger) (Connector, error) {
 	return &pydioconnector{}, nil
 }
 
@@ -57,14 +57,12 @@ func (p *pydioconnector) Prompt() string {
 
 func (p *pydioconnector) Login(ctx context.Context, s Scopes, username, password string) (Identity, bool, error) {
 	// Check the user has successfully logged in
-	c := idm.NewUserServiceClient(common.ServiceGrpcNamespace_+common.ServiceUser, defaults.NewClient())
+	c := idm.NewUserServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceUser))
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
-		errr := errors.Parse(err.Error())
-		if errr.Code == http.StatusForbidden {
+		if errors.FromError(err).Code == http.StatusForbidden {
 			return Identity{}, false, nil
 		}
-
 		return Identity{}, false, err
 	}
 

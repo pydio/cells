@@ -29,13 +29,13 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/auth"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/utils/std"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -109,7 +109,7 @@ TOKEN SCOPE
 			cmd.Println("Cannot find user")
 			return
 		}
-		cli := auth.NewPersonalAccessTokenServiceClient(registry.GetClient(common.ServiceToken))
+		cli := auth.NewPersonalAccessTokenServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceToken))
 		resp, e := cli.Generate(context.Background(), &auth.PatGenerateRequest{
 			Type:              auth.PatType_PERSONAL,
 			UserUuid:          u.Uuid,

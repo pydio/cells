@@ -1,22 +1,40 @@
+/*
+ * Copyright (c) 2021. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package modifiers
 
 import (
 	"errors"
 	"net/url"
 
-	"github.com/emicklei/go-restful"
+	restful "github.com/emicklei/go-restful/v3"
 	"github.com/gorilla/sessions"
-	"github.com/ory/fosite"
-
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/hydra"
-	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/hydra"
+	"github.com/pydio/cells/v4/common/proto/rest"
+	"github.com/pydio/cells/v4/common/service/frontend"
 )
 
 // LoginExternalAuth allows users having a valid Cells session to create an authorization code directly
 func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddleware {
-	return func(req *restful.Request, rsp *restful.Response, in *rest.FrontSessionRequest, out *rest.FrontSessionResponse, session *sessions.Session) error {
+	return func(req *restful.Request, rsp *restful.Response, in *frontend.FrontSessionWithRuntimeCtx, out *rest.FrontSessionResponse, session *sessions.Session) error {
 		if a, ok := in.AuthInfo["type"]; !ok || a != "external" { // Ignore this middleware
 			return middleware(req, rsp, in, out, session)
 		}
@@ -52,7 +70,7 @@ func LoginExternalAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 
 		requestURLValues := requestURL.Query()
 
-		redirectURL, err := fosite.GetRedirectURIFromRequestValues(requestURLValues)
+		redirectURL, err := auth.GetRedirectURIFromRequestValues(requestURLValues)
 		if err != nil {
 			return err
 		}

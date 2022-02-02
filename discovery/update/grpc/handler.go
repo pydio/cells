@@ -28,36 +28,44 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/micro/go-micro/client"
-	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/update"
-	"github.com/pydio/cells/common/utils/permissions"
-	update2 "github.com/pydio/cells/discovery/update"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/update"
+	"github.com/pydio/cells/v4/common/utils/permissions"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	update2 "github.com/pydio/cells/v4/discovery/update"
 )
 
-type Handler struct{}
+type Handler struct {
+	update.UnimplementedUpdateServiceServer
+}
 
-func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest, response *update.UpdateResponse) error {
+func (h *Handler) Name() string {
+	return ServiceName
+}
+
+func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest) (*update.UpdateResponse, error) {
 
 	configs := config.GetUpdatesConfigs()
 	binaries, e := update2.LoadUpdates(ctx, configs, request)
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
-		return e
+		return nil, e
 	}
-	response.Channel = configs.Val("channel").String()
-	response.AvailableBinaries = binaries
+	response := &update.UpdateResponse{
+		Channel:           configs.Val("channel").String(),
+		AvailableBinaries: binaries,
+	}
 
-	return nil
+	return response, nil
 }
 
-func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest, response *update.ApplyUpdateResponse) error {
+func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest) (*update.ApplyUpdateResponse, error) {
 
 	configs := config.GetUpdatesConfigs()
 	binaries, e := update2.LoadUpdates(ctx, configs, &update.UpdateRequest{
@@ -65,7 +73,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	})
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
-		return e
+		return nil, e
 	}
 	var apply *update.Package
 	for _, binary := range binaries {
@@ -74,7 +82,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		}
 	}
 	if apply == nil {
-		return fmt.Errorf("cannot find the requested version")
+		return nil, fmt.Errorf("cannot find the requested version")
 	}
 
 	log.Logger(ctx).Info("Update binary now", zap.Any("package", apply))
@@ -85,9 +93,11 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	pgChan := make(chan float64)
 	errorChan := make(chan error)
 	doneChan := make(chan bool)
-	response.Success = true
-	// Create a fake job UUID
-	response.Message = uuid.New()
+
+	response := &update.ApplyUpdateResponse{
+		Success: true,
+		Message: uuid.New(),
+	}
 	task := &jobs.Task{
 		ID:            response.Message,
 		JobID:         response.Message,
@@ -107,7 +117,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 		TaskUpdated: task,
 		Job:         job,
 	}
-	client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
+	broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
 	go func() {
 		defer close(pgChan)
 		defer close(errorChan)
@@ -121,11 +131,11 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 				} else {
 					task.StatusMessage = "Download finished, now verifying package..."
 				}
-				client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
+				broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
 			case e := <-errorChan:
 				task.Status = jobs.TaskStatus_Error
 				task.StatusMessage = e.Error()
-				client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
+				broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
 				return
 			case <-doneChan:
 				task.Status = jobs.TaskStatus_Finished
@@ -148,7 +158,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
 					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
 				}
-				client.Publish(ctx, client.NewPublication(common.TopicJobTaskEvent, event))
+				broker.MustPublish(ctx, common.TopicJobTaskEvent, event)
 				return
 			}
 		}
@@ -156,5 +166,5 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 
 	go update2.ApplyUpdate(newCtx, apply, configs, false, pgChan, doneChan, errorChan)
 
-	return nil
+	return response, nil
 }

@@ -53,7 +53,7 @@ class ComponentConfigsParser {
                 sortType:'file-natural',
                 remoteSortAttribute:'ajxp_label'
             },
-            filesize:{
+            bytesize:{
                 label:'File Size',
                 message:'2',
                 sortType:'number',
@@ -231,7 +231,6 @@ class MainFilesList extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if(nextProps.dataModel !== this.props.dataModel){
-            console.log("Changing DM - Update Context Node ?")
             this.props.dataModel.stopObserving("context_changed", this._contextObserver);
             nextProps.dataModel.observe("context_changed", this._contextObserver);
             this._contextObserver();
@@ -352,13 +351,18 @@ class MainFilesList extends React.Component {
         }else{
             const hasThumbnail = !!node.getMetadata().get("thumbnails") || !!node.getMetadata().get('ImagePreview');
             const processing = !!node.getMetadata().get('Processing');
+            const uploading = node.getMetadata().get('local:UploadStatus') === 'loading'
+            const uploadprogress = node.getMetadata().get('local:UploadProgress');
             return (
                 <FilePreview
                     loadThumbnail={!entryProps['parentIsScrolling'] && hasThumbnail && !processing}
                     node={node}
                     processing={processing}
                     lightBackground={lightBackground}
+                    displayLarge={lightBackground}
                     mimeFontOverlay={displayMode === 'list'}
+                    uploading={uploading}
+                    uploadprogress={uploadprogress}
                 />
             );
         }
@@ -370,6 +374,9 @@ class MainFilesList extends React.Component {
         const {displayMode} = this.state;
         const gridMode = displayMode.indexOf('grid-') === 0 || displayMode === 'masonry';
         const overlayClasses = node.getMetadata().get('overlay_class') || ''
+        if(node.getMetadata().has('local:entryRenderActions')){
+            return node.getMetadata().get('local:entryRenderActions')(node, this.props, this.state);
+        }
         if(pydio.UI.MOBILE_EXTENSIONS){
             const ContextMenuModel = require('pydio/model/context-menu');
             return <IconButton iconClassName="mdi mdi-dots-vertical" style={{zIndex:0, padding: 10}} tooltip="Info" onClick={(event) => {
@@ -495,6 +502,10 @@ class MainFilesList extends React.Component {
             } else {
                 return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
             }
+        } else if(metaData.has('local:entryRenderSecondLine')){
+            return metaData.get('local:entryRenderSecondLine')();
+        } else if(metaData.has('local:entryDescription')){
+            return <span className={"metadata_chunk metadata_chunk_description"}>{metaData.get('local:entryDescription')}</span>
         }
 
         if(searchResults) {

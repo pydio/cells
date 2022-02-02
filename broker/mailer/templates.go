@@ -21,9 +21,9 @@
 package mailer
 
 import (
-	"github.com/matcornic/hermes"
+	hermes "github.com/matcornic/hermes/v2"
 
-	"github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/proto/mailer"
 )
 
 func buildFromWelcomeTemplate(msg *mailer.Mail, to *mailer.User) error {

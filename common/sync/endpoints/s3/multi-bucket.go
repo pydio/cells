@@ -29,16 +29,13 @@ import (
 	"strings"
 
 	"github.com/gobwas/glob"
-
-	"github.com/pydio/cells/common"
-
-	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 
-	"github.com/micro/go-micro/errors"
-
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/model"
 )
 
 const s3BucketTagPrefix = "pydio:s3-bucket-tag-"
@@ -138,7 +135,7 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 		collect := recursive && c.checksumMapper != nil
 		var eTags []string
 		// List buckets first
-		bb, er := c.Mc.ListBucketsWithContext(context.Background())
+		bb, er := c.Mc.ListBuckets(context.Background())
 		if er != nil {
 			return er
 		}
@@ -153,18 +150,14 @@ func (m *MultiBucketClient) Walk(walknFc model.WalkNodesFunc, root string, recur
 			fNode := &tree.Node{Uuid: uid, Path: bucket.Name, Type: tree.NodeType_COLLECTION, MTime: bucket.CreationDate.Unix()}
 			// Additional read of bucket tagging if configured
 			if len(m.bucketMetas) > 0 && taggingError == nil {
-				if tags, err := c.Mc.GetBucketTagging(bucket.Name); err == nil {
-					if len(tags) == 0 {
-						log.Logger(context.Background()).Debug("No tags found on bucket " + bucket.Name)
-					} else {
-						for _, t := range tags {
-							tKey := s3BucketTagPrefix + t.Key
-							for _, g := range m.bucketMetas {
-								if g.Match(tKey) {
-									log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.Any(tKey, t.Value))
-									fNode.SetMeta(tKey, t.Value)
-									break
-								}
+				if tags, err := c.Mc.GetBucketTagging(context.Background(), bucket.Name); err == nil && tags != nil {
+					for key, value := range tags.ToMap() {
+						tKey := s3BucketTagPrefix + key
+						for _, g := range m.bucketMetas {
+							if g.Match(tKey) {
+								log.Logger(context.Background()).Info("Attaching tag information to bucket "+bucket.Name, zap.Any(tKey, value))
+								fNode.MustSetMeta(tKey, value)
+								break
 							}
 						}
 					}
@@ -217,7 +210,7 @@ func (m *MultiBucketClient) Watch(recursivePath string) (*model.WatchObject, err
 
 	// We handle only recursivePath = "" case here
 
-	bb, e := m.mainClient.Mc.ListBuckets()
+	bb, e := m.mainClient.Mc.ListBuckets(context.Background())
 	if e != nil {
 		return nil, e
 	}

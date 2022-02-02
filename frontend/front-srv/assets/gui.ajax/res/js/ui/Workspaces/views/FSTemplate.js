@@ -37,8 +37,6 @@ import Color from "color";
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
 import UnifiedSearchForm from "../search/components/UnifiedSearchForm";
-import Facets from "../search/components/Facets";
-
 
 class FSTemplate extends React.Component {
 

@@ -23,10 +23,10 @@ package cmd
 import (
 	"strings"
 
-	"github.com/micro/go-micro/registry"
 	"github.com/olekukonko/tablewriter"
-	"github.com/pydio/cells/common/config"
 	"github.com/spf13/cobra"
+
+	"github.com/pydio/cells/v4/common/config"
 )
 
 // configDatabaseListCmd lists all database connections.
@@ -80,9 +80,12 @@ DESCRIPTION
 			}
 
 			var services []string
-			if s, err := registry.GetService(id); err == nil && s != nil {
-				services = append(services, id)
-			}
+			/*
+				// TODO V4
+				if s, err := registry.GetService(id); err == nil && s != nil {
+					services = append(services, id)
+				}
+			*/
 
 			for sid, vs := range m {
 				dbid, ok := vs.(string)

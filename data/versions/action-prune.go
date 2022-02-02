@@ -23,19 +23,19 @@ package versions
 import (
 	"context"
 
-	"github.com/micro/go-micro/client"
+	"github.com/pydio/cells/v4/common/client/grpc"
+
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/jobs"
-	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/scheduler/actions"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/proto/jobs"
+	"github.com/pydio/cells/v4/common/proto/object"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/scheduler/actions"
 )
 
 var (
@@ -43,8 +43,9 @@ var (
 )
 
 type PruneVersionsAction struct {
-	Handler views.Handler
-	Pool    views.SourcesPool
+	common.RuntimeHolder
+	Handler nodes.Handler
+	Pool    nodes.SourcesPool
 }
 
 func (c *PruneVersionsAction) GetDescription(lang ...string) actions.ActionDescription {
@@ -70,11 +71,10 @@ func (c *PruneVersionsAction) GetName() string {
 }
 
 // Init passes the parameters to a newly created PruneVersionsAction.
-func (c *PruneVersionsAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
+func (c *PruneVersionsAction) Init(job *jobs.Job, action *jobs.Action) error {
 
-	router := views.NewStandardRouter(views.RouterOptions{AdminView: true})
-	c.Pool = router.GetClientsPool()
-	c.Handler = router
+	c.Pool = getRouter(c.GetRuntimeContext()).GetClientsPool()
+	c.Handler = getRouter(c.GetRuntimeContext())
 	return nil
 }
 
@@ -100,11 +100,11 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	} else {
 		log.TasksLogger(ctx).Info("Starting action: one or more datasources found with versioning enabled.")
 	}
-	versionClient := tree.NewNodeVersionerClient(common.ServiceGrpcNamespace_+common.ServiceVersions, defaults.NewClient())
+	versionClient := tree.NewNodeVersionerClient(grpc.GetClientConnFromCtx(c.GetRuntimeContext(), common.ServiceVersions))
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
 		for _, version := range response.DeletedVersions {
 			deleteNode := version.GetLocation()
-			_, err := c.Handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode}) // source.Client.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
+			_, err := c.Handler.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: deleteNode}) // source.Handler.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
 			if err != nil {
 				log.TasksLogger(ctx).Error("Error while trying to remove file "+deleteNode.Uuid, zap.String("fileId", deleteNode.Uuid), zap.Error(err))
 			} else {

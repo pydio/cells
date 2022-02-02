@@ -10,21 +10,23 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	defaults "github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/frontend"
 )
 
 type IndexHandler struct {
+	runtimeCtx       context.Context
 	tpl              *template.Template
 	loadingTpl       *template.Template
 	frontendDetected bool
 }
 
-func NewIndexHandler() *IndexHandler {
-	h := &IndexHandler{}
+func NewIndexHandler(ctx context.Context) *IndexHandler {
+	h := &IndexHandler{
+		runtimeCtx: ctx,
+	}
 	h.tpl, _ = template.New("index").Parse(Page)
 	h.loadingTpl, _ = template.New("loading").Parse(loading)
 	return h
@@ -42,11 +44,17 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user := &frontend.User{}
 	rolesConfigs := user.FlattenedRolesConfigs()
 
+	c := config.Get()
+	aclParameters := rolesConfigs.Val("parameters")
+	aclActions := rolesConfigs.Val("actions")
+	scopes := user.GetActiveScopes()
+
 	status := frontend.RequestStatus{
-		Config:        config.Get(),
-		AclParameters: rolesConfigs.Val("parameters"),
-		AclActions:    rolesConfigs.Val("actions"),
-		WsScopes:      user.GetActiveScopes(),
+		RuntimeCtx:    h.runtimeCtx,
+		Config:        c,
+		AclParameters: aclParameters,
+		AclActions:    aclActions,
+		WsScopes:      scopes,
 		User:          user,
 		NoClaims:      !user.Logged,
 		Lang:          "en",
@@ -124,11 +132,10 @@ func (h *IndexHandler) detectFrontendService() bool {
 	if h.frontendDetected {
 		return true
 	}
-	if s, e := defaults.Registry().GetService(common.ServiceRestNamespace_ + common.ServiceFrontend); e == nil && len(s) > 0 {
+	reg := servicecontext.GetRegistry(h.runtimeCtx)
+	if s, e := reg.Get(common.ServiceRestNamespace_ + common.ServiceFrontend); e == nil && s != nil {
 		h.frontendDetected = true
-		return true
 	}
-	log.Logger(context.Background()).Error("Frontend Service Not Detected")
-	return false
+	return h.frontendDetected
 
 }

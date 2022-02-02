@@ -25,21 +25,22 @@ import (
 	"io"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/v4/common/client/grpc"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
-	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils/permissions"
-	"github.com/pydio/cells/common/views"
+	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/abstract"
+	"github.com/pydio/cells/v4/common/proto/idm"
+	"github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/utils/permissions"
 )
 
 // WriteAllowed returns an error if the Write permission is not present in an acl
@@ -73,13 +74,13 @@ func (a *Handler) WriteAllowed(ctx context.Context, acl *idm.ACL) error {
 // in the current context
 func (a *Handler) CheckRole(ctx context.Context, roleID string) error {
 
-	cli := idm.NewRoleServiceClient(common.ServiceGrpcNamespace_+common.ServiceRole, defaults.NewClient())
-	q, _ := ptypes.MarshalAny(&idm.RoleSingleQuery{Uuid: []string{roleID}})
-	stream, err := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	cli := idm.NewRoleServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceRole))
+	q, _ := anypb.New(&idm.RoleSingleQuery{Uuid: []string{roleID}})
+	stream, err := cli.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if err != nil {
 		return err
 	}
-	defer stream.Close()
+	defer stream.CloseSend()
 	var role *idm.Role
 	for {
 		resp, e := stream.Recv()
@@ -113,7 +114,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 		return err
 	}
 
-	treeClient := tree.NewNodeProviderClient(common.ServiceGrpcNamespace_+common.ServiceTree, defaults.NewClient())
+	treeClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(a.ctx, common.ServiceTree))
 
 	ancestorStream, lErr := treeClient.ListNodes(ctx, &tree.ListNodesRequest{
 		Node:      &tree.Node{Uuid: nodeID},
@@ -122,7 +123,7 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 	if lErr != nil {
 		return lErr
 	}
-	defer ancestorStream.Close()
+	defer ancestorStream.CloseSend()
 	parentNodes := []*tree.Node{{Uuid: nodeID}}
 	for {
 		parent, e := ancestorStream.Recv()
@@ -143,13 +144,13 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 	}
 
 	// Update Access List with resolved virtual nodes
-	virtualManager := views.GetVirtualNodesManager()
-	cPool := views.NewClientsPool(false)
+	virtualManager := abstract.GetVirtualNodesManager(a.ctx)
+	cPool := nodes.NewClientsPool(a.ctx, false)
 	for _, vNode := range virtualManager.ListNodes() {
-		if _, has := accessList.GetNodeBitmask(vNode.Uuid); has {
+		if aclNodeMask, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
 			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, cPool, false); err == nil {
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
-				accessList.ReplicateBitmask(vNode.Uuid, resolvedRoot.Uuid)
+				accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
 			}
 		}
 	}

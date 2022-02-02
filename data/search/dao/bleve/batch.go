@@ -23,24 +23,27 @@ package bleve
 import (
 	"compress/gzip"
 	"context"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/blevesearch/bleve"
+	bleve "github.com/blevesearch/bleve/v2"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth"
-	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/utils/meta"
-	"github.com/pydio/cells/common/views"
-	"github.com/pydio/cells/common/views/models"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/nodes/models"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/service/context"
 )
 
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -48,24 +51,25 @@ type Batch struct {
 	sync.Mutex
 	inserts    map[string]*tree.IndexableNode
 	deletes    map[string]struct{}
-	nsProvider *meta.NamespacesProvider
+	nsProvider *meta.NsProvider
 	options    BatchOptions
 	ctx        context.Context
-	uuidRouter views.Handler
-	stdRouter  views.Handler
+	uuidRouter nodes.Handler
+	stdRouter  nodes.Handler
 }
 
 type BatchOptions struct {
 	IndexContent bool
 }
 
-func NewBatch(options BatchOptions) *Batch {
+func NewBatch(ctx context.Context, nsProvider *meta.NsProvider, options BatchOptions) *Batch {
 	b := &Batch{
-		options: options,
-		inserts: make(map[string]*tree.IndexableNode),
-		deletes: make(map[string]struct{}),
+		options:    options,
+		inserts:    make(map[string]*tree.IndexableNode),
+		deletes:    make(map[string]struct{}),
+		nsProvider: nsProvider,
 	}
-	b.ctx = b.createBackgroundContext()
+	b.ctx = b.createBackgroundContext(ctx)
 	return b
 }
 
@@ -99,9 +103,9 @@ func (b *Batch) Flush(index bleve.Index) error {
 	}
 	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l))
 	batch := index.NewBatch()
-	excludes := b.NamespacesProvider().ExcludeIndexes()
-	b.NamespacesProvider().InitStreamers(b.ctx)
-	defer b.NamespacesProvider().CloseStreamers()
+	excludes := b.nsProvider.ExcludeIndexes()
+	b.nsProvider.InitStreamers(b.ctx)
+	defer b.nsProvider.CloseStreamers()
 	for uuid, node := range b.inserts {
 		if e := b.LoadIndexableNode(node, excludes); e == nil {
 			batch.Index(uuid, node)
@@ -130,7 +134,7 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 			indexNode.Node = *rNode
 		}
 	} else if indexNode.ReloadNs {
-		if resp, e := b.NamespacesProvider().ReadNode(&indexNode.Node); e != nil {
+		if resp, e := b.nsProvider.ReadNode(&indexNode.Node); e != nil {
 			return e
 		} else {
 			indexNode.Node = *resp
@@ -139,7 +143,7 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	indexNode.Meta = indexNode.AllMetaDeserialized(excludes)
 	indexNode.ModifTime = time.Unix(indexNode.MTime, 0)
 	var basename string
-	indexNode.GetMeta("name", &basename)
+	indexNode.GetMeta(common.MetaNamespaceNodeName, &basename)
 	indexNode.Basename = basename
 	if indexNode.Type == 1 {
 		indexNode.NodeType = "file"
@@ -147,7 +151,7 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	} else {
 		indexNode.NodeType = "folder"
 	}
-	indexNode.GetMeta("GeoLocation", &indexNode.GeoPoint)
+	indexNode.GetMeta(common.MetaNamespaceGeoLocation, &indexNode.GeoPoint)
 	ref := indexNode.GetStringMeta("ContentRef")
 	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
 		delete(indexNode.Meta, "ContentRef")
@@ -170,33 +174,29 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 	return nil
 }
 
-func (b *Batch) createBackgroundContext() context.Context {
+func (b *Batch) createBackgroundContext(parent context.Context) context.Context {
 	ctx := auth.ContextFromClaims(context.Background(), claim.Claims{
 		Name:      common.PydioSystemUsername,
 		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",
 	})
 	ctx = servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
+	ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(parent))
+	ctx = servercontext.WithRegistry(ctx, servercontext.GetRegistry(parent))
+	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(parent))
 	return ctx
 }
 
-func (b *Batch) NamespacesProvider() *meta.NamespacesProvider {
-	if b.nsProvider == nil {
-		b.nsProvider = meta.NewNamespacesProvider()
-	}
-	return b.nsProvider
-}
-
-func (b *Batch) getUuidRouter() views.Handler {
+func (b *Batch) getUuidRouter() nodes.Handler {
 	if b.uuidRouter == nil {
-		b.uuidRouter = views.NewUuidRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+		b.uuidRouter = compose.NewClient(compose.UuidComposer(nodes.AsAdmin(), nodes.WithContext(b.ctx), nodes.WithRegistryWatch(servicecontext.GetRegistry(b.ctx)))...)
 	}
 	return b.uuidRouter
 }
 
-func (b *Batch) getStdRouter() views.Handler {
+func (b *Batch) getStdRouter() nodes.Handler {
 	if b.stdRouter == nil {
-		b.stdRouter = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+		b.stdRouter = compose.NewClient(compose.PathComposer(nodes.AsAdmin(), nodes.WithContext(b.ctx), nodes.WithRegistryWatch(servicecontext.GetRegistry(b.ctx)))...)
 	}
 	return b.stdRouter
 }

@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"testing"
 
-	json "github.com/pydio/cells/x/jsonx"
-
-	"github.com/pydio/cells/x/configx"
 	. "github.com/smartystreets/goconvey/convey"
+
+	configx2 "github.com/pydio/cells/v4/common/utils/configx"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
 func PrettyPrint(v interface{}) (err error) {
@@ -41,7 +41,7 @@ func PrettyPrint(v interface{}) (err error) {
 func TestUpdateKeys(t *testing.T) {
 
 	// Create new config
-	conf := configx.New(configx.WithJSON())
+	conf := configx2.New(configx2.WithJSON())
 	conf.Set(data)
 
 	Convey("UpdateKeys", t, func() {

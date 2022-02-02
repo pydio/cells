@@ -36,17 +36,18 @@ import (
 	"strings"
 	"time"
 
-	errors2 "github.com/micro/go-micro/errors"
-
-	"github.com/pborman/uuid"
-	"github.com/pydio/minio-go"
+	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/minio/minio-go/v7/pkg/notification"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
-	servicescommon "github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sync/model"
+	servicescommon "github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	errors2 "github.com/pydio/cells/v4/common/service/errors"
+	"github.com/pydio/cells/v4/common/sync/model"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -71,7 +72,10 @@ type Client struct {
 }
 
 func NewClient(ctx context.Context, host string, key string, secret string, bucket string, rootPath string, secure bool, options model.EndpointOptions) (*Client, error) {
-	mc, e := minio.New(host, key, secret, secure)
+	mc, e := minio.New(host, &minio.Options{
+		Creds:  credentials.NewStaticV4(key, secret, ""),
+		Secure: secure,
+	})
 	if e != nil {
 		return nil, e
 	}
@@ -89,7 +93,7 @@ func NewClient(ctx context.Context, host string, key string, secret string, buck
 func (c *Client) GetEndpointInfo() model.EndpointInfo {
 
 	return model.EndpointInfo{
-		URI: "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
+		URI:                   "s3://" + c.Host + "/" + path.Join(c.Bucket, c.RootPath),
 		RequiresFoldersRescan: false,
 		RequiresNormalization: c.ServerRequiresNormalization,
 	}
@@ -148,9 +152,10 @@ func (c *Client) getFullPath(path string) string {
 }
 
 func (c *Client) Stat(pa string) (i os.FileInfo, err error) {
+	ctx := context.Background()
 	fullPath := c.getFullPath(pa)
 	if fullPath == "" || fullPath == "/" {
-		buckets, err := c.Mc.ListBuckets()
+		buckets, err := c.Mc.ListBuckets(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -164,10 +169,10 @@ func (c *Client) Stat(pa string) (i os.FileInfo, err error) {
 		}
 		return nil, errors2.NotFound("bucket.not.found", "cannot find bucket %s", c.Bucket)
 	}
-	objectInfo, e := c.Mc.StatObject(c.Bucket, fullPath, minio.StatObjectOptions{})
+	objectInfo, e := c.Mc.StatObject(ctx, c.Bucket, fullPath, minio.StatObjectOptions{})
 	if e != nil {
 		// Try folder
-		folderInfo, e2 := c.Mc.StatObject(c.Bucket, path.Join(fullPath, servicescommon.PydioSyncHiddenFile), minio.StatObjectOptions{})
+		folderInfo, e2 := c.Mc.StatObject(ctx, c.Bucket, path.Join(fullPath, servicescommon.PydioSyncHiddenFile), minio.StatObjectOptions{})
 		if e2 != nil {
 			return nil, e
 		}
@@ -181,17 +186,17 @@ func (c *Client) CreateNode(ctx context.Context, node *tree.Node, updateIfExists
 		return errors.New("This is a DataSyncTarget, use PutNode for leafs instead of CreateNode")
 	}
 	hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
-	_, err = c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), minio.PutObjectOptions{ContentType: "text/plain"})
+	_, err = c.Mc.PutObject(ctx, c.Bucket, hiddenPath, strings.NewReader(node.Uuid), int64(len(node.Uuid)), minio.PutObjectOptions{ContentType: "text/plain"})
 	return err
 }
 
 func (c *Client) DeleteNode(ctx context.Context, path string) (err error) {
 	path = c.getFullPath(path)
 
-	doneChan := make(chan struct{})
-	defer close(doneChan)
-	for object := range c.Mc.ListObjectsV2(c.Bucket, path, true, doneChan) {
-		err = c.Mc.RemoveObject(c.Bucket, object.Key)
+	ctx2, cancel := context.WithCancel(ctx)
+	defer cancel()
+	for object := range c.Mc.ListObjects(ctx2, c.Bucket, minio.ListObjectsOptions{Prefix: path, Recursive: true}) {
+		err = c.Mc.RemoveObject(ctx, c.Bucket, object.Key, minio.RemoveObjectOptions{})
 		if err != nil {
 			log.Logger(c.globalContext).Error("Error while deleting object", zap.String("key", object.Key), zap.Error(err))
 			return err
@@ -206,10 +211,11 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 	defer close(doneChan)
 	oldPath = c.getFullPath(oldPath)
 	newPath = c.getFullPath(newPath)
-	for object := range c.Mc.ListObjectsV2(c.Bucket, oldPath, true, doneChan) {
+
+	ctx2, cancel := context.WithCancel(ctx)
+	defer cancel()
+	for object := range c.Mc.ListObjects(ctx2, c.Bucket, minio.ListObjectsOptions{Prefix: oldPath, Recursive: true}) {
 		targetKey := newPath + strings.TrimPrefix(object.Key, oldPath)
-		destinationInfo, _ := minio.NewDestinationInfo(c.Bucket, targetKey, nil, nil)
-		sourceInfo := minio.NewSourceInfo(c.Bucket, object.Key, nil)
 		// Switch to multipart for copy
 		if object.Size > MaxCopyObjectSize {
 			cl, ok := c.Mc.(*minio.Client)
@@ -222,12 +228,20 @@ func (c *Client) MoveNode(ctx context.Context, oldPath string, newPath string) (
 				return er
 			}
 		} else {
-			copyResult := c.Mc.CopyObject(destinationInfo, sourceInfo)
-			if copyResult != nil {
-				return copyResult
+			_, e := c.Mc.CopyObject(ctx, minio.CopyDestOptions{
+				Bucket: c.Bucket,
+				Object: targetKey,
+			}, minio.CopySrcOptions{
+				Bucket: c.Bucket,
+				Object: object.Key,
+			})
+			if e != nil {
+				return e
 			}
 		}
-		c.Mc.RemoveObject(c.Bucket, object.Key)
+		if e := c.Mc.RemoveObject(ctx, c.Bucket, object.Key, minio.RemoveObjectOptions{}); e != nil {
+			// do something
+		}
 	}
 	return nil
 
@@ -245,7 +259,7 @@ func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int
 			close(writeDone)
 			close(writeErr)
 		}()
-		_, e := c.Mc.PutObject(c.Bucket, path, reader, targetSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+		_, e := c.Mc.PutObject(cancel, c.Bucket, path, reader, targetSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 		if e != nil {
 			writeErr <- e
 		}
@@ -256,7 +270,7 @@ func (c *Client) GetWriterOn(cancel context.Context, path string, targetSize int
 
 func (c *Client) GetReaderOn(path string) (out io.ReadCloser, err error) {
 
-	return c.Mc.GetObject(c.Bucket, c.getFullPath(path), minio.GetObjectOptions{})
+	return c.Mc.GetObject(context.Background(), c.Bucket, c.getFullPath(path), minio.GetObjectOptions{})
 
 }
 
@@ -348,11 +362,13 @@ func (c *Client) Walk(walknFc model.WalkNodesFunc, root string, recursive bool) 
 }
 
 func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc func(path string, info *S3FileInfo, err error) error) (err error) {
-	doneChan := make(chan struct{})
-	defer close(doneChan)
+
+	ctx2, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	createdDirs := make(map[string]bool)
 	log.Logger(c.globalContext).Info("Listing all S3 objects for path", zap.String("bucket", c.Bucket), zap.String("path", recursivePath))
-	for objectInfo := range c.Mc.ListObjectsV2(c.Bucket, recursivePath, recursive, doneChan) {
+	for objectInfo := range c.Mc.ListObjects(ctx2, c.Bucket, minio.ListObjectsOptions{Prefix: recursivePath, Recursive: recursive}) {
 		if objectInfo.Err != nil {
 			log.Logger(c.globalContext).Error("Error while listing", zap.Error(objectInfo.Err))
 			return objectInfo.Err
@@ -429,7 +445,7 @@ func (c *Client) createFolderIdsWhileWalking(createdDirs map[string]bool, walknF
 
 func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectInfo, error) {
 
-	oi, e := c.Mc.StatObject(c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
+	oi, e := c.Mc.StatObject(context.Background(), c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
 	if e != nil {
 		return objectInfo, e
 	}
@@ -491,17 +507,23 @@ func (c *Client) s3forceComputeEtag(objectInfo minio.ObjectInfo) (minio.ObjectIn
 
 	} else {
 
-		var destinationInfo minio.DestinationInfo
-		var sourceInfo minio.SourceInfo
-		destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, existingMeta)
-		sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
-		sourceInfo.Headers.Set(servicescommon.XAmzMetaDirective, "REPLACE")
-		copyErr := c.Mc.CopyObject(destinationInfo, sourceInfo)
+		//destinationInfo, _ = minio.NewDestinationInfo(c.Bucket, objectInfo.Key, nil, existingMeta)
+		//sourceInfo = minio.NewSourceInfo(c.Bucket, objectInfo.Key, nil)
+		//sourceInfo.Headers.Set(servicescommon.XAmzMetaDirective, "REPLACE")
+		_, copyErr := c.Mc.CopyObject(context.Background(), minio.CopyDestOptions{
+			Bucket:          c.Bucket,
+			Object:          objectInfo.Key,
+			UserMetadata:    existingMeta,
+			ReplaceMetadata: true, // sourceInfo.Headers.Set(servicescommon.XAmzMetaDirective, "REPLACE") ?
+		}, minio.CopySrcOptions{
+			Bucket: c.Bucket,
+			Object: objectInfo.Key,
+		})
 		if copyErr != nil {
 			log.Logger(c.globalContext).Error("Compute Etag Copy", zap.Error(copyErr))
 			return objectInfo, copyErr
 		}
-		newInfo, e := c.Mc.StatObject(c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
+		newInfo, e := c.Mc.StatObject(context.Background(), c.Bucket, objectInfo.Key, minio.StatObjectOptions{})
 		if e != nil {
 			return objectInfo, e
 		}
@@ -569,19 +591,31 @@ func (c *Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Nod
 	}
 
 	if node.IsLeaf() {
-		d, e := minio.NewDestinationInfo(c.Bucket, c.getFullPath(node.Path), nil, map[string]string{
-			servicescommon.XAmzMetaDirective: "REPLACE",
-			servicescommon.XAmzMetaNodeUuid:  node.Uuid,
+		/*
+			d, e := minio.NewDestinationInfo(c.Bucket, c.getFullPath(node.Path), nil, map[string]string{
+				servicescommon.XAmzMetaDirective: "REPLACE",
+				servicescommon.XAmzMetaNodeUuid:  node.Uuid,
+			})
+			if e != nil {
+				return nil, e
+			}
+			s := minio.NewSourceInfo(c.Bucket, c.getFullPath(node.Path), nil)
+		*/
+		_, err := c.Mc.CopyObject(context.Background(), minio.CopyDestOptions{
+			Bucket: c.Bucket,
+			Object: c.getFullPath(node.Path),
+			UserMetadata: map[string]string{
+				servicescommon.XAmzMetaNodeUuid: node.Uuid,
+			},
+			ReplaceMetadata: true, // sourceInfo.Headers.Set(servicescommon.XAmzMetaDirective, "REPLACE") ?
+		}, minio.CopySrcOptions{
+			Bucket: c.Bucket,
+			Object: c.getFullPath(node.Path),
 		})
-		if e != nil {
-			return nil, e
-		}
-		s := minio.NewSourceInfo(c.Bucket, c.getFullPath(node.Path), nil)
-		err := c.Mc.CopyObject(d, s)
 		return node, err
 	} else {
 		hiddenPath := fmt.Sprintf("%v/%s", c.getFullPath(node.Path), servicescommon.PydioSyncHiddenFile)
-		_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
+		_, err := c.Mc.PutObject(context.Background(), c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
 		return node, err
 	}
 
@@ -601,7 +635,7 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	// Find existing .pydio
 	hiddenPath := fmt.Sprintf("%v/%s", folderPath, servicescommon.PydioSyncHiddenFile)
 	hiddenPath = strings.TrimLeft(hiddenPath, "/")
-	object, err := c.Mc.GetObject(c.Bucket, hiddenPath, minio.GetObjectOptions{})
+	object, err := c.Mc.GetObject(context.Background(), c.Bucket, hiddenPath, minio.GetObjectOptions{})
 	if err == nil {
 		defer object.Close()
 		buf := new(bytes.Buffer)
@@ -631,12 +665,15 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 	uid = uuid.New()
 	eTag := model.StringContentToETag(uid)
 	log.Logger(c.globalContext).Info("Create Hidden File for folder", zap.String("path", hiddenPath))
-	size, _ := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
+	ui, e := c.Mc.PutObject(context.Background(), c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
+	if e != nil {
+		return "", minio.ObjectInfo{}, e
+	}
 	created = minio.ObjectInfo{
 		ETag:         eTag,
 		Key:          hiddenPath,
 		LastModified: time.Now(),
-		Size:         size,
+		Size:         ui.Size,
 		ContentType:  "text/plain",
 	}
 	return
@@ -645,7 +682,7 @@ func (c *Client) readOrCreateFolderId(folderPath string) (uid string, created mi
 
 func (c *Client) getFileHash(path string) (uid string, hash string, metaSize int64, e error) {
 	metaSize = -1
-	objectInfo, e := c.Mc.StatObject(c.Bucket, path, minio.StatObjectOptions{})
+	objectInfo, e := c.Mc.StatObject(context.Background(), c.Bucket, path, minio.StatObjectOptions{})
 	if e != nil {
 		return "", "", metaSize, e
 	}
@@ -678,14 +715,14 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 
 	// Flag set to set the notification.
 	var events []string
-	events = append(events, string(minio.ObjectCreatedAll))
-	events = append(events, string(minio.ObjectRemovedAll))
+	events = append(events, string(notification.ObjectCreatedAll))
+	events = append(events, string(notification.ObjectRemovedAll))
 
-	doneCh := make(chan struct{})
+	ctx, cancel := context.WithCancel(context.Background())
 	wConn := make(chan model.WatchConnectionInfo)
 
 	// Start listening on all bucket events.
-	eventsCh := c.Mc.ListenBucketNotification(c.Bucket, c.getFullPath(recursivePath), "", events, doneCh)
+	eventsCh := c.Mc.ListenBucketNotification(ctx, c.Bucket, c.getFullPath(recursivePath), "", events)
 
 	wo := &model.WatchObject{
 		EventInfoChan:  eventChan,
@@ -697,7 +734,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 	// wait for events to occur and sent them through the eventChan and errorChan
 	go func() {
 		defer func() {
-			close(doneCh)
+			cancel()
 			close(eventChan)
 			close(errorChan)
 			close(wConn)
@@ -797,7 +834,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 								Metadata:  record.RequestParameters,
 							}
 						}
-					} else if record.EventName == minio.ObjectAccessedGet {
+					} else if record.EventName == notification.ObjectAccessedGet {
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,
 							Size:      record.S3.Object.Size,
@@ -810,7 +847,7 @@ func (c *Client) Watch(recursivePath string) (*model.WatchObject, error) {
 							UserAgent: record.Source.UserAgent,
 							Metadata:  record.RequestParameters,
 						}
-					} else if record.EventName == minio.ObjectAccessedHead {
+					} else if record.EventName == notification.ObjectAccessedHead {
 						eventChan <- model.EventInfo{
 							Time:      record.EventTime,
 							Size:      record.S3.Object.Size,
@@ -848,7 +885,7 @@ func stripCloseParameters(do bool, params map[string]string) map[string]string {
 	return newParams
 }
 
-func (c *Client) isIgnoredFile(path string, record ...minio.NotificationEvent) bool {
+func (c *Client) isIgnoredFile(path string, record ...notification.Event) bool {
 	if len(record) > 0 && strings.Contains(record[0].Source.UserAgent, UserAgentAppName) {
 		return true
 	}

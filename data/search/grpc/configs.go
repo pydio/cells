@@ -21,8 +21,8 @@
 package grpc
 
 import (
-	"github.com/pydio/cells/common/forms"
-	"github.com/pydio/cells/data/search/lang"
+	"github.com/pydio/cells/v4/common/forms"
+	"github.com/pydio/cells/v4/data/search/lang"
 )
 
 var bleveAnalyzers = []map[string]string{

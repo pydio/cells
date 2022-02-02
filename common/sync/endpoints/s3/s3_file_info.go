@@ -25,7 +25,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/pydio/minio-go"
+	minio "github.com/minio/minio-go/v7"
 )
 
 type S3FileInfo struct {

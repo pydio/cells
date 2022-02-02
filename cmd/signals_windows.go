@@ -25,8 +25,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/micro/go-micro/broker"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/v4/common/log"
 )
 
 func handleSignals() {
@@ -45,23 +44,23 @@ func handleSignals() {
 				log.Info("Cancelling main context")
 				cancel()
 
-				log.Info("Disconnecting broker")
-				// Disconnecting the broker so that we are not flooded with messages
-				broker.Disconnect()
+				//log.Info("Disconnecting broker")
+				//// Disconnecting the broker so that we are not flooded with messages
+				//broker.Disconnect()
 
 			case syscall.SIGHUP:
 				// Stop all services
-				for _, service := range allServices {
-					if service.RequiresFork() && !IsFork {
-						// Stopping here would kill the command and prevent proper de-registering of service
-						// Signal will be passed along and the fork will stop by itself.
-						continue
-					}
-
-					service.Stop()
-
-					service.Start(ctx)
-				}
+				//for _, service := range allServices {
+				//	if service.RequiresFork() && !IsFork {
+				//		// Stopping here would kill the command and prevent proper de-registering of service
+				//		// Signal will be passed along and the fork will stop by itself.
+				//		continue
+				//	}
+				//
+				//	service.Stop()
+				//
+				//	service.Start(ctx)
+				//}
 			}
 		}
 	}()

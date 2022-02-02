@@ -23,27 +23,25 @@ package context_wrapper
 import (
 	"context"
 
-	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
-	servicecontext "github.com/pydio/cells/common/service/context"
-	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/log"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/context/metadata"
 )
 
 // RichContext enriches the passed logger with as much info as possible
-func RichContext(ctx context.Context, logger *zap.Logger, fields ...zapcore.Field) *zap.Logger {
+func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Field) log.ZapLogger {
 
 	if ctx == nil {
 		return logger
 	}
 
 	// Name Logger
-	if serviceName := servicecontext.GetServiceName(ctx); serviceName != "" {
-		logger = logger.Named(serviceName)
-	}
+	logger = log.BasicContextWrapper(ctx, logger, fields...)
 
 	// Compute all fields
 	if span, ok := servicecontext.SpanFromContext(ctx); ok {
@@ -61,13 +59,13 @@ func RichContext(ctx context.Context, logger *zap.Logger, fields ...zapcore.Fiel
 			fields = append(fields, zap.String(common.KeyOperationLabel, opLabel))
 		}
 	}
-	if jobId, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
+	if jobId, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaJobUuid); has {
 		fields = append(fields, zap.String(common.KeySchedulerJobId, jobId))
 	}
-	if taskUuid, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
+	if taskUuid, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskUuid); has {
 		fields = append(fields, zap.String(common.KeySchedulerTaskId, taskUuid))
 	}
-	if taskPath, has := context2.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
+	if taskPath, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
 		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
 	}
 	if ctxMeta, has := metadata.FromContext(ctx); has {

@@ -28,7 +28,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/v4/common/config"
 )
 
 // updateConfigCmd updates a configuration parameter both in the pydio.json file and in the database.

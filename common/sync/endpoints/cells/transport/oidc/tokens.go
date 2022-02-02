@@ -31,10 +31,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/patrickmn/go-cache"
-
-	"github.com/pydio/cells/common/sync/endpoints/cells/transport"
-	http2 "github.com/pydio/cells/common/sync/endpoints/cells/transport/http"
+	"github.com/pydio/cells/v4/common/sync/endpoints/cells/transport"
+	http2 "github.com/pydio/cells/v4/common/sync/endpoints/cells/transport/http"
+	"github.com/pydio/cells/v4/common/utils/cache"
 )
 
 var (
@@ -45,19 +44,18 @@ var (
 )
 
 type TokenStore struct {
-	internalCache *cache.Cache
+	internalCache cache.Short
 }
 
 func NewTokenStore() *TokenStore {
 	t := &TokenStore{
-		internalCache: cache.New(20*time.Minute, 10*time.Minute),
+		internalCache: cache.NewShort(cache.WithEviction(20*time.Minute), cache.WithCleanWindow(10*time.Minute)),
 	}
 	return t
 }
 
 func (t *TokenStore) Store(c *transport.SdkConfig, token string, expiry time.Duration) {
-	//fmt.Println("[Auth] Storing token with expiration ", expiry)
-	t.internalCache.Set(t.computeKey(c), token, expiry)
+	t.internalCache.SetWithExpiry(t.computeKey(c), token, expiry)
 }
 
 func (t *TokenStore) TokenFor(c *transport.SdkConfig) string {

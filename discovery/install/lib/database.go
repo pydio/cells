@@ -32,10 +32,11 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/x/configx"
+
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/install"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 var (
