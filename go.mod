@@ -127,4 +127,4 @@ require (
 
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220124155239-9bd5f058758c
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220202182315-b68e1b8b1d9d

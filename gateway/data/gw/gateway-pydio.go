@@ -422,13 +422,10 @@ func (l *pydioObjects) PutObject(ctx context.Context, bucket, object string, dat
 func (l *pydioObjects) CopyObject(ctx context.Context, srcBucket string, srcObject string, destBucket string, destObject string,
 	srcInfo minio.ObjectInfo, srcOpts, dstOpts minio.ObjectOptions) (objInfo minio.ObjectInfo, e error) {
 
-	if srcObject == destObject {
+	if srcObject == destObject && srcOpts.VersionID == "" {
 		// log.Printf("Coping %v to %v, this is a REPLACE meta directive \n", srcObject, destObject)
 		// log.Println(requestMetadata)
 		return objInfo, (&minio.NotImplemented{})
-	}
-	if srcOpts.VersionID != "" {
-		srcObject = strings.Replace(srcObject, "?versionId="+srcOpts.VersionID, "", 1)
 	}
 	written, err := l.Router.CopyObject(ctx, &tree.Node{
 		Path: strings.TrimLeft(srcObject, "/"),
