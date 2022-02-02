@@ -26,17 +26,18 @@ var (
 	options = configx.New()
 	ctx     context.Context
 	wg      sync.WaitGroup
+	mockDAO oauth.DAO
 )
 
 func TestMain(m *testing.M) {
 
-	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_oauth_")
+	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_")
 	if dao == nil {
 		fmt.Print("Could not start sqlite3 DAO")
 		return
 	}
 
-	mockDAO := oauth.NewDAO(dao).(oauth.DAO)
+	mockDAO = oauth.NewDAO(dao).(oauth.DAO)
 	if err := mockDAO.Init(options); err != nil {
 		fmt.Print("Could not init DAO ", err)
 		return
@@ -51,7 +52,9 @@ func TestMain(m *testing.M) {
 func TestPatHandler_Generate(t *testing.T) {
 
 	Convey("Test Personal Access Tokens", t, func() {
-		pat := &PatHandler{}
+		pat := &PatHandler{
+			dao: mockDAO,
+		}
 		rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
 			UserUuid:  "admin-uuid",
@@ -93,7 +96,7 @@ func TestPatHandler_Generate(t *testing.T) {
 }
 func TestPatHandler_AutoRefresh(t *testing.T) {
 	Convey("Test AutoRefresh Access Tokens", t, func() {
-		pat := &PatHandler{}
+		pat := &PatHandler{dao: mockDAO}
 		rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:              auth.PatType_PERSONAL,
 			UserUuid:          "admin-uuid",
@@ -139,7 +142,7 @@ func TestPatHandler_AutoRefresh(t *testing.T) {
 
 func TestPatHandler_Revoke(t *testing.T) {
 	Convey("Test Revoke Access Tokens", t, func() {
-		pat := &PatHandler{}
+		pat := &PatHandler{dao: mockDAO}
 		rsp, e := pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
 			UserUuid:  "admin-uuid",
@@ -161,7 +164,7 @@ func TestPatHandler_Revoke(t *testing.T) {
 
 func TestPathHandler_List(t *testing.T) {
 	Convey("Test Revoke Access Tokens", t, func() {
-		pat := &PatHandler{}
+		pat := &PatHandler{dao: mockDAO}
 		pat.Generate(ctx, &auth.PatGenerateRequest{
 			Type:      auth.PatType_PERSONAL,
 			UserUuid:  "admin-uuid",

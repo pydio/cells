@@ -75,7 +75,7 @@ func TestExifProcessor_Run(t *testing.T) {
 
 		tmpDir := os.TempDir()
 		uuidNode := uuid.New()
-		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "v4", "scheduler", "actions", "images", "testdata")
+		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "scheduler", "actions", "images", "testdata")
 
 		data, err := ioutil.ReadFile(filepath.Join(testDir, "exif.jpg"))
 		So(err, ShouldBeNil)

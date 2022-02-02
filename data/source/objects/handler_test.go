@@ -82,54 +82,49 @@ func TestHandler(t *testing.T) {
 	initTree()
 
 	Convey("Create Node", t, func() {
-		resp := &tree.CreateNodeResponse{}
-		err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
+		_, err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 			Type: tree.NodeType_COLLECTION,
 			Path: "folder1/subfolder",
 			Uuid: "hfuuid1",
-		}}, resp)
+		}})
 		So(err, ShouldBeNil)
 	})
 
 	Convey("Read Node", t, func() {
-		resp := &tree.ReadNodeResponse{}
-		err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
+		resp, err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: "folder/subfolder/file1",
 			},
-		}, resp)
+		})
 		So(err, ShouldBeNil)
 		So(resp.Node.Size, ShouldEqual, 1024)
 	})
 
 	Convey("Update Node", t, func() {
-		resp := &tree.UpdateNodeResponse{}
-		err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
+		_, err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{
 				Path: "folder/subfolder/file1",
 			},
 			To: &tree.Node{
 				Path: "folder/file4",
 			},
-		}, resp)
+		})
 		So(err, ShouldNotBeNil)
 	})
 
 	Convey("Delete Node", t, func() {
-		resp := &tree.DeleteNodeResponse{}
-		err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
+		_, err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{
 				Path: "folder",
 			},
-		}, resp)
+		})
 		So(err, ShouldBeNil)
 
-		readResp := &tree.ReadNodeResponse{}
-		err = handler.ReadNode(ctx, &tree.ReadNodeRequest{
+		_, err = handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: "folder",
 			},
-		}, readResp)
+		})
 		So(err, ShouldNotBeNil)
 	})
 
@@ -142,55 +137,50 @@ func TestHandlerWithPrefix(t *testing.T) {
 	handler = TreeHandler{FS: rootedFs}
 
 	Convey("Create Node", t, func() {
-		resp := &tree.CreateNodeResponse{}
-		err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
+		_, err := handler.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 			Type: tree.NodeType_COLLECTION,
 			Path: "subfolder/subsubfolder1",
 			Uuid: "shfuuid1",
-		}}, resp)
+		}})
 		So(err, ShouldBeNil)
 	})
 
 	Convey("Read Node", t, func() {
-		resp := &tree.ReadNodeResponse{}
-		err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
+		resp, err := handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: "subfolder/file",
 			},
-		}, resp)
+		})
 		So(err, ShouldBeNil)
 		So(resp.Node.Size, ShouldEqual, 1024)
 	})
 
 	Convey("Update Node", t, func() {
-		resp := &tree.UpdateNodeResponse{}
-		err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
+		_, err := handler.UpdateNode(ctx, &tree.UpdateNodeRequest{
 			From: &tree.Node{
 				Path: "subfolder/file",
 			},
 			To: &tree.Node{
 				Path: "subfolder/file2",
 			},
-		}, resp)
+		})
 		So(err, ShouldNotBeNil)
 	})
 
 	Convey("Delete Node", t, func() {
-		resp := &tree.DeleteNodeResponse{}
-		err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
+		resp, err := handler.DeleteNode(ctx, &tree.DeleteNodeRequest{
 			Node: &tree.Node{
 				Path: "subfolder",
 			},
-		}, resp)
+		})
 		So(err, ShouldBeNil)
 		So(resp.Success, ShouldBeTrue)
 
-		readResp := &tree.ReadNodeResponse{}
-		err = handler.ReadNode(ctx, &tree.ReadNodeRequest{
+		_, err = handler.ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: "subfolder",
 			},
-		}, readResp)
+		})
 		So(err, ShouldNotBeNil)
 	})
 

@@ -25,6 +25,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config/mock"
 	"log"
 	"net/http"
 	"path"
@@ -54,6 +55,10 @@ func TestMain(m *testing.M) {
 
 	//_ = broker.Connect()
 	nodes.UseMockStorageClientType()
+
+	if e := mock.RegisterMockConfig(); e != nil {
+		log.Fatal(e)
+	}
 
 	testData, er := idmtest.GetStartData()
 	if er != nil {

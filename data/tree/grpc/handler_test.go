@@ -58,9 +58,11 @@ func TestReadNode(t *testing.T) {
 
 	// Create tree server with fake datasources
 	dataSources := createMocks()
+	mainCtx := context.Background()
 
 	ts := &TreeServer{
 		DataSources: dataSources,
+		MainCtx:     mainCtx,
 	}
 	ctx := context.Background()
 
@@ -94,6 +96,7 @@ func TestListNodes(t *testing.T) {
 
 	ts := &TreeServer{
 		DataSources: dataSources,
+		MainCtx:     context.Background(),
 	}
 
 	Convey("List datasources", t, func() {
@@ -144,6 +147,7 @@ func TestRootNodeOperations(t *testing.T) {
 
 	ts := &TreeServer{
 		DataSources: dataSources,
+		MainCtx:     context.Background(),
 	}
 
 	ctx := context.Background()
