@@ -20,15 +20,15 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-openapi/errors v0.20.2
-	github.com/go-openapi/loads v0.21.0
-	github.com/go-openapi/runtime v0.21.1
+	github.com/go-openapi/loads v0.21.1
+	github.com/go-openapi/runtime v0.22.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-openapi/strfmt v0.21.1
-	github.com/go-openapi/swag v0.19.15
+	github.com/go-openapi/swag v0.21.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gobwas/glob v0.2.3
 	github.com/golang/protobuf v1.5.2
-	github.com/google/go-cmp v0.5.6
+	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/securecookie v1.1.1
@@ -40,7 +40,7 @@ require (
 	github.com/hashicorp/go-version v1.4.0
 	github.com/imdario/mergo v0.3.12
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
-	github.com/jaytaylor/go-hostsfile v0.0.0-20201026230151-f581673a59cf
+	github.com/jaytaylor/go-hostsfile v0.0.0-20211120191712-f53f85d8b98f
 	github.com/jcuga/golongpoll v1.3.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/jmoiron/sqlx v1.3.4
@@ -101,7 +101,7 @@ require (
 	github.com/zalando/go-keyring v0.1.1
 	go.etcd.io/bbolt v1.3.6
 	go.etcd.io/etcd/client/v3 v3.5.0
-	go.mongodb.org/mongo-driver v1.8.2
+	go.mongodb.org/mongo-driver v1.8.3
 	go.uber.org/zap v1.20.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/natspubsub v0.20.0

@@ -22,6 +22,7 @@ package tree
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/config/mock"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -35,6 +36,7 @@ import (
 func init() {
 	// Ignore client pool for unit tests
 	nodes.IsUnitTestEnv = true
+	_ = mock.RegisterMockConfig()
 }
 
 func TestCopyMoveAction_GetName(t *testing.T) {

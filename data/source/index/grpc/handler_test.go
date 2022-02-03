@@ -32,7 +32,6 @@ import (
 	// SQLite Driver
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -176,7 +175,7 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 
 func TestIndex(t *testing.T) {
 
-	s := NewTreeServer(&object.DataSource{Name: ""}, "", dao, log.Logger(ctx))
+	s := NewTreeServer(&object.DataSource{Name: ""}, "", dao)
 
 	wg.Add(1)
 	defer wg.Done()
@@ -594,7 +593,7 @@ func TestIndex(t *testing.T) {
 
 func TestIndexLongNode(t *testing.T) {
 
-	s := NewTreeServer(&object.DataSource{Name: ""}, "", dao, log.Logger(ctx))
+	s := NewTreeServer(&object.DataSource{Name: ""}, "", dao)
 
 	wg.Add(1)
 	defer wg.Done()

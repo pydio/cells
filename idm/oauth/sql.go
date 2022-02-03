@@ -62,28 +62,30 @@ func (s *sqlImpl) Init(options configx.Values) error {
 	// super
 	s.DAO.Init(options)
 
-	// Doing the database migrations
-	/*migrations := &sql.FSMigrationSource{
-		Box:         statics.AsFS(migrationsFS, "migrations"),
-		Dir:         s.Driver(),
-		TablePrefix: s.Prefix(),
-	}
-
-	var isRetry bool
-	sC := servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
-	err := std.Retry(sC, func() error {
-		_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
-		if err != nil {
-			log.Logger(sC).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")
-			isRetry = true
-		} else if isRetry {
-			log.Logger(sC).Info("Migration now applied successfully")
+	/*
+		// TODO V4 - This is disabled, idm_personal_token tables are not created!
+		// Doing the database migrations
+		migrations := &sql.FSMigrationSource{
+			Box:         statics.AsFS(migrationsFS, "migrations"),
+			Dir:         s.Driver(),
+			TablePrefix: s.Prefix(),
 		}
-		return err
-	}, 1*time.Second, 10*time.Second)
-	if err != nil {
-		return err
-	}
+
+		var isRetry bool
+		sC := servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
+		err := std.Retry(sC, func() error {
+			_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
+			if err != nil {
+				log.Logger(sC).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")
+				isRetry = true
+			} else if isRetry {
+				log.Logger(sC).Info("Migration now applied successfully")
+			}
+			return err
+		}, 1*time.Second, 10*time.Second)
+		if err != nil {
+			return err
+		}
 	*/
 	// Preparing the db statements
 	if options.Val("prepare").Default(true).Bool() {

@@ -16,7 +16,7 @@ func WithGeneric(f func(context.Context, *generic.Server) error) ServiceOption {
 			var srvg *generic.Server
 
 			if !o.Server.As(&srvg) {
-				return fmt.Errorf("server is not a generic server ", o.Name)
+				return fmt.Errorf("server %s is not a generic server", o.Name)
 			}
 
 			return f(o.Context, srvg)
