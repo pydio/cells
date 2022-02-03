@@ -22,6 +22,17 @@ main:
 	 -o cells\
 	 .
 
+xgo:
+	GO111MODULE=auto ${GOPATH}/bin/xgo -go 1.16 \
+	 --image ${XGO_IMAGE} \
+	 --targets ${XGO_TARGETS} \
+	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\
+	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.Version=${GITREV}\
+	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.ReleaseTag=${GITREV}"\
+	 ${GOPATH}/src/github.com/pydio/cells
+
 dev:
 	go build\
 	 -tags dev\
