@@ -51,6 +51,11 @@ func HttpWrapperJWT(ctx context.Context, h http.Handler) http.Handler {
 		if val, ok1 := r.Header["Authorization"]; ok1 {
 
 			whole := strings.Join(val, "")
+			if !strings.HasPrefix(whole, "Bearer ") {
+				h.ServeHTTP(w, r)
+				return
+			}
+			
 			rawIDToken := strings.TrimPrefix(strings.Trim(whole, ""), "Bearer ")
 			//var claims claim.Claims
 			var err error
