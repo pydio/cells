@@ -3,10 +3,12 @@ ENV=env GOOS=linux
 TODAY:=$(shell date -u +%Y-%m-%dT%H:%M:%S)
 TIMESTAMP:=$(shell date -u +%Y%m%d%H%M%S)
 GITREV:=$(shell git rev-parse HEAD)
-CELLS_VERSION?="${DEV_VERSION}.${TIMESTAMP}"
+CELLS_VERSION?=${DEV_VERSION}.${TIMESTAMP}
 
-XGO_TARGETS?="linux/amd64,darwin/amd64,windows/amd64"
-XGO_IMAGE?=pydio/xgo:latest
+XGO_TARGETS?="linux/amd64,linux/arm64,darwin/amd64,windows/amd64"
+#XGO_IMAGE?=pydio/xgo:latest
+XGO_IMAGE?=techknowlogick/xgo:go-1.16.x
+XGO_BIN?=${GOPATH}/bin/xgo
 
 .PHONY: all clean build main dev
 
@@ -23,22 +25,20 @@ main:
 	 .
 
 xgo:
-	GO111MODULE=auto ${GOPATH}/bin/xgo -go 1.16 \
+	GO111MODULE=auto ${XGO_BIN} -go 1.16 \
 	 --image ${XGO_IMAGE} \
 	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}\
-	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.Version=${GITREV}\
-	 -X github.com/pydio/cells/vendor/github.com/pydio/minio-srv/cmd.ReleaseTag=${GITREV}"\
-	 ${GOPATH}/src/github.com/pydio/cells
+	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
+	 .
 
 dev:
 	go build\
 	 -tags dev\
 	 -gcflags "all=-N -l"\
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${DEV_VERSION}\
-	 -X github.com/pydio/cells/v4/common.BuildStamp=2018-01-01T00:00:00\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=2022-01-01T00:00:00\
 	 -X github.com/pydio/cells/v4/common.BuildRevision=dev\
 	 -X github.com/pydio/cells/v4/common.LogFileDefaultValue=false\
 	 -X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn"\
