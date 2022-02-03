@@ -40,7 +40,7 @@ require (
 	github.com/hashicorp/go-version v1.4.0
 	github.com/imdario/mergo v0.3.12
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
-	github.com/jaytaylor/go-hostsfile v0.0.0-20201026230151-f581673a59cf
+	github.com/jaytaylor/go-hostsfile v0.0.0-20211120191712-f53f85d8b98f
 	github.com/jcuga/golongpoll v1.3.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/jmoiron/sqlx v1.3.4
