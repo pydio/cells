@@ -31,6 +31,7 @@ import (
 	"unsafe"
 
 	"github.com/pydio/cells/v4/common/log"
+	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 func CanonicalPath(path string) (string, error) {
@@ -66,7 +67,7 @@ func SetHidden(osPath string, hidden bool) error {
 	return syscall.SetFileAttributes(p, attrs)
 }
 
-func BrowseVolumes(ctx context.Context) (volumes []*Volume) {
+func BrowseVolumes(ctx context.Context) (volumes []*tree.Node) {
 	h := syscall.MustLoadDLL("kernel32.dll")
 	doneChan := make(chan string, 1)
 
@@ -87,10 +88,11 @@ func BrowseVolumes(ctx context.Context) (volumes []*Volume) {
 			_, _, _ = c.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(rootDrive))), uintptr(unsafe.Pointer(&freeBytes)), 0, 0)
 
 			log.Logger(ctx).Info("detected volume " + strings.ToUpper(string(drive)))
-			volumes = append(volumes, &Volume{
-				Path: fmt.Sprintf("%c:/", drive),
-				Size: int64(freeBytes),
+			volumes = append(volumes, &tree.Node{
 				Uuid: fmt.Sprintf("%c-drive", drive),
+				Path: fmt.Sprintf("%c:/", drive),
+				Type: tree.NodeType_COLLECTION,
+				Size: int64(freeBytes),
 			})
 		case <-time.After(time.Millisecond * 10):
 		}

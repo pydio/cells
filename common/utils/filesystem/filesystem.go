@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 /*
@@ -24,13 +25,9 @@ package filesystem
 
 import (
 	"context"
-)
 
-type Volume struct {
-	Uuid string
-	Path string
-	Size int64
-}
+	"github.com/pydio/cells/v4/common/proto/tree"
+)
 
 func CanonicalPath(path string) (string, error) {
 	return path, nil
@@ -40,7 +37,7 @@ func SetHidden(osPath string, hidden bool) error {
 	return nil
 }
 
-func BrowseVolumes(ctx context.Context) []*Volume {
+func BrowseVolumes(ctx context.Context) []*tree.Node {
 	return nil
 }
 

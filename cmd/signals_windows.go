@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 )
 
-func handleSignals() {
+func handleSignals(args []string) {
 	c := make(chan os.Signal, 1)
 
 	// SIGUSR1 does not compile on windows. Use direct value syscall.Signal instead
