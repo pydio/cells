@@ -31,7 +31,7 @@ xgo:
 	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
-	 .
+	 ${GOPATH}/src/github.com/pydio/cells
 
 win:
 	env GOOS=windows GOARCH=amd64 go build\
