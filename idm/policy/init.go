@@ -37,8 +37,11 @@ func init() {
 		return new(conditions.OfficeHoursCondition)
 	}
 
-	ladon.ConditionFactories[new(conditions.
-		WithinPeriodCondition).GetName()] = func() ladon.Condition {
+	ladon.ConditionFactories[new(conditions.PathGlobCondition).GetName()] = func() ladon.Condition {
+		return new(conditions.PathGlobCondition)
+	}
+
+	ladon.ConditionFactories[new(conditions.WithinPeriodCondition).GetName()] = func() ladon.Condition {
 		return new(conditions.WithinPeriodCondition)
 	}
 
