@@ -41,7 +41,7 @@ func (m Middleware) watch() error {
 			continue
 		}
 
-		if r.Action() == "create" {
+		if r.Action() == pb.ActionType_CREATE {
 
 		}
 	}

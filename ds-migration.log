@@ -1,0 +1,12 @@
+Migrating flat datasource pydiods1 to structured - Original bucket is pydiods1
+[ERROR] cannot find target bucket pydiods1-structured, please create it manually
+Updated DataSource configuration after migration
+[ERROR] ^C
+[ERROR] ^C
+[ERROR] ^C
+Migrating structured datasource personal to flat - Original bucket is personal
+[ERROR] {"id":"go.micro.client","code":500,"detail":"not found - Request was NodeProvider.ReadNode on pydio.grpc.data.index.personal - Micro-registry had node(s) : []","status":"Internal Server Error"}
+Migrating structured datasource personal to flat - Original bucket is personal
+[ERROR] Datasource personal sync is currently running. Can you please restart without it ?
+Migrating structured datasource personal to flat - Original bucket is personal
+[ERROR] cannot find target bucket personal-flat, please create it manually

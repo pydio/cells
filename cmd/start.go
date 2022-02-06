@@ -22,8 +22,14 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v4/common/config/etcd"
+	"github.com/pydio/cells/v4/common/config/memory"
+	configregistry "github.com/pydio/cells/v4/common/registry/config"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.uber.org/zap"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -83,30 +89,32 @@ to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
-		pluginsReg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
-		if err != nil {
-			return err
-		}
+		pluginsRegStore := memory.New()
+		pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
+		// pluginsReg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
+		// if err != nil {
+		// 	return err
+		// }
 		//pluginsRegStore, err := file.New("/tmp/registry.json", true, configregistry.WithJSONItem())
 		//if err != nil {
 		//	return err
 		//}
 		//pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
 
-		//etcdconn, err := clientv3.New(clientv3.Config{
-		//	Endpoints:   []string{"http://192.168.1.92:2379"},
-		//	DialTimeout: 2 * time.Second,
-		//})
-		//if err != nil {
-		//	log.Fatal("could not start etcd", zap.Error(err))
-		//}
-		//
-		//regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
-		//reg := configregistry.NewConfigRegistry(regStore)
-		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		etcdconn, err := clientv3.New(clientv3.Config{
+			Endpoints:   []string{"http://0.0.0.0:2379"},
+			DialTimeout: 2 * time.Second,
+		})
 		if err != nil {
-			return err
+			log.Fatal("could not start etcd", zap.Error(err))
 		}
+
+		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
+		reg := configregistry.NewConfigRegistry(regStore)
+		//reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		//if err != nil {
+		//	return err
+		//}
 
 		// Create a main client connection
 		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)

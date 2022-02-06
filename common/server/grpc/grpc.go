@@ -2,7 +2,13 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"net"
+
+	"google.golang.org/grpc/health"
+
+	_ "google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -51,6 +57,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 	)
 
 	service.RegisterChannelzServiceToServer(s)
+	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 
 	ctx, cancel := context.WithCancel(ctx)
 
@@ -151,4 +158,17 @@ func (s *Server) As(i interface{}) bool {
 
 	*p = s.Server
 	return true
+}
+
+type Handler struct{}
+
+func (h *Handler) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	fmt.Println("health checking")
+	return &grpc_health_v1.HealthCheckResponse{
+		Status: grpc_health_v1.HealthCheckResponse_SERVING,
+	}, nil
+}
+
+func (h *Handler) Watch(req *grpc_health_v1.HealthCheckRequest, w grpc_health_v1.Health_WatchServer) error {
+	return nil
 }

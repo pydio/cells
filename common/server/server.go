@@ -51,8 +51,8 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		},
 	}
 
-	reg := servercontext.GetRegistry(ctx)
-	reg.Register(srv)
+	// reg := servercontext.GetRegistry(ctx)
+	// reg.Register(srv)
 
 	return srv
 }

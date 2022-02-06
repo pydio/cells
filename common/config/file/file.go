@@ -201,7 +201,6 @@ func (r *receiver) Next() (configx.Values, error) {
 	}
 
 	return r.Next()
-
 }
 
 func (r *receiver) Stop() {

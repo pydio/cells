@@ -3,6 +3,7 @@ package configx
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -397,7 +398,9 @@ func (c *config) Scan(val interface{}) error {
 
 	marshaller := c.opts.Marshaller
 	if marshaller == nil {
-		return ErrNoMarshallerDefined
+		reflect.ValueOf(val).Elem().Set(reflect.ValueOf(v))
+		return nil
+		// return ErrNoMarshallerDefined
 	}
 
 	b, err := marshaller.Marshal(v)

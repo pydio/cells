@@ -122,11 +122,13 @@ func (m *etcd) Save(ctxUser string, ctxMessage string) error {
 }
 
 func (m *etcd) Watch(path ...string) (configx.Receiver, error) {
+	v := m.v.Val(path...)
 	r := &receiver{
 		closed: false,
 		ch:     make(chan struct{}),
 		p:      path,
-		v:      m.v.Val(path...),
+		v:      v,
+		current: v.Bytes(),
 	}
 
 	m.receivers = append(m.receivers, r)
@@ -136,10 +138,11 @@ func (m *etcd) Watch(path ...string) (configx.Receiver, error) {
 }
 
 type receiver struct {
-	closed bool
-	ch     chan struct{}
-	p      []string
-	v      configx.Values
+	closed  bool
+	ch      chan struct{}
+	p       []string
+	v       configx.Values
+	current []byte
 }
 
 func (r *receiver) call() error {
@@ -153,14 +156,15 @@ func (r *receiver) call() error {
 func (r *receiver) Next() (configx.Values, error) {
 	select {
 	case <-r.ch:
-		v := r.v.Val(r.p...)
-		if bytes.Compare(v.Bytes(), r.v.Bytes()) != 0 {
-			r.v = v
-			return v, nil
+		neu := r.v.Val(r.p...)
+		neuB := neu.Bytes()
+		if bytes.Compare(r.current, neuB) != 0 {
+			r.current = neuB
+			return neu, nil
 		}
 	}
 
-	return nil, fmt.Errorf("could not retrieve data")
+	return r.Next()
 }
 
 func (r *receiver) Stop() {
@@ -168,23 +172,3 @@ func (r *receiver) Stop() {
 	close(r.ch)
 }
 
-//type values struct {
-//	cli *clientv3.Client
-//
-//	configx.Values
-//	rootPath string
-//	path     []string
-//}
-//
-//func (v *values) Set(data interface{}) error {
-//	if err := v.Values.Val(v.path...).Set(data); err != nil {
-//		return err
-//	}
-//
-//	_, err := v.cli.Put(context.Background(), v.rootPath, v.Values.Val("#").String())
-//	if err != nil {
-//		return err
-//	}
-//
-//	return nil
-//}

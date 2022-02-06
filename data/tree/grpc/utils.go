@@ -112,14 +112,20 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 			return
 		}
 
-		var s registry.Service
-		if !r.Item().As(&s) {
-			continue
+		do := false
+		for _, item := range r.Items() {
+			var s registry.Service
+			if !item.As(&s) {
+				continue
+			}
+			if strings.Contains(s.Name(), common.ServiceDataSync_) {
+				do = true
+				break
+			}
 		}
-		if !strings.Contains(s.Name(), common.ServiceDataSync_) {
-			continue
+		if do {
+			updateServicesList(ctx, treeServer, 0)
 		}
-		updateServicesList(ctx, treeServer, 0)
 	}
 
 }

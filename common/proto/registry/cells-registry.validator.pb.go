@@ -80,9 +80,11 @@ func (this *Options) Validate() error {
 	return nil
 }
 func (this *Result) Validate() error {
-	if this.Item != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Item); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Item", err)
+	for _, item := range this.Items {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Items", err)
+			}
 		}
 	}
 	return nil

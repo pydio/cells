@@ -282,18 +282,20 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 			return err
 		}
 
-		var s registry.Service
-		if !r.Item().As(&s) {
-			continue
-		}
-		if !strings.HasPrefix(s.Name(), prefix) {
-			continue
-		}
-		dsName := strings.TrimPrefix(s.Name(), prefix)
-		if _, ok := p.sources[dsName]; ok && r.Action() == "delete" {
-			p.Lock()
-			delete(p.sources, dsName)
-			p.Unlock()
+		for _, item := range r.Items() {
+			var s registry.Service
+			if !item.As(&s) {
+				continue
+			}
+			if !strings.HasPrefix(s.Name(), prefix) {
+				continue
+			}
+			dsName := strings.TrimPrefix(s.Name(), prefix)
+			if _, ok := p.sources[dsName]; ok && r.Action() == pb.ActionType_DELETE {
+				p.Lock()
+				delete(p.sources, dsName)
+				p.Unlock()
+			}
 		}
 		p.LoadDataSources()
 	}

@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 )
 
 type Registry interface {
@@ -21,8 +22,6 @@ type Item interface {
 	ID() string
 	Metadata() map[string]string
 	As(interface{}) bool
-
-	// models.Differ
 }
 
 type Context interface {
@@ -35,8 +34,8 @@ type Watcher interface {
 }
 
 type Result interface {
-	Action() string
-	Item() Item
+	Action() pb.ActionType
+	Items() []Item
 }
 
 type registry struct {

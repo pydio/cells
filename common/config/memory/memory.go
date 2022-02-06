@@ -12,13 +12,15 @@ type memory struct {
 }
 
 func New(opts ...configx.Option) config.Store {
+	// opts = append([]configx.Option{configx.WithJSON()}, opts...)
+
 	return &memory{
 		v: configx.New(opts...),
 	}
 }
 
 func (m *memory) Get() configx.Value {
-	return m.v.Get()
+	return m.v
 }
 
 func (m *memory) Set(data interface{}) error {

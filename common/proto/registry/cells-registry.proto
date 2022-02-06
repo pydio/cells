@@ -20,6 +20,14 @@ enum ItemType {
   NODE = 2;
 }
 
+enum ActionType {
+  FULL_DIFF = 0;
+  FULL_LIST = 1;
+  CREATE = 2;
+  UPDATE = 3;
+  DELETE = 4;
+}
+
 message Item {
   oneof item {
     Service service = 1;
@@ -70,8 +78,8 @@ message Options {
 
 // Result is returns by the watcher
 message Result {
-  string action = 1; // create, update, delete
-  Item item = 2;
+  ActionType action = 1; // create, update, delete
+  repeated Item items = 2;
   int64 timestamp = 3; // unix timestamp
 }
 

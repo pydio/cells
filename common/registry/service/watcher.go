@@ -22,6 +22,7 @@ package service
 
 import (
 	"errors"
+	"github.com/pydio/cells/v4/common/registry/util"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -59,8 +60,8 @@ func (s *serviceWatcher) Next() (registry.Result, error) {
 	}
 
 	return &result{
-		action:  r.Action,
-		item: ToItem(r.Item),
+		action: r.Action,
+		item:   util.ToItem(r.Item),
 	}, nil
 }
 

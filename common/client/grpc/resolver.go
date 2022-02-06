@@ -27,10 +27,6 @@ var (
 	regex, _ = regexp.Compile("^([A-z0-9.]*?)(:[0-9]{1,5})?\\/([A-z_]*)$")
 )
 
-func init() {
-	// resolver.Register(NewBuilder())
-}
-
 type cellsBuilder struct {
 	reg registry.Registry
 }
@@ -40,7 +36,7 @@ type cellsResolver struct {
 	address              string
 	cc                   resolver.ClientConn
 	name                 string
-	m                    map[string]comparableSlice
+	items                []registry.Item
 	ml                   *sync.RWMutex
 	updatedState         chan struct{}
 	updatedStateTimer    *time.Timer
@@ -59,34 +55,25 @@ func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 	}
 
 	cr := &cellsResolver{
-		reg:                  b.reg,
-		name:                 name,
-		cc:                   cc,
-		m:                    map[string]comparableSlice{},
+		reg:  b.reg,
+		name: name,
+		cc:   cc,
+		// m:                    map[string]comparableSlice{},
 		ml:                   &sync.RWMutex{},
 		disableServiceConfig: opts.DisableServiceConfig,
 		updatedStateTimer:    time.NewTimer(50 * time.Millisecond),
 	}
 
-	// fmt.Println("Building much ? ")
-	// debug.PrintStack()
-
 	go cr.updateState()
 	go cr.watch()
 
-	services, err := b.reg.List(registry.WithType(pb.ItemType_SERVICE))
+	items, err := b.reg.List()
 	if err != nil {
 		return nil, err
 	}
 
 	cr.ml.Lock()
-	for _, s := range services {
-		for _, n := range s.(registry.Service).Nodes() {
-			for _, a := range n.Address() {
-				cr.m[a] = append(cr.m[a], s.Name())
-			}
-		}
-	}
+	cr.items = items
 	cr.ml.Unlock()
 
 	cr.sendState()
@@ -95,33 +82,21 @@ func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 }
 
 func (cr *cellsResolver) watch() {
-	w, err := cr.reg.Watch(registry.WithType(pb.ItemType_SERVICE))
+	w, err := cr.reg.Watch(registry.WithAction(pb.ActionType_FULL_LIST))
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
 	for {
 		r, err := w.Next()
 		if err != nil {
+			fmt.Println(err)
 			return
 		}
 
-		var s registry.Service
-		if r.Item().As(&s) && (r.Action() == "create" || r.Action() == "update") {
-			if !s.IsGRPC() {
-				continue
-			}
-
-			cr.ml.Lock()
-			for _, n := range s.Nodes() {
-				for _, a := range n.Address() {
-					cr.m[a] = append(cr.m[a], s.Name())
-				}
-				// cr.m[n.Address()[0]] = append(cr.m[n.Address()[0]], s.Name())
-			}
-			cr.ml.Unlock()
-			cr.updatedStateTimer.Reset(50 * time.Millisecond)
-		}
+		cr.items = r.Items()
+		cr.updatedStateTimer.Reset(50 * time.Millisecond)
 	}
 }
 
@@ -134,17 +109,54 @@ func (cr *cellsResolver) updateState() {
 	}
 }
 
+type serverAttributes struct {
+	addresses []string
+	services  []string
+}
+
 func (cr *cellsResolver) sendState() {
 	var addresses []resolver.Address
+	var m = make(map[string]*serverAttributes)
+
 	cr.ml.RLock()
-	for k, v := range cr.m {
-		addresses = append(addresses, resolver.Address{
-			Addr:       k,
-			ServerName: "main",
-			Attributes: attributes.New("services", v),
-		})
+	for _, v := range cr.items {
+		var srv registry.Node
+		if v.As(&srv) {
+			if srv.Name() != "grpc" {
+				continue
+			}
+			m[srv.ID()] = &serverAttributes{
+				addresses: srv.Address(),
+			}
+
+		}
+	}
+
+	for _, v := range cr.items {
+		var svc registry.Service
+		if v.As(&svc) {
+			if !svc.IsGRPC() {
+				continue
+			}
+			for _, node := range svc.Nodes() {
+				address, ok := m[node.ID()]
+				if ok {
+					address.services = append(address.services, svc.Name())
+				}
+			}
+		}
 	}
 	cr.ml.RUnlock()
+
+	for _, mm := range m {
+		for _, addr := range mm.addresses {
+			addresses = append(addresses, resolver.Address{
+				Addr:       addr,
+				Attributes: attributes.New("services", comparableSlice(mm.services)),
+			})
+		}
+	}
+
 	if len(addresses) == 0 {
 		// dont' bother sending yet
 		return
@@ -152,7 +164,7 @@ func (cr *cellsResolver) sendState() {
 
 	if err := cr.cc.UpdateState(resolver.State{
 		Addresses:     addresses,
-		ServiceConfig: cr.cc.ParseServiceConfig(`{"loadBalancingPolicy": "lb"}`),
+		ServiceConfig: cr.cc.ParseServiceConfig(`{"loadBalancingPolicy": "lb", "healthCheckConfig": {"serviceName": ""}}`),
 	}); err != nil {
 		fmt.Println("And the error is ? ", err)
 	}

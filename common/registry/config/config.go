@@ -2,11 +2,9 @@ package configregistry
 
 import (
 	"fmt"
+	"github.com/pydio/cells/v4/common/etl/models"
 	"os"
 	"sync"
-	"time"
-
-	"github.com/pydio/cells/v4/common/etl/models"
 
 	"github.com/pydio/cells/v4/common/etl"
 
@@ -21,7 +19,6 @@ var (
 	scheme        = "memory"
 	shared        registry.Registry
 	sharedOnce    = &sync.Once{}
-	sendEventTime = 10 * time.Millisecond
 )
 
 type configRegistry struct {
@@ -29,8 +26,8 @@ type configRegistry struct {
 
 	sync.RWMutex
 
-	cache    []registry.Item
-	watchers map[string]*watcher
+	cache        []registry.Item
+	broadcasters map[string]chan registry.Result
 }
 
 type options struct {
@@ -39,9 +36,9 @@ type options struct {
 
 func NewConfigRegistry(store config.Store) registry.Registry {
 	c := &configRegistry{
-		store:    store,
-		cache:    []registry.Item{},
-		watchers: make(map[string]*watcher),
+		store:        store,
+		cache:        []registry.Item{},
+		broadcasters: make(map[string]chan registry.Result),
 	}
 
 	go c.watch()
@@ -52,17 +49,24 @@ func (c *configRegistry) watch() error {
 
 	w, err := c.store.Watch()
 	if err != nil {
+		fmt.Println("There is an error watching the store ", err)
 		return err
 	}
 
 	for {
 		res, err := w.Next()
 		if err != nil {
+			fmt.Println("There is an error nexting the store  ", err)
 			return err
 		}
+
 		items := make([]registry.Item, 0)
 		if err := res.Default([]registry.Item{}).Scan(&items); err != nil {
 			return err
+		}
+
+		for _, broadcaster := range c.broadcasters {
+			broadcaster <- registry.NewResult(pb.ActionType_FULL_LIST, items)
 		}
 
 		merger := &etl.Merger{Options: &models.MergeOptions{}}
@@ -72,31 +76,16 @@ func (c *configRegistry) watch() error {
 
 		c.cache = items
 
-		for _, item := range diff.create {
-			for _, watcher := range c.watchers {
-				watcher.res <- &result{
-					action: "create",
-					item:   item,
-				}
-			}
+		for _, broadcaster := range c.broadcasters {
+			broadcaster <- registry.NewResult(pb.ActionType_CREATE, diff.create)
 		}
 
-		for _, item := range diff.update {
-			for _, watcher := range c.watchers {
-				watcher.res <- &result{
-					action: "update",
-					item:   item,
-				}
-			}
+		for _, broadcaster := range c.broadcasters {
+			broadcaster <- registry.NewResult(pb.ActionType_UPDATE, diff.update)
 		}
 
-		for _, item := range diff.delete {
-			for _, watcher := range c.watchers {
-				watcher.res <- &result{
-					action: "delete",
-					item:   item,
-				}
-			}
+		for _, broadcaster := range c.broadcasters {
+			broadcaster <- registry.NewResult(pb.ActionType_DELETE, diff.delete)
 		}
 	}
 
@@ -247,16 +236,18 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 		o(&wo)
 	}
 
+	id := uuid.New()
+	res := make(chan registry.Result)
+
 	// construct the watcher
-	w := &watcher{
-		exit: make(chan bool),
-		res:  make(chan registry.Result),
-		id:   uuid.New(),
-		wo:   wo,
-	}
+	w := registry.NewWatcher(
+		uuid.New(),
+		wo,
+		res,
+	)
 
 	c.Lock()
-	c.watchers[w.id] = w
+	c.broadcasters[id] = res
 	c.Unlock()
 
 	return w, nil
@@ -264,27 +255,4 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 
 func (c *configRegistry) As(interface{}) bool {
 	return false
-}
-
-func (c *configRegistry) sendEvent(r registry.Result) {
-	c.RLock()
-	watchers := make([]*watcher, 0, len(c.watchers))
-	for _, w := range c.watchers {
-		watchers = append(watchers, w)
-	}
-	c.RUnlock()
-
-	for _, w := range watchers {
-		select {
-		case <-w.exit:
-			c.Lock()
-			delete(c.watchers, w.id)
-			c.Unlock()
-		default:
-			select {
-			case w.res <- r:
-			case <-time.After(sendEventTime):
-			}
-		}
-	}
 }
