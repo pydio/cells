@@ -26,6 +26,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"sync"
 	"testing"
 	"time"
@@ -43,13 +44,10 @@ import (
 )
 
 var (
-	tmpDbFilePath string
-	conf          configx.Values
+	conf configx.Values
 )
 
 func init() {
-	// Define parameters to shorten tests launch
-	tmpDbFilePath = os.TempDir() + "/bolt-test.db"
 	conf = configx.New()
 	conf.Val("InboxMaxSize").Set(int64(10))
 	testEnv = true
@@ -71,6 +69,7 @@ func initDao() (DAO, func()) {
 
 	}
 
+	tmpDbFilePath := filepath.Join(os.TempDir(), uuid.New()+".db")
 	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
@@ -81,6 +80,8 @@ func initDao() (DAO, func()) {
 }
 
 func TestBoltEmptyDao(t *testing.T) {
+
+	tmpDbFilePath := os.TempDir() + "/bolt-test.db"
 
 	Convey("Test initialize DB", t, func() {
 		defer os.Remove(tmpDbFilePath)
@@ -111,10 +112,10 @@ func TestBoltEmptyDao(t *testing.T) {
 
 func TestBoltMassivePurge(t *testing.T) {
 
-	tmpMassivePurge := path.Join(os.TempDir(), "bolt-test.db")
+	tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
 	t.Log("MASSIVE DB AT", tmpMassivePurge)
-	defer os.Remove(tmpDbFilePath)
-	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
+	defer os.Remove(tmpMassivePurge)
+	tmpdao := boltdb.NewDAO("boltdb", tmpMassivePurge, "")
 	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()
@@ -491,11 +492,12 @@ func TestPurge(t *testing.T) {
 		ac2 := &activity.Object{Type: activity.ObjectType_Accept, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Unix()}}
 		ac3 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
 		ac4 := &activity.Object{Type: activity.ObjectType_Share, Updated: &timestamppb.Timestamp{Seconds: time.Now().Add(-threeDays).Add(-threeDays).Add(-threeDays).Add(-threeDays).Unix()}}
-		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac1, nil)
+
+		err := dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
 		So(err, ShouldBeNil)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
+		_ = dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
+		_ = dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
+		_ = dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac1, nil)
 
 		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Time{}, true, true)
 		So(err, ShouldBeNil)
@@ -513,10 +515,13 @@ func TestPurge(t *testing.T) {
 
 		// Now test purge by date
 		//dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac2, nil)
-		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
+		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
+		results, _ = listJohn()
+		So(results, ShouldHaveLength, 4)
+
 		sevenDays := 7 * time.Hour * 24
-		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 1, 100, time.Now().Add(-sevenDays), true, true)
+		err = dao.Purge(logger, activity.OwnerType_USER, "john", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
 		So(err, ShouldBeNil)
 		results, err = listJohn()
 		So(err, ShouldBeNil)
@@ -525,7 +530,7 @@ func TestPurge(t *testing.T) {
 		// Purge by date all users - re-add ac3, ac4 removed in previous step
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac3, nil)
 		dao.PostActivity(activity.OwnerType_USER, "john", BoxInbox, ac4, nil)
-		err = dao.Purge(logger, activity.OwnerType_USER, "*", BoxInbox, 1, 100, time.Now().Add(-sevenDays), true, true)
+		err = dao.Purge(logger, activity.OwnerType_USER, "*", BoxInbox, 0, 100, time.Now().Add(-sevenDays), true, true)
 		So(err, ShouldBeNil)
 		results, err = listJohn()
 		So(err, ShouldBeNil)
