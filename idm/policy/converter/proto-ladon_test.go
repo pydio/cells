@@ -94,6 +94,8 @@ func TestLadonToProtoPolicy(t *testing.T) {
 		So(test.Conditions, ShouldHaveLength, 2)
 		So(test.Conditions, ShouldContainKey, "RemoteAddress")
 		cd := test.Conditions["RemoteAddress"]
-		So(cd, ShouldResemble, &idm.PolicyCondition{Type: "StringNotMatchCondition", JsonOptions: "{\"matches\":\"localhost|127.0.0.1|::1\"}"})
+		So(cd.Type, ShouldEqual, "StringNotMatchCondition")
+		So(cd.JsonOptions, ShouldEqual, "{\"matches\":\"localhost|127.0.0.1|::1\"}")
+		//So(cd, ShouldResemble, &idm.PolicyCondition{Type: "StringNotMatchCondition", JsonOptions: "{\"matches\":\"localhost|127.0.0.1|::1\"}"})
 	})
 }

@@ -54,21 +54,11 @@ func TestNewTaskFromEvent(t *testing.T) {
 			Event: ev,
 		}
 		So(task.lockedTask, ShouldNotBeNil)
-		outCtx := servicecontext.WithOperationID(context.Background(), "ajob-"+task.lockedTask.ID[0:8])
-		So(task, ShouldResemble, &Task{
-			context:        outCtx,
-			Job:            &jobs.Job{ID: "ajob"},
-			initialMessage: msg,
-			run:            task.run,
-			lockedTask: &jobs.Task{
-				ID:            task.lockedTask.ID,
-				JobID:         "ajob",
-				Status:        jobs.TaskStatus_Queued,
-				StatusMessage: "Pending",
-				ActionsLogs:   []*jobs.ActionLog{},
-			},
-		})
-
+		So(task.lockedTask.Status, ShouldEqual, jobs.TaskStatus_Queued)
+		So(task.lockedTask.StatusMessage, ShouldEqual, "Pending")
+		So(task.initialMessage.Event.String(), ShouldEqual, msg.Event.String())
+		opId, _ := servicecontext.GetOperationID(task.context)
+		So(opId, ShouldEqual, "ajob-"+task.lockedTask.ID[0:8])
 	})
 }
 
@@ -180,7 +170,7 @@ func TestTaskEvents(t *testing.T) {
 		_, _ = anypb.New(event2)
 		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event2)
 		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
-		So(task.initialMessage.Nodes[0], ShouldResemble, &tree.Node{Path: "create"})
+		So(task.initialMessage.Nodes[0].Path, ShouldResemble, "create")
 
 		event3 := &tree.NodeChangeEvent{
 			Type:   tree.NodeChangeEvent_DELETE,
@@ -189,7 +179,7 @@ func TestTaskEvents(t *testing.T) {
 		_, _ = anypb.New(event3)
 		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event3)
 		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
-		So(task.initialMessage.Nodes[0], ShouldResemble, &tree.Node{Path: "delete"})
+		So(task.initialMessage.Nodes[0].Path, ShouldResemble, "delete")
 
 	})
 }
@@ -225,7 +215,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		task.EnqueueRunnables(output)
 		read := <-output
 		So(read, ShouldNotBeNil)
-		So(read.Action, ShouldResemble, jobs.Action{ID: "actions.test.fake"})
+		So(read.Action.ID, ShouldResemble, "actions.test.fake")
 		close(output)
 
 		go func() {
@@ -254,7 +244,7 @@ func TestTask_EnqueueRunnables(t *testing.T) {
 		task.EnqueueRunnables(output)
 		read := <-output
 		So(read, ShouldNotBeNil)
-		So(read.Action, ShouldResemble, jobs.Action{ID: "unknown action"})
+		So(read.Action.ID, ShouldResemble, "unknown action")
 		close(output)
 
 		go read.RunAction(nil)

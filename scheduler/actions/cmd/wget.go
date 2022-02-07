@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -134,8 +135,16 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 		targetNode = input.Nodes[0]
 	}
 
+	cli := http.DefaultClient
+	if targetNode.GetStringMeta(common.MetaNamespaceNodeTestLocalFolder) != "" {
+		// This is a unit test, skipVerify
+		transCfg := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
+		}
+		cli = &http.Client{Transport: transCfg}
+	}
 	log.TasksLogger(ctx).Info(fmt.Sprintf("Downloading file to %s from URL %s", targetNode.GetPath(), sourceUrl.String()))
-	httpResponse, err := http.Get(sourceUrl.String())
+	httpResponse, err := cli.Get(sourceUrl.String())
 	if err != nil {
 		return input.WithError(err), err
 	}

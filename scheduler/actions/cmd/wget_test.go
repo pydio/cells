@@ -22,6 +22,8 @@ package cmd
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/config/mock"
+	"github.com/pydio/cells/v4/common/nodes"
 	"os"
 	"path/filepath"
 	"testing"
@@ -34,6 +36,12 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
+
+func init() {
+	// Ignore client pool for unit tests
+	nodes.IsUnitTestEnv = true
+	_ = mock.RegisterMockConfig()
+}
 
 func TestWGetAction_GetName(t *testing.T) {
 	Convey("Test GetName", t, func() {
@@ -83,7 +91,7 @@ func TestWGetAction_Run(t *testing.T) {
 		job := &jobs.Job{}
 		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{
-				"url": "http://pydio.com/sites/default/files/Create%20a%20cell_4.png",
+				"url": "https://pydio.com/sites/default/files/Create%20a%20cell_4.png",
 			},
 		})
 
@@ -99,11 +107,12 @@ func TestWGetAction_Run(t *testing.T) {
 
 		status := make(chan string)
 		progress := make(chan float32)
-		action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
+		_, er := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{node},
 		})
 		close(status)
 		close(progress)
+		So(er, ShouldBeNil)
 
 		savedFile := filepath.Join(tmpDir, uuidNode)
 		fileInfo, err := os.Stat(savedFile)
