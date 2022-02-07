@@ -255,8 +255,8 @@ func TestHandler_Search(t *testing.T) {
 				Type:          proto.DocumentType_JSON,
 				ID:            "my-doc-id-1",
 				Owner:         "admin",
-				Data:          `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other", "key5":{"keySub":"value"}}`,
-				IndexableMeta: `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other", "key5":{"keySub":"value"}}`,
+				Data:          `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other4", "key5":{"keySub":"value"}}`,
+				IndexableMeta: `{"key":"value", "key2":"value2", "key3":45, "KEY4":"other4", "key5":{"keySub":"value"}}`,
 			},
 		})
 		So(e, ShouldBeNil)
@@ -347,7 +347,7 @@ func TestHandler_Search(t *testing.T) {
 		e1 = h.ListDocuments(&proto.ListDocumentsRequest{
 			StoreID: "any-store",
 			Query: &proto.DocumentQuery{
-				MetaQuery: "+KEY4:other",
+				MetaQuery: "+KEY4:other4",
 			},
 		}, streamer)
 		So(e1, ShouldBeNil)

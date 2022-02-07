@@ -160,6 +160,7 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 		resp := NewList()
 		go func() {
 			_ = s.ListNodes(args.(*tree.ListNodesRequest), resp)
+			resp.Close()
 		}()
 
 		return resp, nil

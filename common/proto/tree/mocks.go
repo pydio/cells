@@ -48,30 +48,31 @@ func ShouldError(obj interface{}, fn string, params ...interface{}) error {
 }
 
 type StreamerMock struct {
+	c  context.Context
 	ch chan Node
 }
 
 func (m *StreamerMock) Header() (metadata.MD, error) {
-	panic("implement me")
+	return metadata.MD{}, nil
 }
 
 func (m *StreamerMock) Trailer() metadata.MD {
-	panic("implement me")
+	return metadata.MD{}
 }
 
 func (m *StreamerMock) CloseSend() error {
-	panic("implement me")
+	return nil
 }
 
 func (m *StreamerMock) SendMsg(msg interface{}) error {
-	panic("implement me")
+	return nil
 }
 
 func (m *StreamerMock) RecvMsg(msg interface{}) error {
-	panic("implement me")
+	return m.Recv(msg)
 }
 
-func NewStreamerMock(nodes map[string]Node) grpc.ClientStream {
+func NewStreamerMock(ctx context.Context, nodes map[string]Node) grpc.ClientStream {
 	ch := make(chan Node)
 
 	go func() {
@@ -91,12 +92,13 @@ func NewStreamerMock(nodes map[string]Node) grpc.ClientStream {
 	}()
 
 	return &StreamerMock{
+		c:  ctx,
 		ch: ch,
 	}
 }
 
 func (m *StreamerMock) Context() context.Context {
-	return context.Background()
+	return m.c
 }
 func (m *StreamerMock) Send(v interface{}) error {
 	return nil
@@ -158,7 +160,7 @@ func (m *NodeProviderMock) ReadNode(ctx context.Context, in *ReadNodeRequest, op
 
 func (m *NodeProviderMock) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (NodeProvider_ListNodesClient, error) {
 	// Create fake stream
-	return &nodeProviderListNodesClient{ClientStream: NewStreamerMock(m.Nodes)}, nil
+	return &nodeProviderListNodesClient{ClientStream: NewStreamerMock(ctx, m.Nodes)}, nil
 
 }
 

@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/nodes"
 	"sync"
 	"testing"
 
@@ -30,9 +31,14 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func createMocks() (dataSources map[string]DataSource) {
-
+var (
 	dataSources = make(map[string]DataSource, 3)
+	mainCtx     = context.Background()
+)
+
+func init() {
+
+	nodes.IsUnitTestEnv = true
 
 	dataSources["ds1"] = DataSource{
 		Name:   "ds1",
@@ -50,16 +56,11 @@ func createMocks() (dataSources map[string]DataSource) {
 		writer: &tree.NodeReceiverMock{},
 	}
 
-	return dataSources
-
 }
 
 func TestReadNode(t *testing.T) {
 
 	// Create tree server with fake datasources
-	dataSources := createMocks()
-	mainCtx := context.Background()
-
 	ts := &TreeServer{
 		DataSources: dataSources,
 		MainCtx:     mainCtx,
@@ -92,8 +93,6 @@ func TestReadNode(t *testing.T) {
 func TestListNodes(t *testing.T) {
 
 	// Create tree server with fake datasources
-	dataSources := createMocks()
-
 	ts := &TreeServer{
 		DataSources: dataSources,
 		MainCtx:     context.Background(),
@@ -107,6 +106,7 @@ func TestListNodes(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			ts.ListNodes(&tree.ListNodesRequest{Node: &tree.Node{Path: ""}}, stream)
+			stream.Close()
 		}()
 		nodes := stream.ReceiveAllNodes()
 		wg.Wait()
@@ -131,6 +131,7 @@ func TestListNodes(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			ts.ListNodes(&tree.ListNodesRequest{Node: &tree.Node{Path: "ds1"}, Ancestors: true}, stream)
+			stream.Close()
 		}()
 		nodes := stream.ReceiveAllNodes()
 		wg.Wait()
@@ -143,11 +144,9 @@ func TestListNodes(t *testing.T) {
 func TestRootNodeOperations(t *testing.T) {
 
 	// Create tree server with fake datasources
-	dataSources := createMocks()
-
 	ts := &TreeServer{
 		DataSources: dataSources,
-		MainCtx:     context.Background(),
+		MainCtx:     mainCtx,
 	}
 
 	ctx := context.Background()

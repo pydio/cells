@@ -34,8 +34,9 @@ import (
 )
 
 type ListNodeStreamer struct {
-	w *io.PipeWriter
-	r *io.PipeReader
+	w      *io.PipeWriter
+	r      *io.PipeReader
+	closed bool
 }
 
 func (l *ListNodeStreamer) Context() context.Context {

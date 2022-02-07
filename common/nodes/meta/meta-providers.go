@@ -23,6 +23,7 @@ package meta
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/nodes"
 	"io"
 	"strings"
 	"time"
@@ -144,6 +145,10 @@ func getMetaProviderStreamers(ctx context.Context) ([]tree.NodeProviderStreamerC
 
 	var result []tree.NodeProviderStreamerClient
 	var names []string
+
+	if nodes.IsUnitTestEnv {
+		return result, names
+	}
 
 	// Load core Meta
 	result = append(result, tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceMeta)))
