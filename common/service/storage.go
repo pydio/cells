@@ -36,52 +36,53 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 	}
 	driver, dsn := config.GetDatabase(dbConfigKey)
 
+	var c dao.DAO
+	var e error
+
 	switch driver {
-	case "mysql":
-		if c := sql.NewDAO(driver, dsn, prefix); c != nil {
-			d = fd(c)
-		}
-	case "sqlite3":
-		if c := sql.NewDAO(driver, dsn, prefix); c != nil {
-			d = fd(c)
-		}
+	case "mysql", "sqlite3":
+		c, e = sql.NewDAO(driver, dsn, prefix)
 	case "boltdb":
-		if c := boltdb.NewDAO(driver, dsn, prefix); c != nil {
-			d = fd(c)
-			o.Unique = true
-		}
+		o.Unique = true
+		c, e = boltdb.NewDAO(driver, dsn, prefix)
 	case "bleve":
-		if c := bleve.NewDAO(driver, dsn, prefix); c != nil {
-			if indexer {
-				if id, er := bleve.NewIndexer(c, config.Get("services", dbConfigKey)); er == nil {
-					d = fd(id)
-				}
-			} else {
-				d = fd(c)
-			}
-			o.Unique = true
-		}
+		o.Unique = true
+		c, e = bleve.NewDAO(driver, dsn, prefix)
 	case "mongodb":
-		if c := mongodb.NewDAO(driver, dsn, prefix); c != nil {
-			if indexer {
-				if id, er := mongodb.NewIndexer(c); er == nil {
-					d = fd(id)
-				}
-			} else {
-				d = fd(c)
-			}
-		}
+		c, e = mongodb.NewDAO(driver, dsn, prefix)
 	default:
 		return nil, fmt.Errorf("unsupported driver type %s for service %s", driver, o.Name)
 	}
-
-	if d == nil {
-		return nil, fmt.Errorf("storage %s is not available", driver)
+	if e != nil {
+		return nil, e
 	}
 
-	cfg := config.Get("services", o.Name)
+	if indexer {
+		// Wrap DAO into IndexDAO
+		var indexDAO dao.IndexDAO
+		switch driver {
+		case "bleve":
+			indexDAO, e = bleve.NewIndexer(c.(bleve.DAO))
+		case "mongodb":
+			indexDAO, e = mongodb.NewIndexer(c.(mongodb.DAO))
+		default:
+			return nil, fmt.Errorf("unsupported indexer type %s for service %s", driver, o.Name)
+		}
+		if e != nil {
+			return nil, e
+		}
+		c = indexDAO
+	}
+
+	// Now apply callback to DAO
+	d = fd(c)
+	if d == nil {
+		return nil, fmt.Errorf("driver %s is not supported by %s", driver, o.Name)
+	}
+
+	cfg := config.Get("services", dbConfigKey)
+
 	if err := d.Init(cfg); err != nil {
-		// log.Logger(ctx).Error("Failed to init DB provider", zap.Error(err))
 		return nil, err
 	}
 

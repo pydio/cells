@@ -141,16 +141,16 @@ EXAMPLES
 		}
 		if offlineDB != "" {
 
-			db := boltdb.NewDAO("boltdb", offlineDB, "")
-			if db == nil {
-				log.Fatalln("Cannot open DB file")
+			db, er := boltdb.NewDAO("boltdb", offlineDB, "")
+			if er != nil {
+				log.Fatalln("Cannot open DB file", er.Error())
 			}
 
 			dao := activity.NewDAO(db).(activity.DAO)
 			loggerFunc := func(s string) {
 				cmd.Println(s)
 			}
-			er := dao.Purge(loggerFunc, activity2.OwnerType(internalType), activityOwner, activity.BoxName(boxName), keepAtLeast, keepMax, updatedTime, compactDB, clearBackups)
+			er = dao.Purge(loggerFunc, activity2.OwnerType(internalType), activityOwner, activity.BoxName(boxName), keepAtLeast, keepMax, updatedTime, compactDB, clearBackups)
 			if er != nil {
 				log.Fatalln(er)
 			}

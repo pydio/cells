@@ -50,9 +50,9 @@ var (
 
 func TestMain(m *testing.M) {
 	// Then run with a cache
-	sqlDAO := sql.NewDAO("sqlite3", "file::memwithcache:?mode=memory&cache=shared", "test")
-	if sqlDAO == nil {
-		fmt.Print("Could not start test")
+	sqlDAO, er := sql.NewDAO("sqlite3", "file::memwithcache:?mode=memory&cache=shared", "test")
+	if er != nil {
+		panic(er)
 		return
 	}
 

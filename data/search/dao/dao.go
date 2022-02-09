@@ -43,14 +43,14 @@ type SearchEngine interface {
 func NewDAO(dao dao.DAO) dao.DAO {
 	switch v := dao.(type) {
 	case *bleve.Indexer:
-		v.SetCodec(&bleve2.Codec{})
+		v.SetCodex(&bleve2.Codec{})
 		return v
 	}
 	return nil
 
 }
 
-func NewQueryCodec(indexDAO dao.IndexDAO, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodec {
+func NewQueryCodec(indexDAO dao.IndexDAO, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodex {
 	switch indexDAO.(type) {
 	case *bleve.Indexer:
 		return bleve2.NewQueryCodec(values, metaProvider)

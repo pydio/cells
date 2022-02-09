@@ -109,12 +109,12 @@ func (b *Batch) Flush(indexer dao.IndexDAO) error {
 	for uuid, node := range b.inserts {
 		if e := b.LoadIndexableNode(node, excludes); e == nil {
 			//batch.Index(uuid, node)
-			indexer.InsertOne(node)
+			indexer.InsertOne(nil, node)
 		}
 		delete(b.inserts, uuid)
 	}
 	for uuid := range b.deletes {
-		indexer.DeleteOne(uuid)
+		indexer.DeleteOne(nil, uuid)
 		delete(b.deletes, uuid)
 	}
 	b.Unlock()

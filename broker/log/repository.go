@@ -19,7 +19,7 @@ func NewIndexService(dao dao.IndexDAO) (MessageRepository, error) {
 
 // PutLog  adds a new LogMessage in the syslog index.
 func (s *IndexService) PutLog(line *log.Log) error {
-	return s.dao.InsertOne(line)
+	return s.dao.InsertOne(nil, line)
 }
 
 // ListLogs performs a query in the bleve index, based on the passed query string.
@@ -42,7 +42,7 @@ func (s *IndexService) ListLogs(str string, page, size int32) (chan log.ListLogR
 
 // DeleteLogs truncate logs based on a search query
 func (s *IndexService) DeleteLogs(query string) (int64, error) {
-	c, er := s.dao.DeleteMany(query)
+	c, er := s.dao.DeleteMany(nil, query)
 	if er == nil {
 		return int64(c), nil
 	} else {

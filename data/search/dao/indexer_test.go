@@ -43,9 +43,10 @@ import (
 func getTmpIndex(createNodes bool) (s *Server, dir string) {
 
 	cfg := configx.New()
-	dao := bleve.NewDAO("bleve", "", "")
-	idx, _ := bleve.NewIndexer(dao, cfg)
-	idx.SetCodec(&bleve2.Codec{})
+	dao, _ := bleve.NewDAO("bleve", "", "")
+	idx, _ := bleve.NewIndexer(dao)
+	idx.SetCodex(&bleve2.Codec{})
+	idx.Init(cfg)
 
 	server, _ := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
 
@@ -134,9 +135,10 @@ func TestNewBleveEngine(t *testing.T) {
 	Convey("Test create bleve engine then reopen it", t, func() {
 
 		cfg := configx.New()
-		dao := bleve.NewDAO("bleve", "", "")
-		idx, _ := bleve.NewIndexer(dao, cfg)
-		idx.SetCodec(&bleve2.Codec{})
+		dao, _ := bleve.NewDAO("bleve", "", "")
+		idx, _ := bleve.NewIndexer(dao)
+		idx.SetCodex(&bleve2.Codec{})
+		idx.Init(cfg)
 
 		server, err := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
 		So(err, ShouldBeNil)

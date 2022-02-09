@@ -81,7 +81,7 @@ func createTestHandler(suffix string) (*Handler, func()) {
 
 	if mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN"); mDsn != "" {
 
-		coreDao := mongodb.NewDAO("mongodb", mDsn, "docstore-test")
+		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "docstore-test")
 		dao := docstore.NewDAO(coreDao).(docstore.DAO)
 		if e := dao.Init(configx.New()); e != nil {
 			return nil, nil

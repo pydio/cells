@@ -104,14 +104,14 @@ type Handler struct {
 	replacer *strings.Replacer
 }
 
-func NewDAO(driver string, dsn string, prefix string) DAO {
+func NewDAO(driver string, dsn string, prefix string) (DAO, error) {
 	conn, err := dao.NewConn(driver, dsn)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	helper, err := newHelper(driver)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	// Special case for sqlite, we use a mutex to simulate locking as sqlite's locking is not quite up to the task
 	var mu atomic.Value
@@ -129,7 +129,7 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 		preparedLock:  new(sync.RWMutex),
 		replacer:      strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
 		mu:            mu,
-	}
+	}, nil
 }
 
 func (h *Handler) Init(c configx.Values) error {

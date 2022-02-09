@@ -48,7 +48,7 @@ var (
 func TestMain(m *testing.M) {
 
 	// Instantiate and initialise the role DAO Mock
-	sqlDao := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
+	sqlDao, _ := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
 	roleDAO = role.NewDAO(sqlDao).(role.DAO)
 	options := configx.New()
 	options.Val("database").Set(roleDAO)

@@ -23,7 +23,6 @@ package bleve
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"os"
 	"path/filepath"
 	"sort"
@@ -40,6 +39,7 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -61,12 +61,10 @@ type IndexDAO interface {
 // Indexer is the syslog specific implementation of the Log server
 type Indexer struct {
 	DAO
-	searchIndex  bleve.IndexAlias
-	indexes      []bleve.Index
-	rotationSize int64
-	cursor       int
-	indexPath    string
-	mappingName  string
+	searchIndex bleve.IndexAlias
+	indexes     []bleve.Index
+	cursor      int
+	indexPath   string
 
 	opened      bool
 	inserts     chan interface{}
@@ -76,34 +74,40 @@ type Indexer struct {
 	crtBatch    *bleve.Batch
 	flushLock   *sync.Mutex
 
-	codec          dao.IndexCodec
+	codec          dao.IndexCodex
 	serviceConfigs configx.Values
 }
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
-func NewIndexer(d DAO, serviceConfigs configx.Values) (dao.IndexDAO, error) {
+func NewIndexer(d DAO) (dao.IndexDAO, error) {
 
 	conf := d.BleveConfig()
-
 	if conf.RotationSize > -1 && conf.RotationSize < MinRotationSize {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)
 	}
 	server := &Indexer{
-		DAO:            d,
-		rotationSize:   conf.RotationSize,
-		serviceConfigs: serviceConfigs,
+		DAO: d,
 	}
-	er := server.Open(conf.BlevePath, conf.MappingName)
-	return server, er
+	return server, nil
+}
+
+func (s *Indexer) Init(cfg configx.Values) error {
+	if er := s.DAO.Init(cfg); er != nil {
+		return er
+	}
+	s.serviceConfigs = cfg
+	return s.Open(s.BleveConfig().BlevePath)
 }
 
 // Open lists all existing indexes and creates a writeable index on the active one
 // and a composed index for searching. It calls watchInserts() to start watching for
 // new logs
-func (s *Indexer) Open(indexPath string, mappingName string) error {
+func (s *Indexer) Open(indexPath string) error {
+
 	s.indexPath = indexPath
-	s.mappingName = mappingName
+	mappingName := s.BleveConfig().MappingName
+
 	s.searchIndex = bleve.NewIndexAlias()
 	s.indexes = []bleve.Index{}
 	s.flushLock = &sync.Mutex{}
@@ -118,7 +122,7 @@ func (s *Indexer) Open(indexPath string, mappingName string) error {
 
 	existing := s.listIndexes(true)
 	if len(existing) == 0 {
-		index, err := s.openOneIndex(indexPath, mappingName)
+		index, err := s.openOneIndex(s.indexPath, mappingName)
 		if err != nil {
 			return err
 		}
@@ -127,7 +131,7 @@ func (s *Indexer) Open(indexPath string, mappingName string) error {
 		s.cursor = 0
 	} else {
 		for _, iName := range existing {
-			iPath := filepath.Join(filepath.Dir(indexPath), iName)
+			iPath := filepath.Join(filepath.Dir(s.indexPath), iName)
 			if index, err := s.openOneIndex(iPath, mappingName); err == nil {
 				s.indexes = append(s.indexes, index)
 			} else {
@@ -140,7 +144,7 @@ func (s *Indexer) Open(indexPath string, mappingName string) error {
 	s.insertsDone = make(chan bool)
 	s.opened = true
 
-	if indexPath != "" && s.rotationSize > -1 {
+	if s.indexPath != "" && s.BleveConfig().RotationSize > -1 {
 		s.rotateIfNeeded()
 	}
 	go s.watchInserts()
@@ -159,7 +163,7 @@ func (s *Indexer) Close() error {
 	return nil
 }
 
-func (s *Indexer) InsertOne(data interface{}) error {
+func (s *Indexer) InsertOne(ctx context.Context, data interface{}) error {
 
 	if !s.opened {
 		return nil
@@ -175,7 +179,7 @@ func (s *Indexer) InsertOne(data interface{}) error {
 	return nil
 }
 
-func (s *Indexer) DeleteOne(data interface{}) error {
+func (s *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 
 	if !s.opened {
 		return nil
@@ -204,7 +208,7 @@ func (s *Indexer) Flush() {
 	}
 }
 
-func (s *Indexer) DeleteMany(qu interface{}) (int32, error) {
+func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error) {
 
 	var q query.Query
 	var str string
@@ -243,12 +247,12 @@ func (s *Indexer) DeleteMany(qu interface{}) (int32, error) {
 
 }
 
-func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec dao.IndexCodec, facets ...interface{}) (chan interface{}, error) {
+func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec dao.IndexCodex) (chan interface{}, error) {
 	codec := s.codec
 	if customCodec != nil {
 		codec = customCodec
 	}
-	request, _, err := codec.BuildQuery(query, offset, limit, facets...)
+	request, _, err := codec.BuildQuery(query, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -280,7 +284,7 @@ func (s *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	return cRes, nil
 }
 
-func (s *Indexer) SetCodec(c dao.IndexCodec) {
+func (s *Indexer) SetCodex(c dao.IndexCodex) {
 	s.codec = c
 }
 
@@ -394,7 +398,7 @@ func (s *Indexer) watchInserts() {
 }
 
 func (s *Indexer) rotateIfNeeded() {
-	if s.indexPath == "" || s.rotationSize == -1 {
+	if s.indexPath == "" || s.BleveConfig().RotationSize == -1 {
 		return
 	}
 	checkPath := s.indexPath
@@ -406,11 +410,11 @@ func (s *Indexer) rotateIfNeeded() {
 		fmt.Println("[pydio.grpc.log] Cannot compute disk usage for bleve index", e.Error())
 		return
 	}
-	if du > s.rotationSize {
+	if du > s.BleveConfig().RotationSize {
 		fmt.Println("Rotating "+s.indexPath+" for size ", du)
 		// Open a new index
 		newPath := fmt.Sprintf("%s.%04d", s.indexPath, len(s.indexes))
-		newIndex, er := s.openOneIndex(newPath, s.mappingName)
+		newIndex, er := s.openOneIndex(newPath, s.BleveConfig().MappingName)
 		if er != nil {
 			fmt.Println("[pydio.grpc.log] Cannot create new bleve index", er.Error())
 			return
@@ -443,15 +447,14 @@ func (s *Indexer) Resync(logger func(string)) error {
 	copyPath := filepath.Join(copyDir, filepath.Base(s.indexPath))
 
 	dup := &Indexer{
-		DAO:          s.DAO,
-		rotationSize: s.DAO.BleveConfig().RotationSize,
+		DAO: s.DAO,
 	}
 	if UnitTestEnv {
 		dup.inserts = make(chan interface{})
 	} else {
 		dup.inserts = make(chan interface{}, BufferedChanSize)
 	}
-	er := dup.Open(copyPath, s.DAO.BleveConfig().MappingName)
+	er := dup.Open(copyPath)
 	if er != nil {
 		return er
 	}
@@ -511,7 +514,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 		}
 	}
 	logger("Restarting new mr")
-	if err := s.Open(s.indexPath, s.mappingName); err != nil {
+	if err := s.Open(s.indexPath); err != nil {
 		return err
 	}
 	logger("Resync operation done")
@@ -544,7 +547,7 @@ func (s *Indexer) Truncate(max int64, logger func(string)) error {
 	}
 	// Now restart - it will renumber files
 	logger("Re-opening log server")
-	s.Open(s.indexPath, s.mappingName)
+	s.Open(s.indexPath)
 	logger("Truncate operation done")
 	return nil
 }

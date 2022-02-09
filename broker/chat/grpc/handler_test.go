@@ -65,7 +65,7 @@ func initializedHandler() (context.Context, *ChatHandler, func(), error) {
 
 	if mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN"); mDsn != "" {
 		fmt.Println("Testing on MONGO DB")
-		coreDao := mongodb.NewDAO("mongodb", mDsn, "chat-test")
+		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "chat-test")
 		dao := chat2.NewDAO(coreDao).(chat2.DAO)
 		if e := dao.Init(configx.New()); e != nil {
 			return nil, nil, nil, e
@@ -80,7 +80,7 @@ func initializedHandler() (context.Context, *ChatHandler, func(), error) {
 	} else {
 
 		tmpFile := filepath.Join(os.TempDir(), uuid.New()+".db")
-		coreDao := boltdb.NewDAO("boltdb", tmpFile, "")
+		coreDao, _ := boltdb.NewDAO("boltdb", tmpFile, "")
 		dao := chat2.NewDAO(coreDao).(chat2.DAO)
 		if e := dao.Init(configx.New()); e != nil {
 			return nil, nil, nil, e

@@ -22,7 +22,7 @@ type IndexDAO interface {
 type Indexer struct {
 	DAO
 	collection string
-	codec      dao.IndexCodec
+	codec      dao.IndexCodex
 	inserts    []interface{}
 	deletes    []string
 	tick       chan bool
@@ -78,7 +78,7 @@ func (i *Indexer) Init(cfg configx.Values) error {
 	return i.DAO.Init(cfg)
 }
 
-func (i *Indexer) InsertOne(data interface{}) error {
+func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
 	if m, e := i.codec.Marshal(data); e == nil {
 		i.inserts = append(i.inserts, m)
 		i.tick <- true
@@ -88,7 +88,7 @@ func (i *Indexer) InsertOne(data interface{}) error {
 	}
 }
 
-func (i *Indexer) DeleteOne(data interface{}) error {
+func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 	p, o := data.(dao.IndexIDProvider)
 	if !o {
 		return fmt.Errorf("data must be an IndexIDProvider")
@@ -98,7 +98,7 @@ func (i *Indexer) DeleteOne(data interface{}) error {
 	return nil
 }
 
-func (i *Indexer) DeleteMany(query interface{}) (int32, error) {
+func (i *Indexer) DeleteMany(ctx context.Context, query interface{}) (int32, error) {
 	request, _, err := i.codec.BuildQuery(query, 0, 0)
 	if err != nil {
 		return 0, err
@@ -117,7 +117,7 @@ func (i *Indexer) DeleteMany(query interface{}) (int32, error) {
 	}
 }
 
-func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec dao.IndexCodec, facets ...interface{}) (chan interface{}, error) {
+func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit int32, customCodec dao.IndexCodex) (chan interface{}, error) {
 	codec := i.codec
 	if customCodec != nil {
 		codec = customCodec
@@ -133,12 +133,12 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 	}
 	// Eventually override options
 	if op, ok := i.codec.(dao.QueryOptionsProvider); ok {
-		if oo, e := op.BuildQueryOptions(query, offset, limit, facets...); e == nil {
+		if oo, e := op.BuildQueryOptions(query, offset, limit); e == nil {
 			opts = oo.(*options.FindOptions)
 		}
 	}
 	// Build Query
-	request, aggregation, err := codec.BuildQuery(query, offset, limit, facets...)
+	request, aggregation, err := codec.BuildQuery(query, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -220,6 +220,6 @@ func (i *Indexer) Flush() {
 		// Delete many by ids
 	}
 }
-func (i *Indexer) SetCodec(c dao.IndexCodec) {
+func (i *Indexer) SetCodex(c dao.IndexCodex) {
 	i.codec = c
 }

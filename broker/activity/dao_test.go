@@ -58,7 +58,7 @@ func initDao() (DAO, func()) {
 	if mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN"); mDsn != "" {
 
 		fmt.Println("Testing on MONGO")
-		h := mongodb.NewDAO("mongodb", mDsn, "activity-test")
+		h, _ := mongodb.NewDAO("mongodb", mDsn, "activity-test")
 		m := NewDAO(h).(DAO)
 		conf := configx.New()
 		m.Init(conf)
@@ -70,7 +70,7 @@ func initDao() (DAO, func()) {
 	}
 
 	tmpDbFilePath := filepath.Join(os.TempDir(), uuid.New()+".db")
-	tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
+	tmpdao, _ := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	return dao, func() {
@@ -85,20 +85,20 @@ func TestBoltEmptyDao(t *testing.T) {
 
 	Convey("Test initialize DB", t, func() {
 		defer os.Remove(tmpDbFilePath)
-		dao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
+		dao, _ := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 		So(dao, ShouldNotBeNil)
 		defer dao.CloseConn()
 	})
 
 	Convey("Test unreachable file", t, func() {
 		dbFile := os.TempDir() + "/anynonexisting/folder/toto.db"
-		dao := boltdb.NewDAO("boltdb", dbFile, "")
+		dao, _ := boltdb.NewDAO("boltdb", dbFile, "")
 		So(dao, ShouldBeNil)
 	})
 
 	Convey("Test getBucket - read - not exists", t, func() {
 		defer os.Remove(tmpDbFilePath)
-		tmpdao := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
+		tmpdao, _ := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
 		dao := NewDAO(tmpdao).(DAO)
 		dao.Init(conf)
 		defer dao.CloseConn()
@@ -115,7 +115,7 @@ func TestBoltMassivePurge(t *testing.T) {
 	tmpMassivePurge := path.Join(os.TempDir(), "bolt-test-massive.db")
 	t.Log("MASSIVE DB AT", tmpMassivePurge)
 	defer os.Remove(tmpMassivePurge)
-	tmpdao := boltdb.NewDAO("boltdb", tmpMassivePurge, "")
+	tmpdao, _ := boltdb.NewDAO("boltdb", tmpMassivePurge, "")
 	dao := NewDAO(tmpdao).(DAO)
 	dao.Init(conf)
 	defer dao.CloseConn()

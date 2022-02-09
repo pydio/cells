@@ -46,11 +46,11 @@ type MessageRepository interface {
 func NewDAO(d dao.DAO) dao.DAO {
 	switch v := d.(type) {
 	case bleve.IndexDAO:
-		v.SetCodec(&BleveCodec{})
+		v.SetCodex(&BleveCodec{})
 		return v
 	case mongodb.IndexDAO:
 		v.SetCollection(mongoCollection)
-		v.SetCodec(&MongoCodec{})
+		v.SetCodex(&MongoCodec{})
 		return v
 	}
 	return nil

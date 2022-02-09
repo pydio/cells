@@ -40,17 +40,17 @@ type Handler struct {
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(driver string, dsn string, prefix string) *Handler {
+func NewDAO(driver string, dsn string, prefix string) (*Handler, error) {
 	conn, err := dao.NewConn(driver, dsn)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	if prefix == "" {
 		fmt.Println("Warning, mongodb DAO must provide a prefix")
 	}
 	return &Handler{
 		DAO: dao.NewDAO(conn, driver, prefix),
-	}
+	}, nil
 }
 
 // Init initialises the handler

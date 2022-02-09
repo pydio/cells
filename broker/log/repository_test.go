@@ -43,9 +43,10 @@ var (
 
 func init() {
 	var err error
-	dao := bleve.NewDAO("bleve", "", "")
-	idx, _ := bleve.NewIndexer(dao, configx.New())
-	idx.SetCodec(&BleveCodec{})
+	dao, _ := bleve.NewDAO("bleve", "", "")
+	idx, _ := bleve.NewIndexer(dao)
+	idx.SetCodex(&BleveCodec{})
+	idx.Init(configx.New())
 	server, err = NewIndexService(idx)
 	if err != nil {
 		panic("Failed to create Syslog server")
@@ -135,9 +136,10 @@ func TestSizeRotation(t *testing.T) {
 		os.MkdirAll(filepath.Dir(p), 0777)
 		fmt.Println("Storing temporary index in", p)
 
-		dao := bleve.NewDAO("bleve", p, "")
-		idx, _ := bleve.NewIndexer(dao, configx.New())
-		idx.SetCodec(&BleveCodec{})
+		dao, _ := bleve.NewDAO("bleve", p, "")
+		idx, _ := bleve.NewIndexer(dao)
+		idx.SetCodex(&BleveCodec{})
+		idx.Init(configx.New())
 		s, e := NewIndexService(idx)
 
 		//s, e := bleve.NewSyslogServer(p, "sysLog", 1*1024*1024)
@@ -187,9 +189,10 @@ func TestSizeRotation(t *testing.T) {
 
 		// Re-open with same data and carry one feeding with logs
 
-		dao = bleve.NewDAO("bleve", p, "")
-		idx, _ = bleve.NewIndexer(dao, configx.New())
-		idx.SetCodec(&BleveCodec{})
+		dao, _ = bleve.NewDAO("bleve", p, "")
+		idx, _ = bleve.NewIndexer(dao)
+		idx.SetCodex(&BleveCodec{})
+		idx.Init(configx.New())
 		s, e = NewIndexService(idx)
 		So(e, ShouldBeNil)
 		for i = 0; i < 10000; i++ {

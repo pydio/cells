@@ -35,9 +35,9 @@ import (
 )
 
 func NewWorkspacesService(ww ...*idm.Workspace) (grpc.ClientConnInterface, error) {
-	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_workspace")
-	if sqlDao == nil {
-		return nil, fmt.Errorf("unable to open sqlite3 DB file, could not start test")
+	sqlDao, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_workspace")
+	if er != nil {
+		return nil, fmt.Errorf("unable to open sqlite3 DB file %v", er)
 	}
 
 	mockDAO := workspace.NewDAO(sqlDao)

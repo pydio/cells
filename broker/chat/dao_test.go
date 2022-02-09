@@ -35,13 +35,13 @@ import (
 
 func TestMongoDAO_Init(t *testing.T) {
 
-	mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN");
+	mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
 	if mDsn == "" {
 		t.Log("Skipping Mongodb Test, no URI set")
 		return
 	}
-	
-	h := mongodb.NewDAO("mongodb", mDsn, "chat-test")
+
+	h, _ := mongodb.NewDAO("mongodb", mDsn, "chat-test")
 	m := NewDAO(h).(DAO)
 	conf := configx.New()
 	er := m.Init(conf)

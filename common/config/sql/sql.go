@@ -39,27 +39,35 @@ type SQL struct {
 	watchers []*receiver
 }
 
-func New(driver string, dsn string, prefix string) configx.Entrypoint {
+func New(driver string, dsn string, prefix string) (configx.Entrypoint, error) {
 	var d dao.DAO
 	switch driver {
 	case "mysql":
-		if c := sql.NewDAO(driver, dsn, prefix); c != nil {
-			d = NewDAO(c)
+		c, er := sql.NewDAO(driver, dsn, prefix)
+		if er != nil {
+			return nil, er
 		}
+		d = NewDAO(c)
 	case "sqlite3":
-		if c := sql.NewDAO(driver, dsn, prefix); c != nil {
-			d = NewDAO(c)
+		c, er := sql.NewDAO(driver, dsn, prefix)
+		if er != nil {
+			return nil, er
 		}
+		d = NewDAO(c)
 	}
 
 	dc := configx.New()
-	dc.Val("prepare").Set(true)
+	if er := dc.Val("prepare").Set(true); er != nil {
+		return nil, er
+	}
 
-	d.Init(dc)
+	if er := d.Init(dc); er != nil {
+		return nil, er
+	}
 
 	return &SQL{
 		dao: d,
-	}
+	}, nil
 }
 
 // Init handler for the SQL DAO

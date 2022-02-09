@@ -47,7 +47,7 @@ func TestNewBoltStore(t *testing.T) {
 
 	Convey("Test open bolt db", t, func() {
 		dbFile := os.TempDir() + "/bolt-test.db"
-		dao := boltdb.NewDAO("boltdb", dbFile, "test-jobs")
+		dao, _ := boltdb.NewDAO("boltdb", dbFile, "test-jobs")
 		defer os.Remove(dbFile)
 		db, err := NewBoltStore(dao)
 		defer dao.CloseConn()
@@ -62,7 +62,7 @@ func initDAO(name string) (DAO, func()) {
 	mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
 	if mDsn != "" {
 
-		coreDao := mongodb.NewDAO("mongodb", mDsn, "versions-test")
+		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "versions-test")
 		dao := NewDAO(coreDao).(DAO)
 		dao.Init(configx.New())
 		closer := func() {
@@ -74,7 +74,7 @@ func initDAO(name string) (DAO, func()) {
 
 	} else {
 		p := filepath.Join(os.TempDir(), name+".db")
-		bd := boltdb.NewDAO("boltdb", p, "test")
+		bd, _ := boltdb.NewDAO("boltdb", p, "test")
 		bs, _ := NewBoltStore(bd)
 		closer := func() {
 			bd.CloseConn()

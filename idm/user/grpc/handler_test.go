@@ -57,7 +57,7 @@ func TestMain(m *testing.M) {
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
 
-	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
+	sqlDao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if sqlDao == nil {
 		log.Fatal("unable to open sqlite3 DB file, could not start test")
 		return

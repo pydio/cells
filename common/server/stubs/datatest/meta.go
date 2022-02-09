@@ -36,9 +36,9 @@ import (
 )
 
 func NewMetaService(nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
-	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_")
-	if sqlDao == nil {
-		return nil, fmt.Errorf("unable to open sqlite3 DB file, could not start test")
+	sqlDao, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "data_meta_")
+	if er != nil {
+		return nil, er
 	}
 
 	mockDAO := meta.NewDAO(sqlDao)

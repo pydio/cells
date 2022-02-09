@@ -49,7 +49,7 @@ func init() {
 	SetDefaultFailureMode(FailureContinues)
 
 	// Running first without a cache
-	sqlDAO := sql.NewDAO("sqlite3", "file::memnocache:?mode=memory&cache=shared", "test")
+	sqlDAO, _ := sql.NewDAO("sqlite3", "file::memnocache:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {
 		fmt.Print("Could not start test")
 		return

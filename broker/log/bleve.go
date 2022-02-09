@@ -47,7 +47,7 @@ func (b *BleveCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 	return currMsg, nil
 }
 
-func (b *BleveCodec) BuildQuery(qu interface{}, offset, limit int32, facets ...interface{}) (interface{}, interface{}, error) {
+func (b *BleveCodec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, interface{}, error) {
 	queryString, ok := qu.(string)
 	if !ok {
 		return nil, nil, fmt.Errorf("unsupported query format")

@@ -35,9 +35,9 @@ import (
 )
 
 func NewRolesService(roles ...*idm.Role) (grpc.ClientConnInterface, error) {
-	sqlDao2 := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_roles")
-	if sqlDao2 == nil {
-		return nil, fmt.Errorf("unable to open sqlite3 DB file, could not start test")
+	sqlDao2, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_roles")
+	if er != nil {
+		return nil, fmt.Errorf("unable to open sqlite3 DB file %v", er)
 	}
 
 	mockRDAO := role.NewDAO(sqlDao2)

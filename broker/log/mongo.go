@@ -29,7 +29,7 @@ func (m *MongoCodec) Unmarshal(indexed interface{}) (interface{}, error) {
 	return ilog.LogMessage, nil
 }
 
-func (m *MongoCodec) BuildQuery(query interface{}, offset, limit int32, facets ...interface{}) (interface{}, interface{}, error) {
+func (m *MongoCodec) BuildQuery(query interface{}, offset, limit int32) (interface{}, interface{}, error) {
 	qString, ok := query.(string)
 	if !ok {
 		return nil, nil, fmt.Errorf("BuildQuery expects a string")
@@ -43,7 +43,7 @@ func (m *MongoCodec) BuildQuery(query interface{}, offset, limit int32, facets .
 	return ff, nil, nil
 }
 
-func (m *MongoCodec) BuildQueryOptions(query interface{}, offset, limit int32, facets ...interface{}) (interface{}, error) {
+func (m *MongoCodec) BuildQueryOptions(query interface{}, offset, limit int32) (interface{}, error) {
 	opts := &options.FindOptions{Sort: bson.D{{"ts", -1}, {"nano", -1}}}
 	if limit > 0 {
 		l64 := int64(limit)

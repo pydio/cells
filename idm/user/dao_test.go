@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 
 	var options = configx.New()
 
-	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
+	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if dao == nil {
 		fmt.Print("could not start test")
 		return

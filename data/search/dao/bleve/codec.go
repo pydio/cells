@@ -181,7 +181,7 @@ func (b *Codec) FlushCustomFacets() (facets []interface{}) {
 	return
 }
 
-func (b *Codec) BuildQuery(qu interface{}, offset, limit int32, facets ...interface{}) (interface{}, interface{}, error) {
+func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, interface{}, error) {
 
 	ba, ca, _ := b.extractConfigs(b.queryConfig)
 

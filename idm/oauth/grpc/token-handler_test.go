@@ -31,7 +31,7 @@ var (
 
 func TestMain(m *testing.M) {
 
-	dao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_")
+	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_")
 	if dao == nil {
 		fmt.Print("Could not start sqlite3 DAO")
 		return
