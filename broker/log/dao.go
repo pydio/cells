@@ -25,8 +25,9 @@
 package log
 
 import (
-	"time"
-
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	log2 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/log"
 )
@@ -37,11 +38,20 @@ type MessageRepository interface {
 	ListLogs(string, int32, int32) (chan log.ListLogResponse, error)
 	DeleteLogs(string) (int64, error)
 	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
+	Close() error
 	Resync(logger log2.ZapLogger) error
 	Truncate(max int64, logger log2.ZapLogger) error
 }
 
-// Single entry point to convert time.Time to Unix timestamps defined as int32
-func convertTimeToTs(ts time.Time) int32 {
-	return int32(ts.UTC().Unix())
+func NewDAO(d dao.DAO) dao.DAO {
+	switch v := d.(type) {
+	case bleve.IndexDAO:
+		v.SetCodec(&BleveCodec{})
+		return v
+	case mongodb.IndexDAO:
+		v.SetCollection(mongoCollection)
+		v.SetCodec(&MongoCodec{})
+		return v
+	}
+	return nil
 }

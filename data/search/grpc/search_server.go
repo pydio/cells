@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/data/search/dao"
 	"strings"
 	"sync"
 
@@ -38,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/data/search/dao"
 )
 
 // SearchServer implements GRPC server for index/search

@@ -163,6 +163,11 @@ func (i *IndexableNode) BleveType() string {
 	return "node"
 }
 
+// IndexID implements IndexIDProvider interface
+func (i *IndexableNode) IndexID() string {
+	return i.GetUuid()
+}
+
 func (i *IndexableNode) MemLoad() {
 	i.Meta = i.AllMetaDeserialized(nil)
 	i.ModifTime = time.Unix(i.MTime, 0)

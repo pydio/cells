@@ -427,11 +427,11 @@ func (j *JobsHandler) DeleteTasks(ctx context.Context, request *proto.DeleteTask
 func (j *JobsHandler) DeleteLogsFor(ctx context.Context, job string, tasks ...string) (int64, error) {
 	var req = &log2.ListLogRequest{}
 	if len(tasks) == 0 {
-		req.Query = "OperationUuid:\"" + job + "*\""
+		req.Query = "+OperationUuid:\"" + job + "*\""
 	} else {
 		qs := []string{}
 		for _, task := range tasks {
-			qs = append(qs, "OperationUuid:\""+job+"-"+task[0:8]+"\"")
+			qs = append(qs, "+OperationUuid:\""+job+"-"+task[0:8]+"\"")
 		}
 		req.Query = strings.Join(qs, " ")
 	}

@@ -23,14 +23,12 @@ package grpc
 
 import (
 	"context"
-	"path"
-
+	"github.com/pydio/cells/v4/common/dao"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config"
 	log3 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
@@ -59,6 +57,7 @@ func init() {
 			service.Unique(true),
 			service.Fork(true),
 			service.WithStorage(jobs.NewDAO, "jobs"),
+			service.WithIndexer(log.NewDAO, "tasklogs", ServiceName+".index"),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),
@@ -87,13 +86,16 @@ func init() {
 			}),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
-				serviceDir, e := config.ServiceDataDir(ServiceName)
-				if e != nil {
-					return e
-				}
+				/*
+					serviceDir, e := config.ServiceDataDir(ServiceName)
+					if e != nil {
+						return e
+					}
+				*/
 				store := servicecontext.GetDAO(c).(jobs.DAO)
+				index := servicecontext.GetIndexer(c).(dao.IndexDAO)
 
-				logStore, err := log.NewSyslogServer(path.Join(serviceDir, "tasklogs.bleve"), "tasksLog", -1)
+				logStore, err := log.NewIndexService(index)
 				if err != nil {
 					return err
 				}

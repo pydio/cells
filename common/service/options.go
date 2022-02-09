@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/common/utils/uuid"
@@ -28,9 +27,7 @@ type ServiceOptions struct {
 	Context context.Context    `json:"-"`
 	Cancel  context.CancelFunc `json:"-"`
 
-	DAO        func(dao.DAO) dao.DAO `json:"-"`
-	Prefix     interface{}           `json:"-"`
-	Migrations []*Migration          `json:"-"`
+	Migrations []*Migration `json:"-"`
 
 	// Port      string
 	TLSConfig *tls.Config

@@ -23,10 +23,7 @@ package docstore
 import (
 	"context"
 	"fmt"
-	"github.com/blevesearch/bleve/v2"
-	query2 "github.com/blevesearch/bleve/v2/search/query"
-	"strings"
-
+	"github.com/pydio/cells/v4/common/dao"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -221,48 +218,13 @@ func (m *mongoImpl) buildFilters(storeID string, query *docstore.DocumentQuery) 
 		filter = append(filter, bson.E{Key: "owner", Value: query.Owner})
 	}
 	if query.MetaQuery != "" {
-		q, e := bleve.NewQueryStringQuery(query.MetaQuery).Parse()
+		ff, e := dao.BleveQueryToMongoFilters(query.MetaQuery, false, func(s string) string {
+			return "data." + s
+		})
 		if e != nil {
 			return nil, e
 		}
-		if bQ, o := q.(*query2.BooleanQuery); o {
-			if cj, o2 := bQ.Must.(*query2.ConjunctionQuery); o2 {
-				for _, m := range cj.Conjuncts {
-					switch v := m.(type) {
-					case *query2.WildcardQuery:
-						wc := v.Wildcard
-						regexp := ""
-						if !strings.HasPrefix(wc, "*") {
-							regexp += "^"
-						}
-						regexp += strings.Trim(wc, "*")
-						if !strings.HasSuffix(wc, "*") {
-							regexp += "$"
-						}
-						filter = append(filter, bson.E{Key: "data." + v.Field(), Value: bson.M{"$regex": regexp}})
-					case *query2.MatchQuery:
-						filter = append(filter, bson.E{Key: "data." + v.Field(), Value: v.Match})
-					case *query2.MatchPhraseQuery:
-						filter = append(filter, bson.E{Key: "data." + v.Field(), Value: v.MatchPhrase})
-					case *query2.NumericRangeQuery:
-						if v.Min != nil {
-							ref := "$gt"
-							if v.InclusiveMin != nil && *v.InclusiveMin {
-								ref = "$gte"
-							}
-							filter = append(filter, bson.E{Key: "data." + v.Field(), Value: bson.M{ref: v.Min}})
-						}
-						if v.Max != nil {
-							ref := "$lt"
-							if v.InclusiveMax != nil && *v.InclusiveMax {
-								ref = "$lte"
-							}
-							filter = append(filter, bson.E{Key: "data." + v.Field(), Value: bson.M{ref: v.Max}})
-						}
-					}
-				}
-			}
-		}
+		filter = append(filter, ff...)
 	}
 
 	return filter, nil

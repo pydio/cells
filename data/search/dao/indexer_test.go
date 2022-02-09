@@ -18,10 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package bleve
+package dao
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 	"io/ioutil"
 	"log"
 	"os"
@@ -38,9 +41,13 @@ import (
 )
 
 func getTmpIndex(createNodes bool) (s *Server, dir string) {
-	tmpDir, _ := ioutil.TempDir("", "bleve")
-	IndexPath = filepath.Join(tmpDir, "pydio")
-	server, _ := NewEngine(context.Background(), meta.NewNsProvider(context.Background()), false, nil)
+
+	cfg := configx.New()
+	dao := bleve.NewDAO("bleve", "", "")
+	idx, _ := bleve.NewIndexer(dao, cfg)
+	idx.SetCodec(&bleve2.Codec{})
+
+	server, _ := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
 
 	if createNodes {
 
@@ -82,7 +89,7 @@ func getTmpIndex(createNodes bool) (s *Server, dir string) {
 		<-time.After(5 * time.Second)
 	}
 
-	return server, tmpDir
+	return server, dao.BleveConfig().BlevePath
 }
 
 func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tree.Node, error) {
@@ -125,14 +132,20 @@ func TestNewBleveEngine(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	Convey("Test create bleve engine then reopen it", t, func() {
-		server, err := NewEngine(context.Background(), meta.NewNsProvider(context.Background()), false, nil)
+
+		cfg := configx.New()
+		dao := bleve.NewDAO("bleve", "", "")
+		idx, _ := bleve.NewIndexer(dao, cfg)
+		idx.SetCodec(&bleve2.Codec{})
+
+		server, err := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 
 		e := server.Close()
 		So(e, ShouldBeNil)
 
-		server, err = NewEngine(context.Background(), meta.NewNsProvider(context.Background()), false, nil)
+		server, err = NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
 		So(err, ShouldBeNil)
 		So(server, ShouldNotBeNil)
 

@@ -69,6 +69,8 @@ func addConn(d string, dsn string) (Conn, error) {
 		drv = new(sqlite)
 	case "boltdb":
 		drv = new(boltdb)
+	case "bleve":
+		drv = new(BleveConfig)
 	case "mongodb":
 		drv = new(mongodb)
 	default:

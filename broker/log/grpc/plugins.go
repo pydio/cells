@@ -23,17 +23,16 @@ package grpc
 
 import (
 	"context"
-	"path"
-
-	"github.com/pydio/cells/v4/broker/log"
-	"github.com/pydio/cells/v4/common/config"
-	proto "github.com/pydio/cells/v4/common/proto/log"
-	"github.com/pydio/cells/v4/common/proto/sync"
+	dao2 "github.com/pydio/cells/v4/common/dao"
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/plugins"
+	proto "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 func init() {
@@ -43,19 +42,11 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
+			service.WithIndexer(log.NewDAO, "syslog"),
 			service.Unique(true),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
-				conf := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceLog)
-
-				serviceDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + common.ServiceLog)
-				if e != nil {
-					return e
-				}
-				rotationSize := log.DefaultRotationSize
-				if r := conf.Val("bleveRotationSize").Int(); r > 0 {
-					rotationSize = int64(r)
-				}
-				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"), "sysLog", rotationSize)
+				dao := servicecontext.GetIndexer(c).(dao2.IndexDAO)
+				repo, err := log.NewIndexService(dao)
 				if err != nil {
 					return err
 				}

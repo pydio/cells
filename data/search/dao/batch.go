@@ -18,31 +18,31 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package bleve
+package dao
 
 import (
 	"compress/gzip"
 	"context"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
-	bleve "github.com/blevesearch/bleve/v2"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service/context"
 )
 
@@ -94,7 +94,7 @@ func (b *Batch) Size() int {
 	return l
 }
 
-func (b *Batch) Flush(index bleve.Index) error {
+func (b *Batch) Flush(indexer dao.IndexDAO) error {
 	b.Lock()
 	l := len(b.inserts) + len(b.deletes)
 	if l == 0 {
@@ -102,22 +102,24 @@ func (b *Batch) Flush(index bleve.Index) error {
 		return nil
 	}
 	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l))
-	batch := index.NewBatch()
+	//batch := index.NewBatch()
 	excludes := b.nsProvider.ExcludeIndexes()
 	b.nsProvider.InitStreamers(b.ctx)
 	defer b.nsProvider.CloseStreamers()
 	for uuid, node := range b.inserts {
 		if e := b.LoadIndexableNode(node, excludes); e == nil {
-			batch.Index(uuid, node)
+			//batch.Index(uuid, node)
+			indexer.InsertOne(node)
 		}
 		delete(b.inserts, uuid)
 	}
 	for uuid := range b.deletes {
-		batch.Delete(uuid)
+		indexer.DeleteOne(uuid)
 		delete(b.deletes, uuid)
 	}
 	b.Unlock()
-	return index.Batch(batch)
+	indexer.Flush()
+	return nil
 }
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {

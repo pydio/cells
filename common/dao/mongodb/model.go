@@ -27,11 +27,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Collection struct {
-	Name    string
-	Indexes []map[string]int
+	Name             string
+	DefaultCollation Collation
+	Indexes          []map[string]int
+}
+
+type Collation struct {
+	Locale   string
+	Strength int
 }
 
 type Model struct {
@@ -40,7 +47,14 @@ type Model struct {
 
 func (m Model) Init(ctx context.Context, db *mongo.Database) error {
 	for _, col := range m.Collections {
-		if e := db.CreateCollection(ctx, col.Name); e != nil {
+		opts := &options.CreateCollectionOptions{}
+		if col.DefaultCollation.Locale != "" {
+			opts.Collation = &options.Collation{
+				Locale:   col.DefaultCollation.Locale,
+				Strength: col.DefaultCollation.Strength,
+			}
+		}
+		if e := db.CreateCollection(ctx, col.Name, opts); e != nil {
 			if _, ok := e.(mongo.CommandError); !ok {
 				return e
 			}

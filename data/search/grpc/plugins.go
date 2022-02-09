@@ -25,20 +25,20 @@ package grpc
 
 import (
 	"context"
-	"path/filepath"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/log"
+	dao2 "github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/data/search/dao/bleve"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/data/search/dao"
 )
 
 var (
@@ -60,25 +60,13 @@ func init() {
 				service.RouterDependencies(),
 				service.AutoRestart(true),
 			*/
+			service.WithIndexer(dao.NewDAO),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
 				cfg := config.Get("services", Name)
-				indexContent := cfg.Val("indexContent").Bool()
-				if indexContent {
-					log.Logger(c).Info("Enabling content indexation in search engine")
-				} else {
-					log.Logger(c).Info("disabling content indexation in search engine")
-				}
-
-				dir, _ := config.ServiceDataDir(Name)
-				bleve.IndexPath = filepath.Join(dir, "searchengine.bleve")
-				bleveCfg := make(map[string]interface{})
-				bleveCfg["basenameAnalyzer"] = cfg.Val("basenameAnalyzer").String()
-				bleveCfg["contentAnalyzer"] = cfg.Val("contentAnalyzer").String()
-
 				nsProvider := meta.NewNsProvider(c)
-
-				bleveEngine, err := bleve.NewEngine(c, nsProvider, indexContent, bleveCfg)
+				indexer := servicecontext.GetIndexer(c).(dao2.IndexDAO)
+				bleveEngine, err := dao.NewEngine(c, indexer, nsProvider, cfg)
 				if err != nil {
 					return err
 				}

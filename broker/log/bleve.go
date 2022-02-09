@@ -22,85 +22,41 @@ package log
 
 import (
 	"fmt"
-	"strings"
-	"time"
-
 	bleve "github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/proto/log"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
-// IndexableLog extends default log.LogMessage struct to add index specific methods
-type IndexableLog struct {
-	Nano int
-	log.LogMessage
+type BleveCodec struct {
+	baseCodec
 }
 
-// BlevePutLog stores a new log msg in a bleve index. It expects a map[string]string
-// retrieved from a deserialized proto log message.
-/*
-func BlevePutLog(idx bleve.Index, line map[string]string) error {
-
-	msg, err := MarshallLogMsg(line)
-	if err != nil {
-		return err
+func (b *BleveCodec) Unmarshal(indexed interface{}) (interface{}, error) {
+	data, ok := indexed.(*search.DocumentMatch)
+	if !ok {
+		return nil, fmt.Errorf("unexpected format for unmarshalling")
 	}
-
-	err = idx.Index(xid.New().String(), msg)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-*/
-
-func BleveDuplicateIndex(from bleve.Index, inserts chan interface{}, logger func(string)) error {
-
-	q := bleve.NewMatchAllQuery()
-	req := bleve.NewSearchRequest(q)
-	req.Size = 5000
-	page := 0
-
-	for {
-
-		logger(fmt.Sprintf("Reindexing logs from page %d\n", page))
-		req.From = page * req.Size
-		req.Fields = []string{"*"}
-		sr, err := from.Search(req)
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-		for _, hit := range sr.Hits {
-			currMsg := &log.LogMessage{}
-			UnmarshallLogMsgFromFields(hit.Fields, currMsg)
-			inserts <- &IndexableLog{LogMessage: *currMsg}
-		}
-		if sr.Total <= uint64((page+1)*req.Size) {
-			break
-		}
-		page++
-
-	}
-
-	return nil
+	currMsg := &log.LogMessage{}
+	b.unmarshallLogMsgFromFields(data.Fields, currMsg)
+	return currMsg, nil
 }
 
-// BleveListLogs queries the bleve index, based on the passed query string.
-// It returns the results as a stream of log.ListLogResponse with the values of the indexed fields
-// for each corresponding hit.
-// Results are ordered by descending timestamp rather than by score.
-func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan log.ListLogResponse, error) {
-
+func (b *BleveCodec) BuildQuery(qu interface{}, offset, limit int32, facets ...interface{}) (interface{}, interface{}, error) {
+	queryString, ok := qu.(string)
+	if !ok {
+		return nil, nil, fmt.Errorf("unsupported query format")
+	}
 	var q query.Query
-	if str == "" {
+	if queryString == "" {
 		q = bleve.NewMatchAllQuery()
 	} else {
-		qs := bleve.NewQueryStringQuery(str)
+		qs := bleve.NewQueryStringQuery(queryString)
 		q = qs
 		// For +Msg field, transform MatchPhraseQuery to Wildcard query
 		if parsed, e := qs.Parse(); e == nil {
@@ -133,168 +89,26 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	}
 	req := bleve.NewSearchRequest(q)
 	req.SortBy([]string{"-" + common.KeyTs, "-" + common.KeyNano})
-	req.Size = int(size)
+	req.From = int(offset)
+	req.Size = int(limit)
 	req.Fields = []string{"*"}
-	req.From = int(page * size)
 
-	sr, err := idx.Search(req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	res := make(chan log.ListLogResponse)
-
-	go func() {
-		defer close(res)
-
-		for _, hit := range sr.Hits {
-			// create and populate a ListLogResult
-			currMsg := &log.LogMessage{}
-			UnmarshallLogMsgFromFields(hit.Fields, currMsg)
-			res <- log.ListLogResponse{LogMessage: currMsg}
-		}
-	}()
-	return res, nil
+	return req, nil, nil
 }
 
-// BleveDeleteLogs queries the bleve index, based on the passed query string and deletes the results
-func BleveDeleteLogs(idx bleve.Index, str string) (int64, error) {
-
-	//fmt.Printf("## [DEBUG] ## Delete Query [%s] should execute \n", str)
-
-	var q query.Query
-	if str == "" {
-		return 0, fmt.Errorf("cannot pass an empty query for deletion")
-	}
-	q = bleve.NewQueryStringQuery(str)
-	req := bleve.NewSearchRequest(q)
-	req.Size = 1000
-	var count int64
-
-	for {
-		sr, err := idx.Search(req)
-		if err != nil {
-			fmt.Println(err)
-			return 0, err
-		}
-		b := idx.NewBatch()
-		for _, hit := range sr.Hits {
-			b.Delete(hit.ID)
-			count++
-		}
-		if err := idx.Batch(b); err != nil {
-			return count, err
-		}
-		if sr.Total <= uint64(req.Size) {
-			break
-		}
-	}
-
-	return count, nil
+func (b *BleveCodec) GetModel(_ configx.Values) (interface{}, bool) {
+	// Exclude JSONZaps from indexing
+	logMapping := bleve.NewDocumentMapping()
+	logMapping.AddFieldMapping(&mapping.FieldMapping{
+		Type:  "text",
+		Name:  "JsonZaps",
+		Index: false,
+		Store: true,
+	})
+	return logMapping, true
 }
 
-// MarshallLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.
-func MarshallLogMsg(line *log.Log) (*IndexableLog, error) {
-
-	msg := &IndexableLog{}
-	zaps := make(map[string]interface{})
-	var data map[string]interface{}
-	e := json.Unmarshal(line.Message, &data)
-	if e != nil {
-		return nil, e
-	}
-
-	for k, v := range data {
-		val, _ := v.(string)
-		switch k {
-		case "ts":
-			t, err := time.Parse(time.RFC3339, val)
-			if err != nil {
-				return nil, err
-			}
-			msg.Ts = convertTimeToTs(t)
-		case "level":
-			msg.Level = val
-		case common.KeyMsgId:
-			msg.MsgId = val
-		case "logger": // name of the service that is currently logging.
-			msg.Logger = val
-		// Node specific info
-		case common.KeyNodeUuid:
-			msg.NodeUuid = val
-		case common.KeyNodePath:
-			msg.NodePath = val
-		case common.KeyWorkspaceUuid:
-			msg.WsUuid = val
-		case common.KeyWorkspaceScope:
-			msg.WsScope = val
-		// User specific info
-		case common.KeyUsername:
-			msg.UserName = val
-		case common.KeyUserUuid:
-			msg.UserUuid = val
-		case common.KeyGroupPath:
-			msg.GroupPath = val
-		case common.KeyRoles:
-			msg.RoleUuids = strings.Split(val, ",")
-		case common.KeyProfile:
-			msg.Profile = val
-		// Session and remote client info
-		case servicecontext.HttpMetaRemoteAddress:
-			msg.RemoteAddress = val
-		case servicecontext.HttpMetaUserAgent:
-			msg.UserAgent = val
-		case servicecontext.HttpMetaProtocol:
-			msg.HttpProtocol = val
-		// Span enable following a given request between the various services
-		case common.KeySpanUuid:
-			msg.SpanUuid = val
-		case common.KeySpanParentUuid:
-			msg.SpanParentUuid = val
-		case common.KeySpanRootUuid:
-			msg.SpanRootUuid = val
-		// Group messages for a given high level operation
-		case common.KeyOperationUuid:
-			msg.OperationUuid = val
-		case common.KeyOperationLabel:
-			msg.OperationLabel = val
-		case common.KeySchedulerJobId:
-			msg.SchedulerJobUuid = val
-		case common.KeySchedulerTaskId:
-			msg.SchedulerTaskUuid = val
-		case common.KeySchedulerActionPath:
-			msg.SchedulerTaskActionPath = val
-		case "msg", "error":
-		default:
-			zaps[k] = v
-		}
-	}
-
-	// Concatenate msg and error in the full text msg field.
-	text := ""
-	if m, ok := data["msg"]; ok {
-		if t, o := m.(string); o {
-			text = t
-		} else {
-			fmt.Println("Error while unmarshaling log data, data['msg'] not a string", m)
-		}
-	}
-	if m, ok := data["error"]; ok {
-		text += " - " + m.(string)
-	}
-	msg.Msg = text
-	msg.Nano = int(line.Nano)
-
-	if len(zaps) > 0 {
-		data, _ := json.Marshal(zaps)
-		msg.JsonZaps = string(data)
-	}
-
-	return msg, nil
-}
-
-func UnmarshallLogMsgFromFields(m map[string]interface{}, msg *log.LogMessage) {
+func (b *BleveCodec) unmarshallLogMsgFromFields(m map[string]interface{}, msg *log.LogMessage) {
 
 	if val, ok := m["Ts"]; ok {
 		ts := val.(float64)

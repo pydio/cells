@@ -40,6 +40,7 @@ const (
 	operationIDKey
 	operationLabelKey
 	daoKey
+	indexerKey
 	configKey
 	keyringKey
 	loggerKey
@@ -68,6 +69,11 @@ func WithOperationID(ctx context.Context, operationID string, operationLabel ...
 // WithDAO links a dao to the context
 func WithDAO(ctx context.Context, dao dao.DAO) context.Context {
 	return context.WithValue(ctx, daoKey, dao)
+}
+
+// WithIndexer links a dao for indexation to the context
+func WithIndexer(ctx context.Context, dao dao.DAO) context.Context {
+	return context.WithValue(ctx, indexerKey, dao)
 }
 
 // WithLogger links a logger to the context
@@ -114,7 +120,14 @@ func GetDAO(ctx context.Context) dao.DAO {
 	if db, ok := ctx.Value(daoKey).(dao.DAO); ok {
 		return db
 	}
+	return nil
+}
 
+// GetIndexer returns the dao for indexing from the context in argument
+func GetIndexer(ctx context.Context) dao.DAO {
+	if db, ok := ctx.Value(indexerKey).(dao.DAO); ok {
+		return db
+	}
 	return nil
 }
 

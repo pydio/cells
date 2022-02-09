@@ -23,6 +23,11 @@ package dao
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
@@ -33,4 +38,22 @@ type SearchEngine interface {
 	SearchNodes(context.Context, *tree.Query, int32, int32, chan *tree.Node, chan *tree.SearchFacet, chan bool) error
 	ClearIndex(ctx context.Context) error
 	Close() error
+}
+
+func NewDAO(dao dao.DAO) dao.DAO {
+	switch v := dao.(type) {
+	case *bleve.Indexer:
+		v.SetCodec(&bleve2.Codec{})
+		return v
+	}
+	return nil
+
+}
+
+func NewQueryCodec(indexDAO dao.IndexDAO, values configx.Values, metaProvider *meta.NsProvider) dao.IndexCodec {
+	switch indexDAO.(type) {
+	case *bleve.Indexer:
+		return bleve2.NewQueryCodec(values, metaProvider)
+	}
+	return nil
 }
