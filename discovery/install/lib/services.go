@@ -52,6 +52,22 @@ func addBoltDbEntry(sName string, db ...string) error {
 	return config.SetDatabase(common.ServiceGrpcNamespace_+sName, "boltdb", filepath.Join(bDir, dbName))
 }
 
+func addBleveDbEntry(sName string, db ...string) error {
+	bDir, e := config.ServiceDataDir(common.ServiceGrpcNamespace_ + sName)
+	if e != nil {
+		return e
+	}
+	dbName := sName + ".bleve"
+	if len(db) > 0 {
+		dbName = db[0]
+	}
+	configKey := common.ServiceGrpcNamespace_ + sName
+	if len(db) > 1 {
+		configKey = db[1]
+	}
+	return config.SetDatabase(configKey, "bleve", filepath.Join(bDir, dbName))
+}
+
 func actionConfigsSet(c *install.InstallConfig) error {
 	save := false
 
@@ -71,10 +87,19 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	if e := addBoltDbEntry(common.ServiceDocStore); e != nil {
 		return e
 	}
+	if e := addBoltDbEntry(common.ServiceJobs); e != nil {
+		return e
+	}
+	if e := addBleveDbEntry(common.ServiceJobs, "tasklogs.bleve?mapping=logs&rotationSize=-1", common.ServiceGrpcNamespace_+common.ServiceJobs+".index"); e != nil {
+		return e
+	}
+	if e := addBleveDbEntry(common.ServiceLog, "syslog.bleve?mapping=logs"); e != nil {
+		return e
+	}
 	if e := addBoltDbEntry(common.ServiceVersions); e != nil {
 		return e
 	}
-	if e := addBoltDbEntry(common.ServiceJobs); e != nil {
+	if e := addBleveDbEntry(common.ServiceSearch, "searchengine.bleve?rotationSize=-1"); e != nil {
 		return e
 	}
 
