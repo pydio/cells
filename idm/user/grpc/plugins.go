@@ -72,7 +72,7 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
-			service.WithStorage(user.NewDAO, "idm_user"),
+			service.WithStorage(user.NewDAO, service.WithStoragePrefix("idm_user")),
 			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
 				dao := servicecontext.GetDAO(ctx).(user.DAO)

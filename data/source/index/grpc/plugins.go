@@ -62,10 +62,10 @@ func init() {
 				service.Fork(true),
 				service.AutoStart(false),
 				service.Unique(true),
-				service.WithStorage(index.NewDAO, func(o *service.ServiceOptions) string {
+				service.WithStorage(index.NewDAO, service.WithStoragePrefix(func(o *service.ServiceOptions) string {
 					// Returning a prefix for the dao
 					return strings.Replace(strings.TrimPrefix(o.Name, common.ServiceGrpcNamespace_), ".", "_", -1)
-				}),
+				})),
 				service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
 
 					dsObject, e := config.GetSourceInfoByName(sourceOpt)

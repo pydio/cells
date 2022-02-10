@@ -49,7 +49,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
-			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
+			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),
@@ -87,7 +87,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Personal Access Token Provider"),
-			service.WithStorage(oauth.NewDAO, "idm_oauth_"),
+			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
 			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 				pat := &PatHandler{
 					name: common.ServiceGrpcNamespace_ + common.ServiceToken,

@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"context"
+	"path/filepath"
 	"time"
 
 	"google.golang.org/grpc"
@@ -30,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -65,7 +67,12 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
-			service.WithStorage(versions.NewDAO, "versions"),
+			service.WithStorage(versions.NewDAO,
+				service.WithStoragePrefix("versions"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(Name), "versions.db")
+				}),
+			),
 			//service.Unique(true),
 			service.AfterServe(func(ctx context.Context) error {
 				return std.Retry(ctx, func() error {

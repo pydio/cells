@@ -25,6 +25,14 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+const (
+	BleveDriver  = "bleve"
+	BoltDriver   = "boltdb"
+	MongoDriver  = "mongodb"
+	MysqlDriver  = "mysql"
+	SqliteDriver = "sqlite3"
+)
+
 // DAO interface definition
 type DAO interface {
 	Init(configx.Values) error

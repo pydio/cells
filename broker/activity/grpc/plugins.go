@@ -27,6 +27,7 @@ package grpc
 
 import (
 	"context"
+	"path/filepath"
 	"time"
 
 	"go.uber.org/zap"
@@ -37,6 +38,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
+	config "github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/plugins"
@@ -71,13 +74,18 @@ func init() {
 					Up:            RegisterDigestJob,
 				},
 			}),
-			service.WithStorage(activity.NewDAO, "broker_activity"),
+			service.WithStorage(activity.NewDAO,
+				service.WithStoragePrefix("broker_activity"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(Name), "activities.db")
+				}),
+			),
 			service.Unique(true),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 
-				dao := servicecontext.GetDAO(c).(activity.DAO)
+				d := servicecontext.GetDAO(c).(activity.DAO)
 				// Register Subscribers
-				subscriber := NewEventsSubscriber(c, dao)
+				subscriber := NewEventsSubscriber(c, d)
 				// Start batcher - it is stopped by c.Done()
 				batcher := cache.NewEventsBatcher(c, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
 					if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
@@ -127,8 +135,8 @@ func init() {
 					return e
 				}
 
-				proto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: dao})
-				tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: dao})
+				proto.RegisterActivityServiceEnhancedServer(srv, &Handler{RuntimeCtx: ctx, dao: d})
+				tree.RegisterNodeProviderStreamerEnhancedServer(srv, &MetaProvider{RuntimeCtx: ctx, dao: d})
 
 				return nil
 			}),

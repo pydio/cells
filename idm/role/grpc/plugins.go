@@ -56,7 +56,7 @@ func init() {
 					Up:            UpgradeTo12,
 				},
 			}),
-			service.WithStorage(role.NewDAO, "idm_role"),
+			service.WithStorage(role.NewDAO, service.WithStoragePrefix("idm_role")),
 			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
 				dao := servicecontext.GetDAO(ctx)

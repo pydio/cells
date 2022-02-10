@@ -224,7 +224,7 @@ func WithStorage(source string) service.ServiceOption {
 	mapperType := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, "StorageConfiguration", "checksumMapper").String()
 	switch mapperType {
 	case "dao":
-		return service.WithStorage(sync.NewDAO, "data_sync_"+source)
+		return service.WithStorage(sync.NewDAO, service.WithStoragePrefix("data_sync_"+source))
 	}
 	return nil
 }

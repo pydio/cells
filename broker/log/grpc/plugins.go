@@ -23,11 +23,14 @@ package grpc
 
 import (
 	"context"
-	dao2 "github.com/pydio/cells/v4/common/dao"
+	"path/filepath"
+	
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
@@ -35,17 +38,26 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
+const (
+	ServiceName = common.ServiceGrpcNamespace_ + common.ServiceLog
+)
+
 func init() {
 	plugins.Register("main", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceGrpcNamespace_+common.ServiceLog),
+			service.Name(ServiceName),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Syslog index store"),
-			service.WithIndexer(log.NewDAO, "syslog"),
+			service.WithIndexer(log.NewDAO,
+				service.WithStoragePrefix("syslog"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BleveDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve")
+				}),
+			),
 			service.Unique(true),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
-				dao := servicecontext.GetIndexer(c).(dao2.IndexDAO)
+				dao := servicecontext.GetIndexer(c).(dao.IndexDAO)
 				repo, err := log.NewIndexService(dao)
 				if err != nil {
 					return err

@@ -23,18 +23,22 @@ package grpc
 
 import (
 	"context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"path/filepath"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/sync"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/data/docstore"
 )
 
@@ -48,7 +52,12 @@ func init() {
 			service.Tag(common.ServiceTagData),
 			service.Description("Generic document store"),
 			service.Unique(true),
-			service.WithStorage(docstore.NewDAO, "docstore"),
+			service.WithStorage(docstore.NewDAO,
+				service.WithStoragePrefix("docstore"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(Name), "docstore.db")
+				}),
+			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
 				dao := servicecontext.GetDAO(c).(docstore.DAO)

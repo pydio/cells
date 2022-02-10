@@ -23,12 +23,15 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao"
+	"path/filepath"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
 	log3 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
@@ -56,8 +59,19 @@ func init() {
 			service.Description("Store for scheduler jobs description"),
 			service.Unique(true),
 			service.Fork(true),
-			service.WithStorage(jobs.NewDAO, "jobs"),
-			service.WithIndexer(log.NewDAO, "tasklogs", ServiceName+".index"),
+			service.WithStorage(jobs.NewDAO,
+				service.WithStoragePrefix("jobs"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "jobs.db")
+				}),
+			),
+			service.WithIndexer(log.NewDAO,
+				service.WithStoragePrefix("tasklogs"),
+				service.WithStorageConfigKey(ServiceName+".index"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BleveDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=logs&rotationSize=-1")
+				}),
+			),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.4.0"),

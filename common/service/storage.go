@@ -13,10 +13,19 @@ import (
 	"github.com/pydio/cells/v4/common/sql"
 )
 
-func daoOpt(o *ServiceOptions, getter interface{}) string {
+type storageOptions struct {
+	serviceOptions *ServiceOptions
+	prefix         interface{}
+	dbConfigKey    interface{}
+	defaultDriver  func() (string, string)
+}
+
+func (o *storageOptions) read(getter interface{}) string {
 	val := ""
 	switch v := getter.(type) {
 	case func(*ServiceOptions) string:
+		val = v(o.serviceOptions)
+	case func(*storageOptions) string:
 		val = v(o)
 	case string:
 		val = v
@@ -24,31 +33,52 @@ func daoOpt(o *ServiceOptions, getter interface{}) string {
 	return val
 }
 
-func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, opts ...interface{}) (dao.DAO, error) {
+type StorageOption func(options *storageOptions)
+
+// WithStoragePrefix sets a prefix to be used differently depending on driver name
+func WithStoragePrefix(i interface{}) StorageOption {
+	return func(options *storageOptions) {
+		options.prefix = i
+	}
+}
+
+// WithStorageConfigKey provides a configuration key different from ServiceName for services requiring multiple DAOs
+func WithStorageConfigKey(i interface{}) StorageOption {
+	return func(options *storageOptions) {
+		options.dbConfigKey = i
+	}
+}
+
+// WithStorageDefaultDriver provides a default driver/dsn couple if not set in the configuration
+func WithStorageDefaultDriver(d func() (string, string)) StorageOption {
+	return func(options *storageOptions) {
+		options.defaultDriver = d
+	}
+}
+
+func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, opts *storageOptions) (dao.DAO, error) {
 	var d dao.DAO
-	var dbConfigKey, prefix string
-	if len(opts) > 0 {
-		prefix = daoOpt(o, opts[0])
-	}
-	dbConfigKey = o.Name
-	if len(opts) > 1 {
-		dbConfigKey = daoOpt(o, opts[1])
-	}
+	dbConfigKey := opts.read(opts.dbConfigKey)
+	prefix := opts.read(opts.prefix)
+
 	driver, dsn := config.GetDatabase(dbConfigKey)
+	if !config.HasDatabase(dbConfigKey) && opts.defaultDriver != nil {
+		driver, dsn = opts.defaultDriver()
+	}
 
 	var c dao.DAO
 	var e error
 
 	switch driver {
-	case "mysql", "sqlite3":
+	case dao.MysqlDriver, dao.SqliteDriver:
 		c, e = sql.NewDAO(driver, dsn, prefix)
-	case "boltdb":
+	case dao.BoltDriver:
 		o.Unique = true
 		c, e = boltdb.NewDAO(driver, dsn, prefix)
-	case "bleve":
+	case dao.BleveDriver:
 		o.Unique = true
 		c, e = bleve.NewDAO(driver, dsn, prefix)
-	case "mongodb":
+	case dao.MongoDriver:
 		c, e = mongodb.NewDAO(driver, dsn, prefix)
 	default:
 		return nil, fmt.Errorf("unsupported driver type %s for service %s", driver, o.Name)
@@ -61,9 +91,9 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 		// Wrap DAO into IndexDAO
 		var indexDAO dao.IndexDAO
 		switch driver {
-		case "bleve":
+		case dao.BleveDriver:
 			indexDAO, e = bleve.NewIndexer(c.(bleve.DAO))
-		case "mongodb":
+		case dao.MongoDriver:
 			indexDAO, e = mongodb.NewIndexer(c.(mongodb.DAO))
 		default:
 			return nil, fmt.Errorf("unsupported indexer type %s for service %s", driver, o.Name)
@@ -91,10 +121,17 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 }
 
 // WithStorage adds a storage handler to the current service
-func WithStorage(fd func(dao.DAO) dao.DAO, opts ...interface{}) ServiceOption {
+func WithStorage(fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
-			d, err := daoFromOptions(o, fd, false, opts...)
+			sOpts := &storageOptions{
+				serviceOptions: o,
+				dbConfigKey:    o.Name,
+			}
+			for _, op := range opts {
+				op(sOpts)
+			}
+			d, err := daoFromOptions(o, fd, false, sOpts)
 			if err != nil {
 				return err
 			}
@@ -105,11 +142,18 @@ func WithStorage(fd func(dao.DAO) dao.DAO, opts ...interface{}) ServiceOption {
 	}
 }
 
-// WithIndexer adds a storage handler to the current service
-func WithIndexer(fd func(dao.DAO) dao.DAO, opts ...interface{}) ServiceOption {
+// WithIndexer adds an indexer handler to the current service
+func WithIndexer(fd func(dao.DAO) dao.DAO, opts ...StorageOption) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
-			d, err := daoFromOptions(o, fd, true, opts...)
+			sOpts := &storageOptions{
+				serviceOptions: o,
+				dbConfigKey:    o.Name,
+			}
+			for _, op := range opts {
+				op(sOpts)
+			}
+			d, err := daoFromOptions(o, fd, true, sOpts)
 			if err != nil {
 				return err
 			}

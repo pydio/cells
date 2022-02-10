@@ -23,6 +23,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
+	"path/filepath"
 
 	"google.golang.org/grpc"
 
@@ -43,7 +46,12 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagBroker),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
-			service.WithStorage(chat.NewDAO, "broker_chat"),
+			service.WithStorage(chat.NewDAO,
+				service.WithStoragePrefix("broker_chat"),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "chat.db")
+				}),
+			),
 			service.Unique(true),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 				proto.RegisterChatServiceEnhancedServer(server, &ChatHandler{RuntimeCtx: c, dao: servicecontext.GetDAO(c).(chat.DAO)})

@@ -54,7 +54,7 @@ func init() {
 			service.Metadata(meta2.ServiceMetaNsProvider, "list"),
 			service.Description("User-defined Metadata"),
 
-			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
+			service.WithStorage(meta.NewDAO, service.WithStoragePrefix("idm_usr_meta")),
 			service.Unique(true),
 			service.Migrations([]*service.Migration{
 				{

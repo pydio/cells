@@ -44,7 +44,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Policy Engine Service"),
-			service.WithStorage(policy.NewDAO, "idm_policy"),
+			service.WithStorage(policy.NewDAO, service.WithStoragePrefix("idm_policy")),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

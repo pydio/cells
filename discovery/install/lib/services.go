@@ -78,30 +78,32 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		return err
 	}
 
-	if e := addBoltDbEntry(common.ServiceActivity, "activities.db"); e != nil {
-		return e
-	}
-	if e := addBoltDbEntry(common.ServiceChat); e != nil {
-		return e
-	}
-	if e := addBoltDbEntry(common.ServiceDocStore); e != nil {
-		return e
-	}
-	if e := addBoltDbEntry(common.ServiceJobs); e != nil {
-		return e
-	}
-	if e := addBleveDbEntry(common.ServiceJobs, "tasklogs.bleve?mapping=logs&rotationSize=-1", common.ServiceGrpcNamespace_+common.ServiceJobs+".index"); e != nil {
-		return e
-	}
-	if e := addBleveDbEntry(common.ServiceLog, "syslog.bleve?mapping=logs"); e != nil {
-		return e
-	}
-	if e := addBoltDbEntry(common.ServiceVersions); e != nil {
-		return e
-	}
-	if e := addBleveDbEntry(common.ServiceSearch, "searchengine.bleve?rotationSize=-1"); e != nil {
-		return e
-	}
+	/*
+		if e := addBoltDbEntry(common.ServiceActivity, "activities.db"); e != nil {
+			return e
+		}
+		if e := addBoltDbEntry(common.ServiceChat); e != nil {
+			return e
+		}
+		if e := addBoltDbEntry(common.ServiceDocStore); e != nil {
+			return e
+		}
+		if e := addBoltDbEntry(common.ServiceJobs); e != nil {
+			return e
+		}
+		if e := addBleveDbEntry(common.ServiceJobs, "tasklogs.bleve?mapping=logs&rotationSize=-1", common.ServiceGrpcNamespace_+common.ServiceJobs+".index"); e != nil {
+			return e
+		}
+		if e := addBleveDbEntry(common.ServiceLog, "syslog.bleve?mapping=logs"); e != nil {
+			return e
+		}
+		if e := addBoltDbEntry(common.ServiceVersions); e != nil {
+			return e
+		}
+		if e := addBleveDbEntry(common.ServiceSearch, "searchengine.bleve?rotationSize=-1"); e != nil {
+			return e
+		}
+	*/
 
 	// Easy finding usage of srvUrl
 	configKeys := map[string]interface{}{

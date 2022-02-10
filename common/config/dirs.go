@@ -94,3 +94,13 @@ func ServiceDataDir(serviceName string) (string, error) {
 	dir := filepath.Join(ApplicationWorkingDir(ApplicationDirServices), serviceName)
 	return dir, os.MkdirAll(dir, 0755)
 }
+
+// MustServiceDataDir returns the applicationdir/services/serviceName and ignore error it if
+// it does not exists
+func MustServiceDataDir(serviceName string) string {
+	dir := filepath.Join(ApplicationWorkingDir(ApplicationDirServices), serviceName)
+	if er := os.MkdirAll(dir, 0755); er != nil {
+		panic("Cannot create service data dir " + dir + ": " + er.Error())
+	}
+	return dir
+}

@@ -48,7 +48,7 @@ func init() {
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Workspaces Service"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceAcl, []string{}),
-			service.WithStorage(workspace.NewDAO, "idm_workspace"),
+			service.WithStorage(workspace.NewDAO, service.WithStoragePrefix("idm_workspace")),
 			service.WithGRPC(func(ctx context.Context, server *grpc.Server) error {
 
 				h := NewHandler(ctx, servicecontext.GetDAO(ctx).(workspace.DAO))

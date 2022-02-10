@@ -24,6 +24,11 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+// HasDatabase checks if DB key is set
+func HasDatabase(key string) bool {
+	return local.Val("#/databases/" + key).StringMap()["driver"] != ""
+}
+
 // GetDatabase retrieves the database data from the config
 func GetDatabase(key string) (string, string) {
 	c := local.Val("#/databases/" + key).Default(configx.Reference("#/defaults/database")).StringMap()

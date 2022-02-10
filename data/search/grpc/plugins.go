@@ -25,6 +25,7 @@ package grpc
 
 import (
 	"context"
+	"path/filepath"
 
 	"google.golang.org/grpc"
 
@@ -60,7 +61,11 @@ func init() {
 				service.RouterDependencies(),
 				service.AutoRestart(true),
 			*/
-			service.WithIndexer(dao.NewDAO),
+			service.WithIndexer(dao.NewDAO,
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return dao2.BleveDriver, filepath.Join(config.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1")
+				}),
+			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
 				cfg := config.Get("services", Name)

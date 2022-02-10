@@ -47,7 +47,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("Access Control List service"),
-			service.WithStorage(acl.NewDAO, "idm_acl"),
+			service.WithStorage(acl.NewDAO, service.WithStoragePrefix("idm_acl")),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.ValidVersion("1.2.0"),
