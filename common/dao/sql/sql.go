@@ -18,15 +18,31 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package dao
+package sql
 
 import (
 	"database/sql"
 	"fmt"
 	"time"
 
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	sql2 "github.com/pydio/cells/v4/common/sql"
 )
+
+const (
+	MysqlDriver  = "mysql"
+	SqliteDriver = "sqlite3"
+)
+
+func init() {
+	dao.RegisterDAODriver(MysqlDriver, sql2.NewDAO, func(driver, dsn string) dao.ConnDriver {
+		return &mysql{}
+	})
+	dao.RegisterDAODriver(SqliteDriver, sql2.NewDAO, func(driver, dsn string) dao.ConnDriver {
+		return &sqlite{}
+	})
+}
 
 var (
 	SqlConnectionOpenTimeout = 60 * time.Second

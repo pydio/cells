@@ -103,19 +103,16 @@ func (b *BoltStore) GetLastVersion(nodeUuid string) (log *tree.ChangeLog, err er
 }
 
 // GetVersions returns all versions from the node bucket, in reverse order (last inserted first).
-func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan bool) {
+func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 
 	logChan := make(chan *tree.ChangeLog)
-	done := make(chan bool, 1)
 
 	go func() {
-
+		defer func() {
+			close(logChan)
+		}()
 		e := b.DB().View(func(tx *bolt.Tx) error {
 
-			defer func() {
-				done <- true
-				close(done)
-			}()
 			bucket := tx.Bucket(bucketName)
 			if bucket == nil {
 				return errors.NotFound(common.ServiceVersions, "Bucket not found, this is not normal")
@@ -144,7 +141,7 @@ func (b *BoltStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan boo
 
 	}()
 
-	return logChan, done
+	return logChan, nil
 }
 
 // StoreVersion stores a version in the node bucket.

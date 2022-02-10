@@ -26,10 +26,19 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+const Driver = "bleve"
+
+func init() {
+	dao.RegisterDAODriver(Driver, NewDAO, func(driver, dsn string) dao.ConnDriver {
+		return new(BleveConfig)
+	})
+	dao.RegisterIndexerDriver(Driver, NewIndexer)
+}
+
 // DAO defines the functions specific to the boltdb dao
 type DAO interface {
 	dao.DAO
-	BleveConfig() *dao.BleveConfig
+	BleveConfig() *BleveConfig
 }
 
 // Handler for the main functions of the DAO
@@ -38,7 +47,7 @@ type Handler struct {
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(driver string, dsn string, prefix string) (*Handler, error) {
+func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 	conn, err := dao.NewConn(driver, dsn)
 	if err != nil {
 		return nil, err
@@ -54,13 +63,13 @@ func (h *Handler) Init(configx.Values) error {
 }
 
 // BleveConfig returns the folder to lookup for bleve index
-func (h *Handler) BleveConfig() *dao.BleveConfig {
+func (h *Handler) BleveConfig() *BleveConfig {
 	if h == nil {
-		return &dao.BleveConfig{}
+		return &BleveConfig{}
 	}
 
 	if conn := h.GetConn(); conn != nil {
-		return conn.(*dao.BleveConfig)
+		return conn.(*BleveConfig)
 	}
-	return &dao.BleveConfig{}
+	return &BleveConfig{}
 }

@@ -44,9 +44,8 @@ import (
 )
 
 const (
-	BufferedChanSize    = 10000
-	MinRotationSize     = 68 * 1024
-	DefaultRotationSize = int64(200 * 1024 * 1024)
+	BufferedChanSize = 10000
+	MinRotationSize  = 68 * 1024
 )
 
 var (
@@ -80,8 +79,9 @@ type Indexer struct {
 
 // NewIndexer creates and configures a default Bleve instance to store technical logs
 // Setting rotationSize to -1 fully disables rotation
-func NewIndexer(d DAO) (dao.IndexDAO, error) {
+func NewIndexer(rd dao.DAO) (dao.IndexDAO, error) {
 
+	d := rd.(DAO)
 	conf := d.BleveConfig()
 	if conf.RotationSize > -1 && conf.RotationSize < MinRotationSize {
 		return nil, fmt.Errorf("use a rotation size bigger than %d", MinRotationSize)

@@ -32,13 +32,13 @@ var (
 )
 
 type conn struct {
-	d      driver
+	d      ConnDriver
 	weight int
 }
 
 type Conn interface{}
 
-type driver interface {
+type ConnDriver interface {
 	Open(dsn string) (Conn, error)
 	GetConn() Conn
 	SetMaxConnectionsForWeight(int)
@@ -61,20 +61,11 @@ func addConn(d string, dsn string) (Conn, error) {
 	lock.Lock()
 	defer lock.Unlock()
 
-	var drv driver
-	switch d {
-	case "mysql":
-		drv = new(mysql)
-	case "sqlite3":
-		drv = new(sqlite)
-	case "boltdb":
-		drv = new(boltdb)
-	case "bleve":
-		drv = new(BleveConfig)
-	case "mongodb":
-		drv = new(mongodb)
-	default:
-		return nil, fmt.Errorf("wrong driver")
+	var drv ConnDriver
+	if prov, ok := daoConns[d]; ok {
+		drv = prov(d, dsn)
+	} else {
+		return nil, fmt.Errorf("unknown connection driver name %s. Did you forget to import it?", d)
 	}
 
 	db, err := drv.Open(dsn)

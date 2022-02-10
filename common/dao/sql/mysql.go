@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package dao
+package sql
 
 import (
 	"database/sql"
@@ -26,6 +26,8 @@ import (
 	"sync"
 
 	mysqltools "github.com/go-sql-driver/mysql"
+
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/service/errors"
 )
 
@@ -40,7 +42,7 @@ type mysql struct {
 	conn *sql.DB
 }
 
-func (m *mysql) Open(dsn string) (Conn, error) {
+func (m *mysql) Open(dsn string) (dao.Conn, error) {
 	var (
 		db *sql.DB
 	)
@@ -70,7 +72,7 @@ func (m *mysql) Open(dsn string) (Conn, error) {
 	return db, nil
 }
 
-func (m *mysql) GetConn() Conn {
+func (m *mysql) GetConn() dao.Conn {
 	return m.conn
 }
 

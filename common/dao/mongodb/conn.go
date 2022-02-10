@@ -18,12 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package dao
+package mongodb
 
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/x/bsonx"
 	"strings"
 
 	"github.com/blevesearch/bleve/v2"
@@ -32,13 +31,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/x/bsonx"
+
+	"github.com/pydio/cells/v4/common/dao"
 )
 
 type mongodb struct {
 	conn *mongo.Client
 }
 
-func (m *mongodb) Open(dsn string) (Conn, error) {
+func (m *mongodb) Open(dsn string) (dao.Conn, error) {
 
 	// Create a new client and connect to the server
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dsn))
@@ -57,7 +59,7 @@ func (m *mongodb) Open(dsn string) (Conn, error) {
 
 }
 
-func (m *mongodb) GetConn() Conn {
+func (m *mongodb) GetConn() dao.Conn {
 	return m.conn
 }
 

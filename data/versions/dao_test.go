@@ -40,7 +40,7 @@ func TestNewBoltStore(t *testing.T) {
 	Convey("Test NewBoltStore", t, func() {
 		p := filepath.Join(os.TempDir(), "bolt-test1.db")
 		bd, _ := boltdb.NewDAO("boltdb", p, "test")
-		bs, e := NewBoltStore(bd, p, true)
+		bs, e := NewBoltStore(bd.(boltdb.DAO), p, true)
 		So(e, ShouldBeNil)
 		So(bs, ShouldNotBeNil)
 
@@ -71,7 +71,7 @@ func initTestDAO(name string) (DAO, func()) {
 	} else {
 		p := filepath.Join(os.TempDir(), name+".db")
 		bd, _ := boltdb.NewDAO("boltdb", p, "test")
-		bs, _ := NewBoltStore(bd, p, true)
+		bs, _ := NewBoltStore(bd.(boltdb.DAO), p, true)
 		closer := func() {
 			bs.Close()
 		}
@@ -97,15 +97,9 @@ func TestBoltStore_CRUD(t *testing.T) {
 		So(e, ShouldBeNil)
 
 		var results []*tree.ChangeLog
-		logs, done := bs.GetVersions("uuid")
-	loop:
-		for {
-			select {
-			case l := <-logs:
-				results = append(results, l)
-			case <-done:
-				break loop
-			}
+		logs, _ := bs.GetVersions("uuid")
+		for log := range logs {
+			results = append(results, log)
 		}
 
 		So(results, ShouldHaveLength, 3)
@@ -146,15 +140,9 @@ func TestBoltStore_CRUD(t *testing.T) {
 		So(ee, ShouldBeNil)
 
 		results = []*tree.ChangeLog{}
-		logs, done = bs.GetVersions("uuid")
-	loop3:
-		for {
-			select {
-			case l := <-logs:
-				results = append(results, l)
-			case <-done:
-				break loop3
-			}
+		logs, _ = bs.GetVersions("uuid")
+		for log := range logs {
+			results = append(results, log)
 		}
 		So(results, ShouldHaveLength, 0)
 
@@ -176,15 +164,9 @@ func TestBoltStore_CRUD(t *testing.T) {
 		bs.DeleteVersionsForNode("uuid", &tree.ChangeLog{Uuid: "version2"})
 
 		var results []*tree.ChangeLog
-		logs, done := bs.GetVersions("uuid")
-	loop3:
-		for {
-			select {
-			case l := <-logs:
-				results = append(results, l)
-			case <-done:
-				break loop3
-			}
+		logs, _ := bs.GetVersions("uuid")
+		for log := range logs {
+			results = append(results, log)
 		}
 		So(results, ShouldHaveLength, 2)
 

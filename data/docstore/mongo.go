@@ -23,7 +23,7 @@ package docstore
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -218,7 +218,7 @@ func (m *mongoImpl) buildFilters(storeID string, query *docstore.DocumentQuery) 
 		filter = append(filter, bson.E{Key: "owner", Value: query.Owner})
 	}
 	if query.MetaQuery != "" {
-		ff, e := dao.BleveQueryToMongoFilters(query.MetaQuery, false, func(s string) string {
+		ff, e := mongodb.BleveQueryToMongoFilters(query.MetaQuery, false, func(s string) string {
 			return "data." + s
 		})
 		if e != nil {

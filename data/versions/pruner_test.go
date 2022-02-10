@@ -60,18 +60,14 @@ func dispatch(start time.Time, periods []*tree.VersioningKeepPeriod, changes []*
 	}
 
 	c := make(chan *tree.ChangeLog)
-	done := make(chan bool, 1)
-	defer close(done)
-	defer close(c)
-
 	go func() {
 		for _, change := range changes {
 			c <- change
 		}
-		done <- true
+		close(c)
 	}()
 
-	return DispatchChangeLogsByPeriod(pruningPeriods, c, done)
+	return DispatchChangeLogsByPeriod(pruningPeriods, c)
 
 }
 func TestParseDuration(t *testing.T) {

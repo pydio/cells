@@ -31,7 +31,8 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/docstore"
@@ -54,8 +55,10 @@ func init() {
 			service.Unique(true),
 			service.WithStorage(docstore.NewDAO,
 				service.WithStoragePrefix("docstore"),
+				service.WithStorageMigrator(docstore.Migrate),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(Name), "docstore.db")
+					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "docstore.db")
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {

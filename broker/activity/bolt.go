@@ -483,6 +483,83 @@ func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, 
 	return nil
 }
 
+// AllActivities is used for internal migrations only
+func (dao *boltdbimpl) allActivities() (chan *docActivity, error) {
+	db := dao.DB()
+	out := make(chan *docActivity, 1000)
+	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {
+		cursor := bb.Cursor()
+		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
+			acObject := &activity.Object{}
+			if err := json.Unmarshal(v, acObject); err == nil {
+				out <- &docActivity{
+					Object:    acObject,
+					BoxName:   string(boxName),
+					OwnerId:   ownerId,
+					OwnerType: ownerType,
+				}
+			}
+		}
+	}
+	go func() {
+		defer close(out)
+		_ = db.View(func(tx *bolt.Tx) error {
+			for typeInt, t := range activity.OwnerType_name {
+				mainBucket := tx.Bucket([]byte(t))
+				// Browse all user
+				_ = mainBucket.ForEach(func(k, v []byte) error {
+					if inbox := mainBucket.Bucket(k).Bucket([]byte(BoxInbox)); inbox != nil {
+						listBucket(inbox, typeInt, string(k), BoxInbox)
+					}
+					if outbox := mainBucket.Bucket(k).Bucket([]byte(BoxOutbox)); outbox != nil {
+						listBucket(outbox, typeInt, string(k), BoxOutbox)
+					}
+					return nil
+				})
+			}
+			return nil
+		})
+	}()
+	return out, nil
+}
+
+// AllSubscriptions is used for internal migrations only
+func (dao *boltdbimpl) allSubscriptions() (chan *activity.Subscription, error) {
+	out := make(chan *activity.Subscription)
+	db := dao.DB()
+	go func() {
+		defer close(out)
+		_ = db.View(func(tx *bolt.Tx) error {
+			for typeInt, t := range activity.OwnerType_name {
+				mainBucket := tx.Bucket([]byte(t))
+				// Browse all user
+				_ = mainBucket.ForEach(func(uk, uv []byte) error {
+					if inbox := mainBucket.Bucket(uk).Bucket([]byte(BoxSubscriptions)); inbox != nil {
+						c := inbox.Cursor()
+						for k, v := c.First(); k != nil; k, v = c.Next() {
+							var events []string
+							if er := json.Unmarshal(v, &events); er == nil {
+								out <- &activity.Subscription{
+									ObjectType: activity.OwnerType(typeInt),
+									UserId:     string(uk),
+									ObjectId:   string(k),
+									Events:     events,
+								}
+							} else {
+								fmt.Println(er.Error())
+							}
+						}
+					}
+					return nil
+				})
+			}
+			return nil
+		})
+	}()
+	return out, nil
+
+}
+
 func (dao *boltdbimpl) activitiesAreSimilar(acA *activity.Object, acB *activity.Object) bool {
 	if acA.Actor == nil || acA.Object == nil || acB.Actor == nil || acB.Object == nil {
 		return false

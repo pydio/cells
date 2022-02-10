@@ -31,11 +31,11 @@ func HasDatabase(key string) bool {
 
 // GetStorageDriver looks up for a storage driver/dsn definition
 // It may find databases/[(services/{serviceName}/storage)|{serviceName}|default]
-func GetStorageDriver(serviceName string) (driver string, dsn string, defined bool) {
+func GetStorageDriver(configKey, serviceName string) (driver string, dsn string, defined bool) {
 
 	// By default, we check #/databases/serviceName for backward compat
 	dbKey := serviceName
-	if sKey := local.Val("services", serviceName, "storage").String(); sKey != "" {
+	if sKey := local.Val("services", serviceName, configKey).String(); sKey != "" {
 		// Otherwise, check if service defines a storage key, and then use it for #databases/DB_ID
 		dbKey = sKey
 	}

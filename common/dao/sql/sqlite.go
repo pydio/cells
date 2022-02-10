@@ -18,10 +18,12 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package dao
+package sql
 
 import (
 	"database/sql"
+
+	"github.com/pydio/cells/v4/common/dao"
 	// _ "github.com/mattn/go-sqlite3"
 )
 
@@ -29,7 +31,7 @@ type sqlite struct {
 	conn *sql.DB
 }
 
-func (s *sqlite) Open(dsn string) (Conn, error) {
+func (s *sqlite) Open(dsn string) (dao.Conn, error) {
 	db, err := getSqlConnection("sqlite3", dsn)
 	if err != nil {
 		return nil, err
@@ -39,7 +41,7 @@ func (s *sqlite) Open(dsn string) (Conn, error) {
 	return db, nil
 }
 
-func (s *sqlite) GetConn() Conn {
+func (s *sqlite) GetConn() dao.Conn {
 	return s.conn
 }
 

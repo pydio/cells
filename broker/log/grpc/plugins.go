@@ -24,13 +24,15 @@ package grpc
 import (
 	"context"
 	"path/filepath"
-	
+
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/log"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/proto/sync"
@@ -51,8 +53,9 @@ func init() {
 			service.Description("Syslog index store"),
 			service.WithIndexer(log.NewDAO,
 				service.WithStoragePrefix("syslog"),
+				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BleveDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve")
+					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve")
 				}),
 			),
 			service.Unique(true),

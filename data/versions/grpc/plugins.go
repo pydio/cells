@@ -31,7 +31,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/docstore"
@@ -69,8 +70,10 @@ func init() {
 			}),
 			service.WithStorage(versions.NewDAO,
 				service.WithStoragePrefix("versions"),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+				service.WithStorageMigrator(versions.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(Name), "versions.db")
+					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "versions.db")
 				}),
 			),
 			//service.Unique(true),

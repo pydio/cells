@@ -88,7 +88,6 @@ import (
 	_ "github.com/pydio/cells/v4/scheduler/jobs/grpc"
 	_ "github.com/pydio/cells/v4/scheduler/jobs/rest"
 	_ "github.com/pydio/cells/v4/scheduler/tasks/grpc"
-
 	_ "github.com/pydio/cells/v4/scheduler/timer/grpc"
 
 	// Scheduler Actions
@@ -108,6 +107,12 @@ import (
 	_ "gocloud.dev/pubsub/mempubsub"
 	_ "gocloud.dev/pubsub/natspubsub"
 	_ "gocloud.dev/pubsub/rabbitpubsub"
+
+	// DAO Drivers
+	_ "github.com/pydio/cells/v4/common/dao/bleve"
+	_ "github.com/pydio/cells/v4/common/dao/boltdb"
+	_ "github.com/pydio/cells/v4/common/dao/mongodb"
+	_ "github.com/pydio/cells/v4/common/dao/sql"
 )
 
 func main() {

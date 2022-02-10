@@ -21,13 +21,136 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/log"
+	registry2 "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/service"
 )
+
+type configDatabase struct {
+	driver   string
+	dsn      string
+	services []string
+}
+
+func configDatabaseServicesWithStorage() (ss []service.Service, e error) {
+
+	items, er := configDatabaseRegistry.List(registry.WithType(registry2.ItemType_SERVICE))
+	if er != nil {
+		return nil, er
+	}
+	for _, i := range items {
+		var srv service.Service
+		if i.As(&srv) {
+			if len(srv.Options().Storages) > 0 {
+				ss = append(ss, srv)
+			}
+		} else {
+			fmt.Println("cannot convert", i)
+		}
+	}
+	return
+}
+
+func configDatabaseListDrivers(servicesWithStorage []service.Service) (dd []dao.DriverProviderFunc) {
+	for _, s := range servicesWithStorage {
+		for _, sOpt := range s.Options().Storages {
+			if sOpt.DefaultDriver != nil {
+				dd = append(dd, sOpt.DefaultDriver)
+			}
+		}
+	}
+	return
+}
+
+func configDatabaseList() (dd []configDatabase) {
+
+	m := config.Get("databases").Map()
+
+	for id, v := range m {
+		//if id == defaultDatabaseID {
+		//	continue
+		//}
+
+		db, ok := v.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		driver, ok := db["driver"]
+		if !ok {
+			continue
+		}
+
+		dsn, ok := db["dsn"]
+		if !ok {
+			continue
+		}
+
+		var services []string
+		/*
+			// TODO V4
+			if s, err := registry.GetService(id); err == nil && s != nil {
+				services = append(services, id)
+			}
+		*/
+
+		for sid, vs := range m {
+			dbid, ok := vs.(string)
+			if !ok {
+				continue
+			}
+
+			if dbid == id {
+				services = append(services, sid)
+			}
+		}
+
+		dd = append(dd, configDatabase{
+			dsn:      dsn.(string),
+			driver:   driver.(string),
+			services: services,
+		})
+	}
+
+	ss, e := configDatabaseServicesWithStorage()
+	if e != nil {
+		log.Fatal(e.Error())
+	}
+
+	for _, s := range ss {
+		for _, sOpt := range s.Options().Storages {
+			if sOpt.DefaultDriver != nil {
+				driver, dsn := sOpt.DefaultDriver()
+				skip := false
+				// Exclude already registered
+				for _, d := range dd {
+					if d.driver == driver && d.dsn == dsn {
+						skip = true
+						break
+					}
+				}
+				if skip {
+					continue
+				}
+				dd = append(dd, configDatabase{
+					driver: driver,
+					dsn:    dsn,
+				})
+			}
+		}
+	}
+
+	return
+}
 
 // configDatabaseListCmd lists all database connections.
 var configDatabaseListCmd = &cobra.Command{
@@ -40,67 +163,14 @@ DESCRIPTION
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		m := config.Get("databases").Map()
-
 		table := tablewriter.NewWriter(cmd.OutOrStdout())
-		table.SetHeader([]string{"DSN", "Driver", "Services"})
-
-		/*
-			defaultDatabaseID := config.Get("defaults", "database").String()
-			defaultDatabase, ok := m[defaultDatabaseID].(map[string]interface{})
-
-			if !ok {
-				cmd.Println("Default database not found")
-				os.Exit(1)
-			}
-
-			table.Append([]string{defaultDatabase["dsn"].(string), defaultDatabase["driver"].(string), "default"})
-
-		*/
+		table.SetHeader([]string{"Driver", "DSN", "Services"})
 
 		// List all databases value
-		for id, v := range m {
-			//if id == defaultDatabaseID {
-			//	continue
-			//}
-
-			db, ok := v.(map[string]interface{})
-			if !ok {
-				continue
-			}
-
-			driver, ok := db["driver"]
-			if !ok {
-				continue
-			}
-
-			dsn, ok := db["dsn"]
-			if !ok {
-				continue
-			}
-
-			var services []string
-			/*
-				// TODO V4
-				if s, err := registry.GetService(id); err == nil && s != nil {
-					services = append(services, id)
-				}
-			*/
-
-			for sid, vs := range m {
-				dbid, ok := vs.(string)
-				if !ok {
-					continue
-				}
-
-				if dbid == id {
-					services = append(services, sid)
-				}
-			}
-
-			table.Append([]string{dsn.(string), driver.(string), strings.Join(services, ",")})
+		dd := configDatabaseList()
+		for _, d := range dd {
+			table.Append([]string{d.driver, d.dsn, strings.Join(d.services, ",")})
 		}
-
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.Render()
 

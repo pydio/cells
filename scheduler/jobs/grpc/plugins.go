@@ -32,6 +32,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	log3 "github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/jobs"
@@ -57,19 +60,20 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagScheduler),
 			service.Description("Store for scheduler jobs description"),
-			service.Unique(true),
+			// service.Unique(true),
 			service.Fork(true),
 			service.WithStorage(jobs.NewDAO,
 				service.WithStoragePrefix("jobs"),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "jobs.db")
+					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "jobs.db")
 				}),
 			),
 			service.WithIndexer(log.NewDAO,
 				service.WithStoragePrefix("tasklogs"),
-				service.WithStorageConfigKey(ServiceName+".index"),
+				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BleveDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=logs&rotationSize=-1")
+					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=logs&rotationSize=-1")
 				}),
 			),
 			service.Migrations([]*service.Migration{

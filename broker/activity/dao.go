@@ -75,6 +75,11 @@ type DAO interface {
 	// Purge removes records based on a maximum number of records and/or based on the activity update date
 	// It keeps at least minCount record(s) - to see last activity - even if older than expected date
 	Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error
+
+	// AllActivities is used for internal migrations only
+	allActivities() (chan *docActivity, error)
+	// AllSubscriptions is used for internal migrations only
+	allSubscriptions() (chan *activity.Subscription, error)
 }
 
 type batchActivity struct {
@@ -103,4 +108,41 @@ func NewDAO(o dao.DAO) dao.DAO {
 		return mi
 	}
 	return nil
+}
+
+func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	out := map[string]int{
+		"Activities":    0,
+		"Subscriptions": 0,
+	}
+	testEnv = true // Disable cache
+	from := NewDAO(f).(DAO)
+	to := NewDAO(t).(DAO)
+	aa, er := from.allActivities()
+	if er != nil {
+		return nil, er
+	}
+	for a := range aa {
+		if dryRun {
+			out["Activities"]++
+		} else if er := to.PostActivity(activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, nil); er == nil {
+			out["Activities"]++
+		} else {
+			continue
+		}
+	}
+	ss, er := from.allSubscriptions()
+	if er != nil {
+		return out, er
+	}
+	for s := range ss {
+		if dryRun {
+			out["Subscriptions"]++
+		} else if er := to.UpdateSubscription(s); er == nil {
+			out["Subscriptions"]++
+		} else {
+			continue
+		}
+	}
+	return out, nil
 }

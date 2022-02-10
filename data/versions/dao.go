@@ -31,7 +31,7 @@ import (
 type DAO interface {
 	dao.DAO
 	GetLastVersion(nodeUuid string) (*tree.ChangeLog, error)
-	GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan bool)
+	GetVersions(nodeUuid string) (chan *tree.ChangeLog, error)
 	GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error)
 	StoreVersion(nodeUuid string, log *tree.ChangeLog) error
 	DeleteVersionsForNode(nodeUuid string, versions ...*tree.ChangeLog) error
@@ -49,4 +49,36 @@ func NewDAO(dao dao.DAO) dao.DAO {
 		return mStore
 	}
 	return nil
+}
+
+func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	out := map[string]int{
+		"Versions": 0,
+	}
+	from := NewDAO(f).(DAO)
+	to := NewDAO(f).(DAO)
+	uuids, done, errs := from.ListAllVersionedNodesUuids()
+	var e error
+loop1:
+	for {
+		select {
+		case id := <-uuids:
+			versions, _ := from.GetVersions(id)
+			for version := range versions {
+				if dryRun {
+					out["Versions"]++
+				} else if er := to.StoreVersion(id, version); er == nil {
+					out["Versions"]++
+				} else {
+					continue
+				}
+			}
+			break loop1
+		case e = <-errs:
+			break loop1
+		case <-done:
+			break loop1
+		}
+	}
+	return out, e
 }

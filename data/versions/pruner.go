@@ -175,24 +175,16 @@ func PreparePeriods(startTime time.Time, periods []*tree.VersioningKeepPeriod) (
 }
 
 // DispatchChangeLogsByPeriod places each change in its corresponding period
-func DispatchChangeLogsByPeriod(pruningPeriods []*pruningPeriod, changesChan chan *tree.ChangeLog, doneChan chan bool) ([]*pruningPeriod, error) {
-
-loop:
-	for {
-		select {
-		case l := <-changesChan:
-			changeTime := time.Unix(l.MTime, 0)
-			for _, period := range pruningPeriods {
-				if changeTime.Before(period.start) && (period.end.IsZero() || changeTime.After(period.end)) {
-					period.records = append(period.records, l)
-					break
-				}
+func DispatchChangeLogsByPeriod(pruningPeriods []*pruningPeriod, changesChan chan *tree.ChangeLog) ([]*pruningPeriod, error) {
+	for l := range changesChan {
+		changeTime := time.Unix(l.MTime, 0)
+		for _, period := range pruningPeriods {
+			if changeTime.Before(period.start) && (period.end.IsZero() || changeTime.After(period.end)) {
+				period.records = append(period.records, l)
+				break
 			}
-		case <-doneChan:
-			break loop
 		}
 	}
-
 	return pruningPeriods, nil
 }
 

@@ -18,17 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package dao
+package boltdb
 
 import (
 	bolt "go.etcd.io/bbolt"
+	
+	"github.com/pydio/cells/v4/common/dao"
 )
 
 type boltdb struct {
 	conn *bolt.DB
 }
 
-func (b *boltdb) Open(dsn string) (Conn, error) {
+func (b *boltdb) Open(dsn string) (dao.Conn, error) {
 	db, err := bolt.Open(dsn, 0600, nil)
 	if err != nil {
 		return nil, err
@@ -39,7 +41,7 @@ func (b *boltdb) Open(dsn string) (Conn, error) {
 	return db, nil
 }
 
-func (b *boltdb) GetConn() Conn {
+func (b *boltdb) GetConn() dao.Conn {
 	return b.conn
 }
 

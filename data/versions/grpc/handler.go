@@ -83,23 +83,18 @@ func (h *Handler) ListVersions(request *tree.ListVersionsRequest, versionsStream
 
 	ctx := versionsStream.Context()
 	log.Logger(ctx).Debug("[VERSION] ListVersions for node ", request.Node.Zap())
-	logs, done := h.db.GetVersions(request.Node.Uuid)
+	logs, _ := h.db.GetVersions(request.Node.Uuid)
 
-	for {
-		select {
-		case l := <-logs:
-			if l.GetLocation() == nil {
-				l.Location = versions.DefaultLocation(request.Node.Uuid, l.Uuid)
-			}
-			l.Description = h.buildVersionDescription(ctx, l)
-			resp := &tree.ListVersionsResponse{Version: l}
-			e := versionsStream.Send(resp)
-			log.Logger(ctx).Debug("[VERSION] Sending version ", zap.Any("resp", resp), zap.Error(e))
-		case <-done:
-			return nil
+	for l := range logs {
+		if l.GetLocation() == nil {
+			l.Location = versions.DefaultLocation(request.Node.Uuid, l.Uuid)
 		}
+		l.Description = h.buildVersionDescription(ctx, l)
+		resp := &tree.ListVersionsResponse{Version: l}
+		e := versionsStream.Send(resp)
+		log.Logger(ctx).Debug("[VERSION] Sending version ", zap.Any("resp", resp), zap.Error(e))
 	}
-
+	return nil
 }
 
 func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequest) (*tree.HeadVersionResponse, error) {
@@ -150,8 +145,8 @@ func (h *Handler) StoreVersion(ctx context.Context, request *tree.StoreVersionRe
 	if err != nil {
 		log.Logger(ctx).Error("cannot prepare periods for versions policy", p.Zap(), zap.Error(err))
 	}
-	logs, done := h.db.GetVersions(request.Node.Uuid)
-	pruningPeriods, err = versions.DispatchChangeLogsByPeriod(pruningPeriods, logs, done)
+	logs, _ := h.db.GetVersions(request.Node.Uuid)
+	pruningPeriods, err = versions.DispatchChangeLogsByPeriod(pruningPeriods, logs)
 	log.Logger(ctx).Debug("[VERSION] Pruning Periods", log.DangerouslyZapSmallSlice("p", pruningPeriods))
 	var toRemove []*tree.ChangeLog
 	for _, period := range pruningPeriods {
@@ -237,22 +232,16 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 
 	resp := &tree.PruneVersionsResponse{}
 	for _, i := range idsToDelete {
-
-		allLogs, done := h.db.GetVersions(i)
+		allLogs, _ := h.db.GetVersions(i)
 		wg := &sync.WaitGroup{}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for {
-				select {
-				case cLog := <-allLogs:
-					if cLog.Location == nil {
-						cLog.Location = versions.DefaultLocation(i, cLog.Uuid)
-					}
-					resp.DeletedVersions = append(resp.DeletedVersions, cLog)
-				case <-done:
-					return
+			for cLog := range allLogs {
+				if cLog.Location == nil {
+					cLog.Location = versions.DefaultLocation(i, cLog.Uuid)
 				}
+				resp.DeletedVersions = append(resp.DeletedVersions, cLog)
 			}
 		}()
 		wg.Wait()

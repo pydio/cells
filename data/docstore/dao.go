@@ -64,3 +64,33 @@ func NewDAO(dao dao.DAO) dao.DAO {
 	}
 	return nil
 }
+
+func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	from := NewDAO(f).(DAO)
+	to := NewDAO(t).(DAO)
+	out := map[string]int{
+		"Stores":    0,
+		"Documents": 0,
+	}
+	ss, e := from.ListStores()
+	if e != nil {
+		return nil, e
+	}
+	for _, store := range ss {
+		docs, e := from.QueryDocuments(store, nil)
+		if e != nil {
+			return nil, e
+		}
+		for doc := range docs {
+			if dryRun {
+				out["Documents"]++
+			} else if er := to.PutDocument(store, doc); er == nil {
+				out["Documents"]++
+			} else {
+				continue
+			}
+		}
+		out["Stores"]++
+	}
+	return out, nil
+}

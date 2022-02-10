@@ -88,11 +88,10 @@ func (m *mongoStore) GetLastVersion(nodeUuid string) (*tree.ChangeLog, error) {
 	}
 }
 
-func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan bool) {
+func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, error) {
 	logs := make(chan *tree.ChangeLog)
-	done := make(chan bool, 1)
 	go func() {
-		defer close(done)
+		defer close(logs)
 		c := context.Background()
 		cursor, er := m.DB().Collection(collVersions).Find(c, bson.D{{"node_uuid", nodeUuid}}, &options.FindOptions{
 			Sort: bson.M{"ts": -1},
@@ -108,7 +107,7 @@ func (m *mongoStore) GetVersions(nodeUuid string) (chan *tree.ChangeLog, chan bo
 			logs <- mv.ChangeLog
 		}
 	}()
-	return logs, done
+	return logs, nil
 }
 
 func (m *mongoStore) GetVersion(nodeUuid string, versionId string) (*tree.ChangeLog, error) {

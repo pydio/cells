@@ -1,9 +1,11 @@
-package dao
+package bleve
 
 import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/pydio/cells/v4/common/dao"
 )
 
 const DefaultRotationSize = int64(200 * 1024 * 1024)
@@ -14,7 +16,7 @@ type BleveConfig struct {
 	RotationSize int64
 }
 
-func (b *BleveConfig) Open(dsn string) (Conn, error) {
+func (b *BleveConfig) Open(dsn string) (dao.Conn, error) {
 	b.BlevePath = dsn
 	b.MappingName = "docs"
 	b.RotationSize = DefaultRotationSize
@@ -35,7 +37,7 @@ func (b *BleveConfig) Open(dsn string) (Conn, error) {
 	return b, nil
 }
 
-func (b *BleveConfig) GetConn() Conn {
+func (b *BleveConfig) GetConn() dao.Conn {
 	return b
 }
 

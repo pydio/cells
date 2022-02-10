@@ -49,3 +49,55 @@ func NewDAO(o dao.DAO) dao.DAO {
 	}
 	return nil
 }
+
+func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	res := map[string]int{
+		"Rooms":    0,
+		"Messages": 0,
+	}
+	from := NewDAO(f).(DAO)
+	to := NewDAO(t).(DAO)
+	for _, roomType := range chat.RoomType_value {
+		rooms, er := from.ListRooms(&chat.ListRoomsRequest{
+			ByType: chat.RoomType(roomType),
+		})
+		if er != nil {
+			return res, er
+		}
+		for _, room := range rooms {
+			if dryRun {
+				res["Rooms"]++
+			} else if _, er := to.PutRoom(room); er != nil {
+				return res, er
+			} else {
+				res["Rooms"]++
+			}
+			pageSize := int64(1000)
+			page := int64(0)
+			for {
+				messages, er := from.ListMessages(&chat.ListMessagesRequest{
+					RoomUuid: room.GetUuid(),
+					Offset:   page * pageSize,
+					Limit:    pageSize,
+				})
+				if er != nil {
+					return res, er
+				}
+				for _, msg := range messages {
+					if dryRun {
+						res["Messages"]++
+					} else if _, er := to.PostMessage(msg); er != nil {
+						return res, er
+					} else {
+						res["Messages"]++
+					}
+				}
+				if int64(len(messages)) < pageSize {
+					break
+				}
+				page++
+			}
+		}
+	}
+	return res, nil
+}

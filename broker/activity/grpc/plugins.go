@@ -39,7 +39,8 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	config "github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/plugins"
@@ -76,8 +77,10 @@ func init() {
 			}),
 			service.WithStorage(activity.NewDAO,
 				service.WithStoragePrefix("broker_activity"),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+				service.WithStorageMigrator(activity.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(Name), "activities.db")
+					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "activities.db")
 				}),
 			),
 			service.Unique(true),

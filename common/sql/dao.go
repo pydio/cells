@@ -104,7 +104,7 @@ type Handler struct {
 	replacer *strings.Replacer
 }
 
-func NewDAO(driver string, dsn string, prefix string) (DAO, error) {
+func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 	conn, err := dao.NewConn(driver, dsn)
 	if err != nil {
 		return nil, err

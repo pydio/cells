@@ -312,6 +312,52 @@ func (m *mongoimpl) Purge(logger func(string), ownerType activity.OwnerType, own
 	}
 }
 
+// AllActivities is used for internal migrations only
+func (m *mongoimpl) allActivities() (chan *docActivity, error) {
+	filter := bson.D{}
+	opts := &options.FindOptions{
+		Sort: bson.D{{"ts", 1}},
+	}
+	cursor, er := m.DB().Collection(collActivities).Find(context.Background(), filter, opts)
+	if er != nil {
+		return nil, er
+	}
+	out := make(chan *docActivity, 10000)
+	go func() {
+		defer close(out)
+		for cursor.Next(context.Background()) {
+			doc := &docActivity{}
+			if er := cursor.Decode(doc); er != nil {
+				continue
+			}
+			out <- doc
+		}
+	}()
+	return out, nil
+}
+
+// AllSubscriptions is used for internal migrations only
+func (m *mongoimpl) allSubscriptions() (chan *activity.Subscription, error) {
+	c := context.Background()
+	cursor, er := m.DB().Collection(collSubscriptions).Find(c, bson.D{})
+	if er != nil {
+		return nil, er
+	}
+	out := make(chan *activity.Subscription, 10000)
+	go func() {
+		defer close(out)
+		for cursor.Next(c) {
+			sub := &activity.Subscription{}
+			if e := cursor.Decode(sub); e != nil {
+				continue
+			}
+			out <- sub
+		}
+	}()
+	return out, nil
+
+}
+
 func (m *mongoimpl) purgeOneBox(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount, updatedBefore int64) error {
 	filter := bson.D{
 		{"owner_type", int(ownerType)},

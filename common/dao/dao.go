@@ -25,13 +25,31 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-const (
-	BleveDriver  = "bleve"
-	BoltDriver   = "boltdb"
-	MongoDriver  = "mongodb"
-	MysqlDriver  = "mysql"
-	SqliteDriver = "sqlite3"
-)
+type MigratorFunc func(from DAO, to DAO, dryRun bool) (map[string]int, error)
+type DriverProviderFunc func() (string, string)
+
+type ConnProviderFunc func(driver, dsn string) ConnDriver
+type DaoProviderFunc func(driver, dsn, prefix string) (DAO, error)
+type IndexerWrapperFunc func(DAO) (IndexDAO, error)
+
+var daoConns map[string]ConnProviderFunc
+var daoDrivers map[string]DaoProviderFunc
+var indexersDrivers map[string]IndexerWrapperFunc
+
+func init() {
+	daoConns = make(map[string]ConnProviderFunc)
+	daoDrivers = make(map[string]DaoProviderFunc)
+	indexersDrivers = make(map[string]IndexerWrapperFunc)
+}
+
+func RegisterDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
+	daoDrivers[name] = daoF
+	daoConns[name] = connF
+}
+
+func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
+	indexersDrivers[name] = daoF
+}
 
 // DAO interface definition
 type DAO interface {

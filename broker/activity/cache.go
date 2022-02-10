@@ -190,3 +190,13 @@ func (c *Cache) Delete(ownerType activity.OwnerType, ownerId string) error {
 func (c *Cache) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	return c.dao.Purge(logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, compactDB, clearBackup)
 }
+
+// AllActivities is used for internal migrations only
+func (c *Cache) allActivities() (chan *docActivity, error) {
+	return c.dao.allActivities()
+}
+
+// AllSubscriptions is used for internal migrations only
+func (c *Cache) allSubscriptions() (chan *activity.Subscription, error) {
+	return c.dao.allSubscriptions()
+}

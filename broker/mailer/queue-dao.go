@@ -32,7 +32,7 @@ func GetQueue(ctx context.Context, t string, conf configx.Values) Queue {
 	case "mongo":
 		// Todo v4 WithStorage()
 		coreDao, _ := mongodb.NewDAO("mongodb", "mongodb://localhost:8282/?maxPoolSize=20&w=majority", "mailer-queue")
-		q, e := NewMongoQueue(coreDao, conf)
+		q, e := NewMongoQueue(coreDao.(mongodb.DAO), conf)
 		if e != nil {
 			return nil
 		} else {

@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
 	dao2 "github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/sync"
@@ -62,8 +63,9 @@ func init() {
 				service.AutoRestart(true),
 			*/
 			service.WithIndexer(dao.NewDAO,
+				service.WithStorageSupport(bleve.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao2.BleveDriver, filepath.Join(config.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1")
+					return bleve.Driver, filepath.Join(config.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1")
 				}),
 			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {

@@ -56,6 +56,8 @@ type ServiceOptions struct {
 
 	UseWebSession      bool     `json:"-"`
 	WebSessionExcludes []string `json:"-"`
+
+	Storages []*StorageOptions `json:"-"`
 }
 
 type dependency struct {

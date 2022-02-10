@@ -2,13 +2,14 @@ package log
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"strings"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"strings"
+	
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 const mongoCollection = "syslog"
@@ -34,7 +35,7 @@ func (m *MongoCodec) BuildQuery(query interface{}, offset, limit int32) (interfa
 	if !ok {
 		return nil, nil, fmt.Errorf("BuildQuery expects a string")
 	}
-	ff, e := dao.BleveQueryToMongoFilters(qString, true, func(s string) string {
+	ff, e := mongodb.BleveQueryToMongoFilters(qString, true, func(s string) string {
 		return strings.ToLower(s)
 	})
 	if e != nil {

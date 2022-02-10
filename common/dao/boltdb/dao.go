@@ -34,6 +34,14 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
+const Driver = "boltdb"
+
+func init() {
+	dao.RegisterDAODriver(Driver, NewDAO, func(driver, dsn string) dao.ConnDriver {
+		return &boltdb{}
+	})
+}
+
 // DAO defines the functions specific to the boltdb dao
 type DAO interface {
 	dao.DAO
@@ -47,7 +55,7 @@ type Handler struct {
 }
 
 // NewDAO creates a new handler for the boltdb dao
-func NewDAO(driver string, dsn string, prefix string) (*Handler, error) {
+func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 	conn, err := dao.NewConn(driver, dsn)
 	if err != nil {
 		return nil, err

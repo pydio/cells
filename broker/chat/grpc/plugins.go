@@ -23,14 +23,15 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
 	"path/filepath"
 
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/broker/chat"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/service"
@@ -48,8 +49,10 @@ func init() {
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
 			service.WithStorage(chat.NewDAO,
 				service.WithStoragePrefix("broker_chat"),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+				service.WithStorageMigrator(chat.Migrate),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return dao.BoltDriver, filepath.Join(config.MustServiceDataDir(ServiceName), "chat.db")
+					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "chat.db")
 				}),
 			),
 			service.Unique(true),
