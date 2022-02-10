@@ -29,8 +29,26 @@ func HasDatabase(key string) bool {
 	return local.Val("#/databases/" + key).StringMap()["driver"] != ""
 }
 
+// GetStorageDriver looks up for a storage driver/dsn definition
+// It may find databases/[(services/{serviceName}/storage)|{serviceName}|default]
+func GetStorageDriver(serviceName string) (driver string, dsn string, defined bool) {
+
+	// By default, we check #/databases/serviceName for backward compat
+	dbKey := serviceName
+	if sKey := local.Val("services", serviceName, "storage").String(); sKey != "" {
+		// Otherwise, check if service defines a storage key, and then use it for #databases/DB_ID
+		dbKey = sKey
+	}
+	defined = local.Val("#/databases/" + dbKey).StringMap()["driver"] != ""
+	// Finally, use #/defaults/database value
+	c := local.Val("#/databases/" + dbKey).Default(configx.Reference("#/defaults/database")).StringMap()
+
+	return c["driver"], c["dsn"], defined
+}
+
 // GetDatabase retrieves the database data from the config
 func GetDatabase(key string) (string, string) {
+
 	c := local.Val("#/databases/" + key).Default(configx.Reference("#/defaults/database")).StringMap()
 
 	return c["driver"], c["dsn"]

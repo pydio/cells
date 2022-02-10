@@ -61,8 +61,8 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 	dbConfigKey := opts.read(opts.dbConfigKey)
 	prefix := opts.read(opts.prefix)
 
-	driver, dsn := config.GetDatabase(dbConfigKey)
-	if !config.HasDatabase(dbConfigKey) && opts.defaultDriver != nil {
+	driver, dsn, defined := config.GetStorageDriver(dbConfigKey)
+	if !defined && opts.defaultDriver != nil {
 		driver, dsn = opts.defaultDriver()
 	}
 
