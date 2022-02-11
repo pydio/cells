@@ -26,6 +26,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 	"io"
 	"regexp"
 	"strings"
@@ -74,8 +75,58 @@ func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
 
 }
 
+func installDocumentDSN(c *install.InstallConfig) error {
+
+	if c.GetDocumentsDSN() == "" {
+		return nil
+	}
+
+	var driver, dsn string
+	if strings.HasPrefix(c.DocumentsDSN, "mongodb://") {
+		driver = "mongodb"
+		dsn = c.DocumentsDSN
+	} else if strings.HasPrefix(c.DocumentsDSN, "boltdb") {
+		driver = "boltdb"
+		dsn = strings.TrimPrefix(c.DocumentsDSN, "boltdb://")
+	} else if strings.HasPrefix(c.DocumentsDSN, "bleve") {
+		driver = "bleve"
+		dsn = strings.TrimPrefix(c.DocumentsDSN, "bleve://")
+	}
+	dbKey := driver + "-" + strings.Split(uuid2.New(), "-")[0]
+	if er := config.SetDatabase(dbKey, driver, dsn); er != nil {
+		return er
+	}
+	if c.GetUseDocumentsDSN() {
+		ss, e := ListServicesWithStorage()
+		if e != nil {
+			return e
+		}
+		for _, s := range ss {
+			for _, storage := range s.Options().Storages {
+				var supports bool
+				for _, supported := range storage.SupportedDrivers {
+					if supported == "mongodb" {
+						supports = true
+						break
+					}
+				}
+				if supports {
+					if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
+						return er
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // DATABASES
 func actionDatabaseAdd(c *install.InstallConfig) error {
+
+	if er := installDocumentDSN(c); er != nil {
+		return er
+	}
 
 	dsn, err := dsnFromInstallConfig(c)
 	if err != nil {

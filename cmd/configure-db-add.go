@@ -22,8 +22,6 @@ package cmd
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
-	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
 	"strings"
 
 	"github.com/manifoldco/promptui"
@@ -53,70 +51,35 @@ DESCRIPTION
 		if e != nil {
 			return e
 		}
+		
 		if dbType == "SQL" {
+
 			if _, err := promptDB(installConfig); err != nil {
 				return err
 			}
 
-			cmd.Println("\033[1m## Performing Installation\033[0m")
-			if err := lib.Install(context.Background(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
-				cmd.Println(promptui.IconGood + " " + event.Message)
-			}); err != nil {
-				return err
-			}
 		} else {
+
 			if err := promptDocumentsDSN(installConfig); err != nil {
 				return err
 			}
-			cmd.Println("\033[1m## Performing Installation\033[0m")
-			var driver, dsn string
 			if strings.HasPrefix(installConfig.DocumentsDSN, "mongodb://") {
-				driver = "mongodb"
-				dsn = installConfig.DocumentsDSN
-			} else if strings.HasPrefix(installConfig.DocumentsDSN, "boltdb") {
-				driver = "boltdb"
-				dsn = strings.TrimPrefix(installConfig.DocumentsDSN, "boltdb://")
-			} else if strings.HasPrefix(installConfig.DocumentsDSN, "bleve") {
-				driver = "bleve"
-				dsn = strings.TrimPrefix(installConfig.DocumentsDSN, "bleve://")
-			}
-			dbKey := driver + "-" + strings.Split(uuid2.New(), "-")[0]
-			if er := config.SetDatabase(dbKey, driver, dsn); er != nil {
-				return er
-			}
-			if driver == "mongodb" {
 				_, e := (&promptui.Prompt{
 					Label:     "Do you wish to use this storage for all services supporting MongoDB driver",
 					IsConfirm: true,
 					Default:   "Y",
 				}).Run()
-				if e == nil {
-					ss, e := configDatabaseServicesWithStorage()
-					if e != nil {
-						return e
-					}
-					for _, s := range ss {
-						for _, storage := range s.Options().Storages {
-							var supports bool
-							for _, supported := range storage.SupportedDrivers {
-								if supported == "mongodb" {
-									supports = true
-									break
-								}
-							}
-							if supports {
-								cmd.Println("Using this db for " + s.Name() + "/" + storage.StorageKey)
-								if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
-									return er
-								}
-							}
-						}
-					}
-				}
+				installConfig.UseDocumentsDSN = e == nil
 			}
-			if er := config.Save("cli", "Adding new NoSQL database"); er != nil {
-				return er
-			}
+			cmd.Println("\033[1m## Performing Installation\033[0m")
+
+		}
+
+		cmd.Println("\033[1m## Performing Installation\033[0m")
+		if err := lib.Install(context.Background(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
+			cmd.Println(promptui.IconGood + " " + event.Message)
+		}); err != nil {
+			return err
 		}
 
 		cmd.Println("*************************************************************")

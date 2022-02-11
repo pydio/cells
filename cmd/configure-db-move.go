@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/discovery/install/lib"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -48,7 +49,7 @@ DESCRIPTION
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		ss, e := configDatabaseServicesWithStorage()
+		ss, e := lib.ListServicesWithStorage()
 		if e != nil {
 			log.Fatal(e.Error())
 		}

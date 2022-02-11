@@ -21,54 +21,20 @@
 package cmd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
-	registry2 "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/service"
+	"github.com/pydio/cells/v4/discovery/install/lib"
 )
 
 type configDatabase struct {
 	driver   string
 	dsn      string
 	services []string
-}
-
-func configDatabaseServicesWithStorage() (ss []service.Service, e error) {
-
-	items, er := configDatabaseRegistry.List(registry.WithType(registry2.ItemType_SERVICE))
-	if er != nil {
-		return nil, er
-	}
-	for _, i := range items {
-		var srv service.Service
-		if i.As(&srv) {
-			if len(srv.Options().Storages) > 0 {
-				ss = append(ss, srv)
-			}
-		} else {
-			fmt.Println("cannot convert", i)
-		}
-	}
-	return
-}
-
-func configDatabaseListDrivers(servicesWithStorage []service.Service) (dd []dao.DriverProviderFunc) {
-	for _, s := range servicesWithStorage {
-		for _, sOpt := range s.Options().Storages {
-			if sOpt.DefaultDriver != nil {
-				dd = append(dd, sOpt.DefaultDriver)
-			}
-		}
-	}
-	return
 }
 
 func configDatabaseList() (dd []configDatabase) {
@@ -121,7 +87,7 @@ func configDatabaseList() (dd []configDatabase) {
 		})
 	}
 
-	ss, e := configDatabaseServicesWithStorage()
+	ss, e := lib.ListServicesWithStorage()
 	if e != nil {
 		log.Fatal(e.Error())
 	}

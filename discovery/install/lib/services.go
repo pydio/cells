@@ -21,7 +21,15 @@
 package lib
 
 import (
+	"context"
+	"fmt"
+	"github.com/pydio/cells/v4/common/plugins"
+	registry2 "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"path/filepath"
+	"sync"
 
 	"github.com/ory/hydra/x"
 
@@ -66,6 +74,41 @@ func addBleveDbEntry(sName string, db ...string) error {
 		configKey = db[1]
 	}
 	return config.SetDatabase(configKey, "bleve", filepath.Join(bDir, dbName))
+}
+
+var (
+	listRegistry registry.Registry
+	loadRegistry sync.Once
+)
+
+func ListServicesWithStorage() (ss []service.Service, e error) {
+	loadRegistry.Do(func() {
+		ctx := context.Background()
+		reg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
+		if err != nil {
+			e = err
+		}
+		plugins.Init(servicecontext.WithRegistry(ctx, reg), "main")
+		listRegistry = reg
+	})
+	if e != nil {
+		return nil, e
+	}
+	items, er := listRegistry.List(registry.WithType(registry2.ItemType_SERVICE))
+	if er != nil {
+		return nil, er
+	}
+	for _, i := range items {
+		var srv service.Service
+		if i.As(&srv) {
+			if len(srv.Options().Storages) > 0 {
+				ss = append(ss, srv)
+			}
+		} else {
+			fmt.Println("cannot convert", i)
+		}
+	}
+	return ss, nil
 }
 
 func actionConfigsSet(c *install.InstallConfig) error {

@@ -22,15 +22,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/plugins"
-	"github.com/pydio/cells/v4/common/registry"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-)
-
-var (
-	configDatabaseRegistry registry.Registry
 )
 
 // configDatabaseCmd is the parent for database config commands.
@@ -45,12 +36,6 @@ DESCRIPTION
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		initConfig()
-		reg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		plugins.Init(servicecontext.WithRegistry(cmd.Context(), reg), "main")
-		configDatabaseRegistry = reg
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
