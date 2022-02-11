@@ -22,7 +22,9 @@ package cmd
 
 import (
 	"context"
-	"os"
+	"github.com/pydio/cells/v4/common/config"
+	uuid2 "github.com/pydio/cells/v4/common/utils/uuid"
+	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -40,26 +42,88 @@ DESCRIPTION
   Add a new database connection to the configuration.
   To assign the database connection to a service, you need to use the config database set command.
 `,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		installConfig := lib.GenerateDefaultConfig()
-		if _, err := promptDB(installConfig); err != nil {
-			cmd.Println(err)
-			os.Exit(1)
-		}
 
-		cmd.Println("\033[1m## Performing Installation\033[0m")
-		if err := lib.Install(context.Background(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
-			cmd.Println(promptui.IconGood + " " + event.Message)
-		}); err != nil {
-			cmd.Println(err)
-			os.Exit(1)
+		_, dbType, e := (&promptui.Select{
+			Label: "Which type of DB do you want to add?",
+			Items: []string{"SQL", "NoSQL"},
+		}).Run()
+		if e != nil {
+			return e
+		}
+		if dbType == "SQL" {
+			if _, err := promptDB(installConfig); err != nil {
+				return err
+			}
+
+			cmd.Println("\033[1m## Performing Installation\033[0m")
+			if err := lib.Install(context.Background(), installConfig, lib.InstallDb, func(event *lib.InstallProgressEvent) {
+				cmd.Println(promptui.IconGood + " " + event.Message)
+			}); err != nil {
+				return err
+			}
+		} else {
+			if err := promptDocumentsDSN(installConfig); err != nil {
+				return err
+			}
+			cmd.Println("\033[1m## Performing Installation\033[0m")
+			var driver, dsn string
+			if strings.HasPrefix(installConfig.DocumentsDSN, "mongodb://") {
+				driver = "mongodb"
+				dsn = installConfig.DocumentsDSN
+			} else if strings.HasPrefix(installConfig.DocumentsDSN, "boltdb") {
+				driver = "boltdb"
+				dsn = strings.TrimPrefix(installConfig.DocumentsDSN, "boltdb://")
+			} else if strings.HasPrefix(installConfig.DocumentsDSN, "bleve") {
+				driver = "bleve"
+				dsn = strings.TrimPrefix(installConfig.DocumentsDSN, "bleve://")
+			}
+			dbKey := driver + "-" + strings.Split(uuid2.New(), "-")[0]
+			if er := config.SetDatabase(dbKey, driver, dsn); er != nil {
+				return er
+			}
+			if driver == "mongodb" {
+				_, e := (&promptui.Prompt{
+					Label:     "Do you wish to use this storage for all services supporting MongoDB driver",
+					IsConfirm: true,
+					Default:   "Y",
+				}).Run()
+				if e == nil {
+					ss, e := configDatabaseServicesWithStorage()
+					if e != nil {
+						return e
+					}
+					for _, s := range ss {
+						for _, storage := range s.Options().Storages {
+							var supports bool
+							for _, supported := range storage.SupportedDrivers {
+								if supported == "mongodb" {
+									supports = true
+									break
+								}
+							}
+							if supports {
+								cmd.Println("Using this db for " + s.Name() + "/" + storage.StorageKey)
+								if er := config.Set(dbKey, "services", s.Name(), storage.StorageKey); er != nil {
+									return er
+								}
+							}
+						}
+					}
+				}
+			}
+			if er := config.Save("cli", "Adding new NoSQL database"); er != nil {
+				return er
+			}
 		}
 
 		cmd.Println("*************************************************************")
 		cmd.Println(" Config has been updated, please restart now!")
 		cmd.Println("**************************************************************")
 
+		return nil
 	},
 }
 

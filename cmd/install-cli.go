@@ -218,6 +218,42 @@ func promptDB(c *install.InstallConfig) (adminRequired bool, err error) {
 	return
 }
 
+func promptDocumentsDSN(c *install.InstallConfig) error {
+	driverType := p.Select{
+		Label: "Select driver type",
+		Items: []string{"mongodb", "boltdb", "bleve"},
+	}
+	_, driver, e := driverType.Run()
+	if e != nil {
+		return e
+	}
+	switch driver {
+	case "mongodb":
+		dsnP := p.Prompt{
+			Label:   "Please enter MongoDB server address. Can be in the form user:pass@host:port/?key=value",
+			Default: "localhost:8282/?maxPoolSize=20&w=majority",
+		}
+		mHost, e := dsnP.Run()
+		if e != nil {
+			return e
+		}
+		c.DocumentsDSN = "mongodb://" + mHost
+	case "bleve", "boltdb":
+		fileP := p.Prompt{
+			Label:   "Provide a filepath to the on-file database",
+			Default: config.ApplicationWorkingDir(config.ApplicationDirServices) + "/",
+		}
+		fpath, e := fileP.Run()
+		if e != nil {
+			return e
+		}
+		c.DocumentsDSN = driver + "://" + fpath
+	default:
+		return fmt.Errorf("unsupported driver type")
+	}
+	return nil
+}
+
 func promptFrontendAdmin(c *install.InstallConfig, adminRequired bool) error {
 
 	login := p.Prompt{Label: "Admin Login (leave empty if you want to use existing admin)", Default: "", Validate: func(s string) error {
