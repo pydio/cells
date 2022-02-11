@@ -22,7 +22,6 @@ package chat
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -69,20 +68,20 @@ func (m *mongoImpl) Init(values configx.Values) error {
 func (m *mongoImpl) PutRoom(room *chat.ChatRoom) (*chat.ChatRoom, error) {
 	if room.Uuid == "" {
 		room.Uuid = uuid.New()
-		res, e := m.DB().Collection("rooms").InsertOne(context.Background(), room)
+		_, e := m.DB().Collection("rooms").InsertOne(context.Background(), room)
 		if e != nil {
 			return nil, e
 		} else {
-			fmt.Println("Inserted room", res.InsertedID)
+			//fmt.Println("Inserted room", res.InsertedID)
 			return room, nil
 		}
 	} else {
 		upsert := true
-		res, e := m.DB().Collection("rooms").ReplaceOne(context.Background(), bson.D{{"uuid", room.Uuid}}, room, &options.ReplaceOptions{Upsert: &upsert})
+		_, e := m.DB().Collection("rooms").ReplaceOne(context.Background(), bson.D{{"uuid", room.Uuid}}, room, &options.ReplaceOptions{Upsert: &upsert})
 		if e != nil {
 			return nil, e
 		} else {
-			fmt.Println("Upserted room (ModifiedCount)", res.ModifiedCount)
+			//fmt.Println("Upserted room (ModifiedCount)", res.ModifiedCount)
 			return room, nil
 		}
 	}
@@ -94,11 +93,11 @@ func (m *mongoImpl) DeleteRoom(room *chat.ChatRoom) (bool, error) {
 		return false, res.Err()
 	} else {
 		// Delete all messages for this room
-		res, er := m.DB().Collection("messages").DeleteMany(context.Background(), bson.D{{"roomuuid", room.Uuid}})
+		_, er := m.DB().Collection("messages").DeleteMany(context.Background(), bson.D{{"roomuuid", room.Uuid}})
 		if er != nil && !strings.Contains(er.Error(), "no documents in result") {
 			return false, er
 		} else {
-			fmt.Println("Deleted", res.DeletedCount, "messages for this room")
+			//fmt.Println("Deleted", res.DeletedCount, "messages for this room")
 		}
 	}
 	return true, nil
@@ -169,11 +168,11 @@ func (m *mongoImpl) PostMessage(request *chat.ChatMessage) (*chat.ChatMessage, e
 	if request.Uuid == "" {
 		request.Uuid = uuid.New()
 	}
-	res, e := m.DB().Collection("messages").InsertOne(context.Background(), request)
+	_, e := m.DB().Collection("messages").InsertOne(context.Background(), request)
 	if e != nil {
 		return nil, e
 	} else {
-		fmt.Println("Inserted message", res.InsertedID)
+		//fmt.Println("Inserted message", res.InsertedID)
 		return request, nil
 	}
 }

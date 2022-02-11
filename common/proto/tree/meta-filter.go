@@ -146,17 +146,17 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 }
 
 type IndexableNode struct {
-	Node
-	ReloadCore bool
-	ReloadNs   bool
+	Node       `bson:"inline"`
+	ReloadCore bool `bson:"-"`
+	ReloadNs   bool `bson:"-"`
 
-	ModifTime   time.Time
-	Basename    string
-	NodeType    string
-	Extension   string
-	TextContent string
-	GeoPoint    map[string]interface{}
-	Meta        map[string]interface{}
+	ModifTime   time.Time              `bson:"modif_time"`
+	Basename    string                 `bson:"basename"`
+	NodeType    string                 `bson:"node_type"`
+	Extension   string                 `bson:"extension"`
+	TextContent string                 `bson:"text_content"`
+	GeoPoint    map[string]interface{} `bson:"geo_point"`
+	Meta        map[string]interface{} `bson:"meta"`
 }
 
 func (i *IndexableNode) BleveType() string {

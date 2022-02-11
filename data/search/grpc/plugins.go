@@ -25,6 +25,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"path/filepath"
 
 	"google.golang.org/grpc"
@@ -63,7 +64,8 @@ func init() {
 				service.AutoRestart(true),
 			*/
 			service.WithIndexer(dao.NewDAO,
-				service.WithStorageSupport(bleve.Driver),
+				service.WithStoragePrefix("searchengine"),
+				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
 					return bleve.Driver, filepath.Join(config.MustServiceDataDir(Name), "searchengine.bleve?rotationSize=-1")
 				}),

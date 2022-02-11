@@ -21,14 +21,15 @@ type IndexDAO interface {
 
 type Indexer struct {
 	DAO
-	collection string
-	codec      dao.IndexCodex
-	inserts    []interface{}
-	deletes    []string
-	tick       chan bool
-	flush      chan bool
-	done       chan bool
-	bufferSize int
+	collection      string
+	collectionModel Collection
+	codec           dao.IndexCodex
+	inserts         []interface{}
+	deletes         []string
+	tick            chan bool
+	flush           chan bool
+	done            chan bool
+	bufferSize      int
 }
 
 func NewIndexer(dao DAO) (IndexDAO, error) {
@@ -67,11 +68,19 @@ func (i *Indexer) SetCollection(c string) {
 }
 
 func (i *Indexer) Init(cfg configx.Values) error {
+	if i.collection == "" {
+		return fmt.Errorf("indexer must provide a collection name")
+	}
 	if i.codec != nil {
 		if mo, ok := i.codec.GetModel(cfg); ok {
 			model := mo.(Model)
 			if er := model.Init(context.Background(), i.DB()); er != nil {
 				return er
+			}
+			for _, coll := range model.Collections {
+				if coll.Name == i.collection {
+					i.collectionModel = coll
+				}
 			}
 		}
 	}
@@ -89,11 +98,16 @@ func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
 }
 
 func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
-	p, o := data.(dao.IndexIDProvider)
-	if !o {
-		return fmt.Errorf("data must be an IndexIDProvider")
+	var indexId string
+	if id, ok := data.(string); ok {
+		indexId = id
+	} else if p, o := data.(dao.IndexIDProvider); o {
+		indexId = p.IndexID()
 	}
-	i.deletes = append(i.deletes, p.IndexID())
+	if indexId == "" {
+		return fmt.Errorf("data must be a string or an IndexIDProvider")
+	}
+	i.deletes = append(i.deletes, indexId)
 	i.tick <- true
 	return nil
 }
@@ -152,6 +166,8 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 		filter := bson.D{}
 		filter = append(filter, filters...)
 		// Perform Query
+		//jsonLog, _ := bson.MarshalExtJSON(filter, false, false)
+		//fmt.Println(string(jsonLog))
 		cursor, err := i.DB().Collection(i.collection).Find(ctx, filter, opts)
 		if err != nil {
 			return nil, err
@@ -208,16 +224,40 @@ func (i *Indexer) Close() error {
 }
 func (i *Indexer) Flush() {
 	ctx := context.Background()
+	conn := i.DB().Collection(i.collection)
 	if len(i.inserts) > 0 {
-		if _, e := i.DB().Collection(i.collection).InsertMany(ctx, i.inserts); e != nil {
-			fmt.Println("error while flushing index to db", e)
+		if i.collectionModel.IDName != "" {
+			// Upserts instead of inserts
+			upsert := true
+			for _, insert := range i.inserts {
+				if p, o := insert.(dao.IndexIDProvider); o {
+					if _, e := conn.ReplaceOne(ctx, bson.D{{i.collectionModel.IDName, p.IndexID()}}, insert, &options.ReplaceOptions{Upsert: &upsert}); e != nil {
+						fmt.Println("Error while replaceOne", e)
+					}
+				} else {
+					fmt.Println("insert is not an IndexIDProvider!")
+				}
+			}
 		} else {
-			//fmt.Println("flushed index to db", len(res.InsertedIDs))
+			if _, e := conn.InsertMany(ctx, i.inserts); e != nil {
+				fmt.Println("error while flushing index to db", e)
+			} else {
+				//fmt.Println("flushed index to db", len(res.InsertedIDs))
+			}
 		}
 		i.inserts = []interface{}{}
 	}
-	if len(i.deletes) > 0 {
-		// Delete many by ids
+	if len(i.deletes) > 0 && i.collectionModel.IDName != "" {
+		var ors bson.A
+		for _, d := range i.deletes {
+			ors = append(ors, bson.M{i.collectionModel.IDName: d})
+		}
+		if res, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
+			fmt.Println("error while flushing deletes to index", e)
+		} else {
+			fmt.Println("flushed index, deleted", res.DeletedCount)
+		}
+		i.deletes = []string{}
 	}
 }
 func (i *Indexer) SetCodex(c dao.IndexCodex) {

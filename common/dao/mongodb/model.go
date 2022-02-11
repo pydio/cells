@@ -23,6 +23,10 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/search/query"
+	"go.mongodb.org/mongo-driver/x/bsonx"
+	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -34,6 +38,7 @@ type Collection struct {
 	Name             string
 	DefaultCollation Collation
 	Indexes          []map[string]int
+	IDName           string
 }
 
 type Collation struct {
@@ -73,4 +78,73 @@ func (m Model) Init(ctx context.Context, db *mongo.Database) error {
 		}
 	}
 	return nil
+}
+
+// BleveQueryToMongoFilters parses a Blevesearch query string to a slice of bson primitives
+func BleveQueryToMongoFilters(queryString string, insensitive bool, fieldTransformer func(string) string) (filters []bson.E, err error) {
+	q, e := bleve.NewQueryStringQuery(queryString).Parse()
+	if e != nil {
+		return nil, e
+	}
+	if bQ, o := q.(*query.BooleanQuery); o {
+		if cj, o2 := bQ.Must.(*query.ConjunctionQuery); o2 {
+			for _, m := range cj.Conjuncts {
+				switch v := m.(type) {
+				case *query.WildcardQuery:
+					wc := v.Wildcard
+					regexp := ""
+					if !strings.HasPrefix(wc, "*") {
+						regexp += "^"
+					}
+					regexp += strings.Trim(wc, "*")
+					if !strings.HasSuffix(wc, "*") {
+						regexp += "$"
+					}
+					if insensitive {
+						filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": bsonx.Regex(regexp, "i")}})
+					} else {
+						filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
+					}
+				case *query.MatchQuery:
+					filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: v.Match})
+				case *query.MatchPhraseQuery:
+					phrase := strings.Trim(v.MatchPhrase, "\"")
+					if strings.Contains(phrase, "*") {
+						regexp := ""
+						if !strings.HasPrefix(phrase, "*") {
+							regexp += "^"
+						}
+						regexp += strings.Trim(phrase, "*")
+						if !strings.HasSuffix(phrase, "*") {
+							regexp += "$"
+						}
+						if insensitive {
+							filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": bsonx.Regex(regexp, "i")}})
+						} else {
+							filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{"$regex": regexp}})
+						}
+					} else {
+						filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: phrase})
+					}
+				case *query.NumericRangeQuery:
+					if v.Min != nil {
+						ref := "$gt"
+						if v.InclusiveMin != nil && *v.InclusiveMin {
+							ref = "$gte"
+						}
+						filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{ref: v.Min}})
+					}
+					if v.Max != nil {
+						ref := "$lt"
+						if v.InclusiveMax != nil && *v.InclusiveMax {
+							ref = "$lte"
+						}
+						filters = append(filters, bson.E{Key: fieldTransformer(v.Field()), Value: bson.M{ref: v.Max}})
+					}
+				}
+			}
+		}
+	}
+
+	return
 }

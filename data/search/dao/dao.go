@@ -23,13 +23,15 @@ package dao
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
-
-	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/data/search/dao/mongo"
 )
 
 type SearchEngine interface {
@@ -45,6 +47,10 @@ func NewDAO(dao dao.DAO) dao.DAO {
 	case *bleve.Indexer:
 		v.SetCodex(&bleve2.Codec{})
 		return v
+	case *mongodb.Indexer:
+		v.SetCollection(mongo.Collection)
+		v.SetCodex(&mongo.Codex{})
+		return v
 	}
 	return nil
 
@@ -54,6 +60,11 @@ func NewQueryCodec(indexDAO dao.IndexDAO, values configx.Values, metaProvider *m
 	switch indexDAO.(type) {
 	case *bleve.Indexer:
 		return bleve2.NewQueryCodec(values, metaProvider)
+	case *mongodb.Indexer:
+		return &mongo.Codex{
+			QueryConfigs:    values,
+			QueryNsProvider: metaProvider,
+		}
 	}
 	return nil
 }

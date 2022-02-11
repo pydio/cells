@@ -47,7 +47,7 @@ func WithStoragePrefix(i interface{}) StorageOption {
 	}
 }
 
-// Declares wich drivers can be supported by this service
+// WithStorageSupport declares wich drivers can be supported by this service
 func WithStorageSupport(dd ...string) StorageOption {
 	return func(options *StorageOptions) {
 		options.SupportedDrivers = append(options.SupportedDrivers, dd...)

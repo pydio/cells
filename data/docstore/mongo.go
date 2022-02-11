@@ -22,8 +22,6 @@ package docstore
 
 import (
 	"context"
-	"fmt"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -75,11 +73,11 @@ func (m *mongoImpl) PutDocument(storeID string, doc *docstore.Document) error {
 	ctx := context.Background()
 	mdoc := m.toMdoc(storeID, doc)
 	filter := bson.D{{"store_id", storeID}, {"doc_id", doc.ID}}
-	res, e := m.DB().Collection(collDocuments).ReplaceOne(ctx, filter, mdoc, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.DB().Collection(collDocuments).ReplaceOne(ctx, filter, mdoc, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
-	fmt.Println("Docstore upsert", res.UpsertedCount, "modified", res.ModifiedCount)
+	//fmt.Println("Docstore upsert", res.UpsertedCount, "modified", res.ModifiedCount)
 	return nil
 }
 
@@ -138,11 +136,11 @@ func (m *mongoImpl) ListStores() (ss []string, e error) {
 func (m *mongoImpl) DeleteDocument(storeID string, docID string) error {
 	ctx := context.Background()
 	filter := bson.D{{"store_id", storeID}, {"doc_id", docID}}
-	res, e := m.DB().Collection(collDocuments).DeleteOne(ctx, filter)
+	_, e := m.DB().Collection(collDocuments).DeleteOne(ctx, filter)
 	if e != nil {
 		return e
 	}
-	fmt.Println("docstore deleted doc", res.DeletedCount)
+	//fmt.Println("docstore deleted doc", res.DeletedCount)
 	return nil
 }
 
@@ -210,6 +208,9 @@ func (m *mongoImpl) buildFilters(storeID string, query *docstore.DocumentQuery) 
 
 	filter := bson.D{
 		{"store_id", storeID},
+	}
+	if query == nil {
+		return filter, nil
 	}
 	if query.ID != "" {
 		filter = append(filter, bson.E{Key: "doc_id", Value: query.ID})

@@ -23,6 +23,7 @@ package dao
 import (
 	"compress/gzip"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -109,12 +110,16 @@ func (b *Batch) Flush(indexer dao.IndexDAO) error {
 	for uuid, node := range b.inserts {
 		if e := b.LoadIndexableNode(node, excludes); e == nil {
 			//batch.Index(uuid, node)
-			indexer.InsertOne(nil, node)
+			if er := indexer.InsertOne(nil, node); er != nil {
+				fmt.Println("Search batch - InsertOne error", er.Error())
+			}
 		}
 		delete(b.inserts, uuid)
 	}
 	for uuid := range b.deletes {
-		indexer.DeleteOne(nil, uuid)
+		if er := indexer.DeleteOne(nil, uuid); er != nil {
+			fmt.Println("Search batch - DeleteOne error", er.Error())
+		}
 		delete(b.deletes, uuid)
 	}
 	b.Unlock()
