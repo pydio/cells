@@ -1,125 +1,125 @@
 {
   "title": {
-    "other": "Software Updates"
+    "other": "ソフトウェアの更新"
   },
   "legend": {
-    "other": "In-app binary updates"
+    "other": "アプリ内のバイナリアップデート"
   },
   "current.version": {
-    "other": "Current Version"
+    "other": "現在のバージョン"
   },
   "confirm.update": {
-    "other": "Are you sure that you want to perform the update?"
+    "other": "アップデートを実行してもよろしいですか？"
   },
   "packages.available": {
-    "other": "Following packages are available for update"
+    "other": "以下のパッケージが更新可能です"
   },
   "checking": {
-    "other": "Checking for available updates..."
+    "other": "利用可能なアップデートを確認しています..."
   },
   "noupdates": {
-    "other": "No necessary update detected: click to perform a new check."
+    "other": "必要なアップデートは検出されません: クリックして新しいチェックを実行します。"
   },
   "alert.noselect": {
-    "other": "Please select at least one package!"
+    "other": "少なくとも1つのパッケージを選択してください。"
   },
   "package.released": {
-    "other": "Released"
+    "other": "公開済み"
   },
   "package.revision": {
-    "other": "Revision"
+    "other": "リビジョン"
   },
   "check.legend": {
-    "other": "Click to check for new update"
+    "other": "クリックして新しいアップデートを確認"
   },
   "check.button": {
-    "other": "Check now"
+    "other": "今すぐチェック"
   },
   "package.version": {
-    "other": "Version"
+    "other": "バージョン"
   },
   "package.label": {
-    "other": "Label"
+    "other": "ラベル"
   },
   "package.details": {
     "other": "詳細"
   },
   "package.changelog": {
-    "other": "Show Changelog"
+    "other": "更新履歴を表示"
   },
   "start.update": {
-    "other": "Start Upgrade"
+    "other": "アップグレードを開始"
   },
   "configs.save": {
-    "other": "Save configs"
+    "other": "設定を保存"
   },
   "upgrade.ed.title": {
-    "other": "Upgrade to Cells Enterprise"
+    "other": "Cells Enterprise版にアップグレード"
   },
   "upgrade.ed.button.next": {
-    "other": "Next"
+    "other": "次へ"
   },
   "upgrade.ed.button.start": {
-    "other": "Start"
+    "other": "開始"
   },
   "upgrade.ed.button.cancel": {
-    "other": "Cancel"
+    "other": "キャンセル"
   },
   "upgrade.ed.button.install": {
-    "other": "Install now"
+    "other": "今すぐインストール"
   },
   "upgrade.ed.button.close": {
-    "other": "Close"
+    "other": "閉じる"
   },
   "upgrade.ed.eula.title": {
-    "other": "Please Accept End-User License Agreement"
+    "other": "エンドユーザーライセンス契約に同意してください"
   },
   "upgrade.ed.eula.check": {
-    "other": "I thereby accept this EULA"
+    "other": "このEULAに同意します"
   },
   "upgrade.ed.key.title": {
-    "other": "Enter a valid license key (provided by a Pydio sales representative)"
+    "other": "有効なライセンスキーを入力してください（Pydio販売代理店から提供されています）"
   },
   "upgrade.ed.key.legend": {
-    "other": "If you do not own one, you can receive a trial key by contacting sales using the button below or directly via "
+    "other": "お持ちでない場合は、下のボタンを使用して直接販売に連絡するか、トライアルキーを受け取ることができます "
   },
   "upgrade.ed.key.hint": {
-    "other": "Paste provided key here..."
+    "other": "指定されたキーをここに貼り付けてください"
   },
   "upgrade.ed.version.loading": {
-    "other": "Looking for the closest Cells Enterprise version"
+    "other": "最も近いCellsエンタープライズ版を探しています"
   },
   "upgrade.ed.version.error": {
-    "other": "Cannot load available versions for Cells Enterprise!"
+    "other": "Cells Enterpriseの利用可能なバージョンを読み込めません！"
   },
   "upgrade.ed.version.error.string": {
-    "other": "Error was"
+    "other": "エラー:"
   },
   "upgrade.ed.version.available": {
-    "other": "Ready to install %s"
+    "other": "%s をインストールする準備ができました"
   },
   "upgrade.ed.version.released": {
-    "other": "Released"
+    "other": "公開済み"
   },
   "upgrade.ed.version.arch": {
-    "other": "Architecture"
+    "other": "アーキテクチャー"
   },
   "upgrade.ed.version.description": {
     "other": "備考"
   },
   "upgrade.ed.version.legend": {
-    "other": "Hitting Next will now download this new version and replace your current Cells binary. A backup of the original executable will be made inside your cells config folder (under %s), if you need to recover it."
+    "other": "Hitting Next で、この新しいバージョンをダウンロードし、現在のセルバイナリを置き換えます。 元の実行ファイルのバックアップは、復元する必要がある場合は、セル設定フォルダ( %s以下) 内に作成されます。"
   },
   "upgrade.ed.version.nomatch": {
-    "other": "Could not find a similar version for Cells Enterprise"
+    "other": "Cells Enterpriseで同様のバージョンが見つかりませんでした"
   },
   "upgrade.ed.version.nomatch.legend1": {
-    "other": "To avoid mixing upgrade and updates, we recommend upgrading Cells Home to Enterprise on the same version."
+    "other": "アップグレードとアップデートのミキシングを避けるために、同じバージョンの Cells Home to Enterprise をアップグレードすることをお勧めします。"
   },
   "upgrade.ed.version.nomatch.legend2": {
-    "other": "Please first update your current version to one of the following, then retry upgrading to Cells Enterprise."
+    "other": "まず、現在のバージョンを以下のいずれかに更新してから、Cells Enterpriseにアップグレードしてみてください。"
   },
   "upgrade.ed.installing": {
-    "other": "Installing upgrade, please wait..."
+    "other": "アップグレードをインストールしています。お待ちください..."
   }
 }

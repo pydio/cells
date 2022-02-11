@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Comments"
+    "other": "コメント"
   },
   "2": {
-    "other": "Enter your comment here"
+    "other": "ここにコメントを入力してください"
   },
   "3": {
-    "other": "Post"
+    "other": "投稿"
   },
   "4": {
-    "other": "Go to %s"
+    "other": "%s に移動"
   },
   "empty-state": {
-    "other": "No comments"
+    "other": "コメントはありません"
   }
 }

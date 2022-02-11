@@ -1,290 +1,290 @@
 {
   "Additional JS frameworks": {
-    "other": "Additional JS frameworks"
+    "other": "JS フレームワークを追加"
   },
   "Additional JS frameworks description": {
-    "other": "List of comma separated pathes to JS files, which must be loaded BEFORE the main Pydio framework is loaded. The preferred way should be using plugin resources declarations. Loading JS files at the very start up of the page might be option in some cases only."
+    "other": "JavaScriptファイルへのコンマ区切りのパスのリスト。Pydioフレームワークがロードされる前にロードされなければならない。 推奨される方法は、プラグインのリソース宣言を使用することです。 ページの起動時にJavaScriptファイルをロードすることは、場合によってのみオプションとなる場合があります。"
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "An additional message displayed in the start up screen"
+    "other": "起動画面に追加のメッセージが表示されます"
   },
   "Analytics Domain": {
-    "other": "Analytics Domain"
+    "other": "分析ドメイン"
   },
   "Analytics Events": {
-    "other": "Analytics Events"
+    "other": "分析イベント"
   },
   "Analytics ID": {
-    "other": "Analytics ID"
+    "other": "分析ID"
   },
   "Append a title to the image logo": {
-    "other": "Append a title to the image logo"
+    "other": "画像のロゴにタイトルを追加"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "アプリケーションのタイトル"
   },
   "Attributes of the image used as a background": {
-    "other": "Attributes of the image used as a background"
+    "other": "背景として使用される画像の属性"
   },
   "Background Attributes (1)": {
-    "other": "Background attributes (1)"
+    "other": "背景属性 (1)"
   },
   "Background Attributes (2)": {
-    "other": "Background attributes (2)"
+    "other": "背景属性 (2)"
   },
   "Background Attributes (3)": {
-    "other": "Background attributes (3)"
+    "other": "背景属性 (3)"
   },
   "Background Attributes (4)": {
-    "other": "Background attributes (4)"
+    "other": "背景属性 (4)"
   },
   "Background Attributes (5)": {
-    "other": "Background attributes (5)"
+    "other": "背景属性 (5)"
   },
   "Background Attributes (6)": {
-    "other": "Background attributes (6)"
+    "other": "背景属性 (6)"
   },
   "Background Attributes (Low Resolution)": {
-    "other": "Background Attributes (Low Resolution)"
+    "other": "背景属性（低解像度）"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc."
+    "other": "ブラウザベースのリッチインターフェース。テーマ設定、カスタムウェルカムメッセージなどの構成が含まれています。"
   },
   "Center in Page (no-repeat)": {
-    "other": "Center in Page (no-repeat)"
+    "other": "ページの中央（繰り返しなし）"
   },
   "Client Plugin": {
-    "other": "Client Plugin"
+    "other": "クライアントプラグイン"
   },
   "Client Session Config": {
-    "other": "Client Session Config"
+    "other": "クライアントセッションの設定"
   },
   "Client Timeout": {
-    "other": "Client Timeout"
+    "other": "クライアントのタイムアウト"
   },
   "Custom Background (1)": {
-    "other": "Custom background (1)"
+    "other": "カスタム背景 (1)"
   },
   "Custom Background (2)": {
-    "other": "Custom background (2)"
+    "other": "カスタム背景 (2)"
   },
   "Custom Background (3)": {
-    "other": "Custom background (3)"
+    "other": "カスタム背景 (3)"
   },
   "Custom Background (4)": {
-    "other": "Custom background (4)"
+    "other": "カスタム背景 (4)"
   },
   "Custom Background (5)": {
-    "other": "Custom background (5)"
+    "other": "カスタム背景 (5)"
   },
   "Custom Background (6)": {
-    "other": "Custom background (6)"
+    "other": "カスタム背景 (6)"
   },
   "Custom Icon": {
-    "other": "Custom Icon"
+    "other": "カスタムアイコン"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "検出されたエンコード"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "検出されたサーバーパス"
   },
   "Display Branding Tool": {
-    "other": "Display Branding Tool"
+    "other": "ブランディングツールを表示"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "ウェルカムツアーを有効にする"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "最初の訪問時にトリガーされた小さなツアーを有効にする"
   },
   "Fetch Window (no repeat)": {
-    "other": "Fetch Window (no repeat)"
+    "other": "フェッチウィンドウ（繰り返しなし）"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Fetch Window (repeat vertically)"
+    "other": "ウィンドウを取得(垂直方向に繰り返す)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Font sized used for the title in the start up screen"
+    "other": "起動画面のタイトルに使用されるフォントサイズ"
   },
   "Google Analytics": {
-    "other": "Google Analytics"
+    "other": "Google アナリティクス"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Google アナリティクスドメイン"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "Google アナリティクスイベント"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "GoogleアナリティクスID"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Height of the custom icon (with the px mention)"
+    "other": "カスタムアイコンの高さ (ピクセルメンション付き)"
   },
   "Icon Height": {
-    "other": "Icon Height"
+    "other": "アイコンの高さ"
   },
   "Icon Only": {
-    "other": "Icon Only"
+    "other": "アイコンのみ"
   },
   "Icon Path (Legacy)": {
-    "other": "Icon Path (Legacy)"
+    "other": "アイコンのパス (レガシー)"
   },
   "Icon Width": {
-    "other": "Icon Width"
+    "other": "アイコンの幅"
   },
   "Id of your GA account, something like UE-XXXX-YY": {
-    "other": "Id of your GA account, something like UE-XXXX-YY"
+    "other": "UE-XXXX-YYのようなGAアカウントのID"
   },
   "Image used as a background": {
-    "other": "Image used as a background"
+    "other": "背景として使用される画像"
   },
   "Login Screen": {
-    "other": "Login Page"
+    "other": "ログインページ"
   },
   "Logo": {
-    "other": "Logo"
+    "other": "ロゴ"
   },
   "Logo Height": {
-    "other": "Logo Height"
+    "other": "ロゴの高さ"
   },
   "Logo Left": {
-    "other": "Logo Left"
+    "other": "ロゴの左幅"
   },
   "Logo Top": {
-    "other": "Logo Top"
+    "other": "ロゴの上の幅"
   },
   "Logo Width": {
-    "other": "Logo Width"
+    "other": "ロゴの幅"
   },
   "Low-Resolution Background": {
-    "other": "Low-Resolution Background"
+    "other": "低解像度の背景"
   },
   "Main Options": {
-    "other": "Main Options"
+    "other": "メインオプション"
   },
   "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
-    "other": "Make sure to use a smaller resolution image, otherwise mobile loading is very slow."
+    "other": "低解像度の画像を使用してください。モバイルの読み込みが非常に遅くなります。"
   },
   "Manually set a left offset": {
-    "other": "Manually set a left offset"
+    "other": "左オフセットを手動で設定"
   },
   "Manually set a logo height": {
-    "other": "Manually set a logo height"
+    "other": "ロゴの高さを手動で設定"
   },
   "Manually set a logo width": {
-    "other": "Manually set a logo width"
+    "other": "ロゴの幅を手動で設定"
   },
   "Manually set a top offset": {
-    "other": "Manually set a top offset"
+    "other": "トップオフセットを手動で設定"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "ミニサイト"
   },
   "Minisite Logo": {
-    "other": "Minisite Logo"
+    "other": "ミニサイトロゴ"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
-    "other": "Number of MINUTES before the session expiration for issuing an alert to the user"
+    "other": "ユーザーにアラートを発行するセッションの有効期限までの分数"
   },
   "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
-    "other": "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option."
+    "other": "デフォルトのスタイルと色をブランディングツールで定義されているオプションで上書きします。このオプションをオンにする場合は、インターフェイスを再読み込みしてください。"
   },
   "Page Background Images": {
-    "other": "Page Background Images"
+    "other": "ページ背景画像"
   },
   "Replace the logo displayed in the welcome page": {
-    "other": "Replace the logo displayed in the welcome page"
+    "other": "開始ページに表示されているロゴを置き換え"
   },
   "Replace the top left logo in the top toolbar": {
-    "other": "Replace the top left logo in the top toolbar"
+    "other": "上部ツールバーの左上のロゴを置き換え"
   },
   "Set the domain for your analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "分析レポートのドメインを設定してください (必須ではありません!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "分析レポートのドメインを設定してください (必須ではありません!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "いくつかのアプリケーションパラメータを設定します。メールを有効にする場合は、テストボタンを使用して、phpが正しく設定されているかどうかを確認してください。"
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
-    "other": "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option."
+    "other": "インターフェイスの色とロゴを変更するには、パレットを表示します。このオプションをオンにする場合は、インターフェイスを再読み込みしてください。"
   },
   "Skip the title, only display an image": {
-    "other": "Skip the title, only display an image"
+    "other": "タイトルをスキップし、画像のみを表示する"
   },
   "Start Up Screen": {
-    "other": "Start Up Screen"
+    "other": "起動画面"
   },
   "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
-    "other": "The length of the client session in SECONDS. The server session length will be used by default. In most PHP installations, the session length is set to 1440 seconds (24 minutes). You can set this value to 0. This will make the client session 'infinite' by pinging the server periodically. This keeps the PHP session alive. For evident security reasons, this is not a recommended setting."
+    "other": "クライアント・セッションの長さ（分）。デフォルトでは、サーバー・セッションの長さが使用されます。 ほとんどのPHPインストールでは、セッションの長さは1440秒(24分) に設定されています。この値は0に設定できます。 これにより、定期的にサーバーにpingをかけることにより、クライアントセッションが「無限大」になります。 これはPHPセッションを持続させます。明らかなセキュリティ上の理由から、これは推奨されない設定です。"
   },
   "Theme": {
-    "other": "Theme"
+    "other": "テーマ"
   },
   "Theme used for display": {
-    "other": "Theme used for display"
+    "other": "ディスプレイに使用するテーマ"
   },
   "Tile (repeat both directions)": {
-    "other": "Tile (repeat both directions)"
+    "other": "タイル (両方向に繰り返す)"
   },
   "Title": {
-    "other": "Title"
+    "other": "タイトル"
   },
   "Title Font Size": {
-    "other": "Title Font Size"
+    "other": "タイトルのフォントサイズ"
   },
   "Top Toolbar": {
-    "other": "Top Toolbar"
+    "other": "トップツールバー"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "Top-right logo displayed on minisite page"
+    "other": "ミニサイトの右上にロゴを表示する"
   },
   "URI to a custom image to be used as start up logo": {
-    "other": "URI to a custom image to be used as start up logo"
+    "other": "起動ロゴとして使用するカスタム画像の URI"
   },
   "Use Events Logging, experimental only implemented on download action in Pydio": {
-    "other": "Use Events Logging, experimental only implemented on download action in Pydio"
+    "other": "イベントのログを使用してください。Pydioでダウンロードアクションでのみ実験的に実装されています。"
   },
   "Use configured branding": {
-    "other": "Use configured branding"
+    "other": "設定されたブランディングを使用"
   },
   "User Home Logo": {
-    "other": "User Home Logo"
+    "other": "ユーザーホームロゴ"
   },
   "Warning Before": {
-    "other": "Warning before session expires"
+    "other": "セッションの有効期限が切れる前に警告"
   },
   "Web Session": {
-    "other": "Web Session"
+    "other": "Webセッション"
   },
   "Web Interface auto-logout after inactivity": {
-    "other": "Web Interface auto-logout after inactivity"
+    "other": "非アクティブ後のWebインターフェースの自動ログアウト"
   },
   "For security, disconnect user if there was no activity. Set to the cookie expiration by default.": {
-    "other": "For security, disconnect user if there was no activity. Set to the cookie expiration by default."
+    "other": "セキュリティのため、アクティビティがなかった場合はユーザーを切断します。デフォルトでクッキーの有効期限に設定します。"
   },
   "Welcome Message": {
-    "other": "Welcome Message"
+    "other": "ウェルカムメッセージ"
   },
   "Welcome Page": {
     "other": "ウェルカムページ"
   },
   "Width of the custom image (by default 35px)": {
-    "other": "Width of the custom image (Default 35px)"
+    "other": "カスタム画像の幅 (デフォルト 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Web セッションの有効期限が近づいているユーザーに通知します。セッションの有効期限までの分数です。"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "セッション終了前の警告"
   },
   "Custom HTML Header": {
-    "other": "Custom HTML Header"
+    "other": "カスタムHTMLヘッダー"
   },
   "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!": {
-    "other": "Custom HTML you want to be included in the pages header. Beware, make sure to put valid HTML here!"
+    "other": "ページヘッダーに含めたいカスタムHTML。ここに有効なHTMLを入れてください！"
   }
 }

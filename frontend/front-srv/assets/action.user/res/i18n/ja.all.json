@@ -3,103 +3,103 @@
     "other": "アドレス帳"
   },
   "10": {
-    "other": "Associated workspaces"
+    "other": "関連付けられたワークスペース"
   },
   "11": {
-    "other": "Are you sure that you want to delete the selected element(s)?"
+    "other": "選択されたアイテムを削除してよいですか？"
   },
   "12": {
-    "other": "You don't have the permission to delete this element."
+    "other": "この要素を削除する権限がありません。"
   },
   "13": {
-    "other": "Successfully deleted public file."
+    "other": "公開ファイルを削除しました。"
   },
   "14": {
-    "other": "Integrity"
+    "other": "完全性"
   },
   "15": {
     "other": "Ok"
   },
   "16": {
-    "other": "Broken"
+    "other": "破損"
   },
   "17": {
-    "other": "Download URL"
+    "other": "ダウンロードURL"
   },
   "18": {
-    "other": "Copy URL"
+    "other": "URLをコピー"
   },
   "19": {
-    "other": "Copy url to send by email."
+    "other": "メールで送信するURLをコピーします。"
   },
   "2": {
-    "other": "Shared folders"
+    "other": "共有フォルダ"
   },
   "20": {
-    "other": "Downloads"
+    "other": "ダウンロード"
   },
   "21": {
-    "other": "Yes"
+    "other": "はい"
   },
   "22": {
-    "other": "No"
+    "other": "いいえ"
   },
   "23": {
-    "other": "Successfully deleted %s files."
+    "other": "%s ファイルの削除に成功しました。"
   },
   "24": {
-    "other": "Nothing to delete."
+    "other": "削除するものはありません。"
   },
   "25": {
-    "other": "Clear Expired"
+    "other": "期限切れをクリア"
   },
   "26": {
-    "other": "Delete expired shared files."
+    "other": "期限切れの共有ファイルを削除します。"
   },
   "27": {
-    "other": "Owner"
+    "other": "所有者"
   },
   "28": {
-    "other": "Files shared for direct download, either protected by a password or not."
+    "other": "ダイレクトダウンロード用に共有されているファイル、パスワードで保護されていないか。"
   },
   "29": {
-    "other": "Delegates workspaces created by users."
+    "other": "ユーザーによって作成されたワークスペースを委任します。"
   },
   "3": {
-    "other": "Shared files"
+    "other": "共有されたファイル"
   },
   "30": {
-    "other": "Users created to access the delegated workspaces."
+    "other": "委任されたワークスペースにアクセスするために作成されたユーザ。"
   },
   "31": {
     "other": "備考"
   },
   "32": {
-    "other": "Reset"
+    "other": "リセット"
   },
   "33": {
-    "other": "Reset download counter"
+    "other": "ダウンロード数をリセット"
   },
   "34": {
-    "other": "My Shares"
+    "other": "自分のシェア"
   },
   "35": {
-    "other": "All my shared items (files and folders)"
+    "other": "すべての共有アイテム（ファイルとフォルダ）"
   },
   "36": {
-    "other": "Parameters"
+    "other": "パラメーター"
   },
   "37": {
-    "other": "My profile and application settings"
+    "other": "プロフィールとアプリケーションの設定"
   },
   "38": {
-    "other": "Notifications"
+    "other": "通知"
   },
   "39": {
     "other": "下のリストはあなたがアクセスできるワークスペースの一覧です。そのワークスペースは個人用か他のユーザーと共有されてるかもしれません。"
   },
   "4": {
-    "other": "File Path"
+    "other": "ファイルパス"
   },
   "40": {
     "other": "ようこそ、%sさん! "
@@ -135,7 +135,7 @@
     "other": "あなたの作成した外部のユーザー"
   },
   "5": {
-    "other": "Repository"
+    "other": "リポジトリ"
   },
   "50": {
     "other": "マイチーム"
@@ -147,85 +147,85 @@
     "other": "本当にこのチームを削除しますか？この操作ではユーザーは削除しません。"
   },
   "53": {
-    "other": "Back to my workspaces"
+    "other": "ワークスペースに戻る"
   },
   "54": {
-    "other": "Update Members"
+    "other": "メンバーを更新"
   },
   "55": {
-    "other": "Add/Remove users from this team"
+    "other": "このチームからユーザーを追加/削除"
   },
   "56": {
-    "other": "Add one user per line, type in the textarea to see the auto-completion list appear."
+    "other": "1行に1人のユーザーを追加し、テキストエリアに入力すると自動補完リストが表示されます。"
   },
   "57": {
-    "other": "Create a Team"
+    "other": "チームを作成"
   },
   "58": {
-    "other": "Teams are used as a shortcut to quickly share a folder with a predefined set of users"
+    "other": "チームは、定義済みのユーザーセットとフォルダをすばやく共有するためのショートカットとして使用されます"
   },
   "59": {
-    "other": "Team Label"
+    "other": "チームラベル"
   },
   "6": {
-    "other": "Password"
+    "other": "パスワード"
   },
   "60": {
-    "other": "Team Users"
+    "other": "チームユーザー"
   },
   "61": {
-    "other": "Email Preferences"
+    "other": "メール設定"
   },
   "62": {
-    "other": "Send emails every X minutes"
+    "other": "X分ごとにメールを送信"
   },
   "63": {
-    "other": "Send emails every Y hours"
+    "other": "Y時間毎にメールを送信"
   },
   "64": {
-    "other": "Choose the hour of the day"
+    "other": "1日の時間を選択"
   },
   "65": {
-    "other": "Choose the first hour of the day"
+    "other": "一日の最初の時間を選択してください"
   },
   "66": {
-    "other": "Choose the second hour of the day"
+    "other": "一日の二時間目を選択"
   },
   "67": {
-    "other": "Pick a day of the week"
+    "other": "曜日を選択"
   },
   "68": {
-    "other": "Monday"
+    "other": "月曜日"
   },
   "69": {
-    "other": "Tuesday"
+    "other": "火曜日"
   },
   "7": {
-    "other": "Expiration"
+    "other": "有効期限"
   },
   "70": {
-    "other": "Wednesday"
+    "other": "水曜日"
   },
   "71": {
-    "other": "Thursday"
+    "other": "木曜日"
   },
   "72": {
-    "other": "Friday"
+    "other": "金曜日"
   },
   "73": {
-    "other": "Saturday"
+    "other": "土曜日"
   },
   "74": {
-    "other": "Sunday"
+    "other": "日曜日"
   },
   "8": {
-    "other": "Elements"
+    "other": "要素"
   },
   "9": {
-    "other": "Associated users"
+    "other": "関連するユーザー"
   },
   "desc": {
-    "other": "Manage my account preferences, my address book, shared elements, etc."
+    "other": "アカウントの設定、アドレス帳、共有要素などを管理します。"
   },
   "title": {
     "other": "マイアカウント"

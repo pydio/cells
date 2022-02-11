@@ -33,7 +33,7 @@
     "other": "Disable the check of failed login attempts, will disable the Captcha display"
   },
   "Enable Forgot Password": {
-    "other": "Enable Forgot Password"
+    "other": "启用忘记密码功能"
   },
   "Enable Users": {
     "other": "Enable Users"
@@ -42,7 +42,7 @@
     "other": "Enable the 'guest' user, who does not need to log in."
   },
   "Forgot Password Action": {
-    "other": "Forgot Password Action"
+    "other": "忘记密码的操作"
   },
   "Generic Auth Features": {
     "other": "Generic Features"
@@ -87,7 +87,7 @@
     "other": "Options applied to all auth drivers"
   },
   "Password length": {
-    "other": "Password length"
+    "other": "密码长度"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
     "other": "禁用自动完成和记住我的功能，从而提高登录表单的安全性"

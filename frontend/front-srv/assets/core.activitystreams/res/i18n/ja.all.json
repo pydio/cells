@@ -1,62 +1,62 @@
 {
   "1": {
-    "other": "Notifications"
+    "other": "通知"
   },
   "10": {
-    "other": "Folder Activity"
+    "other": "フォルダのアクティビティ"
   },
   "11": {
-    "other": "File Activity"
+    "other": "ファイルのアクティビティ"
   },
   "12": {
-    "other": "Depending on your browser, this will ask for a specific permission. To disable, go through your browser preferences and exceptions. If you have already enabled this feature, probably nothing will happen."
+    "other": "お使いのブラウザによっては、特定の権限を求められます。無効にするには、ブラウザの設定や例外を確認してください。 既にこの機能を有効にしている場合、おそらく何も起こらないでしょう。"
   },
   "13": {
-    "other": "Your browser does not seem to support Desktop Notifications yet."
+    "other": "お使いのブラウザはまだデスクトップ通知をサポートしていないようです。"
   },
   "14": {
-    "other": "No alerts"
+    "other": "アラートなし"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "監視しているファイルに関する通知がここに表示されます"
   },
   "16": {
-    "other": "Inside"
+    "other": "内部"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "アクティビティを読み込み中..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "最近のアクティビティはありません"
   },
   "19": {
-    "other": "More"
+    "other": "もっと見る"
   },
   "2": {
-    "other": "Notifications feed"
+    "other": "通知フィード"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "フィードを読み込んでいます..."
   },
   "3": {
-    "other": "Alerts"
+    "other": "アラート"
   },
   "4": {
-    "other": "Notifications"
+    "other": "通知"
   },
   "5": {
-    "other": "All Events"
+    "other": "すべてのイベント"
   },
   "6": {
-    "other": "Go to ..."
+    "other": "... へ移動"
   },
   "7": {
-    "other": "Dismiss"
+    "other": "却下する"
   },
   "8": {
-    "other": "No alerts"
+    "other": "アラートなし"
   },
   "9": {
-    "other": "Workspace Activity"
+    "other": "ワークスペースのアクティビティ"
   }
 }

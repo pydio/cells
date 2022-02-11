@@ -1,96 +1,96 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "フォローする"
   },
   "cont.btn.github": {
-    "other": "Github Star"
+    "other": "Github スター"
   },
   "cont.btn.tw": {
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "コードはGithubで公開されています。バグを修正したい、フォーラムで他の人を助けたい、またはイカした機能を追加したいですか？であれば是非参加してください!\n                            または、ソーシャルネットワークであなたの愛を誇示しましょう!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cellsはフリーのオープンソースソフトウェアです。貢献しましょう!"
   },
   "cont.title": {
     "other": "Pay it forward!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "私は新しい機能を実装しました: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "バグを見つけたかもしれません! フォーラムに投稿してください。"
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "私のバグは的確です: github issueを開く"
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "どのようにして翻訳言語の作成をしますか?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "管理画面の詳細ダッシュボード"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "プラットフォームの使用状況をリアルタイムで監視するためのユニークな管理ダッシュボードです。"
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "営業担当に連絡"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "もっと詳しく"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "エンタープライズ版の機能"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "エンタープライズ版の機能 : AD/LDAPコネクタ、コンプライアンスのための監査ログ、EasyTransfer..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "その他の機能 - GDPRコンプライアンス - 拡張されたブランディング"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "サポートとメンテナンス"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "コアチームから直接インストールのヘルプを受けます。"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "Pydio Cells Enterpriseを発見する"
   },
   "ent.upgrade": {
-    "other": "Upgrade now!"
+    "other": "今すぐアップグレード！"
   },
   "ent.upgrade.legend": {
-    "other": "In-app upgrade Cells Enterprise (license required)"
+    "other": "アプリ内アップグレード Cells Enterprise（ライセンスが必要）"
   },
   "welc.btn.advanced": {
-    "other": "Advanced"
+    "other": "高度な設定"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "パラメーターについて"
   },
   "welc.btn.start": {
     "other": "はじめに"
   },
   "welc.btn.users": {
-    "other": "Users"
+    "other": "ユーザー"
   },
   "welc.btn.ws": {
-    "other": "Workspaces"
+    "other": "ワークスペース"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read!"
+    "other": "どこから始めればよいかわからない場合は、管理者ガイドをお読みください。"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "これは、Pydioを管理するためのダッシュボードです。 左側のメニューを使用して、<a class=\"doc-link\" data-path=\"/data/workspaces\">ワークスペース</a>と<a class=\"doc-link\" data-path=\"/idm/users\"> users </a>、プラットフォームで発生したすべての<a class=\"doc-link\" data-path=\"/admin/logs\">イベント</a>、<a class=\"doc -link\" data-path =\"/parameters/core\">構成</a>および<a class=\"doc-link\" data-path=\"/plugins/manager\">プラグイン</a>を確認します。"
   },
   "welc.import": {
-    "other": "If you are currently running a Pydio 8 installation, please be aware that <u>Pydio 8 will be considered End-Of-Life at the end of 2019</u>. You can use the <a class=\"doc-link\" data-path=\"/data/migration\">Import Tool</a> to migrate all data to Pydio Cells."
+    "other": "現在Pydio8のインストールを実行している場合は、<u> Pydio8は2019年末にサポート終了と見なされることに注意してください</u>。 <a class=\"doc-link\" data-path=\"/data/migration\">インポートツール</a>を使用して、すべてのデータをPydio Cells に移行できます。"
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "プラットフォームのアクティビティを管理および監視する場所"
   },
   "welc.title": {
     "other": "Pydio Cells v3 へようこそ"

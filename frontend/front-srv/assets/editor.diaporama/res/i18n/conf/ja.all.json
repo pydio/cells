@@ -3,42 +3,42 @@
     "other": "Exif Rotation"
   },
   "Generate thumbnails or not": {
-    "other": "Generate thumbnails or not"
+    "other": "サムネイルを生成するかどうか"
   },
   "Image viewer": {
-    "other": "Image viewer"
+    "other": "画像ビューアー"
   },
   "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
-    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+    "other": "画像ビューアは、画像をプレビューしたり、diaporamaで閲覧したりするために使用されます。"
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "低解像度サイズ"
   },
   "Quality": {
-    "other": "Quality"
+    "other": "品質"
   },
   "Remote Wrappers": {
-    "other": "Remote Wrappers"
+    "other": "リモートラッッパー"
   },
   "Rotate image using exif rotation": {
-    "other": "Rotate image using exif rotation"
+    "other": "exif 回転を使用して画像を回転"
   },
   "Size Threshold": {
-    "other": "Size Threshold"
+    "other": "サイズのしきい値"
   },
   "Threshold": {
-    "other": "Threshold"
+    "other": "しきい値"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "画像の低解像度バージョンのしきい値"
   },
   "Thumbnails": {
     "other": "サムネイル"
   },
   "Thumbs quality": {
-    "other": "Thumbs quality"
+    "other": "サムネイルの品質"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+    "other": "リモートサーバーに接続すると、メタデータの抽出は、最初に各ファイルをローカルにコピーする必要があるため、リスティングアクションを非常に長くすることができます。 このしきい値より大きい定義されたラッパーとファイルを使用するプラグインでは、画像の種類と寸法はスキップされます。"
   }
 }

@@ -1,503 +1,503 @@
 {
   "#Items per page": {
-    "other": "#Items per page"
+    "other": "#ページあたりのアイテム数"
   },
   "16X16 Icon for representing the template": {
-    "other": "16X16 Icon for representing the template"
+    "other": "16X16 テンプレートを表すアイコン"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "A user-defined description of the content of this workspace"
+    "other": "このワークスペースのコンテンツのユーザー定義説明"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
-    "other": "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app"
+    "other": "APIエンドポイント - ユーザーがアプリの利用規約を認証して同意できるウィンドウを起動するために使用されます。"
   },
   "API endpoint - Used to refresh or validate the token retrieved in the authentication part": {
-    "other": "API endpoint - Used to refresh or validate the token retrieved in the authentication part"
+    "other": "APIエンドポイント - 認証パートで取得したトークンを更新または検証するために使用"
   },
   "API setting - Redirect URL for the OAuth Application": {
-    "other": "API setting - Redirect URL for the OAuth Application"
+    "other": "API 設定 - OAuth アプリケーションの URL をリダイレクト"
   },
   "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead.": {
-    "other": "Absolute path to the public folder where temporary download links will be created. This is used for legacy purpose, newly created links do not use it anymore, but use the Base URI instead."
+    "other": "一時的なダウンロードリンクが作成されるパブリックフォルダへの絶対パス。 これは従来の目的で使用され、新しく作成されたリンクでは使用されなくなりますが、代わりにBase URIを使用してください。"
   },
   "Admin Login": {
-    "other": "Admin Login"
+    "other": "管理者ログイン"
   },
   "Admin email": {
-    "other": "Admin email"
+    "other": "管理者メールアドレス"
   },
   "Administrator email, not used for the moment": {
-    "other": "Administrator email, not used for the moment"
+    "other": "管理者のメールアドレスは現在使用されていません"
   },
   "Alias": {
-    "other": "Alias"
+    "other": "エイリアス"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias for replacing the generated unique id of the workspace"
+    "other": "ワークスペースの生成された一意の id を置換するエイリアス"
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Allow group administrators to create a repository from this template."
+    "other": "このテンプレートからリポジトリを作成することをグループ管理者に許可します。"
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Allow non-admin users to create a workspace from this template."
+    "other": "管理者以外のユーザーにこのテンプレートからワークスペースを作成することを許可します。"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "フォルダを共有する際に既存のユーザーを選択できるようにします"
   },
   "Allow to group admins": {
-    "other": "Allow to group admins"
+    "other": "管理者のグループ化を許可する"
   },
   "Allow to user": {
-    "other": "Allow to user"
+    "other": "ユーザーに許可する"
   },
   "App Title": {
-    "other": "Application Title"
+    "other": "アプリケーションのタイトル"
   },
   "Ascending": {
-    "other": "Ascending"
+    "other": "昇順"
   },
   "Auth Driver Commons": {
-    "other": "Auth Driver Commons"
+    "other": "認証ドライバーコモンズ"
   },
   "Auth URL": {
-    "other": "Auth URL"
+    "other": "認証URL"
   },
   "Auto Create User": {
-    "other": "Auto Create User"
+    "other": "ユーザーの自動作成"
   },
   "Auto apply role": {
-    "other": "Auto apply role"
+    "other": "ロールを自動適用"
   },
   "Big Icon": {
-    "other": "Big Icon"
+    "other": "大きなアイコン"
   },
   "Big Icon for representing the template": {
-    "other": "Big Icon for representing the template"
+    "other": "テンプレートを表す大きなアイコン"
   },
   "Browser Access": {
-    "other": "Browser Access"
+    "other": "ブラウザーアクセス"
   },
   "Character Encoding": {
-    "other": "Character Encoding"
+    "other": "文字エンコーディング"
   },
   "Client ID": {
-    "other": "Client ID"
+    "other": "クライアント ID"
   },
   "Client SECRET": {
-    "other": "Client SECRET"
+    "other": "クライアント シークレット"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Comma separated list of metastore and meta plugins, that will be automatically applied to all workspaces created with this driver"
+    "other": "このドライバで作成されたすべてのワークスペースに自動的に適用される、metaプラグインとmetaプラグインのカンマ区切りのリスト。"
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
-    "other": "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden."
+    "other": "非表示にする拡張子のカンマ区切りのリスト。非表示になっている拡張子、ファイル、フォルダにもアクセスできません。"
   },
   "Comma-separated list of specific files to hide": {
-    "other": "Comma-separated list of specific files to hide"
+    "other": "非表示にする特定のファイルのカンマ区切りリスト"
   },
   "Comma-separated list of specific folders to hide": {
-    "other": "Comma-separated list of specific folders to hide"
+    "other": "非表示にする特定のフォルダのカンマ区切りリスト"
   },
   "Command Line": {
-    "other": "Command Line"
+    "other": "コマンドライン"
   },
   "Command-line Active": {
-    "other": "Command-line Active"
+    "other": "コマンドライン有効化"
   },
   "Command-line PHP": {
-    "other": "Command-line PHP"
+    "other": "コマンドラインPHP"
   },
   "Common URI to access the shares. Please READ THE DOC to safely use this feature.": {
-    "other": "Common URI to access the shares. Please READ THE DOC to safely use this feature."
+    "other": "共有にアクセスするための一般的なURI。この機能を安全に使用するにはドキュメントを読んでください。"
   },
   "Compression Features": {
-    "other": "Compression Features"
+    "other": "圧縮機能"
   },
   "Core Connexion": {
-    "other": "Core Connexion"
+    "other": "コアコネクション"
   },
   "DSN": {
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Data Source Name"
+    "other": "データソース名"
   },
   "Database": {
-    "other": "Database"
+    "other": "データベース"
   },
   "Database file": {
-    "other": "Database file"
+    "other": "データベースファイル"
   },
   "Database name": {
-    "other": "Database name"
+    "other": "データベース名"
   },
   "Database server": {
-    "other": "Database server"
+    "other": "データベースサーバー"
   },
   "Default Label": {
-    "other": "Default Label"
+    "other": "デフォルトラベル"
   },
   "Default Language": {
-    "other": "Default Language"
+    "other": "デフォルト言語"
   },
   "Default Metasources": {
-    "other": "Default Metasources"
+    "other": "デフォルトのメタソース"
   },
   "Default Rights": {
-    "other": "Default Rights"
+    "other": "デフォルトの権限"
   },
   "Default field to sort on": {
-    "other": "Default field to sort on"
+    "other": "並び替えるデフォルトのフィールド"
   },
   "Default language when a user does not have set his/her own.": {
-    "other": "Default language when a user does not have set his/her own."
+    "other": "ユーザーが自身で設定していない場合のデフォルト言語です。"
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Default realm for authentication. Please READ THE DOC to safely use this feature."
+    "other": "認証のデフォルトレルム。この機能を安全に使用するにはドキュメントを読んでください。"
   },
   "Default sorting direction": {
-    "other": "Default sorting direction"
+    "other": "デフォルトの並べ替え方向"
   },
   "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration": {
-    "other": "Delegates download operations to an alternative agent, either webserver or pydio agent. Warning, this requires external modules to be installed. When using XSendFile/XaccelRedirect, you have to manually add the folders where files will be downloaded in the module configuration"
+    "other": "Webサーバーまたはpydioエージェントのいずれかのエージェントにダウンロード操作を委任します。警告：外部モジュールをインストールする必要があります。 XSendFile/XaccelRedirectを使用する場合は、モジュール設定でファイルをダウンロードするフォルダを手動で追加する必要があります。"
   },
   "Descending": {
-    "other": "Descending"
+    "other": "降順"
   },
   "Description": {
     "other": "備考"
   },
   "Digest Realm": {
-    "other": "Digest Realm"
+    "other": "ダイジェスト領域"
   },
   "Disable WebDAV": {
-    "other": "Disable WebDAV"
+    "other": "WebDAV を無効にする"
   },
   "Disable Zip browsing": {
-    "other": "Disable Zip browsing"
+    "other": "Zipブラウジングを無効にする"
   },
   "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.": {
-    "other": "Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance."
+    "other": "Zipファイルのインラインブラウジングを無効にします。これは、常に巨大なzipアーカイブを保存する場合に必要なことがあります。パフォーマンスに影響を与える可能性があります。"
   },
   "Display the list of files and folder when accessing through the browser": {
-    "other": "Display the list of files and folder when accessing through the browser"
+    "other": "ブラウザ経由でアクセスするときにファイルとフォルダの一覧を表示します"
   },
   "Download Delegation": {
-    "other": "Download Delegation"
+    "other": "委任をダウンロード"
   },
   "Download Folder (Legacy)": {
-    "other": "Download Folder (Legacy)"
+    "other": "ダウンロードフォルダ (レガシー)"
   },
   "Download URL": {
-    "other": "Download URL"
+    "other": "ダウンロードURL"
   },
   "Driver": {
-    "other": "Driver"
+    "other": "ドライバー"
   },
   "Driver type (do not touch)": {
-    "other": "Driver type (do not touch)"
+    "other": "ドライバーの種類（タッチしない）"
   },
   "Enable WebDAV": {
-    "other": "Enable WebDAV"
+    "other": "WebDAV を有効にする"
   },
   "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel.": {
-    "other": "Enable WebDAV for all users by default. If set to false, users will have to manually enable WebDAV via their preferences panel."
+    "other": "デフォルトですべてのユーザに対してWebDAVを有効にします。falseに設定すると、ユーザは設定パネルから手動でWebDAVを有効にする必要があります。"
   },
   "Enable for all users": {
-    "other": "Enable for all users"
+    "other": "すべてのユーザーで有効にする"
   },
   "Enable the webDAV support. Please READ THE DOC to safely use this feature.": {
-    "other": "Enable the webDAV support. Please READ THE DOC to safely use this feature."
+    "other": "WebDAV サポートを有効にします。この機能を安全に使用するには DOCを読んでください。"
   },
   "Existing users": {
-    "other": "Existing users"
+    "other": "既存のユーザー"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "Explicitly disable WebDAV access for this repository."
+    "other": "このリポジトリの WebDAV アクセスを明示的に無効にします。"
   },
   "File": {
-    "other": "File"
+    "other": "ファイル"
   },
   "File Type": {
-    "other": "File Type"
+    "other": "ファイルの種類"
   },
   "File size": {
-    "other": "File size"
+    "other": "ファイルのサイズ"
   },
   "Filename length": {
-    "other": "Filename length"
+    "other": "ファイル名の長さ"
   },
   "Filesystem Commons": {
-    "other": "Filesystem Commons"
+    "other": "ファイルシステムコモンズ"
   },
   "For exotic auth drivers, an user ID that must be considered as admin by default.": {
-    "other": "For exotic auth drivers, an user ID that must be considered as admin by default."
+    "other": "外部認証ドライバの場合は、デフォルトで管理者と見做されるユーザーID。"
   },
   "For multiple authentication, apply this role to users authenticated via this driver": {
-    "other": "For multiple authentication, apply this role to users authenticated via this driver"
+    "other": "複数の認証を行うには、このドライバで認証されたユーザーにこの役割を適用してください。"
   },
   "Force Basic Auth": {
-    "other": "Force Basic Auth"
+    "other": "Basic 認証を強制する"
   },
   "Force remote sorting when in paginated mode. Warning, this can impact the performances.": {
-    "other": "Force remote sorting when in paginated mode. Warning, this can impact the performances."
+    "other": "ページング時にリモートでソートを強制します。警告：これはパフォーマンスに影響する可能性があります。"
   },
   "Group Path": {
-    "other": "Group Path"
+    "other": "グループパス"
   },
   "Gzip Download": {
-    "other": "Gzip Download"
+    "other": "Gzip ダウンロード"
   },
   "Gzip Limit": {
-    "other": "Gzip Limit"
+    "other": "Gzip 制限"
   },
   "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.": {
-    "other": "Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download."
+    "other": "Gzipファイルはダウンロード前にオンザフライでダウンロードできます。デフォルトでは無効になっています。通常は小さなファイルでのみ有効で、大きなファイルでのパフォーマンスが低下します。 これは、Zip作成機能は使用しません、それはダウンロード時にユニークなファイルに適用されるオンザフライ圧縮です。"
   },
   "Hide extensions": {
-    "other": "Hide extensions"
+    "other": "拡張機能を非表示"
   },
   "Hide files": {
-    "other": "Hide files"
+    "other": "ファイルを隠す"
   },
   "Hide folders": {
-    "other": "Hide folders"
+    "other": "フォルダを隠す"
   },
   "Hide recycle bin": {
-    "other": "Hide recycle bin"
+    "other": "ごみ箱を隠す"
   },
   "Host": {
-    "other": "Host"
+    "other": "ホスト"
   },
   "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature.": {
-    "other": "Host used in webDAV protocol. Should be detected by default. Please READ THE DOC to safely use this feature."
+    "other": "WebDAVプロトコルで使用されているホスト。デフォルトで検出されるべきです。この機能を安全に使用するにはDOCを読んでください。"
   },
   "If activated, a default limit should be set above when files are no more compressed.": {
-    "other": "If activated, a default limit should be set above when files are no more compressed."
+    "other": "有効化したにもかかわらずファイルが圧縮されない場合は、上記のデフォルトの制限を設定する必要があります。"
   },
   "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here.": {
-    "other": "If not inferred directly from the current pydio URL plus the public base URI, replace the public access URL here."
+    "other": "現在の pydio URL とパブリック ベース URI から直接推論されていない場合は、ここで公開アクセス URL を置き換えてください。"
   },
   "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.": {
-    "other": "If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL."
+    "other": "指定された URL に設定されている場合、ログインアクションはログイン画面の表示をトリガーせず、この URL にリダイレクトします。"
   },
   "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.": {
-    "other": "If you encounter problems with online zip creation or multiple files downloading, you can disable the feature."
+    "other": "オンラインのzip作成や複数のファイルのダウンロードに問題が発生した場合は、この機能を無効にすることができます。"
   },
   "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings.": {
-    "other": "If you have tons of workspaces (which is not recommanded), admin users login can take a long time while updating admin access to all repositories. Use this option to disable this step, admin will always have access to the Settings."
+    "other": "(推奨されていない) ワークスペースが大量にある場合、管理者ユーザーのログインには時間がかかることがあります。すべてのリポジトリへの管理者アクセス権を更新します。 このステップを無効にするには、このオプションを使用します。管理者は常に設定にアクセスできます。"
   },
   "If your server does not set correctly its charset, it can be good to specify it here manually.": {
-    "other": "If your server does not set correctly its charset, it can be good to specify it here manually."
+    "other": "サーバが charset を正しく設定していない場合は、ここで手動で指定することをお勧めします。"
   },
   "Leave empty if you do not want to use a recycle bin.": {
-    "other": "Leave empty if you do not want to use a recycle bin."
+    "other": "ごみ箱を使用したくない場合は空白のままにしてください。"
   },
   "Login Redirect": {
-    "other": "Login Redirect"
+    "other": "ログインリダイレクト"
   },
   "Main": {
-    "other": "Main Options"
+    "other": "メインオプション"
   },
   "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)": {
-    "other": "Main container for core Pydio settings (application title, sharing, webdav server config, etc...)"
+    "other": "Pydioのコア設定のためのメインコンテナ (アプリケーションタイトル、共有、Webdav サーバー設定など...)"
   },
   "Maximum characters length of new files or folders": {
-    "other": "Maximum characters length of new files or folders"
+    "other": "新規ファイルまたはフォルダの最大文字数"
   },
   "Metadata and indexation": {
-    "other": "Metadata and indexation"
+    "other": "メタデータとインデックス"
   },
   "Miscellaneous": {
-    "other": "Miscellaneous"
+    "other": "その他"
   },
   "Modification date": {
-    "other": "Modification date"
+    "other": "変更日"
   },
   "Name": {
     "other": "名前"
   },
   "OAuth Commons": {
-    "other": "OAuth Commons"
+    "other": "OAuth コモンズ"
   },
   "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line.": {
-    "other": "On Windows running IIS, set this option to true if the COM extension is loaded, this may enable the use of the php command line."
+    "other": "IISを実行しているWindowsでは、COM拡張がロードされている場合にこのオプションをtrueに設定すると、phpコマンドラインの使用が有効になる可能性があります。"
   },
   "On specific hosts, you may have to use a specific path to access the php command line": {
-    "other": "On specific hosts, you may have to use a specific path to access the php command line"
+    "other": "特定のホストでは、Phpコマンドラインにアクセスするために特定のパスを使用する必要があります。"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "Once in pagination mode, number of items to display per page."
+    "other": "ページネーションモードにすると、ページごとに表示されます。"
   },
   "Pagination Threshold": {
-    "other": "Pagination Threshold"
+    "other": "改ページのしきい値"
   },
   "Password": {
-    "other": "Password"
+    "other": "パスワード"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Prefilled label for the new workspace, you can use the PYDIO_USER keyworkd in it."
+    "other": "新しいワークスペースの事前設定ラベルは、PYDIO_USER キーワードを使用できます。"
   },
   "Public Base URI": {
-    "other": "Public Base URI"
+    "other": "公開ベース URI"
   },
   "Pydio Main Options": {
-    "other": "Pydio Main Options"
+    "other": "Pydioメインオプション"
   },
   "Read Only": {
-    "other": "Read Only"
+    "other": "読み込み専用"
   },
   "Read and Write": {
-    "other": "Read and Write"
+    "other": "読み込みと書き込み"
   },
   "Recycle Bin Folder": {
-    "other": "Recycle Bin Folder"
+    "other": "ごみ箱フォルダ"
   },
   "Redirect URL": {
-    "other": "Redirect URL"
+    "other": "リダイレクトURL"
   },
   "Remote Sorting": {
-    "other": "Remote Sorting"
+    "other": "リモートソート"
   },
   "Remote Sorting Default Direction": {
-    "other": "Remote Sorting Default Direction"
+    "other": "リモートソートのデフォルト方向"
   },
   "Remote Sorting Default Field": {
-    "other": "Remote Sorting Default Field"
+    "other": "リモートソートのデフォルトフィールド"
   },
   "Repository Commons": {
-    "other": "Repository Commons"
+    "other": "リポジトリコモンズ"
   },
   "Repository Slug": {
-    "other": "Repository Slug"
+    "other": "リポジトリスラグ"
   },
   "Scope": {
-    "other": "Scope"
+    "other": "スコープ"
   },
   "Server URL": {
-    "other": "Server URL"
+    "other": "サーバー URL"
   },
   "Server URL used to build share links and notifications. It will be detected if empty.": {
-    "other": "Server URL used to build share links and notifications. It will be detected if empty."
+    "other": "共有リンクと通知を構築するために使用されるサーバー URL です。空の場合は検出されます。"
   },
   "Session credentials": {
-    "other": "Session credentials"
+    "other": "セッションの資格情報"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Set this repository group owner : only users of this group will see it"
+    "other": "このリポジトリグループの所有者を設定してください : このグループのユーザーのみが表示されます"
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
-    "other": "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac). If you still have issue, you can add //TRANSLIT after the encoding string to force transliteration of unknown characters in your target encoding (example CP437//TRANSLIT)."
+    "other": "Zip作成時に文字の問題を修正するために、特定のエンコーディング(IBM850またはCP437を試してみてください) を設定します。これによりOS互換性のないアーカイブ(Win/Mac) が作成される可能性があります。 それでも問題がある場合は、エンコーディング文字列の後に//TRANSLITを追加して、ターゲットエンコーディングに不明な文字を強制的に変換することができます(例: CP437//TRANSLIT)。"
   },
   "Shares Host": {
-    "other": "Shares Host"
+    "other": "共有ホスト"
   },
   "Shares URI": {
-    "other": "Shares URI"
+    "other": "共有 URI"
   },
   "Sharing": {
-    "other": "Sharing"
+    "other": "共有"
   },
   "Show files beginning with a .": {
-    "other": "Show files beginning with a ."
+    "other": "ファイルの先頭を a で表示します。"
   },
   "Show hidden files": {
-    "other": "Show hidden files"
+    "other": "隠しファイルを表示"
   },
   "Skip auto-update admin rights": {
-    "other": "Skip auto-update admin rights"
+    "other": "管理者権限の自動更新をスキップ"
   },
   "Small Icon": {
-    "other": "Small Icon"
+    "other": "小さいアイコン"
   },
   "Template Options": {
-    "other": "Template Options"
+    "other": "テンプレートオプション"
   },
   "Temporary Folder": {
-    "other": "Temporary Folder"
+    "other": "一時フォルダ"
   },
   "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case.": {
-    "other": "This authentication mechanism is less secure, but will avoid the users having to re-enter a password in some case."
+    "other": "この認証メカニズムはあまり安全ではありませんが、場合によってはパスワードを再入力する必要がありません。"
   },
   "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder": {
-    "other": "This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder"
+    "other": "これは、tmp dir アクセスまたは書き込み可能性に関するエラーがある場合にのみ必要となります。 PHPのSAFE MODE(php6で消えるべき) や様々なOPEN_BASEDIRの制限によるものです。 その場合は ホストのルートのどこかにtmpフォルダを作成し、書き込み可能に設定します(可能であれば、Web/またはwww/またはhttp/の上)。 を入力し、このフォルダへのフルパスを入力します。"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "This right pattern (empty, r, or rw) will be applied at user creation for this workspace."
+    "other": "このワークスペースのユーザー作成時にこの右側のパターン (空、r、rw) が適用されます。"
   },
   "Token URL": {
-    "other": "Token URL"
+    "other": "トークンURL"
   },
   "Transmit Clear Pass": {
-    "other": "Transmit Clear Pass"
+    "other": "クリアパスを送信"
   },
   "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!": {
-    "other": "Try to use the current Pydio user credentials for connecting. Warning, the PYDIO_SESSION_SET_CREDENTIALS config must be set to true!"
+    "other": "現在のPydioユーザー認証情報を使用して接続してください。警告：PYDIO_SESSION_SET_CREDENTIALS設定をtrueに設定する必要があります！"
   },
   "URI where to serve the public links": {
-    "other": "URI where to serve the public links"
+    "other": "公開リンクを提供する URI"
   },
   "Use COM class": {
-    "other": "Use COM class"
+    "other": "COM クラスを使用"
   },
   "Use MySQLi": {
-    "other": "Use MySQLi"
+    "other": "MySQLiを使用"
   },
   "Use PHP MySQLi extension": {
-    "other": "Use PHP MySQLi extension"
+    "other": "PHPのMySQLiエクステンションを使用"
   },
   "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions.": {
-    "other": "Use Pydio framework via the command line, allowing CRONTAB jobs or background actions."
+    "other": "Pydioフレームワークをコマンドライン経由で使用し、CRONTABジョブやバックグラウンドアクションを許可します。"
   },
   "User": {
-    "other": "User"
+    "other": "ユーザー"
   },
   "User Credentials": {
-    "other": "User Credentials"
+    "other": "ユーザー資格情報"
   },
   "User name": {
-    "other": "User name"
+    "other": "ユーザー名"
   },
   "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)": {
-    "other": "User name - Can be overriden on a per-user basis (see users 'Personal Data' tab)"
+    "other": "ユーザー名 - ユーザーごとに上書きすることができます (「個人データ」タブを参照してください)"
   },
   "User password": {
-    "other": "User password"
+    "other": "ユーザーパスワード"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "User password - Can be overriden on a per-user basis."
+    "other": "ユーザーパスワード - ユーザーごとに上書きできます。"
   },
   "WebDAV Server": {
-    "other": "WebDAV Server"
+    "other": "WebDAV サーバー"
   },
   "When a folder will contain more items than this number, display will switch to pagination mode, for better performances.": {
-    "other": "When a folder will contain more items than this number, display will switch to pagination mode, for better performances."
+    "other": "フォルダにこの番号より多くの項目が含まれている場合、表示はページネーションモードに切り替えられ、パフォーマンスが向上します。"
   },
   "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems.": {
-    "other": "When set to true, the user object is created automatically if the authentication succeed. Used by remote authentication systems."
+    "other": "True に設定した時に認証が成功すると、ユーザーオブジェクトが自動的に作成されます。リモート認証システムで使用されます。"
   },
   "Whether the password will be transmitted clear or encoded between the client and the server": {
-    "other": "Whether the password will be transmitted clear or encoded between the client and the server"
+    "other": "パスワードがクライアントとサーバー間でクリアまたはエンコードされるかどうか"
   },
   "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.": {
-    "other": "Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable."
+    "other": "ごみ箱フォルダを表示するかどうか。次のオプションとは異なり、フォルダは非表示になりますが、書き込み可能です。"
   },
   "Write Only (upload)": {
-    "other": "Write Only (upload)"
+    "other": "書き込みのみ (アップロード)"
   },
   "Your application title": {
-    "other": "This title will appear as the window title, in the splash screen."
+    "other": "このタイトルは、スプラッシュ画面にウィンドウのタイトルとして表示されます。"
   },
   "Zip Creation": {
-    "other": "Zip Creation"
+    "other": "Zip作成"
   },
   "Zip Encoding": {
-    "other": "Zip Encoding"
+    "other": "Zipエンコーディング"
   },
   "Merge Workspaces and Cells": {
-    "other": "Merge Workspaces and Cells"
+    "other": "ワークスペースとセルを結合"
   },
   "Do not display workspaces and cells separately": {
-    "other": "Do not display workspaces and cells separately"
+    "other": "ワークスペースとセルを個別に表示しない"
   }
 }

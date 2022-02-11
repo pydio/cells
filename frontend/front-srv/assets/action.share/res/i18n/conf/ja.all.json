@@ -1,176 +1,176 @@
 {
   "Allow users to generate public links on files": {
-    "other": "Allow users to generate public links on files"
+    "other": "ファイルの公開リンクの作成をユーザーに許可する"
   },
   "Allow users to generate public links on folders": {
-    "other": "Allow users to generate public links on folders"
+    "other": "フォルダーの公開リンクの作成をユーザーに許可する"
   },
   "Allow users to manually choose a hash for the generated links": {
-    "other": "Allow users to manually choose a hash for the generated links"
+    "other": "生成されたリンクのハッシュをユーザーが選択できるようにする"
   },
   "Authorizations": {
-    "other": "Authorizations"
+    "other": "認証"
   },
   "Avoid labels duplication": {
-    "other": "Avoid labels duplication"
+    "other": "ラベルの重複を避ける"
   },
   "Background Color": {
-    "other": "Background Color"
+    "other": "背景の色"
   },
   "Create QRCode": {
-    "other": "Create QRCode"
+    "other": "QRコードを作成"
   },
   "Create and display QRCode for shared link": {
-    "other": "Create and display QRCode for shared link"
+    "other": "共有リンクのQRコードを作成して表示"
   },
   "Disable Folder Sharing": {
-    "other": "Disable Folder Sharing"
+    "other": "フォルダの共有を無効にする"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+    "other": "ワークスペースがすでに同じラベルを持つ場合、ユーザーは共有フォルダを作成することができません"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "公開リンクの作成を許可しない。プライベートリンクのみ(パスワードで保護)"
   },
   "Download Button": {
-    "other": "Download Button"
+    "other": "ダウンロードボタン"
   },
   "Download text": {
-    "other": "Download text"
+    "other": "ダウンロードテキスト"
   },
   "Download text w/ Pass": {
-    "other": "Download text w/ Pass"
+    "other": "テキストをダウンロード(パス)"
   },
   "Enable folder sharing": {
-    "other": "Enable folder sharing"
+    "other": "フォルダの共有を有効にする"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Enable folder sharing (workspace and minisite)"
+    "other": "フォルダの共有を有効にする (ワークスペースとミニサイト)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+    "other": "内部のファイル共有を有効にする (既存または一時的なユーザーで共有)"
   },
   "Enable internal folder sharing (sharing with users existing or temporary users)": {
-    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+    "other": "内部のフォルダ共有を有効にする (既存または一時的なユーザーと共有)"
   },
   "Enable public link generation for files": {
-    "other": "Enable public link generation for files"
+    "other": "ファイルの公開リンク生成を有効にする"
   },
   "Enable public links for files": {
-    "other": "Enable public links for files"
+    "other": "ファイルの公開リンクを有効にする"
   },
   "Files: enable internal sharing": {
-    "other": "Files: enable internal sharing"
+    "other": "ファイル: 内部共有を有効にする"
   },
   "Files: enable public links": {
-    "other": "Files: enable public links"
+    "other": "ファイル: 公開リンクを有効にする"
   },
   "Folder Sharing": {
-    "other": "Folder Sharing"
+    "other": "フォルダの共有"
   },
   "Folders: enable internal sharing": {
-    "other": "Folders: enable internal sharing"
+    "other": "フォルダ: 内部共有を有効にする"
   },
   "Folders: enable public links": {
-    "other": "Folders: enable public links"
+    "other": "フォルダ: 公開リンクを有効にする"
   },
   "Force External Mailer": {
-    "other": "Force External Mailer"
+    "other": "外部メーラーを強制"
   },
   "Fork Events Forwarding": {
-    "other": "Fork Events Forwarding"
+    "other": "フォークイベント転送"
   },
   "Hash minimum length": {
-    "other": "Hash minimum length"
+    "other": "ハッシュの最小長さ"
   },
   "Hash user-editable": {
-    "other": "Hash user-editable"
+    "other": "ユーザー編集が可能なハッシュ"
   },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
-    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+    "other": "深いツリーの下でファイルを変更しているときにパフォーマンスの問題を検出した場合は、それをアクティブにしてみてください。 何をするかを確認してください。これにより、サーバー上で多くのphpプロセスがトリガーされる可能性があります。"
   },
   "Image used as a button for downloading the file": {
-    "other": "Image used as a button for downloading the file"
+    "other": "ファイルのダウンロードボタンとして使用される画像"
   },
   "Internal Sharing": {
-    "other": "Internal Sharing"
+    "other": "内部共有"
   },
   "Link Generation": {
-    "other": "Link Generation"
+    "other": "リンクの生成"
   },
   "Mandatory prefix for users created temporary users login": {
-    "other": "Mandatory prefix for users created temporary users login"
+    "other": "一時ユーザーのログインには必須のプレフィックスが作成されました"
   },
   "Maximum download limit for file, 0 = unlimited": {
-    "other": "Maximum download limit for file, 0 = unlimited"
+    "other": "ファイルの最大ダウンロード数。0 = 無制限"
   },
   "Maximum file download limit": {
-    "other": "Maximum file download limit"
+    "other": "最大ファイルのダウンロード制限"
   },
   "Maximum file expiration limit": {
-    "other": "Maximum file expiration limit"
+    "other": "最大ファイルの有効期限の制限"
   },
   "Maximum share expiration limit for file in days, 0 = unlimited": {
-    "other": "Maximum share expiration limit for file in days, 0 = unlimited"
+    "other": "ファイルの最大共有期限日数制限、0 = 無制限です。"
   },
   "Minimum length of the generated hash": {
-    "other": "Minimum length of the generated hash"
+    "other": "生成されたハッシュの最小の長さ"
   },
   "Minisite": {
-    "other": "Minisite"
+    "other": "ミニサイト"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites and Workspaces"
+    "other": "ミニサイトとワークスペース"
   },
   "Minisites only": {
-    "other": "Minisites only"
+    "other": "ミニサイトのみ"
   },
   "Page Title": {
-    "other": "Page Title"
+    "other": "ページタイトル"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "パスワードを設定してください"
   },
   "Share Center actions and hooks": {
-    "other": "Share Center actions and hooks"
+    "other": "センターのアクションとフックを共有"
   },
   "Share page background color.": {
-    "other": "Share page background color."
+    "other": "ページ背景色を共有します。"
   },
   "Share page text color.": {
-    "other": "Share page text color."
+    "other": "ページテキストの色を共有します。"
   },
   "Share page text shadow color.": {
-    "other": "Share page text shadow color."
+    "other": "ページテキストの影の色を共有します。"
   },
   "Shared users configurations": {
-    "other": "Shared users configurations"
+    "other": "共有ユーザー設定"
   },
   "Sharing Features": {
-    "other": "Sharing Features"
+    "other": "機能を共有"
   },
   "Text Color": {
-    "other": "Text Color"
+    "other": "テキストの色"
   },
   "Text Shadow": {
-    "other": "Text Shadow"
+    "other": "テキストの影"
   },
   "Tmp users prefix": {
-    "other": "Tmp users prefix"
+    "other": "Tmpユーザープレフィクス"
   },
   "Use Rewrite Rule": {
-    "other": "Use Rewrite Rule"
+    "other": "書き換えルールを使用"
   },
   "Use external mailer for invitations": {
-    "other": "Use external mailer for invitations"
+    "other": "招待に外部メーラーを使用する"
   },
   "Use web server RewriteEngine mechanism to generate prettier URLs": {
-    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+    "other": "より綺麗なURLを生成するためにWebサーバーのRewriteEngineメカニズムを使用してください"
   },
   "Weblink Page": {
-    "other": "Weblink Page"
+    "other": "ウェブリンクページ"
   },
   "Workspaces only": {
-    "other": "Workspaces only"
+    "other": "ワークスペースのみ"
   }
 }

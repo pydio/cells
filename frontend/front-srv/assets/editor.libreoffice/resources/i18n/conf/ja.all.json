@@ -3,7 +3,7 @@
     "other": "Collabora Online"
   },
   "Collabora Online Editor for office documents": {
-    "other": "Collabora Online Editor for office documents"
+    "other": "Collabora オンラインエディター"
   },
   "Libre Office SSL": {
     "other": "Libre Office SSL"
@@ -18,9 +18,9 @@
     "other": "Libre Office Host"
   },
   "Host for Libre Office": {
-    "other": "Host for Libre Office"
+    "other": "Libre Officeのホスト"
   },
   "Port for Libre Office": {
-    "other": "Port for Libre Office"
+    "other": "Libre Officeのポート"
   }
 }

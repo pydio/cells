@@ -1,68 +1,68 @@
 {
   "1": {
-    "other": "Remote DL"
+    "other": "リモートDL"
   },
   "10": {
-    "other": "Download to APPLICATION_TITLE"
+    "other": "APPLICATION_TITLE にダウンロード"
   },
   "10a": {
-    "other": "Download to %s"
+    "other": "%s にダウンロード"
   },
   "10b": {
-    "other": "DL to %s"
+    "other": "%s に DL"
   },
   "10c": {
-    "other": "DL to %s"
+    "other": "%s に DL"
   },
   "10d": {
-    "other": "AjXp Download (%s)"
+    "other": "AjXp ダウンロード (%s)"
   },
   "11": {
-    "other": "Drag one of the following link to your bookmark bar : "
+    "other": "ブックマークバーに次のいずれかのリンクをドラッグしてください: "
   },
   "12": {
-    "other": "Trigger remote file download"
+    "other": "リモートファイルのダウンロードをトリガーする"
   },
   "13": {
-    "other": "From computer"
+    "other": "コンピューターから"
   },
   "14": {
-    "other": "From remote server"
+    "other": "リモートサーバーから"
   },
   "15": {
-    "other": "Or create a bookmark manually and use the code below as the link url : "
+    "other": "または、手動でブックマークを作成し、以下のコードをリンクURLとして使用してください: "
   },
   "16": {
-    "other": "Drag me to your bookmark bar!"
+    "other": "ブックマークバーにドラッグしてください！"
   },
   "17": {
-    "other": "Download file"
+    "other": "ダウンロードファイル"
   },
   "18": {
-    "other": "Partial file"
+    "other": "一部のファイル"
   },
   "2": {
-    "other": "Download file(s) from remote server"
+    "other": "リモートサーバーからファイルをダウンロード"
   },
   "3": {
     "other": "m"
   },
   "4": {
-    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+    "other": "外部 HTTP サーバーから現在のフォルダーに直接ダウンロードするファイルを指す少なくとも 1 つの URL を入力します。 この操作はバックグラウンドに送信され、ダウンロード中に APPLICATION_TITLE を使用することができます。"
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Downloading"
+    "other": "ダウンロード中"
   },
   "7": {
-    "other": "to server"
+    "other": "サーバーへ"
   },
   "8": {
-    "other": "File downloaded, reloading the client!"
+    "other": "ファイルをダウンロードしました、クライアントを再読み込みします！"
   },
   "9": {
-    "other": "Generate Bookmarklet"
+    "other": "ブックマークレットを生成"
   }
 }

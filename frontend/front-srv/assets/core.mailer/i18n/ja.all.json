@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Email successfully sent to %s user(s)"
+    "other": "メールが %s ユーザーに送信されました"
   },
   "2": {
-    "other": "No address found to send the email!"
+    "other": "メールを送信するアドレスが見つかりませんでした！"
   },
   "3": {
-    "other": "No mailer configured to send emails, contact your administrator"
+    "other": "メール送信先が設定されていません。管理者に問い合わせてください。"
   },
   "4": {
-    "other": "From"
+    "other": "差出人"
   },
   "5": {
-    "other": "To"
+    "other": "宛先"
   },
   "6": {
-    "other": "Subject"
+    "other": "件名"
   },
   "7": {
-    "other": "Message"
+    "other": "メッセージ"
   },
   "8": {
-    "other": "Pick a user or type an address"
+    "other": "ユーザーを選択するか、アドレスを入力してください"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "通知ダイジェスト（ダイジェスト）"
   },
   "sender.error": {
-    "other": "Could not send email correctly!"
+    "other": "メールを正しく送信できませんでした！"
   },
   "entries.ignored": {
-    "other": "Warning, some entries were ignored, only users who have properly set their email address will receive invitations. Teams and groups are not processed neither."
+    "other": "警告、一部のエントリは無視されました。メールアドレスを適切に設定したユーザーのみが招待状を受信します。チームとグループはどちらも処理されません。"
   }
 }

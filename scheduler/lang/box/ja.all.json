@@ -1,71 +1,71 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "画像のサムネイルと Exif データを解凍します。"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "削除されたファイルのサムネイルキャッシュをクリア"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "外部ディレクトリを同期"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "スケジューラでジョブとタスクをクリーンアップする"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "長い実行中のジョブを偽装します（テスト目的のため）"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "ランダムユーザーの作成（テスト目的用）"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "RPCジョブのサンプル (テスト目的用)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "変更したサービスを自動アーカイブ"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "選択を圧縮"
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "アーカイブの抽出中..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "選択内容をバックグラウンドで削除しています..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "バックグラウンドでフォルダをコピーしています..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "フォルダをバックグラウンドで移動しています..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "ファイルをバックグラウンドでコピーしています..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "ファイルをバックグラウンドで移動しています..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "バックグラウンドでフォルダをコピーしています..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "バックグラウンドでフォルダを移動しています..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "バックグラウンドでゴミ箱に移動しています..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Re-indexing datasource {{.DsName}}..."
+    "other": "データソース {{.DsName}} のインデックスを再構築中..."
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "バックグラウンドでファイルをダウンロードしています..."
   },
   "Jobs.User.DeletingItem": {
-    "other": "Deleting %s"
+    "other": "%s を削除"
   },
   "Jobs.User.CopyingItem": {
-    "other": "Copying %s"
+    "other": "「%s」をコピー"
   },
   "Jobs.User.MovingItem": {
-    "other": "Moving %s"
+    "other": "%s を移動"
   }
 }

@@ -1,26 +1,26 @@
 {
   "Application Tab": {
-    "other": "Application Tab"
+    "other": "アプリケーションタブ"
   },
   "Browser Tab": {
-    "other": "Browser Tab"
+    "other": "ブラウザタブ"
   },
   "Choose where the documents are opened": {
-    "other": "Choose where the documents are opened"
+    "other": "ドキュメントを開く場所を選択してください"
   },
   "Choose where the http links are opened": {
-    "other": "Choose where the http links are opened"
+    "other": "Httpリンクを開く場所を選択"
   },
   "External Window": {
-    "other": "External Window"
+    "other": "外部ウィンドウ"
   },
   "Open documents in...": {
-    "other": "Open documents in..."
+    "other": "ドキュメントを開く..."
   },
   "Open file in a new browser window, thus using native browser capabilities.": {
-    "other": "Open file in a new browser window, thus using native browser capabilities."
+    "other": "新しいブラウザウィンドウでファイルを開き、ネイティブブラウザ機能を使用します。"
   },
   "Open link in...": {
-    "other": "Open link in..."
+    "other": "リンクを開く..."
   }
 }

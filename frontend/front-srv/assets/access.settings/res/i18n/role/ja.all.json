@@ -1,194 +1,194 @@
 {
   "1": {
-    "other": "Role Editor"
+    "other": "ロールエディター"
   },
   "10": {
-    "other": "Use the selectors below to select the actions you want to disabled for the users of this role. You can choose to disable the action for all repositories, or for a given workspace only."
+    "other": "このロールのユーザーに対して無効にしたいアクションを選択するには、以下のセレクターを使用します。 すべてのリポジトリのアクションを無効にするか、特定のワークスペースのみを選択できます。"
   },
   "11": {
-    "other": "Plugin Identifier"
+    "other": "プラグイン識別子"
   },
   "12": {
-    "other": "Select a plugin..."
+    "other": "プラグインを選択..."
   },
   "12a": {
-    "other": "Select an action..."
+    "other": "アクションを選択..."
   },
   "12b": {
-    "other": "Select a parameter..."
+    "other": "パラメータを選択..."
   },
   "12c": {
-    "other": "Pick one or all workspaces..."
+    "other": "1つまたはすべてのワークスペースを選択..."
   },
   "12d": {
-    "other": "All Workspaces"
+    "other": "すべてのワークスペース"
   },
   "12e": {
-    "other": "Shared Workspaces"
+    "other": "共有ワークスペース"
   },
   "13": {
-    "other": "Action name"
+    "other": "アクション名"
   },
   "14": {
-    "other": "Repository Scope"
+    "other": "リポジトリスコープ"
   },
   "15": {
-    "other": "Add Action"
+    "other": "アクションを追加"
   },
   "16": {
-    "other": "Use the selectors below to select the parameters you want to refine for the users of this role. Can be applied to all or one given workspace only, although this may depend on the plugin context."
+    "other": "以下のセレクターを使用して、このロールのユーザーを絞り込むパラメーターを選択します。 プラグインのコンテキストに依存する場合がありますが、指定されたワークスペースのみに適用できます。"
   },
   "17": {
-    "other": "Parameter name"
+    "other": "パラメーター名"
   },
   "18": {
-    "other": "Add parameter"
+    "other": "パラメータを追加"
   },
   "19": {
-    "other": "There are unsaved changes, are you sure you want to close?"
+    "other": "保存されていない変更があります。本当に閉じますか？"
   },
   "2": {
-    "other": "Role editor"
+    "other": "ロールエディタ"
   },
   "20": {
-    "other": "Role updated successfully"
+    "other": "ロールの更新に成功しました"
   },
   "21": {
-    "other": "User ID"
+    "other": "ユーザー ID"
   },
   "22": {
-    "other": "Special Profile"
+    "other": "特別なプロフィール"
   },
   "23": {
-    "other": "Default Workspace"
+    "other": "デフォルトのワークスペース"
   },
   "24": {
-    "other": "User Roles"
+    "other": "ユーザーの役割"
   },
   "25": {
-    "other": "Change Password"
+    "other": "パスワードの変更"
   },
   "26": {
-    "other": "Lock out user"
+    "other": "ユーザーをロック"
   },
   "27": {
-    "other": "Reactivate user"
+    "other": "ユーザの再アクティブ化"
   },
   "28": {
-    "other": "Force password change"
+    "other": "パスワードの変更を強制する"
   },
   "28b": {
-    "other": "Cancel password change"
+    "other": "パスワードの変更をキャンセル"
   },
   "29": {
-    "other": "Enter new password for this user"
+    "other": "この利用者の新しいパスワードを入力してください"
   },
   "3": {
-    "other": "Account Info"
+    "other": "アカウント情報"
   },
   "30": {
-    "other": "Confirm"
+    "other": "確認"
   },
   "31": {
-    "other": "Role ID"
+    "other": "ロール ID"
   },
   "31.hint": {
-    "other": "Role ID (empty for auto-generate)"
+    "other": "ロール ID (自動生成時は空)"
   },
   "31.exists": {
-    "other": "Identifier already exists"
+    "other": "識別子は既に存在します"
   },
   "32": {
-    "other": "Role Label"
+    "other": "ロールのラベル"
   },
   "33": {
-    "other": "Apply automatically to users with profile..."
+    "other": "プロファイルを持つユーザーに自動的に適用..."
   },
   "34": {
-    "other": "Group ID"
+    "other": "グループ ID"
   },
   "35": {
-    "other": "Group Label"
+    "other": "グループラベル"
   },
   "36": {
-    "other": "locked"
+    "other": "ロック中"
   },
   "37": {
-    "other": "Deny"
+    "other": "拒否"
   },
   "38": {
-    "other": "inherited"
+    "other": "継承する"
   },
   "workspace.roots.invalid": {
-    "other": "invalid roots"
+    "other": "不正なルート"
   },
   "39": {
-    "other": "Disable"
+    "other": "無効化"
   },
   "4": {
     "other": "ACL"
   },
   "40": {
-    "other": "Enable"
+    "other": "有効化"
   },
   "41": {
-    "other": "Remove"
+    "other": "削除"
   },
   "42": {
-    "other": "Role custom data"
+    "other": "ロールカスタムデータ"
   },
   "43": {
-    "other": "Select one or more"
+    "other": "1つ以上選択してください"
   },
   "44": {
-    "other": "Plugins Parameters Fine-tuning"
+    "other": "プラグインパラメータの微調整"
   },
   "45": {
-    "other": "Access Control List"
+    "other": "アクセス制御リスト"
   },
   "46": {
-    "other": "Disabled Actions"
+    "other": "アクションを無効化"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "ロールを検索"
   },
   "5": {
-    "other": "Actions"
+    "other": "アクション"
   },
   "6": {
-    "other": "Parameters"
+    "other": "パラメーター"
   },
   "7": {
-    "other": "Internal Data"
+    "other": "内部データ"
   },
   "8": {
-    "other": "Personal information"
+    "other": "個人情報"
   },
   "9": {
-    "other": "Select the workspaces to which the use with this role will have access. Use the 'Deny' value to either override a value set by a previous role, or definitely deny the access to this workspace even to inherited roles."
+    "other": "このロールで使用するワークスペースを選択します。 以前のロールによって設定された値をオーバーライドするには、'拒否' 値を使用します。 継承された役割でもこのワークスペースへのアクセスを拒否することもできます"
   },
   "dashboard.description": {
-    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+    "other": "ロールはアクセスリストのコンテナであり、ワークスペースへのアクセスを許可したり、パラメータとアクションをカスタマイズします。ユーザに手動で割り当てることができます。"
   },
   "dashboard.technical.hide": {
-    "other": "Hide technical roles"
+    "other": "技術的なロールを非表示"
   },
   "dashboard.technical.show": {
-    "other": "Show technical roles"
+    "other": "技術的なロールを表示"
   },
   "last_update": {
-    "other": "Last updated"
+    "other": "最終更新"
   },
   "role.id.description": {
-    "other": "Unique ID of this role (cannot be changed)."
+    "other": "このロールの固有ID（変更できません）"
   },
   "role.label.description": {
-    "other": "Human-readable label."
+    "other": "人間が読める形式のラベル。"
   },
   "role.autoapply.description": {
-    "other": "Role is always applied to users with this profile(s)."
+    "other": "ロールは常にこのプロファイルを持つユーザーに適用されます。"
   },
   "role.override.description": {
-    "other": "Role is always applied last after other roles, except for user role that will still prevail."
+    "other": "ロールは常に他のロールの後に適用されます。ただし、それでも優先されるユーザーロールは除きます。"
   }
 }
