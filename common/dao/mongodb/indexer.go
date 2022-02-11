@@ -252,10 +252,10 @@ func (i *Indexer) Flush() {
 		for _, d := range i.deletes {
 			ors = append(ors, bson.M{i.collectionModel.IDName: d})
 		}
-		if res, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
+		if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
 			fmt.Println("error while flushing deletes to index", e)
 		} else {
-			fmt.Println("flushed index, deleted", res.DeletedCount)
+			//fmt.Println("flushed index, deleted", res.DeletedCount)
 		}
 		i.deletes = []string{}
 	}

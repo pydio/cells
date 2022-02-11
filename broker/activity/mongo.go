@@ -110,19 +110,19 @@ func (m *mongoimpl) UpdateSubscription(subscription *activity.Subscription) erro
 	}
 	if len(subscription.Events) == 0 {
 		// Remove subscription
-		r, e := m.DB().Collection(collSubscriptions).DeleteOne(c, selector)
+		_, e := m.DB().Collection(collSubscriptions).DeleteOne(c, selector)
 		if e != nil {
 			return e
 		}
-		fmt.Println("Deleted", r.DeletedCount, collSubscriptions)
+		//fmt.Println("Deleted", r.DeletedCount, collSubscriptions)
 		return nil
 	}
 	upsert := true
-	res, e := m.DB().Collection(collSubscriptions).ReplaceOne(c, selector, subscription, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.DB().Collection(collSubscriptions).ReplaceOne(c, selector, subscription, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
-	fmt.Println(res.ModifiedCount, res.UpsertedCount)
+	//fmt.Println(res.ModifiedCount, res.UpsertedCount)
 	return nil
 }
 
@@ -272,11 +272,11 @@ func (m *mongoimpl) storeLastUserInbox(userId string, boxName BoxName, timestamp
 	}
 	filter := bson.D{{"user_id", userId}, {"box_name", string(boxName)}}
 	upsert := true
-	res, e := m.DB().Collection(collMarkers).ReplaceOne(context.Background(), filter, marker, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.DB().Collection(collMarkers).ReplaceOne(context.Background(), filter, marker, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
-	fmt.Println("Last User Inbox", res.UpsertedCount, res.ModifiedCount)
+	//fmt.Println("Last User Inbox", res.UpsertedCount, res.ModifiedCount)
 	return nil
 }
 
@@ -285,12 +285,12 @@ func (m *mongoimpl) Delete(ownerType activity.OwnerType, ownerId string) error {
 		{"owner_type", int(ownerType)},
 		{"owner_id", ownerId},
 	}
-	res, e := m.DB().Collection(collActivities).DeleteMany(context.Background(), filter)
+	_, e := m.DB().Collection(collActivities).DeleteMany(context.Background(), filter)
 	if e != nil {
 		return e
 	}
-	fmt.Println("Deleted", res.DeletedCount, "activities")
-	// TODO For users, clear activities where Actor.Id = userId, clear Subscriptions
+	//fmt.Println("Deleted", res.DeletedCount, "activities")
+	// TODO v4 For users, clear activities where Actor.Id = userId, clear Subscriptions
 	return nil
 }
 
@@ -379,7 +379,7 @@ func (m *mongoimpl) purgeOneBox(logger func(string), ownerType activity.OwnerTyp
 	for c.Next(ctx) {
 		p := &docActivityProjection{}
 		if c.Decode(p) == nil {
-			fmt.Println("Found", p.AcId, p.Ts, p.Ts < updatedBefore)
+			//fmt.Println("Found", p.AcId, p.Ts, p.Ts < updatedBefore)
 			if minCount > 0 && i < minCount {
 				i++
 				totalLeft++
@@ -395,9 +395,9 @@ func (m *mongoimpl) purgeOneBox(logger func(string), ownerType activity.OwnerTyp
 		}
 	}
 	if len(ids) > 0 {
-		res, e := m.DB().Collection(collActivities).DeleteMany(ctx, bson.D{{"ac_id", bson.M{"$in": ids}}})
+		_, e := m.DB().Collection(collActivities).DeleteMany(ctx, bson.D{{"ac_id", bson.M{"$in": ids}}})
 		if e == nil {
-			fmt.Println("Removed", res.DeletedCount)
+			//fmt.Println("Removed", res.DeletedCount)
 		}
 		return e
 	}
