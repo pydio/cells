@@ -1,4 +1,4 @@
-module github.com/pydio/cells/v4/cmd/protoc-gen-go-client-stub
+module github.com/pydio/cells/cmd/protoc-gen-go-client-stub
 
 go 1.16
 

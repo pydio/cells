@@ -1,4 +1,4 @@
-module github.com/pydio/cells/v4/cmd/protoc-gen-go-enhanced-grpc
+module github.com/pydio/cells/cmd/protoc-gen-go-enhanced-grpc
 
 go 1.16
 
