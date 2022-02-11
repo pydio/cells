@@ -1,17 +1,17 @@
 {
   "Show file/folders activities": {
-    "other": "Show file/folders activities"
+    "other": "ファイル/フォルダのアクティビティを表示"
   },
   "Display file and folders activities in the right-hand info panel": {
-    "other": "Display file and folders activities in the right-hand info panel"
+    "other": "ファイルとフォルダのアクティビティを右側の情報パネルに表示します"
   },
   "Activities": {
-    "other": "Activities"
+    "other": "アクティビティ"
   },
   "Activity Center": {
-    "other": "Activity Center"
+    "other": "アクティビティセンター"
   },
   "Activity Streams 2.0": {
-    "other": "Activity Streams 2.0"
+    "other": "アクティビティ ストリーム 2.0"
   }
 }

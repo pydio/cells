@@ -1,8 +1,8 @@
 {
   "Create and extract tar, tar.gz and tar.bz2 archives.": {
-    "other": "Create and extract tar, tar.gz and tar.bz2 archives."
+    "other": "Tar、tar.gz、tar.bz2アーカイブを作成、抽出します。"
   },
   "Tar Archives Support": {
-    "other": "Tar Archives Support"
+    "other": "Tar アーカイブのサポート"
   }
 }

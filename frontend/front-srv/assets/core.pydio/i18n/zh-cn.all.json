@@ -1701,10 +1701,10 @@
     "other": "Remote User"
   },
   "605": {
-    "other": "More search options"
+    "other": "更多搜索选项"
   },
   "606": {
-    "other": "Less search options"
+    "other": "隐藏搜索选项"
   },
   "607": {
     "other": "您最近的活动 - 输入搜索所有工作区内的文件"
@@ -2088,7 +2088,7 @@
     "other": "Tools for letting the application send emails"
   },
   "plugtype.desc.search-engine": {
-    "other": "Search Engine options"
+    "other": "搜索引擎选项"
   },
   "plugtype.desc.meta": {
     "other": "Additional features to be added to the workspaces"

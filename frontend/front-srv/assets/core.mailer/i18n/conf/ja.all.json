@@ -1,113 +1,113 @@
 {
   "Core component for sending emails": {
-    "other": "Core component for sending emails"
+    "other": "電子メールを送信するためのコアコンポーネント"
   },
   "Activate Queue": {
-    "other": "Activate Queue"
+    "other": "キューを有効にする"
   },
   "Active notifications by email": {
-    "other": "Active notifications by email"
+    "other": "電子メールによるアクティブな通知"
   },
   "Adress of the sender": {
-    "other": "Adress of the sender"
+    "other": "送信者のアドレス"
   },
   "Body Layout": {
-    "other": "Body Layout"
+    "other": "本文レイアウト"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)"
+    "other": "メールの頻度を選択してください（例： 9:00 または 9:00､14:00 または水曜日）"
   },
   "Content": {
-    "other": "Content"
+    "other": "コンテンツ"
   },
   "Core configs for sending emails": {
-    "other": "Core configs for sending emails"
+    "other": "電子メールを送信するためのコア設定"
   },
   "Detail your frequency here": {
-    "other": "Detail your frequency here"
+    "other": "頻度はこちらでご確認ください"
   },
   "Emails frequency": {
-    "other": "Emails frequency"
+    "other": "メールの頻度"
   },
   "Every X hour": {
-    "other": "Every X hour"
+    "other": "X時間ごと"
   },
   "Every X min": {
-    "other": "Every X min"
+    "other": "X分ごと"
   },
   "Every day at ": {
-    "other": "Every day at "
+    "other": "毎日 "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file."
+    "other": "ローカライズされたファイルからメインレイアウトを抽出します。前のパラメータで優先されます。レイアウトファイル内にPYDIO_MAIL_BODYがあることを確認してください。"
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
-    "other": "Force all mails to be sent by this Sender email, instead of users adresses"
+    "other": "ユーザーのアドレスではなく、すべてのメールをこの送信者の電子メールで送信するように強制します"
   },
   "Get the email in HTML": {
-    "other": "Get the email in HTML"
+    "other": "HTML形式でメールを取得"
   },
   "Layout Folder": {
-    "other": "Layout Folder"
+    "other": "レイアウト フォルダー"
   },
   "Mailer Plugin": {
-    "other": "Mailer Plugin"
+    "other": "メーラープラグイン"
   },
   "Mailers": {
-    "other": "Mailers"
+    "other": "メーラー"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content."
+    "other": "メール本文のメインレイアウト、HTMLを使用して素敵なメールを送信し、実際のコンテンツにはPYDIO_MAIL_BODYキーワードを使用します。"
   },
   "Name of the sender": {
-    "other": "Name of the sender"
+    "other": "送信者の名前"
   },
   "Once a Week": {
-    "other": "Once a Week"
+    "other": "週に1回"
   },
   "Receive Notifcations by email": {
-    "other": "Receive Notifcations by email"
+    "other": "メールで通知を受け取る"
   },
   "Select the plugin to activate for concretely sending emails": {
-    "other": "Select the plugin to activate for concretely sending emails"
+    "other": "メールを送信するプラグインを選択してください"
   },
   "Send as HTML": {
-    "other": "Send as HTML"
+    "other": "HTMLで送信"
   },
   "Send email to...": {
-    "other": "Send email to..."
+    "other": "メールを送信..."
   },
   "Sender": {
-    "other": "Sender"
+    "other": "送信者"
   },
   "Sender email": {
-    "other": "Sender email"
+    "other": "送信者のメールアドレス"
   },
   "Sender name": {
-    "other": "Sender name"
+    "other": "送信者名"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option."
+    "other": "メールをキューに保存し、バッチ処理します。ユーザーは送信頻度を選択できます。 このオプションを使用する場合は、consume_mail_queue アクションで CRON を設定してください。"
   },
   "String automatically added at the beginning of the mail subject": {
-    "other": "String automatically added at the beginning of the mail subject"
+    "other": "メールの件名の先頭に文字列が自動的に追加されました"
   },
   "String automatically added at the end of the mail subject": {
-    "other": "String automatically added at the end of the mail subject"
+    "other": "件名の末尾に文字列が自動的に追加されました"
   },
   "Subject Append": {
-    "other": "Subject Append"
+    "other": "件名の先頭に追加"
   },
   "Subject Prepend": {
-    "other": "Subject Prepend"
+    "other": "件名の末尾に追加"
   },
   "Twice a day (every day at and)": {
-    "other": "Twice a day (every day at and)"
+    "other": "1日2回（毎日、毎日）"
   },
   "Unique Sender": {
-    "other": "Unique Sender"
+    "other": "ユニークな送信者"
   },
   "You can add many email separated by commas": {
-    "other": "You can add many email separated by commas"
+    "other": "コンマで区切られた多くの電子メールを追加することができます"
   }
 }

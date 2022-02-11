@@ -1,20 +1,20 @@
 {
   "Search.Config.IndexContent.Label": {
-    "other": "Index Contents"
+    "other": "インデックスコンテンツ"
   },
   "Search.Config.IndexContent.Description": {
-    "other": "If set to true, indexer will look for the ContentRef metadata, read contents from this reference and index it for search."
+    "other": "true が設定されている場合、インデクサーはContentRef メタデータを探し、この参照からコンテンツを読み込んで検索用にインデックスを作成します。"
   },
   "Search.Config.BasenameAnalyze.Label": {
-    "other": "File Name Analyzer"
+    "other": "ファイル名アナライザー"
   },
   "Search.Config.BasenameAnalyze.Description": {
-    "other": "Analyzer used on file names"
+    "other": "ファイル名に使用されるアナライザー"
   },
   "Search.Config.ContentAnalyzer.Label": {
-    "other": "Contents Analyzer"
+    "other": "コンテンツアナライザー"
   },
   "Search.Config.ContentAnalyzer.Description": {
-    "other": "Analyzer used on contents"
+    "other": "コンテンツに使用されるアナライザー"
   }
 }

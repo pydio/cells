@@ -3,25 +3,25 @@
     "other": "Libre Office Documents"
   },
   "10": {
-    "other": "Create an empty document"
+    "other": "空のドキュメントを作成"
   },
   "11": {
-    "other": "Document Format"
+    "other": "ドキュメント形式"
   },
   "12": {
-    "other": "You can also <a>create an empty document</a>"
+    "other": "空のドキュメントを <a>作成することもできます</a>"
   },
   "13": {
-    "other": "Untitled Document"
+    "other": "無題ドキュメント"
   },
   "14": {
-    "other": "The document was created, you can now edit it"
+    "other": "ドキュメントが作成されました。編集できるようになりました"
   },
   "15": {
-    "other": "Unknown document format"
+    "other": "不明なドキュメント形式"
   },
   "2": {
-    "other": "Libre Office External browser window"
+    "other": "Libre Office 外部ブラウザウィンドウ"
   },
   "ext.doc": {
     "other": "Microsoft Word 97/2000/XP/2003"
@@ -30,16 +30,16 @@
     "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "ODF Drawing"
+    "other": "ODF 図形描画"
   },
   "ext.odp": {
-    "other": "ODF Presentation"
+    "other": "ODF プレゼンテーション"
   },
   "ext.ods": {
-    "other": "ODF Spreadsheet"
+    "other": "ODF 表計算ドキュメント"
   },
   "ext.odt": {
-    "other": "ODF Text Document"
+    "other": "ODF 文書ドキュメント"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"
@@ -48,7 +48,7 @@
     "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "Rich Text"
+    "other": "リッチテキスト"
   },
   "ext.xls": {
     "other": "Microsoft Excel 97/2000/XP/2003"

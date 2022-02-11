@@ -1,29 +1,29 @@
 {
   "Display a standard user/password login screen": {
-    "other": "Display a standard user/password login screen"
+    "other": "標準のユーザー/パスワードログイン画面を表示する"
   },
   "Enable/disable automatically based on the protocol used": {
-    "other": "Enable/disable automatically based on the protocol used"
+    "other": "使用されたプロトコルに基づいて自動的に有効/無効にする"
   },
   "Order": {
-    "other": "Order"
+    "other": "順序"
   },
   "Order this plugin with other auth frontends": {
-    "other": "Order this plugin with other auth frontends"
+    "other": "他の認証フロントエンドでこのプラグインを注文する"
   },
   "Protocol Type": {
-    "other": "Protocol Type"
+    "other": "プロトコルのタイプ"
   },
   "REST Only": {
-    "other": "REST Only"
+    "other": "REST のみ"
   },
   "Session-based or Rest": {
-    "other": "Session-based or Rest"
+    "other": "セッションベースまたはREST"
   },
   "Sessions Only": {
-    "other": "Sessions Only"
+    "other": "セッションのみ"
   },
   "Standard login screen": {
-    "other": "Standard login screen"
+    "other": "標準ログイン画面"
   }
 }

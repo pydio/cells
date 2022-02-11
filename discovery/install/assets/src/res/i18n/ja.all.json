@@ -30,10 +30,10 @@
     "other": "新しい値で再試行する"
   },
   "database.useDefaultsSet": {
-    "other": "A default database is already configured, just click next to validate connection."
+    "other": "デフォルトのデータベースが既に設定されています。接続を検証するには、次へ進んでください。"
   },
   "database.forceConfigure": {
-    "other": "Configure another database."
+    "other": "別のデータベースを設定する"
   },
   "admin.stepLabel": {
     "other": "管理者ユーザー"
@@ -195,19 +195,19 @@
     "other": "ローカル FS (このサーバーにすべてのデータを保存する)"
   },
   "form.dsType.S3": {
-    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+    "other": "Amazon S3 / S3 互換(S3 バケット内に格納)"
   },
   "form.dsS3Custom.label": {
-    "other": "S3-Compatible storage endpoint"
+    "other": "S3 互換ストレージエンドポイント"
   },
   "form.dsS3Custom.legend": {
-    "other": "Leave empty for Amazon"
+    "other": "空白の場合Amazonになります"
   },
   "form.dsS3CustomRegion.label": {
-    "other": "S3 Custom region"
+    "other": "S3 カスタムリージョン"
   },
   "form.dsS3CustomRegion.legend": {
-    "other": "Leave empty for default (us-east-1)"
+    "other": "空白の場合デフォルトの値になります(us-east-1)"
   },
   "form.dsS3ApiKey.label": {
     "other": "S3 APIキー"

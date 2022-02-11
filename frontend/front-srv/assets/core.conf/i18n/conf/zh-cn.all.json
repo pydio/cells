@@ -195,10 +195,10 @@
     "other": "Users Lock Action"
   },
   "Users completer limit": {
-    "other": "Users completer limit"
+    "other": "用户自动完成显示限制"
   },
   "Users completer min chars": {
-    "other": "Users completer min chars"
+    "other": "用户自动完成最少字符"
   },
   "Users only (do not list groups nor roles)": {
     "other": "Users only (do not list groups nor roles)"

@@ -1,11 +1,11 @@
 {
   "1": {
-    "other": "GeoLocation"
+    "other": "位置情報"
   },
   "2": {
-    "other": "Locate"
+    "other": "場所"
   },
   "3": {
-    "other": "EXIF Data"
+    "other": "EXIFデータ"
   }
 }

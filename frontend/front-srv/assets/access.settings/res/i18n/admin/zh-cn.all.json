@@ -2010,13 +2010,13 @@
     "other": "外部网址"
   },
   "sites.details": {
-    "other": "<div>\nSites define how Cells is binding to network interfaces and how it is exposed to the outside world.\nUse ‘<i>./cells configure sites</i>’ to manage your sites from the command line.\n<br/><br/>\nEach site has the following parameters:\n\n<ol>\n<li>1. <u>Bind(s)</u>: one or more [ip/hostname:port] to hook the internal webserver to.</li>\n<li>2. <u>TLS Settings</u>: TLS configuration for HTTPS support.</li>\n<li>3. <u>External URL</u>: the URL you communicate to your end-users. It can differ from your bind address, typically if the app is behind a reverse-proxy or inside a container with ports mapping.</li>\n<li>4. <u>Maintenance Mode</u> [On|Off]: display a maintenance page on this endpoint, although Cells is running.</li>\n</ol></div>"
+    "other": "<div>\n此站点配置中，将设置平台如何绑定到网络接口以及它如何对外暴露。\n使用<i>./cells configure sites</i>从命令行管理您的站点配置。\n<br/><br/>\n每个站点有以下参数：\n\n<ol>\n<li>1. <u>绑定</u>: 被绑定的一个或多个[ip/hostname:port]。</li>\n<li>2. <u>TLS 设置</u>: 配置TLS以开启HTTPS。</li>\n<li>3. <u>外部URL</u>：用于最终用户访问的URL。 它可能不同于您的绑定地址，通常应用程序在反向代理后面或在一个有端口映射的容器内需要做此设置。</li>\n<li>4. <u>维护模式</u> [On|Off]：显示维护页面。</li>\n</ol></div>"
   },
   "sites.details.note": {
-    "other": "<div><i>Additional notes</i>\n<ol>\n<li>1. When there are no sites defined, Cells use a default configuration (https://0.0.0.0:8080 with self-signed).</li>\n<li>2. Sites can be overridden at runtime by using ‘--bind’ flag or ‘CELLS_BIND’ environment variable.\n</li>\n</ol></div>"
+    "other": "<div><i>附加说明</i>\n<ol>\n<li>1. 当没有配置站点设置时，平台将使用默认配置 (具有自签名的 https://0.0.0.0:8080)。</li>\n<li>2. 可以使用 '--bind' 参数或 'CELS_BIND' 环境变量在运行时覆盖网页上的站点设置。\n</li>\n</ol></div>"
   },
   "sites.externals.details": {
-    "other": "<div>\nCells uses its detected public URL in some features. It will try to use the most appropriate value based on your configuration. <br/><br/>For example:\n<ul>\n<li>&bull; If a unique site is defined and it has an external URL, that one is probably correct.</li>\n<li>&bull; When multiple sites are defined, you may want to force a unique URL that will be used for all external communication.</li>\n<li>&bull; If no external URL is detected, it will fallback to the internal bind address. In that case, you probably do not want to send a private IP (or 0.0.0.0:port…) to the outside world.</li>\n</ul>\n\n<br/>\nThe fields below show the detected values. Select to edit or type in a custom value and hit enter to save.\n</div>"
+    "other": "<div>\n在某些功能中，平台用此来检测公共URL。 它将尝试根据您的配置使用最合适的值。 <br/><br/>例如：\n<ul>\n<li>&bull; 如果定义了一个唯一的站点并且它有一个外部的 URL， 这可能是正确的。</li>\n<li>&bull; 当定义了多个站点，您可能想要强制一个唯一的URL用于所有外部通信。</li>\n<li>&bull; 如果没有检测到外部URL，它将回退到内部绑定地址。 在这种情况下，您可能不想对外发送私有IP(或0.0.0.0:端口…)。</li>\n</ul>\n\n<br/>\n下面的字段显示检测到的值。 选择以编辑或输入自定义值并按回车键保存。\n</div>"
   },
   "sites.mailer.url": {
     "other": "用于邮件中生成链接的 URL"

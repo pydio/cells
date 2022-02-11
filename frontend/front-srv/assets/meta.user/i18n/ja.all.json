@@ -1,50 +1,50 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "メタデータ"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "既存または新規タグ"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "メタデータが設定されていません。クリックして追加"
   },
   "16": {
-    "other": "No metadata set"
+    "other": "メタデータが設定されていません"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "複数選択:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "更新するフィールドをチェックしてください。値はすべての選択されたファイルに適用されます。"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "メタデータを編集"
   },
   "15": {
-    "other": "Save meta"
+    "other": "メタ情報を保存"
   },
   "2": {
-    "other": "No Label"
+    "other": "ラベルなし"
   },
   "3": {
-    "other": "Remove Rating"
+    "other": "評価を削除"
   },
   "4": {
-    "other": "Low"
+    "other": "低"
   },
   "5": {
-    "other": "Todo"
+    "other": "ToDo"
   },
   "6": {
-    "other": "Personal"
+    "other": "個人用"
   },
   "7": {
-    "other": "Work"
+    "other": "仕事"
   },
   "8": {
-    "other": "Important"
+    "other": "重要"
   },
   "9": {
-    "other": "No Value"
+    "other": "値なし"
   }
 }

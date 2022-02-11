@@ -1,14 +1,14 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "コメントの制限"
   },
   "Comments Feed": {
-    "other": "Comments Feed"
+    "other": "コメントフィード"
   },
   "Display a chat-like feed on every nodes": {
-    "other": "Display a chat-like feed on every nodes"
+    "other": "すべてのノードにチャットのようなフィードを表示します"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "コメントごとの最大文字数"
   }
 }

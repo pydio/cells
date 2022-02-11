@@ -1,56 +1,56 @@
 {
   "1.android": {
-    "other": "There is a native APPLICATION_TITLE client available for accessing %s on Android OS."
+    "other": "Android OS で %s にアクセスできるネイティブの APPLICATION_TITLE クライアントがあります。"
   },
   "1.ios": {
-    "other": "There is a native application available for accessing %s through iPhone/iPad!"
+    "other": "Iphone/iPad経由で %s にアクセスできるネイティブアプリケーションがあります！"
   },
   "2.android": {
-    "other": "I have it already, open it and add this server to my preconfigured remote servers"
+    "other": "すでに設定されています。事前設定されたリモートサーバーにこのサーバーを追加します"
   },
   "2.ios": {
-    "other": "I have it already, open it and add this server to my remote servers"
+    "other": "すでに設定されています。事前設定されたリモートサーバーにこのサーバーを追加します"
   },
   "3.android": {
-    "other": "I don't have it, send me to the Play Store now!"
+    "other": "今すぐPlayストアに送ってください！"
   },
   "3.ios": {
-    "other": "I don't have it, send me to the App Store now!"
+    "other": "今すぐApp Storeに送ってください！"
   },
   "4.android": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "気にしません。 %s のウェブバージョンを使わせてください。"
   },
   "4.ios": {
-    "other": "I don't care, let me use the web version of %s."
+    "other": "気にしません。 %s のウェブバージョンを使わせてください。"
   },
   "Mobile": {
-    "other": "Mobile"
+    "other": "モバイル"
   },
   "Template extending gui.ajax for small screen terminals.": {
-    "other": "Template extending gui.ajax for small screen terminals."
+    "other": "小さな画面端末用のテンプレートgui.ajaxを拡張します。"
   },
   "Disable this feature": {
-    "other": "Disable this feature"
+    "other": "この機能を無効にする"
   },
   "Do not display a smart banner when opening web interface on a mobile terminal.": {
-    "other": "Do not display a smart banner when opening web interface on a mobile terminal."
+    "other": "モバイル端末でWebインターフェースを開くときは、スマートバナーを表示しないでください。"
   },
   "iOS Application Icon": {
-    "other": "iOS Application Icon"
+    "other": "iOS アプリのアイコン"
   },
   "iOS Application ID": {
-    "other": "iOS Application ID"
+    "other": "iOS アプリケーションID"
   },
   "iOS Application ID on the store": {
-    "other": "iOS Application ID on the store"
+    "other": "iOSアプリケーションID"
   },
   "Android Application ID": {
-    "other": "Android Application ID"
+    "other": "Android アプリケーション ID"
   },
   "Android App ID": {
     "other": "Android App ID"
   },
   "Android App Icon": {
-    "other": "Android Application Icon"
+    "other": "Android アプリアイコン"
   }
 }

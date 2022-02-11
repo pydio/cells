@@ -141,27 +141,27 @@
     "other": "缩略图"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "大缩略图"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "小缩略图"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "图库"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "文件扩展名"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "显示扩展名"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "置顶书签项"
   },
   "infopanel.empty.select.file": {
     "other": "Select a file to display informations"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "全部文件"
   }
 }

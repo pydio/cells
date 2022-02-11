@@ -1,6 +1,6 @@
 {
   "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data.": {
-    "other": "Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data."
+    "other": "JPGファイルに含まれるExifメタデータを表示します。位置情報データが含まれている場合は、画像をマップ上で検索できます。"
   },
   "EXIF Extractor": {
     "other": "EXIF Extractor"

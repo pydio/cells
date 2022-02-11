@@ -6,7 +6,7 @@
     "other": "If the {ACTION}-button is not working for you, just copy and paste the URL below into your web browser."
   },
   "Mail.Main.Greeting": {
-    "other": "Hello"
+    "other": "مرحبا"
   },
   "Mail.Main.Signature": {
     "other": "Sincerely"
@@ -21,7 +21,7 @@
     "other": "If you did not trigger this request, you can safely ignore that. If you keep receiving emails like this, please alert your administrator as it may be a security issue."
   },
   "Mail.ResetPassword.LinkLabel": {
-    "other": "Reset My Password"
+    "other": "إعادة تعيين كلمة مروري"
   },
   "Mail.ResetPassword.LinkInstructions": {
     "other": "Click to reset your password"

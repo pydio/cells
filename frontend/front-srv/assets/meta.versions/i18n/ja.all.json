@@ -12,37 +12,37 @@
     "other": "変更"
   },
   "13": {
-    "other": "Are you sure you want to do this? Reverting to an old version will now create a new version of the document with the selected revision."
+    "other": "これを実行してもよろしいですか？ 古いバージョンに戻すと、選択したリビジョンを持つドキュメントの新しいバージョンが作成されます。"
   },
   "14": {
     "other": "以前のバージョンが見つかりませんでした"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "ファイルの内容を更新したときにバージョンが作成されます"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "'%s' の以前のバージョン"
   },
   "2": {
-    "other": "Document previous versions"
+    "other": "以前のバージョンのドキュメント"
   },
   "3": {
     "other": "ダウンロード"
   },
   "4": {
-    "other": "Download selected version to your computer"
+    "other": "選択したバージョンをお使いのコンピューターにダウンロードする"
   },
   "5": {
-    "other": "Preview (browser)"
+    "other": "プレビュー (ブラウザ)"
   },
   "6": {
-    "other": "Open the selected version in a browser window"
+    "other": "ブラウザウィンドウで選択したバージョンを開く"
   },
   "7": {
     "other": "元に戻す..."
   },
   "8": {
-    "other": "Revert the file to the selected revision on the server"
+    "other": "サーバー上の選択したリビジョンにファイルを元に戻す"
   },
   "9": {
     "other": "#"
@@ -54,7 +54,7 @@
     "other": "ファイルを削除しました"
   },
   "MODIFICATION": {
-    "other": "Content modified"
+    "other": "コンテンツが変更されました"
   },
   "MOVE": {
     "other": "ファイルを移動しました"
