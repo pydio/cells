@@ -79,7 +79,7 @@ var (
 	WipLanguages = map[string]string{
 		"ar":    "عربى", // Arabic
 		"fr-ca": "Canadien",
-		"ja":    "日本人", //Japanese
+		"ja":    "日本語", // Japanese
 		"ko":    "한국어",
 		"nl":    "Nederlands",
 		"pt-pt": "Português",
