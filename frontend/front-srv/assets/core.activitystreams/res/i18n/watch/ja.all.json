@@ -57,16 +57,16 @@
     "other": "通知を受信する..."
   },
   "selector.ignore": {
-    "other": "しない (通知なし)"
+    "other": "受信しない (通知なし)"
   },
   "selector.read": {
-    "other": "コンテンツにアクセスしました"
+    "other": "コンテンツがアクセスされたとき"
   },
   "selector.change": {
     "other": "コンテンツが変更されました"
   },
   "selector.both": {
-    "other": "コンテンツにアクセスまたは変更されました"
+    "other": "コンテンツがアクセスもしくは変更されたとき"
   },
   "selector.mixed": {
     "other": "混合値"

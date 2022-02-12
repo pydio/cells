@@ -27,7 +27,7 @@
     "other": "匿名アクセスにエンドポイントをインストール（GET、POST）"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "ログインしたユーザーと管理者ユーザーのアクセス"
+    "other": "ログインユーザーと管理者ユーザーのアクセス"
   },
   "PolicyGroup.LoggedUsers.Description": {
     "other": "一般ユーザー/共有ユーザー/管理者ユーザーが REST API にアクセスする方法を決定する"
