@@ -39,6 +39,6 @@
     "other": "サムネイルの品質"
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "リモートサーバーに接続すると、メタデータの抽出は、最初に各ファイルをローカルにコピーする必要があるため、リスティングアクションを非常に長くすることができます。 このしきい値より大きい定義されたラッパーとファイルを使用するプラグインでは、画像の種類と寸法はスキップされます。"
+    "other": "リモートサーバーに接続すると、メタデータの抽出は、最初に各ファイルをローカルにコピーする必要があるため、リスティングアクションを非常に長くすることができます。 このしきい値より大きい定義されたラッパーとファイルを使用するプラグインでは、画像の種類とサイズはスキップされます。"
   }
 }

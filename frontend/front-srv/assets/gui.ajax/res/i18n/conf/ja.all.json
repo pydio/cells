@@ -18,10 +18,10 @@
     "other": "分析ID"
   },
   "Append a title to the image logo": {
-    "other": "画像のロゴにタイトルを追加"
+    "other": "画像のロゴに名称を追加"
   },
   "Application Title": {
-    "other": "アプリケーションのタイトル"
+    "other": "アプリケーションの名称"
   },
   "Attributes of the image used as a background": {
     "other": "背景として使用される画像の属性"
@@ -225,7 +225,7 @@
     "other": "テーマ"
   },
   "Theme used for display": {
-    "other": "ディスプレイに使用するテーマ"
+    "other": "テーマ"
   },
   "Tile (repeat both directions)": {
     "other": "タイル (両方向に繰り返す)"

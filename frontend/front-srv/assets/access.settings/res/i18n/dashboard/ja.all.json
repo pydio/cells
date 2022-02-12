@@ -21,13 +21,13 @@
     "other": "私は新しい機能を実装しました: github Pull Requests"
   },
   "cont.topic.report": {
-    "other": "バグを見つけたかもしれません! フォーラムに投稿してください。"
+    "other": "バグを見つけたと思います！フォーラムに投稿してください。"
   },
   "cont.topic.report.2": {
-    "other": "私のバグは的確です: github issueを開く"
+    "other": "不具合を修正してほしいです: github issueを開く"
   },
   "cont.topic.translate": {
-    "other": "どのようにして翻訳言語の作成をしますか?"
+    "other": "翻訳を手伝うことは可能ですか？"
   },
   "ent.advanced": {
     "other": "管理画面の詳細ダッシュボード"

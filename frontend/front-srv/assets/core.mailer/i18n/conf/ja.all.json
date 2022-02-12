@@ -57,7 +57,7 @@
     "other": "メーラー"
   },
   "Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.": {
-    "other": "メール本文のメインレイアウト、HTMLを使用して素敵なメールを送信し、実際のコンテンツにはPYDIO_MAIL_BODYキーワードを使用します。"
+    "other": "メール本文のメインレイアウト、HTMLを使用して整形されたメールを送信します。実際のコンテンツにはPYDIO_MAIL_BODYキーワードを使用します。"
   },
   "Name of the sender": {
     "other": "送信者の名前"

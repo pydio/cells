@@ -51,7 +51,7 @@
     "other": "ユーザーに許可する"
   },
   "App Title": {
-    "other": "アプリケーションのタイトル"
+    "other": "アプリケーションの名称"
   },
   "Ascending": {
     "other": "昇順"
@@ -495,7 +495,7 @@
     "other": "Zipエンコーディング"
   },
   "Merge Workspaces and Cells": {
-    "other": "ワークスペースとセルを結合"
+    "other": "ワークスペースとセルを統合"
   },
   "Do not display workspaces and cells separately": {
     "other": "ワークスペースとセルを個別に表示しない"
