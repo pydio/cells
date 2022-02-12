@@ -32,9 +32,9 @@ type Indexer struct {
 	bufferSize      int
 }
 
-func NewIndexer(dao DAO) (IndexDAO, error) {
+func NewIndexer(dao dao.DAO) (dao.IndexDAO, error) {
 	i := &Indexer{
-		DAO:        dao,
+		DAO:        dao.(DAO),
 		bufferSize: 50,
 		tick:       make(chan bool),
 		flush:      make(chan bool, 1),

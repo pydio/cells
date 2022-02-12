@@ -91,7 +91,7 @@ func createTestHandler(suffix string) (*Handler, func()) {
 		}
 		closer := func() {
 			h.Close()
-			coreDao.DB().Drop(context.Background())
+			coreDao.(mongodb.DAO).DB().Drop(context.Background())
 		}
 		return h, closer
 

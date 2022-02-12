@@ -154,7 +154,7 @@ func TestEnqueueMail(t *testing.T) {
 	Convey("Test Mongo if found in ENV", t, func() {
 
 		dao, _ := mongodb.NewDAO("mongodb", mDsn, "mailqueue-test")
-		queue, e := NewMongoQueue(dao, configx.New())
+		queue, e := NewMongoQueue(dao.(mongodb.DAO), configx.New())
 		So(e, ShouldBeNil)
 		defer func() {
 			queue.(*mongoQueue).DB().Drop(context.Background())

@@ -70,6 +70,11 @@ func (h *Handler) Init(configx.Values) error {
 	return nil
 }
 
+// LocalAccess overrides DAO
+func (h *Handler) LocalAccess() bool {
+	return true
+}
+
 // DB returns the bolt DB object
 func (h *Handler) DB() *bolt.DB {
 	if h == nil {

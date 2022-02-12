@@ -22,6 +22,8 @@
 package dao
 
 import (
+	"fmt"
+
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -62,12 +64,63 @@ type DAO interface {
 	// Prefix is used to prevent collision between table names
 	// in case this DAO accesses a shared DB.
 	Prefix() string
+	LocalAccess() bool
 }
 
 type handler struct {
 	conn   Conn
 	driver string
 	prefix string
+}
+
+// InitDAO finalize DAO creation based on registered drivers
+func InitDAO(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.Values) (DAO, error) {
+	f, ok := daoDrivers[driver]
+	if !ok {
+		return nil, fmt.Errorf("cannot find driver %s, maybe it was not properly registered", driver)
+	}
+	d, e := f(driver, dsn, prefix)
+	if e != nil {
+		return nil, e
+	}
+	if wrapper != nil {
+		d = wrapper(d)
+		if d == nil {
+			return nil, fmt.Errorf("unsupported driver type")
+		}
+	}
+	if len(cfg) > 0 {
+		if er := d.Init(cfg[0]); er != nil {
+			return nil, er
+		}
+	}
+	return d, nil
+}
+
+func InitIndexer(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.Values) (DAO, error) {
+	d, e := InitDAO(driver, dsn, prefix, nil)
+	if e != nil {
+		return nil, e
+	}
+	i, ok := indexersDrivers[driver]
+	if !ok {
+		return nil, fmt.Errorf("cannot find indexer %s, maybe it was not properly registered", driver)
+	}
+	// Wrap DAO as Indexer
+	if d, e = i(d); e != nil {
+		return nil, e
+	}
+	// Wrap with input wrapper
+	d = wrapper(d)
+	if d == nil {
+		return nil, fmt.Errorf("unsupported driver type")
+	}
+	if len(cfg) > 0 {
+		if er := d.Init(cfg[0]); er != nil {
+			return nil, er
+		}
+	}
+	return d.(IndexDAO), nil
 }
 
 // NewDAO returns a reference to a newly created struct that
@@ -111,4 +164,8 @@ func (h *handler) SetConn(conn Conn) {
 // CloseConn closes the db connection
 func (h *handler) CloseConn() error {
 	return closeConn(h.conn)
+}
+
+func (h *handler) LocalAccess() bool {
+	return false
 }

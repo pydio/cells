@@ -115,6 +115,11 @@ func (c *Cache) Prefix() string {
 	return c.dao.Prefix()
 }
 
+// LocalAccess overrides DAO
+func (c *Cache) LocalAccess() bool {
+	return c.dao.LocalAccess()
+}
+
 func (c *Cache) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error {
 	if !c.useBatch {
 		return c.dao.PostActivity(ownerType, ownerId, boxName, object, publishCtx)

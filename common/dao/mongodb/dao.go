@@ -34,6 +34,7 @@ func init() {
 	dao.RegisterDAODriver(Driver, NewDAO, func(driver, dsn string) dao.ConnDriver {
 		return &mongodb{}
 	})
+	dao.RegisterIndexerDriver(Driver, NewIndexer)
 }
 
 // DAO defines the functions specific to the boltdb dao

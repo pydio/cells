@@ -2,16 +2,10 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
-	sql2 "github.com/pydio/cells/v4/common/dao/sql"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 )
 
 type StorageOptions struct {
@@ -69,7 +63,6 @@ func WithStorageMigrator(d dao.MigratorFunc) StorageOption {
 }
 
 func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, opts *StorageOptions) (dao.DAO, error) {
-	var d dao.DAO
 	prefix := opts.Prefix(o)
 
 	cfgKey := "storage"
@@ -83,55 +76,22 @@ func daoFromOptions(o *ServiceOptions, fd func(dao.DAO) dao.DAO, indexer bool, o
 
 	var c dao.DAO
 	var e error
+	cfg := config.Get("services", o.Name)
 
-	switch driver {
-	case sql2.MysqlDriver, sql2.SqliteDriver:
-		c, e = sql.NewDAO(driver, dsn, prefix)
-	case boltdb.Driver:
-		o.Unique = true
-		c, e = boltdb.NewDAO(driver, dsn, prefix)
-	case bleve.Driver:
-		o.Unique = true
-		c, e = bleve.NewDAO(driver, dsn, prefix)
-	case mongodb.Driver:
-		c, e = mongodb.NewDAO(driver, dsn, prefix)
-	default:
-		return nil, fmt.Errorf("unsupported driver type %s for service %s", driver, o.Name)
+	if indexer {
+		c, e = dao.InitIndexer(driver, dsn, prefix, fd, cfg)
+	} else {
+		c, e = dao.InitDAO(driver, dsn, prefix, fd, cfg)
 	}
 	if e != nil {
 		return nil, e
 	}
 
-	if indexer {
-		// Wrap DAO into IndexDAO
-		var indexDAO dao.IndexDAO
-		switch driver {
-		case bleve.Driver:
-			indexDAO, e = bleve.NewIndexer(c)
-		case mongodb.Driver:
-			indexDAO, e = mongodb.NewIndexer(c.(mongodb.DAO))
-		default:
-			return nil, fmt.Errorf("unsupported indexer type %s for service %s", driver, o.Name)
-		}
-		if e != nil {
-			return nil, e
-		}
-		c = indexDAO
+	if c.LocalAccess() {
+		o.Unique = true
 	}
 
-	// Now apply callback to DAO
-	d = fd(c)
-	if d == nil {
-		return nil, fmt.Errorf("driver %s is not supported by %s", driver, o.Name)
-	}
-
-	cfg := config.Get("services", o.Name)
-
-	if err := d.Init(cfg); err != nil {
-		return nil, err
-	}
-
-	return d, nil
+	return c, nil
 
 }
 
@@ -158,14 +118,6 @@ func makeStorageServiceOption(indexer bool, fd func(dao.DAO) dao.DAO, opts ...St
 			op(sOpts)
 		}
 		o.Storages = append(o.Storages, sOpts)
-		/*
-			if sOpts.Migrator != nil {
-				dao.RegisterStorageMigrator(o.Name+" ("+storageKey+")", sOpts.Prefix(o), sOpts.Migrator)
-			}
-			if sOpts.DefaultDriver != nil {
-				dao.RegisterDefaultDriver(sOpts.DefaultDriver)
-			}
-		*/
 		o.BeforeStart = append(o.BeforeStart, func(ctx context.Context) error {
 			d, err := daoFromOptions(o, fd, indexer, sOpts)
 			if err != nil {

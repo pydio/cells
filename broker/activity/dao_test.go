@@ -63,7 +63,7 @@ func initDao() (DAO, func()) {
 		conf := configx.New()
 		m.Init(conf)
 		return m, func() {
-			h.DB().Drop(context.Background())
+			h.(mongodb.DAO).DB().Drop(context.Background())
 			h.CloseConn()
 		}
 

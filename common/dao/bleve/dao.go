@@ -73,3 +73,8 @@ func (h *Handler) BleveConfig() *BleveConfig {
 	}
 	return &BleveConfig{}
 }
+
+// LocalAccess overrides DAO
+func (h *Handler) LocalAccess() bool {
+	return true
+}
