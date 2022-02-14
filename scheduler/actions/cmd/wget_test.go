@@ -83,7 +83,7 @@ func TestWGetAction_Run(t *testing.T) {
 		job := &jobs.Job{}
 		action.Init(job, nil, &jobs.Action{
 			Parameters: map[string]string{
-				"url": "http://pydio.com/sites/default/files/Create%20a%20cell_4.png",
+				"url": "https://pydio.com/sites/default/files/Create%20a%20cell_4.png",
 			},
 		})
 
