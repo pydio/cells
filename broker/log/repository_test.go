@@ -21,6 +21,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -208,7 +209,7 @@ func TestSizeRotation(t *testing.T) {
 		So(m, ShouldNotBeNil)
 		So(m["docsCount"], ShouldEqual, uint64(40040))
 
-		So(s.Resync(nil), ShouldBeNil)
+		So(s.Resync(context.Background(), nil), ShouldBeNil)
 		<-time.After(5 * time.Second)
 
 		m = idx.Stats()
@@ -217,7 +218,7 @@ func TestSizeRotation(t *testing.T) {
 		parts := m["indexes"].([]string)
 		So(len(parts), ShouldBeGreaterThan, 5)
 
-		So(s.Truncate(15*1024*1024, nil), ShouldBeNil)
+		So(s.Truncate(context.Background(), 15*1024*1024, nil), ShouldBeNil)
 		m = idx.Stats()
 		newParts := m["indexes"].([]string)
 		So(len(newParts), ShouldBeLessThan, len(parts))

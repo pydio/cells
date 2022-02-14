@@ -25,6 +25,7 @@
 package log
 
 import (
+	"context"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -39,8 +40,8 @@ type MessageRepository interface {
 	DeleteLogs(string) (int64, error)
 	AggregatedLogs(string, string, int32) (chan log.TimeRangeResponse, error)
 	Close() error
-	Resync(logger log2.ZapLogger) error
-	Truncate(max int64, logger log2.ZapLogger) error
+	Resync(ctx context.Context, logger log2.ZapLogger) error
+	Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error
 }
 
 func NewDAO(d dao.DAO) dao.DAO {

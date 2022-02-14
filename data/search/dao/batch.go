@@ -123,8 +123,7 @@ func (b *Batch) Flush(indexer dao.IndexDAO) error {
 		delete(b.deletes, uuid)
 	}
 	b.Unlock()
-	indexer.Flush()
-	return nil
+	return indexer.Flush(b.ctx)
 }
 
 func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[string]struct{}) error {

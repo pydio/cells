@@ -55,14 +55,14 @@ func (s *IndexService) AggregatedLogs(_ string, _ string, _ int32) (chan log.Tim
 	return nil, fmt.Errorf("unimplemented method")
 }
 
-func (s *IndexService) Resync(logger log2.ZapLogger) error {
-	return s.dao.Resync(func(s string) {
+func (s *IndexService) Resync(ctx context.Context, logger log2.ZapLogger) error {
+	return s.dao.Resync(ctx, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
 }
 
-func (s *IndexService) Truncate(max int64, logger log2.ZapLogger) error {
-	return s.dao.Truncate(max, func(s string) {
+func (s *IndexService) Truncate(ctx context.Context, max int64, logger log2.ZapLogger) error {
+	return s.dao.Truncate(ctx, max, func(s string) {
 		logTaskInfo(logger, s, "info")
 	})
 }

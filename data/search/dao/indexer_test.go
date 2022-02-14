@@ -92,7 +92,7 @@ func getTmpIndex(createNodes bool) (s *Server, closer func()) {
 			log.Println("Error while indexing node", e)
 		}
 
-		server.Engine.Flush()
+		_ = server.Engine.Flush(ctx)
 		<-time.After(7 * time.Second)
 	}
 
@@ -208,7 +208,7 @@ func TestIndexNode(t *testing.T) {
 		}
 		ctx := context.Background()
 		e := server.IndexNode(ctx, node, false, nil)
-		server.Engine.Flush()
+		So(server.Engine.Flush(ctx), ShouldBeNil)
 
 		So(e, ShouldBeNil)
 	})
@@ -227,7 +227,7 @@ func TestIndexNode(t *testing.T) {
 		}
 		ctx := context.Background()
 		e := server.IndexNode(ctx, node, false, nil)
-		server.Engine.Flush()
+		So(server.Engine.Flush(ctx), ShouldBeNil)
 
 		So(e, ShouldNotBeNil)
 	})
@@ -289,7 +289,7 @@ func TestSearchNode(t *testing.T) {
 
 		// Remove now
 		So(server.DeleteNode(ctx, &tree.Node{Uuid: "node-with-uppercase-extension"}), ShouldBeNil)
-		server.Engine.Flush()
+		So(server.Engine.Flush(ctx), ShouldBeNil)
 		<-time.After(7 * time.Second)
 	})
 
@@ -462,7 +462,7 @@ func TestDeleteNode(t *testing.T) {
 		defer closer()
 		ctx := context.Background()
 
-		server.DeleteNode(ctx, &tree.Node{Uuid: "docID1"})
+		So(server.DeleteNode(ctx, &tree.Node{Uuid: "docID1"}), ShouldBeNil)
 		<-time.After(4 * time.Second)
 
 		queryObject := &tree.Query{
