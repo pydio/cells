@@ -22,9 +22,6 @@ package dao
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 	"io/ioutil"
 	"log"
 	"os"
@@ -36,19 +33,27 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/configx"
+	"github.com/pydio/cells/v4/common/utils/uuid"
+	bleve2 "github.com/pydio/cells/v4/data/search/dao/bleve"
 )
 
-func getTmpIndex(createNodes bool) (s *Server, dir string) {
+func getTmpIndex(createNodes bool) (s *Server, closer func()) {
 
-	cfg := configx.New()
-	dao, _ := bleve.NewDAO("bleve", "", "")
-	idx, _ := bleve.NewIndexer(dao)
-	idx.SetCodex(&bleve2.Codec{})
-	idx.Init(cfg)
-
-	server, _ := NewEngine(context.Background(), idx, meta.NewNsProvider(context.Background()), cfg)
+	idx, closer, err := test.OnFileTestDAO("bleve", filepath.Join(os.TempDir(), "data_search_tests"+uuid.New()+".bleve")+"?mapping=node", "", "data_search_tests", true, NewDAO)
+	if err != nil {
+		panic(err)
+	}
+	server, err := NewEngine(context.Background(), idx.(dao.IndexDAO), meta.NewNsProvider(context.Background()), configx.New())
+	if err != nil {
+		panic(err)
+	}
 
 	if createNodes {
 
@@ -87,10 +92,11 @@ func getTmpIndex(createNodes bool) (s *Server, dir string) {
 			log.Println("Error while indexing node", e)
 		}
 
-		<-time.After(5 * time.Second)
+		server.Engine.Flush()
+		<-time.After(7 * time.Second)
 	}
 
-	return server, dao.BleveConfig().BlevePath
+	return server, closer
 }
 
 func search(ctx context.Context, index *Server, queryObject *tree.Query) ([]*tree.Node, error) {
@@ -189,14 +195,8 @@ func TestIndexNode(t *testing.T) {
 
 	Convey("Index Node", t, func() {
 
-		server, tmpDir := getTmpIndex(false)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
+		server, closer := getTmpIndex(false)
+		defer closer()
 
 		mtime := time.Now().Unix()
 		node := &tree.Node{
@@ -208,20 +208,15 @@ func TestIndexNode(t *testing.T) {
 		}
 		ctx := context.Background()
 		e := server.IndexNode(ctx, node, false, nil)
+		server.Engine.Flush()
 
 		So(e, ShouldBeNil)
 	})
 
 	Convey("Index Node Without Uuid", t, func() {
 
-		server, tmpDir := getTmpIndex(false)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
+		server, closer := getTmpIndex(false)
+		defer closer()
 
 		mtime := time.Now().Unix()
 		node := &tree.Node{
@@ -232,6 +227,7 @@ func TestIndexNode(t *testing.T) {
 		}
 		ctx := context.Background()
 		e := server.IndexNode(ctx, node, false, nil)
+		server.Engine.Flush()
 
 		So(e, ShouldNotBeNil)
 	})
@@ -240,18 +236,11 @@ func TestIndexNode(t *testing.T) {
 
 func TestSearchNode(t *testing.T) {
 
+	server, closer := getTmpIndex(true)
+	defer closer()
+	ctx := context.Background()
+
 	Convey("Search Node by name", t, func() {
-
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 
 		queryObject := &tree.Query{
 			FileName: "node",
@@ -272,17 +261,6 @@ func TestSearchNode(t *testing.T) {
 	})
 
 	Convey("Search Node by extension", t, func() {
-
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 
 		queryObject := &tree.Query{
 			Extension: "txt",
@@ -308,20 +286,15 @@ func TestSearchNode(t *testing.T) {
 		results, e = search(ctx, server, queryObject)
 		So(e, ShouldBeNil)
 		So(results, ShouldHaveLength, 1)
+
+		// Remove now
+		So(server.DeleteNode(ctx, &tree.Node{Uuid: "node-with-uppercase-extension"}), ShouldBeNil)
+		server.Engine.Flush()
+		<-time.After(7 * time.Second)
 	})
 
 	Convey("Search Node by size", t, func() {
 
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 		// Min & Max
 		queryObject := &tree.Query{
 			MinSize: 20,
@@ -354,16 +327,6 @@ func TestSearchNode(t *testing.T) {
 
 	Convey("Search Node by MTime", t, func() {
 
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 		mtime := time.Now().Unix()
 		// Min & Max
 		queryObject := &tree.Query{
@@ -388,18 +351,8 @@ func TestSearchNode(t *testing.T) {
 
 	Convey("Search Node with FreeString", t, func() {
 
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 		queryObject := &tree.Query{
-			FreeString: "Meta.FreeMeta:FreeMetaValue",
+			FreeString: "+Meta.FreeMeta:FreeMetaValue",
 		}
 
 		results, e := search(ctx, server, queryObject)
@@ -408,17 +361,6 @@ func TestSearchNode(t *testing.T) {
 	})
 
 	Convey("Search Node by Type", t, func() {
-
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 
 		queryObject := &tree.Query{
 			Type: 1,
@@ -442,17 +384,6 @@ func TestSearchNode(t *testing.T) {
 
 	Convey("Search Node by name with Path Prefix", t, func() {
 
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
-
 		queryObject := &tree.Query{
 			FileName:   "node",
 			PathPrefix: []string{"/path/to"},
@@ -473,18 +404,20 @@ func TestSearchNode(t *testing.T) {
 
 	})
 
+}
+
+func TestSearchByGeolocation(t *testing.T) {
+
+	server, closer := getTmpIndex(true)
+	defer closer()
+	ctx := context.Background()
+
+	if _, ok := server.Engine.(mongodb.DAO); ok {
+		closer()
+		t.Skip("Skipping GeoLocation test for mongodb.DAO")
+	}
+
 	Convey("Search Node by GeoLocation", t, func() {
-
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
-
-		ctx := context.Background()
 
 		queryObject := &tree.Query{
 			GeoQuery: &tree.GeoQuery{
@@ -525,14 +458,8 @@ func TestDeleteNode(t *testing.T) {
 
 	Convey("Delete Node", t, func() {
 
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
+		server, closer := getTmpIndex(true)
+		defer closer()
 		ctx := context.Background()
 
 		server.DeleteNode(ctx, &tree.Node{Uuid: "docID1"})
@@ -553,14 +480,8 @@ func TestClearIndex(t *testing.T) {
 
 	Convey("Clear Index", t, func() {
 
-		server, tmpDir := getTmpIndex(true)
-		defer func() {
-			server.Close()
-			e := os.RemoveAll(tmpDir)
-			if e != nil {
-				log.Println(e)
-			}
-		}()
+		server, closer := getTmpIndex(true)
+		defer closer()
 		ctx := context.Background()
 
 		e := server.ClearIndex(ctx)

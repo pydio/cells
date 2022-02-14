@@ -3,10 +3,13 @@ package test
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/bleve"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"os"
 
 	// Import all drivers
 	_ "github.com/pydio/cells/v4/common/dao/bleve"
@@ -24,7 +27,6 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 		driver = "mongodb"
 		dsn = mongoEnv
 		prefix = altPrefix
-	} else {
 	}
 	var d dao.DAO
 	var e error
@@ -40,10 +42,18 @@ func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrappe
 	closer := func() {}
 	switch driver {
 	case "boltdb", "bleve":
+		bleve.UnitTestEnv = true
 		closer = func() {
 			d.CloseConn()
-			fmt.Println("Closer : dropping on-file db", dsn)
-			os.Remove(dsn)
+			dropFile := dsn
+			if strings.Contains(dsn, "?") {
+				dropFile = strings.Split(dsn, "?")[0]
+			}
+			if er := os.RemoveAll(dropFile); er != nil {
+				fmt.Println("Closer : cannot drop on-file db", dropFile, er)
+			} else {
+				fmt.Println("Closer : dropped on-file db", dropFile)
+			}
 		}
 	case "mongodb":
 		closer = func() {

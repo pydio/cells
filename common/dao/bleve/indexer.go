@@ -342,6 +342,10 @@ func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 }
 
 func (s *Indexer) watchInserts() {
+	batchSize := 5000
+	if UnitTestEnv {
+		batchSize = 1
+	}
 	for {
 		select {
 		case in := <-s.inserts:
@@ -360,7 +364,7 @@ func (s *Indexer) watchInserts() {
 				id = xid.New().String()
 			}
 			s.crtBatch.Index(id, msg)
-			if s.crtBatch.Size() > 5000 {
+			if s.crtBatch.Size() >= batchSize {
 				s.flush()
 			}
 			s.flushLock.Unlock()
@@ -371,7 +375,7 @@ func (s *Indexer) watchInserts() {
 					s.crtBatch = s.getWriteIndex().NewBatch()
 				}
 				s.crtBatch.Delete(id)
-				if s.crtBatch.Size() > 5000 {
+				if s.crtBatch.Size() >= batchSize {
 					s.flush()
 				}
 				s.flushLock.Unlock()

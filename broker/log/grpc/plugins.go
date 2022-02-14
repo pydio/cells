@@ -55,7 +55,7 @@ func init() {
 				service.WithStoragePrefix("syslog"),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve")
+					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "syslog.bleve?mapping=log")
 				}),
 			),
 			service.Unique(true),

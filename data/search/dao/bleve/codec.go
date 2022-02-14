@@ -188,13 +188,13 @@ func (b *Codec) BuildQuery(qu interface{}, offset, limit int32) (interface{}, in
 	queryObject := qu.(*tree.Query)
 
 	boolean := bleve.NewBooleanQuery()
-	if term := queryObject.GetFileNameOrContent(); term != "" {
+	if term := queryObject.GetFileNameOrContent(); term != "" && term != "*" {
 		boolean.AddMust(bleve.NewDisjunctionQuery(b.makeBaseNameField(term, 5, ba), b.makeContentField(term, ca)))
 	} else {
-		if term := queryObject.GetFileName(); term != "" {
+		if term := queryObject.GetFileName(); term != "" && term != "*" {
 			boolean.AddMust(b.makeBaseNameField(term, 0, ba))
 		}
-		if term := queryObject.GetContent(); term != "" {
+		if term := queryObject.GetContent(); term != "" && term != "*" {
 			boolean.AddMust(b.makeContentField(term, ca))
 		}
 	}

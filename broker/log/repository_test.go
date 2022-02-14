@@ -30,31 +30,26 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-var (
-	server MessageRepository
-)
+func TestMessageRepository(t *testing.T) {
 
-func init() {
-	var err error
-	dao, _ := bleve.NewDAO("bleve", "", "")
-	idx, _ := bleve.NewIndexer(dao)
-	idx.SetCodex(&BleveCodec{})
-	idx.Init(configx.New())
-	server, err = NewIndexService(idx)
+	idx, closer, err := test.OnFileTestDAO("bleve", filepath.Join(os.TempDir(), "logtest-"+uuid.New()+".bleve?mapping=log"), "", "logs_tests", true, NewDAO)
 	if err != nil {
-		panic("Failed to create Syslog server")
+		panic(err)
 	}
-
-}
-
-func TestNewBleveEngine(t *testing.T) {
+	server, err := NewIndexService(idx.(dao.IndexDAO))
+	if err != nil {
+		panic(err)
+	}
+	defer closer()
 
 	Convey("Test all property indexation:\n", t, func() {
 		err := server.PutLog(&log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
@@ -105,7 +100,7 @@ func TestNewBleveEngine(t *testing.T) {
 	Convey("Search a result", t, func() {
 		results, err := server.ListLogs(
 			fmt.Sprintf(
-				`+%s:test +%s:INFO +%s:>1142080000`, // ~01.01.2006
+				`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
 				common.KeyMsg,
 				common.KeyLevel,
 				common.KeyTs,

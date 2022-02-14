@@ -16,6 +16,11 @@ type IndexableLog struct {
 	*log.LogMessage `bson:"inline"`
 }
 
+// BleveType is interpreted by bleve indexer as the mapping name
+func (*IndexableLog) BleveType() string {
+	return "log"
+}
+
 type baseCodec struct{}
 
 func (b *baseCodec) Marshal(input interface{}) (interface{}, error) {
