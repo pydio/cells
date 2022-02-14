@@ -84,8 +84,8 @@ func addConn(d string, dsn string) (Conn, error) {
 }
 
 func readConn(d string, dsn string) Conn {
-	lock.RLock()
-	defer lock.RUnlock()
+	lock.Lock()
+	defer lock.Unlock()
 
 	if conn, ok := conns[d+":"+dsn]; ok {
 		conn.weight = conn.weight + 1
