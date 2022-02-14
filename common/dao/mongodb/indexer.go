@@ -63,6 +63,14 @@ func (i *Indexer) watch() {
 	}
 }
 
+func (i *Indexer) mustTick() {
+	// avoid send on closed panic
+	defer func() {
+		recover()
+	}()
+	i.tick <- true
+}
+
 func (i *Indexer) SetCollection(c string) {
 	i.collection = c
 }
@@ -90,7 +98,7 @@ func (i *Indexer) Init(cfg configx.Values) error {
 func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
 	if m, e := i.codec.Marshal(data); e == nil {
 		i.inserts = append(i.inserts, m)
-		i.tick <- true
+		i.mustTick()
 		return nil
 	} else {
 		return e
@@ -108,7 +116,7 @@ func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 		return fmt.Errorf("data must be a string or an IndexIDProvider")
 	}
 	i.deletes = append(i.deletes, indexId)
-	i.tick <- true
+	i.mustTick()
 	return nil
 }
 
