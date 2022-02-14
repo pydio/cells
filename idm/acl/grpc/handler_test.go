@@ -22,7 +22,7 @@ package grpc
 
 import (
 	"context"
-	"fmt"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"sync"
 	"testing"
 
@@ -33,7 +33,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/acl"
 )
@@ -48,18 +47,11 @@ var (
 
 func TestMain(m *testing.M) {
 
-	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test_")
-	if dao == nil {
-		fmt.Print("Could not start test")
-		return
+	d, _, e := test.OnFileTestDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test_", "", false, acl.NewDAO)
+	if e != nil {
+		panic(e)
 	}
-
-	mockDAO = acl.NewDAO(dao).(acl.DAO)
-	if err := mockDAO.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
-	}
-
+	mockDAO = d.(acl.DAO)
 	ctx = context.Background()
 
 	m.Run()

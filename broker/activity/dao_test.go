@@ -21,8 +21,8 @@
 package activity
 
 import (
-	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"log"
 	"os"
 	"path"
@@ -35,8 +35,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/jsonx"
@@ -55,28 +54,12 @@ func init() {
 
 func initDao() (DAO, func()) {
 
-	if mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN"); mDsn != "" {
-
-		fmt.Println("Testing on MONGO")
-		h, _ := mongodb.NewDAO("mongodb", mDsn, "activity-test")
-		m := NewDAO(h).(DAO)
-		conf := configx.New()
-		m.Init(conf)
-		return m, func() {
-			h.(mongodb.DAO).DB().Drop(context.Background())
-			h.CloseConn()
-		}
-
-	}
-
 	tmpDbFilePath := filepath.Join(os.TempDir(), uuid.New()+".db")
-	tmpdao, _ := boltdb.NewDAO("boltdb", tmpDbFilePath, "")
-	dao := NewDAO(tmpdao).(DAO)
-	dao.Init(conf)
-	return dao, func() {
-		dao.CloseConn()
-		os.Remove(tmpDbFilePath)
+	d, closer, e := test.OnFileTestDAO("boltdb", tmpDbFilePath, "", "activity-test", false, NewDAO)
+	if e != nil {
+		log.Fatal(e)
 	}
+	return d.(DAO), closer
 }
 
 func TestBoltEmptyDao(t *testing.T) {

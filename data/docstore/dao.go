@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"path/filepath"
+	"strings"
 )
 
 type DAO interface {
@@ -50,8 +51,14 @@ func NewDAO(dao dao.DAO) dao.DAO {
 	switch v := dao.(type) {
 	case boltdb.DAO:
 		bStore := &BoltStore{db: v.DB()}
-		dirname := filepath.Join(filepath.Dir(v.DB().Path()), "docstore.bleve")
-		bleve, er := NewBleveEngine(bStore, dirname, false)
+		boltFile := v.DB().Path()
+		var bleveDirname string
+		if strings.HasSuffix(boltFile, ".db") {
+			bleveDirname = strings.TrimSuffix(boltFile, ".db") + ".bleve"
+		} else {
+			bleveDirname = filepath.Join(filepath.Dir(boltFile), "docstore.bleve")
+		}
+		bleve, er := NewBleveEngine(bStore, bleveDirname, false)
 		if er != nil {
 			log.Fatal("Cannot open bleve engine for docstore")
 		}

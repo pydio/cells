@@ -21,7 +21,7 @@
 package versions
 
 import (
-	"context"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -29,9 +29,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -55,33 +54,15 @@ func TestNewBoltStore(t *testing.T) {
 
 func initTestDAO(name string) (DAO, func()) {
 
-	mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
-	if mDsn != "" {
-
-		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "versions-test")
-		dao := NewDAO(coreDao).(DAO)
-		dao.Init(configx.New())
-		closer := func() {
-			dao.(*mongoStore).DB().Drop(context.Background())
-			dao.CloseConn()
-		}
-
-		return dao, closer
-
-	} else {
-		p := filepath.Join(os.TempDir(), name+".db")
-		bd, _ := boltdb.NewDAO("boltdb", p, "test")
-		bs, _ := NewBoltStore(bd.(boltdb.DAO), p, true)
-		closer := func() {
-			bs.Close()
-		}
-		return bs, closer
-
+	d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), name+".db"), "", "versions-test", false, NewDAO)
+	if e != nil {
+		log.Fatal(e)
 	}
+	return d.(DAO), c
 
 }
 
-func TestBoltStore_CRUD(t *testing.T) {
+func TestDAO_CRUD(t *testing.T) {
 
 	Convey("Test CRUD", t, func() {
 

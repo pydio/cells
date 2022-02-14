@@ -21,8 +21,6 @@
 package acl
 
 import (
-	"fmt"
-	"sync"
 	"testing"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -33,34 +31,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
-
-var (
-	mockDAO DAO
-
-	options = configx.New()
-
-	wg sync.WaitGroup
-)
-
-func TestMain(m *testing.M) {
-
-	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test_")
-	if dao == nil {
-		fmt.Print("Could not start test")
-		return
-	}
-
-	mockDAO = NewDAO(dao).(DAO)
-	if err := mockDAO.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
-	}
-
-	m.Run()
-	wg.Wait()
-}
 
 func TestQueryBuilder(t *testing.T) {
 

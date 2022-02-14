@@ -23,7 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"os"
 	"path/filepath"
 	"testing"
@@ -32,12 +31,11 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	chat2 "github.com/pydio/cells/v4/broker/chat"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/server/stubs"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -63,36 +61,12 @@ func (s *roomsSrvStub) Send(response *chat.ListRoomsResponse) error {
 
 func initializedHandler() (context.Context, *ChatHandler, func(), error) {
 
-	if mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN"); mDsn != "" {
-		fmt.Println("Testing on MONGO DB")
-		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "chat-test")
-		dao := chat2.NewDAO(coreDao).(chat2.DAO)
-		if e := dao.Init(configx.New()); e != nil {
-			return nil, nil, nil, e
-		}
-		closer := func() {
-			dao.CloseConn()
-		}
-		ctx := servicecontext.WithDAO(context.Background(), dao)
-		handler := &ChatHandler{dao: dao}
-		return ctx, handler, closer, nil
-
-	} else {
-
-		tmpFile := filepath.Join(os.TempDir(), uuid.New()+".db")
-		coreDao, _ := boltdb.NewDAO("boltdb", tmpFile, "")
-		dao := chat2.NewDAO(coreDao).(chat2.DAO)
-		if e := dao.Init(configx.New()); e != nil {
-			return nil, nil, nil, e
-		}
-		closer := func() {
-			dao.CloseConn()
-			os.Remove(tmpFile)
-		}
-		ctx := servicecontext.WithDAO(context.Background(), dao)
-		handler := &ChatHandler{dao: dao}
-		return ctx, handler, closer, nil
+	d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), uuid.New()+".db"), "", "chat-test", false, chat2.NewDAO)
+	if e != nil {
+		return nil, nil, nil, e
 	}
+	return servicecontext.WithDAO(context.Background(), d), &ChatHandler{dao: d.(chat2.DAO)}, c, nil
+
 }
 
 func TestChatHandler_PutRoom(t *testing.T) {

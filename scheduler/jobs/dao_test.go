@@ -21,8 +21,8 @@
 package jobs
 
 import (
-	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"log"
 	"os"
 	"path/filepath"
@@ -35,12 +35,10 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/dao/boltdb"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 func TestNewBoltStore(t *testing.T) {
@@ -49,7 +47,7 @@ func TestNewBoltStore(t *testing.T) {
 		dbFile := os.TempDir() + "/bolt-test.db"
 		dao, _ := boltdb.NewDAO("boltdb", dbFile, "test-jobs")
 		defer os.Remove(dbFile)
-		db, err := NewBoltStore(dao)
+		db, err := NewBoltStore(dao.(boltdb.DAO))
 		defer dao.CloseConn()
 		So(err, ShouldBeNil)
 		So(db, ShouldNotBeNil)
@@ -59,34 +57,16 @@ func TestNewBoltStore(t *testing.T) {
 
 func initDAO(name string) (DAO, func()) {
 
-	mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
-	if mDsn != "" {
-
-		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "versions-test")
-		dao := NewDAO(coreDao).(DAO)
-		dao.Init(configx.New())
-		closer := func() {
-			coreDao.DB().Drop(context.Background())
-			dao.CloseConn()
-		}
-
-		return dao, closer
-
-	} else {
-		p := filepath.Join(os.TempDir(), name+".db")
-		bd, _ := boltdb.NewDAO("boltdb", p, "test")
-		bs, _ := NewBoltStore(bd)
-		closer := func() {
-			bd.CloseConn()
-			os.Remove(p)
-		}
-		return bs, closer
-
+	name = "jobs-" + name
+	d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), name+".db"), "", "jobs-tests", false, NewDAO)
+	if e != nil {
+		log.Fatal(e)
 	}
+	return d.(DAO), c
 
 }
 
-func TestBoltStore_CRUD(t *testing.T) {
+func TestDAO_CRUD(t *testing.T) {
 
 	Convey("Test Put / Get / Delete", t, func() {
 
@@ -137,7 +117,7 @@ func TestBoltStore_CRUD(t *testing.T) {
 	})
 }
 
-func TestBoltStore_ListJobs(t *testing.T) {
+func TestDAO_ListJobs(t *testing.T) {
 
 	Convey("Test List Jobs", t, func() {
 
@@ -328,7 +308,7 @@ func loadTasks(db DAO, jobId string, jobStatus jobs.TaskStatus, offset ...int32)
 	return allTasks, nil
 }
 
-func TestBoltStore_PutTask(t *testing.T) {
+func TestDAO_PutTask(t *testing.T) {
 
 	Convey("Test Put Task", t, func() {
 
@@ -351,7 +331,7 @@ func TestBoltStore_PutTask(t *testing.T) {
 	})
 }
 
-func TestBoltStore_listTask(t *testing.T) {
+func TestDAO_listTask(t *testing.T) {
 
 	Convey("Test Put Task", t, func() {
 

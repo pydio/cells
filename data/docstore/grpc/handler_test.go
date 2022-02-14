@@ -22,10 +22,12 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"fmt"
+	"github.com/pydio/cells/v4/common/dao/test"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"google.golang.org/grpc/metadata"
@@ -79,36 +81,22 @@ func (l *listDocsTestStreamer) Send(r *proto.ListDocumentsResponse) error {
 
 func createTestHandler(suffix string) (*Handler, func()) {
 
-	if mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN"); mDsn != "" {
-
-		coreDao, _ := mongodb.NewDAO("mongodb", mDsn, "docstore-test")
-		dao := docstore.NewDAO(coreDao).(docstore.DAO)
-		if e := dao.Init(configx.New()); e != nil {
-			return nil, nil
-		}
-		h := &Handler{
-			DAO: dao,
-		}
-		closer := func() {
-			h.Close()
-			coreDao.(mongodb.DAO).DB().Drop(context.Background())
-		}
-		return h, closer
-
+	var closer func()
+	d, c, e := test.OnFileTestDAO("boltdb", newPath("docstore"+suffix+".db"), "", "docstore-test", false, docstore.NewDAO)
+	if e != nil {
+		log.Fatal(e)
 	}
-
-	pBolt := newPath("docstore" + suffix + ".db")
-	pBleve := newPath("docstore" + suffix + ".bleve")
-
-	store, _ := docstore.NewBoltStore(pBolt, true)
-	indexer, _ := docstore.NewBleveEngine(store, pBleve, true)
-
-	h := &Handler{DAO: indexer}
-	closer := func() {
-		h.Close()
+	if bs, o := d.(*docstore.BleveServer); o {
+		bPath := strings.ReplaceAll(bs.DAO.DB().Path(), "docstore"+suffix+".db", "docstore"+suffix+".bleve")
+		closer = func() {
+			c()
+			fmt.Println("dropping on-file bleve" + bPath)
+			os.RemoveAll(bPath)
+		}
+	} else {
+		closer = c
 	}
-	return h, closer
-
+	return &Handler{DAO: d.(docstore.DAO)}, closer
 }
 
 func TestHandler_CloseBolt(t *testing.T) {
