@@ -2,17 +2,20 @@ package mongo
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
-	"github.com/pydio/cells/v4/common/nodes/meta"
-	"github.com/pydio/cells/v4/common/proto/tree"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	"strings"
+	"time"
+	
+	"github.com/blevesearch/bleve/v2/geo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"google.golang.org/protobuf/proto"
-	"strings"
-	"time"
+
+	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/nodes/meta"
+	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
 const (
@@ -202,25 +205,39 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 
 	}
 
-	/*
-		// TODO V4
-			if queryObject.GeoQuery != nil {
-				if queryObject.GeoQuery.Center != nil && len(queryObject.GeoQuery.Distance) > 0 {
-					distanceQuery := bleve.NewGeoDistanceQuery(queryObject.GeoQuery.Center.Lon, queryObject.GeoQuery.Center.Lat, queryObject.GeoQuery.Distance)
-					distanceQuery.SetField("GeoPoint")
-					boolean.AddMust(distanceQuery)
-				} else if queryObject.GeoQuery.TopLeft != nil && queryObject.GeoQuery.BottomRight != nil {
-					boundingBoxQuery := bleve.NewGeoBoundingBoxQuery(
-						queryObject.GeoQuery.TopLeft.Lon,
-						queryObject.GeoQuery.TopLeft.Lat,
-						queryObject.GeoQuery.BottomRight.Lon,
-						queryObject.GeoQuery.BottomRight.Lat,
-					)
-					boundingBoxQuery.SetField("GeoPoint")
-					boolean.AddMust(boundingBoxQuery)
-				}
+	if queryObject.GeoQuery != nil {
+		if queryObject.GeoQuery.Center != nil && len(queryObject.GeoQuery.Distance) > 0 {
+			point := &tree.GeoJson{}
+			point.Type = "Point"
+			point.Coordinates = []float64{queryObject.GeoQuery.Center.Lon, queryObject.GeoQuery.Center.Lat}
+			distance, er := geo.ParseDistance(queryObject.GeoQuery.Distance)
+			if er != nil {
+				return nil, nil, er
 			}
-	*/
+			filters = append(filters, bson.E{"geo_json", bson.M{"$near": bson.M{"$geometry": point, "$maxDistance": distance}}})
+		} else if queryObject.GeoQuery.TopLeft != nil && queryObject.GeoQuery.BottomRight != nil {
+			type Polygon struct {
+				Type        string        `bson:"type"`
+				Coordinates [][][]float64 `bson:"coordinates"`
+			}
+			var coords [][]float64
+			coords = append(coords, []float64{queryObject.GeoQuery.TopLeft.Lon, queryObject.GeoQuery.TopLeft.Lat})
+			coords = append(coords, []float64{queryObject.GeoQuery.TopLeft.Lon, queryObject.GeoQuery.BottomRight.Lat})
+			coords = append(coords, []float64{queryObject.GeoQuery.BottomRight.Lon, queryObject.GeoQuery.BottomRight.Lat})
+			coords = append(coords, []float64{queryObject.GeoQuery.BottomRight.Lon, queryObject.GeoQuery.TopLeft.Lat})
+			coords = append(coords, []float64{queryObject.GeoQuery.TopLeft.Lon, queryObject.GeoQuery.TopLeft.Lat})
+			polygon := &Polygon{
+				Type: "Polygon",
+			}
+			polygon.Coordinates = append(polygon.Coordinates, coords)
+			filters = append(filters, bson.E{"geo_json", bson.M{"$geoWithin": bson.M{"$geometry": polygon}}})
+		}
+	}
+
+	if queryObject.GeoQuery != nil {
+		// We do not support Facets when using GeoQuery yet - May be possible using $geoNear aggregation stage ...
+		return filters, nil, nil
+	}
 
 	matchAggr := bson.D{{"$match", filters}}
 	m.prepareFacets()
@@ -286,6 +303,7 @@ func (m *Codex) GetModel(sc configx.Values) (interface{}, bool) {
 					{"modif_time": 1},
 					{"extension": 1},
 					{"node_type": 1},
+					{"geo_json": 2}, // Special value for 2dsphere
 				},
 				IDName: "uuid",
 			},

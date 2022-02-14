@@ -158,6 +158,13 @@ func (b *Batch) LoadIndexableNode(indexNode *tree.IndexableNode, excludes map[st
 		indexNode.NodeType = "folder"
 	}
 	indexNode.GetMeta(common.MetaNamespaceGeoLocation, &indexNode.GeoPoint)
+	if indexNode.GeoPoint != nil {
+		lat, ok1 := indexNode.GeoPoint["lat"].(float64)
+		lon, ok2 := indexNode.GeoPoint["lon"].(float64)
+		if ok1 && ok2 {
+			indexNode.GeoJson = &tree.GeoJson{Type: "Point", Coordinates: []float64{lon, lat}}
+		}
+	}
 	ref := indexNode.GetStringMeta("ContentRef")
 	if b.options.IndexContent && indexNode.IsLeaf() && ref != "" {
 		delete(indexNode.Meta, "ContentRef")

@@ -35,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
-	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -411,11 +410,6 @@ func TestSearchByGeolocation(t *testing.T) {
 	server, closer := getTmpIndex(true)
 	defer closer()
 	ctx := context.Background()
-
-	if _, ok := server.Engine.(mongodb.DAO); ok {
-		closer()
-		t.Skip("Skipping GeoLocation test for mongodb.DAO")
-	}
 
 	Convey("Search Node by GeoLocation", t, func() {
 

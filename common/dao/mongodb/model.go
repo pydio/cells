@@ -23,10 +23,11 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"go.mongodb.org/mongo-driver/x/bsonx"
-	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -68,7 +69,11 @@ func (m Model) Init(ctx context.Context, db *mongo.Database) error {
 			for _, model := range col.Indexes {
 				keys := bson.D{}
 				for key, sort := range model {
-					keys = append(keys, primitive.E{Key: key, Value: sort})
+					if sort == 2 {
+						keys = append(keys, primitive.E{Key: key, Value: "2dsphere"})
+					} else {
+						keys = append(keys, primitive.E{Key: key, Value: sort})
+					}
 				}
 				models = append(models, mongo.IndexModel{Keys: keys})
 				if _, e := db.Collection(col.Name).Indexes().CreateMany(ctx, models); e != nil {

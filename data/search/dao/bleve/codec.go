@@ -9,6 +9,7 @@ import (
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
 	"github.com/blevesearch/bleve/v2/analysis/lang/en"
+	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/registry"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/query"
@@ -360,6 +361,13 @@ func (b *Codec) GetModel(cfg configx.Values) (interface{}, bool) {
 	// GeoPoint
 	geoPosition := bleve.NewGeoPointFieldMapping()
 	nodeMapping.AddFieldMappingsAt("GeoPoint", geoPosition)
+	// Ignore GeoJson
+	nodeMapping.AddFieldMappingsAt("GeoJson", &mapping.FieldMapping{
+		Type:  "text",
+		Name:  "GeoJson",
+		Index: false,
+		Store: false,
+	})
 
 	// Text Content
 	textContent := bleve.NewTextFieldMapping()
