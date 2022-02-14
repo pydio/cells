@@ -28,7 +28,7 @@ xgo:
 	GO111MODULE=auto ${XGO_BIN} -go 1.16 \
 	 --image ${XGO_IMAGE} \
 	 --targets ${XGO_TARGETS} \
-	 -ldflags "-X github.com/pydio/cells/common.version=${CELLS_VERSION}\
+	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
 	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
 	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
 	 .
