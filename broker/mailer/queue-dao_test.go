@@ -21,16 +21,14 @@
 package mailer
 
 import (
-	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/v4/common/dao/mongodb"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
@@ -43,24 +41,6 @@ func init() {
 	// Define parameters to shorten tests launch
 	conf = configx.New()
 	conf.Val("QueueMaxSize").Set(int64(10))
-}
-
-func TestEmptyDao(t *testing.T) {
-
-	Convey("Test initialize BoltDB DAO", t, func() {
-		bDir, e := ioutil.TempDir(os.TempDir(), "bolt-queue-1-*")
-		So(e, ShouldBeNil)
-		bPath := filepath.Join(bDir, "bolt-test.db")
-		bq, e := NewBoltQueue(bPath, true)
-		if e != nil {
-			fmt.Println("Cannot initialise bolt queue at " + bPath)
-			fmt.Println("error: " + e.Error())
-		}
-		So(e, ShouldBeNil)
-		So(bq, ShouldNotBeNil)
-		bq.Close()
-	})
-
 }
 
 func testQueue(t *testing.T, queue Queue) {
@@ -86,11 +66,11 @@ func testQueue(t *testing.T, queue Queue) {
 	So(err, ShouldBeNil)
 
 	var consumedMail *mailer.Mail
-	queue.Consume(func(email *mailer.Mail) error {
+	e := queue.Consume(func(email *mailer.Mail) error {
 		consumedMail = email
 		return nil
 	})
-
+	So(e, ShouldBeNil)
 	So(consumedMail, ShouldNotBeNil)
 	So(consumedMail.GetFrom().Name, ShouldEqual, "Sender")
 
@@ -99,11 +79,12 @@ func testQueue(t *testing.T, queue Queue) {
 
 	// We should only retrieve 2nd email
 	i := 0
-	queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(func(email *mailer.Mail) error {
 		consumedMail = email
 		i++
 		return nil
 	})
+	So(e, ShouldBeNil)
 	So(consumedMail, ShouldNotBeNil)
 	So(consumedMail.GetSubject(), ShouldEqual, "Second email")
 	So(i, ShouldEqual, 1)
@@ -111,20 +92,23 @@ func testQueue(t *testing.T, queue Queue) {
 	email2.Subject = "Test 3 With Fail"
 	err = queue.Push(email2)
 	So(err, ShouldBeNil)
-	queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(func(email *mailer.Mail) error {
 		return fmt.Errorf("Failed Sending Email - Should Update Retry")
 	})
+	So(e, ShouldNotBeNil)
 
-	queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(func(email *mailer.Mail) error {
 		return fmt.Errorf("Failed Sending Email - Should Update Retry _ 2")
 	})
+	So(e, ShouldNotBeNil)
 
 	i = 0
-	queue.Consume(func(email *mailer.Mail) error {
+	e = queue.Consume(func(email *mailer.Mail) error {
 		i++
 		consumedMail = email
 		return nil
 	})
+	So(e, ShouldBeNil)
 	So(i, ShouldEqual, 1)
 	So(consumedMail.Retries, ShouldEqual, 2)
 
@@ -132,38 +116,49 @@ func testQueue(t *testing.T, queue Queue) {
 
 func TestEnqueueMail(t *testing.T) {
 
-	Convey("Test push", t, func() {
+	Convey("Test Queue DAO", t, func() {
 
-		bDir, e := ioutil.TempDir(os.TempDir(), "bolt-queue-2-*")
+		d, c, e := test.OnFileTestDAO("boltdb", filepath.Join(os.TempDir(), "test-mail-queue.db"), "", "mailqueue-test", false, NewQueueDAO)
 		So(e, ShouldBeNil)
-		bPath := filepath.Join(bDir, "bolt-test.db")
-
-		queue, e := NewBoltQueue(bPath, true)
-		So(e, ShouldBeNil)
-		defer queue.Close()
-
+		queue := d.(Queue)
+		defer c()
 		testQueue(t, queue)
 
 	})
 
-	mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
-	if mDsn == "" {
-		return
-	}
+	/*
+		Convey("Test push", t, func() {
 
-	Convey("Test Mongo if found in ENV", t, func() {
+			bDir, e := ioutil.TempDir(os.TempDir(), "bolt-queue-2-*")
+			So(e, ShouldBeNil)
+			bPath := filepath.Join(bDir, "bolt-test.db")
 
-		dao, _ := mongodb.NewDAO("mongodb", mDsn, "mailqueue-test")
-		queue, e := NewMongoQueue(dao.(mongodb.DAO), configx.New())
-		So(e, ShouldBeNil)
-		defer func() {
-			queue.(*mongoQueue).DB().Drop(context.Background())
-			queue.Close()
+			queue, e := NewBoltQueue(bPath, true)
+			So(e, ShouldBeNil)
+			defer queue.Close()
 
-		}()
+			testQueue(t, queue)
 
-		testQueue(t, queue)
+		})
 
-	})
+		mDsn := os.Getenv("CELLS_TEST_MONGODB_DSN")
+		if mDsn == "" {
+			return
+		}
+
+		Convey("Test Mongo if found in ENV", t, func() {
+
+			dao, _ := mongodb.NewDAO("mongodb", mDsn, "mailqueue-test")
+			queue, e := NewMongoQueue(dao.(mongodb.DAO), configx.New())
+			So(e, ShouldBeNil)
+			defer func() {
+				queue.(*mongoQueue).DB().Drop(context.Background())
+				queue.Close()
+
+			}()
+
+			testQueue(t, queue)
+
+		})*/
 
 }

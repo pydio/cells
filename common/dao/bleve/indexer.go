@@ -100,6 +100,17 @@ func (s *Indexer) Init(cfg configx.Values) error {
 	return s.Open(s.BleveConfig().BlevePath)
 }
 
+// Stats implements DAO method by listing opened indexes and documents counts
+func (s *Indexer) Stats() map[string]interface{} {
+	m := map[string]interface{}{
+		"indexes": s.listIndexes(),
+	}
+	if count, e := s.searchIndex.DocCount(); e == nil {
+		m["docsCount"] = count
+	}
+	return m
+}
+
 // Open lists all existing indexes and creates a writeable index on the active one
 // and a composed index for searching. It calls watchInserts() to start watching for
 // new logs
@@ -342,10 +353,7 @@ func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 }
 
 func (s *Indexer) watchInserts() {
-	batchSize := 5000
-	if UnitTestEnv {
-		batchSize = 1
-	}
+	batchSize := int(s.BleveConfig().BatchSize)
 	for {
 		select {
 		case in := <-s.inserts:
@@ -453,6 +461,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 	dup := &Indexer{
 		DAO: s.DAO,
 	}
+	dup.SetCodex(s.codec)
 	if UnitTestEnv {
 		dup.inserts = make(chan interface{})
 	} else {
@@ -480,7 +489,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 			return err
 		}
 		for _, hit := range sr.Hits {
-			um, e := s.codec.Unmarshal(hit.Fields)
+			um, e := s.codec.Unmarshal(hit)
 			if e != nil {
 				fmt.Println(e)
 				continue
@@ -490,7 +499,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 				fmt.Println(e)
 				continue
 			}
-			s.inserts <- mu
+			dup.inserts <- mu
 		}
 		if sr.Total <= uint64((page+1)*req.Size) {
 			break
@@ -498,6 +507,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 		page++
 
 	}
+	dup.Flush()
 
 	s.Close()
 	dup.Close()

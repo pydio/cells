@@ -23,15 +23,18 @@ package grpc
 
 import (
 	"context"
+	"path/filepath"
 	"time"
-
-	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
+	mailer2 "github.com/pydio/cells/v4/broker/mailer"
 	"github.com/pydio/cells/v4/common"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/dao/boltdb"
+	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/jobs"
@@ -56,7 +59,6 @@ func init() {
 			service.Tag(common.ServiceTagBroker),
 			service.Description("MailSender Service"),
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceJobs, []string{}),
-			service.Unique(true),
 			service.AutoRestart(true),
 			service.Migrations([]*service.Migration{
 				{
@@ -64,10 +66,18 @@ func init() {
 					Up:            RegisterQueueJob,
 				},
 			}),
+			service.WithStorage(mailer2.NewQueueDAO,
+				service.WithStoragePrefix("broker_mailer"),
+				service.WithStorageSupport(boltdb.Driver, mongodb.Driver),
+				service.WithStorageMigrator(mailer2.MigrateQueue),
+				service.WithStorageDefaultDriver(func() (string, string) {
+					return "boltdb", filepath.Join(config.MustServiceDataDir(Name), "queue.db")
+				}),
+			),
 			service.WithGRPC(func(c context.Context, server *grpc.Server) error {
 
 				conf := config.Get("services", Name)
-				handler, err := NewHandler(ctx, conf)
+				handler, err := NewHandler(c, conf)
 				if err != nil {
 					log.Logger(ctx).Error("Init handler", zap.Error(err))
 					return err
@@ -75,13 +85,6 @@ func init() {
 				log.Logger(ctx).Debug("Init handler OK", zap.Any("h", handler))
 
 				mailer.RegisterMailerServiceEnhancedServer(server, handler)
-
-				go func() {
-					<-c.Done()
-					if handler.queue != nil {
-						handler.queue.Close()
-					}
-				}()
 
 				return nil
 			}),

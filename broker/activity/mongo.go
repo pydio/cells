@@ -290,7 +290,24 @@ func (m *mongoimpl) Delete(ownerType activity.OwnerType, ownerId string) error {
 		return e
 	}
 	//fmt.Println("Deleted", res.DeletedCount, "activities")
-	// TODO v4 For users, clear activities where Actor.Id = userId, clear Subscriptions
+	if ownerType != activity.OwnerType_USER {
+		return nil
+	}
+
+	// Clear Subscriptions
+	res, e := m.DB().Collection(collSubscriptions).DeleteMany(context.Background(), bson.D{{"userid", ownerId}})
+	if e != nil {
+		return e
+	}
+	fmt.Printf("Cleared %d subscriptions for user %s", res.DeletedCount, ownerId)
+
+	//  Clear activities where Actor.Id = userId
+	res, e = m.DB().Collection(collActivities).DeleteMany(context.Background(), bson.D{{"object.actor.id", ownerId}})
+	if e != nil {
+		return e
+	}
+	fmt.Printf("Cleared %d activities whose Actor was %s", res.DeletedCount, ownerId)
+
 	return nil
 }
 

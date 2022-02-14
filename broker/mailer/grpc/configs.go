@@ -62,17 +62,6 @@ var ExposedConfigs = &forms.Form{
 					{"default": "Mail.Config.FromCtlDefault.Label"},
 				},
 			},
-			&forms.FormField{
-				Name:        "queue",
-				Type:        forms.ParamSelect,
-				Label:       "Mail.Config.Queue.Label",
-				Description: "Mail.Config.Queue.Description",
-				ChoicePresetList: []map[string]string{
-					{"boltdb": "Mail.Config.Queue.ValueBolt"},
-					{"memory": "Mail.Config.Queue.ValueMemory"},
-				},
-				Default: "boltdb",
-			},
 			&forms.SwitchField{
 				Name:        "sender",
 				Label:       "Mail.Config.Mailer.Label",

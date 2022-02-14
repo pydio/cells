@@ -24,13 +24,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"os"
 	"strings"
-	"time"
 
 	bolt "go.etcd.io/bbolt"
 
+	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/proto/mailer"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -46,50 +46,25 @@ var (
 
 // BoltQueue defines a queue for the mails backed by a Bolt DB.
 type BoltQueue struct {
-	// Internal DB
-	db *bolt.DB
-	// For Testing purpose : delete file after closing
-	DeleteOnClose bool
-	// Path to the DB file
-	DbPath string
+	boltdb.DAO
 }
 
-// NewBoltQueue creates a Bolt DB if necessary.
-func NewBoltQueue(fileName string, deleteOnClose ...bool) (*BoltQueue, error) {
-
-	bs := &BoltQueue{
-		DbPath: fileName,
-	}
-	if len(deleteOnClose) > 0 && deleteOnClose[0] {
-		bs.DeleteOnClose = true
-	}
-	options := bolt.DefaultOptions
-	options.Timeout = 5 * time.Second
-	db, err := bolt.Open(fileName, 0644, options)
-	if err != nil {
-		return nil, err
-	}
-	bs.db = db
-	e2 := db.Update(func(tx *bolt.Tx) error {
+func (b *BoltQueue) Init(cfg configx.Values) error {
+	return b.DB().Update(func(tx *bolt.Tx) error {
 		_, e := tx.CreateBucketIfNotExists(bucketName)
 		return e
 	})
-	return bs, e2
 }
 
 // Close closes the DB and delete corresponding file if deleteOnClose flag as been set on creation.
 func (b *BoltQueue) Close() error {
-	err := b.db.Close()
-	if b.DeleteOnClose {
-		os.Remove(b.DbPath)
-	}
-	return err
+	return b.CloseConn()
 }
 
 // Push acquires the lock and add a mail to be sent in the queue.
 func (b *BoltQueue) Push(email *mailer.Mail) error {
 
-	return b.db.Update(func(tx *bolt.Tx) error {
+	return b.DB().Update(func(tx *bolt.Tx) error {
 		// Retrieve the bucket.
 		b := tx.Bucket([]byte("MailerQueue"))
 
@@ -114,7 +89,7 @@ func (b *BoltQueue) Consume(sendHandler func(email *mailer.Mail) error) error {
 
 	var output error
 
-	b.db.Update(func(tx *bolt.Tx) error {
+	b.DB().Update(func(tx *bolt.Tx) error {
 
 		b := tx.Bucket([]byte("MailerQueue"))
 		c := b.Cursor()
