@@ -2,21 +2,18 @@ package memory
 
 import (
 	"context"
-	"net/url"
-	"os"
-	"sync"
-	"time"
-
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/uuid"
+	"net/url"
+	"os"
+	"sync"
 )
 
 var (
-	scheme        = "mem"
-	shared        registry.Registry
-	sharedOnce    = &sync.Once{}
-	sendEventTime = 10 * time.Millisecond
+	scheme     = "mem"
+	caches     = make(map[string]registry.Registry)
+	cachesLock = &sync.Mutex{}
 )
 
 type URLOpener struct{}
@@ -28,12 +25,17 @@ func init() {
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	byName := u.Query().Get("byname") == "true"
-	if u.Query().Get("cache") == "shared" {
-		sharedOnce.Do(func() {
-			shared = registry.NewRegistry(newMemory(byName))
-		})
-
-		return shared, nil
+	cacheKey := u.Query().Get("cache")
+	if u.Query().Get("cache") != "" {
+		cachesLock.Lock()
+		defer cachesLock.Unlock()
+		if r, o := caches[cacheKey]; o {
+			return r, nil
+		} else {
+			reg := registry.NewRegistry(newMemory(byName))
+			caches[cacheKey] = reg
+			return reg, nil
+		}
 	}
 	return registry.NewRegistry(newMemory(byName)), nil
 }

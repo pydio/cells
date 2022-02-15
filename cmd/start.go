@@ -82,9 +82,10 @@ to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
+		// Warning - if re-enabled, should support a "byname" approach to allow plugins to be overridden.
 		//pluginsRegStore := memory.New()
-		///pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
-		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=shared&byname=true")
+		//pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
+		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=plugins&byname=true")
 
 		// Version memory
 		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
