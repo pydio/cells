@@ -554,8 +554,11 @@ func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) 
 
 	if max == 0 {
 		logger("Truncate index to 0: remove and recreate")
-		if er := os.RemoveAll(s.indexPath); er != nil {
-			return er
+		for _, idxName := range s.listIndexes() {
+			logger(" - Remove " + filepath.Join(dir, idxName))
+			if er := os.RemoveAll(filepath.Join(dir, idxName)); er != nil {
+				return er
+			}
 		}
 		logger("Re-opening indexer")
 		if er := s.Open(s.indexPath); er != nil {
