@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 
@@ -106,8 +107,14 @@ func (s *service) As(i interface{}) bool {
 }
 
 func (s *service) Start() (er error) {
+	now := time.Now()
 
 	defer func() {
+		elapsed := time.Now().Sub(now)
+		if elapsed > 5*time.Second {
+			fmt.Println(s.Name(), "took ", elapsed, " to start")
+		}
+
 		if e := recover(); e != nil {
 			log.Logger(s.opts.Context).Error("panic while starting service", zap.Any("p", e))
 			er = fmt.Errorf("panic while starting service %v", e)
@@ -133,18 +140,25 @@ func (s *service) Start() (er error) {
 	}
 
 	s.opts.Server.AfterServe(func() error {
-		return UpdateServiceVersion(s.opts)
+		go UpdateServiceVersion(s.opts)
+
+		return nil
 	})
+
 	for _, after := range s.opts.AfterServe {
 		s.opts.Server.AfterServe(func() error {
-			return after(s.opts.Context)
+			go after(s.opts.Context)
+
+			return nil
 		})
 	}
 
 	if reg := servicecontext.GetRegistry(s.opts.Context); reg != nil {
-		if err := reg.Register(s); err != nil {
-			log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
-		}
+		go func() {
+			if err := reg.Register(s); err != nil {
+				log.Logger(s.opts.Context).Warn("could not register", zap.Error(err))
+			}
+		}()
 	} else {
 		log.Logger(s.opts.Context).Warn("no registry attached")
 	}

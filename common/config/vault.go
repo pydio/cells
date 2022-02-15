@@ -59,6 +59,16 @@ func (v *vault) Save(ctxUser string, ctxMessage string) error {
 	return v.config.Save(ctxUser, ctxMessage)
 }
 
+func (v *vault) Lock() {
+	v.config.Lock()
+	v.vault.Lock()
+}
+
+func (v *vault) Unlock() {
+	v.config.Unlock()
+	v.vault.Unlock()
+}
+
 // Get access to the underlying structure at a certain path
 func (v *vault) Get() configx.Value {
 	return v.vault.Get()

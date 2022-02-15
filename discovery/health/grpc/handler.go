@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -16,5 +17,6 @@ func (h *Handler) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequ
 }
 
 func (h *Handler) Watch(req *grpc_health_v1.HealthCheckRequest, w grpc_health_v1.Health_WatchServer) error {
+
 	return nil
 }

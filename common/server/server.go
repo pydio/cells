@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v4/common/registry"
+
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -51,8 +53,8 @@ func NewServer(ctx context.Context, s RawServer) Server {
 		},
 	}
 
-	reg := servercontext.GetRegistry(ctx)
-	reg.Register(srv)
+	// reg := servercontext.GetRegistry(ctx)
+	// reg.Register(srv)
 
 	return srv
 }
@@ -66,13 +68,13 @@ func (s *server) Serve() error {
 		return err
 	}
 
-	if err := s.doAfterServe(); err != nil {
-		return err
-	}
-
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		reg.Register(s)
+	}
+
+	if err := s.doAfterServe(); err != nil {
+		return err
 	}
 
 	return nil
@@ -87,13 +89,13 @@ func (s *server) Stop() error {
 		return err
 	}
 
-	if err := s.doAfterStop(); err != nil {
-		return err
-	}
-
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		reg.Deregister(s)
+	}
+
+	if err := s.doAfterStop(); err != nil {
+		return err
 	}
 
 	return nil
@@ -188,6 +190,10 @@ func (s *server) As(i interface{}) bool {
 	if v, ok := i.(*Server); ok {
 		*v = s
 		return true
+	} else if v, ok := i.(*registry.Node); ok {
+		*v = s
+		return true
 	}
+
 	return s.s.As(i)
 }

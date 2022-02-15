@@ -21,10 +21,13 @@
 package etcd
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/pydio/cells/v4/common/config"
 
@@ -36,84 +39,102 @@ import (
 var errClosedChannel = errors.New("channel is closed")
 
 type etcd struct {
-	v configx.Values
-
-	path string
-	cli  *clientv3.Client
-
+	prefix    string
+	cli       *clientv3.Client
+	leaseID   clientv3.LeaseID
+	locker    sync.Locker
 	receivers []*receiver
+	opts      []configx.Option
 }
 
-func NewSource(ctx context.Context, cli *clientv3.Client, path string, opts ...configx.Option) config.Store {
+func NewSource(ctx context.Context, cli *clientv3.Client, prefix string, opts ...configx.Option) config.Store {
 	opts = append([]configx.Option{configx.WithJSON()}, opts...)
 
-	v := configx.New(opts...)
-
-	resp, _ := cli.Get(context.Background(), path, clientv3.WithLimit(1))
-
-	for _, kv := range resp.Kvs {
-		if err := v.Set(kv.Value); err != nil {
-			fmt.Println("Error setting the value ", err)
-		}
+	lease := clientv3.NewLease(cli)
+	resp, err := lease.Grant(ctx, 10)
+	if err != nil {
+		log.Fatal(err)
 	}
 
+	leaseID := resp.ID
+
 	m := &etcd{
-		v:    v,
-		cli:  cli,
-		path: path,
+		cli:     cli,
+		prefix:  prefix,
+		locker:  &sync.Mutex{},
+		leaseID: leaseID,
+		opts:    opts,
 	}
 
 	go m.watch(ctx)
+	go func() {
+		ch, err := lease.KeepAlive(ctx, leaseID)
+		if err != nil {
+			fmt.Println("The lease is gone !!!")
+			return
+		}
+
+		for resp := range ch {
+			_ = resp
+		}
+	}()
 
 	return m
 }
 
 func (m *etcd) watch(ctx context.Context) {
-	watcher := m.cli.Watch(ctx, m.path)
+	watcher := m.cli.Watch(ctx, m.prefix, clientv3.WithPrefix())
 
 	for {
 		select {
-		case resp, ok := <-watcher:
+		case _, ok := <-watcher:
 			if !ok {
+				fmt.Println("WATCHER IS GONE !!!")
 				return
 			}
-			for _, ev := range resp.Events {
-				if err := m.v.Set(ev.Kv.Value); err != nil {
-					fmt.Println("Error setting the value here ", err)
-					continue
-				}
 
-				updated := m.receivers[:0]
-				for _, r := range m.receivers {
-					if err := r.call(); err == nil {
-						updated = append(updated, r)
-					}
+			updated := m.receivers[:0]
+			for _, r := range m.receivers {
+				if err := r.call(); err == nil {
+					updated = append(updated, r)
 				}
-
-				m.receivers = updated
 			}
+
+			m.receivers = updated
+
 		}
 	}
 }
 
 func (m *etcd) Get() configx.Value {
-	return m.v
+	v := configx.New(m.opts...)
+
+	resp, err := m.cli.Get(context.Background(), m.prefix, clientv3.WithPrefix(), clientv3.WithLease(m.leaseID))
+	if err != nil {
+		fmt.Println("Error is ", err)
+		return nil
+	}
+
+	for _, kv := range resp.Kvs {
+		if err := v.Val(string(kv.Key)).Set(kv.Value); err != nil {
+			fmt.Println("Error setting string ", err)
+		}
+	}
+
+	return v.Val(m.prefix)
 }
 
 func (m *etcd) Val(path ...string) configx.Values {
-	return m.v.Val(path...) // &values{Values: m.v, rootPath: m.path, path: path, cli: m.cli}
+	return &values{prefix: m.prefix, cli: m.cli, leaseID: m.leaseID, path: strings.Join(path, "/"), opts: m.opts}
 }
 
 func (m *etcd) Set(data interface{}) error {
-	return m.v.Set(data)
-}
+	v := configx.New(m.opts...)
+	if err := v.Set(data); err != nil {
+		return err
+	}
 
-func (m *etcd) Del() error {
-	return fmt.Errorf("not implemented")
-}
-
-func (m *etcd) Save(ctxUser string, ctxMessage string) error {
-	_, err := m.cli.Put(context.Background(), m.path, string(m.v.Bytes()))
+	_, err := m.cli.Put(context.Background(), m.prefix, string(v.Bytes()), clientv3.WithLease(m.leaseID))
 	if err != nil {
 		return err
 	}
@@ -121,24 +142,37 @@ func (m *etcd) Save(ctxUser string, ctxMessage string) error {
 	return nil
 }
 
+func (m *etcd) Del() error {
+	return fmt.Errorf("not implemented")
+}
+
+func (m *etcd) Save(ctxUser string, ctxMessage string) error {
+	return nil
+}
+
+func (m *etcd) Lock() {
+	m.locker.Lock()
+}
+
+func (m *etcd) Unlock() {
+	m.locker.Unlock()
+}
+
 func (m *etcd) Watch(path ...string) (configx.Receiver, error) {
 	r := &receiver{
 		closed: false,
 		ch:     make(chan struct{}),
-		p:      path,
-		v:      m.v.Val(path...),
+		v:      m.Val(path...),
 	}
 
 	m.receivers = append(m.receivers, r)
 
-	// For the moment do nothing
 	return r, nil
 }
 
 type receiver struct {
 	closed bool
 	ch     chan struct{}
-	p      []string
 	v      configx.Values
 }
 
@@ -153,14 +187,10 @@ func (r *receiver) call() error {
 func (r *receiver) Next() (configx.Values, error) {
 	select {
 	case <-r.ch:
-		v := r.v.Val(r.p...)
-		if bytes.Compare(v.Bytes(), r.v.Bytes()) != 0 {
-			r.v = v
-			return v, nil
-		}
+		return r.v.Val(), nil
 	}
 
-	return nil, fmt.Errorf("could not retrieve data")
+	return r.Next()
 }
 
 func (r *receiver) Stop() {
@@ -168,23 +198,104 @@ func (r *receiver) Stop() {
 	close(r.ch)
 }
 
-//type values struct {
-//	cli *clientv3.Client
-//
-//	configx.Values
-//	rootPath string
-//	path     []string
-//}
-//
-//func (v *values) Set(data interface{}) error {
-//	if err := v.Values.Val(v.path...).Set(data); err != nil {
-//		return err
-//	}
-//
-//	_, err := v.cli.Put(context.Background(), v.rootPath, v.Values.Val("#").String())
-//	if err != nil {
-//		return err
-//	}
-//
-//	return nil
-//}
+type values struct {
+	prefix  string
+	path    string
+	cli     *clientv3.Client
+	leaseID clientv3.LeaseID
+	opts    []configx.Option
+}
+
+func (v *values) Set(value interface{}) error {
+	c := configx.New(v.opts...)
+	if err := c.Set(value); err != nil {
+		return err
+	}
+
+	_, err := v.cli.Put(context.Background(), v.prefix+"/"+v.path, string(c.Bytes()), clientv3.WithLease(v.leaseID))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *values) Get() configx.Value {
+	c := configx.New(v.opts...)
+
+	resp, err := v.cli.Get(context.Background(), v.prefix+"/"+v.path, clientv3.WithPrefix(), clientv3.WithLease(v.leaseID))
+	if err != nil {
+		fmt.Println("Error is ", err)
+		return nil
+	}
+
+	for _, kv := range resp.Kvs {
+		if err := c.Val(strings.Trim(string(kv.Key), v.prefix+"/"+v.path)).Set(kv.Value); err != nil {
+			fmt.Println("Error setting string ", err)
+		}
+	}
+
+	return c
+}
+
+func (v *values) Del() error {
+	_, err := v.cli.Delete(context.Background(), v.prefix+"/"+v.path, clientv3.WithPrefix())
+	if err != nil {
+		fmt.Println("Del error is ", err)
+		return err
+	}
+
+	return nil
+}
+
+func (v *values) Val(path ...string) configx.Values {
+	return &values{prefix: v.prefix, path: v.path + strings.Join(path, "/"), cli: v.cli, leaseID: v.leaseID, opts: v.opts}
+}
+
+func (v *values) Default(i interface{}) configx.Value {
+	return v.Get().Default(i)
+}
+
+func (v *values) Bool() bool {
+	return v.Get().Bool()
+}
+
+func (v *values) Bytes() []byte {
+	return v.Get().Bytes()
+}
+
+func (v *values) Int() int {
+	return v.Get().Int()
+}
+
+func (v *values) Int64() int64 {
+	return v.Get().Int64()
+}
+
+func (v *values) Duration() time.Duration {
+	return v.Get().Duration()
+}
+
+func (v *values) String() string {
+	return v.Get().String()
+}
+
+func (v *values) StringMap() map[string]string {
+	return v.Get().StringMap()
+}
+
+func (v *values) StringArray() []string {
+	return v.Get().StringArray()
+}
+
+func (v *values) Slice() []interface{} {
+	return v.Get().Slice()
+}
+
+func (v *values) Map() map[string]interface{} {
+	return v.Get().Map()
+}
+
+func (v *values) Scan(i interface{}) error {
+	return v.Get().Scan(i)
+}

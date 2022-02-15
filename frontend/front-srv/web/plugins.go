@@ -88,11 +88,11 @@ func init() {
 				wrap := func(handler http.Handler) http.Handler {
 					return http.TimeoutHandler(handler, 15*time.Second, "There was a timeout while serving the frontend resources...")
 				}
-				wfs := wrap(fs)
+				fs = wrap(fs)
 
-				mux.Handle("/index.json", wfs)
-				mux.Handle("/plug/", http.StripPrefix("/plug/", wfs))
-				indexHandler := wrap(index.NewIndexHandler(ctx))
+				mux.Handle("/index.json", fs)
+				mux.Handle("/plug/", http.StripPrefix("/plug/", fs))
+				indexHandler := index.NewIndexHandler(ctx)
 				mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 					w.WriteHeader(200)
 					w.Header().Set("Content-Type", "text/plain")
@@ -104,7 +104,7 @@ func init() {
 
 				// /public endpoint : special handler for index, redirect to /plug/ for the rest
 				mux.Handle(config.GetPublicBaseUri()+"/", wrap(index.NewPublicHandler()))
-				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", wfs))
+				mux.Handle(config.GetPublicBaseUri()+"/plug/", http.StripPrefix(config.GetPublicBaseUri()+"/plug/", fs))
 
 				// Adding subscriber
 				_ = broker.SubscribeCancellable(ctx, common.TopicReloadAssets, func(message broker.Message) error {

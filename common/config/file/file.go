@@ -20,6 +20,8 @@ type file struct {
 	v       configx.Values
 	path    string
 	watcher *fsnotify.Watcher
+
+	mainMtx *sync.Mutex
 	mtx     *sync.RWMutex
 
 	dirty bool
@@ -45,10 +47,11 @@ func New(path string, autoUpdate bool, opts ...configx.Option) (config.Store, er
 	}
 
 	f := &file{
-		v:     v,
-		path:  path,
-		dirty: false,
-		mtx:   mtx,
+		v:       v,
+		path:    path,
+		dirty:   false,
+		mainMtx: &sync.Mutex{},
+		mtx:     mtx,
 	}
 
 	if autoUpdate {
@@ -157,6 +160,14 @@ func (f *file) Save(ctxUser string, ctxMessage string) error {
 	return filex.Save(f.path, f.v.Bytes())
 }
 
+func (f *file) Lock() {
+	f.mainMtx.Lock()
+}
+
+func (f *file) Unlock() {
+	f.mainMtx.Unlock()
+}
+
 func (f *file) Watch(path ...string) (configx.Receiver, error) {
 
 	r := &receiver{
@@ -201,7 +212,6 @@ func (r *receiver) Next() (configx.Values, error) {
 	}
 
 	return r.Next()
-
 }
 
 func (r *receiver) Stop() {

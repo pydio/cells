@@ -167,6 +167,9 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 func (p *Process) buildForkStartParams() []string {
 
 	r := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
+	if !strings.HasPrefix(viper.GetString("registry"), "mem://") {
+		r = viper.GetString("registry")
+	}
 	b := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
 	if !strings.HasPrefix(viper.GetString("broker"), "mem://") {
 		b = viper.GetString("broker")

@@ -22,14 +22,22 @@ package cmd
 
 import (
 	"context"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/config/etcd"
+	configregistry "github.com/pydio/cells/v4/common/registry/config"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"log"
+	"time"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
+	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 )
@@ -44,7 +52,27 @@ DESCRIPTION
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		client := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+
+		etcdconn, err := clientv3.New(clientv3.Config{
+			Endpoints:   []string{"http://0.0.0.0:2379"},
+			DialTimeout: 2 * time.Second,
+		})
+		if err != nil {
+			log.Fatal("could not start etcd", zap.Error(err))
+		}
+
+		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
+		reg := configregistry.NewConfigRegistry(regStore)
+
+		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		ctx = clientcontext.WithClientConn(ctx, conn)
+		ctx = servercontext.WithRegistry(ctx, reg)
+
+		client := idm.NewACLServiceClient(clientgrpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
 
 		var aclActions []*idm.ACLAction
 		for _, action := range actions {
@@ -80,10 +108,10 @@ DESCRIPTION
 		table.SetHeader([]string{"Id", "Action", "Node_ID", "Role_ID", "Workspace_ID"})
 
 		for {
-			response, e := stream.Recv()
+			response, err := stream.Recv()
 
-			if e != nil {
-				break
+			if err != nil {
+				log.Fatal(err)
 			}
 
 			table.Append([]string{response.ACL.ID, response.ACL.Action.String(), response.ACL.NodeID, response.ACL.RoleID, response.ACL.WorkspaceID})

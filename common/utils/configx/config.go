@@ -3,7 +3,9 @@ package configx
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/spf13/cast"
@@ -93,7 +95,9 @@ type config struct {
 }
 
 func New(opts ...Option) Values {
-	options := Options{}
+	options := Options{
+		RWMutex: &sync.RWMutex{},
+	}
 
 	for _, o := range opts {
 		o(&options)
@@ -282,7 +286,9 @@ func (c *config) Set(data interface{}) error {
 			}
 		}
 
+		c.opts.RWMutex.Lock()
 		m[k] = data
+		c.opts.RWMutex.Unlock()
 	}
 
 	p.Set(m)
@@ -397,7 +403,34 @@ func (c *config) Scan(val interface{}) error {
 
 	marshaller := c.opts.Marshaller
 	if marshaller == nil {
-		return ErrNoMarshallerDefined
+		rtarget := reflect.ValueOf(val)
+		rtargetValType := reflect.TypeOf(val).Elem()
+		rorig := reflect.ValueOf(v)
+
+		switch rtarget.Kind() {
+		case reflect.Ptr:
+			el := rtarget.Elem()
+			if !el.IsValid() {
+				return fmt.Errorf("invalid value")
+			}
+
+			switch el.Kind() {
+			case reflect.Slice:
+				el.SetCap(rorig.Cap())
+				el.SetLen(rorig.Len())
+				for i := 0; i < rorig.Len(); i++ {
+					el.Index(i).Set(rorig.Index(i).Elem().Convert(rtargetValType))
+				}
+			default:
+				el.Set(reflect.ValueOf(v))
+			}
+
+		case reflect.Map:
+			for _, key := range rorig.MapKeys() {
+				rtarget.SetMapIndex(key, rorig.MapIndex(key).Elem().Convert(rtargetValType))
+			}
+		}
+		return nil
 	}
 
 	b, err := marshaller.Marshal(v)

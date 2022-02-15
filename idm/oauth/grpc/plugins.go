@@ -71,7 +71,9 @@ func init() {
 				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
 
 				// Registry
-				return auth.InitRegistry(Name)
+				go auth.InitRegistry(Name)
+
+				return nil
 			}),
 			/*
 				// TODO V4

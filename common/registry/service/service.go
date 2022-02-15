@@ -25,6 +25,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/pydio/cells/v4/common/registry/util"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -145,7 +147,7 @@ func (s *serviceRegistry) Options() Options {
 }
 
 func (s *serviceRegistry) Start(item registry.Item) error {
-	_, err := s.client.Start(s.opts.Context, ToProtoItem(item), s.callOpts()...)
+	_, err := s.client.Start(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
 	if err != nil {
 		return err
 	}
@@ -154,7 +156,7 @@ func (s *serviceRegistry) Start(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Stop(item registry.Item) error {
-	_, err := s.client.Stop(s.opts.Context, ToProtoItem(item), s.callOpts()...)
+	_, err := s.client.Stop(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
 	if err != nil {
 		return err
 	}
@@ -163,7 +165,7 @@ func (s *serviceRegistry) Stop(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Register(item registry.Item) error {
-	_, err := s.client.Register(s.opts.Context, ToProtoItem(item), s.callOpts()...)
+	_, err := s.client.Register(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
 	if err != nil {
 		return err
 	}
@@ -172,7 +174,7 @@ func (s *serviceRegistry) Register(item registry.Item) error {
 }
 
 func (s *serviceRegistry) Deregister(item registry.Item) error {
-	_, err := s.client.Deregister(s.opts.Context, ToProtoItem(item), s.callOpts()...)
+	_, err := s.client.Deregister(s.opts.Context, util.ToProtoItem(item), s.callOpts()...)
 	if err != nil {
 		return err
 	}
@@ -195,7 +197,7 @@ func (s *serviceRegistry) Get(name string, opts ...registry.Option) (registry.It
 		return nil, err
 	}
 
-	return ToItem(rsp.Item), nil
+	return util.ToItem(rsp.Item), nil
 }
 
 func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error) {
@@ -214,7 +216,7 @@ func (s *serviceRegistry) List(opts ...registry.Option) ([]registry.Item, error)
 
 	items := make([]registry.Item, 0, len(rsp.Items))
 	for _, item := range rsp.Items {
-		casted := ToItem(item)
+		casted := util.ToItem(item)
 		if options.Filter != nil && !options.Filter(casted) {
 			continue
 		}
@@ -233,7 +235,8 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	ctx := context.TODO()
 	req := &pb.WatchRequest{
 		Options: &pb.Options{
-			Type: options.Type,
+			Type:   options.Type,
+			Action: options.Action,
 		},
 	}
 

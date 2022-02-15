@@ -23,9 +23,10 @@ package oauth
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/pydio/cells/v4/common/service/errors"
 	"go.uber.org/zap"
-	"time"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -53,8 +54,7 @@ func InsertPruningJob(ctx context.Context) error {
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
 	return std.Retry(ctx, func() error {
-
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs, grpc.WithCallTimeout(grpc.CallTimeoutShort)))
+		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 		if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
 			return nil // Already exists
 		} else if e != nil && errors.FromError(e).Code != 404 {

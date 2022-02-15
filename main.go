@@ -44,6 +44,7 @@ import (
 	// _ "github.com/pydio/cells/v4/data/source/test"
 
 	// Registry
+	_ "github.com/pydio/cells/v4/common/registry/config"
 	_ "github.com/pydio/cells/v4/common/registry/memory"
 	_ "github.com/pydio/cells/v4/common/registry/service"
 

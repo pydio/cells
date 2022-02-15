@@ -24,7 +24,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/pydio/cells/v4/common/config"
 
@@ -70,7 +69,7 @@ func init() {
 					go func() {
 						startErr = engine.StartMinioServer(c, datasource)
 					}()
-					<-time.After(1 * time.Second)
+					// <-time.After(1 * time.Second)
 					return startErr
 				}),
 				/*

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package registry;
 
-option go_package = "github.com/pydio/cells/v4/common/proto/registry";
+option go_package = "github.com/pydio/cells/common/proto/registry";
 
 service Registry {
   rpc Start(Item) returns (EmptyResponse) {};
@@ -18,6 +18,15 @@ enum ItemType {
   ALL = 0;
   SERVICE = 1;
   NODE = 2;
+  YOYO = 3;
+}
+
+enum ActionType {
+  FULL_DIFF = 0;
+  FULL_LIST = 1;
+  CREATE = 2;
+  UPDATE = 3;
+  DELETE = 4;
 }
 
 message Item {
@@ -25,6 +34,10 @@ message Item {
     Service service = 1;
     Node node = 2;
   }
+}
+
+message ItemMap {
+  map<string, Item> items = 1;
 }
 
 // Service represents a go-micro service
@@ -66,12 +79,13 @@ message Value {
 message Options {
   int64 ttl = 1;
   ItemType type = 2;
+  ActionType action = 3;
 }
 
 // Result is returns by the watcher
 message Result {
-  string action = 1; // create, update, delete
-  Item item = 2;
+  ActionType action = 1; // create, update, delete
+  repeated Item items = 2;
   int64 timestamp = 3; // unix timestamp
 }
 

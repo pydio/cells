@@ -3,12 +3,13 @@ package registry
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/registry/util"
+
 	"github.com/pydio/cells/v4/common"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/registry/service"
 )
 
 type Handler struct {
@@ -28,14 +29,14 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) Start(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
-	if err := h.reg.Start(service.ToItem(item)); err != nil {
+	if err := h.reg.Start(util.ToItem(item)); err != nil {
 		return nil, err
 	}
 
 	return &pb.EmptyResponse{}, nil
 }
 func (h *Handler) Stop(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
-	if err := h.reg.Stop(service.ToItem(item)); err != nil {
+	if err := h.reg.Stop(util.ToItem(item)); err != nil {
 		return nil, err
 	}
 
@@ -57,12 +58,12 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 		return nil, err
 	}
 
-	resp.Item = service.ToProtoItem(item)
+	resp.Item = util.ToProtoItem(item)
 
 	return resp, nil
 }
 func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
-	if err := h.reg.Register(service.ToItem(item)); err != nil { // , mregistry.RegisterTTL(time.Duration(s.GetOptions().GetTtl())*time.Second)); err != nil {
+	if err := h.reg.Register(util.ToItem(item)); err != nil { // , mregistry.RegisterTTL(time.Duration(s.GetOptions().GetTtl())*time.Second)); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +71,7 @@ func (h *Handler) Register(ctx context.Context, item *pb.Item) (*pb.EmptyRespons
 }
 
 func (h *Handler) Deregister(ctx context.Context, item *pb.Item) (*pb.EmptyResponse, error) {
-	if err := h.reg.Deregister(service.ToItem(item)); err != nil {
+	if err := h.reg.Deregister(util.ToItem(item)); err != nil {
 		return nil, err
 	}
 
@@ -93,7 +94,7 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 
 	var items []*pb.Item
 	for _, s := range ss {
-		items = append(items, service.ToProtoItem(s))
+		items = append(items, util.ToProtoItem(s))
 	}
 
 	resp.Items = items
@@ -103,13 +104,11 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) error {
 
-	//TODO v4 options
-	//var opts []registry.WatchOption
-	//if s := req.GetService(); s != "" {
-	//	opts = append(opts, registry.WatchService(s))
-	//}
+	var opts []registry.Option
+	opts = append(opts, registry.WithAction(req.GetOptions().GetAction()))
+	opts = append(opts, registry.WithType(req.GetOptions().GetType()))
 
-	w, err := h.reg.Watch()
+	w, err := h.reg.Watch(opts...)
 	if err != nil {
 		return err
 	}
@@ -122,7 +121,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 
 		stream.Send(&pb.Result{
 			Action: res.Action(),
-			Item:   service.ToProtoItem(res.Item()),
+			Items:  util.ToProtoItems(res.Items()),
 		})
 	}
 }

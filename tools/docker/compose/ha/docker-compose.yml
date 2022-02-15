@@ -1,0 +1,152 @@
+version: "3"
+
+services:
+  busybox:
+    image: busybox
+    command: top
+
+  broker:
+    image: cells
+    command: [ "start", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+    environment:
+      - CELLS_WORKING_DIR=/etc/config
+      - CELLS_LOG_DIR=/var/log/cells
+    ports:
+      - "8080:8080"
+    volumes: 
+      - "cellsdir:/etc/config"
+      - "logdir:/var/log/cells"
+    depends_on:
+      - nats
+      - mysql
+
+  # data:
+  #   image: cells
+  #   command: [ "start", "-t data", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  # datasource:
+  #   image: cells
+  #   command: [ "start", "-t datasource", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  # discovery:
+  #   image: cells
+  #   command: [ "start", "-t discovery", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  # frontend:
+  #   image: cells
+  #   command: [ "start", "-t frontend", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  # gateway:
+  #   image: cells
+  #   command: [ "start", "-t gateway", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  # idm:
+  #   image: cells
+  #   command: [ "start", "-t idm", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  # scheduler:
+  #   image: cells
+  #   command: [ "start", "-t scheduler", "--broker_address", "nats:4222", "--registry_address", "nats:4222" ]
+  #   environment:
+  #     - CELLS_WORKING_DIR=/etc/config
+  #     - CELLS_LOG_DIR=/var/log/cells
+  #   volumes: 
+  #     - "cellsdir:/etc/config"
+  #     - "logdir:/var/log/cells"
+  #   depends_on:
+  #     - nats
+  #     - mysql
+
+  nats:
+    image: nats:1.0.4
+    command: [ "-D" ]
+    ports:
+      - "5222:4222"
+  
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_PASSWORD: pydio
+    volumes:
+      - "mysqldir:/var/lib/mysql"
+    command:
+      [
+        mysqld,
+        --character-set-server=utf8mb4,
+        --collation-server=utf8mb4_unicode_ci,
+      ]
+
+volumes:
+  cellsdir:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /tmp/config
+  logdir:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /tmp/logs
+  mysqldir: {}

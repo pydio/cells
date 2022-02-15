@@ -116,98 +116,101 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 			object.RegisterDataSourceEndpointEnhancedServer(srv, syncHandler)
 			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)
 
-			md := make(map[string]string)
-			md[common.PydioContextUserKey] = common.PydioSystemUsername
-			jobCtx := metadata.NewContext(ctx, md)
-			jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs, grpc2.WithCallTimeout(grpc2.CallTimeoutShort)))
-			serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
+			go func() {
+				md := make(map[string]string)
+				md[common.PydioContextUserKey] = common.PydioSystemUsername
+				jobCtx := metadata.NewContext(ctx, md)
+				// jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs, grpc2.WithCallTimeout(grpc2.CallTimeoutShort)))
+				jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+				serviceName := common.ServiceGrpcNamespace_ + common.ServiceDataSync_ + datasource
 
-			if !dsObject.FlatStorage {
-				syncHandler.Start()
+				if !dsObject.FlatStorage {
+					syncHandler.Start()
 
-				e = std.Retry(jobCtx, func() error {
-					if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
-						if !dsObject.SkipSyncOnRestart {
-							log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
-							broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
-								JobID:  "resync-ds-" + datasource,
-								RunNow: true,
-							})
-						}
-					} else if errors.FromError(err).Code == 404 {
-						log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
-						job := getJobDefinition(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
-						_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-							Job: job,
-						})
-						return e
-					} else {
-						log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
-						return err
-					}
-					return nil
-				}, 5*time.Second, 30*time.Second)
-				if e != nil {
-					log.Logger(jobCtx).Error("service started but could not contact Job service to trigger re-indexation")
-				}
-			} else {
-				syncHandler.StartConfigsOnly()
-
-				var clearConfigKey string
-
-				// Create an authenticated context for sync operations if any
-				bg := context.Background()
-				bg = metadata.WithUserNameMetadata(bg, common.PydioSystemUsername)
-				bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(ctx))
-
-				if _, has := dsObject.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
-					if _, e := syncHandler.FlatScanEmpty(bg, nil, nil); e != nil {
-						log.Logger(ctx).Warn("Could not scan storage bucket after start", zap.Error(e))
-					} else {
-						clearConfigKey = object.StorageKeyInitFromBucket
-					}
-				} else if snapKey, has := dsObject.StorageConfiguration[object.StorageKeyInitFromSnapshot]; has {
-					if _, e := syncHandler.FlatSyncSnapshot(bg, "read", snapKey, nil, nil); e != nil {
-						log.Logger(ctx).Warn("Could not init index from stored snapshot after start", zap.Error(e))
-					} else {
-						clearConfigKey = object.StorageKeyInitFromSnapshot
-					}
-				}
-				if clearConfigKey != "" {
-					// Now save config without "initFromBucket" key
-					newValue := proto.Clone(dsObject).(*object.DataSource)
-					delete(newValue.StorageConfiguration, clearConfigKey)
-					if ce := config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration"); ce != nil {
-						log.Logger(jobCtx).Error("[initFromBucket] Removing "+clearConfigKey+" key from datasource", zap.Error(ce))
-					} else {
-						log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue.StorageConfiguration))
-					}
-				}
-
-				// Post a job to dump snapshot manually (Flat, non-internal only)
-				if !dsObject.IsInternal() {
 					e = std.Retry(jobCtx, func() error {
-						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
-							if errors.FromError(err).Code == 404 {
-								log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
-								job := getJobDefinition(datasource, serviceName, true, false)
-								_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-									Job: job,
+						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
+							if !dsObject.SkipSyncOnRestart {
+								log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
+								broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
+									JobID:  "resync-ds-" + datasource,
+									RunNow: true,
 								})
-								return e
-							} else {
-								log.Logger(jobCtx).Info("Could not get info about job, retrying...", zap.Error(err))
-								return err
 							}
+						} else if errors.FromError(err).Code == 404 {
+							log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
+							job := getJobDefinition(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
+							_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
+								Job: job,
+							})
+							return e
+						} else {
+							log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
+							return err
 						}
 						return nil
-					}, 2*time.Second, 5*time.Second)
+					}, 5*time.Second, 30*time.Second)
 					if e != nil {
-						log.Logger(jobCtx).Warn("service started but could not contact Job service insert snapshot dump")
+						log.Logger(jobCtx).Error("service started but could not contact Job service to trigger re-indexation")
 					}
-				}
+				} else {
+					syncHandler.StartConfigsOnly()
 
-			}
+					var clearConfigKey string
+
+					// Create an authenticated context for sync operations if any
+					bg := context.Background()
+					bg = metadata.WithUserNameMetadata(bg, common.PydioSystemUsername)
+					bg = servicecontext.WithServiceName(bg, servicecontext.GetServiceName(ctx))
+
+					if _, has := dsObject.StorageConfiguration[object.StorageKeyInitFromBucket]; has {
+						if _, e := syncHandler.FlatScanEmpty(bg, nil, nil); e != nil {
+							log.Logger(ctx).Warn("Could not scan storage bucket after start", zap.Error(e))
+						} else {
+							clearConfigKey = object.StorageKeyInitFromBucket
+						}
+					} else if snapKey, has := dsObject.StorageConfiguration[object.StorageKeyInitFromSnapshot]; has {
+						if _, e := syncHandler.FlatSyncSnapshot(bg, "read", snapKey, nil, nil); e != nil {
+							log.Logger(ctx).Warn("Could not init index from stored snapshot after start", zap.Error(e))
+						} else {
+							clearConfigKey = object.StorageKeyInitFromSnapshot
+						}
+					}
+					if clearConfigKey != "" {
+						// Now save config without "initFromBucket" key
+						newValue := proto.Clone(dsObject).(*object.DataSource)
+						delete(newValue.StorageConfiguration, clearConfigKey)
+						if ce := config.Set(newValue.StorageConfiguration, "services", serviceName, "StorageConfiguration"); ce != nil {
+							log.Logger(jobCtx).Error("[initFromBucket] Removing "+clearConfigKey+" key from datasource", zap.Error(ce))
+						} else {
+							log.Logger(jobCtx).Info("[initFromBucket] Removed "+clearConfigKey+" key from datasource", zap.Any("ds", newValue.StorageConfiguration))
+						}
+					}
+
+					// Post a job to dump snapshot manually (Flat, non-internal only)
+					if !dsObject.IsInternal() {
+						e = std.Retry(jobCtx, func() error {
+							if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
+								if errors.FromError(err).Code == 404 {
+									log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
+									job := getJobDefinition(datasource, serviceName, true, false)
+									_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
+										Job: job,
+									})
+									return e
+								} else {
+									log.Logger(jobCtx).Info("Could not get info about job, retrying...", zap.Error(err))
+									return err
+								}
+							}
+							return nil
+						}, 2*time.Second, 5*time.Second)
+						if e != nil {
+							log.Logger(jobCtx).Warn("service started but could not contact Job service insert snapshot dump")
+						}
+					}
+
+				}
+			}()
 
 			return nil
 		}),

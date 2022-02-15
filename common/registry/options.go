@@ -14,9 +14,17 @@ type Option func(*Options) error
 
 type Options struct {
 	Context context.Context
+	Action  pb.ActionType
 	Name    string
 	Type    pb.ItemType
 	Filter  func(item Item) bool
+}
+
+func WithAction(a pb.ActionType) Option {
+	return func(o *Options) error {
+		o.Action = a
+		return nil
+	}
 }
 
 func WithName(n string) Option {
