@@ -27,7 +27,7 @@ import (
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	flags.String("registry", "mem://?cache=shared", "Registry used to manage services")
+	flags.String("registry", "mem://", "Registry used to manage services")
 	flags.String("broker", "mem://", "Pub/sub service for events between services")
 	flags.String("transport", "grpc", "Transport protocol for RPC")
 	flags.Int("port_registry", net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
