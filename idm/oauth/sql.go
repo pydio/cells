@@ -21,10 +21,18 @@
 package oauth
 
 import (
+	"context"
 	sql2 "database/sql"
 	"embed"
 	"fmt"
 	"time"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/log"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/utils/statics"
+	"github.com/pydio/cells/v4/common/utils/std"
+	migrate "github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/v4/common/proto/auth"
 	"github.com/pydio/cells/v4/common/sql"
@@ -62,31 +70,29 @@ func (s *sqlImpl) Init(options configx.Values) error {
 	// super
 	s.DAO.Init(options)
 
-	/*
-		// TODO V4 - This is disabled, idm_personal_token tables are not created!
-		// Doing the database migrations
-		migrations := &sql.FSMigrationSource{
-			Box:         statics.AsFS(migrationsFS, "migrations"),
-			Dir:         s.Driver(),
-			TablePrefix: s.Prefix(),
-		}
+	// Doing the database migrations
+	migrations := &sql.FSMigrationSource{
+		Box:         statics.AsFS(migrationsFS, "migrations"),
+		Dir:         s.Driver(),
+		TablePrefix: s.Prefix(),
+	}
 
-		var isRetry bool
-		sC := servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
-		err := std.Retry(sC, func() error {
-			_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
-			if err != nil {
-				log.Logger(sC).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")
-				isRetry = true
-			} else if isRetry {
-				log.Logger(sC).Info("Migration now applied successfully")
-			}
-			return err
-		}, 1*time.Second, 10*time.Second)
+	var isRetry bool
+	sC := servicecontext.WithServiceName(context.Background(), common.ServiceGrpcNamespace_+common.ServiceOAuth)
+	err := std.Retry(sC, func() error {
+		_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_oauth_")
 		if err != nil {
-			return err
+			log.Logger(sC).Warn("Could not apply idm_oauth_ migration, maybe because of concurrent access, retrying...")
+			isRetry = true
+		} else if isRetry {
+			log.Logger(sC).Info("Migration now applied successfully")
 		}
-	*/
+		return err
+	}, 1*time.Second, 10*time.Second)
+	if err != nil {
+		return err
+	}
+
 	// Preparing the db statements
 	if options.Val("prepare").Default(true).Bool() {
 		for key, query := range queries {

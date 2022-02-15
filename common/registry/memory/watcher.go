@@ -2,6 +2,7 @@ package memory
 
 import (
 	"errors"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 )
@@ -45,10 +46,7 @@ func (m *watcher) Next() (registry.Result, error) {
 				return r, nil
 			}
 
-			return &result{
-				action: "",
-				items:   items,
-			}, nil
+			return registry.NewResult(r.Action(), items), nil
 		case <-m.exit:
 			return nil, errors.New("watcher stopped")
 		}
@@ -66,7 +64,7 @@ func (m *watcher) Stop() {
 
 type result struct {
 	action string
-	items   []registry.Item
+	items  []registry.Item
 }
 
 func (r *result) Action() string {

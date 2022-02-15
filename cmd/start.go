@@ -22,14 +22,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/config/etcd"
-	"github.com/pydio/cells/v4/common/config/memory"
-	configregistry "github.com/pydio/cells/v4/common/registry/config"
-	clientv3 "go.etcd.io/etcd/client/v3"
-	"go.uber.org/zap"
 	"log"
-	"sync"
-	"time"
+
+	"github.com/pydio/cells/v4/common/config/memory"
+
+	configregistry "github.com/pydio/cells/v4/common/registry/config"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -91,30 +88,12 @@ to quickly create a Cobra application.`,
 
 		pluginsRegStore := memory.New()
 		pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
-		// pluginsReg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
-		// if err != nil {
-		// 	return err
-		// }
-		//pluginsRegStore, err := file.New("/tmp/registry.json", true, configregistry.WithJSONItem())
-		//if err != nil {
-		//	return err
-		//}
-		//pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
 
-		etcdconn, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{"http://0.0.0.0:2379"},
-			DialTimeout: 2 * time.Second,
-		})
+		// Version memory
+		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
 		if err != nil {
-			log.Fatal("could not start etcd", zap.Error(err))
+			return err
 		}
-
-		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
-		reg := configregistry.NewConfigRegistry(regStore)
-		//reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
-		//if err != nil {
-		//	return err
-		//}
 
 		// Create a main client connection
 		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
@@ -128,96 +107,7 @@ to quickly create a Cobra application.`,
 
 		broker.Register(broker.NewBroker(viper.GetString("broker"), broker.WithContext(ctx)))
 		plugins.InitGlobalConnConsumers(ctx, "main")
-		initLogLevelListener(ctx)
-
-		//localEndpointURI := "192.168.1.5:5454"
-		//reporterURI := "http://localhost:9411/api/v2/spans"
-		//serviceName := "server"
-		//localEndpoint, err := openzipkin.NewEndpoint(serviceName, localEndpointURI)
-		//if err != nil {
-		//	log.Fatalf("Failed to create Zipkin localEndpoint with URI %q error: %v", localEndpointURI, err)
-		//}
-		//
-		//reporter := zipkinHTTP.NewReporter(reporterURI)
-		//ze := zipkin.NewExporter(reporter, localEndpoint)
-		//
-		//// And now finally register it as a Trace Exporter
-		//trace.RegisterExporter(ze)
-
-		/*
-			watcher, err := reg.Watch()
-			if err != nil {
-				return err
-			}
-
-			go func() {
-				for {
-					w, err := watcher.Next()
-					if err != nil {
-						fmt.Println("And the error is ? ", err)
-					}
-
-					if w.Action() == "start_request" {
-						fmt.Println("Received start request for ? ", w.Item().Name())
-						var node registry.Node
-
-						if w.Item().As(&node) {
-							serverType, ok := node.Metadata()["type"]
-							if !ok {
-								continue
-							}
-
-							fmt.Println("Starting ", node.Name())
-							switch serverType {
-							case "grpc":
-								grpc.New(ctx)
-							}
-						}
-
-						var sss registry.Service
-						if w.Item().As(&sss) {
-							ss, err := pluginsReg.Get(sss.Name(), registry.WithType(pb.ItemType_SERVICE))
-							if err != nil {
-								fmt.Println(err)
-								continue
-							}
-
-							var s service.Service
-							if ss.As(&s) {
-								opts := s.Options()
-
-								opts.Context = ctx
-
-								s.Start()
-							}
-						}
-					}
-				}
-			}()
-
-
-
-			srvGRPC := grpc.New(ctx)
-			var srvHTTP server.Server
-			if !runtime.IsFork() {
-				if h, err := caddy.New(ctx, ""); err != nil {
-					return err
-				} else {
-					srvHTTP = h
-				}
-			} else {
-				srvHTTP = http.New(ctx)
-			}
-			if err != nil {
-				return err
-			}
-			srvGeneric := generic.New(ctx)
-
-		*/
-
-		//ctx = servicecontext.WithServer(ctx, "grpc", srvGRPC)
-		//ctx = servicecontext.WithServer(ctx, "http", srvHTTP)
-		//ctx = servicecontext.WithServer(ctx, "generic", srvGeneric)
+		go initLogLevelListener(ctx)
 
 		plugins.Init(ctx, "main")
 
@@ -351,12 +241,12 @@ to quickly create a Cobra application.`,
 			}
 		}()
 
-		wg := &sync.WaitGroup{}
+		// wg := &sync.WaitGroup{}
 		for _, srv := range srvs {
 			// g.Go(srv.Serve)
-			wg.Add(1)
+			// wg.Add(1)
 			go func(srv server.Server) {
-				defer wg.Done()
+				//	defer wg.Done()
 				if err := srv.Serve(); err != nil {
 					fmt.Println(err)
 				}
@@ -364,7 +254,9 @@ to quickly create a Cobra application.`,
 				return
 			}(srv)
 		}
-		wg.Wait()
+		// wg.Wait()
+
+		// l.Unlock()
 
 		select {
 		case <-cmd.Context().Done():

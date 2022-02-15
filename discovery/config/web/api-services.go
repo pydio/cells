@@ -63,7 +63,7 @@ func (h *Handler) ListServices(req *restful.Request, resp *restful.Response) {
 	}
 
 	// Create a list of all plugins
-	pluginsReg, e := registry.OpenRegistry(context.Background(), "memory:///?cache=shared")
+	pluginsReg, e := registry.OpenRegistry(context.Background(), "mem:///?cache=shared")
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return

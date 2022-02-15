@@ -74,6 +74,7 @@ type URLOpener struct {
 func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic, error) {
 
 	if _, ok := publishers[u.Host]; !ok {
+		// TODO v4 - there is something weird here that makes the start go slower
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {

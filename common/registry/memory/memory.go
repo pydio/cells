@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	scheme        = "memory"
+	scheme        = "mem"
 	shared        registry.Registry
 	sharedOnce    = &sync.Once{}
 	sendEventTime = 10 * time.Millisecond
@@ -55,12 +55,12 @@ func newMemory() registry.Registry {
 }
 
 func (m *memory) Start(item registry.Item) error {
-	go m.sendEvent(&result{action: "start_request", item: item})
+	// go m.sendEvent(registry.NewResult(pb.A"start_request", item))
 	return nil
 }
 
 func (m *memory) Stop(item registry.Item) error {
-	go m.sendEvent(&result{action: "stop_request", item: item})
+	// go m.sendEvent(&result{action: "stop_request", item: item})
 
 	return nil
 }
@@ -76,13 +76,13 @@ func (m *memory) Register(item registry.Item) error {
 	for k, v := range m.register {
 		if v.ID() == item.ID() || (byName && v.Name() == item.Name()) {
 			m.register[k] = item
-			go m.sendEvent(&result{action: "update", item: item})
+			go m.sendEvent(registry.NewResult(pb.ActionType_UPDATE, []registry.Item{item}))
 			return nil
 		}
 	}
 
 	// not found - adding it
-	go m.sendEvent(&result{action: "create", item: item})
+	go m.sendEvent(registry.NewResult(pb.ActionType_CREATE, []registry.Item{item}))
 	m.register = append(m.register, item)
 
 	return nil
@@ -92,7 +92,7 @@ func (m *memory) Deregister(item registry.Item) error {
 	for k, v := range m.register {
 		if item.ID() == v.ID() {
 			m.register = append(m.register[:k], m.register[k+1:]...)
-			go m.sendEvent(&result{action: "delete", item: item})
+			go m.sendEvent(registry.NewResult(pb.ActionType_DELETE, []registry.Item{item}))
 		}
 	}
 	return nil

@@ -66,13 +66,13 @@ func (s *server) Serve() error {
 		return err
 	}
 
-	if err := s.doAfterServe(); err != nil {
-		return err
-	}
-
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		reg.Register(s)
+	}
+
+	if err := s.doAfterServe(); err != nil {
+		return err
 	}
 
 	return nil
@@ -87,13 +87,13 @@ func (s *server) Stop() error {
 		return err
 	}
 
-	if err := s.doAfterStop(); err != nil {
-		return err
-	}
-
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
 		reg.Deregister(s)
+	}
+
+	if err := s.doAfterStop(); err != nil {
+		return err
 	}
 
 	return nil

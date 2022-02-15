@@ -17,7 +17,7 @@ const name = "lb"
 
 // newBuilder creates a new roundrobin balancer builder.
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilder(name, &rrPickerBuilder{}, base.Config{HealthCheck: true})
+	return base.NewBalancerBuilder(name, &rrPickerBuilder{}, base.Config{HealthCheck: false})
 }
 
 func init() {

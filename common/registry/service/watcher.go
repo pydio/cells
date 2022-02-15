@@ -22,6 +22,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/pydio/cells/v4/common/registry/util"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -35,7 +36,7 @@ type serviceWatcher struct {
 
 type result struct {
 	action string
-	item registry.Item
+	item   registry.Item
 }
 
 func (r *result) Action() string {
@@ -59,10 +60,11 @@ func (s *serviceWatcher) Next() (registry.Result, error) {
 		return nil, err
 	}
 
-	return &result{
-		action: r.Action,
-		item:   util.ToItem(r.Item),
-	}, nil
+	var items []registry.Item
+	for _, i := range r.Items {
+		items = append(items, util.ToItem(i))
+	}
+	return registry.NewResult(r.Action, items), nil
 }
 
 func (s *serviceWatcher) Stop() {

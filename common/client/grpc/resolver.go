@@ -91,7 +91,6 @@ func (cr *cellsResolver) watch() {
 	for {
 		r, err := w.Next()
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 
@@ -122,13 +121,14 @@ func (cr *cellsResolver) sendState() {
 	for _, v := range cr.items {
 		var srv registry.Node
 		if v.As(&srv) {
+
 			if srv.Name() != "grpc" {
 				continue
 			}
+
 			m[srv.ID()] = &serverAttributes{
 				addresses: srv.Address(),
 			}
-
 		}
 	}
 
@@ -164,7 +164,7 @@ func (cr *cellsResolver) sendState() {
 
 	if err := cr.cc.UpdateState(resolver.State{
 		Addresses:     addresses,
-		ServiceConfig: cr.cc.ParseServiceConfig(`{"loadBalancingPolicy": "lb", "healthCheckConfig": {"serviceName": ""}}`),
+		ServiceConfig: cr.cc.ParseServiceConfig(`{"loadBalancingPolicy": "lb"}`),
 	}); err != nil {
 		fmt.Println("And the error is ? ", err)
 	}
