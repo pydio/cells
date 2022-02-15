@@ -29,8 +29,8 @@ xgo:
 	 --image ${XGO_IMAGE} \
 	 --targets ${XGO_TARGETS} \
 	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
-	 -X github.com/pydio/cells/common.BuildStamp=${TODAY}\
-	 -X github.com/pydio/cells/common.BuildRevision=${GITREV}"\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
 	 .
 
 win:
