@@ -91,8 +91,8 @@ func (s *EventSubscriber) enqueueMoves(ctx context.Context, moveUuid string, eve
 					})
 				}
 				// Remove
-				close(newB)
 				s.mvDel(moveUuid)
+				close(newB)
 			}()
 			for {
 				select {
@@ -126,6 +126,10 @@ func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent)
 			}
 			if target != nil {
 				uuid = target.Uuid
+				if target.Etag == "temporary" {
+					// Ignore temporary events !
+					return nil
+				}
 				s.TreeServer.updateDataSourceNode(target, target.GetStringMeta(common.MetaNamespaceDatasourceName))
 			}
 			log.Logger(ctx).Debug("Got move metadata from context - Skip event", zap.Any("uuid", uuid), zap.Any("event", msg))
