@@ -100,6 +100,17 @@ func (s *Indexer) Init(cfg configx.Values) error {
 	return s.Open(s.BleveConfig().BlevePath)
 }
 
+// Stats implements DAO method by listing opened indexes and documents counts
+func (s *Indexer) Stats() map[string]interface{} {
+	m := map[string]interface{}{
+		"indexes": s.listIndexes(),
+	}
+	if count, e := s.searchIndex.DocCount(); e == nil {
+		m["docsCount"] = count
+	}
+	return m
+}
+
 // Open lists all existing indexes and creates a writeable index on the active one
 // and a composed index for searching. It calls watchInserts() to start watching for
 // new logs
@@ -196,16 +207,17 @@ func (s *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 	return nil
 }
 
-func (s *Indexer) Flush() {
+func (s *Indexer) Flush(c context.Context) error {
 
 	if !s.opened {
-		return
+		return nil
 	}
 
 	select { // non-blocking insert
 	case s.forceFlush <- true:
 	default:
 	}
+	return nil
 }
 
 func (s *Indexer) DeleteMany(ctx context.Context, qu interface{}) (int32, error) {
@@ -342,6 +354,7 @@ func (s *Indexer) listIndexes(renameIfNeeded ...bool) (paths []string) {
 }
 
 func (s *Indexer) watchInserts() {
+	batchSize := int(s.BleveConfig().BatchSize)
 	for {
 		select {
 		case in := <-s.inserts:
@@ -360,7 +373,7 @@ func (s *Indexer) watchInserts() {
 				id = xid.New().String()
 			}
 			s.crtBatch.Index(id, msg)
-			if s.crtBatch.Size() > 5000 {
+			if s.crtBatch.Size() >= batchSize {
 				s.flush()
 			}
 			s.flushLock.Unlock()
@@ -371,7 +384,7 @@ func (s *Indexer) watchInserts() {
 					s.crtBatch = s.getWriteIndex().NewBatch()
 				}
 				s.crtBatch.Delete(id)
-				if s.crtBatch.Size() > 5000 {
+				if s.crtBatch.Size() >= batchSize {
 					s.flush()
 				}
 				s.flushLock.Unlock()
@@ -434,7 +447,7 @@ func (s *Indexer) flush() {
 }
 
 // Resync creates a copy of current index. It has been originally used for switching analyze format from bleve to scorch.
-func (s *Indexer) Resync(logger func(string)) error {
+func (s *Indexer) Resync(ctx context.Context, logger func(string)) error {
 
 	copyDir := filepath.Join(filepath.Dir(s.indexPath), uuid.New())
 	e := os.Mkdir(copyDir, 0777)
@@ -449,6 +462,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 	dup := &Indexer{
 		DAO: s.DAO,
 	}
+	dup.SetCodex(s.codec)
 	if UnitTestEnv {
 		dup.inserts = make(chan interface{})
 	} else {
@@ -476,7 +490,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 			return err
 		}
 		for _, hit := range sr.Hits {
-			um, e := s.codec.Unmarshal(hit.Fields)
+			um, e := s.codec.Unmarshal(hit)
 			if e != nil {
 				fmt.Println(e)
 				continue
@@ -486,7 +500,7 @@ func (s *Indexer) Resync(logger func(string)) error {
 				fmt.Println(e)
 				continue
 			}
-			s.inserts <- mu
+			dup.inserts <- mu
 		}
 		if sr.Total <= uint64((page+1)*req.Size) {
 			break
@@ -494,9 +508,15 @@ func (s *Indexer) Resync(logger func(string)) error {
 		page++
 
 	}
-
-	s.Close()
-	dup.Close()
+	if er := dup.Flush(ctx); er != nil {
+		return er
+	}
+	if er := s.Close(); er != nil {
+		return er
+	}
+	if er := dup.Close(); er != nil {
+		return er
+	}
 	<-time.After(5 * time.Second) // Make sure original is closed
 
 	logger("Removing old indexes")
@@ -524,11 +544,27 @@ func (s *Indexer) Resync(logger func(string)) error {
 
 // Truncate gathers size of existing indexes, starting from last. When max is reached
 // it starts deleting all previous indexes.
-func (s *Indexer) Truncate(max int64, logger func(string)) error {
+func (s *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
 	logger("Closing log server, waiting for five seconds")
 	dir := filepath.Dir(s.indexPath)
-	s.Close()
+	if er := s.Close(); er != nil {
+		return er
+	}
 	<-time.After(5 * time.Second)
+
+	if max == 0 {
+		logger("Truncate index to 0: remove and recreate")
+		if er := os.RemoveAll(s.indexPath); er != nil {
+			return er
+		}
+		logger("Re-opening indexer")
+		if er := s.Open(s.indexPath); er != nil {
+			return er
+		}
+		logger("Server opened")
+		return nil
+	}
+
 	logger("Start purging old files")
 	indexes := s.listIndexes()
 	var i int
@@ -547,7 +583,9 @@ func (s *Indexer) Truncate(max int64, logger func(string)) error {
 	}
 	// Now restart - it will renumber files
 	logger("Re-opening log server")
-	s.Open(s.indexPath)
+	if er := s.Open(s.indexPath); er != nil {
+		return er
+	}
 	logger("Truncate operation done")
 	return nil
 }

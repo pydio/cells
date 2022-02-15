@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"io"
 	"strconv"
 	"strings"
@@ -147,7 +148,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		strSize := strings.TrimPrefix(request.Path, "truncate/")
 		var er error
 		if maxSize, e := strconv.ParseInt(strSize, 10, 64); e == nil {
-			er = h.Repo.Truncate(maxSize, l)
+			er = h.Repo.Truncate(ctx, maxSize, l)
 		} else {
 			er = fmt.Errorf("wrong format for truncate (use bytesize)")
 		}
@@ -155,8 +156,9 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 		return nil, er
 	}
 
+	c := servicecontext.WithServiceName(context.Background(), servicecontext.GetServiceName(ctx))
 	go func() {
-		e := h.Repo.Resync(l)
+		e := h.Repo.Resync(c, l)
 		if e != nil {
 			if l != nil {
 				l.Error("Error while resyncing: ", zap.Error(e))

@@ -61,7 +61,7 @@ func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 		return nil, err
 	}
 	return &Handler{
-		DAO: dao.NewDAO(conn, driver, prefix),
+		DAO: dao.AbstractDAO(conn, driver, prefix),
 	}, nil
 }
 

@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package mongodb
 
 import (
@@ -51,16 +71,24 @@ func (i *Indexer) watch() {
 		select {
 		case <-i.tick:
 			if len(i.inserts) > i.bufferSize || len(i.deletes) > i.bufferSize {
-				i.Flush()
+				i.Flush(context.Background())
 			}
 		case <-time.After(3 * time.Second):
-			i.Flush()
+			i.Flush(context.Background())
 		case <-i.flush:
-			i.Flush()
+			i.Flush(context.Background())
 		case <-i.done:
 			return
 		}
 	}
+}
+
+func (i *Indexer) mustTick() {
+	// avoid send on closed panic
+	defer func() {
+		recover()
+	}()
+	i.tick <- true
 }
 
 func (i *Indexer) SetCollection(c string) {
@@ -90,7 +118,7 @@ func (i *Indexer) Init(cfg configx.Values) error {
 func (i *Indexer) InsertOne(ctx context.Context, data interface{}) error {
 	if m, e := i.codec.Marshal(data); e == nil {
 		i.inserts = append(i.inserts, m)
-		i.tick <- true
+		i.mustTick()
 		return nil
 	} else {
 		return e
@@ -108,7 +136,7 @@ func (i *Indexer) DeleteOne(ctx context.Context, data interface{}) error {
 		return fmt.Errorf("data must be a string or an IndexIDProvider")
 	}
 	i.deletes = append(i.deletes, indexId)
-	i.tick <- true
+	i.mustTick()
 	return nil
 }
 
@@ -212,18 +240,25 @@ func (i *Indexer) FindMany(ctx context.Context, query interface{}, offset, limit
 
 }
 
-func (i *Indexer) Resync(logger func(string)) error {
+func (i *Indexer) Resync(ctx context.Context, logger func(string)) error {
 	return fmt.Errorf("resync is not implemented on the mongo indexer")
 }
-func (i *Indexer) Truncate(max int64, logger func(string)) error {
-	return fmt.Errorf("truncate is not implemented on the mongo indexer")
+func (i *Indexer) Truncate(ctx context.Context, max int64, logger func(string)) error {
+	if max > 0 {
+		return fmt.Errorf("truncate to a given bytesize is not implemented on the mongo indexer")
+	}
+	res, e := i.DB().Collection(i.collection).DeleteMany(context.Background(), bson.D{})
+	if e != nil {
+		return e
+	}
+	fmt.Println("Flushed index from", res.DeletedCount, "records")
+	return nil
 }
 func (i *Indexer) Close() error {
 	close(i.done)
 	return i.CloseConn()
 }
-func (i *Indexer) Flush() {
-	ctx := context.Background()
+func (i *Indexer) Flush(ctx context.Context) error {
 	conn := i.DB().Collection(i.collection)
 	if len(i.inserts) > 0 {
 		if i.collectionModel.IDName != "" {
@@ -241,6 +276,7 @@ func (i *Indexer) Flush() {
 		} else {
 			if _, e := conn.InsertMany(ctx, i.inserts); e != nil {
 				fmt.Println("error while flushing index to db", e)
+				return e
 			} else {
 				//fmt.Println("flushed index to db", len(res.InsertedIDs))
 			}
@@ -254,12 +290,15 @@ func (i *Indexer) Flush() {
 		}
 		if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
 			fmt.Println("error while flushing deletes to index", e)
+			return e
 		} else {
 			//fmt.Println("flushed index, deleted", res.DeletedCount)
 		}
 		i.deletes = []string{}
 	}
+	return nil
 }
+
 func (i *Indexer) SetCodex(c dao.IndexCodex) {
 	i.codec = c
 }

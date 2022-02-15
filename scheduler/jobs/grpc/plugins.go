@@ -73,7 +73,7 @@ func init() {
 				service.WithStoragePrefix("tasklogs"),
 				service.WithStorageSupport(bleve.Driver, mongodb.Driver),
 				service.WithStorageDefaultDriver(func() (string, string) {
-					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=logs&rotationSize=-1")
+					return bleve.Driver, filepath.Join(config.MustServiceDataDir(ServiceName), "tasklogs.bleve?mapping=log&rotationSize=-1")
 				}),
 			),
 			service.Migrations([]*service.Migration{

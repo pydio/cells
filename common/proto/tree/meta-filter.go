@@ -145,6 +145,11 @@ func (m *MetaFilter) Match(name string, n *Node) bool {
 	return true
 }
 
+type GeoJson struct {
+	Type        string    `bson:"type"`
+	Coordinates []float64 `bson:"coordinates"`
+}
+
 type IndexableNode struct {
 	Node       `bson:"inline"`
 	ReloadCore bool `bson:"-"`
@@ -154,8 +159,9 @@ type IndexableNode struct {
 	Basename    string                 `bson:"basename"`
 	NodeType    string                 `bson:"node_type"`
 	Extension   string                 `bson:"extension"`
-	TextContent string                 `bson:"text_content"`
-	GeoPoint    map[string]interface{} `bson:"geo_point"`
+	TextContent string                 `bson:"text_content,omitempty"`
+	GeoPoint    map[string]interface{} `bson:"-"`                  // Used by Bleve
+	GeoJson     *GeoJson               `bson:"geo_json,omitempty"` // Used by Mongo
 	Meta        map[string]interface{} `bson:"meta"`
 }
 

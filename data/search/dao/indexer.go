@@ -24,6 +24,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
 	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -132,22 +133,9 @@ func (s *Server) DeleteNode(c context.Context, n *tree.Node) error {
 }
 
 func (s *Server) ClearIndex(ctx context.Context) error {
-	s.done <- true
-	// Make sure it's properly closed...
-	<-time.After(1 * time.Second)
-	/*
-		// TODO V4 - Re-init Storage
-		if e := os.RemoveAll(IndexPath); e != nil {
-			return e
-		}
-		index, e := createIndex(IndexPath, s.BasenameAnalyzer, s.contentAnalyzer)
-		if e != nil {
-			return e
-		}
-		s.Engine = index
-		go s.watchOperations()
-	*/
-	return nil
+	return s.Engine.Truncate(ctx, 0, func(s string) {
+		log.Logger(ctx).Info(s)
+	})
 }
 
 func (s *Server) SearchNodes(c context.Context, queryObject *tree.Query, from int32, size int32, resultChan chan *tree.Node, facets chan *tree.SearchFacet, doneChan chan bool) error {

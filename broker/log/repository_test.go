@@ -21,6 +21,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -30,31 +31,26 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/bleve"
+	"github.com/pydio/cells/v4/common/dao/test"
 	"github.com/pydio/cells/v4/common/proto/log"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
-var (
-	server MessageRepository
-)
+func TestMessageRepository(t *testing.T) {
 
-func init() {
-	var err error
-	dao, _ := bleve.NewDAO("bleve", "", "")
-	idx, _ := bleve.NewIndexer(dao)
-	idx.SetCodex(&BleveCodec{})
-	idx.Init(configx.New())
-	server, err = NewIndexService(idx)
+	idx, closer, err := test.OnFileTestDAO("bleve", filepath.Join(os.TempDir(), "logtest-"+uuid.New()+".bleve?mapping=log"), "", "logs_tests", true, NewDAO)
 	if err != nil {
-		panic("Failed to create Syslog server")
+		panic(err)
 	}
-
-}
-
-func TestNewBleveEngine(t *testing.T) {
+	server, err := NewIndexService(idx.(dao.IndexDAO))
+	if err != nil {
+		panic(err)
+	}
+	defer closer()
 
 	Convey("Test all property indexation:\n", t, func() {
 		err := server.PutLog(&log.Log{Message: []byte(sampleSyslog), Nano: int32(time.Now().UnixNano())})
@@ -105,7 +101,7 @@ func TestNewBleveEngine(t *testing.T) {
 	Convey("Search a result", t, func() {
 		results, err := server.ListLogs(
 			fmt.Sprintf(
-				`+%s:test +%s:INFO +%s:>1142080000`, // ~01.01.2006
+				`+%s:*test* +%s:INFO +%s:>1142080000`, // ~01.01.2006
 				common.KeyMsg,
 				common.KeyLevel,
 				common.KeyTs,
@@ -117,14 +113,6 @@ func TestNewBleveEngine(t *testing.T) {
 		for range results {
 			count++
 		}
-
-		// for result := range results {
-		// 	count++
-		// 	fmt.Printf("***** log record #%d\n ", count)
-		// 	for k, v := range result {
-		// 		fmt.Printf("key[%s] value[%s]\n", k, v)
-		// 	}
-		// }
 		So(count, ShouldEqual, 2)
 	})
 }
@@ -135,14 +123,14 @@ func TestSizeRotation(t *testing.T) {
 		p := filepath.Join(os.TempDir(), uuid.New(), "syslog.bleve")
 		os.MkdirAll(filepath.Dir(p), 0777)
 		fmt.Println("Storing temporary index in", p)
+		dsn := p + fmt.Sprintf("?mapping=log&batchSize=2500&rotationSize=%d", 1*1024*1024)
 
-		dao, _ := bleve.NewDAO("bleve", p, "")
+		dao, _ := bleve.NewDAO("bleve", dsn, "")
 		idx, _ := bleve.NewIndexer(dao)
 		idx.SetCodex(&BleveCodec{})
-		idx.Init(configx.New())
+		So(idx.Init(configx.New()), ShouldBeNil)
 		s, e := NewIndexService(idx)
 
-		//s, e := bleve.NewSyslogServer(p, "sysLog", 1*1024*1024)
 		So(e, ShouldBeNil)
 		var i, k int
 		for i = 0; i < 10000; i++ {
@@ -173,26 +161,20 @@ func TestSizeRotation(t *testing.T) {
 
 		<-time.After(5 * time.Second)
 
-		/*
-			TODO - Stats() endpoint on DAO ?
-			indexPaths := s.listIndexes()
-			So(indexPaths, ShouldHaveLength, 5)
-			fmt.Println(indexPaths)
-
-			dd, e := s.SearchIndex.DocCount()
-			So(e, ShouldBeNil)
-			So(dd, ShouldEqual, 20020)
-		*/
+		m := idx.Stats()
+		So(m, ShouldNotBeNil)
+		So(m["docsCount"], ShouldEqual, uint64(20020))
+		So(m["indexes"], ShouldHaveLength, 9)
 
 		s.Close()
 		<-time.After(5 * time.Second)
 
 		// Re-open with same data and carry one feeding with logs
 
-		dao, _ = bleve.NewDAO("bleve", p, "")
+		dao, _ = bleve.NewDAO("bleve", dsn, "")
 		idx, _ = bleve.NewIndexer(dao)
 		idx.SetCodex(&BleveCodec{})
-		idx.Init(configx.New())
+		_ = idx.Init(configx.New())
 		s, e = NewIndexService(idx)
 		So(e, ShouldBeNil)
 		for i = 0; i < 10000; i++ {
@@ -204,7 +186,7 @@ func TestSizeRotation(t *testing.T) {
 				"msg":    fmt.Sprintf("Message number %d", i),
 			}
 			data, _ := json.Marshal(line)
-			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
+			_ = s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 		fmt.Println("Inserted 10000 logs")
 		<-time.After(5 * time.Second)
@@ -218,35 +200,33 @@ func TestSizeRotation(t *testing.T) {
 				"msg":    fmt.Sprintf("Message number %d", k),
 			}
 			data, _ := json.Marshal(line)
-			s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
+			_ = s.PutLog(&log.Log{Message: data, Nano: int32(time.Now().UnixNano())})
 		}
 
 		<-time.After(5 * time.Second)
-		/*
-			// TODO V4 - DAO.Stats() ?
-			dd, e = s.SearchIndex.DocCount()
-			So(e, ShouldBeNil)
-			So(dd, ShouldEqual, 40040)
 
-			indexPaths = s.listIndexes()
-			So(indexPaths, ShouldHaveLength, 9)
-			fmt.Println(indexPaths)
+		m = idx.Stats()
+		So(m, ShouldNotBeNil)
+		So(m["docsCount"], ShouldEqual, uint64(40040))
 
-			s.Resync(nil)
-			<-time.After(5 * time.Second)
+		So(s.Resync(context.Background(), nil), ShouldBeNil)
+		<-time.After(5 * time.Second)
 
-			indexPaths = s.listIndexes()
-			So(indexPaths, ShouldHaveLength, 9)
-			fmt.Println(indexPaths)
-			dd, e = s.SearchIndex.DocCount()
-			So(e, ShouldBeNil)
-			So(dd, ShouldEqual, 40040)
-		*/
+		m = idx.Stats()
+		So(m, ShouldNotBeNil)
+		So(m["docsCount"], ShouldEqual, uint64(40040))
+		parts := m["indexes"].([]string)
+		So(len(parts), ShouldBeGreaterThan, 5)
+
+		So(s.Truncate(context.Background(), 15*1024*1024, nil), ShouldBeNil)
+		m = idx.Stats()
+		newParts := m["indexes"].([]string)
+		So(len(newParts), ShouldBeLessThan, len(parts))
 
 		// Close and Clean
-		s.Close()
+		_ = s.Close()
 		<-time.After(5 * time.Second)
-		os.RemoveAll(filepath.Dir(p))
+		_ = os.RemoveAll(filepath.Dir(p))
 
 	})
 }

@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	proto "github.com/pydio/cells/v4/common/proto/mailer"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -41,17 +42,22 @@ import (
 
 type Handler struct {
 	proto.UnimplementedMailerServiceServer
-	queueName    string
-	queueConfig  configx.Values
+	dao mailer.Queue
+
 	senderName   string
 	senderConfig configx.Values
-	queue        mailer.Queue
 	sender       mailer.Sender
 }
 
 func NewHandler(serviceCtx context.Context, conf configx.Values) (*Handler, error) {
 	h := new(Handler)
-	h.initFromConf(serviceCtx, conf, true)
+	h.dao = servicecontext.GetDAO(serviceCtx).(mailer.Queue)
+	if h.dao == nil {
+		return nil, fmt.Errorf("could not load queue DAO")
+	}
+	if er := h.initFromConf(serviceCtx, conf, true); er != nil {
+		log.Logger(serviceCtx).Warn("Could not init mailer handler from config: "+er.Error(), zap.Error(er))
+	}
 	return h, nil
 }
 
@@ -158,7 +164,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 		}
 		if req.InQueue {
 			log.Logger(ctx).Debug("SendMail: pushing email to queue", log.DangerouslyZapSmallSlice("to", tt), zap.Any("from", m.From), zap.Any("subject", m.Subject))
-			if e := h.queue.Push(m); e != nil {
+			if e := h.dao.Push(m); e != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("cannot put mail in queue: %s", e.Error()), log.DangerouslyZapSmallSlice("to", tt), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 				return nil, e
 			}
@@ -176,7 +182,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest) (*pr
 // ConsumeQueue browses current queue for emails to be sent
 func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueRequest) (*proto.ConsumeQueueResponse, error) {
 
-	if h.queue == nil {
+	if h.dao == nil {
 		return nil, fmt.Errorf("queue not initialised")
 	}
 
@@ -192,7 +198,7 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 		return h.sender.Send(em)
 	}
 
-	e := h.queue.Consume(c)
+	e := h.dao.Consume(c)
 	if e != nil {
 		return nil, e
 	}
@@ -204,15 +210,11 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 	return rsp, nil
 }
 
-func (h *Handler) parseConf(conf configx.Values) (queueName string, queueConfig configx.Values, senderName string, senderConfig configx.Values) {
+func (h *Handler) parseConf(conf configx.Values) (senderName string, senderConfig configx.Values) {
 
 	// Defaults
-	queueName = "boltdb"
 	senderName = "sendmail"
 	senderConfig = conf.Val("sender")
-	queueConfig = conf.Val("queue")
-
-	queueName = queueConfig.Val("@value").Default("boltdb").String()
 	senderName = senderConfig.Val("@value").Default("sendmail").String()
 
 	return
@@ -235,17 +237,7 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 		}
 	}()
 
-	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
-	if h.queue != nil {
-		h.queue.Close()
-	}
-	h.queue = mailer.GetQueue(ctx, queueName, queueConfig)
-	if h.queue == nil {
-		queueName = "boltdb"
-		h.queue = mailer.GetQueue(ctx, "boltdb", conf)
-	} else {
-		log.Logger(ctx).Info("Starting mailer with queue '" + queueName + "'")
-	}
+	senderName, senderConfig := h.parseConf(conf)
 
 	sender, err := mailer.GetSender(ctx, senderName, senderConfig)
 	if err != nil {
@@ -255,8 +247,6 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 
 	log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
 	h.sender = sender
-	h.queueName = queueName
-	h.queueConfig = queueConfig
 	h.senderName = senderName
 	h.senderConfig = senderConfig
 
@@ -270,11 +260,11 @@ func (h *Handler) initFromConf(ctx context.Context, conf configx.Values, check b
 func (h *Handler) checkConfigChange(ctx context.Context, check bool) error {
 
 	cfg := config.Get("services", Name)
-	queueName, _, senderName, senderConfig := h.parseConf(cfg)
+	senderName, senderConfig := h.parseConf(cfg)
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)
 
-	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
+	if senderName != h.senderName || string(m1) != string(m2) {
 		log.Logger(ctx).Info("Mailer configuration has changed. Refreshing sender and queue")
 		return h.initFromConf(ctx, cfg, check)
 	}

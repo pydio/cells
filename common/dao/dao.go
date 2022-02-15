@@ -38,21 +38,6 @@ var daoConns map[string]ConnProviderFunc
 var daoDrivers map[string]DaoProviderFunc
 var indexersDrivers map[string]IndexerWrapperFunc
 
-func init() {
-	daoConns = make(map[string]ConnProviderFunc)
-	daoDrivers = make(map[string]DaoProviderFunc)
-	indexersDrivers = make(map[string]IndexerWrapperFunc)
-}
-
-func RegisterDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
-	daoDrivers[name] = daoF
-	daoConns[name] = connF
-}
-
-func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
-	indexersDrivers[name] = daoF
-}
-
 // DAO interface definition
 type DAO interface {
 	Init(configx.Values) error
@@ -64,13 +49,27 @@ type DAO interface {
 	// Prefix is used to prevent collision between table names
 	// in case this DAO accesses a shared DB.
 	Prefix() string
+	// LocalAccess returns true if DAO relies on an on-file DB
 	LocalAccess() bool
+	// Stats may return info about the underlying driver/conn
+	Stats() map[string]interface{}
 }
 
-type handler struct {
-	conn   Conn
-	driver string
-	prefix string
+func init() {
+	daoConns = make(map[string]ConnProviderFunc)
+	daoDrivers = make(map[string]DaoProviderFunc)
+	indexersDrivers = make(map[string]IndexerWrapperFunc)
+}
+
+// RegisterDAODriver registers factories for DAOs and Connections
+func RegisterDAODriver(name string, daoF DaoProviderFunc, connF ConnProviderFunc) {
+	daoDrivers[name] = daoF
+	daoConns[name] = connF
+}
+
+// RegisterIndexerDriver registers factories for Indexers
+func RegisterIndexerDriver(name string, daoF IndexerWrapperFunc) {
+	indexersDrivers[name] = daoF
 }
 
 // InitDAO finalize DAO creation based on registered drivers
@@ -97,6 +96,7 @@ func InitDAO(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.V
 	return d, nil
 }
 
+// InitIndexer looks up in the register to initialize a DAO and wrap it as an IndexDAO
 func InitIndexer(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...configx.Values) (DAO, error) {
 	d, e := InitDAO(driver, dsn, prefix, nil)
 	if e != nil {
@@ -123,33 +123,47 @@ func InitIndexer(driver, dsn, prefix string, wrapper func(DAO) DAO, cfg ...confi
 	return d.(IndexDAO), nil
 }
 
-// NewDAO returns a reference to a newly created struct that
+// AbstractDAO returns a reference to a newly created struct that
 // contains the necessary information to access a database.
 // Prefix parameter is used to specify a prefix to avoid collision
 // between table names in case this DAO accesses a shared DB: it thus
 // will be an empty string in most of the cases.
-func NewDAO(conn Conn, driver string, prefix string) DAO {
-	return &handler{
+func AbstractDAO(conn Conn, driver string, prefix string) DAO {
+	return &abstract{
 		conn:   conn,
 		driver: driver,
 		prefix: prefix,
 	}
 }
 
-func (h *handler) Init(c configx.Values) error {
+type abstract struct {
+	conn   Conn
+	driver string
+	prefix string
+}
+
+// Init will be overridden by implementations
+func (h *abstract) Init(c configx.Values) error {
 	return nil
 }
 
-func (h *handler) Driver() string {
+// Driver returns driver name
+func (h *abstract) Driver() string {
 	return h.driver
 }
 
-func (h *handler) Prefix() string {
+// Prefix returns prefix name
+func (h *abstract) Prefix() string {
 	return h.prefix
 }
 
+// Stats will be overridden by implementations1
+func (h *abstract) Stats() map[string]interface{} {
+	return map[string]interface{}{}
+}
+
 // GetConn to the DB for the DAO
-func (h *handler) GetConn() Conn {
+func (h *abstract) GetConn() Conn {
 	if h == nil {
 		return nil
 	}
@@ -157,15 +171,16 @@ func (h *handler) GetConn() Conn {
 }
 
 // SetConn assigns the db connection to the DAO
-func (h *handler) SetConn(conn Conn) {
+func (h *abstract) SetConn(conn Conn) {
 	h.conn = conn
 }
 
 // CloseConn closes the db connection
-func (h *handler) CloseConn() error {
+func (h *abstract) CloseConn() error {
 	return closeConn(h.conn)
 }
 
-func (h *handler) LocalAccess() bool {
+// LocalAccess returns false by default, can be overridden by implementations
+func (h *abstract) LocalAccess() bool {
 	return false
 }

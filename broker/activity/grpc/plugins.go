@@ -83,7 +83,6 @@ func init() {
 					return boltdb.Driver, filepath.Join(config.MustServiceDataDir(Name), "activities.db")
 				}),
 			),
-			service.Unique(true),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 
 				d := servicecontext.GetDAO(c).(activity.DAO)

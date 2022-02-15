@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -53,7 +53,7 @@ func NewDAO(driver string, dsn string, prefix string) (dao.DAO, error) {
 		return nil, err
 	}
 	return &Handler{
-		DAO: dao.NewDAO(conn, driver, prefix),
+		DAO: dao.AbstractDAO(conn, driver, prefix),
 	}, nil
 }
 
