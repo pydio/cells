@@ -23,13 +23,14 @@ package lib
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"sync"
+
 	"github.com/pydio/cells/v4/common/plugins"
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"path/filepath"
-	"sync"
 
 	"github.com/ory/hydra/x"
 
@@ -84,7 +85,7 @@ var (
 func ListServicesWithStorage() (ss []service.Service, e error) {
 	loadRegistry.Do(func() {
 		ctx := context.Background()
-		reg, err := registry.OpenRegistry(ctx, "memory:///?cache=shared")
+		reg, err := registry.OpenRegistry(ctx, "mem:///?cache=shared")
 		if err != nil {
 			e = err
 		}
