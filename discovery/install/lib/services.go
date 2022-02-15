@@ -23,13 +23,14 @@ package lib
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"sync"
+
 	"github.com/pydio/cells/v4/common/plugins"
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"path/filepath"
-	"sync"
 
 	"github.com/ory/hydra/x"
 
