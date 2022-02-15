@@ -24,10 +24,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pydio/cells/v4/common/config/memory"
-
-	configregistry "github.com/pydio/cells/v4/common/registry/config"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -86,8 +82,9 @@ to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := cmd.Context()
 
-		pluginsRegStore := memory.New()
-		pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
+		//pluginsRegStore := memory.New()
+		///pluginsReg := configregistry.NewConfigRegistry(pluginsRegStore)
+		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=shared&byname=true")
 
 		// Version memory
 		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))

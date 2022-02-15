@@ -84,7 +84,7 @@ var (
 func ListServicesWithStorage() (ss []service.Service, e error) {
 	loadRegistry.Do(func() {
 		ctx := context.Background()
-		reg, err := registry.OpenRegistry(ctx, "mem:///?cache=shared")
+		reg, err := registry.OpenRegistry(ctx, "mem:///?cache=shared&byname=true")
 		if err != nil {
 			e = err
 		}

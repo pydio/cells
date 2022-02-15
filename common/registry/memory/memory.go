@@ -27,14 +27,15 @@ func init() {
 }
 
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
+	byName := u.Query().Get("byname") == "true"
 	if u.Query().Get("cache") == "shared" {
 		sharedOnce.Do(func() {
-			shared = registry.NewRegistry(newMemory())
+			shared = registry.NewRegistry(newMemory(byName))
 		})
 
 		return shared, nil
 	}
-	return registry.NewRegistry(newMemory()), nil
+	return registry.NewRegistry(newMemory(byName)), nil
 }
 
 type memory struct {
@@ -42,15 +43,20 @@ type memory struct {
 
 	sync.RWMutex
 	broadcasters map[string]chan registry.Result
+
+	// If registry has idAsName true, services with same names
+	// will override one-another
+	idAsName bool
 }
 
 type options struct {
 	itemType int
 }
 
-func newMemory() registry.Registry {
+func newMemory(idAsName bool) registry.Registry {
 	return &memory{
 		broadcasters: make(map[string]chan registry.Result),
+		idAsName:     idAsName,
 	}
 }
 
@@ -66,15 +72,9 @@ func (m *memory) Stop(item registry.Item) error {
 }
 
 func (m *memory) Register(item registry.Item) error {
-	var byName bool
-	if md := item.Metadata(); md != nil {
-		if _, ok := md[registry.ServiceMetaOverride]; ok {
-			byName = true
-		}
-	}
 	// Then register all services
 	for k, v := range m.register {
-		if v.ID() == item.ID() || (byName && v.Name() == item.Name()) {
+		if v.ID() == item.ID() || (m.idAsName && v.Name() == item.Name()) {
 			m.register[k] = item
 			go m.sendEvent(registry.NewResult(pb.ActionType_UPDATE, []registry.Item{item}))
 			go m.sendEvent(registry.NewResult(pb.ActionType_FULL_LIST, m.register))

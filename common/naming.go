@@ -254,7 +254,7 @@ const (
 var (
 	BuildStamp    string
 	BuildRevision string
-	version       = "0.1.0"
+	version       = "4.0.0"
 )
 
 // Package info. Initialised by main.
