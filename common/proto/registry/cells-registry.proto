@@ -79,6 +79,7 @@ message Value {
 message Options {
   int64 ttl = 1;
   ItemType type = 2;
+  ActionType action = 3;
 }
 
 // Result is returns by the watcher

@@ -41,7 +41,7 @@ type memory struct {
 	register []registry.Item
 
 	sync.RWMutex
-	watchers map[string]*watcher
+	broadcasters map[string]chan registry.Result
 }
 
 type options struct {
@@ -50,7 +50,7 @@ type options struct {
 
 func newMemory() registry.Registry {
 	return &memory{
-		watchers: make(map[string]*watcher),
+		broadcasters: make(map[string]chan registry.Result),
 	}
 }
 
@@ -77,13 +77,15 @@ func (m *memory) Register(item registry.Item) error {
 		if v.ID() == item.ID() || (byName && v.Name() == item.Name()) {
 			m.register[k] = item
 			go m.sendEvent(registry.NewResult(pb.ActionType_UPDATE, []registry.Item{item}))
+			go m.sendEvent(registry.NewResult(pb.ActionType_FULL_LIST, m.register))
 			return nil
 		}
 	}
 
 	// not found - adding it
-	go m.sendEvent(registry.NewResult(pb.ActionType_CREATE, []registry.Item{item}))
 	m.register = append(m.register, item)
+	go m.sendEvent(registry.NewResult(pb.ActionType_CREATE, []registry.Item{item}))
+	go m.sendEvent(registry.NewResult(pb.ActionType_FULL_LIST, m.register))
 
 	return nil
 }
@@ -95,6 +97,8 @@ func (m *memory) Deregister(item registry.Item) error {
 			go m.sendEvent(registry.NewResult(pb.ActionType_DELETE, []registry.Item{item}))
 		}
 	}
+
+	go m.sendEvent(registry.NewResult(pb.ActionType_FULL_LIST, m.register))
 	return nil
 }
 
@@ -157,16 +161,18 @@ func (m *memory) Watch(opts ...registry.Option) (registry.Watcher, error) {
 		o(&wo)
 	}
 
+	id := uuid.New()
+	res := make(chan registry.Result)
+
 	// construct the watcher
-	w := &watcher{
-		exit: make(chan bool),
-		res:  make(chan registry.Result),
-		id:   uuid.New(),
-		wo:   wo,
-	}
+	w := registry.NewWatcher(
+		id,
+		wo,
+		res,
+	)
 
 	m.Lock()
-	m.watchers[w.id] = w
+	m.broadcasters[id] = res
 	m.Unlock()
 
 	return w, nil
@@ -178,23 +184,16 @@ func (m *memory) As(interface{}) bool {
 
 func (m *memory) sendEvent(r registry.Result) {
 	m.RLock()
-	watchers := make([]*watcher, 0, len(m.watchers))
-	for _, w := range m.watchers {
-		watchers = append(watchers, w)
+	broadcasters := make([]chan registry.Result, 0, len(m.broadcasters))
+	for _, w := range m.broadcasters {
+		broadcasters = append(broadcasters, w)
 	}
 	m.RUnlock()
 
-	for _, w := range watchers {
+	for _, b := range broadcasters {
 		select {
-		case <-w.exit:
-			m.Lock()
-			delete(m.watchers, w.id)
-			m.Unlock()
+		case b <- r:
 		default:
-			select {
-			case w.res <- r:
-			case <-time.After(sendEventTime):
-			}
 		}
 	}
 }

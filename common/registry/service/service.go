@@ -22,9 +22,10 @@ package service
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/registry/util"
 	"net/url"
 	"time"
+
+	"github.com/pydio/cells/v4/common/registry/util"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -234,7 +235,8 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 	ctx := context.TODO()
 	req := &pb.WatchRequest{
 		Options: &pb.Options{
-			Type: options.Type,
+			Type:   options.Type,
+			Action: options.Action,
 		},
 	}
 

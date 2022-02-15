@@ -84,7 +84,6 @@ func (b *cellsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opt
 func (cr *cellsResolver) watch() {
 	w, err := cr.reg.Watch(registry.WithAction(pb.ActionType_FULL_LIST))
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
@@ -121,7 +120,6 @@ func (cr *cellsResolver) sendState() {
 	for _, v := range cr.items {
 		var srv registry.Node
 		if v.As(&srv) {
-
 			if srv.Name() != "grpc" {
 				continue
 			}
@@ -138,6 +136,7 @@ func (cr *cellsResolver) sendState() {
 			if !svc.IsGRPC() {
 				continue
 			}
+
 			for _, node := range svc.Nodes() {
 				address, ok := m[node.ID()]
 				if ok {

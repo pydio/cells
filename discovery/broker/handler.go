@@ -2,9 +2,6 @@ package broker
 
 import (
 	"fmt"
-	"time"
-
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -35,8 +32,6 @@ func (h *Handler) Publish(stream pb.Broker_PublishServer) error {
 			fmt.Println("[discovery/grpc/broker] Publish: Error is ", err)
 			return err
 		}
-
-		fmt.Println("Received from ? ", servicecontext.GetServiceName(stream.Context()), time.Now())
 
 		for _, message := range req.Messages {
 			if err := h.broker.PublishRaw(stream.Context(), req.Topic, message.Body, message.Header); err != nil {

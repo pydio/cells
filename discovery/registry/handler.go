@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+
 	"github.com/pydio/cells/v4/common/registry/util"
 
 	"github.com/pydio/cells/v4/common"
@@ -103,13 +104,11 @@ func (h *Handler) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 
 func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) error {
 
-	//TODO v4 options
-	//var opts []registry.WatchOption
-	//if s := req.GetService(); s != "" {
-	//	opts = append(opts, registry.WatchService(s))
-	//}
+	var opts []registry.Option
+	opts = append(opts, registry.WithAction(req.GetOptions().GetAction()))
+	opts = append(opts, registry.WithType(req.GetOptions().GetType()))
 
-	w, err := h.reg.Watch()
+	w, err := h.reg.Watch(opts...)
 	if err != nil {
 		return err
 	}
@@ -122,7 +121,7 @@ func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Registry_WatchServer) er
 
 		stream.Send(&pb.Result{
 			Action: res.Action(),
-			Items:   util.ToProtoItems(res.Items()),
+			Items:  util.ToProtoItems(res.Items()),
 		})
 	}
 }

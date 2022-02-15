@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pydio/cells/v4/common/registry"
+
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"golang.org/x/sync/errgroup"
 )
@@ -188,6 +190,10 @@ func (s *server) As(i interface{}) bool {
 	if v, ok := i.(*Server); ok {
 		*v = s
 		return true
+	} else if v, ok := i.(*registry.Node); ok {
+		*v = s
+		return true
 	}
+
 	return s.s.As(i)
 }
