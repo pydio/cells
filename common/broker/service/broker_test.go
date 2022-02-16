@@ -6,6 +6,7 @@ import (
 	"io"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"google.golang.org/protobuf/proto"
@@ -14,6 +15,8 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
 	"gocloud.dev/pubsub"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {
@@ -21,79 +24,59 @@ func init() {
 }
 
 func TestServiceBroker(t *testing.T) {
+	Convey("Test Service Broker", t, func() {
+		numMessagesToSend := 1000
+		numMessagesReceived := 0
 
-	subscription, _ := NewSubscription("test")
+		subscription, _ := NewSubscription("test")
 
-	wg := &sync.WaitGroup{}
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-	go func() {
-		// defer wg.Done()
+		go func() {
+			defer cancel()
 
-		defer subscription.Shutdown(context.Background())
+			defer subscription.Shutdown(context.Background())
 
-		for {
-			msg, err := subscription.Receive(context.Background())
-			if err == io.EOF {
-				return
+			for {
+				msg, err := subscription.Receive(context.Background())
+				if err == io.EOF {
+					return
+				}
+
+				numMessagesReceived++
+
+				msg.Ack()
+
+				ev := &tree.NodeChangeEvent{}
+				if err := proto.Unmarshal(msg.Body, ev); err != nil {
+					return
+				}
 			}
+		}()
 
-			ev := &tree.NodeChangeEvent{}
-			if err := proto.Unmarshal(msg.Body, ev); err != nil {
-				return
-			}
-			fmt.Println(ev)
-			fmt.Println("The message received is ? ", string(msg.Body), err)
+		topic, _ := NewTopic("test")
+		defer topic.Shutdown(ctx)
 
-			wg.Done()
+		msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
+		b, err := proto.Marshal(msg)
+		if err != nil {
+			fmt.Println("Error ", err)
+			return
 		}
 
-	}()
+		for i := 0; i < numMessagesToSend; i++ {
+			go topic.Send(context.Background(), &pubsub.Message{
+				Body: b,
+			})
+		}
 
-	topic, _ := NewTopic("test")
+		select {
+		case <-ctx.Done():
+		}
 
-	numMessages := 1000
+		So(numMessagesReceived, ShouldEqual, numMessagesToSend)
 
-	wg.Add(numMessages)
-
-	msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
-	b, err := proto.Marshal(msg)
-	if err != nil {
-		fmt.Println("Error ", err)
-		return
-	}
-
-	for i := 0; i < numMessages; i++ {
-		go topic.Send(context.Background(), &pubsub.Message{
-			Body: b,
-		})
-	}
-
-	wg.Wait()
-
-	topic.Shutdown(context.Background())
-}
-
-func TestSendReceive(t *testing.T) {
-	ctx := context.Background()
-
-	topic, _ := NewTopic("test")
-	defer topic.Shutdown(ctx)
-
-	m := &pubsub.Message{Body: []byte("user signed up")}
-	if err := topic.Send(ctx, m); err != nil {
-		t.Fatal(err)
-	}
-
-	sub, _ := NewSubscription("test")
-	defer sub.Shutdown(ctx)
-	m2, err := sub.Receive(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(m2.Body) != string(m.Body) {
-		t.Fatalf("received message has body %q, want %q", m2.Body, m.Body)
-	}
-	m2.Ack()
+	})
 }
 
 func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
