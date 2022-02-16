@@ -1,10 +1,11 @@
 package configx
 
 import (
+	"sync"
+
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"gopkg.in/yaml.v2"
-	"sync"
+	yaml "gopkg.in/yaml.v2"
 
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -81,6 +82,25 @@ func WithYAML() Option {
 	return func(o *Options) {
 		o.Unmarshaler = &yamlReader{}
 		o.Marshaller = &yamlWriter{}
+	}
+}
+
+type stringReader struct{}
+
+func (j *stringReader) Unmarshal(data []byte, out interface{}) error {
+	return yaml.Unmarshal(data, out)
+}
+
+type stringWriter struct{}
+
+func (j *stringWriter) Marshal(in interface{}) ([]byte, error) {
+	return yaml.Marshal(in)
+}
+
+func WithString() Option {
+	return func(o *Options) {
+		o.Unmarshaler = &stringReader{}
+		o.Marshaller = &stringWriter{}
 	}
 }
 

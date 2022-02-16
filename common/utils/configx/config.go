@@ -472,24 +472,27 @@ func (c *config) Bytes() []byte {
 	if v == nil {
 		return []byte{}
 	}
-	switch v := c.v.(type) {
+
+	/*switch v := c.v.(type) {
 	case string:
 		// Need to handle it differently
 		if v == "default" {
 			c.v = nil
 		}
 	case interface{}, []interface{}, map[string]interface{}:
-		if m := c.opts.Marshaller; m != nil {
-			data, err := m.Marshal(v)
-			if err != nil {
-				return []byte{}
-			}
 
-			return data
+	*/
+	if m := c.opts.Marshaller; m != nil {
+		data, err := m.Marshal(v)
+		if err != nil {
+			return []byte{}
 		}
 
-		return []byte{}
+		return data
 	}
+
+	/*	return []byte{}
+		}*/
 
 	return []byte(cast.ToString(v))
 }

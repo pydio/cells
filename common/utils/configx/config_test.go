@@ -7,7 +7,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/utils/filex"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -69,8 +68,8 @@ pointer:
 
 func TestStd(t *testing.T) {
 	Convey("Testing map get", t, func() {
-		var m config
-		err := json.Unmarshal(data, &m)
+		m := New(WithJSON())
+		err := m.Set(data)
 		So(err, ShouldBeNil)
 
 		So(m.Val("service").Get(), ShouldNotBeNil)
@@ -184,8 +183,8 @@ func TestStd(t *testing.T) {
 	})
 
 	Convey("Testing default get", t, func() {
-		var m config
-		err := json.Unmarshal(data, &m)
+		m := New(WithJSON())
+		err := m.Set(data)
 		So(err, ShouldBeNil)
 
 		So(m.Val("service/val").Default("").String(), ShouldEqual, "test")
@@ -214,7 +213,7 @@ func TestArray(t *testing.T) {
 
 func TestMap(t *testing.T) {
 	Convey("Testing map", t, func() {
-		m := &config{}
+		m := New()
 
 		m.Val("newmap/test1").Set("test")
 		m.Val("newmap/test2").Set("test2")
@@ -228,8 +227,8 @@ func TestMap(t *testing.T) {
 
 func TestReference(t *testing.T) {
 	Convey("Testing reference", t, func() {
-		var m config
-		err := json.Unmarshal(data, &m)
+		m := New(WithJSON())
+		err := m.Set(data)
 		So(err, ShouldBeNil)
 
 		So(m.Val("service/array").Val("#/defaults/val").String(), ShouldEqual, "test")
@@ -247,8 +246,8 @@ func TestReference(t *testing.T) {
 
 func TestGetSet(t *testing.T) {
 	Convey("Testing get / set", t, func() {
-		var m config
-		err := json.Unmarshal(data, &m)
+		m := New(WithJSON())
+		err := m.Set(data)
 		So(err, ShouldBeNil)
 
 		oldArray := m.Val("service/arrayMap")
@@ -263,8 +262,8 @@ func TestGetSet(t *testing.T) {
 
 func TestGetSetWithFunc(t *testing.T) {
 	Convey("Testing get / set", t, func() {
-		var m config
-		err := json.Unmarshal(data, &m)
+		m := New(WithJSON())
+		err := m.Set(data)
 		So(err, ShouldBeNil)
 
 		copy := func(c Values, old, new string) {
