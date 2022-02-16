@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-
 	"log"
 	"net"
 	"testing"
@@ -15,6 +13,7 @@ import (
 	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/test/bufconn"
 
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	pbregistry "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -23,7 +22,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	discoveryregistry "github.com/pydio/cells/v4/discovery/registry"
 
-	_ "github.com/pydio/cells/v4/common/registry/config"
+	_ "github.com/pydio/cells/v4/common/registry/memory"
 )
 
 type mock struct {
