@@ -23,7 +23,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	discoveryregistry "github.com/pydio/cells/v4/discovery/registry"
 
-	_ "github.com/pydio/cells/v4/common/registry/memory"
+	_ "github.com/pydio/cells/v4/common/registry/config"
 )
 
 type mock struct {
@@ -45,7 +45,7 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 	srv := New(ctx, WithListener(listener))
 
 	svcRegistry := service.NewService(
-		service.Name("test.registry"),
+		service.Name("pydio.grpc.test.registry"),
 		service.Context(ctx),
 		service.WithServer(srv),
 		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
@@ -56,7 +56,7 @@ func createApp1(reg registry.Registry) *bufconn.Listener {
 
 	// Create a new service
 	svcHello := service.NewService(
-		service.Name("test.service"),
+		service.Name("pydio.grpc.test.service"),
 		service.Context(ctx),
 		service.WithServer(srv),
 		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
@@ -90,7 +90,7 @@ func createApp2(reg registry.Registry) {
 
 	// Create a new service
 	svcHello := service.NewService(
-		service.Name("test.service"),
+		service.Name("pydio.grpc.test.service"),
 		service.Context(ctx),
 		service.WithServer(srv),
 		service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
@@ -112,7 +112,7 @@ func createApp2(reg registry.Registry) {
 func TestServiceRegistry(t *testing.T) {
 
 	ctx := context.Background()
-	mem, err := registry.OpenRegistry(ctx, "memory:///")
+	mem, err := registry.OpenRegistry(ctx, "mem:///")
 	if err != nil {
 		log.Fatal("could not create memory registry", err)
 	}
