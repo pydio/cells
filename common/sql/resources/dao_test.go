@@ -27,6 +27,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
+	_ "github.com/pydio/cells/v4/common/dao/sql"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/sql"
 )

@@ -184,6 +184,16 @@ func (d *daocache) Driver() string {
 	return d.DAO.(dao.DAO).Driver()
 }
 
+// LocalAccess implements dao.DAO interface
+func (d *daocache) LocalAccess() bool {
+	return false
+}
+
+// Stats implements dao.DAO interface
+func (d *daocache) Stats() map[string]interface{} {
+	return map[string]interface{}{}
+}
+
 // DB object
 func (d *daocache) DB() *sql.DB {
 	return d.DAO.(commonsql.DAO).DB()
