@@ -2,8 +2,10 @@ package file
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"sync"
 
@@ -14,7 +16,29 @@ import (
 	"github.com/pydio/cells/v4/common/utils/filex"
 )
 
-var errClosedChannel = errors.New("channel is closed")
+var (
+	scheme = "file"
+
+	errClosedChannel = errors.New("channel is closed")
+)
+
+type URLOpener struct{}
+
+func init() {
+	o := &URLOpener{}
+	config.DefaultURLMux().Register(scheme, o)
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+	autoUpdate := u.Query().Get("auto") == "true"
+
+	store, err := New(u.Path, autoUpdate)
+	if err != nil {
+		return nil, err
+	}
+
+	return store, nil
+}
 
 type file struct {
 	v       configx.Values

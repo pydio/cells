@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package memory
+package configtest
 
 import (
 	"fmt"
@@ -27,8 +27,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/config"
 
-	"github.com/pydio/cells/v4/common/utils/configx"
-
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -36,13 +34,7 @@ var (
 	vaultdata []byte
 )
 
-func TestVault(t *testing.T) {
-	e := encrypter{}
-	std := New()
-	stdvault := New(configx.WithEncrypt(e), configx.WithDecrypt(e))
-
-	vault := config.NewVault(std, stdvault)
-
+func testVault(t *testing.T, vault config.Store) {
 	config.RegisterVaultKey("protectedValue")
 	config.RegisterVaultKey("my-protected-map/my-protected-value")
 	config.RegisterVaultKey("myjson/myprotectedmap/myprotectedvalue")

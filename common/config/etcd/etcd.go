@@ -25,18 +25,65 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common/utils/configx"
+
 	"github.com/pydio/cells/v4/common/config"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
-
-	configx "github.com/pydio/cells/v4/common/utils/configx"
 )
 
-var errClosedChannel = errors.New("channel is closed")
+var (
+	scheme           = "etcd"
+	errClosedChannel = errors.New("channel is closed")
+)
+
+type URLOpener struct{}
+
+func init() {
+	o := &URLOpener{}
+	config.DefaultURLMux().Register(scheme, o)
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+	tls := u.Query().Get("tls") == "true"
+	addr := u.Host
+	if tls {
+		addr = "https://" + addr
+	} else {
+		addr = "http://" + addr
+	}
+
+	var opts []configx.Option
+
+	encode := u.Query().Get("encode")
+	switch encode {
+	case "string":
+		opts = append(opts, configx.WithString())
+	case "yaml":
+		opts = append(opts, configx.WithYAML())
+	case "json":
+		opts = append(opts, configx.WithJSON())
+	}
+
+	// Registry via etcd
+	etcdConn, err := clientv3.New(clientv3.Config{
+		Endpoints:   []string{addr},
+		DialTimeout: 2 * time.Second,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	store := NewSource(context.Background(), etcdConn, u.Path, opts...)
+
+	return store, nil
+}
 
 type etcd struct {
 	prefix    string

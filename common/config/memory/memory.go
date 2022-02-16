@@ -1,15 +1,46 @@
 package memory
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"sync"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
-var errClosedChannel = errors.New("channel is closed")
+var (
+	scheme           = "mem"
+	errClosedChannel = errors.New("channel is closed")
+)
+
+type URLOpener struct{}
+
+func init() {
+	o := &URLOpener{}
+	config.DefaultURLMux().Register(scheme, o)
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+
+	var opts []configx.Option
+
+	encode := u.Query().Get("encode")
+	switch encode {
+	case "string":
+		opts = append(opts, configx.WithString())
+	case "yaml":
+		opts = append(opts, configx.WithYAML())
+	case "json":
+		opts = append(opts, configx.WithJSON())
+	}
+
+	store := New(opts...)
+
+	return store, nil
+}
 
 type memory struct {
 	v         configx.Values
