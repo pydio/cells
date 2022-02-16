@@ -122,10 +122,12 @@ func (f *file) watch() {
 				f.mtx.Lock()
 				data, err := filex.Read(event.Name)
 				if err != nil {
+					f.mtx.Unlock()
 					continue
 				}
 
 				if err := f.v.Set(data); err != nil {
+					f.mtx.Unlock()
 					continue
 				}
 
@@ -167,7 +169,7 @@ func (f *file) Val(path ...string) configx.Values {
 	f.mtx.RLock()
 	defer f.mtx.RUnlock()
 
-	return &values{f.v.Val(path...), f.mtx}
+	return &values{f.v.Val(path...), f.mainMtx}
 }
 
 func (f *file) Del() error {

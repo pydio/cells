@@ -402,15 +402,23 @@ var json = `{
   "version": "4.0.0-dev"
 }`
 
-type Store struct {
+type MockStore struct {
 	configx.Values
 }
 
-func (m *Store) Watch(path ...string) (configx.Receiver, error) {
+func (m *MockStore) Lock() {
+	// noop
+}
+
+func (m *MockStore) Unlock() {
+	// noop
+}
+
+func (m *MockStore) Watch(path ...string) (configx.Receiver, error) {
 	return &Receiver{stop: make(chan struct{}, 1)}, nil
 }
 
-func (m *Store) Save(s string, s2 string) error {
+func (m *MockStore) Save(s string, s2 string) error {
 	return nil
 }
 
@@ -433,7 +441,7 @@ func RegisterMockConfig() error {
 	if er != nil {
 		return er
 	}
-	store := &Store{Values: cfg}
+	store := &MockStore{Values: cfg}
 	config.Register(store)
 	return nil
 }
