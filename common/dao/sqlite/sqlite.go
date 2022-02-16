@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,34 +18,36 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package meta
+package sqlite
 
 import (
-	"github.com/smartystreets/goconvey/convey"
-	"testing"
+	"database/sql"
+
+	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 )
 
-var (
-	mockDAO DAO
-)
-
-func TestMain(m *testing.M) {
-	options := configx.New()
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
-
-	m.Run()
+type conn struct {
+	conn *sql.DB
 }
 
-func TestDAOInit(t *testing.T) {
-	convey.Convey("Init Meta DAO", t, func() {
-		convey.So(mockDAO, convey.ShouldNotBeNil)
-	})
+func (s *conn) Open(dsn string) (dao.Conn, error) {
+	db, err := commonsql.GetSqlConnection("sqlite3", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	s.conn = db
+	return db, nil
+}
+
+func (s *conn) GetConn() dao.Conn {
+	return s.conn
+}
+
+func (s *conn) SetMaxConnectionsForWeight(num int) {
+	// Not implemented
 }

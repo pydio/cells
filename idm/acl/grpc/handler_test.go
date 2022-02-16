@@ -22,15 +22,15 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/dao/test"
 	"sync"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -47,7 +47,7 @@ var (
 
 func TestMain(m *testing.M) {
 
-	d, _, e := test.OnFileTestDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test_", "", false, acl.NewDAO)
+	d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test_", acl.NewDAO, options)
 	if e != nil {
 		panic(e)
 	}

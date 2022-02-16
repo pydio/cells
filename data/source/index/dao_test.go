@@ -28,10 +28,11 @@ import (
 	"log"
 	"regexp"
 	"testing"
-	// Run test against sqlite
-	_ "github.com/mattn/go-sqlite3"
+
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/sql"
@@ -98,19 +99,11 @@ func getDAO(ctx context.Context) DAO {
 
 func TestMain(m *testing.M) {
 
-	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
-	if dao == nil {
-		fmt.Print("Could not start test")
-		return
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		ctx = servicecontext.WithDAO(context.Background(), d)
 	}
-
-	d := NewDAO(dao)
-	if err := d.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
-	}
-
-	ctx = servicecontext.WithDAO(context.Background(), d)
 
 	m.Run()
 }

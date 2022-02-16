@@ -29,22 +29,22 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
-	// SQLite Driver
-	_ "github.com/mattn/go-sqlite3"
 
+	// SQLite Driver
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
 )
 
 var (
-	ctx context.Context
-	wg  sync.WaitGroup
-	dao index.DAO
+	ctx      context.Context
+	wg       sync.WaitGroup
+	indexDAO index.DAO
 )
 
 type List struct {
@@ -109,33 +109,13 @@ func (l *List) Close() error {
 
 func TestMain(m *testing.M) {
 
-	// Registry mock
-	//defaults.InitServer(
-	//func() server.Option { return server.Registry(memory.NewRegistry()) },
-	//func() server.Option { return server.Broker(nats.NewBroker()) },
-	//)
-
 	options := configx.New()
-
-	sqlDAO, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
-	if sqlDAO == nil {
-		fmt.Print("Could not start test")
-		return
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", index.NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		indexDAO = d.(index.DAO)
+		ctx = servicecontext.WithDAO(context.Background(), d)
 	}
-
-	//sqlDAO := sql.NewDAO("mysql", "root@tcp(localhost:3306)/cells3?parseTime=true", "test")
-	//if sqlDAO == nil {
-	//	fmt.Print("Could not start test")
-	//	return
-	//}
-
-	d := index.NewDAO(sqlDAO)
-	if err := d.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
-	}
-	dao = d.(index.DAO)
-	ctx = servicecontext.WithDAO(context.Background(), d)
 
 	m.Run()
 	wg.Wait()
@@ -176,7 +156,7 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 
 func TestIndex(t *testing.T) {
 
-	s := NewTreeServer(&object.DataSource{Name: ""}, "", dao)
+	s := NewTreeServer(&object.DataSource{Name: ""}, "", indexDAO)
 
 	wg.Add(1)
 	defer wg.Done()
@@ -594,7 +574,7 @@ func TestIndex(t *testing.T) {
 
 func TestIndexLongNode(t *testing.T) {
 
-	s := NewTreeServer(&object.DataSource{Name: ""}, "", dao)
+	s := NewTreeServer(&object.DataSource{Name: ""}, "", indexDAO)
 
 	wg.Add(1)
 	defer wg.Done()

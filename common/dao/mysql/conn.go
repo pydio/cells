@@ -18,37 +18,38 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package sql
+package mysql
 
 import (
 	"database/sql"
 	"fmt"
 	"sync"
 
-	mysqltools "github.com/go-sql-driver/mysql"
+	tools "github.com/go-sql-driver/mysql"
 
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/service/errors"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 )
 
 var (
-	mysqlLock                                = &sync.Mutex{}
-	DB_MYSQL_CONNECTIONS_PERCENT_PER_REQUEST = 5
-	DB_MYSQL_MAX_CONNECTIONS_PERCENT         = 90
-	DB_MYSQL_IDLE_CONNECTIONS_PERCENT        = 25
+	mysqlLock                    = &sync.Mutex{}
+	ConnectionsPercentPerRequest = 5
+	MaxConnectionsPercent        = 90
+	IdleConnectionsPercent       = 25
 )
 
-type mysql struct {
+type conn struct {
 	conn *sql.DB
 }
 
-func (m *mysql) Open(dsn string) (dao.Conn, error) {
+func (m *conn) Open(dsn string) (dao.Conn, error) {
 	var (
 		db *sql.DB
 	)
 
 	// Try to create the database to ensure it exists
-	mysqlConfig, err := mysqltools.ParseDSN(dsn)
+	mysqlConfig, err := tools.ParseDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -56,14 +57,14 @@ func (m *mysql) Open(dsn string) (dao.Conn, error) {
 	mysqlConfig.DBName = ""
 	rootDSN := mysqlConfig.FormatDSN()
 
-	if db, err = getSqlConnection("mysql", rootDSN); err != nil {
+	if db, err = commonsql.GetSqlConnection("mysql", rootDSN); err != nil {
 		return nil, err
 	}
 	if _, err = db.Exec(fmt.Sprintf("create database if not exists `%s`", dbName)); err != nil {
 		return nil, err
 	}
 
-	if db, err = getSqlConnection("mysql", dsn); err != nil {
+	if db, err = commonsql.GetSqlConnection("mysql", dsn); err != nil {
 		return nil, err
 	}
 
@@ -72,11 +73,11 @@ func (m *mysql) Open(dsn string) (dao.Conn, error) {
 	return db, nil
 }
 
-func (m *mysql) GetConn() dao.Conn {
+func (m *conn) GetConn() dao.Conn {
 	return m.conn
 }
 
-func (m *mysql) getMaxTotalConnections() int {
+func (m *conn) getMaxTotalConnections() int {
 	db := m.conn
 
 	var num int
@@ -85,16 +86,16 @@ func (m *mysql) getMaxTotalConnections() int {
 		return 0
 	}
 
-	return (num * DB_MYSQL_MAX_CONNECTIONS_PERCENT) / 100
+	return (num * MaxConnectionsPercent) / 100
 }
 
-func (m *mysql) SetMaxConnectionsForWeight(num int) {
+func (m *conn) SetMaxConnectionsForWeight(num int) {
 
 	mysqlLock.Lock()
 	defer mysqlLock.Unlock()
 
-	maxConns := m.getMaxTotalConnections() * (num * DB_MYSQL_CONNECTIONS_PERCENT_PER_REQUEST) / 100
-	maxIdleConns := maxConns * DB_MYSQL_IDLE_CONNECTIONS_PERCENT / 100
+	maxConns := m.getMaxTotalConnections() * (num * ConnectionsPercentPerRequest) / 100
+	maxIdleConns := maxConns * IdleConnectionsPercent / 100
 
 	m.conn.SetMaxOpenConns(maxConns)
 	m.conn.SetMaxIdleConns(maxIdleConns)
@@ -105,7 +106,7 @@ func (m *mysql) SetMaxConnectionsForWeight(num int) {
 func FilterDAOErrors(err error) (error, bool) {
 	filtered := false
 	if err != nil {
-		if _, ok := err.(*mysqltools.MySQLError); ok {
+		if _, ok := err.(*tools.MySQLError); ok {
 			err = errors.InternalServerError("dao.error", "DAO error received")
 			filtered = true
 		}

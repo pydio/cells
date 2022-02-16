@@ -20,17 +20,16 @@
 package role
 
 import (
-	"fmt"
 	"sync"
 	"testing"
 	"time"
 
-	// Run tests against SQLite
-	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/protobuf/types/known/anypb"
 
+	// Run tests against SQLite
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -48,19 +47,11 @@ func TestMain(m *testing.M) {
 
 	var options = configx.New()
 
-	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
-	if dao == nil {
-		fmt.Print("Could not start test")
-		return
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "role", NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		mockDAO = d.(DAO)
 	}
-
-	d := NewDAO(dao)
-	if err := d.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
-	}
-
-	mockDAO = d.(DAO)
 
 	m.Run()
 	wg.Wait()

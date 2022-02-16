@@ -32,13 +32,12 @@ import (
 	"sync"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
@@ -48,19 +47,13 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	// Then run with a cache
-	sqlDAO, er := sql.NewDAO("sqlite3", "file::memwithcache:?mode=memory&cache=shared", "test")
-	if er != nil {
-		panic(er)
-		return
+	wrapper := func(d dao.DAO) dao.DAO {
+		return NewDAO(d, "ROOT")
 	}
-
-	baseCacheDAO = NewDAO(sqlDAO, "ROOT")
-	if err := baseCacheDAO.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
+	var e error
+	if baseCacheDAO, e = dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", wrapper, options); e != nil {
+		panic(e)
 	}
-
 	m.Run()
 }
 

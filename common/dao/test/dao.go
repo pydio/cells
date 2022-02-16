@@ -15,7 +15,7 @@ import (
 	_ "github.com/pydio/cells/v4/common/dao/bleve"
 	_ "github.com/pydio/cells/v4/common/dao/boltdb"
 	_ "github.com/pydio/cells/v4/common/dao/mongodb"
-	_ "github.com/pydio/cells/v4/common/dao/sql"
+	_ "github.com/pydio/cells/v4/common/dao/sqlite"
 )
 
 func OnFileTestDAO(driver, dsn, prefix, altPrefix string, asIndexer bool, wrapper func(dao.DAO) dao.DAO) (dao.DAO, func(), error) {

@@ -21,16 +21,14 @@
 package namespace
 
 import (
-	"fmt"
-	"log"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
@@ -41,21 +39,11 @@ var (
 
 func TestMain(m *testing.M) {
 	var options = configx.New()
-
-	sqlDAO, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
-	if sqlDAO == nil {
-		fmt.Print("Could not start test")
-		return
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		mockDAO = d.(DAO)
 	}
-
-	d := NewDAO(sqlDAO)
-	if err := d.Init(options); err != nil {
-		log.Fatal("Could not start test ", err)
-		return
-	}
-
-	mockDAO = d.(DAO)
-
 	m.Run()
 }
 

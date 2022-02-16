@@ -23,21 +23,19 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"testing"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/user"
@@ -57,17 +55,10 @@ func TestMain(m *testing.M) {
 		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
 	})
 
-	sqlDao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
-	if sqlDao == nil {
-		log.Fatal("unable to open sqlite3 DB file, could not start test")
-		return
-	}
-
-	mockDAO = user.NewDAO(sqlDao).(user.DAO)
-	var options = configx.New()
-	if err := (mockDAO.(dao.DAO)).Init(options); err != nil {
-		log.Fatal("could not start test: unable to initialise DAO, error: ", err)
-		return
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New()); e != nil {
+		panic(e)
+	} else {
+		mockDAO = d.(user.DAO)
 	}
 
 	ctx = context.Background()

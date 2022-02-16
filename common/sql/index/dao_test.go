@@ -30,13 +30,12 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	_ "github.com/pydio/cells/v4/common/dao/sql"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/mtree"
 )
 
@@ -47,21 +46,15 @@ var (
 func init() {
 
 	SetDefaultFailureMode(FailureContinues)
-
-	// Running first without a cache
-	sqlDAO, _ := sql.NewDAO("sqlite3", "file::memnocache:?mode=memory&cache=shared", "test")
-	if sqlDAO == nil {
-		fmt.Print("Could not start test")
-		return
+	wrapper := func(d dao.DAO) dao.DAO {
+		return NewDAO(d, "ROOT")
 	}
 
-	d := NewDAO(sqlDAO, "ROOT")
-	if err := d.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return
+	if d, er := dao.InitDAO(sqlite.Driver, "file::memnocache:?mode=memory&cache=shared", "test", wrapper, options); er != nil {
+		panic(er)
+	} else {
+		ctxNoCache = servicecontext.WithDAO(context.Background(), d)
 	}
-
-	ctxNoCache = servicecontext.WithDAO(context.Background(), d)
 
 }
 

@@ -22,33 +22,26 @@ package datatest
 
 import (
 	"context"
-	"fmt"
 
-	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
-	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/server/stubs"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/data/source/index"
 	srv "github.com/pydio/cells/v4/data/source/index/grpc"
 )
 
 func NewIndexService(dsName string, nodes ...*tree.Node) (grpc.ClientConnInterface, error) {
-	sqlDao, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "data_index_"+dsName)
+
+	mockDAO, er := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "data_index_"+dsName, index.NewDAO, configx.New())
 	if er != nil {
 		return nil, er
-	}
-
-	mockDAO := index.NewDAO(sqlDao)
-	var options = configx.New()
-	if err := mockDAO.Init(options); err != nil {
-		return nil, fmt.Errorf("could not start test: unable to initialise index DAO, error: %v", err)
 	}
 
 	ts := srv.NewTreeServer(&object.DataSource{Name: dsName}, common.ServiceGrpcNamespace_+common.ServiceTree, mockDAO.(index.DAO))

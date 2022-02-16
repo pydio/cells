@@ -23,10 +23,8 @@ package acl
 import (
 	"testing"
 
-	"google.golang.org/protobuf/types/known/anypb"
-	// Run tests against SQLite
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"

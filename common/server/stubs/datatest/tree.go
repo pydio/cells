@@ -23,8 +23,6 @@ package datatest
 import (
 	"context"
 
-	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
-	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"

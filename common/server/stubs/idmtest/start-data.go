@@ -26,9 +26,6 @@ import (
 	"runtime"
 	"sync"
 
-	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
-	_ "github.com/mattn/go-sqlite3"
-	_ "github.com/pydio/cells/v4/common/dao/sql"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/pydio/cells/v4/common"

@@ -22,19 +22,17 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
-	commonsql "github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/role"
 )
@@ -47,17 +45,15 @@ var (
 
 func TestMain(m *testing.M) {
 
-	// Instantiate and initialise the role DAO Mock
-	sqlDao, _ := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
-	roleDAO = role.NewDAO(sqlDao).(role.DAO)
 	options := configx.New()
 	options.Val("database").Set(roleDAO)
 	options.Val("exclusive").Set(true)
 	options.Val("prepare").Set(true)
-	err := (roleDAO.(dao.DAO)).Init(options)
-	if err != nil {
-		fmt.Print("could not start test ", err)
-		return
+	// Instantiate and initialise the role DAO Mock
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "", role.NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		roleDAO = d.(role.DAO)
 	}
 
 	ctx = context.Background()

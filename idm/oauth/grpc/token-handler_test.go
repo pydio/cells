@@ -2,18 +2,17 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/auth"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/oauth"
 )
@@ -31,18 +30,11 @@ var (
 
 func TestMain(m *testing.M) {
 
-	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_")
-	if dao == nil {
-		fmt.Print("Could not start sqlite3 DAO")
-		return
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", oauth.NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		mockDAO = d.(oauth.DAO)
 	}
-
-	mockDAO = oauth.NewDAO(dao).(oauth.DAO)
-	if err := mockDAO.Init(options); err != nil {
-		fmt.Print("Could not init DAO ", err)
-		return
-	}
-
 	ctx = servicecontext.WithDAO(context.Background(), mockDAO)
 
 	m.Run()

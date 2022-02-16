@@ -22,19 +22,17 @@ package key
 
 import (
 	"encoding/base64"
-	"fmt"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/smartystreets/goconvey/convey"
-	// Perform test against SQLite
-	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -51,16 +49,11 @@ func GetDAO(t *testing.T) DAO {
 	}
 
 	var options = configx.New()
-
-	dao, _ := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_key_test")
-
-	d := NewDAO(dao)
-	if err := d.Init(options); err != nil {
-		fmt.Print("Could not start test ", err)
-		return nil
+	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_key_test", NewDAO, options); e != nil {
+		panic(e)
+	} else {
+		mockDAO = d.(DAO)
 	}
-
-	mockDAO = d.(DAO)
 	return mockDAO
 }
 

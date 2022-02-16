@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
+ * Copyright (c) 2019-2022. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
  *
  * Pydio Cells is free software: you can redistribute it and/or modify
@@ -18,34 +18,20 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package meta
+package sqlite
 
 import (
-	"github.com/smartystreets/goconvey/convey"
-	"testing"
-
 	"github.com/pydio/cells/v4/common/dao"
-	"github.com/pydio/cells/v4/common/dao/sqlite"
-	"github.com/pydio/cells/v4/common/utils/configx"
+	commonsql "github.com/pydio/cells/v4/common/sql"
 )
 
-var (
-	mockDAO DAO
+const (
+	Driver       = "sqlite3"
+	SharedMemDSN = "file::memory:?mode=memory&cache=shared"
 )
 
-func TestMain(m *testing.M) {
-	options := configx.New()
-	if d, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "test", NewDAO, options); e != nil {
-		panic(e)
-	} else {
-		mockDAO = d.(DAO)
-	}
-
-	m.Run()
-}
-
-func TestDAOInit(t *testing.T) {
-	convey.Convey("Init Meta DAO", t, func() {
-		convey.So(mockDAO, convey.ShouldNotBeNil)
+func init() {
+	dao.RegisterDAODriver(Driver, commonsql.NewDAO, func(driver, dsn string) dao.ConnDriver {
+		return &conn{}
 	})
 }
