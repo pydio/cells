@@ -22,28 +22,22 @@ package idmtest
 
 import (
 	"context"
-	"fmt"
-
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/role"
 	srv "github.com/pydio/cells/v4/idm/role/grpc"
 )
 
 func NewRolesService(roles ...*idm.Role) (grpc.ClientConnInterface, error) {
-	sqlDao2, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_roles")
-	if er != nil {
-		return nil, fmt.Errorf("unable to open sqlite3 DB file %v", er)
-	}
 
-	mockRDAO := role.NewDAO(sqlDao2)
-	var options = configx.New()
-	if err := mockRDAO.Init(options); err != nil {
-		return nil, fmt.Errorf("could not start test: unable to initialise roles DAO, error: %v", err)
+	mockRDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_roles", role.NewDAO, configx.New())
+	if e != nil {
+		return nil, e
 	}
 
 	serv := &idm.RoleServiceStub{

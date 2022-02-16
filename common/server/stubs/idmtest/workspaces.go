@@ -22,30 +22,22 @@ package idmtest
 
 import (
 	"context"
-	"fmt"
-
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/workspace"
 	srv "github.com/pydio/cells/v4/idm/workspace/grpc"
 )
 
 func NewWorkspacesService(ww ...*idm.Workspace) (grpc.ClientConnInterface, error) {
-	sqlDao, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_workspace")
-	if er != nil {
-		return nil, fmt.Errorf("unable to open sqlite3 DB file %v", er)
+	mockDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_workspace", workspace.NewDAO, configx.New())
+	if e != nil {
+		return nil, e
 	}
-
-	mockDAO := workspace.NewDAO(sqlDao)
-	var options = configx.New()
-	if err := mockDAO.Init(options); err != nil {
-		return nil, fmt.Errorf("could not start test: unable to initialise WS DAO, error: %v", err)
-	}
-
 	serv := &idm.WorkspaceServiceStub{
 		WorkspaceServiceServer: srv.NewHandler(nil, mockDAO.(workspace.DAO)),
 	}

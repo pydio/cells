@@ -22,28 +22,22 @@ package idmtest
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common/dao"
+	"github.com/pydio/cells/v4/common/dao/sqlite"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
-	"github.com/pydio/cells/v4/common/sql"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/idm/user"
 	srv "github.com/pydio/cells/v4/idm/user/grpc"
 )
 
 func NewUsersService(users ...*idm.User) (grpc.ClientConnInterface, error) {
-	sqlDao, er := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
-	if er != nil {
-		return nil, fmt.Errorf("unable to open sqlite3 DB file %v", er)
-	}
-
-	mockDAO := user.NewDAO(sqlDao)
-	var options = configx.New()
-	if err := mockDAO.Init(options); err != nil {
-		return nil, fmt.Errorf("could not start test: unable to initialise Users DAO, error: %v", err)
+	mockDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, configx.New())
+	if e != nil {
+		return nil, e
 	}
 
 	serv := &idm.UserServiceStub{
