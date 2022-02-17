@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package compose_test
+package compose
 
 import (
 	"context"
@@ -31,7 +31,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	omock "github.com/pydio/cells/v4/common/nodes/objects/mock"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -42,6 +41,7 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 
+	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 	_ "gocloud.dev/pubsub/mempubsub"
 )
@@ -83,9 +83,9 @@ func TestMain(m *testing.M) {
 func TestPersonalResolution(t *testing.T) {
 
 	ctx := context.Background()
-	reg, _ := registry.OpenRegistry(ctx, "memory:///")
+	reg, _ := registry.OpenRegistry(ctx, "mem:///")
 	ctx = servicecontext.WithRegistry(ctx, reg)
-	client := compose.PathClient(nodes.WithContext(ctx))
+	client := PathClient(nodes.WithContext(ctx))
 
 	Convey("Test personal file", t, func() {
 		user, e := permissions.SearchUniqueUser(ctx, "admin", "")

@@ -128,11 +128,12 @@ const (
 	EventHeaderServiceRegisterPeer    = "x-service-peer"
 	EventTypeDebugPrintInternals      = "debug"
 
-	TopicReloadAssets = "topic.pydio.assets.reload"
-	TopicIndexChanges = "topic.pydio.index.nodes.changes"
-	TopicTreeChanges  = "topic.pydio.tree.nodes.changes"
-	TopicMetaChanges  = "topic.pydio.meta.nodes.changes"
-	TopicTimerEvent   = "topic.pydio.meta.timer.event"
+	TopicInstallSuccessEvent = "topic.pydio.install.success"
+	TopicReloadAssets        = "topic.pydio.assets.reload"
+	TopicIndexChanges        = "topic.pydio.index.nodes.changes"
+	TopicTreeChanges         = "topic.pydio.tree.nodes.changes"
+	TopicMetaChanges         = "topic.pydio.meta.nodes.changes"
+	TopicTimerEvent          = "topic.pydio.meta.timer.event"
 	// TODO V4 : why are they the same ??
 	TopicJobConfigEvent  = "topic.pydio.jobconfig.event"
 	TopicJobTaskEvent    = "topic.pydio.jobconfig.event"

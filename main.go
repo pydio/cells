@@ -20,6 +20,7 @@ import (
 	// _ "github.com/pydio/cells/v4/discovery/health/grpc"
 	// _ "github.com/pydio/cells/v4/discovery/health/http"
 	_ "github.com/pydio/cells/v4/discovery/install/rest"
+	_ "github.com/pydio/cells/v4/discovery/install/web"
 	_ "github.com/pydio/cells/v4/discovery/registry"
 	_ "github.com/pydio/cells/v4/discovery/update/grpc"
 	_ "github.com/pydio/cells/v4/discovery/update/rest"
@@ -46,7 +47,6 @@ import (
 
 	// Registry
 	_ "github.com/pydio/cells/v4/common/registry/config"
-	_ "github.com/pydio/cells/v4/common/registry/memory"
 	_ "github.com/pydio/cells/v4/common/registry/service"
 
 	// Broker

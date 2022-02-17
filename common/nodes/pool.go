@@ -224,27 +224,26 @@ func (p *ClientsPool) LoadDataSources() {
 	for _, source := range sources {
 		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
 		//to, ca := context.WithTimeout(context.Background(), 3*time.Second)
-		to := context.Background()
-		response, err := endpointClient.GetDataSourceConfig(to, &object.GetDataSourceConfigRequest{})
+		response, err := endpointClient.GetDataSourceConfig(p.ctx, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
-			log.Logger(p.ctx).Debug("Creating client for datasource " + source)
+			log.Logger(context.Background()).Debug("Creating client for datasource " + source)
 			if e := p.CreateClientsForDataSource(source, response.DataSource); e != nil {
-				log.Logger(p.ctx).Warn("Cannot create clients for datasource "+source, zap.Error(e))
+				log.Logger(context.Background()).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
-			log.Logger(p.ctx).Warn("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
+			log.Logger(context.Background()).Warn("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
 		}
 		//ca()
 	}
 
 	if e := p.registerAlternativeClient(common.PydioThumbstoreNamespace); e != nil {
-		log.Logger(p.ctx).Warn("Cannot register alternative client "+common.PydioThumbstoreNamespace, zap.Error(e))
+		log.Logger(context.Background()).Warn("Cannot register alternative client "+common.PydioThumbstoreNamespace, zap.Error(e))
 	}
 	if e := p.registerAlternativeClient(common.PydioDocstoreBinariesNamespace); e != nil {
-		log.Logger(p.ctx).Warn("Cannot register alternative client "+common.PydioDocstoreBinariesNamespace, zap.Error(e))
+		log.Logger(context.Background()).Warn("Cannot register alternative client "+common.PydioDocstoreBinariesNamespace, zap.Error(e))
 	}
 	if e := p.registerAlternativeClient(common.PydioVersionsNamespace); e != nil {
-		log.Logger(p.ctx).Warn("Cannot register alternative client "+common.PydioVersionsNamespace, zap.Error(e))
+		log.Logger(context.Background()).Warn("Cannot register alternative client "+common.PydioVersionsNamespace, zap.Error(e))
 	}
 }
 

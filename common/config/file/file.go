@@ -32,7 +32,18 @@ func init() {
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
 	autoUpdate := u.Query().Get("auto") == "true"
 
-	store, err := New(u.Path, autoUpdate)
+	var opts []configx.Option
+	encode := u.Query().Get("encode")
+	switch encode {
+	case "string":
+		opts = append(opts, configx.WithString())
+	case "yaml":
+		opts = append(opts, configx.WithYAML())
+	case "json":
+		opts = append(opts, configx.WithJSON())
+	}
+
+	store, err := New(u.Path, autoUpdate, opts...)
 	if err != nil {
 		return nil, err
 	}

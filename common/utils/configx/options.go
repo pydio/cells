@@ -3,6 +3,8 @@ package configx
 import (
 	"sync"
 
+	"github.com/spf13/cast"
+
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
@@ -88,13 +90,17 @@ func WithYAML() Option {
 type stringReader struct{}
 
 func (j *stringReader) Unmarshal(data []byte, out interface{}) error {
-	return yaml.Unmarshal(data, out)
+	if v, ok := out.(*interface{}); ok {
+		*v = cast.ToString(data)
+	}
+
+	return nil
 }
 
 type stringWriter struct{}
 
 func (j *stringWriter) Marshal(in interface{}) ([]byte, error) {
-	return yaml.Marshal(in)
+	return []byte(cast.ToString(in)), nil
 }
 
 func WithString() Option {

@@ -22,8 +22,6 @@ package rest
 
 import (
 	"fmt"
-	"github.com/pydio/cells/v4/common/config"
-	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/jcuga/golongpoll"
@@ -31,7 +29,6 @@ import (
 
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/install"
-	"github.com/pydio/cells/v4/common/server/caddy/hooks"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/discovery/install/lib"
 )
@@ -39,6 +36,7 @@ import (
 // Handler to the REST requests.
 type Handler struct {
 	eventManager *golongpoll.LongpollManager
+	onSuccess    func() error
 }
 
 // SwaggerTags lists the names of the service tags declared in the swagger JSON implemented by this service.
@@ -128,13 +126,12 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteEntity(response)
 	}
 
-	fmt.Println(config.Get())
-
-	go func() {
-		<-time.After(3 * time.Second)
-		hooks.Stop()
-		h.eventManager.Shutdown()
-	}()
+	// go func() {
+	if err := h.onSuccess(); err != nil {
+		fmt.Println("Error finishing install", err)
+	}
+	h.eventManager.Shutdown()
+	// }()
 }
 
 // InstallEvents returns events

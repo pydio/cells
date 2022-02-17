@@ -333,10 +333,19 @@ func TestYAML(t *testing.T) {
 		m := New(WithYAML())
 		err := m.Set(dataYAML)
 		m.Val("test").Set(Reference("#/defaults/key1"))
-		fmt.Println(m)
+		fmt.Println(m.Get())
 		So(err, ShouldBeNil)
 		So(m.Val("defaults/key1").String(), ShouldEqual, "val1")
 		So(m.Val("pointer/key1").String(), ShouldEqual, "val2")
+	})
+}
+
+func TestStringEncoding(t *testing.T) {
+	Convey("Test string encoding", t, func() {
+		m := New(WithString())
+		err := m.Set("test")
+		So(err, ShouldBeNil)
+		fmt.Println(m.Get())
 	})
 }
 
