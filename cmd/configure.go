@@ -31,6 +31,9 @@ import (
 	"runtime"
 	"time"
 
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/service"
+
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -359,25 +362,9 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	ctx, cancel := context.WithCancel(cmd.Context())
 	defer cancel()
 
-	// initStartingToolsOnce.Do(func() {
 	initLogLevel()
 
 	metrics.Init()
-
-	// Initialise the default registry
-	// handleRegistry()
-
-	// Initialise the default broker
-	// handleBroker()
-
-	// Initialise the default transport
-	// handleTransport()
-
-	// Making sure we capture the signals
-	// handleSignals()
-	// })
-
-	// initServices()
 
 	// Installing the JS data
 	dir, err := statics.GetAssets("../discovery/install/assets/src")
@@ -402,52 +389,12 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		panic(err)
 	}
 
-	// broker.Connect()
-
 	plugins.Init(ctx, "install")
-
-	/*
-		// Creating temporary caddy file
-		sites, err := config.LoadSites()
-		if err != nil {
-			cmd.Println("Could not start with fast restart:", err)
-			os.Exit(1)
-		}
-		var er error
-		caddyconf.Sites, er = caddy.SitesToCaddyConfigs(sites)
-		if er != nil {
-			cmd.Println("Could not convert sites to caddy confs", er)
-		}
-		caddyconf.WebRoot = dir
-
-		caddy.Enable(caddyfile, play)
-
-		restartDone, err := caddy.StartWithFastRestart()
-		if err != nil {
-			cmd.Println("Could not start with fast restart:", err)
-			os.Exit(1)
-		}*/
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Listening to: " + proxyConf.GetBinds()[0]))
 	cmd.Println("")
-
-	//unSubscriber, err := broker.Subscribe(common.TopicProxyRestarted, func(p broker.Message) error {
-	//
-	//	url := proxyConf.ReverseProxyURL
-	//	if url == "" {
-	//		url = proxyConf.GetDefaultBindURL()
-	//	}
-	//
-	//	cmd.Println("")
-	//	cmd.Printf(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Opening URL ") + promptui.Styler(promptui.BGMagenta, promptui.FGWhite, promptui.FGUnderline, promptui.FGBold)(url) + promptui.Styler(promptui.BGMagenta, promptui.FGWhite)(" in your browser. Please copy/paste it if the browser is not on the same machine."))
-	//	cmd.Println("")
-	//
-	//	open(url)
-	//
-	//	return nil
-	//})
 
 	if err != nil {
 		cmd.Print("Could not subscribe to broker: ", err)
@@ -456,22 +403,40 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	instanceDone := make(chan struct{}, 1)
 
+	services, err := reg.List(registry.WithType(pb.ItemType_SERVICE))
+	if err != nil {
+		// need to return an error
+		os.Exit(0)
+	}
+
+	for _, ss := range services {
+		var s service.Service
+		if !ss.As(&s) {
+			continue
+		}
+
+		opts := s.Options()
+
+		opts.Context = servicecontext.WithRegistry(opts.Context, reg)
+		opts.Context = servicecontext.WithKeyring(opts.Context, keyring)
+
+		opts.Server = srvHTTP
+		opts.Server.BeforeServe(s.Start)
+		opts.Server.AfterServe(func() error {
+			// Register service again to update nodes information
+			if err := reg.Register(s); err != nil {
+				return err
+			}
+			return nil
+		})
+		opts.Server.BeforeStop(s.Stop)
+	}
+
 	go func() {
 		if err := srvHTTP.Serve(); err != nil {
 			fmt.Println(err)
 		}
 	}()
-
-	go func() {
-		// <-restartDone
-		/* TODO v4 instance := caddy.GetInstance()
-		instance.Wait()
-		instanceDone <- struct{}{}
-		*/
-
-	}()
-
-	// defer unSubscriber()
 
 	select {
 	case <-instanceDone:
