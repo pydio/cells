@@ -46,6 +46,7 @@ func NewRouter() *mux.Router {
 		handler = auth(handler)
 
 		router.
+			PathPrefix("/wopi").
 			Methods(route.method).
 			Path(route.pattern).
 			Name(route.name).

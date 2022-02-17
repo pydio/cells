@@ -45,6 +45,8 @@ func cleanPath(p string) string {
 	if p[0] != '/' {
 		p = "/" + p
 	}
+	// Do NOT clean // if it's part of an url scheme
+	p = strings.ReplaceAll(p, "://", "__SCHEME__")
 	np := path.Clean(p)
 	// path.Clean removes trailing slash except for root;
 	// put the trailing slash back if necessary.
@@ -56,6 +58,7 @@ func cleanPath(p string) string {
 			np += "/"
 		}
 	}
+	np = strings.ReplaceAll(np, "__SCHEME__", "://")
 	return np
 }
 

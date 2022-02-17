@@ -598,59 +598,70 @@ func (h *Handler) PruneTokens(ctx context.Context, in *pauth.PruneTokensRequest)
 		return nil, err
 	}
 
-	type client struct {
-		ID            string `json:"client_id"`
-		MaxInactivity string `json:"revokeRefreshTokenAfterInactivity"`
-	}
-
-	var clients []client
-	if err := auth.GetConfigurationProvider().Clients().Scan(&clients); err != nil {
+	// TODO V4 : Validate this: previous version was checking each client revokeRefreshTokenAfterInactivity
+	err = storage.FlushInactiveLoginConsentRequests(ctx, time.Now(), 1000, 100)
+	if err != nil {
 		return nil, err
 	}
 
-	for _, c := range clients {
-		if c.MaxInactivity == "" {
-			continue
+	// Flush inactive refresh tokens older than 3 months
+	err = storage.FlushInactiveRefreshTokens(ctx, time.Now().Add(-90*24*time.Hour), 1000, 100)
+	if err != nil {
+		return nil, err
+	}
+
+	/*
+		type client struct {
+			ID            string `json:"client_id"`
+			MaxInactivity string `json:"revokeRefreshTokenAfterInactivity"`
 		}
-		/*
-				TODO V4 : Interface changed
 
-			duration, err := time.ParseDuration(c.MaxInactivity)
-			if err != nil {
-				return err
-			}
+		var clients []client
+		if err := auth.GetConfigurationProvider().Clients().Scan(&clients); err != nil {
+			return nil, err
+		}
 
-			store, ok := auth.GetRegistry().OAuth2Storage().(*oauth2.FositeSQLStore)
-			if !ok {
+		for _, c := range clients {
+			if c.MaxInactivity == "" {
 				continue
 			}
 
-			// Removing refresh tokens
-			if res, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_refresh WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
-				return nil
-			} else if err != nil {
-				return sqlcon.HandleError(err)
-			} else {
-				i, _ := res.RowsAffected()
-				out.Count = int32(i)
-			}
+				duration, err := time.ParseDuration(c.MaxInactivity)
+				if err != nil {
+					return err
+				}
 
-			// Removing login challenges
-			if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_authentication_request WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
-				return nil
-			} else if err != nil {
-				return sqlcon.HandleError(err)
-			}
+				store, ok := auth.GetRegistry().OAuth2Storage().(*oauth2.FositeSQLStore)
+				if !ok {
+					continue
+				}
 
-			// Removing consent challenges
-			if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_consent_request WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
-				return nil
-			} else if err != nil {
-				return sqlcon.HandleError(err)
-			}
+				// Removing refresh tokens
+				if res, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_refresh WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
+					return nil
+				} else if err != nil {
+					return sqlcon.HandleError(err)
+				} else {
+					i, _ := res.RowsAffected()
+					out.Count = int32(i)
+				}
 
-		*/
-	}
+				// Removing login challenges
+				if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_authentication_request WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
+					return nil
+				} else if err != nil {
+					return sqlcon.HandleError(err)
+				}
+
+				// Removing consent challenges
+				if _, err := store.DB.ExecContext(ctx, store.DB.Rebind("DELETE FROM hydra_oauth2_consent_request WHERE client_id = ? AND requested_at < ?"), c.ID, time.Now().Add(-duration)); err == sql.ErrNoRows {
+					return nil
+				} else if err != nil {
+					return sqlcon.HandleError(err)
+				}
+
+		}
+	*/
 
 	return &pauth.PruneTokensResponse{}, nil
 }

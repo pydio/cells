@@ -217,7 +217,9 @@ func initConfig() (new bool) {
 		}
 
 		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault"))
-		config.Register(etcd.NewSource(context.Background(), conn, "config"))
+		defaultConfig := etcd.NewSource(context.Background(), conn, "config")
+		defaultConfig = config.Proxy(defaultConfig)
+		config.Register(defaultConfig)
 	//case "mysql":
 	//	// Pre-check that pydio.json is properly configured
 	//	if a, _ := config.GetDatabase("default"); a == "" {
@@ -249,6 +251,7 @@ func initConfig() (new bool) {
 		}
 
 		defaultConfig := config.NewVersionStore(versionsStore, lc)
+		defaultConfig = config.Proxy(defaultConfig)
 		defaultConfig = config.NewVault(vaultConfig, defaultConfig)
 
 		config.Register(defaultConfig)
