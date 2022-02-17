@@ -14,7 +14,6 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
 	_ "github.com/pydio/cells/v4/common/registry/config"
-	_ "github.com/pydio/cells/v4/common/registry/memory"
 )
 
 func TestMemory(t *testing.T) {

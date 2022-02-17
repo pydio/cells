@@ -24,6 +24,8 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/pydio/cells/v4/common/etl/models"
+
 	"github.com/pydio/cells/v4/common"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -93,6 +95,32 @@ func (s *service) As(i interface{}) bool {
 	return false
 }
 
+func (s *service) Equals(differ models.Differ) bool {
+	neu, ok := differ.(*service)
+	if !ok {
+		return false
+	}
+	return s.ID() == neu.ID() &&
+		s.Name() == neu.Name()
+}
+
+func (s *service) IsDeletable(m map[string]string) bool {
+	return true
+}
+
+func (s *service) IsMergeable(differ models.Differ) bool {
+	return s.ID() == differ.GetUniqueId()
+}
+
+func (s *service) GetUniqueId() string {
+	return s.ID()
+}
+
+func (s *service) Merge(differ models.Differ, params map[string]string) (models.Differ, error) {
+	// Return target
+	return differ, nil
+}
+
 type node struct {
 	n *pb.Node
 }
@@ -125,6 +153,32 @@ func (n *node) As(i interface{}) bool {
 	}
 
 	return false
+}
+
+func (s *node) Equals(differ models.Differ) bool {
+	neu, ok := differ.(*service)
+	if !ok {
+		return false
+	}
+	return s.ID() == neu.ID() &&
+		s.Name() == neu.Name()
+}
+
+func (s *node) IsDeletable(m map[string]string) bool {
+	return true
+}
+
+func (s *node) IsMergeable(differ models.Differ) bool {
+	return s.ID() == differ.GetUniqueId()
+}
+
+func (s *node) GetUniqueId() string {
+	return s.ID()
+}
+
+func (s *node) Merge(differ models.Differ, params map[string]string) (models.Differ, error) {
+	// Return target
+	return differ, nil
 }
 
 type endpoint struct {

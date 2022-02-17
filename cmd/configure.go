@@ -31,6 +31,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/pydio/cells/v4/common/broker"
+
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/service"
 
@@ -286,34 +288,36 @@ ENVIRONMENT
 			return
 		}
 
-		select {
-		case <-cmd.Context().Done():
-			return
-		default:
-			if DefaultStartCmd.PreRunE != nil {
-				if err := DefaultStartCmd.PreRunE(cmd, args); err != nil {
-					return
-				}
-			} else if DefaultStartCmd.PreRun != nil {
-				DefaultStartCmd.PreRun(cmd, args)
-			}
+		return
 
-			if DefaultStartCmd.RunE != nil {
-				if err := DefaultStartCmd.RunE(cmd, args); err != nil {
-					return
-				}
-			} else if DefaultStartCmd.Run != nil {
-				DefaultStartCmd.Run(cmd, args)
-			}
-
-			if DefaultStartCmd.PostRunE != nil {
-				if err := DefaultStartCmd.PostRunE(cmd, args); err != nil {
-					return
-				}
-			} else if DefaultStartCmd.PostRun != nil {
-				DefaultStartCmd.PostRun(cmd, args)
-			}
-		}
+		//select {
+		//case <-cmd.Context().Done():
+		//	return
+		//default:
+		//	if DefaultStartCmd.PreRunE != nil {
+		//		if err := DefaultStartCmd.PreRunE(cmd, args); err != nil {
+		//			return
+		//		}
+		//	} else if DefaultStartCmd.PreRun != nil {
+		//		DefaultStartCmd.PreRun(cmd, args)
+		//	}
+		//
+		//	if DefaultStartCmd.RunE != nil {
+		//		if err := DefaultStartCmd.RunE(cmd, args); err != nil {
+		//			return
+		//		}
+		//	} else if DefaultStartCmd.Run != nil {
+		//		DefaultStartCmd.Run(cmd, args)
+		//	}
+		//
+		//	if DefaultStartCmd.PostRunE != nil {
+		//		if err := DefaultStartCmd.PostRunE(cmd, args); err != nil {
+		//			return
+		//		}
+		//	} else if DefaultStartCmd.PostRun != nil {
+		//		DefaultStartCmd.PostRun(cmd, args)
+		//	}
+		//}
 	},
 }
 
@@ -381,8 +385,11 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		return
 	}
 
+	bkr := broker.NewBroker(viper.GetString("broker"))
+
 	ctx = servercontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithRegistry(ctx, reg)
+	ctx = servicecontext.WithBroker(ctx, bkr)
 
 	srvHTTP, err := caddy.New(ctx, dir)
 	if err != nil {
@@ -400,8 +407,6 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		cmd.Print("Could not subscribe to broker: ", err)
 		os.Exit(1)
 	}
-
-	instanceDone := make(chan struct{}, 1)
 
 	services, err := reg.List(registry.WithType(pb.ItemType_SERVICE))
 	if err != nil {
@@ -438,12 +443,15 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		}
 	}()
 
-	select {
-	case <-instanceDone:
-		return
-	case <-cmd.Context().Done():
-		return
-	}
+	done := make(chan bool)
+	bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(broker.Message) error {
+		done <- true
+		return nil
+	})
+
+	<-done
+
+	return
 }
 
 /* HELPERS */

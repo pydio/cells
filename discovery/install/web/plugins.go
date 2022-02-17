@@ -19,37 +19,41 @@
  */
 
 // Package rest is used once at install-time when running install via browser
-package rest
+package web
 
 import (
 	"context"
+	"net/http"
+	"time"
 
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
-	"github.com/jcuga/golongpoll"
+	"github.com/pydio/cells/v4/discovery/install/assets"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
 	plugins.Register("install", func(ctx context.Context) {
 		service.NewService(
-			service.Name(common.ServiceRestNamespace_+common.ServiceInstall),
+			service.Name(common.ServiceWebNamespace_+common.ServiceInstall),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
-			service.Description("RESTful Installation server"),
-			service.WithWeb(func(c context.Context) service.WebHandler {
-				eventManager, _ := golongpoll.StartLongpoll(golongpoll.Options{})
+			service.Description("WEB Installation server"),
+			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
+				httpFs := http.FS(assets.PydioInstallBox)
 
-				return &Handler{
-					eventManager: eventManager,
-					onSuccess: func() error {
-						bkr := servicecontext.GetBroker(c)
-						return bkr.Publish(c, common.TopicInstallSuccessEvent, nil)
-					},
+				fs := http.FileServer(httpFs)
+				wrap := func(handler http.Handler) http.Handler {
+					return http.TimeoutHandler(handler, 15*time.Second, "There was a timeout while serving the frontend resources...")
 				}
+				fs = wrap(fs)
+
+				mux.Handle("/res/", fs)
+				mux.Handle("/", fs)
+
+				return nil
 			}),
 		)
 	})

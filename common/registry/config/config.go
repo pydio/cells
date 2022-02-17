@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pydio/cells/v4/common/config/memory"
+
 	"github.com/pydio/cells/v4/common/config/file"
 
 	"github.com/pydio/cells/v4/common/log"
@@ -28,7 +30,7 @@ import (
 )
 
 var (
-	schemes    = []string{"etcd", "file"}
+	schemes    = []string{"etcd", "file", "mem"}
 	shared     registry.Registry
 	sharedOnce = &sync.Once{}
 )
@@ -72,6 +74,10 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		if err != nil {
 			return nil, err
 		}
+		reg = NewConfigRegistry(store)
+	case "mem":
+		store := memory.New()
+
 		reg = NewConfigRegistry(store)
 	}
 

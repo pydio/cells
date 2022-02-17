@@ -23,12 +23,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -82,34 +81,43 @@ func UpdateServiceVersion(opts *ServiceOptions) error {
 
 // lastKnownVersion looks on this server if there was a previous version of this service
 func lastKnownVersion(serviceName string) (v *version.Version, e error) {
+	versionFile := filepath.Join(viper.GetString("config"), "services", serviceName, "version")
 
-	serviceDir, e := config.ServiceDataDir(serviceName)
-	if e != nil {
-		return nil, e
-	}
-	versionFile := filepath.Join(serviceDir, "version")
-
-	data, err := ioutil.ReadFile(versionFile)
+	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
-		if os.IsNotExist(err) {
-			fake, _ := version.NewVersion("0.0.0")
-			return fake, nil
-		}
+		fmt.Println("Could not open store ?", err)
 		return nil, err
 	}
-	return version.NewVersion(strings.TrimSpace(string(data)))
+
+	return version.NewVersion(store.Get().Default("0.0.0").String())
+
+	//data, err := ioutil.ReadFile(versionFile)
+	//if err != nil {
+	//	if os.IsNotExist(err) {
+	//		fake, _ := version.NewVersion("0.0.0")
+	//		return fake, nil
+	//	}
+	//	return nil, err
+	//}
+	//return version.NewVersion(strings.TrimSpace(string(data)))
 
 }
 
 // updateVersion writes the version string to file
 func updateVersion(serviceName string, v *version.Version) error {
-	dir, err := config.ServiceDataDir(serviceName)
+	versionFile := filepath.Join(viper.GetString("config"), "services", serviceName, "version")
+
+	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
+		fmt.Println("Could not open store ?", err)
 		return err
 	}
-	versionFile := filepath.Join(dir, "version")
-	return ioutil.WriteFile(versionFile, []byte(v.String()), 0755)
 
+	if err := store.Set(v.String()); err != nil {
+		return err
+	}
+
+	return store.Save("system", "updating system version")
 }
 
 // applyMigrations browse migrations upward on downward and apply them sequentially. It returns a version to be

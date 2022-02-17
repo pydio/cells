@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"html/template"
 	"net/http/pprof"
 	"os"
 	"path/filepath"
 	"time"
+
+	"go.uber.org/zap"
 
 	caddy "github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"

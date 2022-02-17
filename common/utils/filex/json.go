@@ -8,14 +8,17 @@ import (
 
 // Read reads the content of a file
 func Read(filename string) ([]byte, error) {
-
 	fh, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_SYNC, 0644)
 	if err != nil {
-		if err == os.ErrNotExist {
-			fh, err = os.Create(filename)
-			if err != nil {
-				return nil, err
-			}
+		if os.IsNotExist(err) {
+			return []byte{}, nil
+			//if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+			//	return nil, err
+			//}
+			//fh, err = os.Create(filename)
+			//if err != nil {
+			//	return nil, err
+			//}
 		} else {
 			return nil, err
 		}
@@ -32,12 +35,6 @@ func Read(filename string) ([]byte, error) {
 
 // Save writes configs to json file
 func Save(filename string, b []byte) error {
-
-	/*b, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return err
-	}*/
-
 	if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
 		return err
 	}

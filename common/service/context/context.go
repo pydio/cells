@@ -24,6 +24,8 @@ package servicecontext
 import (
 	"context"
 
+	"github.com/pydio/cells/v4/common/broker"
+
 	"github.com/pydio/cells/v4/common/crypto"
 
 	"github.com/pkg/errors"
@@ -44,6 +46,7 @@ const (
 	configKey
 	keyringKey
 	loggerKey
+	brokerKey
 	registryKey
 	serversKey
 
@@ -88,6 +91,11 @@ func WithConfig(ctx context.Context, config configx.Values) context.Context {
 
 func WithKeyring(ctx context.Context, keyring crypto.Keyring) context.Context {
 	return context.WithValue(ctx, keyringKey, keyring)
+}
+
+// WithBroker links a broker to the context
+func WithBroker(ctx context.Context, bkr broker.Broker) context.Context {
+	return context.WithValue(ctx, brokerKey, bkr)
 }
 
 // WithRegistry links a registry to the context
@@ -138,6 +146,14 @@ func GetLogger(ctx context.Context) interface{} {
 // GetConfig returns the config from the context in argument
 func GetConfig(ctx context.Context) configx.Values {
 	if conf, ok := ctx.Value(configKey).(configx.Values); ok {
+		return conf
+	}
+	return nil
+}
+
+// GetBroker returns the broker from the context in argument
+func GetBroker(ctx context.Context) broker.Broker {
+	if conf, ok := ctx.Value(brokerKey).(broker.Broker); ok {
 		return conf
 	}
 	return nil
