@@ -223,7 +223,8 @@ func (p *ClientsPool) LoadDataSources() {
 
 	for _, source := range sources {
 		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
-		response, err := endpointClient.GetDataSourceConfig(context.Background(), &object.GetDataSourceConfigRequest{})
+		to, ca := context.WithTimeout(context.Background(), 3*time.Second)
+		response, err := endpointClient.GetDataSourceConfig(to, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
 			log.Logger(context.Background()).Debug("Creating client for datasource " + source)
 			if e := p.CreateClientsForDataSource(source, response.DataSource); e != nil {
@@ -232,6 +233,7 @@ func (p *ClientsPool) LoadDataSources() {
 		} else {
 			log.Logger(context.Background()).Warn("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
 		}
+		ca()
 	}
 
 	if e := p.registerAlternativeClient(common.PydioThumbstoreNamespace); e != nil {

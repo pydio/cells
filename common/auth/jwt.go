@@ -325,7 +325,9 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 			break
 		}
 	}
-
+	if token == nil {
+		err = errors2.Unauthorized("empty.token", "could not validate password credentials")
+	}
 	return token, err
 }
 
