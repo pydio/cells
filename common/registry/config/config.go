@@ -148,12 +148,14 @@ func (c *configRegistry) watch() error {
 			items = append(items, i)
 		}
 
+		c.RLock()
 		for _, broadcaster := range c.broadcasters {
 			select {
 			case broadcaster <- registry.NewResult(pb.ActionType_FULL_LIST, items):
 			default:
 			}
 		}
+		c.RUnlock()
 
 		merger := &etl.Merger{Options: &models.MergeOptions{}}
 
@@ -162,25 +164,37 @@ func (c *configRegistry) watch() error {
 
 		c.cache = items
 
-		for _, broadcaster := range c.broadcasters {
-			select {
-			case broadcaster <- registry.NewResult(pb.ActionType_CREATE, diff.create):
-			default:
+		if len(diff.create) > 0 {
+			c.RLock()
+			for _, broadcaster := range c.broadcasters {
+				select {
+				case broadcaster <- registry.NewResult(pb.ActionType_CREATE, diff.create):
+				default:
+				}
 			}
+			c.RUnlock()
 		}
 
-		for _, broadcaster := range c.broadcasters {
-			select {
-			case broadcaster <- registry.NewResult(pb.ActionType_UPDATE, diff.update):
-			default:
+		if len(diff.update) > 0 {
+			c.RLock()
+			for _, broadcaster := range c.broadcasters {
+				select {
+				case broadcaster <- registry.NewResult(pb.ActionType_UPDATE, diff.update):
+				default:
+				}
 			}
+			c.RUnlock()
 		}
 
-		for _, broadcaster := range c.broadcasters {
-			select {
-			case broadcaster <- registry.NewResult(pb.ActionType_DELETE, diff.delete):
-			default:
+		if len(diff.delete) > 0 {
+			c.RLock()
+			for _, broadcaster := range c.broadcasters {
+				select {
+				case broadcaster <- registry.NewResult(pb.ActionType_DELETE, diff.delete):
+				default:
+				}
 			}
+			c.RUnlock()
 		}
 	}
 

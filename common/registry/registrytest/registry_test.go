@@ -6,6 +6,9 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
+
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -62,25 +65,21 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 	Convey("Add services to the registry", t, func() {
 		numServices := 100
 
-		//go func() {
-		//	w, err := m.Watch(registry.WithAction(pb.ActionType_FULL_DIFF))
-		//	if err != nil {
-		//		log.Fatal(err)
-		//	}
-		//
-		//	for {
-		//		res, err := w.Next()
-		//		if err != nil {
-		//			log.Fatal(err)
-		//		}
-		//
-		//		fmt.Println("Number of Items received ? ", len(res.Items()))
-		//
-		//		for _ = range res.Items() {
-		//			wg.Done()
-		//		}
-		//	}
-		//}()
+		go func() {
+			w, err := m.Watch(registry.WithAction(pb.ActionType_FULL_LIST))
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for {
+				res, err := w.Next()
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				fmt.Println("Number of Items received ? ", len(res.Items()))
+			}
+		}()
 
 		ctx := context.Background()
 		ctx = servicecontext.WithRegistry(ctx, m)
@@ -92,6 +91,8 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 				service.Context(ctx),
 			))
 		}
+
+		<-time.After(200 * time.Millisecond)
 
 		afterCreateServices, err := m.List()
 		So(err, ShouldBeNil)
@@ -110,5 +111,6 @@ func doTestAdd(t *testing.T, m registry.Registry) {
 		So(err, ShouldBeNil)
 		So(len(afterDeleteServices), ShouldEqual, 0)
 
+		<-time.After(1 * time.Second)
 	})
 }

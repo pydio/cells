@@ -16,9 +16,9 @@ type watcher struct {
 func NewWatcher(id string, opts Options, res chan Result) Watcher {
 	exit := make(chan bool)
 	return &watcher{
-		id: id,
-		wo: opts,
-		res: res,
+		id:   id,
+		wo:   opts,
+		res:  res,
 		exit: exit,
 	}
 }
@@ -27,10 +27,6 @@ func (m *watcher) Next() (Result, error) {
 	for {
 		select {
 		case r := <-m.res:
-			if  r.Items() == nil {
-				continue
-			}
-
 			if m.wo.Action == pb.ActionType_FULL_LIST && r.Action() != pb.ActionType_FULL_LIST {
 				continue
 			}
@@ -95,7 +91,7 @@ type result struct {
 func NewResult(action pb.ActionType, items []Item) Result {
 	return &result{
 		action: action,
-		items: items,
+		items:  items,
 	}
 }
 

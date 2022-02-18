@@ -427,7 +427,10 @@ func (c *config) Scan(val interface{}) error {
 
 		case reflect.Map:
 			for _, key := range rorig.MapKeys() {
-				rtarget.SetMapIndex(key, rorig.MapIndex(key).Elem().Convert(rtargetValType))
+				mv := rorig.MapIndex(key)
+				if mv.IsValid() {
+					rtarget.SetMapIndex(key, mv.Elem().Convert(rtargetValType))
+				}
 			}
 		}
 		return nil
