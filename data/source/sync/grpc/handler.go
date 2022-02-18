@@ -205,8 +205,8 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 			retryCount++
 			log.Logger(ctx).Info(fmt.Sprintf("Trying to contact object service %s (retry %d)", common.ServiceDataObjects_+syncConfig.ObjectsServiceName, retryCount))
 			cli := object.NewObjectsEndpointClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
-			ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
-			defer cancel()
+			//ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+			//defer cancel()
 			resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 			if err != nil {
 				log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
