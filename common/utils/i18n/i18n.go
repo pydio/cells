@@ -44,6 +44,7 @@ var (
 		"en-us": "English",
 		"es-es": "Español",
 		"fr":    "Français",
+		"ja":    "日本語", // Japanese
 		"it":    "Italiano",
 		"lv":    "Latv",
 		"pt-br": "Português do Brasil",
@@ -52,7 +53,7 @@ var (
 		"zh-cn": "简体中文",       // Chinese simplified
 	}
 
-	// LoadingStrings have to be hard-coded to be loaded first. When not defined, we fall back to "loading..." message (in English).
+	// LoadingStrings have to be hard-coded to be loaded first. When not defined, we fall back to "Loading..." message (in English).
 	LoadingStrings = map[string]string{
 		"ar":    "نحميل...",
 		"de":    "Wird geladen...",
@@ -79,7 +80,6 @@ var (
 	WipLanguages = map[string]string{
 		"ar":    "عربى", // Arabic
 		"fr-ca": "Canadien",
-		"ja":    "日本語", // Japanese
 		"ko":    "한국어",
 		"nl":    "Nederlands",
 		"pt-pt": "Português",
