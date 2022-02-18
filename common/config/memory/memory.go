@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"sync"
+	"time"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -46,27 +47,51 @@ type memory struct {
 	v         configx.Values
 	receivers []*receiver
 
+	reset chan bool
+	timer *time.Timer
+
 	*sync.RWMutex
 }
 
 func New(opts ...configx.Option) config.Store {
 	// opts = append([]configx.Option{configx.WithJSON()}, opts...)
 
-	return &memory{
+	m := &memory{
 		v:       configx.New(opts...),
 		RWMutex: &sync.RWMutex{},
+		reset:   make(chan bool),
+		timer:   time.NewTimer(100 * time.Millisecond),
+	}
+
+	go m.flush()
+
+	return m
+}
+
+func (m *memory) flush() {
+	for {
+		select {
+		case <-m.reset:
+			m.timer.Reset(100 * time.Millisecond)
+		case <-m.timer.C:
+			var updated []*receiver
+
+			for _, r := range m.receivers {
+				if err := r.call(); err == nil {
+					updated = append(updated, r)
+				}
+			}
+
+			m.receivers = updated
+		}
 	}
 }
 
 func (m *memory) update() {
-	var updated []*receiver
-	for _, r := range m.receivers {
-		if err := r.call(); err == nil {
-			updated = append(updated, r)
-		}
+	select {
+	case m.reset <- true:
+	default:
 	}
-
-	m.receivers = updated
 }
 
 func (m *memory) Get() configx.Value {
@@ -78,7 +103,7 @@ func (m *memory) Set(data interface{}) error {
 		return err
 	}
 
-	go m.update()
+	m.update()
 
 	return nil
 }
@@ -147,7 +172,17 @@ func (v *values) Set(data interface{}) error {
 		return err
 	}
 
-	go v.m.update()
+	v.m.update()
+
+	return nil
+}
+
+func (v *values) Del() error {
+	if err := v.Values.Del(); err != nil {
+		return err
+	}
+
+	v.m.update()
 
 	return nil
 }
