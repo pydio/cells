@@ -45,6 +45,7 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 
 type memory struct {
 	v         configx.Values
+	opts      []configx.Option
 	receivers []*receiver
 
 	reset chan bool
@@ -58,6 +59,7 @@ func New(opts ...configx.Option) config.Store {
 
 	m := &memory{
 		v:       configx.New(opts...),
+		opts:    opts,
 		RWMutex: &sync.RWMutex{},
 		reset:   make(chan bool),
 		timer:   time.NewTimer(100 * time.Millisecond),
@@ -126,6 +128,7 @@ func (m *memory) Watch(path ...string) (configx.Receiver, error) {
 		closed: false,
 		ch:     make(chan struct{}),
 		v:      m.Val(path...),
+		m:      m,
 	}
 
 	m.receivers = append(m.receivers, r)
@@ -137,6 +140,8 @@ type receiver struct {
 	closed bool
 	ch     chan struct{}
 	v      configx.Values
+
+	m *memory
 }
 
 func (r *receiver) call() error {
@@ -150,7 +155,14 @@ func (r *receiver) call() error {
 func (r *receiver) Next() (configx.Values, error) {
 	select {
 	case <-r.ch:
-		return r.v.Val(), nil
+		r.m.RLock()
+		defer r.m.RUnlock()
+		cp := configx.New(r.m.opts...)
+		if err := cp.Set(r.v.Val().Get()); err != nil {
+			return nil, err
+		}
+
+		return cp, nil
 	}
 
 	return r.Next()
