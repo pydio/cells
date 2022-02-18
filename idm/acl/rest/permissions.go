@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -144,10 +143,9 @@ func (a *Handler) CheckNode(ctx context.Context, nodeID string, action *idm.ACLA
 
 	// Update Access List with resolved virtual nodes
 	virtualManager := abstract.GetVirtualNodesManager(a.ctx)
-	cPool := nodescontext.GetNodesPool(a.ctx)
 	for _, vNode := range virtualManager.ListNodes() {
 		if aclNodeMask, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
-			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, cPool, false); err == nil {
+			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, false); err == nil {
 				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
 				accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
 			}

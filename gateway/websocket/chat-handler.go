@@ -59,7 +59,7 @@ type ChatHandler struct {
 // NewChatHandler creates a new ChatHandler
 func NewChatHandler(ctx context.Context) *ChatHandler {
 	w := &ChatHandler{ctx: ctx}
-	w.Pool = nodescontext.GetNodesPool(ctx)
+	w.Pool = nodescontext.GetSourcesPool(ctx)
 	w.initHandlers(ctx)
 	return w
 }

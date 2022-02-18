@@ -50,7 +50,7 @@ func newClient(opts ...nodes.Option) *clientImpl {
 		o(&options)
 	}
 
-	options.Pool = nodescontext.GetNodesPool(options.Context)
+	options.Pool = nodescontext.GetSourcesPool(options.Context)
 
 	var handler nodes.Handler
 

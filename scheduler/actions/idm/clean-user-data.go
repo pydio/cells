@@ -132,7 +132,7 @@ func (c *CleanUserDataAction) Run(ctx context.Context, channels *actions.Runnabl
 			continue
 		}
 		// Check if node exists
-		resolved, e := vNodesManager.ResolveInContext(auth.WithImpersonate(ctx, u), vNode, clientsPool, false)
+		resolved, e := vNodesManager.ResolveInContext(auth.WithImpersonate(ctx, u), vNode, false)
 		if e != nil {
 			done <- true
 			return input.WithError(e), e

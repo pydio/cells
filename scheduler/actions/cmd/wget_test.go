@@ -24,6 +24,7 @@ import (
 	"context"
 	"github.com/pydio/cells/v4/common/config/mock"
 	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -55,6 +56,8 @@ func TestWGetAction_Init(t *testing.T) {
 	Convey("", t, func() {
 
 		action := &WGetAction{}
+		ctx := context.Background()
+		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewClientsPool(ctx, false)))
 		job := &jobs.Job{}
 		// Missing Parameters
 		e := action.Init(job, &jobs.Action{})
@@ -88,6 +91,9 @@ func TestWGetAction_Run(t *testing.T) {
 	Convey("", t, func() {
 
 		action := &WGetAction{}
+		ctx := context.Background()
+		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewClientsPool(ctx, false)))
+
 		job := &jobs.Job{}
 		action.Init(job, &jobs.Action{
 			Parameters: map[string]string{

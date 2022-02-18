@@ -22,6 +22,7 @@ package compose
 
 import (
 	"context"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"log"
 	"strings"
 	"testing"
@@ -85,6 +86,8 @@ func TestPersonalResolution(t *testing.T) {
 	ctx := context.Background()
 	reg, _ := registry.OpenRegistry(ctx, "mem:///")
 	ctx = servicecontext.WithRegistry(ctx, reg)
+	pool := nodes.NewClientsPool(ctx, false)
+	ctx = nodescontext.WithSourcesPool(ctx, pool)
 	client := PathClient(nodes.WithContext(ctx))
 
 	Convey("Test personal file", t, func() {

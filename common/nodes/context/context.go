@@ -11,14 +11,14 @@ const (
 	poolKey contextType = iota
 )
 
-// WithNodesPool pushes a nodes.ClientsPool client to the context
-func WithNodesPool(ctx context.Context, pool *nodes.ClientsPool) context.Context {
+// WithSourcesPool pushes a nodes.SourcesPool client to the context
+func WithSourcesPool(ctx context.Context, pool nodes.SourcesPool) context.Context {
 	return context.WithValue(ctx, poolKey, pool)
 }
 
-// GetNodesPool gets a nodes.ClientsPool from context
-func GetNodesPool(ctx context.Context) *nodes.ClientsPool {
-	if p, o := ctx.Value(poolKey).(*nodes.ClientsPool); o {
+// GetSourcesPool gets a nodes.SourcesPool from context
+func GetSourcesPool(ctx context.Context) nodes.SourcesPool {
+	if p, o := ctx.Value(poolKey).(nodes.SourcesPool); o {
 		return p
 	}
 	return nil

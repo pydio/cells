@@ -63,7 +63,7 @@ func (v *ResolverHandler) updateInput(ctx context.Context, node *tree.Node, iden
 	if branchInfo, ok := nodes.GetBranchInfo(ctx, identifier); ok && !branchInfo.Binary && branchInfo.Root != nil {
 		originalUuid := branchInfo.Root.Uuid
 		if virtual, exists := virtualManager.ByUuid(branchInfo.Root.Uuid); exists {
-			resolvedRoot, e := virtualManager.ResolveInContext(ctx, virtual, v.ClientsPool, true)
+			resolvedRoot, e := virtualManager.ResolveInContext(ctx, virtual, true)
 			if e != nil {
 				return ctx, node, e
 			}

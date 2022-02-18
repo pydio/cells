@@ -104,7 +104,7 @@ to quickly create a Cobra application.`,
 		ctx = servercontext.WithRegistry(ctx, reg)
 		ctx = servicecontext.WithRegistry(ctx, pluginsReg)
 		ctx = clientcontext.WithClientConn(ctx, conn)
-		ctx = nodescontext.WithNodesPool(ctx, nodes.ContextPool(ctx))
+		ctx = nodescontext.WithSourcesPool(ctx, nodes.ContextPool(ctx))
 
 		broker.Register(broker.NewBroker(viper.GetString("broker"), broker.WithContext(ctx)))
 		plugins.InitGlobalConnConsumers(ctx, "main")

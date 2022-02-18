@@ -150,9 +150,9 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 
 // ResolveInContext computes the actual node Path based on the resolution metadata of the virtual node
 // and the current metadata contained in context.
-func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool nodes.SourcesPool, create bool, retry ...bool) (*tree.Node, error) {
+func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, create bool, retry ...bool) (*tree.Node, error) {
 
-	pool := nodescontext.GetNodesPool(m.ctx)
+	pool := nodescontext.GetSourcesPool(m.ctx)
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
@@ -178,7 +178,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			// Retry once
 			pool.LoadDataSources()
 			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(pool.GetDataSources())))
-			return m.ResolveInContext(ctx, vNode, pool, create, true)
+			return m.ResolveInContext(ctx, vNode, create, true)
 		} else {
 			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", pool.GetDataSources()))
 		}
@@ -195,7 +195,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			}
 			resolved = createResp.GetNode()
 			isFlat := false
-			client := AdminClientProvider(pool.GetRuntimeCtx())
+			client := AdminClientProvider(m.ctx)
 			if bI, e := client.BranchInfoForNode(ctx, resolved); e == nil {
 				isFlat = bI.FlatStorage
 			}
@@ -223,10 +223,10 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 }
 
 // GetResolver injects some dependencies to generate a simple resolver function
-func (m *VirtualNodesManager) GetResolver(pool nodes.SourcesPool, createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
+func (m *VirtualNodesManager) GetResolver(createIfNotExists bool) func(context.Context, *tree.Node) (*tree.Node, bool) {
 	return func(ctx context.Context, node *tree.Node) (*tree.Node, bool) {
 		if virtualNode, exists := vManager.ByUuid(node.Uuid); exists {
-			if resolved, e := vManager.ResolveInContext(ctx, virtualNode, pool, createIfNotExists); e == nil {
+			if resolved, e := vManager.ResolveInContext(ctx, virtualNode, createIfNotExists); e == nil {
 				return resolved, true
 			}
 		}
@@ -313,7 +313,6 @@ func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tre
 	if e != nil {
 		return e
 	}
-	defer st.CloseSend()
 	var has bool
 	for {
 		r, e := st.Recv()

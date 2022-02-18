@@ -198,7 +198,7 @@ func (b *Batch) createBackgroundContext(parent context.Context) context.Context 
 	ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(parent))
 	ctx = servercontext.WithRegistry(ctx, servercontext.GetRegistry(parent))
 	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(parent))
-	ctx = nodescontext.WithNodesPool(ctx, nodescontext.GetNodesPool(parent))
+	ctx = nodescontext.WithSourcesPool(ctx, nodescontext.GetSourcesPool(parent))
 	return ctx
 }
 

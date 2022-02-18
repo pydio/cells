@@ -56,7 +56,6 @@ type LoadedSource struct {
 
 type SourcesPool interface {
 	Close()
-	GetRuntimeCtx() context.Context
 	GetTreeClient() tree.NodeProviderClient
 	GetTreeClientWrite() tree.NodeReceiverClient
 	GetDataSourceInfo(dsName string, retries ...int) (LoadedSource, error)
@@ -151,10 +150,6 @@ func (p *ClientsPool) Close() {
 	if p.confWatcher != nil {
 		p.confWatcher.Stop()
 	}
-}
-
-func (p *ClientsPool) GetRuntimeCtx() context.Context {
-	return p.ctx
 }
 
 // GetTreeClient returns the internal NodeProviderClient pointing to the TreeService.
