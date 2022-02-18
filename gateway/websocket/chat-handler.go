@@ -39,6 +39,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -58,7 +59,7 @@ type ChatHandler struct {
 // NewChatHandler creates a new ChatHandler
 func NewChatHandler(ctx context.Context) *ChatHandler {
 	w := &ChatHandler{ctx: ctx}
-	w.Pool = nodes.NewClientsPool(ctx, true)
+	w.Pool = nodescontext.GetNodesPool(ctx)
 	w.initHandlers(ctx)
 	return w
 }

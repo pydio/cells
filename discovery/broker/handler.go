@@ -2,6 +2,7 @@ package broker
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -29,7 +30,9 @@ func (h *Handler) Publish(stream pb.Broker_PublishServer) error {
 	for {
 		req, err := stream.Recv()
 		if err != nil {
-			fmt.Println("[discovery/grpc/broker] Publish: Error is ", err)
+			if !strings.Contains(err.Error(), "context canceled") {
+				fmt.Println("[discovery/grpc/broker] Publish: Error is ", err)
+			}
 			return err
 		}
 

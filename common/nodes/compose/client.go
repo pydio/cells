@@ -29,6 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/abstract"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
@@ -49,7 +50,7 @@ func newClient(opts ...nodes.Option) *clientImpl {
 		o(&options)
 	}
 
-	options.Pool = nodes.NewClientsPool(options.Context, options.WatchRegistry)
+	options.Pool = nodescontext.GetNodesPool(options.Context)
 
 	var handler nodes.Handler
 

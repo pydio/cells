@@ -25,11 +25,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pydio/cells/v4/common/config"
-
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/object"
 	"github.com/pydio/cells/v4/common/service"
@@ -54,7 +53,6 @@ func init() {
 				service.AutoStart(false),
 				service.WithGRPC(func(datasource string) func(c context.Context, server *grpc.Server) error {
 					return func(c context.Context, server *grpc.Server) error {
-						fmt.Println("Where are we ? ", datasource)
 						mc, ok := mm[datasource]
 						if !ok {
 							return fmt.Errorf("cannot find minio config")

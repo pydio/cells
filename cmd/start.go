@@ -33,6 +33,8 @@ import (
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/config/runtime"
+	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/plugins"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
@@ -102,6 +104,7 @@ to quickly create a Cobra application.`,
 		ctx = servercontext.WithRegistry(ctx, reg)
 		ctx = servicecontext.WithRegistry(ctx, pluginsReg)
 		ctx = clientcontext.WithClientConn(ctx, conn)
+		ctx = nodescontext.WithNodesPool(ctx, nodes.ContextPool(ctx))
 
 		broker.Register(broker.NewBroker(viper.GetString("broker"), broker.WithContext(ctx)))
 		plugins.InitGlobalConnConsumers(ctx, "main")

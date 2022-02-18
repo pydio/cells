@@ -27,17 +27,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth/claim"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -152,12 +152,13 @@ func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 // and the current metadata contained in context.
 func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.Node, clientsPool nodes.SourcesPool, create bool, retry ...bool) (*tree.Node, error) {
 
+	pool := nodescontext.GetNodesPool(m.ctx)
 	userName, claims := permissions.FindUserNameInContext(ctx) // We may use Claims returned to grab role or user groupPath
 	if userName == "" {
 		log.Logger(ctx).Error("No UserName found in context, cannot resolve virtual node", zap.Any("ctx", ctx))
 		return nil, errors.New("claims.not.found", "No Claims found in context", 500)
 	}
-	resolved, e := m.resolvePathWithClaims(ctx, vNode, claims, clientsPool)
+	resolved, e := m.resolvePathWithClaims(ctx, vNode, claims, pool)
 	if e != nil {
 		return nil, e
 	}
@@ -169,23 +170,23 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		}
 	}
 
-	if readResp, e := clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
+	if readResp, e := pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: resolved}); e == nil {
 		vManagerCache.Set(resolved.Path, readResp.Node)
 		return readResp.Node, nil
 	} else if errors.FromError(e).Code == 404 {
 		if len(retry) == 0 {
 			// Retry once
-			clientsPool.LoadDataSources()
-			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(clientsPool.GetDataSources())))
-			return m.ResolveInContext(ctx, vNode, clientsPool, create, true)
+			pool.LoadDataSources()
+			log.Logger(ctx).Debug("Cannot read resolved node - Retrying once after listing datasources", zap.Any("# sources", len(pool.GetDataSources())))
+			return m.ResolveInContext(ctx, vNode, pool, create, true)
 		} else {
-			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", clientsPool.GetDataSources()))
+			log.Logger(ctx).Debug("Cannot read resolved node - still", resolved.ZapPath(), zap.Error(e), zap.Any("Sources", pool.GetDataSources()))
 		}
 	}
 	if create {
 		resolved.MTime = time.Now().Unix()
 		resolved.Type = tree.NodeType_COLLECTION
-		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
+		if createResp, err := pool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
 			if AdminClientProvider == nil {
@@ -194,7 +195,7 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 			}
 			resolved = createResp.GetNode()
 			isFlat := false
-			client := AdminClientProvider(clientsPool.GetRuntimeCtx())
+			client := AdminClientProvider(pool.GetRuntimeCtx())
 			if bI, e := client.BranchInfoForNode(ctx, resolved); e == nil {
 				isFlat = bI.FlatStorage
 			}

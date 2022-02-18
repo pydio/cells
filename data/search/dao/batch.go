@@ -40,6 +40,7 @@ import (
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -197,6 +198,7 @@ func (b *Batch) createBackgroundContext(parent context.Context) context.Context 
 	ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(parent))
 	ctx = servercontext.WithRegistry(ctx, servercontext.GetRegistry(parent))
 	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(parent))
+	ctx = nodescontext.WithNodesPool(ctx, nodescontext.GetNodesPool(parent))
 	return ctx
 }
 

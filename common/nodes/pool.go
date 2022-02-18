@@ -28,9 +28,6 @@ import (
 	"sync"
 	"time"
 
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/protobuf/proto"
@@ -43,6 +40,7 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -74,6 +72,7 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 // keeping an up to date registry that is used by the routers.
 type ClientsPool struct {
 	ctx context.Context
+	id  int
 
 	sync.Mutex
 	sources map[string]LoadedSource
@@ -85,16 +84,39 @@ type ClientsPool struct {
 
 	regWatcher  registry.Watcher
 	confWatcher configx.Receiver
+
+	reload chan bool
+}
+
+var poolInstances = 0
+
+func ContextPool(ctx context.Context) *ClientsPool {
+	pool := &ClientsPool{
+		id:      poolInstances,
+		ctx:     ctx,
+		sources: make(map[string]LoadedSource),
+		aliases: make(map[string]sourceAlias),
+		reload:  make(chan bool),
+	}
+	poolInstances++
+	go pool.LoadDataSources()
+	go pool.reloadDebounced()
+	go pool.watchRegistry(servercontext.GetRegistry(ctx))
+	go pool.watchConfigChanges()
+	return pool
 }
 
 // NewClientsPool creates a client Pool and initialises it by calling the registry.
 func NewClientsPool(ctx context.Context, watchRegistry bool) *ClientsPool {
 
 	pool := &ClientsPool{
+		id:      poolInstances,
 		ctx:     ctx,
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
+		reload:  make(chan bool),
 	}
+	poolInstances++
 
 	if IsUnitTestEnv {
 		// Workaround the fact that no registry is present when doing unit tests
@@ -108,6 +130,7 @@ func NewClientsPool(ctx context.Context, watchRegistry bool) *ClientsPool {
 			debug.PrintStack()
 			log.Logger(context.Background()).Warn("Starting clients pool registry watcher with empty registry, will use default")
 		}
+		go pool.reloadDebounced()
 		go func() {
 			e := pool.watchRegistry(reg)
 			if e != nil {
@@ -220,30 +243,31 @@ func (p *ClientsPool) LoadDataSources() {
 
 	sources := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources").StringArray()
 	sources = config.SourceNamesFiltered(sources)
+	log.Logger(p.ctx).Debug("LoadDataSources ", zap.Int("poolId", p.id))
 
 	for _, source := range sources {
 		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
-		//to, ca := context.WithTimeout(context.Background(), 3*time.Second)
-		response, err := endpointClient.GetDataSourceConfig(p.ctx, &object.GetDataSourceConfigRequest{})
+		to, ca := context.WithTimeout(p.ctx, 20*time.Second)
+		response, err := endpointClient.GetDataSourceConfig(to, &object.GetDataSourceConfigRequest{})
 		if err == nil && response.DataSource != nil {
-			log.Logger(context.Background()).Debug("Creating client for datasource " + source)
+			log.Logger(p.ctx).Debug("Creating client for datasource " + source)
 			if e := p.CreateClientsForDataSource(source, response.DataSource); e != nil {
 				log.Logger(context.Background()).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
-			log.Logger(context.Background()).Warn("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
+			log.Logger(p.ctx).Warn("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
 		}
-		//ca()
+		ca()
 	}
 
 	if e := p.registerAlternativeClient(common.PydioThumbstoreNamespace); e != nil {
-		log.Logger(context.Background()).Warn("Cannot register alternative client "+common.PydioThumbstoreNamespace, zap.Error(e))
+		log.Logger(p.ctx).Warn("Cannot register alternative client "+common.PydioThumbstoreNamespace, zap.Error(e))
 	}
 	if e := p.registerAlternativeClient(common.PydioDocstoreBinariesNamespace); e != nil {
-		log.Logger(context.Background()).Warn("Cannot register alternative client "+common.PydioDocstoreBinariesNamespace, zap.Error(e))
+		log.Logger(p.ctx).Warn("Cannot register alternative client "+common.PydioDocstoreBinariesNamespace, zap.Error(e))
 	}
 	if e := p.registerAlternativeClient(common.PydioVersionsNamespace); e != nil {
-		log.Logger(context.Background()).Warn("Cannot register alternative client "+common.PydioVersionsNamespace, zap.Error(e))
+		log.Logger(p.ctx).Warn("Cannot register alternative client "+common.PydioVersionsNamespace, zap.Error(e))
 	}
 }
 
@@ -263,11 +287,7 @@ func (p *ClientsPool) registerAlternativeClient(namespace string) error {
 
 func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 	if reg == nil {
-		defaultReg, err := registry.OpenRegistry(context.Background(), viper.GetString("registry"))
-		if err != nil {
-			return err
-		}
-		reg = defaultReg
+		return fmt.Errorf("pool.watchRegistry: cannot find registry in context")
 	}
 
 	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE))
@@ -284,6 +304,7 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 			return err
 		}
 
+		var hasSync bool
 		for _, item := range r.Items() {
 			var s registry.Service
 			if !item.As(&s) {
@@ -292,6 +313,7 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 			if !strings.HasPrefix(s.Name(), prefix) {
 				continue
 			}
+			hasSync = true
 			dsName := strings.TrimPrefix(s.Name(), prefix)
 			if _, ok := p.sources[dsName]; ok && r.Action() == pb.ActionType_DELETE {
 				p.Lock()
@@ -299,9 +321,29 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 				p.Unlock()
 			}
 		}
-		p.LoadDataSources()
+		// p.LoadDataSources()
+		if hasSync {
+			p.reload <- true
+		}
 	}
 
+}
+
+func (p *ClientsPool) reloadDebounced() {
+	timer := time.NewTimer(1 * time.Second)
+	var reloadRequired bool
+	for {
+		select {
+		case <-p.reload:
+			reloadRequired = true
+			timer.Reset(1 * time.Second)
+		case <-timer.C:
+			if reloadRequired {
+				p.LoadDataSources()
+				reloadRequired = false
+			}
+		}
+	}
 }
 
 func (p *ClientsPool) watchConfigChanges() {
@@ -368,11 +410,6 @@ func MakeFakeClientsPool(tc tree.NodeProviderClient, tw tree.NodeReceiverClient)
 		ObjectsBucket: "bucket",
 	}
 
-	// mockClient, err := mockDatasource.CreateClient()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	loaded := LoadedSource{
 		DataSource: mockDatasource,
 	}
@@ -383,24 +420,5 @@ func MakeFakeClientsPool(tc tree.NodeProviderClient, tw tree.NodeReceiverClient)
 	c.sources = map[string]LoadedSource{
 		"datasource": loaded,
 	}
-	/*
-		_ = c.CreateClientsForDataSource("datasource", mockDatasource)
-		c.aliases["datasource"] = sourceAlias{
-			dataSource: "localhost:9078",
-			bucket:     "bucket",
-		}
-
-	*/
-
-	// coreClient, _ := minio.NewCore("localhost:9078", "access", "secret", false)
-	// c.Clients = map[string]*minio.Core{
-	// 	"datasource": coreClient,
-	// }
-	// c.dsBuckets = map[string]string{
-	// 	"datasource": "bucket",
-	// }
-	// c.dsEncrypted = map[string]bool{
-	// 	"datasource": true,
-	// }
 	return c
 }
