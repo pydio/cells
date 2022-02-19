@@ -446,6 +446,10 @@ func (f *File) Read(p []byte) (int, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
+	// If offset is superior to size, return io.EOF !
+	if f.off >= f.node.Size {
+		return 0, io.EOF
+	}
 	reader, err := f.fs.Router.GetObject(f.ctx, f.node, &models.GetRequestData{StartOffset: f.off, Length: int64(len(p))})
 	if err != nil {
 		log.Logger(f.ctx).Debug("File.Read Failed", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap(), zap.Error(err))
