@@ -61,6 +61,8 @@ func restoreProgress(in chan float64, done chan bool, publisher func(event *Inst
 
 func actionFrontendsAdd(c *install.InstallConfig) error {
 
+	fmt.Println("actionFrontendsAdd")
+
 	conf := &frontendsConfig{
 		Hosts:    c.GetFrontendHosts(),
 		Login:    c.GetFrontendLogin(),
@@ -70,6 +72,7 @@ func actionFrontendsAdd(c *install.InstallConfig) error {
 
 	if conf.Login != "" && conf.Password != "" && conf.Confirm == conf.Password {
 		sEnc := base64.StdEncoding.EncodeToString([]byte(conf.Login + "||||" + conf.Password))
+		fmt.Println("Adding admin credentials to config, to be inserted at next start")
 		if err := config.Set(sEnc, "defaults", "root"); err != nil {
 			return err
 		}

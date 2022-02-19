@@ -27,14 +27,8 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
-	"path/filepath"
 	"runtime"
 	"time"
-
-	"github.com/pydio/cells/v4/common/broker"
-
-	pb "github.com/pydio/cells/v4/common/proto/registry"
-	"github.com/pydio/cells/v4/common/service"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -42,17 +36,18 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/install"
+	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server/caddy"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	unet "github.com/pydio/cells/v4/common/utils/net"
-	"github.com/pydio/cells/v4/common/utils/statics"
-	"github.com/pydio/cells/v4/discovery/install/assets"
 )
 
 /*
@@ -370,16 +365,6 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	metrics.Init()
 
-	// Installing the JS data
-	dir, err := statics.GetAssets("../discovery/install/assets/src")
-	if err != nil {
-		dir = filepath.Join(config.ApplicationWorkingDir(), "static", "install")
-		if _, _, err := statics.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
-			cmd.Println("Could not restore install package", err)
-			os.Exit(0)
-		}
-	}
-
 	reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
 	if err != nil {
 		return
@@ -391,7 +376,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	ctx = servicecontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithBroker(ctx, bkr)
 
-	srvHTTP, err := caddy.New(ctx, dir)
+	srvHTTP, err := caddy.New(ctx, "")
 	if err != nil {
 		panic(err)
 	}
@@ -444,7 +429,9 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 	}()
 
 	done := make(chan bool)
-	bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(broker.Message) error {
+	_, _ = bkr.Subscribe(ctx, common.TopicInstallSuccessEvent, func(broker.Message) error {
+		fmt.Println("Browser install is finished. Will stop in 5 seconds...")
+		<-time.After(5 * time.Second)
 		done <- true
 		return nil
 	})

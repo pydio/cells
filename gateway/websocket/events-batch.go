@@ -70,6 +70,7 @@ func NewEventsBatcher(timeout time.Duration, uuid string, out chan *NodeChangeEv
 // Flush applies the events buffered as one
 func (n *NodeEventsBatcher) Flush() {
 	var hasCreate bool
+	var nonTemporaryEtag string
 	output := &NodeChangeEventWithInfo{}
 	for _, e := range n.buffer {
 		if e.Type == tree.NodeChangeEvent_CREATE {
@@ -78,6 +79,14 @@ func (n *NodeEventsBatcher) Flush() {
 		output.Source = e.Source
 		output.Type = e.Type
 		if output.Target != nil {
+			if e.Target.Etag == "temporary" {
+				if nonTemporaryEtag != "" {
+					e.Target.Etag = nonTemporaryEtag
+					//fmt.Println(" ==>  Replacing with non temporary etag -- ", e.Target.Uuid, e.Type.String(), e.Target.Etag)
+				}
+			} else {
+				nonTemporaryEtag = e.Target.Etag
+			}
 			// Merge metadatas
 			output.Target.Etag = e.Target.Etag
 			output.Target.Type = e.Target.Type

@@ -65,6 +65,11 @@ var (
 	infoCommands = []string{"version", "completion", "doc", "help", "--help", "bash", "zsh", os.Args[0]}
 )
 
+const (
+	EnvPrefixOld = "pydio"
+	EnvPrefixNew = "cells"
+)
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   os.Args[0],
@@ -126,10 +131,33 @@ func Execute() {
 	}
 }
 
+// initEnvPrefixes looks up for legacy ENV and replace them
+func initEnvPrefixes() {
+	prefOld := strings.ToUpper(EnvPrefixOld) + "_"
+	prefNew := strings.ToUpper(EnvPrefixNew) + "_"
+	for _, pair := range os.Environ() {
+		if strings.HasPrefix(pair, prefOld) {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				os.Setenv(prefNew+strings.TrimPrefix(parts[0], prefOld), parts[1])
+			}
+		} else if strings.HasPrefix(pair, "CELLS_LOGS_LEVEL") {
+			parts := strings.Split(pair, "=")
+			if len(parts) == 2 && parts[1] != "" {
+				os.Setenv("CELLS_LOG", parts[1])
+			}
+		}
+	}
+}
+
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	initEnvPrefixes()
+	viper.SetEnvPrefix(EnvPrefixNew)
+	viper.AutomaticEnv()
+
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "file://"+config.ApplicationWorkingDir(), "config file (default is $HOME/.test.yaml)")
 }
 
