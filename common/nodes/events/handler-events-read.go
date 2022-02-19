@@ -85,7 +85,7 @@ func (h *HandlerRead) ListNodes(ctx context.Context, in *tree.ListNodesRequest, 
 			}
 		}
 		if node.Uuid != "" {
-			c := metadata.WithMetaCopy(ctx)
+			c := metadata.NewBackgroundWithMetaCopy(ctx)
 			go func() {
 				broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,
@@ -129,7 +129,7 @@ func (h *HandlerRead) GetObject(ctx context.Context, node *tree.Node, requestDat
 				// Assume it's a file
 				eventNode.Type = tree.NodeType_LEAF
 			}
-			c := metadata.WithMetaCopy(ctx)
+			c := metadata.NewBackgroundWithMetaCopy(ctx)
 			go func() {
 				broker.MustPublish(c, common.TopicTreeChanges, &tree.NodeChangeEvent{
 					Type:   tree.NodeChangeEvent_READ,

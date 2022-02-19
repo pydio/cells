@@ -59,10 +59,9 @@ var (
 	onRegistryInits []func()
 )
 
-func InitRegistry(dbServiceName string) (e error) {
+func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
-	logCtx := servicecontext.WithServiceName(context.Background(), dbServiceName)
-	logger := log.Logger(logCtx)
+	logger := log.Logger(ctx)
 
 	once.Do(func() {
 		reg, e = createSqlRegistryForConf(dbServiceName, defaultConf)

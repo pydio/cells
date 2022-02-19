@@ -74,19 +74,28 @@ func NewEngine(ctx context.Context, indexer dao.IndexDAO, nsProvider *meta.NsPro
 
 func (s *Server) watchOperations() {
 	batch := NewBatch(s.Ctx, s.nsProvider, BatchOptions{IndexContent: s.IndexContent})
+	debounce := 1 * time.Second
+	timer := time.NewTimer(debounce)
+	defer func() {
+		timer.Stop()
+	}()
 	for {
 		select {
 		case n := <-s.inserts:
+			timer.Stop() // Call stop and create new one instead of Reset
+			timer = time.NewTimer(debounce)
 			batch.Index(n)
 			if batch.Size() >= BatchSize {
 				batch.Flush(s.Engine)
 			}
 		case d := <-s.deletes:
+			timer.Stop()
+			timer = time.NewTimer(debounce)
 			batch.Delete(d)
 			if batch.Size() >= BatchSize {
 				batch.Flush(s.Engine)
 			}
-		case <-time.After(3 * time.Second):
+		case <-timer.C:
 			batch.Flush(s.Engine)
 		case <-s.Ctx.Done():
 			batch.Flush(s.Engine)

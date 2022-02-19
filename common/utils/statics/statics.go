@@ -23,9 +23,7 @@ package statics
 import (
 	"embed"
 	"fmt"
-	"io"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -63,7 +61,7 @@ type embedFS struct {
 
 func (e *embedFS) List() []string {
 	var output []string
-	fs.WalkDir(e.FS, ".", func(path string, d fs.DirEntry, err error) error {
+	_ = fs.WalkDir(e.FS, ".", func(path string, d fs.DirEntry, err error) error {
 		if path != "." {
 			output = append(output, path)
 		}
@@ -108,8 +106,8 @@ func AsFS(box interface{}, sub ...string) FS {
 	}
 }
 
-// GetAssets returns the location of the assets if they physically exist
-func GetAssets(path string) (string, error) {
+// AssetsLocalDir returns the location of the assets if they physically exist
+func AssetsLocalDir(path string) (string, error) {
 
 	var cd string
 	if !filepath.IsAbs(path) {
@@ -129,88 +127,4 @@ func GetAssets(path string) (string, error) {
 	}
 
 	return filepath.Join(cd, path), nil
-}
-
-// RestoreAssets copies the files from the binary to a hard location on the disk
-// It returns an error, or the total number of files and the total size of all files written
-func RestoreAssets(dir string, box FS, pg chan float64, excludes ...string) (int, int64, error) {
-
-	if err := os.MkdirAll(dir, os.FileMode(0755)); err != nil {
-		return 0, 0, err
-	}
-
-	index := 0
-	totalSize := int64(0)
-	fullList := box.List()
-	filesCount := len(fullList)
-	updatePg := func(i int) {
-		if pg == nil {
-			return
-		}
-		pg <- float64(i) / float64(filesCount)
-	}
-
-	for _, n := range fullList {
-
-		var ex bool
-		if len(excludes) > 0 {
-			for _, exclude := range excludes {
-				if strings.HasPrefix(n, exclude) {
-					ex = true
-				}
-			}
-		}
-		if ex {
-			continue
-		}
-
-		f, err := box.Open(n)
-		if err != nil {
-			return index, totalSize, err
-		}
-
-		info, err := f.Stat()
-		if err != nil {
-			f.Close()
-			return index, totalSize, err
-		}
-
-		if info.IsDir() {
-			if err := os.MkdirAll(_filePath(dir, n), os.FileMode(0755)); err != nil {
-				f.Close()
-				return index, totalSize, err
-			}
-			index++
-			updatePg(index)
-			continue
-		}
-
-		if err := os.MkdirAll(_filePath(dir, filepath.Dir(n)), os.FileMode(0755)); err != nil {
-			f.Close()
-			return index, totalSize, err
-		}
-		target, err := os.OpenFile(_filePath(dir, n), os.O_CREATE|os.O_WRONLY, os.FileMode(0755))
-		if err != nil {
-			f.Close()
-			return index, totalSize, err
-		}
-		written, err := io.Copy(target, f)
-		target.Close()
-		f.Close()
-		if err != nil {
-			return index, totalSize, err
-		}
-		index++
-		totalSize += written
-		updatePg(index)
-	}
-
-	log.Printf("Extracted %d files for a total size of %d", index, totalSize)
-
-	return index, totalSize, nil
-}
-
-func _filePath(dir, name string) string {
-	cannonicalName := strings.Replace(name, "\\", "/", -1)
-	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }

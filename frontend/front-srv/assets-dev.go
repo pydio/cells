@@ -1,3 +1,4 @@
+//go:build dev
 // +build dev
 
 /*
@@ -23,6 +24,7 @@
 package front_srv
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/pydio/cells/v4/common/utils/statics"
@@ -33,7 +35,9 @@ var (
 )
 
 func init() {
-	if assetsDir, e := statics.GetAssets("./assets"); e == nil {
+	if assetsDir, e := statics.AssetsLocalDir("./assets"); e == nil {
 		FrontendAssets = statics.AsFS(http.Dir(assetsDir))
+	} else {
+		log.Fatal("Cannot find local assets dir - You are running in 'dev' mode, assets are not embedded inside binary")
 	}
 }

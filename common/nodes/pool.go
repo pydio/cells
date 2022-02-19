@@ -316,7 +316,6 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 				p.Unlock()
 			}
 		}
-		// p.LoadDataSources()
 		if hasSync {
 			p.reload <- true
 		}
@@ -331,7 +330,8 @@ func (p *ClientsPool) reloadDebounced() {
 		select {
 		case <-p.reload:
 			reloadRequired = true
-			timer.Reset(1 * time.Second)
+			timer.Stop()
+			timer = time.NewTimer(1 * time.Second)
 		case <-timer.C:
 			if reloadRequired {
 				p.LoadDataSources()
