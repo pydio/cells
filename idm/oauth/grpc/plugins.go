@@ -71,9 +71,8 @@ func init() {
 				auth2.RegisterPasswordCredentialsTokenEnhancedServer(server, h)
 
 				// Registry
-				go auth.InitRegistry(Name)
-
-				return nil
+				// TODO v4 : This was done in goroutine, but we make it blocking on purpose, as it should block login
+				return auth.InitRegistry(ctx, Name)
 			}),
 			/*
 				// TODO V4
