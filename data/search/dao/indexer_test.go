@@ -67,6 +67,7 @@ func getTmpIndex(createNodes bool) (s *Server, closer func()) {
 		}
 		node.MustSetMeta("name", "node.txt")
 		node.MustSetMeta("FreeMeta", "FreeMetaValue")
+		node.MustSetMeta("StarsMeta", 5)
 		node.MustSetMeta(common.MetaNamespaceGeoLocation, map[string]float64{
 			"lat": 47.10358888888889,
 			"lon": 8.372777777777777,
@@ -352,6 +353,28 @@ func TestSearchNode(t *testing.T) {
 
 		queryObject := &tree.Query{
 			FreeString: "+Meta.FreeMeta:FreeMetaValue",
+		}
+
+		results, e := search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+	})
+
+	Convey("Search Node with FreeString (integer)", t, func() {
+
+		queryObject := &tree.Query{
+			FreeString: "+Meta.StarsMeta:5",
+		}
+
+		results, e := search(ctx, server, queryObject)
+		So(e, ShouldBeNil)
+		So(results, ShouldHaveLength, 1)
+	})
+
+	Convey("Search Node with Basename and FreeString (integer)", t, func() {
+
+		queryObject := &tree.Query{
+			FreeString: "+Basename:node.txt +Meta.StarsMeta:5",
 		}
 
 		results, e := search(ctx, server, queryObject)

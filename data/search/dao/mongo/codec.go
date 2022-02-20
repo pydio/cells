@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	
+
 	"github.com/blevesearch/bleve/v2/geo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -198,6 +198,9 @@ func (m *Codex) BuildQuery(query interface{}, offset, limit int32) (interface{},
 
 	if queryObject.FreeString != "" {
 		if freeFilters, er := mongodb.BleveQueryToMongoFilters(queryObject.FreeString, true, func(s string) string {
+			if s == "Basename" {
+				return "basename"
+			}
 			return strings.Replace(s, "Meta.", "meta.", 1)
 		}); er == nil {
 			filters = append(filters, freeFilters...)
