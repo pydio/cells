@@ -303,13 +303,15 @@ func (m *VirtualNodesManager) resolvePathWithClaims(ctx context.Context, vNode *
 
 // copyRecycleRootAcl creates recycle_root ACL on newly created node
 func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
-	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(m.ctx, common.ServiceAcl))
 	// Check if vNode has this flag set
 	q, _ := anypb.New(&idm.ACLSingleQuery{
 		NodeIDs: []string{vNode.Uuid},
 		Actions: []*idm.ACLAction{permissions.AclRecycleRoot},
 	})
-	st, e := cl.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	st, e := cl.SearchACL(ct, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		return e
 	}
