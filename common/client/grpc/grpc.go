@@ -2,7 +2,10 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
 	"google.golang.org/grpc/backoff"
@@ -118,6 +121,12 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 	return er
 }
 
+var (
+	totalRC   int
+	clientRC  = map[string]int{}
+	clientRCL = sync.Mutex{}
+)
+
 // NewStream begins a streaming RPC.
 func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
@@ -128,9 +137,41 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	if cc.subConnSelector != nil {
 		ctx = context.WithValue(ctx, ctxSubconnSelectorKey, cc.subConnSelector)
 	}
+	key := cc.serviceName + desc.StreamName
+	pri := true
+	if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" ||
+		cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" {
+		pri = false
+	}
+	clientRCL.Lock()
+	clientRC[key]++
+	totalRC++
+	clientRCL.Unlock()
 	s, e := cc.ClientConnInterface.NewStream(ctx, desc, method, opts...)
 	if e != nil && cancel != nil {
 		cancel()
+	}
+	if e == nil {
+		ss := debug.Stack()
+		go func() {
+			select {
+			case <-s.Context().Done():
+				clientRCL.Lock()
+				clientRC[key]--
+				totalRC--
+				clientRCL.Unlock()
+			case <-time.After(20 * time.Second):
+				if pri {
+					fmt.Println("==> Stream Not Closed After 20s", key)
+					fmt.Print(string(ss))
+				}
+			}
+		}()
+	} else {
+		clientRCL.Lock()
+		clientRC[key]--
+		totalRC--
+		clientRCL.Unlock()
 	}
 	return s, e
 }

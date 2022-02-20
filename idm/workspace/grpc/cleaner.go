@@ -124,7 +124,8 @@ func (c *WsCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 
 func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 
-	ctx := context.Background()
+	ctx, ca := context.WithCancel(context.Background())
+	defer ca()
 
 	// Check if there are still some ACLs for this workspace
 	cl := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(c.ctx, common.ServiceAcl))
@@ -137,7 +138,6 @@ func (c *WsCleaner) deleteEmptyWs(workspaceId string) error {
 	if e != nil {
 		return e
 	}
-	defer streamer.CloseSend()
 	hasAcl := false
 	for {
 		resp, e := streamer.Recv()

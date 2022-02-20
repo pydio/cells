@@ -216,7 +216,9 @@ func (e *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		return 0, err
 	}
 
-	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ctx)
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	streamClient, err := e.getNodeKeyManagerClient().SetNodeInfo(ct)
 	if err != nil {
 		log.Logger(ctx).Error("views.handler.encryption.PutObject: failed to save node encryption info", zap.Error(err))
 		return 0, err

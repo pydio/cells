@@ -171,10 +171,10 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 		std.Retry(ctx, func() error {
 			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
 			cli := tree.NewNodeProviderClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource))
-			if s, e := cli.ListNodes(context.Background(), &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}}); e != nil {
+			ct, ca := context.WithCancel(context.Background())
+			defer ca()
+			if _, e := cli.ListNodes(ct, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}}); e != nil {
 				return e
-			} else {
-				s.CloseSend()
 			}
 			log.Logger(ctx).Info("Index connected")
 

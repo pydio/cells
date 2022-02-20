@@ -711,7 +711,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 		return nil, errors.NotFound(uuid, "Not found")
 	}
 
-	c, cancel := context.WithCancel(ctx)
+	c, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	wg := &sync.WaitGroup{}
 	for dsName, ds := range s.DataSources {

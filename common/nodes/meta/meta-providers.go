@@ -51,7 +51,7 @@ type Loader interface {
 type streamLoader struct {
 	names     []string
 	streamers []tree.NodeProviderStreamer_ReadNodeStreamClient
-	closer    providerCloser
+	closer    context.CancelFunc
 }
 
 func NewStreamLoader(ctx context.Context) Loader {
@@ -65,30 +65,26 @@ func (l *streamLoader) LoadMetas(ctx context.Context, nodes ...*tree.Node) {
 }
 
 func (l *streamLoader) Close() error {
-	return l.closer()
+	if l.closer != nil {
+		l.closer()
+	}
+	return nil
 }
 
-type providerCloser func() error
-
-func initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, providerCloser, []string) {
+func initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, context.CancelFunc, []string) {
 
 	metaProviders, names := getMetaProviderStreamers(ctx)
 	var streamers []tree.NodeProviderStreamer_ReadNodeStreamClient
+	subCtx, cancel := context.WithCancel(ctx)
 	for _, cli := range metaProviders {
-		metaStreamer, metaE := cli.ReadNodeStream(ctx)
+		metaStreamer, metaE := cli.ReadNodeStream(subCtx)
 		if metaE != nil {
 			log.Logger(ctx).Warn("Could not open meta provider!", zap.Error(metaE))
 			continue
 		}
 		streamers = append(streamers, metaStreamer)
 	}
-	outCloser := func() error {
-		for _, streamer := range streamers {
-			streamer.CloseSend()
-		}
-		return nil
-	}
-	return streamers, outCloser, names
+	return streamers, cancel, names
 
 }
 

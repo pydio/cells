@@ -41,6 +41,7 @@ type NsProvider struct {
 	namespaces   []*idm.UserMetaNamespace
 	loaded       bool
 	streamers    []tree.NodeProviderStreamer_ReadNodeStreamClient
+	closer       context.CancelFunc
 }
 
 // NewNsProvider creates a new namespace provider
@@ -108,9 +109,11 @@ func (p *NsProvider) Load() {
 	defer func() {
 		p.loaded = true
 	}()
+	ct, ca := context.WithCancel(context.Background())
+	defer ca()
 	for _, srv := range services {
 		cl := idm.NewUserMetaServiceClient(grpc.GetClientConnFromCtx(p.Ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
-		s, e := cl.ListUserMetaNamespace(context.Background(), &idm.ListUserMetaNamespaceRequest{})
+		s, e := cl.ListUserMetaNamespace(ct, &idm.ListUserMetaNamespaceRequest{})
 		if e != nil {
 			continue
 		}
@@ -123,7 +126,6 @@ func (p *NsProvider) Load() {
 			p.namespaces = append(p.namespaces, r.UserMetaNamespace)
 		}
 		p.Unlock()
-		s.CloseSend()
 	}
 
 }
@@ -134,9 +136,11 @@ func (p *NsProvider) InitStreamers(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	ct, can := context.WithCancel(ctx)
+	p.closer = can
 	for _, srv := range services {
 		c := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, strings.TrimPrefix(srv.Name(), common.ServiceGrpcNamespace_)))
-		if s, e := c.ReadNodeStream(ctx); e == nil {
+		if s, e := c.ReadNodeStream(ct); e == nil {
 			p.streamers = append(p.streamers, s)
 		}
 	}
@@ -145,16 +149,10 @@ func (p *NsProvider) InitStreamers(ctx context.Context) error {
 
 // CloseStreamers closes all prepared streamer clients
 func (p *NsProvider) CloseStreamers() error {
-	var ers []error
-	for _, s := range p.streamers {
-		if e := s.CloseSend(); e != nil {
-			ers = append(ers, e)
-		}
+	if p.closer != nil {
+		p.closer()
 	}
 	p.streamers = []tree.NodeProviderStreamer_ReadNodeStreamClient{}
-	if len(ers) > 0 {
-		return ers[0]
-	}
 	return nil
 }
 

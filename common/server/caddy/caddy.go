@@ -103,6 +103,9 @@ func New(ctx context.Context, dir string) (server.Server, error) {
 	srvMUX.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	srvMUX.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
+	//We could use github.com/rantav/go-grpc-channelz to expose channelz
+	//srvMUX.Handle("/debug/grpc/", channelz.CreateHandler("/debug/grpc", ":8001"))
+
 	mux.RegisterServerMux(ctx, srvMUX)
 
 	caddyStorePath := filepath.Join(config.ApplicationWorkingDir(), "caddy")

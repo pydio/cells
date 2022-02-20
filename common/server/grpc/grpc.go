@@ -38,6 +38,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 		o(opts)
 	}
 	s := grpc.NewServer(
+		// grpc.MaxConcurrentStreams(1000),
 		grpc.ChainUnaryInterceptor(
 			servicecontext.MetricsUnaryServerInterceptor(),
 			servicecontext.ContextUnaryServerInterceptor(servicecontext.MetaIncomingContext),
@@ -53,6 +54,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 			servicecontext.ContextStreamServerInterceptor(middleware.TargetNameToServiceNameContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.ClientConnIncomingContext(ctx)),
 			servicecontext.ContextStreamServerInterceptor(middleware.RegistryIncomingContext(ctx)),
+			//servicecontext.StreamsCounter(),
 		),
 	)
 

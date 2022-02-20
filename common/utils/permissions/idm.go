@@ -476,7 +476,9 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 	if len(searchRequests) == 0 {
 		return nil, fmt.Errorf("please provide at least one of login, uuid or queries")
 	}
-	streamer, err := userCli.SearchUser(ctx, &idm.SearchUserRequest{
+	ct, can := context.WithTimeout(ctx, 10*time.Second)
+	defer can()
+	streamer, err := userCli.SearchUser(ct, &idm.SearchUserRequest{
 		Query: &service.Query{SubQueries: searchRequests, Operation: service.OperationType_AND},
 	})
 	if err != nil {

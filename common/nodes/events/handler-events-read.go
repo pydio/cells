@@ -174,7 +174,9 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	store := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
 
 	// SEARCH WITH PRESET_LOGIN
-	stream, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
+	lC, ca := context.WithCancel(bgContext)
+	defer ca()
+	stream, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",
 	}})
 	if e != nil {
@@ -183,11 +185,10 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	if r, e := stream.Recv(); e == nil {
 		doc = r.Document
 	}
-	stream.CloseSend()
 
 	if doc == nil {
 		// SEARCH WITH PRELOG_USER
-		stream2, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
+		stream2, e := store.ListDocuments(lC, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 			MetaQuery: "+SHARE_TYPE:minisite +PRELOG_USER:" + userLogin + "",
 		}})
 		if e != nil {
@@ -196,7 +197,6 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 		if r, e := stream2.Recv(); e == nil {
 			doc = r.Document
 		}
-		stream2.CloseSend()
 	}
 
 	if doc != nil {
