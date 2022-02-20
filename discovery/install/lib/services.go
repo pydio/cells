@@ -113,7 +113,6 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 }
 
 func actionConfigsSet(c *install.InstallConfig) error {
-	save := false
 
 	// OAuth web
 	oauthWeb := common.ServiceWebNamespace_ + common.ServiceOAuth
@@ -122,51 +121,13 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		return err
 	}
 
-	/*
-		if e := addBoltDbEntry(common.ServiceActivity, "activities.db"); e != nil {
-			return e
-		}
-		if e := addBoltDbEntry(common.ServiceChat); e != nil {
-			return e
-		}
-		if e := addBoltDbEntry(common.ServiceDocStore); e != nil {
-			return e
-		}
-		if e := addBoltDbEntry(common.ServiceJobs); e != nil {
-			return e
-		}
-		if e := addBleveDbEntry(common.ServiceJobs, "tasklogs.bleve?mapping=logs&rotationSize=-1", common.ServiceGrpcNamespace_+common.ServiceJobs+".index"); e != nil {
-			return e
-		}
-		if e := addBleveDbEntry(common.ServiceLog, "syslog.bleve?mapping=logs"); e != nil {
-			return e
-		}
-		if e := addBoltDbEntry(common.ServiceVersions); e != nil {
-			return e
-		}
-		if e := addBleveDbEntry(common.ServiceSearch, "searchengine.bleve?rotationSize=-1"); e != nil {
-			return e
-		}
-	*/
-
-	// Easy finding usage of srvUrl
-	configKeys := map[string]interface{}{
-		"services/" + oauthWeb + "/insecureRedirects": []string{"#insecure_binds...#/auth/callback"},
-		"services/" + oauthWeb + "/secret":            string(secret),
+	if er := config.Set([]string{"#insecure_binds...#/auth/callback"}, "services", oauthWeb, "insecureRedirects"); er != nil {
+		return er
+	}
+	if er := config.Set(string(secret), "services", oauthWeb, "secret"); er != nil {
+		return er
 	}
 
-	for path, def := range configKeys {
-		val := config.Get(path)
-		var data interface{}
-		if val.Scan(&data); data != def {
-			val.Set(def)
-			save = true
-		}
-	}
+	return config.Save("cli", "Generating secret of "+oauthWeb+" service")
 
-	if save {
-		config.Save("cli", "Install / Setting Dex default settings")
-	}
-
-	return nil
 }

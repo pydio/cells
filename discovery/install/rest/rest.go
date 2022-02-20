@@ -126,6 +126,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteEntity(response)
 	}
 
+	log.Logger(ctx).Info("Install done: trigger onSuccess now")
 	// go func() {
 	if err := h.onSuccess(); err != nil {
 		fmt.Println("Error finishing install", err)
