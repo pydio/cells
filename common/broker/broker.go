@@ -23,7 +23,9 @@ package broker
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
+	"time"
 
 	"gocloud.dev/pubsub"
 	"google.golang.org/protobuf/proto"
@@ -210,6 +212,20 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 		return nil, err
 	}
 
+	wH := func(m Message) error {
+		d := make(chan bool, 1)
+		defer close(d)
+		go func() {
+			select {
+			case <-d:
+				break
+			case <-time.After(20 * time.Second):
+				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", topic)
+			}
+		}()
+		return handler(m)
+	}
+
 	go func() {
 		for {
 			msg, err := sub.Receive(ctx)
@@ -219,7 +235,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 
 			msg.Ack()
 
-			if err := handler(&message{
+			if err := wH(&message{
 				header: msg.Metadata,
 				body:   msg.Body,
 			}); err != nil {
