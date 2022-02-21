@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -41,38 +42,27 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 	initialLength := len(treeServer.DataSources)
 	treeServer.Unlock()
 
-	var otherServices []registry.Service
-
 	reg := servicecontext.GetRegistry(ctx)
-	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE))
+	items, err := reg.List(registry.WithType(pb.ItemType_SERVICE), registry.WithFilter(func(item registry.Item) bool {
+		return strings.HasPrefix(item.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_) && item.Name() != common.ServiceGrpcNamespace_+common.ServiceDataSync_
+	}))
 	if err != nil {
 		return
 	}
+
+	dataSources := make(map[string]DataSource)
 	for _, i := range items {
-		otherServices = append(otherServices, i.(registry.Service))
-	}
-
-	syncServices := filterServices(otherServices, func(v string) bool {
-		return strings.Contains(v, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-	})
-
-	dataSources := make(map[string]DataSource, len(syncServices))
-
-	for _, syncService := range syncServices {
-		dataSourceName := strings.TrimPrefix(syncService, common.ServiceGrpcNamespace_+common.ServiceDataSync_)
-
-		if dataSourceName == "" {
+		var syncService registry.Service
+		if !i.As(&syncService) {
 			continue
 		}
+		dataSourceName := strings.TrimPrefix(syncService.Name(), common.ServiceGrpcNamespace_+common.ServiceDataSync_)
 		indexService := common.ServiceDataIndex_ + dataSourceName
-
-		ds := DataSource{
+		dataSources[dataSourceName] = DataSource{
 			Name:   dataSourceName,
 			writer: tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, indexService)),
 			reader: tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, indexService)),
 		}
-
-		dataSources[dataSourceName] = ds
 		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)
 	}
 
@@ -113,6 +103,10 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		}
 
 		do := false
+		// TODO V4 - on DS deletion, event received is UPDATE, but r.Items() is empty
+		// Also we could debounce this event
+		do = true
+		fmt.Println("TreeService, WatchRegistry Action:", r.Action().String(), ", Items: ", len(r.Items()))
 		for _, item := range r.Items() {
 			var s registry.Service
 			if !item.As(&s) {
