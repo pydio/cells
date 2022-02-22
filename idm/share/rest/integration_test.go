@@ -25,20 +25,19 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config/mock"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"log"
 	"net/http"
 	"path"
 	"testing"
 
-	"github.com/pydio/cells/v4/common/broker"
-	"github.com/pydio/cells/v4/common/nodes"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
+	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/config/mock"
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
+	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -46,6 +45,7 @@ import (
 	"github.com/pydio/cells/v4/common/server/stubs/idmtest"
 	"github.com/pydio/cells/v4/common/server/stubs/resttest"
 	"github.com/pydio/cells/v4/common/utils/permissions"
+	grpc2 "github.com/pydio/cells/v4/data/tree/grpc"
 	"github.com/pydio/cells/v4/idm/share"
 	rest2 "github.com/pydio/cells/v4/idm/share/rest"
 
@@ -53,6 +53,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
+
+	grpc2.UnitTests = true
 
 	//_ = broker.Connect()
 	nodes.UseMockStorageClientType()
