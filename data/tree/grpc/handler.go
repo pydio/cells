@@ -129,6 +129,7 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	updateServicesList(s.MainCtx, s, 5)
 
 	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
+	msCtx = context.WithValue(msCtx, "ServicesListReloaded", true)
 	for {
 		request, err := streamer.Recv()
 		if request == nil {
@@ -720,7 +721,10 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 	wg := &sync.WaitGroup{}
 
 	// todo v4 - tmp fix watchRegistry
-	updateServicesList(s.MainCtx, s, 5)
+	if ctx.Value("ServicesListReloaded") == nil {
+		updateServicesList(s.MainCtx, s, 5)
+	}
+
 	for dsName, ds := range s.DataSources {
 		wg.Add(1)
 		reader := ds.reader
