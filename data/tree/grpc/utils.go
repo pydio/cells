@@ -37,7 +37,15 @@ import (
 	"github.com/pydio/cells/v4/common/registry"
 )
 
+var (
+	UnitTests = false
+)
+
 func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) {
+
+	if UnitTests {
+		return
+	}
 
 	treeServer.Lock()
 	initialLength := len(treeServer.DataSources)

@@ -22,13 +22,14 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/nodes"
 	"sync"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/mocks"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
@@ -39,6 +40,7 @@ var (
 func init() {
 
 	nodes.IsUnitTestEnv = true
+	UnitTests = true
 
 	dataSources["ds1"] = DataSource{
 		Name:   "ds1",
