@@ -109,6 +109,13 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 
 	defaultRights, quotaValue := h.extractDefaultRights(ctx, &inputWorkspace)
 
+	// Additional check on workspaces roots
+	if er := h.checkDefinedRootsForWorkspace(ctx, &inputWorkspace); er != nil {
+		log.Logger(ctx).Error("Cannot create workspace on a non-existing node")
+		service2.RestError404(req, rsp, er)
+		return
+	}
+
 	response, er := cli.CreateWorkspace(req.Request.Context(), &idm.CreateWorkspaceRequest{
 		Workspace: &inputWorkspace,
 	})

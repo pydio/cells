@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
@@ -16,6 +17,36 @@ import (
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/utils/permissions"
 )
+
+// checkDefinedRootsForWorkspace reads roots from tree service
+func (h *WorkspaceHandler) checkDefinedRootsForWorkspace(ctx context.Context, ws *idm.Workspace) error {
+	uuids := ws.RootUUIDs
+	if len(uuids) == 0 && len(ws.RootNodes) > 0 {
+		for _, n := range ws.RootNodes {
+			uuids = append(uuids, n.GetUuid())
+		}
+	}
+	if len(uuids) == 0 {
+		return fmt.Errorf("cannot define workspace without any root nodes")
+	}
+
+	streamer := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
+	c, e := streamer.ReadNodeStream(ctx)
+	if e != nil {
+		return e
+	}
+	for _, nodeId := range uuids {
+		if e := c.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}}); e != nil {
+			return e
+		}
+		if r, e := c.Recv(); e != nil || r == nil || r.GetNode() == nil || r.GetNode().GetUuid() == "" {
+			return fmt.Errorf("cannot find root node for uuid " + nodeId)
+		} else {
+			log.Logger(ctx).Info("PutWorkspace : found root node", r.GetNode().Zap("root"))
+		}
+	}
+	return nil
+}
 
 func (h *WorkspaceHandler) loadRootNodesForWorkspaces(ctx context.Context, wsUUIDs []string, wss map[string]*idm.Workspace) error {
 
@@ -104,7 +135,6 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		if e != nil {
 			return e
 		}
-		defer sClient.CloseSend()
 		for {
 			r, e := sClient.Recv()
 			if e != nil {
