@@ -477,7 +477,8 @@ func (s *Handler) watchConfigs() {
 			}
 
 			var cfg object.DataSource
-			if err := event.Scan(&cfg); err == nil {
+
+			if err := event.Scan(&cfg); err == nil && cfg.Name == s.dsName {
 				log.Logger(s.globalCtx).Info("Config changed on "+serviceName+", comparing", zap.Any("old", s.SyncConfig), zap.Any("new", &cfg))
 				if s.SyncConfig.ObjectsBaseFolder != cfg.ObjectsBaseFolder || s.SyncConfig.ObjectsBucket != cfg.ObjectsBucket {
 					// @TODO - Object service must be restarted before restarting sync
