@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
+	"google.golang.org/grpc"
 	"io"
 	"strings"
 	"sync"
@@ -123,6 +124,9 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	ctx = servercontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
 	metaStreamer := meta.NewStreamLoader(ctx)
 	defer metaStreamer.Close()
+
+	// todo v4 - tmp fix watchRegistry
+	updateServicesList(s.MainCtx, s, 5)
 
 	msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
 	for {
@@ -714,6 +718,9 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 	c, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	wg := &sync.WaitGroup{}
+
+	// todo v4 - tmp fix watchRegistry
+	updateServicesList(s.MainCtx, s, 5)
 	for dsName, ds := range s.DataSources {
 		wg.Add(1)
 		reader := ds.reader
@@ -725,7 +732,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 				Node:              &tree.Node{Uuid: uuid},
 				WithCommits:       withCommits,
 				WithExtendedStats: withExtendedStats,
-			})
+			}, grpc.WaitForReady(false))
 			if err == nil && resp.Node != nil {
 				s.updateDataSourceNode(resp.Node, name)
 

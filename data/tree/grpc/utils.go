@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"strings"
 	"time"
 
@@ -50,6 +51,7 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		return
 	}
 
+	var dsKeys []string
 	dataSources := make(map[string]DataSource)
 	for _, i := range items {
 		var syncService registry.Service
@@ -63,6 +65,7 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 			writer: tree.NewNodeReceiverClient(grpc.GetClientConnFromCtx(ctx, indexService)),
 			reader: tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(ctx, indexService)),
 		}
+		dsKeys = append(dsKeys, dataSourceName)
 		log.Logger(ctx).Debug("[Tree:updateServicesList] Add datasource " + dataSourceName)
 	}
 
@@ -75,16 +78,9 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		<-time.After(10 * time.Second)
 		updateServicesList(ctx, treeServer, retry+1)
 	}
-}
-
-func filterServices(vs []registry.Service, f func(string) bool) []string {
-	vsf := make([]string, 0)
-	for _, v := range vs {
-		if f(v.Name()) {
-			vsf = append(vsf, v.Name())
-		}
+	if retry == 5 {
+		log.Logger(ctx).Info("Force UpdateServicesList", zap.Strings("datasources", dsKeys))
 	}
-	return vsf
 }
 
 func watchRegistry(ctx context.Context, treeServer *TreeServer) {
