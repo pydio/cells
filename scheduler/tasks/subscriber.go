@@ -214,9 +214,8 @@ func (s *Subscriber) getDispatcherForJob(job *jobs.Job) *Dispatcher {
 }
 
 // Job Configuration was updated, react accordingly
-func (s *Subscriber) jobsChangeEvent(_ context.Context, msg *jobs.JobChangeEvent) error {
+func (s *Subscriber) jobsChangeEvent(ctx context.Context, msg *jobs.JobChangeEvent) error {
 	s.Lock()
-	defer s.Unlock()
 	// Update config
 	if msg.JobRemoved != "" {
 		delete(s.definitions, msg.JobRemoved)
@@ -233,6 +232,15 @@ func (s *Subscriber) jobsChangeEvent(_ context.Context, msg *jobs.JobChangeEvent
 			if !msg.JobUpdated.Inactive {
 				s.getDispatcherForJob(msg.JobUpdated)
 			}
+		}
+	}
+	s.Unlock()
+	// AutoStart if required
+	if msg.JobUpdated != nil && !msg.JobUpdated.Inactive && msg.JobUpdated.AutoStart {
+		if e := s.timerEvent(ctx, &jobs.JobTriggerEvent{JobID: msg.JobUpdated.ID, RunNow: true}); e != nil {
+			log.Logger(ctx).Error("Cannot trigger job "+msg.JobUpdated.GetLabel()+" on AutoStart after update", zap.Error(e))
+		} else {
+			log.Logger(ctx).Info("AutoStarting Job " + msg.JobUpdated.GetLabel() + " after update")
 		}
 	}
 

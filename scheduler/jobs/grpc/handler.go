@@ -94,12 +94,6 @@ func (j *JobsHandler) PutJob(ctx context.Context, request *proto.PutJobRequest) 
 	broker.MustPublish(j.RuntimeCtx, common.TopicJobConfigEvent, &proto.JobChangeEvent{
 		JobUpdated: request.Job,
 	})
-	if request.Job.AutoStart && !request.Job.Inactive {
-		broker.MustPublish(j.RuntimeCtx, common.TopicTimerEvent, &proto.JobTriggerEvent{
-			JobID:  response.Job.ID,
-			RunNow: true,
-		})
-	}
 	return response, nil
 }
 
