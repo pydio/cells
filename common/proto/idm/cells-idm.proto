@@ -6,7 +6,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 package idm;
 
-option go_package="github.com/pydio/cells/v4/common/proto/idm";
+option go_package="github.com/pydio/cells/common/proto/idm";
 
 // *****************************************************************************
 //  Services

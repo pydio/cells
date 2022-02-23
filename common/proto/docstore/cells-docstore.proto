@@ -2,7 +2,7 @@ syntax="proto3";
 
 package docstore;
 
-option go_package="github.com/pydio/cells/v4/common/proto/docstore";
+option go_package="github.com/pydio/cells/common/proto/docstore";
 
 enum DocumentType{
     JSON = 0;

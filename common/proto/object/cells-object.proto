@@ -3,7 +3,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 
 package object;
 
-option go_package="github.com/pydio/cells/v4/common/proto/object";
+option go_package="github.com/pydio/cells/common/proto/object";
 
 service ObjectsEndpoint {
     rpc GetMinioConfig(GetMinioConfigRequest) returns (GetMinioConfigResponse){};

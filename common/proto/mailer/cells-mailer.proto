@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package mailer;
 
-option go_package="github.com/pydio/cells/v4/common/proto/mailer";
+option go_package="github.com/pydio/cells/common/proto/mailer";
 
 message User {
     string Uuid = 1;
