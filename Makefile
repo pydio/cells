@@ -53,6 +53,17 @@ dev:
 	 -o cells\
 	 .
 
+docker:
+	GOARCH=amd64 GOOS=linux go build -trimpath\
+	 -ldflags "-X github.com/pydio/cells/v4/common.version=${CELLS_VERSION}\
+	 -X github.com/pydio/cells/v4/common.BuildStamp=${TODAY}\
+	 -X github.com/pydio/cells/v4/common.BuildRevision=${GITREV}"\
+	 -o cells-linux\
+	 .
+
+dockercp:
+	docker stop ${CONTAINER}; docker cp ./cells-linux ${CONTAINER}:/bin/cells; docker start ${CONTAINER}
+
 start:
 	./cells start
 
