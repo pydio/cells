@@ -62,7 +62,7 @@ DESCRIPTION
 		}
 
 		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
-		reg := configregistry.NewConfigRegistry(regStore)
+		reg := configregistry.NewConfigRegistry(regStore, false)
 
 		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {

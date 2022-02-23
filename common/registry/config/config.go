@@ -47,6 +47,8 @@ func init() {
 func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	var reg registry.Registry
 
+	byName := u.Query().Get("byname") == "true"
+
 	switch u.Scheme {
 	case "etcd":
 		tls := u.Query().Get("tls") == "true"
@@ -68,17 +70,17 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 		}
 
 		store := etcd.NewSource(context.Background(), etcdConn, "registry", WithJSONItem())
-		reg = NewConfigRegistry(store)
+		reg = NewConfigRegistry(store, byName)
 	case "file":
 		store, err := file.New(u.Path, true, WithJSONItem())
 		if err != nil {
 			return nil, err
 		}
-		reg = NewConfigRegistry(store)
+		reg = NewConfigRegistry(store, byName)
 	case "mem":
 		store := memory.New()
 
-		reg = NewConfigRegistry(store)
+		reg = NewConfigRegistry(store, byName)
 	}
 
 	return reg, nil
@@ -107,17 +109,21 @@ type configRegistry struct {
 
 	cache        []registry.Item
 	broadcasters map[string]chan registry.Result
+	namedCache   map[string]string
 }
 
 type options struct {
 	itemType int
 }
 
-func NewConfigRegistry(store config.Store) registry.Registry {
+func NewConfigRegistry(store config.Store, byName bool) registry.Registry {
 	c := &configRegistry{
 		store:        store,
 		cache:        []registry.Item{},
 		broadcasters: make(map[string]chan registry.Result),
+	}
+	if byName {
+		c.namedCache = make(map[string]string)
 	}
 
 	go c.watch()
@@ -212,6 +218,18 @@ func (c *configRegistry) Stop(item registry.Item) error {
 func (c *configRegistry) Register(item registry.Item) error {
 	c.store.Lock()
 	defer c.store.Unlock()
+
+	// If byName is active and we are re-registering a service
+	// with the same name, deregister the previous one.
+	// The namedCache uses the store lock.
+	if c.namedCache != nil {
+		if foundID, ok := c.namedCache[item.Name()]; ok {
+			if er := c.store.Val(foundID).Del(); er != nil {
+				return er
+			}
+		}
+		c.namedCache[item.Name()] = item.ID()
+	}
 
 	if err := c.store.Val(item.ID()).Set(item); err != nil {
 		return err

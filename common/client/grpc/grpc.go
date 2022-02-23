@@ -139,7 +139,7 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	}
 	key := cc.serviceName + desc.StreamName
 	pri := true
-	if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" ||
+	if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
 		cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" {
 		pri = false
 	}
