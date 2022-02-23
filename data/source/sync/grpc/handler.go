@@ -168,40 +168,25 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	// Making sure index is started
 	go func() {
 		defer wg.Done()
-		std.Retry(ctx, func() error {
+		_ = std.Retry(ctx, func() error {
 			log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
 			cli := tree.NewNodeProviderClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource))
-			ct, ca := context.WithCancel(context.Background())
+			ct, ca := context.WithTimeout(context.Background(), 2*time.Second)
 			defer ca()
-			if _, e := cli.ListNodes(ct, &tree.ListNodesRequest{Node: &tree.Node{Path: "/"}}); e != nil {
+			if _, e := cli.ReadNode(ct, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
 				return e
 			}
 			log.Logger(ctx).Info("Index connected")
-
-			/*
-				// TODO V4
-				c := protoservice.NewServiceClient(grpccli.GetClientConnFromCtx(common.ServiceDataIndex_ + dataSource))
-				r, err := c.Status(context.Background(), &emptypb.Empty{})
-				if err != nil {
-					log.Logger(ctx).Debug("Contact index error", zap.Error(err))
-					return err
-				}
-
-				if !r.GetOK() {
-					log.Logger(ctx).Info(common.ServiceDataIndex_ + dataSource + " not yet available")
-					return fmt.Errorf("index not reachable")
-				}
-			*/
 			indexOK = true
 			return nil
-		}, 100*time.Millisecond, 180*time.Second)
+		}, 1*time.Second, 180*time.Second)
 	}()
 	// Making sure Objects is started
 	go func() {
 		defer wg.Done()
 		var retryCount int
 		<-time.After(3 * time.Second)
-		std.Retry(ctx, func() error {
+		_ = std.Retry(ctx, func() error {
 			retryCount++
 			log.Logger(ctx).Info(fmt.Sprintf("Trying to contact object service %s (retry %d)", common.ServiceDataObjects_+syncConfig.ObjectsServiceName, retryCount))
 			cli := object.NewObjectsEndpointClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
@@ -252,7 +237,7 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 					return nil
 				}
 			}
-		}, 100*time.Millisecond, 180*time.Second)
+		}, 1*time.Second, 180*time.Second)
 	}()
 
 	wg.Wait()

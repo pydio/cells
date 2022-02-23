@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 
+	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
@@ -47,6 +48,7 @@ import (
 	"github.com/pydio/cells/v4/common/server/http"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 var (
@@ -73,6 +75,8 @@ to quickly create a Cobra application.`,
 		})
 
 		initLogLevel()
+
+		metrics.Init()
 
 		initConfig()
 
@@ -291,11 +295,11 @@ func init() {
 
 	// Other internal flags
 	StartCmd.Flags().String("log", "info", "Sets the log level: 'debug', 'info', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
-	//StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
-	//StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
-	//StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
-	//StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
-	//StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
+	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
+	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
+	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
+	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
+	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
 
 	RootCmd.AddCommand(StartCmd)
 }

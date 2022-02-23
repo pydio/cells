@@ -23,9 +23,11 @@ package servicecontext
 import (
 	"context"
 	"net/http"
+	"strings"
 
-	tally "github.com/uber-go/tally/v4"
+	"github.com/uber-go/tally/v4"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
@@ -50,17 +52,16 @@ type ServiceRetriever interface {
 
 func MetricsUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		// fmt.Println("Server", req.Method())
-		srv, ok := info.Server.(ServiceRetriever)
-		if ok {
-			scope := metrics.GetMetricsForService(srv.ServiceName())
-			if scope != tally.NoopScope {
-				scope.Counter("grpc_calls").Inc(1)
-				tsw := scope.Timer("grpc_time").Start()
-				defer tsw.Stop()
+		if meta, ok := metadata.FromIncomingContext(ctx); ok {
+			if serviceName, ok2 := meta["targetname"]; ok2 {
+				scope := metrics.GetMetricsForService(strings.Join(serviceName, ""))
+				if scope != tally.NoopScope {
+					scope.Counter("grpc_calls").Inc(1)
+					tsw := scope.Timer("grpc_time").Start()
+					defer tsw.Stop()
+				}
 			}
 		}
-
 		return handler(ctx, req)
 	}
 }

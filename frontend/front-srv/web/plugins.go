@@ -39,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/front"
 	"github.com/pydio/cells/v4/common/server"
-	"github.com/pydio/cells/v4/common/server/caddy/hooks"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/frontend/front-srv/web/index"
@@ -75,11 +74,6 @@ func init() {
 					TargetVersion: service.ValidVersion("1.2.0"),
 					Up:            DropLegacyStatics,
 				},
-			}),
-			service.AfterStart(func(ctx context.Context) error {
-				return nil
-				// TODO V4 - Is this finally required ?
-				return hooks.Restart()
 			}),
 			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
 				httpFs := http.FS(frontend.GetPluginsFS())
