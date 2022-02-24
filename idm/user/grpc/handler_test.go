@@ -66,6 +66,46 @@ func TestMain(m *testing.M) {
 	wg.Wait()
 }
 
+func TestLoginCIDAO(t *testing.T) {
+
+	cfg := configx.New()
+	_ = cfg.Val("loginCI").Set(true)
+	ciDAO, e := dao.InitDAO(sqlite.Driver, sqlite.SharedMemDSN, "idm_user", user.NewDAO, cfg)
+	if e != nil {
+		t.Fail()
+		return
+	}
+	h := NewHandler(ctx, ciDAO.(user.DAO))
+	h2 := NewHandler(ctx, mockDAO)
+
+	Convey("Test LoginCI support", t, func() {
+		_, e := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "MixedLogin", Password: "azerty"}})
+		So(e, ShouldBeNil)
+		_, e1 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "azerty"})
+		So(e1, ShouldBeNil)
+		_, e2 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "mixedlogin", Password: "azerty"})
+		So(e2, ShouldBeNil)
+		_, e3 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "wrongpass"})
+		So(e3, ShouldNotBeNil)
+		_, e4 := h.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLoginz", Password: "azerty"})
+		So(e4, ShouldNotBeNil)
+
+	})
+
+	Convey("Test LoginCI Not set", t, func() {
+		_, e := h2.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "mixedlogin", Password: "azerty"}})
+		So(e, ShouldBeNil)
+		_, e2 := h2.BindUser(ctx, &idm.BindUserRequest{UserName: "mixedlogin", Password: "azerty"})
+		So(e2, ShouldBeNil)
+		_, e1 := h2.BindUser(ctx, &idm.BindUserRequest{UserName: "MixedLogin", Password: "azerty"})
+		So(e1, ShouldNotBeNil)
+
+		delQ, _ := anypb.New(&idm.UserSingleQuery{Login: "mixedlogin"})
+		h2.DeleteUser(ctx, &idm.DeleteUserRequest{Query: &service.Query{SubQueries: []*anypb.Any{delQ}}})
+	})
+
+}
+
 func TestUser(t *testing.T) {
 
 	h := NewHandler(ctx, mockDAO)

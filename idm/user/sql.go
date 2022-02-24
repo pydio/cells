@@ -123,7 +123,9 @@ type sqlimpl struct {
 func (s *sqlimpl) Init(options configx.Values) error {
 
 	// super
-	s.DAO.Init(options)
+	if er := s.DAO.Init(options); er != nil {
+		return er
+	}
 
 	// Preparing the resources
 	s.ResourcesSQL = resources.NewDAO(s.Handler, "t.uuid").(*resources.ResourcesSQL)
@@ -418,7 +420,7 @@ func (s *sqlimpl) skipRoleAsAutoApplies(profile string, role *idm.Role) bool {
 	return false
 }
 
-// Find a user in the DB, and verify that password is correct.
+// Bind finds a user in the DB, and verify that password is correct.
 // Password is passed in clear form, hashing method is kept internal to the user service
 func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e error) {
 
@@ -435,7 +437,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	object := results[0]
 	user = object.(*idm.User)
 	if s.loginCI {
-		if strings.EqualFold(user.Login, userName) {
+		if !strings.EqualFold(user.Login, userName) {
 			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 		}
 	} else {

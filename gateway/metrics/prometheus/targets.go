@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/pydio/cells/v4/common/log"
-	"go.uber.org/zap"
-
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"go.uber.org/zap"
 )
 
 type targetGroup struct {
@@ -35,7 +34,8 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 		if _, ok := processes[pid]; ok {
 			continue // already registered
 		}
-		hostname := "localhost" // meta[server.NodeMetaHostName]
+		// TODO V4 : waiting for Addresses
+		hostname := meta[server.NodeMetaHostName]
 		metricsPort := meta[server.NodeMetaMetrics]
 		if hostname == "" || metricsPort == "" {
 			continue
