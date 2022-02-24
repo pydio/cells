@@ -8,20 +8,19 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/grpc/backoff"
-
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pydio/cells/v4/common"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/registry"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
 var (
@@ -55,6 +54,9 @@ func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option
 		return NewClientConn(serviceName, opt...)
 	}
 	conn := clientcontext.GetClientConn(ctx)
+	if conn == nil {
+		fmt.Println("Warning, GetClientConnFromCtx could not find conn, will create a new one")
+	}
 	reg := servercontext.GetRegistry(ctx)
 	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
@@ -122,8 +124,7 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 }
 
 var (
-	totalRC   int
-	clientRC  = map[string]int{}
+	clientRC  = map[string]float64{}
 	clientRCL = sync.Mutex{}
 )
 
@@ -137,28 +138,33 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 	if cc.subConnSelector != nil {
 		ctx = context.WithValue(ctx, ctxSubconnSelectorKey, cc.subConnSelector)
 	}
-	key := cc.serviceName + desc.StreamName
-	pri := true
-	if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
-		cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" {
-		pri = false
-	}
-	clientRCL.Lock()
-	clientRC[key]++
-	totalRC++
-	clientRCL.Unlock()
+
 	s, e := cc.ClientConnInterface.NewStream(ctx, desc, method, opts...)
 	if e != nil && cancel != nil {
 		cancel()
 	}
 	if e == nil {
+		// Prepare gauges
+		key := cc.serviceName + desc.StreamName
+		scope := metrics.GetMetrics().Tagged(map[string]string{"target": cc.serviceName, "method": desc.StreamName})
+		gauge := scope.Gauge("open_streams")
+		pri := true
+		if cc.serviceName == "pydio.grpc.broker" || cc.serviceName == "pydio.grpc.log" || cc.serviceName == "pydio.grpc.audit" ||
+			cc.serviceName == "pydio.grpc.jobs" || cc.serviceName == "pydio.grpc.registry" {
+			pri = false
+		}
+
+		clientRCL.Lock()
+		clientRC[key]++
+		gauge.Update(clientRC[key])
+		clientRCL.Unlock()
 		ss := debug.Stack()
 		go func() {
 			select {
 			case <-s.Context().Done():
 				clientRCL.Lock()
 				clientRC[key]--
-				totalRC--
+				gauge.Update(clientRC[key])
 				clientRCL.Unlock()
 			case <-time.After(20 * time.Second):
 				if pri {
@@ -167,11 +173,6 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 				}
 			}
 		}()
-	} else {
-		clientRCL.Lock()
-		clientRC[key]--
-		totalRC--
-		clientRCL.Unlock()
 	}
 	return s, e
 }

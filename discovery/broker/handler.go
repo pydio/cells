@@ -45,6 +45,13 @@ func (h *Handler) Publish(stream pb.Broker_PublishServer) error {
 }
 
 func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
+	var unSubscribers []broker.UnSubscriber
+	defer func() {
+		for _, unSubscriber := range unSubscribers {
+			_ = unSubscriber()
+			//fmt.Println("Unsubscribing on stream closed", e)
+		}
+	}()
 	for {
 		req, err := stream.Recv()
 		if err != nil {
@@ -54,8 +61,7 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 		topic := req.GetTopic()
 		// queue := req.GetQueue()
 
-		// TODO v4 - manage unsubscription
-		h.broker.Subscribe(stream.Context(), topic, func(msg broker.Message) error {
+		unSub, e := h.broker.Subscribe(stream.Context(), topic, func(msg broker.Message) error {
 			mm := &pb.SubscribeResponse{}
 			var target = &pb.Message{}
 			target.Header, target.Body = msg.RawData()
@@ -70,5 +76,9 @@ func (h *Handler) Subscribe(stream pb.Broker_SubscribeServer) error {
 
 			return nil
 		})
+		if e != nil {
+			return e
+		}
+		unSubscribers = append(unSubscribers, unSub)
 	}
 }

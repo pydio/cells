@@ -46,7 +46,6 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.
 			s.chanToStream(ch)
 			return
 		}
-		defer streamer.CloseSend()
 		if len(requeue) > 0 {
 			streamer.Send(&jobs.PutTaskRequest{Task: requeue[0]})
 			streamer.Recv()

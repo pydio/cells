@@ -133,7 +133,6 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 		output := input.WithError(e)
 		return output, e
 	}
-	defer streamer.CloseSend()
 	var collection []*activity.Object
 	for {
 		resp, e := streamer.Recv()

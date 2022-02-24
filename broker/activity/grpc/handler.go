@@ -84,7 +84,6 @@ func (h *Handler) StreamActivities(request *proto.StreamActivitiesRequest, strea
 	if e != nil {
 		return e
 	}
-	defer sClient.CloseSend()
 	replace := make(map[string]string)
 	valid := make(map[string]bool)
 

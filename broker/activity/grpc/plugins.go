@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	config "github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
@@ -90,6 +91,9 @@ func init() {
 				subscriber := NewEventsSubscriber(c, d)
 				// Start batcher - it is stopped by c.Done()
 				batcher := cache.NewEventsBatcher(c, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
+					// Wrap parent context client conn in forwarded context
+					ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(c))
+					ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(c))
 					if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
 						log.Logger(c).Warn("Error while handling event", zap.Error(e))
 					}

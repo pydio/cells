@@ -133,8 +133,6 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
 	serverLinks.URLS[render.ServerUrlTypeWorkspaces], _ = url.Parse("workspaces://")
 
-	defer streamer.CloseSend()
-
 	if inputReq.AsDigest {
 		// Get all collection, will be filtered by Digest() function
 		for {
@@ -225,7 +223,6 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	collection := &rest.SubscriptionsCollection{
 		Subscriptions: []*activity.Subscription{},
 	}
-	defer streamer.CloseSend()
 	for {
 		resp, rE := streamer.Recv()
 		if rE != nil {

@@ -375,7 +375,6 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 	if er != nil {
 		return er
 	}
-	defer streamer.CloseSend()
 	for {
 		resp, err := streamer.Recv()
 		if err != nil {
@@ -403,7 +402,6 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 	if er != nil {
 		return er
 	}
-	defer stream2.CloseSend()
 	for {
 		resp, err := stream2.Recv()
 		if err != nil {
@@ -426,7 +424,6 @@ func (e *MicroEventsSubscriber) LoadResources(ctx context.Context, roles map[str
 	if er != nil {
 		return er
 	}
-	defer stream3.CloseSend()
 	for {
 		resp, err := stream3.Recv()
 		if err != nil {

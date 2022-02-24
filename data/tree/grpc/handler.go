@@ -554,9 +554,12 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 		req := &tree.UpdateNodeRequest{From: from, To: to}
 
-		response, _ := ds.writer.UpdateNode(ctx, req)
+		if response, er := ds.writer.UpdateNode(ctx, req); er == nil {
+			return &tree.UpdateNodeResponse{Success: response.Success, Node: response.Node}, nil
+		} else {
+			return nil, er
+		}
 
-		return &tree.UpdateNodeResponse{Success: response.Success, Node: response.Node}, nil
 	}
 
 	return nil, errors.Forbidden(common.ServiceTree, "Unknown data source")

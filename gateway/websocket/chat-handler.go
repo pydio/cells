@@ -243,9 +243,10 @@ func (c *ChatHandler) initHandlers(ctx context.Context) {
 				}
 			}
 			// List existing Messages
-			stream, e2 := chatClient.ListMessages(ctx, request)
+			ct, ca := context.WithCancel(ctx)
+			defer ca()
+			stream, e2 := chatClient.ListMessages(ct, request)
 			if e2 == nil {
-				defer stream.CloseSend()
 				for {
 					resp, e3 := stream.Recv()
 					if e3 != nil {
@@ -354,15 +355,15 @@ func (c *ChatHandler) removeSessionRoom(session *melody.Session, roomUuid string
 func (c *ChatHandler) findOrCreateRoom(ctx context.Context, room *chat.ChatRoom, createIfNotExists bool) (*chat.ChatRoom, error) {
 
 	chatClient := chat.NewChatServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceChat))
-
-	s, e := chatClient.ListRooms(ctx, &chat.ListRoomsRequest{
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	s, e := chatClient.ListRooms(ct, &chat.ListRoomsRequest{
 		ByType:     room.Type,
 		TypeObject: room.RoomTypeObject,
 	})
 	if e != nil {
 		return nil, e
 	}
-	defer s.CloseSend()
 	for {
 		resp, rE := s.Recv()
 		if rE != nil {

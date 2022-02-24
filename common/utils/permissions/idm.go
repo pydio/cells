@@ -297,8 +297,6 @@ func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspac
 		return nil
 	}
 
-	defer stream.CloseSend()
-
 	for {
 		response, err := stream.Recv()
 
@@ -429,6 +427,11 @@ func AccessListFromContextClaims(ctx context.Context) (accessList *AccessList, e
 
 func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool) (accessList *AccessList, user *idm.User, err error) {
 
+	// Prepare a cancellable context as sub-calls will open many streams.
+	var ca context.CancelFunc
+	ctx, ca = context.WithCancel(ctx)
+	defer ca()
+
 	if isUuid {
 		user, err = SearchUniqueUser(ctx, "", userNameOrUuid)
 	} else {
@@ -438,7 +441,25 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 		return
 	}
 
+	var rr []string
+	for _, role := range user.Roles {
+		rr = append(rr, role.Uuid)
+	}
+	keyLookup := strings.Join(rr, "-")
+	if len(keyLookup) > 0 {
+		if data, ok := getAclCache().Get("by-roles-" + keyLookup); ok {
+			if accessList, ok = data.(*AccessList); ok {
+				log.Logger(ctx).Debug("AccessListFromUser - AccessList already in cache")
+				return
+			}
+		}
+	}
+
 	accessList, err = AccessListFromRoles(ctx, user.Roles, true, true)
+
+	if err == nil && len(keyLookup) > 0 {
+		getAclCache().Set("by-roles-"+keyLookup, accessList)
+	}
 
 	return
 }

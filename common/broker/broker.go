@@ -24,6 +24,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -212,6 +213,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 		return nil, err
 	}
 
+	dd := debug.Stack()
 	wH := func(m Message) error {
 		d := make(chan bool, 1)
 		defer close(d)
@@ -220,7 +222,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 			case <-d:
 				break
 			case <-time.After(20 * time.Second):
-				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", topic)
+				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", topic, string(dd))
 			}
 		}()
 		return handler(m)
