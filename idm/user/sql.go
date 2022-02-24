@@ -432,7 +432,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	object := results[0]
 	user = object.(*idm.User)
 	if s.loginCI {
-		if strings.EqualFold(user.Login, userName) {
+		if !strings.EqualFold(user.Login, userName) {
 			return nil, errors.NotFound(common.ServiceUser, "cannot find user %s", userName)
 		}
 	} else {
