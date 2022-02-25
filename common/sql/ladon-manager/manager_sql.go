@@ -32,8 +32,10 @@ import (
 	. "github.com/ory/ladon"
 	"github.com/ory/ladon/compiler"
 	"github.com/pkg/errors"
-	sql2 "github.com/pydio/cells/v4/common/sql"
 	"github.com/rubenv/sql-migrate"
+	"gopkg.in/gorp.v1"
+	
+	sql2 "github.com/pydio/cells/v4/common/sql"
 )
 
 // SQLManager is a postgres implementation for Manager to store policies persistently.
@@ -56,6 +58,48 @@ func NewSQLManager(db *sqlx.DB, schema []string) *SQLManager {
 	}
 }
 
+// MigrateMigrationTable checks if migration table exists. If not, we are upgrading
+// from v3 and we need mimick the new one
+func (s *SQLManager) MigrateMigrationTable(tableName string) error {
+	if rows, er := s.db.Query("SELECT * FROM " + tableName); er == nil && rows.Next() {
+		// Table exists, nothing to do
+		return nil
+	}
+
+	dbMap := &gorp.DbMap{Db: s.db.DB, Dialect: gorp.MySQLDialect{Engine: "InnoDB", Encoding: "UTF8"}}
+	dbMap.AddTableWithNameAndSchema(migrate.MigrationRecord{}, "", tableName).SetKeys(false, "Id")
+	if er := dbMap.CreateTablesIfNotExists(); er != nil {
+		return er
+	}
+	oldRows, er := s.db.Query("SELECT * from gorp_migrations WHERE id='1' OR id='2' OR id='3'")
+	if er != nil {
+		return er
+	}
+	for oldRows.Next() {
+		mig := &migrate.MigrationRecord{}
+		if er := oldRows.Scan(&mig.Id, &mig.AppliedAt); er != nil {
+			continue
+		}
+		if er := dbMap.Insert(&migrate.MigrationRecord{
+			Id:        mig.Id,
+			AppliedAt: mig.AppliedAt,
+		}); er != nil {
+			return er
+		}
+	}
+	if er := oldRows.Close(); er != nil {
+		return er
+	}
+	res, er := s.db.Exec("DELETE from gorp_migrations WHERE id='1' OR id='2' OR id='3'")
+	if er != nil {
+		return er
+	}
+	del, _ := res.RowsAffected()
+	fmt.Printf("[Policies] Migrated %d rows from old gorp_migrations table to %s\n", del, tableName)
+
+	return nil
+}
+
 // CreateSchemas creates ladon_policy tables
 func (s *SQLManager) CreateSchemas(schema, table string) (int, error) {
 	if _, ok := Migrations[s.database]; !ok {
@@ -66,6 +110,9 @@ func (s *SQLManager) CreateSchemas(schema, table string) (int, error) {
 
 	migrate.SetSchema(schema)
 	migrate.SetTable(table)
+	if er := s.MigrateMigrationTable(table); er != nil {
+		return 0, errors.Wrapf(er, "Could not create migration table")
+	}
 	n, err := migrate.Exec(s.db.DB, s.database, source, migrate.Up)
 	if err != nil {
 		return 0, errors.Wrapf(err, "Could not migrate sql schema, applied %d migrations", n)
