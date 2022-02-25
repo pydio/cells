@@ -106,49 +106,56 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 
 	topicName := u.Path
 
-	sub, ok := subscribers[u.Host]
-	if !ok {
-		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
-		cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
-		if err != nil {
+	return NewSubscription(topicName, WithContext(ctx) /*, WithSubscriber(sub)*/)
+
+	/*
+		// TODO V4 - Not working yet (see below), and in fact opening a double connection !
+
+		sub, ok := subscribers[u.Host]
+		if !ok {
+			conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
+			cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			sub = new(subscriber)
+			sub.Broker_SubscribeClient = cli
+			sub.out = make(map[string]*subscriptionReceiver)
+
+			subscribers[u.Host] = sub
+
+			go func() {
+				for {
+					resp, err := cli.Recv()
+					if err != nil {
+						return
+					}
+
+					for subId, sub := range subscribers[u.Host].out {
+						if subId == resp.Id {
+							sub.ch <- resp
+						}
+					}
+				}
+			}()
+		}
+
+		subId := uuid.New()
+		req := &pb.SubscribeRequest{Id: subId, Topic: topicName}
+		if err := sub.Broker_SubscribeClient.Send(req); err != nil {
 			return nil, err
 		}
 
-		sub = new(subscriber)
-		sub.Broker_SubscribeClient = cli
-		sub.out = make(map[string]*subscriptionReceiver)
+		subReceiver := &subscriptionReceiver{
+			ch: make(chan *pb.SubscribeResponse),
+		}
 
-		subscribers[u.Host] = sub
+		sub.out[subId] = subReceiver
 
-		go func() {
-			for {
-				resp, err := cli.Recv()
-				if err != nil {
-					return
-				}
+		return NewSubscription(topicName, WithContext(ctx), WithSubscriber(sub))
 
-				for subId, sub := range subscribers[u.Host].out {
-					if subId == resp.Id {
-						sub.ch <- resp
-					}
-				}
-			}
-		}()
-	}
-
-	subId := uuid.New()
-	req := &pb.SubscribeRequest{Id: subId, Topic: topicName}
-	if err := sub.Broker_SubscribeClient.Send(req); err != nil {
-		return nil, err
-	}
-
-	subReceiver := &subscriptionReceiver{
-		ch: make(chan *pb.SubscribeResponse),
-	}
-
-	sub.out[subId] = subReceiver
-
-	return NewSubscription(topicName, WithContext(ctx), WithSubscriber(sub))
+	*/
 }
 
 var errNotExist = errors.New("cellspubsub: topic does not exist")
