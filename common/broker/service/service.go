@@ -20,15 +20,14 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/utils/uuid"
-
-	"github.com/pydio/cells/v4/common/client/grpc"
-
-	"github.com/pydio/cells/v4/common"
-	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/driver"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	pb "github.com/pydio/cells/v4/common/proto/broker"
+	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
 var (
@@ -298,6 +297,7 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 	var ch chan []*pb.Message
 	if ctx != nil {
 		if v := ctx.Value(subscriberKey{}); v != nil {
+			// TODO V4 : Not working, we currently pass a Subscriber via the WithSubscriber option, not a chan[]*pb.Message
 			if c, ok := v.(chan []*pb.Message); ok {
 				ch = c
 			}
