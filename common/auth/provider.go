@@ -21,88 +21,25 @@
 package auth
 
 import (
-	"net/http"
-	"net/url"
-	"sync"
-	"time"
-
 	hconf "github.com/ory/hydra/driver/config"
-	"github.com/ory/hydra/x"
 	hconfx "github.com/ory/x/configx"
 	"github.com/ory/x/logrusx"
-	"github.com/rs/cors"
-
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
+	"sync"
 )
 
 type ConfigurationProvider interface {
-	Set(key string, value interface{}) error
-	MustSet(key string, value interface{})
-	InsecureRedirects() []string
-	WellKnownKeys(include ...string) []string
-	IsUsingJWTAsAccessTokens() bool
-	AllowedTopLevelClaims() []string
-	SubjectTypesSupported() []string
-	DefaultClientScope() []string
-	DSN() string
-	EncryptSessionData() bool
-	ExcludeNotBeforeClaim() bool
-	DataSourcePlugin() string
-	BCryptCost() int
-	CookieSameSiteMode() http.SameSite
-	CookieSameSiteLegacyWorkaround() bool
-	ConsentRequestMaxAge() time.Duration
-	AccessTokenLifespan() time.Duration
-	RefreshTokenLifespan() time.Duration
-	IDTokenLifespan() time.Duration
-	AuthCodeLifespan() time.Duration
-	ScopeStrategy() string
-	// TODO v4 ? Tracing() *tracing.Config
-	GetCookieSecrets() [][]byte
-	GetRotatedSystemSecrets() [][]byte
-	GetSystemSecret() []byte
-	LogoutRedirectURL() *url.URL
-	LoginURL() *url.URL
-	LogoutURL() *url.URL
-	ConsentURL() *url.URL
-	ErrorURL() *url.URL
-	PublicURL() *url.URL
-	IssuerURL() *url.URL
-	OAuth2ClientRegistrationURL() *url.URL
-	OAuth2TokenURL() *url.URL
-	OAuth2AuthURL() *url.URL
-	JWKSURL() *url.URL
-	TokenRefreshHookURL() *url.URL
-	AccessTokenStrategy() string
-	SubjectIdentifierAlgorithmSalt() string
-	OIDCDiscoverySupportedClaims() []string
-	OIDCDiscoverySupportedScope() []string
-	OIDCDiscoveryUserinfoEndpoint() *url.URL
-	ShareOAuth2Debug() bool
-	OAuth2LegacyErrors() bool
-	PKCEEnforced() bool
-	EnforcePKCEForPublicClients() bool
-	CGroupsV1AutoMaxProcsEnabled() bool
-	GrantAllClientCredentialsScopesPerDefault() bool
 
+	// GetProvider returns an instanciated hconf.Provider struct
 	GetProvider() *hconf.Provider
+
+	// Clients lists all defined clients
 	Clients() common.Scanner
+
+	// Connectors lists all defined connectors
 	Connectors() common.Scanner
-}
-
-type configurationProvider struct {
-	*hconf.Provider
-	// rootURL
-	r string
-
-	// values
-	v configx.Values
-}
-
-func (c *configurationProvider) GetProvider() *hconf.Provider {
-	return c.Provider
 }
 
 var (
@@ -165,7 +102,7 @@ func GetConfigurationProvider(hostname ...string) ConfigurationProvider {
 }
 
 func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
-	// Todo V4 : Do we need more from the original conf ?
+
 	val := configx.New()
 	_ = val.Val(hconf.KeyGetSystemSecret).Set([]string{values.Val("secret").String()})
 	_ = val.Val(hconf.KeyPublicURL).Set(rootURL + "/oidc")
@@ -175,6 +112,14 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	_ = val.Val(hconf.KeyConsentURL).Set(rootURL + "/oauth2/consent")
 	_ = val.Val(hconf.KeyErrorURL).Set(rootURL + "/oauth2/fallbacks/error")
 	_ = val.Val(hconf.KeyLogoutRedirectURL).Set(rootURL + "/oauth2/logout/callback")
+	_ = val.Val(hconf.KeyOAuth2AuthURL).Set(rootURL + "/oauth2/auth")
+
+	_ = val.Val(hconf.KeyAccessTokenStrategy).Set(values.Val("accessTokenStrategy").Default("opaque").String())
+	_ = val.Val(hconf.KeyConsentRequestMaxAge).Set(values.Val("consentRequestMaxAge").Default("30m").String())
+	_ = val.Val(hconf.KeyAccessTokenLifespan).Set(values.Val("accessTokenLifespan").Default("10m").String())
+	_ = val.Val(hconf.KeyRefreshTokenLifespan).Set(values.Val("refreshTokenLifespan").Default("1440h").String())
+	_ = val.Val(hconf.KeyIDTokenLifespan).Set(values.Val("idTokenLifespan").Default("1h").String())
+	_ = val.Val(hconf.KeyAuthCodeLifespan).Set(values.Val("authCodeLifespan").Default("10m").String())
 
 	_ = val.Val(hconf.KeyLogLevel).Set("trace")
 	_ = val.Val("log.leak_sensitive_values").Set(true)
@@ -190,11 +135,29 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	provider, _ := hconf.New(logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
 	return &configurationProvider{
 		Provider: provider,
-		r:        rootURL,
 		v:        values,
 	}
 }
 
+type configurationProvider struct {
+	*hconf.Provider
+	// values
+	v configx.Values
+}
+
+func (v *configurationProvider) GetProvider() *hconf.Provider {
+	return v.Provider
+}
+
+func (v *configurationProvider) Clients() common.Scanner {
+	return v.v.Val("staticClients")
+}
+
+func (v *configurationProvider) Connectors() common.Scanner {
+	return v.v.Val("connectors")
+}
+
+/*
 func (v *configurationProvider) InsecureRedirects() []string {
 	rr := v.v.Val("insecureRedirects").StringArray()
 	sites, _ := config.LoadSites()
@@ -315,11 +278,9 @@ func (v *configurationProvider) TracingProvider() string {
 	return ""
 }
 
-/*
 func (v *configurationProvider) TracingJaegerConfig() *tracing.JaegerConfig {
 	return &tracing.JaegerConfig{}
 }
-*/
 
 func (v *configurationProvider) GetCookieSecrets() [][]byte {
 	return [][]byte{
@@ -423,11 +384,4 @@ func (v *configurationProvider) OIDCDiscoveryUserinfoEndpoint() *url.URL {
 func (v *configurationProvider) ShareOAuth2Debug() bool {
 	return v.v.Val("shareOAuth2Debug").Bool()
 }
-
-func (v *configurationProvider) Clients() common.Scanner {
-	return v.v.Val("staticClients")
-}
-
-func (v *configurationProvider) Connectors() common.Scanner {
-	return v.v.Val("connectors")
-}
+*/
