@@ -31,11 +31,7 @@ func init() {
 	manager.Register(SyncUsersActionName, func() actions.ConcreteAction {
 		return &SyncUsersAction{}
 	})
-
-	manager.Register(SyncConfigActionName, func() actions.ConcreteAction {
-		return &SyncConfigAction{}
-	})
-
+	
 	manager.Register(SyncWorkspacesActionName, func() actions.ConcreteAction {
 		return &SyncWorkspacesAction{}
 	})

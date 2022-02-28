@@ -30,16 +30,18 @@ export default class Dashboard extends React.Component {
         super(props);
 
         const features = {
-            configs: {label:this.T('feature.configs'), value: false, action: Actions.getConfigsAction},
+            // configs: {label:this.T('feature.configs'), value: false, action: Actions.getConfigsAction},
             users: {label:this.T('feature.users'), value: false, action: Actions.getUsersAction},
             workspaces:{label:this.T('feature.workspaces'), value: false, action: Actions.getWorkspacesAction, summary: Actions.getWorkspacesSummary},
             acls:{label:this.T('feature.acls'), value: false, action: Actions.getAclsAction, depends:'workspaces'},
             metadata:{label:this.T('feature.meta'), value: false, action: Actions.getMetadataAction, summary: Actions.getMedataSummary, depends:'workspaces'},
             shares:{label:this.T('feature.shares'), value: false, action: Actions.getSharesAction, summary: Actions.getSharesSummary, depends: 'workspaces'},
         };
-        if(!props.advanced){
-            delete features.configs;
-        }
+        /*
+            if(!props.advanced){
+                delete features.configs;
+            }
+         */
 
         this.state = {
             activeStep: 0,

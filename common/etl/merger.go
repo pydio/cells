@@ -30,7 +30,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/config/source"
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/proto/idm"
@@ -193,23 +192,6 @@ func (m *Merger) diffUsers(extUsers map[string]*idm.User, apiUsers map[string]*i
 	}
 
 	return userDiff, roleDiff
-}
-
-func (m *Merger) LoadAndDiffConfig(ctx context.Context) (*models.ConfigDiff, error) {
-
-	diff := new(models.ConfigDiff)
-
-	if src, err := m.Source.ListConfig(ctx, nil); err != nil {
-		return nil, err
-	} else {
-		if target, err2 := m.Target.ListConfig(ctx, nil); err2 != nil {
-			return nil, err2
-		} else {
-			m.Diff(src, target, diff)
-		}
-	}
-
-	return diff, nil
 }
 
 func (m *Merger) LoadAndDiffRoles(ctx context.Context, params map[string]interface{}) (*models.RoleDiff, error) {
@@ -465,8 +447,6 @@ func (m *Merger) Update(ctx context.Context, obj interface{}) error {
 	switch v := obj.(type) {
 	case *idm.ACL:
 		return m.Target.PutACL(ctx, v)
-	case *source.ChangeSet:
-		return m.Target.PutConfig(ctx, v)
 	}
 
 	return fmt.Errorf("Type not updateable")
@@ -566,9 +546,6 @@ func (m *Merger) convert(i interface{}) []models.Differ {
 		for _, a := range v {
 			res = append(res, (*models.ACL)(a))
 		}
-	case *source.ChangeSet:
-		res = append(res, (*models.Config)(v))
-
 	case []*models.SyncShare:
 		for _, s := range v {
 			res = append(res, s)

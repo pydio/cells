@@ -36,7 +36,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/config/source"
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/etl/stores"
 	"github.com/pydio/cells/v4/common/log"
@@ -102,11 +101,6 @@ func NewPydio8UserStore(c *sdkconfig.SdkConfig) *Pydio8Store {
 	return &Pydio8Store{
 		Config: c,
 	}
-}
-
-// ListConfig from the pydio 8 api
-func (s *Pydio8Store) ListConfig(ctx context.Context, params map[string]interface{}) (*source.ChangeSet, error) {
-	return &source.ChangeSet{}, nil
 }
 
 // ListUsers from the pydio 8 api

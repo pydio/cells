@@ -32,8 +32,6 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/client/grpc"
-	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/source"
 	"github.com/pydio/cells/v4/common/etl/models"
 	"github.com/pydio/cells/v4/common/etl/stores"
 	"github.com/pydio/cells/v4/common/log"
@@ -74,40 +72,6 @@ func NewAPIStore(runtime context.Context) *ApiStore {
 		runtime:     runtime,
 		loadedUsers: make(map[string]*syncShareLoadedUser),
 	}
-}
-
-// Configuration
-
-func (apiStore *ApiStore) ListConfig(ctx context.Context, params map[string]interface{}) (*source.ChangeSet, error) {
-	return &source.ChangeSet{
-		Data: config.Get("services").Bytes(),
-	}, nil
-}
-
-func (apiStore *ApiStore) PutConfig(ctx context.Context, changeset *source.ChangeSet) error {
-
-	return fmt.Errorf("must be reimplemented in v4")
-	// TODO V4
-	/*
-		cli := config2.NewConfigClient(grpc.GetClientConnFromCtx(common.ServiceConfig))
-
-		req := &config2.UpdateRequest{
-			Change: &protoconfig.Change{
-				Id:   "config",
-				Path: "services",
-				ChangeSet: &go_micro_os_config.ChangeSet{
-					Data: string(changeset.Data),
-				},
-			},
-		}
-
-		if _, e := cli.Update(ctx, req); e == nil {
-			return nil
-		} else {
-			return e
-		}
-
-	*/
 }
 
 // Writable user store

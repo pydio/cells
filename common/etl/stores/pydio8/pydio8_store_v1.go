@@ -21,144 +21,17 @@
 package pydio8
 
 import (
-	"context"
 	"fmt"
-	"io"
+	"github.com/go-openapi/runtime"
+	json "github.com/pydio/cells/v4/common/utils/jsonx"
+	"github.com/pydio/pydio-sdk-go/config"
 	"io/ioutil"
 	"net/http"
 	"path"
-	"time"
-
-	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/strfmt"
-
-	"github.com/pydio/cells/v4/common/service/frontend"
-	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/pydio-sdk-go/config"
 )
 
 type ClientV1 struct {
 	cli runtime.ClientTransport
-}
-
-/*GetConfigParams contains all the parameters to send to the API endpoint
-for the get people operation typically these are written to a http.Request
-*/
-type GetConfigParams struct {
-	Format *string
-	Plugin string
-
-	timeout    time.Duration
-	Context    context.Context
-	HTTPClient *http.Client
-}
-
-// WriteToRequest writes these params to a swagger request
-func (o *GetConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
-	if err := r.SetTimeout(o.timeout); err != nil {
-		return err
-	}
-	var res []error
-
-	if o.Format != nil {
-
-		// query param format
-		var qrFormat string
-		if o.Format != nil {
-			qrFormat = *o.Format
-		}
-		qFormat := qrFormat
-		if qFormat != "" {
-			if err := r.SetQueryParam("format", qFormat); err != nil {
-				return err
-			}
-		}
-	}
-
-	// path param path
-	if err := r.SetPathParam("plugin", o.Plugin); err != nil {
-		return err
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (a *ClientV1) GetConfig(params *GetConfigParams) (*GetConfigOK, error) {
-	result, err := a.cli.Submit(&runtime.ClientOperation{
-		ID:                 "getConfig",
-		Method:             "GET",
-		PathPattern:        "/settings/get_plugin_manifest/{plugin}",
-		ProducesMediaTypes: []string{"application/json", "application/xml"},
-		ConsumesMediaTypes: []string{""},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &GetConfigReader{},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetConfigOK), nil
-}
-
-// GetConfigReader is a Reader for the GetConfig structure.
-type GetConfigReader struct {
-	formats strfmt.Registry
-}
-
-// ReadResponse reads a server response into the received o.
-func (o *GetConfigReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
-
-	switch response.Code() {
-
-	case 200:
-		result := NewGetConfigOK()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-
-		return result, nil
-
-	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
-	}
-}
-
-// NewGetConfigOK creates a GetConfigOK with default headers values
-func NewGetConfigOK() *GetConfigOK {
-	return &GetConfigOK{}
-}
-
-/*GetConfigOK handles this case with default header values.
-
-A list of roles represented as standard nodes
-*/
-type GetConfigOK struct {
-	PluginSettingsValues *frontend.Cplugin_settings_values
-}
-
-func (o *GetConfigOK) Error() string {
-	return fmt.Sprintf("[GET /settings/get_plugin_manifest/][%d] getCoreAuthOK  %+v", 200, o.PluginSettingsValues)
-}
-
-func (o *GetConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	data := new(frontend.Cadmin_data)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), &data); err != nil && err != io.EOF {
-		return err
-	}
-
-	o.PluginSettingsValues = data.Cplugin_settings_values
-
-	return nil
 }
 
 type GetAdvancedUserInfoResponse struct {

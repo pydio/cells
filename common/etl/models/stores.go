@@ -23,15 +23,12 @@ package models
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/config/source"
-
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/tree"
 )
 
 // ReadableStore interface defines the objects to be able to list from a store
 type ReadableStore interface {
-	ListConfig(context.Context, map[string]interface{}) (*source.ChangeSet, error)
 	ListUsers(context.Context, map[string]interface{}, chan float32) (map[string]*idm.User, error)
 	ListGroups(context.Context, map[string]interface{}) ([]*idm.User, error)
 	ListRoles(context.Context, ReadableStore, map[string]interface{}) ([]*idm.Role, error)
@@ -58,6 +55,5 @@ type WritableStore interface {
 	DeleteRole(context.Context, *idm.Role) error
 	PutACL(context.Context, *idm.ACL) error
 	DeleteACL(context.Context, *idm.ACL) error
-	PutConfig(context.Context, *source.ChangeSet) error
 	PutShare(context.Context, *SyncShare) error
 }

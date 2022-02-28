@@ -21,13 +21,8 @@
 package models
 
 import (
-	"github.com/pydio/cells/v4/common/config/source"
 	"github.com/pydio/cells/v4/common/proto/idm"
 )
-
-type ConfigDiff struct {
-	update *source.ChangeSet
-}
 
 type ShareDiff struct {
 	create []*SyncShare
@@ -149,32 +144,6 @@ func (a *ACLDiff) ToDelete() []interface{} {
 		res = append(res, v)
 	}
 	return res
-}
-
-func (a *ConfigDiff) Add(vs ...interface{}) {
-}
-func (a *ConfigDiff) Update(vs ...interface{}) {
-	for _, v := range vs {
-		a.update = (*source.ChangeSet)(v.(*Config))
-	}
-}
-func (a *ConfigDiff) Delete(vs ...interface{}) {
-}
-
-func (a *ConfigDiff) ToAdd() []interface{} {
-	return nil
-}
-func (a *ConfigDiff) ToUpdate() []interface{} {
-	var res []interface{}
-
-	res = append(res, a.update)
-	return res
-}
-func (a *ConfigDiff) ToDelete() []interface{} {
-	return nil
-}
-func (a *ConfigDiff) GetUpdateData() []byte {
-	return a.update.Data
 }
 
 func (a *ShareDiff) Add(vs ...interface{}) {
