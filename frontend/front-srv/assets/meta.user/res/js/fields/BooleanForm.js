@@ -26,18 +26,29 @@ import asMetaForm from "../hoc/asMetaForm";
 class BooleanForm extends React.Component {
 
     render() {
-        const {updateValue, value} = this.props;
-        return (
+        const {updateValue, value, search} = this.props;
+        let sProps = {...ModernStyles.toggleField}
+        let label = value ? 'Yes' : 'No'
+        if(!search) {
+            sProps = {...ModernStyles.toggleFieldV2}
+            label = this.props.label + ' (' + label + ')'
+        }
+        const toggle = (
             <Toggle
                 toggled={value}
                 onToggle={(e,v) => {
                     updateValue(v);
                 }}
-                label={value ? 'Yes': 'No'}
+                label={label}
                 labelPosition={"right"}
-                {...ModernStyles.toggleField}
+                {...sProps}
             />
         );
+        if(search){
+            return toggle
+        } else {
+            return <div style={{margin:'12px 0 6px'}}>{toggle}</div>
+        }
     }
 
 }

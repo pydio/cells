@@ -91,6 +91,7 @@ class IntegerForm extends React.Component{
                     type={type}
                     onChange={change}
                     underlineShow={!hideUnderline}
+                    variant={search?"v1":"v2"}
                 />
             )
         }
@@ -142,6 +143,7 @@ class IntegerForm extends React.Component{
                         isDisplayForm={id}
                         toggleEditMode={id}
                         attributes={{type:'integer-bytes', label:label}}
+                        variant={search?"v1":"v2"}
                     />)
             default:
                 return tf(textType, onChangeInt)

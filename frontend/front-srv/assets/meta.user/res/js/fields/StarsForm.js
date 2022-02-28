@@ -26,17 +26,26 @@ const {ModernStyles} = Pydio.requireLib('hoc');
 class StarsFormPanel extends React.Component {
 
     render(){
-        const {updateValue, value = 0} = this.props;
+        const {updateValue, value = 0, search, label} = this.props;
         let stars = [-1,0,1,2,3,4].map((v) => {
             const ic = 'star' + (v === -1 ? '-off' : (value > v ? '' : '-outline') );
             const style = (v === -1 ? {marginRight: 5, cursor:'pointer'} : {cursor: 'pointer'});
             return <span key={"star-" + v} onClick={() => updateValue(v+1, true)} className={"mdi mdi-" + ic} style={style}></span>;
         });
-        return (
-            <div className="advanced-search-stars" style={{...ModernStyles.div, ...starsStyle}}>
-                <div>{stars}</div>
-            </div>
-        );
+        if(search) {
+            return (
+                <div className="advanced-search-stars" style={{...ModernStyles.div, ...starsStyle}}>
+                    <div>{stars}</div>
+                </div>
+            );
+        } else {
+            return (
+                <div style={{...ModernStyles.textFieldV2.style, borderBottom:ModernStyles.fillBlockV2Right.borderBottom, marginBottom:6}}>
+                    <div style={{color: 'rgba(0, 0, 0, 0.3)', fontSize: 12, padding: '3px 8px 0', lineHeight: '16px'}} >{label}</div>
+                    <div style={{...starsStyle, paddingLeft: 6}}>{stars}</div>
+                </div>
+            )
+        }
     }
 }
 

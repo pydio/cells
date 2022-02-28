@@ -159,9 +159,10 @@ export default class UserMetaPanel extends React.Component{
                         field = (
                             <ModernTextField
                                 value={value || ""}
+                                variant={"v2"}
                                 fullWidth={true}
                                 disabled={readonly}
-                                hintText={label}
+                                floatingLabelText={label}
                                 multiLine={type === 'textarea' || type === 'json'}
                                 type={isInteger? "number" : null}
                                 onChange={(event, value)=>{
@@ -188,12 +189,7 @@ export default class UserMetaPanel extends React.Component{
                         </div>
                     );
                 }else{
-                    data.push(
-                        <div className={"infoPanelRow"} key={key}>
-                            <div className="infoPanelLabel">{label}</div>
-                            <div className="infoPanelValue">{field}</div>
-                        </div>
-                    );
+                    data.push(<div key={key}>{field}</div>);
                 }
             }else{
                 let column = {name:key};

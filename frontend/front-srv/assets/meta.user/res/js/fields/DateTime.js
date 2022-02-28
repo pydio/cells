@@ -179,12 +179,14 @@ class DateTimeForm extends Component {
                 </div>
             )
         }
+        const sProps = search ? {...ModernStyles.textField} : {...ModernStyles.textFieldV2, textFieldStyle:{height: 52}}
         if(format === 'date' || format === 'date-time') {
             parts.push(
                 <div style={{flex: 3}}>
                     <DatePicker
-                        hintText={"Date"}
-                        {...ModernStyles.textField}
+                        floatingLabelText={search ? null : (label + ' (date)')}
+                        hintText={search ? "Date" : null}
+                        {...sProps}
                         container={"inline"}
                         fullWidth={true}
                         value={vDate}
@@ -201,8 +203,9 @@ class DateTimeForm extends Component {
             parts.push(
                 <div style={{flex: 2}}>
                     <TimePicker
-                        hintText={"Time"}
-                        {...ModernStyles.textField}
+                        floatingLabelText={search ? null : (label + ' (time)')}
+                        hintText={search ? "Time" : null}
+                        {...sProps}
                         dialogStyle={{zIndex: 5000}}
                         fullWidth={true}
                         value={vDate}
@@ -214,12 +217,12 @@ class DateTimeForm extends Component {
         }
         if(!search && vDate) {
             parts.push(
-                <div style={{paddingLeft: 5,cursor: 'pointer'}} onClick={() => this.clear()}>
-                    <FontIcon className={"mdi mdi-close"}/>
+                <div style={{cursor: 'pointer', ...ModernStyles.fillBlockV2Right, paddingTop:22, paddingRight:8}} onClick={() => this.clear()}>
+                    <FontIcon className={"mdi mdi-close"} color={'rgba(0,0,0,.5)'}/>
                 </div>
             );
         }
-        return <div style={{display:'flex', alignItems:'center'}}>{parts}</div>
+        return <div style={{display:'flex', alignItems:'center', marginBottom:search?null:6}}>{parts}</div>
     }
 
 }

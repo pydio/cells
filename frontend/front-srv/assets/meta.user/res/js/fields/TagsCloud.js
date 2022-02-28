@@ -25,7 +25,7 @@ import asMetaForm from "../hoc/asMetaForm";
 import MetaClient from "../MetaClient";
 
 import {MenuItem, Chip, AutoComplete} from 'material-ui'
-const {ModernStyles} = Pydio.requireLib('hoc');
+const {ModernStyles, ModernAutoComplete} = Pydio.requireLib('hoc');
 
 
 class TagsCloud extends React.Component {
@@ -150,7 +150,7 @@ class TagsCloud extends React.Component {
     }
 
     render(){
-        const {editMode, search} = this.props;
+        const {editMode, search, label} = this.props;
         const {tags, searchText} = this.state;
 
         let tagsList = <div/>, autoCompleter, knownTags = [];
@@ -161,8 +161,10 @@ class TagsCloud extends React.Component {
         }
 
         if (editMode) {
+            const Component = search ? AutoComplete : ModernAutoComplete
+            const otherProps = search ? {style:{marginBottom: -8}, ...ModernStyles.textField} : {hintText:label}
             autoCompleter = (
-                <AutoComplete
+                <Component
                     fullWidth={true}
                     hintText={Pydio.getMessages()['meta.user.10']}
                     searchText={searchText}
@@ -172,11 +174,10 @@ class TagsCloud extends React.Component {
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0 && knownTags.indexOf(key) === -1)}
                     openOnFocus={true}
                     menuProps={{maxHeight: 200, desktop: true}}
-                    style={{marginBottom: -8}}
                     onClose={() => {if(searchText) {
                         this.handleNewRequest()
                     }}}
-                    {...ModernStyles.textField}
+                    {...otherProps}
                 />
             );
         } else {
@@ -186,7 +187,7 @@ class TagsCloud extends React.Component {
         return (
             <div style={search?{marginBottom: 8}:{}}>
                 {autoCompleter}
-                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: 8}}>{tagsList}</div>
+                <div style={{display: 'flex', flexWrap: 'wrap', zoom: .8, marginTop: search?8:0}}>{tagsList}</div>
             </div>
         )
     }

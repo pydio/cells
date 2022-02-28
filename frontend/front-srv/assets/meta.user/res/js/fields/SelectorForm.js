@@ -72,6 +72,7 @@ class SelectorForm extends React.Component{
                 }
                 <div style={{flex:1, maxWidth:(stepper&&!search)?'75%':null}}>
                     <ModernSelectField
+                        variant={search ? "v1" : "v2"}
                         fullWidth={true}
                         value={value}
                         hintText={label}

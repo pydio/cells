@@ -24,6 +24,8 @@ const noWrap = {
     whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'
 };
 
+const v1BgColor ='rgba(224, 224, 228, 0.33)'
+
 const v2Block = {
     backgroundColor:'rgb(246, 246, 248)',
     borderRadius:'3px 3px 0 0',
@@ -33,7 +35,7 @@ const v2Block = {
 
 const styles = {
     textField:{
-        inputStyle:{backgroundColor:'rgba(224, 224, 224, 0.33)',height: 34, borderRadius: 3, marginTop: 6, padding: 7},
+        inputStyle:{backgroundColor:v1BgColor,height: 34, borderRadius: 3, marginTop: 6, padding: 7},
         hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%'},
         underlineStyle:{opacity:0},
         underlineFocusStyle:{opacity:1, borderRadius: '0px 0px 3px 3px'},
@@ -53,7 +55,7 @@ const styles = {
     textareaField:{
         rows: 4,
         rowsMax: 4,
-        inputStyle:{backgroundColor:'rgba(224, 224, 224, 0.33)',height: 106, borderRadius: 3, marginTop: 6, padding: 7},
+        inputStyle:{backgroundColor:v1BgColor,height: 106, borderRadius: 3, marginTop: 6, padding: 7},
         textareaStyle:{marginTop: 0, marginBottom: 0},
         hintStyle:{paddingLeft: 7, color:'rgba(0,0,0,0.5)', ...noWrap, width: '100%', top: 12, bottom: 'inherit'},
         underlineStyle:{opacity:0},
@@ -75,7 +77,7 @@ const styles = {
         errorStyle:{position:'absolute', bottom:8, right:8}
     },
     selectField:{
-        style:{backgroundColor:'rgba(224, 224, 224, 0.33)',height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0, overflow:'hidden'},
+        style:{backgroundColor:v1BgColor,height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0, overflow:'hidden'},
         menuStyle:{marginTop: -12},
         hintStyle:{paddingLeft: 0, marginBottom: -7, paddingRight:56, color:'rgba(0,0,0,0.34)', ...noWrap, width: '100%'},
         underlineShow: false
@@ -92,12 +94,12 @@ const styles = {
         dropDownMenuProps:{iconStyle:{right: 0, fill: '#9e9e9e'}}
     },
     div:{
-        backgroundColor:'rgba(224, 224, 224, 0.33)', color:'rgba(0,0,0,.5)',
+        backgroundColor:v1BgColor, color:'rgba(0,0,0,.5)',
         height: 34, borderRadius: 3, marginTop: 6, padding: 7, paddingRight: 0
     },
     toggleField:{
         style: {
-            backgroundColor: 'rgba(224, 224, 224, 0.33)',
+            backgroundColor: v1BgColor,
             padding: '7px 5px 4px',
             borderRadius: 3,
             fontSize: 15,
