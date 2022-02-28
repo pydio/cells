@@ -25,9 +25,9 @@ import createReactClass from 'create-react-class'
 import LangUtils from 'pydio/util/lang';
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 import PydioDataModel from "pydio/model/data-model";
-import {IconButton, MenuItem, Paper} from "material-ui";
-const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
+import {FontIcon, IconButton, MenuItem, Paper, Chip, Avatar} from "material-ui";
 
+const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 const {FoldersTree} = Pydio.requireLib('components');
 
 const TreeDialog = createReactClass({
@@ -52,24 +52,39 @@ const TreeDialog = createReactClass({
     },
 
     submit(){
-        this.props.submitValue(this.state.selectedNode.getPath(), (this.state.wsId === '__CURRENT__' ? null : this.state.wsId));
+        const {pydio, submitValue} = this.props;
+        const {dataModel, wsId} = this.state;
+        const path = dataModel.getContextNode().getPath();
+        submitValue(path, (wsId === '__CURRENT__' ? null : wsId));
+        const storePath = (wsId === '__CURRENT__' ? pydio.user.activeRepository : wsId) + ':' + path;
+        TreeDialog.RecentPlaces.unshift(storePath);
+        TreeDialog.RecentPlaces = TreeDialog.RecentPlaces.slice(0, 5);
         this.dismiss();
     },
 
     getInitialState(){
         const dm = this.getCurrentDataModel();
-        const root = dm.getRootNode();
-        root.load(dm.getAjxpNodeProvider());
         return{
             dataModel: dm,
-            selectedNode: root,
-            wsId:root.getMetadata().get('repository_id') || '__CURRENT__'
+            wsId:dm.getRootNode().getMetadata().get('repository_id') || '__CURRENT__'
         }
     },
 
+    handleRepositoryChange(event, index, value){
+        const dm = this.getCurrentDataModel(value);
+        const root = dm.getRootNode();
+        root.observeOnce('loaded', () => {
+            this.forceUpdate()
+        });
+        root.load();
+        this.setState({dataModel:dm, wsId: value});
+    },
+
     getCurrentDataModel(value = null){
-        const {user} = this.props.pydio;
+        const {pydio} = this.props;
+        const {user} = pydio;
         let repoId, repoLabel = user.getRepositoriesList().get(user.activeRepository).getLabel();
+        let startPath;
         if(value !== null && value !== '__CURRENT__'){
             repoId = value;
             repoLabel = user.getCrossRepositories().get(value).getLabel();
@@ -79,27 +94,43 @@ const TreeDialog = createReactClass({
                 repoId = user.getCrossRepositories().keys().next().value;
                 repoLabel = user.getCrossRepositories().get(repoId).getLabel();
             }
+            if(!pydio.getContextHolder().getContextNode().isRoot()) {
+                startPath = pydio.getContextHolder().getContextNode().getPath();
+            }
         }
         const dm = PydioDataModel.RemoteDataModelFactory(repoId ? {tmp_repository_id:repoId} : {}, repoLabel);
         const root = dm.getRootNode();
         if(repoId) {
             root.getMetadata().set('repository_id', repoId);
         }
+        if(startPath) {
+            // copy root from context holder
+            pydio.getContextHolder().getRootNode().getChildren().forEach(child => {
+                root.addChild(child);
+            })
+            dm.loadPathInfoAsync(startPath, function(foundNode){
+                dm.requireContextChange(foundNode);
+            }.bind(this));
+        } else {
+            root.observeOnce('loaded', () => {
+                this.forceUpdate()
+            })
+            root.load(dm.getAjxpNodeProvider());
+        }
+        dm.observe('context_changed', () => {this.forceUpdate()})
         return dm;
     },
 
     onNodeSelected(n){
         const {dataModel} = this.state;
+        dataModel.setContextNode(n);
         n.load(dataModel.getAjxpNodeProvider());
-        this.setState({
-            selectedNode: n
-        })
     },
 
     createNewFolder(){
         const {pydio} = this.props;
-        let parent = this.state.selectedNode;
-        let nodeName = this.refs.newfolder_input.getValue();
+        const {dataModel, newFolderInput} = this.state;
+        let parent = dataModel.getContextNode();
         let slug = pydio.user.getActiveRepositoryObject().getSlug();
         if(this.state.wsId !== '__CURRENT__') {
             const repo = pydio.user.getRepositoriesList().get(this.state.wsId);
@@ -108,74 +139,159 @@ const TreeDialog = createReactClass({
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestCreateNodesRequest();
 
-        const path = slug + LangUtils.trimRight(parent.getPath(), '/') + '/' + nodeName;
+        const path = slug + LangUtils.trimRight(parent.getPath(), '/') + '/' + newFolderInput;
         const node = new TreeNode();
         node.Path = path;
         node.Type = TreeNodeType.constructFromObject('COLLECTION');
         request.Nodes = [node];
         api.createNodes(request).then(collection => {
-            const fullpath = parent.getPath() + '/' + nodeName;
             parent.observeOnce('loaded', () => {
+                const fullpath = (parent.getPath() === '/'?'':parent.getPath()) + '/' + newFolderInput;
                 let n = parent.getChildren().get(fullpath);
                 if(n) {
-                    this.setState({selectedNode:n});
+                    dataModel.setContextNode(n);
                 }
             });
-            setTimeout(() => parent.reload(), 1500);
-            this.setState({newFolderFormOpen: false});
+            setTimeout(() => parent.reload(dataModel.getAjxpNodeProvider()), 1000);
+            this.setState({newFolderFormOpen: false, newFolderInput: ""});
         });
     },
 
-    handleRepositoryChange(event, index, value){
-        const dm = this.getCurrentDataModel(value);
-        const root = dm.getRootNode();
-        root.load();
-        this.setState({dataModel:dm, selectedNode: root, wsId: value});
+    toggleNewFolderForm(){
+        const willOpen = !this.state.newFolderFormOpen
+        this.setState({newFolderFormOpen: willOpen}, () => {
+            if(!willOpen) {
+                return;
+            }
+            this.refs.newfolder_input.focus();
+
+        });
     },
 
-    render(){
-        let openNewFolderForm = () => {
-            this.setState({newFolderFormOpen: !this.state.newFolderFormOpen});
-        };
+    buildWsSelector() {
+        const {pydio} = this.props;
+        const {user} = pydio;
+        const {wsId} = this.state;
 
-        let user = this.props.pydio.user;
         let wsSelector = <div style={{height: 30}}/> ;
         if(user && user.canCrossRepositoryCopy() && user.hasCrossRepositories()){
             let menuItems = [];
             let items = [];
             if(user.canWrite()){
-                menuItems.push(<MenuItem key={'current'} value={'__CURRENT__'} primaryText={this.props.pydio.MessageHash[372]} />);
+                menuItems.push(<MenuItem key={'current'} value={'__CURRENT__'} primaryText={pydio.MessageHash[372]} />);
             }
             user.getCrossRepositories().forEach(function(repo, key){
-                items.push({label:repo.getLabel(), item: <MenuItem key={key} value={key} primaryText={repo.getLabel()} />});
+                items.push({
+                    label:repo.getLabel(),
+                    owner:!!repo.getOwner(),
+                    item: <MenuItem
+                        key={key}
+                        value={key}
+                        primaryText={repo.getLabel()}
+                        leftIcon={<FontIcon style={{fontSize: 20, height:20, top: repo.getOwner()?5:1}} className={repo.getOwner()?'icomoon-cells':'mdi mdi-folder'} />}
+                    />});
             });
-            items.sort((a,b) => a.label.localeCompare(b.label, undefined, {numeric: true}));
+            items.sort((a,b) => {
+                if(a.owner === b.owner){
+                    return a.label.localeCompare(b.label, undefined, {numeric: true});
+                }
+                return a.owner ? 1 : -1
+            });
             menuItems = [...menuItems, ...items.map(i => i.item)];
             wsSelector = (
                 <div>
                     <ModernSelectField
-                        style={{width:'100%'}}
-                        floatingLabelText={this.props.pydio.MessageHash[373]}
-                        value={this.state.wsId}
-                        onChange={this.handleRepositoryChange}
+                        fullWidth={true}
+                        variant={"v2"}
+                        floatingLabelText={pydio.MessageHash[455]}
+                        value={wsId}
+                        onChange={this.handleRepositoryChange.bind(this)}
                     >
                         {menuItems}
                     </ModernSelectField>
                 </div>
             );
         }
-        const {newFolderFormOpen} = this.state;
+        return wsSelector;
+    },
+
+    buildRecentLocations() {
+        const {pydio} = this.props;
+        const {user} = pydio;
+        let recentPlaces;
+        if(!TreeDialog.RecentPlaces || !TreeDialog.RecentPlaces.length){
+            return recentPlaces;
+        }
+
+        const {submitValue}= this.props;
+        recentPlaces = (
+            <div style={{borderBottom: '1px solid #e0e0e0', padding: '3px 7px 1px', backgroundColor: '#F6F6F8'}}>
+                <div style={{color: 'rgba(0,0,0,.3)', fontSize: 12}}>Quick Access - Recent Locations</div>
+                <div style={{display:'flex', flexWrap:'wrap', paddingTop: 2}}>{TreeDialog.RecentPlaces.map( p => {
+                    const [ws, path] = p.split(":")
+                    let avatar;
+                    let tooltip = path;
+                    if(user && user.getRepositoriesList().has(ws)){
+                        // Show workspace letters
+                        const repo = user.getRepositoriesList().get(ws)
+                        avatar = <Avatar style={{fontSize: 12, height: 24, width: 24, fontWeight:500}}>{repo.getLettersBadge()}</Avatar>;
+                        tooltip = repo.getLabel() + path;
+                    }
+                    return <Chip
+                        style={{margin:'0 3px 4px 0'}}
+                        labelStyle={{lineHeight:'24px'}}
+                        title={tooltip}
+                        onClick={() => {
+                            submitValue(path, ws);
+                            this.dismiss();
+                        }}
+                    >{avatar}{path}</Chip>
+                })}</div>
+            </div>
+        )
+
+        return recentPlaces;
+    },
+
+    render(){
+        const {pydio} = this.props;
+        const {newFolderFormOpen, dataModel, newFolderInput} = this.state;
+
+        const wsSelector = this.buildWsSelector();
+        const recentPlaces = this.buildRecentLocations();
+
         return (
-            <div style={{width:'100%', paddingTop: 18}}>
+            <div style={{width:'100%'}}>
+                {recentPlaces}
                 {wsSelector}
-                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: '#f5f5f5', marginTop:4}}>
-                    <div style={{marginTop: -41, marginLeft: -21}}>
+                <Paper zDepth={0} style={{height: 300, overflowX:'auto', color: '#546E7A', fontSize: 14, padding: '6px 0px', backgroundColor: 'rgb(246, 246, 248)', marginTop:4, borderBottom:'1px solid #e0e0e0', borderRadius:'2px 2px 0 0'}}>
+                    <div style={{marginTop: -6, marginLeft: -5}}>
                         <FoldersTree
-                            pydio={this.props.pydio}
-                            dataModel={this.state.dataModel}
+                            pydio={pydio}
+                            dataModel={dataModel}
                             onNodeSelected={this.onNodeSelected}
                             showRoot={true}
                             draggable={false}
+                            rootLabel={"Top Folder"}
+                            getItemStyle={(node) => {
+                                if(dataModel.getContextNode() === node){
+                                    return {fontWeight: 500, backgroundColor:'#ebebef'}
+                                }
+                                return {}
+                            }}
+                            getRightIcon={(node) => {
+                                if(dataModel.getContextNode() === node){
+                                    return (<IconButton
+                                        iconClassName="mdi mdi-folder-plus"
+                                        style={{height:18, width:18, padding: 0, marginRight:-15}}
+                                        iconStyle={{opacity:.5, fontSize: 18}}
+                                        tooltip={pydio.MessageHash[154]}
+                                        tooltipPosition={"bottom-left"}
+                                        onClick={() => this.toggleNewFolderForm()}
+                                    />);
+                                }
+                                return null;
+                            }}
                         />
                     </div>
                 </Paper>
@@ -183,43 +299,33 @@ const TreeDialog = createReactClass({
                     className="bezier-transitions"
                     zDepth={0}
                     style={{
-                        display:'flex',
-                        alignItems:'baseline',
-                        height:newFolderFormOpen?50:0,
+                        position:'relative',
+                        height:newFolderFormOpen?60:0,
                         overflow:newFolderFormOpen ? 'visible':'hidden',
                         opacity:newFolderFormOpen ? 1:0,
                         padding: 0,
                         marginTop: newFolderFormOpen ? 0:4
                     }}
                 >
-                    <ModernTextField fullWidth={true} floatingLabelText={this.props.pydio.MessageHash[173]} ref="newfolder_input" style={{flex:1}}/>
-                    <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onClick={() => {this.createNewFolder() }}/>
-                    <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onClick={openNewFolderForm}/>
-                </Paper>
-                <div style={{display:'flex',alignItems:'center'}}>
                     <ModernTextField
-                        style={{flex:1,width:'100%', marginRight: 10}}
-                        floatingLabelText={this.props.pydio.MessageHash[373]}
-                        ref="input"
-                        value={this.state.selectedNode.getPath()}
-                        disabled={false}
-                        onChange={()=>{}}
+                        fullWidth={true}
+                        floatingLabelText={pydio.MessageHash[173]}
+                        ref="newfolder_input"
+                        variant={"v2"}
+                        value={newFolderInput}
+                        onChange={(e,v) => this.setState({newFolderInput: v})}
                     />
-                    {!newFolderFormOpen &&
-                        <IconButton
-                            iconClassName="mdi mdi-folder-plus"
-                            style={{height:38, width:38, padding: 6}}
-                            iconStyle={{color: '#546E7A', fontSize: 24}}
-                            tooltip={this.props.pydio.MessageHash[154]}
-                            tooltipPosition={"top-left"}
-                            onClick={openNewFolderForm}
-                        />
-                    }
-                </div>
+                    <div style={{position:"absolute", bottom:-2, right:0}}>
+                        <IconButton iconClassName="mdi mdi-check" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[48]} onClick={() => {this.createNewFolder() }}/>
+                        <IconButton iconClassName="mdi mdi-close" iconStyle={{color: '#546E7A'}} tooltip={this.props.pydio.MessageHash[49]} onClick={() => this.toggleNewFolderForm()}/>
+                    </div>
+                </Paper>
             </div>
         );
     }
 
 });
+
+TreeDialog.RecentPlaces = [];
 
 export {TreeDialog as default}

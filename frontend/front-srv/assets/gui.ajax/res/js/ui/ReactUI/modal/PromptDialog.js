@@ -125,6 +125,7 @@ export default createReactClass({
                     value={internalValue}
                     onChange={(e,v) => this.setState({internalValue: v})}
                     type={this.props.fieldType}
+                    variant={"v2"}
                     fullWidth={true}
                 />
             </div>

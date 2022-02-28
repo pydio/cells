@@ -185,7 +185,7 @@ var SimpleTreeNode = createReactClass({
     render: function () {
         const {node, dataModel, childrenOnly, canDrop, isOverCurrent,
             checkboxes, checkboxesComputeStatus, checkboxesValues, onCheckboxCheck,
-            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, forceLabel, showLoader, noPaginator} = this.props;
+            depth, paddingOffset, forceExpand, selectedItemStyle, getItemStyle, getRightIcon, forceLabel, showLoader, noPaginator} = this.props;
         const hasFolderChildrens = !!this.state.children.length;
         let hasChildren;
         if(hasFolderChildrens){
@@ -255,6 +255,10 @@ var SimpleTreeNode = createReactClass({
             if(getItemStyle){
                 itemStyle = {...itemStyle, ...getItemStyle(node)};
             }
+            let rightIcon;
+            if(getRightIcon) {
+                rightIcon = getRightIcon(node);
+            }
             let icon = 'mdi mdi-folder';
             const ajxpMime = node.getAjxpMime();
             if(ajxpMime === 'ajxp_browsable_archive'){
@@ -268,9 +272,13 @@ var SimpleTreeNode = createReactClass({
             }
             selfLabel = (
                 <ContextMenuWrapper node={node} className={'tree-item ' + isSelected + (boxes?' has-checkboxes':'')} style={itemStyle}>
-                    <div className="tree-item-label" onClick={this.onNodeSelect} title={node.getLabel()}
+                    <div className="tree-item-label" style={{display:'flex', alignItems: 'center'}} onClick={this.onNodeSelect} title={node.getLabel()}
                          data-id={node.getPath()}>
-                        {hasChildren}<span className={"tree-icon " + icon}></span>{forceLabel?forceLabel:node.getLabel()}{loader}
+                        {hasChildren}
+                        <span className={"tree-icon " + icon}/>
+                        <span style={{flex:1}}>{forceLabel?forceLabel:node.getLabel()}</span>
+                        {loader}
+                        {rightIcon}
                     </div>
                     {boxes}
                 </ContextMenuWrapper>
@@ -419,6 +427,7 @@ class DNDTreeView extends React.Component {
                     onCheckboxCheck={this.props.onCheckboxCheck}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
+                    getRightIcon={this.props.getRightIcon}
                     paddingOffset={this.props.paddingOffset}
                     noPaginator={this.props.noPaginator}
                     showLoader={this.props.showLoader}
@@ -481,6 +490,7 @@ class TreeView extends React.Component {
                     onCheckboxCheck={this.props.onCheckboxCheck}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
+                    getRightIcon={this.props.getRightIcon}
                     paddingOffset={this.props.paddingOffset}
                     showLoader={this.props.showLoader}
                 />
@@ -495,7 +505,8 @@ class FoldersTree extends React.Component {
         dataModel: PropTypes.instanceOf(PydioDataModel).isRequired,
         className: PropTypes.string,
         onNodeSelected: PropTypes.func,
-        draggable:PropTypes.bool
+        draggable:PropTypes.bool,
+        rootLabel: PropTypes.string
     };
 
     nodeObserver = () => {
@@ -540,7 +551,7 @@ class FoldersTree extends React.Component {
     render() {
         if(this.props.draggable){
             return (
-                <PydioComponents.DNDTreeView
+                <DNDTreeView
                     onNodeSelect={this.treeNodeSelected}
                     nodeIsSelected={this.nodeIsSelected}
                     dataModel={this.props.dataModel}
@@ -548,20 +559,24 @@ class FoldersTree extends React.Component {
                     showRoot={this.props.showRoot ? true : false}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
+                    getRightIcon={this.props.getRightIcon}
+                    rootLabel={this.props.rootLabel}
                     noPaginator={this.props.noPaginator}
                     className={"folders-tree" + (this.props.className ? ' '+this.props.className : '')}
                 />
             );
         }else{
             return (
-                <PydioComponents.TreeView
+                <TreeView
                     onNodeSelect={this.treeNodeSelected}
                     nodeIsSelected={this.nodeIsSelected}
                     dataModel={this.props.dataModel}
                     node={this.props.rootNode || this.props.dataModel.getRootNode()}
                     selectedItemStyle={this.props.selectedItemStyle}
                     getItemStyle={this.props.getItemStyle}
+                    getRightIcon={this.props.getRightIcon}
                     showRoot={this.props.showRoot ? true : false}
+                    rootLabel={this.props.rootLabel}
                     noPaginator={this.props.noPaginator}
                     className={"folders-tree" + (this.props.className ? ' '+this.props.className : '')}
                 />
