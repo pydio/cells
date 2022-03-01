@@ -337,7 +337,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 			ds, ok := s.DataSources[dsName]
 			if !ok {
-				return errors.BadRequest(common.ServiceTree, "Cannot find datasource client for ", dsName)
+				return errors.BadRequest(common.ServiceTree, "Cannot find datasource client for %s", dsName)
 			}
 			sendNode.Path = dsPath
 			streamer, err := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
