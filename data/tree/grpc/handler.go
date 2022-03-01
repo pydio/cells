@@ -335,7 +335,10 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 
 		if len(dsPath) > 0 {
 
-			ds := s.DataSources[dsName]
+			ds, ok := s.DataSources[dsName]
+			if !ok {
+				return errors.BadRequest(common.ServiceTree, "Cannot find datasource client for ", dsName)
+			}
 			sendNode.Path = dsPath
 			streamer, err := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
 				Node:      sendNode,
@@ -469,8 +472,6 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			log.Logger(ctx).Error("ListNodesWithLimit", zap.Error(err))
 			return err
 		}
-		defer stream.CloseSend()
-
 		for {
 			clientResponse, err := stream.Recv()
 
@@ -518,7 +519,6 @@ func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
 	if er != nil {
 		return 0, er
 	}
-	defer st.CloseSend()
 	var size int64
 	for {
 		if r, e := st.Recv(); e != nil {

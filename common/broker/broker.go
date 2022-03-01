@@ -23,6 +23,7 @@ package broker
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"runtime/debug"
 	"sync"
@@ -60,16 +61,32 @@ type SubscriberHandler func(Message) error
 // NewBroker wraps a standard broker but prevents it from disconnecting while there still is a service running
 func NewBroker(s string, opts ...Option) Broker {
 	options := newOptions(opts...)
+	u, _ := url.Parse(s)
+	scheme := u.Scheme
 
 	return &broker{
-		publishOpener: func(topic string) (*pubsub.Topic, error) {
-			return pubsub.OpenTopic(options.Context, s+"/"+topic)
+		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {
+			return pubsub.OpenTopic(ctx, s+"/"+topic)
 		},
-		subscribeOpener: func(topic string) (*pubsub.Subscription, error) {
-			return pubsub.OpenSubscription(options.Context, s+"/"+topic)
+		subscribeOpener: func(topic string, oo ...SubscribeOption) (*pubsub.Subscription, error) {
+			// Handle queue for grpc vs. nats vs memory
+			op := &SubscribeOptions{Context: options.Context}
+			for _, o := range oo {
+				o(op)
+			}
+			ctx := op.Context
+			if op.Queue != "" {
+				switch scheme {
+				case "nats", "grpc":
+					topic += "?queue=" + op.Queue
+				default:
+				}
+			}
+
+			return pubsub.OpenSubscription(ctx, s+"/"+topic)
 		},
 		publishers: make(map[string]*pubsub.Topic),
-		Options:    newOptions(opts...),
+		Options:    options,
 	}
 }
 
@@ -119,8 +136,8 @@ type broker struct {
 	Options
 }
 
-type TopicOpener func(string) (*pubsub.Topic, error)
-type SubscribeOpener func(string) (*pubsub.Subscription, error)
+type TopicOpener func(context.Context, string) (*pubsub.Topic, error)
+type SubscribeOpener func(string, ...SubscribeOption) (*pubsub.Subscription, error)
 
 func (b *broker) openTopic(topic string) (*pubsub.Topic, error) {
 	b.Lock()
@@ -128,7 +145,7 @@ func (b *broker) openTopic(topic string) (*pubsub.Topic, error) {
 	publisher, ok := b.publishers[topic]
 	if !ok {
 		var err error
-		publisher, err = b.publishOpener(topic)
+		publisher, err = b.publishOpener(b.Options.Context, topic)
 		if err != nil {
 			return nil, err
 		}
@@ -184,22 +201,11 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 }
 
 func (b *broker) Subscribe(ctx context.Context, topic string, handler SubscriberHandler, opts ...SubscribeOption) (UnSubscriber, error) {
-	so := &SubscribeOptions{}
+	so := &SubscribeOptions{
+		Context: b.Options.Context,
+	}
 	for _, o := range opts {
 		o(so)
-	}
-	var mopts []SubscribeOption
-	if so.Context != nil {
-		mopts = append(mopts, SubscribeContext(so.Context))
-	}
-	// todo v4
-	if so.Queue != "" {
-		mopts = append(mopts, Queue(so.Queue))
-	}
-	if so.ErrorHandler != nil {
-		mopts = append(mopts, HandleError(func(err error) {
-			so.ErrorHandler(err)
-		}))
 	}
 
 	// Making sure topic is opened
@@ -208,7 +214,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 		return nil, err
 	}
 
-	sub, err := b.subscribeOpener(topic)
+	sub, err := b.subscribeOpener(topic, opts...)
 	if err != nil {
 		return nil, err
 	}

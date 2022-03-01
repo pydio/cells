@@ -32,20 +32,46 @@ import (
 
 var (
 	publishers  = make(map[string]pb.Broker_PublishClient)
-	subscribers = make(map[string]*subscriber)
+	subscribers = make(map[string]*sharedSubscriber)
+	subLock     sync.Mutex
 )
 
-type subscriber struct {
+type sharedSubscriber struct {
 	pb.Broker_SubscribeClient
-	out map[string]*subscriptionReceiver
+	cancel context.CancelFunc
+	host   string
+	out    map[string]chan []*pb.Message
+	sync.RWMutex
 }
 
-type subscriptionReceiver struct {
-	ch chan (*pb.SubscribeResponse)
+func (s *sharedSubscriber) Dispatch() {
+	for {
+		resp, err := s.Recv()
+		if err != nil {
+			return
+		}
+		s.RLock()
+		if ch, ok := s.out[resp.Id]; ok {
+			ch <- resp.Messages
+		}
+		s.RUnlock()
+	}
 }
 
-func (s *subscriptionReceiver) Recv() (*pb.SubscribeResponse, error) {
-	return <-s.ch, nil
+func (s *sharedSubscriber) Subscribe(subId string, ch chan []*pb.Message) {
+	s.Lock()
+	defer s.Unlock()
+	s.out[subId] = ch
+}
+
+func (s *sharedSubscriber) Unsubscribe(subId string) {
+	s.Lock()
+	defer s.Unlock()
+	delete(s.out, subId)
+	if len(s.out) == 0 && s.cancel != nil {
+		s.cancel()
+		delete(subscribers, s.host)
+	}
 }
 
 func init() {
@@ -89,73 +115,35 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 
 // OpenSubscriptionURL opens a pubsub.Subscription based on u.
 func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsub.Subscription, error) {
-	//q := u.Query()
-	//
-	//ackDeadline := 1 * time.Minute
-	//if s := q.Get("ackdeadline"); s != "" {
-	//	var err error
-	//	ackDeadline, err = time.ParseDuration(s)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("open subscription %v: invalid ackdeadline %q: %v", u, s, err)
-	//	}
-	//	q.Del("ackdeadline")
-	//}
-	//for param := range q {
-	//	return nil, fmt.Errorf("open subscription %v: invalid query parameter %q", u, param)
-	//}
 
 	topicName := u.Path
+	queue := u.Query().Get("queue")
 
-	return NewSubscription(topicName, WithContext(ctx) /*, WithSubscriber(sub)*/)
+	//return NewSubscription(topicName, WithContext(ctx))
 
-	/*
-		// TODO V4 - Not working yet (see below), and in fact opening a double connection !
-
-		sub, ok := subscribers[u.Host]
-		if !ok {
-			conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
-			cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
-			if err != nil {
-				return nil, err
-			}
-
-			sub = new(subscriber)
-			sub.Broker_SubscribeClient = cli
-			sub.out = make(map[string]*subscriptionReceiver)
-
-			subscribers[u.Host] = sub
-
-			go func() {
-				for {
-					resp, err := cli.Recv()
-					if err != nil {
-						return
-					}
-
-					for subId, sub := range subscribers[u.Host].out {
-						if subId == resp.Id {
-							sub.ch <- resp
-						}
-					}
-				}
-			}()
-		}
-
-		subId := uuid.New()
-		req := &pb.SubscribeRequest{Id: subId, Topic: topicName}
-		if err := sub.Broker_SubscribeClient.Send(req); err != nil {
+	subLock.Lock()
+	sub, ok := subscribers[u.Host]
+	if !ok {
+		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
+		ct, ca := context.WithCancel(ctx)
+		cli, err := pb.NewBrokerClient(conn).Subscribe(ct)
+		if err != nil {
+			ca()
 			return nil, err
 		}
-
-		subReceiver := &subscriptionReceiver{
-			ch: make(chan *pb.SubscribeResponse),
+		sub = &sharedSubscriber{
+			Broker_SubscribeClient: cli,
+			host:                   u.Host,
+			cancel:                 ca,
+			out:                    make(map[string]chan []*pb.Message),
 		}
+		subscribers[u.Host] = sub
+		go sub.Dispatch()
+	}
+	subLock.Unlock()
 
-		sub.out[subId] = subReceiver
+	return NewSubscription(topicName, WithQueue(queue), WithContext(ctx), WithSubscriber(sub))
 
-		return NewSubscription(topicName, WithContext(ctx), WithSubscriber(sub))
-
-	*/
 }
 
 var errNotExist = errors.New("cellspubsub: topic does not exist")
@@ -283,7 +271,8 @@ func (*topic) ErrorCode(err error) gcerrors.ErrorCode {
 func (*topic) Close() error { return nil }
 
 type subscription struct {
-	in chan []*pb.Message
+	in     chan []*pb.Message
+	closer func() error
 }
 
 // NewSubscription returns a *pubsub.Subscription representing a NATS subscription or NATS queue subscription.
@@ -300,27 +289,41 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 		ctx = context.Background()
 	}
 
-	// extract the client from the context, fallback to grpc
+	subId := uuid.New()
+
+	// extract the client from the context
 	var ch chan []*pb.Message
+	var cli pb.Broker_SubscribeClient
+	var closer func() error
+
 	if ctx != nil {
 		if v := ctx.Value(subscriberKey{}); v != nil {
-			// TODO V4 : Not working, we currently pass a Subscriber via the WithSubscriber option, not a chan[]*pb.Message
-			if c, ok := v.(chan []*pb.Message); ok {
-				ch = c
+			if c, ok := v.(*sharedSubscriber); ok {
+				ch = make(chan []*pb.Message)
+				cli = c
+				c.Subscribe(subId, ch)
+				closer = func() error {
+					c.Unsubscribe(subId)
+					return nil
+				}
 			}
 		}
 	}
 
-	if ch == nil {
+	if cli == nil {
 		ch = make(chan []*pb.Message)
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
-		// req := &pb.SubscribeRequest{Topic: path, Queue: options.Queue}
-		cli, err := pb.NewBrokerClient(conn).Subscribe(ctx)
+		var err error
+		ct, ca := context.WithCancel(ctx)
+		cli, err = pb.NewBrokerClient(conn).Subscribe(ct)
 		if err != nil {
+			ca()
 			return nil, err
 		}
-
-		subId := uuid.New()
+		closer = func() error {
+			ca()
+			return nil
+		}
 
 		go func() {
 			for {
@@ -335,14 +338,20 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 			}
 		}()
 
-		req := &pb.SubscribeRequest{Id: subId, Topic: path}
-		if err := cli.Send(req); err != nil {
-			return nil, err
-		}
+	}
+
+	req := &pb.SubscribeRequest{
+		Id:    subId,
+		Topic: path,
+		Queue: options.Queue,
+	}
+	if err := cli.Send(req); err != nil {
+		return nil, err
 	}
 
 	return pubsub.NewSubscription(&subscription{
-		in: ch,
+		in:     ch,
+		closer: closer,
 	}, nil, nil), nil
 }
 
@@ -401,4 +410,9 @@ func (*subscription) ErrorCode(err error) gcerrors.ErrorCode {
 }
 
 // Close implements driver.Subscription.Close.
-func (*subscription) Close() error { return nil }
+func (s *subscription) Close() error {
+	if s.closer == nil {
+		return nil
+	}
+	return s.closer()
+}

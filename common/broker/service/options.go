@@ -62,8 +62,8 @@ func WithPublisher(pub Publisher) Option {
 	}
 }
 
-// WithSubscriber sets the RPC client
-func WithSubscriber(sub Subscriber) Option {
+// WithSubscriber sets the client
+func WithSubscriber(sub interface{}) Option {
 	return func(o *Options) {
 		if o.Context == nil {
 			o.Context = context.Background()

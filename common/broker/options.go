@@ -93,7 +93,7 @@ func NewSubscribeOptions(opts ...SubscribeOption) SubscribeOptions {
 	return opt
 }
 
-// ErrorHandler will catch all broker errors that cant be handled
+// HandleError sets an ErrorHandler to catch all broker errors that cant be handled
 // in normal way, for example Codec errors
 func HandleError(h func(error)) SubscribeOption {
 	return func(o *SubscribeOptions) {
