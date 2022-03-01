@@ -28,9 +28,9 @@ func TestServiceBroker(t *testing.T) {
 		numMessagesToSend := 1000
 		numMessagesReceived := 0
 
-		subscription, _ := NewSubscription("test")
-
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+		subscription, _ := NewSubscription("test", WithContext(ctx))
 
 		go func() {
 			defer cancel()
