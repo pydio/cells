@@ -63,6 +63,11 @@ func NewBroker(s string, opts ...Option) Broker {
 	options := newOptions(opts...)
 	u, _ := url.Parse(s)
 	scheme := u.Scheme
+	if scheme == "nats" && u.Host != "" {
+		// Replace nats://:port by env + nats://
+		_ = os.Setenv("NATS_SERVER_URL", u.Host)
+		s = "nats://"
+	}
 
 	return &broker{
 		publishOpener: func(ctx context.Context, topic string) (*pubsub.Topic, error) {

@@ -56,7 +56,7 @@ func ProcessesAsTargets(ctx context.Context, reg registry.Registry) *PromTargets
 	for _, g := range processes {
 		t.groups = append(t.groups, g)
 	}
-	log.Logger(ctx).Info("Updating Prometheus Targets", zap.Int("targets", len(t.groups)))
+	log.Logger(ctx).Debug("Updating Prometheus Targets", zap.Int("targets", len(t.groups)))
 	return t
 
 }
