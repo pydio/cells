@@ -73,7 +73,7 @@ type ClientsPool struct {
 	ctx context.Context
 	id  int
 
-	sync.Mutex
+	sync.RWMutex
 	sources map[string]LoadedSource
 	aliases map[string]sourceAlias
 
@@ -176,7 +176,11 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 		dsName = config.Get("defaults", "datasource").Default("default").String()
 	}
 
-	if cl, ok := p.sources[dsName]; ok {
+	p.RLock()
+	cl, ok := p.sources[dsName]
+	p.RUnlock()
+
+	if ok {
 
 		return cl, nil
 
@@ -214,9 +218,11 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 
 		e := fmt.Errorf("Could not find DataSource " + dsName)
 		var keys []string
+		p.RLock()
 		for k := range p.sources {
 			keys = append(keys, k)
 		}
+		p.RUnlock()
 		log.Logger(context.Background()).Error(e.Error(), zap.Strings("currentSources", keys))
 		return LoadedSource{}, e
 
@@ -225,8 +231,15 @@ func (p *ClientsPool) GetDataSourceInfo(dsName string, retries ...int) (LoadedSo
 }
 
 // GetDataSources returns currently loaded datasources
-func (p *ClientsPool) GetDataSources() map[string]LoadedSource {
-	return p.sources
+func (p *ClientsPool) GetDataSources() (out map[string]LoadedSource) {
+	// Create a copy
+	out = make(map[string]LoadedSource)
+	p.RLock()
+	for k, v := range p.sources {
+		out[k] = v
+	}
+	p.RUnlock()
+	return
 }
 
 // LoadDataSources queries the registry to reload available datasources
@@ -310,11 +323,11 @@ func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
 			}
 			hasSync = true
 			dsName := strings.TrimPrefix(s.Name(), prefix)
+			p.Lock()
 			if _, ok := p.sources[dsName]; ok && r.Action() == pb.ActionType_DELETE {
-				p.Lock()
 				delete(p.sources, dsName)
-				p.Unlock()
 			}
+			p.Unlock()
 		}
 		if hasSync {
 			p.reload <- true
