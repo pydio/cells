@@ -63,7 +63,6 @@ func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects c
 		if e != nil {
 			return e
 		}
-		defer s.CloseSend()
 		for {
 			resp, e := s.Recv()
 			if e != nil {
@@ -79,7 +78,6 @@ func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects c
 		if s, e := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: query}); e != nil {
 			return e
 		} else {
-			defer s.CloseSend()
 			for {
 				resp, er := s.Recv()
 				if er != nil {
@@ -96,7 +94,6 @@ func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects c
 		if s, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query}); e != nil {
 			return e
 		} else {
-			defer s.CloseSend()
 			for {
 				resp, er := s.Recv()
 				if er != nil {
@@ -113,7 +110,6 @@ func (m *IdmSelector) Select(ctx context.Context, input ActionMessage, objects c
 		if s, e := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: query}); e != nil {
 			return e
 		} else {
-			defer s.CloseSend()
 			for {
 				resp, er := s.Recv()
 				if er != nil {
@@ -352,11 +348,12 @@ func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Works
 	}
 	wsClient := idm.NewWorkspaceServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceWorkspace))
 	q, _ := anypb.New(&idm.WorkspaceSingleQuery{Uuid: wsUuid})
-	r, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	r, e := wsClient.SearchWorkspace(ct, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*anypb.Any{q}}})
 	if e != nil {
 		return nil, false
 	}
-	defer r.CloseSend()
 	for {
 		resp, er := r.Recv()
 		if er != nil {

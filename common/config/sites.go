@@ -101,12 +101,12 @@ func LoadSites(configOnly ...bool) ([]*install.ProxyConfig, error) {
 // SaveSites saves a list of sites inside configuration
 func SaveSites(sites []*install.ProxyConfig, user, msg string) error {
 
-	Set(sites, configx.FormatPath("defaults", "sites"))
-	e := Save(user, msg)
-	if e != nil {
+	if e := Set(sites, configx.FormatPath("defaults", "sites")); e != nil {
 		return e
 	}
-	//ResetTlsConfigs()
+	if e := Save(user, msg); e != nil {
+		return e
+	}
 	return nil
 
 }
@@ -128,7 +128,7 @@ func EnvOverrideDefaultBind() bool {
 	}
 	if noTls := viper.GetBool("no_tls"); noTls {
 		DefaultBindingSite.TLSConfig = nil
-	} else if tlsCert, tlsKey := viper.GetString("tls_cert_file"), viper.GetString("tls_cert_key"); tlsCert != "" && tlsKey != "" {
+	} else if tlsCert, tlsKey := viper.GetString("tls_cert_file"), viper.GetString("tls_key_file"); tlsCert != "" && tlsKey != "" {
 		DefaultBindingSite.TLSConfig = &install.ProxyConfig_Certificate{Certificate: &install.TLSCertificate{
 			CertFile: tlsCert,
 			KeyFile:  tlsKey,
@@ -156,7 +156,7 @@ func DefaultBindOverrideToFlags() (flags []string) {
 	}
 	if noTls := viper.GetBool("no_tls"); noTls {
 		flags = append(flags, "--no_tls")
-	} else if tlsCert, tlsKey := viper.GetString("tls_cert_file"), viper.GetString("tls_cert_key"); tlsCert != "" && tlsKey != "" {
+	} else if tlsCert, tlsKey := viper.GetString("tls_cert_file"), viper.GetString("tls_key_file"); tlsCert != "" && tlsKey != "" {
 		flags = append(flags, "--tls_cert_file", tlsCert)
 		flags = append(flags, "--tls_key_file", tlsKey)
 	} else if leEmail, leAgree := viper.GetString("le_email"), viper.GetBool("le_agree"); leEmail != "" && leAgree {
