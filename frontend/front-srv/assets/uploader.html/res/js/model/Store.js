@@ -66,7 +66,9 @@ class Store extends Observable{
     }
 
     makeStatusString(item){
-        return Pydio.getMessages()['html_uploader.status.' + (item.getType()==='file'?'file':'dir')+'.' + item.getStatus()]
+        const key = 'html_uploader.status.' + (item.getType()==='file'?'file':'dir')+'.' + item.getStatus()
+        // Display missing key
+        return Pydio.getMessages()[key] || key
     }
 
     createNode(item, path){
