@@ -112,6 +112,14 @@ func (c *Client) StatObject(ctx context.Context, bucketName, objectName string, 
 
 func (c *Client) PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64,
 	opts models.PutMeta) (n int64, err error) {
+	if objectSize < 0 {
+		ui, er := c.mc.Client.PutObject(ctx, bucketName, objectName, reader, objectSize, putMetaToMinioOpts(opts))
+		if er != nil {
+			return 0, er
+		} else {
+			return ui.Size, er
+		}
+	}
 	ui, e := c.mc.PutObject(ctx, bucketName, objectName, reader, objectSize, "", "", putMetaToMinioOpts(opts))
 	if e != nil {
 		return 0, e

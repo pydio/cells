@@ -76,7 +76,7 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 	if !ok {
 		return balancer.PickResult{}, balancer.ErrNoSubConnAvailable
 	}
-	if val := i.Ctx.Value(ctxSubconnSelectorKey); val != nil {
+	if val := i.Ctx.Value(ctxSubconnSelectorKey{}); val != nil {
 		selector := val.(subConnInfoFilter)
 		fmt.Println("Found a subConnInfo selector in context!", selector)
 	}

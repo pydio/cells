@@ -8,6 +8,7 @@ import (
 	"net/http/pprof"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/spf13/viper"
@@ -25,6 +26,7 @@ import (
 var (
 	watcher  registry.Watcher
 	canceler context.CancelFunc
+	once     sync.Once
 )
 
 func init() {
@@ -32,27 +34,29 @@ func init() {
 }
 
 func exposeMetrics() {
-	if viper.GetBool("enable_metrics") {
-		r := prometheus.NewReporter(prometheus.Options{})
-		options := tally.ScopeOptions{
-			Prefix:         "cells",
-			Tags:           map[string]string{},
-			CachedReporter: r,
-			Separator:      prometheus.DefaultSeparator,
-		}
-		port := net.GetAvailablePort()
-		metrics.RegisterRootScope(options, port)
-		go func() {
-			defer metrics.Close()
-			http.Handle("/metrics", r.HTTPHandler())
-			if viper.GetBool("enable_pprof") {
-				fmt.Printf("Exposing debug profiles for process %d on port %d\n", os.Getpid(), port)
-				http.Handle("/debug", pprof.Handler("debug"))
+	once.Do(func() {
+		if viper.GetBool("enable_metrics") {
+			r := prometheus.NewReporter(prometheus.Options{})
+			options := tally.ScopeOptions{
+				Prefix:         "cells",
+				Tags:           map[string]string{},
+				CachedReporter: r,
+				Separator:      prometheus.DefaultSeparator,
 			}
-			_ = http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
-			select {}
-		}()
-	}
+			port := net.GetAvailablePort()
+			metrics.RegisterRootScope(options, port)
+			go func() {
+				defer metrics.Close()
+				http.Handle("/metrics", r.HTTPHandler())
+				if viper.GetBool("enable_pprof") {
+					fmt.Printf("Exposing debug profiles for process %d on port %d\n", os.Getpid(), port)
+					http.Handle("/debug", pprof.Handler("debug"))
+				}
+				_ = http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
+				select {}
+			}()
+		}
+	})
 }
 
 func GetFileName(serviceName string) string {

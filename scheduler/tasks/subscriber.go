@@ -54,9 +54,10 @@ const (
 )
 
 var (
-	PubSub                  *pubsub.PubSub
-	ContextJobParametersKey = struct{}{}
+	PubSub *pubsub.PubSub
 )
+
+type ContextJobParametersKey struct{}
 
 // Subscriber handles incoming events, applies selectors if any
 // and generates all ActionMessage to trigger actions
@@ -277,7 +278,7 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 				}
 			}
 		}
-		ctx = context.WithValue(ctx, ContextJobParametersKey, params)
+		ctx = context.WithValue(ctx, ContextJobParametersKey{}, params)
 	}
 
 	return ctx

@@ -25,9 +25,10 @@ import (
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
+type ctxSubconnSelectorKey struct{}
+
 var (
-	mox                   = map[string]grpc.ClientConnInterface{}
-	ctxSubconnSelectorKey = struct{}{}
+	mox = map[string]grpc.ClientConnInterface{}
 
 	CallTimeoutDefault = 10 * time.Minute
 	CallTimeoutShort   = 1 * time.Second
@@ -116,7 +117,7 @@ func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)
 	}
 	if cc.subConnSelector != nil {
-		ctx = context.WithValue(ctx, ctxSubconnSelectorKey, cc.subConnSelector)
+		ctx = context.WithValue(ctx, ctxSubconnSelectorKey{}, cc.subConnSelector)
 	}
 	er := cc.ClientConnInterface.Invoke(ctx, method, args, reply, opts...)
 	if er != nil && cancel != nil {
@@ -139,7 +140,7 @@ func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		ctx, cancel = context.WithTimeout(ctx, cc.callTimeout)
 	}
 	if cc.subConnSelector != nil {
-		ctx = context.WithValue(ctx, ctxSubconnSelectorKey, cc.subConnSelector)
+		ctx = context.WithValue(ctx, ctxSubconnSelectorKey{}, cc.subConnSelector)
 	}
 
 	s, e := cc.ClientConnInterface.NewStream(ctx, desc, method, opts...)
