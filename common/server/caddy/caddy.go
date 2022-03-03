@@ -78,6 +78,13 @@ const (
 	{{if .TLS}}tls {{.TLS}}{{end}}
 	{{if .TLSCert}}tls "{{.TLSCert}}" "{{.TLSKey}}"{{end}}
 }
+{{if .SSLRedirect}}
+{{range $k,$v := .Redirects}}
+{{$k}} {
+	redir {{$v}}
+}
+{{end}}
+{{end}}
 {{end}}
 	 `
 )
@@ -93,9 +100,9 @@ type Server struct {
 	restartRequired bool
 	watchDone       chan struct{}
 
-	addresses []string
+	addresses         []string
 	externalAddresses []string
-	Confs     []byte
+	Confs             []byte
 }
 
 func New(ctx context.Context, dir string) (server.Server, error) {
