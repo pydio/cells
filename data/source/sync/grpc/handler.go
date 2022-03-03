@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"math"
 	"strconv"
 	"strings"
@@ -501,6 +502,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 		doneChan = make(chan interface{})
 
 		subCtx := metadata.WithUserNameMetadata(context.Background(), common.PydioSystemUsername)
+		subCtx = clientcontext.WithClientConn(subCtx, clientcontext.GetClientConn(c))
+		subCtx = servicecontext.WithServiceName(subCtx, servicecontext.GetServiceName(c))
+
 		theTask := req.Task
 		autoClient := tasks.NewTaskReconnectingClient(subCtx)
 		taskChan := make(chan interface{}, 1000)

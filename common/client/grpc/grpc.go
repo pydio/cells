@@ -59,6 +59,7 @@ func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option
 	conn := clientcontext.GetClientConn(ctx)
 	if conn == nil {
 		fmt.Println("Warning, GetClientConnFromCtx could not find conn, will create a new one")
+		debug.PrintStack()
 	}
 	reg := servercontext.GetRegistry(ctx)
 	opt = append(opt, WithClientConn(conn))
