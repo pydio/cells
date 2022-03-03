@@ -69,7 +69,7 @@ func (h *Handler) PostActivity(stream proto.ActivityService_PostActivityServer) 
 		default:
 			return fmt.Errorf("unrecognized box name")
 		}
-		if e := h.dao.PostActivity(request.OwnerType, request.OwnerId, boxName, request.Activity, ctx); e != nil {
+		if e := h.dao.PostActivity(ctx, request.OwnerType, request.OwnerId, boxName, request.Activity, true); e != nil {
 			return e
 		}
 	}
@@ -134,14 +134,14 @@ func (h *Handler) StreamActivities(request *proto.StreamActivitiesRequest, strea
 	}
 
 	if request.Context == proto.StreamContext_NODE_ID {
-		h.dao.ActivitiesFor(proto.OwnerType_NODE, request.ContextData, boxName, "", request.Offset, request.Limit, result, done)
+		h.dao.ActivitiesFor(nil, proto.OwnerType_NODE, request.ContextData, boxName, "", request.Offset, request.Limit, result, done)
 		wg.Wait()
 	} else if request.Context == proto.StreamContext_USER_ID {
 		var refBoxOffset activity.BoxName
 		if request.AsDigest {
 			refBoxOffset = activity.BoxLastSent
 		}
-		h.dao.ActivitiesFor(proto.OwnerType_USER, request.ContextData, boxName, refBoxOffset, request.Offset, request.Limit, result, done)
+		h.dao.ActivitiesFor(nil, proto.OwnerType_USER, request.ContextData, boxName, refBoxOffset, request.Offset, request.Limit, result, done)
 		wg.Wait()
 	}
 
@@ -150,7 +150,7 @@ func (h *Handler) StreamActivities(request *proto.StreamActivitiesRequest, strea
 
 func (h *Handler) Subscribe(ctx context.Context, request *proto.SubscribeRequest) (*proto.SubscribeResponse, error) {
 
-	if e := h.dao.UpdateSubscription(request.Subscription); e != nil {
+	if e := h.dao.UpdateSubscription(nil, request.Subscription); e != nil {
 		return nil, e
 	}
 	return &proto.SubscribeResponse{
@@ -169,7 +169,7 @@ func (h *Handler) SearchSubscriptions(request *proto.SearchSubscriptionsRequest,
 	if len(request.UserIds) > 0 {
 		userId = request.UserIds[0]
 	}
-	users, err := h.dao.ListSubscriptions(objectType, request.ObjectIds)
+	users, err := h.dao.ListSubscriptions(nil, objectType, request.ObjectIds)
 	if err != nil {
 		return err
 	}
@@ -189,7 +189,7 @@ func (h *Handler) SearchSubscriptions(request *proto.SearchSubscriptionsRequest,
 
 func (h *Handler) UnreadActivitiesNumber(ctx context.Context, request *proto.UnreadActivitiesRequest) (*proto.UnreadActivitiesResponse, error) {
 
-	number := h.dao.CountUnreadForUser(request.UserId)
+	number := h.dao.CountUnreadForUser(nil, request.UserId)
 	return &proto.UnreadActivitiesResponse{
 		Number: int32(number),
 	}, nil
@@ -207,7 +207,7 @@ func (h *Handler) SetUserLastActivity(ctx context.Context, request *proto.UserLa
 		return nil, fmt.Errorf("invalid box name")
 	}
 
-	if err := h.dao.StoreLastUserInbox(request.UserId, boxName, request.ActivityId); err == nil {
+	if err := h.dao.StoreLastUserInbox(nil, request.UserId, boxName, request.ActivityId); err == nil {
 		return &proto.UserLastActivityResponse{Success: true}, nil
 	} else {
 		return nil, err
@@ -231,7 +231,7 @@ func (h *Handler) PurgeActivities(ctx context.Context, request *proto.PurgeActiv
 		updated = time.Unix(int64(request.UpdatedBeforeTimestamp), 0)
 	}
 
-	e := h.dao.Purge(logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated, request.CompactDB, request.ClearBackups)
+	e := h.dao.Purge(nil, logger, request.OwnerType, request.OwnerID, activity.BoxName(request.BoxName), int(request.MinCount), int(request.MaxCount), updated, request.CompactDB, request.ClearBackups)
 	return &proto.PurgeActivitiesResponse{
 		Success:      true,
 		DeletedCount: count,

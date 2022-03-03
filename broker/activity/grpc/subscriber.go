@@ -152,22 +152,22 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	//
 	log.Logger(ctx).Debug("Posting Activity to node outbox")
 	if msg.Type == tree.NodeChangeEvent_DELETE {
-		e.dao.Delete(activity2.OwnerType_NODE, node.Uuid)
+		e.dao.Delete(nil, activity2.OwnerType_NODE, node.Uuid)
 	} else {
-		e.dao.PostActivity(activity2.OwnerType_NODE, node.Uuid, activity.BoxOutbox, ac, nil)
+		e.dao.PostActivity(ctx, activity2.OwnerType_NODE, node.Uuid, activity.BoxOutbox, ac, false)
 	}
 
 	//
 	// Post to the author Outbox
 	//
 	log.Logger(ctx).Debug("Posting Activity to author outbox")
-	e.dao.PostActivity(activity2.OwnerType_USER, author, activity.BoxOutbox, ac, ctx)
+	e.dao.PostActivity(ctx, activity2.OwnerType_USER, author, activity.BoxOutbox, ac, true)
 
 	//
 	// Post to parents Outbox'es as well
 	//
 	for _, uuid := range parentUuids {
-		e.dao.PostActivity(activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac, nil)
+		e.dao.PostActivity(ctx, activity2.OwnerType_NODE, uuid, activity.BoxOutbox, ac, false)
 	}
 
 	//
@@ -177,7 +177,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	if msg.Type != tree.NodeChangeEvent_CREATE {
 		subUuids = append(subUuids, node.Uuid)
 	}
-	subscriptions, err := e.dao.ListSubscriptions(activity2.OwnerType_NODE, subUuids)
+	subscriptions, err := e.dao.ListSubscriptions(nil, activity2.OwnerType_NODE, subUuids)
 	log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Int("subs length", len(subscriptions)))
 	if err != nil {
 		return err
@@ -215,7 +215,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 			continue
 		}
 		if accessList.CanReadWithResolver(userCtx, e.vNodeResolver, ancestors...) {
-			e.dao.PostActivity(activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, ctx)
+			e.dao.PostActivity(ctx, activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, true)
 		}
 	}
 
@@ -239,7 +239,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 		// Clear activity for deleted user
 		ctx = servicecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
-		go e.dao.Delete(activity2.OwnerType_USER, msg.User.Login)
+		go e.dao.Delete(nil, activity2.OwnerType_USER, msg.User.Login)
 	}
 
 	return nil
@@ -346,17 +346,20 @@ func (e *MicroEventsSubscriber) ProcessBuffer(cE ...*idm.ChangeEvent) {
 		sourceUser := users[r.Attributes["user"]]
 		targetRole := roles[r.Acl.RoleID]
 		if targetRole.Uuid == "" || !targetRole.UserRole || targetRole.Uuid == sourceUser.Uuid {
-			//log.Logger(context.Background()).Info("Ignoring event", zap.Any("e", r))
 			continue
 		}
 		if targetUser, ok := users[targetRole.Uuid]; ok {
 			ac := activity.AclActivity(sourceUser.Login, workspaces[r.Acl.WorkspaceID], r.Acl.Action.Name)
-			log.Logger(context.Background()).Debug("Publishing Activity", zap.String("targetUser", targetUser.Login), zap.Any("a", ac))
+			log.Logger(e.RuntimeCtx).Debug("Publishing Activity", zap.String("targetUser", targetUser.Login), zap.Any("a", ac))
 			// Post to target User Inbox
-			e.dao.PostActivity(activity2.OwnerType_USER, targetUser.Login, activity.BoxInbox, ac, ctx)
+			if er := e.dao.PostActivity(ctx, activity2.OwnerType_USER, targetUser.Login, activity.BoxInbox, ac, true); er != nil {
+				log.Logger(e.RuntimeCtx).Error("Failed publishing activity to user "+targetUser.Login+"'s inbox", zap.Error(er))
+			}
 			if workspaces[r.Acl.WorkspaceID].Scope == idm.WorkspaceScope_ROOM {
 				// Post to node Outbox
-				e.dao.PostActivity(activity2.OwnerType_NODE, r.Acl.NodeID, activity.BoxOutbox, ac, nil)
+				if er := e.dao.PostActivity(ctx, activity2.OwnerType_NODE, r.Acl.NodeID, activity.BoxOutbox, ac, false); er != nil {
+					log.Logger(e.RuntimeCtx).Error("Failed publishing activity to node outbox", zap.Error(er))
+				}
 			}
 		}
 	}

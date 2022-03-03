@@ -137,7 +137,7 @@ func (dao *boltdbimpl) BatchPost(aa []*batchActivity) error {
 	})
 }
 
-func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error {
+func (dao *boltdbimpl) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
 
 	err := dao.DB().Update(func(tx *bolt.Tx) error {
 
@@ -155,8 +155,8 @@ func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string
 		return bucket.Put(k, jsonData)
 
 	})
-	if err == nil && publishCtx != nil {
-		broker.MustPublish(publishCtx, common.TopicActivityEvent, &activity.PostActivityEvent{
+	if err == nil && publish {
+		broker.MustPublish(ctx, common.TopicActivityEvent, &activity.PostActivityEvent{
 			OwnerType: ownerType,
 			OwnerId:   ownerId,
 			BoxName:   string(boxName),
@@ -167,7 +167,7 @@ func (dao *boltdbimpl) PostActivity(ownerType activity.OwnerType, ownerId string
 
 }
 
-func (dao *boltdbimpl) UpdateSubscription(subscription *activity.Subscription) error {
+func (dao *boltdbimpl) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 
 	err := dao.DB().Update(func(tx *bolt.Tx) error {
 
@@ -187,7 +187,7 @@ func (dao *boltdbimpl) UpdateSubscription(subscription *activity.Subscription) e
 	return err
 }
 
-func (dao *boltdbimpl) ListSubscriptions(objectType activity.OwnerType, objectIds []string) (subs []*activity.Subscription, err error) {
+func (dao *boltdbimpl) ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) (subs []*activity.Subscription, err error) {
 
 	if len(objectIds) == 0 {
 		return
@@ -230,7 +230,7 @@ func (dao *boltdbimpl) ListSubscriptions(objectType activity.OwnerType, objectId
 	return subs, e
 }
 
-func (dao *boltdbimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
+func (dao *boltdbimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
 
 	defer func() {
 		done <- true
@@ -319,7 +319,7 @@ func (dao *boltdbimpl) ReadLastUserInbox(userId string, boxName BoxName) uint64 
 	return 0
 }
 
-func (dao *boltdbimpl) StoreLastUserInbox(userId string, boxName BoxName, activityId string) error {
+func (dao *boltdbimpl) StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error {
 
 	id := strings.TrimPrefix(activityId, "/activity-")
 	uintId, _ := strconv.ParseUint(id, 10, 64)
@@ -339,7 +339,7 @@ func (dao *boltdbimpl) storeLastUserInbox(userId string, boxName BoxName, last [
 	})
 }
 
-func (dao *boltdbimpl) CountUnreadForUser(userId string) int {
+func (dao *boltdbimpl) CountUnreadForUser(ctx context.Context, userId string) int {
 
 	var unread int
 	lastRead := dao.ReadLastUserInbox(userId, BoxLastRead)
@@ -365,7 +365,7 @@ func (dao *boltdbimpl) CountUnreadForUser(userId string) int {
 
 // Delete should be wired to "USER_DELETE" and "NODE_DELETE" events
 // to remove (or archive?) deprecated queues
-func (dao *boltdbimpl) Delete(ownerType activity.OwnerType, ownerId string) error {
+func (dao *boltdbimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error {
 
 	err := dao.DB().Update(func(tx *bolt.Tx) error {
 
@@ -423,7 +423,7 @@ func (dao *boltdbimpl) Delete(ownerType activity.OwnerType, ownerId string) erro
 
 // Purge removes records based on a maximum number of records and/or based on the activity update date
 // It keeps at least minCount record(s) - to see last activity - even if older than expected date
-func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+func (dao *boltdbimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 
 	purgeBucket := func(bucket *bolt.Bucket, owner string) {
 		c := bucket.Cursor()
@@ -484,7 +484,7 @@ func (dao *boltdbimpl) Purge(logger func(string), ownerType activity.OwnerType, 
 }
 
 // AllActivities is used for internal migrations only
-func (dao *boltdbimpl) allActivities() (chan *docActivity, error) {
+func (dao *boltdbimpl) allActivities(ctx context.Context) (chan *docActivity, error) {
 	db := dao.DB()
 	out := make(chan *docActivity, 1000)
 	listBucket := func(bb *bolt.Bucket, ownerType int32, ownerId string, boxName BoxName) {
@@ -524,7 +524,7 @@ func (dao *boltdbimpl) allActivities() (chan *docActivity, error) {
 }
 
 // AllSubscriptions is used for internal migrations only
-func (dao *boltdbimpl) allSubscriptions() (chan *activity.Subscription, error) {
+func (dao *boltdbimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
 	out := make(chan *activity.Subscription)
 	db := dao.DB()
 	go func() {

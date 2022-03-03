@@ -71,7 +71,7 @@ func (m *MetaProvider) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNod
 		}
 		node := request.Node
 		if userId != "" { // No user found, just skip
-			if subs, err := m.dao.ListSubscriptions(activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
+			if subs, err := m.dao.ListSubscriptions(nil, activity2.OwnerType_NODE, []string{node.Uuid}); err == nil {
 				for _, sub := range subs {
 					if sub.UserId == userId && len(sub.Events) > 0 {
 						events := strings.Join(sub.Events, ",")
