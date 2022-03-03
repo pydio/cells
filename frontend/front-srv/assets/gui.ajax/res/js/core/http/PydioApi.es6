@@ -251,7 +251,8 @@ class PydioApi{
             const api = new TreeServiceApi(PydioApi.getRestClient());
             api.createSelection(selection).then(response => {
                 const {SelectionUUID} = response;
-                const fakeNodePath = this.getPydioObject().getContextHolder().getContextNode().getPath() + "/" + SelectionUUID + '-selection.' + archiveExt;
+                let fakeNodePath = this.getPydioObject().getContextHolder().getContextNode().getPath() + "/" + SelectionUUID + '-selection.' + archiveExt;
+                fakeNodePath = fakeNodePath.replace('//', '/')
                 const fakeNode = new AjxpNode(fakeNodePath, true);
                 this.buildPresignedGetUrl(fakeNode, null, '', null, 'selection.' + archiveExt).then(url => {
                     if(agentIsMobile || !hiddenForm){
