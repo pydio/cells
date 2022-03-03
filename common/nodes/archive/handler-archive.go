@@ -113,7 +113,7 @@ func (a *Handler) GetObject(ctx context.Context, node *tree.Node, requestData *m
 					defer w.Close()
 					defer func() {
 						// Delete selection after download
-						a.selectionProvider.deleteSelectionByUuid(context.Background(), selectionUuid)
+						a.selectionProvider.deleteSelectionByUuid(a.RuntimeCtx, selectionUuid)
 					}()
 					a.generateArchiveFromSelection(ctx, w, selection, ext)
 				}()
