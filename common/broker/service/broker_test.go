@@ -30,7 +30,7 @@ func TestServiceBroker(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-		subscription, _ := NewSubscription("test", WithContext(ctx))
+		subscription, _ := NewSubscription("test1", WithContext(ctx))
 
 		go func() {
 			defer cancel()
@@ -54,7 +54,7 @@ func TestServiceBroker(t *testing.T) {
 			}
 		}()
 
-		topic, _ := NewTopic("test")
+		topic, _ := NewTopic("test1")
 		defer topic.Shutdown(ctx)
 
 		msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
@@ -88,7 +88,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	wg.Add(howManyToSend)
 
 	// Make a subscription.
-	s, _ := NewSubscription("test")
+	s, _ := NewSubscription("test2")
 	defer s.Shutdown(ctx)
 
 	// Start 10 goroutines to receive from it.
@@ -119,7 +119,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 	}
 
 	// Send messages. Each message has a unique body used as a key to receivedMsgs.
-	topic, _ := NewTopic("test")
+	topic, _ := NewTopic("test2")
 	defer topic.Shutdown(ctx)
 	for i := 0; i < howManyToSend; i++ {
 		key := fmt.Sprintf("message #%d", i)
