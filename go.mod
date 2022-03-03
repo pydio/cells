@@ -122,7 +122,9 @@ require (
 	gopkg.in/gorp.v1 v1.7.2
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/apimachinery v0.21.1
 	k8s.io/klog/v2 v2.30.0 // indirect
+	k8s.io/utils v0.0.0-20201110183641-67b214c5f920
 )
 
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio

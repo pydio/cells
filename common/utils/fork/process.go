@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"strings"
@@ -165,12 +166,13 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 }
 
 func (p *Process) buildForkStartParams() []string {
-
-	r := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
+	grpcAddr := net.JoinHostPort(viper.GetString("bind_address"), viper.GetString("grpc_port"))
+	r := fmt.Sprintf("grpc://%s", grpcAddr)
 	if !strings.HasPrefix(viper.GetString("registry"), "mem://") {
 		r = viper.GetString("registry")
 	}
-	b := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
+
+	b := fmt.Sprintf("grpc://%s", grpcAddr)
 	if !strings.HasPrefix(viper.GetString("broker"), "mem://") {
 		b = viper.GetString("broker")
 	}
@@ -178,11 +180,21 @@ func (p *Process) buildForkStartParams() []string {
 	params := []string{
 		"start",
 		"--fork",
-		"--grpc.address", ":0",
-		"--http.address", ":0",
 		"--registry", r,
 		"--broker", b,
+		"--grpc_port", "0",
+		"--http", "http",
+		"--http_port", "0",
 	}
+
+	if viper.IsSet("bind_address") {
+		params = append(params, "--bind_address", viper.GetString("bind_address"))
+	}
+
+	if viper.IsSet("advertise_address") {
+		params = append(params, "--advertise_address", viper.GetString("advertise_address"))
+	}
+
 	if viper.IsSet("config") {
 		params = append(params, "--config", viper.GetString("config"))
 	}

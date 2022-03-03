@@ -53,7 +53,8 @@ func New(ctx context.Context) server.Server {
 }
 
 func (s *Server) Serve() error {
-	lis, err := net.Listen("tcp", viper.GetString("http.address"))
+	addr := net.JoinHostPort(viper.GetString("bind_address"), viper.GetString("http_port"))
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
