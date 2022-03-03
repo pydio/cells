@@ -207,7 +207,7 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 	}()
 
-	ww, err2 := handler.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &models.PutRequestData{Size: -1})
+	_, err2 := handler.PutObject(ctx, &tree.Node{Path: targetFile}, reader, &models.PutRequestData{Size: -1})
 
 	if err != nil {
 		log.TasksLogger(ctx).Error("Error PutObject", zap.Error(err))
@@ -216,9 +216,6 @@ func (c *CompressAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if err2 != nil {
 		log.TasksLogger(ctx).Error("Error PutObject", zap.Error(err2))
 		return input.WithError(err2), err2
-	}
-	if ww != written {
-		log.TasksLogger(ctx).Info("ww and written differ", zap.Int64("ww", ww), zap.Int64("written", written))
 	}
 
 	logBody, _ := json.Marshal(map[string]interface{}{

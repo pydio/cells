@@ -174,6 +174,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if c.targetIsParent {
 		targetNode.Path = path.Join(targetNode.Path, path.Base(sourceNode.Path))
 	}
+	targetNode.Path = strings.ReplaceAll(targetNode.Path, "//", "/")
 
 	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.targetIsParent))
 

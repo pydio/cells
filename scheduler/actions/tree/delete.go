@@ -169,7 +169,6 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		if e != nil {
 			return input.WithError(e), e
 		}
-		defer list.CloseSend()
 		for {
 			resp, e := list.Recv()
 			if e != nil {
@@ -202,7 +201,7 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 				channels.StatusMsg <- strings.Replace(T("Jobs.User.DeletingItem"), "%s", statusPath, -1)
 				_, er := cli.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: n})
 				if er != nil {
-					delErr = er
+					delErr = fmt.Errorf("Cannot delete "+n.GetPath()+": %v", er)
 				}
 			}()
 		}
