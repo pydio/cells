@@ -21,18 +21,17 @@
 package discoverytest
 
 import (
+	"github.com/pydio/cells/v4/common/broker/grpcpubsub/handler"
 	"google.golang.org/grpc"
 
 	cb "github.com/pydio/cells/v4/common/broker"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
-	"github.com/pydio/cells/v4/discovery/broker"
-
 	_ "gocloud.dev/pubsub/mempubsub"
 )
 
 func NewBrokerService() grpc.ClientConnInterface {
 	serv := &pb.BrokerStub{
-		BrokerServer: broker.NewHandler(cb.NewBroker("mem://")),
+		BrokerServer: handler.NewHandler(cb.NewBroker("mem://")),
 	}
 	return serv
 }

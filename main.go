@@ -12,7 +12,7 @@ import (
 	_ "github.com/pydio/cells/v4/frontend/front-srv/web"
 
 	// Discovery
-	_ "github.com/pydio/cells/v4/discovery/broker"
+	_ "github.com/pydio/cells/v4/discovery/broker/grpc"
 	_ "github.com/pydio/cells/v4/discovery/config/grpc"
 	_ "github.com/pydio/cells/v4/discovery/config/web"
 
@@ -106,7 +106,7 @@ import (
 	_ "github.com/pydio/cells/v4/scheduler/actions/tree"
 
 	// Brokers
-	_ "github.com/pydio/cells/v4/common/broker/service"
+	_ "github.com/pydio/cells/v4/common/broker/grpcpubsub"
 	_ "gocloud.dev/pubsub/mempubsub"
 	_ "gocloud.dev/pubsub/natspubsub"
 	_ "gocloud.dev/pubsub/rabbitpubsub"

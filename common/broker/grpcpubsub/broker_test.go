@@ -1,4 +1,4 @@
-package service
+package grpcpubsub
 
 import (
 	"context"
