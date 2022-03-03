@@ -2,14 +2,9 @@ package fork
 
 import (
 	"context"
-	"fmt"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/utils/fork"
-	"strings"
-
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common/server"
+	"github.com/pydio/cells/v4/common/utils/fork"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
@@ -101,36 +96,4 @@ type ForkServer struct {
 
 func (f *ForkServer) RegisterForkParam(name string) {
 	f.name = name
-}
-
-func buildForkStartParams(serviceName string) []string {
-
-	r := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
-	b := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
-	if !strings.HasPrefix(viper.GetString("broker"), "mem://") {
-		b = viper.GetString("broker")
-	}
-
-	params := []string{
-		"start",
-		"--fork",
-		"--grpc.address", ":0",
-		"--http.address", ":0",
-		"--registry", r,
-		"--broker", b,
-	}
-
-	if viper.IsSet("config") {
-		params = append(params, "--config", viper.GetString("config"))
-	}
-
-	if viper.GetBool("enable_metrics") {
-		params = append(params, "--enable_metrics")
-	}
-	if viper.GetBool("enable_pprof") {
-		params = append(params, "--enable_pprof")
-	}
-	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^"+serviceName+"$")
-	return params
 }

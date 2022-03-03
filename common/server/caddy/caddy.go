@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config/runtime"
 	"html/template"
+	"net"
 	"net/http/pprof"
 	"os"
 	"path/filepath"
@@ -92,6 +94,7 @@ type Server struct {
 	watchDone       chan struct{}
 
 	addresses []string
+	externalAddresses []string
 	Confs     []byte
 }
 
@@ -185,7 +188,20 @@ func (s *Server) ComputeConfs() error {
 
 	s.addresses = []string{} // Empty slice on restart
 	for _, site := range caddySites {
-		s.addresses = append(s.addresses, site.GetBinds()...)
+		for _, bind := range site.GetBinds() {
+			s.addresses = append(s.addresses, bind)
+
+			host, port, err := net.SplitHostPort(bind)
+			if err != nil {
+				continue
+			}
+			ip := net.ParseIP(host)
+			if ip == nil || ip.IsUnspecified() {
+				s.externalAddresses = append(s.externalAddresses, net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port))
+			} else {
+				s.externalAddresses = append(s.externalAddresses, bind)
+			}
+		}
 	}
 	return nil
 }
@@ -200,7 +216,7 @@ func (s *Server) Stop() error {
 }
 
 func (s *Server) Address() []string {
-	return s.addresses
+	return s.externalAddresses
 }
 
 func (s *Server) Endpoints() []string {

@@ -23,10 +23,9 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"net"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"google.golang.org/grpc"
+
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
@@ -49,6 +48,9 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -176,33 +178,38 @@ to quickly create a Cobra application.`,
 
 			} else {
 				if s.IsGRPC() {
-
 					if srvGRPC == nil {
-						srvGRPC = servergrpc.New(ctx)
+						addr := net.JoinHostPort(viper.GetString("bind_address"), viper.GetString("grpc_port"))
+						lis, err := net.Listen("tcp", addr)
+						if err != nil {
+							return err
+						}
+
+						srvGRPC = servergrpc.New(ctx, servergrpc.WithListener(lis))
 						srvs = append(srvs, srvGRPC)
 					}
+
 					opts.Server = srvGRPC
-
 				}
-				if s.IsREST() {
 
+				if s.IsREST()  {
 					if srvHTTP == nil {
-						if runtime.IsFork() {
-							srvHTTP = http.New(ctx)
-						} else {
+						if viper.GetString("http") == "caddy" {
 							if s, e := caddy.New(opts.Context, ""); e != nil {
 								log.Fatal(e)
 							} else {
 								srvHTTP = s
 							}
+						} else {
+							srvHTTP = http.New(ctx)
 						}
+
 						srvs = append(srvs, srvHTTP)
 					}
 					opts.Server = srvHTTP
-
 				}
-				if s.IsGeneric() {
 
+				if s.IsGeneric() {
 					if srvGeneric == nil {
 						srvGeneric = generic.New(ctx)
 						srvs = append(srvs, srvGeneric)
@@ -282,8 +289,11 @@ func init() {
 	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
 	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
-	StartCmd.Flags().String("grpc.address", ":8001", "gRPC Server Address")
-	StartCmd.Flags().String("http.address", ":8002", "HTTP Server Address")
+	StartCmd.Flags().String("bind_address", "0.0.0.0", "Address on which the servers should bind")
+	StartCmd.Flags().String("advertise_address", "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
+	StartCmd.Flags().String("grpc_port", "8001", "gRPC Server Port")
+	StartCmd.Flags().String("http", "caddy", "HTTP Server Type")
+	StartCmd.Flags().String("http_port", "8080", "HTTP Server Port")
 
 	StartCmd.Flags().Bool("fork", false, "Used internally by application when forking processes")
 

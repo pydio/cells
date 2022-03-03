@@ -21,9 +21,11 @@
 package runtime
 
 import (
+	"net"
 	"regexp"
 
 	"github.com/spf13/viper"
+	utilnet "k8s.io/apimachinery/pkg/util/net"
 )
 
 var (
@@ -45,6 +47,21 @@ func IsLocal() bool {
 // IsRemote check if the environment runtime config is a remote server
 func IsRemote() bool {
 	return viper.GetString("config") == "remote" || viper.GetString("config") == "raft"
+}
+
+func DefaultAdvertiseAddress() string {
+	if addr := viper.GetString("advertise_address"); addr != "" {
+		return addr
+	}
+	bindAddress := viper.GetString("bind_address")
+	ip := net.ParseIP(viper.GetString("bind_address"))
+	addr, err := utilnet.ResolveBindAddress(ip)
+	if err != nil {
+		return bindAddress
+	}
+	viper.SetDefault("advertise_address", addr)
+
+	return viper.GetString("advertise_address")
 }
 
 func BuildProcessStartTag() {

@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config/runtime"
 	"net"
 
 	"google.golang.org/grpc/health"
@@ -28,6 +29,7 @@ type Server struct {
 	cancel context.CancelFunc
 	opts   *Options
 	addr   string
+	externalAddr string
 	*grpc.Server
 }
 
@@ -69,7 +71,7 @@ func New(ctx context.Context, opt ...Option) server.Server {
 		meta: server.InitPeerMeta(),
 
 		cancel: cancel,
-		addr:   viper.GetString("grpc.address"),
+		addr:   viper.GetString("grpc_port"),
 		opts:   opts,
 		Server: s,
 	})
@@ -100,8 +102,14 @@ func (s *Server) Serve() error {
 		}
 
 		s.opts.Listener = lis
-		// fmt.Println("Serving Grpc (net.Listener.Addr()) " + lis.Addr().String())
 	}
+
+	_, port, err := net.SplitHostPort(s.opts.Listener.Addr().String())
+	if err != nil {
+		return err
+	}
+
+	s.externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)
 
 	go func() {
 		defer s.cancel()
@@ -133,10 +141,7 @@ func (s *Server) Metadata() map[string]string {
 }
 
 func (s *Server) Address() []string {
-	if s.opts.Listener == nil {
-		return []string{}
-	}
-	return []string{s.opts.Listener.Addr().String()}
+	return []string{s.externalAddr}
 }
 
 func (s *Server) Endpoints() []string {

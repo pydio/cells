@@ -3,15 +3,12 @@ package service
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/server"
@@ -199,43 +196,6 @@ func (s *service) Stop() error {
 	log.Logger(s.opts.Context).Info("stopped")
 
 	return nil
-}
-
-func buildForkStartParams(serviceName string) []string {
-
-	r := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
-	b := fmt.Sprintf("grpc://%s", viper.GetString("grpc.address"))
-	if !strings.HasPrefix(viper.GetString("broker"), "mem://") {
-		b = viper.GetString("broker")
-	}
-
-	params := []string{
-		"start",
-		"--fork",
-		"--grpc.address", ":0",
-		"--http.address", ":0",
-		"--registry", r,
-		"--broker", b,
-	}
-	if viper.IsSet("config") {
-		params = append(params, "--config", viper.GetString("config"))
-	}
-	if viper.GetBool("enable_metrics") {
-		params = append(params, "--enable_metrics")
-	}
-	if viper.GetBool("enable_pprof") {
-		params = append(params, "--enable_pprof")
-	}
-	if config.Get("services", serviceName, configSrvKeyForkDebug).Bool() /*|| strings.HasPrefix(serviceName, "pydio.grpc.data.")*/ {
-		params = append(params, "--log", "debug")
-	}
-	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^"+serviceName+"$")
-	bindFlags := config.DefaultBindOverrideToFlags()
-	if len(bindFlags) > 0 {
-		params = append(params, bindFlags...)
-	}
-	return params
 }
 
 func (s *service) Name() string {
