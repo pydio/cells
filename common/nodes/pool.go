@@ -336,7 +336,7 @@ func (p *ClientsPool) watchConfigChanges() {
 			}
 
 			if event != nil {
-				p.LoadDataSources()
+				p.reload <- true
 			}
 		}
 
