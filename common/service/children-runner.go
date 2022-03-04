@@ -129,8 +129,105 @@ func (c *ChildrenRunner) StopAll(ctx context.Context) {
 	}
 }
 
+func (c *ChildrenRunner) updateSourcesList(ctx context.Context, sources []string) {
+
+	//log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
+	log.Logger(ctx).Info("Got an event on sources keys for "+c.parentName, zap.Any("new sources", sources), zap.Any("currently running", c.services))
+
+	all := config.Get("services")
+	var servicesConf map[string]interface{}
+	all.Scan(&servicesConf)
+
+	// First stopping what's been removed
+	for name, cmd := range c.services {
+		found := false
+		for _, source := range sources {
+			if source == name && !c.FilterOutSource(ctx, source) {
+				found = true
+				break
+			}
+		}
+
+		if found {
+			continue
+		}
+
+		// Verify if it was fully deleted (not just filtered out)
+		_, exists := servicesConf[c.childPrefix+name]
+		if !exists && c.beforeDeleteClean {
+			caller := object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.childPrefix+name))
+			if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
+				log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
+			} else {
+				log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+			}
+		}
+
+		log.Logger(ctx).Info("Stopping sub-service " + c.childPrefix + name)
+		cmd.Stop()
+
+		if !exists && c.afterDeleteChan != nil {
+			c.afterDeleteChan <- name
+		}
+	}
+
+	// Then start what's been added
+	for _, source := range sources {
+		c.mutex.RLock()
+		_, ok := c.services[source]
+		c.mutex.RUnlock()
+		if !ok && !c.FilterOutSource(ctx, source) {
+			log.Logger(ctx).Info("Starting sub-service " + c.childPrefix + source)
+			go c.Start(ctx, source)
+		}
+	}
+
+}
+
 // Watch watches the configuration changes for new sources
 func (c *ChildrenRunner) Watch(ctx context.Context) error {
+	watcher, err := config.Watch("services", c.parentName, "sources")
+	if err != nil {
+		return err
+	}
+
+	ss := make(chan []string)
+	go func() {
+		timer := time.NewTimer(1500 * time.Millisecond)
+		var sources []string
+		for {
+			select {
+			case <-timer.C:
+				if len(sources) > 0 {
+					c.updateSourcesList(ctx, sources)
+					sources = []string{}
+				}
+			case s := <-ss:
+				sources = s
+				timer.Stop()
+				timer = time.NewTimer(1500 * time.Millisecond)
+			case <-ctx.Done():
+				watcher.Stop()
+				return
+			}
+		}
+	}()
+	go func() {
+		for {
+			res, err := watcher.Next()
+			if err != nil {
+				break
+			}
+			arr := res.StringArray()
+			ss <- config.SourceNamesFiltered(arr)
+		}
+	}()
+
+	return nil
+}
+
+// Watch watches the configuration changes for new sources
+func (c *ChildrenRunner) WatchOld(ctx context.Context) error {
 
 	// TODO - should be linked to context to stop
 	go func() {
@@ -151,7 +248,7 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 
 				sources := config.SourceNamesFiltered(arr)
 				//log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
-				log.Logger(ctx).Debug("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Int("new sources length", len(sources)))
+				log.Logger(ctx).Info("Got an event on sources keys for "+c.parentName+". Details", zap.Any("currently running", c.services), zap.Int("new sources length", len(sources)))
 
 				all := config.Get("services")
 				var servicesConf map[string]interface{}

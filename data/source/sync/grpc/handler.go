@@ -477,7 +477,7 @@ func (s *Handler) watchConfigs() {
 					<-time.After(2 * time.Second)
 					config.TouchSourceNamesForDataServices(common.ServiceDataSync)
 				}
-			} else {
+			} else if err != nil {
 				log.Logger(s.globalCtx).Error("Could not scan event", zap.Error(err))
 			}
 		}
