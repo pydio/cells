@@ -86,9 +86,8 @@ func TestPersonalResolution(t *testing.T) {
 	ctx := context.Background()
 	reg, _ := registry.OpenRegistry(ctx, "mem:///")
 	ctx = servicecontext.WithRegistry(ctx, reg)
-	pool := nodes.NewClientsPool(ctx, false)
-	ctx = nodescontext.WithSourcesPool(ctx, pool)
-	client := PathClient(nodes.WithContext(ctx))
+	ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
+	client := PathClient(ctx)
 
 	Convey("Test personal file", t, func() {
 		user, e := permissions.SearchUniqueUser(ctx, "admin", "")

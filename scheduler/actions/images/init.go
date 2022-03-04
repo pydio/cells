@@ -60,11 +60,7 @@ var (
 // getRouter provides a singleton-initialized StandardRouter in AdminView.
 func getRouter(runtime context.Context) nodes.Client {
 	if router == nil {
-		router = compose.PathClient(
-			nodes.WithContext(runtime),
-			nodes.AsAdmin(),
-			nodes.WithRegistryWatch(),
-		)
+		router = compose.PathClient(runtime, nodes.AsAdmin())
 	}
 	return router
 }

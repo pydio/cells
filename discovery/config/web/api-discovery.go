@@ -29,7 +29,6 @@ import (
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/go-openapi/spec"
 	"github.com/ory/ladon"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -45,6 +44,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
@@ -106,7 +106,7 @@ func (s *Handler) EndpointsDiscovery(req *restful.Request, resp *restful.Respons
 	endpointResponse.Endpoints["frontend"] = withPath(urlParsed, "").String()
 
 	if urlParsed.Scheme == "http" {
-		if external := viper.GetString("grpc_external"); external != "" {
+		if external := runtime.GrpcExternalPort(); external != "" {
 			endpointResponse.Endpoints["grpc"] = external
 		} else {
 			// Pure HTTP and no grpc_external : detect GRPC_CLEAR Service Port

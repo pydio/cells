@@ -37,19 +37,18 @@ import (
 	"github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
-	config "github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes/meta"
-	"github.com/pydio/cells/v4/common/plugins"
 	proto "github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	serviceproto "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/cache"
@@ -61,7 +60,7 @@ var (
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(Name),
 			service.Context(ctx),
@@ -92,8 +91,9 @@ func init() {
 				// Start batcher - it is stopped by c.Done()
 				batcher := cache.NewEventsBatcher(c, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
 					// Wrap parent context client conn in forwarded context
-					ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(c))
-					ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(c))
+					//ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(c))
+					//ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(c))
+					ctx = runtime.ForkContext(ctx, c)
 					if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
 						log.Logger(c).Warn("Error while handling event", zap.Error(e))
 					}

@@ -24,17 +24,14 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/nodes"
-	"github.com/pydio/cells/v4/common/nodes/compose"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/nodes/compose"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceRestNamespace_+common.ServiceJobs),
 			service.Context(ctx),
@@ -44,10 +41,7 @@ func init() {
 			service.Dependency(common.ServiceGrpcNamespace_+common.ServiceTasks, []string{}),
 			service.WithWeb(func(ctx context.Context) service.WebHandler {
 				// Init router with current registry
-				router = compose.PathClient(
-					nodes.WithContext(ctx),
-					nodes.WithRegistryWatch(servicecontext.GetRegistry(ctx)),
-				)
+				router = compose.PathClient(ctx)
 				return &JobsHandler{RuntimeContext: ctx}
 			}),
 		)

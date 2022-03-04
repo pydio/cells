@@ -309,7 +309,7 @@ func TestBranchTranslator_Multipart(t *testing.T) {
 	/*
 		Convey("Branch Translator Multipart Function NOT IMPLEMENTED", t, func() {
 
-			b, _ := newTestHandlerBranchTranslator(NewClientsPool(false))
+			b, _ := newTestHandlerBranchTranslator(NewTestPool(false))
 			c := context.Background()
 			_, e1 := b.MultipartCreate(c, &tree.Node{}, &MultipartRequestData{})
 			So(errors.Parse(e1.Error()).Code, ShouldEqual, 400)

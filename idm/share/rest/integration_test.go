@@ -97,7 +97,7 @@ func TestShareLinks(t *testing.T) {
 	Convey("Test CRUD Share Link on File", t, func() {
 
 		ctx := context.Background()
-		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewClientsPool(ctx, false))
+		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx))
 		u, e := permissions.SearchUniqueUser(ctx, "admin", "")
 		So(e, ShouldBeNil)
 		ctx = auth.WithImpersonate(ctx, u)
@@ -140,7 +140,7 @@ func TestShareLinks(t *testing.T) {
 		rand := hex.EncodeToString(hash.Sum(nil))
 		rootKey := rand[0:8] + "-" + path.Base(newNode.GetPath())
 
-		read, e := compose.PathClient(nodes.WithContext(ctx)).ReadNode(hiddenCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slugRoot, rootKey)}})
+		read, e := compose.PathClient(ctx).ReadNode(hiddenCtx, &tree.ReadNodeRequest{Node: &tree.Node{Path: path.Join(slugRoot, rootKey)}})
 		So(e, ShouldBeNil)
 		So(read, ShouldNotBeEmpty)
 		t.Log("Router Accessed File from Hidden User", read.Node)

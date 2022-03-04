@@ -25,19 +25,19 @@ import (
 	"log"
 	"net"
 
-
+	"github.com/spf13/cobra"
+	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/config/runtime"
 	"github.com/pydio/cells/v4/common/nodes"
 	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
-	"github.com/pydio/cells/v4/common/plugins"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/server/caddy"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
@@ -48,9 +48,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"google.golang.org/grpc"
 )
 
 var (
@@ -69,11 +66,11 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		viper.Set("args", args)
+		runtime.SetArgs(args)
 
 		bindViperFlags(cmd.Flags(), map[string]string{
 			// "log":  "logs_level",
-			"fork": "is_fork",
+			runtime.KeyFork: runtime.KeyForkLegacy,
 		})
 
 		initLogLevel()
@@ -96,7 +93,7 @@ to quickly create a Cobra application.`,
 		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=plugins&byname=true")
 
 		// Version memory
-		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}
@@ -110,13 +107,13 @@ to quickly create a Cobra application.`,
 		ctx = servercontext.WithRegistry(ctx, reg)
 		ctx = servicecontext.WithRegistry(ctx, pluginsReg)
 		ctx = clientcontext.WithClientConn(ctx, conn)
-		ctx = nodescontext.WithSourcesPool(ctx, nodes.ContextPool(ctx))
+		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 
-		broker.Register(broker.NewBroker(viper.GetString("broker"), broker.WithContext(ctx)))
-		plugins.InitGlobalConnConsumers(ctx, "main")
+		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
+		runtime.InitGlobalConnConsumers(ctx, "main")
 		go initLogLevelListener(ctx)
 
-		plugins.Init(ctx, "main")
+		runtime.Init(ctx, "main")
 
 		services, err := pluginsReg.List(registry.WithType(pb.ItemType_SERVICE))
 		if err != nil {
@@ -129,8 +126,6 @@ to quickly create a Cobra application.`,
 			srvGeneric server.Server
 			srvs       []server.Server
 		)
-
-		runtime.BuildProcessStartTag()
 
 		for _, ss := range services {
 			var s service.Service
@@ -179,8 +174,7 @@ to quickly create a Cobra application.`,
 			} else {
 				if s.IsGRPC() {
 					if srvGRPC == nil {
-						addr := net.JoinHostPort(viper.GetString("bind_address"), viper.GetString("grpc_port"))
-						lis, err := net.Listen("tcp", addr)
+						lis, err := net.Listen("tcp", runtime.GrpcBindAddress())
 						if err != nil {
 							return err
 						}
@@ -192,9 +186,9 @@ to quickly create a Cobra application.`,
 					opts.Server = srvGRPC
 				}
 
-				if s.IsREST()  {
+				if s.IsREST() {
 					if srvHTTP == nil {
-						if viper.GetString("http") == "caddy" {
+						if runtime.HttpServerType() == runtime.HttpServerCaddy {
 							if s, e := caddy.New(opts.Context, ""); e != nil {
 								log.Fatal(e)
 							} else {
@@ -286,30 +280,30 @@ to quickly create a Cobra application.`,
 
 func init() {
 	// Flags for selecting / filtering services
-	StartCmd.Flags().StringArrayVarP(&FilterStartTags, "tags", "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
-	StartCmd.Flags().StringArrayVarP(&FilterStartExclude, "exclude", "x", []string{}, "Select services to start by filtering out some specific ones by name")
+	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
+	StartCmd.Flags().StringArrayP(runtime.KeyArgExclude, "x", []string{}, "Select services to start by filtering out some specific ones by name")
 
-	StartCmd.Flags().String("bind_address", "0.0.0.0", "Address on which the servers should bind")
-	StartCmd.Flags().String("advertise_address", "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
-	StartCmd.Flags().String("grpc_port", "8001", "gRPC Server Port")
-	StartCmd.Flags().String("http", "caddy", "HTTP Server Type")
-	StartCmd.Flags().String("http_port", "8080", "HTTP Server Port")
+	StartCmd.Flags().String(runtime.KeyBindHost, "0.0.0.0", "Address on which the servers should bind")
+	StartCmd.Flags().String(runtime.KeyAdvertiseAddress, "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
+	StartCmd.Flags().String(runtime.KeyGrpcPort, "8001", "gRPC Server Port")
+	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
+	StartCmd.Flags().String(runtime.KeyHttpPort, "8080", "HTTP Server Port")
 
-	StartCmd.Flags().Bool("fork", false, "Used internally by application when forking processes")
+	StartCmd.Flags().Bool(runtime.KeyFork, false, "Used internally by application when forking processes")
 
 	addRegistryFlags(StartCmd.Flags())
 
-	StartCmd.Flags().MarkHidden("fork")
-	StartCmd.Flags().MarkHidden("registry")
-	StartCmd.Flags().MarkHidden("broker")
+	StartCmd.Flags().MarkHidden(runtime.KeyFork)
+	StartCmd.Flags().MarkHidden(runtime.KeyRegistry)
+	StartCmd.Flags().MarkHidden(runtime.KeyBroker)
 
 	// Other internal flags
-	StartCmd.Flags().String("log", "info", "Sets the log level: 'debug', 'info', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
-	StartCmd.Flags().Bool("log_json", false, "Sets the log output format to JSON instead of text")
-	StartCmd.Flags().Bool("log_to_file", common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
-	StartCmd.Flags().Bool("enable_metrics", false, "Instrument code to expose internal metrics")
-	StartCmd.Flags().Bool("enable_pprof", false, "Enable pprof remote debugging")
-	StartCmd.Flags().Int("healthcheck", 0, "Healthcheck port number")
+	StartCmd.Flags().String(runtime.KeyLog, "info", "Sets the log level: 'debug', 'info', 'warn', 'error' (for backward-compatibility, 'production' is equivalent to log_json+info)")
+	StartCmd.Flags().Bool(runtime.KeyLogJson, false, "Sets the log output format to JSON instead of text")
+	StartCmd.Flags().Bool(runtime.KeyLogToFile, common.MustLogFileDefaultValue(), "Write logs on-file in CELLS_LOG_DIR")
+	StartCmd.Flags().Bool(runtime.KeyEnableMetrics, false, "Instrument code to expose internal metrics")
+	StartCmd.Flags().Bool(runtime.KeyEnablePprof, false, "Enable pprof remote debugging")
+	StartCmd.Flags().Int(runtime.KeyHealthCheckPort, 0, "Healthcheck port number")
 
 	RootCmd.AddCommand(StartCmd)
 }

@@ -30,8 +30,8 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/plugins"
 	auth2 "github.com/pydio/cells/v4/common/proto/auth"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/idm/oauth"
@@ -42,7 +42,7 @@ var (
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 
 		service.NewService(
 			service.Name(Name),

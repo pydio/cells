@@ -35,7 +35,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	serverhttp "github.com/pydio/cells/v4/common/server/http"
 	"github.com/pydio/cells/v4/common/server/middleware"
@@ -74,7 +74,7 @@ func patchListBucketRequest(route string, request *http.Request) {
 
 func init() {
 
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 
 		port := net.GetAvailablePort()
 

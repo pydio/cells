@@ -92,7 +92,7 @@ func (c *MigrateGlobalMetaAction) GetName() string {
 // GetRouter returns an initialized router
 func (c *MigrateGlobalMetaAction) GetRouter() nodes.Client {
 	if c.router == nil {
-		c.router = compose.PathClient(nodes.WithContext(c.GetRuntimeContext()))
+		c.router = compose.PathClient(c.GetRuntimeContext())
 	}
 	return c.router
 }

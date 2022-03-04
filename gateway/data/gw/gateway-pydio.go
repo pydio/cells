@@ -90,12 +90,7 @@ func (p *Pydio) Name() string {
 // NewGatewayLayer returns a new  ObjectLayer.
 func (p *Pydio) NewGatewayLayer(_ madmin.Credentials) (minio.ObjectLayer, error) {
 	o := &pydioObjects{
-		Router: compose.PathClient(
-			nodes.WithContext(p.RuntimeCtx),
-			nodes.WithRegistryWatch(),
-			nodes.WithReadEventsLogging(),
-			nodes.WithAuditEventsLogging(),
-		),
+		Router: compose.PathClient(p.RuntimeCtx, nodes.WithReadEventsLogging(), nodes.WithAuditEventsLogging()),
 	}
 	return o, nil
 }

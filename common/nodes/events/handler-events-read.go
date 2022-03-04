@@ -22,7 +22,7 @@ package events
 
 import (
 	"context"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
+	"github.com/pydio/cells/v4/common/runtime"
 	"io"
 
 	"go.uber.org/zap"
@@ -165,7 +165,7 @@ func (h *HandlerRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *doc
 	if claims.Profile != common.PydioProfileShared {
 		return
 	}
-	bgContext := clientcontext.WithClientConn(context.Background(), clientcontext.GetClientConn(ctx))
+	bgContext := runtime.ForkContext(context.Background(), ctx)
 	user, e := permissions.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: idm.UserAttrHidden, AttributeValue: "true"})
 	if e != nil || user == nil {
 		return

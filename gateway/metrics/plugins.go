@@ -3,10 +3,8 @@ package metrics
 import (
 	"context"
 
-	"github.com/spf13/viper"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/generic"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/gateway/metrics/prometheus"
@@ -17,8 +15,8 @@ const (
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
-		if viper.GetBool("enable_metrics") {
+	runtime.Register("main", func(ctx context.Context) {
+		if runtime.MetricsEnabled() {
 			service.NewService(
 				service.Name(serviceName),
 				service.Context(ctx),

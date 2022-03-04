@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
@@ -80,7 +80,7 @@ func NewClientConn(serviceName string, opt ...Option) grpc.ClientConnInterface {
 
 	if opts.ClientConn == nil || opts.DialOptions != nil {
 		if opts.Registry == nil {
-			reg, err := registry.OpenRegistry(context.Background(), viper.GetString("registry"))
+			reg, err := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 			if err != nil {
 				return nil
 			}

@@ -71,7 +71,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 		return c, nil
 	}
 
-	r := getRouter()
+	r := getRouter(ctx)
 	grouped := make(map[string]*activity.Object)
 	for _, ac := range items {
 		if ac.Type == activity.ObjectType_Event {
@@ -145,9 +145,9 @@ func getOrCreateWorkspaceCollection(workspace *idm.Workspace, grouped map[string
 	return wsColl
 }
 
-func getRouter() *compose.Reverse {
+func getRouter(ctx context.Context) *compose.Reverse {
 	if router == nil {
-		router = compose.ReverseClient()
+		router = compose.ReverseClient(ctx)
 	}
 	return router
 }

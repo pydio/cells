@@ -25,8 +25,6 @@ import (
 	"context"
 	"strings"
 
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"go.uber.org/zap"
@@ -60,10 +58,7 @@ func (s *Handler) Filter() func(string) string {
 
 func (s *Handler) getRouter() nodes.Client {
 	if s.router == nil {
-		s.router = compose.PathClient(
-			nodes.WithContext(s.runtimeCtx),
-			nodes.WithRegistryWatch(servicecontext.GetRegistry(s.runtimeCtx)),
-		)
+		s.router = compose.PathClient(s.runtimeCtx)
 	}
 	return s.router
 }

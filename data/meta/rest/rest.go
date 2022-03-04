@@ -41,7 +41,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -338,7 +337,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 
 func (h *Handler) GetRouter() nodes.Client {
 	if h.router == nil {
-		h.router = compose.NewClient(compose.PathComposer(nodes.WithContext(h.RuntimeCtx), nodes.WithAuditEventsLogging(), nodes.WithRegistryWatch(servicecontext.GetRegistry(h.RuntimeCtx)))...)
+		h.router = compose.PathClient(h.RuntimeCtx, nodes.WithAuditEventsLogging())
 	}
 	return h.router
 }

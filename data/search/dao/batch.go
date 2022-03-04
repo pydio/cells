@@ -24,6 +24,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -35,17 +36,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/auth"
 	"github.com/pydio/cells/v4/common/auth/claim"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/log"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-	"github.com/pydio/cells/v4/common/service/context"
 )
 
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -194,24 +191,26 @@ func (b *Batch) createBackgroundContext(parent context.Context) context.Context 
 		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",
 	})
-	ctx = servicecontext.WithServiceName(ctx, common.ServiceGrpcNamespace_+common.ServiceSearch)
-	ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(parent))
-	ctx = servercontext.WithRegistry(ctx, servercontext.GetRegistry(parent))
-	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(parent))
-	ctx = nodescontext.WithSourcesPool(ctx, nodescontext.GetSourcesPool(parent))
+	ctx = runtime.ForkContext(ctx, parent)
+	/*
+		ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(parent))
+		ctx = servercontext.WithRegistry(ctx, servercontext.GetRegistry(parent))
+		ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(parent))
+		ctx = nodescontext.WithSourcesPool(ctx, nodescontext.GetSourcesPool(parent))
+	*/
 	return ctx
 }
 
 func (b *Batch) getUuidRouter() nodes.Handler {
 	if b.uuidRouter == nil {
-		b.uuidRouter = compose.NewClient(compose.UuidComposer(nodes.AsAdmin(), nodes.WithContext(b.ctx), nodes.WithRegistryWatch(servicecontext.GetRegistry(b.ctx)))...)
+		b.uuidRouter = compose.UuidClient(b.ctx, nodes.AsAdmin())
 	}
 	return b.uuidRouter
 }
 
 func (b *Batch) getStdRouter() nodes.Handler {
 	if b.stdRouter == nil {
-		b.stdRouter = compose.NewClient(compose.PathComposer(nodes.AsAdmin(), nodes.WithContext(b.ctx), nodes.WithRegistryWatch(servicecontext.GetRegistry(b.ctx)))...)
+		b.stdRouter = compose.PathClientAdmin(b.ctx)
 	}
 	return b.stdRouter
 }

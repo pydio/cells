@@ -2,11 +2,9 @@ package grpc
 
 import (
 	"context"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"strings"
 	"time"
 
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	metadata2 "google.golang.org/grpc/metadata"
@@ -16,9 +14,9 @@ import (
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/crypto/providers"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/install"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	grpc2 "github.com/pydio/cells/v4/common/server/grpc"
 	"github.com/pydio/cells/v4/common/service"
@@ -57,7 +55,7 @@ func init() {
 		service.Name(common.ServiceGatewayGrpcClear),
 		service.Description("External gRPC Access (clear)"),
 	)
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 
 		ss, _ := config.LoadSites()
 		var hasClear, hasTls bool
@@ -128,7 +126,7 @@ func createServerProvider(tls bool) service.ServerProvider {
 		srv := grpc.NewServer(grpcOptions...)
 		addr := ":0" // Will pick a random port
 		if !tls {
-			if port := viper.GetString("grpc_external"); port != "" {
+			if port := runtime.GrpcExternalPort(); port != "" {
 				addr = ":" + port
 			}
 			logCtx := servicecontext.WithServiceName(ctx, common.ServiceGatewayGrpcClear)
@@ -142,11 +140,11 @@ func createServerProvider(tls bool) service.ServerProvider {
 }
 
 // jwtCtxModifier extracts x-pydio-bearer metadata to validate authentication
-func createJwtCtxModifier(runtime context.Context) servicecontext.IncomingContextModifier {
+func createJwtCtxModifier(runtimeCtx context.Context) servicecontext.IncomingContextModifier {
 
 	return func(ctx context.Context) (context.Context, bool, error) {
 
-		ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(runtime))
+		ctx = runtime.ForkContext(ctx, runtimeCtx)
 
 		jwtVerifier := auth.DefaultJWTVerifier()
 		meta, ok := metadata2.FromIncomingContext(ctx)

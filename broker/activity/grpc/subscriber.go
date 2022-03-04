@@ -215,7 +215,9 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 			continue
 		}
 		if accessList.CanReadWithResolver(userCtx, e.vNodeResolver, ancestors...) {
-			e.dao.PostActivity(ctx, activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, true)
+			if er := e.dao.PostActivity(ctx, activity2.OwnerType_USER, subscription.UserId, activity.BoxInbox, ac, true); er != nil {
+				log.Logger(ctx).Error("Could not post activity", zap.Error(er))
+			}
 		}
 	}
 
@@ -239,7 +241,11 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 		// Clear activity for deleted user
 		ctx = servicecontext.WithServiceName(ctx, Name)
 		log.Logger(ctx).Debug("Clearing activities for user", msg.User.ZapLogin())
-		go e.dao.Delete(nil, activity2.OwnerType_USER, msg.User.Login)
+		go func() {
+			if er := e.dao.Delete(e.RuntimeCtx, activity2.OwnerType_USER, msg.User.Login); er != nil {
+				log.Logger(ctx).Error("Could not clear activities for user"+msg.User.Login, zap.Error(er))
+			}
+		}()
 	}
 
 	return nil

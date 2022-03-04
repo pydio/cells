@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/nodes"
 	"path"
 	"strings"
 
@@ -137,7 +136,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return
 	}
 	var loadUuids []string
-	router := compose.NewClient(compose.UuidComposer(nodes.WithContext(s.ctx))...)
+	router := compose.UuidClient(s.ctx)
 
 	// First check if the namespaces are globally accessible
 	for _, meta := range input.MetaDatas {
@@ -256,7 +255,7 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 	searchRequest := &idm.SearchUserMetaRequest{
 		Namespace: namespace.ReservedNamespaceBookmark,
 	}
-	router := compose.NewClient(compose.UuidComposer(nodes.WithContext(s.ctx))...)
+	router := compose.UuidClient(s.ctx)
 	ctx := req.Request.Context()
 	output, e := s.PerformSearchMetaRequest(ctx, searchRequest)
 	if e != nil {

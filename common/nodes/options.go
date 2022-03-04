@@ -69,15 +69,6 @@ func AsAdmin() Option {
 	}
 }
 
-func WithRegistryWatch(r ...registry.Registry) Option {
-	return func(o *RouterOptions) {
-		o.WatchRegistry = true
-		if len(r) > 0 && r[0] != nil {
-			o.Registry = r[0]
-		}
-	}
-}
-
 func WithReadEventsLogging() Option {
 	return func(o *RouterOptions) {
 		o.LogReadEvents = true

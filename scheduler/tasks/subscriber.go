@@ -23,8 +23,7 @@ package tasks
 import (
 	"context"
 	"fmt"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	nodescontext "github.com/pydio/cells/v4/common/nodes/context"
+	"github.com/pydio/cells/v4/common/runtime"
 	"strings"
 	"sync"
 	"time"
@@ -260,11 +259,7 @@ func (s *Subscriber) prepareTaskContext(ctx context.Context, job *jobs.Job, addS
 		}
 	}
 
-	// Add service info
-	ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(s.rootCtx))
-	ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.rootCtx))
-	ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(s.rootCtx))
-	ctx = nodescontext.WithSourcesPool(ctx, nodescontext.GetSourcesPool(s.rootCtx))
+	ctx = runtime.ForkContext(ctx, s.rootCtx)
 
 	// Inject evaluated job parameters
 	if len(job.Parameters) > 0 {

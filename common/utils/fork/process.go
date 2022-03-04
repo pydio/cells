@@ -3,8 +3,7 @@ package fork
 import (
 	"bufio"
 	"context"
-	"fmt"
-	"net"
+	"github.com/pydio/cells/v4/common/runtime"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,8 +11,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-
-	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/log"
 )
@@ -166,46 +163,12 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 }
 
 func (p *Process) buildForkStartParams() []string {
-	grpcAddr := net.JoinHostPort(viper.GetString("bind_address"), viper.GetString("grpc_port"))
-	r := fmt.Sprintf("grpc://%s", grpcAddr)
-	if !strings.HasPrefix(viper.GetString("registry"), "mem://") {
-		r = viper.GetString("registry")
-	}
+	// Get generic flags
+	params := runtime.BuildForkParams("start")
 
-	b := fmt.Sprintf("grpc://%s", grpcAddr)
-	if !strings.HasPrefix(viper.GetString("broker"), "mem://") {
-		b = viper.GetString("broker")
-	}
-
-	params := []string{
-		"start",
-		"--fork",
-		"--registry", r,
-		"--broker", b,
-		"--grpc_port", "0",
-		"--http", "http",
-		"--http_port", "0",
-	}
-
-	if viper.IsSet("bind_address") {
-		params = append(params, "--bind_address", viper.GetString("bind_address"))
-	}
-
-	if viper.IsSet("advertise_address") {
-		params = append(params, "--advertise_address", viper.GetString("advertise_address"))
-	}
-
-	if viper.IsSet("config") {
-		params = append(params, "--config", viper.GetString("config"))
-	}
-	if viper.GetBool("enable_metrics") {
-		params = append(params, "--enable_metrics")
-	}
-	if viper.GetBool("enable_pprof") {
-		params = append(params, "--enable_pprof")
-	}
+	// Append debug flag
 	if p.o.debugFork {
-		params = append(params, "--log", "debug")
+		params = append(params, runtime.KeyLog, "debug")
 	}
 	// Use regexp to specify that we want to start that specific service
 	params = append(params, "^"+p.serviceName+"$")

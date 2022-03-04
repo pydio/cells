@@ -69,11 +69,7 @@ var (
 
 func getClient(ctx context.Context) tree.NodeProviderClient {
 	if providerClient == nil {
-		providerClient = compose.PathClient(
-			nodes.WithContext(ctx),
-			nodes.AsAdmin(),
-			nodes.WithVirtualNodesBrowsing(),
-		)
+		providerClient = compose.PathClient(ctx, nodes.AsAdmin(), nodes.WithVirtualNodesBrowsing())
 	}
 	return providerClient
 }
@@ -353,7 +349,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
 	moveLabel := T("Jobs.User.MoveRecycle")
-	fullPathRouter := compose.PathClientAdmin(nodes.WithContext(h.RuntimeCtx))
+	fullPathRouter := compose.PathClientAdmin(h.RuntimeCtx)
 	for recyclePath, selectedPaths := range deleteJobs.RecycleMoves {
 
 		// Create recycle bins now, to make sure user is notified correctly

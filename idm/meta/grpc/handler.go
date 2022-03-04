@@ -23,8 +23,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	clientcontext "github.com/pydio/cells/v4/common/client/context"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"strings"
 
 	"github.com/pydio/cells/v4/common"
@@ -34,6 +32,7 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/utils/cache"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -118,8 +117,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 
 	go func() {
 		bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
-		bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
-		bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
+		bgCtx = runtime.ForkContext(bgCtx, ctx)
 		subjects, _ := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 
 		for nodeId, source := range sources {
@@ -174,8 +172,9 @@ func (h *Handler) ReadNodeStream(stream tree.NodeProviderStreamer_ReadNodeStream
 	ctx := stream.Context()
 
 	bgCtx := metadata.NewBackgroundWithMetaCopy(ctx)
-	bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
-	bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
+	//bgCtx = clientcontext.WithClientConn(bgCtx, clientcontext.GetClientConn(ctx))
+	//bgCtx = servicecontext.WithRegistry(bgCtx, servicecontext.GetRegistry(ctx))
+	bgCtx = runtime.ForkContext(bgCtx, ctx)
 	subjects, e := auth.SubjectsForResourcePolicyQuery(bgCtx, nil)
 	if e != nil {
 		return e

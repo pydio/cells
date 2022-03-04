@@ -61,7 +61,7 @@ DESCRIPTION
 			cmd.Help()
 			return
 		}
-		router := compose.PathClientAdmin()
+		router := compose.PathClientAdmin(context.Background())
 		c := auth.WithImpersonate(context.Background(), &idm.User{Login: benchUser})
 		for i := 0; i < benchNumber; i++ {
 			u := uuid.New()

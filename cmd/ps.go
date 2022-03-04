@@ -22,16 +22,16 @@ package cmd
 
 import (
 	"fmt"
-	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"os"
 	"strings"
 	"text/tabwriter"
 	"text/template"
 
-	"github.com/pydio/cells/v4/common/registry"
-
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+
+	pb "github.com/pydio/cells/v4/common/proto/registry"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 var (
@@ -102,7 +102,7 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}

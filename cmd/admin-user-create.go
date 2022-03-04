@@ -25,18 +25,17 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pydio/cells/v4/common/registry"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
+	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
+	servercontext "github.com/pydio/cells/v4/common/server/context"
 )
 
 var (
@@ -80,7 +79,7 @@ EXAMPLES
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
-		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}

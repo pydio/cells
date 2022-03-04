@@ -7,11 +7,11 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	"google.golang.org/grpc"
 
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceConfig),
 			service.Context(ctx),
@@ -20,7 +20,7 @@ func init() {
 			// service.WithStorage(config.NewDAO),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 				// Register handler
-				pb.RegisterConfigEnhancedServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_+common.ServiceConfig})
+				pb.RegisterConfigEnhancedServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_ + common.ServiceConfig})
 
 				return nil
 			}),

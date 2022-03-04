@@ -38,10 +38,10 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/install"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	cruntime "github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server/caddy"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service"
@@ -174,9 +174,9 @@ ENVIRONMENT
 		}
 
 		replaceKeys := map[string]string{
-			"yaml": "install_yaml",
-			"json": "install_json",
-			"cli":  "install_cli",
+			cruntime.KeyInstallYamlLegacy: cruntime.KeyInstallYaml,
+			cruntime.KeyInstallJsonLegacy: cruntime.KeyInstallJson,
+			cruntime.KeyInstallCliLegacy:  cruntime.KeyInstallCli,
 		}
 
 		cmd.Flags().VisitAll(func(flag *pflag.Flag) {
@@ -190,18 +190,19 @@ ENVIRONMENT
 		initConfig()
 
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
-		niBindUrl = viper.GetString("bind")
-		niExtUrl = viper.GetString("external")
-		niNoTls = viper.GetBool("no_tls")
-		niModeCli = viper.GetBool("install_cli")
-		niCertFile = viper.GetString("tls_cert_file")
-		niKeyFile = viper.GetString("tls_key_file")
-		niLeEmailContact = viper.GetString("le_email")
-		niLeAcceptEula = viper.GetBool("le_agree")
-		niLeUseStagingCA = viper.GetBool("le_staging")
-		niYamlFile = viper.GetString("install_yaml")
-		niJsonFile = viper.GetString("install_json")
-		niExitAfterInstall = viper.GetBool("exit_after_install")
+		niModeCli = cruntime.GetBool(cruntime.KeyInstallCli)
+		niYamlFile = cruntime.GetString(cruntime.KeyInstallYaml)
+		niJsonFile = cruntime.GetString(cruntime.KeyInstallJson)
+		niExitAfterInstall = cruntime.GetBool(cruntime.KeyInstallExitAfter)
+
+		niBindUrl = cruntime.GetString(cruntime.KeySiteBind)
+		niExtUrl = cruntime.GetString(cruntime.KeySiteExternal)
+		niNoTls = cruntime.GetBool(cruntime.KeySiteNoTLS)
+		niCertFile = cruntime.GetString(cruntime.KeySiteTlsCertFile)
+		niKeyFile = cruntime.GetString(cruntime.KeySiteTlsKeyFile)
+		niLeEmailContact = cruntime.GetString(cruntime.KeySiteLetsEncryptEmail)
+		niLeAcceptEula = cruntime.GetBool(cruntime.KeySiteLetsEncryptAgree)
+		niLeUseStagingCA = cruntime.GetBool(cruntime.KeySiteLetsEncryptStaging)
 
 		return nil
 	},
@@ -365,12 +366,12 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 
 	metrics.Init()
 
-	reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+	reg, err := registry.OpenRegistry(ctx, cruntime.RegistryURL())
 	if err != nil {
 		return
 	}
 
-	bkr := broker.NewBroker(viper.GetString("broker"))
+	bkr := broker.NewBroker(cruntime.BrokerURL())
 
 	ctx = servercontext.WithRegistry(ctx, reg)
 	ctx = servicecontext.WithRegistry(ctx, reg)
@@ -381,7 +382,7 @@ func performBrowserInstall(cmd *cobra.Command, proxyConf *install.ProxyConfig) {
 		panic(err)
 	}
 
-	plugins.Init(ctx, "install")
+	cruntime.Init(ctx, "install")
 
 	cmd.Println("")
 	cmd.Println(promptui.Styler(promptui.BGMagenta, promptui.FGWhite)("Installation Server is starting..."))
@@ -489,25 +490,24 @@ func fatalIfError(cmd *cobra.Command, err error) {
 func init() {
 	flags := ConfigureCmd.Flags()
 
+	// Is this really used ?
 	flags.String("http.address", ":8002", "HTTP Server Address")
 
-	flags.String("bind", "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
-	flags.String("external", "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
+	flags.Bool(cruntime.KeyInstallCliLegacy, false, "Do not prompt for install mode, use CLI mode by default")
+	flags.String(cruntime.KeyInstallYamlLegacy, "", "Points toward a configuration in YAML format")
+	flags.String(cruntime.KeyInstallJsonLegacy, "", "Points toward a configuration in JSON format")
 
-	flags.Bool("cli", false, "Do not prompt for install mode, use CLI mode by default")
+	flags.String(cruntime.KeySiteBind, "", "Internal IP|DOMAIN:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.String(cruntime.KeySiteExternal, "", "External full URL (http[s]://IP|DOMAIN[:PORT]) exposed to the outside")
+	flags.Bool(cruntime.KeySiteNoTLS, false, "Configure the main gateway to rather use plain HTTP")
+	flags.String(cruntime.KeySiteTlsCertFile, "", "TLS cert file path")
+	flags.String(cruntime.KeySiteTlsKeyFile, "", "TLS key file path")
+	flags.String(cruntime.KeySiteLetsEncryptEmail, "", "Contact e-mail for Let's Encrypt provided certificate")
+	flags.Bool(cruntime.KeySiteLetsEncryptAgree, false, "Accept Let's Encrypt EULA")
+	flags.Bool(cruntime.KeySiteLetsEncryptStaging, false, "Rather use staging CA entry point")
+	flags.MarkHidden(cruntime.KeySiteLetsEncryptStaging)
 
-	flags.Bool("no_tls", false, "Configure the main gateway to rather use plain HTTP")
-	flags.String("tls_cert_file", "", "TLS cert file path")
-	flags.String("tls_key_file", "", "TLS key file path")
-
-	flags.String("le_email", "", "Contact e-mail for Let's Encrypt provided certificate")
-	flags.Bool("le_agree", false, "Accept Let's Encrypt EULA")
-	flags.Bool("le_staging", false, "Rather use staging CA entry point")
-	flags.MarkHidden("le_staging")
-
-	flags.String("yaml", "", "Points toward a configuration in YAML format")
-	flags.String("json", "", "Points toward a configuration in JSON format")
-	flags.Bool("exit_after_install", false, "Simply exits main process after the installation is done")
+	flags.Bool(cruntime.KeyInstallExitAfter, false, "Simply exits main process after the installation is done")
 
 	addRegistryFlags(flags, true)
 

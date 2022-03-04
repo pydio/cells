@@ -26,9 +26,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/pydio/cells/v4/common/plugins"
 	registry2 "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 
@@ -89,7 +89,7 @@ func ListServicesWithStorage() (ss []service.Service, e error) {
 		if err != nil {
 			e = err
 		}
-		plugins.Init(servicecontext.WithRegistry(ctx, reg), "main")
+		runtime.Init(servicecontext.WithRegistry(ctx, reg), "main")
 		listRegistry = reg
 	})
 	if e != nil {

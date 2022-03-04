@@ -23,13 +23,12 @@ package servicecontext
 
 import (
 	"context"
-
-	"github.com/pydio/cells/v4/common/broker"
-
-	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/runtime"
 
 	"github.com/pkg/errors"
 
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/pydio/cells/v4/common/utils/configx"
@@ -54,6 +53,15 @@ const (
 	ContextMetaTaskUuid       = "X-Pydio-Task-Uuid"
 	ContextMetaTaskActionPath = "X-Pydio-Task-Action-Path"
 )
+
+func init() {
+	runtime.RegisterContextInjector(func(ctx, parent context.Context) context.Context {
+		if s := GetServiceName(parent); s != "" {
+			ctx = WithServiceName(ctx, s)
+		}
+		return WithRegistry(ctx, GetRegistry(parent))
+	})
+}
 
 // WithServiceName returns a context which knows its service name
 func WithServiceName(ctx context.Context, serviceName string) context.Context {

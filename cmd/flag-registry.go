@@ -21,36 +21,34 @@
 package cmd
 
 import (
-	"github.com/pydio/cells/v4/common/utils/net"
 	"github.com/spf13/pflag"
+
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/net"
 )
 
 // addRegistryFlags registers necessary flags to connect to the registry (defaults to memory)
 func addRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	flags.String("registry", "mem://?cache=shared", "Registry used to manage services")
-	flags.String("broker", "mem://", "Pub/sub service for events between services")
-	flags.String("transport", "grpc", "Transport protocol for RPC")
-	flags.Int("port_registry", net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
-	flags.Int("port_broker", net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
+	flags.String(runtime.KeyRegistry, "mem://?cache=shared", "Registry used to manage services")
+	flags.String(runtime.KeyBroker, "mem://", "Pub/sub service for events between services")
+	flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
+	flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
 
 	if len(hideAll) > 0 && hideAll[0] {
-		flags.MarkHidden("registry")
-		flags.MarkHidden("broker")
-		flags.MarkHidden("transport")
+		flags.MarkHidden(runtime.KeyRegistry)
+		flags.MarkHidden(runtime.KeyBroker)
 	}
 }
 
 // addExternalCmdRegistryFlags registers necessary flags to connect to the registry with defaults :8001
 func addExternalCmdRegistryFlags(flags *pflag.FlagSet, hideAll ...bool) {
-	flags.String("registry", "grpc://:8001", "Registry used to contact services")
-	flags.String("broker", "grpc://:8001", "Pub/sub service for events between services")
-	flags.String("transport", "grpc", "Transport protocol for RPC")
-	flags.Int("port_registry", net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
-	flags.Int("port_broker", net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
+	flags.String(runtime.KeyRegistry, "grpc://:8001", "Registry used to contact services")
+	flags.String(runtime.KeyBroker, "grpc://:8001", "Pub/sub service for events between services")
+	flags.Int(runtime.KeyRegistryPort, net.GetAvailableRegistryAltPort(), "Port used to start a registry discovery service")
+	flags.Int(runtime.KeyBrokerPort, net.GetAvailableBrokerAltPort(), "Port used to start a broker discovery service")
 
 	if len(hideAll) > 0 && hideAll[0] {
-		flags.MarkHidden("registry")
-		flags.MarkHidden("broker")
-		flags.MarkHidden("transport")
+		flags.MarkHidden(runtime.KeyRegistry)
+		flags.MarkHidden(runtime.KeyBroker)
 	}
 }

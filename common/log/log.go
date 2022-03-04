@@ -33,7 +33,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
@@ -196,7 +196,7 @@ func SetSkipServerSync() {
 func initLogger(l *logger, f func() *zap.Logger, globalConnInit func(ctx context.Context)) {
 	l.set(f)
 	if globalConnInit != nil {
-		plugins.RegisterGlobalConnConsumer("main", func(ctx context.Context) {
+		runtime.RegisterGlobalConnConsumer("main", func(ctx context.Context) {
 			globalConnInit(ctx)
 			l.forceReset()
 		})

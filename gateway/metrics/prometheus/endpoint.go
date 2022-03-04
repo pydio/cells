@@ -11,12 +11,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/viper"
 	tally "github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
 
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/service/metrics"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
@@ -35,7 +35,7 @@ func init() {
 
 func exposeMetrics() {
 	once.Do(func() {
-		if viper.GetBool("enable_metrics") {
+		if runtime.MetricsEnabled() {
 			r := prometheus.NewReporter(prometheus.Options{})
 			options := tally.ScopeOptions{
 				Prefix:         "cells",
@@ -48,7 +48,7 @@ func exposeMetrics() {
 			go func() {
 				defer metrics.Close()
 				http.Handle("/metrics", r.HTTPHandler())
-				if viper.GetBool("enable_pprof") {
+				if runtime.PprofEnabled() {
 					fmt.Printf("Exposing debug profiles for process %d on port %d\n", os.Getpid(), port)
 					http.Handle("/debug", pprof.Handler("debug"))
 				}
@@ -71,7 +71,7 @@ func WatchTargets(ctx context.Context, serviceName string) error {
 	}
 	file := filepath.Join(d, "prom_clients.json")
 
-	if !viper.GetBool("enable_metrics") {
+	if !runtime.MetricsEnabled() {
 		empty, _ := json.Marshal([]interface{}{})
 		return ioutil.WriteFile(file, empty, 0755)
 	}

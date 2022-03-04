@@ -198,10 +198,6 @@ func (t *TreeHandler) getRouter() nodes.Handler {
 	if t.router != nil {
 		return t.router
 	}
-	t.router = compose.PathClient(
-		nodes.WithContext(t.runtimeCtx),
-		nodes.WithRegistryWatch(),
-		nodes.WithSynchronousTasks(),
-	)
+	t.router = compose.PathClient(t.runtimeCtx, nodes.WithSynchronousTasks())
 	return t.router
 }

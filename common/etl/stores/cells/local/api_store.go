@@ -657,7 +657,7 @@ func (apiStore *ApiStore) loadWorkspacesSlugs(ctx context.Context) (map[string]s
 
 func (apiStore *ApiStore) getRouter() nodes.Client {
 	if apiStore.router == nil {
-		apiStore.router = compose.PathClient(nodes.WithContext(apiStore.runtime))
+		apiStore.router = compose.PathClient(apiStore.runtime)
 	}
 	return apiStore.router
 }

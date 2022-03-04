@@ -18,24 +18,25 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package registry
+package runtime
 
-type Node interface {
-	Item
+import "context"
 
-	Address() []string
-	Endpoints() []string
+type ContextInjector func(ctx, parent context.Context) context.Context
+
+var (
+	contextInjectors []ContextInjector
+)
+
+// RegisterContextInjector appends a ContextInjector to the internal registry
+func RegisterContextInjector(injector ContextInjector) {
+	contextInjectors = append(contextInjectors, injector)
 }
 
-type Endpoint interface {
-	Name() string
-	Metadata() map[string]string
-}
-
-type NodeRegistry interface {
-	RegisterNode(Node) error
-	DeregisterNode(Node) error
-	GetNode(string) (Node, error)
-	ListNodes() ([]Node, error)
-	As(interface{}) bool
+// ForkContext copies all necessary dependencies using the internal ContextInjector registry
+func ForkContext(ctx, parent context.Context) context.Context {
+	for _, i := range contextInjectors {
+		ctx = i(ctx, parent)
+	}
+	return ctx
 }

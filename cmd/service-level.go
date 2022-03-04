@@ -21,12 +21,12 @@
 package cmd
 
 import (
+	"github.com/pydio/cells/v4/common/runtime"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
-	
+
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
@@ -55,7 +55,7 @@ var serviceLevelCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		ctx := cmd.Context()
-		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}
@@ -67,7 +67,7 @@ var serviceLevelCmd = &cobra.Command{
 		}
 
 		ctx = clientcontext.WithClientConn(ctx, conn)
-		broker.Register(broker.NewBroker(viper.GetString("broker"), broker.WithContext(ctx)))
+		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 
 		event := &log.LogLevelEvent{
 			ResetInfo:  debugReset,

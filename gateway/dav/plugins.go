@@ -27,7 +27,7 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -38,20 +38,14 @@ var (
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGatewayDav),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagGateway),
 			service.Description("DAV Gateway to tree service"),
 			service.WithHTTP(func(runtimeCtx context.Context, mux server.HttpMux) error {
-				davRouter = compose.PathClient(
-					nodes.WithContext(runtimeCtx),
-					nodes.WithRegistryWatch(),
-					nodes.WithAuditEventsLogging(),
-					nodes.WithSynchronousCaching(),
-					nodes.WithSynchronousTasks(),
-				)
+				davRouter = compose.PathClient(runtimeCtx, nodes.WithAuditEventsLogging(), nodes.WithSynchronousCaching(), nodes.WithSynchronousTasks())
 				handler := newHandler(runtimeCtx, davRouter)
 				handler = servicecontext.HttpWrapperMeta(runtimeCtx, handler)
 				mux.Handle("/dav/", handler)

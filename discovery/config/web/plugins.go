@@ -3,10 +3,9 @@ package rest
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/config"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -30,6 +29,6 @@ func init() {
 		)
 	}
 
-	plugins.Register("main", f)
-	plugins.Register("install", f)
+	runtime.Register("main", f)
+	runtime.Register("install", f)
 }

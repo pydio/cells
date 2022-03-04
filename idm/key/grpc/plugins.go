@@ -24,22 +24,21 @@ package grpc
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/crypto"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
-	"github.com/pydio/cells/v4/common/proto/encryption"
-	"github.com/pydio/cells/v4/idm/key"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/crypto"
+	"github.com/pydio/cells/v4/common/proto/encryption"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
+	servicecontext "github.com/pydio/cells/v4/common/service/context"
+	"github.com/pydio/cells/v4/idm/key"
 )
 
 const ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUserKey
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(ServiceName),
 			service.Context(ctx),

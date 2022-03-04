@@ -27,10 +27,9 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
 )
 
 var (
@@ -38,7 +37,7 @@ var (
 )
 
 func init() {
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGatewayWopi),
 			service.Context(ctx),
@@ -46,11 +45,7 @@ func init() {
 			service.Description("WOPI REST Gateway to tree service"),
 			//service.RouterDependencies(),
 			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
-				client = compose.NewClient(compose.UuidComposer(
-					nodes.WithContext(ctx),
-					nodes.WithRegistryWatch(servicecontext.GetRegistry(ctx)),
-					nodes.WithAuditEventsLogging())...,
-				)
+				client = compose.UuidClient(ctx, nodes.WithAuditEventsLogging())
 				wopiRouter := NewRouter()
 				mux.Handle("/wopi/", wopiRouter)
 				return nil

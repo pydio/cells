@@ -2,9 +2,8 @@ package meta
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
 	servercontext "github.com/pydio/cells/v4/common/server/context"
-
-	"github.com/spf13/viper"
 
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -15,7 +14,7 @@ func servicesWithMeta(ctx context.Context, metaName string, metaValue string) ([
 
 	reg := servercontext.GetRegistry(ctx)
 	if reg == nil {
-		defaultReg, err := registry.OpenRegistry(context.Background(), viper.GetString("registry"))
+		defaultReg, err := registry.OpenRegistry(context.Background(), runtime.RegistryURL())
 		if err != nil {
 			return nil, err
 		}

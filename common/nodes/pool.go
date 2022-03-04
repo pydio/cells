@@ -23,7 +23,6 @@ package nodes
 import (
 	"context"
 	"fmt"
-	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -40,7 +39,6 @@ import (
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"github.com/pydio/cells/v4/common/registry"
-	servercontext "github.com/pydio/cells/v4/common/server/context"
 	"github.com/pydio/cells/v4/common/utils/configx"
 )
 
@@ -71,7 +69,6 @@ func (s LoadedSource) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 // keeping an up to date registry that is used by the routers.
 type ClientsPool struct {
 	ctx context.Context
-	id  int
 
 	sync.RWMutex
 	sources map[string]LoadedSource
@@ -87,59 +84,31 @@ type ClientsPool struct {
 	reload chan bool
 }
 
-var poolInstances = 0
-
-func ContextPool(ctx context.Context) *ClientsPool {
+func NewPool(ctx context.Context, reg registry.Registry) *ClientsPool {
 	pool := &ClientsPool{
-		id:      poolInstances,
 		ctx:     ctx,
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),
 	}
-	poolInstances++
 	go pool.LoadDataSources()
 	go pool.reloadDebounced()
-	go pool.watchRegistry(servercontext.GetRegistry(ctx))
+	go pool.watchRegistry(reg)
 	go pool.watchConfigChanges()
 	return pool
 }
 
-// NewClientsPool creates a client Pool and initialises it by calling the registry.
-func NewClientsPool(ctx context.Context, watchRegistry bool) *ClientsPool {
+// NewTestPool creates a client Pool and initialises it by calling the registry.
+func NewTestPool(ctx context.Context) *ClientsPool {
 
 	pool := &ClientsPool{
-		id:      poolInstances,
 		ctx:     ctx,
 		sources: make(map[string]LoadedSource),
 		aliases: make(map[string]sourceAlias),
 		reload:  make(chan bool),
 	}
-	poolInstances++
-
-	if IsUnitTestEnv {
-		// Workaround the fact that no registry is present when doing unit tests
-		return pool
-	}
-
-	go pool.LoadDataSources()
-	if watchRegistry {
-		reg := servercontext.GetRegistry(ctx)
-		if reg == nil {
-			debug.PrintStack()
-			log.Logger(context.Background()).Warn("Starting clients pool registry watcher with empty registry, will use default")
-		}
-		go pool.reloadDebounced()
-		go func() {
-			e := pool.watchRegistry(reg)
-			if e != nil {
-				log.Logger(context.Background()).Warn("Cannot watch registry in client pool", zap.Error(e))
-			}
-		}()
-		go pool.watchConfigChanges()
-	}
-
 	return pool
+
 }
 
 // Close stops the underlying watcher if defined.
@@ -251,7 +220,6 @@ func (p *ClientsPool) LoadDataSources() {
 
 	sources := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync, "sources").StringArray()
 	sources = config.SourceNamesFiltered(sources)
-	log.Logger(p.ctx).Debug("LoadDataSources ", zap.Int("poolId", p.id))
 
 	for _, source := range sources {
 		endpointClient := object.NewDataSourceEndpointClient(clientgrpc.GetClientConnFromCtx(p.ctx, common.ServiceGrpcNamespace_+common.ServiceDataSync_+source))
@@ -294,9 +262,6 @@ func (p *ClientsPool) registerAlternativeClient(namespace string) error {
 }
 
 func (p *ClientsPool) watchRegistry(reg registry.Registry) error {
-	if reg == nil {
-		return fmt.Errorf("pool.watchRegistry: cannot find registry in context")
-	}
 
 	w, err := reg.Watch(registry.WithType(pb.ItemType_SERVICE))
 	if err != nil {
@@ -403,7 +368,7 @@ func (p *ClientsPool) CreateClientsForDataSource(dataSourceName string, dataSour
 
 func MakeFakeClientsPool(tc tree.NodeProviderClient, tw tree.NodeReceiverClient) *ClientsPool {
 	IsUnitTestEnv = true
-	c := NewClientsPool(context.TODO(), false)
+	c := NewTestPool(context.TODO())
 
 	c.treeClient = tc
 	c.treeClientWrite = tw

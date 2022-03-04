@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/nodes"
 	"time"
 
 	restful "github.com/emicklei/go-restful/v3"
@@ -258,7 +257,7 @@ func (a *TokenHandler) GenerateDocumentAccessToken(req *restful.Request, resp *r
 		return
 	}
 	ctx := req.Request.Context()
-	router := compose.PathClient(nodes.WithContext(a.RuntimeCtx))
+	router := compose.PathClient(a.RuntimeCtx)
 	readResp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: datRequest.Path}})
 	if e != nil {
 		service.RestErrorDetect(req, resp, e)

@@ -24,11 +24,6 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
-	servicecontext "github.com/pydio/cells/v4/common/service/context"
-
-	"github.com/pydio/cells/v4/common/nodes/compose"
-
 	restful "github.com/emicklei/go-restful/v3"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -36,9 +31,10 @@ import (
 	activity2 "github.com/pydio/cells/v4/broker/activity"
 	"github.com/pydio/cells/v4/broker/activity/render"
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
+	"github.com/pydio/cells/v4/common/nodes/compose"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	"github.com/pydio/cells/v4/common/proto/rest"
 	"github.com/pydio/cells/v4/common/proto/tree"
@@ -56,10 +52,7 @@ type ActivityHandler struct {
 func NewActivityHandler(ctx context.Context) *ActivityHandler {
 	return &ActivityHandler{
 		RuntimeCtx: ctx,
-		router: compose.ReverseClient(
-			nodes.WithContext(ctx),
-			nodes.WithRegistryWatch(servicecontext.GetRegistry(ctx)),
-		),
+		router:     compose.ReverseClient(ctx),
 	}
 }
 

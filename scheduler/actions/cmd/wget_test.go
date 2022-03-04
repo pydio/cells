@@ -57,7 +57,7 @@ func TestWGetAction_Init(t *testing.T) {
 
 		action := &WGetAction{}
 		ctx := context.Background()
-		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewClientsPool(ctx, false)))
+		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx)))
 		job := &jobs.Job{}
 		// Missing Parameters
 		e := action.Init(job, &jobs.Action{})
@@ -92,7 +92,7 @@ func TestWGetAction_Run(t *testing.T) {
 
 		action := &WGetAction{}
 		ctx := context.Background()
-		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewClientsPool(ctx, false)))
+		action.SetRuntimeContext(nodescontext.WithSourcesPool(ctx, nodes.NewTestPool(ctx)))
 
 		job := &jobs.Job{}
 		action.Init(job, &jobs.Action{

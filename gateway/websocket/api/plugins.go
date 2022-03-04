@@ -30,14 +30,13 @@ import (
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/log"
-	"github.com/pydio/cells/v4/common/nodes"
 	"github.com/pydio/cells/v4/common/nodes/compose"
-	"github.com/pydio/cells/v4/common/plugins"
 	"github.com/pydio/cells/v4/common/proto/activity"
 	chat2 "github.com/pydio/cells/v4/common/proto/chat"
 	"github.com/pydio/cells/v4/common/proto/idm"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/server"
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
@@ -56,7 +55,7 @@ func wrap(ctx context.Context) context.Context {
 
 func init() {
 
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		service.NewService(
 			service.Name(name),
 			service.Context(ctx),
@@ -67,9 +66,7 @@ func init() {
 			service.WithHTTP(func(ctx context.Context, mux server.HttpMux) error {
 				ws = websocket.NewWebSocketHandler(ctx)
 				chat = websocket.NewChatHandler(ctx)
-				ws.EventRouter = compose.ReverseClient(
-					nodes.WithContext(ctx),
-					nodes.WithRegistryWatch(servicecontext.GetRegistry(ctx)))
+				ws.EventRouter = compose.ReverseClient(ctx)
 
 				mux.HandleFunc("/ws/event", func(w http.ResponseWriter, r *http.Request) {
 					ws.Websocket.HandleRequest(w, r)

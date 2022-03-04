@@ -21,11 +21,11 @@
 package cmd
 
 import (
+	"github.com/pydio/cells/v4/common/runtime"
 	"os"
 
 	"github.com/pydio/cells/v4/common/registry"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // serviceStartCmd represents the stop command
@@ -61,7 +61,7 @@ EXAMPLE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		reg, err := registry.OpenRegistry(ctx, viper.GetString("registry"))
+		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}

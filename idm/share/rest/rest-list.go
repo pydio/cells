@@ -187,7 +187,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 func (h *SharesHandler) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
 
 	rootNodes = make(map[string]*tree.Node)
-	router := compose.NewClient(compose.UuidComposer(nodes.WithContext(h.ctx), nodes.AsAdmin())...)
+	router := compose.UuidClient(h.ctx, nodes.AsAdmin())
 	metaClient := tree.NewNodeProviderClient(grpc.GetClientConnFromCtx(h.ctx, common.ServiceMeta))
 	for _, rootId := range detectedRoots {
 		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}

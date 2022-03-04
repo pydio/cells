@@ -51,8 +51,9 @@ type Reverse struct {
 	rootsCache cache.Short
 }
 
-func ReverseClient(oo ...nodes.Option) *Reverse {
+func ReverseClient(ctx context.Context, oo ...nodes.Option) *Reverse {
 	opts := append(oo,
+		nodes.WithContext(ctx),
 		nodes.WithCore(func(pool nodes.SourcesPool) nodes.Handler {
 			exe := &core.Executor{}
 			exe.SetClientsPool(pool)

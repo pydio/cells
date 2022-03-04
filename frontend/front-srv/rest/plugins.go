@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 	"github.com/pydio/cells/v4/common/service/frontend"
 	"github.com/pydio/cells/v4/frontend/front-srv"
@@ -86,7 +86,7 @@ func init() {
 	}
 	config.RegisterVaultKey("frontend/plugin/action.livekit/LK_API_SECRET")
 
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		gob.Register(map[string]string{})
 
 		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)

@@ -79,7 +79,7 @@ func (sc *Client) CheckLinkOptionsAgainstConfigs(ctx context.Context, link *rest
 
 // CheckCellOptionsAgainstConfigs loads specific share configurations from ACLs and checks that current cell complies with these.
 func (sc *Client) CheckCellOptionsAgainstConfigs(ctx context.Context, request *rest.PutCellRequest) error {
-	router := compose.ReverseClient(nodes.WithContext(sc.RuntimeContext))
+	router := compose.ReverseClient(ctx)
 	acl, e := permissions.AccessListFromContextClaims(ctx)
 	if e != nil {
 		return e

@@ -31,24 +31,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pydio/cells/v4/common/config/memory"
-	"github.com/pydio/cells/v4/common/crypto"
-	"github.com/pydio/cells/v4/common/utils/configx"
-	clientv3 "go.etcd.io/etcd/client/v3"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/broker"
 	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/config/memory"
 	"github.com/pydio/cells/v4/common/config/migrations"
+	"github.com/pydio/cells/v4/common/crypto"
 	"github.com/pydio/cells/v4/common/log"
 	context_wrapper "github.com/pydio/cells/v4/common/log/context-wrapper"
 	log2 "github.com/pydio/cells/v4/common/proto/log"
+	"github.com/pydio/cells/v4/common/runtime"
+	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filex"
-
 	// "github.com/pydio/cells/v4/common/config/remote"
 	"github.com/pydio/cells/v4/common/config/etcd"
 	"github.com/pydio/cells/v4/common/config/file"
@@ -157,8 +156,9 @@ func init() {
 	initEnvPrefixes()
 	viper.SetEnvPrefix(EnvPrefixNew)
 	viper.AutomaticEnv()
+	runtime.SetRuntime(viper.GetViper())
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "file://"+config.ApplicationWorkingDir(), "config file (default is $HOME/.test.yaml)")
+	RootCmd.PersistentFlags().String(runtime.KeyConfig, "file://"+config.ApplicationWorkingDir(), "config file (default is $HOME/.test.yaml)")
 }
 
 func skipCoreInit() bool {
@@ -234,7 +234,7 @@ func initConfig() (new bool) {
 
 	config.RegisterLocal(lc)
 
-	switch viper.GetString("config") {
+	switch runtime.ConfigURL() {
 	case "etcd":
 		conn, err := clientv3.New(clientv3.Config{
 			Endpoints:   []string{"http://192.168.1.92:2379"},
@@ -320,13 +320,9 @@ func initLogLevel() {
 	}
 
 	// Init log level
-	logLevel := viper.GetString("log")
-	// TODO V4
-	//logLevel = "debug"
-	//log.SetSkipServerSync()
-
-	logJson := viper.GetBool("log_json")
-	common.LogToFile = viper.GetBool("log_to_file")
+	logLevel := runtime.LogLevel()
+	logJson := runtime.LogJSON()
+	common.LogToFile = runtime.LogToFile()
 
 	// Backward compatibility
 	if os.Getenv("PYDIO_LOGS_LEVEL") != "" {

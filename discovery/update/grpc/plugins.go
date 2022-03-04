@@ -29,7 +29,7 @@ import (
 
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
-	"github.com/pydio/cells/v4/common/plugins"
+	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
 )
 
@@ -37,7 +37,7 @@ var ServiceName = common.ServiceGrpcNamespace_ + common.ServiceUpdate
 
 func init() {
 
-	plugins.Register("main", func(ctx context.Context) {
+	runtime.Register("main", func(ctx context.Context) {
 		config.RegisterExposedConfigs(ServiceName, ExposedConfigs)
 
 		service.NewService(

@@ -23,11 +23,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/runtime"
 	"path/filepath"
 	"strings"
 
 	version "github.com/hashicorp/go-version"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/v4/common"
@@ -81,7 +81,7 @@ func UpdateServiceVersion(opts *ServiceOptions) error {
 
 // lastKnownVersion looks on this server if there was a previous version of this service
 func lastKnownVersion(serviceName string) (v *version.Version, e error) {
-	versionFile := filepath.Join(viper.GetString("config"), "services", serviceName, "version")
+	versionFile := filepath.Join(runtime.ConfigURL(), "services", serviceName, "version")
 
 	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
@@ -105,7 +105,7 @@ func lastKnownVersion(serviceName string) (v *version.Version, e error) {
 
 // updateVersion writes the version string to file
 func updateVersion(serviceName string, v *version.Version) error {
-	versionFile := filepath.Join(viper.GetString("config"), "services", serviceName, "version")
+	versionFile := filepath.Join(runtime.ConfigURL(), "services", serviceName, "version")
 
 	store, err := config.OpenStore(context.Background(), versionFile+"?encode=string")
 	if err != nil {
