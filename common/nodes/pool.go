@@ -231,7 +231,7 @@ func (p *ClientsPool) LoadDataSources() {
 				log.Logger(context.Background()).Warn("Cannot create clients for datasource "+source, zap.Error(e))
 			}
 		} else {
-			log.Logger(p.ctx).Warn("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
+			log.Logger(p.ctx).Debug("no answer from endpoint, maybe not ready yet? "+common.ServiceGrpcNamespace_+common.ServiceDataSync_+source, zap.Any("r", response), zap.Error(err))
 		}
 		ca()
 	}

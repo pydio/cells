@@ -32,7 +32,7 @@ import (
 var (
 	args             []string
 	processStartTags []string
-	r                Runtime
+	r                Runtime = &emptyRuntime{}
 )
 
 type Runtime interface {
@@ -43,66 +43,82 @@ type Runtime interface {
 	SetDefault(key string, value interface{})
 }
 
+// SetRuntime sets internal global Runtime
 func SetRuntime(runtime Runtime) {
 	r = runtime
 }
 
+// GetBool gets a key as boolean from global runtime
 func GetBool(key string) bool {
 	return r.GetBool(key)
 }
 
+// GetStrsing gets a key from global runtime
 func GetString(key string) string {
 	return r.GetString(key)
 }
 
+// GetStringSlice gets a slice from global runtime.
 func GetStringSlice(key string) []string {
 	return r.GetStringSlice(key)
 }
 
+// SetDefault updates global runtime
 func SetDefault(key string, value interface{}) {
 	r.SetDefault(key, value)
 }
 
+// IsSet check existence of a key in runtime
 func IsSet(key string) bool {
 	return r.IsSet(key)
 }
 
+// RegistryURL returns the scheme://address url for Registry
 func RegistryURL() string {
 	return r.GetString(KeyRegistry)
 }
 
+// BrokerURL returns the scheme://address url for Broker
 func BrokerURL() string {
 	return r.GetString(KeyBroker)
 }
 
+// ConfigURL returns the scheme://address url for Config
 func ConfigURL() string {
 	return r.GetString(KeyConfig)
 }
 
+// HttpServerType returns one of HttpServerCaddy or HttpServerCore
 func HttpServerType() string {
 	return r.GetString(KeyHttpServer)
 }
 
+// GrpcBindAddress returns the KeyBindHost:KeyGrpcPort URL
 func GrpcBindAddress() string {
 	return net.JoinHostPort(r.GetString(KeyBindHost), r.GetString(KeyGrpcPort))
 }
 
+// GrpcExternalPort returns optional GRPC port to be used for external binding
 func GrpcExternalPort() string {
 	return r.GetString(KeyGrpcExternal)
 }
 
+// HttpBindAddress returns the KeyBindHost:KeyHttpPort URL
 func HttpBindAddress() string {
 	return net.JoinHostPort(r.GetString(KeyBindHost), r.GetString(KeyHttpPort))
 }
 
+// LogLevel returns the --log value
 func LogLevel() string {
 	return r.GetString(KeyLog)
 }
 
+// LogJSON returns the --log_json value
 func LogJSON() bool {
 	return r.GetBool(KeyLogJson)
 }
 
+// LogToFile returns the --log_to_file value
 func LogToFile() bool {
 	return r.GetBool(KeyLogToFile)
 }
@@ -122,14 +138,17 @@ func IsRemote() bool {
 	return r.GetString(KeyConfig) == "remote" || r.GetString(KeyConfig) == "raft"
 }
 
+// MetricsEnable returns if the metrics should be published or not
 func MetricsEnabled() bool {
 	return r.GetBool(KeyEnableMetrics)
 }
 
+// PprofEnabled returns if an http endpoint should be published for debug/pprof
 func PprofEnabled() bool {
 	return r.GetBool(KeyEnablePprof)
 }
 
+// DefaultAdvertiseAddress reads or compute the advertise address
 func DefaultAdvertiseAddress() string {
 	if addr := r.GetString(KeyAdvertiseAddress); addr != "" {
 		return addr
@@ -145,10 +164,12 @@ func DefaultAdvertiseAddress() string {
 	return r.GetString(KeyAdvertiseAddress)
 }
 
+// ProcessStartTags returns a list of tags to be used for identifying processes
 func ProcessStartTags() []string {
 	return processStartTags
 }
 
+// SetArgs copies command arguments to internal value
 func SetArgs(aa []string) {
 	args = aa
 	buildProcessStartTag()
@@ -168,6 +189,7 @@ func buildProcessStartTag() {
 	}
 }
 
+// BuildForkParams creates --key=value arguments from runtime parameters
 func BuildForkParams(cmd string) []string {
 
 	grpcAddr := GrpcBindAddress()
@@ -218,6 +240,7 @@ func BuildForkParams(cmd string) []string {
 	return params
 }
 
+// IsRequired checks arguments, --tags and --exclude against a service name
 func IsRequired(name string, tags ...string) bool {
 	xx := r.GetStringSlice(KeyArgExclude)
 	tt := r.GetStringSlice(KeyArgTags)
