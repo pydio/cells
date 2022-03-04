@@ -50,36 +50,36 @@ type DAO interface {
 	dao.DAO
 
 	// PostActivity posts an activity to target inbox.
-	PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error
+	PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error
 
 	// UpdateSubscription updates Subscriptions status.
-	UpdateSubscription(subscription *activity.Subscription) error
+	UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error
 
 	// ListSubscriptions lists subs on a given object.
 	// Returns a map of userId => status (true/false, required to disable default subscriptions like workspaces).
-	ListSubscriptions(objectType activity.OwnerType, objectIds []string) ([]*activity.Subscription, error)
+	ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) ([]*activity.Subscription, error)
 
 	// CountUnreadForUser counts the number of unread activities in user "Inbox" box.
-	CountUnreadForUser(userId string) int
+	CountUnreadForUser(ctx context.Context, userId string) int
 
 	// ActivitiesFor loads activities for a given owner. Targets "outbox" by default.
-	ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error
+	ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error
 
 	// StoreLastUserInbox stores the last read uint ID for a given box.
-	StoreLastUserInbox(userId string, boxName BoxName, activityId string) error
+	StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error
 
 	// Delete should be wired to "USER_DELETE" and "NODE_DELETE" events
 	// to remove (or archive?) deprecated queues
-	Delete(ownerType activity.OwnerType, ownerId string) error
+	Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error
 
 	// Purge removes records based on a maximum number of records and/or based on the activity update date
 	// It keeps at least minCount record(s) - to see last activity - even if older than expected date
-	Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error
+	Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error
 
 	// AllActivities is used for internal migrations only
-	allActivities() (chan *docActivity, error)
+	allActivities(ctx context.Context) (chan *docActivity, error)
 	// AllSubscriptions is used for internal migrations only
-	allSubscriptions() (chan *activity.Subscription, error)
+	allSubscriptions(ctx context.Context) (chan *activity.Subscription, error)
 }
 
 type batchActivity struct {
@@ -111,6 +111,7 @@ func NewDAO(o dao.DAO) dao.DAO {
 }
 
 func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	ctx := context.Background()
 	out := map[string]int{
 		"Activities":    0,
 		"Subscriptions": 0,
@@ -118,27 +119,27 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 	testEnv = true // Disable cache
 	from := NewDAO(f).(DAO)
 	to := NewDAO(t).(DAO)
-	aa, er := from.allActivities()
+	aa, er := from.allActivities(ctx)
 	if er != nil {
 		return nil, er
 	}
 	for a := range aa {
 		if dryRun {
 			out["Activities"]++
-		} else if er := to.PostActivity(activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, nil); er == nil {
+		} else if er := to.PostActivity(ctx, activity.OwnerType(a.OwnerType), a.OwnerId, BoxName(a.BoxName), a.Object, false); er == nil {
 			out["Activities"]++
 		} else {
 			continue
 		}
 	}
-	ss, er := from.allSubscriptions()
+	ss, er := from.allSubscriptions(ctx)
 	if er != nil {
 		return out, er
 	}
 	for s := range ss {
 		if dryRun {
 			out["Subscriptions"]++
-		} else if er := to.UpdateSubscription(s); er == nil {
+		} else if er := to.UpdateSubscription(ctx, s); er == nil {
 			out["Subscriptions"]++
 		} else {
 			continue

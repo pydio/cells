@@ -22,6 +22,8 @@
 package chat
 
 import (
+	"context"
+
 	"github.com/pydio/cells/v4/common/dao"
 	"github.com/pydio/cells/v4/common/dao/boltdb"
 	"github.com/pydio/cells/v4/common/dao/mongodb"
@@ -30,14 +32,14 @@ import (
 
 type DAO interface {
 	dao.DAO
-	PutRoom(room *chat.ChatRoom) (*chat.ChatRoom, error)
-	DeleteRoom(room *chat.ChatRoom) (bool, error)
-	ListRooms(request *chat.ListRoomsRequest) ([]*chat.ChatRoom, error)
-	RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error)
-	ListMessages(request *chat.ListMessagesRequest) ([]*chat.ChatMessage, error)
-	PostMessage(request *chat.ChatMessage) (*chat.ChatMessage, error)
-	DeleteMessage(message *chat.ChatMessage) error
-	CountMessages(room *chat.ChatRoom) (count int, e error)
+	PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error)
+	DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error)
+	ListRooms(ctx context.Context, request *chat.ListRoomsRequest) ([]*chat.ChatRoom, error)
+	RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error)
+	ListMessages(ctx context.Context, request *chat.ListMessagesRequest) ([]*chat.ChatMessage, error)
+	PostMessage(ctx context.Context, request *chat.ChatMessage) (*chat.ChatMessage, error)
+	DeleteMessage(ctx context.Context, message *chat.ChatMessage) error
+	CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error)
 }
 
 func NewDAO(o dao.DAO) dao.DAO {
@@ -51,6 +53,7 @@ func NewDAO(o dao.DAO) dao.DAO {
 }
 
 func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
+	ctx := context.Background()
 	res := map[string]int{
 		"Rooms":    0,
 		"Messages": 0,
@@ -58,7 +61,7 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 	from := NewDAO(f).(DAO)
 	to := NewDAO(t).(DAO)
 	for _, roomType := range chat.RoomType_value {
-		rooms, er := from.ListRooms(&chat.ListRoomsRequest{
+		rooms, er := from.ListRooms(ctx, &chat.ListRoomsRequest{
 			ByType: chat.RoomType(roomType),
 		})
 		if er != nil {
@@ -67,7 +70,7 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 		for _, room := range rooms {
 			if dryRun {
 				res["Rooms"]++
-			} else if _, er := to.PutRoom(room); er != nil {
+			} else if _, er := to.PutRoom(ctx, room); er != nil {
 				return res, er
 			} else {
 				res["Rooms"]++
@@ -75,7 +78,7 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 			pageSize := int64(1000)
 			page := int64(0)
 			for {
-				messages, er := from.ListMessages(&chat.ListMessagesRequest{
+				messages, er := from.ListMessages(ctx, &chat.ListMessagesRequest{
 					RoomUuid: room.GetUuid(),
 					Offset:   page * pageSize,
 					Limit:    pageSize,
@@ -86,7 +89,7 @@ func Migrate(f dao.DAO, t dao.DAO, dryRun bool) (map[string]int, error) {
 				for _, msg := range messages {
 					if dryRun {
 						res["Messages"]++
-					} else if _, er := to.PostMessage(msg); er != nil {
+					} else if _, er := to.PostMessage(ctx, msg); er != nil {
 						return res, er
 					} else {
 						res["Messages"]++

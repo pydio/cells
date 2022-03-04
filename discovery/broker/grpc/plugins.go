@@ -1,15 +1,16 @@
-package broker
+package grpc
 
 import (
 	"context"
 
-	"github.com/pydio/cells/v4/common/broker"
+	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/broker"
+	"github.com/pydio/cells/v4/common/broker/grpcpubsub/handler"
 	"github.com/pydio/cells/v4/common/plugins"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/service"
-	"google.golang.org/grpc"
 )
 
 func init() {
@@ -20,8 +21,7 @@ func init() {
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Registry"),
 			service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
-				pb.RegisterBrokerEnhancedServer(srv, NewHandler(broker.Default()))
-
+				pb.RegisterBrokerEnhancedServer(srv, handler.NewHandler(broker.Default()))
 				return nil
 			}),
 		)

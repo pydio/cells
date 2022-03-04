@@ -24,6 +24,37 @@ type SiteConf struct {
 	WebRoot string
 }
 
+// Redirects compute required redirects if SSLRedirect is set
+func (s SiteConf) Redirects() map[string]string {
+	rr := make(map[string]string)
+	for _, bind := range s.GetBinds() {
+		parts := strings.Split(bind, ":")
+		var host, port string
+		if len(parts) == 2 {
+			host = parts[0]
+			port = parts[1]
+			if host == "" {
+				continue
+			}
+		} else {
+			host = bind
+		}
+		targetHost := host
+		if host == "0.0.0.0" {
+			targetHost = "{host}"
+		}
+		if port == "" {
+			rr["http://"+host] = "https://" + targetHost
+		} else if port == "80" {
+			continue
+		} else {
+			rr["http://"+host] = "https://" + targetHost + ":" + port
+		}
+	}
+
+	return rr
+}
+
 // SitesToCaddyConfigs computes all SiteConf from all *install.ProxyConfig by analyzing
 // TLSConfig, ReverseProxyURL and Maintenance fields values
 func SitesToCaddyConfigs(sites []*install.ProxyConfig) (caddySites []SiteConf, er error) {

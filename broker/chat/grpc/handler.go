@@ -62,7 +62,7 @@ func (c *ChatHandler) Name() string {
 func (c *ChatHandler) PutRoom(ctx context.Context, req *chat.PutRoomRequest) (*chat.PutRoomResponse, error) {
 
 	resp := &chat.PutRoomResponse{}
-	newRoom, err := c.dao.PutRoom(req.Room)
+	newRoom, err := c.dao.PutRoom(ctx, req.Room)
 	if err != nil {
 		return resp, err
 	}
@@ -81,7 +81,7 @@ func (c *ChatHandler) DeleteRoom(ctx context.Context, req *chat.DeleteRoomReques
 
 	log.Logger(ctx).Debug("Delete Room", req.Room.Zap())
 
-	ok, err := c.dao.DeleteRoom(req.Room)
+	ok, err := c.dao.DeleteRoom(ctx, req.Room)
 	if err != nil {
 		return nil, err
 	} else if !ok {
@@ -102,7 +102,7 @@ func (c *ChatHandler) ListRooms(req *chat.ListRoomsRequest, streamer chat.ChatSe
 	ctx := streamer.Context()
 	log.Logger(ctx).Debug("List Rooms", zap.Any(common.KeyChatListRoomReq, req))
 
-	rooms, err := c.dao.ListRooms(req)
+	rooms, err := c.dao.ListRooms(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (c *ChatHandler) ListMessages(req *chat.ListMessagesRequest, streamer chat.
 	ctx := streamer.Context()
 	log.Logger(ctx).Debug("List Messages", zap.Any(common.KeyChatListMsgReq, req))
 
-	messages, err := c.dao.ListMessages(req)
+	messages, err := c.dao.ListMessages(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 	log.Logger(ctx).Debug("Post Messages", zap.Any(common.KeyChatPostMsgReq, req))
 
 	for _, m := range req.Messages {
-		newMessage, err := c.dao.PostMessage(m)
+		newMessage, err := c.dao.PostMessage(ctx, m)
 		if err != nil {
 			return nil, err
 		}
@@ -151,14 +151,14 @@ func (c *ChatHandler) PostMessage(ctx context.Context, req *chat.PostMessageRequ
 				Message: m,
 			})
 			// For comments on nodes, publish an UPDATE_USER_META event
-			if room, err := c.dao.RoomByUuid(chat.RoomType_NODE, m.RoomUuid); err == nil {
+			if room, err := c.dao.RoomByUuid(ctx, chat.RoomType_NODE, m.RoomUuid); err == nil {
 				broker.MustPublish(bgCtx, common.TopicMetaChanges, &tree.NodeChangeEvent{
 					Type: tree.NodeChangeEvent_UPDATE_USER_META,
 					Target: &tree.Node{Uuid: room.RoomTypeObject, MetaStore: map[string]string{
 						"comments": `"` + m.Message + `"`,
 					}},
 				})
-				if count, e := c.dao.CountMessages(room); e == nil {
+				if count, e := c.dao.CountMessages(ctx, room); e == nil {
 					getMetaClient(c.RuntimeCtx).UpdateNode(bgCtx, &tree.UpdateNodeRequest{To: &tree.Node{
 						Uuid: room.RoomTypeObject,
 						MetaStore: map[string]string{
@@ -177,7 +177,7 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 	log.Logger(ctx).Debug("Delete Messages", zap.Any(common.KeyChatPostMsgReq, req))
 
 	for _, m := range req.Messages {
-		err := c.dao.DeleteMessage(m)
+		err := c.dao.DeleteMessage(ctx, m)
 		if err != nil {
 			return nil, err
 		}
@@ -189,8 +189,8 @@ func (c *ChatHandler) DeleteMessage(ctx context.Context, req *chat.DeleteMessage
 	go func() {
 		for _, m := range req.Messages {
 			bgCtx := metadata.NewBackgroundWithUserKey(m.Author)
-			if room, err := c.dao.RoomByUuid(chat.RoomType_NODE, m.RoomUuid); err == nil {
-				if count, e := c.dao.CountMessages(room); e == nil {
+			if room, err := c.dao.RoomByUuid(ctx, chat.RoomType_NODE, m.RoomUuid); err == nil {
+				if count, e := c.dao.CountMessages(ctx, room); e == nil {
 					var meta = ""
 					if count > 0 {
 						meta = fmt.Sprintf("%d", count)

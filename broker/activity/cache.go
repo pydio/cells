@@ -124,10 +124,14 @@ func (c *Cache) Stats() map[string]interface{} {
 	return c.dao.Stats()
 }
 
-func (c *Cache) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error {
+func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
 	if !c.useBatch {
-		return c.dao.PostActivity(ownerType, ownerId, boxName, object, publishCtx)
+		return c.dao.PostActivity(ctx, ownerType, ownerId, boxName, object, publish)
 	} else {
+		var publishCtx context.Context
+		if publish {
+			publishCtx = ctx
+		}
 		c.input <- &batchActivity{
 			Object:     object,
 			ownerType:  ownerType,
@@ -139,13 +143,13 @@ func (c *Cache) PostActivity(ownerType activity.OwnerType, ownerId string, boxNa
 	}
 }
 
-func (c *Cache) UpdateSubscription(subscription *activity.Subscription) error {
+func (c *Cache) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	// Clear cache
 	c.cache.Delete(subscription.ObjectType.String() + "-" + subscription.ObjectId)
-	return c.dao.UpdateSubscription(subscription)
+	return c.dao.UpdateSubscription(ctx, subscription)
 }
 
-func (c *Cache) ListSubscriptions(objectType activity.OwnerType, objectIds []string) (res []*activity.Subscription, e error) {
+func (c *Cache) ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) (res []*activity.Subscription, e error) {
 
 	var filtered []string
 	toCache := make(map[string][]*activity.Subscription)
@@ -164,7 +168,7 @@ func (c *Cache) ListSubscriptions(objectType activity.OwnerType, objectIds []str
 		}
 		filtered = append(filtered, id)
 	}
-	ss, e := c.dao.ListSubscriptions(objectType, filtered)
+	ss, e := c.dao.ListSubscriptions(ctx, objectType, filtered)
 	if e != nil {
 		return
 	}
@@ -180,32 +184,32 @@ func (c *Cache) ListSubscriptions(objectType activity.OwnerType, objectIds []str
 	return
 }
 
-func (c *Cache) CountUnreadForUser(userId string) int {
-	return c.dao.CountUnreadForUser(userId)
+func (c *Cache) CountUnreadForUser(ctx context.Context, userId string) int {
+	return c.dao.CountUnreadForUser(ctx, userId)
 }
 
-func (c *Cache) ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
-	return c.dao.ActivitiesFor(ownerType, ownerId, boxName, refBoxOffset, reverseOffset, limit, result, done)
+func (c *Cache) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
+	return c.dao.ActivitiesFor(ctx, ownerType, ownerId, boxName, refBoxOffset, reverseOffset, limit, result, done)
 }
 
-func (c *Cache) StoreLastUserInbox(userId string, boxName BoxName, activityId string) error {
-	return c.dao.StoreLastUserInbox(userId, boxName, activityId)
+func (c *Cache) StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error {
+	return c.dao.StoreLastUserInbox(ctx, userId, boxName, activityId)
 }
 
-func (c *Cache) Delete(ownerType activity.OwnerType, ownerId string) error {
-	return c.dao.Delete(ownerType, ownerId)
+func (c *Cache) Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error {
+	return c.dao.Delete(ctx, ownerType, ownerId)
 }
 
-func (c *Cache) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
-	return c.dao.Purge(logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, compactDB, clearBackup)
+func (c *Cache) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+	return c.dao.Purge(ctx, logger, ownerType, ownerId, boxName, minCount, maxCount, updatedBefore, compactDB, clearBackup)
 }
 
 // AllActivities is used for internal migrations only
-func (c *Cache) allActivities() (chan *docActivity, error) {
-	return c.dao.allActivities()
+func (c *Cache) allActivities(ctx context.Context) (chan *docActivity, error) {
+	return c.dao.allActivities(ctx)
 }
 
 // AllSubscriptions is used for internal migrations only
-func (c *Cache) allSubscriptions() (chan *activity.Subscription, error) {
-	return c.dao.allSubscriptions()
+func (c *Cache) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
+	return c.dao.allSubscriptions(ctx)
 }

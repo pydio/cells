@@ -23,6 +23,8 @@ package activity
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/log"
+	"go.uber.org/zap"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -101,8 +103,7 @@ func (m *mongoimpl) Init(values configx.Values) error {
 	return m.DAO.Init(values)
 }
 
-func (m *mongoimpl) UpdateSubscription(subscription *activity.Subscription) error {
-	c := context.Background()
+func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *activity.Subscription) error {
 	selector := bson.D{
 		{"objecttype", subscription.ObjectType},
 		{"objectid", subscription.ObjectId},
@@ -110,7 +111,7 @@ func (m *mongoimpl) UpdateSubscription(subscription *activity.Subscription) erro
 	}
 	if len(subscription.Events) == 0 {
 		// Remove subscription
-		_, e := m.DB().Collection(collSubscriptions).DeleteOne(c, selector)
+		_, e := m.DB().Collection(collSubscriptions).DeleteOne(ctx, selector)
 		if e != nil {
 			return e
 		}
@@ -118,7 +119,7 @@ func (m *mongoimpl) UpdateSubscription(subscription *activity.Subscription) erro
 		return nil
 	}
 	upsert := true
-	_, e := m.DB().Collection(collSubscriptions).ReplaceOne(c, selector, subscription, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.DB().Collection(collSubscriptions).ReplaceOne(ctx, selector, subscription, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
@@ -126,8 +127,7 @@ func (m *mongoimpl) UpdateSubscription(subscription *activity.Subscription) erro
 	return nil
 }
 
-func (m *mongoimpl) ListSubscriptions(objectType activity.OwnerType, objectIds []string) (ss []*activity.Subscription, err error) {
-	c := context.Background()
+func (m *mongoimpl) ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) (ss []*activity.Subscription, err error) {
 	selector := bson.D{
 		{"objecttype", objectType},
 	}
@@ -136,11 +136,11 @@ func (m *mongoimpl) ListSubscriptions(objectType activity.OwnerType, objectIds [
 	} else {
 		selector = append(selector, bson.E{"objectid", bson.M{"$in": objectIds}})
 	}
-	cursor, er := m.DB().Collection(collSubscriptions).Find(c, selector)
+	cursor, er := m.DB().Collection(collSubscriptions).Find(ctx, selector)
 	if er != nil {
 		return nil, er
 	}
-	for cursor.Next(c) {
+	for cursor.Next(ctx) {
 		sub := &activity.Subscription{}
 		if e := cursor.Decode(sub); e != nil {
 			return nil, e
@@ -150,7 +150,7 @@ func (m *mongoimpl) ListSubscriptions(objectType activity.OwnerType, objectIds [
 	return
 }
 
-func (m *mongoimpl) PostActivity(ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publishCtx context.Context) error {
+func (m *mongoimpl) PostActivity(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, object *activity.Object, publish bool) error {
 	object.Id = "/activity-" + uuid.New()
 	doc := &docActivity{
 		OwnerType: int32(ownerType),
@@ -163,10 +163,10 @@ func (m *mongoimpl) PostActivity(ownerType activity.OwnerType, ownerId string, b
 	if object.Updated != nil && object.Updated.IsValid() {
 		doc.Ts = time.Unix(object.Updated.GetSeconds(), int64(object.Updated.GetNanos())).UnixNano()
 	}
-	_, er := m.DB().Collection(collActivities).InsertOne(context.Background(), doc)
+	_, er := m.DB().Collection(collActivities).InsertOne(ctx, doc)
 	if er == nil {
-		if publishCtx != nil {
-			broker.MustPublish(publishCtx, common.TopicActivityEvent, &activity.PostActivityEvent{
+		if publish {
+			broker.MustPublish(ctx, common.TopicActivityEvent, &activity.PostActivityEvent{
 				OwnerType: ownerType,
 				OwnerId:   ownerId,
 				BoxName:   string(boxName),
@@ -177,8 +177,7 @@ func (m *mongoimpl) PostActivity(ownerType activity.OwnerType, ownerId string, b
 	return er
 }
 
-func (m *mongoimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
-	c := context.Background()
+func (m *mongoimpl) ActivitiesFor(ctx context.Context, ownerType activity.OwnerType, ownerId string, boxName BoxName, refBoxOffset BoxName, reverseOffset int64, limit int64, result chan *activity.Object, done chan bool) error {
 	defer func() {
 		done <- true
 	}()
@@ -191,7 +190,7 @@ func (m *mongoimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId string, 
 		{"box_name", string(boxName)},
 	}
 	if refBoxOffset != "" {
-		if lastRead := m.userLastMarker(c, ownerId, refBoxOffset); lastRead > 0 {
+		if lastRead := m.userLastMarker(ctx, ownerId, refBoxOffset); lastRead > 0 {
 			filter = append(filter, bson.E{Key: "ts", Value: bson.M{"$gt": lastRead}})
 		}
 	}
@@ -207,12 +206,12 @@ func (m *mongoimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId string, 
 	if limit > 0 {
 		opts.Limit = &limit
 	}
-	cursor, er := m.DB().Collection(collActivities).Find(c, filter, opts)
+	cursor, er := m.DB().Collection(collActivities).Find(ctx, filter, opts)
 	if er != nil {
 		return er
 	}
 	var userLastRead int64
-	for cursor.Next(c) {
+	for cursor.Next(ctx) {
 		doc := &docActivity{}
 		if er := cursor.Decode(doc); er != nil {
 			return er
@@ -226,34 +225,34 @@ func (m *mongoimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId string, 
 	if refBoxOffset != BoxLastSent && ownerType == activity.OwnerType_USER && boxName == BoxInbox && userLastRead > 0 {
 		// Store last read in dedicated box
 		go func() {
-			m.storeLastUserInbox(ownerId, BoxLastRead, userLastRead)
+			if er := m.storeLastUserInbox(ctx, ownerId, BoxLastRead, userLastRead); er != nil {
+				log.Logger(ctx).Error("Cannot storeLastUserInbox", zap.Error(er))
+			}
 		}()
 	}
 
 	return nil
 }
 
-func (m *mongoimpl) CountUnreadForUser(userId string) int {
-	c := context.Background()
+func (m *mongoimpl) CountUnreadForUser(ctx context.Context, userId string) int {
 	filter := bson.D{
 		{"owner_type", int(activity.OwnerType_USER)},
 		{"owner_id", userId},
 		{"box_name", string(BoxInbox)},
 	}
-	if lastRead := m.userLastMarker(c, userId, BoxLastRead); lastRead > 0 {
+	if lastRead := m.userLastMarker(ctx, userId, BoxLastRead); lastRead > 0 {
 		filter = append(filter, bson.E{"ts", bson.E{"$gt", lastRead}})
 	}
-	count, e := m.DB().Collection(collActivities).CountDocuments(c, filter)
+	count, e := m.DB().Collection(collActivities).CountDocuments(ctx, filter)
 	if e != nil {
 		return 0
 	}
 	return int(count)
 }
 
-func (m *mongoimpl) StoreLastUserInbox(userId string, boxName BoxName, activityId string) error {
+func (m *mongoimpl) StoreLastUserInbox(ctx context.Context, userId string, boxName BoxName, activityId string) error {
 	// Find activity by id
-	c := context.Background()
-	res := m.DB().Collection(collActivities).FindOne(c, bson.D{{"ac_id", activityId}})
+	res := m.DB().Collection(collActivities).FindOne(ctx, bson.D{{"ac_id", activityId}})
 	if res.Err() != nil {
 		return res.Err()
 	}
@@ -261,10 +260,10 @@ func (m *mongoimpl) StoreLastUserInbox(userId string, boxName BoxName, activityI
 	if er := res.Decode(doc); er != nil {
 		return er
 	}
-	return m.storeLastUserInbox(userId, boxName, doc.Ts)
+	return m.storeLastUserInbox(ctx, userId, boxName, doc.Ts)
 }
 
-func (m *mongoimpl) storeLastUserInbox(userId string, boxName BoxName, timestamp int64) error {
+func (m *mongoimpl) storeLastUserInbox(ctx context.Context, userId string, boxName BoxName, timestamp int64) error {
 	marker := &docMarker{
 		UserId:    userId,
 		BoxName:   string(boxName),
@@ -272,70 +271,69 @@ func (m *mongoimpl) storeLastUserInbox(userId string, boxName BoxName, timestamp
 	}
 	filter := bson.D{{"user_id", userId}, {"box_name", string(boxName)}}
 	upsert := true
-	_, e := m.DB().Collection(collMarkers).ReplaceOne(context.Background(), filter, marker, &options.ReplaceOptions{Upsert: &upsert})
+	_, e := m.DB().Collection(collMarkers).ReplaceOne(ctx, filter, marker, &options.ReplaceOptions{Upsert: &upsert})
 	if e != nil {
 		return e
 	}
-	//fmt.Println("Last User Inbox", res.UpsertedCount, res.ModifiedCount)
 	return nil
 }
 
-func (m *mongoimpl) Delete(ownerType activity.OwnerType, ownerId string) error {
+func (m *mongoimpl) Delete(ctx context.Context, ownerType activity.OwnerType, ownerId string) error {
 	filter := bson.D{
 		{"owner_type", int(ownerType)},
 		{"owner_id", ownerId},
 	}
-	_, e := m.DB().Collection(collActivities).DeleteMany(context.Background(), filter)
+	_, e := m.DB().Collection(collActivities).DeleteMany(ctx, filter)
 	if e != nil {
 		return e
 	}
-	//fmt.Println("Deleted", res.DeletedCount, "activities")
+
 	if ownerType != activity.OwnerType_USER {
 		return nil
 	}
 
 	// Clear Subscriptions
-	res, e := m.DB().Collection(collSubscriptions).DeleteMany(context.Background(), bson.D{{"userid", ownerId}})
+	res, e := m.DB().Collection(collSubscriptions).DeleteMany(ctx, bson.D{{"userid", ownerId}})
 	if e != nil {
 		return e
 	}
-	fmt.Printf("Cleared %d subscriptions for user %s", res.DeletedCount, ownerId)
+	log.Logger(ctx).Debug(fmt.Sprintf("Cleared %d subscriptions for user %s", res.DeletedCount, ownerId))
 
 	//  Clear activities where Actor.Id = userId
-	res, e = m.DB().Collection(collActivities).DeleteMany(context.Background(), bson.D{{"object.actor.id", ownerId}})
+	res, e = m.DB().Collection(collActivities).DeleteMany(ctx, bson.D{{"object.actor.id", ownerId}})
 	if e != nil {
 		return e
 	}
-	fmt.Printf("Cleared %d activities whose Actor was %s", res.DeletedCount, ownerId)
+	log.Logger(ctx).Debug(fmt.Sprintf("Cleared %d activities whose Actor was %s", res.DeletedCount, ownerId))
 
 	return nil
 }
 
-func (m *mongoimpl) Purge(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
+func (m *mongoimpl) Purge(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount int, updatedBefore time.Time, compactDB, clearBackup bool) error {
 	if ownerId == "*" {
 		// Distinct and run on all boxes
-		dd, e := m.DB().Collection(collActivities).Distinct(context.Background(), "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
+		dd, e := m.DB().Collection(collActivities).Distinct(ctx, "owner_id", bson.D{{"owner_type", int(ownerType)}, {"box_name", string(boxName)}})
 		if e != nil {
 			return e
 		}
 		for _, i := range dd {
-			if er := m.purgeOneBox(logger, ownerType, i.(string), boxName, int64(minCount), int64(maxCount), updatedBefore.UnixNano()); er != nil {
+			if er := m.purgeOneBox(ctx, logger, ownerType, i.(string), boxName, int64(minCount), int64(maxCount), updatedBefore.UnixNano()); er != nil {
 				return er
 			}
 		}
 		return nil
 	} else {
-		return m.purgeOneBox(logger, ownerType, ownerId, boxName, int64(minCount), int64(maxCount), updatedBefore.UnixNano())
+		return m.purgeOneBox(ctx, logger, ownerType, ownerId, boxName, int64(minCount), int64(maxCount), updatedBefore.UnixNano())
 	}
 }
 
 // AllActivities is used for internal migrations only
-func (m *mongoimpl) allActivities() (chan *docActivity, error) {
+func (m *mongoimpl) allActivities(ctx context.Context) (chan *docActivity, error) {
 	filter := bson.D{}
 	opts := &options.FindOptions{
 		Sort: bson.D{{"ts", 1}},
 	}
-	cursor, er := m.DB().Collection(collActivities).Find(context.Background(), filter, opts)
+	cursor, er := m.DB().Collection(collActivities).Find(ctx, filter, opts)
 	if er != nil {
 		return nil, er
 	}
@@ -354,16 +352,15 @@ func (m *mongoimpl) allActivities() (chan *docActivity, error) {
 }
 
 // AllSubscriptions is used for internal migrations only
-func (m *mongoimpl) allSubscriptions() (chan *activity.Subscription, error) {
-	c := context.Background()
-	cursor, er := m.DB().Collection(collSubscriptions).Find(c, bson.D{})
+func (m *mongoimpl) allSubscriptions(ctx context.Context) (chan *activity.Subscription, error) {
+	cursor, er := m.DB().Collection(collSubscriptions).Find(ctx, bson.D{})
 	if er != nil {
 		return nil, er
 	}
 	out := make(chan *activity.Subscription, 10000)
 	go func() {
 		defer close(out)
-		for cursor.Next(c) {
+		for cursor.Next(ctx) {
 			sub := &activity.Subscription{}
 			if e := cursor.Decode(sub); e != nil {
 				continue
@@ -375,13 +372,12 @@ func (m *mongoimpl) allSubscriptions() (chan *activity.Subscription, error) {
 
 }
 
-func (m *mongoimpl) purgeOneBox(logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount, updatedBefore int64) error {
+func (m *mongoimpl) purgeOneBox(ctx context.Context, logger func(string), ownerType activity.OwnerType, ownerId string, boxName BoxName, minCount, maxCount, updatedBefore int64) error {
 	filter := bson.D{
 		{"owner_type", int(ownerType)},
 		{"owner_id", ownerId},
 		{"box_name", string(boxName)},
 	}
-	ctx := context.Background()
 	opts := &options.FindOptions{
 		Sort:       bson.D{{"ts", -1}},
 		Projection: bson.D{{"ts", 1}, {"ac_id", 1}},

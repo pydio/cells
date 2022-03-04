@@ -21,6 +21,7 @@
 package chat
 
 import (
+	"context"
 	"encoding/binary"
 	"fmt"
 
@@ -47,7 +48,7 @@ const (
 )
 
 func (h *boltdbimpl) Init(config configx.Values) error {
-	h.DB().Update(func(tx *bolt.Tx) error {
+	return h.DB().Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(rooms))
 		if err != nil {
 			return err
@@ -58,8 +59,6 @@ func (h *boltdbimpl) Init(config configx.Values) error {
 		}
 		return nil
 	})
-
-	return nil
 }
 
 // Load a given sub-bucket
@@ -127,7 +126,7 @@ func (h *boltdbimpl) getRoomsBucket(tx *bolt.Tx, createIfNotExist bool, roomType
 	}
 }
 
-func (h *boltdbimpl) PutRoom(room *chat.ChatRoom) (*chat.ChatRoom, error) {
+func (h *boltdbimpl) PutRoom(ctx context.Context, room *chat.ChatRoom) (*chat.ChatRoom, error) {
 
 	err := h.DB().Update(func(tx *bolt.Tx) error {
 
@@ -146,7 +145,7 @@ func (h *boltdbimpl) PutRoom(room *chat.ChatRoom) (*chat.ChatRoom, error) {
 	return room, err
 }
 
-func (h *boltdbimpl) DeleteRoom(room *chat.ChatRoom) (bool, error) {
+func (h *boltdbimpl) DeleteRoom(ctx context.Context, room *chat.ChatRoom) (bool, error) {
 
 	var success bool
 	err := h.DB().Update(func(tx *bolt.Tx) error {
@@ -169,7 +168,7 @@ func (h *boltdbimpl) DeleteRoom(room *chat.ChatRoom) (bool, error) {
 	return success, err
 }
 
-func (h *boltdbimpl) ListRooms(request *chat.ListRoomsRequest) (rooms []*chat.ChatRoom, e error) {
+func (h *boltdbimpl) ListRooms(ctx context.Context, request *chat.ListRoomsRequest) (rooms []*chat.ChatRoom, e error) {
 
 	e = h.DB().View(func(tx *bolt.Tx) error {
 
@@ -222,7 +221,7 @@ func (h *boltdbimpl) ListRooms(request *chat.ListRoomsRequest) (rooms []*chat.Ch
 	return rooms, e
 }
 
-func (h *boltdbimpl) RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
+func (h *boltdbimpl) RoomByUuid(ctx context.Context, byType chat.RoomType, roomUUID string) (*chat.ChatRoom, error) {
 
 	var foundRoom chat.ChatRoom
 	var found bool
@@ -258,7 +257,7 @@ func (h *boltdbimpl) RoomByUuid(byType chat.RoomType, roomUUID string) (*chat.Ch
 	return &foundRoom, nil
 }
 
-func (h *boltdbimpl) CountMessages(room *chat.ChatRoom) (count int, e error) {
+func (h *boltdbimpl) CountMessages(ctx context.Context, room *chat.ChatRoom) (count int, e error) {
 	e = h.DB().View(func(tx *bolt.Tx) error {
 		if bucket, e := h.getMessagesBucket(tx, false, room.Uuid); e != nil {
 			return e
@@ -270,7 +269,7 @@ func (h *boltdbimpl) CountMessages(room *chat.ChatRoom) (count int, e error) {
 	return
 }
 
-func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
+func (h *boltdbimpl) ListMessages(ctx context.Context, request *chat.ListMessagesRequest) (messages []*chat.ChatMessage, e error) {
 
 	bounds := request.Limit > 0 || request.Offset > 0
 	e = h.DB().View(func(tx *bolt.Tx) error {
@@ -322,14 +321,14 @@ func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages [
 
 	return messages, e
 }
-func (h *boltdbimpl) PostMessage(msg *chat.ChatMessage) (*chat.ChatMessage, error) {
+func (h *boltdbimpl) PostMessage(ctx context.Context, request *chat.ChatMessage) (*chat.ChatMessage, error) {
 
-	if msg.Uuid == "" {
-		msg.Uuid = uuid.New()
+	if request.Uuid == "" {
+		request.Uuid = uuid.New()
 	}
 
 	err := h.DB().Update(func(tx *bolt.Tx) error {
-		bucket, err := h.getMessagesBucket(tx, true, msg.RoomUuid)
+		bucket, err := h.getMessagesBucket(tx, true, request.RoomUuid)
 		if err != nil {
 			return nil
 		}
@@ -337,14 +336,14 @@ func (h *boltdbimpl) PostMessage(msg *chat.ChatMessage) (*chat.ChatMessage, erro
 		objectKey, _ := bucket.NextSequence()
 		k := make([]byte, 8)
 		binary.BigEndian.PutUint64(k, objectKey)
-		serial, _ := json.Marshal(msg)
+		serial, _ := json.Marshal(request)
 		return bucket.Put(k, serial)
 	})
 
-	return msg, err
+	return request, err
 }
 
-func (h *boltdbimpl) DeleteMessage(message *chat.ChatMessage) error {
+func (h *boltdbimpl) DeleteMessage(ctx context.Context, message *chat.ChatMessage) error {
 
 	if message.Uuid == "" {
 		return errors.BadRequest(common.ServiceChat, "Cannot delete a message without Uuid")

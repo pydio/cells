@@ -150,7 +150,7 @@ EXAMPLES
 			loggerFunc := func(s string) {
 				cmd.Println(s)
 			}
-			er = dao.Purge(loggerFunc, activity2.OwnerType(internalType), activityOwner, activity.BoxName(boxName), keepAtLeast, keepMax, updatedTime, compactDB, clearBackups)
+			er = dao.Purge(cmd.Context(), loggerFunc, activity2.OwnerType(internalType), activityOwner, activity.BoxName(boxName), keepAtLeast, keepMax, updatedTime, compactDB, clearBackups)
 			if er != nil {
 				log.Fatalln(er)
 			}
