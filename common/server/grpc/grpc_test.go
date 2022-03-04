@@ -119,7 +119,6 @@ func TestServiceRegistry(t *testing.T) {
 	listenerApp1 := createApp1(&delayedRegistry{mem})
 
 	conn, err := grpc.Dial("cells:///", grpc.WithInsecure(), grpc.WithResolvers(cgrpc.NewBuilder(mem)), grpc.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
-		fmt.Println("And the address is ? ", addr)
 		return listenerApp1.Dial()
 	}))
 	if err != nil {

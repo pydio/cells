@@ -3,8 +3,9 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config/runtime"
 	"net"
+
+	"github.com/pydio/cells/v4/common/config/runtime"
 
 	"google.golang.org/grpc/health"
 
@@ -26,9 +27,9 @@ type Server struct {
 	name string
 	meta map[string]string
 
-	cancel context.CancelFunc
-	opts   *Options
-	addr   string
+	cancel       context.CancelFunc
+	opts         *Options
+	addr         string
 	externalAddr string
 	*grpc.Server
 }
@@ -104,12 +105,13 @@ func (s *Server) Serve() error {
 		s.opts.Listener = lis
 	}
 
-	_, port, err := net.SplitHostPort(s.opts.Listener.Addr().String())
-	if err != nil {
-		return err
+	addr := s.opts.Listener.Addr().String()
+	_, port, err := net.SplitHostPort(addr)
+	if err == nil {
+		s.externalAddr = addr
+	} else {
+		s.externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)
 	}
-
-	s.externalAddr = net.JoinHostPort(runtime.DefaultAdvertiseAddress(), port)
 
 	go func() {
 		defer s.cancel()
