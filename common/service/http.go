@@ -18,8 +18,6 @@ func WithHTTP(f func(context.Context, server.HttpMux) error) ServiceOption {
 
 			return f(o.Context, mux)
 		}
-
-		// TODO v4 import wrappers for the server
 	}
 }
 
