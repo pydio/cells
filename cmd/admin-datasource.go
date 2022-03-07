@@ -26,9 +26,6 @@ import (
 
 var DataSourceCmd = &cobra.Command{
 	Use: "datasource",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		bindViperFlags(cmd.Flags(), map[string]string{})
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

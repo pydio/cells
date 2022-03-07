@@ -41,6 +41,8 @@ DESCRIPTION
 
 		bindViperFlags(cmd.Flags(), map[string]string{})
 
+		initConfig()
+
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
