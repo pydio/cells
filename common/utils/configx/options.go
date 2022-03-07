@@ -1,6 +1,7 @@
 package configx
 
 import (
+	"context"
 	"sync"
 
 	"github.com/spf13/cast"
@@ -37,7 +38,12 @@ type Options struct {
 	Encrypter
 	Decrypter
 
+	SetCallback func([]string, interface{}) error
+
 	AutoUpdate bool
+
+	// Used to pass other potential options
+	Context context.Context
 }
 
 type jsonReader struct{}
@@ -137,5 +143,11 @@ func WithDecrypt(d Decrypter) Option {
 func WithLock(m *sync.RWMutex) Option {
 	return func(o *Options) {
 		o.RWMutex = m
+	}
+}
+
+func WithSetCallback(f func([]string, interface{}) error) Option {
+	return func(o *Options) {
+		o.SetCallback = f
 	}
 }

@@ -1,6 +1,7 @@
 package configx
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/spf13/cast"
@@ -32,6 +33,14 @@ func (d *def) Bool() bool {
 
 func (d *def) Bytes() []byte {
 	return []byte(cast.ToString(d.v))
+}
+func (d *def) Key() []string {
+	// TODO ?
+	fmt.Println("Are we in  here ?")
+	return []string{}
+}
+func (d *def) Interface() interface{} {
+	return d.v
 }
 func (d *def) Int() int {
 	return cast.ToInt(d.v)

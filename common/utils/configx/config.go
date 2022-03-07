@@ -42,6 +42,8 @@ type Value interface {
 
 	Bool() bool
 	Bytes() []byte
+	Key() []string
+	Interface() interface{}
 	Int() int
 	Int64() int64
 	Duration() time.Duration
@@ -206,6 +208,9 @@ func (c *config) Get() Value {
 			return c.r.Val(ref.(string)).Get()
 		}
 	case *ref:
+		if c.r == nil {
+			return nil
+		}
 		return c.r.Val(vv.Get()).Get()
 	}
 
@@ -252,6 +257,10 @@ func (c *config) Set(data interface{}) error {
 	}
 
 	if len(c.k) == 0 {
+		if c.opts.SetCallback != nil {
+			c.opts.SetCallback(c.k, data)
+		}
+
 		c.v = data
 		return nil
 	}
@@ -261,9 +270,10 @@ func (c *config) Set(data interface{}) error {
 
 	// Retrieve parent value
 	p := c.r.Val(pk...)
-	m := p.Map()
+
+	del := false
 	if data == nil {
-		delete(m, k)
+		del = true
 	} else {
 		if enc := c.opts.Encrypter; enc != nil {
 			switch vv := data.(type) {
@@ -285,17 +295,55 @@ func (c *config) Set(data interface{}) error {
 				data = str
 			}
 		}
-
-		c.opts.RWMutex.Lock()
-		m[k] = data
-		c.opts.RWMutex.Unlock()
 	}
 
-	p.Set(m)
+	if kk, err := strconv.Atoi(k); err == nil {
+		m := p.Slice()
+
+		var mm []interface{}
+		if cap(m) < kk+1 {
+			mm = make([]interface{}, kk+1)
+		} else {
+			mm = make([]interface{}, len(m))
+		}
+
+		copy(mm, m)
+
+		c.opts.RWMutex.Lock()
+		if del {
+			mm = append(mm[:kk-1], mm[kk:]...)
+		} else {
+			mm[kk] = data
+		}
+		c.opts.RWMutex.Unlock()
+
+		p.Set(mm)
+	} else {
+		m := p.Map()
+
+		c.opts.RWMutex.RLock()
+		mm := make(map[string]interface{})
+		for k, v := range m {
+			mm[k] = v
+		}
+		c.opts.RWMutex.RUnlock()
+
+		if del {
+			delete(mm, k)
+		} else {
+			mm[k] = data
+		}
+
+		p.Set(mm)
+	}
 
 	if mtx := c.opts.RWMutex; mtx != nil {
 		mtx.Lock()
 		defer mtx.Unlock()
+	}
+
+	if c.opts.SetCallback != nil {
+		c.opts.SetCallback(c.k, data)
 	}
 
 	c.v = data
@@ -498,6 +546,20 @@ func (c *config) Bytes() []byte {
 		}*/
 
 	return []byte(cast.ToString(v))
+}
+func (c *config) Key() []string {
+	if c.r != nil {
+		return append(c.r.k, c.k...)
+	}
+	return c.k
+}
+func (c *config) Interface() interface{} {
+	if mtx := c.opts.RWMutex; mtx != nil {
+		mtx.RLock()
+		defer mtx.RUnlock()
+	}
+
+	return c.get()
 }
 func (c *config) Int() int {
 	if mtx := c.opts.RWMutex; mtx != nil {
