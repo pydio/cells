@@ -244,8 +244,8 @@ func initConfig() (new bool) {
 			log.Fatal("could not start etcd", zap.Error(err))
 		}
 
-		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault"))
-		defaultConfig := etcd.NewSource(context.Background(), conn, "config")
+		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault", false))
+		defaultConfig := etcd.NewSource(context.Background(), conn, "config", false)
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	//case "mysql":

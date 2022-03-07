@@ -22,6 +22,9 @@ package cmd
 
 import (
 	"context"
+	"log"
+	"time"
+
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config/etcd"
 	configregistry "github.com/pydio/cells/v4/common/registry/config"
@@ -29,8 +32,6 @@ import (
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"log"
-	"time"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
@@ -61,7 +62,7 @@ DESCRIPTION
 			log.Fatal("could not start etcd", zap.Error(err))
 		}
 
-		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", configregistry.WithJSONItem())
+		regStore := etcd.NewSource(cmd.Context(), etcdconn, "registry", false, configregistry.WithJSONItem())
 		reg := configregistry.NewConfigRegistry(regStore, false)
 
 		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)

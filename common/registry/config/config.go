@@ -89,7 +89,7 @@ func (o *URLOpener) openURL(ctx context.Context, u *url.URL) (registry.Registry,
 			return nil, err
 		}
 
-		store := etcd.NewSource(context.Background(), etcdConn, "registry", WithJSONItem())
+		store := etcd.NewSource(context.Background(), etcdConn, "registry", true, WithJSONItem())
 		reg = NewConfigRegistry(store, byName)
 	case "file":
 		store, err := file.New(u.Path, true, WithJSONItem())
@@ -190,6 +190,8 @@ func (c *configRegistry) watch() error {
 
 		c.cache = items
 
+		fmt.Println("Diff ? ", len(diff.create), len(diff.update), len(diff.delete))
+
 		if len(diff.create) > 0 {
 			c.RLock()
 			for _, broadcaster := range c.broadcasters {
@@ -218,6 +220,7 @@ func (c *configRegistry) watch() error {
 				select {
 				case broadcaster <- registry.NewResult(pb.ActionType_DELETE, diff.delete):
 				default:
+					fmt.Println("Could not send the delete ?")
 				}
 			}
 			c.RUnlock()
@@ -345,7 +348,7 @@ func (c *configRegistry) Watch(opts ...registry.Option) (registry.Watcher, error
 	}
 
 	id := uuid.New()
-	res := make(chan registry.Result)
+	res := make(chan registry.Result, 100)
 
 	// construct the watcher
 	w := registry.NewWatcher(
