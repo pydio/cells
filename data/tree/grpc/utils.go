@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"go.uber.org/zap"
 	"strings"
 	"time"
@@ -87,7 +86,7 @@ func updateServicesList(ctx context.Context, treeServer *TreeServer, retry int) 
 		updateServicesList(ctx, treeServer, retry+1)
 	}
 	if retry == 5 {
-		log.Logger(ctx).Info("Force UpdateServicesList", zap.Strings("datasources", dsKeys))
+		log.Logger(ctx).Debug("Force UpdateServicesList", zap.Strings("datasources", dsKeys))
 	}
 }
 
@@ -110,7 +109,7 @@ func watchRegistry(ctx context.Context, treeServer *TreeServer) {
 		// TODO V4 - on DS deletion, event received is UPDATE, but r.Items() is empty
 		// Also we could debounce this event
 		do = true
-		fmt.Println("TreeService, WatchRegistry Action:", r.Action().String(), ", Items: ", len(r.Items()))
+		// fmt.Println("TreeService, WatchRegistry Action:", r.Action().String(), ", Items: ", len(r.Items()))
 		for _, item := range r.Items() {
 			var s registry.Service
 			if !item.As(&s) {
