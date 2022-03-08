@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"time"
 
+	grpc2 "google.golang.org/grpc"
+
 	"github.com/pydio/cells/v4/common/service/errors"
 	"go.uber.org/zap"
 
@@ -37,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/docstore"
 	"github.com/pydio/cells/v4/common/proto/jobs"
 	"github.com/pydio/cells/v4/common/utils/i18n"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/idm/oauth/lang"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -53,31 +54,29 @@ func InsertPruningJob(ctx context.Context) error {
 
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
-	return std.Retry(ctx, func() error {
-		cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
-		if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
-			return nil // Already exists
-		} else if e != nil && errors.FromError(e).Code != 404 {
-			log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Any("err", errors.FromError(e)))
-			return e // not ready yet, retry
-		}
-		log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
-		_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
-			ID:    pruneTokensActionName,
-			Owner: common.PydioSystemUsername,
-			Label: T("Auth.PruneJob.Title"),
-			Schedule: &jobs.Schedule{
-				Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M", // Every hour
-			},
-			AutoStart:      false,
-			MaxConcurrency: 1,
-			Actions: []*jobs.Action{{
-				ID: pruneTokensActionName,
-			}},
-		}})
+	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}, grpc2.WaitForReady(true)); e == nil && resp.Job != nil {
+		return nil // Already exists
+	} else if e != nil && errors.FromError(e).Code != 404 {
+		log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Any("err", errors.FromError(e)))
+		return e // not ready yet, retry
+	}
+	log.Logger(ctx).Info("Inserting pruning job for revoked token and reset password tokens")
+	_, e := cli.PutJob(ctx, &jobs.PutJobRequest{Job: &jobs.Job{
+		ID:    pruneTokensActionName,
+		Owner: common.PydioSystemUsername,
+		Label: T("Auth.PruneJob.Title"),
+		Schedule: &jobs.Schedule{
+			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:00/PT60M", // Every hour
+		},
+		AutoStart:      false,
+		MaxConcurrency: 1,
+		Actions: []*jobs.Action{{
+			ID: pruneTokensActionName,
+		}},
+	}}, grpc2.WaitForReady(true))
 
-		return e
-	}, 5*time.Second, 1*time.Minute)
+	return e
 }
 
 var (

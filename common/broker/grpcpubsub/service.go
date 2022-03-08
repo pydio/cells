@@ -20,6 +20,8 @@ import (
 	"net/url"
 	"sync"
 
+	grpc2 "google.golang.org/grpc"
+
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/driver"
@@ -102,7 +104,7 @@ func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic
 		// TODO v4 - there is something weird here that makes the start go slower
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
 		cli := pb.NewBrokerClient(conn)
-		if s, err := cli.Publish(ctx); err != nil {
+		if s, err := cli.Publish(ctx, grpc2.WaitForReady(true)); err != nil {
 			return nil, err
 		} else {
 			publishers[u.Host] = s
@@ -126,7 +128,7 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	if !ok {
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
 		ct, ca := context.WithCancel(ctx)
-		cli, err := pb.NewBrokerClient(conn).Subscribe(ct)
+		cli, err := pb.NewBrokerClient(conn).Subscribe(ct, grpc2.WaitForReady(true))
 		if err != nil {
 			ca()
 			return nil, err
@@ -178,7 +180,7 @@ func NewTopic(path string, opts ...Option) (*pubsub.Topic, error) {
 	if stream == nil {
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
 		cli := pb.NewBrokerClient(conn)
-		if s, err := cli.Publish(ctx); err != nil {
+		if s, err := cli.Publish(ctx, grpc2.WaitForReady(true)); err != nil {
 			return nil, err
 		} else {
 			stream = s
@@ -315,7 +317,7 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
 		var err error
 		ct, ca := context.WithCancel(ctx)
-		cli, err = pb.NewBrokerClient(conn).Subscribe(ct)
+		cli, err = pb.NewBrokerClient(conn).Subscribe(ct, grpc2.WaitForReady(true))
 		if err != nil {
 			ca()
 			return nil, err

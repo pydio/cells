@@ -82,24 +82,24 @@ func init() {
 				// return std.Retry(ctx, func() error {
 				go func() {
 					jobsClient := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
-					//to, cancel := context.WithTimeout(ctx, grpc2.CallTimeoutShort)
-					//defer cancel()
+
+					opts := []grpc.CallOption{grpc.WaitForReady(true)}
+
 					// Migration from old prune-versions-job : delete if exists, replaced by composed job
 					var reinsert bool
-					if _, e := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "prune-versions-job"}); e == nil {
-						_, _ = jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: "prune-versions-job"})
+					if _, e := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: "prune-versions-job"}, opts...); e == nil {
+						_, _ = jobsClient.DeleteJob(ctx, &jobs.DeleteJobRequest{JobID: "prune-versions-job"}, opts...)
 						reinsert = true
 					}
 					vJob := getVersioningJob()
-					if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: vJob.ID}); err != nil || reinsert {
+					if _, err := jobsClient.GetJob(ctx, &jobs.GetJobRequest{JobID: vJob.ID}, opts...); err != nil || reinsert {
 						log.Logger(ctx).Info("Inserting versioning job")
-						_, er := jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: vJob})
+						_, er := jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: vJob}, opts...)
 						fmt.Println(er)
 						return
 					}
 					return
 				}()
-				// }, 5*time.Second, 20*time.Second)
 
 				return nil
 			}),

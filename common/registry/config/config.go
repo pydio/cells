@@ -190,8 +190,6 @@ func (c *configRegistry) watch() error {
 
 		c.cache = items
 
-		fmt.Println("Diff ? ", len(diff.create), len(diff.update), len(diff.delete))
-
 		if len(diff.create) > 0 {
 			c.RLock()
 			for _, broadcaster := range c.broadcasters {

@@ -152,6 +152,11 @@ func TestServiceRegistry(t *testing.T) {
 
 	fmt.Println(resp1, err1)
 
+	cli2 := helloworld.NewGreeterClient(cgrpc.GetClientConnFromCtx(ctx, "service.that.does.not.exist"))
+	resp2, err2 := cli2.SayHello(ctx, &helloworld.HelloRequest{Name: "test"})
+
+	fmt.Println(resp2, err2)
+
 	//reg := registryservice.NewRegistry(registryservice.WithConn(conn))
 	//
 	//createApp2(reg)
