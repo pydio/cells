@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/ory/fosite"
 	"github.com/ory/hydra/client"
@@ -59,6 +60,28 @@ var (
 	onRegistryInits []func()
 )
 
+type HydraJwkMigration struct {
+	Id        string    `db:"id"`
+	AppliedAt time.Time `db:"applied_at"`
+}
+
+func (hjm *HydraJwkMigration) TableName() string {
+	return "hydra_jwk_migration"
+}
+
+type HydraJwk struct {
+	Pk        uint      `db:"pk"`
+	Sid       string    `db:"sid"`
+	Kid       string    `db:"kid"`
+	Version   uint      `db:"version"`
+	KeyData   string    `db:"keydata"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+func (hj HydraJwk) TableName() string {
+	return "hydra_jwk"
+}
+
 func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 	logger := log.Logger(ctx)
@@ -74,6 +97,24 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 		if e = conn.Open(); e != nil {
 			logger.Error("Could not open the database connection", zap.Error(e))
 			return
+		}
+
+		// Part of v3 => v4 migration: we must clear existing JWK entries, as system.secret formatting changed.
+		if _, e := conn.Q().Count(&HydraJwkMigration{}); e == nil {
+			logger.Info("Detected HydraJwkMigration - We are migrating from a v3 version - You may be disconnected after that!")
+			var raws []*HydraJwk
+			if er := conn.Where("sid = 'hydra.openid.id-token'").All(&raws); er == nil {
+				for _, raw := range raws {
+					logger.Warn("Found a Legacy JWK - Will be removed (" + raw.Kid + ")")
+				}
+				if e := conn.RawQuery("DELETE FROM hydra_jwk WHERE sid='hydra.openid.id-token'").Exec(); e != nil {
+					logger.Error("Error while truncating hydra_jwk", zap.Error(e))
+				} else {
+					logger.Info("Removed legacy JWKs from hydra_jwk")
+				}
+			} else {
+				fmt.Println(er)
+			}
 		}
 
 		// convert migration tables

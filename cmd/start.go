@@ -99,6 +99,7 @@ to quickly create a Cobra application.`,
 		}
 
 		// Create a main client connection
+		clientgrpc.WarnMissingConnInContext = true
 		conn, err := grpc.Dial("cells:///", clientgrpc.DialOptionsForRegistry(reg)...)
 		if err != nil {
 			return err

@@ -22,8 +22,6 @@ func WithGRPC(f func(context.Context, *grpc.Server) error) ServiceOption {
 
 			return f(o.Context, srvg)
 		}
-
-		// TODO v4 import wrappers for the server
 	}
 }
 

@@ -58,6 +58,7 @@ func init() {
 							return fmt.Errorf("cannot find minio config")
 						}
 						mc.RunningSecure = false
+						mc.RunningHost = runtime.DefaultAdvertiseAddress()
 						engine := &ObjectHandler{
 							handlerName: common.ServiceGrpcNamespace_ + common.ServiceDataObjects_ + datasource,
 							Config:      mc,

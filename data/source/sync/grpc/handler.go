@@ -609,7 +609,6 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 	if e != nil {
 		if req.Task != nil {
 			theTask := req.Task
-			// Todo v4 : add client.Retries(3)
 			taskClient := jobs.NewJobServiceClient(grpccli.GetClientConnFromCtx(s.globalCtx, common.ServiceJobs))
 			theTask.StatusMessage = "Error"
 			theTask.HasProgress = true

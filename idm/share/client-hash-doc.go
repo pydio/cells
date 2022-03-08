@@ -110,7 +110,9 @@ func (sc *Client) StoreHashDocument(ctx context.Context, ownerUser *idm.User, li
 func (sc *Client) LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls []*idm.ACL) error {
 
 	store := docstore.NewDocStoreClient(grpc.GetClientConnFromCtx(sc.RuntimeContext, common.ServiceDocStore))
-	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
+	ct, ca := context.WithCancel(ctx)
+	defer ca()
+	streamer, er := store.ListDocuments(ct, &docstore.ListDocumentsRequest{StoreID: common.DocStoreIdShares, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareLink.Uuid + "\" +SHARE_TYPE:minisite",
 	}})
 	if er != nil {

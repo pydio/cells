@@ -308,7 +308,8 @@ func migratePrepareClients(source *object.DataSource) (rootNode *tree.Node, idx 
 	cfData.Val("key").Set(conf.ApiKey)
 	cfData.Val("secret").Set(apiSecret)
 	cfData.Val("secure").Set(conf.RunningSecure)
-	mc, e = nodes.NewStorageClient(cfData) // minio.NewCore(fmt.Sprintf("%s:%d", conf.RunningHost, conf.RunningPort), conf.ApiKey, apiSecret, conf.RunningSecure)
+	cfData.Val("type").Set("mc")
+	mc, e = nodes.NewStorageClient(cfData)
 	if e != nil {
 		return
 	}

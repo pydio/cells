@@ -30,8 +30,9 @@ type ctxSubconnSelectorKey struct{}
 var (
 	mox = map[string]grpc.ClientConnInterface{}
 
-	CallTimeoutDefault = 10 * time.Minute
-	CallTimeoutShort   = 1 * time.Second
+	CallTimeoutDefault       = 10 * time.Minute
+	CallTimeoutShort         = 1 * time.Second
+	WarnMissingConnInContext = false
 )
 
 func DialOptionsForRegistry(reg registry.Registry, options ...grpc.DialOption) []grpc.DialOption {
@@ -57,7 +58,7 @@ func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option
 		return NewClientConn(serviceName, opt...)
 	}
 	conn := clientcontext.GetClientConn(ctx)
-	if conn == nil {
+	if conn == nil && WarnMissingConnInContext {
 		fmt.Println("Warning, GetClientConnFromCtx could not find conn, will create a new one")
 		debug.PrintStack()
 	}

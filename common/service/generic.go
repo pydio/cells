@@ -21,8 +21,6 @@ func WithGeneric(f func(context.Context, *generic.Server) error) ServiceOption {
 
 			return f(o.Context, srvg)
 		}
-
-		// TODO v4 import wrappers for the server
 	}
 }
 

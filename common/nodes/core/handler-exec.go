@@ -316,22 +316,12 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			}
 			err = destClient.CopyObjectMultipart(ctx, src, srcBucket, fromPath, destBucket, toPath, requestData.Metadata, requestData.Progress)
 		} else {
-			// TODO V4 - Verify
-			/*
-				destinationInfo, _ := minio.NewDestinationInfo(destBucket, toPath, nil, requestData.Metadata)
-				sourceInfo := minio.NewSourceInfo(srcBucket, fromPath, nil)
-				// Add request Headers to SrcInfo (authentication, etc)
-				for k, v := range ctxAsOptions.Header() {
-					sourceInfo.Headers.Set(k, strings.Join(v, ""))
-				}*
-			*/
 			srcMeta := make(map[string]string)
 			for k, v := range statMeta {
 				srcMeta[k] = v
 			}
 			if dirOk {
 				srcMeta[common.XAmzMetaDirective] = directive
-				//sourceInfo.Headers.Set(common.XAmzMetaDirective, directive)
 			}
 			_, err = destClient.CopyObject(ctx, srcBucket, fromPath, destBucket, toPath, statMeta, requestData.Metadata, requestData.Progress)
 		}
