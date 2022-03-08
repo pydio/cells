@@ -75,7 +75,7 @@ func (p *rrPicker) Pick(i balancer.PickInfo) (balancer.PickResult, error) {
 	}
 	pc, ok := p.pConns[serviceName]
 	if !ok {
-		return balancer.PickResult{}, errors.New("The service is not known by the registry")
+		return balancer.PickResult{}, errors.New("service is not known by the registry")
 	}
 	if val := i.Ctx.Value(ctxSubconnSelectorKey{}); val != nil {
 		selector := val.(subConnInfoFilter)

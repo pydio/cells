@@ -25,8 +25,6 @@ import (
 	"fmt"
 	"time"
 
-	grpc2 "google.golang.org/grpc"
-
 	"github.com/pydio/cells/v4/common/service/errors"
 	"go.uber.org/zap"
 
@@ -55,7 +53,7 @@ func InsertPruningJob(ctx context.Context) error {
 	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Get()))
 
 	cli := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceJobs))
-	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}, grpc2.WaitForReady(true)); e == nil && resp.Job != nil {
+	if resp, e := cli.GetJob(ctx, &jobs.GetJobRequest{JobID: pruneTokensActionName}); e == nil && resp.Job != nil {
 		return nil // Already exists
 	} else if e != nil && errors.FromError(e).Code != 404 {
 		log.Logger(ctx).Info("Insert pruning job: jobs service not ready yet :"+e.Error(), zap.Any("err", errors.FromError(e)))
@@ -74,7 +72,7 @@ func InsertPruningJob(ctx context.Context) error {
 		Actions: []*jobs.Action{{
 			ID: pruneTokensActionName,
 		}},
-	}}, grpc2.WaitForReady(true))
+	}})
 
 	return e
 }

@@ -33,7 +33,6 @@ import (
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
-	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var scheme = "grpc"
@@ -50,35 +49,22 @@ func init() {
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	// We use WithBlock, shall we timeout and retry here ?
 	var conn grpc.ClientConnInterface
-	// TODO v4 error handling - Remove Retry
-	err := std.Retry(ctx, func() error {
-		// c, can := context.WithTimeout(ctx, 1*time.Minute)
-		// defer can()
-		// var e error
 
-		address := u.Hostname()
-		if port := u.Port(); port != "" {
-			address = address + ":" + port
-		}
+	address := u.Hostname()
+	if port := u.Port(); port != "" {
+		address = address + ":" + port
+	}
 
-		cli, err := grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
-		if err != nil {
-			return err
-		}
-
-		conn = cgrpc.NewClientConn("pydio.grpc.registry", cgrpc.WithClientConn(cli))
-
-		return nil
-	}, 30*time.Second, 5*time.Minute)
+	cli, err := grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		return nil, err
 	}
-	/*
-		conn, err := grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithInsecure(), grpc.WithBlock())
-		if err != nil {
-			return nil, err
-		}
-	*/
+
+	conn = cgrpc.NewClientConn("pydio.grpc.registry", cgrpc.WithClientConn(cli))
+
+	if err != nil {
+		return nil, err
+	}
 
 	return NewRegistry(
 		WithConn(conn),

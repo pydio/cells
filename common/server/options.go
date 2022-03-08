@@ -30,6 +30,8 @@ type ServerOptions struct {
 	Context  context.Context
 	Listener *net.Listener
 
+	onServeError []func(error)
+
 	// Before and After funcs
 	BeforeServe []func() error
 	AfterServe  []func() error
@@ -62,5 +64,11 @@ func BeforeStop(f func() error) ServerOption {
 func AfterStop(f func() error) ServerOption {
 	return func(o *ServerOptions) {
 		o.AfterStop = append(o.AfterStop, f)
+	}
+}
+
+func OnServeError(f func(error)) ServerOption {
+	return func(o *ServerOptions) {
+		o.onServeError = append(o.onServeError, f)
 	}
 }

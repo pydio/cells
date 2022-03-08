@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
 	cgrpc "github.com/pydio/cells/v4/common/client/grpc"
@@ -39,7 +38,7 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.
 
 	go func() {
 		taskClient := jobs.NewJobServiceClient(cgrpc.GetClientConnFromCtx(s.parentCtx, common.ServiceJobs, cgrpc.WithCallTimeout(5*time.Minute)))
-		streamer, e := taskClient.PutTaskStream(s.parentCtx, grpc.WaitForReady(true))
+		streamer, e := taskClient.PutTaskStream(s.parentCtx)
 		if e != nil {
 			log.Logger(s.parentCtx).Error("Streamer PutTaskStream", zap.Error(e))
 			<-time.After(10 * time.Second)

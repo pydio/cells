@@ -3,13 +3,14 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"os"
 	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/v4/common/runtime"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
@@ -65,6 +66,7 @@ func GetClientConnFromCtx(ctx context.Context, serviceName string, opt ...Option
 	reg := servercontext.GetRegistry(ctx)
 	opt = append(opt, WithClientConn(conn))
 	opt = append(opt, WithRegistry(reg))
+
 	return NewClientConn(serviceName, opt...)
 }
 
@@ -113,6 +115,10 @@ type clientConn struct {
 // Invoke performs a unary RPC and returns after the response is received
 // into reply.
 func (cc *clientConn) Invoke(ctx context.Context, method string, args interface{}, reply interface{}, opts ...grpc.CallOption) error {
+	opts = append([]grpc.CallOption{
+		grpc.WaitForReady(true),
+	}, opts...)
+
 	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
 	var cancel context.CancelFunc
 	if cc.callTimeout > 0 {
@@ -135,6 +141,10 @@ var (
 
 // NewStream begins a streaming RPC.
 func (cc *clientConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	opts = append([]grpc.CallOption{
+		grpc.WaitForReady(true),
+	}, opts...)
+
 	ctx = metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, cc.serviceName)
 	ctx = metadata.AppendToOutgoingContext(ctx, "SubscriberId", strconv.Itoa(os.Getpid()))
 	var cancel context.CancelFunc
