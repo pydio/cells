@@ -42,7 +42,7 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	discoveryregistry "github.com/pydio/cells/v4/discovery/registry"
 
-	_ "github.com/pydio/cells/v4/common/registry/memory"
+	_ "github.com/pydio/cells/v4/common/registry/config"
 )
 
 type mock struct {
@@ -153,7 +153,7 @@ func TestServiceRegistry(t *testing.T) {
 	fmt.Println(resp1, err1)
 
 	cli2 := helloworld.NewGreeterClient(cgrpc.GetClientConnFromCtx(ctx, "service.that.does.not.exist"))
-	resp2, err2 := cli2.SayHello(ctx, &helloworld.HelloRequest{Name: "test"})
+	resp2, err2 := cli2.SayHello(ctx, &helloworld.HelloRequest{Name: "test"}, grpc.WaitForReady(false))
 
 	fmt.Println(resp2, err2)
 
