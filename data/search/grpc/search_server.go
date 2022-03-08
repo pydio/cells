@@ -23,12 +23,13 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"strings"
-	"sync"
-
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/cells/common/config"
 	"go.uber.org/zap"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -189,34 +190,72 @@ func (s *SearchServer) Search(ctx context.Context, req *tree.SearchRequest, stre
 
 func (s *SearchServer) TriggerResync(c context.Context, req *protosync.ResyncRequest, resp *protosync.ResyncResponse) error {
 
-	go func() {
-		bg := context.Background()
-		s.Engine.ClearIndex(bg)
-		excludes := s.NamespacesProvider().ExcludeIndexes()
-
-		dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
-			Node:      &tree.Node{Path: ""},
-			Recursive: true,
-		})
-		if err != nil {
-			log.Logger(c).Error("Resync", zap.Error(err))
-			return
+	reqPath := strings.Trim(req.GetPath(), "/")
+	if reqPath == "" {
+		log.Logger(c).Info("Clearing search engine index before full re-indexation")
+		if e := s.Engine.ClearIndex(c); e != nil {
+			return e
 		}
-		defer dsStream.Close()
-		var count int
-		for {
-			response, e := dsStream.Recv()
-			if e != nil || response == nil {
-				break
-			}
-			if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
-				s.Engine.IndexNode(bg, response.Node, false, excludes)
-				count++
+		log.Logger(c).Info("Clearing search engine : done")
+	}
+	var roots []*tree.Node
+	if len(reqPath) > 0 {
+		// Use reqPath as first level
+		roots = append(roots, &tree.Node{Path: reqPath})
+		log.Logger(c).Info("Will Re-Index DataSource " + reqPath)
+	} else {
+		// List all Datasources
+		dss := config.SourceNamesForDataServices(common.ServiceDataSync)
+		for _, dn := range dss {
+			if ds, e := config.GetSourceInfoByName(dn); e == nil {
+				if ds.Disabled || ds.IsInternal() {
+					continue
+				}
+				roots = append(roots, &tree.Node{Path: ds.Name})
 			}
 		}
-		log.Logger(c).Info(fmt.Sprintf("Search Server indexed %d nodes", count))
+	}
 
-	}()
+	excludes := s.NamespacesProvider().ExcludeIndexes()
+	wg := sync.WaitGroup{}
+	bg := context.Background()
+	throttle := make(chan struct{}, 2)
+
+	for _, root := range roots {
+		wg.Add(1)
+		throttle <- struct{}{}
+		go func(ro *tree.Node) {
+			defer func() {
+				wg.Done()
+				<-throttle
+			}()
+			log.Logger(c).Info("Start Reindexing DataSource " + ro.GetPath())
+			dsStream, err := s.TreeClient.ListNodes(bg, &tree.ListNodesRequest{
+				Node:      ro,
+				Recursive: true,
+			}, client.WithRequestTimeout(6*time.Hour))
+			if err != nil {
+				log.Logger(c).Error("Could not list nodes"+err.Error(), zap.Error(err))
+				return
+			}
+			defer dsStream.Close()
+			var count int
+			for {
+				response, e := dsStream.Recv()
+				if e != nil || response == nil {
+					break
+				}
+				if !strings.HasPrefix(response.Node.GetUuid(), "DATASOURCE:") && !tree.IgnoreNodeForOutput(c, response.Node) {
+					s.Engine.IndexNode(bg, response.Node, false, excludes)
+					count++
+					if count%5000 == 0 {
+						log.Logger(c).Info(fmt.Sprintf("[%s] Current Indexation: %d nodes", ro.GetPath(), count))
+					}
+				}
+			}
+			log.Logger(c).Info(fmt.Sprintf("[%s] Total Indexed : %d nodes", ro.GetPath(), count))
+		}(root)
+	}
 
 	resp.Success = true
 
