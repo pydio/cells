@@ -50,6 +50,7 @@ func init() {
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry, error) {
 	// We use WithBlock, shall we timeout and retry here ?
 	var conn grpc.ClientConnInterface
+	// TODO v4 error handling - Remove Retry
 	err := std.Retry(ctx, func() error {
 		// c, can := context.WithTimeout(ctx, 1*time.Minute)
 		// defer can()
@@ -60,7 +61,6 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 			address = address + ":" + port
 		}
 
-		// TODO v4 error handling
 		cli, err := grpc.Dial(u.Hostname()+":"+u.Port(), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 		if err != nil {
 			return err

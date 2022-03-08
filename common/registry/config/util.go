@@ -234,7 +234,7 @@ func ToProtoNode(n registry.Node) *pb.Node {
 		return nn.n
 	}
 
-	// TODO v4
+	// TODO v4 - Update protobuf for multiple address - See also registry/util duplicate Func
 	address := ""
 	if len(n.Address()) > 0 {
 		address = n.Address()[0]

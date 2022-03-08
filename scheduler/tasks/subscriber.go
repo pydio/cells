@@ -72,7 +72,6 @@ type Subscriber struct {
 
 // NewSubscriber creates a multiplexer for tasks managements and messages
 // by maintaining a map of dispatcher, one for each job definition.
-// Todo v4 : make sure everything is properly closed on ctx.Done() signal
 func NewSubscriber(parentContext context.Context) *Subscriber {
 
 	s := &Subscriber{

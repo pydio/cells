@@ -20,6 +20,8 @@
 
 package memory
 
+// TODO V4 : REMOVE THIS PACKAGE ?
+
 import (
 	"context"
 	pb "github.com/pydio/cells/v4/common/proto/registry"

@@ -77,7 +77,6 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 
 	// Special case for application/grpc
 	if strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-		// TODO V4 ?
 		gserv, e := m.r.Get(common.ServiceGatewayGrpc, registry.WithType(pb.ItemType_SERVICE))
 		if e != nil || gserv == nil {
 			http.NotFound(w, r)
