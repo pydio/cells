@@ -54,7 +54,7 @@ message Service {
 message Node {
   string id = 1;
   string name = 2;
-  string address = 3;
+  repeated string address = 3;
   int64 port = 4;
   map<string,string> metadata = 5;
   repeated string endpoints = 6;

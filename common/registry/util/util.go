@@ -134,7 +134,7 @@ func (n *node) Name() string {
 }
 
 func (n *node) Address() []string {
-	return []string{n.n.Address}
+	return n.n.Address
 }
 
 func (n *node) Endpoints() []string {
@@ -243,16 +243,10 @@ func ToProtoNode(n registry.Node) *pb.Node {
 		return nn.n
 	}
 
-	// TODO v4
-	address := ""
-	if len(n.Address()) > 0 {
-		address = n.Address()[0]
-	}
-
 	return &pb.Node{
 		Id:        n.ID(),
 		Name:      n.Name(),
-		Address:   address,
+		Address:   n.Address(),
 		Endpoints: n.Endpoints(),
 		Metadata:  n.Metadata(),
 	}

@@ -23,6 +23,8 @@ package configregistry
 import (
 	"fmt"
 
+	"github.com/pydio/cells/v4/common/registry/util"
+
 	"google.golang.org/protobuf/encoding/protojson"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
@@ -41,7 +43,7 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 			return err
 		}
 
-		ret := ToItem(i)
+		ret := util.ToItem(i)
 
 		*vout = ret
 	case *registry.Item:
@@ -51,7 +53,7 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 			return err
 		}
 
-		ret := ToItem(i)
+		ret := util.ToItem(i)
 
 		*vout = ret
 	case *[]registry.Item:
@@ -62,7 +64,7 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 		}
 
 		for _, v := range i.Items {
-			*vout = append(*vout, ToItem(v))
+			*vout = append(*vout, util.ToItem(v))
 		}
 	case map[string]registry.Item:
 		i := new(pb.ItemMap)
@@ -72,7 +74,7 @@ func (j *jsonReader) Unmarshal(data []byte, out interface{}) error {
 		}
 
 		for k, v := range i.Items {
-			vout[k] = ToItem(v)
+			vout[k] = util.ToItem(v)
 		}
 	}
 
@@ -88,19 +90,19 @@ func (j *jsonWriter) Marshal(in interface{}) ([]byte, error) {
 		items := map[string]*pb.Item{}
 
 		for k, i := range v {
-			items[k] = ToProtoItem(i.(registry.Item))
+			items[k] = util.ToProtoItem(i.(registry.Item))
 		}
 
 		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ItemMap{Items: items})
 	case []registry.Item:
 		var items []*pb.Item
 		for _, i := range v {
-			items = append(items, ToProtoItem(i))
+			items = append(items, util.ToProtoItem(i))
 		}
 
 		return protojson.MarshalOptions{Indent: "  "}.Marshal(&pb.ListResponse{Items: items})
 	case registry.Item:
-		item := ToProtoItem(v)
+		item := util.ToProtoItem(v)
 
 		return protojson.MarshalOptions{Indent: "  "}.Marshal(item)
 	}
