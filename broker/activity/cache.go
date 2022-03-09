@@ -22,6 +22,7 @@ package activity
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/runtime"
 	"time"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -130,7 +131,7 @@ func (c *Cache) PostActivity(ctx context.Context, ownerType activity.OwnerType, 
 	} else {
 		var publishCtx context.Context
 		if publish {
-			publishCtx = ctx
+			publishCtx = runtime.ForkContext(context.Background(), ctx)
 		}
 		c.input <- &batchActivity{
 			Object:     object,

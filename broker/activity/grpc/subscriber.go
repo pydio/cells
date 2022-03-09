@@ -131,7 +131,10 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 		return nil
 	}
 
-	loadedNode, parentUuids := e.parentsFromCache(ctx, node, msg.Type == tree.NodeChangeEvent_DELETE)
+	loadedNode, parentUuids, err := e.parentsFromCache(ctx, node, msg.Type == tree.NodeChangeEvent_DELETE)
+	if err != nil {
+		return err
+	}
 	// Use reloaded node
 	if msg.Type == tree.NodeChangeEvent_UPDATE_USER_META {
 		if node.MetaStore != nil {
@@ -177,7 +180,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 	if msg.Type != tree.NodeChangeEvent_CREATE {
 		subUuids = append(subUuids, node.Uuid)
 	}
-	subscriptions, err := e.dao.ListSubscriptions(nil, activity2.OwnerType_NODE, subUuids)
+	subscriptions, err := e.dao.ListSubscriptions(ctx, activity2.OwnerType_NODE, subUuids)
 	log.Logger(ctx).Debug("Listing followers on node and its parents", zap.Int("subs length", len(subscriptions)))
 	if err != nil {
 		return err
@@ -251,7 +254,7 @@ func (e *MicroEventsSubscriber) HandleIdmChange(ctx context.Context, msg *idm.Ch
 	return nil
 }
 
-func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree.Node, isDel bool) (*tree.Node, []string) {
+func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree.Node, isDel bool) (*tree.Node, []string, error) {
 
 	e.Lock()
 	defer e.Unlock()
@@ -265,6 +268,8 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 		// Reload by Uuid
 		if resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: node.Uuid}}); err == nil && resp.Node != nil {
 			loadedNode = resp.Node
+		} else if err != nil {
+			return nil, []string{}, err
 		}
 	}
 	// Manually load parents from Path
@@ -287,11 +292,13 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 				parentUuids = append(parentUuids, uuid)
 			} else if errors.FromError(err).Code == 404 {
 				e.parentsCache.Set(parentPath, "**DELETED**")
+			} else {
+				return nil, []string{}, err
 			}
 		}
 	}
 
-	return loadedNode, parentUuids
+	return loadedNode, parentUuids, nil
 }
 
 func (e *MicroEventsSubscriber) DebounceAclsEvents() {

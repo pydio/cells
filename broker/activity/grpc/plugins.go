@@ -89,12 +89,11 @@ func init() {
 				subscriber := NewEventsSubscriber(c, d)
 				// Start batcher - it is stopped by c.Done()
 				batcher := cache.NewEventsBatcher(c, 3*time.Second, 20*time.Second, 2000, true, func(ctx context.Context, msg ...*tree.NodeChangeEvent) {
-					// Wrap parent context client conn in forwarded context
-					//ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(c))
-					//ctx = servicecontext.WithServiceName(ctx, servicecontext.GetServiceName(c))
-					ctx = runtime.ForkContext(ctx, c)
+					var ca context.CancelFunc
+					ctx, ca = context.WithTimeout(runtime.ForkContext(ctx, c), 10*time.Second)
+					defer ca()
 					if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
-						log.Logger(c).Warn("Error while handling event", zap.Error(e))
+						log.Logger(c).Error("Error while handling an event", zap.Error(e), zap.Any("msg", msg))
 					}
 				})
 
