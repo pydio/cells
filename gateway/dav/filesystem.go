@@ -63,9 +63,10 @@ type File struct {
 	ctx  context.Context
 
 	// wrappedCtx context.Context
-	name     string
-	off      int64
-	children []os.FileInfo
+	name       string
+	off        int64
+	children   []os.FileInfo
+	openReader io.ReadCloser
 
 	// When writing to new node, remove temporary on error
 	createErrorCallback func() error
@@ -441,22 +442,58 @@ func (fs *FileSystem) Stat(ctx context.Context, name string) (os.FileInfo, error
 
 func (f *File) Close() error {
 	log.Logger(f.ctx).Debug("File.Close", zap.Any("file", f))
+	if f.openReader != nil {
+		return f.openReader.Close()
+	}
 	return nil
+}
+
+func (f *File) Seek(offset int64, whence int) (int64, error) {
+	f.fs.mu.Lock()
+	defer f.fs.mu.Unlock()
+
+	var err error
+	switch whence {
+	case 0:
+		f.off = 0
+	case 2:
+		f.off = f.node.Size
+	}
+	f.off += offset
+	log.Logger(f.ctx).Debug("File.Seek", zap.Int64("file size", f.node.Size), zap.Int64("f.off", f.off), zap.Int64("req offset", offset), zap.Int("whence", whence))
+	if f.off > f.node.Size {
+		f.off = 0
+		return 0, io.EOF
+	}
+	if f.openReader != nil {
+		if e := f.openReader.Close(); e != nil {
+			return 0, e
+		}
+	}
+	log.Logger(f.ctx).Debug("File.Seek", zap.Any("file", f), zap.Int64("f.offset", f.off), zap.Int64("offset required", offset), zap.Int("whence", whence))
+	return f.off, err
 }
 
 func (f *File) Read(p []byte) (int, error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
-	reader, err := f.fs.Router.GetObject(f.ctx, f.node, &models.GetRequestData{StartOffset: f.off, Length: int64(len(p))})
-	if err != nil {
-		log.Logger(f.ctx).Debug("File.Read Failed", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap(), zap.Error(err))
-		return 0, err
-	} else {
-		log.Logger(f.ctx).Debug("File.Read Success", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap())
+	if f.off >= f.node.Size {
+		return 0, io.EOF
 	}
-	defer reader.Close()
-	length, err := reader.Read(p)
+	if f.openReader == nil {
+		// Open reader at current offset, until the end. If offset is reset by Seek, it will nil-ify the reader
+		reader, err := f.fs.Router.GetObject(f.ctx, f.node, &models.GetRequestData{StartOffset: f.off, Length: f.node.Size - f.off})
+		if err != nil {
+			log.Logger(f.ctx).Debug("File.Read Failed", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap(), zap.Error(err))
+			return 0, err
+		}
+		log.Logger(f.ctx).Debug("File.Read Open", zap.Int("size", len(p)), zap.Int64("offset", f.off), f.node.Zap())
+		f.openReader = reader
+	}
+	log.Logger(f.ctx).Debug("File.Read Required", zap.Int("length", len(p)), zap.Int64("offset", f.off))
+	length, err := f.openReader.Read(p)
+	log.Logger(f.ctx).Debug("File.Read Received", zap.Int("length", length))
 	f.off += int64(length)
 	if length == 0 {
 		return 0, io.EOF
@@ -510,27 +547,6 @@ func (f *File) Readdir(count int) ([]os.FileInfo, error) {
 		old = 0
 	}
 	return f.children[old:f.off], nil
-}
-
-func (f *File) Seek(offset int64, whence int) (int64, error) {
-	f.fs.mu.Lock()
-	defer f.fs.mu.Unlock()
-
-	log.Logger(f.ctx).Debug("File.Seek", zap.Any("file", f), zap.Int64("offset", offset))
-
-	var err error
-	switch whence {
-	case 0:
-		f.off = 0
-	case 2:
-		if fi, err := f.fs.stat(f.ctx, f.name); err != nil {
-			return 0, err
-		} else {
-			f.off = fi.Size()
-		}
-	}
-	f.off += offset
-	return f.off, err
 }
 
 func (f *File) Stat() (os.FileInfo, error) {
