@@ -21,13 +21,15 @@
 package auth
 
 import (
+	"context"
+	"sync"
+
 	hconf "github.com/ory/hydra/driver/config"
 	hconfx "github.com/ory/x/configx"
 	"github.com/ory/x/logrusx"
 	"github.com/pydio/cells/v4/common"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/utils/configx"
-	"sync"
 )
 
 type ConfigurationProvider interface {
@@ -132,7 +134,7 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	}
 	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
 
-	provider, _ := hconf.New(logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
+	provider, _ := hconf.New(context.TODO(), logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
 	return &configurationProvider{
 		Provider: provider,
 		v:        values,

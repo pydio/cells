@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-	"time"
 
 	"github.com/pydio/cells/v4/data/source/sync"
 
@@ -36,7 +35,6 @@ import (
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/context/metadata"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
@@ -116,7 +114,7 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 			object.RegisterDataSourceEndpointEnhancedServer(srv, syncHandler)
 			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)
 
-			go func() {
+			go func() error {
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				jobCtx := metadata.NewContext(ctx, md)
@@ -127,28 +125,28 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 				if !dsObject.FlatStorage {
 					syncHandler.Start()
 
-					e = std.Retry(jobCtx, func() error {
-						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
-							if !dsObject.SkipSyncOnRestart {
-								log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
-								broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
-									JobID:  "resync-ds-" + datasource,
-									RunNow: true,
-								})
-							}
-						} else if errors.FromError(err).Code == 404 {
-							log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
-							job := getJobDefinition(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
-							_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-								Job: job,
+					// e = std.Retry(jobCtx, func() error {
+					if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "resync-ds-" + datasource}); err == nil {
+						if !dsObject.SkipSyncOnRestart {
+							log.Logger(jobCtx).Debug("Sending event to start trigger re-indexation")
+							broker.MustPublish(jobCtx, common.TopicTimerEvent, &jobs.JobTriggerEvent{
+								JobID:  "resync-ds-" + datasource,
+								RunNow: true,
 							})
-							return e
-						} else {
-							log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
-							return err
 						}
-						return nil
-					}, 5*time.Second, 30*time.Second)
+					} else if errors.FromError(err).Code == 404 {
+						log.Logger(jobCtx).Info("Creating job in scheduler to trigger re-indexation")
+						job := getJobDefinition(datasource, serviceName, false, !dsObject.SkipSyncOnRestart)
+						_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
+							Job: job,
+						})
+						return e
+					} else {
+						log.Logger(jobCtx).Debug("Could not get info about job, retrying...")
+						return err
+					}
+					return nil
+					// }, 5*time.Second, 30*time.Second)
 					if e != nil {
 						log.Logger(jobCtx).Error("service started but could not contact Job service to trigger re-indexation")
 					}
@@ -188,28 +186,29 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 
 					// Post a job to dump snapshot manually (Flat, non-internal only)
 					if !dsObject.IsInternal() {
-						e = std.Retry(jobCtx, func() error {
-							if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
-								if errors.FromError(err).Code == 404 {
-									log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
-									job := getJobDefinition(datasource, serviceName, true, false)
-									_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
-										Job: job,
-									})
-									return e
-								} else {
-									log.Logger(jobCtx).Info("Could not get info about job, retrying...", zap.Error(err))
-									return err
-								}
+						//e = std.Retry(jobCtx, func() error {
+						if _, err := jobsClient.GetJob(jobCtx, &jobs.GetJobRequest{JobID: "snapshot-" + datasource}); err != nil {
+							if errors.FromError(err).Code == 404 {
+								log.Logger(jobCtx).Info("Creating job in scheduler to dump snapshot for " + datasource)
+								job := getJobDefinition(datasource, serviceName, true, false)
+								_, e := jobsClient.PutJob(jobCtx, &jobs.PutJobRequest{
+									Job: job,
+								})
+								return e
+							} else {
+								log.Logger(jobCtx).Info("Could not get info about job, retrying...", zap.Error(err))
+								return err
 							}
-							return nil
-						}, 2*time.Second, 5*time.Second)
+						}
+						return nil
+						// }, 2*time.Second, 5*time.Second)
 						if e != nil {
 							log.Logger(jobCtx).Warn("service started but could not contact Job service insert snapshot dump")
 						}
 					}
-
 				}
+
+				return nil
 			}()
 
 			return nil

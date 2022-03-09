@@ -26,7 +26,6 @@ import (
 	"encoding/base64"
 	"os"
 	"strings"
-	"time"
 
 	"google.golang.org/grpc"
 
@@ -41,7 +40,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/service/errors"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/idm/user"
 	"github.com/pydio/cells/v4/scheduler/actions"
 )
@@ -112,7 +110,9 @@ func InitDefaults(ctx context.Context) error {
 		pwd = parts[1]
 		// Now remove from configs
 		config.Del("defaults", "root")
-		config.Save("cli", "First Run / Creating default root user")
+		if err := config.Save("cli", "First Run / Creating default root user"); err != nil {
+			return err
+		}
 	}
 
 	if login != "" && pwd != "" {
@@ -130,20 +130,19 @@ func InitDefaults(ctx context.Context) error {
 			builder = builder.WithProfileRead(common.PydioProfileStandard)
 			builder = builder.WithUserWrite(login)
 			builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-			if err2 := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err2 != nil {
-				return err2
+			if err := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err != nil {
+				return err
 			}
 			// Create user role
-			std.Retry(ctx, func() error {
-				roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
-				_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
-					Uuid:     newUser.Uuid,
-					Label:    newUser.Login + " role",
-					UserRole: true,
-					Policies: builder.Policies(),
-				}})
-				return e
-			}, 8*time.Second, 50*time.Second)
+			roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+			if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+				Uuid:     newUser.Uuid,
+				Label:    newUser.Login + " role",
+				UserRole: true,
+				Policies: builder.Policies(),
+			}}); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -163,20 +162,19 @@ func InitDefaults(ctx context.Context) error {
 		builder = builder.WithUserRead(common.PydioS3AnonUsername)
 		builder = builder.WithProfileRead(common.PydioProfileAdmin)
 		builder = builder.WithProfileWrite(common.PydioProfileAdmin)
-		if err2 := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err2 != nil {
-			return err2
+		if err := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err != nil {
+			return err
 		}
 		// Create user role
-		std.Retry(ctx, func() error {
-			roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
-			_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
-				Uuid:     newAnon.Uuid,
-				Label:    newAnon.Login + " role",
-				UserRole: true,
-				Policies: builder.Policies(),
-			}})
-			return e
-		}, 8*time.Second, 50*time.Second)
+		roleClient := idm.NewRoleServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceRole))
+		if _, err := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+			Uuid:     newAnon.Uuid,
+			Label:    newAnon.Login + " role",
+			UserRole: true,
+			Policies: builder.Policies(),
+		}}); err != nil {
+			return err
+		}
 	}
 
 	return nil

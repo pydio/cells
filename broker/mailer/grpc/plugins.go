@@ -24,7 +24,6 @@ package grpc
 import (
 	"context"
 	"path/filepath"
-	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -40,7 +39,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/mailer"
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/service"
-	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -116,10 +114,11 @@ func RegisterQueueJob(ctx context.Context) error {
 			},
 		},
 	}
-	return std.Retry(ctx, func() error {
-		cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
-		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-		return e
-	}, 5*time.Second, 20*time.Second)
 
+	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -49,7 +49,6 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagIdm),
 			service.Description("OAuth Provider"),
-			service.WithStorage(oauth.NewDAO, service.WithStoragePrefix("idm_oauth_")),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

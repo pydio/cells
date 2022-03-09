@@ -23,7 +23,6 @@ package rest
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/pydio/cells/v4/common/client/grpc"
 
@@ -36,7 +35,6 @@ import (
 	"github.com/pydio/cells/v4/common/proto/idm"
 	service "github.com/pydio/cells/v4/common/proto/service"
 	"github.com/pydio/cells/v4/common/utils/permissions"
-	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -135,16 +133,14 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 		{NodeID: rootUuid, Action: &idm.ACLAction{Name: permissions.AclWsrootActionName, Value: rootPath}, WorkspaceID: ws.UUID},
 		{NodeID: rootUuid, Action: permissions.AclRecycleRoot, WorkspaceID: ws.UUID},
 	}
-	return std.Retry(ctx, func() error {
-		log.Logger(ctx).Info("Settings ACLS for workspace")
-		aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
-		for _, acl := range acls {
-			_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
-			if e != nil {
-				return e
-			}
-		}
-		return nil
-	}, 9*time.Second, 30*time.Second)
 
+	log.Logger(ctx).Info("Settings ACLS for workspace")
+	aclClient := idm.NewACLServiceClient(grpc.GetClientConnFromCtx(ctx, common.ServiceAcl))
+	for _, acl := range acls {
+		_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
+		if e != nil {
+			return e
+		}
+	}
+	return nil
 }

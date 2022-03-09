@@ -64,10 +64,10 @@ require (
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/ory/fosite v0.40.3-0.20211101181407-30e8cb92e53c
-	github.com/ory/hydra v1.10.7
+	github.com/ory/fosite v0.42.1
+	github.com/ory/hydra v1.11.7
 	github.com/ory/ladon v1.2.0
-	github.com/ory/x v0.0.303
+	github.com/ory/x v0.0.344
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/philopon/go-toposort v0.0.0-20170620085441-9be86dbd762f
 	github.com/pkg/errors v0.9.1
@@ -124,7 +124,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/apimachinery v0.21.1
 	k8s.io/klog/v2 v2.30.0 // indirect
-	k8s.io/utils v0.0.0-20201110183641-67b214c5f920
 )
 
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio

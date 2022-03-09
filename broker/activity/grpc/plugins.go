@@ -52,7 +52,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	"github.com/pydio/cells/v4/common/utils/cache"
-	"github.com/pydio/cells/v4/common/utils/std"
 )
 
 var (
@@ -179,10 +178,10 @@ func RegisterDigestJob(ctx context.Context) error {
 		},
 	}
 
-	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs, grpc2.WithCallTimeout(grpc2.CallTimeoutShort)))
-	return std.Retry(ctx, func() error {
-		_, e := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job})
-		return e
-	}, 5*time.Second, 20*time.Second)
+	cliJob := jobs.NewJobServiceClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceJobs))
+	if _, err := cliJob.PutJob(ctx, &jobs.PutJobRequest{Job: job}); err != nil {
+		return err
+	}
 
+	return nil
 }

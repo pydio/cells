@@ -131,13 +131,14 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 		}
 		if status.HasPending() {
 			// apply migrations
+			start := time.Now()
 			logger.Info("Applying migrations for oauth if required")
 			if err := p.MigrateUp(context.Background()); err != nil {
 				e = err
 				logger.Error("Could not apply migrations", zap.Error(err))
 				return
 			}
-			logger.Info("Finished")
+			logger.Info("Finished in ", zap.Duration("elapsed ", time.Now().Sub(start)))
 		}
 		RegisterOryProvider(reg.WithConfig(defaultConf.GetProvider()).OAuth2Provider())
 	})

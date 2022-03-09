@@ -25,7 +25,6 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"time"
 
 	"google.golang.org/grpc"
 
@@ -42,7 +41,6 @@ import (
 	"github.com/pydio/cells/v4/common/service"
 	servicecontext "github.com/pydio/cells/v4/common/service/context"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
-	"github.com/pydio/cells/v4/common/utils/std"
 	"github.com/pydio/cells/v4/data/versions"
 )
 
@@ -161,52 +159,45 @@ func InitDefaults(ctx context.Context) error {
 		NodeDeletedStrategy:    tree.VersioningNodeDeletedStrategy_KeepLast,
 	})
 
-	return std.Retry(ctx, func() error {
+	dc := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
+	if _, err := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
+		StoreID:    common.DocStoreIdVersioningPolicies,
+		DocumentID: "default-policy",
+		Document: &docstore.Document{
+			ID:    "default-policy",
+			Owner: common.PydioSystemUsername,
+			Type:  docstore.DocumentType_JSON,
+			Data:  string(max30),
+		},
+	}); err != nil {
+		return err
+	}
 
-		ctx, can := context.WithTimeout(ctx, grpc2.CallTimeoutShort)
-		defer can()
+	if _, err := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
+		StoreID:    common.DocStoreIdVersioningPolicies,
+		DocumentID: "keep-all",
+		Document: &docstore.Document{
+			ID:    "keep-all",
+			Owner: common.PydioSystemUsername,
+			Type:  docstore.DocumentType_JSON,
+			Data:  string(keepAll),
+		},
+	}); err != nil {
+		return err
+	}
 
-		dc := docstore.NewDocStoreClient(grpc2.GetClientConnFromCtx(ctx, common.ServiceDocStore))
-		_, e := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DocStoreIdVersioningPolicies,
-			DocumentID: "default-policy",
-			Document: &docstore.Document{
-				ID:    "default-policy",
-				Owner: common.PydioSystemUsername,
-				Type:  docstore.DocumentType_JSON,
-				Data:  string(max30),
-			},
-		})
-		if e != nil {
-			return e
-		}
+	if _, err := dc.PutDocument(ctx, &docstore.PutDocumentRequest{
+		StoreID:    common.DocStoreIdVersioningPolicies,
+		DocumentID: "regular-pruning",
+		Document: &docstore.Document{
+			ID:    "regular-pruning",
+			Owner: common.PydioSystemUsername,
+			Type:  docstore.DocumentType_JSON,
+			Data:  string(regular),
+		},
+	}); err != nil {
+		return err
+	}
 
-		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DocStoreIdVersioningPolicies,
-			DocumentID: "keep-all",
-			Document: &docstore.Document{
-				ID:    "keep-all",
-				Owner: common.PydioSystemUsername,
-				Type:  docstore.DocumentType_JSON,
-				Data:  string(keepAll),
-			},
-		})
-		if e != nil {
-			return e
-		}
-
-		_, e = dc.PutDocument(ctx, &docstore.PutDocumentRequest{
-			StoreID:    common.DocStoreIdVersioningPolicies,
-			DocumentID: "regular-pruning",
-			Document: &docstore.Document{
-				ID:    "regular-pruning",
-				Owner: common.PydioSystemUsername,
-				Type:  docstore.DocumentType_JSON,
-				Data:  string(regular),
-			},
-		})
-
-		return e
-	}, 3*time.Second, 10*time.Second)
-
+	return nil
 }

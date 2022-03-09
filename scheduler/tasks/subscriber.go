@@ -23,10 +23,11 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pydio/cells/v4/common/runtime"
 
 	"github.com/cskr/pubsub"
 	"go.uber.org/zap"
@@ -141,7 +142,7 @@ func NewSubscriber(parentContext context.Context) *Subscriber {
 // Init subscriber with current list of jobs from Jobs service
 func (s *Subscriber) Init() {
 
-	go std.Retry(context.Background(), func() error {
+	go func() error {
 		// Load Jobs Definitions
 		jobClients := jobs.NewJobServiceClient(grpc.GetClientConnFromCtx(s.rootCtx, common.ServiceJobs))
 		streamer, e := jobClients.ListJobs(s.rootCtx, &jobs.ListJobsRequest{})
@@ -166,8 +167,9 @@ func (s *Subscriber) Init() {
 			s.definitions[resp.Job.ID] = resp.Job
 			s.getDispatcherForJob(resp.Job)
 		}
+
 		return nil
-	}, 3*time.Second, 20*time.Second)
+	}()
 
 }
 
