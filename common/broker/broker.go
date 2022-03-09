@@ -233,7 +233,7 @@ func (b *broker) Subscribe(ctx context.Context, topic string, handler Subscriber
 			case <-d:
 				break
 			case <-time.After(20 * time.Second):
-				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", topic, string(dd))
+				fmt.Println(os.Getpid(), "A Handler has not returned after 20s !", topic, string(dd), " - This subscription will be blocked!")
 			}
 		}()
 		return handler(m)
