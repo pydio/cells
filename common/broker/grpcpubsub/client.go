@@ -299,7 +299,7 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 	if ctx != nil {
 		if v := ctx.Value(subscriberKey{}); v != nil {
 			if c, ok := v.(*sharedSubscriber); ok {
-				ch = make(chan []*pb.Message)
+				ch = make(chan []*pb.Message, 5000)
 				cli = c
 				c.Subscribe(subId, ch)
 				closer = func() error {
@@ -311,7 +311,7 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 	}
 
 	if cli == nil {
-		ch = make(chan []*pb.Message)
+		ch = make(chan []*pb.Message, 5000)
 		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
 		var err error
 		ct, ca := context.WithCancel(ctx)

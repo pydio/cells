@@ -600,8 +600,8 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 	}
 
 	parentResp, err := getClient(h.RuntimeCtx).ReadNode(req.Request.Context(), &tree.ReadNodeRequest{
-		Node:        input.Node,
-		WithCommits: input.WithCommits,
+		Node:      input.Node,
+		StatFlags: input.StatFlags,
 	})
 	if err != nil {
 		service.RestError404(req, resp, err)

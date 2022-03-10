@@ -161,11 +161,11 @@ func (s *subscriber) dispatch() {
 		if s.queue != "" && len(s.streams) > 1 {
 			// RoundRobin on registered streams
 			s.round = (s.round + 1) % len(s.streams)
-			s.sendWithWarning(s.streams[s.round], resp)
+			go s.sendWithWarning(s.streams[s.round], resp)
 		} else {
 			// Dispatch to all streams
 			for _, stream := range s.streams {
-				s.sendWithWarning(stream, resp)
+				go s.sendWithWarning(stream, resp)
 			}
 		}
 	}
@@ -178,8 +178,8 @@ func (s *subscriber) sendWithWarning(streamer streamWithReqId, message *pb.Subsc
 		select {
 		case <-done:
 			return
-		case <-time.After(10 * time.Second):
-			fmt.Println("GRPC broker stream.Send stuck after 10s", "subscriber was "+s.subPID)
+		case <-time.After(30 * time.Second):
+			fmt.Println("GRPC broker stream.Send stuck after 30s", "subscriber was "+s.subPID)
 			return
 		}
 	}()

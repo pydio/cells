@@ -36,6 +36,30 @@ import (
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
 
+const (
+	StatFlagDefault uint32 = iota
+	StatFlagNone
+	StatFlagFolderSize
+	StatFlagFolderCounts
+)
+
+type Flags struct {
+	flags []uint32
+}
+
+func StatFlags(flags []uint32) *Flags {
+	return &Flags{flags: flags}
+}
+
+func (f *Flags) Metas() bool {
+	for _, fl := range f.flags {
+		if fl == StatFlagNone {
+			return false
+		}
+	}
+	return true
+}
+
 /* This file provides helpers and shortcuts to ease development of tree.node related features.
    As a rule of thumb, never touch the tree.pb.go that is generated via proto. */
 

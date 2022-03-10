@@ -93,7 +93,7 @@ func init() {
 					ctx, ca = context.WithTimeout(runtime.ForkContext(ctx, c), 10*time.Second)
 					defer ca()
 					if e := subscriber.HandleNodeChange(ctx, msg[0]); e != nil {
-						log.Logger(c).Error("Error while handling an event", zap.Error(e), zap.Any("msg", msg))
+						log.Logger(c).Error("Error while handling an event", zap.Error(e), zap.Any("event", msg))
 					}
 				})
 

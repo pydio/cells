@@ -133,6 +133,7 @@ func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.
 
 	loadedNode, parentUuids, err := e.parentsFromCache(ctx, node, msg.Type == tree.NodeChangeEvent_DELETE)
 	if err != nil {
+		log.Logger(ctx).Error("Error while loading parentsFromCache for node", zap.Error(err), node.ZapPath(), zap.String("eventType", msg.Type.String()))
 		return err
 	}
 	// Use reloaded node
@@ -272,6 +273,20 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 			return nil, []string{}, err
 		}
 	}
+	/*
+		// For long paths, this may be more optimal
+		n := time.Now()
+		if pp, e := nodes.BuildAncestorsListOrParent(ctx, e.getTreeClient(), node); e != nil {
+			return nil, parentUuids, e
+		} else {
+			for _, p := range pp {
+				parentUuids = append(parentUuids, p.Uuid)
+			}
+			log.Logger(ctx).Info("--- Build AncestorsListOrParent Took" + time.Since(n).String())
+			return loadedNode, parentUuids, nil
+		}
+	*/
+
 	// Manually load parents from Path
 	parentPath := loadedNode.Path
 	for {
@@ -285,7 +300,10 @@ func (e *MicroEventsSubscriber) parentsFromCache(ctx context.Context, node *tree
 				parentUuids = append(parentUuids, pU.(string))
 			}
 		} else {
-			resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}})
+			resp, err := e.getTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{
+				Node:      &tree.Node{Path: parentPath},
+				StatFlags: []uint32{tree.StatFlagNone}},
+			)
 			if err == nil {
 				uuid := resp.Node.Uuid
 				e.parentsCache.Set(parentPath, uuid)

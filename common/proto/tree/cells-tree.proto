@@ -24,12 +24,15 @@ service NodeChangesStreamer{
 message ReadNodeRequest {
     // Input node
     Node Node = 1;
-    // Gather commit information
-    bool WithCommits = 2;
-    // Get extended stats - For folders, computes ChildrenCount
-    bool WithExtendedStats = 3;
     // Used internally for the router ReadNode request, stat the datasource instead of index
     bool ObjectStats = 4;
+    // Generic Details Flags
+    repeated uint32 StatFlags = 5;
+
+    // Get extended stats - For folders, computes ChildrenCount - Depreacted, use StatFlags instead
+    bool WithExtendedStats = 3;
+    // Gather commit information - This is Deprecated
+    bool WithCommits = 2;
 }
 
 message ReadNodeResponse {
@@ -46,14 +49,17 @@ message ListNodesRequest {
     bool Ancestors = 3;
     // Sends the list of versions for a given node
     bool WithVersions = 7;
-    // Sends the list of commits for a given node (not used)
-    bool WithCommits = 8;
     // Limit the number of results
     int64 Limit = 4;
     // Start listing at a given position
     int64 Offset = 5;
     // Filter by node type (LEAF / COLLECTION)
     NodeType FilterType = 6;
+    // Generic Details Flags
+    repeated uint32 StatFlags = 9;
+
+    // Sends the list of commits for a given node (Deprecated)
+    bool WithCommits = 8;
 }
 
 message ListNodesResponse {
@@ -198,6 +204,8 @@ message SearchRequest{
     int32 From = 3;
     // Load node details
     bool Details = 4;
+    // Generic Details Flags
+    repeated uint32 StatFlags = 5;
 }
 
 message SearchFacet {

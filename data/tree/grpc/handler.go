@@ -120,8 +120,6 @@ func (s *TreeServer) ReadNodeStream(streamer tree.NodeProviderStreamer_ReadNodeS
 	// otherwise it can create a goroutine leak on linux.
 	ctx := metadata.NewBackgroundWithMetaCopy(streamer.Context())
 	ctx = runtime.ForkContext(ctx, s.MainCtx)
-	//ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(s.MainCtx))
-	//ctx = servercontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
 	metaStreamer := meta.NewStreamLoader(ctx)
 	defer metaStreamer.Close()
 
@@ -224,24 +222,34 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 // ReadNode implementation for the TreeServer
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*tree.ReadNodeResponse, error) {
 
+	// Backward compat
+	if req.WithExtendedStats {
+		req.StatFlags = append(req.StatFlags, tree.StatFlagFolderCounts)
+	}
+	flags := tree.StatFlags(req.StatFlags)
+
 	node := req.GetNode()
 	var metaStreamer meta.Loader
-	if ms := ctx.Value("MetaStreamer"); ms != nil {
-		metaStreamer = ms.(meta.Loader)
-	} else {
-		metaStreamer = meta.NewStreamLoader(ctx)
-		defer metaStreamer.Close()
+	if flags.Metas() {
+		if ms := ctx.Value("MetaStreamer"); ms != nil {
+			metaStreamer = ms.(meta.Loader)
+		} else {
+			metaStreamer = meta.NewStreamLoader(ctx)
+			defer metaStreamer.Close()
+		}
 	}
 	resp := &tree.ReadNodeResponse{}
 	defer track("ReadNode", ctx, time.Now(), req, resp)
 
 	if node.GetPath() == "" && node.GetUuid() != "" {
-		respNode, err := s.lookUpByUuid(ctx, node.GetUuid(), req.WithCommits, req.WithExtendedStats)
+		respNode, err := s.lookUpByUuid(ctx, node.GetUuid(), req.StatFlags...)
 		if err != nil {
 			return nil, err
 		}
 		resp.Node = respNode
-		metaStreamer.LoadMetas(ctx, resp.Node)
+		if flags.Metas() {
+			metaStreamer.LoadMetas(ctx, resp.Node)
+		}
 		return resp, nil
 	}
 
@@ -255,19 +263,20 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (*
 	if ds, ok := s.DataSources[dsName]; ok {
 
 		dsReq := &tree.ReadNodeRequest{
-			Node:              &tree.Node{Path: dsPath},
-			WithExtendedStats: req.WithExtendedStats,
-			WithCommits:       req.WithCommits,
+			Node:      &tree.Node{Path: dsPath},
+			StatFlags: req.StatFlags,
 		}
 
-		response, rErr := ds.reader.ReadNode(ctx, dsReq)
+		response, rErr := ds.reader.ReadNode(ctx, dsReq, grpc.WaitForReady(false))
 		if rErr != nil {
 			return nil, rErr
 		}
 
 		resp.Node = response.Node
 		s.updateDataSourceNode(resp.Node, dsName)
-		metaStreamer.LoadMetas(ctx, resp.Node)
+		if flags.Metas() {
+			metaStreamer.LoadMetas(ctx, resp.Node)
+		}
 
 		return resp, nil
 	}
@@ -284,9 +293,13 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 	mainCtx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(mainCtx))
 	mainCtx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(mainCtx))*/
 	mainCtx := servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(s.MainCtx))
-	metaStreamer := meta.NewStreamLoader(mainCtx)
-
-	defer metaStreamer.Close()
+	var metaStreamer meta.Loader
+	var loadMetas bool
+	if tree.StatFlags(req.StatFlags).Metas() {
+		loadMetas = true
+		metaStreamer = meta.NewStreamLoader(mainCtx)
+		defer metaStreamer.Close()
+	}
 
 	// Special case to get ancestors
 	if req.Ancestors {
@@ -299,7 +312,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			log.Logger(ctx).Debug("First Find node by uuid ", zap.String("uuid", req.Node.GetUuid()))
 
 			var err error
-			sendNode, err = s.lookUpByUuid(ctx, req.Node.GetUuid(), false, false)
+			sendNode, err = s.lookUpByUuid(ctx, req.Node.GetUuid())
 			if err != nil {
 				return err
 			}
@@ -320,7 +333,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			} else {
 				// Pass MetaStreamer to avoid spinning a new one
 				msCtx := context.WithValue(ctx, "MetaStreamer", metaStreamer)
-				if readResp, err := s.ReadNode(msCtx, &tree.ReadNodeRequest{Node: sendNode}); err != nil {
+				if readResp, err := s.ReadNode(msCtx, &tree.ReadNodeRequest{Node: sendNode, StatFlags: req.StatFlags}); err != nil {
 					return err
 				} else {
 					sendNode = readResp.Node
@@ -328,7 +341,9 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			}
 		}
 
-		metaStreamer.LoadMetas(ctx, sendNode)
+		if loadMetas {
+			metaStreamer.LoadMetas(ctx, sendNode)
+		}
 		resp.Send(&tree.ListNodesResponse{
 			Node: sendNode,
 		})
@@ -343,7 +358,7 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 			streamer, err := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
 				Node:      sendNode,
 				Ancestors: true,
-			})
+			}, grpc.WaitForReady(false))
 			if err != nil {
 				return errors.InternalServerError(common.ServiceTree, "Cannot send List request to underlying datasource %s", err.Error())
 			}
@@ -356,7 +371,9 @@ func (s *TreeServer) ListNodes(req *tree.ListNodesRequest, resp tree.NodeProvide
 				}
 				respNode := listResponse.Node
 				s.updateDataSourceNode(respNode, dsName)
-				metaStreamer.LoadMetas(ctx, respNode)
+				if loadMetas {
+					metaStreamer.LoadMetas(ctx, respNode)
+				}
 				resp.Send(&tree.ListNodesResponse{
 					Node: respNode,
 				})
@@ -430,7 +447,9 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 				log.Logger(ctx).Error("Cannot compute DataSource size, skipping", zap.String("dsName", name), zap.Error(er))
 			}
 			if req.FilterType == tree.NodeType_UNKNOWN && (!hasFilter || metaFilter.Match(name, outputNode)) {
-				metaStreamer.LoadMetas(ctx, outputNode)
+				if metaStreamer != nil {
+					metaStreamer.LoadMetas(ctx, outputNode)
+				}
 				resp.Send(&tree.ListNodesResponse{
 					Node: outputNode,
 				})
@@ -443,7 +462,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 					Node:         subNode,
 					Recursive:    true,
 					WithVersions: req.WithVersions,
-					WithCommits:  req.WithCommits,
+					StatFlags:    req.StatFlags,
 					FilterType:   req.FilterType,
 				}, resp, cursorIndex, numberSent)
 			}
@@ -462,12 +481,12 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			Node:      reqNode,
 			Recursive: req.Recursive,
 			//Limit:      req.Limit,
-			WithCommits: req.WithCommits,
-			FilterType:  req.FilterType,
+			StatFlags:  req.StatFlags,
+			FilterType: req.FilterType,
 		}
 
 		log.Logger(ctx).Debug("List Nodes With Offset / Limit", zap.Int64("offset", offset), zap.Int64("limit", limit))
-		stream, err := ds.reader.ListNodes(ctx, req)
+		stream, err := ds.reader.ListNodes(ctx, req, grpc.WaitForReady(false))
 		if err != nil {
 			log.Logger(ctx).Error("ListNodesWithLimit", zap.Error(err))
 			return err
@@ -497,7 +516,9 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 			}
 
 			s.updateDataSourceNode(clientResponse.Node, dsName)
-			metaStreamer.LoadMetas(ctx, clientResponse.Node)
+			if metaStreamer != nil {
+				metaStreamer.LoadMetas(ctx, clientResponse.Node)
+			}
 			resp.Send(clientResponse)
 			*cursorIndex++
 
@@ -515,7 +536,7 @@ func (s *TreeServer) ListNodesWithLimit(ctx context.Context, metaStreamer meta.L
 func (s *TreeServer) dsSize(ctx context.Context, ds DataSource) (int64, error) {
 	st, er := ds.reader.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{Path: ""},
-	})
+	}, grpc.WaitForReady(false))
 	if er != nil {
 		return 0, er
 	}
@@ -697,7 +718,7 @@ func (s *TreeServer) StreamChanges(req *tree.StreamChangesRequest, streamer tree
 	return nil
 }
 
-func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits bool, withExtendedStats bool) (*tree.Node, error) {
+func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, statFlags ...uint32) (*tree.Node, error) {
 
 	var foundNode *tree.Node
 
@@ -706,10 +727,9 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 
 		if ds, ok := s.DataSources[dsName]; ok {
 			resp, err := ds.reader.ReadNode(ctx, &tree.ReadNodeRequest{
-				Node:              &tree.Node{Uuid: "ROOT"},
-				WithCommits:       withCommits,
-				WithExtendedStats: withExtendedStats,
-			})
+				Node:      &tree.Node{Uuid: "ROOT"},
+				StatFlags: statFlags,
+			}, grpc.WaitForReady(false))
 			if err == nil && resp.Node != nil {
 				s.updateDataSourceNode(resp.Node, dsName)
 				log.Logger(ctx).Debug("[Look Up] Found node", zap.String("uuid", resp.Node.Uuid), zap.String("datasource", dsName))
@@ -736,9 +756,8 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 			defer wg.Done()
 
 			resp, err := reader.ReadNode(c, &tree.ReadNodeRequest{
-				Node:              &tree.Node{Uuid: uuid},
-				WithCommits:       withCommits,
-				WithExtendedStats: withExtendedStats,
+				Node:      &tree.Node{Uuid: uuid},
+				StatFlags: statFlags,
 			}, grpc.WaitForReady(false))
 			if err == nil && resp.Node != nil {
 				s.updateDataSourceNode(resp.Node, name)

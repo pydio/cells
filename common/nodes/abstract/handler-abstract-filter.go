@@ -140,7 +140,7 @@ func (v *BranchFilter) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, o
 	}
 	response, err := v.Next.ReadNode(ctx, &tree.ReadNodeRequest{
 		Node:              out,
-		WithCommits:       in.WithCommits,
+		StatFlags:         in.StatFlags,
 		WithExtendedStats: in.WithExtendedStats,
 		ObjectStats:       in.ObjectStats,
 	}, opts...)
