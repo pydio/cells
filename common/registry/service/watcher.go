@@ -22,32 +22,19 @@ package service
 
 import (
 	"errors"
-
-	"github.com/pydio/cells/v4/common/registry/util"
+	"io"
 
 	pb "github.com/pydio/cells/v4/common/proto/registry"
 	"github.com/pydio/cells/v4/common/registry"
+	"github.com/pydio/cells/v4/common/registry/util"
 )
 
-type serviceWatcher struct {
+type streamWatcher struct {
 	stream pb.Registry_WatchClient
 	closed chan bool
 }
 
-type result struct {
-	action string
-	item   registry.Item
-}
-
-func (r *result) Action() string {
-	return r.action
-}
-
-func (r *result) Item() registry.Item {
-	return r.item
-}
-
-func (s *serviceWatcher) Next() (registry.Result, error) {
+func (s *streamWatcher) Next() (registry.Result, error) {
 	// check if closed
 	select {
 	case <-s.closed:
@@ -64,10 +51,11 @@ func (s *serviceWatcher) Next() (registry.Result, error) {
 	for _, i := range r.Items {
 		items = append(items, util.ToItem(i))
 	}
+	//fmt.Println("Got NEXT on streamWatcher", r.Action, len(r.Items))
 	return registry.NewResult(r.Action, items), nil
 }
 
-func (s *serviceWatcher) Stop() {
+func (s *streamWatcher) Stop() {
 	select {
 	case <-s.closed:
 		return
@@ -77,9 +65,86 @@ func (s *serviceWatcher) Stop() {
 	}
 }
 
-func newWatcher(stream pb.Registry_WatchClient) registry.Watcher {
-	return &serviceWatcher{
+func newStreamWatcher(stream pb.Registry_WatchClient) registry.Watcher {
+	return &streamWatcher{
 		stream: stream,
 		closed: make(chan bool),
 	}
+}
+
+type chanWatcher struct {
+	events  chan registry.Result
+	close   chan bool
+	closed  bool
+	onClose func()
+}
+
+func (s *chanWatcher) Next() (registry.Result, error) {
+	select {
+	case res := <-s.events:
+		// fmt.Println("Sending Newt Event on chanWatcher", res.Action(), len(res.Items()))
+		return res, nil
+	case <-s.close:
+		return nil, io.EOF
+	}
+}
+
+func (s *chanWatcher) Stop() {
+	s.closed = true
+	s.onClose()
+	close(s.close)
+	close(s.events)
+}
+
+func newChanWatcher(input chan registry.Result, onClose func(), options registry.Options) registry.Watcher {
+	cw := &chanWatcher{
+		events:  make(chan registry.Result),
+		close:   make(chan bool, 1),
+		onClose: onClose,
+	}
+	go func() {
+		for res := range input {
+			if !cw.closed {
+
+				// fmt.Println("Received Event on chanWatcher", res.Action(), len(res.Items()))
+				// Filter by action type
+				if options.Action == pb.ActionType_FULL_LIST && res.Action() != pb.ActionType_FULL_LIST {
+					continue
+				}
+
+				if (options.Action == pb.ActionType_FULL_DIFF || options.Action >= pb.ActionType_CREATE) && res.Action() < pb.ActionType_CREATE {
+					continue
+				}
+
+				// No further filtering, send result
+				if options.Name == "" && options.Type == pb.ItemType_ALL {
+					cw.events <- registry.NewResult(res.Action(), res.Items())
+				}
+
+				// Filter by Name and or Type
+				var filteredItems []registry.Item
+				for _, i := range res.Items() {
+					if options.Name != "" && i.Name() != options.Name {
+						continue
+					}
+					if options.Type == pb.ItemType_SERVICE {
+						if _, ok := i.(registry.Service); !ok {
+							continue
+						}
+					}
+					if options.Type == pb.ItemType_NODE {
+						if _, ok := i.(registry.Node); !ok {
+							continue
+						}
+					}
+					filteredItems = append(filteredItems, i)
+				}
+				// Send results
+				if len(filteredItems) > 0 {
+					cw.events <- registry.NewResult(res.Action(), filteredItems)
+				}
+			}
+		}
+	}()
+	return cw
 }

@@ -18,15 +18,15 @@ enum ItemType {
   ALL = 0;
   SERVICE = 1;
   NODE = 2;
-  YOYO = 3;
 }
 
 enum ActionType {
-  FULL_DIFF = 0;
-  FULL_LIST = 1;
-  CREATE = 2;
-  UPDATE = 3;
-  DELETE = 4;
+  ANY = 0;
+  FULL_DIFF = 1;
+  FULL_LIST = 2;
+  CREATE = 3;
+  UPDATE = 4;
+  DELETE = 5;
 }
 
 message Item {

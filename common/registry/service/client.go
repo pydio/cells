@@ -66,24 +66,20 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (registry.Registry,
 		return nil, err
 	}
 
-	return NewRegistry(
-		WithConn(conn),
-	), nil
+	return NewRegistry(WithConn(conn))
 }
-
-var (
-	// The default service name
-	DefaultService = "go.micro.registry"
-)
 
 type serviceRegistry struct {
 	opts Options
-	// name of the registry
-	name string
 	// address
 	address []string
 	// client to call registry
 	client pb.RegistryClient
+
+	// events
+	hasStream bool
+	// listeners
+	listeners []chan registry.Result
 }
 
 func (s *serviceRegistry) callOpts() []grpc.CallOption {
@@ -218,27 +214,32 @@ func (s *serviceRegistry) Watch(opts ...registry.Option) (registry.Watcher, erro
 		o(&options)
 	}
 
-	ctx := context.TODO()
-	req := &pb.WatchRequest{
-		Options: &pb.Options{
-			Type:   options.Type,
-			Action: options.Action,
-		},
+	if !s.hasStream {
+
+		// This is a first watch, setup a stream - opts are empty
+		stream, err := s.client.Watch(context.Background(), &pb.WatchRequest{}, s.callOpts()...)
+		if err != nil {
+			return nil, err
+		}
+		s.hasStream = true
+		return newStreamWatcher(stream), nil
+
+	} else {
+
+		events := make(chan registry.Result)
+		s.listeners = append(s.listeners, events)
+		closeFunc := func() {
+			var newL []chan registry.Result
+			for _, l := range s.listeners {
+				if l != events {
+					newL = append(newL, l)
+				}
+			}
+			s.listeners = newL
+		}
+		return newChanWatcher(events, closeFunc, options), nil
+
 	}
-
-	if options.Context != nil {
-		ctx = options.Context
-	}
-
-	req.Name = options.Name
-
-	stream, err := s.client.Watch(ctx, req, s.callOpts()...)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return newWatcher(stream), nil
 }
 
 func (s *serviceRegistry) As(interface{}) bool {
@@ -250,7 +251,7 @@ func (s *serviceRegistry) String() string {
 }
 
 // NewRegistry returns a new registry service client
-func NewRegistry(opts ...Option) registry.Registry {
+func NewRegistry(opts ...Option) (registry.Registry, error) {
 	var options Options
 	for _, o := range opts {
 		o(&options)
@@ -275,31 +276,30 @@ func NewRegistry(opts ...Option) registry.Registry {
 		conn, _ = grpc.Dial(":8000")
 	}
 
-	// service name. TODO: accept option
-	name := DefaultService
-
 	r := &serviceRegistry{
 		opts:   options,
-		name:   name,
 		client: pb.NewRegistryClient(conn),
 	}
 
+	// Check the stream has a connection to the registry
+	watcher, err := r.Watch(registry.WithAction(pb.ActionType_ANY))
+	if err != nil {
+		cancel()
+		return nil, err
+	}
 	go func() {
-		// Check the stream has a connection to the registry
-		watcher, err := r.Watch()
-		if err != nil {
-			cancel()
-			return
-		}
-
 		for {
-			_, err := watcher.Next()
+			res, err := watcher.Next()
 			if err != nil {
 				cancel()
 				return
 			}
+			// Dispatch to listeners
+			for _, l := range r.listeners {
+				l <- registry.NewResult(res.Action(), res.Items())
+			}
 		}
 	}()
 
-	return registry.NewRegistry(r)
+	return registry.NewRegistry(r), nil
 }
