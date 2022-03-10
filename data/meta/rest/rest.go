@@ -346,7 +346,7 @@ func (h *Handler) loadNodeByPath(ctx context.Context, nodePath string, loadExten
 
 	nodePath = strings.TrimSuffix(nodePath, "/")
 	response, err := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
-		WithExtendedStats: loadExtended,
+		StatFlags: []uint32{tree.StatFlagFolderCounts},
 		Node: &tree.Node{
 			Path: nodePath,
 		},

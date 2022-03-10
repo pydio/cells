@@ -43,21 +43,28 @@ const (
 	StatFlagFolderCounts
 )
 
-type Flags struct {
-	flags []uint32
+type Flags []uint32
+
+func StatFlags(flags []uint32) Flags {
+	return append(Flags{}, flags...)
 }
 
-func StatFlags(flags []uint32) *Flags {
-	return &Flags{flags: flags}
-}
-
-func (f *Flags) Metas() bool {
-	for _, fl := range f.flags {
+func (f Flags) Metas() bool {
+	for _, fl := range f {
 		if fl == StatFlagNone {
 			return false
 		}
 	}
 	return true
+}
+
+func (f Flags) FolderCounts() bool {
+	for _, fl := range f {
+		if fl == StatFlagFolderCounts {
+			return true
+		}
+	}
+	return false
 }
 
 /* This file provides helpers and shortcuts to ease development of tree.node related features.
