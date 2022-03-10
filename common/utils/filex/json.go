@@ -1,7 +1,6 @@
 package filex
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -30,8 +29,6 @@ func Read(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("The data read here is ? ", string(b))
 
 	return b, nil
 }
