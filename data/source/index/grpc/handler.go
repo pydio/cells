@@ -255,7 +255,6 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 
 	defer track(log.Logger(ctx), "ReadNode", time.Now(), req, resp)
 
-	// TODO v4
 	var session = ""
 	md, has := metadata.FromContext(ctx)
 	if has {

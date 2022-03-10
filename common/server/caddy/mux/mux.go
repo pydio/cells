@@ -23,6 +23,7 @@ package mux
 import (
 	"context"
 	"fmt"
+	grpc2 "github.com/pydio/cells/v4/common/client/grpc"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -45,18 +46,22 @@ import (
 )
 
 func RegisterServerMux(ctx context.Context, s server.HttpMux) {
+	monitor := grpc2.NewHealthChecker(ctx)
 	caddy.RegisterModule(Middleware{
-		c: clientcontext.GetClientConn(ctx),
-		r: servercontext.GetRegistry(ctx),
-		s: s,
+		c:       clientcontext.GetClientConn(ctx),
+		r:       servercontext.GetRegistry(ctx),
+		s:       s,
+		monitor: monitor,
 	})
+	go monitor.Monitor(common.ServiceOAuth)
 	httpcaddyfile.RegisterHandlerDirective("mux", parseCaddyfile)
 }
 
 type Middleware struct {
-	c grpc.ClientConnInterface
-	r registry.Registry
-	s server.HttpMux
+	c       grpc.ClientConnInterface
+	r       registry.Registry
+	s       server.HttpMux
+	monitor grpc2.HealthMonitor
 }
 
 // CaddyModule returns the Caddy module information.
@@ -104,13 +109,22 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 		return nil
 	}
 
+	if !m.monitor.Up() {
+		bb, _ := maintenance.Assets.ReadFile("starting.html")
+		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
+		w.WriteHeader(303)
+		_, er := w.Write(bb)
+		return er
+	}
+
 	if r.RequestURI == "/maintenance.html" && r.Header.Get("X-Maintenance-Redirect") != "" {
 		bb, _ := maintenance.Assets.ReadFile("maintenance.html")
 		w.Header().Set("Content-Type", "text/html")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(bb)))
 		w.WriteHeader(303)
-		w.Write(bb)
-		return nil
+		_, er := w.Write(bb)
+		return er
 	}
 
 	// try to find it in the current mux
