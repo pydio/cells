@@ -22,6 +22,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	hconf "github.com/ory/hydra/driver/config"
@@ -134,6 +135,7 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	}
 	_ = val.Val("dangerous-allow-insecure-redirect-urls").Set(out)
 
+	fmt.Println("And we're doing this ? ")
 	provider, _ := hconf.New(context.TODO(), logrusx.New("test", "test"), hconfx.WithValues(val.Map()))
 	return &configurationProvider{
 		Provider: provider,

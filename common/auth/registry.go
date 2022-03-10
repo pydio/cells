@@ -86,6 +86,8 @@ func InitRegistry(ctx context.Context, dbServiceName string) (e error) {
 
 	logger := log.Logger(ctx)
 
+	fmt.Println("And we are here ? ")
+
 	once.Do(func() {
 		reg, e = createSqlRegistryForConf(dbServiceName, defaultConf)
 		if e != nil {

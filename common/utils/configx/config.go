@@ -161,6 +161,8 @@ func (c *config) get() interface{} {
 				}
 			}
 			return c.v
+		} else if c.d == nil {
+			return c.v
 		}
 	}
 

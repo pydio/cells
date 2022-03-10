@@ -1,6 +1,7 @@
 package filex
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -8,7 +9,7 @@ import (
 
 // Read reads the content of a file
 func Read(filename string) ([]byte, error) {
-	fh, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_SYNC, 0644)
+	fh, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []byte{}, nil
@@ -29,6 +30,8 @@ func Read(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("The data read here is ? ", string(b))
 
 	return b, nil
 }
