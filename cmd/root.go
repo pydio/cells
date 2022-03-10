@@ -229,7 +229,7 @@ func initConfig() (new bool) {
 	config.RegisterVersionStore(versionsStore)
 
 	// Local configuration file
-	lc, err := file.New(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), false, configx.WithMarshaller(jsonIndent{}))
+	lc, err := file.New(filepath.Join(config.PydioConfigDir, config.PydioConfigFile), true, configx.WithMarshaller(jsonIndent{}))
 	if err != nil {
 		log.Fatal("could not start local file", zap.Error(err))
 	}
