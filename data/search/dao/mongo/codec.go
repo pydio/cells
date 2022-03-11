@@ -300,6 +300,7 @@ func (m *Codex) GetModel(sc configx.Values) (interface{}, bool) {
 				},
 				Indexes: []map[string]int{
 					{"basename": 1},
+					{"uuid": 1},
 					{"path": 1},
 					{"text_content": 1},
 					{"size": 1},

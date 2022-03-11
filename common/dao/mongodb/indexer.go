@@ -23,10 +23,10 @@ package mongodb
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/pydio/cells/v4/common/dao"
@@ -55,7 +55,7 @@ type Indexer struct {
 func NewIndexer(dao dao.DAO) (dao.IndexDAO, error) {
 	i := &Indexer{
 		DAO:        dao.(DAO),
-		bufferSize: 50,
+		bufferSize: 2000,
 		tick:       make(chan bool),
 		flush:      make(chan bool, 1),
 		done:       make(chan bool, 1),
@@ -260,29 +260,30 @@ func (i *Indexer) Close() error {
 }
 func (i *Indexer) Flush(ctx context.Context) error {
 	conn := i.DB().Collection(i.collection)
+
 	if len(i.inserts) > 0 {
 		if i.collectionModel.IDName != "" {
-			// Upserts instead of inserts
-			upsert := true
+			// First remove all entries with given ID
+			var ors bson.A
 			for _, insert := range i.inserts {
 				if p, o := insert.(dao.IndexIDProvider); o {
-					if _, e := conn.ReplaceOne(ctx, bson.D{{i.collectionModel.IDName, p.IndexID()}}, insert, &options.ReplaceOptions{Upsert: &upsert}); e != nil {
-						fmt.Println("Error while replaceOne", e)
-					}
-				} else {
-					fmt.Println("insert is not an IndexIDProvider!")
+					ors = append(ors, bson.M{i.collectionModel.IDName: p.IndexID()})
 				}
 			}
-		} else {
-			if _, e := conn.InsertMany(ctx, i.inserts); e != nil {
-				fmt.Println("error while flushing index to db", e)
+			if _, e := conn.DeleteMany(context.Background(), bson.M{"$or": ors}); e != nil {
+				fmt.Println("error while flushing pre-deletes", e)
 				return e
-			} else {
-				//fmt.Println("flushed index to db", len(res.InsertedIDs))
 			}
+		}
+		if _, e := conn.InsertMany(ctx, i.inserts); e != nil {
+			fmt.Println("error while flushing index to db", e)
+			return e
+		} else {
+			//fmt.Println("flushed index to db", len(res.InsertedIDs))
 		}
 		i.inserts = []interface{}{}
 	}
+
 	if len(i.deletes) > 0 && i.collectionModel.IDName != "" {
 		var ors bson.A
 		for _, d := range i.deletes {

@@ -169,7 +169,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 				continue
 			}
 			respNode := resp.Node
-			wrapperCtx, wrapperN, _ := inputFilter(ctx, respNode, "in")
+			wrapperCtx, wrapperN, _ := inputFilter(ctx, respNode, "in-"+respNode.Uuid)
 			if err := router.WrappedCanApply(wrapperCtx, wrapperCtx, &tree.NodeChangeEvent{Type: tree.NodeChangeEvent_READ, Source: wrapperN}); err != nil {
 				log.Logger(ctx).Debug("Skipping node in search results", respNode.ZapPath(), zap.Error(err))
 				continue

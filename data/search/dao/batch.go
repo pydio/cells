@@ -24,7 +24,6 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"github.com/pydio/cells/v4/common/runtime"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -43,6 +42,7 @@ import (
 	"github.com/pydio/cells/v4/common/nodes/meta"
 	"github.com/pydio/cells/v4/common/nodes/models"
 	"github.com/pydio/cells/v4/common/proto/tree"
+	"github.com/pydio/cells/v4/common/runtime"
 )
 
 // Batch avoids overflowing bleve index by batching indexation events (index/delete)
@@ -101,18 +101,20 @@ func (b *Batch) Flush(indexer dao.IndexDAO) error {
 		return nil
 	}
 	log.Logger(b.ctx).Info("Flushing search batch", zap.Int("size", l))
-	//batch := index.NewBatch()
 	excludes := b.nsProvider.ExcludeIndexes()
+	var nodes []*tree.IndexableNode
 	b.nsProvider.InitStreamers(b.ctx)
-	defer b.nsProvider.CloseStreamers()
 	for uuid, node := range b.inserts {
 		if e := b.LoadIndexableNode(node, excludes); e == nil {
-			//batch.Index(uuid, node)
-			if er := indexer.InsertOne(nil, node); er != nil {
-				fmt.Println("Search batch - InsertOne error", er.Error())
-			}
+			nodes = append(nodes, node)
 		}
 		delete(b.inserts, uuid)
+	}
+	b.nsProvider.CloseStreamers()
+	for _, n := range nodes {
+		if er := indexer.InsertOne(nil, n); er != nil {
+			fmt.Println("Search batch - InsertOne error", er.Error())
+		}
 	}
 	for uuid := range b.deletes {
 		if er := indexer.DeleteOne(nil, uuid); er != nil {
@@ -191,14 +193,7 @@ func (b *Batch) createBackgroundContext(parent context.Context) context.Context 
 		Profile:   common.PydioProfileAdmin,
 		GroupPath: "/",
 	})
-	ctx = runtime.ForkContext(ctx, parent)
-	/*
-		ctx = servicecontext.WithRegistry(ctx, servicecontext.GetRegistry(parent))
-		ctx = servercontext.WithRegistry(ctx, servercontext.GetRegistry(parent))
-		ctx = clientcontext.WithClientConn(ctx, clientcontext.GetClientConn(parent))
-		ctx = nodescontext.WithSourcesPool(ctx, nodescontext.GetSourcesPool(parent))
-	*/
-	return ctx
+	return runtime.ForkContext(ctx, parent)
 }
 
 func (b *Batch) getUuidRouter() nodes.Handler {
