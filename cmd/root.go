@@ -25,6 +25,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -48,6 +49,7 @@ import (
 	"github.com/pydio/cells/v4/common/runtime"
 	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/filex"
+
 	// "github.com/pydio/cells/v4/common/config/remote"
 	"github.com/pydio/cells/v4/common/config/etcd"
 	"github.com/pydio/cells/v4/common/config/file"
@@ -234,10 +236,16 @@ func initConfig() (new bool) {
 
 	config.RegisterLocal(lc)
 
-	switch runtime.ConfigURL() {
+	scheme := runtime.ConfigURL()
+	u, err := url.Parse(runtime.ConfigURL())
+	if err == nil {
+		scheme = u.Scheme
+	}
+
+	switch scheme {
 	case "etcd":
 		conn, err := clientv3.New(clientv3.Config{
-			Endpoints:   []string{"http://192.168.1.92:2379"},
+			Endpoints:   []string{"http://" + u.Host},
 			DialTimeout: 2 * time.Second,
 		})
 		if err != nil {
@@ -245,27 +253,10 @@ func initConfig() (new bool) {
 		}
 
 		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault", false))
+		// config.RegisterLocal(etcd.NewSource(context.Background(), conn, "config/"+runtime.DefaultAdvertiseAddress(), false))
 		defaultConfig := etcd.NewSource(context.Background(), conn, "config", false)
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
-	//case "mysql":
-	//	// Pre-check that pydio.json is properly configured
-	//	if a, _ := config.GetDatabase("default"); a == "" {
-	//		return
-	//	}
-	//
-	//	driver, dsn := config.GetDatabase("default")
-	//	vaultConfig := sql.New(driver, dsn, "vault")
-	//	defaultConfig := sql.New(driver, dsn, "default")
-	//	versionsConfig := sql.New(driver, dsn, "versions")
-	//
-	//	versionsStore, _ = config.NewConfigStore(versionsConfig)
-	//
-	//	defaultConfig = config.NewVault(vaultConfig, defaultConfig)
-	//	defaultConfig = config.NewVersionStore(versionsStore, defaultConfig)
-	//case "remote":
-	//	config.RegisterVault(service.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "vault"))
-	//	config.Register(service.New(common.ServiceGrpcNamespace_+common.ServiceConfig, "config"))
 	default:
 		vaultConfig, err := file.New(
 			filepath.Join(config.PydioConfigDir, "pydio-vault.json"),

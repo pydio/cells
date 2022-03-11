@@ -186,7 +186,6 @@ func (m *etcd) Set(data interface{}) error {
 	}
 
 	configx.Walk(v, func(key []string, val configx.Value) error {
-		fmt.Println("And the key is ? ", key, val)
 		_, err := m.cli.Put(context.Background(), strings.Join(append([]string{m.prefix}, key...), "/"), string(val.Bytes()), clientv3.WithLease(m.leaseID))
 		if err != nil {
 			return err

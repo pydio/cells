@@ -116,6 +116,8 @@ func (f *file) watch() {
 				return
 			}
 
+			fmt.Println("Received an event ", event.Op)
+
 			// Do something ?
 			if event.Op == fsnotify.Remove {
 				return
