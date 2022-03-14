@@ -4,8 +4,8 @@
 [Issue-Tracker](https://github.com/pydio/cells/issues)
 
 [![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=4)](https://goreportcard.com/report/github.com/pydio/cells)
+[![GoDoc](https://godoc.org/github.com/pydio/cells/v4?status.svg)](https://godoc.org/github.com/pydio/cells/v4)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells/v4?rand=4)](https://goreportcard.com/report/github.com/pydio/cells/v4)
 
 > **IMPORTANT NEWS - March 2022: the main git branch switched from `master` to `main`!**
 > 
