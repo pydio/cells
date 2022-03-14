@@ -7,6 +7,12 @@
 [![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=4)](https://goreportcard.com/report/github.com/pydio/cells)
 
+> **IMPORTANT NEWS - March 2022: the main git branch switched from `master` to `main`!**
+> 
+> A milestone on the road to Cells v4: we have fully rewritten the codebase to **support gomodules** at last.
+> It is not 100% stable yet, so make sure to use official binaries or the `v3` branch if you need production ready version.
+
+
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture.
 
 <p align="center">
