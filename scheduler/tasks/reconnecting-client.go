@@ -37,11 +37,14 @@ func (s *ReconnectingClient) Stop() {
 func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 
 	go func() {
-		taskClient := jobs.NewJobServiceClient(cgrpc.GetClientConnFromCtx(s.parentCtx, common.ServiceJobs, cgrpc.WithCallTimeout(5*time.Minute)))
-		streamer, e := taskClient.PutTaskStream(s.parentCtx)
+		taskClient := jobs.NewJobServiceClient(cgrpc.GetClientConnFromCtx(s.parentCtx, common.ServiceJobs, cgrpc.WithCallTimeout(1*time.Minute)))
+		ct, ca := context.WithCancel(s.parentCtx)
+		defer ca()
+		streamer, e := taskClient.PutTaskStream(ct)
 		if e != nil {
 			log.Logger(s.parentCtx).Error("Streamer PutTaskStream", zap.Error(e))
 			<-time.After(10 * time.Second)
+			ca()
 			s.chanToStream(ch)
 			return
 		}
@@ -56,7 +59,9 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.
 					task := t.WithoutLogs()
 					e := streamer.Send(&jobs.PutTaskRequest{Task: task})
 					if e != nil {
-						log.Logger(s.parentCtx).Debug("Cannot post task - break and reconnect streamer", zap.Error(e))
+						log.Logger(s.parentCtx).Info("Cannot post task - break and reconnect streamer", zap.Error(e))
+						streamer.CloseSend()
+						ca()
 						if _, rE := taskClient.PutTask(s.parentCtx, &jobs.PutTaskRequest{Task: task}); rE == nil {
 							log.Logger(s.parentCtx).Debug("Posted with a direct request")
 						}
@@ -68,6 +73,8 @@ func (s *ReconnectingClient) chanToStream(ch chan interface{}, requeue ...*jobs.
 					}
 					_, e = streamer.Recv()
 					if e != nil {
+						streamer.CloseSend()
+						ca()
 						log.Logger(s.parentCtx).Debug("Error while posting task - reconnect streamer", zap.Error(e))
 						if _, rE := taskClient.PutTask(s.parentCtx, &jobs.PutTaskRequest{Task: task}); rE == nil {
 							log.Logger(s.parentCtx).Debug("Posted with a direct request")
