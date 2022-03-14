@@ -113,14 +113,13 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 			Path: strings.TrimRight(node.Path, "/") + "/" + common.PydioSyncHiddenFile,
 		}
 		newNode.MustSetMeta(common.MetaNamespaceDatasourcePath, dsPath+"/"+common.PydioSyncHiddenFile)
-		meta := make(map[string]string)
 		if session := in.IndexationSession; session != "" {
-			meta[common.XPydioSessionUuid] = session
+			ctx = metadata.WithAdditionalMetadata(ctx, map[string]string{common.XPydioSessionUuid: session})
 		}
 		if !in.UpdateIfExists {
 			if read, er := e.GetObject(ctx, newNode, &models.GetRequestData{StartOffset: 0, Length: 36}); er == nil {
 				bytes, _ := ioutil.ReadAll(read)
-				read.Close()
+				_ = read.Close()
 				node.Uuid = string(bytes)
 				node.MTime = time.Now().Unix()
 				node.Size = 36
@@ -135,7 +134,8 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 			log.Logger(ctx).Debug("Creating Folder with Uuid", node.ZapUuid())
 			nodeUuid = node.Uuid
 		}
-		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &models.PutRequestData{Metadata: meta, Size: int64(len(nodeUuid))})
+		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &models.PutRequestData{Size: int64(len(nodeUuid))})
+
 		if err != nil {
 			return nil, err
 		}
@@ -323,7 +323,7 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 			if dirOk {
 				srcMeta[common.XAmzMetaDirective] = directive
 			}
-			_, err = destClient.CopyObject(ctx, srcBucket, fromPath, destBucket, toPath, statMeta, requestData.Metadata, requestData.Progress)
+			_, err = destClient.CopyObject(ctx, srcBucket, fromPath, destBucket, toPath, srcMeta, requestData.Metadata, requestData.Progress)
 		}
 		if err != nil {
 			log.Logger(ctx).Error("HandlerExec: Error on CopyObject", zap.Error(err))

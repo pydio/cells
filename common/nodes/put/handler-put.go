@@ -130,7 +130,7 @@ func (m *Handler) getOrCreatePutNode(ctx context.Context, nodePath string, reque
 }
 
 // createParentIfNotExist Recursively create parents
-func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node) error {
+func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node, session string) error {
 	parentNode := node.Clone()
 	parentNode.Path = path.Dir(node.Path)
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
@@ -139,10 +139,10 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node) e
 	parentNode.MustSetMeta(common.MetaNamespaceDatasourcePath, path.Dir(parentNode.GetStringMeta(common.MetaNamespaceDatasourcePath)))
 	parentNode.Type = tree.NodeType_COLLECTION
 	if _, e := m.Next.ReadNode(ctx, &tree.ReadNodeRequest{Node: parentNode}); e != nil {
-		if er := m.createParentIfNotExist(ctx, parentNode); er != nil {
+		if er := m.createParentIfNotExist(ctx, parentNode, session); er != nil {
 			return er
 		}
-		if r, er2 := m.Next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode}); er2 != nil {
+		if r, er2 := m.Next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode, IndexationSession: session}); er2 != nil {
 			parsedErr := errors.FromError(er2)
 			if parsedErr.Code == http.StatusConflict {
 				return nil
@@ -161,7 +161,7 @@ func (m *Handler) createParentIfNotExist(ctx context.Context, node *tree.Node) e
 			}
 			treeWriter := m.ClientsPool.GetTreeClientWrite()
 			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
-			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
+			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode, IndexationSession: session})
 			if er != nil {
 				parsedErr := errors.FromError(er)
 				if parsedErr.Code == http.StatusConflict {
@@ -180,7 +180,7 @@ func (m *Handler) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, op
 	if info, ok := nodes.GetBranchInfo(ctx, "in"); ok && (info.FlatStorage || info.Binary || info.IsInternal()) || in.Node.IsLeaf() {
 		return m.Next.CreateNode(ctx, in, opts...)
 	}
-	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone()); e != nil {
+	if e := m.createParentIfNotExist(ctx, in.GetNode().Clone(), in.GetIndexationSession()); e != nil {
 		return nil, e
 	}
 	return m.Next.CreateNode(ctx, in, opts...)
@@ -203,7 +203,7 @@ func (m *Handler) PutObject(ctx context.Context, node *tree.Node, reader io.Read
 		return m.Next.PutObject(ctx, node, reader, requestData)
 	}
 
-	if e := m.createParentIfNotExist(ctx, node); e != nil {
+	if e := m.createParentIfNotExist(ctx, node, ""); e != nil {
 		return 0, e
 	}
 
