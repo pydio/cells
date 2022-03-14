@@ -527,7 +527,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		// First of all, we delete the existing node
 		if nodeTo != nil {
 			if err = dao.DelNode(nodeTo); err != nil {
-				return nil, errors.InternalServerError(name, "Could not delete former to node at %s", req.To.Path)
+				return nil, errors.InternalServerError(name, "Could not delete former to node at %s %v", req.To.Path, err)
 			}
 		}
 

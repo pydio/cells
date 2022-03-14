@@ -45,7 +45,7 @@
     "other": "Пароль для идентификации прокси-сервера"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "Отключить проверку обновлений"
   },
   "Update.Config.Disable.Description": {
     "other": "If your server has no access to outside world, do not try contact update site."

@@ -1,0 +1,44 @@
+{
+  "Exif Rotation": {
+    "other": "Exif Rotation"
+  },
+  "Generate thumbnails or not": {
+    "other": "Generate thumbnails or not"
+  },
+  "Image viewer": {
+    "other": "Image viewer"
+  },
+  "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": {
+    "other": "Image viewer, used for previewing images and browsing them in a diaporama. Generates a thumbnail version of the images."
+  },
+  "Low-res Sizes": {
+    "other": "Low-res Sizes"
+  },
+  "Quality": {
+    "other": "Quality"
+  },
+  "Remote Wrappers": {
+    "other": "Remote Wrappers"
+  },
+  "Rotate image using exif rotation": {
+    "other": "Rotate image using exif rotation"
+  },
+  "Size Threshold": {
+    "other": "Size Threshold"
+  },
+  "Threshold": {
+    "other": "Threshold"
+  },
+  "Threshold for low-res versions of images": {
+    "other": "Threshold for low-res versions of images"
+  },
+  "Thumbnails": {
+    "other": "Thumbnails"
+  },
+  "Thumbs quality": {
+    "other": "Thumbs quality"
+  },
+  "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
+    "other": "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped."
+  }
+}

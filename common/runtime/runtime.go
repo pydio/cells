@@ -95,7 +95,7 @@ func HttpServerType() string {
 
 // GrpcBindAddress returns the KeyBindHost:KeyGrpcPort URL
 func GrpcBindAddress() string {
-	return net.JoinHostPort(r.GetString(KeyBindHost), r.GetString(KeyGrpcPort))
+	return net.JoinHostPort(r.GetString(KeyAdvertiseAddress), r.GetString(KeyGrpcPort))
 }
 
 // GrpcExternalPort returns optional GRPC port to be used for external binding
@@ -193,6 +193,9 @@ func buildProcessStartTag() {
 func BuildForkParams(cmd string) []string {
 
 	grpcAddr := GrpcBindAddress()
+
+	conf := fmt.Sprintf("grpc://%s", grpcAddr)
+
 	reg := fmt.Sprintf("grpc://%s", grpcAddr)
 	if !strings.HasPrefix(RegistryURL(), "mem://") {
 		reg = RegistryURL()
@@ -206,6 +209,7 @@ func BuildForkParams(cmd string) []string {
 	params := []string{
 		cmd,
 		"--" + KeyFork,
+		"--" + KeyConfig, conf,
 		"--" + KeyRegistry, reg,
 		"--" + KeyBroker, brok,
 		"--" + KeyGrpcPort, "0",

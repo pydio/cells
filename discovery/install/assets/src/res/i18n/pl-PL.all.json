@@ -1,0 +1,257 @@
+{
+  "welcome.stepLabel": {
+    "other": "Terms of Use"
+  },
+  "welcome.title": {
+    "other": "Welcome to Pydio Cells Installation Wizard"
+  },
+  "welcome.legend": {
+    "other": "This will install all services on the current server. Please agree with the terms of the license below before starting"
+  },
+  "welcome.agreed": {
+    "other": "I agree with the terms"
+  },
+  "database.stepLabel": {
+    "other": "Database Connection"
+  },
+  "database.title": {
+    "other": "Database Configuration"
+  },
+  "database.legend": {
+    "other": "Pydio requires at least one SQL storage for configuration and data indexation. Configure here the connection to your MySQL/MariaDB server."
+  },
+  "database.legend.bold": {
+    "other": "Please make sure that your database is running MySQL version 5.6 or higher"
+  },
+  "database.installDetected": {
+    "other": "There seem to be a Cells installation already setup in this database. Please confirm to continue or "
+  },
+  "database.installDetected.retry": {
+    "other": "retry with new value"
+  },
+  "database.useDefaultsSet": {
+    "other": "A default database is already configured, just click next to validate connection."
+  },
+  "database.forceConfigure": {
+    "other": "Configure another database."
+  },
+  "admin.stepLabel": {
+    "other": "Admin User"
+  },
+  "admin.title": {
+    "other": "Admin user and frontend defaults"
+  },
+  "admin.legend": {
+    "other": "Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation."
+  },
+  "admin.adminFound": {
+    "other": "An administrative user was already found in the DB. Check if you wish to create a new one."
+  },
+  "advanced.stepLabel": {
+    "other": "Advanced Settings"
+  },
+  "advanced.title": {
+    "other": "Advanced Settings (optional)"
+  },
+  "advanced.legend": {
+    "other": "Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration."
+  },
+  "advanced.toggle": {
+    "other": "Show Advanced Settings"
+  },
+  "advanced.default.datasource": {
+    "other": "A default data source to store users personal data and cells data is created at startup. You can create other datasources later on."
+  },
+  "license.stepLabel": {
+    "other": "Enterprise License"
+  },
+  "license.title": {
+    "other": "Pydio Cells Enterprise License"
+  },
+  "license.success": {
+    "other": "License file was successfully detected."
+  },
+  "license.details": {
+    "other": "This installation is valid for %count users until %expiration."
+  },
+  "license.failed": {
+    "other": "Error while trying to verify this license key. Please contact the support."
+  },
+  "license.required": {
+    "other": "A valid license key is required to run the Enterprise Distribution. To get a 30 days trial license or a sales quotation, please contact"
+  },
+  "license.fieldLabel": {
+    "other": "License String"
+  },
+  "license.fieldLegend": {
+    "other": "Please copy/paste the license key provided to you."
+  },
+  "apply.stepLabel": {
+    "other": "Apply Installation"
+  },
+  "apply.title": {
+    "other": "Please wait while installation Pydio Cells..."
+  },
+  "apply.success": {
+    "other": "Install was successful and services are now starting, this installer will reload the page when services are started."
+  },
+  "apply.success.restarted": {
+    "other": "Install was successful and services are now started, please reload the page now (it will be automatically reloaded in %1s)"
+  },
+  "apply.error": {
+    "other": "There was an error while performing installation! Please check your configuration."
+  },
+  "apply.error.detail": {
+    "other": "Error was: "
+  },
+  "form.dbConnectionType.label": {
+    "other": "Connection Type"
+  },
+  "form.dbConnectionType.tcp": {
+    "other": "TCP"
+  },
+  "form.dbConnectionType.socket": {
+    "other": "Socket"
+  },
+  "form.dbConnectionType.manual": {
+    "other": "Manual"
+  },
+  "form.dbTCPHostname.label": {
+    "other": "Host Name"
+  },
+  "form.dbTCPHostname.legend": {
+    "other": "Server where mysql is running"
+  },
+  "form.dbName.label": {
+    "other": "Database Name"
+  },
+  "form.dbName.legend": {
+    "other": "Database to use (will be created if it does not exist)"
+  },
+  "form.dbTCPPort.label": {
+    "other": "Port"
+  },
+  "form.dbTCPPort.legend": {
+    "other": "Port to connect to mysql"
+  },
+  "form.dbUser.label": {
+    "other": "Database User"
+  },
+  "form.dbUser.legend": {
+    "other": "Leave blank if not required"
+  },
+  "form.dbPassword.label": {
+    "other": "Database Password"
+  },
+  "form.dbPassword.legend": {
+    "other": "Leave blank if not required"
+  },
+  "form.dbSocketFile.label": {
+    "other": "Socket"
+  },
+  "form.dbSocketFile.legend": {
+    "other": "Enter the location of the socket file to use to connect"
+  },
+  "form.dbManualDSN.label": {
+    "other": "DSN"
+  },
+  "form.dbManualDSN.legend": {
+    "other": "Use Golang-style DSN to describe the database connection"
+  },
+  "form.frontendApplicationTitle.label": {
+    "other": "Application Title"
+  },
+  "form.frontendApplicationTitle.legend": {
+    "other": "Main title of your installation"
+  },
+  "form.frontendDefaultLanguage.label": {
+    "other": "Default Language"
+  },
+  "form.frontendLogin.label": {
+    "other": "Admin user login *"
+  },
+  "form.frontendLogin.legend": {
+    "other": "Identifier used to log in"
+  },
+  "form.frontendPassword.label": {
+    "other": "Admin password *"
+  },
+  "form.frontendPassword.legend": {
+    "other": "Password used to log in"
+  },
+  "form.frontendRepeatPassword.label": {
+    "other": "Confirm password"
+  },
+  "form.frontendRepeatPassword.legend": {
+    "other": "Confirm password twice"
+  },
+  "form.dsFolder.label": {
+    "other": "Path of the default datasource"
+  },
+  "form.dsFolder.legend": {
+    "other": "Use an absolute path on the server"
+  },
+  "form.dsType.FS": {
+    "other": "Local FS (store all data on this server)"
+  },
+  "form.dsType.S3": {
+    "other": "Amazon S3 / S3-compatible (store inside S3 buckets)"
+  },
+  "form.dsS3Custom.label": {
+    "other": "S3-Compatible storage endpoint"
+  },
+  "form.dsS3Custom.legend": {
+    "other": "Leave empty for Amazon"
+  },
+  "form.dsS3CustomRegion.label": {
+    "other": "S3 Custom region"
+  },
+  "form.dsS3CustomRegion.legend": {
+    "other": "Leave empty for default (us-east-1)"
+  },
+  "form.dsS3ApiKey.label": {
+    "other": "S3 Api Key"
+  },
+  "form.dsS3ApiKey.legend": {
+    "other": "Key to connect to S3"
+  },
+  "form.dsS3ApiSecret.label": {
+    "other": "S3 Api Secret"
+  },
+  "form.dsS3ApiSecret.legend": {
+    "other": "Secret Key"
+  },
+  "form.dsS3ValidateKeys": {
+    "other": "Connect to S3 to define buckets"
+  },
+  "form.s3BucketsPrefix.label": {
+    "other": "Buckets prefix"
+  },
+  "form.s3BucketsPrefix.legend": {
+    "other": "A unique prefix for creating the 6 default buckets"
+  },
+  "form.bucketList.found": {
+    "other": "Following bucket(s) already exist"
+  },
+  "form.bucketList.toCreate": {
+    "other": "Following bucket(s) will be created"
+  },
+  "form.bucketList.notFound": {
+    "other": "Following buckets were not found"
+  },
+  "form.bucketList.warnCreate": {
+    "other": "You are not allowed to create buckets, make sure to create them manually!"
+  },
+  "stepper.button.next": {
+    "other": "Next"
+  },
+  "stepper.button.back": {
+    "other": "Back"
+  },
+  "stepper.button.last": {
+    "other": "Install Now"
+  },
+  "stepper.button.reload": {
+    "other": "Reload"
+  }
+}

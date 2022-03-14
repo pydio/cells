@@ -1,0 +1,26 @@
+{
+  "Application Tab": {
+    "other": "Application Tab"
+  },
+  "Browser Tab": {
+    "other": "Browser Tab"
+  },
+  "Choose where the documents are opened": {
+    "other": "Choose where the documents are opened"
+  },
+  "Choose where the http links are opened": {
+    "other": "Choose where the http links are opened"
+  },
+  "External Window": {
+    "other": "External Window"
+  },
+  "Open documents in...": {
+    "other": "Open documents in..."
+  },
+  "Open file in a new browser window, thus using native browser capabilities.": {
+    "other": "Open file in a new browser window, thus using native browser capabilities."
+  },
+  "Open link in...": {
+    "other": "Open link in..."
+  }
+}
