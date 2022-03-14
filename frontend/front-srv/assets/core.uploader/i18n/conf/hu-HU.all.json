@@ -1,0 +1,59 @@
+{
+  "Allowed Extensions": {
+    "other": "Allowed Extensions"
+  },
+  "Ext. Label": {
+    "other": "Ext. Label"
+  },
+  "Extensions List": {
+    "other": "Extensions List"
+  },
+  "File Size": {
+    "other": "File Size"
+  },
+  "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list.": {
+    "other": "Filter the files that are allowed to be uploaded, by extensions. Use a comma-separated list."
+  },
+  "Limitations": {
+    "other": "Limitations"
+  },
+  "Maximum size per file allowed to upload.": {
+    "other": "Maximum size per file allowed to upload."
+  },
+  "Options shared by all uploaders plugins": {
+    "other": "Options shared by all uploaders plugins"
+  },
+  "Uploaders Options": {
+    "other": "Uploaders Options"
+  },
+  "User readable label for the list of allowed extensions (images, all files, etc).": {
+    "other": "User readable label for the list of allowed extensions (images, all files, etc)."
+  },
+  "Multipart Uploads": {
+    "other": "Multipart Uploads"
+  },
+  "Multipart Parts Size": {
+    "other": "Multipart Parts Size"
+  },
+  "Multipart Threshold": {
+    "other": "Multipart Threshold"
+  },
+  "Switch to Multipart Upload for files bigger than this value (in bytes)": {
+    "other": "Switch to Multipart Upload for files bigger than this value (in bytes)"
+  },
+  "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)": {
+    "other": "Chunk Size used for multipart uploads, must be bigger than 5MB (5242800B)"
+  },
+  "Queue Size": {
+    "other": "Queue Size"
+  },
+  "Number of concurrent uploads (maximum 6, due to browsers limitations)": {
+    "other": "Number of concurrent uploads (maximum 6, due to browsers limitations)"
+  },
+  "Timeout": {
+    "other": "Timeout"
+  },
+  "Request Timeout (in minutes) for each concurrent part upload": {
+    "other": "Request Timeout (in minutes) for each concurrent part upload"
+  }
+}

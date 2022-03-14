@@ -1,0 +1,86 @@
+{
+  "AccessedBy": {
+    "other": "Osiągnięty przez {{.Actor}}"
+  },
+  "AccessedObject": {
+    "other": "Osiągnięty {{.Object}}"
+  },
+  "AccessedObjectBy": {
+    "other": "{{.Actor}} uzyskał dostęp do {{.Object}}"
+  },
+  "Cell": {
+    "other": "Komórka"
+  },
+  "CreatedBy": {
+    "other": "Utworzony przez {{.Actor}}"
+  },
+  "CreatedObject": {
+    "other": "Utworzony {{.Object}}"
+  },
+  "CreatedObjectBy": {
+    "other": "{{.Object}} został utworzony przez {{.Actor}}"
+  },
+  "DeletedBy": {
+    "other": "Usunięty przez {{.Actor}}"
+  },
+  "DeletedObject": {
+    "other": "Usunięty {{.Object}}"
+  },
+  "DeletedObjectBy": {
+    "other": "{{.Object}} został usunięty przez {{.Actor}}"
+  },
+  "SharedWs": {
+    "other": "Udostępniony w {{.Object}}"
+  },
+  "SharedWsWithYou": {
+    "other": "{{.Actor}} udostępnił ci {{.Object}}"
+  },
+  "DigestTitle": {
+    "other": "To jest twój Codzienny Biuletyn Pydio"
+  },
+  "Document": {
+    "other": "Dokument"
+  },
+  "Folder": {
+    "other": "Folder"
+  },
+  "ModifiedBy": {
+    "other": "Zmodyfikowany przez {{.Actor}}"
+  },
+  "ModifiedObject": {
+    "other": "Zmodyfikowany {{.Object}}"
+  },
+  "ModifiedObjectBy": {
+    "other": "{{.Object}} został zmodyfikowany przez {{.Actor}}"
+  },
+  "MetaModifiedBy": {
+    "other": "Metadane zmodyfikowane przez {{.Actor}}"
+  },
+  "MetaModifiedObject": {
+    "other": "Zmodyfikowane metadane w {{.Object}}"
+  },
+  "MetaModifiedObjectBy": {
+    "other": "{{.Actor}} zmodyfikował metadane w {{.Object}}"
+  },
+  "CommentedBy": {
+    "other": "Skomentowane przez {{.Actor}}"
+  },
+  "CommentedObject": {
+    "other": "Skomentowano {{.Object}}"
+  },
+  "CommentedObjectBy": {
+    "other": "{{.Actor}} opublikował nowy komentarz w {{.Object}}"
+  },
+  "MovedBy": {
+    "other": "Przeniesiony przez {{.Actor}}"
+  },
+  "MovedObject": {
+    "other": "Przeniesiono {{.Object}}"
+  },
+  "MovedObjectBy": {
+    "other": "{{.Object}} został przeniesiony przez {{.Actor}}"
+  },
+  "Workspace": {
+    "other": "Obszar roboczy"
+  }
+}

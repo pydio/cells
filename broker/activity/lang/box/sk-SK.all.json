@@ -1,0 +1,86 @@
+{
+  "AccessedBy": {
+    "other": "Accessed by {{.Actor}}"
+  },
+  "AccessedObject": {
+    "other": "Accessed {{.Object}}"
+  },
+  "AccessedObjectBy": {
+    "other": "{{.Object}} was accessed by {{.Actor}}"
+  },
+  "Cell": {
+    "other": "Cell"
+  },
+  "CreatedBy": {
+    "other": "Created by {{.Actor}}"
+  },
+  "CreatedObject": {
+    "other": "Created {{.Object}}"
+  },
+  "CreatedObjectBy": {
+    "other": "{{.Object}} was created by {{.Actor}}"
+  },
+  "DeletedBy": {
+    "other": "Deleted by {{.Actor}}"
+  },
+  "DeletedObject": {
+    "other": "Deleted {{.Object}}"
+  },
+  "DeletedObjectBy": {
+    "other": "{{.Object}} was deleted by {{.Actor}}"
+  },
+  "SharedWs": {
+    "other": "Shared in {{.Object}}"
+  },
+  "SharedWsWithYou": {
+    "other": "{{.Actor}} has shared {{.Object}} with you"
+  },
+  "DigestTitle": {
+    "other": "This is your Pydio Daily Digest"
+  },
+  "Document": {
+    "other": "Document"
+  },
+  "Folder": {
+    "other": "Folder"
+  },
+  "ModifiedBy": {
+    "other": "Modified by {{.Actor}}"
+  },
+  "ModifiedObject": {
+    "other": "Modified {{.Object}}"
+  },
+  "ModifiedObjectBy": {
+    "other": "{{.Object}} was modified by {{.Actor}}"
+  },
+  "MetaModifiedBy": {
+    "other": "Metadata modified by {{.Actor}}"
+  },
+  "MetaModifiedObject": {
+    "other": "Modified metadata on {{.Object}}"
+  },
+  "MetaModifiedObjectBy": {
+    "other": "{{.Actor}} modified metadata on {{.Object}}"
+  },
+  "CommentedBy": {
+    "other": "Commented by {{.Actor}}"
+  },
+  "CommentedObject": {
+    "other": "Commented {{.Object}}"
+  },
+  "CommentedObjectBy": {
+    "other": "{{.Actor}} published new comment on {{.Object}}"
+  },
+  "MovedBy": {
+    "other": "Moved by {{.Actor}}"
+  },
+  "MovedObject": {
+    "other": "Moved {{.Object}}"
+  },
+  "MovedObjectBy": {
+    "other": "{{.Object}} was moved by {{.Actor}}"
+  },
+  "Workspace": {
+    "other": "Workspace"
+  }
+}

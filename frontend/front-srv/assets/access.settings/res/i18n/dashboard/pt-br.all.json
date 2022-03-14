@@ -1,6 +1,6 @@
 {
   "cont.btn.fb": {
-    "other": "Seguir"
+    "other": "Siga-nos"
   },
   "cont.btn.github": {
     "other": "Estrelas GitHub"
@@ -93,6 +93,6 @@
     "other": "O local para administrar e monitorar as atividades da sua plataforma"
   },
   "welc.title": {
-    "other": "Bem-vindo ao Pydio Cells v3"
+    "other": "Bem-vindo ao Pydio Cells v2"
   }
 }
