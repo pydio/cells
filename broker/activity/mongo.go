@@ -128,6 +128,9 @@ func (m *mongoimpl) UpdateSubscription(ctx context.Context, subscription *activi
 }
 
 func (m *mongoimpl) ListSubscriptions(ctx context.Context, objectType activity.OwnerType, objectIds []string) (ss []*activity.Subscription, err error) {
+	if len(objectIds) == 0 {
+		return
+	}
 	selector := bson.D{
 		{"objecttype", objectType},
 	}
