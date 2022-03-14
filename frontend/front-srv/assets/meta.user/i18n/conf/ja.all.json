@@ -1,80 +1,80 @@
 {
   "Files Metadata": {
-    "other": "Files Metadata"
+    "other": "メタデータファイル"
   },
   "User Metadata implementation": {
-    "other": "User Metadata implementation"
+    "other": "ユーザメタデータの実装"
   },
   "Additional info": {
-    "other": "Additional info"
+    "other": "追加情報"
   },
   "Color labels": {
-    "other": "Color labels"
+    "other": "カラーラベル"
   },
   "Column visibility": {
-    "other": "Column visibility"
+    "other": "列の表示"
   },
   "Created by...": {
-    "other": "Created by..."
+    "other": "作成者:"
   },
   "Depending on the field type. Currently used for selection only": {
-    "other": "Depending on the field type. Currently used for selection only"
+    "other": "フィールドタイプに応じて異なります。現在の選択のみに使用されます"
   },
   "Field ID": {
-    "other": "Field ID"
+    "other": "フィールドID"
   },
   "Field Type": {
-    "other": "Field Type"
+    "other": "フィールドタイプ"
   },
   "Hidden": {
-    "other": "Hidden"
+    "other": "非表示"
   },
   "Hidden file used inside folders to save meta data": {
-    "other": "Hidden file used inside folders to save meta data"
+    "other": "メタデータを保存するためにフォルダ内で使用される隠しファイル"
   },
   "Id of fiels, use standard characters here.": {
-    "other": "Id of fields, use standard characters here."
+    "other": "項目の Id では標準文字を使用します。"
   },
   "Label": {
-    "other": "Label"
+    "other": "ラベル"
   },
   "Label of the field, human friendly": {
-    "other": "Label of the field, human friendly"
+    "other": "フィールドのラベル、ヒューマンフレンドリー"
   },
   "Last updated by...": {
-    "other": "Last updated by..."
+    "other": "最終更新日時:"
   },
   "Long text": {
-    "other": "Long text"
+    "other": "長いテキスト"
   },
   "Meta File": {
-    "other": "Meta File"
+    "other": "メタファイル"
   },
   "Selection (set choices in Additional Info)": {
-    "other": "Selection (set choices in Additional Info)"
+    "other": "選択範囲（追加情報で選択肢を設定）"
   },
   "Set default visibility.": {
-    "other": "Set default visibility."
+    "other": "デフォルトの公開範囲"
   },
   "Short text": {
-    "other": "Short text"
+    "other": "短いテキスト"
   },
   "Simple metadata implementation stored in a hidden file.": {
-    "other": "Simple metadata implementation stored in a hidden file."
+    "other": "隠しファイルに格納されたシンプルなメタデータの実装。"
   },
   "Stars Rating": {
-    "other": "Stars Rating"
+    "other": "星の評価"
   },
   "Tags (extensible sets of values)": {
-    "other": "Tags (extensible sets of values)"
+    "other": "タグ (拡張可能な値のセット)"
   },
   "Text Metadata": {
-    "other": "Text Metadata"
+    "other": "テキストメタデータ"
   },
   "Type of field": {
-    "other": "Type of field"
+    "other": "フィールドの種類"
   },
   "Visible": {
-    "other": "Visible"
+    "other": "表示"
   }
 }

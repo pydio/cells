@@ -3,15 +3,15 @@
     "other": "アバター"
   },
   "Choose an avatar web service": {
-    "other": "Choose an avatar web service"
+    "other": "アバターのWebサービスを選択"
   },
   "Get user avatar from Gravatar/Libravatar": {
-    "other": "Get user avatar from Gravatar/Libravatar"
+    "other": "Gravatar/Librarアバターからユーザーアバターを取得する"
   },
   "Gravatar type": {
-    "other": "Gravatar type"
+    "other": "Gravatar型"
   },
   "Provider": {
-    "other": "Provider"
+    "other": "プロバイダー"
   }
 }

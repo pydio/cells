@@ -1,167 +1,167 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "現在のワークスペースに新しいファイルまたはフォルダを追加します。"
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "ファイルを追加"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "このツールバーでは、表示を変更することができます: 使用状況に応じてサムネイルまたは詳細モードに切り替え、名前、日付などでファイルを並べ替えます。"
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "表示オプション"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "この検索フォームを使用して、任意のワークスペースとセル内のファイルまたはフォルダを検索します。 最初の5つの結果のみが表示され、より多くの結果とより多くの検索オプションを得るためにワークスペースを入力します。"
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "検索が行われない場合、最近アクセスしたファイルとフォルダの履歴が代わりに表示されます。"
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "グローバルサーチ"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "ここでは、現在の選択に関する多くの情報を見つけることができます: ファイル情報、共有状態、ユーザー定義メタデータなど。"
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "ツールバーの情報ボタンを使用してこのパネルを閉じることができます"
   },
   "tour.infopanel.file": {
-    "other": "File"
+    "other": "ファイル"
   },
   "tour.infopanel.folder": {
     "other": "フォルダ"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "検索"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "情報パネル"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "戻る"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "閉じる"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "完了"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "次へ"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "スキップ"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "最初の接続で、履歴はおそらく空です。ファイルの追加を開始するには、ワークスペースまたはセルを入力してください。"
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "ワークスペースを開く"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "プラットフォームにアクセスするすべてのユーザーのディレクトリ。自分のユーザーを作成し、リソースを共有するために使用できるチームを構成します。"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "通知パネルは、リソースを共有したユーザがアクセスした際に通知します。 彼らは電子メールで直接あなたに送ることができます。"
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "このボタンでウェルカムパネルに戻る"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "他のオプションへのアクセス: プロフィールとセキュリティ機能の管理、共有したすべてのリソースの閲覧、プラットフォームからサインアウトします。"
   },
   "tour.uwidget.title": {
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "スキップ"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "ツアーを開始"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "プロフィールに最適な写真をドラッグ&ドロップしましょう! このクイックツアーでは、Webインターフェースをご案内します。"
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "APPLICATION_TITLE へようこそ"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "ここにウィジェットを追加または削除できます。ウィジェットをドラッグするだけで順序を変更することもできます。"
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "ウィジェット"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "ワークスペースは、データを整理するのに役立つトップレベルのフォルダです。それらはあなただけがアクセスしたり、多くの人々が共有したりすることができます。"
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "セルは他のユーザーと共有できる共同作業スペースです。 フォルダ、ユーザーのチーム、または関連するトピックに基づいて独自のセルを作成します。"
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "ワークスペース & セル"
   },
   "background.jobs.title": {
-    "other": "Background Jobs"
+    "other": "バックグラウンドジョブ"
   },
   "background.jobs.running": {
-    "other": "Jobs running"
+    "other": "実行中のジョブ"
   },
   "websocket.disconnected.title": {
-    "other": "Connection issue"
+    "other": "接続の問題"
   },
   "websocket.disconnected.legend": {
-    "other": "Websocket seems to be disconnected, please make sure that the server is up and websocket connection is working."
+    "other": "Websocket が切断されたようです。サーバーが起動していることと、Websocket 接続が正常に動作していることを確認してください。"
   },
   "oauth.authentication.success": {
-    "other": "Authentication Success"
+    "other": "認証成功"
   },
   "oauth.authentication.failed": {
-    "other": "Authentication Failed"
+    "other": "認証に失敗しました"
   },
   "oauth.authentication.code": {
-    "other": "You were succesfully authenticated. Please copy and paste the code to your command line terminal"
+    "other": "認証に成功しました。コマンドライン端末にコードをコピーして貼り付けてください。"
   },
   "oauth.authentication.copy-code": {
-    "other": "Copy code to your clipboard"
+    "other": "クリップボードにコードをコピー"
   },
   "oauth.authentication.code-copied": {
-    "other": "Code is copied to your clipboard, you can paste it in the command line."
+    "other": "コードがクリップボードにコピーされ、コマンドラインに貼り付けることができます。"
   },
   "oauth.authentication.code-copy-failed": {
-    "other": "Could not copy to clipboard."
+    "other": "クリップボードにコピーできませんでした。"
   },
   "list.display-mode.list": {
-    "other": "List"
+    "other": "リスト"
   },
   "list.display-mode.details": {
     "other": "詳細"
   },
   "list.display-mode.thumbs": {
-    "other": "Thumbs"
+    "other": "サムネイル"
   },
   "list.display-mode.thumbs-large": {
-    "other": "Thumbs Large"
+    "other": "大きなサムネイル"
   },
   "list.display-mode.thumbs-small": {
-    "other": "Thumbs Small"
+    "other": "小さなサムネイル"
   },
   "list.display-mode.masonry": {
-    "other": "Image Gallery"
+    "other": "画像ギャラリー"
   },
   "list.extensions.action": {
-    "other": "Files extensions"
+    "other": "ファイル拡張子"
   },
   "list.extensions.show": {
-    "other": "Show extensions"
+    "other": "拡張子を表示"
   },
   "list.pin.bookmarks": {
-    "other": "Pin bookmarks to top"
+    "other": "ブックマークを上部にピン留め"
   },
   "infopanel.empty.select.file": {
-    "other": "Select a file to display informations"
+    "other": "情報を表示するファイルを選択します"
   },
   "pinned-bookmarks.other": {
-    "other": "All files"
+    "other": "すべてのファイル"
   }
 }

@@ -3,36 +3,36 @@
     "other": "常に上書き"
   },
   "Auto Close": {
-    "other": "Auto Close"
+    "other": "自動で閉じる"
   },
   "Auto Rename File": {
-    "other": "Auto Rename File"
+    "other": "ファイル名を自動的に変更"
   },
   "Auto Start": {
-    "other": "Auto Start"
+    "other": "自動で開始する"
   },
   "Auto-switching HTML5 or IFrame uploader.": {
-    "other": "Auto-switching HTML5 or IFrame uploader."
+    "other": "HTML5 または IFrame uploaderに自動的に切り替えます。"
   },
   "Default Behaviour": {
     "other": "既定の動作"
   },
   "Default value for automatically closing the dialog after upload or not": {
-    "other": "Default value for automatically closing the dialog after upload or not"
+    "other": "アップロード後にダイアログを自動的に閉じる場合の既定値"
   },
   "Default value for automatically starting upload or not": {
-    "other": "Default value for automatically starting upload or not"
+    "other": "自動的にアップロードを開始するかどうかのデフォルト値"
   },
   "Existing Files": {
     "other": "既存のファイル"
   },
   "HTML Uploader": {
-    "other": "Standard"
+    "other": "通常"
   },
   "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
-    "other": "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)"
+    "other": "ファイルがすでに存在するかどうかをユーザーに通知します（デフォルトの動作では、ユーザーはこの設定を変更できます）"
   },
   "Prompt user": {
-    "other": "Prompt user"
+    "other": "プロンプトユーザー"
   }
 }

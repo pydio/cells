@@ -1,37 +1,37 @@
 {
   "Auth.PruneJob.Title": {
-    "other": "Prune revoked tokens and expired reset password keys"
+    "other": "取り消されたトークンと期限切れのリセットパスワードキー"
   },
   "Auth.PruneJob.Revoked": {
-    "one": "Deleted {{.Count}} expired revoked token",
-    "other": "Deleted {{.Count}} expired revoked tokens"
+    "one": "{{.Count}} 個の期限切れトークンを削除しました。",
+    "other": "{{.Count}} 個の期限切れの失効されたトークンを削除しました。"
   },
   "Auth.PruneJob.ResetToken": {
-    "one": "Deleted {{.DeletionCount}} expired reset password token",
-    "other": "Deleted {{.DeletionCount}} expired reset password tokens"
+    "one": "{{.DeletionCount}} 個の期限切れのリセットパスワードを削除しました。",
+    "other": "期限切れのリセットパスワードトークンを{{.DeletionCount}} 個、削除しました"
   },
   "ResetPassword.Err.EmailNotFound": {
-    "other": "Cannot find corresponding email address"
+    "other": "対応するメールアドレスが見つかりません"
   },
   "ResetPassword.Success.EmailSent": {
-    "other": "An email has been sent to you with further instructions"
+    "other": "詳細な手順を記載したメールが送信されました"
   },
   "ResetPassword.Err.Unknown": {
-    "other": "Oops, something wrong happened - Please relaunch reset password process"
+    "other": "エラーが発生しました - パスワードのリセットプロセスを試してください"
   },
   "ResetPassword.Err.TokenExpired": {
-    "other": "Token is expired, please follow again the reset password process!"
+    "other": "トークンの有効期限が切れています。パスワードのリセット処理をもう一度行ってください！"
   },
   "ResetPassword.Err.TokenNotCorresponding": {
-    "other": "Token does not correspond to this user identifier!"
+    "other": "トークンはこのユーザー識別子に対応していません！"
   },
   "ResetPassword.Err.UserNotFound": {
-    "other": "Cannot find corresponding user!"
+    "other": "該当するユーザーが見つかりません！"
   },
   "ResetPassword.Err.ResetFailed": {
-    "other": "There was an error while trying to set new password!"
+    "other": "パスワードの更新中にエラーが発生しました"
   },
   "ResetPassword.Success.ResetFinished": {
-    "other": "Your password has successfully been reset, you can now return to the login page!"
+    "other": "パスワードのリセットが完了しました。ログインページに戻ることができます。"
   }
 }

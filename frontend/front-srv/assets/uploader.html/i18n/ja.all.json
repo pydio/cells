@@ -1,27 +1,27 @@
 {
   "start": {
-    "other": "Start"
+    "other": "開始"
   },
   "pause": {
-    "other": "Pause"
+    "other": "一時停止"
   },
   "clear": {
-    "other": "Clear"
+    "other": "クリア"
   },
   "clear-header": {
-    "other": "Clear list..."
+    "other": "リストをクリア"
   },
   "clear-finished": {
-    "other": "Finished Uploads"
+    "other": "完了したアップロード"
   },
   "clear-failed": {
-    "other": "Failed Uploads"
+    "other": "失敗したアップロード"
   },
   "clear-all": {
-    "other": "All Transfers"
+    "other": "全ての転送"
   },
   "list.show-more": {
-    "other": "%d more - show all"
+    "other": "%d 件以上 - 全て表示"
   },
   "options.existing": {
     "other": "同じファイル名が存在する場合："
@@ -30,135 +30,135 @@
     "other": "アップロードを停止して知らせる"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "フォルダー名とファイル名を変更"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "ファイル名のみ変更(フォルダを統合)"
   },
   "options.existing.overwrite": {
     "other": "既存のファイルを上書きしますか"
   },
   "confirm.rename.all": {
-    "other": "Rename folders, then conflicting files"
+    "other": "フォルダの名前を変更し、競合するファイルを変更"
   },
   "confirm.rename.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "ファイル名のみ変更(フォルダを統合)"
   },
   "confirm.overwrite": {
-    "other": "Merge folders and overwrite files"
+    "other": "フォルダを統合し、ファイルを上書きする"
   },
   "confirm.save.choice": {
-    "other": "Save choice for next uploads"
+    "other": "次のアップロードのための選択を保存"
   },
   "options": {
-    "other": "Upload options"
+    "other": "アップロードオプション"
   },
   "upload.forbidden": {
-    "other": "You are not allowed to upload this file here"
+    "other": "この場所にファイルをアップロードすることは許可されていません。"
   },
   "task.label": {
-    "other": "Uploading files to server..."
+    "other": "サーバーにファイルをアップロードしています..."
   },
   "task.status.folders": {
-    "other": "Creating Folders"
+    "other": "フォルダーを作成しています"
   },
   "task.message.folder-one": {
-    "other": "Creating one folder"
+    "other": "1個フォルダーを作成しています"
   },
   "task.message.folder-many": {
-    "other": "Creating %s folders"
+    "other": "%s 個フォルダーを作成しています"
   },
   "task.status.analyse": {
-    "other": "Preparing files for upload"
+    "other": "アップロードをするファイルの準備中"
   },
   "task.message.analyse-many": {
-    "other": "Analyzing %s items..."
+    "other": "%s 個のアイテムを分析中..."
   },
   "task.message.analyse-one": {
-    "other": "Analyzing one item"
+    "other": "1 個のアイテムを分析中"
   },
   "task.message.analyse-wait": {
-    "other": "Please wait..."
+    "other": "お待ち下さい..."
   },
   "task.status.ready": {
-    "other": "Ready to upload"
+    "other": "アップロード準備完了"
   },
   "task.status.paused": {
-    "other": "Upload paused"
+    "other": "アップロードを一時停止しました"
   },
   "task.status.upload": {
-    "other": "Uploading files"
+    "other": "ファイルをアップロードしています"
   },
   "task.message.upload-progress": {
-    "other": "Uploading %s%"
+    "other": "%s% をアップロードしています"
   },
   "no-folders-support": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "お使いのブラウザはフォルダのドロップに対応していないようです"
   },
   "analyze.step": {
     "other": "ファイル・フォルダのアップロードを準備しています..."
   },
   "drophere": {
-    "other": "Drop files here"
+    "other": "ここにファイルをドロップ"
   },
   "drop-or": {
-    "other": "or"
+    "other": "または"
   },
   "drop-pick-file": {
-    "other": "browse files"
+    "other": "ファイルを参照"
   },
   "drop-pick-folder": {
-    "other": "browse folders"
+    "other": "フォルダを参照"
   },
   "dialog.title": {
-    "other": "Transfers"
+    "other": "転送"
   },
   "status.new": {
-    "other": "Pending"
+    "other": "保留中"
   },
   "status.error": {
-    "other": "An error occured"
+    "other": "エラーが発生しました"
   },
   "status.pause": {
-    "other": "Paused"
+    "other": "一時停止中"
   },
   "status.analyse": {
-    "other": "Analyzing..."
+    "other": "分析中..."
   },
   "status.dir.loading": {
-    "other": "Creating folder"
+    "other": "フォルダを作成しています"
   },
   "status.file.loading": {
-    "other": "Uploading file"
+    "other": "ファイルをアップロードしています"
   },
   "status.dir.loaded": {
-    "other": "Folder created"
+    "other": "フォルダを作成しました"
   },
   "status.file.loaded": {
-    "other": "File uploaded"
+    "other": "ファイルをアップロードしました"
   },
   "status.part.loaded": {
-    "other": "Chunk uploaded"
+    "other": "チャンクをアップロードしました"
   },
   "status.part.loading": {
-    "other": "Uploading chunk"
+    "other": "チャンクをアップロードしています"
   },
   "status.multi-pause": {
-    "other": "Finishing current chunk before pausing"
+    "other": "一時停止する前に現在のチャンクを終了しています"
   },
   "status.file.cannot-pause": {
-    "other": "Cannot pause this transfer"
+    "other": "転送を一時停止できません"
   },
   "status.part.cannot-pause": {
-    "other": "Cannot pause chunk transfer"
+    "other": "チャンクの転送を一時停止できません"
   },
   "status.error.aborted": {
-    "other": "interrupted by user"
+    "other": "ユーザーにより中断されました"
   },
   "status.error.403": {
-    "other": "you are not allowed to upload here"
+    "other": "ここにファイルをアップロードすることは許可されていません"
   },
   "status.error.422": {
-    "other": "quota reached, cannot upload more"
+    "other": "上限に到達しました。これ以上アップロードできません。"
   }
 }

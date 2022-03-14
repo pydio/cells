@@ -1,26 +1,26 @@
 {
   "1": {
-    "other": "External window"
+    "other": "外部ウィンドウ"
   },
   "2": {
-    "other": "External browser window"
+    "other": "外部ブラウザウィンドウ"
   },
   "3": {
-    "other": "Opening file in external window, please wait, this window should close automatically."
+    "other": "ファイルを外部ウィンドウで開いています。このウィンドウは自動的に閉じます。"
   },
   "4": {
-    "other": "New URL Bookmark"
+    "other": "新しい URL ブックマーク"
   },
   "5": {
-    "other": "Alternatively, you can <a>create a new bookmark to an URL</a>"
+    "other": "あるいは、 <a>URLに新しいブックマークを作成する</a>"
   },
   "6": {
-    "other": "Enter an URL starting with http/https"
+    "other": "http/httpsで始まるURLを入力してください"
   },
   "7": {
-    "other": "URL Bookmark"
+    "other": "URL ブックマーク"
   },
   "8": {
-    "other": "Enter a label for this bookmark"
+    "other": "このブックマークのラベルを入力してください"
   }
 }

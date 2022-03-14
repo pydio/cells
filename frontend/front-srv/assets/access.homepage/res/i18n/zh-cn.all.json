@@ -180,7 +180,7 @@
     "other": "文件夹"
   },
   "search.facets.title": {
-    "other": "Filter Results..."
+    "other": "筛选结果..."
   },
   "search.facet.type": {
     "other": "类型"
@@ -195,7 +195,7 @@
     "other": "修改时间"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "发现在"
   },
   "search.facet.metadata": {
     "other": "元数据"
@@ -210,33 +210,33 @@
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB 到 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB 到 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "刚刚"
   },
   "facet.label.date.today": {
     "other": "今天"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "过去7天"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "过去30天"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "30天以上"
   },
   "facet.label.found.contents": {
     "other": "目录"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "文件名"
   }
 }

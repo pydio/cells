@@ -1,26 +1,26 @@
 {
   "Async downloader to load a file from another source": {
-    "other": "Async downloader to load a file from another source"
+    "other": "別のソースからファイルを読み込むための非同期ダウンローダー。"
   },
   "Remote Download": {
     "other": "リモートサーバ"
   },
   "Legend": {
-    "other": "Legend"
+    "other": "凡例"
   },
   "Please beware that using this plugin can be dangerous, as it allows users to remotely download files from a third-party server directly to the Cells storage.": {
-    "other": "Please beware that using this plugin can be dangerous, as it allows users to remotely download files from a third-party server directly to the Cells storage."
+    "other": "このプラグインを使用すると危険なことがあることにご注意ください。 サードパーティのサーバーから直接セルのストレージに直接ファイルをダウンロードすることができます。"
   },
   "White List": {
-    "other": "White List"
+    "other": "ホワイトリスト"
   },
   "Black List": {
-    "other": "Black List"
+    "other": "ブラック リスト"
   },
   "Comma-separated list of http Hosts that are allowed to be used for remote download. If not empty, this list will be always used in favor of the black list.": {
-    "other": "Comma-separated list of http Hosts that are allowed to be used for remote download. If not empty, this list will be always used in favor of the black list."
+    "other": "リモートダウンロードに使用できるhttpホストのカンマ区切りのリストです。 空でない場合、このリストは常にブラックリストに有利に使用されます。"
   },
   "Comma-separated list of http Hosts that are forbidden to be used for remote download. You should typically register your private network IPs here.": {
-    "other": "Comma-separated list of http Hosts that are forbidden to be used for remote download. You should typically register your private network IPs here."
+    "other": "コンマで区切られた http ホストのリストは、リモートでのダウンロードが禁止されています。通常、ここでプライベートネットワークの IP アドレスを登録する必要があります。"
   }
 }

@@ -1,77 +1,77 @@
 {
   "1": {
-    "other": "Watch for..."
+    "other": "監視..."
   },
   "1-off": {
-    "other": "Watching..."
+    "other": "監視中..."
   },
   "10": {
-    "other": "Anyone is opening the file"
+    "other": "誰かがファイルを開いています"
   },
   "10b": {
-    "other": "Anyone is exploring the folder"
+    "other": "誰かがファイルを開いています"
   },
   "11": {
     "other": "変更"
   },
   "12": {
-    "other": "Anyone is modifying the file"
+    "other": "誰かがファイルを変更しています"
   },
   "12b": {
-    "other": "Anyone is modifying a file inside this folder"
+    "other": "誰かがこのフォルダ内のファイルを変更しています"
   },
   "13": {
-    "other": "Both"
+    "other": "両方"
   },
   "14": {
-    "other": "Anyone opening or writing into the file"
+    "other": "誰かがファイルを開いたり書き込んでいます。"
   },
   "14b": {
-    "other": "Anyone exploring or modifying the folder content"
+    "other": "誰かがフォルダの内容を探索または変更しています"
   },
   "2": {
-    "other": "Be notified when this folder is accessed"
+    "other": "このフォルダにアクセスしたときに通知する"
   },
   "3": {
-    "other": "Stop watching"
+    "other": "監視を停止"
   },
   "4": {
-    "other": "Stop watching this folder for accesses"
+    "other": "このフォルダへのアクセスの監視を停止する"
   },
   "5": {
-    "other": "Watch for..."
+    "other": "監視..."
   },
   "6": {
-    "other": "Watch this file for changes"
+    "other": "このファイルの変更を監視します"
   },
   "7": {
-    "other": "Stop watching"
+    "other": "監視を停止"
   },
   "8": {
-    "other": "Stop watching this file for changes"
+    "other": "このファイルの変更を監視する"
   },
   "9": {
-    "other": "Consultation"
+    "other": "相談する"
   },
   "selector.legend": {
-    "other": "Receive notifications when..."
+    "other": "通知を受信する..."
   },
   "selector.ignore": {
-    "other": "Never (no notifications)"
+    "other": "受信しない (通知なし)"
   },
   "selector.read": {
-    "other": "Content is accessed"
+    "other": "コンテンツがアクセスされたとき"
   },
   "selector.change": {
-    "other": "Content is modified"
+    "other": "コンテンツが変更されました"
   },
   "selector.both": {
-    "other": "Content is accessed or modified"
+    "other": "コンテンツがアクセスもしくは変更されたとき"
   },
   "selector.mixed": {
-    "other": "Mixed values"
+    "other": "混合値"
   },
   "selector.saving": {
-    "other": "Saving status"
+    "other": "ステータスを保存しています"
   }
 }

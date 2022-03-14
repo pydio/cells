@@ -1,203 +1,203 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "パラメータがありません"
   },
   "10": {
-    "other": "Write Only"
+    "other": "書き込み専用"
   },
   "11": {
-    "other": "Denied"
+    "other": "拒否"
   },
   "12": {
-    "other": "No Access"
+    "other": "アクセスできません"
   },
   "13": {
-    "other": "Search Parameters or Actions"
+    "other": "パラメータまたはアクションを検索"
   },
   "14": {
-    "other": "Pick parameter or action"
+    "other": "パラメータまたはアクションを選択"
   },
   "15": {
-    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+    "other": "パラメータまたはアクションを1つ選択し、追加をクリックします。 下のテキストフィールドを使用して、パラメータをすばやく検索できます。"
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "継承された項目を表示/非表示"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "パラメータまたはアクションを追加"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "プラグインの設定"
   },
   "19": {
-    "other": "always overrides"
+    "other": "常に上書き"
   },
   "2": {
-    "other": "Enabled"
+    "other": "有効化"
   },
   "20": {
-    "other": "+ add role"
+    "other": "+ 役割を追加"
   },
   "21": {
-    "other": "reloading..."
+    "other": "リロード中..."
   },
   "22": {
-    "other": "Loading actions cache, please wait, this will be done only once..."
+    "other": "アクションキャッシュを読み込んでいます、しばらくお待ちください、これは一度だけ行われます..."
   },
   "23": {
-    "other": "Loading parameters cache, please wait, this will be done only once..."
+    "other": "パラメータキャッシュを読み込んでいます、しばらくお待ちください、これは一度だけ行われます..."
   },
   "24": {
-    "other": "User Information"
+    "other": "ユーザー情報"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "アクセス制限"
   },
   "26": {
-    "other": "Group Information"
+    "other": "グループ情報"
   },
   "27": {
-    "other": "Group Info"
+    "other": "グループ情報"
   },
   "28": {
-    "other": "Role Information"
+    "other": "ロール情報"
   },
   "29": {
-    "other": "Role Info"
+    "other": "ロール情報"
   },
   "3": {
-    "other": "Disabled"
+    "other": "無効"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "プロファイルとロール"
   },
   "31": {
-    "other": "User unique Identifier. You cannot modify this value."
+    "other": "ユーザー固有の識別子。この値は変更できません。"
   },
   "32": {
-    "other": "Specific profile. May imply some roles automatically applied."
+    "other": "特定のプロファイル。いくつかのロールが自動的に適用されたことを意味します。"
   },
   "33": {
-    "other": "Close"
+    "other": "閉じる"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "アクセスコントロール"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "ワークスペース アクセス"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "アプリケーション ページ"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "パラメータのカスタマイズ"
   },
   "38": {
-    "other": "Application Parameters"
+    "other": "アプリケーションのパラメータ"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "すべてのワークスペースパラメータ"
   },
   "4": {
-    "other": "Clear value"
+    "other": "値をクリア"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "ワークスペース毎のパラメータ"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "追加パラメータ"
   },
   "42": {
-    "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
+    "other": "アプリケーションパラメータの値を調整し、現在のロールのプラグインアクションを選択的に無効にします。 ここでのパラメータは、アプリケーションのグローバルなパラメータ(認証、構成など) です。ワークスペース固有のパラメータ/アクションについては、ワークスペースタブを参照してください。"
   },
   "43": {
-    "other": "Grant access to workspaces for the current role/user/group"
+    "other": "現在のロール/ユーザー/グループのワークスペースへのアクセスを許可"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "アプリケーションのメインページ"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "メインアプリケーションページ(マイアカウント、ウェルカムページなど) へのアクセス"
   },
   "46": {
-    "other": "Parameters and actions"
+    "other": "パラメーターとアクション"
   },
   "47": {
-    "other": "Refine workspaces parameters values and actions for specific workspaces"
+    "other": "特定のワークスペースの値とアクションを設定します"
   },
   "49": {
-    "other": "Shares"
+    "other": "共有"
   },
   "5": {
-    "other": "Override value"
+    "other": "値を上書き"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "共有ファイルとフォルダ"
   },
   "51": {
-    "other": "With this user"
+    "other": "このユーザーと"
   },
   "52": {
-    "other": "Cells and public links created by this user"
+    "other": "このユーザーが作成した Cells と公開リンク"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "%1 がワークスペース %2 内から共有しました"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "基本的なユーザー情報。より多くのアクションを表示するには、右側のボタンを使用してください。"
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "プロファイルとロールを切り替えて、このユーザーに権限を自動的に付与します。"
   },
   "6": {
-    "other": "Save value"
+    "other": "値を保存"
   },
   "7": {
-    "other": "Action %s"
+    "other": "アクション %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "読み込みと書き込み"
   },
   "9": {
-    "other": "Read Only"
+    "other": "読み込み専用"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "ユーザーロールの管理"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "追加..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "すべてのワークスペース"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "共有された Cells のみ"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "ワークスペース %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "カスタムパラメータまたはアクションを追加"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "パラメータやアクションがありません"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "ホームページ"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "ログイン後に表示されるウェルカムページ"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "管理コンソール"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Pydio Cells管理ダッシュボード"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "権限は手動で設定"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "ワークスペース全体"
   }
 }

@@ -192,16 +192,16 @@
     "other": "サイズ"
   },
   "search.facet.modified": {
-    "other": "Modified"
+    "other": "更新日時"
   },
   "search.facet.found": {
-    "other": "Found in"
+    "other": "見つかりました:"
   },
   "search.facet.metadata": {
-    "other": "Metadata"
+    "other": "メタデータ"
   },
   "facet.label.file": {
-    "other": "File"
+    "other": "ファイル"
   },
   "facet.label.folder": {
     "other": "フォルダ"
@@ -210,33 +210,33 @@
     "other": "< 1MB"
   },
   "facet.label.size.1MB.to.10MB": {
-    "other": "1MB to 10MB"
+    "other": "1MB から 10MB"
   },
   "facet.label.size.10MB.to.100MB": {
-    "other": "10MB to 100MB"
+    "other": "10MB から 100MB"
   },
   "facet.label.size.gt.100MB": {
     "other": "> 100MB"
   },
   "facet.label.date.moments": {
-    "other": "Moments ago"
+    "other": "少し前"
   },
   "facet.label.date.today": {
-    "other": "Today"
+    "other": "今日"
   },
   "facet.label.date.last.7": {
-    "other": "Last 7 days"
+    "other": "過去7日間"
   },
   "facet.label.date.last.30": {
-    "other": "Last 30 days"
+    "other": "過去30日間"
   },
   "facet.label.date.older.30": {
-    "other": "Older than 30 days"
+    "other": "30日以上前"
   },
   "facet.label.found.contents": {
-    "other": "Contents"
+    "other": "コンテンツ"
   },
   "facet.label.found.basename": {
-    "other": "File name"
+    "other": "ファイル名"
   }
 }

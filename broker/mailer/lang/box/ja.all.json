@@ -162,16 +162,16 @@
     "other": "実際にメールを送信するのに使用するエンジン"
   },
   "Mail.Config.Disabled.Label": {
-    "other": "Disabled (do not enable emails)"
+    "other": "無効(メールを有効にしない)"
   },
   "Mail.Config.NoOp.Label": {
-    "other": "No-Op (enable emails but do not send anything)"
+    "other": "No-Op (メールを有効にしますが、何も送信しません)"
   },
   "Mail.Config.NoOp.Dump": {
-    "other": "Write emails to file for debugging purpose"
+    "other": "デバッグ用にメールをファイルに書き出す"
   },
   "Mail.Config.NoOp.DumpTarget": {
-    "other": "Target folder for writing emails"
+    "other": "メールの書き込み先のフォルダ"
   },
   "Mail.Config.Smtp.Label": {
     "other": "SMTP サーバー"
@@ -207,10 +207,10 @@
     "other": "SMTP サーバーの証明書が自己署名の場合に証明書を検証しない"
   },
   "Mail.Config.Smtp.LocalName.Label": {
-    "other": "Dialer Local Name"
+    "other": "ダイヤラーのローカル名"
   },
   "Mail.Config.Smtp.LocalName.Description": {
-    "other": "SMTP dialer sends 'localhost' in EHLO command by default, use this field to set a custom local name"
+    "other": "SMTPダイヤラーはデフォルトでEHLOコマンドに'localhost'を送信しますが、このフィールドを使用してカスタムのローカル名を設定します。"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid サービス"

@@ -45,9 +45,9 @@
     "other": "Password per l'identificazione del server proxy"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "Disabilita i controlli degli aggiornamenti"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "Se il server non ha accesso al mondo esterno, non provare a contattare il sito di aggiornamento."
   }
 }

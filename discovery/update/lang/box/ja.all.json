@@ -45,9 +45,9 @@
     "other": "プロキシサーバーの認証に使用するパスワード"
   },
   "Update.Config.Disable.Label": {
-    "other": "Disable update checks"
+    "other": "アップデートの確認を無効にする"
   },
   "Update.Config.Disable.Description": {
-    "other": "If your server has no access to outside world, do not try contact update site."
+    "other": "外部からのアクセスができないサーバーの場合、サイトへの問い合わせはご遠慮ください。"
   }
 }

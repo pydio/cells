@@ -9,7 +9,7 @@
     "other": "下载文件夹或多个选择时，使用此格式自动创建压缩包"
   },
   "Path to the folder on the server": {
-    "other": "服务器上文件夹的路径"
+    "other": "服务器上的文件夹路径"
   },
   "Gateway": {
     "other": "网关"
@@ -18,18 +18,18 @@
     "other": "Pydio S3 网关"
   },
   "Absolute path to one or more root nodes": {
-    "other": "一个或多个根节点的绝对路径"
+    "other": "一或多个根节点的绝对路径"
   },
   "#Items per page": {
     "other": "#每页条目数"
   },
   "Once in pagination mode, number of items to display per page.": {
-    "other": "在分页模式中，每页显示多少项。"
+    "other": "分页模式中，每页显示多少项。"
   },
   "Delete Permanently": {
-    "other": "Delete Permanently"
+    "other": "永久删除"
   },
   "Enable option to skip recycle bin on deletion": {
-    "other": "Enable option to skip recycle bin on deletion"
+    "other": "启用删除时跳过回收站"
   }
 }

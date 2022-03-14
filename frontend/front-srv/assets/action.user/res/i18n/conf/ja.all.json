@@ -1,20 +1,20 @@
 {
   "User Account Panel": {
-    "other": "User Account Panel"
+    "other": "ユーザーアカウントパネル"
   },
   "User account panel for managing settings and opening address book": {
-    "other": "User account panel for managing settings and opening address book"
+    "other": "設定とアドレス帳を開くためのユーザーアカウントパネル"
   },
   "Disable Address Book": {
-    "other": "Disable Address Book"
+    "other": "アドレス帳を無効にする"
   },
   "Do not display address book in user account panel.": {
-    "other": "Do not display address book in user account panel."
+    "other": "ユーザーアカウントパネルにアドレス帳を表示しない。"
   },
   "User Dashboard": {
-    "other": "User Dashboard"
+    "other": "ユーザーダッシュボード"
   },
   "User home dashboard, can be displayed before accessing to workspaces": {
-    "other": "User home dashboard, can be displayed before accessing to workspaces"
+    "other": "ユーザーホームのダッシュボードは、ワークスペースにアクセスする前に表示することができます"
   }
 }

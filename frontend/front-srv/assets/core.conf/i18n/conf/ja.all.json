@@ -1,215 +1,215 @@
 {
   "Address used for notifications": {
-    "other": "Address used for notifications"
+    "other": "通知に使用されるアドレス"
   },
   "All roles": {
-    "other": "All roles"
+    "other": "すべてのロール"
   },
   "Allow Group Listing": {
-    "other": "Allow Group Listing"
+    "other": "グループ一覧を許可"
   },
   "Allow Role Listing": {
-    "other": "Allow Role Listing"
+    "other": "ロール一覧を許可"
   },
   "Allow the users to create a new user when sharing a folder": {
-    "other": "Allow the users to create a new user when sharing a folder"
+    "other": "フォルダを共有するときにユーザーが新しいユーザーを作成できるようにします"
   },
   "Allow the users to pick an existing user when sharing a folder": {
-    "other": "Allow the users to pick an existing user when sharing a folder"
+    "other": "フォルダを共有する際に既存のユーザーを選択できるようにします"
   },
   "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
-    "other": "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them"
+    "other": "他のグループから自動補完機能を使ってユーザーを検索することができます（前のオプションが false に設定されている場合に便利です）。ワークスペースを共有します"
   },
   "Always Override": {
-    "other": "Always Override"
+    "other": "常に上書き"
   },
   "Always override other roles, included group roles.": {
-    "other": "Always override other roles, included group roles."
+    "other": "常に他のロールを上書きし、含まれるグループロールを上書きします。"
   },
   "Avatar": {
-    "other": "Avatar"
+    "other": "アバター"
   },
   "Choose the configuration plugin": {
-    "other": "Choose the configuration plugin"
+    "other": "設定プラグインを選択してください"
   },
   "Configuration Store Instance": {
-    "other": "Configuration Store Instance"
+    "other": "ストアインスタンスの設定"
   },
   "Configurations Management": {
-    "other": "Configurations Management"
+    "other": "設定管理"
   },
   "Core SQL Connexion": {
-    "other": "Core SQL Connection"
+    "other": "コアSQL接続"
   },
   "Country": {
-    "other": "Country"
+    "other": "国"
   },
   "Create external users": {
-    "other": "Create external users"
+    "other": "外部ユーザーを作成"
   },
   "Default Workspace": {
-    "other": "Default Workspace"
+    "other": "デフォルトのワークスペース"
   },
   "Default start repository": {
-    "other": "Default workspace shown after log in. 'Home' is the welcome page with activity and search engine."
+    "other": "ログイン後に表示されるデフォルトのワークスペース。「ホーム」はアクティビティと検索エンジンを持つウェルカムページです。"
   },
   "Display roles and/or groups": {
-    "other": "Display roles and/or groups"
+    "other": "ロールまたはグループを表示"
   },
   "Do not display real login in parenthesis": {
-    "other": "Do not display real login in parenthesis"
+    "other": "実際のログイン情報を括弧内で表示しない"
   },
   "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
-    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+    "other": "正規表現が入力されていない場合は、グループやユーザリストを読み込まないでください。LDAPで大量の検索を送信しないでください。"
   },
   "Email": {
-    "other": "Email"
+    "other": "Eメール"
   },
   "Excluded Roles": {
-    "other": "Excluded Roles"
+    "other": "除外ロール"
   },
   "External Users Creation": {
-    "other": "External Users Creation"
+    "other": "外部ユーザーの作成"
   },
   "External users parameters": {
-    "other": "External users parameters"
+    "other": "外部ユーザーのパラメーター"
   },
   "Full name displayed to others": {
-    "other": "Full name displayed to others"
+    "other": "他のユーザーに表示されるフルネーム"
   },
   "Generic Conf Features": {
-    "other": "Generic Conf Features"
+    "other": "一般的なConfの機能"
   },
   "Hide real login": {
-    "other": "Hide real login"
+    "other": "実際のログイン情報を隠す"
   },
   "If previous option is set to True, directly display a full list of users from all groups": {
-    "other": "If previous option is set to True, directly display a full list of users from all groups"
+    "other": "前のオプションがtrueに設定されている場合は、すべてのグループからユーザーの全リストを直接表示します。"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else"
+    "other": "設定されている場合、このアクションはユーザーログイン時に自動的にトリガされます。 ログアウト（ユーザーをロックアウトするため）、pass_change（パスワード変更を強制する）、または他のもの"
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
-    "other": "If the 'guest' user is enabled, remember her preferences accross sessions."
+    "other": "'guest'ユーザーが有効になっている場合は、セッションが記録されます。"
   },
   "Image displayed next to the user name": {
-    "other": "Image displayed next to the user name"
+    "other": "ユーザー名の横に表示される画像"
   },
   "Included Roles": {
-    "other": "Included Roles"
+    "other": "含まれるロール"
   },
   "Instance": {
-    "other": "Instance"
+    "other": "インスタンス"
   },
   "Internal / External Users": {
-    "other": "Internal / External Users"
+    "other": "内部/外部ユーザー"
   },
   "Language": {
-    "other": "Language"
+    "other": "言語"
   },
   "Let user create repositories": {
-    "other": "Let user create workspaces"
+    "other": "ユーザーがワークスペースを作成できるようにする"
   },
   "Let user create repositories from templates": {
-    "other": "Let user create repositories from templates"
+    "other": "ユーザーにテンプレートからリポジトリを作成させます"
   },
   "List Roles By": {
-    "other": "List Roles By"
+    "other": "ロールの一覧"
   },
   "List existing from all groups": {
-    "other": "List existing from all groups"
+    "other": "すべてのグループから既存グループの一覧"
   },
   "List of parameters to be edited when creating a new shared user.": {
-    "other": "List of parameters to be edited when creating a new shared user."
+    "other": "新しい共有ユーザーを作成するときに編集するパラメータの一覧です。"
   },
   "Make regexp mandatory": {
-    "other": "Make regexp mandatory"
+    "other": "Regexpを必須にする"
   },
   "Maximum number of shared users per user": {
-    "other": "Maximum number of shared users per user"
+    "other": "ユーザーあたりの共有ユーザーの最大数"
   },
   "Maximum number of users displayed in the users autocompleter": {
-    "other": "Maximum number of users displayed in the users autocompleter"
+    "other": "自動補完で表示されるユーザー数"
   },
   "Minimum number of characters to trigger the auto completion feature": {
-    "other": "Minimum number of characters to trigger the auto completion feature"
+    "other": "自動補完機能をトリガーする最小文字数"
   },
   "Name": {
     "other": "名前"
   },
   "Preferences Saving": {
-    "other": "Preferences Saving"
+    "other": "設定を保存中"
   },
   "Remember guest preferences": {
-    "other": "Remember guest preferences"
+    "other": "ゲスト設定を記憶する"
   },
   "Role Label": {
-    "other": "Role Label"
+    "other": "ロールのラベル"
   },
   "Role/Group Listing": {
-    "other": "Role/Group Listing"
+    "other": "ロール/グループリスト"
   },
   "Roles / Groups Directory Listing": {
-    "other": "Roles / Groups Directory Listing"
+    "other": "ロール/グループ ディレクトリ一覧"
   },
   "SQL Connexion": {
-    "other": "SQL Connection"
+    "other": "SQL 接続"
   },
   "See existing users": {
-    "other": "See existing users"
+    "other": "既存のユーザーを表示"
   },
   "Sets how the application core data (users,roles,etc) is stored.": {
-    "other": "Sets how the application core data (users,roles,etc) is stored."
+    "other": "アプリケーション コア データ (ユーザー、ロールなど) の保存方法を設定します。"
   },
   "Share with existing users from all groups": {
-    "other": "Share with existing users from all groups"
+    "other": "すべてのグループから既存のユーザーと共有"
   },
   "Shared users limit": {
-    "other": "Shared users limit"
+    "other": "共有ユーザーの制限"
   },
   "Simple SQL Connexion definition that can be used by other sql-based plugins": {
-    "other": "Simple SQL Connection definition that can be used by other sql-based plugins"
+    "other": "他のSQLベースのプラグインで使用できるシンプルなSQL接続定義"
   },
   "Skip user history": {
-    "other": "Skip interface preferences"
+    "other": "インターフェースの設定をスキップ"
   },
   "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "いくつかのロールはリストに表示されません。リストは ',' で区切られているか、正規表現の 'preg:' で始まります。"
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex."
+    "other": "いくつかのロールはリストに表示されます。リストは ',' で区切られているか、正規表現の 'preg:' で始まります。"
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
-    "other": "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)"
+    "other": "インターフェースの状態(最後のフォルダ、開かれたタブなど) を自動的にリロードしないようにするには、このオプションを使用します。"
   },
   "User Language": {
-    "other": "User Language"
+    "other": "ユーザーの言語"
   },
   "User roles only": {
-    "other": "User roles only"
+    "other": "ユーザーロールのみ"
   },
   "Users Directory Listing": {
-    "other": "Users Directory Listing"
+    "other": "ユーザーディレクトリ一覧"
   },
   "Users Lock Action": {
-    "other": "Users Lock Action"
+    "other": "ユーザーロックアクション"
   },
   "Users completer limit": {
-    "other": "Users completer limit"
+    "other": "ユーザーの上限数"
   },
   "Users completer min chars": {
-    "other": "Users completer min chars"
+    "other": "ユーザーの最小文字数"
   },
   "Users only (do not list groups nor roles)": {
-    "other": "Users only (do not list groups nor roles)"
+    "other": "ユーザーのみ (グループやロールを一覧表示しない)"
   },
   "Whether users can create their own repositories, based on predefined templates.": {
-    "other": "Whether users can create their own repositories, based on predefined templates."
+    "other": "ユーザーがあらかじめ定義されたテンプレートに基づいて独自のリポジトリを作成できるかどうか。"
   },
   "Worskpace creation delegation": {
-    "other": "Worskpace creation delegation"
+    "other": "ワークプレースの作成委任"
   },
   "role prefix": {
-    "other": "Role prefix"
+    "other": "ロールプレフィクス"
   }
 }

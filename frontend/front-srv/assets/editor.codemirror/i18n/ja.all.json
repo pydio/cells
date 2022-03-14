@@ -1,35 +1,35 @@
 {
   "1": {
-    "other": "Source Editor"
+    "other": "ソースエディター"
   },
   "10": {
-    "other": "Indent size"
+    "other": "インデントサイズ"
   },
   "2": {
     "other": "CodeMirror Syntax Highlighter"
   },
   "3": {
-    "other": "Wrapping"
+    "other": "ラッピング"
   },
   "3b": {
-    "other": "Toggle lines wrapping"
+    "other": "行の折り返しを切り替える"
   },
   "4": {
-    "other": "Numbers"
+    "other": "番号"
   },
   "5": {
-    "other": "Toggle lines numbers"
+    "other": "行番号を切り替える"
   },
   "6": {
-    "other": "Jump to line"
+    "other": "行に移動"
   },
   "7": {
-    "other": "Undo"
+    "other": "元に戻す"
   },
   "8": {
-    "other": "Redo"
+    "other": "再実行"
   },
   "9": {
-    "other": "Text Search"
+    "other": "テキスト検索"
   }
 }

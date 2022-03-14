@@ -21,64 +21,64 @@
     "other": "名前"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "値"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "動作"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "ノード識別子"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "役割識別子"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "ワークスペース識別子"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "ではない"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "エラー文字列を検索(正規表現)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "成功"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Json bodyにキーが有る…"
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "Json bodyで検索(正規表現)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Json bodyのサイズより大きい"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Json bodyのサイズより小さい"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "文字列本文を検索(正規表現)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "文字列本体のサイズより大きい"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "文字列本体のサイズより小さい"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "タスクの時間より大きい"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "タスクの時間より小さい"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "自由条件"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -87,148 +87,148 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "等しい"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "等しい"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "一致"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": "一致"
   },
   "contextMetaCondition.CIDRCondition": {
-    "other": "CIDRCondition"
+    "other": "CIDR Condition"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "件名と等しい"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "リソースに含まれている"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "文字列と等しい"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "文字列と一致"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
-    "other": "StringPairs equals"
+    "other": "ストリングペアと等しい"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "文字列が一致しません"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "日付期間"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "業務時間"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "後の日付"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "コンテンツタイプ"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "クッキー文字列"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "HTTPプロトコル"
   },
   "contextMetaField.RemoteAddress": {
-    "other": "Remote Address"
+    "other": "リモートアドレス"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "ホスト名をリクエスト"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "リクエストメソッド"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "リクエストURI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "サーバー時刻"
   },
   "contextMetaField.UserAgent": {
-    "other": "User Agent"
+    "other": "ユーザーエージェント"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "状態"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "フィールド名"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "自動適用"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "グループ権限"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "チーム"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "ユーザー権限"
   },
   "roleSingleQuery.Label": {
-    "other": "Label"
+    "other": "ラベル"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "roleSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "ではない"
   },
   "treeQuery.Content": {
-    "other": "Content"
+    "other": "コンテンツ"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "変更日(使用比較)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "ファイル拡張子"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "ファイル名"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "ファイル名またはコンテンツ"
   },
   "treeQuery.FreeString": {
-    "other": "Bleve-like search string"
+    "other": "bleveのような検索文字列"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "位置情報クエリ"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "変更前"
   },
   "treeQuery.MaxSize": {
-    "other": "MaxSize"
+    "other": "最大サイズ"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "変更日"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "次の値より大きい"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "パスの深さ"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "パスプレフィックス"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "絶対パス"
   },
   "treeQuery.Type": {
     "other": "種別"
@@ -237,94 +237,94 @@
     "other": "フォルダ"
   },
   "treeQuery.Type.LEAF": {
-    "other": "File"
+    "other": "ファイル"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "任意"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "ノードUUID"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "任意の値があります"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "属性名"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "属性値"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "接続日時"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "フルパス"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "グループパス"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "プロフィールあり"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "権限あり"
   },
   "userSingleQuery.Login": {
-    "other": "Login"
+    "other": "ログイン"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "オブジェクトタイプ"
   },
   "userSingleQuery.NodeType.GROUP": {
-    "other": "Group"
+    "other": "グループ"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "任意"
   },
   "userSingleQuery.NodeType.USER": {
-    "other": "User"
+    "other": "ユーザー"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "userSingleQuery.Password": {
-    "other": "Password"
+    "other": "パスワード"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "再起"
   },
   "userSingleQuery.Uuid": {
     "other": "Uuid"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "ではない"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "属性名"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "属性値"
   },
   "workspaceSingleQuery.Description": {
     "other": "備考"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "属性あり"
   },
   "workspaceSingleQuery.Label": {
-    "other": "Label"
+    "other": "ラベル"
   },
   "workspaceSingleQuery.LastUpdated": {
-    "other": "Last updated"
+    "other": "最終更新"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "workspaceSingleQuery.Scope": {
-    "other": "Scope"
+    "other": "スコープ"
   },
   "workspaceSingleQuery.Slug": {
-    "other": "Slug"
+    "other": "スラグ"
   },
   "workspaceSingleQuery.Uuid": {
     "other": "Uuid"
@@ -333,28 +333,28 @@
     "other": "備考"
   },
   "workspaceSingleQuery.label": {
-    "other": "Label"
+    "other": "ラベル"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "ではない"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "ワークスペースの種類"
   },
   "workspaceSingleQuery.scope.ADMIN": {
     "other": "ワークスペース"
   },
   "workspaceSingleQuery.scope.ANY": {
-    "other": "Any"
+    "other": "任意"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "公開リンク"
   },
   "workspaceSingleQuery.scope.ROOM": {
     "other": "セル"
   },
   "workspaceSingleQuery.slug": {
-    "other": "Slug"
+    "other": "スラグ"
   },
   "workspaceSingleQuery.uuid": {
     "other": "Uuid"
@@ -363,75 +363,75 @@
     "other": "名前"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "無効"
   },
   "dataSourceSingleQuery.StorageType": {
-    "other": "Storage Type"
+    "other": "ストレージの種類"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "リモート"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "任意"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "ローカル"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "ピアアドレス"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "フラットストレージ"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "再起動時に同期をスキップ"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "バージョン管理"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "暗号化"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "暗号化モード"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "ユーザーキー"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
-    "other": "User-pwd"
+    "other": "ユーザーpwd"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
-    "other": "Clear"
+    "other": "クリア"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "マスターキー"
   },
   "dataSourceSingleQuery.EncryptionKey": {
     "other": "暗号化キー"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "Versioning Policy"
+    "other": "バージョン管理ポリシー"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "設定キー"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "設定値"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
-    "other": "Object Service"
+    "other": "オブジェクトサービス"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "ではない"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "スケジュールされたトリガー"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "Manual Trigger"
+    "other": "手動トリガー"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "イベント"
   }
 }

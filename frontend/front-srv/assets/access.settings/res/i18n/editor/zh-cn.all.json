@@ -1,36 +1,36 @@
 {
   "1": {
-    "other": "No Parameters"
+    "other": "无参数"
   },
   "10": {
-    "other": "Write Only"
+    "other": "只写"
   },
   "11": {
-    "other": "Denied"
+    "other": "拒绝"
   },
   "12": {
-    "other": "No Access"
+    "other": "无访问"
   },
   "13": {
-    "other": "Search Parameters or Actions"
+    "other": "搜索参数或动作"
   },
   "14": {
-    "other": "Pick parameter or action"
+    "other": "选择参数或动作"
   },
   "15": {
-    "other": "Pick one parameter or action, then click Add. You can quickly search through the parameters using the text field below."
+    "other": "选择一个参数或动作，然后点击“添加”。您可以使用下面的文本字段快速搜索参数。"
   },
   "16": {
-    "other": "Show/Hide Inherited"
+    "other": "显示/隐藏 继承的"
   },
   "17": {
-    "other": "Add Parameter or Action"
+    "other": "添加参数或动作"
   },
   "18": {
-    "other": "Plugins Settings"
+    "other": "插件设置"
   },
   "19": {
-    "other": "always overrides"
+    "other": "总是覆盖"
   },
   "2": {
     "other": "已启用"
@@ -39,7 +39,7 @@
     "other": "+ 添加角色"
   },
   "21": {
-    "other": "reloading..."
+    "other": "重新加载..."
   },
   "22": {
     "other": "Loading actions cache, please wait, this will be done only once..."
@@ -51,115 +51,115 @@
     "other": "用户信息"
   },
   "25": {
-    "other": "Access Restrictions"
+    "other": "访问限制"
   },
   "26": {
-    "other": "Group Information"
+    "other": "群组信息"
   },
   "27": {
-    "other": "Group Info"
+    "other": "群组信息"
   },
   "28": {
-    "other": "Role Information"
+    "other": "角色信息"
   },
   "29": {
-    "other": "Role Info"
+    "other": "角色信息"
   },
   "3": {
     "other": "已禁用"
   },
   "30": {
-    "other": "Profile & Roles"
+    "other": "个人资料和角色"
   },
   "31": {
     "other": "用户唯一标识符。 您不能修改此值。"
   },
   "32": {
-    "other": "Specific profile. May imply some roles automatically applied."
+    "other": "具体配置。某些角色会自动应用。"
   },
   "33": {
     "other": "关闭"
   },
   "34": {
-    "other": "Access Controls"
+    "other": "访问控制"
   },
   "35": {
-    "other": "Workspaces Accesses"
+    "other": "工作区访问权限"
   },
   "36": {
-    "other": "Application Pages"
+    "other": "应用程序页面"
   },
   "37": {
-    "other": "Customize Parameters"
+    "other": "自定义参数"
   },
   "38": {
     "other": "应用程序参数"
   },
   "39": {
-    "other": "All workspaces parameters"
+    "other": "所有工作区参数"
   },
   "4": {
-    "other": "Clear value"
+    "other": "清除值"
   },
   "40": {
-    "other": "Per-workspaces parameters"
+    "other": "每个工作区参数"
   },
   "41": {
-    "other": "Additional Parameters"
+    "other": "额外参数"
   },
   "42": {
     "other": "Refine application parameters values and selectively disable plugin actions for this current role. Parameters here are global to the application (authentication, configuration, etc). See the Workspaces tabs for workspace-specific parameters/actions."
   },
   "43": {
-    "other": "Grant access to workspaces for the current role/user/group"
+    "other": "允许当前角色/用户/组访问工作区"
   },
   "44": {
-    "other": "Main Application Pages"
+    "other": "主应用程序页面"
   },
   "45": {
-    "other": "Access to main application pages (like My Account, welcome page, etc.)"
+    "other": "访问主应用程序页面 (例如我的帐户，欢迎页等)"
   },
   "46": {
-    "other": "Parameters and actions"
+    "other": "参数和操作"
   },
   "47": {
     "other": "为特定的工作空间细化参数值和操作项"
   },
   "49": {
-    "other": "Shares"
+    "other": "共享"
   },
   "5": {
-    "other": "Override value"
+    "other": "覆盖值"
   },
   "50": {
-    "other": "Shared Files & Folders"
+    "other": "共享文件和文件夹"
   },
   "51": {
-    "other": "With this user"
+    "other": "对于此用户"
   },
   "52": {
     "other": "此用户创建的资料库和公共链接"
   },
   "53": {
-    "other": "Shared by %1 from within workspace %2"
+    "other": "%1 从工作区内分享的 %2"
   },
   "54": {
     "other": "基本用户信息。 使用右侧的按钮查看更多操作。"
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "切换配置文件和角色以自动授予此用户权限。"
   },
   "6": {
-    "other": "Save value"
+    "other": "保存值"
   },
   "7": {
-    "other": "Action %s"
+    "other": "操作 %s"
   },
   "8": {
-    "other": "Read & Write"
+    "other": "读写"
   },
   "9": {
-    "other": "Read Only"
+    "other": "只读"
   },
   "roles.picker.title": {
     "other": "管理用户角色"
@@ -174,28 +174,28 @@
     "other": "仅共享资料库"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "工作区 %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "添加自定义参数或动作"
   },
   "parameters.empty": {
     "other": "没有参数或操作"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "首页"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "登录后显示欢迎页面"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "管理控制台"
   },
   "workspace.statics.settings.description": {
     "other": "Pydio Cells 管理员面板"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "手动设置权限"
   },
   "acls.rights.advanced.root": {
     "other": "整个工作区"

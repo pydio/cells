@@ -21,64 +21,64 @@
     "other": "组名"
   },
   "aclAction.Value": {
-    "other": "Value"
+    "other": "值"
   },
   "aclSingleQuery.Actions": {
-    "other": "Actions"
+    "other": "操作"
   },
   "aclSingleQuery.NodeIDs": {
-    "other": "Node Identifiers"
+    "other": "节点标识符"
   },
   "aclSingleQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "aclSingleQuery.RoleIDs": {
-    "other": "Role Identifiers"
+    "other": "角色标识符"
   },
   "aclSingleQuery.WorkspaceIDs": {
-    "other": "Workspace Identifiers"
+    "other": "工作区标识符"
   },
   "aclSingleQuery.not": {
-    "other": "not"
+    "other": "非"
   },
   "actionOutputSingleQuery.ErrorStringRegexp": {
-    "other": "Search on error string (regexp)"
+    "other": "在错误字符串上搜索 (regexp)"
   },
   "actionOutputSingleQuery.IsSuccess": {
-    "other": "Is Success"
+    "other": "成功"
   },
   "actionOutputSingleQuery.JsonBodyHasKey": {
-    "other": "Json body has key..."
+    "other": "Json拥有主键..."
   },
   "actionOutputSingleQuery.JsonBodyRegexp": {
-    "other": "Search on Json body (regexp)"
+    "other": "在 Json 上搜索 (regexp)"
   },
   "actionOutputSingleQuery.JsonBodySizeGreaterThan": {
-    "other": "Size of Json body is greater than"
+    "other": "Json长度大于"
   },
   "actionOutputSingleQuery.JsonBodySizeSmallerThan": {
-    "other": "Size of Json body is smaller than"
+    "other": "Json长度小于"
   },
   "actionOutputSingleQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "actionOutputSingleQuery.StringBodyRegexp": {
-    "other": "Search on String body (regexp)"
+    "other": "在字符串中搜索 (regexp)"
   },
   "actionOutputSingleQuery.StringBodySizeGreaterThan": {
-    "other": "Size of string body is greater than"
+    "other": "字符串正文大于"
   },
   "actionOutputSingleQuery.StringBodySizeSmallerThan": {
-    "other": "Size of string body is smaller than"
+    "other": "字符串长度小于"
   },
   "actionOutputSingleQuery.TaskTimeGt": {
-    "other": "Task time greater than"
+    "other": "任务时间晚于"
   },
   "actionOutputSingleQuery.TaskTimeLt": {
-    "other": "Task time lower than"
+    "other": "任务时间早于"
   },
   "actionOutputSingleQuery.FreeCondition": {
-    "other": "Free Condition"
+    "other": "自由条件"
   },
   "conditionCIDRCondition.CIDR": {
     "other": "CIDR"
@@ -87,148 +87,148 @@
     "other": "cidr"
   },
   "conditionStringEqualCondition.Equals": {
-    "other": "Equals"
+    "other": "等于"
   },
   "conditionStringEqualCondition.equals": {
-    "other": "equals"
+    "other": "等于"
   },
   "conditionStringMatchCondition.Matches": {
-    "other": "Matches"
+    "other": "匹配"
   },
   "conditionStringMatchCondition.matches": {
-    "other": "matches"
+    "other": " 匹配"
   },
   "contextMetaCondition.CIDRCondition": {
     "other": "CIDRCondition"
   },
   "contextMetaCondition.EqualsSubjectCondition": {
-    "other": "Subject equals"
+    "other": "标题等于"
   },
   "contextMetaCondition.ResourceContainsCondition": {
-    "other": "Resource contains"
+    "other": "资源包含"
   },
   "contextMetaCondition.StringEqualCondition": {
-    "other": "String equals"
+    "other": "字符串等于"
   },
   "contextMetaCondition.StringMatchCondition": {
-    "other": "String matches"
+    "other": "字符串匹配"
   },
   "contextMetaCondition.StringPairsEqualCondition": {
     "other": "StringPairs equals"
   },
   "contextMetaCondition.StringNotMatchCondition": {
-    "other": "String does not match"
+    "other": "字符串不匹配"
   },
   "contextMetaCondition.WithinPeriodCondition": {
-    "other": "Date period"
+    "other": "日期区间"
   },
   "contextMetaCondition.OfficeHoursCondition": {
-    "other": "Office Hours"
+    "other": "办公时间"
   },
   "contextMetaCondition.DateAfterCondition": {
-    "other": "Date after"
+    "other": "日期晚于"
   },
   "contextMetaField.ContentType": {
-    "other": "Content Type"
+    "other": "内容类型"
   },
   "contextMetaField.CookiesString": {
-    "other": "Cookies String"
+    "other": "Cookies 字符串"
   },
   "contextMetaField.HttpProtocol": {
-    "other": "HTTP Protocol"
+    "other": "HTTP 协议"
   },
   "contextMetaField.RemoteAddress": {
     "other": "远程地址"
   },
   "contextMetaField.RequestHostname": {
-    "other": "Request Hostname"
+    "other": "请求主机名"
   },
   "contextMetaField.RequestMethod": {
-    "other": "Request Method"
+    "other": "请求方法"
   },
   "contextMetaField.RequestURI": {
-    "other": "Request URI"
+    "other": "请求URI"
   },
   "contextMetaField.ServerTime": {
-    "other": "Server Time"
+    "other": "服务器时间"
   },
   "contextMetaField.UserAgent": {
-    "other": "User Agent"
+    "other": "浏览器版本"
   },
   "contextMetaSingleQuery.Condition": {
-    "other": "Condition"
+    "other": "条件"
   },
   "contextMetaSingleQuery.FieldName": {
-    "other": "Field Name"
+    "other": "字段名"
   },
   "roleSingleQuery.HasAutoApply": {
-    "other": "Has AutoApply"
+    "other": "有自动应用"
   },
   "roleSingleQuery.IsGroupRole": {
-    "other": "Is Group Role"
+    "other": "是组角色"
   },
   "roleSingleQuery.IsTeam": {
-    "other": "Is Team"
+    "other": "是团队"
   },
   "roleSingleQuery.IsUserRole": {
-    "other": "Is User Role"
+    "other": "用户角色"
   },
   "roleSingleQuery.Label": {
     "other": "标签"
   },
   "roleSingleQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "roleSingleQuery.Uuid": {
-    "other": "Uuid"
+    "other": "用户ID"
   },
   "roleSingleQuery.not": {
-    "other": "not"
+    "other": "非"
   },
   "treeQuery.Content": {
     "other": "内容"
   },
   "treeQuery.DurationDate": {
-    "other": "Modification date (use comparison)"
+    "other": "修改日期 (比较)"
   },
   "treeQuery.Extension": {
-    "other": "File Extension"
+    "other": "文件扩展名"
   },
   "treeQuery.FileName": {
-    "other": "File name"
+    "other": "文件名"
   },
   "treeQuery.FileNameOrContent": {
-    "other": "File name or Content"
+    "other": "文件名或内容"
   },
   "treeQuery.FreeString": {
     "other": "Bleve-like search string"
   },
   "treeQuery.GeoQuery": {
-    "other": "Geolocation Query"
+    "other": "地理位置查询"
   },
   "treeQuery.MaxDate": {
-    "other": "Modified before"
+    "other": "修改早于"
   },
   "treeQuery.MaxSize": {
-    "other": "MaxSize"
+    "other": "最大大小"
   },
   "treeQuery.MinDate": {
-    "other": "Modified since"
+    "other": "修改晚于"
   },
   "treeQuery.MinSize": {
-    "other": "Size greater than"
+    "other": "大小超过"
   },
   "treeQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "treeQuery.PathDepth": {
-    "other": "Path Depth"
+    "other": "路径深度"
   },
   "treeQuery.PathPrefix": {
-    "other": "Path Prefix"
+    "other": "路径前缀"
   },
   "treeQuery.Paths": {
-    "other": "Absolute Paths"
+    "other": "绝对路径"
   },
   "treeQuery.Type": {
     "other": "类型"
@@ -240,76 +240,76 @@
     "other": "文件"
   },
   "treeQuery.Type.UNKNOWN": {
-    "other": "Any"
+    "other": "任意"
   },
   "treeQuery.UUIDs": {
-    "other": "Node UUIDs"
+    "other": "节点UUID"
   },
   "userSingleQuery.AttributeAnyValue": {
-    "other": "Has any value"
+    "other": "有任何值"
   },
   "userSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "属性名称"
   },
   "userSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "属性值"
   },
   "userSingleQuery.ConnectedSince": {
-    "other": "Connected Since"
+    "other": "连接开始于"
   },
   "userSingleQuery.FullPath": {
-    "other": "Full Path"
+    "other": "完整路径"
   },
   "userSingleQuery.GroupPath": {
-    "other": "Group Path"
+    "other": "组路径"
   },
   "userSingleQuery.HasProfile": {
-    "other": "Has Profile"
+    "other": "有个人资料"
   },
   "userSingleQuery.HasRole": {
-    "other": "Has Role"
+    "other": "有角色"
   },
   "userSingleQuery.Login": {
     "other": "登录"
   },
   "userSingleQuery.NodeType": {
-    "other": "Object Type"
+    "other": "对象类型"
   },
   "userSingleQuery.NodeType.GROUP": {
     "other": "群组"
   },
   "userSingleQuery.NodeType.UNKNOWN": {
-    "other": "Any"
+    "other": "任意"
   },
   "userSingleQuery.NodeType.USER": {
     "other": "用户"
   },
   "userSingleQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "userSingleQuery.Password": {
     "other": "密码"
   },
   "userSingleQuery.Recursive": {
-    "other": "Recursive"
+    "other": "递归"
   },
   "userSingleQuery.Uuid": {
-    "other": "Uuid"
+    "other": "用户ID"
   },
   "userSingleQuery.not": {
-    "other": "not"
+    "other": "非"
   },
   "workspaceSingleQuery.AttributeName": {
-    "other": "Attribute Name"
+    "other": "属性名称"
   },
   "workspaceSingleQuery.AttributeValue": {
-    "other": "Attribute Value"
+    "other": "属性值"
   },
   "workspaceSingleQuery.Description": {
     "other": "说明"
   },
   "workspaceSingleQuery.HasAttribute": {
-    "other": "Has Attribute"
+    "other": "有属性"
   },
   "workspaceSingleQuery.Label": {
     "other": "标签"
@@ -318,16 +318,16 @@
     "other": "上次更新"
   },
   "workspaceSingleQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "workspaceSingleQuery.Scope": {
-    "other": "Scope"
+    "other": "范围"
   },
   "workspaceSingleQuery.Slug": {
-    "other": "Slug"
+    "other": "缩写"
   },
   "workspaceSingleQuery.Uuid": {
-    "other": "Uuid"
+    "other": "用户ID"
   },
   "workspaceSingleQuery.description": {
     "other": "说明"
@@ -336,102 +336,102 @@
     "other": "标签"
   },
   "workspaceSingleQuery.not": {
-    "other": "not"
+    "other": "非"
   },
   "workspaceSingleQuery.scope": {
-    "other": "Workspace Type"
+    "other": "工作区类型"
   },
   "workspaceSingleQuery.scope.ADMIN": {
     "other": "工作区"
   },
   "workspaceSingleQuery.scope.ANY": {
-    "other": "Any"
+    "other": "任意"
   },
   "workspaceSingleQuery.scope.LINK": {
-    "other": "Public Link"
+    "other": "公开链接"
   },
   "workspaceSingleQuery.scope.ROOM": {
     "other": "Cell"
   },
   "workspaceSingleQuery.slug": {
-    "other": "Slug"
+    "other": "缩写"
   },
   "workspaceSingleQuery.uuid": {
-    "other": "Uuid"
+    "other": "用户ID"
   },
   "dataSourceSingleQuery.Name": {
     "other": "组名"
   },
   "dataSourceSingleQuery.IsDisabled": {
-    "other": "Is Disabled"
+    "other": "已禁用"
   },
   "dataSourceSingleQuery.StorageType": {
     "other": "存储类型"
   },
   "dataSourceSingleQuery.StorageType.REMOTE": {
-    "other": "Remote"
+    "other": "远程"
   },
   "dataSourceSingleQuery.StorageType.ANY": {
-    "other": "Any"
+    "other": "任意"
   },
   "dataSourceSingleQuery.StorageType.LOCALFS": {
-    "other": "Local"
+    "other": "本地"
   },
   "dataSourceSingleQuery.PeerAddress": {
     "other": "Peer Address"
   },
   "dataSourceSingleQuery.FlatStorage": {
-    "other": "Flat Storage"
+    "other": "平面存储"
   },
   "dataSourceSingleQuery.SkipSyncOnRestart": {
-    "other": "Skip sync on restart"
+    "other": "重启时跳过同步"
   },
   "dataSourceSingleQuery.IsVersioned": {
-    "other": "Is Versioned"
+    "other": "已有版本"
   },
   "dataSourceSingleQuery.IsEncrypted": {
-    "other": "Is Encrypted"
+    "other": "已加密"
   },
   "dataSourceSingleQuery.EncryptionMode": {
-    "other": "Encryption Mode"
+    "other": "加密模式"
   },
   "dataSourceSingleQuery.EncryptionMode.USER": {
-    "other": "User-key"
+    "other": "用户密钥"
   },
   "dataSourceSingleQuery.EncryptionMode.USER_PWD": {
-    "other": "User-pwd"
+    "other": "用户-密码"
   },
   "dataSourceSingleQuery.EncryptionMode.CLEAR": {
     "other": "清空"
   },
   "dataSourceSingleQuery.EncryptionMode.MASTER": {
-    "other": "Master-key"
+    "other": "主-密钥"
   },
   "dataSourceSingleQuery.EncryptionKey": {
     "other": "加密密钥"
   },
   "dataSourceSingleQuery.VersioningPolicyName": {
-    "other": "Versioning Policy"
+    "other": "版本策略"
   },
   "dataSourceSingleQuery.StorageConfigurationName": {
-    "other": "Configuration Key"
+    "other": "配置键"
   },
   "dataSourceSingleQuery.StorageConfigurationValue": {
-    "other": "Configuration Value"
+    "other": "配置值"
   },
   "dataSourceSingleQuery.ObjectServiceName": {
-    "other": "Object Service"
+    "other": "对象服务"
   },
   "dataSourceSingleQuery.Not": {
-    "other": "Not"
+    "other": "非"
   },
   "triggerFilterQuery.IsSchedule": {
-    "other": "Scheduled Trigger"
+    "other": "计划触发器"
   },
   "triggerFilterQuery.IsManual": {
-    "other": "Manual Trigger"
+    "other": "手动触发器"
   },
   "triggerFilterQuery.EventNames": {
-    "other": "Events"
+    "other": "事件"
   }
 }

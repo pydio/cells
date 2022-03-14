@@ -1,20 +1,20 @@
 {
   "Associated list of labels, be sure to define as many as fields!": {
-    "other": "Associated list of labels, be sure to define as many as fields!"
+    "other": "関連付けられたラベルのリストは、フィールドの数と同様に定義してください！"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'."
+    "other": "項目のカンマ区切りリストで、'EXIF_SECTION.ExifName' 構文を使用します。"
   },
   "Exif Metadata": {
-    "other": "Exif Metadata"
+    "other": "Exif メタデータ"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif"
+    "other": "JPG イメージの EXIF メタデータを抽出します。editor.exe と組み合わせて使用します。"
   },
   "Info Panel Fields": {
-    "other": "Info Panel Fields"
+    "other": "情報パネルフィールド"
   },
   "Info Panel Labels": {
-    "other": "Info Panel Labels"
+    "other": "情報パネルラベル"
   }
 }

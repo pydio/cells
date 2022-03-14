@@ -1,17 +1,17 @@
 {
   "1": {
-    "other": "Lock"
+    "other": "ロック"
   },
   "2": {
-    "other": "Lock selected item"
+    "other": "選択したアイテムをロック"
   },
   "3": {
-    "other": "Unlock"
+    "other": "ロック解除"
   },
   "4": {
-    "other": "Remove lock"
+    "other": "ロックを解除"
   },
   "5": {
-    "other": "This file is locked by another user, it is probably currently being edited, you are not allowed to modify it."
+    "other": "このファイルは他のユーザーによってロックされています。おそらく現在編集されています。変更することはできません。"
   }
 }
