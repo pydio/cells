@@ -25,6 +25,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config/service"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -255,6 +258,16 @@ func initConfig() (new bool) {
 		config.RegisterVault(etcd.NewSource(context.Background(), conn, "vault", false))
 		// config.RegisterLocal(etcd.NewSource(context.Background(), conn, "config/"+runtime.DefaultAdvertiseAddress(), false))
 		defaultConfig := etcd.NewSource(context.Background(), conn, "config", false)
+		defaultConfig = config.Proxy(defaultConfig)
+		config.Register(defaultConfig)
+	case "grpc":
+		conn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Fatal("could not connect to configuration", zap.Error(err))
+		}
+
+		config.RegisterVault(service.New(context.Background(), conn, "vault"))
+		defaultConfig := service.New(context.Background(), conn, "config")
 		defaultConfig = config.Proxy(defaultConfig)
 		config.Register(defaultConfig)
 	default:

@@ -16,6 +16,13 @@ func Reference(s string) Ref {
 	}
 }
 
+func GetReference(i interface{}) (string, bool) {
+	if r, ok :=  i.(*ref); ok {
+		return r.Get(), true
+	}
+	return "", false
+}
+
 func (r *ref) Get() string {
 	return r.v["$ref"].(string)
 }

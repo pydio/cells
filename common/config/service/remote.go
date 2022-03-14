@@ -1,6 +1,3 @@
-//go:build ignore
-// +build ignore
-
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
@@ -29,39 +26,77 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/pydio/cells/v4/common/config"
+	"github.com/pydio/cells/v4/common/service/context/ckeys"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"net/url"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/log"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	configx2 "github.com/pydio/cells/v4/common/utils/configx"
 )
 
+var (
+	scheme           = "grpc"
+	errClosedChannel = errors.New("channel is closed")
+)
+
+type URLOpener struct{}
+
+func init() {
+	o := &URLOpener{}
+	config.DefaultURLMux().Register(scheme, o)
+}
+
+func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
+	// var opts []configx.Option
+
+	conn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()),)
+	if err != nil {
+		return nil, err
+	}
+
+	//encode := u.Query().Get("encode")
+	//switch encode {
+	//case "string":
+	//	opts = append(opts, configx.WithString())
+	//case "yaml":
+	//	opts = append(opts, configx.WithYAML())
+	//case "json":
+	//	opts = append(opts, configx.WithJSON())
+	//}
+
+	store := New(context.Background(), conn, u.Path)
+
+	return store, nil
+}
+
 type remote struct {
-	id      string
-	service string
-	config  configx2.Values
+	ctx context.Context
+	cli pb.ConfigClient
+	id  string
 
 	watchers []*receiver
 }
 
-func New(service, id string) configx2.Entrypoint {
-
+func New(ctx context.Context, conn grpc.ClientConnInterface, id string) config.Store {
 	r := &remote{
-		id:      id,
-		service: service,
+		ctx : metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, "pydio.grpc.config"),
+		cli:  pb.NewConfigClient(conn),
+		id:   id,
 	}
 
 	go func() {
 		for {
-			ctx := context.TODO()
-			cli := pb.NewConfigClient(grpc.GetClientConnFromCtx(ctx, service))
-
-			stream, err := cli.Watch(ctx, &pb.WatchRequest{
+			stream, err := r.cli.Watch(r.ctx, &pb.WatchRequest{
 				Namespace: id,
 				Path:      "/",
 			})
@@ -87,7 +122,6 @@ func New(service, id string) configx2.Entrypoint {
 				c.Set(rsp.GetValue().GetData())
 
 				for _, w := range r.watchers {
-
 					v := c.Val(w.path...).Bytes()
 
 					select {
@@ -105,52 +139,43 @@ func New(service, id string) configx2.Entrypoint {
 }
 
 func (r *remote) Val(path ...string) configx2.Values {
-	if r.config == nil {
-		r.Get()
+	return &values{
+		ctx: r.ctx,
+		cli: r.cli,
+		id: r.id,
+		path: path,
 	}
-
-	return &wrappedConfig{r.config.Val(path...), r}
 }
 
 func (r *remote) Get() configx2.Value {
 	v := configx2.New(configx2.WithJSON())
 
-	ctx := context.TODO()
-	cli := pb.NewConfigClient(grpc.GetClientConnFromCtx(ctx, r.service))
-	rsp, err := cli.Get(ctx, &pb.GetRequest{
+	rsp, err := r.cli.Get(r.ctx, &pb.GetRequest{
 		Namespace: r.id,
 		Path:      "",
 	})
-
-	r.config = v
 
 	if err != nil {
 		return v
 	}
 
-	m := make(map[string]interface{})
-	json.Unmarshal([]byte(rsp.GetValue().GetData()), &m)
-
-	v.Set(m)
+	if err := v.Set(rsp.GetValue().GetData()); err != nil {
+		fmt.Println("And the error there is ? ", err )
+	}
 
 	return v
 }
 
 func (r *remote) Set(data interface{}) error {
-
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 
-	ctx := context.TODO()
-
-	cli := pb.NewConfigClient(grpc.GetClientConnFromCtx(ctx, r.service))
-
-	if _, err := cli.Set(ctx, &pb.SetRequest{
+	if _, err := r.cli.Set(r.ctx, &pb.SetRequest{
 		Namespace: r.id,
 		Path:      "",
-		Value:     &pb.Value{Data: string(b)},
+		Value:     &pb.Value{Data: b},
 	}); err != nil {
 		return err
 	}
@@ -160,6 +185,16 @@ func (r *remote) Set(data interface{}) error {
 
 func (r *remote) Del() error {
 	return nil
+}
+
+func (r *remote) Save(ctxUser string, ctxMessage string) error {
+	return nil
+}
+
+func (r *remote) Lock() {
+}
+
+func (r *remote) Unlock() {
 }
 
 func (r *remote) Watch(path ...string) (configx2.Receiver, error) {
@@ -215,16 +250,130 @@ func (r *receiver) Stop() {
 	}
 }
 
-type wrappedConfig struct {
-	configx2.Values
-	r *remote
+type values struct {
+	ctx context.Context
+	cli pb.ConfigClient
+	id string
+	path []string
 }
 
-func (w *wrappedConfig) Set(val interface{}) error {
-	err := w.Values.Set(val)
+func (v *values) Val(path ...string) configx2.Values {
+	return &values{
+		ctx: v.ctx,
+		cli: v.cli,
+		id: v.id,
+		path: append(v.path, path...),
+	}
+}
+
+func (v *values) Get() configx2.Value {
+	c := configx2.New(configx2.WithJSON())
+
+	rsp, err := v.cli.Get(v.ctx, &pb.GetRequest{
+		Namespace: v.id,
+		Path:      strings.Join(v.path, "/"),
+	})
+
+	if err != nil {
+		fmt.Println("Error is ", err)
+		return c
+	}
+
+	if err := c.Set(rsp.GetValue().GetData()); err != nil {
+		fmt.Println("And the error is ? ", err)
+	}
+
+	return c
+}
+
+func (v *values) Set(val interface{}) error {
+	b, err := json.Marshal(val)
 	if err != nil {
 		return err
 	}
 
-	return w.r.Set(w.Values.Val("#").Map())
+	if _, err := v.cli.Set(v.ctx, &pb.SetRequest{
+		Namespace: v.id,
+		Path:      strings.Join(v.path, "/"),
+		Value:     &pb.Value{Data: b},
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *values) Del() error {
+	if _, err := v.cli.Delete(v.ctx, &pb.DeleteRequest{
+		Namespace: v.id,
+		Path:      strings.Join(v.path, "/"),
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *values) Default(i interface{}) configx2.Value {
+	if vv, ok := configx2.GetReference(i); ok {
+		i = (&values{
+			ctx: v.ctx,
+			cli: v.cli,
+			id: v.id,
+			path: configx2.StringToKeys(vv),
+		}).Get()
+	}
+
+	return v.Get().Default(i)
+}
+
+func (v *values) Bool() bool {
+	return v.Get().Bool()
+}
+
+func (v *values) Bytes() []byte {
+	return v.Get().Bytes()
+}
+
+func (v *values) Key() []string {
+	return v.Get().Key()
+}
+func (v *values) Interface() interface{} {
+	return v.Get().Interface()
+}
+
+func (v *values) Int() int {
+	return v.Get().Int()
+}
+
+func (v *values) Int64() int64 {
+	return v.Get().Int64()
+}
+
+func (v *values) Duration() time.Duration {
+	return v.Get().Duration()
+}
+
+func (v *values) String() string {
+	return v.Get().String()
+}
+
+func (v *values) StringMap() map[string]string {
+	return v.Get().StringMap()
+}
+
+func (v *values) StringArray() []string {
+	return v.Get().StringArray()
+}
+
+func (v *values) Slice() []interface{} {
+	return v.Get().Slice()
+}
+
+func (v *values) Map() map[string]interface{} {
+	return v.Get().Map()
+}
+
+func (v *values) Scan(i interface{}) error {
+	return v.Get().Scan(i)
 }

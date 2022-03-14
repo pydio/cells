@@ -2,13 +2,11 @@ package grpc
 
 import (
 	"context"
+	"github.com/pydio/cells/v4/common/config"
 
 	pb "github.com/pydio/cells/v4/common/proto/config"
-	"github.com/pydio/cells/v4/common/utils/configx"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
-
-var config = configx.New()
 
 type Handler struct {
 	serviceName string
@@ -29,12 +27,12 @@ func (h *Handler) ServiceName() string {
 
 func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
 	return &pb.GetResponse{
-		Value: &pb.Value{Data: config.Val().String()},
+		Value: &pb.Value{Data: config.Get(req.GetPath()).Bytes()},
 	}, nil
 }
 
 func (h *Handler) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse, error) {
-	if err := config.Val(req.GetPath()).Set(req.GetValue()); err != nil {
+	if err := config.Set(req.GetValue(), req.GetPath()); err != nil {
 		return nil, err
 	}
 

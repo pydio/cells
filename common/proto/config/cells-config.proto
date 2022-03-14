@@ -12,7 +12,7 @@ service Config {
 }
 
 message Value {
-  string data = 1;
+  bytes data = 1;
   string format = 2;
 }
 

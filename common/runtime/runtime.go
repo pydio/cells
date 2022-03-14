@@ -193,6 +193,9 @@ func buildProcessStartTag() {
 func BuildForkParams(cmd string) []string {
 
 	grpcAddr := GrpcBindAddress()
+
+	conf := fmt.Sprintf("grpc://%s", grpcAddr)
+
 	reg := fmt.Sprintf("grpc://%s", grpcAddr)
 	if !strings.HasPrefix(RegistryURL(), "mem://") {
 		reg = RegistryURL()
@@ -206,6 +209,7 @@ func BuildForkParams(cmd string) []string {
 	params := []string{
 		cmd,
 		"--" + KeyFork,
+		"--" + KeyConfig, conf,
 		"--" + KeyRegistry, reg,
 		"--" + KeyBroker, brok,
 		"--" + KeyGrpcPort, "0",
