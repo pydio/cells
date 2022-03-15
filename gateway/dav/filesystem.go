@@ -468,6 +468,7 @@ func (f *File) Seek(offset int64, whence int) (int64, error) {
 		if e := f.openReader.Close(); e != nil {
 			return 0, e
 		}
+		f.openReader = nil
 	}
 	log.Logger(f.ctx).Debug("File.Seek", zap.Any("file", f), zap.Int64("f.offset", f.off), zap.Int64("offset required", offset), zap.Int("whence", whence))
 	return f.off, err

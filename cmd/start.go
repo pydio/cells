@@ -50,11 +50,6 @@ import (
 	"github.com/pydio/cells/v4/common/service/metrics"
 )
 
-var (
-	FilterStartTags    []string
-	FilterStartExclude []string
-)
-
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",

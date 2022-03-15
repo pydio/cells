@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pydio/cells/v4/common/utils/std"
 	"math"
 	"strconv"
 	"strings"
@@ -169,83 +170,78 @@ func (s *Handler) initSync(syncConfig *object.DataSource) error {
 	// Making sure index is started
 	go func() {
 		defer wg.Done()
-		//_ = std.Retry(ctx, func() error {
 		log.Logger(ctx).Debug("Sync " + dataSource + " - Try to contact Index")
 		cli := tree.NewNodeProviderClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataIndex_+dataSource))
-		//	ct, ca := context.WithTimeout(context.Background(), 2*time.Second)
-		//	defer ca()
 		if _, e := cli.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: "/"}}); e != nil {
 			return
 		}
 		log.Logger(ctx).Info("Index connected")
 		indexOK = true
-		//	return nil
-		//}, 1*time.Second, 180*time.Second)
 	}()
 
 	// Making sure Objects is started
-	go func() error {
+	var minioErr error
+	go func() {
 		defer wg.Done()
-		//	var retryCount int
-		//	<-time.After(3 * time.Second)
-		//	_ = std.Retry(ctx, func() error {
-		//		retryCount++
-		//		log.Logger(ctx).Info(fmt.Sprintf("Trying to contact object service %s (retry %d)", common.ServiceDataObjects_+syncConfig.ObjectsServiceName, retryCount))
 		cli := object.NewObjectsEndpointClient(grpccli.GetClientConnFromCtx(ctx, common.ServiceDataObjects_+syncConfig.ObjectsServiceName))
-		//ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
-		//defer cancel()
 		resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
 		if err != nil {
 			log.Logger(ctx).Warn(common.ServiceDataObjects_+syncConfig.ObjectsServiceName+" not yet available", zap.Error(err))
-			return err
+			minioErr = err
+			return
 		} else if resp.MinioConfig == nil {
 			log.Logger(ctx).Debug(common.ServiceDataObjects_ + syncConfig.ObjectsServiceName + " not yet available")
-			return fmt.Errorf("empty config")
+			minioErr = fmt.Errorf("empty config")
+			return
 		}
 		minioConfig = resp.MinioConfig
 		if sec := config.GetSecret(minioConfig.ApiSecret).String(); sec != "" {
 			minioConfig.ApiSecret = sec
 		}
-		//mc, e := minio.NewCore(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
-		oc, e := mc.New(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
-		if e != nil {
-			log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
-			return e
-		}
-		testCtx := metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
-		if syncConfig.ObjectsBucket == "" {
-			log.Logger(ctx).Debug("Sending ListBuckets", zap.Any("config", syncConfig))
-			_, err = oc.ListBuckets(testCtx)
-			if err != nil {
-				//if retryCount > 1 {
-				//	log.Logger(ctx).Warn("Cannot contact s3 service (list buckets), will retry in 4s", zap.Error(err))
-				//}
-				return err
-			} else {
-				log.Logger(ctx).Info("Successfully listed buckets")
-				return nil
+
+		var retryCount int
+		minioErr = std.Retry(ctx, func() error {
+			retryCount++
+			oc, e := mc.New(minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, minioConfig.RunningSecure)
+			if e != nil {
+				log.Logger(ctx).Error("Cannot create objects client", zap.Error(e))
+				return e
 			}
-		} else {
-			log.Logger(ctx).Debug("Sending ListObjects")
-			_, err = oc.ListObjects(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
-			log.Logger(ctx).Debug("Sent ListObjects")
-			if err != nil {
-				//if retryCount > 1 {
-				//	log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 4s", zap.Error(err))
-				//}
-				return err
+			testCtx := metadata.NewContext(ctx, map[string]string{common.PydioContextUserKey: common.PydioSystemUsername})
+			if syncConfig.ObjectsBucket == "" {
+				log.Logger(ctx).Debug("Sending ListBuckets", zap.Any("config", syncConfig))
+				_, err = oc.ListBuckets(testCtx)
+				if err != nil {
+					//if retryCount > 1 {
+					//	log.Logger(ctx).Warn("Cannot contact s3 service (list buckets), will retry in 4s", zap.Error(err))
+					//}
+					return err
+				} else {
+					log.Logger(ctx).Info("Successfully listed buckets")
+					return nil
+				}
 			} else {
-				log.Logger(ctx).Info("Successfully listed objects from bucket " + syncConfig.ObjectsBucket)
-				return nil
+				log.Logger(ctx).Debug("Sending ListObjects")
+				_, err = oc.ListObjects(testCtx, syncConfig.ObjectsBucket, "", "/", "/", 1)
+				log.Logger(ctx).Debug("Sent ListObjects")
+				if err != nil {
+					if retryCount > 1 {
+						log.Logger(ctx).Warn("Cannot contact s3 service (bucket "+syncConfig.ObjectsBucket+"), will retry in 1s", zap.Error(err))
+					}
+					return err
+				} else {
+					log.Logger(ctx).Info("Successfully listed objects from bucket " + syncConfig.ObjectsBucket)
+					return nil
+				}
 			}
-		}
-		// , 1*time.Second, 180*time.Second)
-		return nil
+		}, 1*time.Second, 180*time.Second)
 	}()
 
 	wg.Wait()
 
-	if minioConfig == nil {
+	if minioErr != nil {
+		return fmt.Errorf("objects not reachable: %v", minioErr)
+	} else if minioConfig == nil {
 		return fmt.Errorf("objects not reachable")
 	} else if !indexOK {
 		return fmt.Errorf("index not reachable")
