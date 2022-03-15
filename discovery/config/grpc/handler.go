@@ -2,8 +2,8 @@ package grpc
 
 import (
 	"context"
-	"github.com/pydio/cells/v4/common/config"
 
+	"github.com/pydio/cells/v4/common/config"
 	pb "github.com/pydio/cells/v4/common/proto/config"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -11,6 +11,12 @@ import (
 type Handler struct {
 	serviceName string
 	pb.UnimplementedConfigServer
+}
+
+func NewHandler(name string) *Handler {
+	return &Handler{
+		serviceName: name,
+	}
 }
 
 func (h *Handler) Id() string {
@@ -32,9 +38,39 @@ func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse,
 }
 
 func (h *Handler) Set(ctx context.Context, req *pb.SetRequest) (*pb.SetResponse, error) {
-	if err := config.Set(req.GetValue(), req.GetPath()); err != nil {
+	if err := config.Set(req.GetValue().GetData(), req.GetPath()); err != nil {
 		return nil, err
 	}
 
 	return &pb.SetResponse{}, nil
+}
+
+func (h *Handler) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	if err := config.Get(req.GetPath()).Del(); err != nil {
+		return nil, err
+	}
+
+	return &pb.DeleteResponse{}, nil
+}
+
+func (h *Handler) Watch(req *pb.WatchRequest, stream pb.Config_WatchServer) error {
+	w, err := config.Watch(req.GetPath())
+	if err != nil {
+		return err
+	}
+
+	for {
+		res, err := w.Next()
+		if err != nil {
+			return err
+		}
+
+		if err := stream.Send(&pb.WatchResponse{
+			Value: &pb.Value{
+				Data: res.Bytes(),
+			},
+		}); err != nil {
+			return err
+		}
+	}
 }

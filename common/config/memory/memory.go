@@ -36,6 +36,8 @@ func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, erro
 		opts = append(opts, configx.WithYAML())
 	case "json":
 		opts = append(opts, configx.WithJSON())
+	default:
+		opts = append(opts, configx.WithJSON())
 	}
 
 	store := New(opts...)

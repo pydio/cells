@@ -26,13 +26,24 @@ import (
 	"os"
 	"testing"
 
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+
+	"github.com/pydio/cells/v4/common"
+	"github.com/pydio/cells/v4/common/client/grpc"
+	"github.com/pydio/cells/v4/common/server/stubs/discoverytest"
+
 	"github.com/pydio/cells/v4/common/config"
 
 	// Plugins to test
 	_ "github.com/pydio/cells/v4/common/config/etcd"
 	_ "github.com/pydio/cells/v4/common/config/file"
 	_ "github.com/pydio/cells/v4/common/config/memory"
+	_ "github.com/pydio/cells/v4/common/config/service"
 )
+
+func init() {
+	grpc.RegisterMock(common.ServiceConfig, discoverytest.NewConfigService())
+}
 
 func TestGetSetMemory(t *testing.T) {
 	store, err := config.OpenStore(context.Background(), "mem://")
@@ -46,7 +57,7 @@ func TestGetSetMemory(t *testing.T) {
 	}
 
 	testGetSet(t, store)
-	testVault(t, config.NewVault(store, vault))
+	testVault(t, store, vault)
 }
 
 func TestGetSetEtcd(t *testing.T) {
@@ -66,7 +77,7 @@ func TestGetSetEtcd(t *testing.T) {
 	}
 
 	testGetSet(t, store)
-	testVault(t, config.NewVault(store, vault))
+	testVault(t, store, vault)
 }
 
 func TestGetSetFile(t *testing.T) {
@@ -101,8 +112,31 @@ func TestGetSetFile(t *testing.T) {
 	}
 
 	testGetSet(t, store)
-	testVault(t, config.NewVault(store, vault))
+	testVault(t, store, vault)
 
 	store.Save("configtest", "configtest")
 	vault.Save("configtest", "configtest")
+}
+
+func TestGetSetGRPC(t *testing.T) {
+	mem, err := config.OpenStore(context.Background(), "mem://")
+	if err != nil {
+		t.Fail()
+	}
+
+	vault, err := config.OpenStore(context.Background(), "mem://")
+
+	config.Register(mem)
+	config.RegisterVault(vault)
+
+	conn := grpc.GetClientConnFromCtx(context.Background(), common.ServiceConfig)
+	ctx := clientcontext.WithClientConn(context.Background(), conn)
+
+	store, err := config.OpenStore(ctx, "grpc://"+common.ServiceConfig)
+	if err != nil {
+		t.Fail()
+	}
+
+	testGetSet(t, store)
+	testVault(t, store, vault)
 }
