@@ -378,7 +378,7 @@
     "other": "Local"
   },
   "dataSourceSingleQuery.PeerAddress": {
-    "other": "Peer Address"
+    "other": "Dirección de Par"
   },
   "dataSourceSingleQuery.FlatStorage": {
     "other": "Almacenamiento Plano"
