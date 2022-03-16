@@ -536,6 +536,9 @@
   "254": {
     "other": "Partagé dans les cellules"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
   "255": {
     "other": "Etes-vous sûr de vouloir supprimer les cellules et les liens sur cet élément?"
   },
@@ -902,6 +905,9 @@
   "cell.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de choisir qui peut éditer les propriétés de cette Cell (droit d'ajouter ou supprimer des utilisateurs, d'ajouter ou supprimer des répertoires à la racine). Si vous voulez gérer les droits d'accès réels aux données, veuillez utiliser l'onglet 'Partagé avec'."
   },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
+  },
   "link.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de décider si ce lien est visible par les autres utilisateurs qui ont accès à ce fichier, et s'ils peuvent modifier ses propriétés. Par défaut, les liens que vous créez ne sont visibles que par vous. Vous pouvez transférer la propriété d'un lien en donnant le droit à un autre utilisateur de le modifier."
   },
@@ -913,5 +919,29 @@
   },
   "composite.deleteAll": {
     "other": "Désactiver tous les partages"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
