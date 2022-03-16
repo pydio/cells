@@ -536,6 +536,9 @@
   "254": {
     "other": "Geteilt in Cells"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
   "255": {
     "other": "Sind Sie sicher, dass Sie alle Zellen und Links zu dieser Datei löschen möchten?"
   },
@@ -902,6 +905,9 @@
   "cell.visibility.advanced": {
     "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Zelle bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Zelle). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
   },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
+  },
   "link.visibility.advanced": {
     "other": "Mit dieser erweiterten Funktion können Sie entscheiden, ob dieser Link für andere Benutzer sichtbar ist, wenn sie diese Datei sehen, und ob sie ihre Konfiguration bearbeiten können. Standardmäßig sind die von Ihnen erstellten Links nur für Sie sichtbar. Sie können einen Linkbesitz übertragen, indem Sie ihn von einem anderen Benutzer bearbeiten lassen."
   },
@@ -913,5 +919,29 @@
   },
   "composite.deleteAll": {
     "other": "Alle Freigaben deaktivieren"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
