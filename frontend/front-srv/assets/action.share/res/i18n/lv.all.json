@@ -536,6 +536,9 @@
   "254": {
     "other": "Koplietots šūnās"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
   "255": {
     "other": "Vai vēlaties nodzēst visas šūnas un saites šim objektam?"
   },
@@ -902,6 +905,9 @@
   "cell.visibility.advanced": {
     "other": "Šī opcija ļauj izvēlēties kurš var labot šīs Šūnas opcijas (tiesības pievienot/dzēst lietotājus un pievienot/dzēst direktorijas šūnas pamatā). Priek; s vienkāršotas piekļuves datiem lietojiet 'Koplietot ar' tabu."
   },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
+  },
   "link.visibility.advanced": {
     "other": "Šī paplašinātā funkcija ļauj izvēlēties vai saite ir redzama citiem lietotājiem kad tier skatās failu un vai tie var labot tās opcijas. Pēc noklusējuma izveidotās saites ir redzamas tikai Jums. Jūs varat pārcelt saites piederību to ļaujot labot citiem."
   },
@@ -913,5 +919,29 @@
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
