@@ -536,6 +536,9 @@
   "254": {
     "other": "Shared in cells"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
   "255": {
     "other": "Are you sure you want to delete all cells and links on this item?"
   },
@@ -902,6 +905,9 @@
   "cell.visibility.advanced": {
     "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
   },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
+  },
   "link.visibility.advanced": {
     "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
   },
@@ -913,5 +919,29 @@
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
