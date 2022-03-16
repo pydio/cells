@@ -537,7 +537,13 @@
     "other": "Geteilt in Cells"
   },
   "254b": {
-    "other": "With users or groups"
+    "other": "Benutzern o. Gruppen"
+  },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
   },
   "255": {
     "other": "Sind Sie sicher, dass Sie alle Zellen und Links zu dieser Datei löschen möchten?"
@@ -902,17 +908,32 @@
   "cells.create.title.fill.folders": {
     "other": "Bestehende(n) Ordner teilen"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Zelle bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Zelle). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
   },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
+  },
   "link.visibility.title": {
-    "other": "[Advanced] Visibility"
+    "other": "[Advanced] Sichtbarkeit"
   },
   "link.visibility.advanced": {
     "other": "Mit dieser erweiterten Funktion können Sie entscheiden, ob dieser Link für andere Benutzer sichtbar ist, wenn sie diese Datei sehen, und ob sie ihre Konfiguration bearbeiten können. Standardmäßig sind die von Ihnen erstellten Links nur für Sie sichtbar. Sie können einen Linkbesitz übertragen, indem Sie ihn von einem anderen Benutzer bearbeiten lassen."
   },
   "dialog.close.confirm.unsaved": {
     "other": "Sie haben ungespeicherte Änderungen. Möchten Sie das Fenster wirklich schließen?"
+  },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
     "other": "Schnellfilter..."
@@ -921,27 +942,27 @@
     "other": "Alle Freigaben deaktivieren"
   },
   "link.active": {
-    "other": "active"
+    "other": "aktiv"
   },
   "link.disable": {
-    "other": "Disable Link"
+    "other": "Link deaktivieren"
   },
   "link.floatingLabel": {
-    "other": "Copy and send this link for direct access"
+    "other": "Kopieren und versenden Sie diesen Link für den direkten Zugang"
   },
   "link.secure.title": {
-    "other": "Access Restrictions"
+    "other": "Zugriffsbeschränkungen"
   },
   "link.secure.expires": {
-    "other": "expires"
+    "other": "läuft ab"
   },
   "link.secure.expired": {
-    "other": "expired"
+    "other": "abgelaufen"
   },
   "link.secure.hasPassword": {
-    "other": "password required"
+    "other": "Passwort benötigt"
   },
   "link.secure.maxdownloads": {
-    "other": "%d downloads only"
+    "other": "Nur %d Downloads"
   }
 }
