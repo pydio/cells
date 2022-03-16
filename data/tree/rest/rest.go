@@ -166,6 +166,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 		} else {
 			var reader io.Reader
 			var length int64
+			meta := map[string]string{}
 			if input.TemplateUUID != "" {
 				provider := templates.GetProvider()
 				node, err := provider.ByUUID(input.TemplateUUID)
@@ -185,10 +186,11 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				if n.GetStringMeta(common.MetaNamespaceContents) != "" {
 					contents = n.GetStringMeta(common.MetaNamespaceContents)
 				}
+				meta[common.XContentType] = "text/plain"
 				length = int64(len(contents))
 				reader = strings.NewReader(contents)
 			}
-			_, e := router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: map[string]string{common.XContentType: "text/plain"}})
+			_, e := router.PutObject(ctx, n, reader, &models.PutRequestData{Size: length, Metadata: meta})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return

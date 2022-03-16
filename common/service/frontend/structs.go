@@ -166,6 +166,7 @@ type Ccontext struct {
 	AttrinfoPanel      string   `xml:"infoPanel,attr,omitempty"  json:",omitempty"`
 	Attrrecycle        string   `xml:"recycle,attr,omitempty"  json:",omitempty"`
 	Attrselection      string   `xml:"selection,attr,omitempty"  json:",omitempty"`
+	AttrevalMetadata   string   `xml:"evalMetadata,attr,omitempty"  json:",omitempty"`
 }
 
 type Ccore_relation struct {
