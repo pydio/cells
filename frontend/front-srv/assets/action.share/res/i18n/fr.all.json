@@ -539,6 +539,12 @@
   "254b": {
     "other": "Utilisateurs / Groupes"
   },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Etes-vous sûr de vouloir supprimer les cellules et les liens sur cet élément?"
   },
@@ -902,8 +908,20 @@
   "cells.create.title.fill.folders": {
     "other": "Partager des répertoires existants"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de choisir qui peut éditer les propriétés de cette Cell (droit d'ajouter ou supprimer des utilisateurs, d'ajouter ou supprimer des répertoires à la racine). Si vous voulez gérer les droits d'accès réels aux données, veuillez utiliser l'onglet 'Partagé avec'."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
   },
   "link.visibility.title": {
     "other": "[Avancé] Visibilité"
@@ -913,6 +931,9 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
+  },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
     "other": "Filtre rapide..."
