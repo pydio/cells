@@ -536,6 +536,9 @@
   "254": {
     "other": "セル内で共有"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
   "255": {
     "other": "このアイテムのすべてのセルとリンクを削除してもよろしいですか？"
   },
@@ -902,6 +905,9 @@
   "cell.visibility.advanced": {
     "other": "この高度な機能を使用すると、このセルのプロパティを編集できるユーザーを決定できます（ユーザーを追加/削除したり、セルのルートにあるフォルダーを追加/削除したりする権利）。 データへの実際のアクセスを簡単に管理するには、代わりに[共有] タブを使用してください。"
   },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
+  },
   "link.visibility.advanced": {
     "other": "この高度な機能を使用すると、他のユーザーがこのファイルを表示したときにこのリンクを表示できるかどうか、およびそのプロパティを編集できるかどうかを決定できます。 デフォルトでは、作成したリンクは自分だけに表示されます。 リンクの所有権は、他のユーザーに編集させることで譲渡できます。"
   },
@@ -913,5 +919,29 @@
   },
   "composite.deleteAll": {
     "other": "すべての共有を無効にする"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
