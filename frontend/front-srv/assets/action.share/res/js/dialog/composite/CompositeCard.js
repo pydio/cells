@@ -30,7 +30,7 @@ import NewCellsList from './NewCellsList'
 import Clipboard from 'clipboard'
 import PublicLinkTemplate from '../links/PublicLinkTemplate'
 import VisibilityPanel from '../links/VisibilityPanel'
-import LabelPanel from '../links/LabelPanel'
+import LabelPanel, {LinkLabelTitle} from '../links/LabelPanel'
 import {Divider} from 'material-ui'
 
 const {PaletteModifier} = Pydio.requireLib('hoc');
@@ -187,7 +187,7 @@ class CompositeCard extends React.Component {
                 hasCells = true;
             }
             tabs.right.push({
-                Label:m(254) + (hasCells?' (active)':''),
+                Label:m(hasCells?'254':'254b') ,
                 Value:"cells",
                 Icon:'mdi mdi-account-multiple',
                 Component:(
@@ -202,14 +202,14 @@ class CompositeCard extends React.Component {
                 if(publicLinkModel.getLinkUuid()){
                     // LABEL PANEL
                     active = true
-                    additionalPanes.push({title:m('151'), content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model}/>});
+                    additionalPanes.push({title:LinkLabelTitle(model, publicLinkModel, m), content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model}/>});
                     if(links[0].isEditable()){
-                        additionalPanes.push({title:m('253'),content:<VisibilityPanel pydio={pydio} linkModel={links[0]}/>});
+                        additionalPanes.push({title:m('link.visibility.title'),content:<VisibilityPanel pydio={pydio} linkModel={links[0]} style={{margin:-20}}/>});
                     }
                 }
 
                 tabs.left.push({
-                    Label:m(121) + (active?' (active)':''),
+                    Label:m(121) + (active?' ('+m('link.active')+')':''),
                     Value:'public-link',
                     Icon:'mdi mdi-link',
                     Component:(<Panel
