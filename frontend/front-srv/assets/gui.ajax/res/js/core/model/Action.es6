@@ -202,6 +202,7 @@ export default class Action extends Observable{
         let crtIsRoot = false;
         let crtAjxpMime = '';
         let crtIsReadOnly = false;
+        let crtMeta = new Map();
 
         const crtNode = dataModel.getContextNode();
         if(crtNode){
@@ -211,6 +212,7 @@ export default class Action extends Observable{
             crtAjxpMime = crtNode.getAjxpMime();
             //crtIsReadOnly = crtNode.hasMetadataInBranch("node_readonly", "true") || (crtNode.getMetadata().has("level_readonly") && crtNode.getMetadata().get("level_readonly") === "true");
             crtIsReadOnly = crtNode.getMetadata().has("level_readonly") && crtNode.getMetadata().get("level_readonly") === "true";
+            crtMeta = crtNode.getMetadata();
         }
 
 		if(this.options.listeners["contextChange"]){
@@ -253,6 +255,10 @@ export default class Action extends Observable{
                 return this.hideForContext();
             }
 		}
+        // Evaluate context node meta if set
+        if(this.context.evalMetadata && !this._evalScripts(this.context.evalMetadata, crtMeta)) {
+            return this.hideForContext()
+        }
 		if(this.context.recycle){
 			if(this.context.recycle === 'only' && !crtIsRecycle){
 				return this.hideForContext();				
