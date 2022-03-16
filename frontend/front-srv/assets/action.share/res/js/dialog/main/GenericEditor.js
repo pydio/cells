@@ -72,13 +72,23 @@ class GenericEditor extends React.Component {
             left:props.tabs.left.length ? props.tabs.left[0].Value : '',
             right:props.tabs.right.length ? props.tabs.right[0].Value : '',
         };
+        if(props.defaultLeft){
+            this.state.left = props.defaultLeft;
+        }
+        if(props.defaultRight){
+            this.state.right = props.defaultRight;
+        }
     }
 
     componentWillReceiveProps(props){
-        if(!this.state.left && props.tabs.left.length){
+        if(!this.props.defaultLeft && props.defaultLeft){
+            this.setState({left: props.defaultLeft});
+        } else if(!this.state.left && props.tabs.left.length){
             this.setState({left: props.tabs.left[0].Value});
         }
-        if(!this.state.right && props.tabs.right.length){
+        if(!this.props.defaultRight && props.defaultRight){
+            this.setState({right: props.defaultRight});
+        } else if(!this.state.right && props.tabs.right.length){
             this.setState({right: props.tabs.right[0].Value});
         }
     }

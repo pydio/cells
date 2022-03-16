@@ -169,19 +169,16 @@ class CompositeCard extends React.Component {
 
         if (mode === 'edit') {
 
-            let publicLinkModel;
-            if(model.getLinks().length){
-                publicLinkModel = model.getLinks()[0];
-            }
-
+            // Header
             const header = (
                 <div style={{fontSize: 20, padding: 10}}>
                     <Mailer {...mailerData} pydio={pydio} onDismiss={this.dismissMailer.bind(this)}/>
-                    {node && m(256).replace('%s', node.getLabel())}
+                    {node && m(256).replace('%s', node.getLabel()) + (model.isDirty() ? ' *' : '')}
                 </div>
             );
-
             let tabs = {left:[], right:[]};
+
+            // Cells
             const activeCells = model.getCells().filter(c => c.getUuid());
             let label;
             if (activeCells.length > 1) {
@@ -199,7 +196,13 @@ class CompositeCard extends React.Component {
                     <NewCellsList pydio={pydio} compositeModel={model} usersInvitations={this.usersInvitations.bind(this)}/>
                 )
             });
+
+            // Links
             const links = model.getLinks();
+            let publicLinkModel;
+            if(links.length){
+                publicLinkModel = links[0];
+            }
             if (publicLinkModel){
 
                 const additionalPanes = [];
@@ -227,9 +230,14 @@ class CompositeCard extends React.Component {
                 });
             }
 
+            // If there are only active Cells, open directly on it
+            console.log(links.filter(l => l.getLinkUuid()), activeCells.length);
+            const defaultLeft = (!links.filter(l => l.getLinkUuid()).length && activeCells.length > 0) ? 'cells' : null
+
             return (
                 <GenericEditor
                     tabs={tabs}
+                    defaultLeft={defaultLeft}
                     pydio={pydio}
                     header={header}
                     saveEnabled={model.isDirty()}
