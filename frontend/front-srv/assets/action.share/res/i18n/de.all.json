@@ -540,10 +540,10 @@
     "other": "Benutzern o. Gruppen"
   },
   "254c": {
-    "other": "Shared in %d cells"
+    "other": "In %d Zellen geteilt"
   },
   "254d": {
-    "other": "Shared in '%s'"
+    "other": "Geteilt in '%s'"
   },
   "255": {
     "other": "Sind Sie sicher, dass Sie alle Zellen und Links zu dieser Datei löschen möchten?"
@@ -909,19 +909,19 @@
     "other": "Bestehende(n) Ordner teilen"
   },
   "cells.remove.node": {
-    "other": "Remove from this cell"
+    "other": "Aus dieser Zelle entfernen"
   },
   "cell.visibility.advanced": {
     "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Zelle bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Zelle). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
   },
   "cell.add.existing-or-new": {
-    "other": "Add to existing or new Cell"
+    "other": "Zu einer bestehenden oder neuen Zelle hinzufügen"
   },
   "cell.add.existing": {
-    "other": "Add to existing Cell"
+    "other": "Zur existierenden Zelle hinzufügen"
   },
   "cell.add.new": {
-    "other": "Create a new Cell"
+    "other": "Neue Zelle erstellen"
   },
   "link.visibility.title": {
     "other": "[Advanced] Sichtbarkeit"
@@ -933,7 +933,7 @@
     "other": "Sie haben ungespeicherte Änderungen. Möchten Sie das Fenster wirklich schließen?"
   },
   "dialog.link.confirm.remove": {
-    "other": "Are you sure that you want to disable this link?"
+    "other": "Sind Sie sicher, dass Sie diesen Link deaktivieren möchten?"
   },
   "sharelist.quick-filter": {
     "other": "Schnellfilter..."
