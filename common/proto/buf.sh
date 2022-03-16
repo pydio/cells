@@ -51,6 +51,7 @@ cd $1
 
 echo "Generate protobufs for $1"
 buf generate --output $GOPATH/src
+go run ../patch-imports.go
 
 if [ $1 == "rest" ]
 then

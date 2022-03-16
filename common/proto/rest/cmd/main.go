@@ -30,10 +30,10 @@ import (
 )
 
 var (
-	base = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "v4", "common", "proto", "rest")
+	base = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "proto", "rest")
 	/*
-		template = `package rest
-	var SwaggerJson = ` + "`%s`"
+			template = `package rest
+		var SwaggerJson = ` + "`%s`"
 	*/
 	replaces = map[string]string{
 		`          "default": {
