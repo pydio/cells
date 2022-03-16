@@ -536,6 +536,15 @@
   "254": {
     "other": "Koplietots šūnās"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Vai vēlaties nodzēst visas šūnas un saites šim objektam?"
   },
@@ -899,8 +908,23 @@
   "cells.create.title.fill.folders": {
     "other": "Koplietot eksistējošās direktorijas"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Šī opcija ļauj izvēlēties kurš var labot šīs Šūnas opcijas (tiesības pievienot/dzēst lietotājus un pievienot/dzēst direktorijas šūnas pamatā). Priek; s vienkāršotas piekļuves datiem lietojiet 'Koplietot ar' tabu."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
+  },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
     "other": "Šī paplašinātā funkcija ļauj izvēlēties vai saite ir redzama citiem lietotājiem kad tier skatās failu un vai tie var labot tās opcijas. Pēc noklusējuma izveidotās saites ir redzamas tikai Jums. Jūs varat pārcelt saites piederību to ļaujot labot citiem."
@@ -908,10 +932,37 @@
   "dialog.close.confirm.unsaved": {
     "other": "Nav saglabātas visas izmaiņas, vai vēlaties aizvērt?"
   },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
+  },
   "sharelist.quick-filter": {
     "other": "Quick filter..."
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }

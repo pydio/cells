@@ -536,6 +536,15 @@
   "254": {
     "other": "Shared in cells"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Are you sure you want to delete all cells and links on this item?"
   },
@@ -899,8 +908,23 @@
   "cells.create.title.fill.folders": {
     "other": "Share existing folder(s)"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "This advanced feature allows you to decide who can edit this Cell's properties (right to add/remove users and to add/remove folders at the root of the cell). To simply manage the actual accesses to the data, please use the 'Share With' tab instead."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
+  },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
     "other": "This advanced feature allows you to decide if this link is visible to other users when they see this file, and if they can edit its properties. By default, the links you create are only visible to you. You can transfer a link ownership by letting an other user edit it."
@@ -908,10 +932,37 @@
   "dialog.close.confirm.unsaved": {
     "other": "There are unsaved changes, are you sure you want to close?"
   },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
+  },
   "sharelist.quick-filter": {
     "other": "Quick filter..."
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }

@@ -536,6 +536,15 @@
   "254": {
     "other": "资料库中的共享"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "您确定要删除此项目上的所有资料库和链接吗？"
   },
@@ -899,8 +908,23 @@
   "cells.create.title.fill.folders": {
     "other": "共享现有文件夹(s)"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "此高级功能允许您决定谁可以编辑此资料库的属性 (有权添加/移除用户，添加/移除资料库根目录下的文件夹)。 如果只需管理数据的实际访问权限，请使用\"共享\"选项卡。"
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
+  },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
     "other": "此高级功能允许您决定在其他用户看到此文件时是否对他们可见， 以及他们是否可以编辑其属性。 默认情况下，您创建的链接只对您可见。您可以通过输入用户名，将所有权转让给其他用户。"
@@ -908,10 +932,37 @@
   "dialog.close.confirm.unsaved": {
     "other": "有未保存的更改，您确定要关闭吗？"
   },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
+  },
   "sharelist.quick-filter": {
     "other": "快速过滤"
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
