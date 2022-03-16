@@ -182,12 +182,17 @@ class CompositeCard extends React.Component {
             );
 
             let tabs = {left:[], right:[]};
-            let hasCells = false;
-            if(model.getCells().filter(c => c.getUuid()).length){
-                hasCells = true;
+            const activeCells = model.getCells().filter(c => c.getUuid());
+            let label;
+            if (activeCells.length > 1) {
+                label = m('254c').replace('%d', activeCells.length)
+            } else if (activeCells.length === 1) {
+                label = m('254d').replace('%s', activeCells[0].getLabel())
+            }  else {
+                label= m('254b');
             }
             tabs.right.push({
-                Label:m(hasCells?'254':'254b') ,
+                Label:label,
                 Value:"cells",
                 Icon:'mdi mdi-account-multiple',
                 Component:(
@@ -202,7 +207,7 @@ class CompositeCard extends React.Component {
                 if(publicLinkModel.getLinkUuid()){
                     // LABEL PANEL
                     active = true
-                    additionalPanes.push({title:LinkLabelTitle(model, publicLinkModel, m), content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model}/>});
+                    additionalPanes.push({...LinkLabelTitle(model, publicLinkModel, m), content:<LabelPanel pydio={pydio} linkModel={links[0]} model={model}/>});
                     if(links[0].isEditable()){
                         additionalPanes.push({title:m('link.visibility.title'),content:<VisibilityPanel pydio={pydio} linkModel={links[0]} style={{margin:-20}}/>});
                     }
@@ -230,7 +235,7 @@ class CompositeCard extends React.Component {
                     saveEnabled={model.isDirty()}
                     onSaveAction={this.submit.bind(this)}
                     onCloseAction={() => this.confirmAndDismiss()}
-                    onRevertAction={()=>{model.revertChanges()}}
+                    onRevertAction={()=>{model.revertChanges(true)}}
                     editorOneColumn={editorOneColumn}
                     style={{width:'100%', height: null, flex: 1, minHeight:350, color: 'rgba(0,0,0,.83)', fontSize: 13}}
                 />

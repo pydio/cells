@@ -63,10 +63,11 @@ export function SecureOptionsTitle(compositeModel, linkModel, getMessage) {
     if(link.MaxDownloads > 0){
         perms.push( getMessage('link.secure.maxdownloads').replace('%d', link.MaxDownloads))
     }
+    let legend;
     if(perms.length){
-        mainString = <span>{mainString} <i style={{opacity:.5}}>({warning}{perms.join(', ')})</i></span>
+        legend = <React.Fragment>{warning}{perms.join(', ')}</React.Fragment>
     }
-    return mainString
+    return {title: getMessage('link.secure.title'), legend}
 }
 
 

@@ -4,7 +4,9 @@ import SharedUsers from '../cells/SharedUsers'
 import PropTypes from 'prop-types';
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
-import {Paper, Divider, Toggle, IconButton, FlatButton, Popover, Menu, List, ListItem, IconMenu, MenuItem, FontIcon, Subheader} from 'material-ui'
+import {Divider, FlatButton, Popover, Menu, MenuItem, FontIcon, Subheader} from 'material-ui'
+import ActionButton from "../main/ActionButton";
+import {PaneToggler} from "../links/Panel"
 
 class NewCellsList extends React.Component {
 
@@ -20,14 +22,14 @@ class NewCellsList extends React.Component {
         };
     }
 
-    addToCellsMenuItems(){
+    addToCellsMenuItems(m){
         let addItems = [];
         // List user available cells - Exclude cells where this node is already shared
         const {pydio, compositeModel} = this.props;
         const currentCells = compositeModel.getCells().map(cellModel => cellModel.getUuid());
         let newone, existing;
         if(currentCells.filter(c => !c).length === 0){
-            addItems.push(<MenuItem primaryText={"Create new Cell"} onClick={() => {this.setState({addMenuOpen:false}); compositeModel.createEmptyCell()}} leftIcon={<FontIcon className={"icomoon-cells-full-plus"}/>}/>)
+            addItems.push(<MenuItem primaryText={m('cell.add.new')} onClick={() => {this.setState({addMenuOpen:false}); compositeModel.createEmptyCell()}} leftIcon={<FontIcon className={"icomoon-cells-full-plus"}/>}/>)
             newone = true
         }
         pydio.user.getRepositoriesList().forEach(repository => {
@@ -42,11 +44,11 @@ class NewCellsList extends React.Component {
         });
         let addLabel;
         if(existing && newone){
-            addLabel = "Add to existing or new Cell"
+            addLabel = m('cell.add.existing-or-new')
         } else if(existing){
-            addLabel = "Add to existing Cell"
+            addLabel = m('cell.add.existing')
         } else if(newone){
-            addLabel = "Create a new Cell"
+            addLabel = m('cell.add.new')
         }
         return {addItems, addLabel};
     }
@@ -76,95 +78,41 @@ class NewCellsList extends React.Component {
         }
 
         const multiple = compositeModel.getCells().length > 1
-        let uniqueCell;
         let cells = [];
         compositeModel.getCells().map(cellModel => {
-            const label = cellModel.getLabel();
-            const isEdit = (!cellModel.getUuid() && edit==='NEWCELL') || edit === cellModel.getUuid() || !multiple;
-            const toggleState = () => {
-                if(isEdit && edit === 'NEWCELL'){
-                    // Remove new cell if it was created empty
-                    const acls = cellModel.getAcls();
-                    if(!Object.keys(acls).length){
-                        compositeModel.removeNewCell(cellModel);
-                    }
-                }
-                this.setState({edit:isEdit?null:cellModel.getUuid()});
-            };
-
-            const removeNode = () => {
-                cellModel.removeRootNode(compositeModel.getNode().getMetadata().get('uuid'));
-            };
-            let rightIcon;
-            if(isEdit){
-                rightIcon = <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onClick={toggleState}/>;
-            } else if (cellModel.isEditable()) {
-                rightIcon = (
-                    <IconMenu
-                        iconButtonElement={<IconButton iconClassName={"mdi mdi-dots-vertical"}/>}
-                        anchorOrigin={{horizontal:'right', vertical:'top'}}
-                        targetOrigin={{horizontal:'right', vertical:'top'}}
-                    >
-                        <MenuItem primaryText={m(258)} onClick={toggleState}/>
-                        <MenuItem primaryText={m(259)} onClick={removeNode}/>
-                    </IconMenu>
-                );
-            }
-            if(multiple){
-                cells.push(
-                    <ListItem
-                        primaryText={label}
-                        secondaryText={cellModel.getAclsSubjects()}
-                        rightIconButton={rightIcon}
-                        onClick={toggleState}
-                        disabled={edit === 'NEWCELL' && !isEdit}
+            const cellUsers = (
+                <div style={{margin: '0 -10px'}}>
+                    <SharedUsers
+                        pydio={pydio}
+                        cellAcls={cellModel.getAcls()}
+                        excludes={[pydio.user.id]}
+                        onUserObjectAdd={cellModel.addUser.bind(cellModel)}
+                        onUserObjectRemove={cellModel.removeUser.bind(cellModel)}
+                        onUserObjectUpdateRight={cellModel.updateUserRight.bind(cellModel)}
+                        sendInvitations={(targetUsers) => usersInvitations(targetUsers, cellModel)}
+                        saveSelectionAsTeam={false}
+                        withActionLinks={(links) => {
+                            if (!cellModel.isEditable()) {
+                                return links;
+                            }
+                            return [...links, <ActionButton mdiIcon={"delete-forever"} destructive={true} messageId={m('cells.remove.node')} callback={() => {this.removeCurrentNodeFromCell(cellModel)}}/>]
+                        }}
+                        readonly={!cellModel.isEditable()}
+                        completerStyle={{margin: '-6px 8px 16px'}}
                     />
-                );
-            } else if (cellModel.getUuid()) {
-                uniqueCell = cellModel;
-            }
-            if(isEdit){
-                cells.push(
-                    <Paper zDepth={0} style={{padding: 0, margin: 10}}>
-                        <SharedUsers
-                            pydio={pydio}
-                            cellAcls={cellModel.getAcls()}
-                            excludes={[pydio.user.id]}
-                            onUserObjectAdd={cellModel.addUser.bind(cellModel)}
-                            onUserObjectRemove={cellModel.removeUser.bind(cellModel)}
-                            onUserObjectUpdateRight={cellModel.updateUserRight.bind(cellModel)}
-                            sendInvitations={(targetUsers) => usersInvitations(targetUsers, cellModel)}
-                            saveSelectionAsTeam={false}
-                            readonly={!cellModel.isEditable()}
-                            completerStyle={{margin: '-6px 8px 16px'}}
-                        />
-                    </Paper>
-                );
+                </div>
+            );
+
+            if (multiple){
+                cells.push(<PaneToggler title={cellModel.getLabel()} legend={cellModel.getAclsSubjects()}>{cellUsers}</PaneToggler>)
+            } else {
+                cells.push(<div style={{padding: 16}}>{cellUsers}</div>)
             }
             cells.push(<Divider/>);
         });
         cells.pop();
 
-        let deleteUniqueCellButton;
-        let legend;
-        if(multiple){
-            legend = "Shared in multiple cells"
-        } else if(uniqueCell) {
-            legend = <span>Shared in <span style={{fontWeight: 500, color:muiTheme.palette.accent2Color}}>{uniqueCell.getLabel()}</span></span>
-            deleteUniqueCellButton = (
-                <Toggle
-                    toggled={true}
-                    iconClassName={"icomoon-cells-full-minus"}
-                    iconStyle={{color: muiTheme.palette.accent2Color}}
-                    tooltip={"Remove from this cell"}
-                    tooltipPosition={"bottom-left"}
-                    onToggle={() => {this.removeCurrentNodeFromCell(uniqueCell)}}
-                />)
-        } else {
-            legend = "Share with specific users or groups"
-        }
-
-        const {addItems, addLabel} = this.addToCellsMenuItems();
+        const {addItems, addLabel} = this.addToCellsMenuItems(m);
         let addToCellMenu;
         if(addItems.length){
             const {muiTheme} = this.props;
@@ -186,11 +134,11 @@ class NewCellsList extends React.Component {
                     open={this.state.addMenuOpen}
                     anchorEl={this.state.addMenuAnchor}
                     onRequestClose={()=>{this.setState({addMenuOpen: false})}}
-                    anchorOrigin={{horizontal:'middle', vertical:'bottom'}}
-                    targetOrigin={{horizontal:'middle', vertical:'top'}}
+                    anchorOrigin={{horizontal:'left', vertical:'top'}}
+                    targetOrigin={{horizontal:'left', vertical:'bottom'}}
                 >
-                    <Menu desktop={true} listStyle={{paddingTop: 0}}>
-                        <Subheader>Add to new or existing Cell</Subheader>
+                    <Menu desktop={true} listStyle={{paddingTop: 0}} width={250}>
+                        <Subheader>{addLabel}</Subheader>
                         {addItems}
                     </Menu>
                 </Popover>
@@ -198,14 +146,9 @@ class NewCellsList extends React.Component {
         }
 
         return (
-            <div style={this.props.style}>
-                <div style={{display:'none', alignItems:'center', backgroundColor: 'rgb(246, 246, 248)', borderBottom: '0px solid rgb(224, 224, 224)', fontSize: 15}}>
-                    <div style={{flex: 1, padding: 15, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{legend}</div>
-                    {deleteUniqueCellButton && <div>{deleteUniqueCellButton}</div>}
-                    <div style={{width: 10}}/>
-                </div>
-                <List style={{minHeight: 300}}>{cells}</List>
-                {addToCellMenu && <div style={{borderTop:'1px solid #e0e0e0', padding:'20px 16px'}}>{addToCellMenu}</div>}
+            <div style={{...this.props.style, minHeight: 300}}>
+                {cells}
+                {addToCellMenu && <div style={{position:'absolute', bottom: 10, left: 10}}>{addToCellMenu}</div>}
             </div>
         );
     }

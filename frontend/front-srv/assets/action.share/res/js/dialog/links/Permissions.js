@@ -29,7 +29,6 @@ import ShareHelper from '../main/ShareHelper'
 import {RestShareLinkAccessType} from 'cells-sdk'
 
 export function PermissionsTitle(compositeModel, linkModel, getMessage) {
-    let mainString = getMessage('71')
     let perms = [];
     if(linkModel.hasPermission('Preview')){
         perms.push(getMessage('72'))
@@ -44,10 +43,11 @@ export function PermissionsTitle(compositeModel, linkModel, getMessage) {
             perms.push(getMessage('74'))
         }
     }
+    let legend;
     if(perms.length){
-        mainString = <span>{mainString} <i style={{opacity:.5}}>({perms.join(', ').toLowerCase()})</i></span>
+        legend = perms.join(', ').toLowerCase();
     }
-    return mainString
+    return {title:getMessage('71'), legend}
 }
 
 class PublicLinkPermissions extends React.Component {

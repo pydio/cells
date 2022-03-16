@@ -124,7 +124,7 @@ class PublicLinkField extends React.Component {
 
     confirmDisable() {
         const {onDisableLink} = this.props;
-        if (confirm('Are you sure?')){
+        if (confirm(this.props.getMessage('dialog.link.confirm.remove'))){
             onDisableLink()
         }
     }

@@ -221,7 +221,7 @@ class CompositeModel extends Observable {
         this.notify("update");
     }
 
-    revertChanges(){
+    revertChanges(recreateEmpty = false){
         // Remove empty cells
         this.cells = this.cells.filter(r => {
             return r.getUuid();
@@ -236,6 +236,9 @@ class CompositeModel extends Observable {
                 l.revertChanges();
             }
         });
+        if(!this.cells.length && recreateEmpty && this.canCreateCells()) {
+            this.createEmptyCell();
+        }
         this.notify('update');
     }
 

@@ -29,7 +29,7 @@ import ShareContextConsumer from "../ShareContextConsumer";
 const {ModernTextField} = Pydio.requireLib('hoc');
 
 export function LinkLabelTitle(compositeModel, linkModel, getMessage) {
-    return <span>{getMessage('265')} <i style={{opacity:.5}}>({linkModel.getLink().Label})</i></span>
+    return {title: getMessage('265'), legend:linkModel.getLink().Label}
 }
 
 class LabelPanel extends React.Component {
