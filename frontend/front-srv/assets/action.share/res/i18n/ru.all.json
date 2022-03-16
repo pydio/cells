@@ -539,6 +539,12 @@
   "254b": {
     "other": "With users or groups"
   },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Вы уверены, что хотите удалить все Cell и ссылки на этот элемент?"
   },
@@ -902,8 +908,20 @@
   "cells.create.title.fill.folders": {
     "other": "Поделиться существующими папками"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Эта расширенная функция позволяет вам решать, кто может редактировать свойства этой ячейки (право добавлять / удалять пользователей и добавлять / удалять папки в корне ячейки). Чтобы просто управлять фактическим доступом к данным, используйте вместо этого вкладку «Поделиться с...»."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
@@ -913,6 +931,9 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Имеются несохранённые изменения, уверены, что хотите закрыть?"
+  },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
     "other": "Quick filter..."
