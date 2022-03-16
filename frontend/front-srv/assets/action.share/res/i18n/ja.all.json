@@ -539,6 +539,12 @@
   "254b": {
     "other": "With users or groups"
   },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "このアイテムのすべてのセルとリンクを削除してもよろしいですか？"
   },
@@ -902,8 +908,20 @@
   "cells.create.title.fill.folders": {
     "other": "既存のフォルダを共有"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "この高度な機能を使用すると、このセルのプロパティを編集できるユーザーを決定できます（ユーザーを追加/削除したり、セルのルートにあるフォルダーを追加/削除したりする権利）。 データへの実際のアクセスを簡単に管理するには、代わりに[共有] タブを使用してください。"
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
@@ -913,6 +931,9 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "保存されていない変更があります。本当に閉じますか？"
+  },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
     "other": "クイックフィルター..."
