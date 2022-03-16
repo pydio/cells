@@ -539,6 +539,12 @@
   "254b": {
     "other": "With users or groups"
   },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Bạn có chắc muốn xóa cells và các liên kết được tạo ra trong nó?"
   },
@@ -902,8 +908,20 @@
   "cells.create.title.fill.folders": {
     "other": "Chia sẻ (các) thư mục hiện tại"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Tính năng nâng cao này cho phép bạn quyết định ai có thể chỉnh sửa thuộc tính của Cell (quyền thêm/xóa người dùng và thêm/xóa thư mục gốc của Cell). Để đơn gian quản lý các truy cập vào dữ liệu, vui lòng sử dụng tab 'Chia sẻ với'."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
   },
   "link.visibility.title": {
     "other": "[Advanced] Visibility"
@@ -913,6 +931,9 @@
   },
   "dialog.close.confirm.unsaved": {
     "other": "Có những thay đổi chưa được lưu, bạn có chắc chắn muốn đóng không?"
+  },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
   },
   "sharelist.quick-filter": {
     "other": "Quick filter..."
