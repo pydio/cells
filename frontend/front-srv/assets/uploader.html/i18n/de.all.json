@@ -125,6 +125,18 @@
   "status.analyse": {
     "other": "Analyzing..."
   },
+  "status.dir.new": {
+    "other": "Ordner wartet auf Upload..."
+  },
+  "status.file.new": {
+    "other": "Datei wartet auf Upload..."
+  },
+  "status.dir.analyse": {
+    "other": "Ordner wird analysiert..."
+  },
+  "status.file.analyse": {
+    "other": "Datei wird analysiert..."
+  },
   "status.dir.loading": {
     "other": "Ordner wird erstellt"
   },

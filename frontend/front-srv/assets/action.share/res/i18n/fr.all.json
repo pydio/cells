@@ -915,7 +915,7 @@
     "other": "Cette fonctionnalité avancée vous permet de choisir qui peut éditer les propriétés de cette Cell (droit d'ajouter ou supprimer des utilisateurs, d'ajouter ou supprimer des répertoires à la racine). Si vous voulez gérer les droits d'accès réels aux données, veuillez utiliser l'onglet 'Partagé avec'."
   },
   "cell.add.existing-or-new": {
-    "other": "Ajouter à une cellule existante ou nouvelle"
+    "other": "Ajouter à une cellule"
   },
   "cell.add.existing": {
     "other": "Ajouter à une cellule existante"
