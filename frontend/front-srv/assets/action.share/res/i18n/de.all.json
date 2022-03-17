@@ -915,7 +915,7 @@
     "other": "Mit dieser erweiterten Funktion können Sie entscheiden, wer die Eigenschaften dieser Zelle bearbeiten darf (Recht zum Hinzufügen / Entfernen von Benutzern und zum Hinzufügen / Entfernen von Ordnern im Stammverzeichnis der Zelle). Verwenden Sie stattdessen den \"Teilen mit\" Tab, um die tatsächlichen Zugriffe auf die Daten zu verwalten."
   },
   "cell.add.existing-or-new": {
-    "other": "Zu einer bestehenden oder neuen Zelle hinzufügen"
+    "other": "Zur existierenden o. neuen Zelle hinzufügen"
   },
   "cell.add.existing": {
     "other": "Zur existierenden Zelle hinzufügen"
