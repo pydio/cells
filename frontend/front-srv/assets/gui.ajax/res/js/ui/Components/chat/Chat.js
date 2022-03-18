@@ -94,6 +94,12 @@ class Chat extends React.Component{
     }
 
     onRoomMessage(msg){
+        const {firstUpdateReceived} = this.state;
+        if(!firstUpdateReceived) {
+            const {roomType, roomObjectId} = this.props;
+            this.client.loadHistory(roomType, roomObjectId, 0, LoadSize)
+            this.setState({firstUpdateReceived: true});
+        }
         if(msg){
             this.setState({room: msg['Room']});
         }
@@ -103,6 +109,7 @@ class Chat extends React.Component{
         if(!msg) {
             return;
         }
+        this.setState({firstUpdateReceived: true})
         if(msg['@type'] === 'VIDEO_CALL') {
             console.log('Video Enabled!', msg)
             this.setState({videoData: msg})
@@ -131,10 +138,12 @@ class Chat extends React.Component{
         }
         const {pydio} = this.props;
         this.client = ChatClient.getInstance(pydio);
-        const room = this.client.joinRoom(roomType, roomObjectId, this._newMessageListener, this.onRoomMessage.bind(this));
-        if(room !== null){
-            this.setState({room: room});
-        }
+        this.setState({firstUpdateReceived: false}, () => {
+            const room = this.client.joinRoom(roomType, roomObjectId, this._newMessageListener, this.onRoomMessage.bind(this));
+            if(room !== null){
+                this.setState({room: room});
+            }
+        })
         this.client.loadHistory(roomType, roomObjectId, 0, LoadSize);
     }
 

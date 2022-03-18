@@ -125,6 +125,18 @@
   "status.analyse": {
     "other": "Analyse ..."
   },
+  "status.dir.new": {
+    "other": "Dossier en attente de chargement..."
+  },
+  "status.file.new": {
+    "other": "Fichier en attente de chargement..."
+  },
+  "status.dir.analyse": {
+    "other": "Analyse du dossier..."
+  },
+  "status.file.analyse": {
+    "other": "Analyse du fichier..."
+  },
   "status.dir.loading": {
     "other": "Création du dossier"
   },

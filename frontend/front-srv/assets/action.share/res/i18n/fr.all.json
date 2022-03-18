@@ -536,6 +536,15 @@
   "254": {
     "other": "Partagé dans les cellules"
   },
+  "254b": {
+    "other": "Utilisateurs / Groupes"
+  },
+  "254c": {
+    "other": "Partagé dans %d cellules"
+  },
+  "254d": {
+    "other": "Partagé dans '%s'"
+  },
   "255": {
     "other": "Etes-vous sûr de vouloir supprimer les cellules et les liens sur cet élément?"
   },
@@ -899,8 +908,23 @@
   "cells.create.title.fill.folders": {
     "other": "Partager des répertoires existants"
   },
+  "cells.remove.node": {
+    "other": "Retirer de cette cellule"
+  },
   "cell.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de choisir qui peut éditer les propriétés de cette Cell (droit d'ajouter ou supprimer des utilisateurs, d'ajouter ou supprimer des répertoires à la racine). Si vous voulez gérer les droits d'accès réels aux données, veuillez utiliser l'onglet 'Partagé avec'."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Ajouter à une cellule"
+  },
+  "cell.add.existing": {
+    "other": "Ajouter à une cellule existante"
+  },
+  "cell.add.new": {
+    "other": "Créer une nouvelle cellule"
+  },
+  "link.visibility.title": {
+    "other": "[Avancé] Visibilité"
   },
   "link.visibility.advanced": {
     "other": "Cette fonctionnalité avancée vous permet de décider si ce lien est visible par les autres utilisateurs qui ont accès à ce fichier, et s'ils peuvent modifier ses propriétés. Par défaut, les liens que vous créez ne sont visibles que par vous. Vous pouvez transférer la propriété d'un lien en donnant le droit à un autre utilisateur de le modifier."
@@ -908,10 +932,37 @@
   "dialog.close.confirm.unsaved": {
     "other": "Il y a des changements non pris en compte, êtes-vous sûr de vouloir fermer ?"
   },
+  "dialog.link.confirm.remove": {
+    "other": "Êtes-vous sûr de vouloir désactiver ce lien ?"
+  },
   "sharelist.quick-filter": {
     "other": "Filtre rapide..."
   },
   "composite.deleteAll": {
     "other": "Désactiver tous les partages"
+  },
+  "link.active": {
+    "other": "actif"
+  },
+  "link.disable": {
+    "other": "Désactiver le lien"
+  },
+  "link.floatingLabel": {
+    "other": "Copier et envoyer le lien pour un accès direct"
+  },
+  "link.secure.title": {
+    "other": "Restrictions d'accès"
+  },
+  "link.secure.expires": {
+    "other": "expirera"
+  },
+  "link.secure.expired": {
+    "other": "expiré"
+  },
+  "link.secure.hasPassword": {
+    "other": "mot de passe requis"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d téléchargements"
   }
 }

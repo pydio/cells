@@ -28,6 +28,10 @@ import PublicLinkTemplate from "./PublicLinkTemplate";
 import ShareContextConsumer from "../ShareContextConsumer";
 const {ModernTextField} = Pydio.requireLib('hoc');
 
+export function LinkLabelTitle(compositeModel, linkModel, getMessage) {
+    return {title: getMessage('265'), legend:linkModel.getLink().Label}
+}
+
 class LabelPanel extends React.Component {
 
 

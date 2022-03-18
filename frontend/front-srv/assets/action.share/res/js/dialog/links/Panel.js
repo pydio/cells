@@ -1,7 +1,7 @@
 import React from 'react';
 import ShareContextConsumer from '../ShareContextConsumer'
 import PublicLinkField from './Field'
-import PublicLinkPermissions from './Permissions'
+import PublicLinkPermissions, {PermissionsTitle} from './Permissions'
 import TargetedUsers from './TargetedUsers'
 import {RaisedButton, Toggle, Divider, CircularProgress} from 'material-ui'
 import LinkModel from './LinkModel'
@@ -31,17 +31,17 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import ShareHelper from '../main/ShareHelper'
-import PublicLinkSecureOptions from "./SecureOptions";
+import PublicLinkSecureOptions, {SecureOptionsTitle} from "./SecureOptions";
 const {ValidPassword} = Pydio.requireLib('form');
 const {ModernStyles} = Pydio.requireLib('hoc');
 
-class PaneToggler extends React.Component {
+export class PaneToggler extends React.Component {
     constructor(props) {
         super(props);
         this.state = {active:!!props.active}
     }
     render() {
-        const {title, children} = this.props;
+        const {title, legend, children} = this.props;
         const {active} = this.state;
         let styles = {
             title: {
@@ -52,18 +52,26 @@ class PaneToggler extends React.Component {
                 display:'flex',
                 alignItems:'center'
             },
+            legend: {
+                opacity:0.4,
+                fontSize: 12,
+                fontWeight: 500,
+                fontStyle:'italic'
+            },
             content:{
                 padding: '0 16px 8px'
             },
             chevron:{
                 fontSize: 24,
-                color:'rgba(0,0,0,.3)'
+                color:'rgba(0,0,0,.3)',
+                transition: 'transform 250ms ease',
+                transform: active?'rotate(90deg)':''
             }
         }
         return (
             <React.Fragment>
                 <div style={{...styles.title}} onClick={() => {this.setState({active:!active})}}>
-                    <span style={{flex: 1}}>{title}</span><span className={"mdi mdi-chevron-"+(active?'down':'right')} style={styles.chevron}/>
+                    <span style={{flex: 1}}>{title}{legend && <span style={styles.legend}> - {legend}</span>}</span><span className={"mdi mdi-chevron-right"} style={styles.chevron}/>
                 </div>
                 {active && <div style={{...styles.content}}>{children}</div>}
             </React.Fragment>
@@ -156,7 +164,7 @@ class PublicLinkPanel extends React.Component {
             />);
             publicLinkPanes = [
                 <Divider style={dividerStyle}/>,
-                <PaneToggler title={this.props.getMessage('70r')}>
+                <PaneToggler {...PermissionsTitle(compositeModel, linkModel, this.props.getMessage)}>
                     <PublicLinkPermissions
                         compositeModel={compositeModel}
                         linkModel={linkModel}
@@ -171,7 +179,7 @@ class PublicLinkPanel extends React.Component {
             }
             publicLinkPanes.push(<Divider style={dividerStyle}/>)
             publicLinkPanes.push(
-                <PaneToggler title={this.props.getMessage('24')}>
+                <PaneToggler {...SecureOptionsTitle(compositeModel, linkModel, this.props.getMessage)}>
                     <PublicLinkSecureOptions pydio={pydio} linkModel={linkModel}/>
                 </PaneToggler>
             )
@@ -179,7 +187,7 @@ class PublicLinkPanel extends React.Component {
             if(additionalPanes) {
                 additionalPanes.forEach(pane => {
                     publicLinkPanes.push(<Divider style={dividerStyle}/>)
-                    publicLinkPanes.push(<PaneToggler title={pane.title}>{pane.content}</PaneToggler>);
+                    publicLinkPanes.push(<PaneToggler title={pane.title} legend={pane.legend}>{pane.content}</PaneToggler>);
                 })
             }
 

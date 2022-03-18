@@ -23,12 +23,13 @@ import PropTypes from 'prop-types';
 
 import Pydio from 'pydio'
 import PassUtils from 'pydio/util/pass'
-import {FlatButton, IconButton, FontIcon, DatePicker, Popover} from 'material-ui'
+import {FlatButton, IconButton, DatePicker, Popover} from 'material-ui'
 import ShareContextConsumer from '../ShareContextConsumer'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
 const {ValidPassword} = Pydio.requireLib('form');
 const {ModernTextField, ModernStyles} = Pydio.requireLib('hoc');
+const {moment} = Pydio.requireLib('boot');
 
 const globStyles = {
     iconButton:{
@@ -40,6 +41,35 @@ const globStyles = {
         color: '#757575'
     }
 };
+
+export function SecureOptionsTitle(compositeModel, linkModel, getMessage) {
+    let mainString = getMessage('link.secure.title')
+    let perms = [];
+    const link = linkModel.getLink()
+    let warning;
+    if(link.AccessEnd && parseInt(link.AccessEnd) !== 0){
+        const expDate = new Date(parseInt(link.AccessEnd) * 1000)
+        const now = new Date()
+        let s = getMessage('link.secure.expires')
+        if(expDate < now){
+            s = getMessage('link.secure.expired')
+            warning = <span className={"mdi mdi-alert"}/>
+        }
+        perms.push(s + ' ' + moment(expDate).fromNow())
+    }
+    if(link.PasswordRequired){
+        perms.push(getMessage('link.secure.hasPassword'))
+    }
+    if(link.MaxDownloads > 0){
+        perms.push( getMessage('link.secure.maxdownloads').replace('%d', link.MaxDownloads))
+    }
+    let legend;
+    if(perms.length){
+        legend = <React.Fragment>{warning}{perms.join(', ')}</React.Fragment>
+    }
+    return {title: getMessage('link.secure.title'), legend}
+}
+
 
 class PublicLinkSecureOptions extends React.Component {
     static propTypes = {

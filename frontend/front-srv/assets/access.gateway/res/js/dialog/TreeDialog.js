@@ -25,7 +25,7 @@ import createReactClass from 'create-react-class'
 import LangUtils from 'pydio/util/lang';
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'cells-sdk';
 import PydioDataModel from "pydio/model/data-model";
-import {FontIcon, IconButton, MenuItem, Paper, Chip, Avatar} from "material-ui";
+import {FontIcon, IconButton, MenuItem, Paper, Chip, Avatar, Divider} from "material-ui";
 
 const {ModernTextField, ModernSelectField} = Pydio.requireLib("hoc");
 const {FoldersTree} = Pydio.requireLib('components');
@@ -57,6 +57,7 @@ const TreeDialog = createReactClass({
         const path = dataModel.getContextNode().getPath();
         submitValue(path, (wsId === '__CURRENT__' ? null : wsId));
         const storePath = (wsId === '__CURRENT__' ? pydio.user.activeRepository : wsId) + ':' + path;
+        TreeDialog.RecentPlaces = TreeDialog.RecentPlaces.filter(p => p !== storePath)
         TreeDialog.RecentPlaces.unshift(storePath);
         TreeDialog.RecentPlaces = TreeDialog.RecentPlaces.slice(0, 5);
         this.dismiss();
@@ -178,7 +179,15 @@ const TreeDialog = createReactClass({
             let menuItems = [];
             let items = [];
             if(user.canWrite()){
-                menuItems.push(<MenuItem key={'current'} value={'__CURRENT__'} primaryText={pydio.MessageHash[372]} />);
+                const crt = user.getActiveRepositoryObject()
+                menuItems.push(
+                    <MenuItem
+                        key={'current'}
+                        value={'__CURRENT__'}
+                        primaryText={crt.getLabel() + ' - ' + pydio.MessageHash[372]}
+                        leftIcon={<FontIcon style={{fontSize: 20, height:20, top: crt.getOwner()?5:1}} className={crt.getOwner()?'icomoon-cells':'mdi mdi-folder'} />}
+                    />);
+                menuItems.push(<Divider/>)
             }
             user.getCrossRepositories().forEach(function(repo, key){
                 items.push({
@@ -226,7 +235,7 @@ const TreeDialog = createReactClass({
         const {submitValue}= this.props;
         recentPlaces = (
             <div style={{borderBottom: '1px solid #e0e0e0', padding: '3px 7px 1px', backgroundColor: '#F6F6F8'}}>
-                <div style={{color: 'rgba(0,0,0,.3)', fontSize: 12}}>Quick Access - Recent Locations</div>
+                <div style={{color: 'rgba(0,0,0,.3)', fontSize: 12}}>{pydio.MessageHash['action.copymove.recent']}</div>
                 <div style={{display:'flex', flexWrap:'wrap', paddingTop: 2}}>{TreeDialog.RecentPlaces.map( p => {
                     const [ws, path] = p.split(":")
                     let avatar;
@@ -269,10 +278,10 @@ const TreeDialog = createReactClass({
                         <FoldersTree
                             pydio={pydio}
                             dataModel={dataModel}
-                            onNodeSelected={this.onNodeSelected}
+                            onNodeSelected={this.onNodeSelected.bind(this)}
                             showRoot={true}
                             draggable={false}
-                            rootLabel={"Top Folder"}
+                            rootLabel={pydio.MessageHash['action.copymove.root']}
                             getItemStyle={(node) => {
                                 if(dataModel.getContextNode() === node){
                                     return {fontWeight: 500, backgroundColor:'#ebebef'}
@@ -313,6 +322,11 @@ const TreeDialog = createReactClass({
                         ref="newfolder_input"
                         variant={"v2"}
                         value={newFolderInput}
+                        onKeyDown={(e) =>{
+                            if (e.key === 'Enter' && newFolderInput) {
+                                this.createNewFolder();
+                            }
+                        }}
                         onChange={(e,v) => this.setState({newFolderInput: v})}
                     />
                     <div style={{position:"absolute", bottom:-2, right:0}}>

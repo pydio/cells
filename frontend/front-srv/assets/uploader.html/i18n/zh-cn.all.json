@@ -125,6 +125,18 @@
   "status.analyse": {
     "other": "正在分析..."
   },
+  "status.dir.new": {
+    "other": "Folder awaiting upload..."
+  },
+  "status.file.new": {
+    "other": "File awaiting upload..."
+  },
+  "status.dir.analyse": {
+    "other": "Analyzing folder..."
+  },
+  "status.file.analyse": {
+    "other": "Analyzing file..."
+  },
   "status.dir.loading": {
     "other": "正在创建文件夹"
   },

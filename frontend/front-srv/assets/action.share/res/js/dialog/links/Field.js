@@ -122,6 +122,13 @@ class PublicLinkField extends React.Component {
         this.setState({showQRCode:!this.state.showQRCode});
     };
 
+    confirmDisable() {
+        const {onDisableLink} = this.props;
+        if (confirm(this.props.getMessage('dialog.link.confirm.remove'))){
+            onDisableLink()
+        }
+    }
+
     render() {
         const {linkModel, pydio} = this.props;
         const publicLink = ShareHelper.buildPublicUrl(pydio, linkModel.getLink());
@@ -145,23 +152,24 @@ class PublicLinkField extends React.Component {
             }.bind(this);
             let actionLinks = [], qrCode;
             const {muiTheme} = this.props;
-            actionLinks.push(
+
+            const copyButton = (
                 <div
                     key={"copy"}
                     ref="copy-button"
-                    style={{position: 'relative', display:'inline-block', width:36, height:36, padding:'8px 10px', margin:'0 6px', cursor:'pointer', borderRadius:'50%', border: '1px solid '+ muiTheme.palette.primary1Color}}
+                    style={{position: 'absolute', right: 0, bottom: 7, width:30, height:30, padding:4, backgroundColor:'#f6f6f8', fontSize:16, cursor:'pointer'}}
                     onMouseOver={()=>{this.setState({linkTooltip:true})}}
                     onMouseOut={()=>{this.setState({linkTooltip:false})}}
                 >
                     <Tooltip
                         label={copyMessage ? copyMessage : this.props.getMessage('191')}
-                        horizontalPosition={"center"}
+                        horizontalPosition={"left"}
                         verticalPosition={"bottom"}
                         show={linkTooltip}
                     />
                     <span className="copy-link-button mdi mdi-content-copy" style={{color: muiTheme.palette.primary1Color}}/>
                 </div>
-            );
+            )
 
             if(this.props.showMailer){
                 actionLinks.push(<ActionButton key="outline" callback={this.openMailer} mdiIcon="email-outline" messageId="45"/>);
@@ -173,11 +181,11 @@ class PublicLinkField extends React.Component {
                 actionLinks.push(<ActionButton key="qrcode" callback={this.toggleQRCode} mdiIcon="qrcode" messageId={'94'}/>);
             }
             if(this.props.onDisableLink) {
-                actionLinks.push(<ActionButton key="delete" destructive={true} callback={() => this.props.onDisableLink()} mdiIcon="link-off" messageId="45"/>);
+                actionLinks.push(<ActionButton key="delete" destructive={true} callback={() => this.confirmDisable()} mdiIcon="link-off" messageId="link.disable"/>);
             }
             if(actionLinks.length){
                 actionLinks = (
-                    <div style={{display:'flex', margin:'20px 0 10px'}}><span style={{flex:1}}/>{actionLinks}<span style={{flex:1}}/></div>
+                    <div style={{display:'flex', marginTop:10}}><span style={{flex:1}}/>{actionLinks}<span style={{flex:1}}/></div>
                 ) ;
             }else{
                 actionLinks = null;
@@ -189,9 +197,9 @@ class PublicLinkField extends React.Component {
             }
             return (
                 <Paper zDepth={0} rounded={false} className="public-link-container">
-                    <div style={{marginTop:-8}}>
+                    <div style={{marginTop:-8, position:'relative'}}>
                         <TextField
-                            floatingLabelText={"Copy this link for public access"}
+                            floatingLabelText={this.props.getMessage("link.floatingLabel")}
                             floatingLabelFixed={true}
                             type="text"
                             name="Link"
@@ -201,6 +209,7 @@ class PublicLinkField extends React.Component {
                             fullWidth={true}
                             {...ModernStyles.textFieldV2}
                         />
+                        {copyButton}
                     </div>
                     {false && this.props.linkData.target_users && <TargetedUsers {...this.props}/>}
                     {actionLinks}

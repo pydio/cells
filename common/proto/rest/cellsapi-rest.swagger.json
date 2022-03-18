@@ -7912,6 +7912,13 @@
         "dbUseDefaults": {
           "type": "boolean"
         },
+        "DocumentsDSN": {
+          "type": "string",
+          "title": "Additional Documents DSN data"
+        },
+        "UseDocumentsDSN": {
+          "type": "boolean"
+        },
         "dsName": {
           "type": "string"
         },
@@ -11141,10 +11148,6 @@
           "type": "boolean",
           "title": "Sends the list of versions for a given node"
         },
-        "WithCommits": {
-          "type": "boolean",
-          "title": "Sends the list of commits for a given node (not used)"
-        },
         "Limit": {
           "type": "string",
           "format": "int64",
@@ -11158,6 +11161,18 @@
         "FilterType": {
           "$ref": "#/definitions/treeNodeType",
           "title": "Filter by node type (LEAF / COLLECTION)"
+        },
+        "StatFlags": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": "Generic Details Flags"
+        },
+        "WithCommits": {
+          "type": "boolean",
+          "title": "Sends the list of commits for a given node (Deprecated)"
         }
       }
     },
@@ -11345,17 +11360,25 @@
           "$ref": "#/definitions/treeNode",
           "title": "Input node"
         },
-        "WithCommits": {
-          "type": "boolean",
-          "title": "Gather commit information"
-        },
-        "WithExtendedStats": {
-          "type": "boolean",
-          "title": "Get extended stats - For folders, computes ChildrenCount"
-        },
         "ObjectStats": {
           "type": "boolean",
           "title": "Used internally for the router ReadNode request, stat the datasource instead of index"
+        },
+        "StatFlags": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": "Generic Details Flags"
+        },
+        "WithExtendedStats": {
+          "type": "boolean",
+          "title": "Get extended stats - For folders, computes ChildrenCount - Depreacted, use StatFlags instead"
+        },
+        "WithCommits": {
+          "type": "boolean",
+          "title": "Gather commit information - This is Deprecated"
         }
       },
       "title": "Request / Responses Messages"
@@ -11431,6 +11454,14 @@
         "Details": {
           "type": "boolean",
           "title": "Load node details"
+        },
+        "StatFlags": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": "Generic Details Flags"
         }
       }
     },

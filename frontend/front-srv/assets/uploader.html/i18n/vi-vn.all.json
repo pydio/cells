@@ -125,6 +125,18 @@
   "status.analyse": {
     "other": "Đang phân tích..."
   },
+  "status.dir.new": {
+    "other": "Folder awaiting upload..."
+  },
+  "status.file.new": {
+    "other": "File awaiting upload..."
+  },
+  "status.dir.analyse": {
+    "other": "Analyzing folder..."
+  },
+  "status.file.analyse": {
+    "other": "Analyzing file..."
+  },
   "status.dir.loading": {
     "other": "Đang tạo thư mục"
   },

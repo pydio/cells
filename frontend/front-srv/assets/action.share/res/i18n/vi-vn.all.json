@@ -536,6 +536,15 @@
   "254": {
     "other": "Các dữ liệu chia sẻ trong cells"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Bạn có chắc muốn xóa cells và các liên kết được tạo ra trong nó?"
   },
@@ -899,8 +908,23 @@
   "cells.create.title.fill.folders": {
     "other": "Chia sẻ (các) thư mục hiện tại"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Tính năng nâng cao này cho phép bạn quyết định ai có thể chỉnh sửa thuộc tính của Cell (quyền thêm/xóa người dùng và thêm/xóa thư mục gốc của Cell). Để đơn gian quản lý các truy cập vào dữ liệu, vui lòng sử dụng tab 'Chia sẻ với'."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
+  },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
     "other": "Tính năng nâng cao này cho phép bạn quyết định xem liên kết này có hiển thị với những người dùng khác khi họ xem tệp này hay không và liệu họ có thể chỉnh sửa các thuộc tính của nó hay không. Theo mặc định, các liên kết mà bạn tạo chỉ hiện thị với bạn. Bạn có thể chuyển quyền sở hữu liên kết bằng cách cho phép người dùng khác chỉnh sửa nó."
@@ -908,10 +932,37 @@
   "dialog.close.confirm.unsaved": {
     "other": "Có những thay đổi chưa được lưu, bạn có chắc chắn muốn đóng không?"
   },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
+  },
   "sharelist.quick-filter": {
     "other": "Quick filter..."
   },
   "composite.deleteAll": {
     "other": "Disable all shares"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }

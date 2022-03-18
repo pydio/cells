@@ -28,6 +28,28 @@ import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
 import {RestShareLinkAccessType} from 'cells-sdk'
 
+export function PermissionsTitle(compositeModel, linkModel, getMessage) {
+    let perms = [];
+    if(linkModel.hasPermission('Preview')){
+        perms.push(getMessage('72'))
+    }
+    if(linkModel.hasPermission('Download')){
+        perms.push(getMessage('73'))
+    }
+    if(linkModel.hasPermission('Upload')){
+        if (compositeModel.getNode().isLeaf()){
+            perms.push(getMessage('74b'))
+        } else {
+            perms.push(getMessage('74'))
+        }
+    }
+    let legend;
+    if(perms.length){
+        legend = perms.join(', ').toLowerCase();
+    }
+    return {title:getMessage('71'), legend}
+}
+
 class PublicLinkPermissions extends React.Component {
     static propTypes = {
         linkModel: PropTypes.instanceOf(LinkModel),

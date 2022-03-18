@@ -536,6 +536,15 @@
   "254": {
     "other": "Condiviso nelle celle"
   },
+  "254b": {
+    "other": "With users or groups"
+  },
+  "254c": {
+    "other": "Shared in %d cells"
+  },
+  "254d": {
+    "other": "Shared in '%s'"
+  },
   "255": {
     "other": "Sei sicuro di voler eliminare tutte le celle e i link su questo elemento?"
   },
@@ -899,8 +908,23 @@
   "cells.create.title.fill.folders": {
     "other": "Condividi le cartelle esistenti"
   },
+  "cells.remove.node": {
+    "other": "Remove from this cell"
+  },
   "cell.visibility.advanced": {
     "other": "Questa funzione avanzata permette di decidere chi può modificare le proprietà di questa cella (destra per aggiungere/rimuovere gli utenti e aggiungere/rimuovere le cartelle nella root della cella). Per gestire in modo più semplice gli accessi ai dati, utilizza la scheda 'Condividi con'."
+  },
+  "cell.add.existing-or-new": {
+    "other": "Add to existing or new Cell"
+  },
+  "cell.add.existing": {
+    "other": "Add to existing Cell"
+  },
+  "cell.add.new": {
+    "other": "Create a new Cell"
+  },
+  "link.visibility.title": {
+    "other": "[Advanced] Visibility"
   },
   "link.visibility.advanced": {
     "other": "Questa funzionalità avanzata permette di decidere se il link viene mostrato agli altri utenti che vedono questo file, e se essi possono modificare le sue proprietà. Di default, i link vengono mostrati solo all'utente che li ha creati, ma è possibile trasferire la proprietà di un link per consentire a un altro utente di modificarlo."
@@ -908,10 +932,37 @@
   "dialog.close.confirm.unsaved": {
     "other": "Ci sono modifiche non salvate. Sicuro di voler uscire?"
   },
+  "dialog.link.confirm.remove": {
+    "other": "Are you sure that you want to disable this link?"
+  },
   "sharelist.quick-filter": {
     "other": "Filtro rapido..."
   },
   "composite.deleteAll": {
     "other": "Disabilita tutte le condivisioni"
+  },
+  "link.active": {
+    "other": "active"
+  },
+  "link.disable": {
+    "other": "Disable Link"
+  },
+  "link.floatingLabel": {
+    "other": "Copy and send this link for direct access"
+  },
+  "link.secure.title": {
+    "other": "Access Restrictions"
+  },
+  "link.secure.expires": {
+    "other": "expires"
+  },
+  "link.secure.expired": {
+    "other": "expired"
+  },
+  "link.secure.hasPassword": {
+    "other": "password required"
+  },
+  "link.secure.maxdownloads": {
+    "other": "%d downloads only"
   }
 }
