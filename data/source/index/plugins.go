@@ -20,12 +20,9 @@
 
 package index
 
+/*
 import (
-	"context"
-
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/runtime"
-	"github.com/pydio/cells/v4/common/service"
 )
 
 var (
@@ -46,3 +43,5 @@ func init() {
 		)
 	})
 }
+
+*/

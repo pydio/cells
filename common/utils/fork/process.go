@@ -56,17 +56,17 @@ func WithWatch(w func(event string, process *Process)) Option {
 }
 
 type Process struct {
-	serviceName string
-	o           *Options
-	lastErr     error
-	cmd         *exec.Cmd
-	ctx         context.Context
+	serviceNames []string
+	o            *Options
+	lastErr      error
+	cmd          *exec.Cmd
+	ctx          context.Context
 }
 
-func NewProcess(ctx context.Context, serviceName string, oo ...Option) *Process {
+func NewProcess(ctx context.Context, serviceNames []string, oo ...Option) *Process {
 	p := &Process{
-		ctx:         ctx,
-		serviceName: serviceName,
+		ctx:          ctx,
+		serviceNames: serviceNames,
 		o: &Options{
 			watch: func(event string, p *Process) {},
 		},
@@ -141,9 +141,15 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 	go func() {
 		for scannerOut.Scan() {
 			text := strings.TrimRight(scannerOut.Text(), "\n")
-			if strings.Contains(text, p.serviceName) || (parentName != "" && strings.Contains(text, parentName)) {
-				log.StdOut.WriteString(text + "\n")
-			} else {
+			merged := false
+			for _, sName := range p.serviceNames {
+				if strings.Contains(text, sName) || (parentName != "" && strings.Contains(text, parentName)) {
+					log.StdOut.WriteString(text + "\n")
+					merged = true
+					break
+				}
+			}
+			if !merged {
 				log.Logger(p.ctx).Info(text)
 			}
 		}
@@ -152,9 +158,15 @@ func (p *Process) pipeOutputs(cmd *exec.Cmd) error {
 	go func() {
 		for scannerErr.Scan() {
 			text := strings.TrimRight(scannerErr.Text(), "\n")
-			if strings.Contains(text, p.serviceName) || (parentName != "" && strings.Contains(text, parentName)) {
-				log.StdOut.WriteString(text + "\n")
-			} else {
+			merged := false
+			for _, sName := range p.serviceNames {
+				if strings.Contains(text, sName) || (parentName != "" && strings.Contains(text, parentName)) {
+					log.StdOut.WriteString(text + "\n")
+					merged = true
+					break
+				}
+			}
+			if !merged {
 				log.Logger(p.ctx).Error(text)
 			}
 		}
@@ -171,7 +183,9 @@ func (p *Process) buildForkStartParams() []string {
 		params = append(params, runtime.KeyLog, "debug")
 	}
 	// Use regexp to specify that we want to start that specific service
-	params = append(params, "^"+p.serviceName+"$")
+	for _, sName := range p.serviceNames {
+		params = append(params, "^"+sName+"$")
+	}
 	if len(p.o.customFlags) > 0 {
 		params = append(params, p.o.customFlags...)
 	}

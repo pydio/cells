@@ -94,17 +94,33 @@ func NewHandler(ctx context.Context, handlerName, datasource string) (*Handler, 
 		errorsDetected: make(chan string),
 		stop:           make(chan bool),
 	}
+	/*
+		var syncConfig *object.DataSource
+		if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+datasource).Scan(&syncConfig); err != nil {
+			return nil, err
+		}
+		if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
+			syncConfig.ApiSecret = sec
+		}
+
+		e := h.initSync(syncConfig)
+	*/
+
+	return h, nil
+}
+
+func (s *Handler) Init() error {
+
 	var syncConfig *object.DataSource
-	if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+datasource).Scan(&syncConfig); err != nil {
-		return nil, err
+	if err := config.Get("services", common.ServiceGrpcNamespace_+common.ServiceDataSync_+s.dsName).Scan(&syncConfig); err != nil {
+		return err
 	}
 	if sec := config.GetSecret(syncConfig.ApiSecret).String(); sec != "" {
 		syncConfig.ApiSecret = sec
 	}
 
-	e := h.initSync(syncConfig)
+	return s.initSync(syncConfig)
 
-	return h, e
 }
 
 func (s *Handler) Name() string {
@@ -629,6 +645,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest)
 // GetDataSourceConfig implements the S3Endpoint Interface by using the real object configs + the local datasource configs for bucket and base folder.
 func (s *Handler) GetDataSourceConfig(ctx context.Context, request *object.GetDataSourceConfigRequest) (*object.GetDataSourceConfigResponse, error) {
 
+	if s.SyncConfig == nil {
+		return nil, fmt.Errorf("syncConfig not initialized yet")
+	}
 	s.SyncConfig.ObjectsHost = s.ObjectConfig.RunningHost
 	s.SyncConfig.ObjectsPort = s.ObjectConfig.RunningPort
 	s.SyncConfig.ObjectsSecure = s.ObjectConfig.RunningSecure

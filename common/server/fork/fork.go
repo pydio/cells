@@ -59,7 +59,7 @@ func (s *Server) Serve() error {
 		opts = append(opts, fork.WithCustomFlags(config.DefaultBindOverrideToFlags()...))
 	}
 	opts = append(opts, fork.WithRetries(3))
-	s.process = fork.NewProcess(s.ctx, s.s.name, opts...)
+	s.process = fork.NewProcess(s.ctx, []string{s.s.name}, opts...)
 
 	var e error
 	go func() {

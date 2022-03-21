@@ -58,7 +58,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagData),
 			service.Description("Search Engine"),
-			service.Fork(true),
+			// service.Fork(true),
 			/*
 				service.RouterDependencies(),
 				service.AutoRestart(true),

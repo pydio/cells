@@ -33,8 +33,9 @@ import (
 )
 
 var (
-	Name        = common.ServiceGrpcNamespace_ + common.ServiceDataSync
-	ChildPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataSync_
+	Name            = common.ServiceGrpcNamespace_ + common.ServiceDataSync
+	ChildPrefix     = common.ServiceGrpcNamespace_ + common.ServiceDataSync_
+	SecondaryPrefix = common.ServiceGrpcNamespace_ + common.ServiceDataIndex_
 )
 
 func init() {
@@ -44,7 +45,7 @@ func init() {
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDatasource),
 			service.Description("Starter for data sources synchronizations"),
-			service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
+			service.WithChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete, SecondaryPrefix),
 		)
 	})
 }
