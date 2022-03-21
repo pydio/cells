@@ -90,7 +90,7 @@ func updateSessionFromClaims(ctx context.Context, session *melody.Session, claim
 	session.Set(SessionSubjectsKey, append([]string{"*"}, auth.SubjectsFromClaim(claims)...))
 	session.Set(SessionLimiterKey, rate.NewLimiter(LimiterRate, LimiterBurst))
 	ctx = servicecontext.HttpRequestInfoToMetadata(context.Background(), session.Request)
-	if md, ok := metadata.FromContext(ctx); ok {
+	if md, ok := metadata.FromContextCopy(ctx); ok {
 		session.Set(SessionMetaContext, md)
 	}
 

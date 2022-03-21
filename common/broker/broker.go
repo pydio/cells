@@ -184,7 +184,7 @@ func (b *broker) Publish(ctx context.Context, topic string, message proto.Messag
 	}
 
 	header := make(map[string]string)
-	if hh, ok := metadata.FromContext(ctx); ok {
+	if hh, ok := metadata.FromContextRead(ctx); ok {
 		for k, v := range hh {
 			header[k] = v
 		}

@@ -231,22 +231,22 @@ func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace strin
 	if len(metaIds) > 0 {
 		var ors []goqu.Expression
 		for _, metaId := range metaIds {
-			ors = append(ors, goqu.I("uuid").Eq(metaId))
+			ors = append(ors, goqu.C("uuid").Eq(metaId))
 		}
 		wheres = append(wheres, goqu.Or(ors...))
 	}
 	if len(nodeUuids) > 0 {
 		var ors []goqu.Expression
 		for _, nodeId := range nodeUuids {
-			ors = append(ors, goqu.I("node_uuid").Eq(nodeId))
+			ors = append(ors, goqu.C("node_uuid").Eq(nodeId))
 		}
 		wheres = append(wheres, goqu.Or(ors...))
 	}
 	if namespace != "" {
-		wheres = append(wheres, goqu.I("namespace").Eq(namespace))
+		wheres = append(wheres, goqu.C("namespace").Eq(namespace))
 	}
 	if ownerSubject != "" {
-		wheres = append(wheres, goqu.I("owner").Eq(ownerSubject))
+		wheres = append(wheres, goqu.C("owner").Eq(ownerSubject))
 	}
 	if len(wheres) == 0 {
 		return nil, err

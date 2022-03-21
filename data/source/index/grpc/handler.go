@@ -256,11 +256,8 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest) (r
 	defer track(log.Logger(ctx), "ReadNode", time.Now(), req, resp)
 
 	var session = ""
-	md, has := metadata.FromContext(ctx)
-	if has {
-		if s, ok := md["x-indexation-session"]; ok {
-			session = s
-		}
+	if md, has := metadata.CanonicalMeta(ctx, "x-indexation-session"); has {
+		session = md
 	}
 	dao := s.getDAO(session)
 
@@ -767,7 +764,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	}
 
 	// Enrich Event Metadata field
-	if md, ok := metadata.FromContext(ctx); ok {
+	if md, ok := metadata.FromContextRead(ctx); ok {
 		if event.Metadata == nil {
 			event.Metadata = make(map[string]string, len(md))
 		}

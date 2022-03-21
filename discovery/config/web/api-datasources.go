@@ -304,6 +304,7 @@ func (s *Handler) ListStorageBuckets(req *restful.Request, resp *restful.Respons
 	cfData.Val("key").Set(ds.ApiKey)
 	cfData.Val("secret").Set(ds.ApiSecret)
 	cfData.Val("secure").Set(secure)
+	cfData.Val("type").Set("mc")
 	if r, o := ds.StorageConfiguration[object.StorageKeyCustomRegion]; o && r != "" {
 		cfData.Val("customRegion").Set(object.StorageKeyCustomRegion)
 	}

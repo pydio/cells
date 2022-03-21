@@ -22,6 +22,7 @@ package sql
 
 import (
 	"fmt"
+	"github.com/doug-martin/goqu/v9/exp"
 	"strings"
 
 	goqu "github.com/doug-martin/goqu/v9"
@@ -159,8 +160,14 @@ func DeleteStringFromExpression(tableName string, driver string, ex goqu.Express
 }
 
 // GetExpressionForString creates correct goqu.Expression for field + string value
-func GetExpressionForString(neq bool, field string, values ...string) (expression goqu.Expression) {
+func GetExpressionForString(neq bool, field interface{}, values ...string) (expression goqu.Expression) {
 
+	var gf exp.IdentifierExpression
+	if i, o := field.(exp.IdentifierExpression); o {
+		gf = i
+	} else {
+		gf = goqu.C(field.(string))
+	}
 	if len(values) > 1 {
 		var dedup []string
 		already := make(map[string]struct{})
@@ -175,15 +182,15 @@ func GetExpressionForString(neq bool, field string, values ...string) (expressio
 
 		if len(dedup) == 1 {
 			if neq {
-				expression = goqu.I(field).Neq(dedup[0])
+				expression = gf.Neq(dedup[0])
 			} else {
-				expression = goqu.I(field).Eq(dedup[0])
+				expression = gf.Eq(dedup[0])
 			}
 		} else {
 			if neq {
-				expression = goqu.I(field).NotIn(dedup)
+				expression = gf.NotIn(dedup)
 			} else {
-				expression = goqu.I(field).In(dedup)
+				expression = gf.In(dedup)
 			}
 		}
 
@@ -191,15 +198,15 @@ func GetExpressionForString(neq bool, field string, values ...string) (expressio
 		v := values[0]
 		if strings.Contains(v, "*") {
 			if neq {
-				expression = goqu.I(field).NotILike(strings.Replace(v, "*", "%", -1))
+				expression = gf.NotILike(strings.Replace(v, "*", "%", -1))
 			} else {
-				expression = goqu.I(field).ILike(strings.Replace(v, "*", "%", -1))
+				expression = gf.ILike(strings.Replace(v, "*", "%", -1))
 			}
 		} else {
 			if neq {
-				expression = goqu.I(field).Neq(v)
+				expression = gf.Neq(v)
 			} else {
-				expression = goqu.I(field).Eq(v)
+				expression = gf.Eq(v)
 			}
 		}
 	}

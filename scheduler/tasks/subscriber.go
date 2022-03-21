@@ -485,7 +485,7 @@ func (s *Subscriber) jobLevelDataSourceFilterPass(ctx context.Context, event *tr
 
 // contextJobSameUuid checks if JobUuid can already be found in context and detects if it is the same
 func (s *Subscriber) contextJobSameUuid(ctx context.Context, jobId string) bool {
-	if mm, o := metadata.FromContext(ctx); o {
+	if mm, o := metadata.FromContextRead(ctx); o {
 		if knownJob, ok := mm[strings.ToLower(servicecontext.ContextMetaJobUuid)]; ok && knownJob == jobId {
 			return true
 		}

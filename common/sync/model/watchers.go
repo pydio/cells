@@ -155,7 +155,7 @@ func NodeToEventInfo(ctx context.Context, path string, node *tree.Node, eventTyp
 		Metadata:       make(map[string]string),
 	}
 	if ctx != nil {
-		if meta, ok := metadata.FromContext(ctx); ok {
+		if meta, ok := metadata.FromContextCopy(ctx); ok {
 			eventInfo.Metadata = meta
 		}
 	}

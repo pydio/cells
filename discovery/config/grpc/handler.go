@@ -26,6 +26,11 @@ func (h *Handler) ServiceName() string {
 }
 
 func (h *Handler) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
+	if req.Namespace == "vault" {
+		return &pb.GetResponse{
+			Value: &pb.Value{Data: config.Vault().Val(req.GetPath()).Bytes()},
+		}, nil
+	}
 	return &pb.GetResponse{
 		Value: &pb.Value{Data: config.Get(req.GetPath()).Bytes()},
 	}, nil

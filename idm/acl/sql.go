@@ -183,13 +183,18 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 
 	db := goqu.New(dao.Driver(), dao.DB())
 
+	n := goqu.T("n")
+	w := goqu.T("w")
+	r := goqu.T("r")
+	a := goqu.T("a")
+
 	expressions := []goqu.Expression{
-		goqu.I("n.id").Eq(goqu.I("a.node_id")),
-		goqu.I("w.id").Eq(goqu.I("a.workspace_id")),
-		goqu.I("r.id").Eq(goqu.I("a.role_id")),
+		n.Col("id").Eq(a.Col("node_id")),
+		w.Col("id").Eq(a.Col("workspace_id")),
+		r.Col("id").Eq(a.Col("role_id")),
 		goqu.Or(
-			goqu.I("a.expires_at").IsNull(),
-			goqu.I("a.expires_at").Gt(time.Now()),
+			a.Col("expires_at").IsNull(),
+			a.Col("expires_at").Gt(time.Now()),
 		),
 	}
 
@@ -207,17 +212,17 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 	}
 
 	dataset := db.From(
-		goqu.I("idm_acls").As("a"),
-		goqu.I("idm_acl_nodes").As("n"),
-		goqu.I("idm_acl_workspaces").As("w"),
-		goqu.I("idm_acl_roles").As("r"),
+		goqu.T("idm_acls").As("a"),
+		goqu.T("idm_acl_nodes").As("n"),
+		goqu.T("idm_acl_workspaces").As("w"),
+		goqu.T("idm_acl_roles").As("r"),
 	).Prepared(true).Select(
-		goqu.I("a.id").As("acl_id"),
-		goqu.I("n.uuid").As("node_uuid"),
-		goqu.I("a.action_name").As("acl_action_name"),
-		goqu.I("a.action_value").As("acl_action_value"),
-		goqu.I("r.uuid").As("role_uuid"),
-		goqu.I("w.name").As("workspace_name"),
+		a.Col("id").As("acl_id"),
+		n.Col("uuid").As("node_uuid"),
+		a.Col("action_name").As("acl_action_name"),
+		a.Col("action_value").As("acl_action_value"),
+		r.Col("uuid").As("role_uuid"),
+		w.Col("name").As("workspace_name"),
 	)
 
 	if limit > -1 {
@@ -458,7 +463,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		if err != nil {
 			return nil, true
 		}
-		expressions = append(expressions, goqu.I("role_id").In(goqu.L(str)))
+		expressions = append(expressions, goqu.C("role_id").In(goqu.L(str)))
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
@@ -468,7 +473,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		if err != nil {
 			return nil, true
 		}
-		expressions = append(expressions, goqu.I("workspace_id").In(goqu.L(str)))
+		expressions = append(expressions, goqu.C("workspace_id").In(goqu.L(str)))
 	}
 
 	if len(q.NodeIDs) > 0 {
@@ -479,7 +484,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		if err != nil {
 			return nil, true
 		}
-		expressions = append(expressions, goqu.I("node_id").In(goqu.L(str)))
+		expressions = append(expressions, goqu.C("node_id").In(goqu.L(str)))
 	}
 
 	// Special case for Actions

@@ -68,7 +68,7 @@ func RichContext(ctx context.Context, logger log.ZapLogger, fields ...zapcore.Fi
 	if taskPath, has := metadata.CanonicalMeta(ctx, servicecontext.ContextMetaTaskActionPath); has {
 		fields = append(fields, zap.String(common.KeySchedulerActionPath, taskPath))
 	}
-	if ctxMeta, has := metadata.FromContext(ctx); has {
+	if ctxMeta, has := metadata.FromContextRead(ctx); has {
 		for _, key := range []string{
 			servicecontext.HttpMetaRemoteAddress,
 			servicecontext.HttpMetaUserAgent,

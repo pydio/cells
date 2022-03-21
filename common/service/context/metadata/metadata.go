@@ -33,22 +33,48 @@ import (
 type metadataKey struct{}
 type Metadata map[string]string
 
-func FromContext(ctx context.Context) (Metadata, bool) {
+// FromContextCopy returns as COPY of the internal metadata, that can be subsequently modified
+func FromContextCopy(ctx context.Context) (Metadata, bool) {
+	return fromContextCopy(ctx)
+}
+
+// FromContextRead returns internal metadata as is. Beware of not modifying it to avoid r/w concurrent access,
+// in that case you must use FromContextCopy instead.
+func FromContextRead(ctx context.Context) (Metadata, bool) {
+	return fromContext(ctx)
+}
+
+func fromContext(ctx context.Context) (Metadata, bool) {
+	val := ctx.Value(metadataKey{})
+	if val == nil {
+		return nil, false
+	}
+	md, ok := ctx.Value(metadataKey{}).(Metadata)
+	return md, ok
+}
+
+func fromContextCopy(ctx context.Context) (Metadata, bool) {
 	md, ok := ctx.Value(metadataKey{}).(Metadata)
 	if !ok {
 		return nil, ok
 	}
 
-	// capitalize
-	newMD := make(Metadata, len(md))
+	// copy
+	mm := make(Metadata, len(md))
 	for k, v := range md {
-		newMD[strings.Title(k)] = v
+		mm[k] = v
 	}
-
-	return newMD, ok
+	return mm, ok
 }
 
 func NewContext(ctx context.Context, md map[string]string) context.Context {
+	// Make sure that keys are ok
+	for k, v := range md {
+		if k != strings.Title(k) {
+			delete(md, k)
+			md[strings.Title(k)] = v
+		}
+	}
 	return context.WithValue(ctx, metadataKey{}, Metadata(md))
 }
 
@@ -57,8 +83,9 @@ func NewContext(ctx context.Context, md map[string]string) context.Context {
 // sent by Minio Clients
 func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
 	md = make(map[string]string)
-	if meta, mOk := FromContext(ctx); mOk {
+	if meta, mOk := fromContext(ctx); mOk {
 		for k, v := range meta {
+			//k = strings.Title(k)
 			if strings.ToLower(k) == "x-pydio-claims" {
 				continue
 			}
@@ -91,8 +118,9 @@ func AppendCellsMetaFromContext(ctx context.Context, req *http.Request) {
 // WithUserNameMetadata appends a user name to both the context metadata and as context key.
 func WithUserNameMetadata(ctx context.Context, userName string) context.Context {
 	md := make(map[string]string)
-	if meta, ok := FromContext(ctx); ok {
+	if meta, ok := fromContext(ctx); ok {
 		for k, v := range meta {
+			//k = strings.Title(k)
 			if strings.EqualFold(k, common.PydioContextUserKey) {
 				continue
 			}
@@ -108,21 +136,29 @@ func WithUserNameMetadata(ctx context.Context, userName string) context.Context 
 
 // CanonicalMeta extract header name or its lowercase version
 func CanonicalMeta(ctx context.Context, name string) (string, bool) {
-	if md, o := FromContext(ctx); o {
-		if val, ok := md[name]; ok {
-			return val, true
-		} else if val, ok := md[strings.ToLower(name)]; ok {
+	if md, o := fromContext(ctx); o {
+		if val, ok := md[strings.Title(name)]; ok {
 			return val, true
 		}
 	}
 	return "", false
+	/*
+		if md, o := fromContext(ctx); o {
+			if val, ok := md[name]; ok {
+				return val, true
+			} else if val, ok := md[strings.ToLower(name)]; ok {
+				return val, true
+			}
+		}
+		return "", false
+	*/
 }
 
 // WithAdditionalMetadata retrieves existing meta, adds new key/values to the map and produces a new context
 // It enforces case-conflicts on all keys
 func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context.Context {
 	md := make(map[string]string)
-	if mm, ok := FromContext(ctx); ok {
+	if mm, ok := fromContext(ctx); ok {
 		for k, v := range mm {
 			ignore := false
 			for nk := range meta {
@@ -145,13 +181,11 @@ func WithAdditionalMetadata(ctx context.Context, meta map[string]string) context
 
 // WithMetaCopy makes sure the metadata map will is replicated and unique to this context
 func WithMetaCopy(ctx context.Context) context.Context {
-	md := make(map[string]string)
-	if meta, ok := FromContext(ctx); ok {
-		for k, v := range meta {
-			md[k] = v
-		}
+	if meta, ok := fromContextCopy(ctx); ok {
+		return NewContext(ctx, meta)
+	} else {
+		return NewContext(ctx, Metadata{})
 	}
-	return NewContext(ctx, md)
 }
 
 func NewBackgroundWithUserKey(userName string) context.Context {
@@ -162,12 +196,18 @@ func NewBackgroundWithUserKey(userName string) context.Context {
 
 func NewBackgroundWithMetaCopy(ctx context.Context) context.Context {
 	bgCtx := context.Background()
-	if ctxMeta, ok := FromContext(ctx); ok {
-		newM := make(map[string]string)
-		for k, v := range ctxMeta {
-			newM[k] = v
-		}
-		bgCtx = NewContext(bgCtx, newM)
+	if ctxMeta, ok := fromContextCopy(ctx); ok {
+		bgCtx = NewContext(bgCtx, ctxMeta)
 	}
 	return bgCtx
+	/*
+		if ctxMeta, ok := fromContext(ctx); ok {
+			newM := make(map[string]string)
+			for k, v := range ctxMeta {
+				newM[k] = v
+			}
+			bgCtx = NewContext(bgCtx, newM)
+		}
+		return bgCtx
+	*/
 }

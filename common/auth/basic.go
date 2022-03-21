@@ -61,15 +61,7 @@ func (b *BasicAuthenticator) Wrap(handler http.Handler) http.HandlerFunc {
 
 			if valid, vOk := b.cache[user]; vOk && time.Since(valid.Connexion) <= b.TTL && valid.Hash == pass {
 
-				md := map[string]string{}
-				if meta, ok := metadata.FromContext(ctx); ok {
-					for k, v := range meta {
-						md[k] = v
-					}
-				}
-				md[common.PydioContextUserKey] = valid.Claims.Name
-				ctx = metadata.NewContext(ctx, md)
-
+				ctx := metadata.WithAdditionalMetadata(ctx, map[string]string{common.PydioContextUserKey: valid.Claims.Name})
 				r = r.WithContext(context.WithValue(ctx, claim.ContextKey, valid.Claims))
 
 				valid.Connexion = time.Now()

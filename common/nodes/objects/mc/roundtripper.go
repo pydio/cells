@@ -47,7 +47,7 @@ func (r *customHeadersRoundTripper) RoundTrip(request *http.Request) (*http.Resp
 	if u, _ := permissions.FindUserNameInContext(ctx); u != "" {
 		request.Header.Set(common.PydioContextUserKey, u)
 	}
-	if meta, ok := metadata.FromContext(ctx); ok {
+	if meta, ok := metadata.FromContextRead(ctx); ok {
 		for k, v := range meta {
 			if common.IsXSpecialPydioHeader(k) && request.Header.Get(k) == "" {
 				request.Header.Set(k, v)

@@ -233,16 +233,16 @@ func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, 
 	}
 
 	if q.Scope != idm.WorkspaceScope_ANY {
-		expressions = append(expressions, goqu.I("scope").Eq(q.Scope))
+		expressions = append(expressions, goqu.C("scope").Eq(q.Scope))
 	}
 
 	if q.LastUpdated != "" {
 		if lt, d, e := q.ParseLastUpdated(); e == nil {
 			ref := int32(time.Now().Add(-d).Unix())
 			if lt || q.Not {
-				expressions = append(expressions, goqu.I("last_updated").Lt(ref))
+				expressions = append(expressions, goqu.C("last_updated").Lt(ref))
 			} else {
-				expressions = append(expressions, goqu.I("last_updated").Gt(ref))
+				expressions = append(expressions, goqu.C("last_updated").Gt(ref))
 			}
 		}
 	}

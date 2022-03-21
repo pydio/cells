@@ -280,30 +280,30 @@ func (c *queryBuilder) Convert(val *anypb.Any, driver string) (goqu.Expression, 
 	}
 	if q.IsGroupRole {
 		if q.Not {
-			expressions = append(expressions, goqu.I("group_role").Eq(0))
+			expressions = append(expressions, goqu.C("group_role").Eq(0))
 		} else {
-			expressions = append(expressions, goqu.I("group_role").Eq(1))
+			expressions = append(expressions, goqu.C("group_role").Eq(1))
 		}
 	}
 	if q.IsUserRole {
 		if q.Not {
-			expressions = append(expressions, goqu.I("user_role").Eq(0))
+			expressions = append(expressions, goqu.C("user_role").Eq(0))
 		} else {
-			expressions = append(expressions, goqu.I("user_role").Eq(1))
+			expressions = append(expressions, goqu.C("user_role").Eq(1))
 		}
 	}
 	if q.IsTeam {
 		if q.Not {
-			expressions = append(expressions, goqu.I("team_role").Eq(0))
+			expressions = append(expressions, goqu.C("team_role").Eq(0))
 		} else {
-			expressions = append(expressions, goqu.I("team_role").Eq(1))
+			expressions = append(expressions, goqu.C("team_role").Eq(1))
 		}
 	}
 	if q.HasAutoApply {
 		if q.Not {
-			expressions = append(expressions, goqu.I("auto_applies").Eq(""))
+			expressions = append(expressions, goqu.C("auto_applies").Eq(""))
 		} else {
-			expressions = append(expressions, goqu.I("auto_applies").Neq(""))
+			expressions = append(expressions, goqu.C("auto_applies").Neq(""))
 		}
 	}
 

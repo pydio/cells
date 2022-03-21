@@ -354,7 +354,7 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 		userName = ctx.Value(common.PydioContextUserKey).(string)
 	} else if ctx.Value(strings.ToLower(common.PydioContextUserKey)) != nil {
 		userName = ctx.Value(strings.ToLower(common.PydioContextUserKey)).(string)
-	} else if meta, ok := metadata.FromContext(ctx); ok {
+	} else if meta, ok := metadata.FromContextRead(ctx); ok {
 		if value, exists := meta[common.PydioContextUserKey]; exists {
 			userName = value
 		} else if value, exists := meta[strings.ToLower(common.PydioContextUserKey)]; exists {

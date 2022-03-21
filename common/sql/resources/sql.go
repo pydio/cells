@@ -257,10 +257,12 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 	leftIdentifier := s.LeftIdentifier
 	resourcesTableName := s.Prefix() + "_policies"
 	subjects := q.GetSubjects()
+	grt := goqu.T(resourcesTableName)
+	gli := goqu.I(leftIdentifier)
 
 	if q.Empty {
-		join := goqu.I(resourcesTableName + ".resource").Eq(goqu.I(leftIdentifier))
-		actionQ := goqu.I(resourcesTableName + ".action").Eq(action.String())
+		join := grt.Col("resource").Eq(gli)
+		actionQ := grt.Col("action").Eq(action.String())
 		str, args, e := goqu.New(s.Driver(), s.DB()).
 			From(resourcesTableName).
 			Prepared(true).
@@ -276,18 +278,18 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 
 	} else {
 
-		resSubject := resourcesTableName + ".subject"
+		resSubject := grt.Col("subject") // resourcesTableName + ".subject"
 		var ors []goqu.Expression
 		var ands []goqu.Expression
 		if len(subjects) > 0 {
 			for _, subject := range subjects {
-				ors = append(ors, goqu.I(resSubject).Eq(subject))
+				ors = append(ors, resSubject.Eq(subject))
 			}
 			ands = append(ands, goqu.Or(ors...))
 		}
 
-		ands = append(ands, goqu.I(resourcesTableName+".resource").Eq(goqu.I(leftIdentifier))) // Join
-		ands = append(ands, goqu.I(resourcesTableName+".action").Eq(action.String()))
+		ands = append(ands, grt.Col("resource").Eq(gli)) // Join
+		ands = append(ands, grt.Col("action").Eq(action.String()))
 		str, args, e := goqu.New(s.Driver(), s.DB()).
 			From(resourcesTableName).
 			Prepared(true).
