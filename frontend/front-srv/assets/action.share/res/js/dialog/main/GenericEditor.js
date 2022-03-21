@@ -127,7 +127,7 @@ class GenericEditor extends React.Component {
                         <EditorTab tabs={tabs.right} active={right} style={{flex: 1}}  onChange={(value)=>{this.setState({right:value})}}/>
                     </div>
                     <Divider/>
-                    <div style={{display:'flex', flex: 1}}>
+                    <div style={{display:'flex', flex: 1, overflow:'hidden'}}>
                         <div style={{overflowY:'auto', width:'50%', borderRight: '1px solid #e0e0e0', padding: 10, ...tabs.leftStyle}}>
                             <EditorTabContent tabs={tabs.left} active={left}/>
                         </div>

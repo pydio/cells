@@ -255,7 +255,7 @@ class CompositeCard extends React.Component {
                     onCloseAction={() => this.confirmAndDismiss()}
                     onRevertAction={()=>{model.revertChanges()}}
                     editorOneColumn={editorOneColumn}
-                    style={{width:'100%', height: null, flex: 1, minHeight:550, color: 'rgba(0,0,0,.83)', fontSize: 13}}
+                    style={{width:'100%', height: null, flex: 1, minHeight:'69vh', color: 'rgba(0,0,0,.83)', fontSize: 13}}
                 />
             );
 
