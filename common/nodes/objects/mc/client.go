@@ -276,14 +276,16 @@ func (c *Client) CopyObject(ctx context.Context, sourceBucket, sourceObject, des
 		Progress:     progress,
 		UserMetadata: metadata,
 	}
-	/*
-		destinationInfo, _ := NewDe(destBucket, destObject, nil, metadata)
-		sourceInfo := minio.NewSourceInfo(sourceBucket, sourceObject, nil)
-		// Add request Headers to SrcInfo (authentication, etc)
-		for k, v := range srcMeta {
-			sourceInfo.Headers.Set(k, v)
+	
+	// Merge dest meta in general headers
+	if metadata != nil {
+		if srcMeta == nil {
+			srcMeta = make(map[string]string, len(metadata))
 		}
-	*/
+		for k, v := range metadata {
+			srcMeta[k] = v
+		}
+	}
 
 	if oi, e := c.mc.CopyObject(ctx, sourceBucket, sourceObject, destBucket, destObject, srcMeta, srcOptions, destOptions); e != nil {
 		return models.ObjectInfo{}, e

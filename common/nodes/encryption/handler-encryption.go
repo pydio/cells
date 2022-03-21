@@ -344,9 +344,8 @@ func (e *Handler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node
 		requestData.Metadata[common.XAmzMetaClearSize] = fmt.Sprintf("%d", cloneFrom.Size)
 		l, er := e.Next.CopyObject(ctx, from, to, requestData)
 		if er == nil {
-			err := e.copyNodeEncryptionData(ctx, cloneFrom, cloneTo)
-			if err == nil {
-				er = err
+			if err := e.copyNodeEncryptionData(ctx, cloneFrom, cloneTo); err != nil {
+				return l, err
 			}
 		}
 		return l, er
