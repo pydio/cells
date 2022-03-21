@@ -326,7 +326,7 @@ func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Respo
 // Strip Cookies Metadata from context to avoid s3 too-long-header error
 func ctxWithoutCookies(ctx context.Context) context.Context {
 
-	if meta, ok := metadata.FromContext(ctx); ok {
+	if meta, ok := metadata.FromContextRead(ctx); ok {
 		newMeta := map[string]string{}
 		for k, v := range meta {
 			if k != "CookiesString" {

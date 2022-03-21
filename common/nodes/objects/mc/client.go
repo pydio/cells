@@ -276,7 +276,7 @@ func (c *Client) CopyObject(ctx context.Context, sourceBucket, sourceObject, des
 		Progress:     progress,
 		UserMetadata: metadata,
 	}
-	
+
 	// Merge dest meta in general headers
 	if metadata != nil {
 		if srcMeta == nil {
