@@ -26,13 +26,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
+	"strings"
+	"time"
+
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	"github.com/pydio/cells/v4/common/config"
 	"github.com/pydio/cells/v4/common/service/context/ckeys"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-	"net/url"
-	"strings"
-	"time"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -59,9 +61,17 @@ func init() {
 func (o *URLOpener) OpenURL(ctx context.Context, u *url.URL) (config.Store, error) {
 	// var opts []configx.Option
 
-	conn, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()),)
-	if err != nil {
-		return nil, err
+	var conn grpc.ClientConnInterface
+
+	if clientcontext.GetClientConn(ctx) != nil {
+		conn = clientcontext.GetClientConn(ctx)
+	} else {
+		c, err := grpc.Dial(u.Host, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			return nil, err
+		}
+
+		conn = c
 	}
 
 	//encode := u.Query().Get("encode")
@@ -89,9 +99,9 @@ type remote struct {
 
 func New(ctx context.Context, conn grpc.ClientConnInterface, id string) config.Store {
 	r := &remote{
-		ctx : metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, "pydio.grpc.config"),
-		cli:  pb.NewConfigClient(conn),
-		id:   id,
+		ctx: metadata.AppendToOutgoingContext(ctx, ckeys.TargetServiceName, "pydio.grpc.config"),
+		cli: pb.NewConfigClient(conn),
+		id:  id,
 	}
 
 	go func() {
@@ -140,9 +150,9 @@ func New(ctx context.Context, conn grpc.ClientConnInterface, id string) config.S
 
 func (r *remote) Val(path ...string) configx2.Values {
 	return &values{
-		ctx: r.ctx,
-		cli: r.cli,
-		id: r.id,
+		ctx:  r.ctx,
+		cli:  r.cli,
+		id:   r.id,
 		path: path,
 	}
 }
@@ -160,7 +170,7 @@ func (r *remote) Get() configx2.Value {
 	}
 
 	if err := v.Set(rsp.GetValue().GetData()); err != nil {
-		fmt.Println("And the error there is ? ", err )
+		fmt.Println("And the error there is ? ", err)
 	}
 
 	return v
@@ -251,17 +261,17 @@ func (r *receiver) Stop() {
 }
 
 type values struct {
-	ctx context.Context
-	cli pb.ConfigClient
-	id string
+	ctx  context.Context
+	cli  pb.ConfigClient
+	id   string
 	path []string
 }
 
 func (v *values) Val(path ...string) configx2.Values {
 	return &values{
-		ctx: v.ctx,
-		cli: v.cli,
-		id: v.id,
+		ctx:  v.ctx,
+		cli:  v.cli,
+		id:   v.id,
 		path: append(v.path, path...),
 	}
 }
@@ -317,9 +327,9 @@ func (v *values) Del() error {
 func (v *values) Default(i interface{}) configx2.Value {
 	if vv, ok := configx2.GetReference(i); ok {
 		i = (&values{
-			ctx: v.ctx,
-			cli: v.cli,
-			id: v.id,
+			ctx:  v.ctx,
+			cli:  v.cli,
+			id:   v.id,
 			path: configx2.StringToKeys(vv),
 		}).Get()
 	}

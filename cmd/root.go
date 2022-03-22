@@ -25,15 +25,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/pydio/cells/v4/common/config/service"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pydio/cells/v4/common/config/service"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -192,7 +193,7 @@ func initConfig() (new bool) {
 	keyringPath := filepath.Join(config.PydioConfigDir, "cells-vault-key")
 	keyringStore, err := file.New(keyringPath, true)
 	if err != nil {
-		// Keyring Config is likely the old style - switching it
+
 		b, err := filex.Read(keyringPath)
 		if err != nil {
 			log.Fatal("could not start keyring store")
@@ -200,12 +201,23 @@ func initConfig() (new bool) {
 
 		mem := memory.New(configx.WithJSON())
 		keyring := crypto.NewConfigKeyring(mem)
-		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, strings.TrimSuffix(string(b), "\n")); err != nil {
+		data := base64.StdEncoding.EncodeToString(b)
+		if err := keyring.Set(common.ServiceGrpcNamespace_+common.ServiceUserKey, common.KeyringMasterKey, data); err != nil {
 			log.Fatal("could not start keyring store")
+		}
+
+		// Keyring Config is likely the old style - switching it
+		if err := os.Chmod(keyringPath, 0600); err != nil {
+			log.Fatal("could not read keyringPath")
 		}
 
 		if err := filex.Save(keyringPath, mem.Get().Bytes()); err != nil {
 			log.Fatal("could not start keyring store")
+		}
+
+		// Keyring Config is likely the old style - switching it
+		if err := os.Chmod(keyringPath, 0400); err != nil {
+			log.Fatal("could not read keyringPath")
 		}
 
 		store, err := file.New(keyringPath, true)

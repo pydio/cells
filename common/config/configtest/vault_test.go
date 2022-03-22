@@ -21,7 +21,6 @@
 package configtest
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -34,68 +33,68 @@ var (
 	vaultdata []byte
 )
 
-func testVault(t *testing.T, vault config.Store) {
+func testVault(t *testing.T, std config.Store, vault config.Store) {
+	protected := config.NewVault(vault, std)
 	config.RegisterVaultKey("protectedValue")
 	config.RegisterVaultKey("my-protected-map/my-protected-value")
 	config.RegisterVaultKey("myjson/myprotectedmap/myprotectedvalue")
 
 	Convey("Test Set", t, func() {
-		vault.Val("protectedValue").Set("my-secret-data")
-		So(vault.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
+		protected.Val("protectedValue").Set("my-secret-data")
+		So(std.Val("protectedValue").Default("").String(), ShouldNotEqual, "my-secret-data")
 
-		vault.Val("unprotectedValue").Set("my-test-config-value")
+		protected.Val("unprotectedValue").Set("my-test-config-value")
 
-		So(vault.Val("unprotectedValue").String(), ShouldEqual, "my-test-config-value")
+		So(std.Val("unprotectedValue").String(), ShouldEqual, "my-test-config-value")
 	})
 
 	Convey("Test Setting a map", t, func() {
-		vault.Val("my-protected-map").Set(map[string]string{
+		protected.Val("my-protected-map").Set(map[string]string{
 			"my-protected-value":   "test",
 			"my-unprotected-value": "test",
 		})
 
-		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "test")
-		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "test")
-		So(vault.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "")
-		So(vault.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "")
+		So(std.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "test")
+		So(std.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "test")
+		So(std.Val("my-protected-map/my-protected-value").Default("").String(), ShouldNotEqual, "")
+		So(std.Val("my-protected-map").Val("my-protected-value").Default("").String(), ShouldNotEqual, "")
 
-		So(vault.Val("my-protected-map/my-protected-value").Set("testing the test"), ShouldBeNil)
+		So(protected.Val("my-protected-map/my-protected-value").Set("testing the test"), ShouldBeNil)
 	})
 
 	Convey("Test Setting a json byte value", t, func() {
-		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+		protected.Val("myjson/myprotectedmap").Set(map[string]interface{}{
 			"myprotectedvalue":   "test",
 			"myunprotectedvalue": "whatever",
 		})
 
-		fmt.Println(vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
-		So(vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String(), ShouldNotEqual, "test")
+		So(std.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String(), ShouldNotEqual, "test")
 
 		// Trying to reset
-		uuid := vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String()
+		uuid := std.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String()
 
-		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+		protected.Val("myjson/myprotectedmap").Set(map[string]interface{}{
 			"mynewunprotectedvalue": "test",
 			"myprotectedvalue":      uuid,
 		})
 
 		// uuid should't have changed
-		So(uuid, ShouldEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
-		So(vault.Val("myjson/myprotectedmap/myunprotectedvalue").String(), ShouldBeEmpty)
+		So(uuid, ShouldEqual, std.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
+		So(std.Val("myjson/myprotectedmap/myunprotectedvalue").String(), ShouldBeEmpty)
 
-		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+		protected.Val("myjson/myprotectedmap").Set(map[string]interface{}{
 			"myprotectedvalue": "test",
 		})
 
 		// uuid should't have changed
-		So(uuid, ShouldEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
+		So(uuid, ShouldEqual, std.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
 
-		vault.Val("myjson/myprotectedmap").Set(map[string]interface{}{
+		protected.Val("myjson/myprotectedmap").Set(map[string]interface{}{
 			"myprotectedvalue": "test2",
 		})
 
 		// uuid should have changed
-		So(uuid, ShouldNotEqual, vault.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
+		So(uuid, ShouldNotEqual, std.Val("myjson/myprotectedmap/myprotectedvalue").Default("").String())
 	})
 }
 
