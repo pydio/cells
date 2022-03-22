@@ -57,7 +57,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/minio/cli v1.22.0
 	github.com/minio/madmin-go v1.2.7
-	github.com/minio/minio v0.0.0-20211121184130-c791de0e1eae
+	github.com/minio/minio v0.0.0-20220321003906-a3534a730bc0
 	github.com/minio/minio-go/v7 v7.0.21
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/mssola/user_agent v0.5.3
@@ -128,4 +128,4 @@ require (
 
 //replace github.com/minio/minio => /Users/charles/Sources/go/src/github.com/pydio/minio
 
-replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220223172241-91496d754695
+replace github.com/minio/minio => github.com/pydio/minio v0.0.0-20220321151949-859b3297557b

@@ -115,6 +115,11 @@ func newService(ctx context.Context, dsObject *object.DataSource) {
 			object.RegisterResourceCleanerEndpointEnhancedServer(srv, syncHandler)
 
 			go func() error {
+
+				if e := syncHandler.Init(); e != nil {
+					return e
+				}
+
 				md := make(map[string]string)
 				md[common.PydioContextUserKey] = common.PydioSystemUsername
 				jobCtx := metadata.NewContext(ctx, md)

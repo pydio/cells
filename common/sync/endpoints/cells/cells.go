@@ -482,7 +482,7 @@ func (c *Abstract) GetWriterOn(cancel context.Context, p string, targetSize int6
 		return nil, writeDone, writeErr, err
 	}
 	meta := make(map[string]string)
-	if md, ok := metadata.FromContext(ctx); ok {
+	if md, ok := metadata.FromContextRead(ctx); ok {
 		for k, v := range md {
 			meta[k] = v
 		}

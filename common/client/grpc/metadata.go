@@ -41,7 +41,7 @@ func getOrCreateOutgoingMeta(ctx context.Context) metadata.MD {
 
 func cellsMetaToOutgoingMeta(ctx context.Context) context.Context {
 	md := getOrCreateOutgoingMeta(ctx)
-	if lmd, ok := metadata2.FromContext(ctx); ok {
+	if lmd, ok := metadata2.FromContextRead(ctx); ok {
 		for k, v := range lmd {
 			if strings.HasPrefix(k, ":") {
 				continue

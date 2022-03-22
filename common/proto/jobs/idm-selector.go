@@ -338,7 +338,7 @@ func (m *IdmSelector) evaluate(ctx context.Context, input ActionMessage, singleQ
 }
 
 func (m *IdmSelector) WorkspaceFromEventContext(ctx context.Context) (*idm.Workspace, bool) {
-	ctxMeta, has := metadata.FromContext(ctx)
+	ctxMeta, has := metadata.FromContextRead(ctx)
 	if !has {
 		return nil, false
 	}

@@ -374,6 +374,10 @@ func (c *Client) actualLsRecursive(recursive bool, recursivePath string, walknFc
 			return objectInfo.Err
 		}
 		folderKey := path.Dir(objectInfo.Key)
+		if strings.HasSuffix(objectInfo.Key, "/") {
+			c.createFolderIdsWhileWalking(createdDirs, walknFc, folderKey, objectInfo.LastModified, false)
+			continue
+		}
 		if strings.HasSuffix(objectInfo.Key, servicescommon.PydioSyncHiddenFile) {
 			// Create Fake Folder
 			// log.Print("Folder Key is " , folderKey)

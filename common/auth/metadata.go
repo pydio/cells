@@ -50,7 +50,7 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 
 	// Set context Metadata
 	md := make(map[string]string)
-	if existing, ok := metadata.FromContext(ctx); ok {
+	if existing, ok := metadata.FromContextRead(ctx); ok {
 		for k, v := range existing {
 			// Ignore existing version of PydioContextUserKey, it will be replaced after
 			if k == strings.ToLower(common.PydioContextUserKey) {
@@ -67,7 +67,7 @@ func ContextFromClaims(ctx context.Context, claims claim.Claims) context.Context
 
 // ClaimsFromMetadata loads Claims from metadata (be passed along by grpc queries)
 func ClaimsFromMetadata(ctx context.Context) (c claim.Claims, o bool) {
-	md, o := metadata.FromContext(ctx)
+	md, o := metadata.FromContextCopy(ctx)
 	if !o {
 		return c, false
 	}

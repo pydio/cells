@@ -52,7 +52,7 @@ const (
 func HttpRequestInfoToMetadata(ctx context.Context, req *http.Request) context.Context {
 
 	meta := map[string]string{}
-	if existing, ok := metadata.FromContext(ctx); ok {
+	if existing, ok := metadata.FromContextRead(ctx); ok {
 		if _, already := existing[HttpMetaExtracted]; already {
 			return ctx
 		}
@@ -130,7 +130,7 @@ func HttpWrapperMeta(ctx context.Context, h http.Handler) http.Handler {
 // HttpMetaFromGrpcContext extracts metadata from context that may have been
 // passed along across services (meta name may be lowered cased)
 func HttpMetaFromGrpcContext(ctx context.Context, name string) (string, bool) {
-	if md, ok := metadata.FromContext(ctx); ok {
+	if md, ok := metadata.FromContextRead(ctx); ok {
 		if v, o := md[name]; o {
 			return v, true
 		} else if vs, os := md[strings.ToLower(name)]; os {

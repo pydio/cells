@@ -39,9 +39,9 @@ import (
 )
 
 // WithChildrenRunner option to define a micro server that runs children services
-func WithChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string)) ServiceOption {
+func WithChildrenRunner(parentName string, childrenPrefix string, cleanEndpointBeforeDelete bool, afterDeleteListener func(context.Context, string), secondaryPrefix ...string) ServiceOption {
 	return WithGeneric(func(ctx context.Context, srv *generic.Server) error {
-		runner := NewChildrenRunner(parentName, childrenPrefix)
+		runner := NewChildrenRunner(parentName, childrenPrefix, secondaryPrefix...)
 		runner.StartFromInitialConf(ctx, config.Get("services", parentName))
 		runner.beforeDeleteClean = cleanEndpointBeforeDelete
 		if afterDeleteListener != nil {
@@ -52,10 +52,13 @@ func WithChildrenRunner(parentName string, childrenPrefix string, cleanEndpointB
 }
 
 // NewChildrenRunner creates a ChildrenRunner
-func NewChildrenRunner(parentName string, childPrefix string) *ChildrenRunner {
+func NewChildrenRunner(parentName string, childPrefix string, secondaryPrefix ...string) *ChildrenRunner {
 	c := &ChildrenRunner{
 		parentName:  parentName,
 		childPrefix: childPrefix,
+	}
+	if len(secondaryPrefix) > 0 {
+		c.secondaryPrefix = secondaryPrefix[0]
 	}
 	c.mutex = &sync.RWMutex{}
 	c.services = make(map[string]*fork.Process)
@@ -68,6 +71,7 @@ type ChildrenRunner struct {
 	services          map[string]*fork.Process
 	parentName        string
 	childPrefix       string
+	secondaryPrefix   string
 	beforeDeleteClean bool
 	afterDeleteChan   chan string
 	initialCtx        context.Context
@@ -116,7 +120,11 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string, retries ...in
 		}
 		c.mutex.Unlock()
 	}))
-	process := fork.NewProcess(ctx, name, opts...)
+	names := []string{name}
+	if c.secondaryPrefix != "" {
+		names = append(names, c.secondaryPrefix+source)
+	}
+	process := fork.NewProcess(ctx, names, opts...)
 	process.StartAndWait()
 	return nil
 }
@@ -157,9 +165,17 @@ func (c *ChildrenRunner) updateSourcesList(ctx context.Context, sources []string
 		if !exists && c.beforeDeleteClean {
 			caller := object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.childPrefix+name))
 			if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
-				log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
+				log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.childPrefix+name, zap.String("msg", resp.Message))
 			} else {
 				log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+			}
+			if c.secondaryPrefix != "" {
+				caller = object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.secondaryPrefix+name))
+				if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
+					log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.secondaryPrefix+name, zap.String("msg", resp.Message))
+				} else {
+					log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+				}
 			}
 		}
 
@@ -273,9 +289,17 @@ func (c *ChildrenRunner) WatchOld(ctx context.Context) error {
 					if !exists && c.beforeDeleteClean {
 						caller := object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.childPrefix+name))
 						if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
-							log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
+							log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.childPrefix+name, zap.String("msg", resp.Message))
 						} else {
 							log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+						}
+						if c.secondaryPrefix != "" {
+							caller = object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.secondaryPrefix+name))
+							if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
+								log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.secondaryPrefix+name, zap.String("msg", resp.Message))
+							} else {
+								log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+							}
 						}
 					}
 

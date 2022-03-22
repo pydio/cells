@@ -72,7 +72,7 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 		}
 	}
 
-	dataset := db.From(goqu.I("idm_user_idx_tree").As("t")).Prepared(true)
+	dataset := db.From(goqu.T("idm_user_idx_tree").As("t")).Prepared(true)
 	if len(wheres) > 0 {
 		dataset = dataset.Where(goqu.And(wheres...))
 	}
@@ -82,9 +82,9 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 		dataset = dataset.Select(goqu.COUNT("t.uuid"))
 
 	} else {
-
-		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.mpath1"), goqu.I("t.mpath2"), goqu.I("t.mpath3"), goqu.I("t.mpath4"), goqu.I("t.name"), goqu.I("t.leaf"), goqu.I("t.etag"), goqu.I("t.mtime"))
-		dataset = dataset.Order(goqu.I("t.name").Asc())
+		gt := goqu.T("t")
+		dataset = dataset.Select(gt.Col("uuid"), gt.Col("level"), gt.Col("mpath1"), gt.Col("mpath2"), gt.Col("mpath3"), gt.Col("mpath4"), gt.Col("name"), gt.Col("leaf"), gt.Col("etag"), gt.Col("mtime"))
+		dataset = dataset.Order(gt.Col("name").Asc())
 		offset, limit := int64(0), int64(-1)
 		if query.GetLimit() > 0 {
 			limit = query.GetLimit()
@@ -113,6 +113,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 	var attributeOrLogin bool
 
 	q := new(idm.UserSingleQuery)
+	gt := goqu.T("t")
 
 	if err := anypb.UnmarshalTo(val, q, proto.UnmarshalOptions{}); err != nil {
 		log.Logger(context.Background()).Error("Cannot unmarshal", zap.Any("v", val), zap.Error(err))
@@ -120,7 +121,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 	}
 
 	if q.Uuid != "" {
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.uuid", q.Uuid))
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, gt.Col("uuid"), q.Uuid))
 	}
 
 	if q.Login != "" {
@@ -134,16 +135,16 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 			// Use Equal but make sure it's case insensitive
 			var ex goqu.Expression
 			if q.Not {
-				ex = goqu.Func("LOWER", goqu.I("t.name")).Neq(goqu.Func("LOWER", q.Login))
+				ex = goqu.Func("LOWER", gt.Col("name")).Neq(goqu.Func("LOWER", q.Login))
 			} else {
-				ex = goqu.Func("LOWER", goqu.I("t.name")).Eq(goqu.Func("LOWER", q.Login))
-				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
+				ex = goqu.Func("LOWER", gt.Col("name")).Eq(goqu.Func("LOWER", q.Login))
+				expressions = append(expressions, gt.Col("leaf").Eq(1))
 			}
 			expressions = append(expressions, ex)
 		} else {
-			expressions = append(expressions, sql.GetExpressionForString(q.Not, "t.name", q.Login))
+			expressions = append(expressions, sql.GetExpressionForString(q.Not, gt.Col("name"), q.Login))
 			if !q.Not {
-				expressions = append(expressions, goqu.I("t.leaf").Eq(1))
+				expressions = append(expressions, gt.Col("leaf").Eq(1))
 			}
 		}
 	}
@@ -197,9 +198,9 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 
 	// Filter by Node Type
 	if q.NodeType == idm.NodeType_USER {
-		expressions = append(expressions, goqu.I("t.leaf").Eq(1))
+		expressions = append(expressions, gt.Col("leaf").Eq(1))
 	} else if q.NodeType == idm.NodeType_GROUP {
-		expressions = append(expressions, goqu.I("t.leaf").Eq(0))
+		expressions = append(expressions, gt.Col("leaf").Eq(0))
 	}
 
 	if q.HasProfile != "" {
@@ -210,17 +211,17 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 	if len(q.AttributeName) > 0 {
 
 		db := goqu.New(driver, nil)
-		dataset := db.From(goqu.I("idm_user_attributes").As("a"))
-
+		dataset := db.From(goqu.T("idm_user_attributes").As("a"))
+		ga := goqu.T("a")
 		// Make exist / not exist query
 		attWheres := []goqu.Expression{
-			goqu.I("a.uuid").Eq(goqu.I("t.uuid")),
+			ga.Col("uuid").Eq(gt.Col("uuid")),
 		}
-		exprName := sql.GetExpressionForString(false, "a.name", q.AttributeName)
+		exprName := sql.GetExpressionForString(false, ga.Col("name"), q.AttributeName)
 		if q.AttributeAnyValue {
 			attWheres = append(attWheres, exprName)
 		} else {
-			exprValue := sql.GetExpressionForString(false, "a.value", q.AttributeValue)
+			exprValue := sql.GetExpressionForString(false, ga.Col("value"), q.AttributeValue)
 			attWheres = append(attWheres, exprName)
 			attWheres = append(attWheres, exprValue)
 		}
@@ -231,7 +232,7 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 			attQ = "EXISTS (" + attQ + ")"
 		}
 		if attributeOrLogin {
-			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, "t.name", q.Login)))
+			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, gt.Col("name"), q.Login)))
 		} else {
 			expressions = append(expressions, goqu.L(attQ))
 		}
@@ -240,10 +241,11 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 	if len(q.HasRole) > 0 {
 
 		db := goqu.New(driver, nil)
-		datasetR := db.From(goqu.I("idm_user_roles").As("r"))
-		roleQuery := sql.GetExpressionForString(false, "r.role", q.HasRole)
+		datasetR := db.From(goqu.T("idm_user_roles").As("r"))
+		gr := goqu.T("r")
+		roleQuery := sql.GetExpressionForString(false, gr.Col("role"), q.HasRole)
 		attWheresR := []goqu.Expression{
-			goqu.I("r.uuid").Eq(goqu.I("t.uuid")),
+			gr.Col("uuid").Eq(gt.Col("uuid")),
 			roleQuery,
 		}
 		attR, _, _ := datasetR.Where(attWheresR...).ToSQL()
@@ -259,9 +261,9 @@ func (c *queryConverter) Convert(val *anypb.Any, driver string) (goqu.Expression
 		if lt, d, e := q.ParseLastConnected(); e == nil {
 			ref := int32(time.Now().Add(-d).Unix())
 			if lt || q.Not {
-				expressions = append(expressions, goqu.I("t.mtime").Lt(ref))
+				expressions = append(expressions, gt.Col("mtime").Lt(ref))
 			} else {
-				expressions = append(expressions, goqu.I("t.mtime").Gt(ref))
+				expressions = append(expressions, gt.Col("mtime").Gt(ref))
 			}
 		}
 	}

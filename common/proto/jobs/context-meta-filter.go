@@ -56,7 +56,7 @@ func (m *ContextMetaFilter) Filter(ctx context.Context, input ActionMessage) (Ac
 func (m *ContextMetaFilter) filterPolicyQueries(ctx context.Context, input ActionMessage) (ActionMessage, bool) {
 
 	policyContext := make(map[string]interface{})
-	if ctxMeta, has := metadata.FromContext(ctx); has {
+	if ctxMeta, has := metadata.FromContextRead(ctx); has {
 		for _, key := range []string{
 			servicecontext.HttpMetaRemoteAddress,
 			servicecontext.HttpMetaRequestURI,

@@ -85,7 +85,7 @@ func PolicyRequestSubjectsFromClaims(claims claim.Claims) []string {
 
 // PolicyContextFromMetadata extracts metadata directly from the context and enriches the passed policyContext.
 func PolicyContextFromMetadata(policyContext map[string]string, ctx context.Context) {
-	if ctxMeta, has := metadata.FromContext(ctx); has {
+	if ctxMeta, has := metadata.FromContextRead(ctx); has {
 		for _, key := range []string{
 			servicecontext.HttpMetaRemoteAddress,
 			servicecontext.HttpMetaUserAgent,

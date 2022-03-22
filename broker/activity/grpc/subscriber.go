@@ -109,16 +109,21 @@ func (e *MicroEventsSubscriber) ignoreForInternal(node *tree.Node) bool {
 func (e *MicroEventsSubscriber) HandleNodeChange(ctx context.Context, msg *tree.NodeChangeEvent) error {
 
 	author := common.PydioSystemUsername
-	meta, ok := metadata.FromContext(ctx)
-	if ok {
-		user, exists := meta[common.PydioContextUserKey]
-		user1, exists1 := meta[strings.ToLower(common.PydioContextUserKey)]
-		if exists {
-			author = user
-		} else if exists1 {
-			author = user1
-		}
+	if u, o := metadata.CanonicalMeta(ctx, common.PydioContextUserKey); o {
+		author = u
 	}
+	/*
+		meta, ok := metadata.FromContextRead(ctx)
+		if ok {
+			user, exists := meta[common.PydioContextUserKey]
+			user1, exists1 := meta[strings.ToLower(common.PydioContextUserKey)]
+			if exists {
+				author = user
+			} else if exists1 {
+				author = user1
+			}
+		}
+	*/
 	if author == common.PydioSystemUsername {
 		// Ignore events triggered by initial sync
 		return nil

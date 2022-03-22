@@ -208,7 +208,7 @@ class DataSourceEditor extends React.Component{
         if(!readonly && !create){
             titleActionBarButtons.push(<Toggle style={{borderRight: '1px solid #e0e0e0', paddingRight: 14, zoom: 0.8}} labelStyle={{fontSize:17}} toggled={!model.Disabled} onToggle={(e,v)=>{model.Disabled=!v}} labelPosition={"right"} label={m('options.enabled')}/>)
             titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
-            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.dirty));
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.5'), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.dirty));
         }
 
         const leftNavOldLegends = (

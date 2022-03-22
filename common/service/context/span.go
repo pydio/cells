@@ -101,7 +101,7 @@ func childOrNewSpan(ctx context.Context) context.Context {
 	var s *Span
 	if parent, ok := SpanFromContext(ctx); ok {
 		s = NewSpanFromParent(parent)
-	} else if md, ok := metadata.FromContext(ctx); ok {
+	} else if md, ok := metadata.FromContextCopy(ctx); ok {
 		if headSpan, okk := SpanFromHeader(md); okk {
 			s = NewSpanFromParent(headSpan)
 		}
@@ -113,7 +113,7 @@ func childOrNewSpan(ctx context.Context) context.Context {
 }
 
 func ctxWithOpIdFromMeta(ctx context.Context) context.Context {
-	if md, ok := metadata.FromContext(ctx); ok {
+	if md, ok := metadata.FromContextRead(ctx); ok {
 		if opId, o := md[OperationMetadataId]; o {
 			ctx = WithOperationID(ctx, opId)
 		}

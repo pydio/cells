@@ -29,7 +29,7 @@ import (
 	_ "github.com/pydio/cells/v4/data/meta/rest"
 	_ "github.com/pydio/cells/v4/data/search/grpc"
 	_ "github.com/pydio/cells/v4/data/search/rest"
-	_ "github.com/pydio/cells/v4/data/source/index"
+	//	_ "github.com/pydio/cells/v4/data/source/index"
 	_ "github.com/pydio/cells/v4/data/source/index/grpc"
 	_ "github.com/pydio/cells/v4/data/source/objects"
 	_ "github.com/pydio/cells/v4/data/source/objects/grpc"
