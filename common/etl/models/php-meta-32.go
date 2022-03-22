@@ -1,5 +1,5 @@
-//go:build !386
-// +build !386
+//go:build 386
+// +build 386
 
 /*
  * Copyright (c) 2019-2021. Abstrium SAS <team (at) pydio.com>
@@ -26,8 +26,6 @@ package models
 import (
 	"fmt"
 
-	"github.com/yvasiyarov/php_session_decoder/php_serialize"
-
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 )
 
@@ -44,26 +42,8 @@ type PhpUserMeta struct {
 
 func UserMetasFromPhpData(serializedData []byte) (metas []*PhpUserMeta, outErr error) {
 
-	defer func() {
-		if e := recover(); e != nil {
-			outErr = e.(error)
-		}
-	}()
+	return metas, fmt.Errorf("this feature is not implemented on 32bit architecture")
 
-	decoder := php_serialize.NewUnSerializer(string(serializedData))
-
-	if phpValue, err := decoder.Decode(); err == nil {
-		m := phpValueToMapString(phpValue)
-		if ms, ok := m.(map[string]interface{}); ok {
-			metas, outErr = Map2LocalMeta(ms)
-		} else {
-			outErr = fmt.Errorf("cannot cast phpValue")
-		}
-	} else {
-		outErr = err
-	}
-
-	return
 }
 
 func Map2LocalMeta(m map[string]interface{}) (out []*PhpUserMeta, e error) {
@@ -93,17 +73,4 @@ func Map2LocalMeta(m map[string]interface{}) (out []*PhpUserMeta, e error) {
 	}
 
 	return
-}
-
-func phpValueToMapString(obj interface{}) interface{} {
-	out := make(map[string]interface{})
-	if arr, ok := obj.(php_serialize.PhpArray); ok {
-		for k, v := range arr {
-			key := k.(string)
-			out[key] = phpValueToMapString(v)
-		}
-		return out
-	} else {
-		return obj
-	}
 }
