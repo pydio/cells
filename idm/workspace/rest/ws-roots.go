@@ -30,19 +30,24 @@ func (h *WorkspaceHandler) checkDefinedRootsForWorkspace(ctx context.Context, ws
 		return fmt.Errorf("cannot define workspace without any root nodes")
 	}
 
+	vManager := abstract.GetVirtualNodesManager(h.runtimeCtx)
 	streamer := tree.NewNodeProviderStreamerClient(grpc.GetClientConnFromCtx(ctx, common.ServiceTree))
 	c, e := streamer.ReadNodeStream(ctx)
 	if e != nil {
 		return e
 	}
 	for _, nodeId := range uuids {
+		if _, o := vManager.ByUuid(nodeId); o {
+			// Ignore roots based on virtual nodes
+			continue
+		}
 		if e := c.Send(&tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}}); e != nil {
 			return e
 		}
 		if r, e := c.Recv(); e != nil || r == nil || r.GetNode() == nil || r.GetNode().GetUuid() == "" {
 			return fmt.Errorf("cannot find root node for uuid " + nodeId)
 		} else {
-			log.Logger(ctx).Info("PutWorkspace : found root node", r.GetNode().Zap("root"))
+			log.Logger(ctx).Debug("PutWorkspace : found root node", r.GetNode().Zap("root"))
 		}
 	}
 	return nil

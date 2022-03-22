@@ -200,7 +200,10 @@ func (c *RpcAction) Run(ctx context.Context, channels *actions.RunnableChannels,
 	respType, _ := protoregistry.GlobalTypes.FindMessageByName(methodDescriptor.Output().FullName())
 
 	request := reqType.New().Interface()
-	_ = protojson.Unmarshal([]byte(c.JsonRequest), request)
+	jsonRequest := jobs.EvaluateFieldStr(ctx, input, c.JsonRequest)
+	if e := protojson.Unmarshal([]byte(jsonRequest), request); e != nil {
+		return input.WithError(e), e
+	}
 
 	output := input
 	conn := grpc.GetClientConnFromCtx(c.GetRuntimeContext(), serviceName)
