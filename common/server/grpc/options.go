@@ -28,6 +28,12 @@ type Options struct {
 	Listener net.Listener
 }
 
+func WithAddr(addr string) Option {
+	return func(o *Options) {
+
+	}
+}
+
 func WithListener(lis net.Listener) Option {
 	return func(o *Options) {
 		o.Listener = lis

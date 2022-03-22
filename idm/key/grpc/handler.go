@@ -104,8 +104,6 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 	user := common.PydioSystemUsername
 	pwd := ukm.masterPassword
 
-	fmt.Println(pwd)
-
 	var err error
 	rsp.Key, err = ukm.dao.GetKey(user, req.KeyID)
 	if err != nil {

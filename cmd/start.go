@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -88,6 +89,12 @@ to quickly create a Cobra application.`,
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
+		}
+
+		if !runtime.IsFork() {
+			if err := startDiscovery(ctx, reg); err != nil {
+				return err
+			}
 		}
 
 		// Create a main client connection
@@ -271,6 +278,57 @@ to quickly create a Cobra application.`,
 	},
 }
 
+func startDiscovery(ctx context.Context, reg registry.Registry) error {
+	runtimeReg, err := registry.OpenRegistry(ctx, "mem:///")
+	if err != nil {
+		return err
+	}
+
+	ctx = servicecontext.WithRegistry(ctx, runtimeReg)
+	runtime.Init(ctx, "discovery")
+
+	services, err := runtimeReg.List(registry.WithType(pb.ItemType_SERVICE))
+	if err != nil {
+		return err
+	}
+
+	lis, err := net.Listen("tcp", runtime.GrpcDiscoveryBindAddress())
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	ctx = servercontext.WithRegistry(ctx, reg)
+	srv := servergrpc.New(ctx, servergrpc.WithListener(lis))
+
+	for _, ss := range services {
+		var s service.Service
+		if !ss.As(&s) {
+			continue
+		}
+
+		opts := s.Options()
+		opts.Context = servicecontext.WithRegistry(opts.Context, reg)
+		opts.Server = srv
+		opts.Server.BeforeServe(s.Start)
+		opts.Server.AfterServe(func() error {
+			// Register service again to update nodes information
+			if err := reg.Register(s); err != nil {
+				return err
+			}
+			return nil
+		})
+		opts.Server.BeforeStop(s.Stop)
+	}
+
+	go func() {
+		if err := srv.Serve(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	return nil
+}
+
 func init() {
 	// Flags for selecting / filtering services
 	StartCmd.Flags().StringArrayP(runtime.KeyArgTags, "t", []string{}, "Select services to start by tags, possible values are 'broker', 'data', 'datasource', 'discovery', 'frontend', 'gateway', 'idm', 'scheduler'")
@@ -279,6 +337,7 @@ func init() {
 	StartCmd.Flags().String(runtime.KeyBindHost, "0.0.0.0", "Address on which the servers should bind")
 	StartCmd.Flags().String(runtime.KeyAdvertiseAddress, "", "Address that should be advertised to other members of the cluster (leave it empty for default advertise address)")
 	StartCmd.Flags().String(runtime.KeyGrpcPort, "8001", "gRPC Server Port")
+	StartCmd.Flags().String(runtime.KeyGrpcDiscoveryPort, "8002", "gRPC Server Discovery Port")
 	StartCmd.Flags().String(runtime.KeyHttpServer, "caddy", "HTTP Server Type")
 	StartCmd.Flags().String(runtime.KeyHttpPort, "8080", "HTTP Server Port")
 

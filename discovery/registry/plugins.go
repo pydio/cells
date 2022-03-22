@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register("discovery", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceRegistry),
 			service.Context(ctx),

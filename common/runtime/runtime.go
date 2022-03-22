@@ -98,6 +98,11 @@ func GrpcBindAddress() string {
 	return net.JoinHostPort(r.GetString(KeyAdvertiseAddress), r.GetString(KeyGrpcPort))
 }
 
+// GrpcDiscoveryBindAddress returns the KeyBindHost:KeyGrpcDiscoveryPort URL
+func GrpcDiscoveryBindAddress() string {
+	return net.JoinHostPort(r.GetString(KeyAdvertiseAddress), r.GetString(KeyGrpcDiscoveryPort))
+}
+
 // GrpcExternalPort returns optional GRPC port to be used for external binding
 func GrpcExternalPort() string {
 	return r.GetString(KeyGrpcExternal)
@@ -192,7 +197,7 @@ func buildProcessStartTag() {
 // BuildForkParams creates --key=value arguments from runtime parameters
 func BuildForkParams(cmd string) []string {
 
-	grpcAddr := GrpcBindAddress()
+	grpcAddr := GrpcDiscoveryBindAddress()
 
 	conf := fmt.Sprintf("grpc://%s", grpcAddr)
 
@@ -213,6 +218,7 @@ func BuildForkParams(cmd string) []string {
 		"--" + KeyRegistry, reg,
 		"--" + KeyBroker, brok,
 		"--" + KeyGrpcPort, "0",
+		"--" + KeyGrpcDiscoveryPort, "0",
 		"--" + KeyHttpServer, HttpServerNative,
 		"--" + KeyHttpPort, "0",
 	}

@@ -90,7 +90,9 @@ func (s *server) Serve() error {
 
 	// Making sure we register the endpoints
 	if reg := servercontext.GetRegistry(s.opts.Context); reg != nil {
-		reg.Register(s)
+		if err := reg.Register(s); err != nil {
+			return err
+		}
 	}
 
 	if err := s.doAfterServe(); err != nil {
