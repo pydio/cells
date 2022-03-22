@@ -152,7 +152,7 @@ func (h *Handler) TriggerResync(ctx context.Context, request *sync.ResyncRequest
 			er = fmt.Errorf("wrong format for truncate (use bytesize)")
 		}
 		closeTask(er)
-		return nil, er
+		return &sync.ResyncResponse{}, er
 	}
 
 	c := servicecontext.WithServiceName(context.Background(), servicecontext.GetServiceName(ctx))
