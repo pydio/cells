@@ -24,6 +24,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -55,9 +56,25 @@ func NewUserKeyStore(_ context.Context, dao key.DAO, keyring crypto.Keyring) enc
 		log.Fatal("could not decode string password")
 	}
 
+	// TODO v4 - the master password is being json encoded / decoded to ensure we match legacy behaviour
+	// Hack to ensure that the master password is correctly encoded
+	m := map[string]string{
+		"masterPassword": string(masterPassword),
+	}
+
+	s, err := json.Marshal(m)
+	if err != nil {
+		log.Fatal("Error marshalling key ", zap.Error(err))
+	}
+
+	var mm map[string]string
+	if err := json.Unmarshal(s, &mm); err != nil {
+		log.Fatal("Error unmarshalling key", zap.Error(err))
+	}
+
 	return &userKeyStore{
 		dao:            dao,
-		masterPassword: masterPassword,
+		masterPassword: []byte(mm["masterPassword"]),
 	}
 }
 
@@ -86,6 +103,8 @@ func (ukm *userKeyStore) GetKey(ctx context.Context, req *enc.GetKeyRequest) (*e
 	// TODO: Extract user / password info from Context
 	user := common.PydioSystemUsername
 	pwd := ukm.masterPassword
+
+	fmt.Println(pwd)
 
 	var err error
 	rsp.Key, err = ukm.dao.GetKey(user, req.KeyID)
