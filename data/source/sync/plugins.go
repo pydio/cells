@@ -53,8 +53,6 @@ func init() {
 // Manage datasources deletion operations : clean index tables
 func onDataSourceDelete(ctx context.Context, deletedSource string) {
 
-	// TODO - find a way to delete datasources - surely a config watch
-
 	log.Logger(ctx).Info("Sync = Send Event Server-wide for " + deletedSource)
 	broker.MustPublish(ctx, common.TopicDatasourceEvent, &object.DataSourceEvent{
 		Type: object.DataSourceEvent_DELETE,

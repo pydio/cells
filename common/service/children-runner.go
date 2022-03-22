@@ -165,9 +165,17 @@ func (c *ChildrenRunner) updateSourcesList(ctx context.Context, sources []string
 		if !exists && c.beforeDeleteClean {
 			caller := object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.childPrefix+name))
 			if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
-				log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
+				log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.childPrefix+name, zap.String("msg", resp.Message))
 			} else {
 				log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+			}
+			if c.secondaryPrefix != "" {
+				caller = object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.secondaryPrefix+name))
+				if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
+					log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.secondaryPrefix+name, zap.String("msg", resp.Message))
+				} else {
+					log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+				}
 			}
 		}
 
@@ -281,9 +289,17 @@ func (c *ChildrenRunner) WatchOld(ctx context.Context) error {
 					if !exists && c.beforeDeleteClean {
 						caller := object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.childPrefix+name))
 						if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
-							log.Logger(ctx).Info("Successfully cleaned resources before stopping service", zap.String("msg", resp.Message))
+							log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.childPrefix+name, zap.String("msg", resp.Message))
 						} else {
 							log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+						}
+						if c.secondaryPrefix != "" {
+							caller = object.NewResourceCleanerEndpointClient(grpc.GetClientConnFromCtx(ctx, c.secondaryPrefix+name))
+							if resp, err := caller.CleanResourcesBeforeDelete(ctx, &object.CleanResourcesRequest{}); err == nil {
+								log.Logger(ctx).Info("Successfully cleaned resources before stopping "+c.secondaryPrefix+name, zap.String("msg", resp.Message))
+							} else {
+								log.Logger(ctx).Error("Could not clean resources before stopping service", zap.Error(err))
+							}
 						}
 					}
 
