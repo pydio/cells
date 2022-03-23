@@ -95,7 +95,7 @@ func TestConcurrentReceivesGetAllTheMessages(t *testing.T) {
 
 	var cancel context.CancelFunc
 	ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
-	ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel = context.WithCancel(ctx)
 
 	// wg is used to wait until all messages are received.
 	var wg sync.WaitGroup
