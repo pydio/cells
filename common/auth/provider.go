@@ -114,7 +114,6 @@ func NewProvider(rootURL string, values configx.Values) ConfigurationProvider {
 	_ = val.Val(hconf.KeyConsentURL).Set(rootURL + "/oauth2/consent")
 	_ = val.Val(hconf.KeyErrorURL).Set(rootURL + "/oauth2/fallbacks/error")
 	_ = val.Val(hconf.KeyLogoutRedirectURL).Set(rootURL + "/oauth2/logout/callback")
-	_ = val.Val(hconf.KeyOAuth2AuthURL).Set(rootURL + "/oauth2/auth")
 
 	_ = val.Val(hconf.KeyAccessTokenStrategy).Set(values.Val("accessTokenStrategy").Default("opaque").String())
 	_ = val.Val(hconf.KeyConsentRequestMaxAge).Set(values.Val("consentRequestMaxAge").Default("30m").String())
