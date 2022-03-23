@@ -98,6 +98,12 @@
   "conditionStringMatchCondition.matches": {
     "other": "trefferliste"
   },
+  "conditionPathGlobCondition.glob": {
+    "other": "Muster"
+  },
+  "conditionBooleanCondition.value": {
+    "other": "Wahr"
+  },
   "contextMetaCondition.CIDRCondition": {
     "other": "CIDRBedingung"
   },
@@ -127,6 +133,12 @@
   },
   "contextMetaCondition.DateAfterCondition": {
     "other": "Datum ist nach"
+  },
+  "contextMetaCondition.PathGlobCondition": {
+    "other": "Glob-Matcher"
+  },
+  "contextMetaCondition.BooleanCondition": {
+    "other": "Boolescher Wert"
   },
   "contextMetaField.ContentType": {
     "other": "Inhaltstyp"
