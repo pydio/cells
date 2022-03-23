@@ -187,7 +187,7 @@ ENVIRONMENT
 			viper.BindPFlag(key, flag)
 		})
 
-		initConfig()
+		initConfig(cmd.Context())
 
 		// Manually bind to viper instead of flags.StringVar, flags.BoolVar, etc
 		niModeCli = cruntime.GetBool(cruntime.KeyInstallCli)

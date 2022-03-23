@@ -21,15 +21,15 @@ func init() {
 			// service.WithStorage(config.NewDAO),
 			service.WithGRPC(func(c context.Context, srv *grpc.Server) error {
 				// Register handler
-				pb.RegisterConfigEnhancedServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_ + common.ServiceConfig})
+				pb.RegisterConfigServer(srv, &Handler{serviceName: common.ServiceGrpcNamespace_ + common.ServiceConfig})
 
 				return nil
 			}),
-			service.WithGRPCStop(func(c context.Context, srv *grpc.Server) error {
-				pb.DeregisterConfigEnhancedServer(srv, common.ServiceGrpcNamespace_+common.ServiceConfig)
-
-				return nil
-			}),
+			//service.WithGRPCStop(func(c context.Context, srv *grpc.Server) error {
+			//	pb.DeregisterConfigEnhancedServer(srv, common.ServiceGrpcNamespace_+common.ServiceConfig)
+			//
+			//	return nil
+			//}),
 		)
 	})
 }

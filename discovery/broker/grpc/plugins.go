@@ -14,14 +14,14 @@ import (
 )
 
 func init() {
-	runtime.Register("main", func(ctx context.Context) {
+	runtime.Register("discovery", func(ctx context.Context) {
 		service.NewService(
 			service.Name(common.ServiceGrpcNamespace_+common.ServiceBroker),
 			service.Context(ctx),
 			service.Tag(common.ServiceTagDiscovery),
 			service.Description("Registry"),
 			service.WithGRPC(func(ctx context.Context, srv *grpc.Server) error {
-				pb.RegisterBrokerEnhancedServer(srv, handler.NewHandler(broker.Default()))
+				pb.RegisterBrokerServer(srv, handler.NewHandler(broker.Default()))
 				return nil
 			}),
 		)

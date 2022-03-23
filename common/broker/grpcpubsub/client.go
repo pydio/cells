@@ -20,12 +20,12 @@ import (
 	"net/url"
 	"sync"
 
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
+
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/driver"
 
-	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/client/grpc"
 	pb "github.com/pydio/cells/v4/common/proto/broker"
 	"github.com/pydio/cells/v4/common/utils/uuid"
 )
@@ -99,8 +99,11 @@ type URLOpener struct {
 func (o *URLOpener) OpenTopicURL(ctx context.Context, u *url.URL) (*pubsub.Topic, error) {
 
 	if _, ok := publishers[u.Host]; !ok {
-		// TODO v4 - there is something weird here that makes the start go slower
-		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
+		conn := clientcontext.GetClientConn(ctx)
+		if conn == nil {
+			return nil, errors.New("no connection provided")
+		}
+
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
 			return nil, err
@@ -124,7 +127,11 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	subLock.Lock()
 	sub, ok := subscribers[u.Host]
 	if !ok {
-		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
+		conn := clientcontext.GetClientConn(ctx)
+		if conn == nil {
+			return nil, errors.New("no connection provided")
+		}
+
 		ct, ca := context.WithCancel(ctx)
 		cli, err := pb.NewBrokerClient(conn).Subscribe(ct)
 		if err != nil {
@@ -143,7 +150,6 @@ func (o *URLOpener) OpenSubscriptionURL(ctx context.Context, u *url.URL) (*pubsu
 	subLock.Unlock()
 
 	return NewSubscription(topicName, WithQueue(queue), WithContext(ctx), WithSubscriber(sub))
-
 }
 
 var errNotExist = errors.New("cellspubsub: topic does not exist")
@@ -176,7 +182,10 @@ func NewTopic(path string, opts ...Option) (*pubsub.Topic, error) {
 	}
 
 	if stream == nil {
-		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
+		conn := clientcontext.GetClientConn(ctx)
+		if conn == nil {
+			return nil, errors.New("no connection provided")
+		}
 		cli := pb.NewBrokerClient(conn)
 		if s, err := cli.Publish(ctx); err != nil {
 			return nil, err
@@ -312,7 +321,10 @@ func NewSubscription(path string, opts ...Option) (*pubsub.Subscription, error) 
 
 	if cli == nil {
 		ch = make(chan []*pb.Message, 5000)
-		conn := grpc.GetClientConnFromCtx(ctx, common.ServiceBroker)
+		conn := clientcontext.GetClientConn(ctx)
+		if conn == nil {
+			return nil, errors.New("no connection provided")
+		}
 		var err error
 		ct, ca := context.WithCancel(ctx)
 		cli, err = pb.NewBrokerClient(conn).Subscribe(ct)

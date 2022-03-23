@@ -26,11 +26,14 @@ import (
 	"log"
 	"net"
 
+	"github.com/pydio/cells/v4/common/broker"
+
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 
 	"github.com/pydio/cells/v4/common"
-	"github.com/pydio/cells/v4/common/broker"
 	clientcontext "github.com/pydio/cells/v4/common/client/context"
 	clientgrpc "github.com/pydio/cells/v4/common/client/grpc"
 	"github.com/pydio/cells/v4/common/config"
@@ -73,8 +76,6 @@ to quickly create a Cobra application.`,
 
 		metrics.Init()
 
-		initConfig()
-
 		// Making sure we capture the signals
 		handleSignals(args)
 
@@ -85,14 +86,30 @@ to quickly create a Cobra application.`,
 
 		pluginsReg, err := registry.OpenRegistry(ctx, "mem:///?cache=plugins&byname=true")
 
-		// Version memory
+		if runtime.IsFork() {
+			discoveryConn, err := grpc.Dial(":8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+			if err != nil {
+				return err
+			}
+
+			ctx = clientcontext.WithClientConn(ctx, discoveryConn)
+		}
+
+		// Init config
+		initConfig(ctx)
+
+		// Init registry
 		reg, err := registry.OpenRegistry(ctx, runtime.RegistryURL())
 		if err != nil {
 			return err
 		}
 
+		// Init broker
+		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
+
+		// Starting discovery server containing registry, broker and config
 		if !runtime.IsFork() {
-			if err := startDiscovery(ctx, reg); err != nil {
+			if err := startDiscoveryServer(ctx, reg); err != nil {
 				return err
 			}
 		}
@@ -109,7 +126,6 @@ to quickly create a Cobra application.`,
 		ctx = clientcontext.WithClientConn(ctx, conn)
 		ctx = nodescontext.WithSourcesPool(ctx, nodes.NewPool(ctx, reg))
 
-		broker.Register(broker.NewBroker(runtime.BrokerURL(), broker.WithContext(ctx)))
 		runtime.InitGlobalConnConsumers(ctx, "main")
 		go initLogLevelListener(ctx)
 
@@ -278,7 +294,7 @@ to quickly create a Cobra application.`,
 	},
 }
 
-func startDiscovery(ctx context.Context, reg registry.Registry) error {
+func startDiscoveryServer(ctx context.Context, reg registry.Registry) error {
 	runtimeReg, err := registry.OpenRegistry(ctx, "mem:///")
 	if err != nil {
 		return err
