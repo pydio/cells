@@ -39,6 +39,8 @@ import (
 	"github.com/pydio/cells/v4/common/utils/configx"
 	json "github.com/pydio/cells/v4/common/utils/jsonx"
 	"github.com/pydio/cells/v4/data/source/index"
+
+	_ "gocloud.dev/pubsub/mempubsub"
 )
 
 var (
