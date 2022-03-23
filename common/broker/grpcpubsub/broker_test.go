@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"sync"
 	"testing"
 	"time"
+
+	clientcontext "github.com/pydio/cells/v4/common/client/context"
 
 	"github.com/pydio/cells/v4/common/proto/tree"
 	"google.golang.org/protobuf/proto"
@@ -28,7 +31,9 @@ func TestServiceBroker(t *testing.T) {
 		numMessagesToSend := 1000
 		numMessagesReceived := 0
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		var cancel context.CancelFunc
+		ctx := clientcontext.WithClientConn(context.Background(), grpc.NewClientConn(common.ServiceBroker))
+		ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
 
 		subscription, _ := NewSubscription("test1", WithContext(ctx))
 
@@ -54,7 +59,10 @@ func TestServiceBroker(t *testing.T) {
 			}
 		}()
 
-		topic, _ := NewTopic("test1")
+		topic, err := NewTopic("test1", WithContext(ctx))
+		if err != nil {
+			log.Fatal(err)
+		}
 		defer topic.Shutdown(ctx)
 
 		msg := &tree.NodeChangeEvent{Source: &tree.Node{Path: "source"}, Target: &tree.Node{Path: "target"}}
